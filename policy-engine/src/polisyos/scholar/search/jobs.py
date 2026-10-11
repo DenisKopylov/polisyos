@@ -136,6 +136,7 @@ class DeepResearchJobManager:
             await self._async_cas.get_bytes(ArtifactID.model_validate(checkpoint_artifact_id))
         )
         checkpoint = ResearchJobCheckpoint.model_validate(payload)
+        resumed_bundle = checkpoint.bundle._validated_schema_1_1_candidate()
         job_id = str(checkpoint.job_id)
         self._jobs[job_id] = _JobRecord(
             status=ResearchJobStatus(
@@ -143,7 +144,7 @@ class DeepResearchJobManager:
                 status="pending",
                 checkpoint_artifact_id=checkpoint_artifact_id,
                 latest_event=checkpoint.progress_events[-1] if checkpoint.progress_events else None,
-                result_bundle=checkpoint.bundle,
+                result_bundle=resumed_bundle,
                 error=checkpoint.error,
             )
         )
@@ -154,12 +155,12 @@ class DeepResearchJobManager:
                 question=checkpoint.brief.question,
                 brief=checkpoint.brief,
                 query_graph=checkpoint.query_graph,
-                claim_texts=[item.claim_text for item in checkpoint.bundle.claim_supports]
+                claim_texts=[item.claim_text for item in resumed_bundle.claim_supports]
                 or [checkpoint.brief.question],
                 requirement_specs=checkpoint.requirement_specs,
                 constraints=checkpoint.constraints,
                 budgets=checkpoint.budgets,
-                resume_bundle=checkpoint.bundle,
+                resume_bundle=resumed_bundle,
             )
         )
         return job_id
@@ -359,8 +360,13 @@ class DeepResearchJobManager:
             return bundle_for_checkpoint
 
     async def _persist_checkpoint_async(self, checkpoint: ResearchJobCheckpoint) -> ArtifactRef:
+        checkpoint_payload = checkpoint.model_dump(mode="python")
+        checkpoint_payload["bundle"] = (
+            checkpoint.bundle._validated_schema_1_1_candidate().model_dump(mode="python")
+        )
+        persistable_checkpoint = ResearchJobCheckpoint.model_validate(checkpoint_payload)
         return await self._async_cas.put_json(
-            checkpoint.model_dump(mode="json", exclude_none=True),
+            persistable_checkpoint.model_dump(mode="json", exclude_none=True),
             ArtifactWriteOptions(
                 kind="scholar.web_research_checkpoint",
                 media_type="application/json",
@@ -377,11 +383,14 @@ class DeepResearchJobManager:
         job_id: str,
         requirement_specs: list[ScholarSupportRequirementSpec] | None = None,
     ) -> ArtifactRef:
+        persistable_bundle = bundle._validated_schema_1_1_candidate()
         report = build_scholar_academic_evidence_report_from_web_bundle(
-            scholar_evidence_ref=_bundle_runtime_ref(bundle, suffix="academic-evidence"),
-            bundle=bundle,
-            corpus_snapshot_ref=_bundle_runtime_ref(bundle, suffix="corpus-snapshot"),
-            lineage_ref=_bundle_runtime_ref(bundle, suffix="lineage"),
+            scholar_evidence_ref=_bundle_runtime_ref(
+                persistable_bundle, suffix="academic-evidence"
+            ),
+            bundle=persistable_bundle,
+            corpus_snapshot_ref=_bundle_runtime_ref(persistable_bundle, suffix="corpus-snapshot"),
+            lineage_ref=_bundle_runtime_ref(persistable_bundle, suffix="lineage"),
             runtime_event_ref=f"event://scholar/deep-research/{job_id}/academic-evidence",
             requirement_specs=requirement_specs,
         )

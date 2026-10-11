@@ -3,6 +3,11 @@ import type { RunNodeRecord } from "@polisyos/runtime-api-client";
 
 import type { NodeDebugPayload, RunNodesPayload } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import { formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
 import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { Badge, Select } from "@polisyos/atlas-ui";
@@ -37,8 +42,16 @@ export default function NodeDebugPanel({
   const { t } = useI18n();
   const nodeList = nodes ?? [];
 
+  const inputArtifactRefs = debugData?.record.input_artifact_refs ?? [];
+  const outputArtifactRefs = debugData?.record.output_artifact_refs ?? [];
   const inputArtifactIds = debugData?.record.input_artifact_ids ?? [];
   const outputArtifactIds = debugData?.record.output_artifact_ids ?? [];
+  const inputRefs: EvidenceArtifactRef[] = inputArtifactRefs.length
+    ? inputArtifactRefs
+    : inputArtifactIds.map((artifact_id) => ({ artifact_id }));
+  const outputRefs: EvidenceArtifactRef[] = outputArtifactRefs.length
+    ? outputArtifactRefs
+    : outputArtifactIds.map((artifact_id) => ({ artifact_id }));
   const timelineEvents = debugData?.timeline_events ?? [];
 
   return (
@@ -129,15 +142,17 @@ export default function NodeDebugPanel({
               <p className="text-muted mb-2 text-xs uppercase">
                 {t("panels.nodeDebug.inputArtifacts")}
               </p>
-              {inputArtifactIds.length > 0 ? (
+              {inputRefs.length > 0 ? (
                 <div className="flex flex-col gap-1">
-                  {inputArtifactIds.map((artifactId) => (
+                  {inputRefs.map((artifactRef) => (
                     <Link
-                      key={artifactId}
-                      to={`/artifacts/${artifactId}`}
+                      key={evidenceArtifactRefKey(artifactRef)}
+                      to={buildArtifactHref(artifactRef.artifact_id, {
+                        artifactRef,
+                      })}
                       className="font-mono text-xs underline"
                     >
-                      {artifactId}
+                      {artifactRef.artifact_id}
                     </Link>
                   ))}
                 </div>
@@ -152,15 +167,17 @@ export default function NodeDebugPanel({
               <p className="text-muted mb-2 text-xs uppercase">
                 {t("panels.nodeDebug.outputArtifacts")}
               </p>
-              {outputArtifactIds.length > 0 ? (
+              {outputRefs.length > 0 ? (
                 <div className="flex flex-col gap-1">
-                  {outputArtifactIds.map((artifactId) => (
+                  {outputRefs.map((artifactRef) => (
                     <Link
-                      key={artifactId}
-                      to={`/artifacts/${artifactId}`}
+                      key={evidenceArtifactRefKey(artifactRef)}
+                      to={buildArtifactHref(artifactRef.artifact_id, {
+                        artifactRef,
+                      })}
                       className="font-mono text-xs underline"
                     >
-                      {artifactId}
+                      {artifactRef.artifact_id}
                     </Link>
                   ))}
                 </div>

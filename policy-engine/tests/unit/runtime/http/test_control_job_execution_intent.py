@@ -1783,7 +1783,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         job = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert job is not None and job.run_id is not None
 
-        compiler_calls: list[tuple[object, object, object]] = []
+        compiler_calls: list[tuple[object, object, object, object]] = []
         original_compile = service.compile_and_run_recursive_generation_cycle
 
         async def record_compiler_route(**kwargs):
@@ -1792,6 +1792,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
                     kwargs["execution_intent"],
                     kwargs["n4_proposal_only"],
                     kwargs["root_evaluation_context"],
+                    kwargs["generic_cycle_simulation_handoff_resolver"],
                 )
             )
             return await original_compile(**kwargs)
@@ -1838,7 +1839,7 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         completed = service._control_store.get_job(launch.job_id)  # noqa: SLF001
         assert completed is not None and completed.state == "completed"
         progress = completed.progress
-        assert compiler_calls == [("simulate_only", True, None)]
+        assert compiler_calls == [("simulate_only", True, None, None)]
         assert progress["execution_intent_band"] == "simulate_only_attempt"
         assert progress["candidate_computation_status"] == "completed"
         assert progress["simulation_status"] == "simulation_unavailable"

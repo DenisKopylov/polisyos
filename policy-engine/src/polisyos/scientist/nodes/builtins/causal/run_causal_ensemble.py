@@ -10,7 +10,13 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -347,17 +353,25 @@ def _load_graph_for_candidate(
     scm_spec: StructuralCausalModelSpec,
     member_index: int,
 ) -> tuple[CausalGraphModel, ArtifactRef]:
+    store = _ensure_ir_artifact_store(ctx.store)
     if candidate.graph_ref is not None:
-        graph_ref = CausalGraphModelRef.model_validate(candidate.graph_ref.model_dump(mode="json"))
-        graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
-        return graph, ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
+        graph_ref = profile_bound_ref(
+            store, ArtifactRef.model_validate(candidate.graph_ref.model_dump(mode="json"))
+        )
+        graph = load_causal_graph_model(
+            store, CausalGraphModelRef.model_validate(graph_ref.model_dump(mode="json"))
+        )
+        return graph, graph_ref
 
-    graph_inputs = [InputRef(artifact_id=scm_ref.artifact_id, role=f"member_{member_index}.scm")]
-    persisted = persist_causal_graph_model(
-        _ensure_ir_artifact_store(ctx.store), scm_spec.graph, inputs=graph_inputs
+    selected_scm_ref = profile_bound_ref(
+        store, ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
     )
-    graph_ref = ArtifactRef.model_validate(persisted.model_dump(mode="json"))
-    return scm_spec.graph, graph_ref
+    graph_inputs = [
+        input_ref_from_artifact_ref(selected_scm_ref, role=f"member_{member_index}.scm")
+    ]
+    persisted = persist_causal_graph_model(store, scm_spec.graph, inputs=graph_inputs)
+    graph_ref = profile_bound_ref(store, persisted)
+    return scm_spec.graph, ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
 
 
 def _run_member_query(
@@ -549,16 +563,22 @@ class RunCausalEnsembleNode:
                     _ensure_ir_artifact_store(ctx.store),
                     candidate.scm_inline,
                 )
-                scm_ref = ArtifactRef.model_validate(persisted_scm.model_dump(mode="json"))
+                scm_ref = profile_bound_ref(
+                    _ensure_ir_artifact_store(ctx.store), persisted_scm
+                )
+                scm_ref = ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
                 scm_spec = candidate.scm_inline
             elif candidate.scm_ref is not None:
-                scm_spec_ref = StructuralCausalModelSpecRef.model_validate(
-                    candidate.scm_ref.model_dump(mode="json")
+                scm_spec_ref = profile_bound_ref(
+                    _ensure_ir_artifact_store(ctx.store),
+                    StructuralCausalModelSpecRef.model_validate(
+                        candidate.scm_ref.model_dump(mode="json")
+                    ),
                 )
                 scm_spec = load_structural_causal_model_spec(
                     _ensure_ir_artifact_store(ctx.store), scm_spec_ref
                 )
-                scm_ref = candidate.scm_ref
+                scm_ref = ArtifactRef.model_validate(scm_spec_ref.model_dump(mode="json"))
             else:
                 return NodeOutcome(
                     status="fail",
@@ -686,13 +706,10 @@ class RunCausalEnsembleNode:
             )
 
             input_refs.append(
-                InputRef(artifact_id=scm_ref.artifact_id, role=f"member_{idx}.scm_ref")
+                input_ref_from_artifact_ref(scm_ref, role=f"member_{idx}.scm_ref")
             )
             input_refs.append(
-                InputRef(
-                    artifact_id=graph_ref.artifact_id,
-                    role=f"member_{idx}.graph_ref",
-                )
+                input_ref_from_artifact_ref(graph_ref, role=f"member_{idx}.graph_ref")
             )
 
         total_raw_weight = sum(item.raw_weight for item in resolved_members)
@@ -730,8 +747,8 @@ class RunCausalEnsembleNode:
         consensus_graph_ref: ArtifactRef | None = None
         if consensus_graph is not None:
             graph_inputs = [
-                InputRef(
-                    artifact_id=item.graph_artifact_ref.artifact_id, role=f"member_{idx}.graph"
+                input_ref_from_artifact_ref(
+                    item.graph_artifact_ref, role=f"member_{idx}.graph"
                 )
                 for idx, item in enumerate(normalized_members)
             ]
@@ -740,13 +757,15 @@ class RunCausalEnsembleNode:
                 consensus_graph,
                 inputs=graph_inputs,
             )
+            consensus_graph_ref = profile_bound_ref(
+                _ensure_ir_artifact_store(ctx.store), persisted_consensus
+            )
             consensus_graph_ref = ArtifactRef.model_validate(
-                persisted_consensus.model_dump(mode="json")
+                consensus_graph_ref.model_dump(mode="json")
             )
             input_refs.append(
-                InputRef(
-                    artifact_id=consensus_graph_ref.artifact_id,
-                    role="consensus_graph_ref",
+                input_ref_from_artifact_ref(
+                    consensus_graph_ref, role="consensus_graph_ref"
                 )
             )
 
@@ -757,10 +776,13 @@ class RunCausalEnsembleNode:
             ),
             edge_inclusion_frequency=edge_frequencies,
         )
-        ensemble_ref = persist_causal_model_ensemble(
+        ensemble_ref = profile_bound_ref(
             _ensure_ir_artifact_store(ctx.store),
-            ensemble,
-            inputs=input_refs,
+            persist_causal_model_ensemble(
+                _ensure_ir_artifact_store(ctx.store),
+                ensemble,
+                inputs=input_refs,
+            ),
         )
 
         envelope = ensemble.to_uncertainty_envelope(query_results_for_envelope)
@@ -786,13 +808,19 @@ class RunCausalEnsembleNode:
                 "metadata": envelope_metadata,
             }
         )
-        envelope_ref = persist_uncertainty_envelope(
+        envelope_ref = profile_bound_ref(
             _ensure_ir_artifact_store(ctx.store),
-            envelope,
-            inputs=[
-                InputRef(artifact_id=str(ensemble_ref.artifact_id), role="causal_ensemble_ref"),
-                *input_refs,
-            ],
+            persist_uncertainty_envelope(
+                _ensure_ir_artifact_store(ctx.store),
+                envelope,
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        ArtifactRef.model_validate(ensemble_ref.model_dump(mode="json")),
+                        role="causal_ensemble_ref",
+                    ),
+                    *input_refs,
+                ],
+            ),
         )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state

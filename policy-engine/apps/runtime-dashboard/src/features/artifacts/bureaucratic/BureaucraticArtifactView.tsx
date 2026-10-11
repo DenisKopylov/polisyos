@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Download, FileCheck2, Printer } from "lucide-react";
 
 import { useBureaucraticRender } from "@/api/hooks/useBureaucraticRender";
+import type { EvidenceArtifactRef } from "@/shared/lib/domain/evidence";
 import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Button, Checkbox } from "@polisyos/atlas-ui";
@@ -21,25 +22,29 @@ import { ExpertVysnovokRenderer } from "./renderers/ExpertVysnovokRenderer";
 import { PostanovaKMURenderer } from "./renderers/PostanovaKMURenderer";
 import { ZakonoproektRenderer } from "./renderers/ZakonoproektRenderer";
 
-type BureaucraticArtifactViewProps = {
-  artifactId: string;
-};
+type BureaucraticArtifactViewProps =
+  | { artifactRef: EvidenceArtifactRef; artifactId?: never }
+  | { artifactId: string; artifactRef?: never };
 
 export function BureaucraticArtifactView({
+  artifactRef,
   artifactId,
 }: BureaucraticArtifactViewProps) {
+  const renderSource = artifactRef ?? artifactId;
+  const sourceArtifactId =
+    typeof renderSource === "string" ? renderSource : renderSource.artifact_id;
   const [genre, setGenre] = useState<BureaucraticGenre>("postanova_kmu");
   const [trustView, setTrustView] = useState(false);
   const { t } = useOptionalI18n();
   const temporal = useMaybeTemporalCursor();
-  const query = useBureaucraticRender(artifactId, {
+  const query = useBureaucraticRender(renderSource, {
     genre,
     jurisdiction: "ua",
     temporalScope: temporal?.effectiveScope ?? null,
     trustView,
   });
   const document = query.data?.document as BureaucraticDocumentAST | undefined;
-  const printTargetId = `bureaucratic-document-${artifactId.replace(/[^a-z0-9_-]+/gi, "-")}`;
+  const printTargetId = `bureaucratic-document-${sourceArtifactId.replace(/[^a-z0-9_-]+/gi, "-")}`;
   const htmlSource = useMemo(
     () => (document ? exportBureaucraticHtml(document) : ""),
     [document],

@@ -2,28 +2,28 @@
 
 from __future__ import annotations
 
-import sys
-
 import numpy as np
-import pytest
+from hypothesis import HealthCheck, given, settings
 
-try:
-    from hypothesis import HealthCheck, given, settings
-    from hypothesis import strategies as st
-    from hypothesis.extra.numpy import arrays
-
-    HYPOTHESIS_AVAILABLE = True
-except ImportError:
-    HYPOTHESIS_AVAILABLE = False
-
-pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
-sys.path.insert(0, "src")
-
+from tests.unit.foundry.methods.testing.property_invocation import invoke_property_method
 from tests.unit.foundry.methods.testing.strategies import distribution_strategy
 
 
-def _method_or_skip(registry, fqn):
-    return registry.get(fqn)
+def _run(registry, dispatcher, fqn, state, params=None):
+    return invoke_property_method(
+        dispatcher=dispatcher,
+        method_class=registry.get(fqn),
+        state=state,
+        bound_inputs=state,
+        params=params or {},
+        seed=17,
+    ).output
+
+
+def _class_inputs(income):
+    ranks = np.argsort(np.argsort(np.asarray(income), kind="stable"), kind="stable")
+    classes = np.minimum(ranks * 5 // len(ranks), 4)
+    return {"origin_classes": classes, "destination_classes": (classes + 1) % 5}
 
 
 class TestTransitionMatrixProperties:
@@ -33,22 +33,25 @@ class TestTransitionMatrixProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_transition_rows_sum_to_one(self, data, isolated_registry):
-        """Each row of the transition matrix should sum to ~1."""
-        method = _method_or_skip(
-            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
+    def test_transition_rows_sum_to_one(self, data, isolated_registry, property_method_dispatcher):
+        """Each represented origin class has a normalized transition row."""
+        state = _class_inputs(data["income"])
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.mobility.transition_matrix@1.0.0",
+            state,
+            {"n_classes": 5},
+        )["result"]
+        matrix = np.asarray(result.point_estimate.transition_matrix, dtype=float)
+        assert matrix.shape == (5, 5)
+        assert np.all(np.isfinite(matrix))
+        np.testing.assert_allclose(matrix.sum(axis=1), 1.0, atol=1e-12)
+        assert np.all(np.diag(matrix) == 0.0)
+        expected_destinations = (np.arange(5) + 1) % 5
+        np.testing.assert_allclose(
+            matrix[np.arange(5), expected_destinations], 1.0, atol=1e-12
         )
-        n = len(data["income"])
-        state = {"income_t0": data["income"], "income_t1": data["income"] * 1.05}
-        try:
-            result = method.pure_step(state, {"n_quantiles": 5})
-            if "transition_matrix" in result:
-                tm = np.asarray(result["transition_matrix"])
-                if np.all(np.isfinite(tm)):
-                    row_sums = tm.sum(axis=1)
-                    np.testing.assert_allclose(row_sums, 1.0, atol=0.05)
-        except Exception:
-            pass
 
     @given(data=distribution_strategy())
     @settings(
@@ -56,20 +59,21 @@ class TestTransitionMatrixProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_transition_matrix_non_negative(self, data, isolated_registry):
-        """Transition probabilities must be non-negative."""
-        method = _method_or_skip(
-            isolated_registry, "distributional.mobility.transition_matrix@1.0.0"
-        )
-        state = {"income_t0": data["income"], "income_t1": data["income"] * 1.05}
-        try:
-            result = method.pure_step(state, {"n_quantiles": 5})
-            if "transition_matrix" in result:
-                tm = np.asarray(result["transition_matrix"])
-                if np.all(np.isfinite(tm)):
-                    assert np.all(tm >= -1e-10), "Negative transition probabilities"
-        except Exception:
-            pass
+    def test_transition_matrix_non_negative(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
+        """Transition probabilities are non-negative and finite."""
+        state = _class_inputs(data["income"])
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.mobility.transition_matrix@1.0.0",
+            state,
+            {"n_classes": 5},
+        )["result"]
+        matrix = np.asarray(result.point_estimate.transition_matrix, dtype=float)
+        assert np.all(np.isfinite(matrix))
+        assert np.all(matrix >= 0.0)
 
 
 class TestPolarizationProperties:
@@ -79,18 +83,19 @@ class TestPolarizationProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_esteban_ray_non_negative(self, data, isolated_registry):
-        """Esteban-Ray polarization index should be non-negative."""
-        method = _method_or_skip(isolated_registry, "distributional.polarization.esteban_ray@1.0.0")
-        state = {"income": data["income"], "weights": data["weights"]}
-        try:
-            result = method.pure_step(state, {"alpha": 1.0})
-            if "polarization" in result:
-                p = float(result["polarization"])
-                if np.isfinite(p):
-                    assert p >= -1e-10, f"Negative polarization: {p}"
-        except Exception:
-            pass
+    def test_esteban_ray_non_negative(self, data, isolated_registry, property_method_dispatcher):
+        """Esteban-Ray polarization is non-negative for a finite income vector."""
+        state = {"values": np.asarray(data["income"], dtype=float)}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.polarization.esteban_ray@1.0.0",
+            state,
+            {"alpha": 1.0},
+        )["result"]
+        polarization = float(result["polarization"])
+        assert np.isfinite(polarization)
+        assert polarization >= 0.0
 
     @given(data=distribution_strategy())
     @settings(
@@ -98,15 +103,16 @@ class TestPolarizationProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_esteban_ray_deterministic(self, data, isolated_registry):
-        """Same input → same polarization index."""
-        method = _method_or_skip(isolated_registry, "distributional.polarization.esteban_ray@1.0.0")
-        state = {"income": data["income"], "weights": data["weights"]}
-        try:
-            r1 = method.pure_step(state, {"alpha": 1.0})
-            r2 = method.pure_step(state, {"alpha": 1.0})
-            for k in r1:
-                if k in r2:
-                    np.testing.assert_array_equal(np.asarray(r1[k]), np.asarray(r2[k]))
-        except Exception:
-            pass
+    def test_esteban_ray_deterministic(self, data, isolated_registry, property_method_dispatcher):
+        """Same income vector and parameters yield the same polarization result."""
+        state = {"values": np.asarray(data["income"], dtype=float)}
+        fqn = "distributional.polarization.esteban_ray@1.0.0"
+        first = _run(isolated_registry, property_method_dispatcher, fqn, state, {"alpha": 1.0})[
+            "result"
+        ]
+        second = _run(isolated_registry, property_method_dispatcher, fqn, state, {"alpha": 1.0})[
+            "result"
+        ]
+        assert first["polarization"] == second["polarization"]
+        np.testing.assert_array_equal(first["group_means"], second["group_means"])
+        np.testing.assert_array_equal(first["group_shares"], second["group_shares"])

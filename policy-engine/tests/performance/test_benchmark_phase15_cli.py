@@ -480,12 +480,12 @@ def test_honest_cli_supports_unified_benchmark_contract(tmp_path: Path, monkeypa
 
     honest_cli = importlib.import_module("benchmarks.honest_comparison.run_honest_benchmark")
     metrics = importlib.import_module("benchmarks.honest_comparison.metrics")
-    AggregatedMetrics = metrics.AggregatedMetrics
+    aggregated_metrics = metrics.AggregatedMetrics
 
     raw_result = {
         "metrics": {
             "best_effort": [
-                AggregatedMetrics(
+                aggregated_metrics(
                     method_name="policyos_tmle",
                     dataset_name="lalonde_n500",
                     tier="best_effort",

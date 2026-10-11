@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.generation_cycle import N4GenerationPort
-from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+from polisyos.runtime.quality.generation_source import (
+    GenerationSourceRepository,
+    _canonical_model_content_hash,
+    _require_unavailable_candidate_credal_source,
+)
 from tests.unit.runtime.quality.test_design_generation import (
     REPO_ROOT,
     RecordedClientWithCatalog,
@@ -102,6 +107,138 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
 
     assert observed is organ
     assert observed.trinity_bundle is organ.trinity_bundle
+
+
+def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
+    """Producer/readback comparison retains capture, context, and result wire content."""
+    from dataclasses import replace
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        cycle_substrate_context_content_hash,
+    )
+    from polisyos.runtime.quality.generation_source import _source_content_hash
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+
+    problem = _test_design_problem()
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable", model_id="synthetic-c2"
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1, candidate_count=0, unique_diversity_key_count=0
+        ),
+    )
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json"))
+    )
+    organ = replace(result.as_organ_run(), cycle_substrate_context=context)
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "cas"))
+    ref = repository.persist_ref(
+        run_id="generic-n4-wire-identity",
+        cycle_index=0,
+        problem=problem,
+        organ=organ,
+        execution_scope="contract_testing",
+    )
+    fresh = repository.load(ref, run_id="generic-n4-wire-identity")
+    assert _canonical_model_content_hash(fresh.generation_result) == (
+        _canonical_model_content_hash(result)
+    )
+
+    class WireEquivalentResult(n4.GenerationUnderAResult):
+        pass
+
+    same_wire_other_result_type = WireEquivalentResult.model_validate(
+        result.model_dump(mode="json")
+    )
+    assert same_wire_other_result_type.model_dump(mode="json") == result.model_dump(mode="json")
+    assert same_wire_other_result_type != result
+    assert _canonical_model_content_hash(same_wire_other_result_type) == (
+        _canonical_model_content_hash(result)
+    )
+
+    class WireEquivalentProblem(type(problem)):
+        pass
+
+    same_wire_other_problem_type = WireEquivalentProblem.model_validate(
+        problem.model_dump(mode="json")
+    )
+    assert same_wire_other_problem_type.model_dump(mode="json") == problem.model_dump(mode="json")
+    assert same_wire_other_problem_type != problem
+    assert _canonical_model_content_hash(same_wire_other_problem_type) == (
+        _canonical_model_content_hash(problem)
+    )
+
+    class WireEquivalentContext(CycleSubstrateContext):
+        pass
+
+    same_wire_other_context = WireEquivalentContext.model_validate(
+        context.model_dump(mode="json")
+    )
+    assert same_wire_other_context != context
+    _require_unavailable_candidate_credal_source(
+        fresh, problem=same_wire_other_problem_type, context=same_wire_other_context
+    )
+
+    altered_result_payload = same_wire_other_result_type.model_dump(mode="python")
+    altered_result_payload["design_problem_ref"] = "sha256:" + "f" * 64
+    altered_result = WireEquivalentResult.model_validate(altered_result_payload)
+    assert _canonical_model_content_hash(altered_result) != (
+        _canonical_model_content_hash(result)
+    )
+
+    problem_payload = problem.model_dump(mode="python")
+    problem_payload["nl_provenance"]["source_context"] = {
+        **(problem_payload["nl_provenance"].get("source_context") or {}),
+        "captured_at": "2026-10-11T10:00:00+00:00",
+    }
+    captured_problem = type(problem).model_validate(problem_payload)
+    assert gy_content_hash(problem.model_dump(mode="json")) == gy_content_hash(
+        captured_problem.model_dump(mode="json")
+    )
+    assert _source_content_hash(problem.model_dump(mode="python")) != (
+        _source_content_hash(captured_problem.model_dump(mode="python"))
+    )
+    assert _canonical_model_content_hash(captured_problem) != (
+        _canonical_model_content_hash(problem)
+    )
+    with pytest.raises(
+        ValueError, match="candidate_credal_source_attempt_source_not_terminal_or_absent"
+    ):
+        _require_unavailable_candidate_credal_source(
+            fresh, problem=captured_problem, context=context
+        )
+
+    context = _cycle_context(
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json"))
+    )
+    context_payload = context.model_dump(mode="python", exclude={"content_hash"})
+    context_payload["source_pack_content_hash"] = "sha256:" + "e" * 64
+    context_payload["content_hash"] = cycle_substrate_context_content_hash(context_payload)
+    changed_context = CycleSubstrateContext.model_validate(context_payload)
+    assert _canonical_model_content_hash(changed_context) != (
+        _canonical_model_content_hash(context)
+    )
+    with pytest.raises(
+        ValueError, match="candidate_credal_source_attempt_source_not_terminal_or_absent"
+    ):
+        _require_unavailable_candidate_credal_source(
+            fresh, problem=problem, context=changed_context
+        )
+
+    purpose_changed_context = changed_context.model_copy(
+        update={"authority_purpose": "publication"}
+    )
+    assert _canonical_model_content_hash(purpose_changed_context) != (
+        _canonical_model_content_hash(changed_context)
+    )
+    with pytest.raises(ValidationError):
+        CycleSubstrateContext.model_validate(purpose_changed_context.model_dump(mode="python"))
 
 
 @pytest.mark.asyncio

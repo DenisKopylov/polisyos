@@ -344,6 +344,8 @@
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
         "polisyos.core",
+        "polisyos.core.artifacts",
+        "polisyos.core.components",
         "polisyos.core.contracts",
         "polisyos.core.observability",
         "polisyos.core.security",
@@ -553,37 +555,37 @@
           }
         },
         {
-          "module": "polisyos.core.contracts",
+          "module": "polisyos.core.artifacts",
           "facade_mode_observed": "unresolved_exports",
           "export_count": null,
           "known_export_count": 0,
           "exports": [],
           "has___getattr__": true,
-          "has___dir__": true,
-          "source_file": "src/polisyos/core/contracts/__init__.py",
-          "summary": "Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.",
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/artifacts/__init__.py",
+          "summary": "Publish the stable CAS artifact ABI used by manifests, lineage, and signing.",
           "export_resolution": {
             "complete_verdict": false,
             "finding_coverage": "explicit file-reader operations only",
             "inputs": [
               {
-                "path": "src/polisyos/core/contracts.py",
+                "path": "src/polisyos/core/artifacts.py",
                 "operation": "is_file",
                 "status": "absent",
                 "result": false
               },
               {
-                "path": "src/polisyos/core/contracts/__init__.py",
+                "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true
               },
               {
-                "path": "src/polisyos/core/contracts/__init__.py",
+                "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 62279,
-                "sha256": "263a140bdce75e6e9ce2f6c6b31c3bff43b8c0a91a26fb886f59e6e8e8341e6e"
+                "bytes": 5908,
+                "sha256": "e22dc9dd7872ee0e3867924e5b0de839b6a6f65958624824b056fdf9277b2b67"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -616,7 +618,279 @@
               "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
             ],
             "complete": false,
-            "reason": "Unresolved export expression: src/polisyos/core/contracts/__init__.py:[*_CHRONOLOGY_EXPORTS, 'BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION', 'C4_PERSISTED_PROFILE_SPECS', 'CAPABILITY_DISCOVERY_SCHEMA_VERSION', 'OPTIONAL_ANALYTIC_NODE_KINDS', 'POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION', 'PRODUCER_SPINE_CONSUMER_COMPONENTS', 'PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION', 'RECOURSE_POINTER_SCHEMA_VERSION', 'REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_AUTHORITY_PURPOSE', 'SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_PROHIBITED_USES', 'SERIOUS_SKIP_BLOCKER_PROFILES', 'SKIP_BLOCKER_REQUIRED_FIELDS', 'SKIP_BLOCKER_SURFACES', 'ActiveDisambiguationPlanRef', 'ActivityType', 'AgentPipelineAttempt', 'AgentPipelineCostEvent', 'AgentPipelineResponse', 'AgentPipelineStep', 'AgentPipelineView', 'AgentType', 'ApiMeta', 'ArtifactContentPreview', 'ArtifactContentResponse', 'ArtifactLineageEdge', 'ArtifactLineageNode', 'ArtifactLineageResponse', 'ArtifactLineageView', 'ArtifactManifestResponse', 'ArtifactManifestView', 'ArtifactSchemaResponse', 'ArtifactSchemaView', 'AttractorAnalysisProvenance', 'AttractorAnalysisRequest', 'AttractorAnalysisResponse', 'AttractorAnalysisResult', 'AttractorAnalysisResultRef', 'AttractorBasinEstimate', 'AttractorCertificate', 'AttractorObservableSummary', 'AttractorParameterPoint', 'AttractorSpectralValue', 'AttractorStability', 'AttractorStateProjection', 'AttractorStateRepresentation', 'AttractorSummary', 'AttractorUncertainty', 'AttractorUncertaintySummary', 'AuthorityPosture', 'BacktestReportRef', 'BasinEstimate', 'BasinMap', 'BasinMapRef', 'BasinMapSample', 'BifurcationCandidate', 'BifurcationEvent', 'BootstrapStabilityReportRef', 'BoundedLivenessConfig', 'BoundedLivenessResolution', 'BudgetSpec', 'BudgetsV1', 'C4PersistedProfileSpec', 'CacheEntryInfo', 'CacheStatusResponse', 'CalibrationReportRef', 'CalibrationValidationBundleRef', 'CapabilityAuthorityPostureResult', 'CapabilityAuthorityState', 'CapabilityBindingLike', 'CapabilityDiscoveryAudience', 'CapabilityDiscoveryItem', 'CapabilityDiscoveryPostureResult', 'CapabilityDiscoveryRequest', 'CapabilityDiscoveryResponse', 'CapabilityDiscoveryState', 'CapabilityExecutionPostureResult', 'CapabilityExecutionState', 'CapabilityFreshness', 'CapabilityResolverPort', 'CapabilityResourceKind', 'CapabilityTimeSemantics', 'CatalogRunProfile', 'CausalAssumptionCardRef', 'CausalDiscoveryReportRef', 'CausalEffectReportRef', 'CausalFrontierAreaRecord', 'CausalFrontierEdgeRecord', 'CausalFrontierExposureRecord', 'CausalFrontierOutputRefs', 'CausalFrontierSAEEstimate', 'CausalFrontierSAERequest', 'CausalFrontierSAEResponse', 'CausalGraphModelRef', 'CausalModelEnsembleRef', 'CausalQueryResultRef', 'CausalSensitivityResultRef', 'ChangeProposal', 'ChangeProposalRef', 'CheckpointRef', 'CompileReportRef', 'CompileRequest', 'CompileResult', 'ComplianceIssue', 'ConnectorInfo', 'ConnectorsListResponse', 'ContinuationBranch', 'ContinuationBranchPoint', 'ContinuationBranchRef', 'ControlFailureEnvelope', 'ControlJobResponse', 'ControlOutboxEventInfo', 'ControlOutboxEventsResponse', 'ControlWorkerLeaseInfo', 'ControlWorkersResponse', 'CritiqueRef', 'CursorPage', 'DataSnapshot', 'DataSnapshotRef', 'DataSourceBinding', 'DataTrust', 'DataViewRequestRef', 'DatasetFetchSpecRequest', 'DecisionBasisSection', 'DecisionCardRef', 'DecisionDependencyKind', 'DecisionDependencyRef', 'DecisionPacketAuthoredBlock', 'DecisionPacketEffectSize', 'DecisionPacketMetricComparisonRow', 'DecisionPacketMetricSignificance', 'DecisionPacketOutlineEntry', 'DecisionPacketPreview', 'DecisionPacketRef', 'DecisionTriggerRecord', 'DecisionTriggerSpec', 'DecisionTriggerType', 'DecisionValidityEnvelope', 'DecisionValidityEpochImpactOwnerRow', 'DecisionValidityEpochImpactSnapshot', 'DecisionValidityEpochImpactSnapshotHandle', 'DecisionValidityEpochImpactTarget', 'DecisionValidityEvaluation', 'DecisionValidityLifecycleSummary', 'DecisionValidityPendingReview', 'DecisionValidityStatus', 'DecisionValiditySummaryResponse', 'DerivedArtifact', 'DiscoveryArtifactBundleRef', 'DiscoveryAuditBundleRef', 'DiscoveryPosture', 'DiscoveryTaskProfileRef', 'DistributionalBoundsBundleRef', 'DistributionalDualCertificateRef', 'DistributionalEffectBundleRef', 'DistributionalProofArtifactRef', 'DistributionalReportRef', 'DownstreamUtilityReportRef', 'DriftReadinessRef', 'EdgeConfidenceMatrixRef', 'EngineeringCapabilityAbsenceView', 'EntityType', 'EnvironmentManifestRef', 'EpochBoundaryLineageView', 'EpochCertificateStalenessView', 'EpochDenominatorReconciliationAdmissionBinding', 'EpochDependencyStalenessView', 'EpochDerivedRecomputeView', 'EpochOpenWorldRiskComponentView', 'EpochOpenWorldRiskView', 'EpochPerturbationClass', 'EpochPerturbationView', 'EpochProjectionDenominatorView', 'EpochProjectionStatus', 'EpochStalenessProjectionView', 'EpochTransitionDenominatorMappingRow', 'EpochTransitionDenominatorReconciliationHandle', 'EpochTransitionDenominatorReconciliationReader', 'EpochTransitionDenominatorReconciliationReceipt', 'EpochTransitionVerificationReceipt', 'EpochTransitionVerifier', 'EpochValidityAuthorityGate', 'EpochValidityBatchCompletionStatement', 'EpochValidityBatchReceipt', 'EpochValidityBatchRequest', 'EpochValidityBatchResponse', 'EpochValidityBatchTarget', 'EpochValidityCompletedBatchEvidenceDenominator', 'EpochValidityCompletedBatchEvidenceResolver', 'EpochValidityGateNonReceipt', 'EpochValidityGateReceipt', 'EpochValidityN9EvidenceResolver', 'EpochValidityN9Projection', 'EpochValidityPendingBatch', 'EpochValidityPreN9SubjectAuthority', 'EquilibriumBasinInterval', 'EquilibriumBranch', 'EquilibriumBranchPoint', 'EquilibriumCandidate', 'EquilibriumCandidateJacobian', 'EquilibriumMultiplicityDiagnostics', 'EquilibriumMultiplicityProvenance', 'EquilibriumMultiplicityReport', 'EquilibriumMultiplicityReportRef', 'EquilibriumSearchProtocol', 'EvaluatorReport', 'EvaluatorReportRef', 'EvaluatorScores', 'EvaluatorVerdict', 'EvidenceBundle', 'EvidenceBundleRef', 'ExecConfig', 'ExecConfigRef', 'ExecPlan', 'ExecPlanRef', 'ExecuteRequest', 'ExecuteResult', 'ExecutionPlan', 'ExecutionPlanRef', 'ExecutionProfile', 'ExpectedOutputSpec', 'ExperimentStateRef', 'ExplanationBundleRef', 'FabricResult', 'FabricResultRef', 'FailureCardRef', 'ForecastingUncertaintyBundleRef', 'FoundryCompileConfig', 'FoundryExecConfig', 'FoundryInputBindingReportRef', 'FoundryInputBindingRule', 'FoundryInputBindingTransform', 'FoundryInputBindings', 'FoundryInputBindingsRef', 'FoundryValidationFlags', 'FreshnessMetadata', 'FreshnessStatus', 'GovernanceConstraint', 'GovernanceDebugResponse', 'GovernanceDebugView', 'GovernanceReportRef', 'GraphHypothesisRef', 'GraphHypothesisSetRef', 'GraphPriorBundleRef', 'HTEResultRef', 'ICBackendHint', 'ICCertificateScope', 'ICConformanceVerdict', 'ICImplementationConformanceReport', 'ICImplementationConformanceReportRef', 'ICImplementationConformanceRequest', 'ICImplementationConformanceResult', 'ICNegativeCertificate', 'ICNegativeCertificateRef', 'ICProofAttachmentRef', 'ICProperty', 'ICVerificationCertificateRef', 'ICVerificationMode', 'ICVerificationReport', 'ICVerificationReportRef', 'ICVerificationRequest', 'ICVerificationResult', 'IdentifiabilityDiagnosticRef', 'IncentiveCompatibilityCertificate', 'IngestRequest', 'IngestResponse', 'InstitutionalAuthorityAbsenceView', 'IssueSeverity', 'IterationLifecycleState', 'IterationState', 'IterationStateRef', 'JudgeVerdictRef', 'KnowledgeBundle', 'KnowledgeBundleRef', 'LegalContext', 'LegalEvaluationRequest', 'LegalQueryGenerationBasisKind', 'LegalQueryGenerationIntentV1', 'LegalReport', 'LegalReportRef', 'LexSearchRequest', 'LexSearchResponse', 'LexSearchResultItem', 'LinkReportRef', 'LiteratureCausalPriorRef', 'LoweredIR', 'LoweredIRRef', 'MethodCatalogEntry', 'MethodCatalogSnapshot', 'MethodCatalogSnapshotRef', 'MethodDagEdge', 'MethodDagNode', 'MetricObservationBundle', 'MetricObservationBundleRef', 'MetricValidationReportRef', 'Metrics', 'MetricsRef', 'MobilityBoundsRequest', 'MobilityBoundsResponse', 'MobilityDiagnosticsResponse', 'MobilityEstimateRequest', 'MobilityEstimateResponse', 'MobilityReportResponse', 'ModelOutputs', 'ModelSpecRef', 'NaturalLanguageRunRequest', 'NodeDebugResponse', 'NodeDebugView', 'NodeStatus', 'NormDiffRef', 'NormImpactReportRef', 'NormPack', 'NormRef', 'NormRule', 'OrdinalPovertyReportRef', 'PeriodicOrbitDiagnostics', 'PeriodicOrbitDiagnosticsRef', 'PersistedDecisionValidityEpochImpactSnapshot', 'PersistedEpochTransitionDenominatorReconciliation', 'PersistedEpochValidityBatchEvidence', 'PersistedEpochValidityGateEvidence', 'PersistedPreN9AdmittedCandidateBatch', 'PersistedPreN9EpochValiditySubject', 'PlanDataNeed', 'PlatformMetaEvaluationReportRef', 'PolicyDesignCaseAudience', 'PolicyDesignCaseCloseoutTruth', 'PolicyDesignCaseContestedRecord', 'PolicyDesignCaseDeficitProjection', 'PolicyDesignCaseInvariantSummary', 'PolicyDesignCaseParticipationRequirementProjection', 'PolicyDesignCaseProjection', 'PolicyDesignCaseProjectionBlocker', 'PolicyDesignCaseProjectionConsumerContract', 'PolicyDesignCaseProjectionGap', 'PolicyDesignCaseProjectionLabel', 'PolicyDesignCaseProjectionOmission', 'PolicyDesignCaseRecoursePointer', 'PolicyPortfolioRef', 'PolicyRecommendationRef', 'PolicySpecRef', 'PreN9AdmittedCandidate', 'PreN9EpochValiditySubjectStatement', 'PreflightDiagnostic', 'PreflightReport', 'PreflightReportRef', 'PreviewMode', 'PriorKnowledgeBundleRef', 'PrivacyAwareTransportCertificateRef', 'ProblemFrameRef', 'ProducerSpineBindingFields', 'ProducerSpineReadContext', 'ProductionApprovalCurrentnessReceipt', 'ProgramGraph', 'ProgramGraphRef', 'ProvenanceActivity', 'ProvenanceAgent', 'ProvenanceCoreGraph', 'ProvenanceCoreRef', 'ProvenanceEdge', 'ProvenanceEntity', 'QueryPlan', 'QueryPlanRef', 'RefutationReportRef', 'RegimeShiftForecastBundleRef', 'RelationType', 'ReproducibilityManifest', 'ReproducibilityManifestRef', 'ReproducibilityReportRef', 'RequirementTimeWindow', 'RequirementToCapabilityQuery', 'ResearchIntent', 'ResearchIntentRef', 'RuleBackend', 'RuleType', 'RunCandidateSimulationAcquisitionHistoryEntry', 'RunCandidateSimulationN5Observation', 'RunCandidateSimulationProjection', 'RunDetails', 'RunDetailsResponse', 'RunErrorView', 'RunErrorsResponse', 'RunLaunchResponse', 'RunLineageResponse', 'RunNodeRecord', 'RunNodesResponse', 'RunRecordV1', 'RunRecursiveCycleBranchFailure', 'RunRecursiveCycleCheckpoint', 'RunSummary', 'RunTimelineEvent', 'RunTimelineResponse', 'RunTimelineSummary', 'RunTimelineView', 'RunsListResponse', 'RuntimeApiError', 'RuntimeApiProblem', 'ScenarioFamilyConstructRow', 'ScenarioFamilyConstructRows', 'ScopeAdjudicationCandidate', 'ScopeAdjudicationPlane', 'ScopeAdjudicationPredicate', 'ScopeAdjudicationRuling', 'ScopePredicateObservation', 'SearchCompletenessStatus', 'SearchFrontier', 'SensitivityAnalysisBundleRef', 'SensitivityResultRef', 'ShiftDiagnosticReportRef', 'SimulationResult', 'SimulationResultRef', 'SkipBlockerContractError', 'SkipBlockerPolicyDecision', 'SkippedNodeBlocker', 'SourceKind', 'SourceSpec', 'StateDelta', 'StateDeltaRef', 'StateSnapshot', 'StateSnapshotRef', 'StopCriteria', 'StopReason', 'StressTestReportRef', 'StructuralCausalModelSpecRef', 'TemporalScope', 'ThresholdsV1', 'TimelineRef', 'TraceSliceRef', 'TransportabilityResultRef', 'TreasurySeed', 'TreasurySeedRef', 'TrinityBundle', 'TrinityBundleRef', 'TrinityIRRef', 'TrinityManifest', 'UncertaintyBounds', 'UncertaintyBoundsRef', 'UncertaintyEnvelopeRef', 'UniversalAuthorityProfile', 'UniversalGeographyPredicate', 'UniversalPolicyAuthorityPurpose', 'UniversalPolicyAuthorityTypeFacet', 'UniversalPolicyCapabilityRealityLabel', 'UniversalPolicyDeliveryChannel', 'UniversalPolicyDeliveryChannelFacet', 'UniversalPolicyDesignCase', 'UniversalPolicyDesignCaseAuditSurface', 'UniversalPolicyFacetName', 'UniversalPolicyFacets', 'UniversalPolicyFundingChannel', 'UniversalPolicyFundingChannelFacet', 'UniversalPolicyGeographyPredicateFacet', 'UniversalPolicyGrammarAuthorityEnvelope', 'UniversalPolicyGrammarBlocker', 'UniversalPolicyGrammarSourceClassification', 'UniversalPolicyGrammarStatus', 'UniversalPolicyInstrumentType', 'UniversalPolicyInstrumentTypeFacet', 'UniversalPolicyMethodNeedFacet', 'UniversalPolicyOutcomeChannelFacet', 'UniversalPolicyPopulationPredicateFacet', 'UniversalPolicyRiskFacet', 'UniversalPolicyRiskFacetRecord', 'UniversalPolicyTargetingType', 'UniversalPolicyTargetingTypeFacet', 'UniversalPolicyTimePredicateFacet', 'UniversalPopulationPredicate', 'UniversalTimePredicate', 'UnresolvedEquilibriumStart', 'ValidationReportRef', 'ValueOuterSet', 'ValueOuterSetAssumptionStatus', 'ValueOuterSetComparison', 'ValueOuterSetIdentificationStatus', 'ValueOuterSetRepresentation', 'ValueOuterSetRepresentationStatus', 'ValuePromotionDecision', 'ValuePromotionDecisionGrade', 'ValuePromotionDecisionReason', 'WarningsBundle', 'WarningsRef', 'WorkflowRunRequest', 'bounded_liveness_config_from_mapping', 'build_producer_spine_binding_fields', 'build_scope_adjudication_candidate', 'build_skip_blocker_record', 'c4_canonical_bytes', 'c4_canonical_mapping', 'c4_profile', 'c4_profile_manifest_is_exact', 'c4_semantic_digest', 'chronology', 'classify_optional_analytic_node', 'construct_for_legacy_family', 'deserialize_skip_blocker_record', 'epoch', 'epoch_staleness_semantic_hash', 'evaluate_skip_blocker_policy', 'legacy_family_for_construct', 'require_production_approval_currentness_receipt', 'scope_adjudication_candidate_digest', 'serialize_skip_blocker_record', 'verify_scope_adjudication_candidate']",
+            "reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [
+              "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
+              "AUTHORITY_ENVELOPE_SCHEMA_NAME",
+              "AUTHORITY_ENVELOPE_SCHEMA_VERSION",
+              "ArtifactGovernanceInfo",
+              "ArtifactID",
+              "ArtifactIntegrityError",
+              "ArtifactManifest",
+              "ArtifactOwnershipError",
+              "ArtifactOwnershipIndex",
+              "ArtifactRef",
+              "ArtifactSigner",
+              "ArtifactSigningResult",
+              "ArtifactStore",
+              "ArtifactStoreConfig",
+              "ArtifactVerifier",
+              "ArtifactWriteOptions",
+              "AsyncArtifactStore",
+              "AsyncArtifactStoreAdapter",
+              "AsyncFileSystemArtifactStore",
+              "AtomicFileDurabilityError",
+              "BulkSigningReport",
+              "BulkVerificationReport",
+              "CASIntegrityReport",
+              "CanonInfo",
+              "DependencyEdge",
+              "DependencyGraph",
+              "DependencyNode",
+              "DetachedSignature",
+              "Ed25519Signer",
+              "Ed25519Verifier",
+              "EnvInfo",
+              "ExportReport",
+              "FileSystemCAS",
+              "GitInfo",
+              "ImportReport",
+              "InputRef",
+              "IntegrityInfo",
+              "KeyPair",
+              "NodeStatus",
+              "ProducerInfo",
+              "PutOptions",
+              "RegistryBundle",
+              "SchemaInfo",
+              "SignatureStatement",
+              "SignatureVerificationResult",
+              "SignatureVerificationStatus",
+              "SignatureVerifyingArtifactStore",
+              "SigningConfig",
+              "VerificationReport",
+              "WarningRecord",
+              "artifact_manifest_profile_projection",
+              "artifact_manifest_profile_sha256",
+              "artifact_ref_identity_key",
+              "build_artifact_store",
+              "build_cas_integrity_report",
+              "compute_key_id",
+              "ensure_async_artifact_store",
+              "ensure_directory_durable",
+              "ensure_ir_artifact_store",
+              "ensure_private_key_permissions",
+              "expected_artifact_manifest_for_write",
+              "fsync_directory",
+              "input_ref_from_artifact_ref",
+              "profile_bound_ref",
+              "resolve_authority_envelope_ref",
+              "resolve_dependency_graph",
+              "resolve_manifest_by_profile"
+            ],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
+        },
+        {
+          "module": "polisyos.core.components",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": false,
+          "has___dir__": false,
+          "source_file": "src/polisyos/core/components/__init__.py",
+          "summary": "Expose the stable component discovery, metadata, compliance, and registry API.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/components.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/components/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/components/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 4090,
+                "sha256": "44539708c9b5f328e95e58916b0c2707163b21040874f6a9c48624a3746b63b5"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 11696,
+                "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/core/__init__.py:from __future__ import annotations",
+            "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
+            "declared_export_candidates": [
+              "DEFAULT_ENTRY_POINT_GROUPS",
+              "ENTRY_POINT_GROUP",
+              "ENTRY_POINT_GROUP_DATA_FORGE_DOMAINS",
+              "ENTRY_POINT_GROUP_FABRIC_CONNECTORS",
+              "ENTRY_POINT_GROUP_FOUNDRY_METHODS",
+              "ENTRY_POINT_GROUP_IR_FRAGMENTS",
+              "ENTRY_POINT_GROUP_LEX_EVALUATORS",
+              "ENTRY_POINT_GROUP_LEX_EXTRACTORS",
+              "ENTRY_POINT_GROUP_LEX_NORMPACKS",
+              "ENTRY_POINT_GROUP_NORM_PACK_PROVIDERS",
+              "ENTRY_POINT_GROUP_RUNTIME_MIDDLEWARES",
+              "ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS",
+              "ENTRY_POINT_GROUP_SCIENTIST_GOVERNANCE_PASSES",
+              "ENTRY_POINT_GROUP_SCIENTIST_NODES",
+              "EXTENSION_ENTRY_POINT_GROUPS",
+              "LEGACY_ENTRY_POINT_GROUP",
+              "BootstrapDomainReport",
+              "BootstrapReport",
+              "BuiltinLoaderSpec",
+              "Capabilities",
+              "Capability",
+              "ComplianceIssue",
+              "Component",
+              "ComponentDep",
+              "ComponentDiscoveryManifest",
+              "ComponentEntry",
+              "ComponentFactory",
+              "ComponentId",
+              "ComponentKind",
+              "ComponentMetadata",
+              "ComponentProvider",
+              "ComponentRegistry",
+              "ConflictPolicy",
+              "DeclaredBuiltinLoader",
+              "DiscoveryComponentIdentity",
+              "DiscoveryDeclaredBuiltinLoaderIdentity",
+              "DiscoveryDevScanFileIdentity",
+              "DiscoveryDevScanRootIdentity",
+              "DiscoveryEntryPointIdentity",
+              "DiscoveryError",
+              "DiscoveryPrecedencePolicy",
+              "DiscoveryPredicateProvenance",
+              "DiscoveryReport",
+              "DuplicateComponentIdPolicy",
+              "HostAbi",
+              "ResolvePolicy",
+              "SemVer",
+              "SemverRange",
+              "SourcePrecedencePolicy",
+              "SupportsValidation",
+              "bootstrap_plugin_registries",
+              "build_components_index",
+              "capabilities_from_flags",
+              "compare_semver",
+              "discover_components",
+              "discover_dev_components",
+              "discover_entry_points",
+              "flags_from_capabilities",
+              "has_errors",
+              "validate_component_id",
+              "validate_metadata"
+            ],
+            "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
+            "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."
+          }
+        },
+        {
+          "module": "polisyos.core.contracts",
+          "facade_mode_observed": "unresolved_exports",
+          "export_count": null,
+          "known_export_count": 0,
+          "exports": [],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/core/contracts/__init__.py",
+          "summary": "Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.",
+          "export_resolution": {
+            "complete_verdict": false,
+            "finding_coverage": "explicit file-reader operations only",
+            "inputs": [
+              {
+                "path": "src/polisyos/core/contracts.py",
+                "operation": "is_file",
+                "status": "absent",
+                "result": false
+              },
+              {
+                "path": "src/polisyos/core/contracts/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/contracts/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 62543,
+                "sha256": "b5a8880fe960da03886f77c15b78be0ee4d25c83ddeceb0eddcd14e4a9221780"
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 24,
+                "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/core/__init__.py",
+                "operation": "read_bytes",
+                "status": "read",
+                "bytes": 11696,
+                "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40"
+              }
+            ],
+            "unresolved_by_construction": [
+              "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+            ],
+            "complete": false,
+            "reason": "Unresolved export expression: src/polisyos/core/contracts/__init__.py:[*_CHRONOLOGY_EXPORTS, 'BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION', 'C4_PERSISTED_PROFILE_SPECS', 'CAPABILITY_DISCOVERY_SCHEMA_VERSION', 'OPTIONAL_ANALYTIC_NODE_KINDS', 'POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION', 'PRODUCER_SPINE_CONSUMER_COMPONENTS', 'PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION', 'RECOURSE_POINTER_SCHEMA_VERSION', 'REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_AUTHORITY_PURPOSE', 'SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION', 'SCOPE_ADJUDICATION_PROHIBITED_USES', 'SERIOUS_SKIP_BLOCKER_PROFILES', 'SKIP_BLOCKER_REQUIRED_FIELDS', 'SKIP_BLOCKER_SURFACES', 'ActiveDisambiguationPlanRef', 'ActivityType', 'AgentPipelineAttempt', 'AgentPipelineCostEvent', 'AgentPipelineResponse', 'AgentPipelineStep', 'AgentPipelineView', 'AgentType', 'ApiMeta', 'ArtifactContentPreview', 'ArtifactContentResponse', 'ArtifactLineageEdge', 'ArtifactLineageNode', 'ArtifactLineageResponse', 'ArtifactLineageView', 'ArtifactManifestResponse', 'ArtifactManifestView', 'ArtifactSchemaResponse', 'ArtifactSchemaView', 'AttractorAnalysisProvenance', 'AttractorAnalysisRequest', 'AttractorAnalysisResponse', 'AttractorAnalysisResult', 'AttractorAnalysisResultRef', 'AttractorBasinEstimate', 'AttractorCertificate', 'AttractorObservableSummary', 'AttractorParameterPoint', 'AttractorSpectralValue', 'AttractorStability', 'AttractorStateProjection', 'AttractorStateRepresentation', 'AttractorSummary', 'AttractorUncertainty', 'AttractorUncertaintySummary', 'AuthorityPosture', 'BacktestReportRef', 'BasinEstimate', 'BasinMap', 'BasinMapRef', 'BasinMapSample', 'BifurcationCandidate', 'BifurcationEvent', 'BootstrapStabilityReportRef', 'BoundedLivenessConfig', 'BoundedLivenessResolution', 'BudgetSpec', 'BudgetsV1', 'C4PersistedProfileSpec', 'CacheEntryInfo', 'CacheStatusResponse', 'CalibrationReportRef', 'CalibrationValidationBundleRef', 'CapabilityAuthorityPostureResult', 'CapabilityAuthorityState', 'CapabilityBindingLike', 'CapabilityDiscoveryAudience', 'CapabilityDiscoveryItem', 'CapabilityDiscoveryPostureResult', 'CapabilityDiscoveryRequest', 'CapabilityDiscoveryResponse', 'CapabilityDiscoveryState', 'CapabilityExecutionPostureResult', 'CapabilityExecutionState', 'CapabilityFreshness', 'CapabilityResolverPort', 'CapabilityResourceKind', 'CapabilityTimeSemantics', 'CatalogRunProfile', 'CausalAssumptionCardRef', 'CausalDiscoveryReportRef', 'CausalEffectReportRef', 'CausalFrontierAreaRecord', 'CausalFrontierEdgeRecord', 'CausalFrontierExposureRecord', 'CausalFrontierOutputRefs', 'CausalFrontierSAEEstimate', 'CausalFrontierSAERequest', 'CausalFrontierSAEResponse', 'CausalGraphModelRef', 'CausalModelEnsembleRef', 'CausalQueryResultRef', 'CausalSensitivityResultRef', 'ChangeProposal', 'ChangeProposalRef', 'CheckpointRef', 'CompileReportRef', 'CompileRequest', 'CompileResult', 'ComplianceIssue', 'ConnectorInfo', 'ConnectorsListResponse', 'ContinuationBranch', 'ContinuationBranchPoint', 'ContinuationBranchRef', 'ControlFailureEnvelope', 'ControlJobResponse', 'ControlOutboxEventInfo', 'ControlOutboxEventsResponse', 'ControlWorkerLeaseInfo', 'ControlWorkersResponse', 'CritiqueRef', 'CursorPage', 'DataSnapshot', 'DataSnapshotRef', 'DataSourceBinding', 'DataTrust', 'DataViewRequestRef', 'DatasetFetchSpecRequest', 'DecisionBasisSection', 'DecisionCardRef', 'DecisionDependencyKind', 'DecisionDependencyRef', 'DecisionPacketAuthoredBlock', 'DecisionPacketEffectSize', 'DecisionPacketMetricComparisonRow', 'DecisionPacketMetricSignificance', 'DecisionPacketOutlineEntry', 'DecisionPacketPreview', 'DecisionPacketRef', 'DecisionTriggerRecord', 'DecisionTriggerSpec', 'DecisionTriggerType', 'DecisionValidityEnvelope', 'DecisionValidityEpochImpactOwnerRow', 'DecisionValidityEpochImpactSnapshot', 'DecisionValidityEpochImpactSnapshotHandle', 'DecisionValidityEpochImpactTarget', 'DecisionValidityEvaluation', 'DecisionValidityLifecycleSummary', 'DecisionValidityPendingReview', 'DecisionValidityStatus', 'DecisionValiditySummaryResponse', 'DerivedArtifact', 'DiscoveryArtifactBundleRef', 'DiscoveryAuditBundleRef', 'DiscoveryPosture', 'DiscoveryTaskProfileRef', 'DistributionalBoundsBundleRef', 'DistributionalDualCertificateRef', 'DistributionalEffectBundleRef', 'DistributionalProofArtifactRef', 'DistributionalReportRef', 'DownstreamUtilityReportRef', 'DriftReadinessRef', 'EdgeConfidenceMatrixRef', 'EngineeringCapabilityAbsenceView', 'EntityType', 'EnvironmentManifestRef', 'EpochBoundaryLineageView', 'EpochCertificateStalenessView', 'EpochDenominatorReconciliationAdmissionBinding', 'EpochDependencyStalenessView', 'EpochDerivedRecomputeView', 'EpochOpenWorldRiskComponentView', 'EpochOpenWorldRiskView', 'EpochPerturbationClass', 'EpochPerturbationView', 'EpochProjectionDenominatorView', 'EpochProjectionStatus', 'EpochStalenessProjectionView', 'EpochTransitionDenominatorMappingRow', 'EpochTransitionDenominatorReconciliationHandle', 'EpochTransitionDenominatorReconciliationReader', 'EpochTransitionDenominatorReconciliationReceipt', 'EpochTransitionVerificationReceipt', 'EpochTransitionVerifier', 'EpochValidityAuthorityGate', 'EpochValidityBatchCompletionStatement', 'EpochValidityBatchReceipt', 'EpochValidityBatchRequest', 'EpochValidityBatchResponse', 'EpochValidityBatchTarget', 'EpochValidityCompletedBatchEvidenceDenominator', 'EpochValidityCompletedBatchEvidenceResolver', 'EpochValidityGateNonReceipt', 'EpochValidityGateReceipt', 'EpochValidityN9EvidenceResolver', 'EpochValidityN9Projection', 'EpochValidityPendingBatch', 'EpochValidityPreN9SubjectAuthority', 'EquilibriumBasinInterval', 'EquilibriumBranch', 'EquilibriumBranchPoint', 'EquilibriumCandidate', 'EquilibriumCandidateJacobian', 'EquilibriumMultiplicityDiagnostics', 'EquilibriumMultiplicityProvenance', 'EquilibriumMultiplicityReport', 'EquilibriumMultiplicityReportRef', 'EquilibriumSearchProtocol', 'EvaluatorReport', 'EvaluatorReportRef', 'EvaluatorScores', 'EvaluatorVerdict', 'EvidenceBundle', 'EvidenceBundleRef', 'ExecConfig', 'ExecConfigRef', 'ExecPlan', 'ExecPlanRef', 'ExecuteRequest', 'ExecuteResult', 'ExecutionPlan', 'ExecutionPlanRef', 'ExecutionProfile', 'ExpectedOutputSpec', 'ExperimentStateRef', 'ExplanationBundleRef', 'FabricResult', 'FabricResultRef', 'FailureCardRef', 'ForecastingUncertaintyBundleRef', 'FoundryCompileConfig', 'FoundryExecConfig', 'FoundryInputBindingReportRef', 'FoundryInputBindingRule', 'FoundryInputBindingTransform', 'FoundryInputBindings', 'FoundryInputBindingsRef', 'FoundryValidationFlags', 'FreshnessMetadata', 'FreshnessStatus', 'GovernanceConstraint', 'GovernanceDebugResponse', 'GovernanceDebugView', 'GovernanceReportRef', 'GraphHypothesisRef', 'GraphHypothesisSetRef', 'GraphPriorBundleRef', 'HTEResultRef', 'ICBackendHint', 'ICCertificateScope', 'ICConformanceVerdict', 'ICImplementationConformanceReport', 'ICImplementationConformanceReportRef', 'ICImplementationConformanceRequest', 'ICImplementationConformanceResult', 'ICNegativeCertificate', 'ICNegativeCertificateRef', 'ICProofAttachmentRef', 'ICProperty', 'ICVerificationCertificateRef', 'ICVerificationMode', 'ICVerificationReport', 'ICVerificationReportRef', 'ICVerificationRequest', 'ICVerificationResult', 'IdentifiabilityDiagnosticRef', 'IncentiveCompatibilityCertificate', 'IngestRequest', 'IngestResponse', 'InstitutionalAuthorityAbsenceView', 'IssueSeverity', 'IterationLifecycleState', 'IterationState', 'IterationStateRef', 'JudgeVerdictRef', 'KnowledgeBundle', 'KnowledgeBundleRef', 'LegalContext', 'LegalEvaluationRequest', 'LegalQueryGenerationBasisKind', 'LegalQueryGenerationIntentV1', 'LegalReport', 'LegalReportRef', 'LexSearchRequest', 'LexSearchResponse', 'LexSearchResultItem', 'LinkReportRef', 'LiteratureCausalPriorRef', 'LoweredIR', 'LoweredIRRef', 'MethodCatalogEntry', 'MethodCatalogSnapshot', 'MethodCatalogSnapshotRef', 'MethodDagEdge', 'MethodDagNode', 'MetricObservationBundle', 'MetricObservationBundleRef', 'MetricValidationReportRef', 'Metrics', 'MetricsRef', 'MobilityBoundsRequest', 'MobilityBoundsResponse', 'MobilityDiagnosticsResponse', 'MobilityEstimateRequest', 'MobilityEstimateResponse', 'MobilityReportResponse', 'ModelOutputs', 'ModelSpecRef', 'NaturalLanguageRunRequest', 'NodeDebugResponse', 'NodeDebugView', 'NodeStatus', 'PredictiveCoverageDiagnosticPreview', 'PredictiveCoverageScenarioPreview', 'NormDiffRef', 'NormImpactReportRef', 'NormPack', 'NormRef', 'NormRule', 'OrdinalPovertyReportRef', 'PeriodicOrbitDiagnostics', 'PeriodicOrbitDiagnosticsRef', 'PersistedDecisionValidityEpochImpactSnapshot', 'PersistedEpochTransitionDenominatorReconciliation', 'PersistedEpochValidityBatchEvidence', 'PersistedEpochValidityGateEvidence', 'PersistedPreN9AdmittedCandidateBatch', 'PersistedPreN9EpochValiditySubject', 'PlanDataNeed', 'PlatformMetaEvaluationReportRef', 'PolicyDesignCaseAudience', 'PolicyDesignCaseCloseoutTruth', 'PolicyDesignCaseContestedRecord', 'PolicyDesignCaseDeficitProjection', 'PolicyDesignCaseInvariantSummary', 'PolicyDesignCaseParticipationRequirementProjection', 'PolicyDesignCaseProjection', 'PolicyDesignCaseProjectionBlocker', 'PolicyDesignCaseProjectionConsumerContract', 'PolicyDesignCaseProjectionGap', 'PolicyDesignCaseProjectionLabel', 'PolicyDesignCaseProjectionOmission', 'PolicyDesignCaseRecoursePointer', 'PolicyPortfolioRef', 'PolicyRecommendationRef', 'PolicySpecRef', 'PreN9AdmittedCandidate', 'PreN9EpochValiditySubjectStatement', 'PreflightDiagnostic', 'PreflightReport', 'PreflightReportRef', 'PreviewMode', 'PriorKnowledgeBundleRef', 'PrivacyAwareTransportCertificateRef', 'ProblemFrameRef', 'ProducerSpineBindingFields', 'ProducerSpineReadContext', 'ProductionApprovalCurrentnessReceipt', 'ProgramGraph', 'ProgramGraphRef', 'ProvenanceActivity', 'ProvenanceAgent', 'ProvenanceCoreGraph', 'ProvenanceCoreRef', 'ProvenanceEdge', 'ProvenanceEntity', 'QueryPlan', 'QueryPlanRef', 'RefutationReportRef', 'RegimeShiftForecastBundleRef', 'RelationType', 'ReproducibilityManifest', 'ReproducibilityManifestRef', 'ReproducibilityReportRef', 'RequirementTimeWindow', 'RequirementToCapabilityQuery', 'ResearchIntent', 'ResearchIntentRef', 'RuleBackend', 'RuleType', 'RunCandidateSimulationAcquisitionHistoryEntry', 'RunCandidateSimulationN5Observation', 'RunCandidateSimulationProjection', 'RunDetails', 'RunDetailsResponse', 'RunErrorView', 'RunErrorsResponse', 'RunLaunchResponse', 'RunLineageResponse', 'RunNodeRecord', 'RunNodesResponse', 'RunRecordV1', 'RunRecursiveCycleBranchFailure', 'RunRecursiveCycleCheckpoint', 'RunSummary', 'RunTimelineEvent', 'RunTimelineResponse', 'RunTimelineSummary', 'RunTimelineView', 'RunsListResponse', 'RuntimeApiError', 'RuntimeApiProblem', 'ScenarioFamilyConstructRow', 'ScenarioFamilyConstructRows', 'ScopeAdjudicationCandidate', 'ScopeAdjudicationPlane', 'ScopeAdjudicationPredicate', 'ScopeAdjudicationRuling', 'ScopePredicateObservation', 'SearchCompletenessStatus', 'SearchFrontier', 'SensitivityAnalysisBundleRef', 'SensitivityResultRef', 'ShiftDiagnosticReportRef', 'SimulationResult', 'SimulationResultRef', 'SkipBlockerContractError', 'SkipBlockerPolicyDecision', 'SkippedNodeBlocker', 'SourceKind', 'SourceSpec', 'StateDelta', 'StateDeltaRef', 'StateSnapshot', 'StateSnapshotRef', 'StopCriteria', 'StopReason', 'StressTestReportRef', 'StructuralCausalModelSpecRef', 'TemporalScope', 'ThresholdsV1', 'TimelineRef', 'TraceSliceRef', 'TransportabilityResultRef', 'TreasurySeed', 'TreasurySeedRef', 'TrinityBundle', 'TrinityBundleRef', 'TrinityIRRef', 'TrinityManifest', 'UncertaintyBounds', 'UncertaintyBoundsRef', 'UncertaintyEnvelopeRef', 'UniversalAuthorityProfile', 'UniversalGeographyPredicate', 'UniversalPolicyAuthorityPurpose', 'UniversalPolicyAuthorityTypeFacet', 'UniversalPolicyCapabilityRealityLabel', 'UniversalPolicyDeliveryChannel', 'UniversalPolicyDeliveryChannelFacet', 'UniversalPolicyDesignCase', 'UniversalPolicyDesignCaseAuditSurface', 'UniversalPolicyFacetName', 'UniversalPolicyFacets', 'UniversalPolicyFundingChannel', 'UniversalPolicyFundingChannelFacet', 'UniversalPolicyGeographyPredicateFacet', 'UniversalPolicyGrammarAuthorityEnvelope', 'UniversalPolicyGrammarBlocker', 'UniversalPolicyGrammarSourceClassification', 'UniversalPolicyGrammarStatus', 'UniversalPolicyInstrumentType', 'UniversalPolicyInstrumentTypeFacet', 'UniversalPolicyMethodNeedFacet', 'UniversalPolicyOutcomeChannelFacet', 'UniversalPolicyPopulationPredicateFacet', 'UniversalPolicyRiskFacet', 'UniversalPolicyRiskFacetRecord', 'UniversalPolicyTargetingType', 'UniversalPolicyTargetingTypeFacet', 'UniversalPolicyTimePredicateFacet', 'UniversalPopulationPredicate', 'UniversalTimePredicate', 'UnresolvedEquilibriumStart', 'ValidationReportRef', 'ValueOuterSet', 'ValueOuterSetAssumptionStatus', 'ValueOuterSetComparison', 'ValueOuterSetIdentificationStatus', 'ValueOuterSetRepresentation', 'ValueOuterSetRepresentationStatus', 'ValuePromotionDecision', 'ValuePromotionDecisionGrade', 'ValuePromotionDecisionReason', 'WarningsBundle', 'WarningsRef', 'WorkflowRunRequest', 'bounded_liveness_config_from_mapping', 'build_producer_spine_binding_fields', 'build_scope_adjudication_candidate', 'build_skip_blocker_record', 'c4_canonical_bytes', 'c4_canonical_mapping', 'c4_profile', 'c4_profile_manifest_is_exact', 'c4_semantic_digest', 'chronology', 'classify_optional_analytic_node', 'construct_for_legacy_family', 'deserialize_skip_blocker_record', 'epoch', 'epoch_staleness_semantic_hash', 'evaluate_skip_blocker_policy', 'legacy_family_for_construct', 'require_production_approval_currentness_receipt', 'scope_adjudication_candidate_digest', 'serialize_skip_blocker_record', 'verify_scope_adjudication_candidate']",
             "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
             "declared_export_candidates": [],
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
@@ -5243,7 +5517,7 @@
                 "operation": "read_bytes",
                 "status": "read",
                 "bytes": 7232,
-                "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a"
+                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -5266,15 +5540,16 @@
             "reason": "Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/data_forge/__init__.py:from __future__ import annotations",
             "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace",
             "declared_export_candidates": [
+              "COMPLIANCE_OVERRIDE_REQUIRED_FIELDS",
+              "DATA_FORGE_PROVENANCE_MANIFEST_FILE",
+              "DATA_FORGE_PROVENANCE_MANIFEST_SCHEMA_VERSION",
+              "PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION",
               "ArtifactRef",
               "AssetDefinition",
               "AssetGroup",
               "AssetKey",
               "AssetSpec",
-              "COMPLIANCE_OVERRIDE_REQUIRED_FIELDS",
               "CompatibilityMode",
-              "DATA_FORGE_PROVENANCE_MANIFEST_FILE",
-              "DATA_FORGE_PROVENANCE_MANIFEST_SCHEMA_VERSION",
               "DataForgeError",
               "DataForgeValidationError",
               "DifferentialComparison",
@@ -5283,7 +5558,6 @@
               "MaterializationContext",
               "OfficialSnapshotAnswer",
               "PIILevel",
-              "PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION",
               "ProducerVersion",
               "QCCheck",
               "QCReport",
@@ -5377,7 +5651,7 @@
                 "operation": "read_bytes",
                 "status": "read",
                 "bytes": 7232,
-                "sha256": "468fb2656309e00210089ba25f34c84b393f9d25e23f081e188ecc8f8d64160a"
+                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
               }
             ],
             "unresolved_by_construction": [

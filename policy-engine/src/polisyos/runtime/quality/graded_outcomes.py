@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence  # noqa: TC003 - pydantic resolves annotations at runtime.
-from datetime import datetime  # noqa: TC003 - pydantic resolves annotations at runtime.
+from datetime import datetime  # pydantic resolves annotations at runtime.
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field

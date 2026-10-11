@@ -5,6 +5,10 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
 import {
@@ -468,6 +472,7 @@ function createSummary(overrides: Record<string, unknown> = {}) {
       preflight: { diagnostics: [{}], ready_to_run: true },
     },
     primaryDecisionArtifactId: "artifact-1",
+    primaryDecisionArtifactRef: null,
     primaryIssue: null,
     run: {
       duration_ms: 1200,
@@ -486,6 +491,34 @@ function createSummary(overrides: Record<string, unknown> = {}) {
     transportStatus: "transportable",
     ...overrides,
   };
+}
+
+function selectedDecisionSummary(ref: EvidenceArtifactRef) {
+  const summary = createSummary();
+  return {
+    ...summary,
+    decisionArtifact: {
+      artifact_id: ref.artifact_id,
+      kind: ref.kind,
+      media_type: ref.media_type,
+      manifest_profile_sha256: ref.manifest_profile_sha256 ?? null,
+      mode: "preview",
+    },
+    pipeline: {
+      ...summary.pipeline,
+      decision_packet_ref: ref,
+    },
+    primaryDecisionArtifactId: ref.artifact_id,
+    primaryDecisionArtifactRef: ref,
+  };
+}
+
+function selectedArtifactRoute(link: HTMLElement): URL {
+  const href = link.getAttribute("href");
+  if (href === null) {
+    throw new Error("Selected artifact link must have an href");
+  }
+  return new URL(href, "http://localhost");
 }
 
 function toEvidenceContextPayload(
@@ -770,26 +803,54 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
-    useArtifactContentMock.mockImplementation((artifactId?: string) => ({
-      data: artifactId
-        ? {
-            artifact: {
-              artifact_id: artifactId,
-              kind:
-                artifactId === "artifact-2"
-                  ? "simulation_results"
-                  : "decision_card",
-              mode: "preview",
-              preview: { artifactId },
-              size_bytes: artifactId === "artifact-2" ? 4096 : 1024,
-              truncated: artifactId === "artifact-2",
+    useArtifactContentMock.mockImplementation(
+      (
+        artifactRef?:
+          | string
+          | {
+              artifact_id: string;
+              kind?: string | null;
+              media_type?: string | null;
+              manifest_profile_sha256?: string | null;
             },
-          }
-        : undefined,
-      error: null,
-      isError: false,
-      isLoading: false,
-    }));
+        options?: { manifestProfileSha256?: string | null },
+      ) => {
+        const artifactId =
+          typeof artifactRef === "string"
+            ? artifactRef
+            : artifactRef?.artifact_id;
+        const expectedRef =
+          typeof artifactRef === "string" || artifactRef === undefined
+            ? undefined
+            : artifactRef;
+        return {
+          data: artifactId
+            ? {
+                artifact: {
+                  artifact_id: artifactId,
+                  manifest_profile_sha256:
+                    expectedRef?.manifest_profile_sha256 ??
+                    options?.manifestProfileSha256 ??
+                    null,
+                  kind:
+                    expectedRef?.kind ??
+                    (artifactId === "artifact-2"
+                      ? "simulation_results"
+                      : "decision_card"),
+                  media_type: expectedRef?.media_type ?? "application/json",
+                  mode: "preview",
+                  preview: { artifactId },
+                  size_bytes: artifactId === "artifact-2" ? 4096 : 1024,
+                  truncated: artifactId === "artifact-2",
+                },
+              }
+            : undefined,
+          error: null,
+          isError: false,
+          isLoading: false,
+        };
+      },
+    );
     useRunDetailSummaryMock.mockImplementation((runId: string) =>
       createSummary({
         artifactRefs:
@@ -953,6 +1014,34 @@ describe("run detail surfaces", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps the selected decision manifest profile in its breadcrumb link", async () => {
+    const selectedRef: EvidenceArtifactRef = {
+      artifact_id: "artifact-shared",
+      kind: "scientist.decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"c".repeat(64)}`,
+    };
+    useRunInspectorMock.mockReturnValue(selectedDecisionSummary(selectedRef));
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const link = await screen.findByRole("link", {
+      name: "pages.runs.decisionArtifact",
+    });
+    const selectedRoute = selectedArtifactRoute(link);
+    expect({
+      pathname: selectedRoute.pathname,
+      tab: selectedRoute.searchParams.get("tab"),
+      artifactRefKey: selectedRoute.searchParams.get("artifactRefKey"),
+      view: selectedRoute.searchParams.get("view"),
+    }).toEqual({
+      pathname: `/artifacts/${selectedRef.artifact_id}`,
+      tab: "content",
+      artifactRefKey: evidenceArtifactRefKey(selectedRef),
+      view: null,
+    });
+  });
+
   it("denies protected bootstrap tabs while keeping fixed bootstrap tabs", async () => {
     useAuthzMock.mockReturnValue(null);
     useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
@@ -1040,6 +1129,13 @@ describe("run detail surfaces", () => {
   });
 
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
+    const selectedRef: EvidenceArtifactRef = {
+      artifact_id: "artifact-1",
+      kind: "scientist.decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"d".repeat(64)}`,
+    };
+    useRunInspectorMock.mockReturnValue(selectedDecisionSummary(selectedRef));
     const positive = epochStalenessPositiveFixture();
     useEpochStalenessMock.mockReturnValue({
       data: {
@@ -1107,10 +1203,20 @@ describe("run detail surfaces", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("Decision Card")).toBeInTheDocument();
-    expect(screen.getByTestId("run-reading-view-link")).toHaveAttribute(
-      "href",
-      "/artifacts/artifact-1?tab=content&view=reading",
+    const selectedRoute = selectedArtifactRoute(
+      screen.getByTestId("run-reading-view-link"),
     );
+    expect({
+      pathname: selectedRoute.pathname,
+      tab: selectedRoute.searchParams.get("tab"),
+      artifactRefKey: selectedRoute.searchParams.get("artifactRefKey"),
+      view: selectedRoute.searchParams.get("view"),
+    }).toEqual({
+      pathname: `/artifacts/${selectedRef.artifact_id}`,
+      tab: "content",
+      artifactRefKey: evidenceArtifactRefKey(selectedRef),
+      view: "reading",
+    });
   });
 
   it("label text shape blocker count timestamp and truthiness do not change posture", async () => {
@@ -1307,27 +1413,42 @@ describe("run detail surfaces", () => {
   });
 
   it("renders OverviewTab with decision, governance, evidence, and timeline sections", () => {
-    const summary = createSummary();
-    useRunInspectorMock.mockReturnValue(
-      createSummary({
-        pipeline: {
-          ...summary.pipeline,
-          evaluator: {
-            ...summary.pipeline.evaluator,
-            verdict: "future-overview-grade",
-          },
+    const selectedRef: EvidenceArtifactRef = {
+      artifact_id: "artifact-1",
+      kind: "scientist.decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"e".repeat(64)}`,
+    };
+    const summary = selectedDecisionSummary(selectedRef);
+    useRunInspectorMock.mockReturnValue({
+      ...summary,
+      pipeline: {
+        ...summary.pipeline,
+        evaluator: {
+          ...summary.pipeline.evaluator,
+          verdict: "future-overview-grade",
         },
-      }),
-    );
+      },
+    });
 
     renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
     expect(screen.getByTestId("run-tab-overview")).toBeInTheDocument();
     expect(screen.getAllByText("Policy summary").length).toBeGreaterThan(0);
-    expect(screen.getByTestId("overview-reading-view-link")).toHaveAttribute(
-      "href",
-      "/artifacts/artifact-1?tab=content&view=reading",
+    const selectedRoute = selectedArtifactRoute(
+      screen.getByTestId("overview-reading-view-link"),
     );
+    expect({
+      pathname: selectedRoute.pathname,
+      tab: selectedRoute.searchParams.get("tab"),
+      artifactRefKey: selectedRoute.searchParams.get("artifactRefKey"),
+      view: selectedRoute.searchParams.get("view"),
+    }).toEqual({
+      pathname: `/artifacts/${selectedRef.artifact_id}`,
+      tab: "content",
+      artifactRefKey: evidenceArtifactRefKey(selectedRef),
+      view: "reading",
+    });
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getAllByText("Inflation").length).toBeGreaterThan(0);
     expect(screen.getByText("start")).toBeInTheDocument();
@@ -1430,16 +1551,145 @@ describe("run detail surfaces", () => {
       "decision_card",
     );
 
-    await userEvent.click(screen.getByTestId("artifact-card-artifact-2"));
+    await userEvent.click(
+      screen.getByTestId(
+        `artifact-card-${encodeURIComponent(evidenceArtifactRefKey({ artifact_id: "artifact-2", kind: "simulation_results" }))}`,
+      ),
+    );
 
     await waitFor(() =>
-      expect(useArtifactContentMock).toHaveBeenLastCalledWith("artifact-2", {
-        maxBytes: 262144,
-      }),
+      expect(useArtifactContentMock).toHaveBeenLastCalledWith(
+        { artifact_id: "artifact-2", kind: "simulation_results" },
+        {
+          maxBytes: 262144,
+        },
+      ),
     );
     expect(
       screen.getByRole("link", { name: "common.openArtifact" }),
-    ).toHaveAttribute("href", "/artifacts/artifact-2");
+    ).toHaveAttribute(
+      "href",
+      expect.stringContaining(
+        "artifactRefKey=%5B%22artifact-2%22%2C%22simulation_results%22",
+      ),
+    );
+  });
+
+  it("keeps same-blob run artifact profiles separately selectable and linked", async () => {
+    const firstProfile = `sha256:${"a".repeat(64)}`;
+    const secondProfile = `sha256:${"b".repeat(64)}`;
+    const refs = [
+      {
+        artifact_id: "artifact-shared",
+        kind: "shared_report",
+        media_type: "application/json",
+        manifest_profile_sha256: firstProfile,
+      },
+      {
+        artifact_id: "artifact-shared",
+        kind: "shared_report",
+        media_type: "application/json",
+        manifest_profile_sha256: secondProfile,
+      },
+      {
+        artifact_id: "artifact-shared",
+        kind: "shared_report_text",
+        media_type: "text/plain",
+        manifest_profile_sha256: firstProfile,
+      },
+    ];
+    useRunInspectorMock.mockReturnValue(createSummary({ artifactRefs: refs }));
+
+    renderRoute("/runs/run-1/artifacts", "/runs/:runId/:tab", <ArtifactsTab />);
+
+    const firstKey = evidenceArtifactRefKey(refs[0]);
+    const secondKey = evidenceArtifactRefKey(refs[1]);
+    expect(
+      screen.getByTestId(`artifact-card-${encodeURIComponent(firstKey)}`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId(`artifact-card-${encodeURIComponent(secondKey)}`),
+    ).toBeInTheDocument();
+    const thirdKey = evidenceArtifactRefKey(refs[2]!);
+    expect(
+      screen.getByTestId(`artifact-card-${encodeURIComponent(thirdKey)}`),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByTestId(`artifact-card-${encodeURIComponent(secondKey)}`),
+    );
+    await waitFor(() =>
+      expect(useArtifactContentMock).toHaveBeenLastCalledWith(refs[1], {
+        maxBytes: 262144,
+      }),
+    );
+    expect(screen.getByTestId("run-artifact-profile")).toHaveTextContent(
+      secondProfile,
+    );
+    const openArtifactHref = screen
+      .getByRole("link", { name: "common.openArtifact" })
+      .getAttribute("href");
+    expect(
+      new URL(openArtifactHref ?? "", "http://localhost").searchParams.get(
+        "artifactRefKey",
+      ),
+    ).toBe(evidenceArtifactRefKey(refs[1]!));
+
+    await userEvent.click(
+      screen.getByTestId(`artifact-card-${encodeURIComponent(thirdKey)}`),
+    );
+    await waitFor(() =>
+      expect(useArtifactContentMock).toHaveBeenLastCalledWith(refs[2], {
+        maxBytes: 262144,
+      }),
+    );
+    expect(screen.getByTestId("artifact-viewer")).toHaveTextContent(
+      "shared_report_text",
+    );
+    expect(screen.getByTestId("run-artifact-profile")).toHaveTextContent(
+      firstProfile,
+    );
+  });
+
+  it("keeps same-ID profile refs distinct in the run evidence link handoff", () => {
+    const firstProfile = `sha256:${"a".repeat(64)}`;
+    const secondProfile = `sha256:${"b".repeat(64)}`;
+    const refs = [
+      {
+        artifact_id: "artifact-shared",
+        kind: "shared_report",
+        media_type: "application/json",
+        manifest_profile_sha256: firstProfile,
+      },
+      {
+        artifact_id: "artifact-shared",
+        kind: "shared_report",
+        media_type: "application/json",
+        manifest_profile_sha256: secondProfile,
+      },
+    ];
+    useRunInspectorMock.mockReturnValue(createSummary({ artifactRefs: refs }));
+
+    renderRoute("/runs/run-1/evidence", "/runs/:runId/:tab", <EvidenceTab />);
+
+    const firstLink = screen.getByTestId(
+      `run-evidence-artifact-link-${encodeURIComponent(evidenceArtifactRefKey(refs[0]))}`,
+    );
+    const secondLink = screen.getByTestId(
+      `run-evidence-artifact-link-${encodeURIComponent(evidenceArtifactRefKey(refs[1]))}`,
+    );
+    expect(
+      new URL(
+        firstLink.getAttribute("href") ?? "",
+        "http://localhost",
+      ).searchParams.get("artifactRefKey"),
+    ).toBe(evidenceArtifactRefKey(refs[0]));
+    expect(
+      new URL(
+        secondLink.getAttribute("href") ?? "",
+        "http://localhost",
+      ).searchParams.get("artifactRefKey"),
+    ).toBe(evidenceArtifactRefKey(refs[1]));
   });
 
   it("renders DebugTab with timeline, node debug, and runtime errors", async () => {

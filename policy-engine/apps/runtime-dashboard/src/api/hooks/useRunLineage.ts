@@ -46,6 +46,7 @@ async function fetchRunLineage(
       nodes: parsed.lineage.nodes ?? [],
       edges: parsed.lineage.edges ?? [],
       root_artifact_ids: parsed.lineage.root_artifact_ids ?? [],
+      root_artifact_refs: parsed.lineage.root_artifact_refs ?? [],
       missing_artifact_ids: parsed.lineage.missing_artifact_ids ?? [],
       corrupted_artifact_ids: parsed.lineage.corrupted_artifact_ids ?? [],
     },

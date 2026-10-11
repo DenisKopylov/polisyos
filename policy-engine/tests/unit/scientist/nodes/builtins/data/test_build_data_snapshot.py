@@ -3,6 +3,10 @@ from __future__ import annotations
 from dataclasses import replace
 from unittest.mock import MagicMock, patch
 
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    artifact_ref_identity_key,
+)
 from polisyos.scientist.nodes.builtins.data.build_data_snapshot import BuildDataSnapshotNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
@@ -28,8 +32,17 @@ def test_snapshot_via_fabric_mock(execution_context, minimal_state, artifact_ref
     outcome = BuildDataSnapshotNode().execute(ctx, state)
     assert outcome.status == "ok"
     assert INPUT_DATA_SNAPSHOT_REF in outcome.state.inputs
-    assert outcome.state.inputs[INPUT_DATA_SNAPSHOT_REF] == snapshot_ref
-    mock_fabric.snapshot.assert_called_once()
+    assert artifact_ref_identity_key(outcome.state.inputs[INPUT_DATA_SNAPSHOT_REF]) == (
+        artifact_ref_identity_key(snapshot_ref)
+    )
+    selected_request = mock_fabric.snapshot.call_args.args[1]
+    assert selected_request.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+        execution_context.store.get_manifest(view_ref)
+    )
+    assert artifact_ref_identity_key(
+        outcome.state.inputs[INPUT_DATA_VIEW_REQUEST_REF]
+    ) == artifact_ref_identity_key(selected_request)
+    mock_fabric.snapshot.assert_called_once_with(execution_context.store, selected_request)
 
 
 def test_no_fabric_port(execution_context, minimal_state):
@@ -60,16 +73,21 @@ def test_snapshot_pii_summary_load_failure_degrades(
 
     mock_fabric = MagicMock()
     mock_fabric.snapshot.return_value = snapshot_ref
-    store = MagicMock()
-    store.get_bytes.side_effect = RuntimeError("snapshot read failed")
-    ctx = replace(execution_context, fabric=mock_fabric, store=store, metrics=None)
+    ctx = replace(execution_context, fabric=mock_fabric, metrics=None)
 
     state = minimal_state.model_copy(deep=True)
     state.inputs[INPUT_DATA_VIEW_REQUEST_REF] = view_ref
 
-    with patch(
-        "polisyos.scientist.nodes.builtins.data.build_data_snapshot.emit_degraded_path",
-    ) as degraded:
+    with (
+        patch.object(
+            execution_context.store,
+            "get_bytes",
+            side_effect=RuntimeError("snapshot read failed"),
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.data.build_data_snapshot.emit_degraded_path",
+        ) as degraded,
+    ):
         outcome = BuildDataSnapshotNode().execute(ctx, state)
 
     assert outcome.status == "ok"
@@ -111,9 +129,12 @@ def test_snapshot_builder_uses_branch_state_for_declared_outputs(
     assert outcome.status == "ok"
     assert observed["write_paths"] == (
         "inputs.data_snapshot_ref",
+        "inputs.data_view_request_ref",
         "params.pii_scan_results",
     )
     assert state.params["nested"] == {"baseline": True}
     assert INPUT_DATA_SNAPSHOT_REF not in state.inputs
-    assert outcome.state.inputs[INPUT_DATA_SNAPSHOT_REF] == snapshot_ref
+    assert artifact_ref_identity_key(outcome.state.inputs[INPUT_DATA_SNAPSHOT_REF]) == (
+        artifact_ref_identity_key(snapshot_ref)
+    )
     assert outcome.state.params["pii_scan_results"]["max_severity"] == "none"

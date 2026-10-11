@@ -7,6 +7,7 @@ import { MetricCard } from "@/features/runs/components/MetricCard";
 import { buildEvidenceHref } from "@/features/runs/routes/useRunDetailSummary";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
+  evidenceArtifactRefKey,
   findRunEvidenceNeed,
   findRunEvidencePlan,
   findRunEvidencePromotion,
@@ -246,9 +247,11 @@ function EvidenceTabContent({ runId }: { runId: string }) {
           <div className="flex flex-wrap gap-2">
             {summary.artifactRefs.map((ref) => (
               <Link
-                key={ref.artifact_id}
+                key={evidenceArtifactRefKey(ref)}
+                data-testid={`run-evidence-artifact-link-${encodeURIComponent(evidenceArtifactRefKey(ref))}`}
                 to={buildEvidenceHref(runId, "artifact", {
                   artifactId: ref.artifact_id,
+                  artifactRefKey: evidenceArtifactRefKey(ref),
                 })}
                 className="bg-surface/75 border-line rounded-full border px-3 py-1 text-xs font-semibold"
               >

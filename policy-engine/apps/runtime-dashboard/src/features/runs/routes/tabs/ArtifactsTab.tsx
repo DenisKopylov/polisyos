@@ -6,19 +6,43 @@ import {
   renderArtifactViewer,
   resolveArtifactPreviewPayload,
 } from "@/features/artifacts";
+import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import { cn, formatBytes } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
-function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
+function ArtifactPreviewContent({
+  artifactRef,
+}: {
+  artifactRef: EvidenceArtifactRef;
+}) {
   const { t, label } = useI18n();
-  const artifactQuery = useSuspenseArtifactContent(artifactId, {
+  const artifactQuery = useSuspenseArtifactContent(artifactRef, {
     maxBytes: 256 * 1024,
   });
   const selectedArtifact = artifactQuery.data.artifact;
+  if (
+    selectedArtifact.artifact_id !== artifactRef.artifact_id ||
+    (artifactRef.kind != null && selectedArtifact.kind !== artifactRef.kind) ||
+    (artifactRef.media_type != null &&
+      selectedArtifact.media_type !== artifactRef.media_type) ||
+    (artifactRef.manifest_profile_sha256 != null &&
+      selectedArtifact.manifest_profile_sha256 !==
+        artifactRef.manifest_profile_sha256)
+  ) {
+    return (
+      <p role="alert" data-testid="run-artifact-profile-mismatch">
+        {t("pages.runs.artifactProfileMismatch")}
+      </p>
+    );
+  }
   const resolvedPreview = resolveArtifactPreviewPayload(selectedArtifact);
 
   return (
@@ -45,13 +69,31 @@ function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
           value={selectedArtifact.truncated ? t("common.yes") : t("common.no")}
         />
       </div>
+      <p
+        className="text-muted font-mono text-xs"
+        data-testid="run-artifact-profile"
+      >
+        {t("pages.runs.manifestProfile")}:{" "}
+        {artifactRef.manifest_profile_sha256 ??
+          t("pages.runs.manifestProfileUnqualified")}
+      </p>
+      <p
+        className="text-muted font-mono text-xs"
+        data-testid="run-artifact-resolved-profile"
+      >
+        {t("pages.artifacts.resolvedManifestProfile")}:{" "}
+        {selectedArtifact.manifest_profile_sha256 ??
+          t("pages.runs.manifestProfileUnqualified")}
+      </p>
       {renderArtifactViewer({
         kind: selectedArtifact.kind,
         preview: resolvedPreview,
       })}
       <div className="flex justify-end">
         <Link
-          to={`/artifacts/${artifactId}`}
+          to={buildArtifactHref(artifactRef.artifact_id, {
+            artifactRef,
+          })}
           className="text-accent text-xs font-semibold underline"
         >
           {t("common.openArtifact")}
@@ -64,16 +106,26 @@ function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
 export default function ArtifactsTab() {
   const { t, label } = useI18n();
   const summary = useRunInspector();
-  const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(
-    summary.artifactRefs[0]?.artifact_id ?? null,
+  const [selectedArtifactKey, setSelectedArtifactKey] = useState<string | null>(
+    summary.artifactRefs[0]
+      ? evidenceArtifactRefKey(summary.artifactRefs[0])
+      : null,
   );
-
   useEffect(() => {
-    const ids = summary.artifactRefs.map((ref) => ref.artifact_id);
-    setSelectedArtifactId((current) =>
-      current && ids.includes(current) ? current : (ids[0] ?? null),
+    const availableArtifactKeys = summary.artifactRefs.map(
+      evidenceArtifactRefKey,
+    );
+    setSelectedArtifactKey((current) =>
+      current && availableArtifactKeys.includes(current)
+        ? current
+        : (availableArtifactKeys[0] ?? null),
     );
   }, [summary.artifactRefs]);
+
+  const selectedArtifactRef =
+    summary.artifactRefs.find(
+      (ref) => evidenceArtifactRefKey(ref) === selectedArtifactKey,
+    ) ?? null;
 
   if (summary.artifactRefs.length === 0) {
     return (
@@ -90,43 +142,52 @@ export default function ArtifactsTab() {
       data-testid="run-tab-artifacts"
     >
       <div className="space-y-2">
-        {summary.artifactRefs.map((ref) => (
-          <button
-            key={ref.artifact_id}
-            type="button"
-            data-testid={`artifact-card-${ref.artifact_id}`}
-            onClick={() => setSelectedArtifactId(ref.artifact_id)}
-            className={cn(
-              "w-full rounded-2xl border p-3 text-left transition",
-              selectedArtifactId === ref.artifact_id
-                ? "border-accent/30 bg-accent/10"
-                : "bg-surface/70 border-line hover:bg-surface",
-            )}
-          >
-            <p className="truncate text-sm font-semibold">
-              {label(
-                "artifactKinds",
-                ref.kind,
-                ref.kind ?? t("pages.runs.noArtifactKind"),
+        {summary.artifactRefs.map((ref) => {
+          const identityKey = evidenceArtifactRefKey(ref);
+          const selected = selectedArtifactKey === identityKey;
+          return (
+            <button
+              key={identityKey}
+              type="button"
+              data-testid={`artifact-card-${encodeURIComponent(identityKey)}`}
+              aria-pressed={selected}
+              onClick={() => setSelectedArtifactKey(identityKey)}
+              className={cn(
+                "w-full rounded-2xl border p-3 text-left transition",
+                selected
+                  ? "border-accent/30 bg-accent/10"
+                  : "bg-surface/70 border-line hover:bg-surface",
               )}
-            </p>
-            <p className="text-muted mt-1 truncate font-mono text-[11px]">
-              {ref.artifact_id}
-            </p>
-          </button>
-        ))}
+            >
+              <p className="truncate text-sm font-semibold">
+                {label(
+                  "artifactKinds",
+                  ref.kind,
+                  ref.kind ?? t("pages.runs.noArtifactKind"),
+                )}
+              </p>
+              <p className="text-muted mt-1 truncate font-mono text-[11px]">
+                {ref.artifact_id}
+              </p>
+              <p className="text-muted mt-1 truncate font-mono text-[10px]">
+                {ref.manifest_profile_sha256 ??
+                  t("pages.runs.manifestProfileUnqualified")}
+              </p>
+            </button>
+          );
+        })}
       </div>
 
       <div className="space-y-3">
-        {selectedArtifactId ? (
+        {selectedArtifactRef ? (
           <FeatureAsyncBoundary
             feature="runs.artifacts.preview"
             title={t("pages.runs.artifactLoadError")}
             body={t("common.pageErrorBody")}
             loading={<PanelSkeleton rows={5} />}
-            resetKeys={[selectedArtifactId]}
+            resetKeys={[evidenceArtifactRefKey(selectedArtifactRef)]}
           >
-            <ArtifactPreviewContent artifactId={selectedArtifactId} />
+            <ArtifactPreviewContent artifactRef={selectedArtifactRef} />
           </FeatureAsyncBoundary>
         ) : (
           <EmptyState

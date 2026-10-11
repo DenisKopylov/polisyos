@@ -1084,14 +1084,52 @@ ADR‑0145.
    в baseline.
 2. Снапшот import graph в
    `architecture/baselines/structure_remediation/import_graph_pre_decomp.json`.
-3. Идентифицировать lazy‑resolution циклы (работают только потому что
-   `if TYPE_CHECKING:` или function‑local imports).
-4. Решение для каждого цикла:
-   - **Резолвить upfront** (вынести общие типы в `_types.py`), или
-   - **Зафиксировать как допустимый lazy edge** в
-     `architecture/imports/lazy.toml` с reason.
-5. **`import_cycles_gate`** — fail‑closed после Phase 3A: запрещает
-   новые non‑lazy циклы; разрешает только записанные в `lazy.toml`.
+3. Keep the full AST import graph as the historical inventory and compare every
+   complete SCC with its exact registration in architecture/imports/lazy.toml.
+   The blocking collector additionally derives module-initialization edges:
+   imports in module/class bodies, decorators, defaults, eagerly evaluated
+   annotations, and source-resolved module-time calls are eager, including
+   named methods reached through direct source-class construction, tracked
+   instance assignments, and source-resolved base-method lookup. Source-known
+   calls whose receiver result, custom `__new__` allocation, unresolved base
+   constructor, transformed source-value origin, or possible binding target remains unresolved are reported as
+   machine-readable `not_established` dispatch rows and fail the gate; the
+   complete input receipt carries those rows and a separate dispatch-resolution
+   status. Receiver, callable, and ordinary local names share the same lexical
+   binding state, so rebinding a method receiver to an unresolved source-call
+   result cannot restore its enclosing class target by spelling. Branch joins
+   union known possible targets and OR the possible-unknown state; a known
+   candidate never cancels an unknown path, and resolution requires a nonempty
+   known target set with no unknown possibility. Source-value origins and unknown state travel together through handled expression transfers, exports, and the shared binding sink: assignment values, augmented assignments, loop and async-loop targets, context-manager targets, exception and match captures, and comprehension targets. Attribute/subscript member state is keyed by source class or allocation-site instance identity, not by the current variable spelling; aliases, rebindings, and branch joins therefore share one owner/member relation. A write through several possible owners retains uncertainty on each candidate rather than asserting that all received the value. Unsupported owner identities and cross-module mutable-owner snapshots remain `not_established`, because the two-pass export does not establish module mutation order. Direct attribute/subscript stores, deletes, and builtin `setattr`/`delattr` updates share one owner-member effect transfer. A strong update requires one guaranteed mutator, owner, and key on every joined path; possible writes weakly join prior and new source origins, while dynamic keys use a wildcard member state that reads retain. Branches with no write and multi-owner effects preserve alternatives. Untrackable owners or keys are explicit `not_established`. Iteration and nested captures remain unknown unless their value is the exact matched subject; no element, `__enter__`, or exception-instance type is inferred from provenance alone. Comprehension target names are restored at the expression boundary. An unmodeled transform or sink that descends from source-owned values remains unknown and is reported instead of disappearing. Source-defined base constructors whose inherited target is not established are also
+   recorded and fail closed. For an indexed source free-function call with an
+   indexed signature, source-owned arguments are mapped across positional-only,
+   positional-or-keyword, keyword-only, `*args`,
+   and `**kwargs` formals using Python signature binding. Positional and
+   keyword-only defaults retain the source-value knowledge captured when the
+   function is defined, including after the name used in a default expression
+   is rebound; an explicit actual overrides that captured default. Literal
+   tuple/list and string-key dictionary expansions are mapped when their shape
+   is known; unresolved expansions and source-derived
+   values whose referenced formal or binding cannot be established are reported
+   as `not_established`. Indexed source callees outside the free-function
+   signature shape keep source-origin actuals and referenced captured defaults
+   `not_established`. The collector does not invent
+   callback edges. Unrecognized indirect and reflective calls
+   remain outside the enumerated scope. A typing guard is
+   deferred only when the name is still bound to an
+   imported TYPE_CHECKING sentinel at that source point; ambiguous or shadowed
+   bindings are treated as executable.
+4. Resolve/register each deferred SCC with its exact module signature and
+   reason. New full-graph SCC signatures remain blocked until registered.
+   A source-resolved module-eager cycle fails even if its signature is already
+   registered as deferred; registration cannot suppress an established eager
+   edge. The deterministic AST collector does not claim whole-language
+   dispatch completeness.
+5. import_cycles_gate remains fail-closed for unregistered full-graph SCCs,
+   registration drift, source-resolved module-eager cycles, and source-known
+   module-time dispatch whose target remains `not_established` within the
+   collector's supported forms. Targetless reflective/callback dispatch is
+   reported as a bounded `not_established` limitation, not as a resolved graph.
 
 ### 14.5 JAX / Pydantic registration audit
 

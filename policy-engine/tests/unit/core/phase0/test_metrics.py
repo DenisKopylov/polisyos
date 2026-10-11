@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from concurrent.futures import ThreadPoolExecutor
 
+import pytest
+
 from polisyos.core.observability import get_metrics
 from polisyos.ir.kernel.metrics import (
     MetricTaxonomyValidationError,
@@ -112,16 +114,14 @@ def test_metric_canonicalizer_records_alias_diagnostics() -> None:
 
 
 def test_metric_canonicalizer_suggests_close_matches_for_unknown_metrics() -> None:
-    try:
+    with pytest.raises(MetricTaxonomyValidationError) as exc_info:
         canonicalize_metric_id_with_diagnostics(
             "msme_survivl_rate",
             path="context.query_outcome",
             fail_unknown=True,
         )
-    except MetricTaxonomyValidationError as exc:
-        assert exc.unknown_metrics == ["msme_survivl_rate"]
-        assert "msme_survival_rate" in exc.suggestions["msme_survivl_rate"]
-        assert exc.failure["code"] == "unknown_production_metric"
-        assert exc.failure["phase"] == "metric_taxonomy"
-    else:  # pragma: no cover - documents the required fail-fast behavior
-        raise AssertionError("unknown production metrics must fail")
+    exc = exc_info.value
+    assert exc.unknown_metrics == ["msme_survivl_rate"]
+    assert "msme_survival_rate" in exc.suggestions["msme_survivl_rate"]
+    assert exc.failure["code"] == "unknown_production_metric"
+    assert exc.failure["phase"] == "metric_taxonomy"

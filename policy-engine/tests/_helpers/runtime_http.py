@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import sys
-from collections.abc import Mapping
-from contextlib import suppress
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
@@ -17,11 +18,27 @@ except ModuleNotFoundError:  # pragma: no cover
     TestClient = None  # type: ignore[assignment]
 
 from _helpers.artifacts import put_json_artifact
-from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef, InputRef
+from polisyos.core.artifacts import (
+    AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+    AUTHORITY_ENVELOPE_SCHEMA_NAME,
+    AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+    artifact_manifest_profile_sha256,
+    artifact_ref_identity_key,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts.manifest import (
+    ArtifactAuthorityInfo,
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace.record import TraceRecord
 from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
 from polisyos.pdc import ArtifactRef as PDCArtifactRef
@@ -72,6 +89,29 @@ def runtime_http_cache_isolation(
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-http-cache").as_posix())
 
 
+@contextmanager
+def _runtime_api_tenant_scope(runtime_api_env: Mapping[str, object]) -> Iterator[None]:
+    """Enter the request owner context used by the runtime HTTP middleware."""
+    tenant_id = runtime_api_env.get("tenant_a")
+    cell_id = runtime_api_env.get("cell_a")
+    if not isinstance(tenant_id, str) or not isinstance(cell_id, str):
+        raise ValueError("runtime_api_tenant_scope_requires_fixture_owner")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        yield
+
+
+def _runtime_api_request(
+    runtime_api_env: Mapping[str, object],
+    request: Callable[..., Any],
+    /,
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    """Run one test-client request under the fixture's actual tenant context."""
+    with _runtime_api_tenant_scope(runtime_api_env):
+        return request(*args, **kwargs)
+
+
 def _runtime_fixture_authority_boundary(
     *,
     boundary_id: str = "boundary-runtime-api-fixture",
@@ -118,18 +158,201 @@ def _record_fixture_owner(
     *refs: object,
     tenant_id: str,
     cell_id: str,
+    runtime_api_env: Mapping[str, object] | None = None,
 ) -> None:
-    """Mark fixture artifacts that participate in tenant-scoped runtime flows."""
-    for ref in refs:
-        artifact_id = getattr(ref, "artifact_id", None)
-        if artifact_id is None:
-            continue
-        store.record_artifact_owner(
-            artifact_id,
+    """Mark CAS views and, when requested, index their real fixture run roots."""
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        for ref in refs:
+            artifact_id = getattr(ref, "artifact_id", None)
+            if artifact_id is None:
+                continue
+            store.record_artifact_owner(
+                artifact_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                writer="tests.runtime_api_env",
+            )
+            supplied_profile = getattr(ref, "manifest_profile_sha256", None)
+            if supplied_profile is not None:
+                if not isinstance(ref, ArtifactRef):
+                    raise TypeError("fixture_profile_view_requires_core_artifact_ref")
+                store._ownership_index.record_view_owner(
+                    artifact_id,
+                    supplied_profile,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    writer="tests.runtime_api_env",
+                )
+                selected_ref = ref
+            else:
+                selected_ref = artifact_id
+
+            manifest = store.get_manifest(selected_ref)
+            profile = artifact_manifest_profile_sha256(manifest)
+            if supplied_profile is not None and supplied_profile != profile:
+                raise ValueError("fixture_owner_ref_profile_mismatch")
+            if supplied_profile is None:
+                store._ownership_index.record_view_owner(
+                    artifact_id,
+                    profile,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    writer="tests.runtime_api_env",
+                )
+    if runtime_api_env is not None:
+        _persist_fixture_owner_run(
+            store,
+            refs,
+            runtime_api_env=runtime_api_env,
             tenant_id=tenant_id,
             cell_id=cell_id,
-            writer="tests.runtime_api_env",
         )
+
+
+def _persist_fixture_owner_run(
+    store: FileSystemCAS,
+    refs: tuple[object, ...],
+    *,
+    runtime_api_env: Mapping[str, object],
+    tenant_id: str,
+    cell_id: str,
+) -> None:
+    """Persist exact fixture refs as roots so the real RunIndex admits HTTP reads."""
+    typed_refs = tuple(ref for ref in refs if isinstance(ref, ArtifactRef))
+    if len(typed_refs) != len(refs) or not typed_refs:
+        raise TypeError("fixture_owner_run_requires_typed_artifact_refs")
+
+    app = runtime_api_env.get("app")
+    runtime_context = getattr(getattr(app, "state", None), "runtime_api_ctx", None)
+    if runtime_context is None or getattr(runtime_context, "store", None) is not store:
+        raise ValueError("fixture_owner_run_requires_matching_runtime_store")
+    registry_ref = runtime_api_env.get("registry_bundle_ref")
+    if not isinstance(registry_ref, ArtifactRef):
+        raise TypeError("fixture_owner_run_requires_typed_registry_bundle_ref")
+
+    identities = sorted(
+        (list(artifact_ref_identity_key(ref)) for ref in typed_refs),
+        key=repr,
+    )
+    owner_digest = hashlib.sha256(
+        json.dumps(
+            {"cell_id": cell_id, "refs": identities, "tenant_id": tenant_id},
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()[:20]
+    run_id = f"R_fixture_artifact_owner_{owner_digest}"
+    run_dir = runtime_context.core_runs_root / run_id
+    expected_identities = tuple(
+        sorted((artifact_ref_identity_key(ref) for ref in typed_refs), key=repr)
+    )
+
+    if run_dir.exists():
+        runtime_context.run_index.refresh(force=True)
+        try:
+            indexed = runtime_context.run_index.get_run(run_id)
+        except KeyError as exc:
+            raise RuntimeError("fixture_owner_run_exists_without_indexed_record") from exc
+        indexed_identities = tuple(
+            sorted(
+                (artifact_ref_identity_key(ref) for ref in indexed.details.root_artifacts),
+                key=repr,
+            )
+        )
+        if (
+            indexed.details.tenant_id != tenant_id
+            or indexed.details.cell_id != cell_id
+            or indexed_identities != expected_identities
+        ):
+            raise RuntimeError("fixture_owner_run_identity_conflict")
+    else:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            _record_fixture_owner(
+                store,
+                registry_ref,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            run = RunContext.start(
+                store=store,
+                registry_bundle=registry_ref,
+                producer=ProducerInfo(
+                    component="polisyos.tests.runtime_http.fixture_artifact_owner",
+                    version="1.0.0",
+                ),
+                run_dir=run_dir,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            for ref in typed_refs:
+                run.add_output(ref)
+            _finalize_fixture_run(
+                run,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                status="completed",
+            )
+        runtime_context.run_index.refresh(force=True)
+        indexed = runtime_context.run_index.get_run(run_id)
+        indexed_identities = tuple(
+            sorted(
+                (artifact_ref_identity_key(ref) for ref in indexed.details.root_artifacts),
+                key=repr,
+            )
+        )
+        if (
+            indexed.details.tenant_id != tenant_id
+            or indexed.details.cell_id != cell_id
+            or indexed_identities != expected_identities
+        ):
+            raise RuntimeError("fixture_owner_run_readback_mismatch")
+
+    for ref in typed_refs:
+        if runtime_context.run_index.get_artifact_tenant(str(ref.artifact_id)) != tenant_id:
+            raise RuntimeError("fixture_owner_run_tenant_readback_mismatch")
+
+
+def _put_fixture_authority_envelope(
+    store: FileSystemCAS,
+    boundary: Mapping[str, object],
+    *,
+    producer_version: str,
+) -> ArtifactRef:
+    """Persist a local purpose boundary under the consumer's envelope contract."""
+    ref = store.put_json(
+        {
+            "authority_result": "authority",
+            "legacy_path_disposition": "authority_path",
+            "authority_boundary": dict(boundary),
+        },
+        PutOptions(
+            kind=AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=AUTHORITY_ENVELOPE_SCHEMA_NAME,
+                version=AUTHORITY_ENVELOPE_SCHEMA_VERSION,
+            ),
+            producer=ProducerInfo(
+                component="polisyos.tests.runtime_api_env",
+                version=producer_version,
+            ),
+        ),
+    )
+    return profile_bound_ref(store, ref)
+
+
+def _finalize_fixture_run(
+    run: RunContext,
+    *,
+    tenant_id: str,
+    cell_id: str,
+    status: str,
+    errors: list[dict[str, object]] | None = None,
+) -> ArtifactRef:
+    """Finalize under the run's recorded owner so CAS input checks are real."""
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        return run.finalize(status=status, errors=errors)
 
 
 def _seed_fixture_producer_cost_events(
@@ -484,36 +707,97 @@ def build_runtime_api_env(
     cas_root = tmp_path / ".polisyos"
     store = FileSystemCAS(cas_root)
 
-    child_ref = _put_json(store, {"child": 1}, kind="test.child")
-    root_ref = _put_json(
+    child_ref = profile_bound_ref(
         store,
-        {"root": True},
-        kind="test.root",
-        inputs=[InputRef(artifact_id=child_ref.artifact_id, role="child")],
+        _put_json(store, {"child": 1}, kind="test.child"),
+    )
+    root_ref = profile_bound_ref(
+        store,
+        _put_json(
+            store,
+            {"root": True},
+            kind="test.root",
+            inputs=[
+                InputRef(
+                    artifact_id=child_ref.artifact_id,
+                    role="child",
+                    manifest_profile_sha256=child_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
     )
     binary_payload = b"x" * 5000
-    binary_authority_ref = _put_json_raw(
+    binary_payload_sha256 = "sha256:" + hashlib.sha256(binary_payload).hexdigest()
+    binary_boundary = {
+        **_runtime_fixture_authority_boundary(boundary_id="boundary-runtime-api-binary"),
+        "subject_ref": binary_payload_sha256,
+        "subject_kind": "test.binary",
+    }
+    binary_authority_ref = _put_fixture_authority_envelope(
         store,
-        _runtime_fixture_authority_boundary(boundary_id="boundary-runtime-api-binary"),
-        kind="runtime.authority_boundary",
+        binary_boundary,
+        producer_version="binary-content-preview-v1",
     )
-    binary_ref = store.put_bytes(
-        binary_payload,
-        PutOptions(
-            kind="test.binary",
-            media_type="application/octet-stream",
-            authority=ArtifactAuthorityInfo(
-                authority_envelope_ref=str(binary_authority_ref.artifact_id),
-                diagnostic_event_ref="event://tests/runtime-api/binary-authority",
-                manifest_ref="manifest://tests/runtime-api/binary",
-                payload_sha256="sha256:" + hashlib.sha256(binary_payload).hexdigest(),
+    binary_ref = profile_bound_ref(
+        store,
+        store.put_bytes(
+            binary_payload,
+            PutOptions(
+                kind="test.binary",
+                media_type="application/octet-stream",
+                authority=ArtifactAuthorityInfo(
+                    authority_envelope_ref=str(binary_authority_ref.artifact_id),
+                    authority_envelope_manifest_profile_sha256=(
+                        binary_authority_ref.manifest_profile_sha256
+                    ),
+                    diagnostic_event_ref="event://tests/runtime-api/binary-authority",
+                    manifest_ref=f"cas-manifest://{binary_payload_sha256}",
+                    payload_sha256=binary_payload_sha256,
+                ),
             ),
         ),
     )
-    secret_ref = _put_json(
+    secret_payload = _with_runtime_fixture_authority({"token": "do-not-expose"})
+    secret_payload_bytes = to_canonical_bytes(secret_payload)
+    secret_payload_sha256 = "sha256:" + hashlib.sha256(secret_payload_bytes).hexdigest()
+    secret_boundary = {
+        "boundary_id": "boundary-runtime-api-secret-lineage-refusal",
+        "authoritative_for": ["dashboard_display"],
+        "may_not_use_for": ["runtime_closeout_authority"],
+        "source_authority": "polisyos.tests.runtime_api_env",
+        "posture": "explicit_fixture_refusal",
+        "rule_version_refs": ["policyos.test.runtime_api.secret-lineage.v1"],
+        "subject_ref": secret_payload_sha256,
+        "subject_kind": "security.secret_bundle",
+    }
+    secret_authority_ref = _put_fixture_authority_envelope(
         store,
-        {"token": "do-not-expose"},
-        kind="security.secret_bundle",
+        secret_boundary,
+        producer_version="secret-lineage-refusal-v1",
+    )
+    secret_ref = profile_bound_ref(
+        store,
+        store.put_bytes(
+            secret_payload_bytes,
+            PutOptions(
+                kind="security.secret_bundle",
+                media_type="application/json",
+                schema=SchemaInfo(name="security.secret_bundle", version="1.0"),
+                producer=ProducerInfo(
+                    component="polisyos.tests.runtime_api_env",
+                    version="secret-bundle-v1",
+                ),
+                authority=ArtifactAuthorityInfo(
+                    authority_envelope_ref=str(secret_authority_ref.artifact_id),
+                    authority_envelope_manifest_profile_sha256=(
+                        secret_authority_ref.manifest_profile_sha256
+                    ),
+                    diagnostic_event_ref="event://tests/runtime-api/secret-authority",
+                    manifest_ref=f"cas-manifest://{secret_payload_sha256}",
+                    payload_sha256=secret_payload_sha256,
+                ),
+            ),
+        ),
     )
 
     core_run_id = "R_core_api_001"
@@ -1015,51 +1299,65 @@ def build_runtime_api_env(
         ),
         kind="scientist.decision_packet",
     )
-    decision_packet_ref_secondary = _put_json(
+    secondary_dependency_refs = [("fixture_parent", root_ref)]
+    decision_packet_ref_secondary = profile_bound_ref(
         store,
-        _with_fixture_authority_surface_packet(
-            {
-                "schema_version": "3.4",
-                "run_id": "R_core_api_002",
-                "inputs": {
-                    "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
-                    "input_bindings_ref": str(input_bindings_ref.artifact_id),
-                    "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
-                    "norm_pack_ref": str(norm_pack_secondary_ref.artifact_id),
+        _put_json(
+            store,
+            _with_fixture_authority_surface_packet(
+                {
+                    "schema_version": "3.4",
+                    "run_id": "R_core_api_002",
+                    "inputs": {
+                        "data_snapshot_ref": str(data_snapshot_ref.artifact_id),
+                        "input_bindings_ref": str(input_bindings_ref.artifact_id),
+                        "evidence_bundle_ref": str(evidence_bundle_ref.artifact_id),
+                        "norm_pack_ref": str(norm_pack_secondary_ref.artifact_id),
+                    },
+                    "artifacts": {
+                        "decision_card_ref": str(decision_card_ref.artifact_id),
+                        "execution_plan_ref": str(execution_plan_ref.artifact_id),
+                        "normative_arbitration_result_ref": str(normative_ref.artifact_id),
+                    },
+                    "simulation_results": {
+                        "policy_cost": 100.0,
+                        "applied_nodes": 1,
+                    },
+                    "feedback_loop": {
+                        "anchor_at": "2026-02-11T12:05:00Z",
+                        "monitoring_contract_ref": monitoring_contract_ref.model_dump(
+                            mode="json"
+                        ),
+                        "latest_monitoring_report_ref": None,
+                        "latest_compare_report_ref": None,
+                        "latest_reissue_plan_ref": None,
+                        "backtest_mode_effective": "scientist",
+                        "backtest_trust_eligible": True,
+                    },
+                    "governance": {
+                        "verdict": "reject",
+                        "issues": [
+                            {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
+                        ],
+                        "notes": ["fallback-governance"],
+                    },
+                    "diagnostics_summary": {
+                        "legal_executed": True,
+                        "contract_warnings": [],
+                    },
                 },
-                "artifacts": {
-                    "decision_card_ref": str(decision_card_ref.artifact_id),
-                    "execution_plan_ref": str(execution_plan_ref.artifact_id),
-                    "normative_arbitration_result_ref": str(normative_ref.artifact_id),
-                },
-                "simulation_results": {
-                    "policy_cost": 100.0,
-                    "applied_nodes": 1,
-                },
-                "feedback_loop": {
-                    "anchor_at": "2026-02-11T12:05:00Z",
-                    "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
-                    "latest_monitoring_report_ref": None,
-                    "latest_compare_report_ref": None,
-                    "latest_reissue_plan_ref": None,
-                    "backtest_mode_effective": "scientist",
-                    "backtest_trust_eligible": True,
-                },
-                "governance": {
-                    "verdict": "reject",
-                    "issues": [
-                        {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
-                    ],
-                    "notes": ["fallback-governance"],
-                },
-                "diagnostics_summary": {
-                    "legal_executed": True,
-                    "contract_warnings": [],
-                },
-            },
-            run_id="R_core_api_002",
+                run_id="R_core_api_002",
+            ),
+            kind="scientist.decision_packet",
+            inputs=[
+                InputRef(
+                    artifact_id=ref.artifact_id,
+                    role=role,
+                    manifest_profile_sha256=ref.manifest_profile_sha256,
+                )
+                for role, ref in secondary_dependency_refs
+            ],
         ),
-        kind="scientist.decision_packet",
     )
     reflexion_terminal_ref = _put_json(
         store,
@@ -1354,9 +1652,12 @@ def build_runtime_api_env(
 
     _record_fixture_owner(
         store,
+        child_ref,
+        root_ref,
         binary_ref,
         binary_authority_ref,
         secret_ref,
+        secret_authority_ref,
         registry_ref,
         governance_ref,
         evidence_bundle_ref,
@@ -1446,7 +1747,10 @@ def build_runtime_api_env(
             fixture_role="core",
             binding_factory=run_paper_binding_factory,
         )
-    run.finalize(
+    _finalize_fixture_run(
+        run,
+        tenant_id=tenant_a,
+        cell_id=cell_a,
         status="fail",
         errors=[{"code": "run.failed", "message": "workflow execution failed"}],
     )
@@ -1465,7 +1769,12 @@ def build_runtime_api_env(
         metrics={"duration_ms": 3, "status_ok": 1},
     )
     second_run.add_output(decision_packet_ref_secondary)
-    second_run.finalize(status="completed")
+    _finalize_fixture_run(
+        second_run,
+        tenant_id=tenant_a,
+        cell_id=cell_a,
+        status="completed",
+    )
 
     cross_tenant_run_id = "R_core_api_tenant_b_001"
     cross_tenant_run = RunContext.start(
@@ -1481,7 +1790,12 @@ def build_runtime_api_env(
         metrics={"duration_ms": 2, "status_ok": 1},
     )
     cross_tenant_run.add_output(decision_packet_ref_secondary)
-    cross_tenant_run.finalize(status="completed")
+    _finalize_fixture_run(
+        cross_tenant_run,
+        tenant_id=tenant_b,
+        cell_id=cell_a,
+        status="completed",
+    )
 
     run_paper_metadata: dict[str, str] = {}
     if include_run_paper_fixtures:
@@ -1511,7 +1825,12 @@ def build_runtime_api_env(
                 fixture_role="empty",
                 binding_factory=run_paper_binding_factory,
             )
-        empty_run.finalize(status="completed")
+        _finalize_fixture_run(
+            empty_run,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+            status="completed",
+        )
 
         growth_refs = [
             _put_json(
@@ -1550,7 +1869,12 @@ def build_runtime_api_env(
                 fixture_role="growth",
                 binding_factory=run_paper_binding_factory,
             )
-        growth_run.finalize(status="completed")
+        _finalize_fixture_run(
+            growth_run,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+            status="completed",
+        )
         run_paper_metadata = {
             **(
                 {"run_paper_bound_run_id": core_run_id}
@@ -1648,6 +1972,7 @@ def build_runtime_api_env(
         "app": app,
         "client": client,
         "cas_root": cas_root,
+        "registry_bundle_ref": registry_ref,
         "core_run_id": core_run_id,
         "core_run_id_secondary": core_run_id_secondary,
         "cross_tenant_run_id": cross_tenant_run_id,

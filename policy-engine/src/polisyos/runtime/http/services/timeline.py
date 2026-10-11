@@ -193,6 +193,8 @@ def _load_trace_events(path: Path) -> list[RunTimelineEvent]:
                         parent_span_id=record.parent_span_id,
                         input_artifact_ids=[str(ref.artifact_id) for ref in record.refs.inputs],
                         output_artifact_ids=[str(ref.artifact_id) for ref in record.refs.outputs],
+                        input_artifact_refs=list(record.refs.inputs),
+                        output_artifact_refs=list(record.refs.outputs),
                         metrics=metrics,
                         warning_count=len(record.warnings),
                         error_count=len(record.errors),

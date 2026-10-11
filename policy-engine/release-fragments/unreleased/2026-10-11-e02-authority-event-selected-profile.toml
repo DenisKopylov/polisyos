@@ -1,0 +1,30 @@
+id = "2026-10-11-e02-authority-event-selected-profile"
+title = "Bind runtime authority events to selected CAS views"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Persist and re-read the exact diagnostic-event manifest profile linked by runtime authority artifacts."
+evidence = ["tests/unit/runtime/quality/test_authority_reconciliation.py", "tests/unit/core/artifacts/test_artifact_store_protocol.py"]
+compatibility = "Adds optional profile selectors to authority/event refs; profileless historical records retain their default-view serialization and persisted schema version."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts.ArtifactAuthorityInfo; internal: polisyos.pdc.ArtifactRef (not a supported package entrypoint)"
+migration = "Strict external consumers that validate exact model field sets should accept the additive selected-profile fields; historical profileless values remain omitted."
+api = "Authority links and runtime evidence envelopes carry runtime_event_manifest_profile_sha256 when a producer selected a concrete event manifest view."
+limitations = "FileSystemCAS filtered inventory is scoped to one artifact ID and current owner visibility; hidden tenant views and backends without the optional inventory capability are not globally enumerated."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "authority-event-manifest-profile"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts.ArtifactAuthorityInfo.diagnostic_event_manifest_profile_sha256"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Authority links now preserve the exact selected diagnostic-event CAS manifest view."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

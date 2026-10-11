@@ -575,6 +575,10 @@ describe("DataIntelligencePanel", () => {
           relatedArtifacts: [],
           warnings: [],
           dataSnapshotRef: null,
+          dataViewRequestRef: null,
+          fabricRetrievalTraceRef: null,
+          materializationRefs: {},
+          productionDataEvidenceContext: {},
         }}
         selectedPromotion={{
           confidence: 0.82,
@@ -606,5 +610,26 @@ describe("DataIntelligencePanel", () => {
         'panels.reviewCollaboration.lockedBy:{"name":"Reviewer Bob"}',
       ),
     ).toBeInTheDocument();
+  });
+
+  it("renders the selected artifact manifest profile in run context", () => {
+    const manifestProfile = `sha256:${"c".repeat(64)}`;
+    renderWithProviders(
+      <DataIntelligencePanel
+        mode="context"
+        runId="run-profiled"
+        selectedArtifact={{
+          artifact_id: "shared-blob",
+          kind: "fabric.data_snapshot",
+          media_type: "application/json",
+          manifest_profile_sha256: manifestProfile,
+        }}
+      />,
+      { interactiveProviders: true },
+    );
+
+    expect(
+      screen.getByTestId("selected-artifact-manifest-profile"),
+    ).toHaveTextContent(manifestProfile);
   });
 });

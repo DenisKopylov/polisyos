@@ -1756,6 +1756,17 @@
             "title": "Kind",
             "type": "string"
           },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
           "max_bytes": {
             "minimum": 1.0,
             "title": "Max Bytes",
@@ -1773,6 +1784,16 @@
             ],
             "title": "Mode",
             "type": "string"
+          },
+          "predictive_coverage_diagnostic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PredictiveCoverageDiagnosticPreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "preview": {
             "title": "Preview"
@@ -1833,9 +1854,31 @@
             "title": "Child Artifact Id",
             "type": "string"
           },
+          "child_manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Child Manifest Profile Sha256"
+          },
           "parent_artifact_id": {
             "title": "Parent Artifact Id",
             "type": "string"
+          },
+          "parent_manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Manifest Profile Sha256"
           },
           "role": {
             "title": "Role",
@@ -1880,6 +1923,28 @@
               }
             ],
             "title": "Kind"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Type"
           },
           "role": {
             "anyOf": [
@@ -1959,11 +2024,25 @@
             "title": "Nodes",
             "type": "array"
           },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
           "root_artifact_ids": {
             "items": {
               "type": "string"
             },
             "title": "Root Artifact Ids",
+            "type": "array"
+          },
+          "root_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Root Artifact Refs",
             "type": "array"
           },
           "total_edges": {
@@ -2038,6 +2117,17 @@
           "kind": {
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "title": "Media Type",
@@ -2475,6 +2565,17 @@
           "kind": {
             "title": "Kind",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
           },
           "media_type": {
             "title": "Media Type",
@@ -5693,6 +5794,19 @@
             "minLength": 1,
             "title": "Jurisdiction",
             "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional exact manifest profile for the source artifact.",
+            "title": "Manifest Profile Sha256"
           },
           "template_version": {
             "anyOf": [
@@ -9950,6 +10064,13 @@
               }
             ],
             "title": "Run Id"
+          },
+          "runtime_quality_artifact_refs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Runtime Quality Artifact Refs",
+            "type": "object"
           },
           "runtime_state": {
             "anyOf": [
@@ -27893,6 +28014,219 @@
         "title": "PredictableScheduleProfile",
         "type": "object"
       },
+      "PredictiveCoverageDiagnosticPreview": {
+        "additionalProperties": false,
+        "description": "Limited, reader-materialized interval diagnostic; never an S10 grade.",
+        "properties": {
+          "assessment": {
+            "const": "limited",
+            "title": "Assessment",
+            "type": "string"
+          },
+          "causal_effect_status": {
+            "const": "not_established",
+            "title": "Causal Effect Status",
+            "type": "string"
+          },
+          "counterfactual_credibility_status": {
+            "const": "not_established",
+            "title": "Counterfactual Credibility Status",
+            "type": "string"
+          },
+          "effective_time_status": {
+            "const": "not_established",
+            "title": "Effective Time Status",
+            "type": "string"
+          },
+          "issuer_status": {
+            "const": "not_established",
+            "title": "Issuer Status",
+            "type": "string"
+          },
+          "may_not_use_for": {
+            "items": {
+              "enum": [
+                "promotion",
+                "publication",
+                "policy_selection",
+                "causal_effect_claim"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "measurement_status": {
+            "enum": [
+              "measured",
+              "not_measured",
+              "invalid_source"
+            ],
+            "title": "Measurement Status",
+            "type": "string"
+          },
+          "metric": {
+            "const": "predictive_interval_coverage",
+            "title": "Metric",
+            "type": "string"
+          },
+          "producer_attestation_status": {
+            "const": "not_established",
+            "title": "Producer Attestation Status",
+            "type": "string"
+          },
+          "reason_code": {
+            "enum": [
+              "none",
+              "no_evaluated_intervals",
+              "predictive_scope_not_established",
+              "unsupported_report_scope",
+              "malformed_report_shape",
+              "malformed_interval_counts",
+              "stored_hit_rate_mismatch"
+            ],
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "s10_metric_mapping_status": {
+            "const": "not_established",
+            "title": "S10 Metric Mapping Status",
+            "type": "string"
+          },
+          "s10_threshold_status": {
+            "const": "not_established",
+            "title": "S10 Threshold Status",
+            "type": "string"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/PredictiveCoverageScenarioPreview"
+            },
+            "title": "Scenarios",
+            "type": "array"
+          },
+          "source_artifact_id": {
+            "title": "Source Artifact Id",
+            "type": "string"
+          },
+          "source_manifest_profile_sha256": {
+            "title": "Source Manifest Profile Sha256",
+            "type": "string"
+          },
+          "source_materialization": {
+            "const": "reader_materialized",
+            "title": "Source Materialization",
+            "type": "string"
+          },
+          "source_schema_version": {
+            "const": "1.0",
+            "title": "Source Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_artifact_id",
+          "source_manifest_profile_sha256",
+          "source_schema_version",
+          "metric",
+          "measurement_status",
+          "reason_code",
+          "assessment",
+          "source_materialization",
+          "producer_attestation_status",
+          "s10_metric_mapping_status",
+          "s10_threshold_status",
+          "issuer_status",
+          "effective_time_status",
+          "counterfactual_credibility_status",
+          "causal_effect_status",
+          "may_not_use_for",
+          "scenarios"
+        ],
+        "title": "PredictiveCoverageDiagnosticPreview",
+        "type": "object"
+      },
+      "PredictiveCoverageScenarioPreview": {
+        "additionalProperties": false,
+        "description": "One scenario's recomputed predictive interval counts for inspection.",
+        "properties": {
+          "interval_available_count": {
+            "minimum": 0.0,
+            "title": "Interval Available Count",
+            "type": "integer"
+          },
+          "interval_evaluated_count": {
+            "minimum": 0.0,
+            "title": "Interval Evaluated Count",
+            "type": "integer"
+          },
+          "interval_hit_count": {
+            "minimum": 0.0,
+            "title": "Interval Hit Count",
+            "type": "integer"
+          },
+          "interval_requested_count": {
+            "minimum": 0.0,
+            "title": "Interval Requested Count",
+            "type": "integer"
+          },
+          "interval_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interval Type"
+          },
+          "metric_name": {
+            "title": "Metric Name",
+            "type": "string"
+          },
+          "nominal_confidence_level": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nominal Confidence Level"
+          },
+          "observed_hit_rate": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Hit Rate"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "metric_name",
+          "interval_requested_count",
+          "interval_available_count",
+          "interval_evaluated_count",
+          "interval_hit_count"
+        ],
+        "title": "PredictiveCoverageScenarioPreview",
+        "type": "object"
+      },
       "PreflightDiagnosticView": {
         "additionalProperties": false,
         "description": "API view of one preflight diagnostic surfaced to runtime clients.",
@@ -31768,6 +32102,16 @@
             ],
             "title": "Finished At"
           },
+          "generic_cycle_simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunGenericCycleSimulationProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "has_trace": {
             "default": false,
             "title": "Has Trace",
@@ -32096,6 +32440,16 @@
             "type": "array"
           },
           "data_snapshot_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "data_view_request_ref": {
             "anyOf": [
               {
                 "$ref": "#/components/schemas/ArtifactRef-Output"
@@ -32615,6 +32969,598 @@
         "title": "RunFeedbackView",
         "type": "object"
       },
+      "RunGenericCycleSimulationChildProfileBinding": {
+        "additionalProperties": false,
+        "description": "Historical profile row joined to one persisted N4-derived child.",
+        "properties": {
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "historical_binding_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Historical Binding Status",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "profile_id": {
+            "minLength": 1,
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "profile_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "profile_selection_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Profile Selection Ref",
+            "type": "string"
+          },
+          "semantic_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Semantic Ref",
+            "type": "string"
+          },
+          "source_atom_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Source Atom Refs",
+            "type": "array"
+          },
+          "source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "source_result_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Result Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "design_problem_ref",
+          "source_ref",
+          "source_result_ref",
+          "source_atom_refs",
+          "semantic_ref",
+          "context_job_ref",
+          "profile_ref",
+          "profile_id",
+          "profile_selection_ref",
+          "historical_binding_status"
+        ],
+        "title": "RunGenericCycleSimulationChildProfileBinding",
+        "type": "object"
+      },
+      "RunGenericCycleSimulationN5Observation": {
+        "additionalProperties": false,
+        "description": "One historical, candidate-only N5 observation and its persisted lineage.",
+        "properties": {
+          "atom_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Blockers",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "cycle_input_candidate_only",
+            "default": "cycle_input_candidate_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "child_profile_family_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_profile_set_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_request_binding_status": {
+            "default": "not_established",
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "N5 Request Binding Status",
+            "type": "string"
+          },
+          "n5_request_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N5 Request Content Hash"
+          },
+          "n8_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Authority Blockers",
+            "type": "array"
+          },
+          "n8_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Limitation Code"
+          },
+          "n8_lineage_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "N8 Lineage Status",
+            "type": "string"
+          },
+          "n8_status": {
+            "enum": [
+              "value_ready",
+              "value_conditional",
+              "value_blocked",
+              "value_pending_n8"
+            ],
+            "title": "N8 Status",
+            "type": "string"
+          },
+          "n8_value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Value Ref"
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "profile_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "profile_selection_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Profile Selection Ref",
+            "type": "string"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_outcomes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Outcomes",
+            "type": "array"
+          },
+          "simulation_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Content Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "design_problem_ref",
+          "cycle_index",
+          "candidate_id",
+          "status",
+          "n4_source_ref",
+          "context_job_ref",
+          "profile_ref",
+          "n5_input_ref",
+          "profile_selection_ref",
+          "world_model_record_content_hash",
+          "n8_status",
+          "n8_lineage_status"
+        ],
+        "title": "RunGenericCycleSimulationN5Observation",
+        "type": "object"
+      },
+      "RunGenericCycleSimulationProjection": {
+        "additionalProperties": false,
+        "description": "Persisted generic simulation lineage exposed as candidate-only history.",
+        "properties": {
+          "artifact_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Artifact Status",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "cycle_input_candidate_only",
+            "default": "cycle_input_candidate_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "child_profile_bindings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationChildProfileBinding"
+            },
+            "title": "Child Profile Bindings",
+            "type": "array"
+          },
+          "child_profile_family_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_profile_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Child Profile Limitation Code"
+          },
+          "child_profile_set_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_profile_status": {
+            "enum": [
+              "not_attempted",
+              "resolved",
+              "not_established"
+            ],
+            "title": "Child Profile Status",
+            "type": "string"
+          },
+          "credal_source_attempt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "credal_source_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_source_authority_not_established",
+                  "candidate_source_attempt_replay_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credal Source Limitation Code"
+          },
+          "credal_source_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credal Source Status"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "n4_source_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Source Limitation Code"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n4_source_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N4 Source Status"
+          },
+          "n5_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N5 Limitation Code"
+          },
+          "n5_observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN5Observation"
+            },
+            "title": "N5 Observations",
+            "type": "array"
+          },
+          "parent_context_job_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent_profile_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Profile Id"
+          },
+          "parent_profile_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "recursive_cycle_checkpoint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunRecursiveCycleCheckpoint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+            "enum": [
+              "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+              "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+            ],
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "artifact_status",
+          "child_profile_status"
+        ],
+        "title": "RunGenericCycleSimulationProjection",
+        "type": "object"
+      },
       "RunLaunchResponse": {
         "additionalProperties": false,
         "description": "Return the accepted/rejected control-job id and effective execution profile.",
@@ -32752,6 +33698,13 @@
             "title": "Input Artifact Ids",
             "type": "array"
           },
+          "input_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Input Artifact Refs",
+            "type": "array"
+          },
           "node_id": {
             "anyOf": [
               {
@@ -32768,6 +33721,13 @@
               "type": "string"
             },
             "title": "Output Artifact Ids",
+            "type": "array"
+          },
+          "output_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Output Artifact Refs",
             "type": "array"
           },
           "skip_reason": {
@@ -34212,6 +35172,13 @@
             "title": "Input Artifact Ids",
             "type": "array"
           },
+          "input_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Input Artifact Refs",
+            "type": "array"
+          },
           "metrics": {
             "additionalProperties": {
               "anyOf": [
@@ -34231,6 +35198,13 @@
               "type": "string"
             },
             "title": "Output Artifact Ids",
+            "type": "array"
+          },
+          "output_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Output Artifact Refs",
             "type": "array"
           },
           "parent_span_id": {
@@ -34501,6 +35475,13 @@
             "title": "Input Artifact Ids",
             "type": "array"
           },
+          "input_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Input Artifact Refs",
+            "type": "array"
+          },
           "node_id": {
             "anyOf": [
               {
@@ -34517,6 +35498,13 @@
               "type": "string"
             },
             "title": "Output Artifact Ids",
+            "type": "array"
+          },
+          "output_artifact_refs": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Output Artifact Refs",
             "type": "array"
           },
           "skip_reason": {
@@ -40912,6 +41900,7 @@
                           "inputs": [],
                           "integrity_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                           "kind": "scientist.workflow_report",
+                          "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                           "media_type": "application/json",
                           "producer_component": "scientist.run_governance",
                           "producer_version": "1.0.0",
@@ -41146,6 +42135,27 @@
               "title": "Artifact Id",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
+            }
           }
         ],
         "responses": {
@@ -41163,6 +42173,7 @@
                         "inputs": [],
                         "integrity_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                         "kind": "scientist.workflow_report",
+                        "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                         "media_type": "application/json",
                         "producer_component": "scientist.run_governance",
                         "producer_version": "1.0.0",
@@ -41195,21 +42206,24 @@
                 "description": "Traverse lineage for the same artifact.",
                 "operationId": "get_artifact_lineage",
                 "parameters": {
-                  "artifact_id": "$response.body#/artifact/artifact_id"
+                  "artifact_id": "$response.body#/artifact/artifact_id",
+                  "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256"
                 }
               },
               "artifactPreview": {
                 "description": "Fetch a preview or raw representation for the same artifact.",
                 "operationId": "get_artifact_content",
                 "parameters": {
-                  "artifact_id": "$response.body#/artifact/artifact_id"
+                  "artifact_id": "$response.body#/artifact/artifact_id",
+                  "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256"
                 }
               },
               "artifactSchema": {
                 "description": "Inspect the schema contract associated with the same artifact.",
                 "operationId": "get_artifact_schema",
                 "parameters": {
-                  "artifact_id": "$response.body#/artifact/artifact_id"
+                  "artifact_id": "$response.body#/artifact/artifact_id",
+                  "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256"
                 }
               }
             }
@@ -41438,6 +42452,27 @@
               ],
               "title": "Max Bytes"
             }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
+            }
           }
         ],
         "responses": {
@@ -41474,6 +42509,7 @@
                           }
                         },
                         "kind": "scientist.decision_packet",
+                        "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                         "max_bytes": 4096,
                         "media_type": "application/json",
                         "mode": "json",
@@ -41717,6 +42753,27 @@
             "schema": {
               "title": "Artifact Id",
               "type": "string"
+            }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
             }
           }
         ],
@@ -41977,6 +43034,27 @@
               ],
               "title": "Max Nodes"
             }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
+            }
           }
         ],
         "responses": {
@@ -41998,12 +43076,22 @@
                             "byte_size": 1024,
                             "depth": 0,
                             "kind": "scientist.workflow_report",
+                            "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                            "media_type": "application/json",
                             "role": "root",
                             "status": "ok"
                           }
                         ],
                         "root_artifact_ids": [
                           "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                        ],
+                        "root_artifact_refs": [
+                          {
+                            "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            "kind": "scientist.workflow_report",
+                            "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                            "media_type": "application/json"
+                          }
                         ],
                         "total_edges": 0,
                         "total_nodes": 1,
@@ -42218,6 +43306,247 @@
         ]
       }
     },
+    "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic": {
+      "get": {
+        "description": "Return a reader-materialized predictive diagnostic, never raw report bytes.",
+        "operationId": "get_predictive_coverage_diagnostic",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictiveCoverageDiagnosticPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Predictive Coverage Diagnostic",
+        "tags": [
+          "runtime-artifacts"
+        ]
+      }
+    },
     "/api/v1/artifacts/{artifact_id}/schema": {
       "get": {
         "operationId": "get_artifact_schema",
@@ -42229,6 +43558,27 @@
             "schema": {
               "title": "Artifact Id",
               "type": "string"
+            }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
             }
           }
         ],
@@ -42248,6 +43598,7 @@
                       "schema": {
                         "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                         "kind": "scientist.workflow_report",
+                        "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                         "media_type": "application/json",
                         "schema_name": "scientist.workflow_report",
                         "schema_version": "1.0",
@@ -42530,6 +43881,27 @@
                 }
               ],
               "title": "Template Version"
+            }
+          },
+          {
+            "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+            "in": "query",
+            "name": "manifest_profile_sha256",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 71,
+                  "minLength": 71,
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected.",
+              "title": "Manifest Profile Sha256"
             }
           },
           {
@@ -59793,18 +61165,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:8865dac8ee72c782b13534cd9e044e37e5d6204d1fc9f5fe0b8456c048acf3a3",
+                      "projection_hash": "sha256:6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A8865dac8ee72c782b13534cd9e044e37e5d6204d1fc9f5fe0b8456c048acf3a3&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A71acbac933d980a9b0517ceffa82565ee7c72e8dac056946df008fd9ec878c80",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:8865dac8ee72c782b13534cd9e044e37e5d6204d1fc9f5fe0b8456c048acf3a3",
+                        "projection_hash": "sha256:6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:71acbac933d980a9b0517ceffa82565ee7c72e8dac056946df008fd9ec878c80"
+                        "source_dependency_hash": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -59813,8 +61185,8 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:71acbac933d980a9b0517ceffa82565ee7c72e8dac056946df008fd9ec878c80",
-                          "bound_dependency_count": 1598,
+                          "bound_dependency_aggregate_identity": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
+                          "bound_dependency_count": 1461,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
                           "recomputed_total_spend_denominator": 1,
@@ -59829,16 +61201,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:1dd6cc9592fcb99518727b37063e9f4a789ae5041c20945f77f5fbf559483f2b"
+                          "worker_validation_receipt_hash": "sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:71acbac933d980a9b0517ceffa82565ee7c72e8dac056946df008fd9ec878c80",
+                      "source_dependency_hash": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:1dd6cc9592fcb99518727b37063e9f4a789ae5041c20945f77f5fbf559483f2b",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:1dd6cc9592fcb99518727b37063e9f4a789ae5041c20945f77f5fbf559483f2b"
+                      "worker_validation_receipt_hash": "sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061"
                     }
                   }
                 },

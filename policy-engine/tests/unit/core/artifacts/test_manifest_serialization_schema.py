@@ -14,6 +14,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
+    ArtifactAuthorityInfo,
     ArtifactManifest,
     ArtifactRef,
     InputRef,
@@ -187,3 +188,24 @@ def test_served_channel_projection_keeps_typed_nested_artifact_ref_schema() -> N
     _assert_strict_serialization_schema(artifact_ref_schema)
     assert field["anyOf"][0]["$ref"] == "#/$defs/ArtifactRef"
     assert artifact_ref_schema["properties"]["artifact_id"]["type"] == "string"
+
+
+
+def test_profileless_authority_event_link_keeps_historical_dump_shape() -> None:
+    authority = ArtifactAuthorityInfo(
+        authority_envelope_ref="sha256:" + "a" * 64,
+        diagnostic_event_ref="sha256:" + "b" * 64,
+        manifest_ref="cas-manifest://sha256:" + "c" * 64,
+        payload_sha256="c" * 64,
+    )
+    assert authority.model_dump(mode="json") == {
+        "authority_envelope_ref": "sha256:" + "a" * 64,
+        "diagnostic_event_ref": "sha256:" + "b" * 64,
+        "manifest_ref": "cas-manifest://sha256:" + "c" * 64,
+        "payload_sha256": "c" * 64,
+    }
+    selected_profile = "sha256:" + "d" * 64
+    selected = authority.model_copy(
+        update={"diagnostic_event_manifest_profile_sha256": selected_profile}
+    )
+    assert selected.model_dump(mode="json")["diagnostic_event_manifest_profile_sha256"] == selected_profile

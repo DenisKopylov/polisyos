@@ -1,6 +1,6 @@
 # Scientist Deep Research Evidence Stack
 
-Status: Phase 1.3 runtime contract.
+Status: Phase 1.3 runtime contract; proposed deep-research schema 1.1 remains pending G.
 Owner: `@scientist-owners`
 
 Source of truth:
@@ -21,6 +21,41 @@ Phase 1.3 adds only additive fields:
 
 - `fetch_safety_events: list[FetchSafetyEvent]`
 - `source_quality_signals: list[SourceQualitySignal]`
+
+### Proposed provider-attempt trace (WebEvidenceBundle 1.1; pending G)
+
+The candidate additive `SearchQueryTrace.provider_attempts` field stores one
+`ProviderAttemptTrace` for each provider call actually observed by the existing
+failover policy. The record retains call order, observed outcome, the cause the
+adapter established, available response/normalization/constraint counts, and a
+fixed error category plus a bounded exception type. It never persists exception
+text, request URLs, credentials, search terms copied from an exception, or
+response payloads. Legacy search APIs may still return their existing public
+failure text; the persisted candidate trace does not. It does not add a provider,
+request, retry, schedule, or source-quality rule.
+
+The existing 1.0 reader remains valid: absent attempt detail stays absent and
+unknown; existing CAS objects are not rewritten. When a 1.0 bundle is resumed or
+re-emitted as a new 1.1 candidate, its historical free-text query/frontier errors
+are projected to `legacy_error_not_established`; no attempt, provider cause, or
+exhaustion fact is inferred. Every 1.1 query/frontier error is constrained to a
+fixed category even when attempt detail is absent. The candidate producer changes
+new writes to 1.1; that behavior is not accepted for publication until G selects
+the wire-version change. A 1.0 payload containing attempt data is invalid. On a
+1.1 trace, strict nonnegative integer counts and
+cross-field validation reject impossible error/hit/empty states and reconcile
+known raw, normalized, eligible, rejected, and returned counts. Unknown counts
+remain nullable; legacy list-only providers and unobservable upstream populations
+are not assigned fabricated rejection causes.
+
+An attempt sequence records calls, not the configured provider roster. It cannot
+establish that a provider list was complete, that no source exists, or that a
+search is globally exhausted. A nonempty provider result followed by an
+inaccessible page does not trigger a new search fallback. Attempt detail is
+persisted in the canonical Scholar CAS artifact; this proposal adds no new
+supported Python symbol or HTTP endpoint. Existing human-facing evidence
+rendering and the summary-only SKG projection remain unchanged until G assigns
+any additional surface requirement.
 
 `ClaimSupportLink.claim_id` maps to Phase 1.1 claim ids when available.
 Legacy/local projections keep `metadata.claim_id_namespace = "legacy_local"`.

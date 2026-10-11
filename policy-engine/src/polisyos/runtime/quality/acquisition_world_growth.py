@@ -14,7 +14,7 @@ import os
 from collections.abc import Iterator, Sequence  # noqa: TC003
 from contextlib import contextmanager
 from datetime import UTC, datetime
-from decimal import Decimal  # noqa: TC003 - Pydantic resolves this annotation
+from decimal import Decimal  # Pydantic resolves this annotation
 from pathlib import Path  # noqa: TC003
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 

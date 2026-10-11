@@ -28,7 +28,7 @@ def test_wave6_exit_criteria_have_two_green_runs_or_owner_exception() -> None:
     assert header["wave"] == "6"
     assert header["completed_on"] <= today
     assert header["active_source_move_report_only_blockers"] == []
-    assert REQUIRED_WAVE6_GATES <= set(gates)
+    assert set(gates) >= REQUIRED_WAVE6_GATES
 
     for gate_id, gate in gates.items():
         assert gate["owner"].startswith("team-"), gate_id

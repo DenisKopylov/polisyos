@@ -1,13 +1,20 @@
 import { Link } from "react-router-dom";
 
+import { buildArtifactHref } from "@/features/artifacts/domain/searchParams";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { chartTheme } from "./chartTheme";
 
 type LineageNode = {
   artifact_id: string;
+  manifest_profile_sha256?: string | null;
   depth: number;
   kind?: string | null;
+  media_type?: string | null;
   status: string;
   role?: string | null;
   byte_size?: number;
@@ -15,14 +22,24 @@ type LineageNode = {
 
 type LineageEdge = {
   parent_artifact_id: string;
+  parent_manifest_profile_sha256?: string | null;
   child_artifact_id: string;
+  child_manifest_profile_sha256?: string | null;
   role: string;
+};
+
+type LineageArtifactRef = {
+  artifact_id: string;
+  kind?: string | null;
+  media_type?: string | null;
+  manifest_profile_sha256?: string | null;
 };
 
 type LineageGraphProps = {
   nodes: LineageNode[];
   edges: LineageEdge[];
   rootArtifactIds?: string[];
+  rootArtifactRefs?: LineageArtifactRef[];
   maxNodesForGraph?: number;
 };
 
@@ -37,6 +54,7 @@ export default function LineageGraph({
   nodes,
   edges,
   rootArtifactIds = [],
+  rootArtifactRefs,
   maxNodesForGraph = 220,
 }: LineageGraphProps) {
   const { t } = useI18n();
@@ -61,9 +79,36 @@ export default function LineageGraph({
     );
   }
 
-  const sortedNodes = [...nodes].sort(
-    (a, b) => a.depth - b.depth || a.artifact_id.localeCompare(b.artifact_id),
+  const nodeRef = (node: LineageNode): EvidenceArtifactRef => ({
+    artifact_id: node.artifact_id,
+    kind: node.kind ?? null,
+    media_type: node.media_type ?? null,
+    manifest_profile_sha256: node.manifest_profile_sha256 ?? null,
+  });
+  const nodeKey = (node: LineageNode) => evidenceArtifactRefKey(nodeRef(node));
+  const hasTypedRootRefs = Boolean(rootArtifactRefs?.length);
+  const rootKeys = new Set(
+    rootArtifactRefs?.map((ref) => evidenceArtifactRefKey(ref)) ?? [],
   );
+  const rootIds = new Set(rootArtifactIds);
+  const sortedNodes = [...nodes].sort(
+    (a, b) =>
+      a.depth - b.depth ||
+      a.artifact_id.localeCompare(b.artifact_id) ||
+      (a.manifest_profile_sha256 ?? "").localeCompare(
+        b.manifest_profile_sha256 ?? "",
+      ) ||
+      (a.kind ?? "").localeCompare(b.kind ?? "") ||
+      (a.media_type ?? "").localeCompare(b.media_type ?? ""),
+  );
+  const edgeNodeKey = (artifactId: string, profile?: string | null) => {
+    const matches = sortedNodes.filter(
+      (node) =>
+        node.artifact_id === artifactId &&
+        (node.manifest_profile_sha256 ?? null) === (profile ?? null),
+    );
+    return matches.length === 1 ? nodeKey(matches[0]!) : null;
+  };
   const columns = new Map<number, LineageNode[]>();
   for (const node of sortedNodes) {
     const bucket = columns.get(node.depth) ?? [];
@@ -83,7 +128,7 @@ export default function LineageGraph({
     bucket.forEach((node, index) => {
       const x = PADDING_X + depth * COL_WIDTH;
       const y = PADDING_Y + index * ROW_HEIGHT;
-      positions.set(node.artifact_id, { x, y });
+      positions.set(nodeKey(node), { x, y });
     });
   }
 
@@ -98,8 +143,16 @@ export default function LineageGraph({
           aria-label={t("common.lineageGraph.ariaLabel")}
         >
           {edges.map((edge) => {
-            const source = positions.get(edge.parent_artifact_id);
-            const target = positions.get(edge.child_artifact_id);
+            const sourceKey = edgeNodeKey(
+              edge.parent_artifact_id,
+              edge.parent_manifest_profile_sha256,
+            );
+            const targetKey = edgeNodeKey(
+              edge.child_artifact_id,
+              edge.child_manifest_profile_sha256,
+            );
+            const source = sourceKey ? positions.get(sourceKey) : undefined;
+            const target = targetKey ? positions.get(targetKey) : undefined;
             if (!source || !target) {
               return null;
             }
@@ -112,7 +165,7 @@ export default function LineageGraph({
 
             return (
               <path
-                key={`${edge.parent_artifact_id}-${edge.child_artifact_id}-${edge.role}`}
+                key={`${sourceKey}->${targetKey}:${edge.role}`}
                 d={`M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`}
                 stroke={chartTheme.axis}
                 strokeWidth={1.5}
@@ -123,15 +176,18 @@ export default function LineageGraph({
         </svg>
 
         {sortedNodes.map((node) => {
-          const position = positions.get(node.artifact_id);
+          const identity = nodeKey(node);
+          const position = positions.get(identity);
           if (!position) {
             return null;
           }
-          const isRoot = rootArtifactIds.includes(node.artifact_id);
+          const isRoot = hasTypedRootRefs
+            ? rootKeys.has(identity)
+            : rootIds.has(node.artifact_id);
 
           return (
             <div
-              key={node.artifact_id}
+              key={identity}
               className="absolute rounded-xl border bg-white p-2 shadow-sm"
               style={{
                 left: position.x,
@@ -161,6 +217,15 @@ export default function LineageGraph({
               <p className="mt-1 truncate text-[11px] text-[color:var(--chart-axis)]">
                 {node.kind ?? t("common.lineageGraph.unknownKind")}
               </p>
+              {node.manifest_profile_sha256 ? (
+                <p className="truncate font-mono text-[9px] text-[color:var(--chart-axis)]">
+                  {node.manifest_profile_sha256}
+                </p>
+              ) : (
+                <p className="truncate text-[9px] text-[color:var(--chart-axis)]">
+                  {t("common.lineageGraph.unqualifiedProfile")}
+                </p>
+              )}
               <div className="mt-1 flex items-center justify-between">
                 <span className="text-[11px] text-[color:var(--chart-axis)]">
                   {t("shared.ui.lineageGraph.depthValue", {
@@ -169,7 +234,9 @@ export default function LineageGraph({
                 </span>
                 <Link
                   className="text-[11px] font-semibold underline"
-                  to={`/artifacts/${node.artifact_id}`}
+                  to={buildArtifactHref(node.artifact_id, {
+                    artifactRef: nodeRef(node),
+                  })}
                 >
                   {t("common.inspect")}
                 </Link>

@@ -140,8 +140,7 @@ def run_cmd(
         cmd,
         cwd=str(cwd) if cwd else None,
         text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         timeout=timeout,
         check=False,
     )
@@ -858,7 +857,8 @@ deadline harness' proxy calculations.
 
 
 def generate_policy_candidates(count: int, seed: int) -> list[dict[str, Any]]:
-    rng = random.Random(seed)
+    # Seeded candidate sampling is experiment data, never credential or token generation.
+    rng = random.Random(seed)  # noqa: S311
     candidates: list[dict[str, Any]] = []
     for index in range(count):
         grant_cap = rng.choice([0, 75_000, 150_000, 250_000, 400_000])

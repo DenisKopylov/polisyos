@@ -14,6 +14,7 @@ from polisyos.core.components import (
     ComponentId,
     ComponentKind,
     ComponentRegistry,
+    DeclaredBuiltinLoader,
     DuplicateComponentIdPolicy,
     discover_components,
 )
@@ -149,9 +150,15 @@ def discover_nodes(
     if components_index is None:
         builtin_loaders = None
         if include_builtin_nodes:
-            from polisyos.scientist.nodes.components import builtin_node_components
-
-            builtin_loaders = [(SCIENTIST_NODE_BUILTIN_LOADER, builtin_node_components)]
+            builtin_loaders = [
+                (
+                    SCIENTIST_NODE_BUILTIN_LOADER,
+                    DeclaredBuiltinLoader(
+                        target=SCIENTIST_NODE_BUILTIN_LOADER,
+                        group=ENTRY_POINT_GROUP_SCIENTIST_NODES,
+                    ),
+                )
+            ]
         discovered = discover_components(
             groups=[ENTRY_POINT_GROUP_SCIENTIST_NODES] if include_entry_points else [],
             include_dev_scan=include_dev_scan,

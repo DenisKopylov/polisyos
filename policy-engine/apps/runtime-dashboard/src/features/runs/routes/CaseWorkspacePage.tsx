@@ -21,6 +21,7 @@ import {
   type RunPaperSemanticNode,
 } from "@/features/runs/domain/runPaperPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
 import { Button, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
@@ -313,14 +314,22 @@ function CaseWorkspaceDocument({ packet }: { packet: RunPaperPacket }) {
         </h2>
         <ol className="space-y-2">
           {paper.artifactLinks.map((link) => (
-            <li key={link.artifact_ref.artifact_id}>
+            <li key={evidenceArtifactRefKey(link.artifact_ref)}>
               <a
                 className="break-all underline"
                 data-run-paper-artifact-link={link.artifact_ref.artifact_id}
+                data-run-paper-artifact-ref-key={evidenceArtifactRefKey(
+                  link.artifact_ref,
+                )}
                 href={link.href}
               >
                 {link.artifact_ref.kind} · {link.artifact_ref.artifact_id}
               </a>
+              <p className="text-muted font-mono text-xs">
+                {t("pages.runs.manifestProfile")}:{" "}
+                {link.artifact_ref.manifest_profile_sha256 ??
+                  t("pages.runs.manifestProfileUnqualified")}
+              </p>
             </li>
           ))}
         </ol>

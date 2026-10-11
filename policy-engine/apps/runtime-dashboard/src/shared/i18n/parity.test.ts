@@ -309,7 +309,9 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
   "d370a8db416c042434b992f66e52e9ac9ead8574559da9c8f7e4a0de99a224b7";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "69ca1d448f93702bf63e491507acc78e9007dd89eadf9728607f89c634eb9a73";
-const ACTIVE_LOCALE_LEAF_COUNT = 2952;
+const ACTIVE_LOCALE_KEY_SET_SHA256 =
+  "3851823f11d15e4010e2c9a0a30c806232d0fb2d420b83e5c1877511a4149878";
+const ACTIVE_LOCALE_LEAF_COUNT = 2963;
 const NON_COUNT_MESSAGE_COUNT = 268;
 const NON_COUNT_VARIABLE_USE_COUNT = 392;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
@@ -2098,11 +2100,12 @@ describe("locale catalogs", () => {
     ).toEqual(["en:synthetic.malformed:message_parse_failed"]);
   });
 
-  it("freezes the complete quantitative-use declaration set", () => {
+  it("freezes the active keyset and quantitative-use declaration set", () => {
     const activeScans = [
       collectMessageVariables(en, "en-US"),
       collectMessageVariables(uk, "uk-UA"),
     ];
+    const activeLocaleKeys = collectPaths(en).sort(comparePaths);
     const activeNumericUseKeys = [
       ...new Set(
         activeScans
@@ -2166,6 +2169,13 @@ describe("locale catalogs", () => {
     expect(NON_NUMERIC_VARIABLE_REASONS.size).toBe(84);
     expect(declaredVariableNames).toHaveLength(162);
     expect(new Set(declaredVariableNames).size).toBe(162);
+    expect(activeLocaleKeys).toHaveLength(ACTIVE_LOCALE_LEAF_COUNT);
+    expect(
+      crypto
+        .createHash("sha256")
+        .update(activeLocaleKeys.join("\n"))
+        .digest("hex"),
+    ).toBe(ACTIVE_LOCALE_KEY_SET_SHA256);
     expect([collectLeafPairs(en).length, collectLeafPairs(uk).length]).toEqual([
       ACTIVE_LOCALE_LEAF_COUNT,
       ACTIVE_LOCALE_LEAF_COUNT,

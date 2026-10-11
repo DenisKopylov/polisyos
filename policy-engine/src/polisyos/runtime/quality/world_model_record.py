@@ -920,6 +920,19 @@ def persist_world_model_record(
     """Persist a ``WorldModelRecord`` as a typed CAS artifact."""
 
     validated = WorldModelRecord.model_validate(record.model_dump(mode="json"))
+    manifest_inputs = (
+        [
+            InputRef(
+                artifact_id=artifact_id,
+                role=role,
+                manifest_profile_sha256=manifest_profile_sha256,
+            )
+            for artifact_id, role, manifest_profile_sha256
+            in _world_model_record_manifest_inputs(validated)
+        ]
+        if inputs is None
+        else list(inputs)
+    )
     return store.put_json(
         serialize_world_model_record_for_storage(validated),
         PutOptions(
@@ -929,7 +942,7 @@ def persist_world_model_record(
                 name=WORLD_MODEL_RECORD_SCHEMA_NAME,
                 version=validated.schema_version,
             ),
-            inputs=list(inputs or []),
+            inputs=manifest_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )

@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import urllib.parse
+from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
@@ -15,7 +16,12 @@ import httpx
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.fabric.connectors import RateLimiter, RetryPolicy
-from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
+from polisyos.scholar.search.models import (
+    ProviderAttemptTrace,
+    SearchConstraints,
+    WebSearchHit,
+    _ProviderTraceErrorType,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -39,6 +45,19 @@ class WebSearchProvider(Protocol):
         """Run one provider query and return normalized search hits."""
 
 
+@dataclass(frozen=True)
+class _ProviderSearchOutcome:
+    """Concrete adapter observations kept separate from the public list ABI."""
+
+    hits: tuple[WebSearchHit, ...]
+    raw_result_count: int | None
+    pre_filter_candidate_count: int | None
+    eligible_candidate_count: int | None
+    normalization_rejection_counts: tuple[tuple[str, int], ...]
+    constraint_rejection_counts: tuple[tuple[str, int], ...]
+    diagnostics_available: bool = True
+
+
 class OpenAlexRateLimiter:
     """OpenAlex-specific wrapper around the shared connector rate limiter."""
 
@@ -52,8 +71,23 @@ class OpenAlexRateLimiter:
         await self._limiter.acquire()
 
 
+def _provider_error_type(exc: Exception) -> _ProviderTraceErrorType:
+    """Return a fixed, value-free category for one provider exception."""
+    if isinstance(exc, httpx.HTTPStatusError):
+        return "http_status_error"
+    if isinstance(exc, httpx.TimeoutException):
+        return "timeout_error"
+    if isinstance(exc, httpx.ConnectError):
+        return "connection_error"
+    if isinstance(exc, httpx.RequestError):
+        return "request_error"
+    if isinstance(exc, (TypeError, ValueError)):
+        return "provider_contract_error"
+    return "provider_exception"
+
+
 class ProviderFailoverPolicy:
-    """Try providers in priority order and keep the first successful hit set."""
+    """Try providers in priority order and retain each observed attempt."""
 
     def __init__(self, providers: Sequence[WebSearchProvider]) -> None:
         if not providers:
@@ -72,23 +106,125 @@ class ProviderFailoverPolicy:
         max_results: int,
         timeout_s: float = 10.0,
     ) -> tuple[str, list[WebSearchHit], str | None]:
-        """Search with failover and return ``(provider_name, hits, error)``."""
+        """Keep the legacy ``(provider_name, hits, error)`` result shape."""
+        provider_name, hits, error, _attempts = await self.search_with_attempts(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return provider_name, hits, error
+
+    async def search_with_attempts(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float = 10.0,
+    ) -> tuple[str, list[WebSearchHit], str | None, list[ProviderAttemptTrace]]:
+        """Return the legacy selection plus an ordered, source-backed attempt trace.
+
+        Concrete adapters provide exact normalization and constraint counts. A
+        third-party implementation of the historical list protocol remains usable,
+        but its raw population and filtering cause are explicitly not established.
+        """
         last_error: str | None = None
+        attempts: list[ProviderAttemptTrace] = []
         for provider in self._providers:
             try:
-                hits = await provider.search(
-                    query,
-                    constraints=constraints,
-                    max_results=max_results,
-                    timeout_s=timeout_s,
+                diagnostic_search = getattr(provider, "search_with_diagnostics", None)
+                if callable(diagnostic_search):
+                    observed = await diagnostic_search(
+                        query,
+                        constraints=constraints,
+                        max_results=max_results,
+                        timeout_s=timeout_s,
+                    )
+                    if not isinstance(observed, _ProviderSearchOutcome):
+                        raise TypeError(
+                            "provider search diagnostics have an invalid shape"
+                        )
+                    hits = list(observed.hits)
+                    if not observed.diagnostics_available:
+                        outcome = "returned_hits" if hits else "returned_no_hits"
+                        reason = "not_established"
+                        raw_result_count = None
+                        candidate_count = None
+                        eligible_count = None
+                        normalization_rejections: dict[str, int] = {}
+                        constraint_rejections: dict[str, int] = {}
+                    else:
+                        raw_result_count = observed.raw_result_count
+                        candidate_count = observed.pre_filter_candidate_count
+                        eligible_count = observed.eligible_candidate_count
+                        normalization_rejections = dict(
+                            observed.normalization_rejection_counts
+                        )
+                        constraint_rejections = dict(
+                            observed.constraint_rejection_counts
+                        )
+                        if hits:
+                            outcome = "returned_hits"
+                            reason = "provider_returned_hits"
+                        elif candidate_count and eligible_count == 0:
+                            outcome = "all_candidates_filtered"
+                            reason = "all_candidates_filtered"
+                        elif normalization_rejections:
+                            outcome = "returned_no_hits"
+                            reason = "normalization_rejected_candidates"
+                        elif raw_result_count is None and not candidate_count:
+                            outcome = "returned_no_hits"
+                            reason = "not_established"
+                        else:
+                            outcome = "returned_no_hits"
+                            reason = "provider_returned_no_hits"
+                else:
+                    hits = await provider.search(
+                        query,
+                        constraints=constraints,
+                        max_results=max_results,
+                        timeout_s=timeout_s,
+                    )
+                    outcome = "returned_hits" if hits else "returned_no_hits"
+                    reason = "not_established"
+                    raw_result_count = None
+                    candidate_count = None
+                    eligible_count = None
+                    normalization_rejections = {}
+                    constraint_rejections = {}
+
+                attempts.append(
+                    ProviderAttemptTrace(
+                        attempt_index=len(attempts),
+                        provider=provider.name,
+                        outcome=outcome,
+                        reason=reason,
+                        raw_result_count=raw_result_count,
+                        pre_filter_candidate_count=candidate_count,
+                        eligible_candidate_count=eligible_count,
+                        returned_hit_count=len(hits),
+                        normalization_rejection_counts=normalization_rejections,
+                        constraint_rejection_counts=constraint_rejections,
+                    )
                 )
                 if not hits:
                     continue
-                return provider.name, hits, None
+                return provider.name, hits, None, attempts
             except Exception as exc:
                 last_error = f"{provider.name}: {exc}"
+                attempts.append(
+                    ProviderAttemptTrace(
+                        attempt_index=len(attempts),
+                        provider=provider.name,
+                        outcome="error",
+                        reason="provider_error",
+                        error="provider_error",
+                        error_type=_provider_error_type(exc),
+                    )
+                )
                 continue
-        return self._providers[-1].name, [], last_error
+        return self._providers[-1].name, [], last_error, attempts
 
 
 class BraveSearchProvider:
@@ -117,6 +253,22 @@ class BraveSearchProvider:
         max_results: int,
         timeout_s: float,
     ) -> list[WebSearchHit]:
+        outcome = await self.search_with_diagnostics(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return list(outcome.hits)
+
+    async def search_with_diagnostics(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> _ProviderSearchOutcome:
         params = {
             "q": _apply_constraint_query_terms(query, constraints),
             "count": str(max(1, min(int(max_results), 20))),
@@ -137,12 +289,16 @@ class BraveSearchProvider:
         payload = await _read_url_text(url, headers=headers, timeout_s=timeout_s)
         decoded = json.loads(payload or "{}")
         results = decoded.get("web", {}).get("results", []) if isinstance(decoded, dict) else []
+        raw_result_count = len(results) if isinstance(results, list) else None
+        normalization_rejections: Counter[str] = Counter()
         hits: list[WebSearchHit] = []
         for rank, item in enumerate(results, start=1):
             if not isinstance(item, dict):
+                normalization_rejections["result_not_object"] += 1
                 continue
             target_url = _coerce_http_url(item.get("url"))
             if target_url is None:
+                normalization_rejections["result_url_invalid"] += 1
                 continue
             hits.append(
                 WebSearchHit(
@@ -159,7 +315,13 @@ class BraveSearchProvider:
                     ),
                 )
             )
-        return _filter_hits(hits, constraints=constraints, max_results=max_results)
+        return _filter_hits_with_diagnostics(
+            hits,
+            constraints=constraints,
+            max_results=max_results,
+            raw_result_count=raw_result_count,
+            normalization_rejection_counts=dict(normalization_rejections),
+        )
 
 
 @dataclass(frozen=True)
@@ -172,6 +334,10 @@ class OpenAlexWorksResult:
     raw_response: dict[str, object]
     response_sha256: str
     excluded_results: tuple[tuple[int, str], ...]
+    raw_result_count: int | None = None
+    pre_filter_hit_count: int | None = None
+    filter_rejection_counts: tuple[tuple[str, int], ...] = ()
+    diagnostics_available: bool = True
 
 
 class OpenAlexWorksProvider:
@@ -218,6 +384,42 @@ class OpenAlexWorksProvider:
         )
         return list(result.hits)
 
+    async def search_with_diagnostics(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> _ProviderSearchOutcome:
+        """Project one actual OpenAlex response into list-ABI diagnostics."""
+        result = await self.search_with_works(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        normalization_rejections = Counter(
+            reason for _rank, reason in result.excluded_results
+        )
+        eligible_count = (
+            result.pre_filter_hit_count
+            - sum(dict(result.filter_rejection_counts).values())
+            if result.pre_filter_hit_count is not None
+            else None
+        )
+        return _ProviderSearchOutcome(
+            hits=result.hits,
+            raw_result_count=result.raw_result_count,
+            pre_filter_candidate_count=result.pre_filter_hit_count,
+            eligible_candidate_count=eligible_count,
+            normalization_rejection_counts=tuple(
+                sorted(normalization_rejections.items())
+            ),
+            constraint_rejection_counts=result.filter_rejection_counts,
+            diagnostics_available=result.diagnostics_available,
+        )
+
     async def search_with_works(
         self,
         query: str,
@@ -231,10 +433,16 @@ class OpenAlexWorksProvider:
         from polisyos.ir.analytics.literature import OpenAlexWorkText
 
         if constraints.source_types and "academic" not in constraints.source_types:
-            return OpenAlexWorksResult(query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), ())
+            return OpenAlexWorksResult(
+                query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), (),
+                diagnostics_available=False,
+            )
         search_query = query.strip()
         if not search_query:
-            return OpenAlexWorksResult(query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), ())
+            return OpenAlexWorksResult(
+                query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), (),
+                diagnostics_available=False,
+            )
         params = {
             "search": search_query,
             "filter": ",".join(_openalex_filters(constraints)),
@@ -289,14 +497,25 @@ class OpenAlexWorksProvider:
                     score=_openalex_score(item),
                 )
             )
-        filtered = _filter_hits(hits, constraints=constraints, max_results=max_results)
+        filter_outcome = _filter_hits_with_diagnostics(
+            hits,
+            constraints=constraints,
+            max_results=max_results,
+            raw_result_count=len(results),
+            normalization_rejection_counts=dict(
+                Counter(reason for _rank, reason in excluded)
+            ),
+        )
         return OpenAlexWorksResult(
             query=query,
-            hits=tuple(filtered),
+            hits=filter_outcome.hits,
             works=tuple(works),
             raw_response=decoded,
             response_sha256=hashlib.sha256(payload.encode()).hexdigest(),
             excluded_results=tuple(excluded),
+            raw_result_count=len(results),
+            pre_filter_hit_count=len(hits),
+            filter_rejection_counts=filter_outcome.constraint_rejection_counts,
         )
 
 
@@ -322,6 +541,22 @@ class DuckDuckGoHtmlSearchProvider:
         max_results: int,
         timeout_s: float,
     ) -> list[WebSearchHit]:
+        outcome = await self.search_with_diagnostics(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return list(outcome.hits)
+
+    async def search_with_diagnostics(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> _ProviderSearchOutcome:
         params = {"q": _apply_constraint_query_terms(query, constraints)}
         url = f"{self._endpoint}?{urllib.parse.urlencode(params)}"
         payload = await _read_url_text(
@@ -331,10 +566,11 @@ class DuckDuckGoHtmlSearchProvider:
         )
         parser = _DuckDuckGoParser(query=query)
         parser.feed(payload)
-        return _filter_hits(
+        return _filter_hits_with_diagnostics(
             parser.hits,
             constraints=constraints,
             max_results=max_results,
+            raw_result_count=None,
         )
 
 
@@ -360,6 +596,22 @@ class WikipediaOpenSearchProvider:
         max_results: int,
         timeout_s: float,
     ) -> list[WebSearchHit]:
+        outcome = await self.search_with_diagnostics(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return list(outcome.hits)
+
+    async def search_with_diagnostics(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> _ProviderSearchOutcome:
         params = {
             "action": "query",
             "list": "search",
@@ -379,13 +631,17 @@ class WikipediaOpenSearchProvider:
             query_payload = decoded.get("query")
             if isinstance(query_payload, dict):
                 search_hits = query_payload.get("search", [])
+        raw_result_count = len(search_hits) if isinstance(search_hits, list) else None
+        normalization_rejections: Counter[str] = Counter()
         hits: list[WebSearchHit] = []
         for rank, item in enumerate(search_hits, start=1):
             if not isinstance(item, dict):
+                normalization_rejections["result_not_object"] += 1
                 continue
             page_id = item.get("pageid")
             title = str(item.get("title") or "")
             if page_id is None or not title:
+                normalization_rejections["result_missing_page_id_or_title"] += 1
                 continue
             target_url = (
                 f"https://en.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
@@ -401,7 +657,13 @@ class WikipediaOpenSearchProvider:
                     source_type="reference",
                 )
             )
-        return _filter_hits(hits, constraints=constraints, max_results=max_results)
+        return _filter_hits_with_diagnostics(
+            hits,
+            constraints=constraints,
+            max_results=max_results,
+            raw_result_count=raw_result_count,
+            normalization_rejection_counts=dict(normalization_rejections),
+        )
 
 
 class _DuckDuckGoParser(HTMLParser):
@@ -486,23 +748,58 @@ def _filter_hits(
     constraints: SearchConstraints,
     max_results: int,
 ) -> list[WebSearchHit]:
-    filtered: list[WebSearchHit] = []
+    """Keep the historical list result while sharing its exact constraint rules."""
+    return list(
+        _filter_hits_with_diagnostics(
+            hits,
+            constraints=constraints,
+            max_results=max_results,
+            raw_result_count=None,
+        ).hits
+    )
+
+
+def _filter_hits_with_diagnostics(
+    hits: Sequence[WebSearchHit],
+    *,
+    constraints: SearchConstraints,
+    max_results: int,
+    raw_result_count: int | None,
+    normalization_rejection_counts: dict[str, int] | None = None,
+) -> _ProviderSearchOutcome:
+    """Apply the existing filter and count each first actual rejection reason."""
+    eligible: list[WebSearchHit] = []
+    rejections: Counter[str] = Counter()
     for hit in hits:
         domain = urllib.parse.urlparse(str(hit.url)).hostname or ""
         if constraints.allowed_domains and not any(
             _domain_matches(domain, allowed) for allowed in constraints.allowed_domains
         ):
+            rejections["allowed_domain_mismatch"] += 1
             continue
         if constraints.blocked_domains and any(
             _domain_matches(domain, blocked) for blocked in constraints.blocked_domains
         ):
+            rejections["blocked_domain"] += 1
             continue
         if constraints.source_types and hit.source_type not in constraints.source_types:
+            rejections["source_type_not_allowed"] += 1
             continue
-        filtered.append(hit)
-        if len(filtered) >= max_results:
-            break
-    return filtered
+        eligible.append(hit)
+
+    # The legacy loop returns at most max_results hits; for zero/negative limits
+    # it returns its first eligible hit because the first append satisfies len>=limit.
+    returned = eligible[:max_results] if max_results > 0 else eligible[:1]
+    return _ProviderSearchOutcome(
+        hits=tuple(returned),
+        raw_result_count=raw_result_count,
+        pre_filter_candidate_count=len(hits),
+        eligible_candidate_count=len(eligible),
+        normalization_rejection_counts=tuple(
+            sorted((normalization_rejection_counts or {}).items())
+        ),
+        constraint_rejection_counts=tuple(sorted(rejections.items())),
+    )
 
 
 def _decode_duckduckgo_url(url: str) -> str | None:

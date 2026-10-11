@@ -15,8 +15,9 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import SimulationResult
 from polisyos.core.contracts.runtime import (
@@ -48,6 +49,12 @@ from polisyos.core.contracts.runtime import (
     SimulationResultCandidateView,
 )
 from polisyos.core.trace import TraceRecord
+from polisyos.ir.analytics import (
+    DataViewRequest as AnalyticsDataViewRequest,
+)
+from polisyos.ir.model_layer.queries import (
+    DataViewRequest as QueryDataViewRequest,
+)
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerProducerRunBinding,
 )
@@ -237,6 +244,14 @@ class DebugService:
                 ),
                 "output_artifact_ids": (
                     record.output_artifact_ids if record.output_artifact_ids else output_ids
+                ),
+                "input_artifact_refs": _merge_artifact_refs(
+                    record.input_artifact_refs,
+                    *(event.input_artifact_refs for event in node_events),
+                ),
+                "output_artifact_refs": _merge_artifact_refs(
+                    record.output_artifact_refs,
+                    *(event.output_artifact_refs for event in node_events),
                 ),
             }
         )
@@ -1221,20 +1236,40 @@ class DebugService:
                 {key: str(ref.artifact_id) for key, ref in materialization_refs.items()},
             )
         packet_inputs = _as_dict(decision_packet_payload.get("inputs"))
-        data_snapshot_ref = (
-            self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
-            or materialization_refs.get("data_snapshot_ref")
-            or _artifact_ref_from_string(
-                _as_str(packet_inputs.get("data_snapshot_ref")), kind="fabric.data_snapshot"
-            )
+        state_snapshot_ref, state_snapshot_issue = _state_input_ref(
+            state_payload,
+            "data_snapshot_ref",
+            expected_kind="fabric.data_snapshot",
         )
-        input_bindings_ref = (
-            self._find_run_input_ref_by_kind(run, "foundry.input_bindings")
-            or materialization_refs.get("input_bindings_ref")
-            or _artifact_ref_from_string(
-                _as_str(packet_inputs.get("input_bindings_ref")), kind="foundry.input_bindings"
+        if state_snapshot_issue is not None:
+            warnings.append(state_snapshot_issue)
+        data_snapshot_ref = state_snapshot_ref
+        if data_snapshot_ref is None and state_snapshot_issue is None:
+            data_snapshot_ref = (
+                self._find_run_input_ref_by_kind(run, "fabric.data_snapshot")
+                or materialization_refs.get("data_snapshot_ref")
+                or _artifact_ref_from_string(
+                    _as_str(packet_inputs.get("data_snapshot_ref")),
+                    kind="fabric.data_snapshot",
+                )
             )
+        state_bindings_ref, state_bindings_issue = _state_input_ref(
+            state_payload,
+            "input_bindings_ref",
+            expected_kind="foundry.input_bindings",
         )
+        if state_bindings_issue is not None:
+            warnings.append(state_bindings_issue)
+        input_bindings_ref = state_bindings_ref
+        if input_bindings_ref is None and state_bindings_issue is None:
+            input_bindings_ref = (
+                self._find_run_input_ref_by_kind(run, "foundry.input_bindings")
+                or materialization_refs.get("input_bindings_ref")
+                or _artifact_ref_from_string(
+                    _as_str(packet_inputs.get("input_bindings_ref")),
+                    kind="foundry.input_bindings",
+                )
+            )
         evidence_bundle_ref = (
             self._find_run_input_ref_by_kind(run, "fabric.evidence_bundle")
             or materialization_refs.get("evidence_bundle_ref")
@@ -1242,12 +1277,34 @@ class DebugService:
                 _as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
             )
         )
+        data_view_request_ref = None
+        if data_snapshot_ref is not None:
+            state_request_ref, state_request_issue = _state_input_ref(
+                state_payload,
+                "data_view_request_ref",
+                expected_kind="ir.data_view_request",
+            )
+            if state_request_issue is not None:
+                warnings.append(state_request_issue)
+            else:
+                data_view_request_ref, source_warning = _data_view_request_ref_from_snapshot(
+                    self._store,
+                    data_snapshot_ref,
+                    expected_request_ref=state_request_ref,
+                )
+                if source_warning is not None:
+                    warnings.append(source_warning)
+        if data_snapshot_ref is not None:
+            materialization_refs["data_snapshot_ref"] = data_snapshot_ref
+        if input_bindings_ref is not None:
+            materialization_refs["input_bindings_ref"] = input_bindings_ref
 
         related_artifacts = _dedupe_artifact_refs(
             [
                 execution_plan_ref,
                 fabric_retrieval_trace_ref,
                 data_snapshot_ref,
+                data_view_request_ref,
                 input_bindings_ref,
                 evidence_bundle_ref,
                 materialization_refs.get("registry_bundle_ref"),
@@ -1282,6 +1339,7 @@ class DebugService:
             evidence_bundle_ref=evidence_bundle_ref,
             fabric_retrieval_trace_ref=fabric_retrieval_trace_ref,
             data_snapshot_ref=data_snapshot_ref,
+            data_view_request_ref=data_view_request_ref,
             input_bindings_ref=input_bindings_ref,
             materialization_refs=materialization_refs,
             production_data_evidence_context=production_data_context,
@@ -1365,6 +1423,10 @@ class DebugService:
                     artifact_ids=artifact_ids,
                     input_artifact_ids=input_artifact_ids,
                     output_artifact_ids=output_artifact_ids,
+                    input_artifact_refs=timeline_node.input_artifact_refs if timeline_node else [],
+                    output_artifact_refs=(
+                        timeline_node.output_artifact_refs if timeline_node else []
+                    ),
                     heat=0.0,
                 )
             )
@@ -1827,6 +1889,21 @@ class DebugService:
         return None
 
 
+def _merge_artifact_refs(*groups: list[ArtifactRef]) -> list[ArtifactRef]:
+    """Deduplicate refs by complete CAS view identity."""
+    refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
+    for group in groups:
+        for ref in group:
+            refs[artifact_ref_identity_key(ref)] = ref
+    return [
+        refs[key]
+        for key in sorted(
+            refs,
+            key=lambda item: (item[0], item[1], item[2], item[3] or ""),
+        )
+    ]
+
+
 def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
     grouped: dict[str, RunNodeRecord] = {}
     for event in events:
@@ -1853,6 +1930,12 @@ def _nodes_from_timeline(events: list[Any]) -> list[RunNodeRecord]:
                 "duration_ms": duration_ms,
                 "output_artifact_ids": sorted(
                     set(existing.output_artifact_ids).union(event.output_artifact_ids)
+                ),
+                "input_artifact_refs": _merge_artifact_refs(
+                    existing.input_artifact_refs, event.input_artifact_refs
+                ),
+                "output_artifact_refs": _merge_artifact_refs(
+                    existing.output_artifact_refs, event.output_artifact_refs
                 ),
                 "input_artifact_ids": sorted(
                     set(existing.input_artifact_ids).union(event.input_artifact_ids)
@@ -2672,6 +2755,12 @@ def _merge_workflow_nodes_with_timeline(
                         if node.output_artifact_ids
                         else timeline_node.output_artifact_ids
                     ),
+                    "input_artifact_refs": _merge_artifact_refs(
+                        node.input_artifact_refs, timeline_node.input_artifact_refs
+                    ),
+                    "output_artifact_refs": _merge_artifact_refs(
+                        node.output_artifact_refs, timeline_node.output_artifact_refs
+                    ),
                     "artifact_ids": sorted(
                         set(node.artifact_ids).union(timeline_node.output_artifact_ids)
                     ),
@@ -2820,16 +2909,137 @@ def _string_list_dict(value: Any) -> dict[str, list[str]]:
 
 def _dedupe_artifact_refs(refs: list[ArtifactRef | None]) -> list[ArtifactRef]:
     result: list[ArtifactRef] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str, str, str | None]] = set()
     for ref in refs:
         if ref is None:
             continue
-        artifact_id = str(ref.artifact_id)
-        if artifact_id in seen:
+        identity = (
+            str(ref.artifact_id),
+            ref.kind,
+            ref.media_type,
+            ref.manifest_profile_sha256,
+        )
+        if identity in seen:
             continue
-        seen.add(artifact_id)
+        seen.add(identity)
         result.append(ref)
     return result
+
+
+def _state_input_ref(
+    state_payload: dict[str, Any],
+    key: str,
+    *,
+    expected_kind: str,
+) -> tuple[ArtifactRef | None, str | None]:
+    """Read a persisted full ref from ExperimentState.inputs without ID fallback."""
+    if "inputs" not in state_payload:
+        return None, None
+    inputs = state_payload.get("inputs")
+    if not isinstance(inputs, dict):
+        return None, f"state_inputs_not_established:{key}"
+    if key not in inputs:
+        return None, None
+    raw_ref = inputs[key]
+    if not isinstance(raw_ref, dict):
+        return None, f"state_input_ref_malformed:{key}"
+    try:
+        ref = ArtifactRef.model_validate(raw_ref)
+    except (TypeError, ValueError, ValidationError):
+        return None, f"state_input_ref_malformed:{key}"
+    if ref.kind != expected_kind or ref.media_type != "application/json":
+        return None, f"state_input_ref_kind_mismatch:{key}"
+    return ref, None
+
+
+def _data_view_request_ref_from_snapshot(
+    store: ArtifactStore,
+    snapshot_ref: ArtifactRef,
+    *,
+    expected_request_ref: ArtifactRef | None = None,
+) -> tuple[ArtifactRef | None, str | None]:
+    """Resolve and validate one request through the selected snapshot profile."""
+    if snapshot_ref.kind != "fabric.data_snapshot" or snapshot_ref.media_type != "application/json":
+        return None, "data_snapshot_ref_kind_mismatch"
+    if snapshot_ref.manifest_profile_sha256 is None:
+        return None, "data_snapshot_profile_not_established"
+    try:
+        snapshot_manifest = resolve_manifest_by_profile(
+            store,
+            snapshot_ref.artifact_id,
+            snapshot_ref.manifest_profile_sha256,
+        )
+    except Exception:
+        return None, "data_snapshot_profile_resolution_failed"
+    if (
+        str(snapshot_manifest.artifact_id) != str(snapshot_ref.artifact_id)
+        or snapshot_manifest.kind != "fabric.data_snapshot"
+        or snapshot_manifest.media_type != "application/json"
+    ):
+        return None, "data_snapshot_manifest_identity_mismatch"
+    request_edges = [
+        edge for edge in snapshot_manifest.inputs if edge.role == "data_view_request_ref"
+    ]
+    if len(request_edges) != 1:
+        reason = "missing" if not request_edges else "ambiguous"
+        return None, f"data_view_request_edge_{reason}"
+    edge = request_edges[0]
+    if edge.manifest_profile_sha256 is None:
+        return None, "data_view_request_profile_not_established"
+    try:
+        request_manifest = resolve_manifest_by_profile(
+            store,
+            edge.artifact_id,
+            edge.manifest_profile_sha256,
+        )
+    except Exception:
+        return None, "data_view_request_profile_resolution_failed"
+    if (
+        str(request_manifest.artifact_id) != str(edge.artifact_id)
+        or request_manifest.kind != "ir.data_view_request"
+        or request_manifest.media_type != "application/json"
+    ):
+        return None, "data_view_request_manifest_kind_mismatch"
+    selected_request_ref = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=request_manifest.kind,
+        media_type=request_manifest.media_type,
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    if expected_request_ref is not None and _artifact_ref_identity_key(
+        expected_request_ref
+    ) != _artifact_ref_identity_key(selected_request_ref):
+        return None, "data_view_request_ref_does_not_match_snapshot_lineage"
+
+    schema = request_manifest.artifact_schema
+    if schema is None or schema.name != "polisyos.ir.DataViewRequest" or schema.version != "1.0":
+        return None, "data_view_request_schema_not_supported"
+    try:
+        request_payload = from_canonical_bytes(store.get_bytes(edge.artifact_id))
+    except (FileNotFoundError, TypeError, ValueError):
+        return None, "data_view_request_payload_unavailable"
+    if not isinstance(request_payload, dict):
+        return None, "data_view_request_payload_invalid"
+    valid_models = 0
+    for model in (QueryDataViewRequest, AnalyticsDataViewRequest):
+        try:
+            model.model_validate(request_payload)
+        except (TypeError, ValueError, ValidationError):
+            continue
+        valid_models += 1
+    if valid_models != 1:
+        reason = "ambiguous" if valid_models > 1 else "invalid"
+        return None, f"data_view_request_payload_{reason}"
+    return selected_request_ref, None
+
+
+def _artifact_ref_identity_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    return (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+    )
 
 
 def _dedupe_strings(values: list[str]) -> list[str]:

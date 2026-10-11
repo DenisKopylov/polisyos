@@ -98,7 +98,7 @@ def test_phase0_4_cross_cutting_concerns_have_canonical_homes_and_adapter_policy
         entry["name"]: entry for entry in inventory["cross_cutting_concerns"]["concerns"]
     }
 
-    assert REQUIRED_CONCERNS <= set(inventory_by_name)
+    assert set(inventory_by_name) >= REQUIRED_CONCERNS
     for name in REQUIRED_CONCERNS:
         contract = contract_by_name[name]
         row = inventory_by_name[name]
@@ -118,7 +118,7 @@ def test_phase0_4_scientist_parallel_families_map_to_wave2_actions() -> None:
         for row in inventory["scientist_parallel_implementations"]["families"]
     }
 
-    assert REQUIRED_SCIENTIST_FAMILIES <= set(families)
+    assert set(families) >= REQUIRED_SCIENTIST_FAMILIES
     for family_id in REQUIRED_SCIENTIST_FAMILIES:
         family = families[family_id]
 

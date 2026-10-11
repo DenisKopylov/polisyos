@@ -13,7 +13,13 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
@@ -760,7 +766,10 @@ def _run_pag_refinement_check(
         return _skipped_check("causal.pag.refinement", reason="disabled")
     graph_ref, graph = _load_candidate_graph(ctx=ctx, state=state, settings=settings)
     if graph is None:
-        return _skipped_check("causal.pag.refinement", reason="missing_graph")
+        return _skipped_check(
+            "causal.pag.refinement",
+            reason="invalid_graph_ref" if graph_ref is not None else "missing_graph",
+        )
     if graph.graph_type not in {GraphType.CPDAG, GraphType.PAG}:
         return _skipped_check(
             "causal.pag.refinement",
@@ -770,18 +779,27 @@ def _run_pag_refinement_check(
     pag = cpdag_to_pag(graph) if graph.graph_type is GraphType.CPDAG else graph
     refined, orientation_warnings = apply_pag_orientation_rules(pag)
     violations = validate_pag(refined)
-    persisted_ref = persist_causal_graph_model(
-        _ensure_ir_artifact_store(ctx.store),
-        refined,
-        inputs=(
-            [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_validity_input_graph")]
-            if graph_ref is not None
-            else None
+    store = _ensure_ir_artifact_store(ctx.store)
+    persisted_ref = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            refined,
+            inputs=(
+                [
+                    input_ref_from_artifact_ref(
+                        ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                        role="causal_validity_input_graph",
+                    )
+                ]
+                if graph_ref is not None
+                else None
+            ),
         ),
     )
     bundle_inputs.append(
-        InputRef(
-            artifact_id=str(persisted_ref.artifact_id),
+        input_ref_from_artifact_ref(
+            ArtifactRef.model_validate(persisted_ref.model_dump(mode="json")),
             role="causal_validity_refined_pag_graph",
         )
     )
@@ -834,17 +852,19 @@ def _load_candidate_graph(
         ref = state.artifacts_index.get(key)
         if ref is None:
             continue
-        graph = None
         try:
-            graph = load_causal_graph_model(
+            selected_ref = profile_bound_ref(
                 _ensure_ir_artifact_store(ctx.store),
                 CausalGraphModelRef.model_validate(ref.model_dump(mode="json")),
             )
+            graph = load_causal_graph_model(
+                _ensure_ir_artifact_store(ctx.store), selected_ref
+            )
         except Exception:
-            graph = None
-        if graph is None:
-            continue
-        return ref, graph
+            # A supplied but invalid selector is not absence and cannot be
+            # replaced by a sibling state key.
+            return ref, None
+        return ArtifactRef.model_validate(selected_ref.model_dump(mode="json")), graph
     return None, None
 
 

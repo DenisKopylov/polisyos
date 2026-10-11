@@ -292,6 +292,10 @@ def _run_child(
                 "r4_active_native_study",
                 default=None,
             )
+            active_method_fqn: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+                "r4_active_native_method_fqn",
+                default=None,
+            )
             final_states: dict[int, dict[str, Any]] = {}
             causal_node_outcomes: dict[int, Any] = {}
             method_results: dict[int, dict[str, Any]] = {}
@@ -323,15 +327,17 @@ def _run_child(
                 **kwargs: Any,
             ) -> Any:
                 nonlocal method_backend_entries
-                if (kwargs.get("method_fqn") or "").split("@", 1)[0] == (
-                    TMLEEstimator.signature.fqn.split("@", 1)[0]
-                ):
+                normalized_method_fqn = str(kwargs.get("method_fqn") or "").split("@", 1)[0]
+                is_tmle = normalized_method_fqn == TMLEEstimator.signature.fqn.split("@", 1)[0]
+                if is_tmle:
                     with producer_lock:
                         method_backend_entries += 1
-                result = original_method_backend_run(backend, **kwargs)
-                if (kwargs.get("method_fqn") or "").split("@", 1)[0] == (
-                    TMLEEstimator.signature.fqn.split("@", 1)[0]
-                ):
+                method_token = active_method_fqn.set(normalized_method_fqn)
+                try:
+                    result = original_method_backend_run(backend, **kwargs)
+                finally:
+                    active_method_fqn.reset(method_token)
+                if is_tmle:
                     study_index = active_study.get()
                     assert study_index is not None
                     artifacts = result.exec_artifacts
@@ -420,7 +426,9 @@ def _run_child(
 
             def observed_submit(func: Any, /, *args: Any, **kwargs: Any) -> Any:
                 nonlocal submit_count, submit_active, submit_peak
-                is_tmle = target_method(kwargs)
+                # The bridge receives a callable, not the MethodDispatcher kwargs.
+                # Read identity from the active MethodBackend invocation context.
+                is_tmle = active_method_fqn.get() == TMLEEstimator.signature.fqn.split("@", 1)[0]
                 if is_tmle:
                     assert active_study.get() is not None
                     with submission_lock:
@@ -937,6 +945,9 @@ def test_runtime_control_worker_shared_method_admission_and_removal_probe() -> N
 
     assert cap_one["dispatch_peak"] == 1
     assert cap_two["dispatch_peak"] == 2
+    for profile in (cap_one, cap_two, no_bridge):
+        assert profile["run_experiment_entries"] == 2
+        assert profile["method_backend_entries"] == profile["submit_count"] == 2
     assert cap_one["expected_fold_count"] == cap_one["observed_fold_count"] == 12
     assert cap_two["expected_fold_count"] == cap_two["observed_fold_count"] == 12
     assert cap_one["completed_jobs"] == cap_two["completed_jobs"] == 2

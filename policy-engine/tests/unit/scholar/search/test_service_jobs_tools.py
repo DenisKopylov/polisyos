@@ -3,27 +3,85 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 
+import httpx
 import pytest
+from pydantic import ValidationError
 
 import polisyos.scholar.search.jobs as jobs_module
+from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import BoundedLivenessConfig
+from polisyos.scholar import build_scholar_academic_evidence_report_from_web_bundle
 from polisyos.scholar.api import ScholarService
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.models import (
     FetchResult,
+    NoHitFrontierRecord,
+    ProviderAttemptTrace,
+    QueryGraph,
+    QueryNode,
+    ResearchBrief,
+    ResearchJobCheckpoint,
     SearchBudgetControls,
     SearchConstraints,
+    SearchQueryTrace,
+    WebEvidenceBundle,
     WebSearchHit,
 )
-from polisyos.scholar.search.providers import ProviderFailoverPolicy
+from polisyos.scholar.search.providers import (
+    OpenAlexWorksProvider,
+    ProviderFailoverPolicy,
+)
 from polisyos.scholar.search.service import ScholarDeepSearchService
 from polisyos.scholar_requirement import ScholarSupportRequirementCompiler
 from polisyos.scientist.agent.tools.scholar_search_tools import (
     build_scholar_search_tool_registry,
 )
+
+
+def _assert_expected_validation_error(
+    error: ValidationError,
+    *,
+    expected_location_suffix: tuple[str | int, ...] | None = None,
+    expected_error_type: str | None = None,
+    expected_message: str | None = None,
+) -> None:
+    """Require one specific typed validation failure, not an earlier decode error."""
+    errors = error.errors(include_url=False)
+    assert errors
+    assert expected_location_suffix is not None or expected_error_type is not None or expected_message is not None
+    assert any(
+        (
+            expected_location_suffix is None
+            or tuple(item["loc"][-len(expected_location_suffix) :])
+            == expected_location_suffix
+        )
+        and (expected_error_type is None or item["type"] == expected_error_type)
+        and (expected_message is None or expected_message in item["msg"])
+        for item in errors
+    ), errors
+
+
+def _assert_bundle_rejected(
+    payload: object,
+    *,
+    expected_location_suffix: tuple[str | int, ...] | None = None,
+    expected_error_type: str | None = None,
+    expected_message: str | None = None,
+) -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        WebEvidenceBundle.model_validate(payload)
+    _assert_expected_validation_error(
+        exc_info.value,
+        expected_location_suffix=expected_location_suffix,
+        expected_error_type=expected_error_type,
+        expected_message=expected_message,
+    )
 
 
 class _StaticProvider:
@@ -533,3 +591,472 @@ async def test_scholar_service_exposes_resumable_job_api(monkeypatch, tmp_path):
     assert status.status == "completed"
     assert service.get_status(cas, job_id).status == "completed"
     assert service.get_snapshot(cas, job_id) is not None
+
+
+@pytest.mark.asyncio
+async def test_deep_search_persists_inaccessible_text_and_budget_stop_separately(
+    monkeypatch,
+    tmp_path,
+):
+    async def _blocked_fetch(
+        url,
+        *,
+        constraints,
+        cache,
+        timeout_s,
+        user_agent,
+        max_bytes,
+        source_type_hint,
+    ):
+        del constraints, cache, timeout_s, user_agent, max_bytes
+        return FetchResult(
+            url=url,
+            final_url=url,
+            title="",
+            text="",
+            content_type="text/html",
+            status="blocked",
+            error="blocked_domain",
+            source_type=source_type_hint,
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scholar.search.service.fetch_open_page",
+        _blocked_fetch,
+    )
+    cas = FileSystemCAS(tmp_path / "scholar-attempt-cas")
+    brief = ResearchBrief(question="minimum wage evidence")
+    graph = QueryGraph(
+        brief=brief,
+        nodes=[
+            QueryNode(node_id="q0", query=brief.question, perspective="root"),
+            QueryNode(
+                node_id="q1",
+                query="minimum wage subgroup",
+                perspective="subgroup",
+            ),
+        ],
+        root_node_ids=["q0", "q1"],
+    )
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy([_StaticProvider()]),
+        cas=cas,
+        search_timeout_s=5,
+        fetch_timeout_s=5,
+    )
+
+    bundle = await service.deep_search(
+        brief=brief,
+        query_graph=graph,
+        constraints=SearchConstraints(),
+        budgets=SearchBudgetControls(
+            max_search_queries=1,
+            max_fetch_pages=1,
+            max_parallel_queries=1,
+            max_parallel_fetches=1,
+            max_depth=0,
+            max_wall_time_s=5,
+        ),
+    )
+    ref = service.persist_bundle(bundle)
+    persisted = json.loads(cas.get_bytes(ref))
+
+    assert len(persisted["query_traces"]) == 1
+    assert persisted["query_traces"][0]["provider_attempts"][0]["reason"] == (
+        "not_established"
+    )
+    assert len(persisted["sources"]) == 1
+    assert persisted["sources"][0]["fetch_status"] == "blocked"
+    assert persisted["sources"][0]["error"] == "blocked_domain"
+    assert persisted["sources"][0]["provider"] == "static"
+    assert persisted["sources"][0]["search_query"] == brief.question
+    assert "stopped:max_search_queries" in persisted["uncertainty_notes"]
+    assert "stopped:max_fetch_pages" not in persisted["uncertainty_notes"]
+
+
+
+@pytest.mark.parametrize(
+    "round_trip",
+    [True, False],
+    ids=["read-v1", "attempt-requires-v1_1"],
+)
+def test_web_evidence_bundle_attempt_schema_is_backward_explicit(round_trip):
+    brief = ResearchBrief(question="legacy web evidence")
+    graph = QueryGraph(brief=brief)
+    trace = SearchQueryTrace(
+        query_node_id="q0",
+        query="legacy web evidence",
+        perspective="root",
+        provider="legacy",
+        provider_attempts=[
+            ProviderAttemptTrace(
+                attempt_index=0,
+                provider="legacy",
+                outcome="returned_no_hits",
+                reason="not_established",
+            )
+        ],
+    )
+
+    if round_trip:
+        legacy_trace = SearchQueryTrace(
+            query_node_id="q0",
+            query="legacy web evidence",
+            perspective="root",
+            provider="legacy",
+        )
+        legacy = WebEvidenceBundle(
+            schema_version="1.0",
+            bundle_id="legacy",
+            brief=brief,
+            query_graph=graph,
+            query_traces=[legacy_trace],
+        )
+        payload = legacy.model_dump(mode="json", exclude_none=True)
+        assert "provider_attempts" not in payload["query_traces"][0]
+        restored = WebEvidenceBundle.model_validate(payload)
+        assert restored.schema_version == "1.0"
+        assert restored.query_traces[0].provider_attempts is None
+    else:
+        with pytest.raises(ValueError, match="provider attempts require"):
+            WebEvidenceBundle(
+                schema_version="1.0",
+                bundle_id="invalid-legacy",
+                brief=brief,
+                query_graph=graph,
+                query_traces=[trace],
+            )
+
+
+@pytest.mark.asyncio
+async def test_deep_search_persists_safe_provider_error_aggregate_and_rejects_tampering(
+    monkeypatch,
+    tmp_path,
+):
+    url_marker = "r4-private-url-marker"
+    mailto_marker = "r4-private-mailto"
+    payload_marker = "r4-private-response-payload"
+
+    async def _raise_openalex_status(url, **kwargs):
+        del kwargs
+        request = httpx.Request("GET", url)
+        response = httpx.Response(503, request=request, text=payload_marker)
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as status_error:
+            detailed = httpx.HTTPStatusError(
+                f"{status_error} response_body={payload_marker}",
+                request=request,
+                response=response,
+            )
+            assert url_marker in str(detailed)
+            assert mailto_marker in str(detailed)
+            assert payload_marker in str(detailed)
+            raise detailed from status_error
+        raise AssertionError("HTTP 503 must raise HTTPStatusError")
+
+    monkeypatch.setattr(
+        "polisyos.scholar.search.providers._read_openalex_url_text",
+        _raise_openalex_status,
+    )
+    cas = FileSystemCAS(tmp_path / "cas-provider-error-aggregate")
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy(
+            [
+                OpenAlexWorksProvider(
+                    endpoint=f"https://api.openalex.test/{url_marker}",
+                    mailto=f"{mailto_marker}@example.test",
+                )
+            ]
+        ),
+        cas=cas,
+    )
+
+    bundle = await service.deep_search(
+        question="minimum wage effects",
+        budgets=SearchBudgetControls(
+            max_search_queries=1,
+            max_fetch_pages=1,
+            max_parallel_queries=1,
+            max_parallel_fetches=1,
+            max_depth=0,
+            max_wall_time_s=5,
+        ),
+    )
+    ref = service.persist_bundle(bundle)
+    manifest = cas.get_manifest(ref)
+    assert manifest.artifact_schema.version == "1.1"
+    payload_bytes = cas.get_bytes(ref)
+    payload_text = payload_bytes.decode("utf-8")
+    assert all(
+        marker not in payload_text
+        for marker in (url_marker, mailto_marker, payload_marker)
+    )
+    persisted = json.loads(payload_text)
+    trace = persisted["query_traces"][0]
+    attempt = trace["provider_attempts"][0]
+    assert attempt["error"] == "provider_error"
+    assert attempt["error_type"] == "http_status_error"
+    assert trace["error"] == "provider_error"
+    assert persisted["no_hit_frontier"][0]["error"] == "provider_error"
+
+    typed_persisted = from_canonical_bytes(payload_bytes)
+    validated_base = WebEvidenceBundle.model_validate(typed_persisted)
+    assert validated_base.query_traces[0].provider_attempts[0].error == "provider_error"
+    mutation_expectations = {
+        "raw_attempt_error": {
+            "expected_location_suffix": ("error",),
+            "expected_error_type": "literal_error",
+        },
+        "raw_aggregate_error": {
+            "expected_message": "query error must match the latest observed provider error"
+        },
+        "raw_frontier_error": {
+            "expected_message": "schema 1.1 frontier errors must use a safe category"
+        },
+        "missing_error_type": {
+            "expected_message": "error outcome requires a safe category and exception type"
+        },
+    }
+    for mutation, expected_error in mutation_expectations.items():
+        tampered = copy.deepcopy(typed_persisted)
+        if mutation == "raw_attempt_error":
+            tampered["query_traces"][0]["provider_attempts"][0]["error"] = url_marker
+        elif mutation == "raw_aggregate_error":
+            tampered["query_traces"][0]["error"] = url_marker
+        elif mutation == "raw_frontier_error":
+            tampered["no_hit_frontier"][0]["error"] = url_marker
+        else:
+            del tampered["query_traces"][0]["provider_attempts"][0]["error_type"]
+        _assert_bundle_rejected(tampered, **expected_error)
+
+
+@pytest.mark.asyncio
+async def test_legacy_v1_bundle_resume_projects_errors_without_rewriting_old_cas(
+    tmp_path,
+):
+    sentinel = "legacy-provider-error-private-sentinel"
+    cas_root = tmp_path / "cas-legacy-bundle"
+    cas = FileSystemCAS(cas_root)
+    brief = ResearchBrief(question="legacy evidence query")
+    graph = QueryGraph(
+        brief=brief,
+        nodes=[
+            QueryNode(
+                node_id="legacy.query.1",
+                query=brief.question,
+                perspective="root",
+                status="failed",
+                hit_count=0,
+            )
+        ],
+        root_node_ids=["legacy.query.1"],
+    )
+    legacy_bundle = WebEvidenceBundle(
+        schema_version="1.0",
+        bundle_id="webkb.legacy-provider-error",
+        brief=brief,
+        query_graph=graph,
+        query_traces=[
+            SearchQueryTrace(
+                query_node_id="legacy.query.1",
+                query=brief.question,
+                perspective="root",
+                provider="legacy-provider",
+                hit_count=0,
+                error=f"legacy-provider: {sentinel}",
+            )
+        ],
+        no_hit_frontier=[
+            NoHitFrontierRecord(
+                query_node_id="legacy.query.1",
+                query=brief.question,
+                perspective="root",
+                provider="legacy-provider",
+                reason="provider_error_no_hits",
+                error=f"legacy-provider: {sentinel}",
+            )
+        ],
+    )
+    legacy_payload = legacy_bundle.model_dump(mode="json", exclude_none=True)
+    legacy_report = build_scholar_academic_evidence_report_from_web_bundle(
+        scholar_evidence_ref="sha256:" + "1" * 64,
+        bundle=legacy_payload,
+        corpus_snapshot_ref="corpus-snapshot:legacy-provider-error",
+        lineage_ref="scholar-lineage:legacy-provider-error",
+    )
+    assert sentinel not in json.dumps(legacy_report, sort_keys=True)
+    assert legacy_report["provider_traces"][0]["error"] == (
+        "legacy_error_not_established"
+    )
+    unversioned_payload = dict(legacy_payload)
+    unversioned_payload.pop("schema_version")
+    with pytest.raises(ValueError, match="unversioned provider errors"):
+        build_scholar_academic_evidence_report_from_web_bundle(
+            scholar_evidence_ref="sha256:" + "2" * 64,
+            bundle=unversioned_payload,
+            corpus_snapshot_ref="corpus-snapshot:unversioned-error",
+            lineage_ref="scholar-lineage:unversioned-error",
+        )
+    legacy_ref = cas.put_json(
+        legacy_payload,
+        ArtifactWriteOptions(
+            kind="scholar.web_evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scholar.web_evidence_bundle",
+                version="1.0",
+            ),
+            producer=ProducerInfo(
+                component="polisyos.scholar.search.service",
+                version="1.0.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_bytes = cas.get_bytes(legacy_ref)
+    assert cas.get_manifest(legacy_ref).artifact_schema.version == "1.0"
+    assert sentinel.encode() in legacy_bytes
+
+    legacy_checkpoint = ResearchJobCheckpoint(
+        job_id="research.legacy-provider-error",
+        status="failed",
+        brief=brief,
+        query_graph=graph,
+        bundle=legacy_bundle,
+    )
+    checkpoint_ref = cas.put_json(
+        legacy_checkpoint.model_dump(mode="json", exclude_none=True),
+        ArtifactWriteOptions(
+            kind="scholar.web_research_checkpoint",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scholar.web_research_checkpoint",
+                version="1.0",
+            ),
+            producer=ProducerInfo(
+                component="polisyos.scholar.search.jobs",
+                version="1.0.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_checkpoint_bytes = cas.get_bytes(checkpoint_ref)
+
+    reopened_cas = FileSystemCAS(cas_root)
+    assert reopened_cas.get_bytes(legacy_ref) == legacy_bytes
+    assert reopened_cas.get_bytes(checkpoint_ref) == legacy_checkpoint_bytes
+    reopened_checkpoint = ResearchJobCheckpoint.model_validate(
+        from_canonical_bytes(legacy_checkpoint_bytes)
+    )
+    assert reopened_checkpoint.bundle.schema_version == "1.0"
+    assert reopened_checkpoint.bundle.query_traces[0].provider_attempts is None
+    assert sentinel in reopened_checkpoint.bundle.query_traces[0].error
+
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy([_StaticProvider()]),
+        cas=reopened_cas,
+    )
+    manager = DeepResearchJobManager(
+        service=service,
+        cas=reopened_cas,
+        status_root=tmp_path / "job-status",
+    )
+    job_id = await manager.resume(
+        checkpoint_artifact_id=str(checkpoint_ref.artifact_id),
+    )
+    status = await manager.wait(job_id, deadline_s=10)
+
+    assert status.status == "completed"
+    assert status.result_bundle is not None
+    assert status.result_bundle.schema_version == "1.1"
+    assert status.result_bundle.query_traces[0].provider_attempts is None
+    assert status.result_bundle.query_traces[0].error == "legacy_error_not_established"
+    assert status.result_bundle.no_hit_frontier[0].error == "legacy_error_not_established"
+    assert reopened_cas.get_bytes(legacy_ref) == legacy_bytes
+    assert sentinel.encode() not in (
+        tmp_path / "job-status" / "scholar_web_jobs" / "status_index.json"
+    ).read_bytes()
+
+    direct_legacy_ref = service.persist_bundle(legacy_bundle)
+    direct_legacy_bytes = reopened_cas.get_bytes(direct_legacy_ref)
+    assert reopened_cas.get_manifest(direct_legacy_ref).artifact_schema.version == "1.1"
+    assert sentinel.encode() not in direct_legacy_bytes
+    direct_legacy_bundle = WebEvidenceBundle.model_validate(
+        from_canonical_bytes(direct_legacy_bytes)
+    )
+    assert direct_legacy_bundle.query_traces[0].provider_attempts is None
+    assert direct_legacy_bundle.query_traces[0].error == "legacy_error_not_established"
+
+    bundle_ref = service.persist_bundle(status.result_bundle)
+    bundle_bytes = reopened_cas.get_bytes(bundle_ref)
+    assert reopened_cas.get_manifest(bundle_ref).artifact_schema.version == "1.1"
+    assert sentinel.encode() not in bundle_bytes
+    typed_bundle_payload = from_canonical_bytes(bundle_bytes)
+    fresh_bundle = WebEvidenceBundle.model_validate(typed_bundle_payload)
+    assert fresh_bundle.schema_version == "1.1"
+    assert fresh_bundle.query_traces[0].provider_attempts is None
+    assert fresh_bundle.query_traces[0].error == "legacy_error_not_established"
+
+    completed_checkpoint_bytes = reopened_cas.get_bytes(status.checkpoint_artifact_id)
+    completed_checkpoint = ResearchJobCheckpoint.model_validate(
+        from_canonical_bytes(completed_checkpoint_bytes)
+    )
+    assert completed_checkpoint.bundle.schema_version == "1.1"
+    assert completed_checkpoint.bundle.query_traces[0].provider_attempts is None
+    assert sentinel.encode() not in completed_checkpoint_bytes
+
+    report_bytes = reopened_cas.get_bytes(status.scholar_academic_evidence_artifact_id)
+    report_payload = json.loads(report_bytes)
+    assert sentinel.encode() not in report_bytes
+    assert report_payload["provider_traces"][0]["error"] == (
+        "legacy_error_not_established"
+    )
+
+    malformed_query = copy.deepcopy(typed_bundle_payload)
+    malformed_query["query_traces"][0].pop("provider_attempts", None)
+    malformed_query["query_traces"][0]["error"] = sentinel
+    _assert_bundle_rejected(
+        malformed_query,
+        expected_message="schema 1.1 query errors must use a safe category",
+    )
+    with pytest.raises(ValidationError) as report_error:
+        build_scholar_academic_evidence_report_from_web_bundle(
+            scholar_evidence_ref="sha256:" + "3" * 64,
+            bundle=malformed_query,
+            corpus_snapshot_ref="corpus-snapshot:malformed-attempts",
+            lineage_ref="scholar-lineage:malformed-attempts",
+        )
+    _assert_expected_validation_error(
+        report_error.value,
+        expected_message="schema 1.1 query errors must use a safe category",
+    )
+
+    malformed_frontier = copy.deepcopy(typed_bundle_payload)
+    malformed_frontier["no_hit_frontier"][0]["error"] = sentinel
+    _assert_bundle_rejected(
+        malformed_frontier,
+        expected_message="schema 1.1 frontier errors must use a safe category",
+    )
+
+    bypassed = fresh_bundle.model_copy(
+        update={
+            "query_traces": [
+                fresh_bundle.query_traces[0].model_copy(
+                    update={"error": sentinel, "provider_attempts": None}
+                )
+            ],
+            "no_hit_frontier": [
+                fresh_bundle.no_hit_frontier[0].model_copy(update={"error": sentinel})
+            ],
+        }
+    )
+    artifacts_before = {str(item) for item in reopened_cas.iter_artifact_ids()}
+    with pytest.raises(ValidationError) as persist_error:
+        service.persist_bundle(bypassed)
+    _assert_expected_validation_error(
+        persist_error.value,
+        expected_message="schema 1.1 query errors must use a safe category",
+    )
+    artifacts_after = {str(item) for item in reopened_cas.iter_artifact_ids()}
+    assert artifacts_after == artifacts_before

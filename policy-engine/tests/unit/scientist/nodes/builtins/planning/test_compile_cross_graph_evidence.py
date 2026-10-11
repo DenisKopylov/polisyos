@@ -4,12 +4,23 @@ from unittest.mock import patch
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ProfileLevel, ValidationProfile
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.cross_graph import EvidenceStatus, load_cross_graph_evidence_profile
 from polisyos.ir.analytics.literature import (
@@ -54,6 +65,7 @@ from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence imp
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
     INPUT_GRAPH_PRIOR_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
@@ -98,6 +110,90 @@ def test_compilation_without_trinity(execution_context, minimal_state):
     summary = outcome.state.params.get("cross_graph_evidence_summary")
     assert summary is not None
     assert outcome.state.params.get("cross_graph_benchmark_summary") is not None
+
+
+def test_compilation_preserves_selected_graph_profile_without_trinity(
+    execution_context,
+    minimal_state,
+) -> None:
+    store = _ensure_ir_artifact_store(execution_context.store)
+    graph_ref = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["X", "Y"],
+                edges=[CausalEdge(src="X", dst="Y")],
+            ),
+        ),
+    )
+    state = minimal_state.model_copy(
+        update={
+            "artifacts_index": {
+                **minimal_state.artifacts_index,
+                ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+            },
+            "params": {"cross_graph_evidence_config": {"enabled": True}},
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    assert outcome.status == "ok"
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    graph_edges = [
+        edge
+        for edge in execution_context.store.get_manifest(profile_ref).inputs
+        if edge.role == "causal_graph"
+    ]
+    assert len(graph_edges) == 1
+    assert str(graph_edges[0].artifact_id) == str(graph_ref.artifact_id)
+    assert graph_edges[0].manifest_profile_sha256 == graph_ref.manifest_profile_sha256
+
+
+@pytest.mark.parametrize("corruption", ["malformed", "stale-profile"])
+def test_compilation_fails_for_invalid_supplied_graph_instead_of_graphless_success(
+    execution_context,
+    minimal_state,
+    corruption: str,
+) -> None:
+    store = _ensure_ir_artifact_store(execution_context.store)
+    valid_ref = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["X", "Y"],
+                edges=[CausalEdge(src="X", dst="Y")],
+            ),
+        ),
+    )
+    if corruption == "malformed":
+        supplied_ref = valid_ref.model_copy(update={"kind": "ir.not_a_causal_graph"})
+    else:
+        supplied_ref = valid_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+    state = minimal_state.model_copy(
+        update={
+            "artifacts_index": {
+                **minimal_state.artifacts_index,
+                ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: supplied_ref,
+            },
+            "params": {"cross_graph_evidence_config": {"enabled": True}},
+        }
+    )
+
+    outcome = CompileCrossGraphEvidenceNode().execute(execution_context, state)
+
+    from polisyos.scientist.nodes.builtins import errors as node_errors
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == node_errors.ERROR_INVALID_STATE
+    assert ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in outcome.state.artifacts_index
 
 
 def test_compilation_skips_when_not_expected(execution_context, minimal_state):

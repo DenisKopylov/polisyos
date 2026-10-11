@@ -77,8 +77,11 @@ from polisyos.runtime.quality.design_axes.value_choice_provenance import Normati
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
 
-    from polisyos.core.contracts.control import CatalogRunProfile
+    from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.http.step_up import StepUpAssertionVerifier, StepUpReplayStore
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationProfileV1,
+    )
 
 FastAPI: Any | None
 Request: Any
@@ -124,6 +127,9 @@ def create_runtime_api_app(
     normative_authority_trust: NormativeAuthorityTrust | None = None,
     candidate_simulation_profiles: tuple[Any, ...] = (),
     candidate_simulation_model_declarations: tuple[Any, ...] = (),
+    generic_cycle_simulation_profiles: tuple[GenericCycleSimulationProfileV1, ...] = (),
+    generic_cycle_simulation_root_profile_id: str | None = None,
+    enable_contract_testing_credal_source_attempts: bool = False,
     process_worker_capacity: int | None = None,
     process_worker_profile_revision: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
@@ -131,11 +137,16 @@ def create_runtime_api_app(
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
 ) -> Any:
-    """Create the runtime API app with optional candidate process capacity.
+    """Create the runtime API app with optional candidate runtime profiles.
 
     An explicit ``process_worker_capacity`` requires a matching
     ``process_worker_profile_revision``. Omitting both preserves the legacy
     host-derived candidate profile; neither path establishes deployed authority.
+    The generic simulation tuple and root ID enable only a server-selected
+    candidate N5 lane. Its result remains simulation evidence and cannot be
+    promoted to N9, S8, or publication authority. Contract-testing K_ref
+    source-attempt capture is separately disabled by default and restricted to
+    the development profile.
     """
     if FastAPI is None:
         raise RuntimeError("Runtime HTTP API requires fastapi/starlette dependencies")
@@ -147,6 +158,17 @@ def create_runtime_api_app(
         else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
+    if type(enable_contract_testing_credal_source_attempts) is not bool:
+        raise RuntimeBootstrapError(
+            "Contract-testing Credal source attempts require a boolean server setting."
+        )
+    if (
+        enable_contract_testing_credal_source_attempts
+        and policy_resolver.default_profile != "dev"
+    ):
+        raise RuntimeBootstrapError(
+            "Contract-testing Credal source attempts are restricted to the dev profile."
+        )
     direct_security_collaborators = {
         "identity_provider": identity_provider,
         "cell_registry": cell_registry,
@@ -241,6 +263,11 @@ def create_runtime_api_app(
             normative_authority_trust=(normative_authority_trust or NormativeAuthorityTrust()),
             candidate_simulation_profiles=candidate_simulation_profiles,
             candidate_simulation_model_declarations=(candidate_simulation_model_declarations),
+            generic_cycle_simulation_profiles=generic_cycle_simulation_profiles,
+            generic_cycle_simulation_root_profile_id=(generic_cycle_simulation_root_profile_id),
+            enable_contract_testing_credal_source_attempts=(
+                enable_contract_testing_credal_source_attempts
+            ),
             process_worker_capacity=process_worker_capacity,
             process_worker_profile_revision=process_worker_profile_revision,
             catalog_run_profile=catalog_run_profile,

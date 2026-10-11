@@ -122,6 +122,10 @@ const evidenceContext: RunEvidenceContext = {
     artifact_id: "snapshot-public",
     kind: "data_snapshot",
   },
+  dataViewRequestRef: null,
+  fabricRetrievalTraceRef: null,
+  materializationRefs: {},
+  productionDataEvidenceContext: {},
   evidenceBundleRef: {
     artifact_id: "bundle-public",
     kind: "evidence_bundle",

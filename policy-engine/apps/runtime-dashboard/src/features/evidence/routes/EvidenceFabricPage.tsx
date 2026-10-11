@@ -8,7 +8,10 @@ import { useDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidat
 import { useRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSourceProfiles } from "@/api/hooks/useSourceProfiles";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
-import { parseEvidenceSearchParams } from "@/features/evidence/domain/searchParams";
+import {
+  buildEvidenceHref,
+  parseEvidenceSearchParams,
+} from "@/features/evidence/domain/searchParams";
 import { ConnectorCharacterCards } from "@/features/evidence/components/ConnectorCharacterCards";
 import DataIntelligencePanel from "@/features/evidence/components/DataIntelligencePanel";
 import { CapabilityDiscoveryPanel } from "@/features/evidence/components/CapabilityDiscoveryPanel";
@@ -16,6 +19,7 @@ import { FreshnessBraidPanel } from "@/features/evidence/components/FreshnessBra
 import {
   EVIDENCE_FOCUSES,
   dedupeEvidenceArtifactRefs,
+  evidenceArtifactRefKey,
   parseEvidenceFocus,
 } from "@/features/evidence/domain/context";
 import {
@@ -32,6 +36,7 @@ import {
   normalizeRunEvidenceContext,
   resolveDefaultEvidenceFocus,
 } from "@/shared/lib/domain/evidence";
+import { parseEvidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
 import {
   markUiMilestone,
@@ -72,6 +77,8 @@ export default function EvidenceFabric() {
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     artifactId,
+    artifactRefKey,
+    artifactRefKeyInvalid,
     capability,
     focus: parsedFocus,
     needId,
@@ -129,15 +136,41 @@ export default function EvidenceFabric() {
         runContext?.executionPlanRef ?? null,
         runContext?.evidenceBundleRef ?? null,
         runContext?.dataSnapshotRef ?? null,
+        runContext?.dataViewRequestRef ?? null,
         runContext?.inputBindingsRef ?? null,
         ...(runContext?.relatedArtifacts ?? []),
       ]),
     [runContext],
   );
 
-  const selectedArtifact =
-    contextArtifactRefs.find((ref) => ref.artifact_id === artifactId) ??
-    (artifactId ? null : (contextArtifactRefs[0] ?? null));
+  const matchingArtifactRefs = contextArtifactRefs.filter(
+    (ref) => ref.artifact_id === artifactId,
+  );
+  const decodedArtifactRef = artifactRefKey
+    ? parseEvidenceArtifactRefKey(artifactRefKey)
+    : null;
+  const invalidArtifactRefSelection =
+    artifactRefKeyInvalid ||
+    (artifactRefKey !== undefined &&
+      (!decodedArtifactRef || decodedArtifactRef.artifact_id !== artifactId));
+  const selectedArtifact = invalidArtifactRefSelection
+    ? null
+    : artifactRefKey
+      ? (contextArtifactRefs.find(
+          (ref) =>
+            evidenceArtifactRefKey(ref) === artifactRefKey &&
+            (!artifactId || ref.artifact_id === artifactId),
+        ) ?? null)
+      : artifactId
+        ? matchingArtifactRefs.length === 1
+          ? matchingArtifactRefs[0]
+          : null
+        : (contextArtifactRefs[0] ?? null);
+  const artifactProfileAmbiguous =
+    !invalidArtifactRefSelection &&
+    Boolean(artifactId) &&
+    !artifactRefKey &&
+    matchingArtifactRefs.length > 1;
   const featuredProfiles = availableProfiles.slice(0, 3);
   const featuredPromotions = (
     runId
@@ -212,9 +245,15 @@ export default function EvidenceFabric() {
       t("pages.evidence.degraded.promotionMissing", { promotionId }),
     );
   }
-  if (runId && artifactId && !selectedArtifact) {
+  if (invalidArtifactRefSelection) {
     degradedMessages.push(
-      t("pages.evidence.degraded.artifactMissing", { artifactId }),
+      t("pages.evidence.degraded.artifactReferenceInvalid"),
+    );
+  } else if (runId && artifactId && !selectedArtifact) {
+    degradedMessages.push(
+      artifactProfileAmbiguous
+        ? t("pages.evidence.degraded.artifactProfileAmbiguous", { artifactId })
+        : t("pages.evidence.degraded.artifactMissing", { artifactId }),
     );
   }
 
@@ -239,6 +278,7 @@ export default function EvidenceFabric() {
     planId?: string | null;
     promotionId?: string | null;
     artifactId?: string | null;
+    artifactRefKey?: string | null;
   }) {
     const next = new URLSearchParams(searchParams);
     if (runId) {
@@ -246,7 +286,13 @@ export default function EvidenceFabric() {
     }
     next.set("focus", params.focus ?? effectiveFocus);
 
-    for (const key of ["needId", "planId", "promotionId", "artifactId"]) {
+    for (const key of [
+      "needId",
+      "planId",
+      "promotionId",
+      "artifactId",
+      "artifactRefKey",
+    ]) {
       next.delete(key);
     }
     if (params.needId) {
@@ -261,6 +307,9 @@ export default function EvidenceFabric() {
     if (params.artifactId) {
       next.set("artifactId", params.artifactId);
     }
+    if (params.artifactRefKey) {
+      next.set("artifactRefKey", params.artifactRefKey);
+    }
     setSearchParams(next);
   }
 
@@ -273,6 +322,7 @@ export default function EvidenceFabric() {
       "planId",
       "promotionId",
       "artifactId",
+      "artifactRefKey",
     ]) {
       next.delete(key);
     }
@@ -961,31 +1011,40 @@ export default function EvidenceFabric() {
                       {t("pages.evidence.relatedArtifacts")}
                     </p>
                     <div className="space-y-2">
-                      {contextArtifactRefs.map((ref) => (
-                        <button
-                          key={ref.artifact_id}
-                          type="button"
-                          data-testid={`evidence-artifact-${ref.artifact_id}`}
-                          onClick={() =>
-                            updateContext({
-                              focus: "artifact",
-                              artifactId: ref.artifact_id,
-                            })
-                          }
-                          className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
-                        >
-                          <p className="font-semibold">
-                            {label(
-                              "artifactKinds",
-                              ref.kind,
-                              ref.kind ?? ref.artifact_id,
-                            )}
-                          </p>
-                          <p className="text-muted mt-1 font-mono text-[11px]">
-                            {ref.artifact_id}
-                          </p>
-                        </button>
-                      ))}
+                      {contextArtifactRefs.map((ref) => {
+                        const refKey = evidenceArtifactRefKey(ref);
+                        return (
+                          <button
+                            key={refKey}
+                            type="button"
+                            data-testid={`evidence-artifact-${encodeURIComponent(refKey)}`}
+                            onClick={() =>
+                              updateContext({
+                                focus: "artifact",
+                                artifactId: ref.artifact_id,
+                                artifactRefKey: refKey,
+                              })
+                            }
+                            className="bg-surface/80 border-line w-full rounded-2xl border p-3 text-left"
+                          >
+                            <p className="font-semibold">
+                              {label(
+                                "artifactKinds",
+                                ref.kind,
+                                ref.kind ?? ref.artifact_id,
+                              )}
+                            </p>
+                            <p className="text-muted mt-1 font-mono text-[11px]">
+                              {ref.artifact_id}
+                            </p>
+                            {ref.manifest_profile_sha256 ? (
+                              <p className="text-muted mt-1 font-mono text-[10px]">
+                                {ref.manifest_profile_sha256}
+                              </p>
+                            ) : null}
+                          </button>
+                        );
+                      })}
                       {contextArtifactRefs.length === 0 ? (
                         <p className="text-muted text-sm">
                           {t("pages.evidence.noArtifacts")}
@@ -1127,19 +1186,28 @@ export default function EvidenceFabric() {
                     runContext?.executionPlanRef,
                     runContext?.evidenceBundleRef,
                     runContext?.dataSnapshotRef,
+                    runContext?.dataViewRequestRef,
                     runContext?.inputBindingsRef,
                   ]
                     .filter((ref): ref is EvidenceArtifactRef => Boolean(ref))
                     .map((ref) => ({
                       artifactId: ref.artifact_id,
-                      href: `/artifacts/${ref.artifact_id}`,
+                      identityKey: evidenceArtifactRefKey(ref),
+                      href: buildEvidenceHref({
+                        runId: runContext?.runId,
+                        focus: "artifact",
+                        artifactId: ref.artifact_id,
+                        artifactRefKey: evidenceArtifactRefKey(ref),
+                      }),
                       label: label(
                         "artifactKinds",
                         ref.kind,
                         ref.kind ?? ref.artifact_id,
                       ),
                       meta:
-                        selectedArtifact?.artifact_id === ref.artifact_id
+                        selectedArtifact &&
+                        evidenceArtifactRefKey(selectedArtifact) ===
+                          evidenceArtifactRefKey(ref)
                           ? t("pages.evidence.selectedArtifact")
                           : undefined,
                     }))}

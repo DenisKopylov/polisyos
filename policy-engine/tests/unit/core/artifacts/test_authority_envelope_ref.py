@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from polisyos.core.artifacts.manifest import (
@@ -11,7 +13,10 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import resolve_authority_envelope_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.runtime.quality.authority import _surface_authority_payload
+from polisyos.runtime.quality.authority import (
+    _surface_authority_payload,
+    authority_surface_decision,
+)
 
 _ENVELOPE_KIND = "runtime_quality.evidence_authority_envelope"
 _ENVELOPE_SCHEMA = "runtime_quality.evidence_authority_envelope"
@@ -151,3 +156,202 @@ def test_authority_surface_reads_the_producer_selected_envelope_view(tmp_path) -
 
     assert projected == {"authority_boundary": {"posture": "limited"}}
     assert selected_ref in recording_store.profiled_reads
+
+
+def test_surface_authority_uses_selected_payload_manifest_profile(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "selected-payload-authority-view")
+    default_envelope = store.put_bytes(
+        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://default","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _envelope_options(producer_version="default-envelope"),
+    )
+    selected_envelope = store.put_bytes(
+        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://selected","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _envelope_options(producer_version="selected-envelope"),
+    )
+    payload = b'{"ordinary_payload":"identical bytes"}'
+    payload_default = store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="runtime.test_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+            authority=_authority_link(default_envelope),
+        ),
+    )
+    payload_selected = store.put_bytes(
+        payload,
+        ArtifactWriteOptions(
+            kind="runtime.test_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+            authority=_authority_link(selected_envelope),
+        ),
+    )
+    assert payload_default.artifact_id == payload_selected.artifact_id
+    assert payload_default.manifest_profile_sha256 != payload_selected.manifest_profile_sha256
+
+    common = {
+        "surface": "dashboard",
+        "purpose": "dashboard_display",
+        "artifact_store": store,
+        "require_cas_integrity": True,
+        "enforce_s12": False,
+        "enforce_time_source": False,
+        "enforce_candidate_firewall": False,
+    }
+    default_decision = authority_surface_decision(
+        None,
+        artifact_id=payload_default.artifact_id,
+        artifact_ref=payload_default,
+        **common,
+    )
+    selected_decision = authority_surface_decision(
+        None,
+        artifact_id=payload_selected.artifact_id,
+        artifact_ref=payload_selected,
+        **common,
+    )
+
+    assert default_decision.status == "allowed"
+    assert selected_decision.status == "downgraded"
+    assert selected_decision.reason == "authority_purpose_forbidden"
+
+
+def test_inline_and_selected_manifest_authority_are_both_constraints(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "inline-and-selected-authority")
+    inline_permit = {
+        "authority_result": "authority",
+        "legacy_path_disposition": "authority_path",
+        "authority_boundary": {
+            "boundary_id": "boundary://inline-permit",
+            "source_authority": "runtime_quality",
+            "posture": "authority",
+            "authoritative_for": ["dashboard_display"],
+            "may_not_use_for": ["evaluation_execution"],
+            "rule_version_refs": ["rule://selected-profile-test"],
+        },
+    }
+    inline_deny = {
+        **inline_permit,
+        "authority_boundary": {
+            **inline_permit["authority_boundary"],
+            "boundary_id": "boundary://inline-deny",
+            "may_not_use_for": ["dashboard_display"],
+        },
+    }
+    envelope_allow = store.put_bytes(
+        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-allow","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["evaluation_execution"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _envelope_options(producer_version="linked-allow"),
+    )
+    envelope_deny = store.put_bytes(
+        b'{"authority_result":"authority","legacy_path_disposition":"authority_path","authority_boundary":{"boundary_id":"boundary://linked-deny","source_authority":"runtime_quality","posture":"authority","authoritative_for":["dashboard_display"],"may_not_use_for":["dashboard_display"],"rule_version_refs":["rule://selected-profile-test"]}}',
+        _envelope_options(producer_version="linked-deny"),
+    )
+
+    def payload_ref(payload: dict[str, object], linked_envelope: ArtifactRef) -> ArtifactRef:
+        return store.put_bytes(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode(),
+            ArtifactWriteOptions(
+                kind="runtime.test_payload",
+                media_type="application/json",
+                schema=SchemaInfo(name="runtime.test_payload", version="1.0.0"),
+                authority=_authority_link(linked_envelope),
+            ),
+        )
+
+    inline_permit_ref = payload_ref(inline_permit, envelope_deny)
+    inline_deny_ref = payload_ref(inline_deny, envelope_allow)
+    assert inline_permit_ref.artifact_id != inline_deny_ref.artifact_id
+
+    decisions = (
+        authority_surface_decision(
+            inline_permit,
+            surface="dashboard",
+            purpose="dashboard_display",
+            artifact_store=store,
+            artifact_id=inline_permit_ref,
+            require_cas_integrity=True,
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        ),
+        authority_surface_decision(
+            inline_deny,
+            surface="dashboard",
+            purpose="dashboard_display",
+            artifact_store=store,
+            artifact_id=inline_deny_ref,
+            require_cas_integrity=True,
+            enforce_time_source=False,
+            enforce_s12=False,
+            enforce_candidate_firewall=False,
+        ),
+    )
+
+    assert all(decision.visible_downgrade for decision in decisions)
+    assert all(decision.reason == "authority_purpose_forbidden" for decision in decisions)
+    assert all(
+        "selected_manifest_authority" in decision.composed_gate_inputs
+        for decision in decisions
+    )
+
+    inline_permit_decision, inline_deny_decision = decisions
+    assert inline_permit_decision.authority_boundary_ref == "boundary://linked-deny"
+    assert "dashboard_display" in inline_permit_decision.may_not_use_for
+    permit_contributors = {
+        row.basis: row for row in inline_permit_decision.authority_contributors
+    }
+    assert permit_contributors["base_surface"].authority_boundary_ref == (
+        "boundary://inline-permit"
+    )
+    assert permit_contributors["selected_manifest"].authority_boundary_ref == (
+        "boundary://linked-deny"
+    )
+    assert permit_contributors["selected_manifest"].reason == "authority_purpose_forbidden"
+    assert inline_deny_decision.authority_boundary_ref == "boundary://inline-deny"
+    assert "dashboard_display" in inline_deny_decision.may_not_use_for
+    deny_contributors = {
+        row.basis: row for row in inline_deny_decision.authority_contributors
+    }
+    assert deny_contributors["base_surface"].authority_boundary_ref == (
+        "boundary://inline-deny"
+    )
+    assert deny_contributors["selected_manifest"].authority_boundary_ref == (
+        "boundary://linked-allow"
+    )
+
+    both_deny_ref = payload_ref(inline_deny, envelope_deny)
+    both_permit_ref = payload_ref(inline_permit, envelope_allow)
+    both_deny = authority_surface_decision(
+        inline_deny,
+        surface="dashboard",
+        purpose="dashboard_display",
+        artifact_store=store,
+        artifact_id=both_deny_ref,
+        require_cas_integrity=True,
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    both_permit = authority_surface_decision(
+        inline_permit,
+        surface="dashboard",
+        purpose="dashboard_display",
+        artifact_store=store,
+        artifact_id=both_permit_ref,
+        require_cas_integrity=True,
+        enforce_time_source=False,
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+    assert both_deny.status == "downgraded"
+    assert both_deny.reason == "authority_purpose_forbidden"
+    assert [row.basis for row in both_deny.authority_contributors] == [
+        "base_surface",
+        "selected_manifest",
+    ]
+    assert both_deny.authority_boundary_ref == "boundary://linked-deny"
+    assert both_permit.status == "allowed"
+    assert all(
+        row.status == "allowed" for row in both_permit.authority_contributors
+    )

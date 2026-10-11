@@ -156,6 +156,9 @@ readme = "src/polisyos/core/README.md"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.core",
+  "polisyos.core.artifacts",
+  "polisyos.core.canon",
+  "polisyos.core.components",
   "polisyos.core.contracts",
   "polisyos.core.observability",
   "polisyos.core.security",
@@ -263,6 +266,7 @@ supported_entrypoints = [
   "polisyos.scientist.governance.continuous",
   "polisyos.scientist.methods.research_dag",
   "polisyos.scientist.replay",
+  "polisyos.scientist.replay.deterministic",
 ]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
@@ -329,7 +333,12 @@ facade_mode = "lazy_facade"
 owner = "team-data-forge"
 readme = "src/polisyos/data_forge/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.data_forge", "polisyos.data_forge.read_api"]
+supported_entrypoints = [
+  "polisyos.data_forge",
+  "polisyos.data_forge.read_api",
+  "polisyos.data_forge.read_api.academic",
+  "polisyos.data_forge.read_api.catalog",
+]
 major_subsystem = true
 notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface."
 

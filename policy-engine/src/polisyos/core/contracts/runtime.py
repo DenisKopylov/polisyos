@@ -1799,6 +1799,11 @@ class BureaucraticRenderRequest(BaseModel):
     genre: BureaucraticGenre
     jurisdiction: str = Field(default="ua", min_length=1)
     template_version: str | None = None
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        description="Optional exact manifest profile for the source artifact.",
+    )
     temporal_scope: TemporalScope | None = None
     trust_view: bool = False
 
@@ -2274,6 +2279,252 @@ class RunCandidateSimulationProjection(BaseModel):
         return self
 
 
+class RunGenericCycleSimulationChildProfileBinding(BaseModel):
+    """Historical profile row joined to one persisted N4-derived child."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_ref: ArtifactRef
+    source_result_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_atom_refs: tuple[str, ...] = Field(min_length=1)
+    semantic_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_job_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    profile_id: str = Field(min_length=1)
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    historical_binding_status: Literal["resolved", "not_established"]
+    limitation_code: str | None = Field(default=None, min_length=1)
+    currentness_status: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _verify_generic_binding(self) -> RunGenericCycleSimulationChildProfileBinding:
+        expected_node_ref = "design-problem://" + self.design_problem_ref.removeprefix("sha256:")
+        if (
+            self.node_ref != expected_node_ref
+            or self.source_ref.kind != "runtime.generation_source_handoff"
+            or self.source_ref.media_type != "application/json"
+            or self.context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+            or self.context_job_ref.media_type != "application/json"
+            or self.profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+            or self.profile_ref.media_type != "application/json"
+            or not self.source_atom_refs
+            or len(self.source_atom_refs) != len(set(self.source_atom_refs))
+            or tuple(self.source_atom_refs) != tuple(sorted(self.source_atom_refs))
+            or (
+                self.historical_binding_status == "resolved"
+                and self.limitation_code is not None
+            )
+            or (
+                self.historical_binding_status == "not_established"
+                and self.limitation_code is None
+            )
+        ):
+            raise ValueError("run_generic_child_profile_binding_invalid")
+        return self
+
+
+class RunGenericCycleSimulationN5Observation(BaseModel):
+    """One historical, candidate-only N5 observation and its persisted lineage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_index: int = Field(ge=0)
+    candidate_id: str = Field(min_length=1)
+    status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
+    simulation_result_ref: ArtifactRef | None = None
+    n4_source_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    child_profile_family_ref: ArtifactRef | None = None
+    child_profile_set_ref: ArtifactRef | None = None
+    n5_input_ref: ArtifactRef
+    n5_execution_ref: ArtifactRef | None = None
+    n5_request_binding_status: Literal["resolved", "not_established"] = "not_established"
+    n5_request_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    atom_ids: tuple[str, ...] = ()
+    selected_outcomes: tuple[str, ...] = ()
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_blockers: tuple[str, ...] = ()
+    n8_status: Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"]
+    n8_lineage_status: Literal["resolved", "not_established"]
+    n8_value_ref: str | None = None
+    n8_authority_blockers: tuple[str, ...] = ()
+    n8_limitation_code: str | None = Field(default=None, min_length=1)
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_generic_n5_lineage(self) -> RunGenericCycleSimulationN5Observation:
+        typed_refs = (
+            (self.n4_source_ref, "runtime.generation_source_handoff"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+            (self.n5_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+        )
+        if any(
+            ref.kind != kind or ref.media_type != "application/json"
+            for ref, kind in typed_refs
+        ):
+            raise ValueError("run_generic_n5_ref_kind_invalid")
+        for ref, kind in (
+            (
+                self.child_profile_family_ref,
+                "runtime.quality.generic_cycle_simulation_child_profile_family",
+            ),
+            (self.child_profile_set_ref, "runtime.quality.recursive_n4_child_profile_set"),
+            (self.n5_execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.simulation_result_ref, "polisyos.runtime.joint_simulation_result"),
+        ):
+            if ref is not None and (ref.kind != kind or ref.media_type != "application/json"):
+                raise ValueError("run_generic_n5_optional_ref_kind_invalid")
+        if (self.child_profile_family_ref is None) != (self.child_profile_set_ref is None):
+            raise ValueError("run_generic_n5_child_family_set_pair_invalid")
+        if self.status == "joint_simulated" and (
+            self.simulation_result_ref is None or self.n5_execution_ref is None
+        ):
+            raise ValueError("run_generic_n5_success_result_missing")
+        if (
+            self.n5_request_binding_status == "resolved"
+        ) != (self.n5_request_content_hash is not None):
+            raise ValueError("run_generic_n5_request_binding_shape_invalid")
+        if self.n8_lineage_status == "resolved" and (
+            self.n5_request_binding_status != "resolved"
+        ):
+            raise ValueError("run_generic_n8_request_binding_not_established")
+        if self.n8_status == "value_conditional":
+            if (
+                self.n8_lineage_status == "resolved"
+                and (
+                    self.simulation_result_ref is None
+                    or self.n8_value_ref != str(self.simulation_result_ref.artifact_id)
+                    or self.n8_limitation_code is not None
+                )
+            ):
+                raise ValueError("run_generic_n8_conditional_binding_invalid")
+            if self.n8_lineage_status == "not_established" and (
+                self.n8_limitation_code is None or self.n8_value_ref is not None
+            ):
+                raise ValueError("run_generic_n8_conditional_limitation_missing")
+        elif self.n8_lineage_status == "resolved":
+            raise ValueError("run_generic_n8_nonconditional_resolved_invalid")
+        if (self.n8_lineage_status == "not_established") != (self.n8_limitation_code is not None):
+            raise ValueError("run_generic_n8_limitation_shape_invalid")
+        return self
+
+
+class RunGenericCycleSimulationProjection(BaseModel):
+    """Persisted generic simulation lineage exposed as candidate-only history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[
+        "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+        "policyos.runtime.run_generic_cycle_simulation_projection.v2",
+    ] = "policyos.runtime.run_generic_cycle_simulation_projection.v1"
+    run_id: str = Field(min_length=1)
+    artifact_status: Literal["resolved", "not_established"]
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    publication_authority: Literal[False] = False
+    currentness_status: Literal["not_established"] = "not_established"
+    source_ref: ArtifactRef | None = None
+    source_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    n4_source_ref: ArtifactRef | None = None
+    n4_source_status: Literal["resolved", "not_established"] | None = None
+    n4_source_limitation_code: str | None = Field(default=None, min_length=1)
+    parent_context_job_ref: ArtifactRef | None = None
+    parent_profile_ref: ArtifactRef | None = None
+    parent_profile_id: str | None = Field(default=None, min_length=1)
+    child_profile_family_ref: ArtifactRef | None = None
+    child_profile_set_ref: ArtifactRef | None = None
+    credal_source_attempt_ref: ArtifactRef | None = None
+    credal_source_status: Literal["not_established"] | None = None
+    credal_source_limitation_code: Literal[
+        "candidate_source_authority_not_established",
+        "candidate_source_attempt_replay_not_established",
+    ] | None = None
+    child_profile_status: Literal["not_attempted", "resolved", "not_established"]
+    child_profile_limitation_code: str | None = Field(default=None, min_length=1)
+    child_profile_bindings: tuple[RunGenericCycleSimulationChildProfileBinding, ...] = ()
+    n5_observations: tuple[RunGenericCycleSimulationN5Observation, ...] = ()
+    n5_limitation_code: str | None = Field(default=None, min_length=1)
+    recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
+    limitation_code: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _verify_generic_projection(self) -> RunGenericCycleSimulationProjection:
+        has_credal_attempt_projection = (
+            self.credal_source_attempt_ref is not None
+            or self.credal_source_status is not None
+            or self.credal_source_limitation_code is not None
+        )
+        if has_credal_attempt_projection:
+            if (
+                self.schema_version
+                != "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+                or self.credal_source_status != "not_established"
+                or self.credal_source_limitation_code is None
+                or self.child_profile_status != "not_established"
+                or self.n5_observations
+                or (
+                    self.credal_source_attempt_ref is not None
+                    and (
+                        self.credal_source_attempt_ref.kind
+                        != "runtime.quality.candidate_credal_source_attempt"
+                        or self.credal_source_attempt_ref.media_type != "application/json"
+                    )
+                )
+            ):
+                raise ValueError("run_generic_projection_credal_source_attempt_invalid")
+        elif self.schema_version != "policyos.runtime.run_generic_cycle_simulation_projection.v1":
+            raise ValueError("run_generic_projection_schema_extension_without_attempt")
+        if self.artifact_status == "resolved":
+            if self.source_ref is None or self.source_content_hash is None:
+                raise ValueError("run_generic_projection_compiled_source_missing")
+            if self.n4_source_status == "resolved" and (
+                self.n4_source_ref is None
+                or self.n4_source_limitation_code is not None
+                or self.parent_context_job_ref is None
+                or self.parent_profile_ref is None
+                or self.parent_profile_id is None
+            ):
+                raise ValueError("run_generic_projection_n4_binding_missing")
+            if self.child_profile_status == "resolved" and (
+                self.child_profile_family_ref is None
+                or self.child_profile_set_ref is None
+                or self.child_profile_limitation_code is not None
+                or not self.child_profile_bindings
+                or any(
+                    row.historical_binding_status != "resolved"
+                    for row in self.child_profile_bindings
+                )
+            ):
+                raise ValueError("run_generic_projection_child_binding_missing")
+            if self.child_profile_status == "not_established" and (
+                self.child_profile_limitation_code is None
+            ):
+                raise ValueError("run_generic_projection_child_limitation_missing")
+            return self
+        if (
+            self.source_content_hash is not None
+            or self.n4_source_status is not None
+            or self.child_profile_bindings
+            or self.n5_observations
+            or self.limitation_code is None
+        ):
+            raise ValueError("run_generic_projection_refusal_shape_invalid")
+        return self
+
+
+
 class RunDetails(RunRecordV1):
     """Run details public type."""
 
@@ -2291,6 +2542,7 @@ class RunDetails(RunRecordV1):
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
     candidate_simulation: RunCandidateSimulationProjection | None = None
+    generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -2306,6 +2558,8 @@ class RunTimelineEvent(BaseModel):
     parent_span_id: str | None = None
     input_artifact_ids: list[str] = Field(default_factory=list)
     output_artifact_ids: list[str] = Field(default_factory=list)
+    input_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
+    output_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
     metrics: dict[str, int | float] = Field(default_factory=dict)
     warning_count: int = Field(default=0, ge=0)
     error_count: int = Field(default=0, ge=0)
@@ -2354,6 +2608,8 @@ class RunNodeRecord(BaseModel):
     artifact_ids: list[str] = Field(default_factory=list)
     input_artifact_ids: list[str] = Field(default_factory=list)
     output_artifact_ids: list[str] = Field(default_factory=list)
+    input_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
+    output_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
 
 
 class NodeDebugView(BaseModel):
@@ -2806,6 +3062,7 @@ class RunEvidenceContextView(BaseModel):
     evidence_bundle_ref: ArtifactRef | None = None
     fabric_retrieval_trace_ref: ArtifactRef | None = None
     data_snapshot_ref: ArtifactRef | None = None
+    data_view_request_ref: ArtifactRef | None = None
     input_bindings_ref: ArtifactRef | None = None
     materialization_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
     production_data_evidence_context: dict[str, Any] = Field(default_factory=dict)
@@ -2883,6 +3140,8 @@ class RunWorkflowNodeView(BaseModel):
     artifact_ids: list[str] = Field(default_factory=list)
     input_artifact_ids: list[str] = Field(default_factory=list)
     output_artifact_ids: list[str] = Field(default_factory=list)
+    input_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
+    output_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
     heat: float = Field(default=0.0, ge=0.0)
 
 
@@ -2933,6 +3192,7 @@ class ArtifactManifestView(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
+    manifest_profile_sha256: str | None = None
     kind: str
     media_type: str
     byte_size: int = Field(ge=0)
@@ -3051,12 +3311,63 @@ class DecisionPacketPreview(BaseModel):
     evidence_summary_blocks: list[DecisionPacketAuthoredBlock] = Field(default_factory=list)
 
 
+class PredictiveCoverageScenarioPreview(BaseModel):
+    """One scenario's recomputed predictive interval counts for inspection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str
+    metric_name: str
+    interval_requested_count: int = Field(ge=0)
+    interval_available_count: int = Field(ge=0)
+    interval_evaluated_count: int = Field(ge=0)
+    interval_hit_count: int = Field(ge=0)
+    nominal_confidence_level: float | None = Field(default=None, gt=0.0, lt=1.0)
+    interval_type: str | None = None
+    observed_hit_rate: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class PredictiveCoverageDiagnosticPreview(BaseModel):
+    """Limited, reader-materialized interval diagnostic; never an S10 grade."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_artifact_id: str
+    source_manifest_profile_sha256: str
+    source_schema_version: Literal["1.0"]
+    metric: Literal["predictive_interval_coverage"]
+    measurement_status: Literal["measured", "not_measured", "invalid_source"]
+    reason_code: Literal[
+        "none",
+        "no_evaluated_intervals",
+        "predictive_scope_not_established",
+        "unsupported_report_scope",
+        "malformed_report_shape",
+        "malformed_interval_counts",
+        "stored_hit_rate_mismatch",
+    ]
+    assessment: Literal["limited"]
+    source_materialization: Literal["reader_materialized"]
+    producer_attestation_status: Literal["not_established"]
+    s10_metric_mapping_status: Literal["not_established"]
+    s10_threshold_status: Literal["not_established"]
+    issuer_status: Literal["not_established"]
+    effective_time_status: Literal["not_established"]
+    counterfactual_credibility_status: Literal["not_established"]
+    causal_effect_status: Literal["not_established"]
+    may_not_use_for: list[
+        Literal["promotion", "publication", "policy_selection", "causal_effect_claim"]
+    ]
+    scenarios: list[PredictiveCoverageScenarioPreview]
+
+
 class ArtifactContentPreview(BaseModel):
     """Artifact content preview public type."""
 
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
+    manifest_profile_sha256: str | None = None
     kind: str
     media_type: str
     mode: PreviewMode
@@ -3065,6 +3376,7 @@ class ArtifactContentPreview(BaseModel):
     truncated: bool = False
     preview: Any = None
     decision_packet_preview: DecisionPacketPreview | None = None
+    predictive_coverage_diagnostic: PredictiveCoverageDiagnosticPreview | None = None
 
 
 class ArtifactLineageNode(BaseModel):
@@ -3073,8 +3385,10 @@ class ArtifactLineageNode(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
+    manifest_profile_sha256: str | None = None
     role: str | None = None
     kind: str | None = None
+    media_type: str | None = None
     status: str
     byte_size: int = Field(default=0, ge=0)
     depth: int = Field(default=0, ge=0)
@@ -3086,7 +3400,9 @@ class ArtifactLineageEdge(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     parent_artifact_id: str
+    parent_manifest_profile_sha256: str | None = None
     child_artifact_id: str
+    child_manifest_profile_sha256: str | None = None
     role: str
 
 
@@ -3096,12 +3412,14 @@ class ArtifactLineageView(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     root_artifact_ids: list[str] = Field(default_factory=list)
+    root_artifact_refs: list[ArtifactRef] = Field(default_factory=list)
     total_nodes: int = Field(default=0, ge=0)
     total_edges: int = Field(default=0, ge=0)
     total_size_bytes: int = Field(default=0, ge=0)
     is_complete: bool = False
     missing_artifact_ids: list[str] = Field(default_factory=list)
     corrupted_artifact_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
     nodes: list[ArtifactLineageNode] = Field(default_factory=list)
     edges: list[ArtifactLineageEdge] = Field(default_factory=list)
 
@@ -3112,6 +3430,7 @@ class ArtifactSchemaView(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     artifact_id: str
+    manifest_profile_sha256: str | None = None
     kind: str
     media_type: str
     schema_name: str | None = None
@@ -3588,6 +3907,8 @@ __all__ = [
     "NodeDebugResponse",
     "NodeDebugView",
     "NodeStatus",
+    "PredictiveCoverageDiagnosticPreview",
+    "PredictiveCoverageScenarioPreview",
     "PreflightDiagnosticView",
     "PreflightReportView",
     "PreviewMode",
@@ -3618,6 +3939,9 @@ __all__ = [
     "RunEvidencePromotionView",
     "RunFeedbackResponse",
     "RunFeedbackView",
+    "RunGenericCycleSimulationChildProfileBinding",
+    "RunGenericCycleSimulationN5Observation",
+    "RunGenericCycleSimulationProjection",
     "RunLineageResponse",
     "RunNodeRecord",
     "RunNodesResponse",

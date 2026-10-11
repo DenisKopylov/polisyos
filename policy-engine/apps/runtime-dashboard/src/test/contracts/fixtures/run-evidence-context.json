@@ -20,7 +20,14 @@
     "data_snapshot_ref": {
       "artifact_id": "sha256:b0ca2171d96e5c7e6e7e23812250a906dfded882ef5507f4950ea8895cb24f9e",
       "kind": "fabric.data_snapshot",
-      "media_type": "application/json"
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "data_view_request_ref": {
+      "artifact_id": "sha256:fb9f91b3567e6d8e06e001f16ba1ec2792caa3f303038b0f6da28c3d5135a4d0",
+      "kind": "ir.data_view_request",
+      "media_type": "application/json",
+      "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     },
     "input_bindings_ref": {
       "artifact_id": "sha256:28fcc8bda3b4f2caf101a0eb20bb4d24517f3b32bbccebfb10c2f6a56577732f",

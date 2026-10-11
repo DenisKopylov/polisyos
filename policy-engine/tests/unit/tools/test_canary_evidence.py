@@ -7,12 +7,31 @@ from pathlib import Path
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.security.quality_gates import (
+    SECURITY_ASSURANCE_ARTIFACT_KIND,
+    SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+    SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+    SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+    SECURITY_ASSURANCE_REPORT_REF_KEY,
+    SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION,
+    SECURITY_SURFACES,
+    build_security_assurance_report,
+)
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 from polisyos.runtime.quality.approval import build_production_approval_packet
 from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
-from polisyos.runtime.quality.scorecard import QUALITY_REPORT_RUNTIME_REFS
+from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
+from polisyos.runtime.quality.report_registry import (
+    QUALITY_REPORT_FILES,
+    quality_report_ref_intake_registry,
+)
+from polisyos.runtime.quality.scorecard import (
+    QUALITY_REPORT_RUNTIME_REFS,
+    SECURITY_REPORT_INTAKE_FILE,
+    SECURITY_REPORT_INTAKE_KEY,
+)
 from tests._helpers.hds_quality import (
     authority_envelope_for as _hds_authority_envelope_for,
 )
@@ -26,7 +45,9 @@ from tests._helpers.hds_quality import (
     runtime_cas_refs as _hds_runtime_cas_refs,
 )
 from tools.ops_runners.runtime.canary_evidence import (
+    _collect_artifact_refs,
     _effective_mode_ledger_payload,
+    _quality_reports_from_refs_with_authority,
     assemble_canary_evidence,
     sanitize_for_evidence,
 )
@@ -47,6 +68,20 @@ PROVENANCE_REQUIRED_FIELDS = {
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def test_artifact_ref_index_preserves_exact_and_nonquality_refs_only() -> None:
+    refs = _collect_artifact_refs(
+        {
+            "security_assurance_report_ref": _sha("a"),
+            "diagnostic_event_log_ref": _sha("b"),
+            "custom_ref": "external-record-id",
+            "ambiguous_role_marker_security_assurance_report_ref": "do-not-emit",
+        }
+    )
+
+    values = {item["value"] for item in refs}
+    assert values == {_sha("a"), _sha("b"), "external-record-id"}
 
 
 def test_effective_mode_ledger_payload_closes_authority_profiles() -> None:
@@ -71,6 +106,11 @@ def _put_authority_report(
     report_key: str,
     payload: dict[str, object],
     kind: str,
+    schema_name: str | None = None,
+    schema_version: str = "1.0",
+    media_type: str = "application/json",
+    validation_status: str = "pass",
+    blocking_status: str = "non_blocking",
 ) -> str:
     payload_to_write = dict(payload)
     payload_to_write.pop("authority_envelope", None)
@@ -79,8 +119,11 @@ def _put_authority_report(
         payload_to_write,
         ArtifactWriteOptions(
             kind=kind,
-            media_type="application/json",
-            schema=SchemaInfo(name=f"runtime_quality.{report_key}.v1", version="1.0"),
+            media_type=media_type,
+            schema=SchemaInfo(
+                name=schema_name or f"runtime_quality.{report_key}.v1",
+                version=schema_version,
+            ),
             producer=ProducerInfo(
                 component=f"polisyos.runtime.quality.{report_key}",
                 version="2026.05.15+hds-test",
@@ -128,8 +171,8 @@ def _put_authority_report(
         degradation_ledger_ref=_sha("d"),
         schema_compatibility_ref=_sha("c"),
         semantic_binding_ref=_sha("b"),
-        validation_status="pass",
-        blocking_status="non_blocking",
+        validation_status=validation_status,
+        blocking_status=blocking_status,
         governance=GovernanceMetadata(
             classification="internal",
             authority_boundary="runtime",
@@ -142,6 +185,43 @@ def _put_authority_report(
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return str(result.cas_ref.artifact_id)
+
+
+def _put_security_report_with_manifest_for_refusal_control(
+    store: FileSystemCAS,
+    report: dict[str, object],
+    *,
+    kind: str,
+    schema_name: str,
+    schema_version: str,
+    media_type: str,
+) -> str:
+    """Persist bytes with exact supplied manifest metadata for negative intake controls."""
+
+    ref = store.put_bytes(
+        to_canonical_bytes(report, CanonSpec(forbid_floats=False)),
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type=media_type,
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+            producer=ProducerInfo(
+                component="tests.security_report_manifest_refusal_control",
+                version="controlled-test",
+            ),
+        ),
+    )
+    return str(ref.artifact_id)
+
+
+def _job_payload_with_security_report_ref(ref: str) -> dict[str, object]:
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    details[SECURITY_ASSURANCE_REPORT_REF_KEY] = ref
+    details["runtime_quality_refs"] = {SECURITY_ASSURANCE_REPORT_REF_KEY: ref}
+    return job_payload
 
 
 def _provenance_entries(output_dir) -> dict[str, dict[str, object]]:
@@ -981,6 +1061,11 @@ def test_assemble_canary_evidence_loads_quality_reports_from_runtime_refs(tmp_pa
         provider_preflight={"status": "passed"},
         quality_evidence={
             "golden_scenario_contract": complete_evidence["golden_scenario_contract"],
+            "policy_grounding_matrix": {
+                "claims": [{"claim_id": "candidate-body"}],
+                "basis": {"claim_count": 1},
+                "reader_candidate_marker": "must-not-replace-cas",
+            },
         },
         artifact_store=store,
     )
@@ -988,17 +1073,203 @@ def test_assemble_canary_evidence_loads_quality_reports_from_runtime_refs(tmp_pa
     scorecard = json.loads(
         (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
     )
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    quality_ref_resolution = artifacts["quality_ref_resolution"]
     fabric_trace = json.loads(
         (output / "quality_evidence" / "fabric_retrieval_trace.json").read_text(encoding="utf-8")
     )
     foundry_report = json.loads(
         (output / "quality_evidence" / "foundry_method_report.json").read_text(encoding="utf-8")
     )
+    grounding_report = json.loads(
+        (output / "quality_evidence" / "policy_grounding_matrix.json").read_text(
+            encoding="utf-8"
+        )
+    )
 
     assert scorecard["quality_status"] == "fail"
+    assert quality_ref_resolution["status"] != "invalid"
+    assert quality_ref_resolution["rejections"] == []
+    assert quality_ref_resolution["refs"]["normative_applicability_report_ref"] == (
+        runtime_refs["normative_applicability_report_ref"]
+    )
     assert fabric_trace["selected_sources"][0]["source_id"] == "production-msme-panel"
     assert foundry_report["selected_methods"][0]["method_id"] == (
         "causal.difference_in_differences"
+    )
+    assert "reader_candidate_marker" not in grounding_report
+
+
+def test_nonsecurity_ref_rejections_block_cross_source_overlay_and_remain_invalid(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas-nonsecurity-ref-rejections")
+    complete = _complete_quality_evidence()
+    valid_normative_ref = _put_authority_report(
+        store,
+        report_key="normative_evidence",
+        payload=dict(complete["normative_evidence"]),  # type: ignore[arg-type]
+        kind="lex.normative_applicability_report",
+    )
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    details["runtime_quality_refs"] = {
+        "normative_applicability_report_ref": valid_normative_ref,
+        "conflict_check_ref": _sha("c"),
+        "policy_grounding_matrix_ref": None,
+    }
+    job_payload["artifacts"] = {
+        "normative_applicability_report_ref": "bad\nnormative-ref",
+        "conflict_check_ref": _sha("d"),
+    }
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-nonsecurity-ref-rejections",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload={"request": "Inspect runtime quality ref intake."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=complete,
+        artifact_store=store,
+    )
+
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    resolution = artifacts["quality_ref_resolution"]
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    provenance = _provenance_entries(output).get(
+        "quality_evidence/normative_evidence.json"
+    )
+
+    assert resolution["status"] == "invalid"
+    assert resolution["refs"].get("normative_applicability_report_ref") == valid_normative_ref
+    rejection_pairs = {
+        (row["key"], row["reason"]) for row in resolution["rejections"]
+    }
+    assert ("normative_applicability_report_ref", "control_character") in rejection_pairs
+    assert ("conflict_check_ref", "conflicting_values") in rejection_pairs
+    assert ("policy_grounding_matrix_ref", "explicit_null") in rejection_pairs
+    assert "bad\nnormative-ref" not in json.dumps(resolution, sort_keys=True)
+    assert scorecard["evidence_refs"].get("normative_applicability_report_ref") != (
+        valid_normative_ref
+    )
+    assert scorecard["evidence_refs"].get("conflict_check_ref") != _sha("c")
+    assert scorecard["evidence_refs"].get("conflict_check_ref") != _sha("d")
+    assert not isinstance(provenance, dict) or provenance.get("source_cas_ref") != (
+        valid_normative_ref
+    )
+
+
+def test_quality_evidence_ref_rejections_block_cas_overlay_and_scorecard_fallback(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas-quality-evidence-ref-rejections")
+    complete = _complete_quality_evidence()
+    normative_ref = _put_authority_report(
+        store,
+        report_key="normative_evidence",
+        payload=dict(complete["normative_evidence"]),  # type: ignore[arg-type]
+        kind="lex.normative_applicability_report",
+    )
+    security_report = build_security_assurance_report(payloads={})
+    security_ref = _put_authority_report(
+        store,
+        report_key="security_assurance_report",
+        payload=security_report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        validation_status=security_report["status"],
+        blocking_status=(
+            "blocking" if security_report["status"] == "fail" else "non_blocking"
+        ),
+    )
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    details = job_payload["progress"]["details"]  # type: ignore[index]
+    assert isinstance(details, dict)
+    details["runtime_quality_refs"] = {
+        "normative_applicability_report_ref": normative_ref,
+        SECURITY_ASSURANCE_REPORT_REF_KEY: security_ref,
+    }
+    complete["runtime_quality_refs"] = {
+        "normative_applicability_report_ref": "bad\nnormative-ref",
+        SECURITY_ASSURANCE_REPORT_REF_KEY: "bad\nsecurity-ref",
+    }
+    complete["security_assurance_report"] = build_security_assurance_report(
+        payloads={"inline_candidate": {"status": "pass"}}
+    )
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-quality-evidence-ref-rejections",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload={"request": "Inspect a rejected quality-evidence ref source."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=complete,
+        artifact_store=store,
+    )
+
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    resolution = artifacts["quality_ref_resolution"]
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    intake = json.loads(
+        (output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).read_text(
+            encoding="utf-8"
+        )
+    )
+    normative_provenance = _provenance_entries(output).get(
+        "quality_evidence/normative_evidence.json"
+    )
+    rejection_keys = {row["key"] for row in resolution["rejections"]}
+
+    assert resolution["status"] == "invalid"
+    assert {
+        "normative_applicability_report_ref",
+        SECURITY_ASSURANCE_REPORT_REF_KEY,
+    } <= rejection_keys
+    rejected_role_sources = {
+        (row["key"], row["source"], row["reason"])
+        for row in resolution["rejections"]
+        if row["key"]
+        in {"normative_applicability_report_ref", SECURITY_ASSURANCE_REPORT_REF_KEY}
+    }
+    expected_role_rejections = {
+        (
+            "normative_applicability_report_ref",
+            "quality_evidence.runtime_quality_refs",
+            "control_character",
+        ),
+        (
+            SECURITY_ASSURANCE_REPORT_REF_KEY,
+            "quality_evidence.runtime_quality_refs",
+            "control_character",
+        ),
+    }
+    assert expected_role_rejections <= rejected_role_sources
+    assert "bad\nnormative-ref" not in json.dumps(resolution, sort_keys=True)
+    assert "bad\nsecurity-ref" not in json.dumps(resolution, sort_keys=True)
+    assert scorecard["evidence_refs"].get("normative_applicability_report_ref") is None
+    assert scorecard["evidence_refs"].get("normative_evidence") is None
+    assert scorecard["evidence_refs"].get(SECURITY_ASSURANCE_REPORT_REF_KEY) is None
+    assert scorecard["evidence_refs"].get("security_assurance_report") is None
+    assert scorecard["evidence_refs"][SECURITY_REPORT_INTAKE_KEY] == (
+        f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+    )
+    assert intake["status"] == "rejected"
+    assert intake["reason_code"] == "security_report_reference_resolution_rejected"
+    assert not (output / "quality_evidence" / "security_assurance_report.json").exists()
+    assert (
+        not isinstance(normative_provenance, dict)
+        or normative_provenance.get("source_cas_ref") != normative_ref
     )
 
 
@@ -1100,7 +1371,102 @@ def test_runtime_cas_report_cannot_be_upgraded_by_bundle_overlay(tmp_path) -> No
     assert manifest_entry["authority_role"] == "packaging_only"
 
 
-def test_runtime_quality_projection_wins_over_loaded_cas_for_ref_identity(tmp_path) -> None:
+def test_runtime_cas_security_report_cannot_be_upgraded_by_clean_bundle_overlay(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    report = build_security_assurance_report(
+        payloads={"artifact": {"rendered_content": "<script>window.__bad__=true</script>"}},
+        now=datetime(2026, 5, 15, tzinfo=UTC),
+    )
+    report.pop(SECURITY_ASSURANCE_REPORT_REF_KEY, None)
+    report["runtime_authority_payload"] = {
+        "schema_version": "policyos.runtime.authority_payload_marker.v1",
+        "report_key": "security_assurance_report",
+        "ref_key": SECURITY_ASSURANCE_REPORT_REF_KEY,
+        "projection": False,
+    }
+    runtime_ref = _put_authority_report(
+        store,
+        report_key="security_assurance_report",
+        payload=report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        validation_status=report["status"],
+        blocking_status=("blocking" if report["status"] == "fail" else "non_blocking"),
+    )
+    job_payload = _completed_quality_job_payload()
+    details = job_payload["progress"]["details"]  # type: ignore[index]
+    assert isinstance(details, dict)
+    details[SECURITY_ASSURANCE_REPORT_REF_KEY] = runtime_ref
+    runtime_refs = details.get("runtime_quality_refs")
+    assert isinstance(runtime_refs, dict)
+    runtime_refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = runtime_ref
+
+    clean_overlay = _complete_quality_evidence()
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle",
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate Ukraine MSME support."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=clean_overlay,
+        artifact_store=store,
+    )
+
+    written_report = json.loads(
+        (output / "quality_evidence" / "security_assurance_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    manifest_entry = _provenance_entries(output)[
+        "quality_evidence/security_assurance_report.json"
+    ]
+
+    manifest = store.get_manifest(runtime_ref)
+    assert manifest.kind == SECURITY_ASSURANCE_ARTIFACT_KIND
+    assert manifest.media_type == SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME
+    assert manifest.artifact_schema.version == SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION
+    assert written_report["authority_envelope"]["artifact_kind"] == SECURITY_ASSURANCE_ARTIFACT_KIND
+    assert written_report["authority_envelope"]["schema_name"] == SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME
+    assert written_report["status"] == "fail"
+    assert written_report["schema_version"] == SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION
+    assert len(written_report["assured_paths"]) == len(SECURITY_SURFACES)
+    assert any(
+        issue["code"] == "unsafe_artifact_rendering_detected"
+        for issue in written_report["issues"]
+    )
+    assert scorecard["quality_status"] == "fail"
+    security_report_failures = [
+        gate
+        for gate in scorecard["quality_gates"]
+        if gate["name"] == "security_assurance_report_passed"
+        and gate["code"] == "unsafe_artifact_rendering_detected"
+        and gate["status"] == "fail"
+    ]
+    assert security_report_failures
+    assert any(
+        isinstance(gate.get("producer_authority"), dict)
+        and gate["producer_authority"].get("validation_status") == "fail"
+        and gate["producer_authority"].get("blocking_status") == "blocking"
+        for gate in security_report_failures
+    )
+    assert not any(
+        gate["name"] == "security_assurance_report_passed"
+        and gate["code"] in {"hds_borrowed_authority_envelope", "hds_unknown_provenance"}
+        for gate in scorecard["quality_gates"]
+    )
+    assert scorecard["evidence_refs"][SECURITY_ASSURANCE_REPORT_REF_KEY] == runtime_ref
+    assert manifest_entry["source_cas_ref"] == runtime_ref
+
+
+def test_selected_cas_report_identity_mismatch_is_refused(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     runtime_report = dict(_complete_quality_evidence()["normative_evidence"])  # type: ignore[index]
     runtime_report["normative_applicability_report_ref"] = _sha("9")
@@ -1116,13 +1482,57 @@ def test_runtime_quality_projection_wins_over_loaded_cas_for_ref_identity(tmp_pa
     assert isinstance(details, dict)
     details["normative_applicability_report_ref"] = runtime_ref
     details["runtime_quality_refs"] = {"normative_applicability_report_ref": runtime_ref}
-    details["runtime_quality_evidence"] = {
-        "normative_evidence": {
-            **dict(_complete_quality_evidence()["normative_evidence"]),  # type: ignore[arg-type,index]
-            "normative_applicability_report_ref": runtime_ref,
-            "runtime_event_ref": _sha("8"),
-        }
-    }
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle",
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate Ukraine MSME support."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence={
+            "golden_scenario_contract": _complete_quality_evidence()["golden_scenario_contract"],
+        },
+        artifact_store=store,
+    )
+
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    report_path = output / "quality_evidence" / "normative_evidence.json"
+    assert not report_path.exists()
+    assert "normative_applicability_report_ref" not in scorecard["evidence_refs"]
+    assert any(
+        row["key"] == "normative_applicability_report_ref"
+        and row["reason"] == "conflicting_values"
+        and row["source"].startswith("cas_report.")
+        for row in artifacts["quality_ref_resolution"]["rejections"]
+    )
+
+
+def test_inline_runtime_quality_projection_cannot_override_selected_cas_content(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    runtime_report = dict(_complete_quality_evidence()["normative_evidence"])  # type: ignore[index]
+    runtime_report["status"] = "fail"
+    runtime_report["issues"] = [{"code": "cas_basis_failed", "message": "selected CAS basis"}]
+    runtime_report.pop("normative_applicability_report_ref", None)
+    runtime_ref = _put_authority_report(
+        store,
+        report_key="normative_evidence",
+        payload=runtime_report,
+        kind="runtime_quality.normative_applicability_report",
+    )
+
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    details = job_payload["progress"]["details"]  # type: ignore[index]
+    assert isinstance(details, dict)
+    details["runtime_quality_refs"] = {"normative_applicability_report_ref": runtime_ref}
+    candidate = dict(_complete_quality_evidence()["normative_evidence"])  # type: ignore[index]
+    candidate["status"] = "pass"
+    candidate["issues"] = []
+    candidate["candidate_body_marker"] = "must-not-replace-cas"
+    details["runtime_quality_evidence"] = {"normative_evidence": candidate}
 
     output = assemble_canary_evidence(
         output_root=tmp_path / "bundle",
@@ -1140,9 +1550,13 @@ def test_runtime_quality_projection_wins_over_loaded_cas_for_ref_identity(tmp_pa
     written_report = json.loads(
         (output / "quality_evidence" / "normative_evidence.json").read_text(encoding="utf-8")
     )
-
-    assert written_report["normative_applicability_report_ref"] == runtime_ref
-    assert written_report["runtime_event_ref"] == _sha("8")
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    assert written_report["status"] == "fail"
+    assert written_report["issues"][0]["code"] == "cas_basis_failed"
+    assert "candidate_body_marker" not in written_report
+    assert scorecard["quality_status"] == "fail"
 
 
 def test_generated_attestations_replace_synthetic_progress_records(tmp_path) -> None:
@@ -2162,6 +2576,17 @@ def test_assemble_canary_evidence_fails_completed_run_missing_runtime_quality_re
         assert gates[gate_name]["next_action"]
         assert failures[gate_name]["code"] == expected_code
         assert failures[gate_name]["next_action"] == gates[gate_name]["next_action"]
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    runtime_refs = scorecard["evidence_refs"]
+    for ref_key in (
+        "normative_applicability_report_ref",
+        "fabric_retrieval_trace_ref",
+        "foundry_method_report_ref",
+        "policy_grounding_matrix_ref",
+        "conflict_check_ref",
+    ):
+        assert ref_key not in runtime_refs
+        assert ref_key not in artifacts["quality_ref_resolution"]["refs"]
 
 
 def test_assemble_canary_evidence_resolves_quality_refs_from_runtime_surfaces(
@@ -3297,3 +3722,759 @@ def test_assemble_canary_evidence_blocks_license_conflict_before_publication(
         and failure["code"] == "license_conflict"
         for failure in scorecard["blocking_quality_failures"]
     )
+
+
+def test_security_report_cas_reader_rejects_manifest_identity_mismatches(tmp_path) -> None:
+    cases = (
+        ("runtime.other_security_report", SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME, "1.0", "application/json"),
+        (SECURITY_ASSURANCE_ARTIFACT_KIND, "polisyos.runtime.OtherQualityReport", "1.0", "application/json"),
+        (SECURITY_ASSURANCE_ARTIFACT_KIND, SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME, "2.0", "application/json"),
+        (SECURITY_ASSURANCE_ARTIFACT_KIND, SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME, "1.0", "text/plain"),
+    )
+    for index, (kind, schema_name, schema_version, media_type) in enumerate(cases):
+        store = FileSystemCAS(tmp_path / f"cas-{index}")
+        report = build_security_assurance_report(payloads={})
+        report.pop(SECURITY_ASSURANCE_REPORT_REF_KEY, None)
+        report["runtime_authority_payload"] = {
+            "schema_version": "policyos.runtime.authority_payload_marker.v1",
+            "report_key": "security_assurance_report",
+            "ref_key": SECURITY_ASSURANCE_REPORT_REF_KEY,
+            "projection": False,
+        }
+        if media_type == "text/plain":
+            runtime_ref = _put_security_report_with_manifest_for_refusal_control(
+                store,
+                report,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version=schema_version,
+                media_type=media_type,
+            )
+        else:
+            runtime_ref = _put_authority_report(
+                store,
+                report_key="security_assurance_report",
+                payload=report,
+                kind=kind,
+                schema_name=schema_name,
+                schema_version=schema_version,
+                media_type=media_type,
+                validation_status="pass",
+                blocking_status="non_blocking",
+            )
+        manifest = store.get_manifest(runtime_ref)
+        assert manifest.media_type == media_type
+
+        reports, events, event_refs, intake = _quality_reports_from_refs_with_authority(
+            refs={SECURITY_ASSURANCE_REPORT_REF_KEY: runtime_ref},
+            store=store,
+        )
+
+        assert "security_assurance_report" not in reports
+        assert events == []
+        assert event_refs == []
+        assert intake is not None
+        assert intake["status"] == "rejected"
+        assert intake["source_ref"] == runtime_ref
+        assert intake["reason_code"] == "security_report_manifest_identity_mismatch"
+        observed = intake["observed_manifest"]
+        assert isinstance(observed, dict)
+        assert observed["media_type"] == media_type
+
+
+def test_dev_security_report_intake_preserves_rejected_valid_and_absent_states(tmp_path) -> None:
+    identity_cases = (
+        (
+            "wrong-kind",
+            "runtime.other_security_report",
+            SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+            "1.0",
+            "application/json",
+        ),
+        (
+            "wrong-schema",
+            SECURITY_ASSURANCE_ARTIFACT_KIND,
+            "polisyos.runtime.OtherQualityReport",
+            "1.0",
+            "application/json",
+        ),
+        (
+            "wrong-version",
+            SECURITY_ASSURANCE_ARTIFACT_KIND,
+            SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+            "2.0",
+            "application/json",
+        ),
+        (
+            "wrong-media",
+            SECURITY_ASSURANCE_ARTIFACT_KIND,
+            SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+            "1.0",
+            "text/plain",
+        ),
+    )
+    for index, (case_name, kind, schema_name, schema_version, media_type) in enumerate(
+        identity_cases
+    ):
+        store = FileSystemCAS(tmp_path / f"cas-invalid-{index}")
+        report = build_security_assurance_report(payloads={})
+        runtime_ref = _put_security_report_with_manifest_for_refusal_control(
+            store,
+            report,
+            kind=kind,
+            schema_name=schema_name,
+            schema_version=schema_version,
+            media_type=media_type,
+        )
+        manifest = store.get_manifest(runtime_ref)
+        assert manifest.kind == kind
+        assert manifest.media_type == media_type
+        assert manifest.artifact_schema is not None
+        assert manifest.artifact_schema.name == schema_name
+        assert manifest.artifact_schema.version == schema_version
+
+        overlay = _complete_quality_evidence()
+        overlay["security_assurance_report"] = build_security_assurance_report(payloads={})
+        output = assemble_canary_evidence(
+            output_root=tmp_path / f"bundle-invalid-{index}",
+            canary_kind="dev",
+            command_metadata={"argv": ["policyos-canary", "--dev"]},
+            request_payload={"request": "Inspect a supplied security report."},
+            job_payload=_job_payload_with_security_report_ref(runtime_ref),
+            provider_preflight={"status": "passed"},
+            quality_evidence=overlay,
+            artifact_store=store,
+        )
+        intake = json.loads(
+            (output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).read_text(
+                encoding="utf-8"
+            )
+        )
+        scorecard = json.loads(
+            (output / "quality_evidence" / "quality_scorecard.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+        intake_gate = next(
+            gate
+            for gate in scorecard["quality_gates"]
+            if gate["name"] == "security_assurance_report_intake"
+        )
+
+        assert intake["status"] == "rejected", case_name
+        assert intake["source_ref"] == runtime_ref
+        assert intake["reason_code"] == "security_report_manifest_identity_mismatch"
+        assert intake["observed_manifest"] == {
+            "kind": kind,
+            "media_type": media_type,
+            "schema_name": schema_name,
+            "schema_version": schema_version,
+        }
+        assert intake_gate["status"] == "fail"
+        assert intake_gate["blocking"] is True
+        assert intake_gate["first_failing_artifact_ref"] == runtime_ref
+        assert intake_gate["evidence_ref"] == (
+            f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+        )
+        assert scorecard["evidence_refs"][SECURITY_REPORT_INTAKE_KEY] == (
+            f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+        )
+        assert scorecard["evidence_refs"][SECURITY_ASSURANCE_REPORT_REF_KEY] == runtime_ref
+        assert bundle["files"]["quality_evidence"]["security_assurance_report"] is None
+        assert not (output / "quality_evidence" / "security_assurance_report.json").exists()
+
+    valid_store = FileSystemCAS(tmp_path / "cas-valid")
+    valid_report = build_security_assurance_report(payloads={})
+    valid_ref = _put_authority_report(
+        valid_store,
+        report_key="security_assurance_report",
+        payload=valid_report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        validation_status="pass",
+        blocking_status="non_blocking",
+    )
+    valid_overlay = _complete_quality_evidence()
+    valid_overlay.pop("security_assurance_report", None)
+    valid_output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-valid",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload={"request": "Inspect a valid supplied security report."},
+        job_payload=_job_payload_with_security_report_ref(valid_ref),
+        provider_preflight={"status": "passed"},
+        quality_evidence=valid_overlay,
+        artifact_store=valid_store,
+    )
+    valid_written = json.loads(
+        (valid_output / "quality_evidence" / "security_assurance_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    valid_scorecard = json.loads(
+        (valid_output / "quality_evidence" / "quality_scorecard.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    valid_manifest_entry = _provenance_entries(valid_output)[
+        "quality_evidence/security_assurance_report.json"
+    ]
+    assert valid_written["status"] == "pass"
+    assert any(
+        gate["code"] == "security_assurance_passed" and gate["status"] == "pass"
+        for gate in valid_scorecard["quality_gates"]
+    )
+    assert valid_scorecard["evidence_refs"][SECURITY_ASSURANCE_REPORT_REF_KEY] == valid_ref
+    assert valid_manifest_entry["source_cas_ref"] == valid_ref
+    assert SECURITY_REPORT_INTAKE_KEY not in valid_scorecard["evidence_refs"]
+    assert not (valid_output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).exists()
+
+    absent_store = FileSystemCAS(tmp_path / "cas-absent")
+    absent_overlay = _complete_quality_evidence()
+    absent_overlay.pop("security_assurance_report", None)
+    absent_output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-absent",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload={"request": "No security report reference was supplied."},
+        job_payload=_completed_quality_job_payload(include_runtime_quality_refs=False),
+        provider_preflight={"status": "passed"},
+        quality_evidence=absent_overlay,
+        artifact_store=absent_store,
+    )
+    absent_report = json.loads(
+        (absent_output / "quality_evidence" / "security_assurance_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    absent_scorecard = json.loads(
+        (absent_output / "quality_evidence" / "quality_scorecard.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert absent_report["status"] == "pass"
+    assert any(
+        gate["code"] == "security_assurance_passed" and gate["status"] == "pass"
+        for gate in absent_scorecard["quality_gates"]
+    )
+    assert SECURITY_REPORT_INTAKE_KEY not in absent_scorecard["evidence_refs"]
+    assert not (absent_output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).exists()
+
+
+def test_serious_malformed_report_ref_cannot_seed_closeout_or_bundle_body(tmp_path) -> None:
+    normative_ref_key = QUALITY_REPORT_RUNTIME_REFS["normative_evidence"]
+    report_ref = _sha("a")
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    details["runtime_quality_refs"] = {normative_ref_key: report_ref}
+
+    quality_evidence = {
+        "runtime_quality_refs": {normative_ref_key: "bad\nnormative-ref"},
+        "normative_evidence": {
+            "schema_version": "policyos.runtime.normative_evidence.v1",
+            "status": "pass",
+            "authority_envelope": _hds_authority_envelope_for(
+                report_key="normative_evidence",
+                ref_key=normative_ref_key,
+                ref_value=report_ref,
+                run_id="R_runtime_quality_refs",
+                job_id="job-runtime-quality-refs",
+            ),
+        },
+    }
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle",
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate an invalid normative report reference."},
+        job_payload=job_payload,
+        quality_evidence=quality_evidence,
+        artifact_store=FileSystemCAS(tmp_path / "cas"),
+    )
+
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    quality_files = bundle["files"]["quality_evidence"]
+
+    assert artifacts["quality_ref_resolution"]["status"] == "invalid"
+    assert any(
+        row["key"] == normative_ref_key and row["reason"] == "control_character"
+        for row in artifacts["quality_ref_resolution"]["rejections"]
+    )
+    assert quality_files["normative_evidence"] is None
+    assert quality_files["minimum_closeout_authority_index"] is None
+    assert not (output / "quality_evidence" / "normative_evidence.json").exists()
+    assert not (output / "quality_evidence" / "minimum_closeout_authority_index.json").exists()
+
+
+def test_dev_security_report_ref_resolution_rejection_blocks_valid_overlay_and_candidate(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas-resolution-rejections")
+    report = build_security_assurance_report(payloads={})
+    valid_ref = _put_authority_report(
+        store,
+        report_key="security_assurance_report",
+        payload=report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        validation_status="pass",
+        blocking_status="non_blocking",
+    )
+    cases = (
+        ("malformed-artifact-ref", "control_character"),
+        ("unsupported-runtime-ref", "unsupported_type"),
+        ("malformed-selected-map", "unsupported_type"),
+        ("malformed-selected-profile", "malformed_mapping"),
+    )
+    for case_name, expected_reason in cases:
+        job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+        progress = job_payload["progress"]
+        assert isinstance(progress, dict)
+        details = progress["details"]
+        assert isinstance(details, dict)
+        details["runtime_quality_refs"] = {SECURITY_ASSURANCE_REPORT_REF_KEY: valid_ref}
+        if case_name == "malformed-artifact-ref":
+            job_payload["artifacts"] = {
+                SECURITY_ASSURANCE_REPORT_REF_KEY: "bad\nsecurity-report-ref"
+            }
+            expected_rejection_key = SECURITY_ASSURANCE_REPORT_REF_KEY
+        elif case_name == "malformed-selected-map":
+            job_payload["runtime_quality_artifact_refs"] = None
+            expected_rejection_key = "runtime_quality_artifact_refs"
+        elif case_name == "malformed-selected-profile":
+            job_payload["runtime_quality_artifact_refs"] = {
+                SECURITY_ASSURANCE_REPORT_REF_KEY: {
+                    "artifact_id": valid_ref,
+                    "kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
+                    "media_type": SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+                    "manifest_profile_sha256": "sha256:invalid-profile",
+                }
+            }
+            expected_rejection_key = SECURITY_ASSURANCE_REPORT_REF_KEY
+        else:
+            job_payload["runtime_quality_refs"] = {
+                SECURITY_ASSURANCE_REPORT_REF_KEY: 7
+            }
+            expected_rejection_key = SECURITY_ASSURANCE_REPORT_REF_KEY
+
+        overlay = _complete_quality_evidence()
+        overlay["security_assurance_report"] = build_security_assurance_report(
+            payloads={"overlay": {"case": case_name}}
+        )
+        output = assemble_canary_evidence(
+            output_root=tmp_path / f"bundle-{case_name}",
+            canary_kind="dev",
+            command_metadata={"argv": ["policyos-canary", "--dev"]},
+            request_payload={"request": "Inspect a candidate with a malformed report reference."},
+            job_payload=job_payload,
+            provider_preflight={"status": "passed"},
+            quality_evidence=overlay,
+            artifact_store=store,
+        )
+        intake = json.loads(
+            (output / "quality_evidence" / SECURITY_REPORT_INTAKE_FILE).read_text(
+                encoding="utf-8"
+            )
+        )
+        scorecard = json.loads(
+            (output / "quality_evidence" / "quality_scorecard.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+        artifact_evidence = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+        intake_gate = next(
+            gate
+            for gate in scorecard["quality_gates"]
+            if gate["name"] == "security_assurance_report_intake"
+        )
+        rows = intake["resolution_rejections"]
+
+        assert intake["status"] == "rejected", case_name
+        assert intake["source_ref"] is None
+        assert intake["reason_code"] == "security_report_reference_resolution_rejected"
+        assert intake["observed_manifest"] is None
+        assert any(
+            row["key"] == expected_rejection_key
+            and row["reason"] == expected_reason
+            and len(row["value_sha256"]) == 64
+            and (
+                row["value_length"] is None
+                or (type(row["value_length"]) is int and row["value_length"] >= 0)
+            )
+            for row in rows
+        ), case_name
+        assert "bad\nsecurity-report-ref" not in json.dumps(intake)
+        assert intake_gate["status"] == "fail"
+        assert intake_gate["blocking"] is True
+        assert intake_gate["first_failing_artifact_ref"] is None
+        assert scorecard["evidence_refs"][SECURITY_REPORT_INTAKE_KEY] == (
+            f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+        )
+        assert SECURITY_ASSURANCE_REPORT_REF_KEY not in scorecard["evidence_refs"]
+        assert bundle["files"]["quality_evidence"]["security_assurance_report"] is None
+        assert not (output / "quality_evidence" / "security_assurance_report.json").exists()
+        resolution = artifact_evidence["quality_ref_resolution"]
+        assert resolution["status"] == "invalid"
+        assert SECURITY_ASSURANCE_REPORT_REF_KEY not in resolution["refs"]
+        assert any(
+            row["key"] == expected_rejection_key
+            and row["reason"] == expected_reason
+            for row in resolution["rejections"]
+        ), case_name
+
+
+
+def test_canary_rejects_ambiguous_registry_roles_from_all_supported_sources(
+    tmp_path,
+) -> None:
+    registry_ref_keys, body_ref_keys = quality_report_ref_intake_registry()
+    registry_roles = set(body_ref_keys.values()) & set(registry_ref_keys)
+    report_roles = tuple(
+        dict.fromkeys(
+            role
+            for role in QUALITY_REPORT_RUNTIME_REFS.values()
+            if role in registry_roles
+        )
+    )
+    assert len(report_roles) >= 2
+    first_role, second_role = report_roles[:2]
+    report_keys = {
+        role: next(
+            report_key
+            for report_key, mapped_role in QUALITY_REPORT_RUNTIME_REFS.items()
+            if mapped_role == role
+        )
+        for role in (first_role, second_role)
+    }
+    clean_refs = {first_role: _sha("a"), second_role: _sha("b")}
+    clean_intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={"job": {"runtime_quality_refs": clean_refs}}
+    )
+    assert clean_intake.unrejected_refs() == clean_refs
+
+    malformed = "bad\nambiguous-canary-role"
+    conflicting_hints = {
+        "name": report_keys[first_role],
+        "role": second_role,
+        "ref": malformed,
+    }
+    job_payload = _completed_quality_job_payload()
+    progress = job_payload.get("progress")
+    assert isinstance(progress, dict)
+    details = progress.get("details")
+    assert isinstance(details, dict)
+    runtime_refs = details.get("runtime_quality_refs")
+    assert isinstance(runtime_refs, dict)
+    runtime_refs.update(clean_refs)
+    job_payload["ambiguous_role_candidate"] = conflicting_hints
+
+    run_payload = {
+        "run_id": "run-ambiguous-registry-roles",
+        "status": "completed",
+        "params": {"ambiguous_role_candidate": conflicting_hints},
+    }
+    agents_payload = {"artifacts": {"ambiguous_role_candidate": conflicting_hints}}
+    timeline_payload = {"events": [{"ambiguous_role_candidate": conflicting_hints}]}
+    lineage_payload = {"nodes": [{"ambiguous_role_candidate": conflicting_hints}]}
+    request_payload = {"ambiguous_role_candidate": conflicting_hints}
+    quality_evidence = _complete_quality_evidence()
+    for role, report_key in report_keys.items():
+        report = quality_evidence.get(report_key)
+        if not isinstance(report, dict):
+            report = {"status": "pass", "issues": []}
+            quality_evidence[report_key] = report
+        report["status"] = "pass"
+        report[f"ambiguous_role_marker_{role}"] = "must-not-reach-canary-bundle"
+    quality_evidence["runtime_quality_refs"] = clean_refs
+    quality_evidence["ambiguous_role_candidate"] = conflicting_hints
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-ambiguous-registry-roles",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload=request_payload,
+        job_payload=job_payload,
+        run_payload=run_payload,
+        agents_payload=agents_payload,
+        timeline_payload=timeline_payload,
+        lineage_payload=lineage_payload,
+        quality_evidence=quality_evidence,
+        artifact_store=FileSystemCAS(tmp_path / "cas-ambiguous-registry-roles"),
+    )
+
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    resolution = artifacts["quality_ref_resolution"]
+    rejection_rows = resolution["rejections"]
+    assert {row["source"] for row in rejection_rows} >= {
+        "job",
+        "run",
+        "agents",
+        "timeline",
+        "lineage",
+        "request",
+        "quality_evidence",
+    }
+    for role, report_key in report_keys.items():
+        assert any(
+            row["key"] == role and row["reason"] == "ambiguous_role_hints"
+            for row in rejection_rows
+        )
+        assert role not in resolution["refs"]
+        assert all(match["key"] != role for match in resolution["matches"])
+        assert bundle["files"]["quality_evidence"][report_key] is None
+        assert not (output / "quality_evidence" / QUALITY_REPORT_FILES[report_key]).exists()
+    assert "must-not-reach-canary-bundle" not in json.dumps(artifacts, sort_keys=True)
+    assert "must-not-reach-canary-bundle" not in json.dumps(bundle, sort_keys=True)
+
+def test_canary_admits_all_supported_sources_before_consumers_and_bundle_emission(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas-whole-source-admission")
+    report = build_security_assurance_report(payloads={"producer": "controlled-test"})
+    valid_security_ref = _put_authority_report(
+        store,
+        report_key="security_assurance_report",
+        payload=report,
+        kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+    )
+    normative_ref_key = QUALITY_REPORT_RUNTIME_REFS["normative_evidence"]
+    privacy_ref_key = QUALITY_REPORT_RUNTIME_REFS["privacy_compliance_report"]
+    registry_ref_keys, registry_body_ref_keys = quality_report_ref_intake_registry()
+    job_payload = _completed_quality_job_payload(include_runtime_quality_refs=False)
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    details["runtime_quality_refs"] = {
+        SECURITY_ASSURANCE_REPORT_REF_KEY: valid_security_ref,
+        normative_ref_key: _sha("n"),
+    }
+    job_artifacts = job_payload.setdefault("artifacts", {})
+    assert isinstance(job_artifacts, dict)
+    job_artifacts[normative_ref_key] = "bad\njob-normative-ref"
+
+    run_payload = {
+        "run_id": "run-whole-source-admission",
+        "status": "completed",
+        "run_sentinel": "run-unrelated-context-preserved",
+        "params": {
+            "runtime_quality_refs": {
+                SECURITY_ASSURANCE_REPORT_REF_KEY: "bad\nrun-security-ref",
+            },
+            "security_assurance_report": {
+                "status": "pass",
+                "marker": "run-security-body-must-not-be-retained",
+            },
+            "artifact_outputs": [
+                {
+                    "name": SECURITY_ASSURANCE_REPORT_REF_KEY,
+                    "ref": valid_security_ref,
+                    "status": "pass",
+                    "marker": "run-security-ref-alias-must-not-be-retained",
+                }
+            ],
+        },
+    }
+    agents_payload = {
+        "agents_sentinel": "agents-unrelated-context-preserved",
+        "artifacts": {
+            normative_ref_key: "bad\nagents-normative-ref",
+            "normative_evidence": {
+                "status": "pass",
+                "marker": "agents-normative-body-must-not-be-retained",
+            },
+        },
+    }
+    timeline_payload = {
+        "timeline_sentinel": "timeline-unrelated-context-preserved",
+        "events": [
+            {
+                normative_ref_key: None,
+                "normative_evidence": {
+                    "status": "pass",
+                    "marker": "timeline-normative-body-must-not-be-retained",
+                },
+            }
+        ],
+    }
+    lineage_payload = {
+        "lineage_sentinel": "lineage-unrelated-context-preserved",
+        "nodes": [
+            {
+                SECURITY_ASSURANCE_REPORT_REF_KEY: 7,
+                "security_assurance_report": {
+                    "status": "pass",
+                    "marker": "lineage-security-body-must-not-be-retained",
+                },
+            }
+        ],
+    }
+    request_payload = {
+        "request_sentinel": "request-unrelated-context-preserved",
+        "normative_evidence": {
+            "status": "pass",
+            "marker": "request-normative-body-must-not-be-retained",
+            "cas_ref": "bad\nrequest-normative-ref",
+        },
+    }
+    invalid_role_refs = {
+        key: f"bad\nquality-evidence-role-{index}"
+        for index, key in enumerate(registry_ref_keys)
+    }
+    invalid_role_refs[normative_ref_key] = "bad\nquality-evidence-normative-ref"
+    quality_evidence = {
+        "security_assurance_report": {
+            "status": "pass",
+            "marker": "quality-evidence-security-body-must-not-be-retained",
+        },
+        "normative_evidence": {
+            "status": "pass",
+            "marker": "quality-evidence-normative-body-must-not-be-retained",
+        },
+        "runtime_quality_refs": invalid_role_refs,
+        "privacy_compliance_report": {
+            "status": "pass",
+            "marker": "quality-evidence-privacy-body-must-not-be-retained",
+        },
+        "unexpected_report_alias": {
+            "name": "privacy_compliance_report",
+            "ref": "bad\nquality-evidence-privacy-ref",
+        },
+    }
+    for index, (alias, _ref_key) in enumerate(sorted(registry_body_ref_keys.items())):
+        quality_evidence.setdefault(
+            alias,
+            {
+                "status": "pass",
+                "issues": [],
+                "marker": f"quality-evidence-registered-body-{index}-must-not-be-retained",
+            },
+        )
+        quality_evidence[f"registered_name_ref_{index}"] = {
+            "name": alias,
+            "ref": f"bad\nquality-evidence-name-ref-{index}",
+        }
+        quality_evidence[f"registered_hint_ref_{index}"] = {
+            "role": alias,
+            "artifact_ref": f"bad\nquality-evidence-hint-ref-{index}",
+        }
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path / "bundle-whole-source-admission",
+        canary_kind="dev",
+        command_metadata={"argv": ["policyos-canary", "--dev"]},
+        request_payload=request_payload,
+        job_payload=job_payload,
+        run_payload=run_payload,
+        agents_payload=agents_payload,
+        timeline_payload=timeline_payload,
+        lineage_payload=lineage_payload,
+        quality_evidence=quality_evidence,
+        artifact_store=store,
+    )
+
+    artifacts = json.loads((output / "artifacts.json").read_text(encoding="utf-8"))
+    resolution = artifacts["quality_ref_resolution"]
+    rejections = resolution["rejections"]
+    assert {row["source"] for row in rejections} >= {
+        "job",
+        "run",
+        "agents",
+        "timeline",
+        "lineage",
+        "request",
+        "quality_evidence",
+    }
+    assert resolution["status"] == "invalid"
+    assert SECURITY_ASSURANCE_REPORT_REF_KEY not in resolution["refs"]
+    assert normative_ref_key not in resolution["refs"]
+    assert privacy_ref_key not in resolution["refs"]
+    assert set(registry_ref_keys).isdisjoint(resolution["refs"])
+    assert set(registry_body_ref_keys).isdisjoint(resolution["refs"])
+    assert all(
+        row["key"] not in {SECURITY_ASSURANCE_REPORT_REF_KEY, normative_ref_key}
+        for row in resolution["matches"]
+    )
+    assert valid_security_ref not in json.dumps(artifacts)
+
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert not any(
+        gate.get("code") == "security_assurance_passed" and gate.get("status") == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+    assert not any(
+        "normative" in str(gate.get("name", "")).casefold()
+        and gate.get("status") == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+    assert not any(
+        gate.get("name") == "privacy_compliance_report_present"
+        and gate.get("status") == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    quality_files = bundle["files"]["quality_evidence"]
+    assert quality_files["security_assurance_report"] is None
+    assert quality_files["normative_evidence"] is None
+    assert quality_files["privacy_compliance_report"] is None
+    assert not (output / "quality_evidence" / "security_assurance_report.json").exists()
+    assert not (output / "quality_evidence" / "normative_evidence.json").exists()
+    assert not (output / "quality_evidence" / "privacy_compliance_report.json").exists()
+
+    forbidden_values = {
+        valid_security_ref,
+        "bad\njob-normative-ref",
+        "bad\nrun-security-ref",
+        "bad\nagents-normative-ref",
+        "bad\nrequest-normative-ref",
+        "bad\nquality-evidence-normative-ref",
+        "run-security-body-must-not-be-retained",
+        "run-security-ref-alias-must-not-be-retained",
+        "agents-normative-body-must-not-be-retained",
+        "timeline-normative-body-must-not-be-retained",
+        "lineage-security-body-must-not-be-retained",
+        "request-normative-body-must-not-be-retained",
+        "quality-evidence-security-body-must-not-be-retained",
+        "quality-evidence-normative-body-must-not-be-retained",
+        "bad\nquality-evidence-privacy-ref",
+        "quality-evidence-privacy-body-must-not-be-retained",
+        *invalid_role_refs.values(),
+        *(f"bad\nquality-evidence-name-ref-{index}" for index in range(len(registry_body_ref_keys))),
+        *(f"bad\nquality-evidence-hint-ref-{index}" for index in range(len(registry_body_ref_keys))),
+        *(
+            f"quality-evidence-registered-body-{index}-must-not-be-retained"
+            for index in range(len(registry_body_ref_keys))
+        ),
+    }
+    emitted_json = [
+        path.read_text(encoding="utf-8") for path in output.rglob("*.json")
+    ]
+    assert emitted_json
+    for text in emitted_json:
+        assert all(value not in text for value in forbidden_values)
+    for filename, marker in (
+        ("run.json", "run-unrelated-context-preserved"),
+        ("agents.json", "agents-unrelated-context-preserved"),
+        ("timeline.json", "timeline-unrelated-context-preserved"),
+        ("lineage.json", "lineage-unrelated-context-preserved"),
+        ("request.sanitized.json", "request-unrelated-context-preserved"),
+    ):
+        assert marker in (output / filename).read_text(encoding="utf-8")

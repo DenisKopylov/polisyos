@@ -28,8 +28,10 @@ surface for the `data`, `planning`, `compile`, `causal`, `simulate`,
 ## Internal Layout
 
 - [`__init__.py`](__init__.py) exposes the builtin inventory and extension discovery helpers.
-- [`components.py`](components.py) wraps builtin nodes in component providers for
-  registry bootstrap and `polisyos.scientist_nodes` parity.
+- [`components.py`](components.py) wraps builtin nodes in the existing
+  `ComponentProvider` contract. Core discovery consumes its architecture-declared
+  loader target, keeping source-checkout registration available when external
+  entry points are disabled.
 - [`builtins/__init__.py`](builtins/__init__.py) assembles the builtin registry
   consumed by workflow builders.
 - [`builtins/state_keys.py`](builtins/state_keys.py) owns canonical state and

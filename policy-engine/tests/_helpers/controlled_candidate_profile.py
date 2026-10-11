@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import json
 import threading
+from collections.abc import Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -341,6 +342,323 @@ def _controlled_procurement_recording(
     n4_contract._validate_recording_fixture(controlled)
     return controlled
 
+
+
+_CONTROLLED_SLOT_ALIASES = {
+    "agents_income": "agents.income",
+    "agents_is_employed": "agents.is_employed",
+    "cells_distress_score": "cells.distress_score",
+    "employment_retention": "cells.employment",
+    "employment_retention_rate": "cells.employment",
+    "global_tax_rate": "global.tax_rate",
+    "government_balance": "government.balance",
+}
+
+
+def _materialize_controlled_world_model_record(
+    *,
+    source_world_model_record: Any,
+    artifact_store: ArtifactStore,
+    tmp_path: Path,
+    substrate_registry: Any,
+    selected_registry_entry_hashes: Sequence[str],
+    substrate_registry_ref: Any,
+    policy_slot_ids: Sequence[str],
+    tenant_id: str,
+    cell_id: str,
+) -> Any:
+    """Build a source-bound, limited WMR from real local owner artifacts.
+
+    The synthetic fixture aliases its explicit controlled variables onto existing
+    canonical runtime paths. It never represents an empirical or live source.
+    """
+    import duckdb
+
+    from polisyos.core.artifacts import (
+        ArtifactRef,
+        PutOptions,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts import DataSnapshot
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
+    from polisyos.data_forge.kernel.snapshot import finalize_snapshot
+    from polisyos.fabric.world import (
+        WorldSnapshotFactWrite,
+        WorldSnapshotNodeWrite,
+        WorldSnapshotWriteRequest,
+        write_world_snapshot,
+    )
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.pdc import WorldModelLimitations
+    from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
+    from polisyos.runtime.quality.world_model_record import (
+        BranchMode,
+        FabricWorldRef,
+        SkgCausalPriorRef,
+        build_world_model_record,
+        load_world_model_record,
+        world_model_record_content_hash,
+    )
+
+    if not selected_registry_entry_hashes:
+        raise ValueError("controlled_wmr_selected_registry_entries_missing")
+    registry = SubstrateRegistry.model_validate(
+        substrate_registry.model_dump(mode="json")
+    )
+    selected_hashes = tuple(dict.fromkeys(str(item) for item in selected_registry_entry_hashes))
+    selected_entries = tuple(
+        entry for entry in registry.entries if entry.entry_content_hash in selected_hashes
+    )
+    if {entry.entry_content_hash for entry in selected_entries} != set(selected_hashes):
+        raise ValueError("controlled_wmr_selected_registry_entry_unresolved")
+    supplied_registry_ref = ArtifactRef.model_validate(
+        substrate_registry_ref.model_dump(mode="python")
+    )
+
+    aliases: list[tuple[str, str]] = []
+    for slot_id in dict.fromkeys(str(item) for item in policy_slot_ids):
+        canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
+        if canonical_id not in DEFAULT_SLOT_REGISTRY.slots:
+            raise ValueError("controlled_wmr_slot_alias_not_established:" + slot_id)
+        aliases.append((slot_id, canonical_id))
+    if not aliases:
+        raise ValueError("controlled_wmr_policy_slots_missing")
+    canonical_slot_ids = tuple(dict.fromkeys(canonical for _, canonical in aliases))
+
+    source_root = tmp_path / "controlled-candidate-source"
+    snapshot_id = "controlled-candidate-source-v1"
+    fabric_root = source_root / "fabric-world"
+    fabric_db = source_root / "fabric-world.duckdb"
+    data_forge_root = source_root / "data-forge" / snapshot_id
+    academic_artifact = data_forge_root / "academic" / "academic.jsonl"
+    academic_artifact.parent.mkdir(parents=True, exist_ok=True)
+    academic_artifact.write_text(
+        '{"snapshot_id":"' + snapshot_id + '"}\n',
+        encoding="utf-8",
+    )
+    write_publish_manifest(
+        manifest_path=data_forge_root / "academic" / "publish" / "manifest.json",
+        pipeline="academic",
+        artifacts=(academic_artifact,),
+        published_at="2026-05-24T08:30:00+00:00",
+        extra={
+            "corpus_id": "controlled-candidate-source",
+            "builder_revision": "fixture:controlled-candidate-source-v1",
+            "lineage_refs": ["fixture://controlled-candidate-source"],
+        },
+    )
+    finalize_snapshot(
+        data_forge_root,
+        update_latest_symlink=False,
+        pipelines=("academic",),
+    )
+
+    visible_time = "2026-05-24T00:00:00+00:00"
+    transaction_time = "2026-05-24T12:00:00+00:00"
+    node_id = "world.controlled.candidate-fixture"
+    write_world_snapshot(
+        fabric_db,
+        WorldSnapshotWriteRequest(
+            snapshot_root=fabric_root,
+            snapshot_id=snapshot_id,
+            branch_name="main",
+            as_of_valid_time=visible_time,
+            as_of_tx_time=transaction_time,
+            provenance={"source": "controlled_candidate_fixture"},
+            nodes=(
+                WorldSnapshotNodeWrite(
+                    node_id=node_id,
+                    kind="claim",
+                    label="Controlled candidate fixture",
+                    artifact_id=None,
+                    props_ref=None,
+                ),
+            ),
+            facts=(
+                WorldSnapshotFactWrite(
+                    fact_id=f"fact:{snapshot_id}:controlled-candidate",
+                    schema_version="1.0",
+                    subject_id=node_id,
+                    predicate_id="world.kind",
+                    object_value="claim",
+                    target_id=None,
+                    valid_time=visible_time,
+                    tx_time=transaction_time,
+                    provenance_json={"source": "controlled_candidate_fixture"},
+                    trust_json=None,
+                    legal_json=None,
+                    segment_id=f"seg:{snapshot_id}:controlled-candidate",
+                ),
+            ),
+        ),
+    )
+
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        payload_ref = artifact_store.put_json(
+            {
+                "agents": {
+                    "income": [1200.0],
+                    "is_employed": [True],
+                },
+                "cells": {
+                    "distress_score": [0.0],
+                    "employment": [1.0],
+                },
+                "government_balance": 0.0,
+                "tax_rate": 0.0,
+            },
+            PutOptions(kind="fabric.world_payload", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        data_snapshot_ref = artifact_store.put_json(
+            DataSnapshot(
+                data_ref=payload_ref,
+                stats={"snapshot_id": snapshot_id},
+                notes=["snapshot_id:" + snapshot_id, "controlled_candidate_only"],
+            ),
+            PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        # Preserve the DataSnapshot's typed payload relationship in its own manifest.
+        snapshot_manifest = artifact_store.get_manifest(data_snapshot_ref)
+        if not snapshot_manifest.inputs:
+            data_snapshot_ref = artifact_store.put_bytes(
+                artifact_store.get_bytes(data_snapshot_ref),
+                PutOptions(
+                    kind=snapshot_manifest.kind,
+                    media_type=snapshot_manifest.media_type,
+                    schema=snapshot_manifest.artifact_schema,
+                    inputs=(input_ref_from_artifact_ref(payload_ref, role="input.data_ref"),),
+                ),
+            )
+        registry_bundle = build_default_registry_bundle(artifact_store)
+
+    model_spec = ModelSpec(
+        model_id="model_controlled_candidate_source",
+        data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+        registry_bundle_ref=str(registry_bundle.bundle_ref.artifact_id),
+        calibrated=False,
+        notes=["controlled candidate-only source fixture"],
+    )
+
+    skg_path = source_root / "academic-skg.duckdb"
+    skg_path.parent.mkdir(parents=True, exist_ok=True)
+    connection = duckdb.connect(str(skg_path))
+    try:
+        connection.execute("CREATE OR REPLACE TABLE ac_skg_versions (version_id INTEGER)")
+        connection.execute("INSERT INTO ac_skg_versions VALUES (7)")
+    finally:
+        connection.close()
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    query = SKGQuery(db_path=skg_path, index_dir=source_root / "index")
+    try:
+        skg_version_id = query.latest_skg_version_id()
+        skg_snapshot_ref = query.skg_snapshot_ref(version_id=skg_version_id)
+    finally:
+        query.close()
+    if skg_snapshot_ref is None:
+        raise ValueError("controlled_wmr_skg_snapshot_unresolved")
+
+    selected_sources = tuple(dict.fromkeys(entry.source_id for entry in selected_entries))
+    selected_families = tuple(dict.fromkeys(entry.family_id for entry in selected_entries))
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        built = build_world_model_record(
+            artifact_store,
+            fabric_world_ref=FabricWorldRef(
+                snapshot_root=str(fabric_root),
+                snapshot_id=snapshot_id,
+                branch="main",
+                as_of_valid_time=visible_time,
+                as_of_tx_time=transaction_time,
+                world_query_policy="default_allow_public",
+                provenance_manifest_ref="fixture://controlled-candidate-source-v1",
+            ),
+            data_forge_snapshot_binding_path=(
+                data_forge_root / "data_forge_snapshot_binding.json"
+            ),
+            data_snapshot_ref=ArtifactRef.model_validate(
+                data_snapshot_ref.model_dump(mode="python")
+            ),
+            model_spec=model_spec,
+            skg_causal_prior_ref=SkgCausalPriorRef(
+                skg_snapshot_ref=skg_snapshot_ref,
+                skg_version_id=str(skg_version_id),
+                source_data_snapshot_id=snapshot_id,
+            ),
+            substrate_registry=registry,
+            region_or_jurisdiction=source_world_model_record.region_or_jurisdiction,
+            population_scope=source_world_model_record.population_scope,
+            policy_domain=source_world_model_record.policy_domain,
+            valid_time_scope=source_world_model_record.valid_time_scope,
+            tx_time_scope=source_world_model_record.tx_time_scope,
+            resolution=source_world_model_record.resolution,
+            branch_mode=BranchMode.SCENARIO,
+            policy_slot_ids=canonical_slot_ids,
+            producer_ref=(
+                "tests._helpers.controlled_candidate_profile."
+                "materialize_controlled_world_model_record"
+            ),
+            required_substrate_sources=selected_sources,
+            required_substrate_families=selected_families,
+            substrate_registry_artifact_ref=supplied_registry_ref,
+            registry_bundle_artifact_ref=registry_bundle.bundle_ref,
+            ncm_view_refs=(),
+            limitations=WorldModelLimitations(
+                admissibility_blockers=("causal_coupling_not_established",)
+            ),
+            candidate_only=True,
+        )
+        if load_world_model_record(artifact_store, built.record_ref) != built.record:
+            raise ValueError("controlled_wmr_source_reader_mismatch")
+
+    canonical_bindings = {item.slot_id: item for item in built.record.policy_slot_map}
+    alias_bindings = tuple(
+        canonical_bindings[canonical_id].model_copy(
+            update={"slot_id": alias, "unit": "synthetic_score"}
+        )
+        for alias, canonical_id in aliases
+    )
+    foundry_binding_ref = built.record.foundry_binding_ref.model_copy(
+        update={
+            "state_slot_digest": gy_content_hash(
+                {
+                    "bound_state_snapshot_ref": str(
+                        built.record.foundry_binding_ref.bound_state_snapshot_ref
+                    ),
+                    "policy_slot_map": [
+                        item.model_dump(mode="json") for item in alias_bindings
+                    ],
+                }
+            )
+        }
+    )
+    draft = built.record.model_copy(
+        update={
+            "policy_slot_map": alias_bindings,
+            "foundry_binding_ref": foundry_binding_ref,
+            "producer_ref": (
+                "tests._helpers.controlled_candidate_profile."
+                "candidate_only_slot_alias_projection"
+            ),
+        }
+    )
+    content_hash = world_model_record_content_hash(draft)
+    payload = draft.model_dump(mode="python")
+    payload.update(
+        {
+            "world_model_record_id": (
+                "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+            ),
+            "content_hash": content_hash,
+        }
+    )
+    return type(built.record).model_validate(payload)
 
 def _configured_procurement_profile(
     *,

@@ -169,7 +169,7 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
 
     time = _dict(audit.get("time_semantics_bitemporality"))
     capabilities = _dict(time.get("runtime_temporal_capabilities"))
-    unsupported = set(str(item) for item in _list(capabilities.get("unsupported_surfaces")))
+    unsupported = {str(item) for item in _list(capabilities.get("unsupported_surfaces"))}
     for surface in ("run_workflow", "run_nodes", "artifact_content"):
         if surface not in unsupported:
             violations.append(_violation("temporal_unsupported_surface_greenwash", surface))

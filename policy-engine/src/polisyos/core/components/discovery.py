@@ -9,6 +9,7 @@ reported through `DiscoveryReport`.
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 import os
 import re
@@ -88,8 +89,26 @@ EXTENSION_ENTRY_POINT_GROUPS: tuple[str, ...] = (
 )
 DEFAULT_DEV_SCAN_ROOT: Path | None = None
 DISCOVERY_MODULE_PREFIX = "_polisyos_components_scan_"
+
+
+@dataclass(slots=True, frozen=True)
+class DeclaredBuiltinLoader:
+    """Reference a declared builtin provider by target and entry-point group.
+
+    The group selects the expected `ComponentKind` and is retained as source
+    identity for each accepted component.
+    """
+
+    target: str
+    group: str
+
+
 BuiltinComponentLoader = Callable[[], object]
-BuiltinLoaderSpec = BuiltinComponentLoader | tuple[str, BuiltinComponentLoader]
+BuiltinLoaderSpec = (
+    BuiltinComponentLoader
+    | tuple[str, BuiltinComponentLoader | DeclaredBuiltinLoader]
+    | DeclaredBuiltinLoader
+)
 PredicateProvenanceClassification = Literal[
     "recomputed",
     "independently_reconciled",
@@ -216,6 +235,19 @@ class DiscoveryComponentIdentity:
 
 
 @dataclass(slots=True, frozen=True)
+class DiscoveryDeclaredBuiltinLoaderIdentity:
+    """Bind one declared builtin loader before its target is imported or called."""
+
+    name: str
+    target: str
+    group: str
+
+    def as_dict(self) -> dict[str, str]:
+        """Return a canonical JSON-compatible declaration identity."""
+        return {"name": self.name, "target": self.target, "group": self.group}
+
+
+@dataclass(slots=True, frozen=True)
 class ComponentDiscoveryManifest:
     """Bind discovered inputs and name any source closure not established."""
 
@@ -232,6 +264,7 @@ class ComponentDiscoveryManifest:
     components: tuple[DiscoveryComponentIdentity, ...]
     unbound_inputs: tuple[str, ...]
     predicate_provenance: tuple[DiscoveryPredicateProvenance, ...]
+    declared_builtin_loaders: tuple[DiscoveryDeclaredBuiltinLoaderIdentity, ...] = ()
 
     @property
     def is_bound(self) -> bool:
@@ -247,7 +280,7 @@ class ComponentDiscoveryManifest:
 
     def content_payload(self) -> dict[str, object]:
         """Return the canonical payload whose SHA-256 derives ``manifest_id``."""
-        return {
+        payload: dict[str, object] = {
             "schema_version": self.schema_version,
             "entry_point_groups": list(self.entry_point_groups),
             "builtin_loaders": list(self.builtin_loaders),
@@ -261,6 +294,11 @@ class ComponentDiscoveryManifest:
             "unbound_inputs": list(self.unbound_inputs),
             "predicate_provenance": [row.as_dict() for row in self.predicate_provenance],
         }
+        if self.schema_version == "policyos.component_discovery_manifest.v2":
+            payload["declared_builtin_loaders"] = [
+                row.as_dict() for row in self.declared_builtin_loaders
+            ]
+        return payload
 
 
 @dataclass(slots=True, frozen=True)
@@ -369,8 +407,20 @@ class _DevPathSource:
 @dataclass(slots=True)
 class _BuiltinLoaderSource:
     name: str
-    loader: BuiltinComponentLoader
+    loader: BuiltinComponentLoader | DeclaredBuiltinLoader
     errors: list[DiscoveryError] = field(default_factory=list)
+    declaration_identity: DiscoveryDeclaredBuiltinLoaderIdentity | None = field(
+        init=False,
+        default=None,
+    )
+
+    def __post_init__(self) -> None:
+        if isinstance(self.loader, DeclaredBuiltinLoader):
+            self.declaration_identity = DiscoveryDeclaredBuiltinLoaderIdentity(
+                name=self.name,
+                target=self.loader.target,
+                group=self.loader.group,
+            )
 
     def discover(self) -> Iterator[DiscoveredComponent]:
         self.errors.clear()
@@ -939,6 +989,16 @@ def _build_discovery_manifest(
     builtin_loaders = tuple(
         source.name for source in sources if isinstance(source, _BuiltinLoaderSource)
     )
+    declared_builtin_loader_rows: list[DiscoveryDeclaredBuiltinLoaderIdentity] = []
+    for source in sources:
+        if isinstance(source, _BuiltinLoaderSource) and source.declaration_identity is not None:
+            declared_builtin_loader_rows.append(source.declaration_identity)
+    declared_builtin_loaders = tuple(declared_builtin_loader_rows)
+    manifest_schema_version = (
+        "policyos.component_discovery_manifest.v2"
+        if declared_builtin_loaders
+        else "policyos.component_discovery_manifest.v1"
+    )
     unbound_inputs: list[str] = []
     entry_point_sources = [source for source in sources if isinstance(source, _EntryPointSource)]
     for source in entry_point_sources:
@@ -959,8 +1019,22 @@ def _build_discovery_manifest(
         if not row.exists:
             unbound_inputs.append(f"dev_scan_root_not_found:{row.root}")
     for error in report.errors:
-        unbound_inputs.append(
+        error_context = (
+            tuple(
+                f"{key}={error.details[key]}"
+                for key in ("group", "expected_kind", "actual_kind")
+                if key in error.details
+            )
+            if error.source == "builtin_loader"
+            else ()
+        )
+        error_identity = (
             f"discovery_error:{error.source}:{error.item or '<unknown>'}:{error.error_type}"
+        )
+        if error_context:
+            error_identity += ":" + ":".join(error_context)
+        unbound_inputs.append(
+            error_identity
         )
     unbound_inputs = sorted(dict.fromkeys(unbound_inputs))
     entry_point_enumeration_classification: PredicateProvenanceClassification = (
@@ -1035,7 +1109,7 @@ def _build_discovery_manifest(
         ),
     )
     payload: dict[str, object] = {
-        "schema_version": "policyos.component_discovery_manifest.v1",
+        "schema_version": manifest_schema_version,
         "entry_point_groups": list(selected_groups),
         "builtin_loaders": list(builtin_loaders),
         "dev_scan_enabled": include_dev_scan,
@@ -1048,9 +1122,13 @@ def _build_discovery_manifest(
         "unbound_inputs": unbound_inputs,
         "predicate_provenance": [row.as_dict() for row in predicate_provenance],
     }
+    if manifest_schema_version == "policyos.component_discovery_manifest.v2":
+        payload["declared_builtin_loaders"] = [
+            row.as_dict() for row in declared_builtin_loaders
+        ]
     manifest_id = _component_discovery_manifest_id(payload)
     return ComponentDiscoveryManifest(
-        schema_version="policyos.component_discovery_manifest.v1",
+        schema_version=manifest_schema_version,
         manifest_id=manifest_id,
         entry_point_groups=tuple(selected_groups),
         builtin_loaders=builtin_loaders,
@@ -1063,6 +1141,7 @@ def _build_discovery_manifest(
         components=components,
         unbound_inputs=tuple(unbound_inputs),
         predicate_provenance=predicate_provenance,
+        declared_builtin_loaders=declared_builtin_loaders,
     )
 
 
@@ -1088,34 +1167,67 @@ def _component_discovery_manifest_id(content_payload: object) -> str:
     )
 
 
-def _coerce_builtin_loader_spec(spec: BuiltinLoaderSpec) -> tuple[str, BuiltinComponentLoader]:
+def _coerce_builtin_loader_spec(
+    spec: BuiltinLoaderSpec,
+) -> tuple[str, BuiltinComponentLoader | DeclaredBuiltinLoader]:
+    if isinstance(spec, DeclaredBuiltinLoader):
+        return spec.target, spec
     if isinstance(spec, tuple):
         return spec
     return f"{spec.__module__}:{getattr(spec, '__qualname__', spec.__name__)}", spec
 
 
+def _load_declared_builtin_loader(
+    loader: DeclaredBuiltinLoader,
+) -> tuple[object, ComponentKind]:
+    """Resolve a typed target and the component kind declared by its group."""
+    expected_kind = ENTRY_POINT_KIND_BY_GROUP.get(loader.group)
+    if expected_kind is None:
+        raise ValueError(f"unsupported declared builtin loader group: {loader.group}")
+    module_name, separator, attribute = loader.target.partition(":")
+    if not separator or not module_name or not attribute:
+        raise ValueError("declared builtin loader must use module:attribute syntax")
+    loaded = importlib.metadata.EntryPoint(
+        name=module_name,
+        value=loader.target,
+        group=loader.group,
+    ).load()
+    return loaded, expected_kind
+
+
 def _discover_builtin_loader(
     *,
     name: str,
-    loader: BuiltinComponentLoader,
+    loader: BuiltinComponentLoader | DeclaredBuiltinLoader,
     errors: list[DiscoveryError],
 ) -> list[DiscoveredComponent]:
     discovered: list[DiscoveredComponent] = []
     source = DiscoverySourceInfo(
         source_type="builtin_loader",
         location=name,
+        group=loader.group if isinstance(loader, DeclaredBuiltinLoader) else None,
     )
+    expected_kind: ComponentKind | None = None
 
     try:
-        declared = loader()
+        if isinstance(loader, DeclaredBuiltinLoader):
+            if loader.target != name:
+                raise ValueError("declared builtin loader target must match its discovery name")
+            declared_loader, expected_kind = _load_declared_builtin_loader(loader)
+            declared = declared_loader() if callable(declared_loader) else declared_loader
+        else:
+            declared = loader()
     except _DISCOVERY_BOUNDARY_ERRORS as exc:
+        details = {"traceback": format_traceback()}
+        if isinstance(loader, DeclaredBuiltinLoader):
+            details.update({"target": loader.target, "group": loader.group})
         errors.append(
             DiscoveryError(
                 source="builtin_loader",
                 item=name,
                 error_type=type(exc).__name__,
                 message=str(exc),
-                details={"traceback": format_traceback()},
+                details=details,
             )
         )
         return discovered
@@ -1129,6 +1241,29 @@ def _discover_builtin_loader(
                     item=f"{name}:{idx}",
                     error_type="InvalidDeclaration",
                     message="builtin loader item must be Component or factory",
+                )
+            )
+            continue
+        if (
+            isinstance(loader, DeclaredBuiltinLoader)
+            and expected_kind is not None
+            and component.metadata.kind is not expected_kind
+        ):
+            errors.append(
+                DiscoveryError(
+                    source="builtin_loader",
+                    item=f"{name}:{idx}",
+                    error_type="ComponentKindMismatch",
+                    message=(
+                        f"declared loader group {loader.group} expects "
+                        f"{expected_kind.value}, got {component.metadata.kind.value}"
+                    ),
+                    details={
+                        "target": loader.target,
+                        "group": loader.group,
+                        "expected_kind": expected_kind.value,
+                        "actual_kind": component.metadata.kind.value,
+                    },
                 )
             )
             continue

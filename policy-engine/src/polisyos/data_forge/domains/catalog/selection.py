@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol, TypeVar, cast, get_args
 
-from polisyos.core.contracts.control import CatalogRunProfile
+from polisyos.core.contracts import CatalogRunProfile
 from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
     CatalogSelectionError,
 )

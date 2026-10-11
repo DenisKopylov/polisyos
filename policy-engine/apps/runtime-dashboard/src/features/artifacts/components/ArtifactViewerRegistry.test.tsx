@@ -64,6 +64,7 @@ import {
   getArtifactViewerDescriptor,
   renderArtifactViewer,
 } from "@/features/artifacts/components/ArtifactViewerRegistry";
+import { parseEvidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 
 function renderViewer(kind: string, preview: unknown) {
   return render(
@@ -86,6 +87,7 @@ describe("ArtifactViewerRegistry", () => {
         },
         decision_packet_ref: {
           artifact_id: "artifact-1",
+          manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
         },
         inputs: {
           bundle: {
@@ -96,9 +98,15 @@ describe("ArtifactViewerRegistry", () => {
         links: {
           duplicate: {
             artifact_id: "artifact-1",
+            manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
           },
           report: {
-            artifact_id: "artifact-2",
+            artifact_id: "artifact-1",
+            manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+          },
+          malformed: {
+            artifact_id: "artifact-1",
+            manifest_profile_sha256: "sha256:not-a-profile",
           },
         },
       },
@@ -110,8 +118,80 @@ describe("ArtifactViewerRegistry", () => {
       "artifact-1",
       "artifact-4",
       "artifact-5",
-      "artifact-2",
+      "artifact-1",
     ]);
+    expect(
+      descriptor.relatedRefs
+        .filter((ref) => ref.artifactId === "artifact-1")
+        .map((ref) => ref.artifactRef.manifest_profile_sha256),
+    ).toEqual([`sha256:${"a".repeat(64)}`, `sha256:${"b".repeat(64)}`]);
+  });
+
+  it("keeps same-blob related manifest profiles separately navigable", () => {
+    renderViewer("scientist.preflight_report", {
+      decision_packet_ref: {
+        artifact_id: "artifact-shared",
+        manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
+      },
+      links: {
+        sibling: {
+          artifact_id: "artifact-shared",
+          manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+        },
+      },
+    });
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    const firstUrl = new URL(
+      links[0]!.getAttribute("href")!,
+      "http://localhost",
+    );
+    const secondUrl = new URL(
+      links[1]!.getAttribute("href")!,
+      "http://localhost",
+    );
+    const selectedRefs = [firstUrl, secondUrl].map((url) =>
+      parseEvidenceArtifactRefKey(url.searchParams.get("artifactRefKey") ?? ""),
+    );
+    expect(firstUrl.pathname).toBe("/artifacts/artifact-shared");
+    expect(secondUrl.pathname).toBe("/artifacts/artifact-shared");
+    expect(firstUrl.searchParams.get("tab")).toBe("content");
+    expect(secondUrl.searchParams.get("tab")).toBe("content");
+    expect(selectedRefs).toEqual([
+      {
+        artifact_id: "artifact-shared",
+        kind: null,
+        media_type: null,
+        manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
+      },
+      {
+        artifact_id: "artifact-shared",
+        kind: null,
+        media_type: null,
+        manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+      },
+    ]);
+  });
+
+  it("refuses malformed typed metadata instead of degrading it to an ID-only link", () => {
+    const descriptor = getArtifactViewerDescriptor({
+      kind: "scientist.preflight_report",
+      preview: {
+        malformed_kind: {
+          artifact_id: "artifact-invalid-kind",
+          kind: 42,
+          media_type: "application/json",
+        },
+        malformed_media_type: {
+          artifact_id: "artifact-invalid-media",
+          kind: "valid.kind",
+          media_type: "   ",
+        },
+      },
+    });
+
+    expect(descriptor.relatedRefs).toEqual([]);
   });
 
   it("falls back to the raw JSON viewer for untyped artifact kinds", () => {
@@ -152,9 +232,24 @@ describe("ArtifactViewerRegistry", () => {
     });
 
     expect(screen.getByText("pages.artifacts.title")).toBeInTheDocument();
+    const decisionPacketUrl = new URL(
+      screen
+        .getByRole("link", { name: "Decision Packet Ref" })
+        .getAttribute("href")!,
+      "http://localhost",
+    );
+    expect(decisionPacketUrl.pathname).toBe("/artifacts/artifact-1");
+    expect(decisionPacketUrl.searchParams.get("tab")).toBe("content");
     expect(
-      screen.getByRole("link", { name: "Decision Packet Ref" }),
-    ).toHaveAttribute("href", "/artifacts/artifact-1");
+      parseEvidenceArtifactRefKey(
+        decisionPacketUrl.searchParams.get("artifactRefKey") ?? "",
+      ),
+    ).toEqual({
+      artifact_id: "artifact-1",
+      kind: null,
+      media_type: null,
+      manifest_profile_sha256: null,
+    });
     expect(screen.getByText("missing_data")).toBeInTheDocument();
     expect(screen.getByText("Missing source")).toBeInTheDocument();
     expect(screen.getByText("label:warning")).toHaveAttribute(

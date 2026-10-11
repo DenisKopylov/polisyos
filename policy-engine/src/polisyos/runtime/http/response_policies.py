@@ -7,10 +7,12 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from email.utils import format_datetime, parsedate_to_datetime
 from typing import Any
+from urllib.parse import quote
 
 from fastapi import Response
 
 _IMMUTABLE_PRIVATE_CACHE_CONTROL = "private, max-age=31536000, immutable"
+_REVALIDATE_PRIVATE_CACHE_CONTROL = "private, no-cache"
 
 
 @dataclass(frozen=True)
@@ -75,6 +77,26 @@ def set_versioning_headers(
             response.headers["Sunset"] = resolved.sunset
 
 
+def set_artifact_view_headers(
+    response: Response,
+    *,
+    etag: str,
+    last_modified: datetime,
+    profile_selected: bool,
+) -> None:
+    """Use immutable caching only for a caller-selected exact manifest profile."""
+    set_immutable_resource_headers(
+        response,
+        etag=etag,
+        last_modified=last_modified,
+        cache_control=(
+            _IMMUTABLE_PRIVATE_CACHE_CONTROL
+            if profile_selected
+            else _REVALIDATE_PRIVATE_CACHE_CONTROL
+        ),
+    )
+
+
 def set_immutable_resource_headers(
     response: Response,
     *,
@@ -88,14 +110,24 @@ def set_immutable_resource_headers(
     response.headers["Cache-Control"] = cache_control
 
 
-def add_artifact_link_relations(response: Response, *, artifact_id: str) -> None:
-    """Attach lightweight discovery links for artifact-related endpoints."""
+def add_artifact_link_relations(
+    response: Response,
+    *,
+    artifact_id: str,
+    manifest_profile_sha256: str | None = None,
+) -> None:
+    """Attach links that preserve the resolved artifact manifest profile."""
     base = f"/api/v1/artifacts/{artifact_id}"
-    _append_link_header(response, f'<{base}>; rel="self"')
-    _append_link_header(response, f'<{base}/content>; rel="preview"')
-    _append_link_header(response, f'<{base}/download>; rel="download"')
-    _append_link_header(response, f'<{base}/schema>; rel="describedby"')
-    _append_link_header(response, f'<{base}/lineage>; rel="related"')
+    profile_query = (
+        f"?manifest_profile_sha256={quote(manifest_profile_sha256, safe='')}"
+        if manifest_profile_sha256 is not None
+        else ""
+    )
+    _append_link_header(response, f'<{base}{profile_query}>; rel="self"')
+    _append_link_header(response, f'<{base}/content{profile_query}>; rel="preview"')
+    _append_link_header(response, f'<{base}/download{profile_query}>; rel="download"')
+    _append_link_header(response, f'<{base}/schema{profile_query}>; rel="describedby"')
+    _append_link_header(response, f'<{base}/lineage{profile_query}>; rel="related"')
 
 
 def add_run_link_relations(response: Response, *, run_id: str) -> None:
@@ -118,12 +150,18 @@ def build_not_modified_response(
     *,
     etag: str,
     last_modified: datetime,
+    profile_selected: bool = True,
 ) -> Response | None:
     """Return a 304 response when conditional request headers already match."""
     if_none_match = getattr(request_headers, "get", lambda *_args, **_kwargs: None)("if-none-match")
     if isinstance(if_none_match, str) and _etag_matches(if_none_match, etag):
         response = Response(status_code=304)
-        set_immutable_resource_headers(response, etag=etag, last_modified=last_modified)
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=last_modified,
+            profile_selected=profile_selected,
+        )
         return response
 
     if_modified_since = getattr(request_headers, "get", lambda *_args, **_kwargs: None)(
@@ -136,7 +174,12 @@ def build_not_modified_response(
             parsed = None
         if parsed is not None and parsed.astimezone(UTC) >= last_modified.astimezone(UTC):
             response = Response(status_code=304)
-            set_immutable_resource_headers(response, etag=etag, last_modified=last_modified)
+            set_artifact_view_headers(
+                response,
+                etag=etag,
+                last_modified=last_modified,
+                profile_selected=profile_selected,
+            )
             return response
     return None
 
@@ -158,6 +201,7 @@ __all__ = [
     "build_artifact_etag",
     "build_not_modified_response",
     "format_http_date",
+    "set_artifact_view_headers",
     "set_immutable_resource_headers",
     "set_versioning_headers",
 ]

@@ -24,16 +24,16 @@ from tests.unit.foundry.methods.testing.strategies import bayesian_regression_st
 )
 def test_bayesian_regression_output_is_finite(data: dict, property_method_dispatcher) -> None:
     """Bayesian regression must return finite posterior moments."""
-    X = data["X"]
+    x = data["X"]
     y = data["y"]
-    assume(np.isfinite(X).all())
+    assume(np.isfinite(x).all())
     assume(np.isfinite(y).all())
-    assume(np.all(X.std(axis=0) > 0.01))
+    assume(np.all(x.std(axis=0) > 0.01))
 
     result = invoke_property_method(
         dispatcher=property_method_dispatcher,
         method_class=BayesianLinearRegressionEstimator,
-        state={"features": X, "target": y},
+        state={"features": x, "target": y},
         params={},
         seed=0,
     ).output
@@ -95,9 +95,9 @@ def test_bayesian_regression_deterministic(
 ) -> None:
     """Same inputs and backend seed produce identical posterior moments."""
     rng = np.random.default_rng(seed)
-    X = rng.normal(0, 1, (n_obs, n_features))
-    y = X @ rng.normal(0, 1, n_features) + rng.normal(0, 0.5, n_obs)
-    state = {"features": X, "target": y}
+    x = rng.normal(0, 1, (n_obs, n_features))
+    y = x @ rng.normal(0, 1, n_features) + rng.normal(0, 0.5, n_obs)
+    state = {"features": x, "target": y}
 
     first = invoke_property_method(
         dispatcher=property_method_dispatcher,

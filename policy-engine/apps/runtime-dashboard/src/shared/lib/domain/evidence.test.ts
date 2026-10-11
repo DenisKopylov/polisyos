@@ -1,4 +1,6 @@
 import {
+  dedupeEvidenceArtifactRefs,
+  evidenceArtifactRefKey,
   findRunEvidenceNeed,
   findRunEvidencePlan,
   findRunEvidencePromotion,
@@ -35,6 +37,20 @@ describe("evidence domain", () => {
         },
       ],
       related_artifacts: [{ artifact_id: "artifact-1", media_type: "json" }],
+      data_view_request_ref: {
+        artifact_id: "request-1",
+        kind: "ir.data_view_request",
+        media_type: "application/json",
+        manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
+      },
+      materialization_refs: {
+        data_snapshot_ref: {
+          artifact_id: "snapshot-1",
+          kind: "fabric.data_snapshot",
+          media_type: "application/json",
+          manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+        },
+      },
       run_id: "run-1",
       source_kind: "natural_language",
       warnings: ["stale snapshot"],
@@ -56,6 +72,12 @@ describe("evidence domain", () => {
         },
       ],
       dataSnapshotRef: null,
+      dataViewRequestRef: {
+        artifact_id: "request-1",
+        kind: "ir.data_view_request",
+        media_type: "application/json",
+        manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
+      },
       evidenceBundleRef: null,
       executionPlanRef: null,
       fetchPlans: [
@@ -77,6 +99,16 @@ describe("evidence domain", () => {
         },
       ],
       inputBindingsRef: null,
+      fabricRetrievalTraceRef: null,
+      materializationRefs: {
+        data_snapshot_ref: {
+          artifact_id: "snapshot-1",
+          kind: "fabric.data_snapshot",
+          media_type: "application/json",
+          manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+        },
+      },
+      productionDataEvidenceContext: {},
       promotionCandidates: [
         {
           confidence: 0,
@@ -133,4 +165,29 @@ describe("evidence domain", () => {
       } as never),
     ).toBe("plan");
   });
+});
+
+it("keeps same-content artifact views distinct by the complete reference", () => {
+  const base = {
+    artifact_id: "sha256:" + "a".repeat(64),
+    kind: "runtime.test_payload",
+    media_type: "application/json",
+  };
+  const first = {
+    ...base,
+    manifest_profile_sha256: "sha256:" + "1".repeat(64),
+  };
+  const duplicateFirst = { ...first };
+  const second = {
+    ...base,
+    manifest_profile_sha256: "sha256:" + "2".repeat(64),
+  };
+
+  expect(evidenceArtifactRefKey(first)).not.toBe(
+    evidenceArtifactRefKey(second),
+  );
+  expect(dedupeEvidenceArtifactRefs([first, duplicateFirst, second])).toEqual([
+    first,
+    second,
+  ]);
 });

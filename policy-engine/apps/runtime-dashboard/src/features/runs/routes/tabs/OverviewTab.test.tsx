@@ -1,9 +1,13 @@
 import { screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 
+import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 
 const overviewState = vi.hoisted(() => ({
+  artifactContentMock: vi.fn(),
+  decisionArtifact: null as Record<string, unknown> | null,
+  primaryDecisionArtifactRef: null as Record<string, unknown> | null,
   run: { run_id: "run-1" } as Record<string, unknown>,
 }));
 
@@ -34,7 +38,8 @@ vi.mock("@/api/hooks/useRunTimeline", () => ({
   useSuspenseRunTimeline: () => ({ data: { timeline: { events: [] } } }),
 }));
 vi.mock("@/api/hooks/useArtifactContent", () => ({
-  useSuspenseArtifactContent: vi.fn(),
+  useSuspenseArtifactContent: (...args: unknown[]) =>
+    overviewState.artifactContentMock(...args),
 }));
 vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   const actual =
@@ -54,6 +59,7 @@ vi.mock("@/features/runs/context/RunInspectorContext", () => ({
     decisionHeadline: "Decision",
     evidenceContext: { dataNeeds: [], fetchPlans: [], promotionCandidates: [] },
     primaryDecisionArtifactId: null,
+    primaryDecisionArtifactRef: overviewState.primaryDecisionArtifactRef,
     run: overviewState.run,
   }),
 }));
@@ -68,9 +74,88 @@ vi.mock("@/features/whatif", () => ({ ScenarioWorkbench: () => null }));
 import OverviewTab from "./OverviewTab";
 
 describe("OverviewTab", () => {
+  afterEach(() => vi.restoreAllMocks());
+
   beforeEach(() => {
+    overviewState.artifactContentMock.mockReset();
+    overviewState.artifactContentMock.mockImplementation(() => ({
+      data: { artifact: overviewState.decisionArtifact },
+    }));
+    overviewState.decisionArtifact = null;
+    overviewState.primaryDecisionArtifactRef = null;
     overviewState.run = { run_id: "run-1" };
   });
+
+  it("keeps hook order and the selected profile through a mismatch-to-live transition", () => {
+    const milestoneSpy = vi.spyOn(performanceTelemetry, "markUiMilestone");
+    const latencySpy = vi.spyOn(performanceTelemetry, "measureUiLatency");
+    const decisionReadyName = "runs.overview.decision.ready";
+    const decisionReadyContext = {
+      routeId: "runs.detail.overview",
+      surface: "overview",
+    };
+    const decisionReadyMilestones = () =>
+      milestoneSpy.mock.calls.filter(([name]) => name === decisionReadyName);
+    const decisionReadyLatencies = () =>
+      latencySpy.mock.calls.filter(
+        ([input]) => input.endMark === decisionReadyName,
+      );
+    const profile = `sha256:${"a".repeat(64)}`;
+    const selectedRef = {
+      artifact_id: "decision-artifact",
+      kind: "scientist.decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: profile,
+    };
+    overviewState.primaryDecisionArtifactRef = selectedRef;
+    overviewState.decisionArtifact = {
+      ...selectedRef,
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+      mode: "preview",
+    };
+
+    const view = renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-artifact-profile-mismatch"),
+    ).toBeVisible();
+    expect(overviewState.artifactContentMock).toHaveBeenNthCalledWith(
+      1,
+      selectedRef,
+      { maxBytes: 256 * 1024 },
+    );
+    expect(decisionReadyMilestones()).toEqual([]);
+    expect(decisionReadyLatencies()).toEqual([]);
+
+    overviewState.decisionArtifact = { ...selectedRef, mode: "preview" };
+    view.rerender(<OverviewTab />);
+
+    expect(
+      screen.queryByTestId("overview-artifact-profile-mismatch"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("overview-reading-view-link")).toHaveAttribute(
+      "href",
+      expect.stringContaining(encodeURIComponent(profile)),
+    );
+    expect(overviewState.artifactContentMock).toHaveBeenNthCalledWith(
+      2,
+      selectedRef,
+      { maxBytes: 256 * 1024 },
+    );
+    expect(decisionReadyMilestones()).toEqual([
+      [decisionReadyName, decisionReadyContext],
+    ]);
+    expect(decisionReadyLatencies()).toEqual([
+      [
+        {
+          context: decisionReadyContext,
+          endMark: decisionReadyName,
+          metric: "time_to_decision_ms",
+        },
+      ],
+    ]);
+  });
+
   it("renders governance severity only through the private issuer", () => {
     renderWithProviders(<OverviewTab />);
 

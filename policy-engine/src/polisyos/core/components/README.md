@@ -15,14 +15,25 @@ components into runtime registries.
 - **Component identity** - `ComponentId` encodes namespace, name, and SemVer.
 - **Component metadata** - `ComponentMetadata` and `ComponentDep` describe what a component is and what it needs.
 - **Capabilities** - flags capture cross-cutting abilities such as CAS reading or execution rights.
-- **Discovery** - entry-point and dev-scan discovery can be combined with explicit precedence rules.
+- **Discovery** - entry-point and dev-scan discovery can be combined with explicit
+  precedence rules. Builtin declarations use the typed
+  `DeclaredBuiltinLoader(target, group)` contract; existing callable and
+  `(name, callable)` loader forms remain supported. For declared loaders, the
+  group determines the required `ComponentKind`; discovery rejects providers
+  whose metadata kind disagrees and records the group on each discovered
+  component source. Manifest v2 records every declared loader's discovery name,
+  target, and group before loading, including empty and failed loaders; discovery
+  without declared loaders retains the v1 payload shape and identity. Foundry's
+  default provider now uses this typed route while its exported callable tuple stays
+  available for compatibility. The `builtin_loaders` target tuple remains unchanged.
 - **Registry** - `ComponentRegistry` stores multiple versions and resolves exact or compatible matches.
 - **Bootstrap** - `build_components_index()` and `bootstrap_plugin_registries()` wire the discovered index into runtime domains.
 
 ## Public API
 
 - identity/metadata: `ComponentId`, `ComponentKind`, `ComponentMetadata`, `ComponentDep`, `Capability`
-- discovery/registry: `discover_components`, `ComponentRegistry`, `build_components_index`
+- discovery/registry: `discover_components`, `BuiltinLoaderSpec`,
+  `DeclaredBuiltinLoader`, `ComponentRegistry`, `build_components_index`
 - bootstrap/CLI: `bootstrap_plugin_registries`, `ComponentProvider`, `ComponentFactory`
 
 ## Current State

@@ -985,16 +985,18 @@ def _frozen_value_contract_payload() -> dict[str, Any]:
     )
 
 
-def test_n8_validation_result_reports_canonical_ambient_drift_without_governing_it() -> None:
-    """The frozen canonical drift stays visible without invalidating N8."""
+def test_frozen_v1_contract_blocks_live_default_v2_and_keeps_ambient_drift_visible() -> None:
+    """The unchanged v1 contract refuses the default v2 producer without hiding ambient drift."""
 
     payload = _frozen_value_contract_payload()
 
     result = value_contract.validate_payload_result(payload)
 
     assert isinstance(result, value_contract.ValueGateValidationResult)
-    assert result.governing_issues == ()
-    assert value_contract.validate_payload(payload) == ()
+    governing_codes = {issue["code"] for issue in result.governing_issues}
+    assert "catalog_builtin_discovery_manifest_mismatch" in governing_codes
+    assert "catalog_provenance_schema_version_mismatch" in governing_codes
+    assert {issue["code"] for issue in value_contract.validate_payload(payload)} == governing_codes
     assert {
         finding["code"] for finding in result.ambient_findings
     } == {
@@ -1328,6 +1330,104 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     assert "catalog_provenance_content_hash_mismatch" not in bound_governing_codes
 
 
+def test_default_foundry_loader_roundtrips_through_valuegate_and_reissuer(
+    tmp_path: Path,
+) -> None:
+    from polisyos.foundry.extensions.discovery import BUILTIN_LOADER, ENTRY_POINT_GROUP
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    evidence_cache = value_contract._candidate_catalog_denominator_evidence_cached
+    denominator_cache = value_contract._candidate_catalog_denominators_cached
+    evidence_cache.cache_clear()
+    denominator_cache.cache_clear()
+    try:
+        live_denominators, live_ambient_manifest = evidence_cache()
+        expected = copy.deepcopy(live_denominators["catalog_provenance"])
+        target = BUILTIN_LOADER[0]
+        assert expected["schema_version"] == (
+            "policyos.method_catalog_provenance_manifest.v2"
+        )
+        assert expected["governed_discovery"]["declared_builtin_loaders"] == [
+            {"name": target, "target": target, "group": ENTRY_POINT_GROUP}
+        ]
+        assert expected["ambient_discovery"]["declared_builtin_loaders"] == []
+
+        denominator_fields = frozenset(live_denominators) - {"catalog_provenance"}
+        result = value_contract._catalog_provenance_validation_result(
+            expected,
+            expected,
+            denominator_fields=denominator_fields,
+        )
+        assert result.governing_issues == ()
+
+        wrong_group = copy.deepcopy(expected)
+        wrong_group["governed_discovery"]["declared_builtin_loaders"][0]["group"] = (
+            "polisyos.scientist_nodes"
+        )
+        wrong_group["provenance_id"] = method_catalog_provenance_id(wrong_group)
+        wrong_result = value_contract._catalog_provenance_validation_result(
+            wrong_group,
+            expected,
+            denominator_fields=denominator_fields,
+        )
+        assert "catalog_builtin_discovery_manifest_mismatch" in {
+            issue["code"] for issue in wrong_result.governing_issues
+        }
+
+        missing_declaration = copy.deepcopy(expected)
+        missing_declaration["governed_discovery"].pop("declared_builtin_loaders")
+        missing_declaration["provenance_id"] = method_catalog_provenance_id(
+            missing_declaration
+        )
+        missing_result = value_contract._catalog_provenance_validation_result(
+            missing_declaration,
+            expected,
+            denominator_fields=denominator_fields,
+        )
+        assert "catalog_builtin_discovery_manifest_mismatch" in {
+            issue["code"] for issue in missing_result.governing_issues
+        }
+
+        historical_mutation_ids = [
+            mutation_id
+            for mutation_id in value_contract.SOURCE_FLIP_MUTATION_IDS
+            if mutation_id != value_contract.EDITABLE_DIRECT_URL_SOURCE_FLIP_ID
+        ]
+        recorded = {
+            "denominators": copy.deepcopy(live_denominators),
+            "contract_content_hash": "stale",
+            "source_flip_mutation_harness": {
+                "mutation_ids": historical_mutation_ids,
+            },
+            "unrelated_receipt": {"status": "frozen"},
+        }
+        reissued = value_contract._catalog_provenance_reissue_payload(
+            recorded,
+            live_denominators,
+            live_ambient_manifest,
+        )
+        candidate_path = tmp_path / "catalog-provenance-v2-candidate.json"
+        value_contract._write_json(candidate_path, reissued)
+        persisted = value_contract._load_json(candidate_path)
+        assert persisted["denominators"]["catalog_provenance"] == (
+            live_denominators["catalog_provenance"]
+        )
+        assert persisted["source_flip_mutation_harness"]["mutation_ids"] == list(
+            value_contract.SOURCE_FLIP_MUTATION_IDS
+        )
+        assert persisted["unrelated_receipt"] == {"status": "frozen"}
+        assert persisted["contract_content_hash"] == value_contract._content_hash(persisted)
+        persisted_result = value_contract._catalog_provenance_validation_result(
+            persisted["denominators"]["catalog_provenance"],
+            expected,
+            denominator_fields=denominator_fields,
+        )
+        assert persisted_result.governing_issues == ()
+    finally:
+        evidence_cache.cache_clear()
+        denominator_cache.cache_clear()
+
+
 def test_n8_catalog_provenance_reports_changed_content_bound_distribution_identity() -> None:
     from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
 
@@ -1361,6 +1461,7 @@ def test_n8_catalog_provenance_reissue_changes_only_the_member_and_witness() -> 
         "source_byte_closure": "not_established",
     }
     historical_manifest_content = {
+        "schema_version": "policyos.component_discovery_manifest.v1",
         "entry_points": [frozen_entry],
         "hidden_policy": "stable",
     }
@@ -1501,6 +1602,7 @@ def test_n8_catalog_provenance_reissue_refuses_unproven_manifest_id() -> None:
         "direct_url_sha256": _hash("a"),
     }
     historical_manifest_content = {
+        "schema_version": "policyos.component_discovery_manifest.v1",
         "entry_points": [frozen_entry],
         "hidden_policy": "stable",
     }

@@ -207,6 +207,11 @@ class ArtifactAuthorityInfo(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     diagnostic_event_ref: str
+    diagnostic_event_manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     manifest_ref: str
     payload_sha256: str
 

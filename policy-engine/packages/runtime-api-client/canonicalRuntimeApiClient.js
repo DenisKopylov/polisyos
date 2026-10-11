@@ -91,7 +91,9 @@ export class RuntimeApiClient {
 
   async getArtifactManifest(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params?.manifest_profile_sha256,
+    });
     return this.request("GET", path, query, undefined, undefined);
   }
 
@@ -99,13 +101,16 @@ export class RuntimeApiClient {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/content`;
     const query = this.buildQuery({
       max_bytes: params?.max_bytes,
+      manifest_profile_sha256: params?.manifest_profile_sha256,
     });
     return this.request("GET", path, query, undefined, undefined);
   }
 
   async downloadArtifactContent(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/download`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params?.manifest_profile_sha256,
+    });
     return this.request("GET", path, query, undefined, undefined);
   }
 
@@ -114,13 +119,24 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       max_depth: params?.max_depth,
       max_nodes: params?.max_nodes,
+      manifest_profile_sha256: params?.manifest_profile_sha256,
+    });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async getPredictiveCoverageDiagnostic(params) {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/predictive-coverage-diagnostic`;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params?.manifest_profile_sha256,
     });
     return this.request("GET", path, query, undefined, undefined);
   }
 
   async getArtifactSchema(params) {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params?.manifest_profile_sha256,
+    });
     return this.request("GET", path, query, undefined, undefined);
   }
 
@@ -131,6 +147,7 @@ export class RuntimeApiClient {
       genre: params?.genre,
       jurisdiction: params?.jurisdiction,
       template_version: params?.template_version,
+      manifest_profile_sha256: params?.manifest_profile_sha256,
       trust_view: params?.trust_view,
       valid_at: params?.valid_at,
       tx_at: params?.tx_at,

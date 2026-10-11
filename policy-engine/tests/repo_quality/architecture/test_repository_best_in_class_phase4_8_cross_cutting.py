@@ -61,7 +61,7 @@ def test_phase4_8_cross_cutting_contract_covers_required_concerns() -> None:
     concerns = _concerns_by_name()
 
     assert payload["cross_cutting_concerns"]["status"] == "contract_only"
-    assert PHASE_4_8_CONCERNS <= set(concerns)
+    assert set(concerns) >= PHASE_4_8_CONCERNS
 
 
 def test_phase4_8_concerns_have_owner_import_rule_visibility_and_axis() -> None:
@@ -127,7 +127,7 @@ def test_phase4_8_concerns_are_registered_or_backlogged_by_name_registry() -> No
     shared = {entry["name"] for entry in registry.get("shared_name", [])}
     backlog = {entry["name"] for entry in registry.get("rename_backlog", [])}
 
-    assert PHASE_4_8_CONCERNS <= shared | backlog
+    assert shared | backlog >= PHASE_4_8_CONCERNS
     for entry in registry.get("shared_name", []):
         assert entry["disambiguation"]
 

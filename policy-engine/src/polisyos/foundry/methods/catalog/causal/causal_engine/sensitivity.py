@@ -1041,7 +1041,7 @@ class CausalEngineSensitivityMixin:
         if hasattr(graph, "model_dump"):
             state["graph"] = graph
         elif isinstance(graph, dict):
-            from polisyos.ir.analytics.causal_graph import CausalGraphModel
+            from polisyos.ir.analytics import CausalGraphModel
 
             try:
                 state["graph"] = CausalGraphModel.model_validate(graph)

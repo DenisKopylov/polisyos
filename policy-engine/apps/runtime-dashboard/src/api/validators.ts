@@ -131,6 +131,11 @@ const artifactRefSchema = z.object({
   artifact_id: z.string(),
   kind: z.string().optional(),
   media_type: z.string().optional(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
 });
 
 const operatorProjectionStateLabelSchema = z
@@ -356,6 +361,8 @@ const runTimelineEventSchema = z.object({
   parent_span_id: z.string().nullable().optional(),
   input_artifact_ids: z.array(z.string()).optional(),
   output_artifact_ids: z.array(z.string()).optional(),
+  input_artifact_refs: z.array(artifactRefSchema).optional(),
+  output_artifact_refs: z.array(artifactRefSchema).optional(),
   metrics: z.record(z.string(), z.number()).optional(),
   warning_count: z.number().optional(),
   error_count: z.number().optional(),
@@ -392,6 +399,8 @@ const runNodeRecordSchema = z.object({
   artifact_ids: z.array(z.string()).optional(),
   input_artifact_ids: z.array(z.string()).optional(),
   output_artifact_ids: z.array(z.string()).optional(),
+  input_artifact_refs: z.array(artifactRefSchema).optional(),
+  output_artifact_refs: z.array(artifactRefSchema).optional(),
 });
 
 const runErrorViewSchema = z.object({
@@ -654,6 +663,8 @@ const runWorkflowNodeViewSchema = z.object({
   artifact_ids: z.array(z.string()).optional(),
   input_artifact_ids: z.array(z.string()).optional(),
   output_artifact_ids: z.array(z.string()).optional(),
+  input_artifact_refs: z.array(artifactRefSchema).optional(),
+  output_artifact_refs: z.array(artifactRefSchema).optional(),
   heat: z.number().optional(),
 });
 
@@ -683,8 +694,14 @@ const runWorkflowViewSchema = z.object({
 
 const artifactLineageNodeSchema = z.object({
   artifact_id: z.string(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   role: z.string().nullable().optional(),
   kind: z.string().nullable().optional(),
+  media_type: z.string().nullable().optional(),
   status: z.string(),
   byte_size: z.number(),
   depth: z.number(),
@@ -692,18 +709,30 @@ const artifactLineageNodeSchema = z.object({
 
 const artifactLineageEdgeSchema = z.object({
   parent_artifact_id: z.string(),
+  parent_manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   child_artifact_id: z.string(),
+  child_manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   role: z.string(),
 });
 
 const artifactLineageViewSchema = z.object({
   root_artifact_ids: z.array(z.string()).optional(),
+  root_artifact_refs: z.array(artifactRefSchema).optional(),
   total_nodes: z.number(),
   total_edges: z.number(),
   total_size_bytes: z.number(),
   is_complete: z.boolean(),
   missing_artifact_ids: z.array(z.string()).optional(),
   corrupted_artifact_ids: z.array(z.string()).optional(),
+  notes: z.array(z.string()).optional(),
   nodes: z.array(artifactLineageNodeSchema).optional(),
   edges: z.array(artifactLineageEdgeSchema).optional(),
 });
@@ -1020,7 +1049,13 @@ const runEvidenceContextViewSchema = z.object({
   execution_plan_ref: artifactRefSchema.nullable().optional(),
   evidence_bundle_ref: artifactRefSchema.nullable().optional(),
   data_snapshot_ref: artifactRefSchema.nullable().optional(),
+  data_view_request_ref: artifactRefSchema.nullable().optional(),
   input_bindings_ref: artifactRefSchema.nullable().optional(),
+  fabric_retrieval_trace_ref: artifactRefSchema.nullable().optional(),
+  materialization_refs: z.record(z.string(), artifactRefSchema).optional(),
+  production_data_evidence_context: z
+    .record(z.string(), z.unknown())
+    .optional(),
   related_artifacts: z.array(artifactRefSchema).optional(),
   data_needs: z.array(runEvidenceNeedSchema).optional(),
   fetch_plans: z.array(runEvidencePlanSchema).optional(),
@@ -1104,6 +1139,11 @@ const lexSearchResultItemSchema = z.object({
 
 const artifactManifestViewSchema = z.object({
   artifact_id: z.string(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   kind: z.string(),
   media_type: z.string(),
   byte_size: z.number(),
@@ -1113,7 +1153,17 @@ const artifactManifestViewSchema = z.object({
   producer_component: z.string().nullable().optional(),
   producer_version: z.string().nullable().optional(),
   inputs: z
-    .array(z.object({ artifact_id: z.string(), role: z.string() }))
+    .array(
+      z.object({
+        artifact_id: z.string(),
+        manifest_profile_sha256: z
+          .string()
+          .regex(/^sha256:[0-9a-f]{64}$/)
+          .nullable()
+          .optional(),
+        role: z.string(),
+      }),
+    )
     .optional(),
   integrity_sha256: z.string(),
 });
@@ -1212,6 +1262,11 @@ const decisionPacketPreviewSchema = z
 
 const artifactContentPreviewSchema = z.object({
   artifact_id: z.string(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   kind: z.string(),
   media_type: z.string(),
   mode: z.enum(["json", "text", "binary"]),
@@ -1224,6 +1279,11 @@ const artifactContentPreviewSchema = z.object({
 
 const artifactSchemaViewSchema = z.object({
   artifact_id: z.string(),
+  manifest_profile_sha256: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .nullable()
+    .optional(),
   kind: z.string(),
   media_type: z.string(),
   schema_name: z.string().nullable().optional(),

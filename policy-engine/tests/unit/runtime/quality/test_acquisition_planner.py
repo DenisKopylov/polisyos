@@ -102,16 +102,14 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _install_recorded_file_catalog_supplier(monkeypatch: pytest.MonkeyPatch) -> str:
-    """Register the local file fixture and persist its matching source identity."""
-    from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord
+    """Register the shared recorded-file source used by the real owner fixture."""
     from polisyos.data_forge.domains.catalog.registry import (
         CatalogSourceRegistryEntry,
         CatalogSourceRegistrySpec,
     )
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from tests.unit.fabric import test_retrieval_fetch_custody as retrieval_fixture
 
-    source_id = "recorded_file_fixture"
+    source_id = "recorded_file"
     entry = CatalogSourceRegistryEntry(
         source_id=source_id,
         family="controlled_test_fixture",
@@ -123,24 +121,6 @@ def _install_recorded_file_catalog_supplier(monkeypatch: pytest.MonkeyPatch) -> 
         publish_blocking=True,
     )
     registry = CatalogSourceRegistrySpec(sources=(entry,))
-    original_build_graph = retrieval_fixture.build_graph
-
-    def build_registered_graph(
-        *,
-        records: tuple[DatasetRecord, ...] | list[DatasetRecord],
-        db_path: Path,
-        insert_batch_size: int = 10_000,
-    ) -> object:
-        registered_records = tuple(
-            record.model_copy(update={"source": source_id}) for record in records
-        )
-        return original_build_graph(
-            records=registered_records,
-            db_path=db_path,
-            insert_batch_size=insert_batch_size,
-        )
-
-    monkeypatch.setattr(retrieval_fixture, "build_graph", build_registered_graph)
     monkeypatch.setattr(catalog_read_api, "load_catalog_source_registry", lambda: registry)
     return source_id
 
@@ -1752,7 +1732,7 @@ def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
         ("", "files.tabular", "catalog_source_identity_unresolved"),
         ("unregistered_fixture", "files.tabular", "catalog_source_unregistered"),
         (
-            "recorded_file_fixture",
+            "recorded_file",
             "worldbank.wdi",
             "catalog_source_connector_mismatch",
         ),

@@ -5,10 +5,14 @@ import logging
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-
-_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
-
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -30,6 +34,7 @@ from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     GraphType,
+    load_causal_graph_model,
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
@@ -56,6 +61,10 @@ from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     RunTransportabilityNode,
     TransportabilityResolutionLoop,
 )
+from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import (
+    InvalidTransportInput,
+    _resolve_causal_graph,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -64,6 +73,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+_Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 
 def _build_ctx(tmp_path, *, run_id: str) -> ExecutionContext:
@@ -511,12 +522,15 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
             edges=[CausalEdge(src="reconciled_X", dst="reconciled_Y")],
         ),
     )
-    consensus_graph_ref = persist_causal_graph_model(
+    consensus_graph_ref = profile_bound_ref(
         _ensure_ir_artifact_store(ctx.store),
-        CausalGraphModel(
-            graph_type=GraphType.DAG,
-            nodes=["consensus_X", "consensus_Y"],
-            edges=[CausalEdge(src="consensus_X", dst="consensus_Y")],
+        persist_causal_graph_model(
+            _ensure_ir_artifact_store(ctx.store),
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["consensus_X", "consensus_Y"],
+                edges=[CausalEdge(src="consensus_X", dst="consensus_Y")],
+            ),
         ),
     )
     ensemble_ref = persist_causal_model_ensemble(
@@ -533,9 +547,26 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
             consensus_graph_ref=str(consensus_graph_ref.artifact_id),
             edge_inclusion_frequency={"consensus_X→consensus_Y": 1.0},
         ),
+        inputs=[
+            input_ref_from_artifact_ref(
+                CoreArtifactRef.model_validate(consensus_graph_ref.model_dump(mode="json")),
+                role="consensus_graph_ref",
+            )
+        ],
     )
 
     captured_nodes: dict[str, list[str]] = {}
+    loaded_graph_profiles: list[str | None] = []
+    real_load_graph = load_causal_graph_model
+
+    def _capture_selected_graph(store, ref):
+        loaded_graph_profiles.append(ref.manifest_profile_sha256)
+        return real_load_graph(store, ref)
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs.load_causal_graph_model",
+        _capture_selected_graph,
+    )
 
     def _fake_solver(**kwargs):
         diagram = kwargs["diagram"]
@@ -574,6 +605,215 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
 
     assert outcome.status == "ok"
     assert captured_nodes["nodes"] == ["consensus_X", "consensus_Y"]
+    assert loaded_graph_profiles == [consensus_graph_ref.manifest_profile_sha256]
+
+
+@pytest.mark.parametrize("corruption", ["missing", "wrong-role", "duplicate", "id-mismatch", "fake-profile"])
+def test_explicit_ensemble_consensus_refuses_bad_lineage_without_fallback(
+    tmp_path,
+    corruption: str,
+) -> None:
+    ctx = _build_ctx(tmp_path, run_id=f"R_transport_bad_consensus_{corruption}")
+    store = _ensure_ir_artifact_store(ctx.store)
+    selected_consensus = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["consensus_X", "consensus_Y"],
+                edges=[CausalEdge(src="consensus_X", dst="consensus_Y")],
+            ),
+        ),
+    )
+    other_graph = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["other_X", "other_Y"],
+                edges=[CausalEdge(src="other_X", dst="other_Y")],
+            ),
+        ),
+    )
+    selected_core_ref = CoreArtifactRef.model_validate(selected_consensus.model_dump(mode="json"))
+    other_core_ref = CoreArtifactRef.model_validate(other_graph.model_dump(mode="json"))
+    good_edge = input_ref_from_artifact_ref(selected_core_ref, role="consensus_graph_ref")
+    if corruption == "missing":
+        inputs = []
+    elif corruption == "wrong-role":
+        inputs = [input_ref_from_artifact_ref(selected_core_ref, role="member_0.graph")]
+    elif corruption == "duplicate":
+        inputs = [good_edge, good_edge]
+    elif corruption == "id-mismatch":
+        inputs = [input_ref_from_artifact_ref(other_core_ref, role="consensus_graph_ref")]
+    else:
+        inputs = [
+            type(good_edge)(
+                artifact_id=selected_core_ref.artifact_id,
+                role="consensus_graph_ref",
+                manifest_profile_sha256="sha256:" + "f" * 64,
+            )
+        ]
+    ensemble_ref = persist_causal_model_ensemble(
+        store,
+        CausalModelEnsemble(
+            members=[
+                EnsembleMember(
+                    graph_ref=str(selected_consensus.artifact_id),
+                    discovery_method="pc",
+                    weight=1.0,
+                    bootstrap_stability=0.9,
+                )
+            ],
+            consensus_graph_ref=str(selected_consensus.artifact_id),
+            edge_inclusion_frequency={},
+        ),
+        inputs=inputs,
+    )
+    fallback_graph = persist_causal_graph_model(
+        store,
+        CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["fallback_X", "fallback_Y"],
+            edges=[CausalEdge(src="fallback_X", dst="fallback_Y")],
+        ),
+    )
+    state = ExperimentState(
+        run_id=f"R_transport_bad_consensus_{corruption}",
+        artifacts_index={
+            ARTIFACT_CAUSAL_ENSEMBLE_REF: ensemble_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: fallback_graph,
+        },
+    )
+
+    with pytest.raises(InvalidTransportInput):
+        _resolve_causal_graph(ctx, state)
+
+
+def test_run_transportability_fails_on_explicit_consensus_without_lineage(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_missing_consensus_lineage")
+    store = _ensure_ir_artifact_store(ctx.store)
+    report_ref = persist_causal_effect_report(store, _base_report())
+    graph_ref = profile_bound_ref(
+        store,
+        persist_causal_graph_model(
+            store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["consensus_X", "consensus_Y"],
+                edges=[CausalEdge(src="consensus_X", dst="consensus_Y")],
+            ),
+        ),
+    )
+    ensemble_ref = persist_causal_model_ensemble(
+        store,
+        CausalModelEnsemble(
+            members=[
+                EnsembleMember(
+                    graph_ref=str(graph_ref.artifact_id),
+                    discovery_method="pc",
+                    weight=1.0,
+                    bootstrap_stability=0.9,
+                )
+            ],
+            consensus_graph_ref=str(graph_ref.artifact_id),
+            edge_inclusion_frequency={},
+        ),
+    )
+    fallback_ref = persist_causal_graph_model(store, _mediator_graph())
+    profile = {"context_id": "DE", "income_level": "high", "institutional_quality": 0.8}
+    state = ExperimentState(
+        run_id="R_transport_missing_consensus_lineage",
+        artifacts_index={
+            ARTIFACT_CAUSAL_REPORT_REF: report_ref,
+            ARTIFACT_CAUSAL_ENSEMBLE_REF: ensemble_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: fallback_ref,
+        },
+        params={
+            "source_context": profile,
+            "target_context": profile,
+            "query_treatment": "tax_rate",
+            "query_outcome": "gdp_growth",
+        },
+    )
+
+    outcome = RunTransportabilityNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "exactly one selected lineage edge" in outcome.error.message
+
+
+
+def test_ensemble_without_consensus_keeps_legacy_fallback_boundary(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_legacy_no_consensus")
+    store = _ensure_ir_artifact_store(ctx.store)
+    fallback = persist_causal_graph_model(store, _mediator_graph())
+    ensemble_ref = persist_causal_model_ensemble(
+        store,
+        CausalModelEnsemble(
+            members=[
+                EnsembleMember(
+                    graph_ref=str(fallback.artifact_id),
+                    discovery_method="pc",
+                    weight=1.0,
+                    bootstrap_stability=0.9,
+                )
+            ],
+            consensus_graph_ref=None,
+            edge_inclusion_frequency={},
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_transport_legacy_no_consensus",
+        artifacts_index={
+            ARTIFACT_CAUSAL_ENSEMBLE_REF: ensemble_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: fallback,
+        },
+    )
+
+    resolved = _resolve_causal_graph(ctx, state)
+    assert resolved is not None
+    assert resolved.nodes == _mediator_graph().nodes
+
+
+def test_invalid_supplied_ensemble_ref_does_not_fall_back(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path, run_id="R_transport_bad_ensemble_ref")
+    store = _ensure_ir_artifact_store(ctx.store)
+    fallback = persist_causal_graph_model(store, _mediator_graph())
+    ensemble_ref = profile_bound_ref(
+        store,
+        persist_causal_model_ensemble(
+            store,
+            CausalModelEnsemble(
+                members=[
+                    EnsembleMember(
+                        graph_ref=str(fallback.artifact_id),
+                        discovery_method="pc",
+                        weight=1.0,
+                        bootstrap_stability=0.9,
+                    )
+                ],
+                consensus_graph_ref=None,
+                edge_inclusion_frequency={},
+            ),
+        ),
+    )
+    invalid_ref = ensemble_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    state = ExperimentState(
+        run_id="R_transport_bad_ensemble_ref",
+        artifacts_index={
+            ARTIFACT_CAUSAL_ENSEMBLE_REF: invalid_ref,
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: fallback,
+        },
+    )
+
+    with pytest.raises(InvalidTransportInput):
+        _resolve_causal_graph(ctx, state)
 
 
 def test_run_transportability_symbolic_mode_records_backend_issue(

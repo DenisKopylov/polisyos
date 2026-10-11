@@ -1016,6 +1016,18 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
     assert str(registry_edges[0].artifact_id) == str(persisted_registry_ref.artifact_id)
 
 
+def test_wmr_default_persistence_records_derived_lineage(tmp_path: Path) -> None:
+    """Default WMR persistence keeps the selected input views loadable."""
+    store, built, _model_spec, _registry_ref = _build_record(tmp_path)
+
+    persisted_ref = persist_world_model_record(store, built.record)
+
+    assert load_world_model_record(store, persisted_ref) == built.record
+    explicitly_empty_ref = persist_world_model_record(store, built.record, inputs=())
+    with pytest.raises(WorldModelRecordError, match="world model manifest lineage mismatch"):
+        load_world_model_record(store, explicitly_empty_ref)
+
+
 def test_world_model_record_rejects_non_cas_registry_ref(tmp_path: Path) -> None:
     with pytest.raises(WorldModelRecordError, match="substrate_registry_artifact_ref_invalid"):
         _build_record_with_substrate_registry_ref(

@@ -116,14 +116,14 @@ class TestTaxBenefitProperties:
         income = np.asarray(data["income"], dtype=float)
         weights = np.ones_like(income, dtype=float)
         state = SurveyMicroData(market_income=income, weights=weights)
-        kwargs = dict(
-            dispatcher=property_method_dispatcher,
-            method_class=method,
-            state=state,
-            bound_inputs={"market_income": income, "weights": weights},
-            params={},
-            seed=17,
-        )
+        kwargs = {
+            "dispatcher": property_method_dispatcher,
+            "method_class": method,
+            "state": state,
+            "bound_inputs": {"market_income": income, "weights": weights},
+            "params": {},
+            "seed": 17,
+        }
         first = invoke_property_method(**kwargs).output
         second = invoke_property_method(**kwargs).output
         for key in ("disposable_income", "tax_liability", "benefit_income", "effective_tax_rate"):

@@ -433,11 +433,11 @@ def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: 
 
 @pytest.mark.parametrize(
     "evidence",
-    (
+    [
         None,
         {"measurement_root_ref": "sha256:foreign", "fetch_receipt_ref": "sha256:foreign"},
         object(),
-    ),
+    ],
 )
 def test_measurement_root_registration_rejects_shape_only_evidence(
     tmp_path: Path,

@@ -17,9 +17,12 @@ source attribution and publishability.
 
 ## Runtime Contracts
 
-The claim spine extends the existing public readiness ladder from
-`polisyos.scientist.methods.search.readiness.DecisionReadiness`; it does not replace or
-rename readiness levels.
+The claim spine extends the shared readiness ladder owned by
+`polisyos.scientist.evidence.decision_readiness.DecisionReadiness`; it does not replace or
+rename readiness levels. The former
+`polisyos.scientist.methods.search.readiness.DecisionReadiness` path remains a compatibility
+alias to the same enum object, and the enum retains that legacy module identity for new and
+legacy pickle payloads.
 
 | Contract | Source | Role |
 | --- | --- | --- |

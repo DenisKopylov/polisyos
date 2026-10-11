@@ -18,7 +18,7 @@ from polisyos.scientist.evidence.claims.models import (
     ClaimType,
 )
 from polisyos.scientist.evidence.claims.readiness import normalize_claim_readiness
-from polisyos.scientist.methods.search.readiness import DecisionReadiness
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 
 DECISION_BEARING_PACKET_FIELDS: tuple[str, ...] = (
     "policy_answer",

@@ -310,3 +310,304 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
     page.getByTestId("overview-acquisition-history-limitation"),
   ).toHaveText("acquisition_n4_source_not_established");
 });
+
+test("switches profile-qualified artifact views and refuses mismatched or absent profiles", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    process.env.POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE !== "1",
+    "requires the opt-in source-bound runtime fixture",
+  );
+  test.skip(
+    testInfo.project.name !== "chromium",
+    "the controlled source-bound browser witness runs in desktop Chromium only",
+  );
+  test.setTimeout(60_000);
+  await installDashboardTestState(page);
+
+  const metadata = readFixtureMetadata();
+  expect(metadata.source_bound_fixture).toBe("1");
+  expect(metadata.source_bound_profile_inspector_authority_scope).toBe(
+    "controlled_fixture_runtime_inspector_and_dashboard_only_no_publication_claim",
+  );
+  const metadataText = (key: string): string => {
+    const value = metadata[key];
+    if (!value) {
+      throw new Error(
+        `source-bound profile inspector metadata is missing: ${key}`,
+      );
+    }
+    return value;
+  };
+  const artifactId = metadataText("source_bound_profile_inspector_artifact_id");
+  const primaryRef = {
+    artifact_id: artifactId,
+    kind: metadataText("source_bound_profile_inspector_primary_kind"),
+    media_type: metadataText(
+      "source_bound_profile_inspector_primary_media_type",
+    ),
+    manifest_profile_sha256: metadataText(
+      "source_bound_profile_inspector_primary_profile",
+    ),
+  };
+  const siblingRef = {
+    artifact_id: artifactId,
+    kind: metadataText("source_bound_profile_inspector_sibling_kind"),
+    media_type: metadataText(
+      "source_bound_profile_inspector_sibling_media_type",
+    ),
+    manifest_profile_sha256: metadataText(
+      "source_bound_profile_inspector_sibling_profile",
+    ),
+  };
+  expect(primaryRef.kind).not.toBe(siblingRef.kind);
+  expect(primaryRef.manifest_profile_sha256).not.toBe(
+    siblingRef.manifest_profile_sha256,
+  );
+
+  const fullRefHref = (ref: typeof primaryRef): string => {
+    const search = new URLSearchParams({
+      tab: "content",
+      artifactRefKey: JSON.stringify([
+        ref.artifact_id,
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+      ]),
+    });
+    return `/artifacts/${ref.artifact_id}?${search.toString()}`;
+  };
+  const waitForSelectedArtifactResponse = (suffix: string, profile: string) =>
+    page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        response.request().method() === "GET" &&
+        decodeURIComponent(url.pathname) ===
+          `/api/v1/artifacts/${artifactId}${suffix}` &&
+        url.searchParams.get("manifest_profile_sha256") === profile
+      );
+    });
+  const changeBrowserSelector = (href: string) =>
+    page.evaluate((nextHref) => {
+      window.history.pushState(window.history.state, "", nextHref);
+      window.dispatchEvent(
+        new PopStateEvent("popstate", { state: window.history.state }),
+      );
+    }, href);
+
+  const primaryManifestResponse = waitForSelectedArtifactResponse(
+    "",
+    primaryRef.manifest_profile_sha256,
+  );
+  const primaryContentResponse = waitForSelectedArtifactResponse(
+    "/content",
+    primaryRef.manifest_profile_sha256,
+  );
+  await page.goto(fullRefHref(primaryRef));
+  await waitForDashboardSurface(page, "artifact");
+  const [primaryManifest, primaryContent] = await Promise.all([
+    primaryManifestResponse,
+    primaryContentResponse,
+  ]);
+  expect(primaryManifest.status()).toBe(200);
+  expect(primaryContent.status()).toBe(200);
+  const primaryManifestArtifact = asRecord(
+    asRecord(await primaryManifest.json())?.artifact,
+  );
+  const primaryContentArtifact = asRecord(
+    asRecord(await primaryContent.json())?.artifact,
+  );
+  expect(primaryManifestArtifact).toMatchObject({
+    artifact_id: artifactId,
+    kind: primaryRef.kind,
+    manifest_profile_sha256: primaryRef.manifest_profile_sha256,
+  });
+  expect(primaryContentArtifact).toMatchObject({
+    artifact_id: artifactId,
+    kind: primaryRef.kind,
+    manifest_profile_sha256: primaryRef.manifest_profile_sha256,
+    preview: {
+      fixture: "source_bound_profile_inspector",
+      marker: "same-bytes-across-profile-views",
+    },
+  });
+  const primaryEtag = primaryContent.headers()["etag"];
+  if (!primaryEtag) {
+    throw new Error("primary selected artifact content response has no ETag");
+  }
+  await expect(page.getByTestId("artifact-reference-selection")).toContainText(
+    primaryRef.manifest_profile_sha256,
+  );
+  await expect(page.getByTestId("artifact-resolved-profile")).toContainText(
+    primaryRef.manifest_profile_sha256,
+  );
+  await expect(page.getByTestId("artifact-page")).toContainText(
+    "same-bytes-across-profile-views",
+  );
+  await expect(page.getByText(primaryRef.kind, { exact: true })).toBeVisible();
+
+  const siblingManifestResponse = waitForSelectedArtifactResponse(
+    "",
+    siblingRef.manifest_profile_sha256,
+  );
+  const siblingContentResponse = waitForSelectedArtifactResponse(
+    "/content",
+    siblingRef.manifest_profile_sha256,
+  );
+  await changeBrowserSelector(fullRefHref(siblingRef));
+  const [siblingManifest, siblingContent] = await Promise.all([
+    siblingManifestResponse,
+    siblingContentResponse,
+  ]);
+  expect(siblingManifest.status()).toBe(200);
+  expect(siblingContent.status()).toBe(200);
+  const siblingManifestArtifact = asRecord(
+    asRecord(await siblingManifest.json())?.artifact,
+  );
+  const siblingContentArtifact = asRecord(
+    asRecord(await siblingContent.json())?.artifact,
+  );
+  expect(siblingManifestArtifact).toMatchObject({
+    artifact_id: artifactId,
+    kind: siblingRef.kind,
+    manifest_profile_sha256: siblingRef.manifest_profile_sha256,
+  });
+  expect(siblingContentArtifact).toMatchObject({
+    artifact_id: artifactId,
+    kind: siblingRef.kind,
+    manifest_profile_sha256: siblingRef.manifest_profile_sha256,
+    preview: {
+      fixture: "source_bound_profile_inspector",
+      marker: "same-bytes-across-profile-views",
+    },
+  });
+  const siblingEtag = siblingContent.headers()["etag"];
+  if (!siblingEtag) {
+    throw new Error("sibling selected artifact content response has no ETag");
+  }
+  expect(siblingEtag).not.toBe(primaryEtag);
+  await expect(page.getByTestId("artifact-reference-selection")).toContainText(
+    siblingRef.manifest_profile_sha256,
+  );
+  await expect(page.getByTestId("artifact-resolved-profile")).toContainText(
+    siblingRef.manifest_profile_sha256,
+  );
+  await expect(page.getByText(siblingRef.kind, { exact: true })).toBeVisible();
+  await expect(page.getByTestId("artifact-page")).toContainText(
+    "same-bytes-across-profile-views",
+  );
+
+  const crossProfileRevalidation = await page.evaluate(
+    async ({ selectedArtifactId, selectedProfile, priorProfileEtag }) => {
+      const url = new URL(
+        `/api/v1/artifacts/${selectedArtifactId}/content`,
+        window.location.origin,
+      );
+      url.searchParams.set("max_bytes", "65536");
+      url.searchParams.set("manifest_profile_sha256", selectedProfile);
+      const response = await fetch(url, {
+        cache: "no-store",
+        credentials: "include",
+        headers: { "If-None-Match": priorProfileEtag },
+      });
+      return {
+        etag: response.headers.get("etag"),
+        payload: (await response.json()) as unknown,
+        status: response.status,
+      };
+    },
+    {
+      selectedArtifactId: artifactId,
+      selectedProfile: siblingRef.manifest_profile_sha256,
+      priorProfileEtag: primaryEtag,
+    },
+  );
+  expect(crossProfileRevalidation.status).toBe(200);
+  expect(crossProfileRevalidation.etag).toBe(siblingEtag);
+  expect(
+    asRecord(asRecord(crossProfileRevalidation.payload)?.artifact)
+      ?.manifest_profile_sha256,
+  ).toBe(siblingRef.manifest_profile_sha256);
+
+  const mismatchedRef = {
+    ...primaryRef,
+    manifest_profile_sha256: siblingRef.manifest_profile_sha256,
+  };
+  const mismatchedManifestResponse = waitForSelectedArtifactResponse(
+    "",
+    siblingRef.manifest_profile_sha256,
+  );
+  const mismatchedContentResponse = waitForSelectedArtifactResponse(
+    "/content",
+    siblingRef.manifest_profile_sha256,
+  );
+  await changeBrowserSelector(fullRefHref(mismatchedRef));
+  const [mismatchedManifest, mismatchedContent] = await Promise.all([
+    mismatchedManifestResponse,
+    mismatchedContentResponse,
+  ]);
+  expect(mismatchedManifest.status()).toBe(200);
+  expect(mismatchedContent.status()).toBe(200);
+  expect(
+    asRecord(asRecord(await mismatchedManifest.json())?.artifact),
+  ).toMatchObject({
+    kind: siblingRef.kind,
+    manifest_profile_sha256: siblingRef.manifest_profile_sha256,
+  });
+  expect(
+    asRecord(asRecord(await mismatchedContent.json())?.artifact),
+  ).toMatchObject({
+    kind: siblingRef.kind,
+    manifest_profile_sha256: siblingRef.manifest_profile_sha256,
+  });
+  await expect(
+    page.getByText("Unable to load artifact manifest"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Error: Resolved artifact manifest does not match the selected ref",
+    ),
+  ).toBeVisible();
+  await expect(page.getByText("Unable to load artifact content")).toBeVisible();
+  await expect(
+    page.getByText(
+      "Error: Resolved artifact content does not match the selected ref",
+    ),
+  ).toBeVisible();
+  await expect(page.getByTestId("artifact-viewer")).not.toBeVisible();
+  await expect(page.getByTestId("artifact-page")).not.toContainText(
+    "same-bytes-across-profile-views",
+  );
+
+  const absentProfile = `sha256:${"f".repeat(64)}`;
+  const absentRef = { ...primaryRef, manifest_profile_sha256: absentProfile };
+  const absentManifestResponse = waitForSelectedArtifactResponse(
+    "",
+    absentProfile,
+  );
+  const absentContentResponse = waitForSelectedArtifactResponse(
+    "/content",
+    absentProfile,
+  );
+  await changeBrowserSelector(fullRefHref(absentRef));
+  const [absentManifest, absentContent] = await Promise.all([
+    absentManifestResponse,
+    absentContentResponse,
+  ]);
+  expect(absentManifest.status()).toBe(404);
+  expect(asRecord(await absentManifest.json())?.code).toBe(
+    "artifact_manifest_profile_not_found",
+  );
+  expect(absentContent.status()).toBe(404);
+  expect(asRecord(await absentContent.json())?.code).toBe(
+    "artifact_manifest_profile_not_found",
+  );
+  await expect(
+    page.getByText("Unable to load artifact manifest"),
+  ).toBeVisible();
+  await expect(page.getByText("Unable to load artifact content")).toBeVisible();
+  await expect(page.getByTestId("artifact-page")).toContainText(absentProfile);
+  await expect(page.getByTestId("artifact-page")).not.toContainText(
+    "same-bytes-across-profile-views",
+  );
+});

@@ -66,6 +66,9 @@ from polisyos.pdc import (
     is_gy_declared_non_authority_block,
     promotion_obligation_instance_id,
 )
+from polisyos.runtime.quality.authority_reconciliation import (
+    resolve_authority_diagnostic_event_ref,
+)
 from polisyos.runtime.quality.confidence_ledger import (
     DEFAULT_REGISTRY_RELATIVE_PATH,
     CertificateClassRoute,
@@ -118,7 +121,7 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingRelationEngine,
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
-    InterventionAtomBinding,  # noqa: TC001
+    InterventionAtomBinding,
 )
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionLeverResolution,
@@ -141,7 +144,7 @@ from polisyos.runtime.quality.promotion_safety import (
     PromotionSafetyScope,
     PromotionSafetySourceTrust,
 )
-from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
+from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 _PromotionEvidenceKind = Literal[
     "effective_independence",
@@ -1413,7 +1416,7 @@ class N9PromotionEvidenceBridgeRepository:
             raise ValueError("measurement_root_source_manifest_invalid")
         linked_refs = (
             core_artifacts.resolve_authority_envelope_ref(self._store, authority),
-            core_artifacts.ArtifactID(authority.diagnostic_event_ref),
+            resolve_authority_diagnostic_event_ref(self._store, authority),
         )
         for linked_ref in linked_refs:
             linked_id = (

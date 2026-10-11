@@ -67,6 +67,10 @@ const tracedEvidenceContext: RunEvidenceContext = {
     artifact_id: "snapshot-traced",
     kind: "data_snapshot",
   },
+  dataViewRequestRef: null,
+  fabricRetrievalTraceRef: null,
+  materializationRefs: {},
+  productionDataEvidenceContext: {},
   evidenceBundleRef: {
     artifact_id: "bundle-traced",
     kind: "evidence_bundle",

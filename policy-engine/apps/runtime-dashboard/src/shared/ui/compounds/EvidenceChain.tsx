@@ -4,6 +4,7 @@ import { Card, EmptyState, EvidenceLink } from "@polisyos/atlas-ui";
 
 export type EvidenceChainItem = {
   artifactId: string;
+  identityKey?: string;
   evidenceRef?: string;
   label: string;
   meta?: ReactNode;
@@ -33,7 +34,7 @@ export function EvidenceChain({
         <div className="space-y-2">
           {items.map((item) => (
             <article
-              key={item.artifactId}
+              key={item.identityKey ?? item.artifactId}
               className="border-line bg-surface/70 rounded-2xl border p-3"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">

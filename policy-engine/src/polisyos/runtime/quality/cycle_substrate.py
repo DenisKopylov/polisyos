@@ -8,6 +8,7 @@ or transport profiles.
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal, Protocol, cast
 
@@ -1708,6 +1709,121 @@ def cycle_job_profile_selection_ref(problem: DesignProblem) -> str:
     return gy_content_hash(projection)
 
 
+def generic_n4_child_profile_selection_ref(
+    problem: DesignProblem,
+    *,
+    parent_problem_ref: str,
+    source_result_ref: str,
+    source_atom_refs: Sequence[str],
+    semantic_ref: str,
+) -> str:
+    """Return the opt-in generic profile key for one verified N4 child shape.
+
+    The three source-lineage refs are validated against the producer-emitted
+    ``n4_candidate_child_source`` record, then omitted from this *selection*
+    projection so an explicitly configured child profile can be reusable across
+    equivalent controlled N4 source executions. They remain full inputs to the
+    typed child-selection, source-family, context, and N5 records; this function
+    establishes no source custody, currentness, or authority.
+    """
+
+    if type(problem) is not DesignProblem:
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_problem_untyped"
+        )
+    if problem.schema_version != DESIGN_PROBLEM_V3_SCHEMA_VERSION:
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_schema_unsupported",
+            problem.schema_version,
+        )
+    source = problem.runtime_hints.get("n4_candidate_child_source")
+    if not isinstance(source, Mapping):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_lineage_missing"
+        )
+
+    def require_hash(value: object, code: str) -> str:
+        if not isinstance(value, str) or re.fullmatch(_HASH_PATTERN, value) is None:
+            raise CycleSubstrateContextOwnerError(code)
+        return value
+
+    expected_parent = require_hash(
+        parent_problem_ref, "generic_cycle_child_profile_selection_parent_ref_invalid"
+    )
+    expected_source = require_hash(
+        source_result_ref, "generic_cycle_child_profile_selection_source_ref_invalid"
+    )
+    expected_semantic = require_hash(
+        semantic_ref, "generic_cycle_child_profile_selection_semantic_ref_invalid"
+    )
+    if not isinstance(source_atom_refs, Sequence) or isinstance(
+        source_atom_refs, (str, bytes)
+    ):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_atom_refs_invalid"
+        )
+    atom_refs = tuple(source_atom_refs)
+    if (
+        not atom_refs
+        or any(
+            not isinstance(item, str) or re.fullmatch(_HASH_PATTERN, item) is None
+            for item in atom_refs
+        )
+        or atom_refs != tuple(sorted(set(atom_refs)))
+    ):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_atom_refs_invalid"
+        )
+    if (
+        source.get("purpose") != "candidate_lever_exploration_only"
+        or source.get("parent_design_problem_ref") != expected_parent
+        or source.get("source_result_ref") != expected_source
+        or tuple(source.get("source_atom_refs", ())) != atom_refs
+        or source.get("semantic_ref") != expected_semantic
+    ):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_lineage_mismatch"
+        )
+
+    projection = _serialize_context_job_v2_value(problem)
+    if not isinstance(projection, dict):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_projection_invalid"
+        )
+    projection_hints = projection.get("runtime_hints")
+    if not isinstance(projection_hints, dict):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_hints_invalid"
+        )
+    projected_source = projection_hints.get("n4_candidate_child_source")
+    if not isinstance(projected_source, dict):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_lineage_missing"
+        )
+    # These are the only N4 child lineage values excluded from the selection
+    # projection. Keep purpose, semantic_ref, and future lineage fields in the
+    # key so source-independent equality cannot erase child meaning.
+    for key in (
+        "parent_design_problem_ref",
+        "source_result_ref",
+        "source_atom_refs",
+    ):
+        projected_source.pop(key)
+    provenance = projection.get("nl_provenance")
+    if not isinstance(provenance, dict):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_provenance_invalid"
+        )
+    source_context = provenance.get("source_context")
+    if not isinstance(source_context, dict):
+        raise CycleSubstrateContextOwnerError(
+            "generic_cycle_child_profile_selection_source_context_invalid"
+        )
+    for key in _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS:
+        source_context.pop(key, None)
+    return gy_content_hash(projection)
+
+
 def parse_cycle_substrate_context_job_artifact(
     payload: Mapping[str, Any],
 ) -> (
@@ -3119,6 +3235,7 @@ __all__ = [
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
     "cycle_substrate_context_job_content_hash",
+    "generic_n4_child_profile_selection_ref",
     "is_supported_cycle_substrate_context_job_artifact",
     "parse_cycle_substrate_context_job_artifact",
     "resolve_candidate_lever_world_identity",

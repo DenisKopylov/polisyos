@@ -1059,7 +1059,7 @@ class GenericCycleSimulationAdmissionOwner:
             )
         if context_owner._store is not self._store:
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_store_owner_mismatch")
-        profile_ref = self.resolve_profile(
+        self.resolve_profile(
             offer.profile_ref,
             expected_profile=offer.profile,
             job_id=job_id,
@@ -1067,6 +1067,8 @@ class GenericCycleSimulationAdmissionOwner:
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+        # Keep the persisted ArtifactRef; resolve_profile returns profile content.
+        profile_ref = offer.profile_ref
         context_ref = context_owner.persist_for_current_job(
             offer.context,
             problem=problem,

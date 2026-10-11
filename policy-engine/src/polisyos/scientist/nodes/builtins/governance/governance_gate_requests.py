@@ -13,8 +13,7 @@ from pydantic import BaseModel, ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactID, ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
-from polisyos.core.canon.canon_json import from_canonical_bytes
-from polisyos.core.canon.hashing import content_hash
+from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts import (
     DataSnapshot,
     DataSnapshotRef,

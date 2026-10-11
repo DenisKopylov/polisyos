@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.core.contracts.control import CatalogRunProfile
+    from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.quality.capability_discovery import CapabilityDiscoveryProvider
     from polisyos.runtime.quality.capability_resolver import (
         CapabilityConformanceVerifier,

@@ -3,7 +3,7 @@ version = 1
 status = "fail_closed"
 owner = "team-architecture"
 phase = "3A"
-notes = "Allowed pre-decomposition lazy SCCs. New SCC signatures fail import_cycles_gate."
+notes = "Registered deferred SCCs are retained; new full-graph SCCs and source-resolved module-eager cycles fail the gate, as does source-known not-established module-time dispatch."
 
 [[allowed_cycle]]
 id = "cycle-a4951a692d2a"

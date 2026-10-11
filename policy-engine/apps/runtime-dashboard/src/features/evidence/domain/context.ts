@@ -1,7 +1,10 @@
-import type {
-  EvidenceArtifactRef,
-  EvidenceFocus,
+import {
+  dedupeEvidenceArtifactRefs,
+  evidenceArtifactRefKey,
+  type EvidenceFocus,
 } from "@/shared/lib/domain/evidence";
+
+export { dedupeEvidenceArtifactRefs, evidenceArtifactRefKey };
 
 export const EVIDENCE_FOCUSES: EvidenceFocus[] = [
   "overview",
@@ -18,19 +21,4 @@ export function parseEvidenceFocus(value: string | null): EvidenceFocus | null {
   return EVIDENCE_FOCUSES.includes(value as EvidenceFocus)
     ? (value as EvidenceFocus)
     : null;
-}
-
-export function dedupeEvidenceArtifactRefs(
-  refs: Array<EvidenceArtifactRef | null | undefined>,
-): EvidenceArtifactRef[] {
-  const seen = new Set<string>();
-  const result: EvidenceArtifactRef[] = [];
-  for (const ref of refs) {
-    if (!ref?.artifact_id || seen.has(ref.artifact_id)) {
-      continue;
-    }
-    seen.add(ref.artifact_id);
-    result.push(ref);
-  }
-  return result;
 }

@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
@@ -26,11 +27,16 @@ from polisyos.runtime.http.services.control.artifacts import (
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.attestation import deserialize_attestation_record
-from polisyos.runtime.quality.authority import GovernanceMetadata
+from polisyos.runtime.quality.authority import (
+    EvidenceAuthorityEnvelope,
+    GovernanceMetadata,
+    authority_envelope_ownership_issues,
+)
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationError,
     reconcile_authority_event,
     reconcile_authority_ref,
+    resolve_authority_diagnostic_event_ref,
 )
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
@@ -188,8 +194,24 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     original_put_json = artifact_store.put_json
     envelope_puts: list[object] = []
     sibling_refs: list[object] = []
+    payload_default_refs: list[object] = []
 
     def _put_with_sibling_view(obj, write_options, canon_spec=None):
+        if write_options.kind == opts.kind and not payload_default_refs:
+            payload_default_refs.append(
+                original_put_json(
+                    obj,
+                    replace(
+                        write_options,
+                        schema=SchemaInfo(
+                            name=write_options.schema.name,
+                            version=f"{write_options.schema.version}.default-sibling",
+                        ),
+                        authority=None,
+                    ),
+                    canon_spec,
+                )
+            )
         if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not sibling_refs:
             sibling_options = replace(
                 write_options,
@@ -215,6 +237,27 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     )
 
     assert first.authority_envelope_ref.manifest_profile_sha256 is not None
+    assert first.cas_ref.manifest_profile_sha256 is not None
+    assert first.diagnostic_event_ref.manifest_profile_sha256 is not None
+    assert len(payload_default_refs) == 1
+    assert payload_default_refs[0].artifact_id == first.cas_ref.artifact_id
+    assert payload_default_refs[0].manifest_profile_sha256 is None
+    assert artifact_store.get_manifest(payload_default_refs[0]).authority is None
+    assert artifact_store.verify(first.cas_ref).ok
+    selected_readback = verify_runtime_authority_artifact_identity(
+        artifact_store,
+        artifact_id=first.cas_ref,
+        opts=opts,
+        expected_context=first.identity_context,
+    )
+    assert selected_readback.cas_ref == first.cas_ref
+    with pytest.raises(ValueError, match="post-write identity readback missing"):
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=payload_default_refs[0],
+            opts=opts,
+            expected_context=first.identity_context,
+        )
     assert len(envelope_puts) == len(sibling_refs) == 1
     assert first.authority_envelope_ref == envelope_puts[0]
     assert sibling_refs[0].artifact_id == first.authority_envelope_ref.artifact_id
@@ -228,6 +271,20 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
         payload_manifest.authority.authority_envelope_manifest_profile_sha256
         == first.authority_envelope_ref.manifest_profile_sha256
     )
+    assert (
+        payload_manifest.authority.diagnostic_event_manifest_profile_sha256
+        == first.diagnostic_event_ref.manifest_profile_sha256
+    )
+    authority_envelope = from_canonical_bytes(
+        artifact_store.get_bytes(first.authority_envelope_ref)
+    )
+    assert (
+        authority_envelope["runtime_event_manifest_profile_sha256"]
+        == first.diagnostic_event_ref.manifest_profile_sha256
+    )
+    event_manifest = artifact_store.get_manifest(first.diagnostic_event_ref)
+    assert event_manifest.inputs == [source_input]
+    assert artifact_store.verify(first.diagnostic_event_ref).ok
 
     assert artifact_store.verify(first.authority_envelope_ref).ok
 
@@ -240,6 +297,7 @@ def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineag
     )
 
     assert reused.authority_envelope_ref == first.authority_envelope_ref
+    assert reused.cas_ref == first.cas_ref
 
 
 def test_runtime_authority_reader_rejects_same_schema_foreign_tenant_envelope_view(
@@ -377,53 +435,92 @@ def test_runtime_authority_writer_binds_effective_canon_to_fresh_reader(tmp_path
             canon_spec=selected_spec,
         )
 
+    profile_spec = CanonSpec(forbid_floats=False, max_depth=256)
+    profile_canon = CanonInfo.from_spec(profile_spec)
+    before_mismatch = set(artifact_store.iter_artifact_ids())
+    with pytest.raises(ValueError, match="canonicalization spec"):
+        write_runtime_authority_artifact(
+            artifact_store,
+            event_log,
+            {"status": "mismatched-canon"},
+            replace(opts, canon=profile_canon.model_dump(mode="python")),
+            **context,
+            canon_spec=selected_spec,
+        )
+    assert set(artifact_store.iter_artifact_ids()) == before_mismatch
+    assert event_log.list_events(run_id="run-wave-2", job_id="job-wave-2") == []
+
+    selected_opts = replace(opts, canon=selected_canon.model_dump(mode="python"))
+    payload = {"status": "pass", "claims": [{"claim_id": "custom-canon"}]}
     result = write_runtime_authority_artifact(
         artifact_store,
         event_log,
-        {"status": "pass", "claims": [{"claim_id": "custom-canon"}]},
-        opts,
+        payload,
+        selected_opts,
         **context,
         canon_spec=selected_spec,
     )
     assert result.identity_context.manifest_canon == selected_canon
+    assert artifact_store.get_manifest(result.cas_ref).canon == selected_canon
     assert artifact_store.get_manifest(result.authority_envelope_ref).canon == selected_canon
+    assert artifact_store.get_manifest(result.diagnostic_event_ref).canon == selected_canon
     reread = verify_runtime_authority_artifact_identity(
         artifact_store,
-        artifact_id=result.cas_ref.artifact_id,
-        opts=opts,
+        artifact_id=result.cas_ref,
+        opts=selected_opts,
         expected_context=result.identity_context,
     )
-    assert reread.cas_ref.artifact_id == result.cas_ref.artifact_id
+    assert reread.cas_ref == result.cas_ref
 
-    override_store, override_log = _stores(tmp_path / "explicit-override")
-    override_source = override_store.put_json(
-        {"source": "explicit-canon-input"},
-        PutOptions(kind="runtime.input", media_type="application/json"),
+    mismatched_reader_opts = replace(opts, canon=profile_canon)
+    with pytest.raises(ValueError, match="canonicalization identity mismatch"):
+        verify_runtime_authority_artifact_identity(
+            artifact_store,
+            artifact_id=result.cas_ref,
+            opts=mismatched_reader_opts,
+            expected_context=result.identity_context,
+        )
+
+    alternate_profile_opts = replace(opts, canon=profile_canon.model_dump(mode="python"))
+    alternate_profile_result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        payload,
+        alternate_profile_opts,
+        **context,
+        canon_spec=profile_spec,
     )
-    override_opts = replace(
-        _opts(str(override_source.artifact_id)),
-        canon=CanonInfo(forbid_floats=True, exclude_none=False),
+    assert alternate_profile_result.cas_ref.artifact_id == result.cas_ref.artifact_id
+    assert alternate_profile_result.cas_ref.manifest_profile_sha256 != (
+        result.cas_ref.manifest_profile_sha256
     )
-    override_canon = CanonInfo(forbid_floats=True, exclude_none=False)
-    override_result = write_runtime_authority_artifact(
-        override_store,
-        override_log,
-        {"status": "pass", "claims": [{"claim_id": "explicit-canon"}]},
-        override_opts,
-        **_runtime_context(str(override_source.artifact_id)),
-        canon_spec=selected_spec,
+    assert alternate_profile_result.identity_context.manifest_canon == profile_canon
+    assert artifact_store.get_manifest(alternate_profile_result.cas_ref).canon == profile_canon
+    assert artifact_store.get_manifest(
+        alternate_profile_result.authority_envelope_ref
+    ).canon == profile_canon
+    assert artifact_store.get_manifest(
+        alternate_profile_result.diagnostic_event_ref
+    ).canon == profile_canon
+    assert verify_runtime_authority_artifact_identity(
+        artifact_store,
+        artifact_id=alternate_profile_result.cas_ref,
+        opts=alternate_profile_opts,
+        expected_context=alternate_profile_result.identity_context,
+    ).cas_ref == alternate_profile_result.cas_ref
+
+    persisted_envelope = from_canonical_bytes(
+        artifact_store.get_bytes(result.authority_envelope_ref)
     )
-    assert override_result.identity_context.manifest_canon == override_canon
-    assert (
-        override_store.get_manifest(override_result.authority_envelope_ref).canon == override_canon
+    legacy_envelope_payload = dict(persisted_envelope)
+    legacy_envelope_payload.pop("runtime_event_manifest_profile_sha256", None)
+    legacy_envelope = EvidenceAuthorityEnvelope.model_validate(legacy_envelope_payload)
+    assert "runtime_event_manifest_profile_sha256" not in legacy_envelope.model_dump(
+        mode="json"
     )
-    override_reread = verify_runtime_authority_artifact_identity(
-        override_store,
-        artifact_id=override_result.cas_ref.artifact_id,
-        opts=override_opts,
-        expected_context=override_result.identity_context,
+    assert to_canonical_bytes(legacy_envelope.model_dump(mode="json")) == to_canonical_bytes(
+        legacy_envelope_payload
     )
-    assert override_reread.cas_ref.artifact_id == override_result.cas_ref.artifact_id
 
 
 def test_runtime_authority_reader_rejects_default_canon_envelope_view(
@@ -443,11 +540,12 @@ def test_runtime_authority_reader_rejects_default_canon_envelope_view(
 
     def _put_with_default_canon_view(obj, write_options, canon_spec=None):
         if write_options.kind == AUTHORITY_ENVELOPE_ARTIFACT_KIND and not default_refs:
+            default_spec = CanonSpec()
             default_options = replace(
                 write_options,
-                canon=CanonInfo.from_spec(CanonSpec()),
+                canon=CanonInfo.from_spec(default_spec),
             )
-            default_refs.append(original_put_json(obj, default_options, canon_spec))
+            default_refs.append(original_put_json(obj, default_options, default_spec))
         return original_put_json(obj, write_options, canon_spec)
 
     monkeypatch.setattr(artifact_store, "put_json", _put_with_default_canon_view)
@@ -1090,3 +1188,250 @@ def test_durable_event_without_cas_artifact_fails_serious_reconciliation(tmp_pat
         )
 
     assert error.value.code == "authority_cas_missing"
+
+
+
+def test_runtime_authority_reader_rejects_foreign_tenant_event_profile(tmp_path, monkeypatch):
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    control_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    event_log = RuntimeDiagnosticEventLog(store=control_store, artifact_store=artifact_store)
+    source_ref = artifact_store.put_json(
+        {"source": "foreign-event-profile-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    opts = _opts(str(source_ref.artifact_id))
+    original_put_json = artifact_store.put_json
+    foreign_refs = []
+
+    def _put_with_foreign_event_view(obj, write_options, canon_spec=None):
+        if (
+            write_options.kind == "runtime_quality.diagnostic_event"
+            and not foreign_refs
+        ):
+            foreign_options = replace(
+                write_options,
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id="tenant-foreign",
+                    cell_id="cell-foreign",
+                ),
+            )
+            foreign_refs.append(original_put_json(obj, foreign_options, canon_spec))
+        return original_put_json(obj, write_options, canon_spec)
+
+    monkeypatch.setattr(artifact_store, "put_json", _put_with_foreign_event_view)
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "foreign-event-view"}]},
+        opts,
+        **_runtime_context(str(source_ref.artifact_id)),
+    )
+    assert len(foreign_refs) == 1
+    foreign = foreign_refs[0]
+    selected = result.diagnostic_event_ref
+    assert foreign.artifact_id == selected.artifact_id
+    assert artifact_store.get_bytes(foreign) == artifact_store.get_bytes(selected)
+    foreign_manifest = artifact_store.get_manifest(foreign)
+    selected_manifest = artifact_store.get_manifest(selected)
+    assert foreign_manifest.kind == selected_manifest.kind
+    assert foreign_manifest.artifact_schema == selected_manifest.artifact_schema
+    assert foreign_manifest.tenant_context != selected_manifest.tenant_context
+    assert foreign.manifest_profile_sha256 != selected.manifest_profile_sha256
+
+    payload_manifest = artifact_store.get_manifest(result.cas_ref)
+    assert payload_manifest.authority is not None
+    foreign_authority = payload_manifest.authority.model_copy(
+        update={"diagnostic_event_manifest_profile_sha256": foreign.manifest_profile_sha256}
+    )
+    foreign_payload_manifest = payload_manifest.model_copy(update={"authority": foreign_authority})
+
+    class _ForeignEventProfileStore:
+        def __getattr__(self, name):
+            return getattr(artifact_store, name)
+
+        def get_manifest(self, selector):
+            selector_id = str(getattr(selector, "artifact_id", selector))
+            if selector_id == str(result.cas_ref.artifact_id):
+                return foreign_payload_manifest
+            return artifact_store.get_manifest(selector)
+
+    with pytest.raises(AuthorityReconciliationError, match="authority_payload_mismatch"):
+        reconcile_authority_ref(
+            artifact_store=_ForeignEventProfileStore(),
+            event_log=event_log,
+            cas_ref=str(result.cas_ref.artifact_id),
+        )
+
+
+def test_authority_envelope_rejects_explicit_null_runtime_event_profile() -> None:
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_KIND,
+        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+    )
+
+    envelope = {
+        "artifact_kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
+        "schema_name": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        "phase": "security_assurance_report",
+        "validation_status": "pass",
+        "runtime_event_manifest_profile_sha256": "sha256:" + "a" * 64,
+    }
+    report_base = {
+        "schema_version": "policyos.security_assurance_report.v1",
+        "status": "pass",
+    }
+    for report in (
+        {**report_base, "runtime_event_manifest_profile_sha256": None},
+        {
+            **report_base,
+            "diagnostic_event": {"runtime_event_manifest_profile_sha256": None},
+        },
+    ):
+        issues = authority_envelope_ownership_issues(
+            envelope=envelope,
+            report_key="security_assurance_report",
+            report=report,
+        )
+        assert {issue["code"] for issue in issues} >= {
+            "authority_report_runtime_event_profile_invalid",
+            "authority_envelope_runtime_event_profile_mismatch",
+        }
+
+    # A genuinely absent legacy field remains a bounded compatibility case.
+    assert authority_envelope_ownership_issues(
+        envelope=envelope,
+        report_key="security_assurance_report",
+        report=report_base,
+    ) == []
+
+
+def test_runtime_authority_reader_rejects_same_byte_wrong_media_event_profile(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifact_store, event_log = _stores(tmp_path)
+    source_ref = artifact_store.put_json(
+        {"source": "wrong-media-event-profile-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    opts = _opts(str(source_ref.artifact_id))
+    original_put_json = artifact_store.put_json
+    wrong_media_refs: list[ArtifactRef] = []
+
+    def _put_with_wrong_media_event_view(obj, write_options, canon_spec=None):
+        if write_options.kind == "runtime_quality.diagnostic_event" and not wrong_media_refs:
+            wrong_media_refs.append(
+                original_put_json(
+                    obj,
+                    replace(write_options, media_type="text/plain"),
+                    canon_spec,
+                )
+            )
+        return original_put_json(obj, write_options, canon_spec)
+
+    monkeypatch.setattr(artifact_store, "put_json", _put_with_wrong_media_event_view)
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "wrong-media-event-view"}]},
+        opts,
+        **_runtime_context(str(source_ref.artifact_id)),
+    )
+    assert len(wrong_media_refs) == 1
+    wrong_media = wrong_media_refs[0]
+    selected = result.diagnostic_event_ref
+    assert wrong_media.artifact_id == selected.artifact_id
+    assert wrong_media.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert artifact_store.get_bytes(wrong_media) == artifact_store.get_bytes(selected)
+    wrong_manifest = artifact_store.get_manifest(wrong_media)
+    selected_manifest = artifact_store.get_manifest(selected)
+    assert wrong_manifest.kind == selected_manifest.kind
+    assert wrong_manifest.artifact_schema == selected_manifest.artifact_schema
+    assert wrong_manifest.media_type == "text/plain"
+    assert selected_manifest.media_type == "application/json"
+    assert wrong_manifest.inputs == selected_manifest.inputs
+    assert wrong_manifest.producer == selected_manifest.producer
+    assert wrong_manifest.tenant_context == selected_manifest.tenant_context
+    assert wrong_manifest.same_input_closure == selected_manifest.same_input_closure
+    assert wrong_manifest.canon == selected_manifest.canon
+    assert wrong_manifest.governance == selected_manifest.governance
+    assert wrong_manifest.authority == selected_manifest.authority
+
+    payload_manifest = artifact_store.get_manifest(result.cas_ref)
+    assert payload_manifest.authority is not None
+    wrong_authority = payload_manifest.authority.model_copy(
+        update={"diagnostic_event_manifest_profile_sha256": wrong_media.manifest_profile_sha256}
+    )
+    wrong_payload_manifest = payload_manifest.model_copy(update={"authority": wrong_authority})
+
+    class _WrongMediaEventProfileStore:
+        def __getattr__(self, name):
+            return getattr(artifact_store, name)
+
+        def get_manifest(self, selector):
+            selector_id = str(getattr(selector, "artifact_id", selector))
+            if selector_id == str(result.cas_ref.artifact_id):
+                return wrong_payload_manifest
+            return artifact_store.get_manifest(selector)
+
+    with pytest.raises(AuthorityReconciliationError, match="authority_payload_mismatch"):
+        reconcile_authority_ref(
+            artifact_store=_WrongMediaEventProfileStore(),
+            event_log=event_log,
+            cas_ref=str(result.cas_ref.artifact_id),
+        )
+
+
+def test_profileless_authority_event_ref_preserves_actual_v2_manifest_view(tmp_path):
+    artifact_store, event_log = _stores(tmp_path)
+    source_ref = artifact_store.put_json(
+        {"source": "historical-v2-event-input"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    result = write_runtime_authority_artifact(
+        artifact_store,
+        event_log,
+        {"status": "pass", "claims": [{"claim_id": "legacy-v2-event"}]},
+        _opts(str(source_ref.artifact_id)),
+        **_runtime_context(str(source_ref.artifact_id)),
+    )
+    event_id = result.diagnostic_event_ref.artifact_id
+    current_manifest = artifact_store.get_manifest(result.diagnostic_event_ref)
+    legacy_manifest = current_manifest.model_copy(update={"manifest_schema_version": "v2"})
+    artifact_store._manifests.write(
+        artifact_store._manifest_path_for_ref(event_id, None),
+        ManifestLifecycle.to_bytes(legacy_manifest),
+    )
+    authority = artifact_store.get_manifest(result.cas_ref).authority
+    assert authority is not None
+    profileless_authority = authority.model_copy(
+        update={"diagnostic_event_manifest_profile_sha256": None}
+    )
+    resolved = resolve_authority_diagnostic_event_ref(artifact_store, profileless_authority)
+    assert resolved.manifest_profile_sha256 is None
+    assert artifact_store.get_manifest(resolved).manifest_schema_version == "v2"
+    event_bytes = artifact_store.get_bytes(result.diagnostic_event_ref)
+    assert artifact_store.get_bytes(resolved) == event_bytes
+    persisted_event = DiagnosticEvent.model_validate(from_canonical_bytes(event_bytes))
+    records = event_log.list_events(event_id=persisted_event.event_id, limit=2)
+    assert len(records) == 1
+    assert records[0].event == persisted_event
+
+    payload_manifest = artifact_store.get_manifest(result.cas_ref)
+    assert payload_manifest.authority is not None
+    profileless_payload_manifest = payload_manifest.model_copy(
+        update={"authority": profileless_authority}
+    )
+    artifact_store._manifests.write(
+        artifact_store._manifest_path_for_ref(result.cas_ref.artifact_id, None),
+        ManifestLifecycle.to_bytes(profileless_payload_manifest),
+    )
+
+    report = reconcile_authority_ref(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        cas_ref=str(result.cas_ref.artifact_id),
+    )
+    assert report.status == "pass"
+    assert report.durable_event_id == persisted_event.event_id
+    assert artifact_store.get_bytes(resolved) == event_bytes

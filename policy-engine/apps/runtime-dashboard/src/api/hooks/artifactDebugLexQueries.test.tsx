@@ -69,6 +69,14 @@ const artifactSchemaPayload = {
 const lineagePayload = {
   lineage: {
     is_complete: true,
+    root_artifact_refs: [
+      {
+        artifact_id: artifactId,
+        kind: "json",
+        media_type: "application/json",
+        manifest_profile_sha256: null,
+      },
+    ],
     total_edges: 0,
     total_nodes: 0,
     total_size_bytes: 0,
@@ -220,6 +228,109 @@ describe("artifact, debug, and lex query hooks", () => {
       expect(result.current.data).toEqual(scenario.payload);
       expect(scenario.queryKey).toBeTruthy();
       unmount();
+      vi.restoreAllMocks();
+    }
+  });
+
+  it("sends the selected profile through manifest/content requests and cache identity", async () => {
+    const profile = `sha256:${"a".repeat(64)}`;
+    const siblingProfile = `sha256:${"b".repeat(64)}`;
+    expect(queryKeys.artifactManifest(artifactId, profile)).not.toEqual(
+      queryKeys.artifactManifest(artifactId, siblingProfile),
+    );
+    expect(queryKeys.artifactContent(artifactId, 512, profile)).not.toEqual(
+      queryKeys.artifactContent(artifactId, 512, siblingProfile),
+    );
+
+    const manifestSpy = mockRuntimeGetSuccess({
+      ...artifactManifestPayload,
+      artifact: {
+        ...artifactManifestPayload.artifact,
+        manifest_profile_sha256: profile,
+      },
+    });
+    const manifest = renderHook(
+      () => useArtifactManifest(artifactId, { manifestProfileSha256: profile }),
+      { wrapper: createQueryHookWrapper() },
+    );
+    await waitFor(() => expect(manifest.result.current.isSuccess).toBe(true));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      "/api/v1/artifacts/{artifact_id}",
+      {
+        params: {
+          query: { manifest_profile_sha256: profile },
+          path: { artifact_id: artifactId },
+        },
+      },
+    );
+    manifest.unmount();
+    vi.restoreAllMocks();
+
+    const contentSpy = mockRuntimeGetSuccess({
+      ...artifactContentPayload,
+      artifact: {
+        ...artifactContentPayload.artifact,
+        manifest_profile_sha256: profile,
+      },
+    });
+    const content = renderHook(
+      () =>
+        useArtifactContent(artifactId, {
+          maxBytes: 512,
+          manifestProfileSha256: profile,
+        }),
+      { wrapper: createQueryHookWrapper() },
+    );
+    await waitFor(() => expect(content.result.current.isSuccess).toBe(true));
+    expect(contentSpy).toHaveBeenCalledWith(
+      "/api/v1/artifacts/{artifact_id}/content",
+      {
+        params: {
+          query: {
+            max_bytes: 512,
+            manifest_profile_sha256: profile,
+          },
+          path: { artifact_id: artifactId },
+        },
+      },
+    );
+  });
+
+  it("keys and validates artifact reads by the full typed ref", async () => {
+    const ref = {
+      artifact_id: artifactId,
+      kind: "json",
+      media_type: "application/json",
+      manifest_profile_sha256: null,
+    };
+    const wrongKind = { ...ref, kind: "other.json" };
+    const wrongMedia = { ...ref, media_type: "text/plain" };
+    expect(queryKeys.artifactManifest(ref)).not.toEqual(
+      queryKeys.artifactManifest(wrongKind),
+    );
+    expect(queryKeys.artifactContent(ref, 512)).not.toEqual(
+      queryKeys.artifactContent(wrongMedia, 512),
+    );
+
+    for (const wrongRef of [wrongKind, wrongMedia]) {
+      const payload = {
+        ...artifactContentPayload,
+        artifact: {
+          ...artifactContentPayload.artifact,
+          kind: wrongRef.kind,
+          media_type: wrongRef.media_type,
+        },
+      };
+      mockRuntimeGetSuccess(payload);
+      const result = renderHook(
+        () => useArtifactContent(ref, { maxBytes: 512 }),
+        { wrapper: createQueryHookWrapper() },
+      );
+      await waitFor(() => expect(result.result.current.isError).toBe(true));
+      expect(result.result.current.error?.message).toContain(
+        "does not match the selected ref",
+      );
+      result.unmount();
       vi.restoreAllMocks();
     }
   });

@@ -1207,6 +1207,12 @@ export type PositiveRegisterPredicate =
 export type PredictableScheduleProfile =
   RuntimeApiComponents["schemas"]["PredictableScheduleProfile"];
 
+export type PredictiveCoverageDiagnosticPreview =
+  RuntimeApiComponents["schemas"]["PredictiveCoverageDiagnosticPreview"];
+
+export type PredictiveCoverageScenarioPreview =
+  RuntimeApiComponents["schemas"]["PredictiveCoverageScenarioPreview"];
+
 export type PreflightDiagnosticView =
   RuntimeApiComponents["schemas"]["PreflightDiagnosticView"];
 
@@ -1393,6 +1399,15 @@ export type RunFeedbackResponse =
 
 export type RunFeedbackView =
   RuntimeApiComponents["schemas"]["RunFeedbackView"];
+
+export type RunGenericCycleSimulationChildProfileBinding =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationChildProfileBinding"];
+
+export type RunGenericCycleSimulationN5Observation =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationN5Observation"];
+
+export type RunGenericCycleSimulationProjection =
+  RuntimeApiComponents["schemas"]["RunGenericCycleSimulationProjection"];
 
 export type RunLaunchResponse =
   RuntimeApiComponents["schemas"]["RunLaunchResponse"];
@@ -1826,9 +1841,12 @@ export class RuntimeApiClient {
 
   async getArtifactManifest(params: {
     artifact_id: string;
+    manifest_profile_sha256?: string | null;
   }): Promise<ArtifactManifestResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params.manifest_profile_sha256,
+    });
     return this.request<ArtifactManifestResponse>(
       "GET",
       path,
@@ -1841,10 +1859,12 @@ export class RuntimeApiClient {
   async getArtifactContent(params: {
     artifact_id: string;
     max_bytes?: number | null;
+    manifest_profile_sha256?: string | null;
   }): Promise<ArtifactContentResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/content`;
     const query = this.buildQuery({
       max_bytes: params.max_bytes,
+      manifest_profile_sha256: params.manifest_profile_sha256,
     });
     return this.request<ArtifactContentResponse>(
       "GET",
@@ -1857,9 +1877,12 @@ export class RuntimeApiClient {
 
   async downloadArtifactContent(params: {
     artifact_id: string;
+    manifest_profile_sha256?: string | null;
   }): Promise<unknown> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/download`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params.manifest_profile_sha256,
+    });
     return this.request<unknown>("GET", path, query, undefined, undefined);
   }
 
@@ -1867,11 +1890,13 @@ export class RuntimeApiClient {
     artifact_id: string;
     max_depth?: number | null;
     max_nodes?: number | null;
+    manifest_profile_sha256?: string | null;
   }): Promise<ArtifactLineageResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/lineage`;
     const query = this.buildQuery({
       max_depth: params.max_depth,
       max_nodes: params.max_nodes,
+      manifest_profile_sha256: params.manifest_profile_sha256,
     });
     return this.request<ArtifactLineageResponse>(
       "GET",
@@ -1882,11 +1907,31 @@ export class RuntimeApiClient {
     );
   }
 
+  async getPredictiveCoverageDiagnostic(params: {
+    artifact_id: string;
+    manifest_profile_sha256?: string | null;
+  }): Promise<PredictiveCoverageDiagnosticPreview> {
+    const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/predictive-coverage-diagnostic`;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params.manifest_profile_sha256,
+    });
+    return this.request<PredictiveCoverageDiagnosticPreview>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
   async getArtifactSchema(params: {
     artifact_id: string;
+    manifest_profile_sha256?: string | null;
   }): Promise<ArtifactSchemaResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
-    const query = undefined;
+    const query = this.buildQuery({
+      manifest_profile_sha256: params.manifest_profile_sha256,
+    });
     return this.request<ArtifactSchemaResponse>(
       "GET",
       path,
@@ -1906,6 +1951,7 @@ export class RuntimeApiClient {
       | "analitichna_zapyska";
     jurisdiction?: string;
     template_version?: string | null;
+    manifest_profile_sha256?: string | null;
     trust_view?: boolean;
     valid_at?: string | null;
     tx_at?: string | null;
@@ -1917,6 +1963,7 @@ export class RuntimeApiClient {
       genre: params.genre,
       jurisdiction: params.jurisdiction,
       template_version: params.template_version,
+      manifest_profile_sha256: params.manifest_profile_sha256,
       trust_view: params.trust_view,
       valid_at: params.valid_at,
       tx_at: params.tx_at,

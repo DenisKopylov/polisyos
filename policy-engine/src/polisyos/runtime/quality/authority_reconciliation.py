@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core import canon
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -42,6 +44,55 @@ class AuthorityReconciliationError(ValueError):
         super().__init__(f"{code}: {message}")
         self.code = code
         self.details = dict(details or {})
+
+
+DIAGNOSTIC_EVENT_MEDIA_TYPE = "application/json"
+
+
+def _diagnostic_event_manifest_mismatch(manifest: Any) -> str | None:
+    """Return the fixed diagnostic-event manifest boundary that failed."""
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+        or schema is None
+        or schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+        or schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+    ):
+        return "kind_or_schema"
+    if manifest.media_type != DIAGNOSTIC_EVENT_MEDIA_TYPE:
+        return "media_type"
+    return None
+
+
+def resolve_authority_diagnostic_event_ref(
+    artifact_store: Any,
+    authority: ArtifactAuthorityInfo,
+) -> ArtifactRef:
+    """Resolve the exact event manifest view carried by one authority link.
+
+    Profileless historical links keep selecting their persisted default view;
+    this reader does not derive a producer profile for old records.
+    """
+    typed_authority = ArtifactAuthorityInfo.model_validate(authority)
+    artifact_id = _normalize_cas_ref(typed_authority.diagnostic_event_ref)
+    if artifact_id is None:
+        raise ValueError("authority_diagnostic_event_ref_not_cas")
+    profile = typed_authority.diagnostic_event_manifest_profile_sha256
+    if profile is None:
+        manifest = artifact_store.get_manifest(artifact_id)
+    else:
+        manifest = resolve_manifest_by_profile(artifact_store, artifact_id, profile)
+    if manifest.artifact_id != artifact_id:
+        raise ValueError("authority_diagnostic_event_artifact_id_mismatch")
+    mismatch = _diagnostic_event_manifest_mismatch(manifest)
+    if mismatch is not None:
+        raise ValueError(f"authority_diagnostic_event_{mismatch}_mismatch")
+    return ArtifactRef(
+        artifact_id=artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=profile,
+    )
 
 
 def reconcile_authority_ref(
@@ -105,8 +156,19 @@ def reconcile_authority_ref(
         expected_job_id=expected_job_id,
     )
 
-    linked_event_ref = _normalize_cas_ref(authority.diagnostic_event_ref)
-    if linked_event_ref is None or not artifact_store.has(linked_event_ref):
+    try:
+        linked_event_ref = resolve_authority_diagnostic_event_ref(artifact_store, authority)
+    except (FileNotFoundError, TypeError, ValueError) as exc:
+        _fail(
+            "authority_payload_mismatch",
+            f"CAS artifact {normalized_ref} has an unresolved diagnostic event view.",
+            cas_ref=str(normalized_ref),
+            diagnostic_event_ref=authority.diagnostic_event_ref,
+            profile_sha256=authority.diagnostic_event_manifest_profile_sha256,
+            error=str(exc),
+        )
+    linked_event_id = linked_event_ref.artifact_id
+    if not artifact_store.has(linked_event_ref):
         _fail(
             "authority_orphan_cas",
             f"CAS artifact {normalized_ref} has no durable diagnostic event.",
@@ -117,19 +179,32 @@ def reconcile_authority_ref(
     if not linked_verification.ok:
         _fail(
             "authority_payload_mismatch",
-            f"Linked diagnostic event {linked_event_ref} failed integrity verification.",
+            f"Linked diagnostic event {linked_event_id} failed integrity verification.",
         )
     linked_manifest = artifact_store.get_manifest(linked_event_ref)
-    linked_schema = linked_manifest.artifact_schema
+    if _diagnostic_event_manifest_mismatch(linked_manifest) is not None:
+        _fail(
+            "authority_payload_mismatch",
+            (
+                f"Linked diagnostic event {linked_event_id} has the wrong kind, media type, "
+                "or schema."
+            ),
+        )
     if (
-        linked_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
-        or linked_schema is None
-        or linked_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
-        or linked_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+        linked_manifest.inputs != manifest.inputs
+        or linked_manifest.producer != manifest.producer
+        or linked_manifest.tenant_context != manifest.tenant_context
+        or linked_manifest.same_input_closure != manifest.same_input_closure
+        or linked_manifest.canon != manifest.canon
+        or linked_manifest.governance != manifest.governance
     ):
         _fail(
             "authority_payload_mismatch",
-            f"Linked diagnostic event {linked_event_ref} has the wrong kind or schema.",
+            (
+                f"Linked diagnostic event {linked_event_id} manifest context differs from "
+                "its authority payload."
+            ),
+            diagnostic_event_ref=str(linked_event_id),
         )
     try:
         linked_event = DiagnosticEvent.model_validate(
@@ -138,7 +213,7 @@ def reconcile_authority_ref(
     except (TypeError, ValueError) as exc:
         _fail(
             "authority_payload_mismatch",
-            f"Linked diagnostic event {linked_event_ref} is malformed.",
+            f"Linked diagnostic event {linked_event_id} is malformed.",
             error=str(exc),
         )
     records = event_log.list_events(event_id=linked_event.event_id, limit=2)
@@ -312,4 +387,5 @@ __all__ = [
     "AuthorityReconciliationReport",
     "reconcile_authority_event",
     "reconcile_authority_ref",
+    "resolve_authority_diagnostic_event_ref",
 ]

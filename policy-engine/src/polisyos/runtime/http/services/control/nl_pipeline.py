@@ -2070,6 +2070,7 @@ class NaturalLanguageRunMixin:
             progress_variants: dict[str, dict[str, Any]] = {}
             scientist_workflow_progress: dict[str, Any] = {"events": []}
             runtime_quality_refs: dict[str, str] = {}
+            runtime_quality_artifact_refs: dict[str, ArtifactRef] = {}
             runtime_quality_evidence: dict[str, Any] = {}
             runtime_quality_cost_events: list[dict[str, Any]] = []
             runtime_quality_diagnostic_events: list[dict[str, Any]] = []
@@ -2150,6 +2151,11 @@ class NaturalLanguageRunMixin:
                 if runtime_quality_refs:
                     snapshot["runtime_quality_refs"] = _progress_json(runtime_quality_refs)
                     snapshot.update(_progress_json(runtime_quality_refs))
+                if runtime_quality_artifact_refs:
+                    snapshot["runtime_quality_artifact_refs"] = _progress_json(
+                        runtime_quality_artifact_refs
+                    )
+                if runtime_quality_refs:
                     snapshot["runtime_quality_projection"] = _runtime_quality_progress_projection()
                     attestations = _runtime_quality_attestations()
                     if attestations:
@@ -3455,10 +3461,11 @@ class NaturalLanguageRunMixin:
                 schema_name: str,
                 schema_version: str,
                 input_refs: list[InputRef] | None,
+                media_type: str = "application/json",
             ) -> ArtifactWriteOptions:
                 return ArtifactWriteOptions(
                     kind=artifact_kind,
-                    media_type="application/json",
+                    media_type=media_type,
                     schema=SchemaInfo(name=schema_name, version=schema_version),
                     producer=ProducerInfo(
                         component=f"polisyos.runtime.quality.{report_key}",
@@ -3685,6 +3692,7 @@ class NaturalLanguageRunMixin:
                 phase: str,
                 input_refs: list[InputRef] | None = None,
                 semantic_binding_ref: str | None = None,
+                media_type: str = "application/json",
             ) -> dict[str, Any]:
                 nonlocal diagnostic_event_log_ref
 
@@ -3710,6 +3718,7 @@ class NaturalLanguageRunMixin:
                         schema_name=schema_name,
                         schema_version=schema_version,
                         input_refs=input_refs,
+                        media_type=media_type,
                     ),
                     evidence_id=f"runtime_quality_ref#{ref_key}",
                     evidence_class="authority_bearing",
@@ -3746,6 +3755,9 @@ class NaturalLanguageRunMixin:
                 )
                 ref_value = str(result.cas_ref.artifact_id)
                 runtime_event_ref = str(result.diagnostic_event_ref.artifact_id)
+                runtime_event_manifest_profile_sha256 = (
+                    result.diagnostic_event_ref.manifest_profile_sha256
+                )
                 authority_envelope_ref = str(result.authority_envelope_ref.artifact_id)
                 authority_envelope = from_canonical_bytes(
                     store.get_bytes(result.authority_envelope_ref)
@@ -3754,6 +3766,9 @@ class NaturalLanguageRunMixin:
                     "event_name": f"{report_key}.persisted",
                     "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
                     "runtime_event_ref": runtime_event_ref,
+                    "runtime_event_manifest_profile_sha256": (
+                        runtime_event_manifest_profile_sha256
+                    ),
                     "artifact_ref": ref_value,
                     "runtime_cas_ref": ref_value,
                     "artifact_refs": [ref_value],
@@ -3787,7 +3802,14 @@ class NaturalLanguageRunMixin:
                 diagnostic_event_log_ref = str(log_ref.artifact_id)
                 evidence_payload = dict(report_payload)
                 evidence_payload[ref_key] = ref_value
+                runtime_quality_artifact_refs[ref_key] = result.cas_ref
+                evidence_payload["runtime_quality_artifact_refs"] = {
+                    ref_key: result.cas_ref.model_dump(mode="json")
+                }
                 evidence_payload["runtime_event_ref"] = runtime_event_ref
+                evidence_payload["runtime_event_manifest_profile_sha256"] = (
+                    runtime_event_manifest_profile_sha256
+                )
                 evidence_payload["authority_envelope_ref"] = authority_envelope_ref
                 evidence_payload["authority_envelope"] = authority_envelope
                 evidence_payload["manifest_ref"] = result.manifest_ref
@@ -3807,6 +3829,7 @@ class NaturalLanguageRunMixin:
                 phase: str,
                 input_refs: list[InputRef] | None = None,
                 semantic_binding_ref: str | None = None,
+                media_type: str = "application/json",
             ) -> tuple[str, dict[str, Any]]:
                 evidence_payload = await _publish_runtime_quality_report(
                     report_key=report_key,
@@ -3819,6 +3842,7 @@ class NaturalLanguageRunMixin:
                     phase=phase,
                     input_refs=input_refs,
                     semantic_binding_ref=semantic_binding_ref,
+                    media_type=media_type,
                 )
                 return str(evidence_payload[ref_key]), evidence_payload
 
@@ -4058,6 +4082,10 @@ class NaturalLanguageRunMixin:
                     evidence_payload.get("runtime_event_ref")
                     or envelope_payload.get("runtime_event_ref")
                 )
+                runtime_event_profile = _clean_runtime_text(
+                    evidence_payload.get("runtime_event_manifest_profile_sha256")
+                    or envelope_payload.get("runtime_event_manifest_profile_sha256")
+                )
                 same_input_closure_ref = _clean_runtime_text(
                     closure_payload.get("closure_sha256")
                     or evidence_payload.get("authority_envelope_ref")
@@ -4072,7 +4100,7 @@ class NaturalLanguageRunMixin:
                     or evidence_payload.get("payload_sha256")
                     or evidence_payload.get("authority_envelope_ref")
                 )
-                return {
+                authority = {
                     "authority_role": "producer_authority",
                     "provenance_kind": "runtime_emitted",
                     "cas_ref": ref_value or "runtime-quality:missing-cas-ref",
@@ -4085,6 +4113,9 @@ class NaturalLanguageRunMixin:
                     "schema_compatibility_ref": schema_compatibility_ref
                     or "runtime-quality:missing-schema-compatibility-ref",
                 }
+                if runtime_event_profile is not None:
+                    authority["runtime_event_manifest_profile_sha256"] = runtime_event_profile
+                return authority
 
             async def _materialize_policy_design_capability_ledger(
                 *,
@@ -4395,6 +4426,7 @@ class NaturalLanguageRunMixin:
                 details: dict[str, Any] = {
                     **dict(runtime_quality_refs),
                     "runtime_quality_refs": dict(runtime_quality_refs),
+                    "runtime_quality_artifact_refs": dict(runtime_quality_artifact_refs),
                     "runtime_quality_evidence": dict(runtime_quality_evidence),
                     "runtime_quality_projection": _runtime_quality_progress_projection(),
                 }
@@ -8199,6 +8231,12 @@ class NaturalLanguageRunMixin:
                         SECURITY_ASSURANCE_REPORT_REF_KEY,
                         build_security_assurance_report,
                     )
+                    from polisyos.core.security.quality_gates import (
+                        SECURITY_ASSURANCE_ARTIFACT_KIND,
+                        SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+                        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+                        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+                    )
                     from polisyos.runtime.quality.human_review import (
                         build_human_review_calibration_report,
                     )
@@ -8257,8 +8295,10 @@ class NaturalLanguageRunMixin:
                         report_key="security_assurance_report",
                         ref_key="security_assurance_report_ref",
                         report_payload=security_assurance_report,
-                        artifact_kind="runtime.security_assurance_report",
-                        schema_name="polisyos.runtime.SecurityAssuranceReport",
+                        artifact_kind=SECURITY_ASSURANCE_ARTIFACT_KIND,
+                        schema_name=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+                        schema_version=SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+                        media_type=SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
                         phase="security_assurance_report",
                         input_refs=[
                             ref
@@ -8803,6 +8843,7 @@ class NaturalLanguageRunMixin:
                 "capability_manifest_ref": current_capability_manifest_ref,
                 "llm_model_adjudication_ref": selected_variant.get("llm_model_adjudication_ref"),
                 **dict(runtime_quality_refs),
+                "runtime_quality_artifact_refs": _progress_json(runtime_quality_artifact_refs),
             }
 
         result: dict[str, Any] = run_coro_sync(

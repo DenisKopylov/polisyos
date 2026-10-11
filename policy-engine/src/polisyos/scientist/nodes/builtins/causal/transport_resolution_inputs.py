@@ -13,7 +13,12 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    profile_bound_ref,
+)
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import DatasetRegistry, PStarZResult
 from polisyos.foundry.methods.catalog.causal.capabilities import (
@@ -458,51 +463,69 @@ def _resolve_transport_execution_inputs(
     )
 
 
-def _build_graph_ref_from_artifact_id(artifact_id: str) -> CausalGraphModelRef | None:
-    try:
-        return CausalGraphModelRef.model_validate(
-            {
-                "artifact_id": artifact_id,
-                "kind": "ir.causal_graph_model",
-                "media_type": "application/json",
-            }
-        )
-    except _TRANSPORT_VALIDATION_ERRORS:
-        return None
-
-
 def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> CausalGraphModel | None:
+    store = _ensure_ir_artifact_store(ctx.store)
     ensemble_ref_raw = state.artifacts_index.get(ARTIFACT_CAUSAL_ENSEMBLE_REF)
     if ensemble_ref_raw is not None:
         try:
-            ensemble_ref = CausalModelEnsembleRef.model_validate(
-                ensemble_ref_raw.model_dump(mode="json")
+            ensemble_ref = profile_bound_ref(
+                store,
+                CausalModelEnsembleRef.model_validate(
+                    ensemble_ref_raw.model_dump(mode="json")
+                ),
             )
-            ensemble = load_causal_model_ensemble(
-                _ensure_ir_artifact_store(ctx.store), ensemble_ref
-            )
-            if ensemble.consensus_graph_ref:
-                consensus_ref = _build_graph_ref_from_artifact_id(ensemble.consensus_graph_ref)
-                if consensus_ref is not None:
-                    return load_causal_graph_model(
-                        _ensure_ir_artifact_store(ctx.store), consensus_ref
+            ensemble = load_causal_model_ensemble(store, ensemble_ref)
+            if ensemble.consensus_graph_ref is not None:
+                manifest = store.get_manifest(ensemble_ref)
+                consensus_edges = [
+                    entry for entry in manifest.inputs if entry.role == "consensus_graph_ref"
+                ]
+                if len(consensus_edges) != 1:
+                    raise InvalidTransportInput(
+                        "causal_ensemble.consensus_graph_ref requires exactly one selected lineage edge"
                     )
-        except _TRANSPORT_LOAD_ERRORS:
-            logger.debug(
-                "Failed to load causal graph from ensemble ref %s; trying fallback refs",
-                ensemble_ref_raw,
-                exc_info=True,
-            )
+                consensus_edge = consensus_edges[0]
+                if str(consensus_edge.artifact_id) != ensemble.consensus_graph_ref:
+                    raise InvalidTransportInput(
+                        "causal_ensemble.consensus_graph_ref does not match its selected lineage edge"
+                    )
+                if consensus_edge.manifest_profile_sha256 is None:
+                    raise InvalidTransportInput(
+                        "causal_ensemble.consensus_graph_ref lineage edge has no selected manifest profile"
+                    )
+                consensus_ref = profile_bound_ref(
+                    store,
+                    CausalGraphModelRef.model_validate(
+                        {
+                            "artifact_id": consensus_edge.artifact_id,
+                            "kind": "ir.causal_graph_model",
+                            "media_type": "application/json",
+                            "manifest_profile_sha256": consensus_edge.manifest_profile_sha256,
+                        }
+                    ),
+                )
+                return load_causal_graph_model(store, consensus_ref)
+        except InvalidTransportInput:
+            raise
+        except _TRANSPORT_LOAD_ERRORS as exc:
+            raise InvalidTransportInput(
+                f"Invalid supplied causal ensemble graph source: {exc}"
+            ) from exc
 
     for key in (ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF, "causal_graph_ref"):
         ref_raw = state.artifacts_index.get(key)
         if ref_raw is None:
             continue
         try:
-            graph_ref = CausalGraphModelRef.model_validate(ref_raw.model_dump(mode="json"))
-            return load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
-        except _TRANSPORT_LOAD_ERRORS:
-            continue
+            graph_ref = profile_bound_ref(
+                store,
+                CausalGraphModelRef.model_validate(ref_raw.model_dump(mode="json")),
+            )
+            return load_causal_graph_model(store, graph_ref)
+        except _TRANSPORT_LOAD_ERRORS as exc:
+            raise InvalidTransportInput(
+                f"Invalid supplied {key} causal graph reference: {exc}"
+            ) from exc
     return None
 
 

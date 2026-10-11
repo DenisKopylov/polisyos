@@ -1432,3 +1432,18 @@ def test_promotion_trace_rejects_spend_above_bound_budget() -> None:
 
     with pytest.raises(ValidationError, match="promotion_trace_risk_spend_exceeds_budget"):
         AuthorityDerivationTrace.model_validate(payload)
+
+
+
+def test_gy_artifact_ref_carries_selected_manifest_profile_without_changing_legacy_shape() -> None:
+    ref = _artifact_ref()
+    assert "manifest_profile_sha256" not in ref.model_dump(mode="json")
+    profile = "sha256:" + "e" * 64
+    selected = ref.model_copy(update={"manifest_profile_sha256": profile})
+    assert selected.model_dump(mode="json")["manifest_profile_sha256"] == profile
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        ArtifactRef.model_validate(
+            {**ref.model_dump(mode="json"), "manifest_profile_sha256": "present-but-invalid"}
+        )

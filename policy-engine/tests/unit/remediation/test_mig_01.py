@@ -78,7 +78,7 @@ def _load_root_entrypoint() -> ModuleType:
     return module
 
 
-@pytest.mark.parametrize("suffix, fmt", [(".json", "json"), (".yaml", "yaml")])
+@pytest.mark.parametrize(("suffix", "fmt"), [(".json", "json"), (".yaml", "yaml")])
 @pytest.mark.parametrize("explicit_target", [False, True])
 def test_canonical_cli_accepts_json_and_yaml_full_trinity(
     tmp_path: Path,

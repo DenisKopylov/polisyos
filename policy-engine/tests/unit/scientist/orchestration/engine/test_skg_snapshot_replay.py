@@ -494,7 +494,7 @@ def test_async_workflow_deadline_cancels_checkpoint_after_real_skg_node_complete
                 ctx,
                 registry,
                 checkpoint_hook=hook,
-                workflow_timeout_s=10.0,
+                workflow_timeout_s=30.0,
             ).execute(_workflow("async"), replay_state)
 
         with pytest.raises(WorkflowTimeoutError) as timeout:

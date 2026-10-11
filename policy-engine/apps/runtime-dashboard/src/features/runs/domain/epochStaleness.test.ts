@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   EPOCH_PERTURBATION_CLASSES,
+  epochStalenessAbsenceFixture,
   epochProjection,
   epochStalenessPositiveFixture,
   epochStalenessSixClassFixture,
@@ -36,6 +37,79 @@ describe("epoch staleness semantic admission", () => {
     expect(admitted.projection.status).toBe("current");
     expect(admitted.projection.fixture_only).toBe(true);
     expect(admitted.projection.institutional_absences).toEqual([]);
+  });
+
+  it("preserves two selected manifest profiles for the same artifact content", async () => {
+    const candidate = epochStalenessAbsenceFixture();
+    const sharedId = `sha256:${"7".repeat(64)}`;
+    const profiles = [`sha256:${"a".repeat(64)}`, `sha256:${"b".repeat(64)}`];
+    const certificate = (profile: string) => ({
+      authority_purpose: "decision_validity",
+      bound_epoch_ref: `sha256:${"1".repeat(64)}`,
+      certificate_ref: {
+        artifact_id: sharedId,
+        kind: "runtime.epoch_certificate",
+        media_type: "application/json",
+        manifest_profile_sha256: profile,
+      },
+      current_epoch_ref: `sha256:${"2".repeat(64)}`,
+      input_certificate_refs: [],
+      native_coordinate_refs: [],
+      recipe_ref: {
+        artifact_id: `sha256:${"8".repeat(64)}`,
+        kind: "runtime.derivation_recipe",
+        media_type: "application/json",
+      },
+      revalidation_requirements: ["recompute owner evidence"],
+      rule_schema_profile_refs: [],
+      stale_reasons: ["input revision changed"],
+      status: "stale",
+      trigger_event_refs: [],
+    });
+    epochProjection(candidate).certificates = profiles.map(certificate);
+
+    const admitted = await admitEpochStalenessResponse(
+      withServerSemanticHash(candidate),
+    );
+
+    expect(
+      admitted.projection.certificates.map(
+        (item) => item.certificate_ref.manifest_profile_sha256,
+      ),
+    ).toEqual(profiles);
+  });
+
+  it("rejects an explicit malformed profile instead of dropping it", async () => {
+    const candidate = epochStalenessAbsenceFixture();
+    epochProjection(candidate).certificates = [
+      {
+        authority_purpose: "decision_validity",
+        bound_epoch_ref: `sha256:${"1".repeat(64)}`,
+        certificate_ref: {
+          artifact_id: `sha256:${"7".repeat(64)}`,
+          kind: "runtime.epoch_certificate",
+          media_type: "application/json",
+          manifest_profile_sha256: "sha256:malformed",
+        },
+        current_epoch_ref: `sha256:${"2".repeat(64)}`,
+        input_certificate_refs: [],
+        native_coordinate_refs: [],
+        recipe_ref: {
+          artifact_id: `sha256:${"8".repeat(64)}`,
+          kind: "runtime.derivation_recipe",
+          media_type: "application/json",
+        },
+        revalidation_requirements: ["recompute owner evidence"],
+        rule_schema_profile_refs: [],
+        stale_reasons: ["input revision changed"],
+        status: "stale",
+        trigger_event_refs: [],
+      },
+    ];
+
+    await expect(
+      admitEpochStalenessResponse(withServerSemanticHash(candidate)),
+    ).rejects.toThrow(/contract_error/);
   });
 
   it("rejects an unknown nested field even when the semantic hash is recomputed", async () => {

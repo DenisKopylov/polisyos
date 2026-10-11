@@ -56,6 +56,7 @@ SCORECARD_REPORT_SCHEMA_FAMILIES = {
     "resilience_matrix": "policyos.runtime.resilience_matrix",
     "human_review_calibration": "policyos.human_review_calibration_report",
     "decision_artifact_quality": "policyos.scientist.decision_artifact_quality",
+    "security_assurance_report": "policyos.security_assurance_report",
     "privacy_compliance_report": "policyos.privacy_compliance_report",
     "rule_evolution_registry": "policyos.runtime.policy_design_case.rule_evolution_registry",
     "continuous_governance_stale": "policyos.runtime.governance_lifecycle_report",

@@ -15,7 +15,7 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
 
 if TYPE_CHECKING:

@@ -75,8 +75,11 @@ const RUN_PAPER_AUTHORITY_NONRECEIPT_REQUIREMENTS = [
 type ObservedArtifactRef = Readonly<{
   artifact_id: string;
   kind: string;
+  manifest_profile_sha256?: string | null;
   media_type: string;
 }>;
+
+const MANIFEST_PROFILE_SHA256 = /^sha256:[0-9a-f]{64}$/u;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -109,20 +112,41 @@ function observedArtifactRef(
   value: unknown,
   expectedKind?: string,
 ): ObservedArtifactRef | null {
+  const hasProfile =
+    isRecord(value) && Object.hasOwn(value, "manifest_profile_sha256");
   if (
     !isRecord(value) ||
-    !hasExactKeys(value, ["artifact_id", "kind", "media_type"]) ||
+    !hasExactKeys(
+      value,
+      hasProfile
+        ? ["artifact_id", "kind", "manifest_profile_sha256", "media_type"]
+        : ["artifact_id", "kind", "media_type"],
+    ) ||
     typeof value.artifact_id !== "string" ||
     value.artifact_id.length === 0 ||
     typeof value.kind !== "string" ||
     value.kind.length === 0 ||
     typeof value.media_type !== "string" ||
     value.media_type.length === 0 ||
+    (hasProfile &&
+      value.manifest_profile_sha256 !== null &&
+      (typeof value.manifest_profile_sha256 !== "string" ||
+        !MANIFEST_PROFILE_SHA256.test(value.manifest_profile_sha256))) ||
     (expectedKind !== undefined && value.kind !== expectedKind)
   ) {
     return null;
   }
   return value as ObservedArtifactRef;
+}
+
+function expectedArtifactHref(ref: ObservedArtifactRef): string {
+  const href = `/api/v1/artifacts/${ref.artifact_id}`;
+  const profile = ref.manifest_profile_sha256 ?? null;
+  if (profile === null) {
+    return href;
+  }
+  const query = new URLSearchParams({ manifest_profile_sha256: profile });
+  return `${href}?${query.toString()}`;
 }
 
 function hasExactAuthorityNonreceipt(
@@ -373,7 +397,7 @@ function assertFrozenPaperPacket(
       !isRecord(link) ||
       !hasExactKeys(link, ["artifact_ref", "href", "relation"]) ||
       artifactRef === null ||
-      link.href !== `/api/v1/artifacts/${artifactRef.artifact_id}` ||
+      link.href !== expectedArtifactHref(artifactRef) ||
       link.relation !== "run_output"
     ) {
       throw new TypeError("contract_error: run paper artifact link is unbound");
@@ -385,7 +409,9 @@ function assertFrozenPaperPacket(
       (candidate) =>
         candidate.artifact_id === requiredRef.artifact_id &&
         candidate.kind === requiredRef.kind &&
-        candidate.media_type === requiredRef.media_type,
+        candidate.media_type === requiredRef.media_type &&
+        (candidate.manifest_profile_sha256 ?? null) ===
+          (requiredRef.manifest_profile_sha256 ?? null),
     );
     if (matches.length !== 1) {
       throw new TypeError(

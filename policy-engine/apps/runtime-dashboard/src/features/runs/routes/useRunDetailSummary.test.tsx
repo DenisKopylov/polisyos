@@ -56,6 +56,36 @@ vi.mock("@/api/hooks/useRunEvidenceContext", () => ({
 }));
 
 vi.mock("@/shared/lib/domain/evidence", () => ({
+  dedupeEvidenceArtifactRefs: (
+    refs: Array<
+      | {
+          artifact_id: string;
+          kind?: string | null;
+          media_type?: string | null;
+          manifest_profile_sha256?: string | null;
+        }
+      | null
+      | undefined
+    >,
+  ) => {
+    const seen = new Set<string>();
+    return refs.filter((ref) => {
+      if (!ref) {
+        return false;
+      }
+      const key = JSON.stringify([
+        ref.artifact_id,
+        ref.kind ?? null,
+        ref.media_type ?? null,
+        ref.manifest_profile_sha256 ?? null,
+      ]);
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  },
   findRunEvidenceNeed: (...args: unknown[]) => findRunEvidenceNeedMock(...args),
   findRunEvidencePlan: (...args: unknown[]) => findRunEvidencePlanMock(...args),
   findRunEvidencePromotion: (...args: unknown[]) =>
@@ -206,11 +236,24 @@ describe("useRunDetailSummary", () => {
   });
 
   it("builds a rich summary with deduped artifacts, evidence links, and fallback scoring", () => {
+    const firstProfile = `sha256:${"a".repeat(64)}`;
+    const siblingProfile = `sha256:${"b".repeat(64)}`;
     useRunDetailsMock.mockReturnValue({
       data: {
         run: {
           root_artifacts: [
-            { artifact_id: "artifact-3", kind: "decision_card" },
+            {
+              artifact_id: "artifact-3",
+              kind: "decision_card",
+              media_type: "application/json",
+              manifest_profile_sha256: firstProfile,
+            },
+            {
+              artifact_id: "artifact-3",
+              kind: "timeline_alt",
+              media_type: "application/json",
+              manifest_profile_sha256: firstProfile,
+            },
             { artifact_id: "artifact-root", kind: "timeline" },
           ],
         },
@@ -225,6 +268,8 @@ describe("useRunDetailSummary", () => {
           decision_packet_ref: {
             artifact_id: "artifact-3",
             kind: "decision_card",
+            media_type: "application/json",
+            manifest_profile_sha256: firstProfile,
           },
           execution_plan_ref: { artifact_id: "artifact-plan", kind: "plan" },
           evaluator: {
@@ -282,7 +327,18 @@ describe("useRunDetailSummary", () => {
       promotionCandidates: [{ promotionId: "promotion-1" }],
       relatedArtifacts: [
         { artifact_id: "artifact-2", kind: "dataset" },
-        { artifact_id: "artifact-3", kind: "decision_card" },
+        {
+          artifact_id: "artifact-3",
+          kind: "decision_card",
+          media_type: "application/json",
+          manifest_profile_sha256: firstProfile,
+        },
+        {
+          artifact_id: "artifact-3",
+          kind: "decision_card",
+          media_type: "application/json",
+          manifest_profile_sha256: siblingProfile,
+        },
       ],
     });
     normalizeGovernanceIssuesMock.mockReturnValue([
@@ -321,10 +377,18 @@ describe("useRunDetailSummary", () => {
 
     const { result } = renderHook(() => useRunDetailSummary("run-1", t));
 
-    expect(useArtifactContentMock).toHaveBeenCalledWith("artifact-3", {
-      enabled: true,
-      maxBytes: 262144,
-    });
+    expect(useArtifactContentMock).toHaveBeenCalledWith(
+      {
+        artifact_id: "artifact-3",
+        kind: "decision_card",
+        media_type: "application/json",
+        manifest_profile_sha256: firstProfile,
+      },
+      {
+        enabled: true,
+        maxBytes: 262144,
+      },
+    );
     expect(result.current.artifactRefs.map((ref) => ref.artifact_id)).toEqual([
       "artifact-3",
       "artifact-plan",
@@ -336,7 +400,18 @@ describe("useRunDetailSummary", () => {
       "artifact-snapshot",
       "artifact-inputs",
       "artifact-2",
+      "artifact-3",
+      "artifact-3",
       "artifact-root",
+    ]);
+    expect(
+      result.current.artifactRefs
+        .filter((ref) => ref.artifact_id === "artifact-3")
+        .map((ref) => [ref.kind, ref.media_type, ref.manifest_profile_sha256]),
+    ).toEqual([
+      ["decision_card", "application/json", firstProfile],
+      ["decision_card", "application/json", siblingProfile],
+      ["timeline_alt", "application/json", firstProfile],
     ]);
     expect(result.current.primaryDecisionArtifactId).toBe("artifact-3");
     expect(result.current.blockerCount).toBe(1);

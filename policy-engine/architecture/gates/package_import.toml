@@ -149,6 +149,8 @@ source_contracts = [
 blocks = [
   "new import cycles outside the lazy import allow-list",
   "cycle allow-list drift without owner review",
+  "source-resolved module-eager cycles even when their SCC signature is registered",
+  "module-time source-known dispatch with a not-established receiver",
 ]
 
 [[gate]]

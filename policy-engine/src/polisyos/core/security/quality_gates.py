@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import ipaddress
 import re
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
-from typing import Any, Iterable, Mapping
+from typing import Any
 from urllib.parse import unquote, urlsplit
 
 SECURITY_ASSURANCE_REPORT_REF_KEY = "security_assurance_report_ref"
+SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION = "policyos.security_assurance_report.v1"
+SECURITY_ASSURANCE_ARTIFACT_KIND = "runtime.security_assurance_report"
+SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME = "polisyos.runtime.SecurityAssuranceReport"
+SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION = "1.0"
+SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE = "application/json"
 SECURITY_REPORT_FILE = "security_assurance_report.json"
 SECURITY_REPORT_REF = f"quality_evidence/{SECURITY_REPORT_FILE}"
 
@@ -70,7 +76,10 @@ _EXFIL_ACTION_RE = re.compile(r"(?i)\b(print|show|copy|dump|exfiltrate|leak|reve
 _ISSUE_TEXT = {
     "prompt_injection_detected": (
         "Untrusted LLM-facing text attempted to override system or scoring instructions.",
-        "Quarantine the prompt/source text, preserve it as evidence, and rerun with trusted instructions only.",
+        (
+            'Quarantine the prompt/source text, preserve it as evidence, and rerun with t'
+            'rusted instructions only.'
+        ),
         "llm.prompt_injection",
     ),
     "tool_call_injection_detected": (
@@ -85,7 +94,10 @@ _ISSUE_TEXT = {
     ),
     "provider_response_poisoning_detected": (
         "Provider output attempted to impersonate privileged roles or mutate governance status.",
-        "Discard the provider response, rotate to a clean deterministic fixture, and inspect provider logs.",
+        (
+            'Discard the provider response, rotate to a clean deterministic fixture, and i'
+            'nspect provider logs.'
+        ),
         "llm.provider_response_poisoning",
     ),
     "unsafe_artifact_rendering_detected": (
@@ -95,17 +107,29 @@ _ISSUE_TEXT = {
     ),
     "ssrf_url_blocked": (
         "Runtime or tool payload referenced a local, private, metadata, or file URL.",
-        "Block outbound fetches to this target and restrict URL fetches to approved source allowlists.",
+        (
+            'Block outbound fetches to this target and restrict URL fetches to approved s'
+            'ource allowlists.'
+        ),
         "runtime_api.ssrf",
     ),
     "path_traversal_blocked": (
         "Runtime or artifact payload attempted path traversal or sensitive local file access.",
-        "Reject the path and resolve artifacts through CAS identifiers or approved workspace roots only.",
+        (
+            'Reject the path and resolve artifacts through CAS identifiers or approved w'
+            'orkspace roots only.'
+        ),
         "runtime_api.path_traversal",
     ),
     "secret_exfiltration_blocked": (
-        "A payload attempted to expose a secret, bearer token, API key, credential, or environment value.",
-        "Redact the value, rotate any exposed credential, and rerun after removing the exfiltration path.",
+        (
+            'A payload attempted to expose a secret, bearer token, API key, credential, or e'
+            'nvironment value.'
+        ),
+        (
+            'Redact the value, rotate any exposed credential, and rerun after removing the e'
+            'xfiltration path.'
+        ),
         "security.secret_exfiltration",
     ),
 }
@@ -156,7 +180,7 @@ def build_security_assurance_report(
         issue["evidence_ref"] = f"{report_ref}#/issues/{index}"
 
     return {
-        "schema_version": "policyos.security_assurance_report.v1",
+        "schema_version": SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION,
         "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
         SECURITY_ASSURANCE_REPORT_REF_KEY: report_ref,
         "status": "fail" if issues else "pass",
@@ -166,14 +190,123 @@ def build_security_assurance_report(
     }
 
 
-def security_gates_from_report(report: Any) -> list[dict[str, Any]]:
-    """Project one security assurance report into scorecard gate dictionaries."""
+def _security_report_contract_error(report: Any) -> str | None:
+    """Return a stable reason when a supplied security report is malformed."""
 
     if not isinstance(report, Mapping):
+        return "report_mapping_required"
+    if report.get("schema_version") != SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION:
+        return "schema_version_invalid"
+    generated_at = report.get("generated_at")
+    if not isinstance(generated_at, str) or not generated_at.strip():
+        return "generated_at_missing"
+
+    raw_issues = report.get("issues")
+    if not isinstance(raw_issues, list):
+        return "issues_malformed"
+    seen: set[tuple[str, str]] = set()
+    issues: list[Mapping[str, Any]] = []
+    for raw_issue in raw_issues:
+        if not isinstance(raw_issue, Mapping):
+            return "issue_row_malformed"
+        code = raw_issue.get("code")
+        surface = raw_issue.get("surface")
+        if not isinstance(code, str) or code not in _ISSUE_TEXT:
+            return "issue_code_unknown"
+        if not isinstance(surface, str) or surface not in SECURITY_SURFACES:
+            return "issue_surface_unknown"
+        identity = (code, surface)
+        if identity in seen:
+            return "issue_duplicate"
+        seen.add(identity)
+        message, next_action, phase = _ISSUE_TEXT[code]
+        if (
+            raw_issue.get("layer") != "security"
+            or raw_issue.get("phase") != phase
+            or raw_issue.get("severity") != "high"
+            or raw_issue.get("retryable") is not False
+            or raw_issue.get("retryability") != "not_retryable"
+            or not isinstance(raw_issue.get("path"), str)
+            or not raw_issue["path"].strip()
+            or raw_issue.get("message") != message
+            or raw_issue.get("next_action") != next_action
+            or _clean_ref(raw_issue.get("evidence_ref")) is None
+        ):
+            return "issue_contract_mismatch"
+        issues.append(raw_issue)
+
+    status = report.get("status")
+    expected_status = "fail" if issues else "pass"
+    if not isinstance(status, str) or status not in {"pass", "fail"} or status != expected_status:
+        return "status_issue_mismatch"
+
+    blockers = report.get("blockers")
+    if not isinstance(blockers, list) or blockers != raw_issues:
+        return "blocker_issue_mismatch"
+
+    assured_paths = report.get("assured_paths")
+    if not isinstance(assured_paths, list) or len(assured_paths) != len(SECURITY_SURFACES):
+        return "assured_paths_incomplete"
+    for _index, (surface, row) in enumerate(zip(SECURITY_SURFACES, assured_paths, strict=True)):
+        if not isinstance(row, Mapping):
+            return "assured_path_row_malformed"
+        issue_count = sum(1 for issue in issues if issue.get("surface") == surface)
+        expected_path_status = "fail" if issue_count else "pass"
+        if (
+            row.get("path") != surface
+            or row.get("status") != expected_path_status
+            or type(row.get("issue_count")) is not int
+            or row.get("issue_count") != issue_count
+            or _clean_ref(row.get("evidence_ref")) is None
+        ):
+            return "assured_path_issue_mismatch"
+    return None
+
+
+def security_gates_from_report(
+    report: Any,
+    *,
+    include_report_gate: bool = True,
+) -> list[dict[str, Any]]:
+    """Project one internally consistent security report into scorecard gates.
+
+    ``None`` remains an absent optional input. A supplied value must match the
+    producer's complete schema and internal status/findings relationships before
+    it can yield a passing gate. Serious-profile presence is enforced by the
+    scorecard report gate; callers may omit this helper's summary gate there.
+    """
+
+    if report is None:
         return []
+    contract_error = _security_report_contract_error(report)
+    if contract_error is not None:
+        report_ref = (
+            _clean_ref(report.get(SECURITY_ASSURANCE_REPORT_REF_KEY))
+            if isinstance(report, Mapping)
+            else None
+        ) or SECURITY_REPORT_REF
+        return [
+            _gate(
+                name="security_assurance_report_passed",
+                stage="ops",
+                code="security_assurance_failed",
+                status="fail",
+                phase="security.assurance",
+                message="Security assurance report is malformed or internally inconsistent.",
+                evidence_ref=report_ref,
+                next_action=(
+                    "Rebuild the report from the security assurance producer and preserve "
+                    "its runtime authority evidence."
+                ),
+                blocking=True,
+            )
+        ]
+
     report_ref = _clean_ref(report.get(SECURITY_ASSURANCE_REPORT_REF_KEY)) or SECURITY_REPORT_REF
-    issues = [dict(issue) for issue in report.get("issues", []) if isinstance(issue, Mapping)]
+    issues = [dict(issue) for issue in report.get("issues", [])]
     if not issues:
+        if not include_report_gate:
+            return []
         return [
             _gate(
                 name="security_assurance_report_passed",
@@ -190,20 +323,18 @@ def security_gates_from_report(report: Any) -> list[dict[str, Any]]:
 
     gates: list[dict[str, Any]] = []
     for issue in issues:
-        code = _clean_code(issue.get("code")) or "security_assurance_failed"
-        surface = _clean_code(issue.get("surface")) or _surface_from_phase(issue.get("phase"))
+        code = _clean_code(issue.get("code"))
+        surface = _clean_code(issue.get("surface"))
         gates.append(
             _gate(
                 name=f"security_{surface}_abuse_gate",
-                stage=_SURFACE_STAGE.get(surface, "ops"),
+                stage=_SURFACE_STAGE[surface],
                 code=code,
                 status="fail",
-                phase=_clean_text(issue.get("phase")) or "security.assurance",
-                message=_clean_text(issue.get("message"))
-                or "Security assurance gate failed.",
-                evidence_ref=_clean_ref(issue.get("evidence_ref")) or report_ref,
-                next_action=_clean_text(issue.get("next_action"))
-                or "Inspect security assurance evidence before approval.",
+                phase=issue["phase"],
+                message=issue["message"],
+                evidence_ref=issue["evidence_ref"],
+                next_action=issue["next_action"],
                 blocking=True,
             )
         )
@@ -255,12 +386,16 @@ def _append_candidate_issues(
         return
 
     lowered = text.casefold()
-    if _SECRET_VALUE_RE.search(text) or _BEARER_RE.search(text) or (
-        _SECRET_ENV_RE.search(text) and _EXFIL_ACTION_RE.search(text)
+    if (
+        _SECRET_VALUE_RE.search(text)
+        or _BEARER_RE.search(text)
+        or (_SECRET_ENV_RE.search(text) and _EXFIL_ACTION_RE.search(text))
     ):
         _append_issue(issues, "secret_exfiltration_blocked", surface, path)
 
-    if _URL_RE.search(text) and any(_unsafe_url(match.group(0)) for match in _URL_RE.finditer(text)):
+    if _URL_RE.search(text) and any(
+        _unsafe_url(match.group(0)) for match in _URL_RE.finditer(text)
+    ):
         _append_issue(issues, "ssrf_url_blocked", surface, path)
 
     if _PATH_TRAVERSAL_RE.search(unquote(text)):

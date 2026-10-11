@@ -7,8 +7,10 @@ import { useArtifactManifest } from "@/api/hooks/useArtifactManifest";
 import { useArtifactSchema } from "@/api/hooks/useArtifactSchema";
 import {
   ARTIFACT_TABS,
+  buildArtifactHref,
   type ArtifactTab,
   type ArtifactView,
+  parseArtifactReferenceSelection,
   parseArtifactSearchParams,
 } from "@/features/artifacts/domain/searchParams";
 import { resolveArtifactPreviewPayload } from "@/features/artifacts/domain/typedPreview";
@@ -18,6 +20,11 @@ import {
 } from "@/features/artifacts/components/ArtifactViewerRegistry";
 import { BureaucraticArtifactView } from "@/features/artifacts/bureaucratic/BureaucraticArtifactView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  artifactRefMatchesResolvedView,
+  evidenceArtifactRefKey,
+  sameResolvedArtifactView,
+} from "@/shared/lib/domain/evidence";
 import { formatBytes, formatDate } from "@/shared/lib/utils";
 import { Card, EmptyState } from "@polisyos/atlas-ui";
 import { ApiErrorAlert, LineageGraph } from "@/shared/ui";
@@ -38,23 +45,47 @@ export default function ArtifactInspector() {
   const { artifactId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [previewLimit, setPreviewLimit] = useState<number>(PREVIEW_LIMITS[0]);
+  const referenceSelection = parseArtifactReferenceSelection(
+    searchParams,
+    artifactId,
+  );
+  const invalidReferenceSelection = referenceSelection.kind === "invalid";
+  const expectedRef = invalidReferenceSelection
+    ? undefined
+    : referenceSelection.ref;
+  const manifestProfileSha256 = expectedRef?.manifest_profile_sha256 ?? null;
+  const queryArtifact = invalidReferenceSelection ? undefined : expectedRef;
 
   const { tab: activeTab, view: activeView } =
     parseArtifactSearchParams(searchParams);
 
   useEffect(() => {
     setPreviewLimit(PREVIEW_LIMITS[0]);
-  }, [artifactId]);
+  }, [
+    artifactId,
+    expectedRef ? evidenceArtifactRefKey(expectedRef) : null,
+    referenceSelection.kind,
+  ]);
 
-  const manifestQuery = useArtifactManifest(artifactId);
-  const contentQuery = useArtifactContent(artifactId, {
+  const manifestQuery = useArtifactManifest(queryArtifact);
+  const contentQuery = useArtifactContent(queryArtifact, {
     enabled: activeTab === "content",
     maxBytes: previewLimit,
   });
-  const schemaQuery = useArtifactSchema(artifactId, activeTab === "schema");
-  const lineageQuery = useArtifactLineage(artifactId, activeTab === "lineage");
+  const schemaQuery = useArtifactSchema(queryArtifact, activeTab === "schema");
+  const lineageQuery = useArtifactLineage(
+    queryArtifact,
+    activeTab === "lineage",
+  );
 
-  const manifest = manifestQuery.data?.artifact;
+  const manifestResponse = manifestQuery.data?.artifact;
+  const manifestReferenceMatches = Boolean(
+    !invalidReferenceSelection &&
+    expectedRef &&
+    manifestResponse &&
+    artifactRefMatchesResolvedView(expectedRef, manifestResponse),
+  );
+  const manifest = manifestReferenceMatches ? manifestResponse : undefined;
 
   const manifestSummary = useMemo(
     () => ({
@@ -99,7 +130,38 @@ export default function ArtifactInspector() {
     return <Card>{t("pages.artifacts.requiredArtifactId")}</Card>;
   }
 
-  const content = contentQuery.data?.artifact;
+  const contentResponse = contentQuery.data?.artifact;
+  const contentReferenceMatches = Boolean(
+    !invalidReferenceSelection &&
+    expectedRef &&
+    contentResponse &&
+    artifactRefMatchesResolvedView(expectedRef, contentResponse) &&
+    manifestResponse &&
+    sameResolvedArtifactView(manifestResponse, contentResponse),
+  );
+  const content = contentReferenceMatches ? contentResponse : undefined;
+  const schemaResponse = schemaQuery.data?.schema;
+  const schemaReferenceMatches = Boolean(
+    !invalidReferenceSelection &&
+    expectedRef &&
+    schemaResponse &&
+    artifactRefMatchesResolvedView(expectedRef, schemaResponse) &&
+    manifestResponse &&
+    sameResolvedArtifactView(manifestResponse, schemaResponse),
+  );
+  const schemaView = schemaReferenceMatches ? schemaResponse : undefined;
+  const lineageResponse = lineageQuery.data?.lineage;
+  const lineageReferenceMatches = Boolean(
+    !invalidReferenceSelection &&
+    expectedRef &&
+    manifestResponse &&
+    (lineageResponse?.root_artifact_refs ?? []).some(
+      (ref) =>
+        artifactRefMatchesResolvedView(expectedRef, ref) &&
+        sameResolvedArtifactView(manifestResponse, ref),
+    ),
+  );
+  const lineageView = lineageReferenceMatches ? lineageResponse : undefined;
   const canLoadMore = content
     ? Boolean(content.truncated && nextPreviewLimit(previewLimit) !== null)
     : false;
@@ -118,7 +180,38 @@ export default function ArtifactInspector() {
           {t("pages.artifacts.title")}
         </h2>
         <p className="mb-3 font-mono text-xs">{artifactId}</p>
+        <p
+          className="text-muted mb-3 font-mono text-xs"
+          data-testid="artifact-reference-selection"
+        >
+          {t("pages.artifacts.requestedReference")}:{" "}
+          {invalidReferenceSelection
+            ? t("pages.artifacts.profileInvalidSelection")
+            : expectedRef?.kind || expectedRef?.media_type
+              ? evidenceArtifactRefKey(expectedRef)
+              : (manifestProfileSha256 ??
+                t("pages.artifacts.profileUnqualified"))}
+        </p>
+        <p
+          className="text-muted mb-3 font-mono text-xs"
+          data-testid="artifact-resolved-profile"
+        >
+          {t("pages.artifacts.resolvedManifestProfile")}:{" "}
+          {manifestResponse?.manifest_profile_sha256 ??
+            t("pages.artifacts.profileUnqualified")}
+        </p>
 
+        {invalidReferenceSelection ? (
+          <p role="alert" data-testid="artifact-profile-invalid-selection">
+            {t("pages.artifacts.profileInvalidSelection")}
+          </p>
+        ) : null}
+
+        {manifestQuery.data && !manifestReferenceMatches ? (
+          <p role="alert" data-testid="artifact-profile-mismatch-manifest">
+            {t("pages.artifacts.profileMismatch")}
+          </p>
+        ) : null}
         {manifestQuery.isLoading ? (
           <p className="text-muted text-sm">
             {t("pages.artifacts.loadingManifest")}
@@ -195,6 +288,12 @@ export default function ArtifactInspector() {
               />
             ) : null}
 
+            {contentQuery.data && !contentReferenceMatches ? (
+              <p role="alert" data-testid="artifact-profile-mismatch-content">
+                {t("pages.artifacts.profileMismatch")}
+              </p>
+            ) : null}
+
             {!contentQuery.isLoading && !contentQuery.isError && content ? (
               <>
                 <div className="grid gap-2 md:grid-cols-5">
@@ -266,8 +365,10 @@ export default function ArtifactInspector() {
                     <div className="flex flex-wrap gap-2">
                       {viewerDescriptor.relatedRefs.map((ref) => (
                         <Link
-                          key={`${ref.label}:${ref.artifactId}`}
-                          to={`/artifacts/${ref.artifactId}`}
+                          key={`${ref.label}:${ref.identityKey}`}
+                          to={buildArtifactHref(ref.artifactId, {
+                            artifactRef: ref.artifactRef,
+                          })}
                           className="border-line bg-panel rounded-full border px-2 py-1 text-xs font-semibold"
                         >
                           {ref.label}
@@ -286,7 +387,9 @@ export default function ArtifactInspector() {
 
                 {content.kind === "scientist.decision_packet" ||
                 content.kind === "decision_packet" ? (
-                  <BureaucraticArtifactView artifactId={artifactId} />
+                  <BureaucraticArtifactView
+                    artifactRef={expectedRef ?? { artifact_id: artifactId }}
+                  />
                 ) : null}
               </>
             ) : null}
@@ -307,41 +410,43 @@ export default function ArtifactInspector() {
               />
             ) : null}
 
-            {!schemaQuery.isLoading &&
-            !schemaQuery.isError &&
-            schemaQuery.data ? (
+            {schemaQuery.data && !schemaReferenceMatches ? (
+              <p role="alert" data-testid="artifact-profile-mismatch-schema">
+                {t("pages.artifacts.profileMismatch")}
+              </p>
+            ) : null}
+
+            {!schemaQuery.isLoading && !schemaQuery.isError && schemaView ? (
               <>
                 <dl className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
                   <div>
                     <dt className="text-muted">
                       {t("pages.artifacts.schemaFields.name")}
                     </dt>
-                    <dd>{schemaQuery.data.schema.schema_name ?? "-"}</dd>
+                    <dd>{schemaView.schema_name ?? "-"}</dd>
                   </div>
                   <div>
                     <dt className="text-muted">
                       {t("pages.artifacts.schemaFields.version")}
                     </dt>
-                    <dd>{schemaQuery.data.schema.schema_version ?? "-"}</dd>
+                    <dd>{schemaView.schema_version ?? "-"}</dd>
                   </div>
                 </dl>
 
-                {(schemaQuery.data.schema.top_level_keys ?? []).length ? (
+                {(schemaView.top_level_keys ?? []).length ? (
                   <div className="border-line rounded-xl border p-3">
                     <p className="text-muted mb-2 text-xs font-semibold uppercase">
                       {t("pages.artifacts.topLevelKeys")}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {(schemaQuery.data.schema.top_level_keys ?? []).map(
-                        (key) => (
-                          <span
-                            key={key}
-                            className="border-line bg-panel rounded-lg border px-2 py-1 font-mono text-xs"
-                          >
-                            {key}
-                          </span>
-                        ),
-                      )}
+                      {(schemaView.top_level_keys ?? []).map((key) => (
+                        <span
+                          key={key}
+                          className="border-line bg-panel rounded-lg border px-2 py-1 font-mono text-xs"
+                        >
+                          {key}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ) : (
@@ -369,33 +474,33 @@ export default function ArtifactInspector() {
               />
             ) : null}
 
-            {!lineageQuery.isLoading &&
-            !lineageQuery.isError &&
-            lineageQuery.data ? (
+            {lineageQuery.data && !lineageReferenceMatches ? (
+              <p role="alert" data-testid="artifact-profile-mismatch-lineage">
+                {t("pages.artifacts.profileMismatch")}
+              </p>
+            ) : null}
+
+            {!lineageQuery.isLoading && !lineageQuery.isError && lineageView ? (
               <>
                 <div className="grid gap-2 md:grid-cols-4">
                   <div className="border-line rounded-xl border p-2 text-sm">
                     <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.nodes")}
                     </p>
-                    <p className="font-semibold">
-                      {lineageQuery.data.lineage.total_nodes}
-                    </p>
+                    <p className="font-semibold">{lineageView.total_nodes}</p>
                   </div>
                   <div className="border-line rounded-xl border p-2 text-sm">
                     <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.edges")}
                     </p>
-                    <p className="font-semibold">
-                      {lineageQuery.data.lineage.total_edges}
-                    </p>
+                    <p className="font-semibold">{lineageView.total_edges}</p>
                   </div>
                   <div className="border-line rounded-xl border p-2 text-sm">
                     <p className="text-muted text-xs uppercase">
                       {t("pages.artifacts.lineageFields.complete")}
                     </p>
                     <p className="font-semibold">
-                      {lineageQuery.data.lineage.is_complete
+                      {lineageView.is_complete
                         ? t("common.yes")
                         : t("common.no")}
                     </p>
@@ -405,35 +510,30 @@ export default function ArtifactInspector() {
                       {t("pages.artifacts.lineageFields.size")}
                     </p>
                     <p className="font-semibold">
-                      {formatBytes(lineageQuery.data.lineage.total_size_bytes)}
+                      {formatBytes(lineageView.total_size_bytes)}
                     </p>
                   </div>
                 </div>
 
                 <LineageGraph
-                  nodes={lineageQuery.data.lineage.nodes}
-                  edges={lineageQuery.data.lineage.edges}
-                  rootArtifactIds={lineageQuery.data.lineage.root_artifact_ids}
+                  nodes={lineageView.nodes}
+                  edges={lineageView.edges}
+                  rootArtifactIds={lineageView.root_artifact_ids}
+                  rootArtifactRefs={lineageView.root_artifact_refs}
                 />
 
-                {lineageQuery.data.lineage.missing_artifact_ids.length > 0 ? (
+                {lineageView.missing_artifact_ids.length > 0 ? (
                   <p className="text-warning text-sm">
                     {t("pages.artifacts.missingArtifacts", {
-                      artifacts:
-                        lineageQuery.data.lineage.missing_artifact_ids.join(
-                          ", ",
-                        ),
+                      artifacts: lineageView.missing_artifact_ids.join(", "),
                     })}
                   </p>
                 ) : null}
 
-                {lineageQuery.data.lineage.corrupted_artifact_ids.length > 0 ? (
+                {lineageView.corrupted_artifact_ids.length > 0 ? (
                   <p className="text-danger text-sm">
                     {t("pages.artifacts.corruptedArtifacts", {
-                      artifacts:
-                        lineageQuery.data.lineage.corrupted_artifact_ids.join(
-                          ", ",
-                        ),
+                      artifacts: lineageView.corrupted_artifact_ids.join(", "),
                     })}
                   </p>
                 ) : null}

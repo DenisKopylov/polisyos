@@ -2,6 +2,15 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+from polisyos_tests_runtime_http_conftest import (
+    _record_fixture_owner,
+    _runtime_api_request,
+)
+
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.runtime.http.services import bureaucratic_rendering
 
 
@@ -42,6 +51,78 @@ def test_bureaucratic_render_returns_draft_ast_with_watermark_and_quantities(
     assert metric["lineage"]["status"] == "pending"
     assert metric["time"]["valid_at"] == "2026-02-11T12:00:00Z"
     assert any(block["id"] == "annex_raw_refs" for block in document["annexes"])
+
+
+def test_bureaucratic_render_resolves_the_exact_selected_manifest_profile(
+    runtime_api_env,
+) -> None:
+    client = runtime_api_env["client"]
+    packet_id = runtime_api_env["decision_packet_artifact_id"]
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
+    artifact_id = ArtifactID.model_validate(packet_id)
+    original_manifest = _runtime_api_request(runtime_api_env, store.get_manifest, artifact_id)
+    original_profile = artifact_manifest_profile_sha256(original_manifest)
+    payload = _runtime_api_request(runtime_api_env, store.get_bytes, artifact_id)
+    alternate_ref = _runtime_api_request(
+        runtime_api_env,
+        store.put_bytes,
+        payload,
+        PutOptions(
+            kind="test.alternate_decision_packet",
+            media_type=original_manifest.media_type,
+        ),
+    )
+    assert alternate_ref.artifact_id == artifact_id
+    assert alternate_ref.manifest_profile_sha256 != original_profile
+    default_after_write = _runtime_api_request(runtime_api_env, store.get_manifest, artifact_id)
+    alternate_manifest = _runtime_api_request(runtime_api_env, store.get_manifest, alternate_ref)
+    assert default_after_write.kind == original_manifest.kind
+    assert artifact_manifest_profile_sha256(default_after_write) == original_profile
+    assert alternate_manifest.kind == "test.alternate_decision_packet"
+    assert artifact_manifest_profile_sha256(alternate_manifest) == (
+        alternate_ref.manifest_profile_sha256
+    )
+    _record_fixture_owner(
+        store,
+        ArtifactRef(
+            artifact_id=artifact_id,
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            manifest_profile_sha256=original_profile,
+        ),
+        alternate_ref,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        runtime_api_env=runtime_api_env,
+    )
+
+    selected = _runtime_api_request(
+        runtime_api_env,
+        client.post,
+        f"/api/v1/artifacts/{packet_id}/render",
+        json={
+            "genre": "postanova_kmu",
+            "manifest_profile_sha256": original_profile,
+        },
+    )
+
+    assert selected.status_code == 200, selected.text
+    document = selected.json()["document"]
+    assert document["metadata"]["source_artifact_kind"] == original_manifest.kind
+    assert document["metadata"]["source_media_type"] == original_manifest.media_type
+    assert document["metadata"]["source_manifest_profile_sha256"] == original_profile
+
+    unavailable = _runtime_api_request(
+        runtime_api_env,
+        client.post,
+        f"/api/v1/artifacts/{packet_id}/render",
+        json={
+            "genre": "postanova_kmu",
+            "manifest_profile_sha256": f"sha256:{'f' * 64}",
+        },
+    )
+    assert unavailable.status_code == 404
+    assert unavailable.json()["code"] == "artifact_manifest_profile_not_found"
 
 
 def test_bureaucratic_render_supports_all_first_class_genres(runtime_api_env) -> None:

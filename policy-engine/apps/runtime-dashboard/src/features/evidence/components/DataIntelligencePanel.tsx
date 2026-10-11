@@ -568,6 +568,14 @@ export default function DataIntelligencePanel({
                     )}
                   </p>
                 ) : null}
+                {selectedArtifact?.manifest_profile_sha256 ? (
+                  <p
+                    className="text-muted mt-1 font-mono text-[10px]"
+                    data-testid="selected-artifact-manifest-profile"
+                  >
+                    {selectedArtifact.manifest_profile_sha256}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>

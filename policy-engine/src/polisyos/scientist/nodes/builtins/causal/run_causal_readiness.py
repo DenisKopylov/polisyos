@@ -14,11 +14,16 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
-from polisyos.ir.artifacts import InputRef
 from polisyos.ir.observation.bundles import (
     CounterfactualCheckBundle,
     InterferenceLossSpecBundle,
@@ -198,10 +203,14 @@ class RunCausalReadinessNode:
                 ),
             )
         try:
-            graph_ref = CausalGraphModelRef.model_validate(
-                graph_ref_payload.model_dump(mode="json")
+            store = _ensure_ir_artifact_store(ctx.store)
+            graph_ref = profile_bound_ref(
+                store,
+                CausalGraphModelRef.model_validate(
+                    graph_ref_payload.model_dump(mode="json")
+                ),
             )
-            graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), graph_ref)
+            graph = load_causal_graph_model(store, graph_ref)
             proxy_bundle = _coerce_bundle(ProxyIdentificationBundle, bundle_payloads["proxy"])
             transport_bundle = _coerce_bundle(
                 TransportabilityCheckBundle, bundle_payloads["transport"]
@@ -224,7 +233,7 @@ class RunCausalReadinessNode:
                 state.params.get("schema_regime_registry"),
             )
             shock_calendar = _coerce_bundle(ShockCalendar, state.params.get("shock_calendar"))
-            graph_input = ArtifactRefModel.model_validate(graph_ref.model_dump(mode="json"))
+            graph_input = ArtifactRef.model_validate(graph_ref.model_dump(mode="json"))
             causal_component_payload = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
             causal_component_ref = (
                 graph_input
@@ -254,7 +263,11 @@ class RunCausalReadinessNode:
                 ),
             )
 
-        graph_inputs = [InputRef(artifact_id=graph_ref.artifact_id, role="reconciled_causal_graph")]
+        graph_inputs = [
+            input_ref_from_artifact_ref(
+                graph_input, role="reconciled_causal_graph"
+            )
+        ]
         proxy_runner = ProxyIdentificationRunner(graph=graph)
         transport_runner = TransportabilityChecker(
             graph=graph,

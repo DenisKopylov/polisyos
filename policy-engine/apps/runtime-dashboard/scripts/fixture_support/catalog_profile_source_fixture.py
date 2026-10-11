@@ -301,6 +301,116 @@ def _seed_v6_partial_run(env: dict[str, object]) -> dict[str, str]:
     }
 
 
+def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str, str]:
+    """Persist two same-byte views with test-only dashboard display scope."""
+    import hashlib
+
+    from _helpers.runtime_http import (
+        _put_fixture_authority_envelope,
+        _record_fixture_owner,
+        _runtime_fixture_authority_boundary,
+    )
+
+    from polisyos.core.artifacts import PutOptions, SchemaInfo, profile_bound_ref
+    from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ProducerInfo
+    from polisyos.core.canon import to_canonical_bytes
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    app = env["app"]
+    container = app.state.runtime_container
+    runtime_context = container.runtime_api_context
+    store = runtime_context.store
+    payload = {
+        "fixture": "source_bound_profile_inspector",
+        "marker": "same-bytes-across-profile-views",
+    }
+    payload_bytes = to_canonical_bytes(payload)
+    payload_sha256 = hashlib.sha256(payload_bytes).hexdigest()
+    payload_ref = f"sha256:{payload_sha256}"
+    producer = ProducerInfo(
+        component="polisyos.tests.runtime_api_env",
+        version="profile-qualified-inspector-v1",
+    )
+    refs = []
+    envelope_refs = []
+    for role in ("primary", "sibling"):
+        kind = f"test.dashboard_profile_inspector.{role}"
+        boundary = {
+            **_runtime_fixture_authority_boundary(
+                boundary_id=f"boundary-dashboard-profile-inspector-{role}"
+            ),
+            "authoritative_for": ["runtime_closeout_authority", "dashboard_display"],
+            "may_not_use_for": ["claim_authority", "publication", "promotion"],
+            "known_limits": ["controlled_test_fixture_only", "no_production_claim"],
+            "subject_ref": payload_ref,
+            "subject_kind": kind,
+        }
+        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+            envelope_ref = _put_fixture_authority_envelope(
+                store,
+                boundary,
+                producer_version="profile-qualified-inspector-v1",
+            )
+            ref = store.put_bytes(
+                payload_bytes,
+                PutOptions(
+                    kind=kind,
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=f"test.dashboard_profile_inspector.{role}",
+                        version="1",
+                    ),
+                    producer=producer,
+                    authority=ArtifactAuthorityInfo(
+                        authority_envelope_ref=str(envelope_ref.artifact_id),
+                        authority_envelope_manifest_profile_sha256=(
+                            envelope_ref.manifest_profile_sha256
+                        ),
+                        diagnostic_event_ref=(
+                            f"event://tests/dashboard/profile-inspector/{role}"
+                        ),
+                        manifest_ref=f"cas-manifest://{payload_ref}",
+                        payload_sha256=payload_sha256,
+                    ),
+                ),
+            )
+            refs.append(profile_bound_ref(store, ref))
+            envelope_refs.append(envelope_ref)
+
+    primary, sibling = refs
+    if (
+        primary.artifact_id != sibling.artifact_id
+        or primary.manifest_profile_sha256 is None
+        or sibling.manifest_profile_sha256 is None
+        or primary.manifest_profile_sha256 == sibling.manifest_profile_sha256
+    ):
+        raise RuntimeError("profile_inspector_fixture_views_are_not_distinct")
+    _record_fixture_owner(
+        store,
+        *envelope_refs,
+        *refs,
+        tenant_id=_TENANT_ID,
+        cell_id=_CELL_ID,
+        runtime_api_env=env,
+    )
+    return {
+        "source_bound_profile_inspector_artifact_id": str(primary.artifact_id),
+        "source_bound_profile_inspector_primary_kind": primary.kind,
+        "source_bound_profile_inspector_primary_media_type": primary.media_type,
+        "source_bound_profile_inspector_primary_profile": str(
+            primary.manifest_profile_sha256
+        ),
+        "source_bound_profile_inspector_sibling_kind": sibling.kind,
+        "source_bound_profile_inspector_sibling_media_type": sibling.media_type,
+        "source_bound_profile_inspector_sibling_profile": str(
+            sibling.manifest_profile_sha256
+        ),
+        "source_bound_profile_inspector_authority_scope": (
+            "controlled_fixture_runtime_inspector_and_dashboard_only_no_publication_claim"
+        ),
+    }
+
+
 @contextmanager
 def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, object]]:
     """Serve a real configured candidate producer under an explicit test identity."""
@@ -438,4 +548,5 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
             }
         )
         env.update(_seed_v6_partial_run(env))
+        env.update(_seed_profile_qualified_inspector_views(env))
         yield env

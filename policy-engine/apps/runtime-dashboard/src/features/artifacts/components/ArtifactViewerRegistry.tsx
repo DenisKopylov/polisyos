@@ -1,8 +1,15 @@
 import { lazy, Suspense, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import type { ArtifactView } from "@/features/artifacts/domain/searchParams";
+import {
+  buildArtifactHref,
+  type ArtifactView,
+} from "@/features/artifacts/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import {
   asArray,
   asNumber,
@@ -21,6 +28,7 @@ const SimulationResultsViewer = lazy(
   () => import("./simulation/SimulationResultsViewer"),
 );
 const TrinityCard = lazy(() => import("./trinity/TrinityCard"));
+const MANIFEST_PROFILE_PATTERN = /^sha256:[0-9a-f]{64}$/;
 
 type ArtifactViewerProps = {
   kind: string;
@@ -37,6 +45,8 @@ type ArtifactViewerSummaryItem = {
 type ArtifactViewerRelatedRef = {
   label: string;
   artifactId: string;
+  identityKey: string;
+  artifactRef: EvidenceArtifactRef;
 };
 
 export type ArtifactViewerDescriptor = {
@@ -165,8 +175,10 @@ function ArtifactViewerShell({
           <div className="flex flex-wrap gap-2">
             {relatedRefs.slice(0, 4).map((ref) => (
               <Link
-                key={`${ref.label}:${ref.artifactId}`}
-                to={`/artifacts/${ref.artifactId}`}
+                key={`${ref.label}:${ref.identityKey}`}
+                to={buildArtifactHref(ref.artifactId, {
+                  artifactRef: ref.artifactRef,
+                })}
                 className="border-line bg-surface rounded-full border px-3 py-1 text-xs font-semibold"
               >
                 {ref.label}
@@ -198,42 +210,81 @@ function extractRelatedRefs(preview: unknown): ArtifactViewerRelatedRef[] {
   const relatedRefs: ArtifactViewerRelatedRef[] = [];
   const seen = new Set<string>();
 
-  function push(label: string, artifactId: string | null) {
-    if (!artifactId || seen.has(artifactId)) {
+  function push(label: string, value: unknown) {
+    const candidate = asRecord(value);
+    const artifactId =
+      typeof value === "string" ? value : asString(candidate?.artifact_id);
+    if (!artifactId) {
       return;
     }
-    seen.add(artifactId);
-    relatedRefs.push({ label, artifactId });
+    const hasProfile =
+      candidate !== null && Object.hasOwn(candidate, "manifest_profile_sha256");
+    const hasKind = candidate !== null && Object.hasOwn(candidate, "kind");
+    const hasMediaType =
+      candidate !== null && Object.hasOwn(candidate, "media_type");
+    const rawProfile = candidate?.manifest_profile_sha256;
+    const rawKind = candidate?.kind;
+    const rawMediaType = candidate?.media_type;
+    if (
+      hasProfile &&
+      rawProfile !== null &&
+      (typeof rawProfile !== "string" ||
+        !MANIFEST_PROFILE_PATTERN.test(rawProfile))
+    ) {
+      return;
+    }
+    if (
+      (hasKind &&
+        rawKind !== null &&
+        (typeof rawKind !== "string" || rawKind.trim() === "")) ||
+      (hasMediaType &&
+        rawMediaType !== null &&
+        (typeof rawMediaType !== "string" || rawMediaType.trim() === ""))
+    ) {
+      return;
+    }
+    const manifestProfileSha256 =
+      typeof rawProfile === "string" ? rawProfile : null;
+    const ref: EvidenceArtifactRef = {
+      artifact_id: artifactId,
+      kind: hasKind ? (rawKind as string | null) : undefined,
+      media_type: hasMediaType ? (rawMediaType as string | null) : undefined,
+      manifest_profile_sha256: manifestProfileSha256,
+    };
+    const identityKey = evidenceArtifactRefKey(ref);
+    if (seen.has(identityKey)) {
+      return;
+    }
+    seen.add(identityKey);
+    relatedRefs.push({
+      label,
+      artifactId,
+      identityKey,
+      artifactRef: ref,
+    });
   }
 
   for (const [key, value] of Object.entries(record)) {
     const directRef = asRecord(value);
     if (key.endsWith("_ref") && directRef) {
-      push(toDisplayLabel(key), asString(directRef.artifact_id));
+      push(toDisplayLabel(key), directRef);
       continue;
     }
     if (key === "links" && directRef) {
       for (const [linkKey, linkValue] of Object.entries(directRef)) {
-        push(
-          toDisplayLabel(linkKey),
-          asString(asRecord(linkValue)?.artifact_id),
-        );
+        push(toDisplayLabel(linkKey), linkValue);
       }
       continue;
     }
     if (key === "artifacts" && directRef) {
       for (const [artifactKey, artifactValue] of Object.entries(directRef)) {
-        push(toDisplayLabel(artifactKey), asString(artifactValue));
+        push(toDisplayLabel(artifactKey), artifactValue);
       }
       continue;
     }
     if (key === "inputs" && directRef) {
       for (const [inputKey, inputValue] of Object.entries(directRef)) {
-        const refId =
-          typeof inputValue === "string"
-            ? inputValue
-            : asString(asRecord(inputValue)?.artifact_id);
-        push(toDisplayLabel(inputKey), refId);
+        push(toDisplayLabel(inputKey), inputValue);
       }
     }
   }

@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
     from polisyos.core.contracts import FoundryInputBindingRule
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+    from polisyos.data_forge.read_api.catalog import (
         ActivatedAcquisitionObservationProjection,
     )
 
@@ -110,6 +110,26 @@ class DataStateSubstrateError(ValueError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(f"{code}: {message or code}")
+
+
+def _required_l1_scalar_count(
+    row: tuple[object, ...] | None,
+    *,
+    query_id: str,
+) -> int:
+    """Require one non-negative integer count row from the L1 owner query.
+
+    Missing and malformed rows fail closed; they are never interpreted as a
+    zero count. A real SQL COUNT(*) row containing zero remains valid.
+    """
+    if row is None:
+        raise DataStateSubstrateError("l1_dcat_scalar_row_missing", query_id)
+    if len(row) != 1:
+        raise DataStateSubstrateError("l1_dcat_scalar_row_shape_invalid", query_id)
+    value = row[0]
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise DataStateSubstrateError("l1_dcat_scalar_value_invalid", query_id)
+    return value
 
 
 class _StrictModel(BaseModel):
@@ -303,26 +323,26 @@ def l1_dcat_variable_availability(
         overlay_path=selected_overlay,
     )
     try:
-        metric_binding_count = int(
+        metric_binding_count = _required_l1_scalar_count(
             con.execute(
                 "SELECT count(*) FROM ds_metric_bindings WHERE metric_id = ?",
                 [variable],
-            ).fetchone()[0]
-            or 0
+            ).fetchone(),
+            query_id="ds_metric_bindings",
         )
-        observation_count = int(
+        observation_count = _required_l1_scalar_count(
             con.execute(
                 "SELECT count(*) FROM ds_observations WHERE canonical_var = ?",
                 [variable],
-            ).fetchone()[0]
-            or 0
+            ).fetchone(),
+            query_id="ds_observations",
         )
-        dataset_count = int(
+        dataset_count = _required_l1_scalar_count(
             con.execute(
                 "SELECT count(*) FROM ds_datasets WHERE list_contains(polisyos_metrics, ?)",
                 [variable],
-            ).fetchone()[0]
-            or 0
+            ).fetchone(),
+            query_id="ds_datasets",
         )
     finally:
         con.close()
@@ -597,7 +617,7 @@ def materialize_acquired_observation_snapshot(
             mapping, or transaction time cannot be verified.
     """
     from polisyos.core.contracts import FoundryInputBindingRule
-    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+    from polisyos.data_forge.read_api.catalog import (
         ActivatedAcquisitionObservationProjection,
         CatalogAcquisitionOverlay,
     )

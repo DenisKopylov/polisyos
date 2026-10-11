@@ -173,3 +173,56 @@ async def test_openalex_provider_exposes_complete_raw_work_population_from_actua
     assert all(
         work.raw_work == row for work, row in zip(result.works, payload["results"], strict=True)
     )
+
+
+@pytest.mark.asyncio
+async def test_openalex_attempt_trace_counts_actual_response_and_constraints(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = _fixture("credit_guarantee_firm_survival.json")
+    body = json.dumps(payload)
+    calls: list[str] = []
+
+    async def _fake_read_url_text(
+        url: str,
+        *,
+        headers: dict[str, str],
+        timeout_s: float,
+    ) -> str:
+        del headers, timeout_s
+        calls.append(url)
+        return body
+
+    monkeypatch.setattr(
+        "polisyos.scholar.search.providers._read_url_text",
+        _fake_read_url_text,
+    )
+    policy = ProviderFailoverPolicy(
+        [OpenAlexWorksProvider(endpoint="https://openalex.test/works")]
+    )
+
+    provider_name, hits, error, attempts = await policy.search_with_attempts(
+        "loan guarantees SMEs firm survival impact evaluation",
+        constraints=SearchConstraints(
+            source_types=["academic"],
+            allowed_domains=["unrelated.example"],
+        ),
+        max_results=5,
+        timeout_s=5,
+    )
+
+    assert len(calls) == 1
+    assert provider_name == "openalex"
+    assert hits == []
+    assert error is None
+    assert len(attempts) == 1
+    attempt = attempts[0]
+    assert attempt.outcome == "all_candidates_filtered"
+    assert attempt.reason == "all_candidates_filtered"
+    assert attempt.raw_result_count == len(payload["results"])
+    assert attempt.pre_filter_candidate_count == len(payload["results"])
+    assert attempt.eligible_candidate_count == 0
+    assert attempt.returned_hit_count == 0
+    assert attempt.constraint_rejection_counts == {
+        "allowed_domain_mismatch": len(payload["results"])
+    }

@@ -747,7 +747,8 @@ def stage_06_transportability(ctx: dict[str, Any]) -> dict[str, Any]:
     stage = "06_transportability"
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
-    rng = random.Random(20260501)
+    # Seeded synthetic transportability draws are experiment inputs, not secrets.
+    rng = random.Random(20260501)  # noqa: S311
     contexts = []
     verdicts = []
     bounds = []

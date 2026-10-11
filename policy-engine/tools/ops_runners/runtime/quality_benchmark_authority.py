@@ -600,17 +600,17 @@ def _failure(
 
 
 __all__ = [
-    "BenchmarkAuthorityValidationError",
-    "BenchmarkContaminationError",
-    "BenchmarkContaminationPolicy",
     "HIDDEN_ANSWER_FIELDS",
     "PROTECTED_PUBLIC_SURFACES",
     "QUARANTINED_PACK_KINDS",
-    "QuarantinedScenarioAccessError",
     "REQUIRED_EVIDENCE_CONTRACT_FIELDS",
     "REQUIRED_PACK_KINDS",
     "REQUIRED_THRESHOLD_FIELDS",
     "SENTINEL_STRING_FIELDS",
+    "BenchmarkAuthorityValidationError",
+    "BenchmarkContaminationError",
+    "BenchmarkContaminationPolicy",
+    "QuarantinedScenarioAccessError",
     "assert_no_benchmark_contamination",
     "contamination_policy_from_catalog",
     "detect_benchmark_contamination",

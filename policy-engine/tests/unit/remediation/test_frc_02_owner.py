@@ -7,24 +7,38 @@ effect-confidence interval or an S10 promotion.
 
 from __future__ import annotations
 
+import hashlib
+import json
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from _helpers.runtime_http import (
+    _put_fixture_authority_envelope,
+    _record_fixture_owner,
+    _runtime_api_request,
+    _runtime_api_tenant_scope,
+    _runtime_fixture_authority_boundary,
+    build_runtime_api_env,
+    close_runtime_api_env,
+)
 from pydantic import ValidationError
 
 from polisyos.calibration.forecast_bridge import (
     persist_empirical_calibration_evidence,
     produce_empirical_calibration_evidence,
 )
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts._profiled_ref import profile_bound_ref
+from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
 from polisyos.ir.artifacts import InputRef, get_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.runtime.http.dependencies import get_runtime_api_context
 from polisyos.scientist.methods.backtesting.forecast_owner import (
     CalibrationRuleBinding,
     ForecastOwner,
@@ -359,6 +373,375 @@ def test_same_ets_shape_uses_held_out_observations_for_suitability(tmp_path: Pat
     assert in_profile.coverage_denominator == out_of_profile.coverage_denominator
     assert in_profile.empirical_suitability == "supported"
     assert out_of_profile.empirical_suitability == "limited"
+
+
+def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
+    tmp_path: Path,
+) -> None:
+    """Serve only the reader-recomputed projection; raw content stays protected."""
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+    app = env["app"]
+    original_context_override = app.dependency_overrides.get(get_runtime_api_context)
+    try:
+        runtime_context = env["app"].state.runtime_api_ctx
+        store = runtime_context.store
+        rule_ref = _rule(store)
+        training = [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0]
+        owner_results = []
+        report_refs = []
+        for holdout, report_id in (
+            ([20.0, 21.0, 22.0], "frc-owner-inspector-in-profile"),
+            ([1000.0, 1001.0, 1002.0], "frc-owner-inspector-out-of-profile"),
+        ):
+            result = ForecastOwner(store).run(
+                _request(
+                    _source(store, training=training, holdout=holdout),
+                    rule_ref,
+                    report_id=report_id,
+                    train_end=len(training),
+                    horizon=3,
+                )
+            )
+            selected_ir_ref = profile_bound_ref(store, result.backtest_report_ref)
+            selected_ref = ArtifactRef.model_validate(selected_ir_ref.model_dump(mode="json"))
+            owner_results.append(result)
+            report_refs.append(selected_ref)
+
+        assert owner_results[0].point_forecast == owner_results[1].point_forecast
+        assert owner_results[0].predictive_intervals == owner_results[1].predictive_intervals
+        assert owner_results[0].empirical_coverage != owner_results[1].empirical_coverage
+        _record_fixture_owner(
+            store,
+            *report_refs,
+            tenant_id=env["tenant_a"],
+            cell_id=env["cell_a"],
+            runtime_api_env=env,
+        )
+        with _runtime_api_tenant_scope(env):
+            client = env["client"]
+            assert client is not None
+
+            def fetch_content(ref: ArtifactRef, *, selected_profile: bool = True):
+                url = f"/api/v1/artifacts/{ref.artifact_id}/content"
+                if selected_profile:
+                    url += f"?manifest_profile_sha256={ref.manifest_profile_sha256}"
+                return _runtime_api_request(env, client.get, url)
+
+            def fetch_diagnostic(ref: ArtifactRef, *, selected_profile: bool = True):
+                url = f"/api/v1/artifacts/{ref.artifact_id}/predictive-coverage-diagnostic"
+                if selected_profile:
+                    url += f"?manifest_profile_sha256={ref.manifest_profile_sha256}"
+                return _runtime_api_request(env, client.get, url)
+
+            disabled = fetch_diagnostic(report_refs[0], selected_profile=False)
+            assert disabled.status_code == 409
+            assert disabled.json()["code"] == "predictive_coverage_diagnostic_not_admitted"
+
+            runtime_context = app.state.runtime_api_ctx
+            app.dependency_overrides[get_runtime_api_context] = lambda: replace(
+                runtime_context,
+                allow_candidate_predictive_diagnostic_surface=True,
+            )
+            default_response = fetch_diagnostic(report_refs[0], selected_profile=False)
+            explicit_response = fetch_diagnostic(report_refs[1])
+            assert default_response.status_code == 200
+            assert explicit_response.status_code == 200
+            default_projection = default_response.json()
+            explicit_projection = explicit_response.json()
+            assert default_projection["source_artifact_id"] == str(report_refs[0].artifact_id)
+            assert explicit_projection["source_artifact_id"] == str(report_refs[1].artifact_id)
+            assert (
+                default_projection["source_manifest_profile_sha256"]
+                == report_refs[0].manifest_profile_sha256
+            )
+            assert (
+                explicit_projection["source_manifest_profile_sha256"]
+                == report_refs[1].manifest_profile_sha256
+            )
+            assert default_response.headers["X-Manifest-Profile-SHA256"] == (
+                report_refs[0].manifest_profile_sha256
+            )
+            assert explicit_response.headers["X-Manifest-Profile-SHA256"] == (
+                report_refs[1].manifest_profile_sha256
+            )
+            unavailable_profile_response = _runtime_api_request(
+                env,
+                client.get,
+                f"/api/v1/artifacts/{report_refs[0].artifact_id}/predictive-coverage-diagnostic",
+                params={"manifest_profile_sha256": "sha256:" + "f" * 64},
+            )
+            assert unavailable_profile_response.status_code == 404
+            assert unavailable_profile_response.json()["code"] == "artifact_manifest_profile_not_found"
+            assert "preview" not in default_projection
+            assert "raw_content" not in default_projection
+            assert default_projection["assessment"] == explicit_projection["assessment"] == "limited"
+
+            raw_default = fetch_content(report_refs[0], selected_profile=False)
+            raw_explicit = fetch_content(report_refs[1])
+            for response in (raw_default, raw_explicit):
+                assert response.status_code == 409
+                assert response.json()["code"] == "authority_surface_admission_blocked"
+            assert default_projection["source_materialization"] == "reader_materialized"
+            for field in (
+                "producer_attestation_status",
+                "s10_metric_mapping_status",
+                "s10_threshold_status",
+                "issuer_status",
+                "effective_time_status",
+                "counterfactual_credibility_status",
+                "causal_effect_status",
+            ):
+                assert default_projection[field] == "not_established"
+            assert {
+                "promotion",
+                "publication",
+                "policy_selection",
+                "causal_effect_claim",
+            }.issubset(default_projection["may_not_use_for"])
+
+            first_scenario = default_projection["scenarios"][0]
+            second_scenario = explicit_projection["scenarios"][0]
+            assert first_scenario["interval_evaluated_count"] == owner_results[0].coverage_denominator
+            assert first_scenario["interval_hit_count"] == owner_results[0].coverage_numerator
+            assert second_scenario["interval_evaluated_count"] == owner_results[1].coverage_denominator
+            assert second_scenario["interval_hit_count"] == owner_results[1].coverage_numerator
+            assert first_scenario["observed_hit_rate"] != second_scenario["observed_hit_rate"]
+            assert owner_results[0].empirical_suitability == "supported"
+            assert owner_results[1].empirical_suitability == "limited"
+
+            report_bytes = store.get_bytes(report_refs[0])
+            wrong_kind_ref = store.put_bytes(
+                report_bytes,
+                PutOptions(
+                    kind="test.not_backtest_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="test.not_backtest_report", version="1.0"),
+                ),
+            )
+            wrong_kind_ref = profile_bound_ref(store, wrong_kind_ref)
+            assert wrong_kind_ref.artifact_id == report_refs[0].artifact_id
+            assert wrong_kind_ref.manifest_profile_sha256 != report_refs[0].manifest_profile_sha256
+            wrong_schema_ref = profile_bound_ref(
+                store,
+                store.put_bytes(
+                    report_bytes,
+                    PutOptions(
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="ir.backtest_report", version="2.0"),
+                    ),
+                ),
+            )
+            _record_fixture_owner(
+                store,
+                wrong_schema_ref,
+                tenant_id=env["tenant_a"],
+                cell_id=env["cell_a"],
+                runtime_api_env=env,
+            )
+            oversized_ref = profile_bound_ref(
+                store,
+                store.put_bytes(
+                    b" " * 2_000_001,
+                    PutOptions(
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                    ),
+                ),
+            )
+            _record_fixture_owner(
+                store,
+                oversized_ref,
+                tenant_id=env["tenant_a"],
+                cell_id=env["cell_a"],
+                runtime_api_env=env,
+            )
+
+            denial_boundary = _runtime_fixture_authority_boundary(
+                boundary_id="boundary-frc-diagnostic-dashboard-denial"
+            )
+            denial_boundary["may_not_use_for"] = ["claim_authority", "dashboard_display"]
+            denial_envelope_ref = _put_fixture_authority_envelope(
+                store,
+                denial_boundary,
+                producer_version="frc-diagnostic-dashboard-denial-v1",
+            )
+            denied_ref = profile_bound_ref(
+                store,
+                store.put_bytes(
+                    report_bytes,
+                    PutOptions(
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                        authority=ArtifactAuthorityInfo(
+                            authority_envelope_ref=str(denial_envelope_ref.artifact_id),
+                            authority_envelope_manifest_profile_sha256=(
+                                denial_envelope_ref.manifest_profile_sha256
+                            ),
+                            diagnostic_event_ref="event://tests/frc-02/dashboard-denial",
+                            manifest_ref=f"cas-manifest://{report_refs[0].artifact_id}",
+                            payload_sha256=hashlib.sha256(report_bytes).hexdigest(),
+                        ),
+                    ),
+                ),
+            )
+            _record_fixture_owner(
+                store,
+                denied_ref,
+                denial_envelope_ref,
+                tenant_id=env["tenant_a"],
+                cell_id=env["cell_a"],
+                runtime_api_env=env,
+            )
+
+            malformed_payload = json.loads(report_bytes.decode("utf-8"))
+            malformed_scenario = malformed_payload["scenarios"][0]
+            malformed_scenario["interval_hit_count"] = malformed_scenario["interval_evaluated_count"] + 1
+            malformed_ref = store.put_json(
+                malformed_payload,
+                PutOptions(
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            malformed_ref = profile_bound_ref(store, malformed_ref)
+            missing_count_payload = json.loads(report_bytes.decode("utf-8"))
+            del missing_count_payload["scenarios"][0]["interval_evaluated_count"]
+            missing_count_ref = store.put_json(
+                missing_count_payload,
+                PutOptions(
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            missing_count_ref = profile_bound_ref(store, missing_count_ref)
+
+            missing_row_payload = json.loads(report_bytes.decode("utf-8"))
+            missing_row_payload["scenarios"][0]["outcome_comparisons"].pop()
+            missing_row_ref = store.put_json(
+                missing_row_payload,
+                PutOptions(
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            missing_row_ref = profile_bound_ref(store, missing_row_ref)
+            duplicate_row_payload = json.loads(report_bytes.decode("utf-8"))
+            duplicate_rows = duplicate_row_payload["scenarios"][0]["outcome_comparisons"]
+            duplicate_rows.append(dict(duplicate_rows[0]))
+            duplicate_row_ref = store.put_json(
+                duplicate_row_payload,
+                PutOptions(
+                    kind="ir.backtest_report",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            duplicate_row_ref = profile_bound_ref(store, duplicate_row_ref)
+
+            invalid_numeric_refs: list[ArtifactRef] = []
+            invalid_numeric_cases: tuple[tuple[str, object], ...] = (
+                ("huge_positive_integer", 10**1000),
+                ("huge_negative_integer", -(10**1000)),
+                ("boolean", True),
+                ("null", None),
+                ("positive_infinity", float("inf")),
+                ("negative_infinity", float("-inf")),
+                ("not_a_number", float("nan")),
+            )
+            for _case_name, numeric_value in invalid_numeric_cases:
+                invalid_payload = json.loads(report_bytes.decode("utf-8"))
+                invalid_payload["scenarios"][0]["outcome_comparisons"][0]["y_true"] = numeric_value
+                invalid_ref = store.put_json(
+                    invalid_payload,
+                    PutOptions(
+                        kind="ir.backtest_report",
+                        media_type="application/json",
+                        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+                    ),
+                    canon_spec=CanonSpec(
+                        forbid_floats=False,
+                        forbid_nan_inf=False,
+                        exclude_none=False,
+                    ),
+                )
+                invalid_numeric_refs.append(profile_bound_ref(store, invalid_ref))
+
+            _record_fixture_owner(
+                store,
+                wrong_kind_ref,
+                malformed_ref,
+                missing_count_ref,
+                missing_row_ref,
+                duplicate_row_ref,
+                *invalid_numeric_refs,
+                tenant_id=env["tenant_a"],
+                cell_id=env["cell_a"],
+                runtime_api_env=env,
+            )
+
+            wrong_response = fetch_diagnostic(wrong_kind_ref)
+            assert wrong_response.status_code == 409
+            assert wrong_response.json()["code"] == "predictive_coverage_source_unsupported"
+            wrong_schema_response = fetch_diagnostic(wrong_schema_ref)
+            assert wrong_schema_response.status_code == 409
+            assert wrong_schema_response.json()["code"] == "predictive_coverage_source_unsupported"
+            oversized_response = fetch_diagnostic(oversized_ref)
+            assert oversized_response.status_code == 409
+            assert oversized_response.json()["code"] == "predictive_coverage_source_unsupported"
+            denied_response = fetch_diagnostic(denied_ref)
+            assert denied_response.status_code == 409
+            assert denied_response.json()["code"] == "authority_surface_admission_blocked"
+            denied_decision = denied_response.json()["authority_surface_decision"]
+            assert "dashboard_display" in denied_decision["may_not_use_for"]
+            assert any(
+                row["basis"] == "selected_manifest" and row["status"] != "allowed"
+                for row in denied_decision["authority_contributors"]
+            )
+            for invalid_ref in (malformed_ref, missing_count_ref, missing_row_ref, duplicate_row_ref):
+                invalid_response = fetch_diagnostic(invalid_ref)
+                assert invalid_response.status_code == 200
+                invalid_projection = invalid_response.json()
+                assert invalid_projection["assessment"] == "limited"
+                assert invalid_projection["measurement_status"] == "invalid_source"
+                assert invalid_projection["reason_code"] == "malformed_interval_counts"
+                assert invalid_projection["scenarios"] == []
+
+            for (case_name, _), invalid_numeric_ref in zip(
+                invalid_numeric_cases, invalid_numeric_refs, strict=True
+            ):
+                invalid_response = fetch_diagnostic(invalid_numeric_ref)
+                assert invalid_response.status_code == 200, case_name
+                invalid_projection = invalid_response.json()
+                assert invalid_projection["assessment"] == "limited"
+                assert invalid_projection["measurement_status"] == "invalid_source"
+                assert invalid_projection["reason_code"] == "malformed_report_shape"
+                assert invalid_projection["scenarios"] == []
+
+            blob_path, _manifest_path = store._paths(report_refs[0].artifact_id)
+            original_blob = blob_path.read_bytes()
+            try:
+                blob_path.write_bytes(original_blob + b" ")
+                integrity_response = fetch_diagnostic(report_refs[0], selected_profile=False)
+                assert integrity_response.status_code == 409
+                assert integrity_response.json()["code"] == "artifact_integrity_failed"
+            finally:
+                blob_path.write_bytes(original_blob)
+    finally:
+        if original_context_override is None:
+            app.dependency_overrides.pop(get_runtime_api_context, None)
+        else:
+            app.dependency_overrides[get_runtime_api_context] = original_context_override
+        close_runtime_api_env(env)
 
 
 def test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_evidence(

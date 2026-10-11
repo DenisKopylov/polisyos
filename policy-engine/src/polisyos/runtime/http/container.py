@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.contracts.control import CatalogRunProfile
+    from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
@@ -66,6 +66,10 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
     from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationProfileV1,
+    )
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -183,6 +187,9 @@ class RuntimeContainerConfig:
     )
     candidate_simulation_profiles: tuple[Any, ...] = ()
     candidate_simulation_model_declarations: tuple[Any, ...] = ()
+    generic_cycle_simulation_profiles: tuple[GenericCycleSimulationProfileV1, ...] = ()
+    generic_cycle_simulation_root_profile_id: str | None = None
+    enable_contract_testing_credal_source_attempts: bool = False
     process_worker_capacity: int | None = None
     process_worker_profile_revision: str | None = None
     catalog_run_profile: CatalogRunProfile | None = None
@@ -259,6 +266,8 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     public_decision_verification_service: PublicDecisionVerificationService
     candidate_simulation_context_admission_owner: Any | None = None
+    generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner | None = None
+    generic_cycle_simulation_root_profile_id: str | None = None
     legal_query_encoder_provider: LegalQueryEncoderProvider | None = None
     llm_producer_settlement_store: BudgetMiddleware | None = None
     control_service: ControlPlaneService | None = None
@@ -284,6 +293,25 @@ class RuntimeServiceContainer:
             raise TypeError("candidate_simulation_profiles_must_be_tuple")
         if type(config.candidate_simulation_model_declarations) is not tuple:
             raise TypeError("candidate_simulation_model_declarations_must_be_tuple")
+        if type(config.generic_cycle_simulation_profiles) is not tuple:
+            raise TypeError("generic_cycle_simulation_profiles_must_be_tuple")
+        if type(config.enable_contract_testing_credal_source_attempts) is not bool:
+            raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
+        if (
+            config.enable_contract_testing_credal_source_attempts
+            and deployment_policy.default_profile != "dev"
+        ):
+            raise ValueError("contract_testing_credal_source_attempts_dev_profile_required")
+        if config.enable_contract_testing_credal_source_attempts and not (
+            config.generic_cycle_simulation_profiles
+            and config.generic_cycle_simulation_root_profile_id
+        ):
+            raise ValueError("contract_testing_credal_source_attempts_require_generic_owner")
+        if config.generic_cycle_simulation_root_profile_id is not None and (
+            not isinstance(config.generic_cycle_simulation_root_profile_id, str)
+            or not config.generic_cycle_simulation_root_profile_id.strip()
+        ):
+            raise ValueError("generic_cycle_simulation_root_profile_id_invalid")
         runtime_metrics = overrides.runtime_metrics or (config.metrics_factory or get_metrics)()
         runtime_tracer = overrides.runtime_tracer or (config.tracer_factory or get_tracer)()
         producer_settlement_store = overrides.llm_producer_settlement_store
@@ -323,6 +351,43 @@ class RuntimeServiceContainer:
             or config.candidate_simulation_model_declarations
             else None
         )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationProfileV1,
+        )
+
+        if any(
+            type(profile) is not GenericCycleSimulationProfileV1
+            for profile in config.generic_cycle_simulation_profiles
+        ):
+            raise TypeError("generic_cycle_simulation_profiles_must_be_typed")
+        if bool(config.generic_cycle_simulation_profiles) != bool(
+            config.generic_cycle_simulation_root_profile_id
+        ):
+            raise ValueError("generic_cycle_simulation_root_profile_configuration_incomplete")
+        generic_context_owner = (
+            GenericCycleSimulationAdmissionOwner(
+                profiles=config.generic_cycle_simulation_profiles,
+                store=runtime_api_context.store,
+            )
+            if config.generic_cycle_simulation_profiles
+            else None
+        )
+        if generic_context_owner is not None:
+            root_profiles = tuple(
+                profile
+                for profile in generic_context_owner.profiles
+                if profile.profile_id == config.generic_cycle_simulation_root_profile_id
+            )
+            if len(root_profiles) != 1 or root_profiles[0].profile_selection_kind != "problem":
+                raise ValueError("generic_cycle_simulation_root_profile_not_configured")
+            generic_root_selectors = {profile.profile_selection_ref for profile in root_profiles}
+            candidate_selectors = {
+                getattr(profile, "profile_selection_ref", None)
+                for profile in config.candidate_simulation_profiles
+            }
+            if generic_root_selectors & candidate_selectors:
+                raise ValueError("simulation_profile_selection_owner_ambiguous")
         runtime_rate_limiter, runtime_idempotency_store, runtime_mutation_audit = (
             build_runtime_mutation_services(
                 cas_root=config.cas_root,
@@ -373,6 +438,41 @@ class RuntimeServiceContainer:
                 or override_owner.store is not runtime_api_context.store
             ):
                 raise ValueError("candidate_simulation_context_owner_override_mismatch")
+        if overrides.control_service is not None:
+            override_generic_owner = getattr(
+                overrides.control_service,
+                "_generic_cycle_simulation_admission_owner",
+                None,
+            )
+            override_generic_root = getattr(
+                overrides.control_service,
+                "_generic_cycle_simulation_root_profile_id",
+                None,
+            )
+            if generic_context_owner is None:
+                if (
+                    override_generic_owner is not None
+                    or override_generic_root is not None
+                    or getattr(
+                        overrides.control_service,
+                        "_enable_contract_testing_credal_source_attempts",
+                        False,
+                    )
+                ):
+                    raise ValueError("generic_cycle_simulation_context_owner_override_mismatch")
+            elif (
+                type(override_generic_owner) is not GenericCycleSimulationAdmissionOwner
+                or override_generic_owner.store is not runtime_api_context.store
+                or override_generic_owner.profiles != generic_context_owner.profiles
+                or override_generic_root != config.generic_cycle_simulation_root_profile_id
+                or getattr(
+                    overrides.control_service,
+                    "_enable_contract_testing_credal_source_attempts",
+                    False,
+                )
+                != config.enable_contract_testing_credal_source_attempts
+            ):
+                raise ValueError("generic_cycle_simulation_context_owner_override_mismatch")
         if type(config.normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")
         if overrides.control_service is not None and (
@@ -471,6 +571,14 @@ class RuntimeServiceContainer:
                 claim_owner=claim_ledger_owner,
             ),
             candidate_simulation_context_admission_owner=candidate_context_owner,
+            generic_cycle_simulation_admission_owner=(
+                generic_context_owner
+                if overrides.control_service is None
+                else overrides.control_service._generic_cycle_simulation_admission_owner
+            ),
+            generic_cycle_simulation_root_profile_id=(
+                config.generic_cycle_simulation_root_profile_id
+            ),
             legal_query_encoder_provider=overrides.legal_query_encoder_provider,
             llm_producer_settlement_store=producer_settlement_store,
             control_service=overrides.control_service,
@@ -553,6 +661,15 @@ class RuntimeServiceContainer:
                     ),
                     cycle_substrate_context_admission_owner=(
                         self.candidate_simulation_context_admission_owner
+                    ),
+                    generic_cycle_simulation_admission_owner=(
+                        self.generic_cycle_simulation_admission_owner
+                    ),
+                    generic_cycle_simulation_root_profile_id=(
+                        self.generic_cycle_simulation_root_profile_id
+                    ),
+                    enable_contract_testing_credal_source_attempts=(
+                        self.config.enable_contract_testing_credal_source_attempts
                     ),
                     llm_producer_settlement_store=self.llm_producer_settlement_store,
                 )

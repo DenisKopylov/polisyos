@@ -987,6 +987,10 @@ class ControlJobRecord:
             blocking_quality_failures=blocking_quality_failures,
             operator_diagnostic=operator_diagnostic,
             progress=dict(self.progress),
+            runtime_quality_artifact_refs=self.progress.get(
+                "runtime_quality_artifact_refs",
+                {},
+            ),
         )
 
 

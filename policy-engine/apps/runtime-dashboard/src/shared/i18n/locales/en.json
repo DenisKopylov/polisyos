@@ -59,7 +59,8 @@
       "threshold": "{nodes, plural, one {Graph has {nodes} node, which is above render threshold ({maxNodes}).} other {Graph nodes: {nodes}; render threshold: {maxNodes}.}}",
       "thresholdHint": "Narrow the lineage scope (`max_depth`/`max_nodes`) for interactive rendering.",
       "ariaLabel": "Artifact lineage graph",
-      "unknownKind": "Unknown kind"
+      "unknownKind": "Unknown kind",
+      "unqualifiedProfile": "Not selected (legacy profile)"
     },
     "locale": {
       "en": "English",
@@ -1284,6 +1285,9 @@
       "noPromotionContext": "No promotion candidate is attached to this run context.",
       "artifactLoading": "Loading artifact preview...",
       "artifactLoadError": "Unable to load artifact preview",
+      "manifestProfile": "Manifest profile",
+      "manifestProfileUnqualified": "Unqualified ref (no producer profile asserted)",
+      "artifactProfileMismatch": "The returned artifact view does not match the selected full artifact reference. Content is withheld.",
       "artifactEmptyTitle": "Artifact preview unavailable",
       "artifactEmptyBody": "No related artifact is selected for inline inspection.",
       "selectedNode": "Selected node",
@@ -1354,13 +1358,19 @@
         "needMissing": "Need {needId} is no longer available in the current run context.",
         "planMissing": "Plan {planId} is no longer available in the current run context.",
         "promotionMissing": "Promotion {promotionId} is no longer available in the current run context.",
-        "artifactMissing": "Artifact {artifactId} is no longer linked from the current run context."
+        "artifactMissing": "Artifact {artifactId} is no longer linked from the current run context.",
+        "artifactReferenceInvalid": "The artifact reference selector is malformed, repeated, or does not match the run context. No artifact was selected."
       }
     },
     "artifacts": {
       "title": "Artifact Inspector",
       "subtitle": "Typed viewers for runtime artifacts and provenance surfaces.",
       "requiredArtifactId": "Artifact ID is required.",
+      "requestedReference": "Requested artifact reference",
+      "resolvedManifestProfile": "Reader-resolved manifest profile",
+      "profileUnqualified": "No profile selector; the reader resolves the default view",
+      "profileInvalidSelection": "The artifact reference or manifest profile selector is malformed or repeated. No artifact view was loaded.",
+      "profileMismatch": "The resolved artifact view does not match the selected full reference. Content is withheld.",
       "loadingManifest": "Loading manifest...",
       "loadManifestError": "Unable to load artifact manifest",
       "loadingContent": "Loading content preview...",
@@ -1384,6 +1394,7 @@
         "created": "Created",
         "size": "Size",
         "producer": "Producer",
+        "manifestProfile": "Manifest profile",
         "schema": "Schema"
       },
       "contentFields": {

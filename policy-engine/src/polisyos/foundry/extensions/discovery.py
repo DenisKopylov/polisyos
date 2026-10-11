@@ -8,6 +8,7 @@ from pathlib import Path
 from polisyos.core.components import (
     ComponentEntry,
     ComponentRegistry,
+    DeclaredBuiltinLoader,
     DuplicateComponentIdPolicy,
 )
 from polisyos.core.components.discovery import (
@@ -22,6 +23,23 @@ BUILTIN_LOADER = (
     "polisyos.foundry.extensions._builtin_loader:builtin_foundry_method_components",
     lambda: _builtin_foundry_method_components(),
 )
+_DEFAULT_BUILTIN_LOADER = BUILTIN_LOADER
+
+
+def _selected_foundry_builtin_loader_spec() -> BuiltinLoaderSpec:
+    """Return the effective builtin-loader declaration selected for discovery.
+
+    The default tuple remains a compatibility surface. Its object identity marks
+    the canonical default, which is represented internally by the typed Core
+    declaration. Any explicit replacement is passed through without upgrading
+    its provenance.
+    """
+    if BUILTIN_LOADER is _DEFAULT_BUILTIN_LOADER:
+        return DeclaredBuiltinLoader(
+            target=BUILTIN_LOADER[0],
+            group=ENTRY_POINT_GROUP,
+        )
+    return BUILTIN_LOADER
 
 
 def discover_foundry_method_components(
@@ -36,7 +54,7 @@ def discover_foundry_method_components(
     groups = [ENTRY_POINT_GROUP] if include_entry_points else []
     loaders: list[BuiltinLoaderSpec] = []
     if include_builtins:
-        loaders.append(BUILTIN_LOADER)
+        loaders.append(_selected_foundry_builtin_loader_spec())
     loaders.extend(builtin_loaders or ())
 
     return discover_components(
@@ -69,7 +87,9 @@ def build_foundry_method_components_index(
     index = ComponentRegistry()
     for row in report.components:
         index.register(
-            ComponentEntry(metadata=row.metadata, component=row.component, source=row.source),
+            ComponentEntry(
+                metadata=row.metadata, component=row.component, source=row.source
+            ),
             on_duplicate=duplicate_policy,
         )
 
@@ -85,6 +105,8 @@ __all__ = [
 
 
 def _builtin_foundry_method_components() -> object:
-    from polisyos.foundry.extensions._builtin_loader import builtin_foundry_method_components
+    from polisyos.foundry.extensions._builtin_loader import (
+        builtin_foundry_method_components,
+    )
 
     return builtin_foundry_method_components()

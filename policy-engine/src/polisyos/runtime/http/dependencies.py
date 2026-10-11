@@ -92,6 +92,7 @@ class RuntimeApiContext:
     lineage_max_depth: int
     lineage_max_nodes: int
     allow_unscoped_artifacts: bool = False
+    allow_candidate_predictive_diagnostic_surface: bool = False
     signature_verifier: SignatureVerifyingArtifactStore | None = None
 
 

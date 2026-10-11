@@ -1,7 +1,20 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import { renderRouteWithProviders } from "@/test/routes";
+
+const DEFAULT_PROFILE = `sha256:${"c".repeat(64)}`;
+const DEFAULT_ARTIFACT_REF = {
+  artifact_id: "artifact-1",
+  kind: "decision_packet",
+  media_type: "application/json",
+  manifest_profile_sha256: null,
+};
+const UNQUALIFIED_ARTIFACT_REF = { artifact_id: "artifact-1" };
 
 const {
   getArtifactViewerDescriptorMock,
@@ -43,8 +56,17 @@ vi.mock("@/features/artifacts/components/ArtifactViewerRegistry", () => ({
 }));
 
 vi.mock("@/features/artifacts/bureaucratic/BureaucraticArtifactView", () => ({
-  BureaucraticArtifactView: ({ artifactId }: { artifactId: string }) => (
-    <div data-testid="bureaucratic-artifact-view">{artifactId}</div>
+  BureaucraticArtifactView: ({
+    artifactRef,
+  }: {
+    artifactRef: {
+      artifact_id: string;
+      manifest_profile_sha256?: string | null;
+    };
+  }) => (
+    <div data-testid="bureaucratic-artifact-view">
+      {JSON.stringify(artifactRef)}
+    </div>
   ),
 }));
 
@@ -82,7 +104,18 @@ describe("ArtifactInspectorPage", () => {
   beforeEach(() => {
     getArtifactViewerDescriptorMock.mockReset();
     getArtifactViewerDescriptorMock.mockReturnValue({
-      relatedRefs: [{ artifactId: "related-1", label: "input" }],
+      relatedRefs: [
+        {
+          artifactId: "related-1",
+          artifactRef: {
+            artifact_id: "related-1",
+            kind: "input",
+            media_type: "application/json",
+            manifest_profile_sha256: null,
+          },
+          label: "input",
+        },
+      ],
     });
     renderArtifactViewerMock.mockReset();
     renderArtifactViewerMock.mockReturnValue(
@@ -92,9 +125,12 @@ describe("ArtifactInspectorPage", () => {
     useArtifactManifestMock.mockReturnValue({
       data: {
         artifact: {
+          artifact_id: "artifact-1",
           byte_size: 1024,
           created_at: "2026-03-10T09:00:00Z",
           kind: "decision_packet",
+          manifest_profile_sha256: DEFAULT_PROFILE,
+          media_type: "application/json",
           producer_component: "atlas",
           schema_name: "decision",
           schema_version: "1.0.0",
@@ -106,9 +142,23 @@ describe("ArtifactInspectorPage", () => {
     });
     useArtifactContentMock.mockReset();
     useArtifactContentMock.mockImplementation(
-      (_artifactId: string, options?: { maxBytes?: number | null }) => ({
+      (
+        artifactRef: EvidenceArtifactRef | string | undefined,
+        options?: {
+          maxBytes?: number | null;
+          manifestProfileSha256?: string | null;
+        },
+      ) => ({
         data: {
           artifact: {
+            artifact_id:
+              typeof artifactRef === "string"
+                ? artifactRef
+                : (artifactRef?.artifact_id ?? "artifact-1"),
+            manifest_profile_sha256:
+              (typeof artifactRef === "string"
+                ? options?.manifestProfileSha256
+                : artifactRef?.manifest_profile_sha256) ?? DEFAULT_PROFILE,
             kind: "decision_packet",
             max_bytes: options?.maxBytes ?? 65536,
             media_type: "application/json",
@@ -137,6 +187,10 @@ describe("ArtifactInspectorPage", () => {
     useArtifactSchemaMock.mockReturnValue({
       data: {
         schema: {
+          artifact_id: "artifact-1",
+          kind: "decision_packet",
+          media_type: "application/json",
+          manifest_profile_sha256: DEFAULT_PROFILE,
           schema_name: "decision",
           schema_version: "1.0.0",
           top_level_keys: ["summary", "verdict"],
@@ -163,6 +217,12 @@ describe("ArtifactInspectorPage", () => {
             },
           ],
           root_artifact_ids: ["artifact-1"],
+          root_artifact_refs: [
+            {
+              ...DEFAULT_ARTIFACT_REF,
+              manifest_profile_sha256: DEFAULT_PROFILE,
+            },
+          ],
           total_edges: 0,
           total_nodes: 1,
           total_size_bytes: 1024,
@@ -183,17 +243,27 @@ describe("ArtifactInspectorPage", () => {
     expect(screen.getByTestId("artifact-viewer")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "input" })).toHaveAttribute(
       "href",
-      "/artifacts/related-1",
+      `/artifacts/related-1?tab=content&artifactRefKey=${encodeURIComponent(
+        evidenceArtifactRefKey({
+          artifact_id: "related-1",
+          kind: "input",
+          media_type: "application/json",
+          manifest_profile_sha256: null,
+        }),
+      )}`,
     );
 
     await user.click(
       screen.getByRole("button", { name: "common.loadLargerPreview" }),
     );
 
-    expect(useArtifactContentMock).toHaveBeenLastCalledWith("artifact-1", {
-      enabled: true,
-      maxBytes: 262144,
-    });
+    expect(useArtifactContentMock).toHaveBeenLastCalledWith(
+      UNQUALIFIED_ARTIFACT_REF,
+      {
+        enabled: true,
+        maxBytes: 262144,
+      },
+    );
     expect(renderArtifactViewerMock).toHaveBeenLastCalledWith({
       kind: "decision_packet",
       onViewChange: expect.any(Function),
@@ -252,5 +322,226 @@ describe("ArtifactInspectorPage", () => {
       },
       view: "reading",
     });
+  });
+
+  it("uses the exact selected profile for manifest and content reads", () => {
+    const profile = `sha256:${"a".repeat(64)}`;
+    useArtifactManifestMock.mockReturnValue({
+      data: {
+        artifact: {
+          artifact_id: "artifact-1",
+          byte_size: 1024,
+          created_at: "2026-03-10T09:00:00Z",
+          kind: "decision_packet",
+          manifest_profile_sha256: profile,
+          media_type: "application/json",
+          producer_component: "atlas",
+          schema_name: "decision",
+          schema_version: "1.0.0",
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage(
+      `/artifacts/artifact-1?tab=content&manifest_profile_sha256=${encodeURIComponent(profile)}`,
+    );
+
+    const selectedRef = {
+      artifact_id: "artifact-1",
+      manifest_profile_sha256: profile,
+    };
+    expect(useArtifactManifestMock).toHaveBeenCalledWith(selectedRef);
+    expect(useArtifactContentMock).toHaveBeenCalledWith(selectedRef, {
+      enabled: true,
+      maxBytes: 65536,
+    });
+    expect(useArtifactSchemaMock).toHaveBeenCalledWith(selectedRef, false);
+    expect(useArtifactLineageMock).toHaveBeenCalledWith(selectedRef, false);
+    expect(screen.getByTestId("bureaucratic-artifact-view")).toHaveTextContent(
+      JSON.stringify(selectedRef),
+    );
+    expect(
+      screen.getByTestId("artifact-reference-selection"),
+    ).toHaveTextContent(profile);
+    expect(screen.getByTestId("artifact-resolved-profile")).toHaveTextContent(
+      profile,
+    );
+  });
+
+  it("propagates the exact full selected ref through every consumer hook", () => {
+    const selectedRef = {
+      artifact_id: "artifact-1",
+      kind: "decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: DEFAULT_PROFILE,
+    };
+
+    renderArtifactPage(
+      `/artifacts/artifact-1?tab=content&artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey(selectedRef))}`,
+    );
+
+    expect(useArtifactManifestMock).toHaveBeenCalledWith(selectedRef);
+    expect(useArtifactContentMock).toHaveBeenCalledWith(selectedRef, {
+      enabled: true,
+      maxBytes: 65536,
+    });
+    expect(useArtifactSchemaMock).toHaveBeenCalledWith(selectedRef, false);
+    expect(useArtifactLineageMock).toHaveBeenCalledWith(selectedRef, false);
+    expect(screen.getByTestId("artifact-viewer")).toBeInTheDocument();
+  });
+
+  it.each([
+    ["malformed", "manifest_profile_sha256=unknown"],
+    [
+      "conflicting duplicates",
+      `manifest_profile_sha256=sha256:${"a".repeat(64)}&manifest_profile_sha256=sha256:${"b".repeat(64)}`,
+    ],
+    [
+      "duplicate identical selectors",
+      `manifest_profile_sha256=sha256:${"a".repeat(64)}&manifest_profile_sha256=sha256:${"a".repeat(64)}`,
+    ],
+    [
+      "duplicate identical full refs",
+      `artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey(DEFAULT_ARTIFACT_REF))}&artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey(DEFAULT_ARTIFACT_REF))}`,
+    ],
+    [
+      "conflicting duplicate full refs",
+      `artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey(DEFAULT_ARTIFACT_REF))}&artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey({ ...DEFAULT_ARTIFACT_REF, kind: "other.kind" }))}`,
+    ],
+  ])(
+    "refuses %s profile selection instead of choosing a query value",
+    (_label, query) => {
+      renderArtifactPage(`/artifacts/artifact-1?tab=content&${query}`);
+
+      expect(
+        screen.getByTestId("artifact-profile-invalid-selection"),
+      ).toBeInTheDocument();
+      expect(useArtifactManifestMock).toHaveBeenCalledWith(undefined);
+      expect(useArtifactContentMock).toHaveBeenCalledWith(undefined, {
+        enabled: true,
+        maxBytes: 65536,
+      });
+      expect(useArtifactSchemaMock).toHaveBeenCalledWith(undefined, false);
+      expect(useArtifactLineageMock).toHaveBeenCalledWith(undefined, false);
+      expect(screen.queryByTestId("artifact-viewer")).not.toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    ["schema", "summary"],
+    ["lineage", 'pages.artifacts.missingArtifacts:{"artifacts":"missing-1"}'],
+  ] as const)(
+    "withholds stale %s data for malformed profile selection",
+    (tab, staleResult) => {
+      renderArtifactPage(
+        `/artifacts/artifact-1?tab=${tab}&manifest_profile_sha256=unknown`,
+      );
+
+      expect(useArtifactManifestMock).toHaveBeenCalledWith(undefined);
+      expect(useArtifactContentMock).toHaveBeenCalledWith(undefined, {
+        enabled: false,
+        maxBytes: 65536,
+      });
+      expect(useArtifactSchemaMock).toHaveBeenCalledWith(
+        undefined,
+        tab === "schema",
+      );
+      expect(useArtifactLineageMock).toHaveBeenCalledWith(
+        undefined,
+        tab === "lineage",
+      );
+      expect(screen.queryByText(staleResult)).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId("artifact-profile-invalid-selection"),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("refuses a response whose selected manifest profile differs", () => {
+    const selectedProfile = `sha256:${"a".repeat(64)}`;
+    const responseProfile = `sha256:${"b".repeat(64)}`;
+    useArtifactContentMock.mockReturnValue({
+      data: {
+        artifact: {
+          artifact_id: "artifact-1",
+          manifest_profile_sha256: responseProfile,
+          kind: "decision_packet",
+          max_bytes: 65536,
+          media_type: "application/json",
+          mode: "preview",
+          decision_packet_preview: { verdict: "APPROVE" },
+          preview: { verdict: "APPROVE" },
+          size_bytes: 2048,
+          truncated: false,
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage(
+      `/artifacts/artifact-1?tab=content&manifest_profile_sha256=${encodeURIComponent(selectedProfile)}`,
+    );
+
+    expect(
+      screen.getByTestId("artifact-profile-mismatch-content"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("artifact-viewer")).not.toBeInTheDocument();
+  });
+
+  it("keeps an unqualified request distinct from the reader-resolved default view", () => {
+    renderArtifactPage("/artifacts/artifact-1?tab=content");
+
+    expect(
+      screen.getByTestId("artifact-reference-selection"),
+    ).toHaveTextContent("pages.artifacts.profileUnqualified");
+    expect(screen.getByTestId("artifact-resolved-profile")).toHaveTextContent(
+      DEFAULT_PROFILE,
+    );
+    expect(screen.getByTestId("artifact-viewer")).toBeInTheDocument();
+  });
+
+  it("withholds a same-profile response whose kind differs from the full ref", () => {
+    const expectedRef = {
+      artifact_id: "artifact-1",
+      kind: "decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: DEFAULT_PROFILE,
+    };
+    useArtifactContentMock.mockReturnValue({
+      data: {
+        artifact: {
+          artifact_id: "artifact-1",
+          manifest_profile_sha256: DEFAULT_PROFILE,
+          kind: "different.kind",
+          max_bytes: 65536,
+          media_type: "application/json",
+          mode: "preview",
+          preview: { verdict: "APPROVE" },
+          size_bytes: 2048,
+          truncated: false,
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderArtifactPage(
+      `/artifacts/artifact-1?artifactRefKey=${encodeURIComponent(evidenceArtifactRefKey(expectedRef))}`,
+    );
+
+    expect(useArtifactContentMock).toHaveBeenCalledWith(expectedRef, {
+      enabled: true,
+      maxBytes: 65536,
+    });
+    expect(
+      screen.getByTestId("artifact-profile-mismatch-content"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("artifact-viewer")).not.toBeInTheDocument();
   });
 });

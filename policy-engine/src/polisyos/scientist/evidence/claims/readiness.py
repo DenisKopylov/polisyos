@@ -12,7 +12,7 @@ from polisyos.scientist.evidence.claims.models import (
     ClaimSupportStatus,
     ClaimType,
 )
-from polisyos.scientist.methods.search.readiness import DecisionReadiness
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 
 READINESS_ORDER: tuple[DecisionReadiness, ...] = (
     DecisionReadiness.RESEARCH_ARTIFACT,

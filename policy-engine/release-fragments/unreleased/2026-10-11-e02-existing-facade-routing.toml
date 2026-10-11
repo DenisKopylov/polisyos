@@ -1,0 +1,95 @@
+id = "2026-10-11-e02-existing-facade-routing"
+title = "Route consumers through existing public facades"
+type = "changed"
+component = "architecture"
+owner = "team-architecture"
+summary = "Selected consumers use existing Core, IR, Scientist, and Data Forge facades without replacing canonical objects or changing runtime behavior."
+evidence = ["tests/unit/data_forge/read_api/test_surfaces.py", "src/polisyos/core/README.md", "src/polisyos/data_forge/README.md", "src/polisyos/scientist/replay/README.md"]
+compatibility = "Existing implementations, runtime exports, lazy resolution, and object identities are preserved. This candidate records additive supported-entrypoint routes; it changes no persisted artifact, HTTP schema, or generated client."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core and polisyos.scientist.replay; public_experimental: polisyos.data_forge.read_api"
+migration = "No runtime migration is needed. Consumers may use the documented facade path for the same existing implementation objects."
+api = "Existing facade entrypoints are classified in the public-surface contract; routed imports resolve to the original defining objects."
+limitations = "Candidate only. The public-surface inventory has not been regenerated or owner-reviewed; inventory review remains false pending canonical generation and independent G adjudication."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/README.md", "src/polisyos/data_forge/README.md", "src/polisyos/scientist/replay/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-canon-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.canon"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Register the documented Core canonicalization facade as a supported entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-artifacts-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Register the existing Core artifact facade as a supported entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-components-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.components"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Register the existing Core components facade as a supported entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-data-forge-academic-read-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.academic"
+owner = "team-architecture"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Register the documented lazy academic read facade as a supported entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-data-forge-catalog-read-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.catalog"
+owner = "team-architecture"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Register the documented lazy catalog read facade as a supported entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-scientist-deterministic-replay-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.replay.deterministic"
+owner = "team-architecture"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Register the documented deterministic replay module as a supported Scientist entrypoint."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/replay/README.md"]
+runbook_docs = []

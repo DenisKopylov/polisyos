@@ -53,6 +53,8 @@ if TYPE_CHECKING:
 SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
 SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
+CREDAL_SOURCE_ATTEMPT_SCHEMA = "policyos.runtime.quality.candidate_credal_source_attempt.v1"
+CREDAL_SOURCE_ATTEMPT_KIND = "runtime.quality.candidate_credal_source_attempt"
 N4_CANDIDATE_PROPOSAL_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v1"
 N4_CANDIDATE_PROPOSAL_V2_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v2"
 N4_CANDIDATE_PROPOSAL_V3_SCHEMA = "policyos.runtime.quality.n4_candidate_proposal_record.v3"
@@ -555,6 +557,11 @@ def _source_content_hash(payload: Mapping[str, Any]) -> str:
     return "sha256:" + hashlib.sha256(canon.to_canonical_bytes(payload, _SOURCE_CANON)).hexdigest()
 
 
+def _canonical_model_content_hash(value: BaseModel) -> str:
+    """Hash a complete model using the source repository canonical options."""
+    return _source_content_hash(value.model_dump(mode="python"))
+
+
 def _organ_source_payload(organ: n4.DesignGenerationOrganRun) -> dict[str, Any]:
     from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
 
@@ -749,6 +756,93 @@ class GenerationSourceHandoff(_StrictModel):
             (self.generation_result.design_problem_ref, item.candidate_id, item.atom.content_hash)
             for item in self.generation_result.candidates
         )
+
+
+class CandidateCredalSourceAttemptV1(_StrictModel):
+    """A contract-testing record that N4 did not establish a candidate K_ref source."""
+
+    schema_version: Literal[
+        "policyos.runtime.quality.candidate_credal_source_attempt.v1"
+    ] = CREDAL_SOURCE_ATTEMPT_SCHEMA
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    execution_scope: Literal["contract_testing"] = "contract_testing"
+    status: Literal["not_established"] = "not_established"
+    currentness_status: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+    limitation_code: Literal["candidate_source_authority_not_established"] = (
+        "candidate_source_authority_not_established"
+    )
+    job_id: str = Field(min_length=1, strict=True)
+    run_id: str = Field(min_length=1, strict=True)
+    source_run_id: str = Field(min_length=1, strict=True)
+    tenant_id: str = Field(min_length=1, strict=True)
+    cell_id: str = Field(min_length=1, strict=True)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    n4_source_ref: ArtifactRef
+    n4_source_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    n4_status: Literal["generation_unavailable", "preflight_rejected"]
+    context_job_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    profile_id: str = Field(min_length=1, strict=True)
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+    n4_child_profile_family_ref: ArtifactRef | None
+    credal_reference_ref: None = None
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
+
+    @model_validator(mode="after")
+    def _verify_candidate_only_source_binding(self) -> CandidateCredalSourceAttemptV1:
+        payload = self.model_dump(mode="python", exclude={"content_hash"})
+        if self.content_hash != _source_content_hash(payload):
+            raise ValueError("candidate_credal_source_attempt_content_hash_mismatch")
+        if (
+            type(self.n4_source_ref) is not ArtifactRef
+            or self.n4_source_ref.kind != SOURCE_KIND
+            or self.n4_source_ref.media_type != "application/json"
+            or type(self.context_job_ref) is not ArtifactRef
+            or self.context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+            or self.context_job_ref.media_type != "application/json"
+            or type(self.profile_ref) is not ArtifactRef
+            or self.profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+            or self.profile_ref.media_type != "application/json"
+            or (
+                self.n4_child_profile_family_ref is not None
+                and (
+                    type(self.n4_child_profile_family_ref) is not ArtifactRef
+                    or self.n4_child_profile_family_ref.kind
+                    != "runtime.quality.generic_cycle_simulation_child_profile_family"
+                    or self.n4_child_profile_family_ref.media_type != "application/json"
+                )
+            )
+            or self.credal_reference_ref is not None
+        ):
+            raise ValueError("candidate_credal_source_attempt_reference_invalid")
+        return self
+
+
+def _require_unavailable_candidate_credal_source(
+    source: GenerationSourceHandoff,
+    *,
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+) -> None:
+    """Require an actual terminal N4 source with no K_ref or candidate payload."""
+    result = source.generation_result
+    if (
+        source.execution_scope != "contract_testing"
+        or source.synthetic is not True
+        or _canonical_model_content_hash(source.problem)
+        != _canonical_model_content_hash(problem)
+        or source.cycle_substrate_context is None
+        or _canonical_model_content_hash(source.cycle_substrate_context)
+        != _canonical_model_content_hash(context)
+        or result.status not in {"generation_unavailable", "preflight_rejected"}
+        or result.candidates
+        or result.grounding_dispositions
+        or source.candidate_sources
+        or source.credal_reference_payload is not None
+        or source.reference() is not None
+    ):
+        raise ValueError("candidate_credal_source_attempt_source_not_terminal_or_absent")
 
 
 class N4CandidateScenarioSourceRecordV1(_StrictModel):
@@ -1478,7 +1572,8 @@ class GenerationSourceRepository:
             for item in context_job.context.world_model_record.policy_slot_map
         }
         if (
-            context_job.problem != source_v1.problem
+            _canonical_model_content_hash(context_job.problem)
+            != _canonical_model_content_hash(source_v1.problem)
             or context_job.design_problem_ref != source_v1.cycle_problem_ref
             or context_job.context.content_hash != source_v1.context_hash
             or context_job.context.world_model_record.content_hash
@@ -1662,7 +1757,9 @@ class GenerationSourceRepository:
             expected_tenant_id=expected_tenant_id,
             expected_cell_id=expected_cell_id,
         )
-        if current_v2 != source.source_record:
+        if _canonical_model_content_hash(current_v2) != (
+            _canonical_model_content_hash(source.source_record)
+        ):
             raise ValueError("n4_candidate_scenario_source_v3_nested_source_mismatch")
         if (
             candidate_scenario_semantic_identity_hash(
@@ -1931,7 +2028,8 @@ class GenerationSourceRepository:
             expected_cell_id=source.cell_id,
         )
         if (
-            context_job.problem != source.problem
+            _canonical_model_content_hash(context_job.problem)
+            != _canonical_model_content_hash(source.problem)
             or context_job.design_problem_ref != source.cycle_problem_ref
             or context_job.context.content_hash != source.context_hash
             or context_job.context.world_model_record.content_hash != source.world_model_record_hash
@@ -2518,7 +2616,8 @@ class GenerationSourceRepository:
         if (
             context_job.design_problem_ref != expected_problem_ref
             or context_job.context.content_hash != expected_context_hash
-            or source_problem != context_job.problem
+            or _canonical_model_content_hash(source_problem)
+            != _canonical_model_content_hash(context_job.problem)
             or source.cycle_substrate_context is None
             or source.cycle_substrate_context.content_hash != context_job.context.content_hash
         ):
@@ -2733,7 +2832,8 @@ class GenerationSourceRepository:
         if (
             source.cycle_substrate_context is None
             or source.cycle_substrate_context.content_hash != context_job.context.content_hash
-            or source.problem != context_job.problem
+            or _canonical_model_content_hash(source.problem)
+            != _canonical_model_content_hash(context_job.problem)
         ):
             raise ValueError("candidate_simulation_v3_context_job_binding_mismatch")
         if is_input:
@@ -3513,7 +3613,10 @@ class GenerationSourceRepository:
                 cell_id=cell_id,
                 raw_request=raw_request,
             )
-            if expected_design_problem is not None and artifact.problem != expected_design_problem:
+            if expected_design_problem is not None and (
+                _canonical_model_content_hash(artifact.problem)
+                != _canonical_model_content_hash(expected_design_problem)
+            ):
                 raise ValueError("n4_candidate_proposal_projection_problem_mismatch")
             return artifact
 
@@ -3526,7 +3629,10 @@ class GenerationSourceRepository:
         )
         if artifact.problem.nl_provenance.raw_request != raw_request:
             raise ValueError("n4_candidate_scenario_projection_request_mismatch")
-        if expected_design_problem is not None and artifact.problem != expected_design_problem:
+        if expected_design_problem is not None and (
+            _canonical_model_content_hash(artifact.problem)
+            != _canonical_model_content_hash(expected_design_problem)
+        ):
             raise ValueError("n4_candidate_scenario_projection_problem_mismatch")
         return artifact
 
@@ -3559,8 +3665,12 @@ class GenerationSourceRepository:
         organ: n4.DesignGenerationOrganRun,
         execution_scope: ExecutionScope = "production",
         job_id: str | None = None,
+        expected_run_id: str | None = None,
         tenant_id: str | None = None,
         cell_id: str | None = None,
+        context_job_ref: ArtifactRef | None = None,
+        profile_ref: ArtifactRef | None = None,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
     ) -> ArtifactRef:
         """Persist original N4 bytes and return the exact owner-selected view.
 
@@ -3574,7 +3684,33 @@ class GenerationSourceRepository:
             isinstance(value, str) and value.strip() for value in scope
         ):
             raise ValueError("generation_source_job_scope_incomplete")
+        if expected_run_id is not None and (
+            not isinstance(expected_run_id, str) or not expected_run_id.strip()
+        ):
+            raise ValueError("generation_source_expected_run_id_invalid")
+        if (context_job_ref is None) != (profile_ref is None):
+            raise ValueError("generation_source_generic_profile_input_pair_incomplete")
+        if context_job_ref is not None:
+            if not all(value is not None for value in scope):
+                raise ValueError("generation_source_generic_profile_scope_incomplete")
+            if (
+                type(context_job_ref) is not ArtifactRef
+                or context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+                or context_job_ref.media_type != "application/json"
+                or type(profile_ref) is not ArtifactRef
+                or profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+                or profile_ref.media_type != "application/json"
+            ):
+                raise ValueError("generation_source_generic_profile_input_ref_invalid")
 
+        if n4_child_profile_family_ref is not None and (
+            context_job_ref is None
+            or type(n4_child_profile_family_ref) is not ArtifactRef
+            or n4_child_profile_family_ref.kind
+            != "runtime.quality.generic_cycle_simulation_child_profile_family"
+            or n4_child_profile_family_ref.media_type != "application/json"
+        ):
+            raise ValueError("generation_source_generic_child_family_input_ref_invalid")
         payload = {
             "run_id": run_id,
             "cycle_index": cycle_index,
@@ -3592,6 +3728,25 @@ class GenerationSourceRepository:
         draft["content_hash"] = _source_content_hash(draft)
         artifact = GenerationSourceHandoff.model_validate(draft)
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
+        generic_source_inputs = ()
+        if context_job_ref is not None and profile_ref is not None:
+            generic_source_inputs = (
+                input_ref_from_artifact_ref(
+                    context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    profile_ref,
+                    role="generic_cycle_simulation_profile",
+                ),
+            )
+            if n4_child_profile_family_ref is not None:
+                generic_source_inputs += (
+                    input_ref_from_artifact_ref(
+                        n4_child_profile_family_ref,
+                        role="n4_child_profile_family",
+                    ),
+                )
         if job_id is None:
             options = _source_write_options()
         else:
@@ -3602,10 +3757,11 @@ class GenerationSourceRepository:
                 schema_name=SOURCE_SCHEMA,
                 schema_version="1.0",
                 job_id=job_id,
-                run_id=run_id,
+                run_id=expected_run_id or run_id,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
                 source_ref=artifact.content_hash,
+                input_refs=generic_source_inputs,
             )
         ref = self.store.put_bytes(body, options)
         return ref
@@ -3615,9 +3771,13 @@ class GenerationSourceRepository:
         ref: ArtifactRef | str,
         *,
         run_id: str,
+        expected_run_id: str | None = None,
         expected_job_id: str | None = None,
         expected_tenant_id: str | None = None,
         expected_cell_id: str | None = None,
+        context_job_ref: ArtifactRef | None = None,
+        profile_ref: ArtifactRef | None = None,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
     ) -> GenerationSourceHandoff:
         """Verify Core custody, exact typed source and its canonical run binding."""
         scope = (expected_job_id, expected_tenant_id, expected_cell_id)
@@ -3625,6 +3785,32 @@ class GenerationSourceRepository:
             isinstance(value, str) and value.strip() for value in scope
         ):
             raise ValueError("generation_source_expected_job_scope_incomplete")
+        if expected_run_id is not None and (
+            not isinstance(expected_run_id, str) or not expected_run_id.strip()
+        ):
+            raise ValueError("generation_source_expected_run_id_invalid")
+        if (context_job_ref is None) != (profile_ref is None):
+            raise ValueError("generation_source_generic_profile_input_pair_incomplete")
+        if context_job_ref is not None:
+            if expected_job_id is None or expected_tenant_id is None or expected_cell_id is None:
+                raise ValueError("generation_source_generic_profile_scope_incomplete")
+            if (
+                type(context_job_ref) is not ArtifactRef
+                or context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+                or context_job_ref.media_type != "application/json"
+                or type(profile_ref) is not ArtifactRef
+                or profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+                or profile_ref.media_type != "application/json"
+            ):
+                raise ValueError("generation_source_generic_profile_input_ref_invalid")
+        if n4_child_profile_family_ref is not None and (
+            context_job_ref is None
+            or type(n4_child_profile_family_ref) is not ArtifactRef
+            or n4_child_profile_family_ref.kind
+            != "runtime.quality.generic_cycle_simulation_child_profile_family"
+            or n4_child_profile_family_ref.media_type != "application/json"
+        ):
+            raise ValueError("generation_source_generic_child_family_input_ref_invalid")
         artifact_id = str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
         if not self.store.verify(ref).ok:
             raise ValueError("generation_source_cas_integrity_failed")
@@ -3637,6 +3823,25 @@ class GenerationSourceRepository:
         artifact = GenerationSourceHandoff.model_validate(canon.from_canonical_bytes(body))
         if artifact.run_id != run_id:
             raise ValueError("generation_source_run_mismatch")
+        generic_source_inputs = ()
+        if context_job_ref is not None and profile_ref is not None:
+            generic_source_inputs = (
+                input_ref_from_artifact_ref(
+                    context_job_ref,
+                    role="cycle_substrate_context_job",
+                ),
+                input_ref_from_artifact_ref(
+                    profile_ref,
+                    role="generic_cycle_simulation_profile",
+                ),
+            )
+            if n4_child_profile_family_ref is not None:
+                generic_source_inputs += (
+                    input_ref_from_artifact_ref(
+                        n4_child_profile_family_ref,
+                        role="n4_child_profile_family",
+                    ),
+                )
         if expected_job_id is None:
             owner_options = _source_write_options()
         else:
@@ -3647,14 +3852,252 @@ class GenerationSourceRepository:
                 schema_name=SOURCE_SCHEMA,
                 schema_version="1.0",
                 job_id=expected_job_id,
-                run_id=run_id,
+                run_id=expected_run_id or run_id,
                 tenant_id=expected_tenant_id,
                 cell_id=expected_cell_id,
                 source_ref=artifact.content_hash,
+                input_refs=generic_source_inputs,
             )
         if not _has_owner_profile(manifest, owner_options):
             raise ValueError("generation_source_owner_profile_mismatch")
         return artifact
+
+    def persist_candidate_credal_source_attempt(
+        self,
+        *,
+        n4_source_ref: ArtifactRef,
+        source_run_id: str,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        problem: DesignProblem,
+        context: CycleSubstrateContext,
+        context_job_ref: ArtifactRef,
+        profile_ref: ArtifactRef,
+        profile_id: str,
+        profile_selection_ref: str,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
+    ) -> ArtifactRef | None:
+        """Persist a no-reference terminal source as candidate-only typed history.
+
+        This writer is available only to the explicit contract-testing runtime
+        configuration. It never stores a CredalReference, edge, confidence, or
+        currentness assertion.
+        """
+        source = self.load(
+            n4_source_ref,
+            run_id=source_run_id,
+            expected_run_id=run_id,
+            expected_job_id=job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
+        if source.execution_scope != "contract_testing" or source.synthetic is not True:
+            raise ValueError("candidate_credal_source_attempt_contract_testing_scope_required")
+        if source.generation_result.status == "generated" or source.reference() is not None:
+            return None
+        _require_unavailable_candidate_credal_source(
+            source,
+            problem=problem,
+            context=context,
+        )
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        if (
+            type(n4_source_ref) is not ArtifactRef
+            or type(context_job_ref) is not ArtifactRef
+            or type(profile_ref) is not ArtifactRef
+            or (
+                n4_child_profile_family_ref is not None
+                and (
+                    type(n4_child_profile_family_ref) is not ArtifactRef
+                    or n4_child_profile_family_ref.kind
+                    != "runtime.quality.generic_cycle_simulation_child_profile_family"
+                    or n4_child_profile_family_ref.media_type != "application/json"
+                )
+            )
+            or n4_source_ref.kind != SOURCE_KIND
+            or profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+            or not profile_id.strip()
+            or not profile_selection_ref.startswith("sha256:")
+            or source.generation_result.design_problem_ref != problem_ref
+        ):
+            raise ValueError("candidate_credal_source_attempt_input_binding_invalid")
+        payload = {
+            "schema_version": CREDAL_SOURCE_ATTEMPT_SCHEMA,
+            "authority_purpose": "cycle_input_candidate_only",
+            "execution_scope": "contract_testing",
+            "status": "not_established",
+            "currentness_status": "not_established",
+            "publication_authority": False,
+            "limitation_code": "candidate_source_authority_not_established",
+            "job_id": job_id,
+            "run_id": run_id,
+            "source_run_id": source_run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "design_problem_ref": problem_ref,
+            "n4_source_ref": n4_source_ref,
+            "n4_source_content_hash": source.content_hash,
+            "n4_status": source.generation_result.status,
+            "context_job_ref": context_job_ref,
+            "profile_ref": profile_ref,
+            "profile_id": profile_id,
+            "profile_selection_ref": profile_selection_ref,
+            "n4_child_profile_family_ref": n4_child_profile_family_ref,
+            "credal_reference_ref": None,
+        }
+        draft = CandidateCredalSourceAttemptV1.model_construct(
+            **payload,
+            content_hash="sha256:" + "0" * 64,
+        ).model_dump(mode="python", exclude={"content_hash"})
+        record = CandidateCredalSourceAttemptV1.model_validate(
+            {**draft, "content_hash": _source_content_hash(draft)}
+        )
+        input_refs = (
+            input_ref_from_artifact_ref(n4_source_ref, role="n4_generation_source"),
+            input_ref_from_artifact_ref(context_job_ref, role="cycle_substrate_context_job"),
+            input_ref_from_artifact_ref(profile_ref, role="generic_cycle_simulation_profile"),
+        )
+        if n4_child_profile_family_ref is not None:
+            input_refs += (
+                input_ref_from_artifact_ref(
+                    n4_child_profile_family_ref,
+                    role="n4_child_profile_family",
+                ),
+            )
+        options = _candidate_simulation_write_options(
+            kind=CREDAL_SOURCE_ATTEMPT_KIND,
+            schema_name=CREDAL_SOURCE_ATTEMPT_SCHEMA,
+            schema_version="1.0",
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_ref=source.content_hash,
+            input_refs=input_refs,
+        )
+        ref = self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+        readback = self.load_candidate_credal_source_attempt(
+            ref,
+            n4_source_ref=n4_source_ref,
+            source_run_id=source_run_id,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            problem=problem,
+            context=context,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            profile_id=profile_id,
+            profile_selection_ref=profile_selection_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
+        if _canonical_model_content_hash(readback) != (
+            _canonical_model_content_hash(record)
+        ):
+            raise ValueError("candidate_credal_source_attempt_readback_mismatch")
+        return ref
+
+    def load_candidate_credal_source_attempt(
+        self,
+        ref: ArtifactRef,
+        *,
+        n4_source_ref: ArtifactRef,
+        source_run_id: str,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        problem: DesignProblem,
+        context: CycleSubstrateContext,
+        context_job_ref: ArtifactRef,
+        profile_ref: ArtifactRef,
+        profile_id: str,
+        profile_selection_ref: str,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
+    ) -> CandidateCredalSourceAttemptV1:
+        """Reopen the exact source, owner manifest, and candidate-only attempt."""
+        if type(ref) is not ArtifactRef or ref.kind != CREDAL_SOURCE_ATTEMPT_KIND:
+            raise ValueError("candidate_credal_source_attempt_selected_ref_invalid")
+        if not self.store.verify(ref).ok:
+            raise ValueError("candidate_credal_source_attempt_cas_integrity_failed")
+        manifest = self.store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise ValueError("candidate_credal_source_attempt_selected_view_mismatch")
+        body = self.store.get_bytes(ref)
+        if f"sha256:{hashlib.sha256(body).hexdigest()}" != str(ref.artifact_id):
+            raise ValueError("candidate_credal_source_attempt_cas_content_mismatch")
+        try:
+            record = CandidateCredalSourceAttemptV1.model_validate(
+                canon.from_canonical_bytes(body)
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("candidate_credal_source_attempt_payload_invalid") from exc
+        source = self.load(
+            n4_source_ref,
+            run_id=source_run_id,
+            expected_run_id=run_id,
+            expected_job_id=job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
+        _require_unavailable_candidate_credal_source(
+            source,
+            problem=problem,
+            context=context,
+        )
+        if (
+            record.n4_source_ref != n4_source_ref
+            or record.n4_source_content_hash != source.content_hash
+            or record.source_run_id != source_run_id
+            or record.job_id != job_id
+            or record.run_id != run_id
+            or record.tenant_id != tenant_id
+            or record.cell_id != cell_id
+            or record.design_problem_ref != gy_content_hash(problem.model_dump(mode="json"))
+            or record.n4_status != source.generation_result.status
+            or record.context_job_ref != context_job_ref
+            or record.profile_ref != profile_ref
+            or record.profile_id != profile_id
+            or record.profile_selection_ref != profile_selection_ref
+            or record.n4_child_profile_family_ref != n4_child_profile_family_ref
+            or record.credal_reference_ref is not None
+        ):
+            raise ValueError("candidate_credal_source_attempt_binding_mismatch")
+        input_refs = (
+            input_ref_from_artifact_ref(n4_source_ref, role="n4_generation_source"),
+            input_ref_from_artifact_ref(context_job_ref, role="cycle_substrate_context_job"),
+            input_ref_from_artifact_ref(profile_ref, role="generic_cycle_simulation_profile"),
+        )
+        if n4_child_profile_family_ref is not None:
+            input_refs += (
+                input_ref_from_artifact_ref(
+                    n4_child_profile_family_ref,
+                    role="n4_child_profile_family",
+                ),
+            )
+        options = _candidate_simulation_write_options(
+            kind=CREDAL_SOURCE_ATTEMPT_KIND,
+            schema_name=CREDAL_SOURCE_ATTEMPT_SCHEMA,
+            schema_version="1.0",
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            source_ref=source.content_hash,
+            input_refs=input_refs,
+        )
+        if not _has_owner_profile(manifest, options):
+            raise ValueError("candidate_credal_source_attempt_owner_profile_mismatch")
+        return record
 
     def resolve(
         self,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 
 import pytest
 
@@ -20,6 +21,10 @@ from polisyos.runtime.quality.diagnostic_slos import (
 )
 from polisyos.runtime.quality.human_review import build_human_review_calibration_report
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
+from polisyos.runtime.quality.report_registry import (
+    QUALITY_REPORT_FILES,
+    quality_report_ref_intake_registry,
+)
 from polisyos.runtime.quality.scorecard import (
     POLICY_DESIGN_CASE_RUNTIME_REF_KEYS,
     QUALITY_REPORT_RUNTIME_REFS,
@@ -999,6 +1004,11 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
     assert scorecard["schema_version"] == "policyos.quality_scorecard.v1"
     assert scorecard["quality_status"] == "pass"
     assert scorecard["overall_score"] == 1.0
+    privacy_gate = next(
+        gate for gate in scorecard["quality_gates"]
+        if gate["name"] == "privacy_compliance_report_present"
+    )
+    assert privacy_gate["status"] == "pass"
     assert set(scorecard["stage_scores"]) == {
         "llm",
         "fabric",
@@ -1018,19 +1028,50 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
     )
     assert scorecard["approval_state"] == "approval_ready"
     assert scorecard["performance_status"] == "pass"
-    assert scorecard["approval_eligibility"] == {
-        "state": "approval_ready",
-        "eligible": True,
-        "requires_override": False,
-        "override_accepted": False,
-        "missing_override": False,
-        "execution_status": "completed",
-        "quality_status": "pass",
-        "performance_status": "pass",
-        "blocking_gate_count": 0,
-        "warning_count": 0,
-        "reasons": [],
-    }
+
+
+def test_scorecard_rejects_malformed_aliases_for_the_complete_report_registry() -> None:
+    _ref_keys, body_ref_keys = quality_report_ref_intake_registry()
+    quality_evidence = _complete_quality_evidence()
+    for index, body_alias in enumerate(sorted(body_ref_keys)):
+        quality_evidence[f"malformed_report_alias_{index}"] = {
+            "name": body_alias,
+            "ref": f"bad\nregistered-report-{index}",
+        }
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-malformed-report-registry",
+        run_id="R_malformed_report_registry",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=normalize_quality_evidence(
+            quality_evidence,
+            canary_kind="production",
+        ),
+    )
+
+    privacy_gate = next(
+        gate for gate in scorecard["quality_gates"]
+        if gate["name"] == "privacy_compliance_report_present"
+    )
+    assert privacy_gate["status"] == "fail"
+    assert privacy_gate["code"] == "privacy_compliance_report_missing"
+    assert scorecard["quality_status"] == "fail"
+    eligibility = scorecard["approval_eligibility"]
+    assert eligibility["state"] == "quality_failed"
+    assert eligibility["eligible"] is False
+    assert eligibility["requires_override"] is True
+    assert eligibility["override_accepted"] is False
+    assert eligibility["missing_override"] is True
+    assert eligibility["execution_status"] == "completed"
+    assert eligibility["quality_status"] == "fail"
+    assert eligibility["performance_status"] == "pass"
+    assert eligibility["blocking_gate_count"] > 0
+    assert eligibility["warning_count"] == 0
+    assert "privacy_compliance_report_missing" in eligibility["reasons"]
 
 
 def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() -> None:
@@ -2388,3 +2429,210 @@ def test_runtime_quality_scorecard_downgrades_dev_fixture_data_quality_failures(
         failure["gate"] == "production_data_quality_present"
         for failure in scorecard["blocking_quality_failures"]
     )
+
+
+def test_scorecard_rejection_blocks_runtime_overlay_and_inline_report_fallback() -> None:
+    quality_evidence = _complete_quality_evidence()
+    quality_evidence["runtime_quality_refs"] = {
+        "normative_applicability_report_ref": "bad\nnormative-ref",
+        "security_assurance_report_ref": "bad\nsecurity-ref",
+    }
+    quality_evidence["security_assurance_report"] = {"status": "pass", "issues": []}
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]
+    assert isinstance(details, dict)
+    runtime_refs = details["runtime_quality_refs"]
+    assert isinstance(runtime_refs, dict)
+    runtime_refs["normative_applicability_report_ref"] = _sha("a")
+    runtime_refs["security_assurance_report_ref"] = _sha("b")
+
+    scorecard = build_quality_scorecard(
+        canary_kind="dev",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    assert "normative_applicability_report_ref" not in scorecard["evidence_refs"]
+    assert "normative_evidence" not in scorecard["evidence_refs"]
+    assert "security_assurance_report_ref" not in scorecard["evidence_refs"]
+    assert "security_assurance_report" not in scorecard["evidence_refs"]
+    assert not any(
+        gate["code"] == "security_assurance_passed" and gate["status"] == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+
+    absent_scorecard = build_quality_scorecard(
+        canary_kind="dev",
+        job_id=None,
+        run_id="R_absent_quality_ref",
+        execution_status="completed",
+        job_payload=None,
+        run_payload=None,
+        provider_preflight=None,
+        quality_evidence={
+            "normative_evidence": {"status": "pass"},
+            "security_assurance_report": {"status": "pass", "issues": []},
+        },
+    )
+    assert absent_scorecard["evidence_refs"]["normative_evidence"] == (
+        "quality_evidence/normative_evidence.json"
+    )
+    assert absent_scorecard["evidence_refs"]["security_assurance_report_ref"] == (
+        "quality_evidence/security_assurance_report.json"
+    )
+
+
+def test_scorecard_rejects_ambiguous_registry_roles_over_clean_sibling_overlay() -> None:
+    ref_keys, body_ref_keys = quality_report_ref_intake_registry()
+    registry_roles = set(body_ref_keys.values()) & set(ref_keys)
+    report_roles = tuple(
+        dict.fromkeys(
+            role
+            for role in QUALITY_REPORT_RUNTIME_REFS.values()
+            if role in registry_roles
+        )
+    )
+    assert len(report_roles) >= 2
+    first_role, second_role = report_roles[:2]
+    report_key_by_role = {
+        role: next(
+            report_key
+            for report_key, mapped_role in QUALITY_REPORT_RUNTIME_REFS.items()
+            if mapped_role == role
+        )
+        for role in (first_role, second_role)
+    }
+    clean_job = _complete_job_payload()
+    clean_evidence = _complete_quality_evidence()
+    for report_key in report_key_by_role.values():
+        report = clean_evidence[report_key]
+        assert isinstance(report, dict)
+        report["status"] = "pass"
+    clean_control = build_quality_scorecard(
+        canary_kind="dev",
+        job_id="job-ambiguous-role-control",
+        run_id="R_ambiguous_role_control",
+        execution_status="completed",
+        job_payload=copy.deepcopy(clean_job),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=copy.deepcopy(clean_evidence),
+    )
+    baseline_pass_roles = {
+        role
+        for role, report_key in report_key_by_role.items()
+        if any(
+            gate.get("status") == "pass"
+            and gate.get("evidence_ref")
+            == f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
+            for gate in clean_control["quality_gates"]
+        )
+    }
+    assert baseline_pass_roles == {first_role, second_role}
+
+    malformed = "bad\nambiguous-scorecard-role"
+    clean_refs = {first_role: _sha("a"), second_role: _sha("b")}
+    progress = clean_job.get("progress")
+    assert isinstance(progress, dict)
+    details = progress.get("details")
+    assert isinstance(details, dict)
+    runtime_refs = details.get("runtime_quality_refs")
+    assert isinstance(runtime_refs, dict)
+    runtime_refs.update(clean_refs)
+    clean_evidence["runtime_quality_refs"] = clean_refs
+    clean_evidence["ambiguous_role_candidate"] = {
+        "name": report_key_by_role[first_role],
+        "role": second_role,
+        "ref": malformed,
+    }
+
+    scorecard = build_quality_scorecard(
+        canary_kind="dev",
+        job_id="job-ambiguous-role-candidate",
+        run_id="R_ambiguous_role_candidate",
+        execution_status="completed",
+        job_payload=clean_job,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=clean_evidence,
+    )
+    for role, report_key in report_key_by_role.items():
+        filename = QUALITY_REPORT_FILES[report_key]
+        assert role not in scorecard["evidence_refs"]
+        assert report_key not in scorecard["evidence_refs"]
+        assert not any(
+            gate.get("status") == "pass"
+            and gate.get("evidence_ref") == f"quality_evidence/{filename}"
+            for gate in scorecard["quality_gates"]
+        )
+
+def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> None:
+    ref_keys, body_ref_keys = quality_report_ref_intake_registry()
+    job_payload = _complete_job_payload()
+    progress = job_payload.get("progress")
+    assert isinstance(progress, dict)
+    details = progress.get("details")
+    assert isinstance(details, dict)
+    valid_overlay = {key: _sha(chr(97 + index % 26)) for index, key in enumerate(ref_keys)}
+    details["runtime_quality_refs"] = valid_overlay
+
+    quality_evidence = _complete_quality_evidence()
+    malformed_refs = {
+        key: f"bad\nscorecard-role-{index}" for index, key in enumerate(ref_keys)
+    }
+    quality_evidence["runtime_quality_refs"] = malformed_refs
+    malformed_values = set(malformed_refs.values())
+    for index, (alias, _ref_key) in enumerate(sorted(body_ref_keys.items())):
+        quality_evidence.setdefault(
+            alias,
+            {
+                "status": "pass",
+                "issues": [],
+                "marker": f"scorecard-body-must-not-be-retained-{index}",
+            },
+        )
+        name_ref = f"bad\nscorecard-name-{index}"
+        role_ref = f"bad\nscorecard-hint-{index}"
+        malformed_values.update((name_ref, role_ref))
+        quality_evidence[f"named_report_{index}"] = {"name": alias, "ref": name_ref}
+        quality_evidence[f"hinted_report_{index}"] = {
+            "role": alias,
+            "artifact_ref": role_ref,
+        }
+
+    scorecard = build_quality_scorecard(
+        canary_kind="dev",
+        job_id="job-canonical-report-registry",
+        run_id="R_canonical_report_registry",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    evidence_refs = scorecard["evidence_refs"]
+    assert set(ref_keys).isdisjoint(evidence_refs)
+    assert set(body_ref_keys).isdisjoint(evidence_refs)
+    fallback_refs = {f"quality_evidence/{filename}" for filename in QUALITY_REPORT_FILES.values()}
+    assert not any(
+        gate.get("status") == "pass" and gate.get("evidence_ref") in fallback_refs
+        for gate in scorecard["quality_gates"]
+    )
+    assert not any(
+        gate.get("code") == "security_assurance_passed" and gate.get("status") == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+    assert not any(
+        gate.get("name") == "privacy_compliance_report_present"
+        and gate.get("status") == "pass"
+        for gate in scorecard["quality_gates"]
+    )
+    serialized = json.dumps(scorecard, sort_keys=True)
+    assert all(value not in serialized for value in malformed_values)
+    assert "scorecard-body-must-not-be-retained" not in serialized

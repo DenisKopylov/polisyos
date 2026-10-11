@@ -6,7 +6,12 @@ from unittest.mock import patch
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
@@ -114,7 +119,10 @@ def test_run_causal_readiness_spec_reads_performative_loop_spec() -> None:
 
 def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_c4a")
-    graph_ref = persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph())
+    graph_ref = profile_bound_ref(
+        _ensure_ir_artifact_store(ctx.store),
+        persist_causal_graph_model(_ensure_ir_artifact_store(ctx.store), _graph()),
+    )
     state = ExperimentState(
         run_id="R_c4a",
         artifacts_index={
@@ -220,6 +228,14 @@ def test_run_causal_readiness_node_persists_bundle_and_leaf_refs(tmp_path) -> No
     assert bundle.interference_specs[0].ready is True
     assert bundle.interference_specs[0].supports_areal_interference is True
     assert bundle.interference_specs[0].maup_scale_declared is True
+    graph_inputs = [
+        edge
+        for edge in ctx.store.get_manifest(bundle_ref).inputs
+        if edge.role == "reconciled_causal_graph"
+    ]
+    assert len(graph_inputs) == 1
+    assert str(graph_inputs[0].artifact_id) == str(graph_ref.artifact_id)
+    assert graph_inputs[0].manifest_profile_sha256 == graph_ref.manifest_profile_sha256
 
 
 def test_run_causal_readiness_node_persists_privacy_transportability_metadata(tmp_path) -> None:

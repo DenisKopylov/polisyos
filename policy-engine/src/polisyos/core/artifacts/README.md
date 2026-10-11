@@ -40,15 +40,23 @@ environment fingerprints.
   import these from the artifacts facade; they do not copy the projection algorithm or
   import its private lifecycle owner. A profile selects a manifest view; it does not
   attest producer authority or currentness.
+- producer-bound profile selection: `profile_bound_ref` resolves the supplied ref
+  through the CAS store and returns the same typed ref pinned to the exact manifest
+  view selected at this producer boundary. A profileless input binds the current
+  default view now; it does not attest the historical selection of an older artifact
+  or establish producer authority/currentness. Cross-layer callers use this facade.
 - current write replay: `expected_artifact_manifest_for_write` reconstructs the exact current
   manifest from the payload bytes, typed write options, and persisted creation time by calling
   the same lifecycle constructor used by CAS writers. It fails when the supplied artifact ID
   does not bind to those bytes; it does not independently establish producer authority.
-- authority-envelope links persist the selected envelope manifest profile and resolve
-  through `resolve_authority_envelope_ref`, which checks the fixed envelope kind, media
-  type, and schema before returning a typed view. Historical profileless links explicitly
-  use the default manifest view; consumers pass the resolved ref to CAS read and verify
-  calls instead of reconstructing a ref from the artifact ID.
+- authority-envelope and diagnostic-event links persist their selected manifest profiles.
+  `resolve_authority_envelope_ref` and the runtime authority event resolver check the fixed
+  kind/schema and pass the exact typed view to CAS reads. Historical profileless links keep
+  resolving their actual default view and stored manifest version; the reader does not infer
+  a producer profile for them. Profile selection is not producer authority or currentness.
+- `FileSystemCAS.inventory_snapshot(artifact_id=...)` rechecks the complete local member-name
+  set and owner generation while verifying only the selected artifact ID's visible views.
+  The active tenant scope can hide other tenants' views, which remain unresolved by construction.
 - local publication durability: `ensure_directory_durable`, `fsync_directory`, and
   `AtomicFileDurabilityError` expose the existing filesystem helpers through this
   facade. Cross-layer consumers reuse these exports rather than importing the

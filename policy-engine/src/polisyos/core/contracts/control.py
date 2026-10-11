@@ -1669,6 +1669,7 @@ class ControlJobResponse(BaseModel):
     blocking_quality_failures: list[ControlQualityFailure] = Field(default_factory=list)
     operator_diagnostic: OperatorDiagnostic | None = None
     progress: dict[str, Any] = Field(default_factory=dict)
+    runtime_quality_artifact_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
 
 
 class ControlWorkerLeaseInfo(BaseModel):

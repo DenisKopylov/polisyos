@@ -74,6 +74,7 @@ function LineagePanelContent({ runId }: { runId: string }) {
         nodes={lineage.nodes}
         edges={lineage.edges}
         rootArtifactIds={lineage.root_artifact_ids}
+        rootArtifactRefs={lineage.root_artifact_refs}
       />
       {lineage.missing_artifact_ids.length > 0 ? (
         <p className="text-warning text-sm">

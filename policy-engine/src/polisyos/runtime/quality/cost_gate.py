@@ -13,11 +13,13 @@ from polisyos.runtime.quality.cost_degradation import (
     build_cost_degradation_telemetry_from_quality_context,
     validate_cost_degradation_telemetry,
 )
+from polisyos.runtime.quality.report_registry import (
+    RUN_COST_GATE_FILENAME,
+    RUN_COST_GATE_REPORT_KEY,
+)
 
 RUN_COST_GATE_SCHEMA_VERSION = "policyos.runtime.policy_design_case.run_cost_gate.v1"
 RUN_COST_GATE_CONTRACT_ID = "policy_design_case.run_cost_gate.v1"
-RUN_COST_GATE_REPORT_KEY = "run_cost_gate"
-RUN_COST_GATE_FILENAME = "run_cost_gate.json"
 
 _DEFAULT_OWNER = "team-runtime-quality"
 _DEFAULT_TTL_SECONDS = 7 * 24 * 60 * 60

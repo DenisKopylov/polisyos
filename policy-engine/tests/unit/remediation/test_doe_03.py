@@ -279,5 +279,5 @@ def test_morris_uncertainty_requires_explicit_coordinate_contract() -> None:
     samples = np.array([[0.0], [10.0], [2.0], [8.0]])
     outputs = 2.0 * samples[:, 0]
 
-    with pytest.raises(ValueError, match="coordinate|bounds|normal"):
+    with pytest.raises(ValueError, match=r"coordinate|bounds|normal"):
         morris_elementary_effects_from_samples(samples, outputs, ["x"])

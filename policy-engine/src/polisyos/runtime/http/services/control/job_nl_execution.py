@@ -69,6 +69,13 @@ class ControlNLJobExecutionMixin:
         max_cycles = context.max_cycles
         budget_usd = context.budget_usd
         cycle_substrate_context_resolver = context.cycle_substrate_context_resolver
+        generic_cycle_simulation_handoff_resolver = (
+            context.generic_cycle_simulation_handoff_resolver
+        )
+        generic_cycle_simulation_currentness_resolver = (
+            context.generic_cycle_simulation_currentness_resolver
+        )
+        verified_nl_job_scope = context.verified_nl_job_scope
         candidate_simulation_currentness_resolver = (
             context.candidate_simulation_currentness_resolver
         )
@@ -84,12 +91,12 @@ class ControlNLJobExecutionMixin:
                     context=compiler_context,
                     model_name=model_name,
                     execution_intent=execution_intent,
-                    # simulate_only defaults to the N4 proposal lane. A
-                    # configured typed profile owner may supply a
-                    # problem-bound context after compilation; absent
-                    # that owner or an admitted context, N4 remains a
-                    # candidate limitation and never grants S8 authority.
-                    n4_proposal_only=(intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT),
+                    # A configured generic handoff owner selects the N4/N5 route;
+                    # without one, simulate_only stays on the N4 proposal-only lane.
+                    n4_proposal_only=(
+                        intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+                        and generic_cycle_simulation_handoff_resolver is None
+                    ),
                     producer_run_id=(str(job.run_id) if job.run_id is not None else None),
                     compiler_gateway=None,
                     budget_state=BudgetState.model_validate(
@@ -110,6 +117,13 @@ class ControlNLJobExecutionMixin:
                         profile_id if isinstance(profile_id, str) else None
                     ),
                     cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+                    generic_cycle_simulation_handoff_resolver=(
+                        generic_cycle_simulation_handoff_resolver
+                    ),
+                    generic_cycle_simulation_currentness_resolver=(
+                        generic_cycle_simulation_currentness_resolver
+                    ),
+                    verified_nl_job_scope=verified_nl_job_scope,
                     candidate_simulation_currentness_resolver=(
                         candidate_simulation_currentness_resolver
                     ),

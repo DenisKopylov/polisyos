@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import datetime  # Pydantic resolves public DTO fields
 from typing import TYPE_CHECKING, Annotated, Literal
+from urllib.parse import urlencode
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -467,10 +468,18 @@ class RunPaperArtifactLink(_StrictModel):
 
     @model_validator(mode="after")
     def _derive_href(self) -> RunPaperArtifactLink:
-        expected = f"/api/v1/artifacts/{self.artifact_ref.artifact_id}"
+        expected = run_paper_artifact_href(self.artifact_ref)
         if self.href != expected:
             raise ValueError("artifact link href must derive from artifact_ref")
         return self
+
+
+def run_paper_artifact_href(ref: artifacts.ArtifactRef) -> str:
+    """Build an artifact link that preserves its selected manifest view."""
+    href = f"/api/v1/artifacts/{ref.artifact_id}"
+    if ref.manifest_profile_sha256 is None:
+        return href
+    return f"{href}?{urlencode({'manifest_profile_sha256': ref.manifest_profile_sha256})}"
 
 
 class RunPaperRun(_StrictModel):

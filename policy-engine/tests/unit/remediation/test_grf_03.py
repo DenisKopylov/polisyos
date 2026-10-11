@@ -52,7 +52,7 @@ def test_projection_rejects_unresolved_cpdag_triangle_instead_of_labeling_cycle_
         ],
     )
 
-    with pytest.raises(ValueError, match="unresolved|partial|orientation"):
+    with pytest.raises(ValueError, match=r"unresolved|partial|orientation"):
         pag_to_dag_projection(graph)
 
 
@@ -82,7 +82,7 @@ def test_positive_lagged_self_edge_is_temporal_but_zero_lag_self_loop_is_rejecte
     )
     assert graph.edges[0].lag == 1
 
-    with pytest.raises(ValueError, match="zero-lag|self-loop"):
+    with pytest.raises(ValueError, match=r"zero-lag|self-loop"):
         CausalGraphModel(
             graph_type=GraphType.DAG,
             nodes=["X"],

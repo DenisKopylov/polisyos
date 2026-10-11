@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from importlib import import_module
+from typing import Any
 
 from polisyos.foundry.extensions.registry import FoundryExtensionRegistryReport
 from polisyos.foundry.methods.selection.registry import MethodRegistry
@@ -130,14 +131,25 @@ def ensure_all_methods_registered(
     )
 
 
-from polisyos.foundry.methods.catalog.dependency_authority import (
-    DependencyProfileResolutionFailure,
-    MethodCatalogDependencyAuthorityRequest,
-)
-from polisyos.foundry.methods.catalog.snapshot import (
-    build_method_catalog_provenance_manifest,
-    build_method_catalog_runtime_identity,
-)
+
+
+_LAZY_EXPORTS: dict[str, tuple[str, str]] = {
+    "DependencyProfileResolutionFailure": ("dependency_authority", "DependencyProfileResolutionFailure"),
+    "MethodCatalogDependencyAuthorityRequest": ("dependency_authority", "MethodCatalogDependencyAuthorityRequest"),
+    "build_method_catalog_provenance_manifest": ("snapshot", "build_method_catalog_provenance_manifest"),
+    "build_method_catalog_runtime_identity": ("snapshot", "build_method_catalog_runtime_identity"),
+}
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve heavy catalog exports only when callers request them."""
+    try:
+        module_name, attribute_name = _LAZY_EXPORTS[name]
+    except KeyError as exc:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}") from exc
+    value = getattr(import_module(f"{__name__}.{module_name}"), attribute_name)
+    globals()[name] = value
+    return value
 
 __all__ = [
     "DependencyProfileResolutionFailure",

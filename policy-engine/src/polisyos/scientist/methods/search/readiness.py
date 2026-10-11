@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,6 +17,7 @@ from polisyos.foundry.validation import (
 )
 from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readiness_report
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
@@ -33,17 +33,6 @@ if TYPE_CHECKING:
     from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
 
 READINESS_CONTRACT_SCHEMA_NAME = "polisyos.scientist.search.DecisionReadinessContract"
-
-
-class DecisionReadiness(str, Enum):
-    """Decision readiness public type."""
-
-    RESEARCH_ARTIFACT = "research_artifact"
-    ANALYST_ADVISORY = "analyst_advisory"
-    EXTERNAL_BRIEFING = "external_briefing"
-    SIMULATION_READY = "simulation_ready"
-    RECOMMENDATION_READY = "recommendation_ready"
-    DEPLOYMENT_READY = "deployment_ready"
 
 
 class ReadinessRequirement(BaseModel):

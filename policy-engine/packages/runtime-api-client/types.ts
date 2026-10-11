@@ -208,6 +208,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Predictive Coverage Diagnostic
+         * @description Return a reader-materialized predictive diagnostic, never raw report bytes.
+         */
+        get: operations["get_predictive_coverage_diagnostic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/artifacts/{artifact_id}/schema": {
         parameters: {
             query?: never;
@@ -2613,6 +2633,8 @@ export interface components {
             decision_packet_preview?: components["schemas"]["DecisionPacketPreview"] | null;
             /** Kind */
             kind: string;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /** Max Bytes */
             max_bytes: number;
             /** Media Type */
@@ -2622,6 +2644,7 @@ export interface components {
              * @enum {string}
              */
             mode: "json" | "text" | "binary";
+            predictive_coverage_diagnostic?: components["schemas"]["PredictiveCoverageDiagnosticPreview"] | null;
             /** Preview */
             preview?: unknown;
             /** Size Bytes */
@@ -2656,8 +2679,12 @@ export interface components {
         ArtifactLineageEdge: {
             /** Child Artifact Id */
             child_artifact_id: string;
+            /** Child Manifest Profile Sha256 */
+            child_manifest_profile_sha256?: string | null;
             /** Parent Artifact Id */
             parent_artifact_id: string;
+            /** Parent Manifest Profile Sha256 */
+            parent_manifest_profile_sha256?: string | null;
             /** Role */
             role: string;
         };
@@ -2680,6 +2707,10 @@ export interface components {
             depth: number;
             /** Kind */
             kind?: string | null;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
+            /** Media Type */
+            media_type?: string | null;
             /** Role */
             role?: string | null;
             /** Status */
@@ -2711,8 +2742,12 @@ export interface components {
             missing_artifact_ids?: string[];
             /** Nodes */
             nodes?: components["schemas"]["ArtifactLineageNode"][];
+            /** Notes */
+            notes?: string[];
             /** Root Artifact Ids */
             root_artifact_ids?: string[];
+            /** Root Artifact Refs */
+            root_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /**
              * Total Edges
              * @default 0
@@ -2757,6 +2792,8 @@ export interface components {
             integrity_sha256: string;
             /** Kind */
             kind: string;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /** Media Type */
             media_type: string;
             /** Producer Component */
@@ -2980,6 +3017,8 @@ export interface components {
             artifact_id: string;
             /** Kind */
             kind: string;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
             /** Media Type */
             media_type: string;
             /** Schema Name */
@@ -4207,6 +4246,11 @@ export interface components {
              * @default ua
              */
             jurisdiction?: string;
+            /**
+             * Manifest Profile Sha256
+             * @description Optional exact manifest profile for the source artifact.
+             */
+            manifest_profile_sha256?: string | null;
             /** Template Version */
             template_version?: string | null;
             temporal_scope?: _RuntimeApiRequestView_54_65_6d_70_6f_72_61_6c_53_63_6f_70_65 | null;
@@ -5833,6 +5877,10 @@ export interface components {
             requested_execution_profile?: ("dev" | "research" | "governed" | "production") | null;
             /** Run Id */
             run_id?: string | null;
+            /** Runtime Quality Artifact Refs */
+            runtime_quality_artifact_refs?: {
+                [key: string]: components["schemas"]["ArtifactRef-Output"];
+            };
             /** Runtime State */
             runtime_state?: string | null;
             /** Started At */
@@ -13324,6 +13372,109 @@ export interface components {
             proof_kernel_id: string;
         };
         /**
+         * PredictiveCoverageDiagnosticPreview
+         * @description Limited, reader-materialized interval diagnostic; never an S10 grade.
+         */
+        PredictiveCoverageDiagnosticPreview: {
+            /**
+             * Assessment
+             * @constant
+             */
+            assessment: "limited";
+            /**
+             * Causal Effect Status
+             * @constant
+             */
+            causal_effect_status: "not_established";
+            /**
+             * Counterfactual Credibility Status
+             * @constant
+             */
+            counterfactual_credibility_status: "not_established";
+            /**
+             * Effective Time Status
+             * @constant
+             */
+            effective_time_status: "not_established";
+            /**
+             * Issuer Status
+             * @constant
+             */
+            issuer_status: "not_established";
+            /** May Not Use For */
+            may_not_use_for: ("promotion" | "publication" | "policy_selection" | "causal_effect_claim")[];
+            /**
+             * Measurement Status
+             * @enum {string}
+             */
+            measurement_status: "measured" | "not_measured" | "invalid_source";
+            /**
+             * Metric
+             * @constant
+             */
+            metric: "predictive_interval_coverage";
+            /**
+             * Producer Attestation Status
+             * @constant
+             */
+            producer_attestation_status: "not_established";
+            /**
+             * Reason Code
+             * @enum {string}
+             */
+            reason_code: "none" | "no_evaluated_intervals" | "predictive_scope_not_established" | "unsupported_report_scope" | "malformed_report_shape" | "malformed_interval_counts" | "stored_hit_rate_mismatch";
+            /**
+             * S10 Metric Mapping Status
+             * @constant
+             */
+            s10_metric_mapping_status: "not_established";
+            /**
+             * S10 Threshold Status
+             * @constant
+             */
+            s10_threshold_status: "not_established";
+            /** Scenarios */
+            scenarios: components["schemas"]["PredictiveCoverageScenarioPreview"][];
+            /** Source Artifact Id */
+            source_artifact_id: string;
+            /** Source Manifest Profile Sha256 */
+            source_manifest_profile_sha256: string;
+            /**
+             * Source Materialization
+             * @constant
+             */
+            source_materialization: "reader_materialized";
+            /**
+             * Source Schema Version
+             * @constant
+             */
+            source_schema_version: "1.0";
+        };
+        /**
+         * PredictiveCoverageScenarioPreview
+         * @description One scenario's recomputed predictive interval counts for inspection.
+         */
+        PredictiveCoverageScenarioPreview: {
+            /** Interval Available Count */
+            interval_available_count: number;
+            /** Interval Evaluated Count */
+            interval_evaluated_count: number;
+            /** Interval Hit Count */
+            interval_hit_count: number;
+            /** Interval Requested Count */
+            interval_requested_count: number;
+            /** Interval Type */
+            interval_type?: string | null;
+            /** Metric Name */
+            metric_name: string;
+            /** Nominal Confidence Level */
+            nominal_confidence_level?: number | null;
+            /** Observed Hit Rate */
+            observed_hit_rate?: number | null;
+            /** Scenario Id */
+            scenario_id: string;
+        };
+        /**
          * PreflightDiagnosticView
          * @description API view of one preflight diagnostic surfaced to runtime clients.
          */
@@ -14728,6 +14879,7 @@ export interface components {
             execution_profile?: string | null;
             /** Finished At */
             finished_at?: string | null;
+            generic_cycle_simulation?: components["schemas"]["RunGenericCycleSimulationProjection"] | null;
             /**
              * Has Trace
              * @default false
@@ -14845,6 +14997,7 @@ export interface components {
             /** Data Needs */
             data_needs?: components["schemas"]["RunEvidenceNeedView"][];
             data_snapshot_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            data_view_request_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             evidence_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             execution_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             fabric_retrieval_trace_ref?: components["schemas"]["ArtifactRef-Output"] | null;
@@ -15031,6 +15184,211 @@ export interface components {
             source_kind: "core_run";
         };
         /**
+         * RunGenericCycleSimulationChildProfileBinding
+         * @description Historical profile row joined to one persisted N4-derived child.
+         */
+        RunGenericCycleSimulationChildProfileBinding: {
+            context_job_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            /**
+             * Historical Binding Status
+             * @enum {string}
+             */
+            historical_binding_status: "resolved" | "not_established";
+            /** Limitation Code */
+            limitation_code?: string | null;
+            /** Node Ref */
+            node_ref: string;
+            /** Profile Id */
+            profile_id: string;
+            profile_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Profile Selection Ref */
+            profile_selection_ref: string;
+            /** Semantic Ref */
+            semantic_ref: string;
+            /** Source Atom Refs */
+            source_atom_refs: string[];
+            source_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Source Result Ref */
+            source_result_ref: string;
+        };
+        /**
+         * RunGenericCycleSimulationN5Observation
+         * @description One historical, candidate-only N5 observation and its persisted lineage.
+         */
+        RunGenericCycleSimulationN5Observation: {
+            /**
+             * Atom Ids
+             * @default []
+             */
+            atom_ids: string[];
+            /**
+             * Authority Blockers
+             * @default []
+             */
+            authority_blockers: string[];
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            /** Candidate Id */
+            candidate_id: string;
+            child_profile_family_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            child_profile_set_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            context_job_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Cycle Index */
+            cycle_index: number;
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+            n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            n5_input_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * N5 Request Binding Status
+             * @default not_established
+             * @enum {string}
+             */
+            n5_request_binding_status: "resolved" | "not_established";
+            /** N5 Request Content Hash */
+            n5_request_content_hash?: string | null;
+            /**
+             * N8 Authority Blockers
+             * @default []
+             */
+            n8_authority_blockers: string[];
+            /** N8 Limitation Code */
+            n8_limitation_code?: string | null;
+            /**
+             * N8 Lineage Status
+             * @enum {string}
+             */
+            n8_lineage_status: "resolved" | "not_established";
+            /**
+             * N8 Status
+             * @enum {string}
+             */
+            n8_status: "value_ready" | "value_conditional" | "value_blocked" | "value_pending_n8";
+            /** N8 Value Ref */
+            n8_value_ref?: string | null;
+            /** Node Ref */
+            node_ref: string;
+            profile_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Profile Selection Ref */
+            profile_selection_ref: string;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /**
+             * Selected Outcomes
+             * @default []
+             */
+            selected_outcomes: string[];
+            simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "joint_simulated" | "simulation_pending_n5" | "simulation_blocked";
+            /** World Model Record Content Hash */
+            world_model_record_content_hash: string;
+        };
+        /**
+         * RunGenericCycleSimulationProjection
+         * @description Persisted generic simulation lineage exposed as candidate-only history.
+         */
+        RunGenericCycleSimulationProjection: {
+            /**
+             * Artifact Status
+             * @enum {string}
+             */
+            artifact_status: "resolved" | "not_established";
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            /**
+             * Child Profile Bindings
+             * @default []
+             */
+            child_profile_bindings: components["schemas"]["RunGenericCycleSimulationChildProfileBinding"][];
+            child_profile_family_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Child Profile Limitation Code */
+            child_profile_limitation_code?: string | null;
+            child_profile_set_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Child Profile Status
+             * @enum {string}
+             */
+            child_profile_status: "not_attempted" | "resolved" | "not_established";
+            credal_source_attempt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Credal Source Limitation Code */
+            credal_source_limitation_code?: ("candidate_source_authority_not_established" | "candidate_source_attempt_replay_not_established") | null;
+            /** Credal Source Status */
+            credal_source_status?: "not_established" | null;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Limitation Code */
+            limitation_code?: string | null;
+            /** N4 Source Limitation Code */
+            n4_source_limitation_code?: string | null;
+            n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** N4 Source Status */
+            n4_source_status?: ("resolved" | "not_established") | null;
+            /** N5 Limitation Code */
+            n5_limitation_code?: string | null;
+            /**
+             * N5 Observations
+             * @default []
+             */
+            n5_observations: components["schemas"]["RunGenericCycleSimulationN5Observation"][];
+            parent_context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Parent Profile Id */
+            parent_profile_id?: string | null;
+            parent_profile_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            recursive_cycle_checkpoint?: components["schemas"]["RunRecursiveCycleCheckpoint"] | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_generic_cycle_simulation_projection.v1
+             * @enum {string}
+             */
+            schema_version: "policyos.runtime.run_generic_cycle_simulation_projection.v1" | "policyos.runtime.run_generic_cycle_simulation_projection.v2";
+            /** Source Content Hash */
+            source_content_hash?: string | null;
+            source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
          * RunLaunchResponse
          * @description Return the accepted/rejected control-job id and effective execution profile.
          */
@@ -15088,10 +15446,14 @@ export interface components {
             error_message?: string | null;
             /** Input Artifact Ids */
             input_artifact_ids?: string[];
+            /** Input Artifact Refs */
+            input_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Node Id */
             node_id?: string | null;
             /** Output Artifact Ids */
             output_artifact_ids?: string[];
+            /** Output Artifact Refs */
+            output_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Skip Reason */
             skip_reason?: string | null;
             /**
@@ -15728,12 +16090,16 @@ export interface components {
             index: number;
             /** Input Artifact Ids */
             input_artifact_ids?: string[];
+            /** Input Artifact Refs */
+            input_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Metrics */
             metrics?: {
                 [key: string]: number;
             };
             /** Output Artifact Ids */
             output_artifact_ids?: string[];
+            /** Output Artifact Refs */
+            output_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Parent Span Id */
             parent_span_id?: string | null;
             /** Phase */
@@ -15858,10 +16224,14 @@ export interface components {
             heat: number;
             /** Input Artifact Ids */
             input_artifact_ids?: string[];
+            /** Input Artifact Refs */
+            input_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Node Id */
             node_id?: string | null;
             /** Output Artifact Ids */
             output_artifact_ids?: string[];
+            /** Output Artifact Refs */
+            output_artifact_refs?: components["schemas"]["ArtifactRef-Output"][];
             /** Skip Reason */
             skip_reason?: string | null;
             /**
@@ -18287,7 +18657,10 @@ export interface operations {
     };
     get_artifact_manifest: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
+            };
             header?: never;
             path: {
                 artifact_id: string;
@@ -18375,6 +18748,8 @@ export interface operations {
         parameters: {
             query?: {
                 max_bytes?: number | null;
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
             };
             header?: never;
             path: {
@@ -18461,7 +18836,10 @@ export interface operations {
     };
     download_artifact_content: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
+            };
             header?: never;
             path: {
                 artifact_id: string;
@@ -18551,6 +18929,8 @@ export interface operations {
             query?: {
                 max_depth?: number | null;
                 max_nodes?: number | null;
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
             };
             header?: never;
             path: {
@@ -18635,9 +19015,101 @@ export interface operations {
             };
         };
     };
+    get_predictive_coverage_diagnostic: {
+        parameters: {
+            query?: {
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
+            };
+            header?: never;
+            path: {
+                artifact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PredictiveCoverageDiagnosticPreview"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     get_artifact_schema: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
+            };
             header?: never;
             path: {
                 artifact_id: string;
@@ -18728,6 +19200,8 @@ export interface operations {
                 genre?: "postanova_kmu" | "zakonoproekt" | "expert_vysnovok" | "analitichna_zapyska";
                 jurisdiction?: string;
                 template_version?: string | null;
+                /** @description Optional exact manifest profile. Supply at most once; repeated values are ambiguous and rejected. */
+                manifest_profile_sha256?: string | null;
                 trust_view?: boolean;
                 valid_at?: string | null;
                 tx_at?: string | null;

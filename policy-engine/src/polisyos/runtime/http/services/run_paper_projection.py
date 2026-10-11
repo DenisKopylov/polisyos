@@ -5,6 +5,7 @@ from __future__ import annotations
 import hmac
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core import artifacts
 from polisyos.runtime.http.services.adapters.core_run import (
     BOUND_RUN_MANIFEST_SCHEMA_VERSION,
 )
@@ -32,6 +33,7 @@ from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperStageTraceResolution,
     UnavailableRunPaperStageTrace,
     build_run_paper_semantic_projection,
+    run_paper_artifact_href,
 )
 from polisyos.runtime.quality.authority import authority_surface_decision
 
@@ -39,7 +41,6 @@ if TYPE_CHECKING:
     from datetime import datetime
     from pathlib import Path
 
-    from polisyos.core import artifacts
 
 
 class RunPaperProjectionService:
@@ -122,7 +123,7 @@ class RunPaperProjectionService:
         artifact_links = tuple(
             RunPaperArtifactLink(
                 artifact_ref=artifact_ref,
-                href=f"/api/v1/artifacts/{artifact_ref.artifact_id}",
+                href=run_paper_artifact_href(artifact_ref),
             )
             for artifact_ref in manifest.outputs
             if self._is_verified_ref(artifact_ref)
@@ -217,23 +218,36 @@ class RunPaperProjectionService:
         if artifact_id is None:
             return False
         try:
-            verification = self._store.verify(artifact_id)
+            selected_ref = (
+                artifact_ref if isinstance(artifact_ref, artifacts.ArtifactRef) else None
+            )
+            target = selected_ref if selected_ref is not None else artifact_id
+            verification = self._store.verify(target)
             if not verification.ok:
                 return False
-            sidecar = self._store.get_manifest(artifact_id)
+            sidecar = self._store.get_manifest(target)
         except (OSError, TypeError, ValueError):
             return False
         verified = (
             sidecar.kind == getattr(artifact_ref, "kind", None)
             and sidecar.media_type == getattr(artifact_ref, "media_type", None)
         )
-        if not verified:
+        if (
+            not verified
+            or (
+                selected_ref is not None
+                and selected_ref.manifest_profile_sha256 is not None
+                and artifacts.artifact_manifest_profile_sha256(sidecar)
+                != selected_ref.manifest_profile_sha256
+            )
+        ):
             return False
         decision = authority_surface_decision(
             {},
             surface="run",
             artifact_store=cast("Any", self._store),
             artifact_id=artifact_id,
+            artifact_ref=selected_ref,
             require_cas_integrity=True,
         )
         if "eval_safety_projection" not in decision.composed_gate_inputs:

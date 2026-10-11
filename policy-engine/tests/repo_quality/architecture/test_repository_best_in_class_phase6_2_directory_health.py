@@ -61,8 +61,8 @@ def test_phase6_2_gate_conversion_contract_covers_tests_benchmarks_and_directori
     assert header["validator_command"].endswith("directory-health --fail-on-regression")
     assert header["mode"] == "fail_closed"
     assert header["top_level_path_moves_active"] is False
-    assert TEST_GATE_IDS <= set(gates)
-    assert DIRECTORY_GATE_IDS <= set(gates)
+    assert set(gates) >= TEST_GATE_IDS
+    assert set(gates) >= DIRECTORY_GATE_IDS
 
     for gate_id in TEST_GATE_IDS:
         gate = gates[gate_id]
@@ -104,8 +104,8 @@ def test_phase6_2_directory_health_dashboard_metrics_are_regression_baselined() 
 
     assert report["contract_error_count"] == 0
     assert report["finding_count"] == 0
-    assert REQUIRED_DASHBOARD_METRICS <= set(metrics)
-    assert REQUIRED_DASHBOARD_METRICS <= set(baselines)
+    assert set(metrics) >= REQUIRED_DASHBOARD_METRICS
+    assert set(baselines) >= REQUIRED_DASHBOARD_METRICS
     assert metrics["top_level_directory_contract_coverage_percent"] >= 100.0
     assert metrics["closure_forbidden_lifecycle_commit_count"] == 0
     assert metrics["closure_non_product_init_count"] == 0

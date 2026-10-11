@@ -259,16 +259,17 @@ class RunIndexService:
         )
         return tenant_id
 
-    def resolve_root_artifact_ids(
+    def resolve_root_artifact_refs(
         self,
         run: IndexedRunRecord,
         *,
         requested_root_ids: list[str] | None = None,
-    ) -> list[ArtifactID]:
-        """Resolve lineage roots from explicit request ids or run manifest refs.
+    ) -> list[ArtifactID | ArtifactRef]:
+        """Resolve lineage roots while preserving persisted typed artifact refs.
 
-        If no request override is supplied, the method prefers
-        `run.details.root_artifacts` and falls back to the decision packet ref.
+        Explicit ID overrides remain unqualified. Without an override, the
+        method prefers persisted root refs and falls back to the decision packet
+        ref, preserving the selected manifest profile where present.
 
         Raises:
             ValueError: If any supplied artifact id is malformed.
@@ -279,8 +280,27 @@ class RunIndexService:
         refs: list[ArtifactRef] = list(run.details.root_artifacts)
         if not refs and run.decision_packet_ref is not None:
             refs = [run.decision_packet_ref]
+        return refs
 
-        return [ArtifactID.model_validate(str(ref.artifact_id)) for ref in refs]
+    def resolve_root_artifact_ids(
+        self,
+        run: IndexedRunRecord,
+        *,
+        requested_root_ids: list[str] | None = None,
+    ) -> list[ArtifactID]:
+        """Resolve root IDs for legacy ID-only consumers.
+
+        New profile-preserving readers should use resolve_root_artifact_refs;
+        this compatibility method intentionally drops the typed ref fields.
+        """
+        refs = self.resolve_root_artifact_refs(
+            run,
+            requested_root_ids=requested_root_ids,
+        )
+        return [
+            ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+            for ref in refs
+        ]
 
     def _refresh_index_incremental(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
         index: dict[str, IndexedRunRecord] = {}

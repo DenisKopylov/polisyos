@@ -4469,6 +4469,43 @@ def _is_structurally_non_decisive_predicate(value: object) -> bool:
     )
 
 
+def _declared_loader_rows_are_valid(value: object) -> bool:
+    """Return whether declared-loader identities have the strict v2 wire shape."""
+    if not isinstance(value, list):
+        return False
+    for row in value:
+        if (
+            not isinstance(row, Mapping)
+            or set(row) != {"name", "target", "group"}
+            or any(not isinstance(row.get(key), str) or not row[key] for key in row)
+        ):
+            return False
+    return True
+
+
+def _declared_loader_rows_match(
+    recorded: Mapping[str, Any],
+    expected: Mapping[str, Any],
+    *,
+    schema_version: object,
+) -> bool:
+    """Compare typed loader rows according to the selected provenance schema."""
+    field = "declared_builtin_loaders"
+    if schema_version == "policyos.method_catalog_provenance_manifest.v1":
+        return field not in recorded and field not in expected
+    if schema_version != "policyos.method_catalog_provenance_manifest.v2":
+        return False
+    recorded_rows = recorded.get(field)
+    expected_rows = expected.get(field)
+    return (
+        field in recorded
+        and field in expected
+        and _declared_loader_rows_are_valid(recorded_rows)
+        and _declared_loader_rows_are_valid(expected_rows)
+        and recorded_rows == expected_rows
+    )
+
+
 def _catalog_provenance_validation_result(
     recorded: object,
     expected: Mapping[str, Any],
@@ -4528,6 +4565,10 @@ def _catalog_provenance_validation_result(
                 "registry_binding_sha256",
                 "unbound_inputs",
             )
+        ) or not _declared_loader_rows_match(
+            recorded_governed,
+            expected_governed,
+            schema_version=expected.get("schema_version"),
         ):
             governing.append({"code": "catalog_builtin_discovery_manifest_mismatch"})
         if recorded_governed.get("unbound_inputs"):
@@ -4571,6 +4612,12 @@ def _catalog_provenance_validation_result(
             ambient_destination.append({"code": "catalog_ambient_component_manifest_mismatch"})
         if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
             ambient_destination.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
+        if not _declared_loader_rows_match(
+            recorded_ambient,
+            expected_ambient,
+            schema_version=expected.get("schema_version"),
+        ):
+            ambient_destination.append({"code": "catalog_ambient_discovery_manifest_mismatch"})
         if recorded_admission != expected_admission:
             ambient_destination.append({"code": "catalog_ambient_admission_mismatch"})
         if not _is_valid_catalog_ambient_admission(recorded_admission):
@@ -5625,6 +5672,28 @@ def _catalog_provenance_reissue_payload(
     live_manifest_entries = live_manifest_content.get("entry_points")
     if live_manifest_entries != live_entries:
         raise ValueError("catalog_provenance_reissue_manifest_evidence_mismatch")
+    live_declared_loaders = live_manifest_content.get("declared_builtin_loaders", [])
+    recorded_declared_loaders = recorded_ambient.get("declared_builtin_loaders", [])
+    live_manifest_schema = live_manifest_content.get("schema_version")
+    if (
+        not _declared_loader_rows_are_valid(live_declared_loaders)
+        or not _declared_loader_rows_are_valid(recorded_declared_loaders)
+        or live_declared_loaders != recorded_declared_loaders
+        or (
+            live_manifest_schema == "policyos.component_discovery_manifest.v1"
+            and "declared_builtin_loaders" in live_manifest_content
+        )
+        or (
+            live_manifest_schema == "policyos.component_discovery_manifest.v2"
+            and not live_declared_loaders
+        )
+        or live_manifest_schema
+        not in {
+            "policyos.component_discovery_manifest.v1",
+            "policyos.component_discovery_manifest.v2",
+        }
+    ):
+        raise ValueError("catalog_provenance_reissue_declared_loader_manifest_mismatch")
     live_manifest_id = _component_discovery_manifest_id(live_manifest_content)
     if live_manifest_id != live_ambient.get("manifest_id"):
         raise ValueError("catalog_provenance_reissue_manifest_evidence_mismatch")

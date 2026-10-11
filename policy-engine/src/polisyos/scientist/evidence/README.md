@@ -8,6 +8,9 @@ Use this hub for:
 - `sources.py`: configured evidence source paths and source status payloads;
 - `safe_fetch.py`, `source_quality.py`, `snippet_ledger.py`, and `verifier.py`:
   web evidence safety and validation;
+- `decision_readiness.py`: canonical shared readiness-level enum consumed by claim and
+  search contracts; the former search-module path remains a compatibility alias and
+  stable pickle identity for new and legacy payloads;
 - `claims/`: claim ledger, lifecycle, readiness, projections, publication
   validators, and the internal strict trust-claim posture contract/calculus in
   `claims/posture.py`. The canonical Claim owner performs two-phase root issuance,

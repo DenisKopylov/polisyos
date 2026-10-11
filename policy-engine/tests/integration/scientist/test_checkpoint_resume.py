@@ -1144,7 +1144,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     )
     ast.fix_missing_locations(compiled_module)
     namespace = dict(executor_module.__dict__)
-    exec(
+    exec(  # noqa: S102 - source-pinned AST removal probe
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )

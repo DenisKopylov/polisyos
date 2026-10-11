@@ -368,7 +368,7 @@ def test_resume_rejects_missing_state_written_by_completed_node(tmp_path: Path) 
         writer_hostname="localhost",
     )
 
-    with pytest.raises(CheckpointCorruptedError, match="params.b"):
+    with pytest.raises(CheckpointCorruptedError, match=r"params\.b"):
         resume_from_checkpoint(
             store,
             run_id,

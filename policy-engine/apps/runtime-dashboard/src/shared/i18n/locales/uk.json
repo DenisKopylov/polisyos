@@ -59,7 +59,8 @@
       "threshold": "{nodes, plural, one {У графі {nodes} вузол, що перевищує поріг рендерингу ({maxNodes}).} few {У графі {nodes} вузли, що перевищують поріг рендерингу ({maxNodes}).} many {У графі {nodes} вузлів, що перевищують поріг рендерингу ({maxNodes}).} other {Вузли графа: {nodes}; поріг рендерингу: {maxNodes}.}}",
       "thresholdHint": "Звузьте scope lineage через `max_depth`/`max_nodes` для інтерактивного рендерингу.",
       "ariaLabel": "Граф lineage артефактів",
-      "unknownKind": "Невідомий тип"
+      "unknownKind": "Невідомий тип",
+      "unqualifiedProfile": "Профіль не вибрано (застарілий режим)"
     },
     "locale": {
       "en": "English",
@@ -1189,6 +1190,9 @@
       "noPromotionContext": "До цього run context не прив'язано promotion candidate.",
       "artifactLoading": "Завантаження preview артефакту...",
       "artifactLoadError": "Не вдалося завантажити preview артефакту",
+      "manifestProfile": "Профіль маніфесту",
+      "manifestProfileUnqualified": "Посилання без профілю; профіль виробника не заявлено",
+      "artifactProfileMismatch": "Повернений артефакт не відповідає вибраному повному посиланню. Вміст приховано.",
       "artifactEmptyTitle": "Preview артефакту недоступний",
       "artifactEmptyBody": "Для inline inspection не вибрано пов'язаний артефакт.",
       "selectedNode": "Вибраний вузол",
@@ -1354,13 +1358,19 @@
         "needMissing": "Need {needId} більше недоступний у поточному run context.",
         "planMissing": "Plan {planId} більше недоступний у поточному run context.",
         "promotionMissing": "Promotion {promotionId} більше недоступна у поточному run context.",
-        "artifactMissing": "Artifact {artifactId} більше не прив'язаний у поточному run context."
+        "artifactMissing": "Artifact {artifactId} більше не прив'язаний у поточному run context.",
+        "artifactReferenceInvalid": "Селектор посилання на артефакт пошкоджений, повторений або не відповідає run context. Артефакт не вибрано."
       }
     },
     "artifacts": {
       "title": "Інспектор артефактів",
       "subtitle": "Typed viewers для runtime артефактів і provenance surfaces.",
       "requiredArtifactId": "Потрібен Artifact ID.",
+      "requestedReference": "Запитане посилання на артефакт",
+      "resolvedManifestProfile": "Профіль маніфесту, вибраний читачем",
+      "profileUnqualified": "Селектор профілю відсутній; читач вибирає типове представлення",
+      "profileInvalidSelection": "Посилання на артефакт або селектор профілю маніфесту пошкоджений чи повторений. Представлення не завантажено.",
+      "profileMismatch": "Вибране представлення артефакту не відповідає повному посиланню. Вміст приховано.",
       "loadingManifest": "Завантаження маніфесту...",
       "loadManifestError": "Не вдалося завантажити маніфест артефакту",
       "loadingContent": "Завантаження preview вмісту...",
@@ -1384,6 +1394,7 @@
         "created": "Створено",
         "size": "Розмір",
         "producer": "Producer",
+        "manifestProfile": "Профіль маніфесту",
         "schema": "Схема"
       },
       "contentFields": {

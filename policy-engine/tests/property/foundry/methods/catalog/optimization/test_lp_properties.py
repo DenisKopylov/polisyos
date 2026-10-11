@@ -1,3 +1,4 @@
+
 """
 Property-based tests for Linear Programming optimization methods.
 """
@@ -9,15 +10,15 @@ import pytest
 
 pytest.importorskip("hypothesis", reason="hypothesis not installed")
 
-from hypothesis import assume, given, settings
+from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
-from polisyos.foundry.methods.catalog.optimization.lp import ResourceLP
 from polisyos.foundry.methods.catalog.optimization.protocols import (
     AllocationItem,
     OptimizationProblem,
     ResourceConstraint,
 )
+from tests.unit.foundry.methods.testing.property_invocation import invoke_property_method
 from tests.unit.foundry.methods.testing.strategies import lp_data_strategy
 
 
@@ -55,57 +56,72 @@ def _resource_problem(data: dict) -> OptimizationProblem:
     )
 
 
-def _solve_resource_lp(data: dict) -> dict:
-    result, _solver_info = ResourceLP.pure_step(
-        _resource_problem(data),
-        {"prefer_ortools": False},
+def _solve_resource_lp(
+    data: dict,
+    *,
+    isolated_registry,
+    property_method_dispatcher,
+    seed: int = 42,
+) -> dict:
+    fqn = "optimization.linear.resource_lp@1.0.0"
+    problem = _resource_problem(data)
+    return invoke_property_method(
+        dispatcher=property_method_dispatcher,
+        method_class=isolated_registry.get(fqn),
+        state=problem,
+        bound_inputs={"optimization_problem": problem},
+        params={"prefer_ortools": False},
+        seed=seed,
+    ).output
+
+
+@pytest.mark.hypothesis
+@given(data=lp_data_strategy())
+@settings(
+    max_examples=30,
+    deadline=20_000,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_lp_feasible_problem_returns_finite_objective(
+    data: dict, isolated_registry, property_method_dispatcher
+) -> None:
+    """A generated bounded LP returns a finite objective and optimal status."""
+    result = _solve_resource_lp(
+        data,
+        isolated_registry=isolated_registry,
+        property_method_dispatcher=property_method_dispatcher,
     )
-    return result
+
+    assert result["status"] == "optimal"
+    assert result["objective_value"] is not None
+    assert np.isfinite(float(result["objective_value"]))
 
 
 @pytest.mark.hypothesis
 @given(data=lp_data_strategy())
-@settings(max_examples=30, deadline=20_000)
-def test_lp_feasible_problem_returns_finite_objective(data: dict) -> None:
-    """Feasible LP must return a finite objective value."""
-    assume(np.all(data["b_ub"] > 0))  # feasibility at x=0
+@settings(
+    max_examples=20,
+    deadline=20_000,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_lp_optimal_x_satisfies_constraints(
+    data: dict, isolated_registry, property_method_dispatcher
+) -> None:
+    """The dispatched LP variables satisfy their declared bounds and constraints."""
+    result = _solve_resource_lp(
+        data,
+        isolated_registry=isolated_registry,
+        property_method_dispatcher=property_method_dispatcher,
+    )
 
-    try:
-        result = _solve_resource_lp(data)
-        assert isinstance(result, dict)
-        if result.get("status") == "error":
-            return
-        obj = result.get("objective_value")
-        if obj is not None:
-            assert np.isfinite(float(obj))
-    except Exception as exc:
-        if any(kw in str(exc).lower() for kw in ("infeasible", "unbounded", "solver")):
-            return
-        raise
-
-
-@pytest.mark.hypothesis
-@given(data=lp_data_strategy())
-@settings(max_examples=20, deadline=20_000)
-def test_lp_optimal_x_satisfies_constraints(data: dict) -> None:
-    """Optimal LP solution must satisfy A_ub @ x ≤ b_ub and x ≥ 0."""
-    assume(np.all(data["b_ub"] > 0))
-
-    try:
-        result = _solve_resource_lp(data)
-        variables = result.get("variables")
-        if not variables:
-            return
-        x = np.asarray([variables[f"x{i}"] for i in range(data["c"].shape[0])], dtype=float)
-        # x ≥ 0 (allow small numerical tolerance)
-        assert np.all(x >= -1e-6)
-        # A_ub @ x ≤ b_ub (allow small tolerance)
-        lhs = data["A_ub"] @ x
-        assert np.all(lhs <= data["b_ub"] + 1e-6)
-    except Exception as exc:
-        if any(kw in str(exc).lower() for kw in ("infeasible", "unbounded", "solver")):
-            return
-        raise
+    assert result["status"] == "optimal"
+    variables = result["variables"]
+    assert variables
+    x = np.asarray([variables[f"x{i}"] for i in range(data["c"].shape[0])], dtype=float)
+    assert np.all(np.isfinite(x))
+    assert np.all(x >= -1e-6)
+    lhs = data["A_ub"] @ x
+    assert np.all(lhs <= data["b_ub"] + 1e-6)
 
 
 @pytest.mark.hypothesis
@@ -113,25 +129,42 @@ def test_lp_optimal_x_satisfies_constraints(data: dict) -> None:
     n_vars=st.integers(min_value=2, max_value=6),
     seed=st.integers(min_value=0, max_value=99),
 )
-@settings(max_examples=20, deadline=15_000)
-def test_lp_deterministic_given_same_seed(n_vars: int, seed: int) -> None:
-    """LP results must be identical when called twice with the same inputs."""
+@settings(
+    max_examples=20,
+    deadline=15_000,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
+def test_lp_deterministic_given_same_seed(
+    n_vars: int,
+    seed: int,
+    isolated_registry,
+    property_method_dispatcher,
+) -> None:
+    """LP objective and variables are stable for the same typed request and seed."""
     rng = np.random.default_rng(seed)
     n_constraints = n_vars + 1
-    c = rng.uniform(0, 5, n_vars)
-    A_ub = rng.uniform(0, 3, (n_constraints, n_vars))
-    b_ub = rng.uniform(5, 20, n_constraints)
+    data = {
+        "c": rng.uniform(0, 5, n_vars),
+        "A_ub": rng.uniform(0, 3, (n_constraints, n_vars)),
+        "b_ub": rng.uniform(5, 20, n_constraints),
+    }
 
-    state = {"c": c, "A_ub": A_ub, "b_ub": b_ub}
+    result1 = _solve_resource_lp(
+        data,
+        isolated_registry=isolated_registry,
+        property_method_dispatcher=property_method_dispatcher,
+        seed=seed,
+    )
+    result2 = _solve_resource_lp(
+        data,
+        isolated_registry=isolated_registry,
+        property_method_dispatcher=property_method_dispatcher,
+        seed=seed,
+    )
 
-    try:
-        result1 = _solve_resource_lp(state)
-        result2 = _solve_resource_lp(state)
-        obj1 = result1.get("objective_value")
-        obj2 = result2.get("objective_value")
-        if obj1 is not None and obj2 is not None:
-            assert np.isclose(float(obj1), float(obj2), rtol=1e-8)
-    except Exception as exc:
-        if any(kw in str(exc).lower() for kw in ("infeasible", "unbounded", "solver")):
-            return
-        raise
+    assert result1["status"] == result2["status"] == "optimal"
+    assert np.isclose(result1["objective_value"], result2["objective_value"], rtol=1e-8, atol=1e-8)
+    assert set(result1["variables"]) == set(result2["variables"])
+    np.testing.assert_allclose(
+        list(result1["variables"].values()), list(result2["variables"].values()), rtol=1e-8, atol=1e-8
+    )

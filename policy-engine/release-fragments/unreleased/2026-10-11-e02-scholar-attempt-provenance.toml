@@ -1,0 +1,17 @@
+id = "2026-10-11-e02-scholar-attempt-provenance"
+title = "Candidate Scholar provider-attempt provenance"
+type = "changed"
+component = "schemas"
+owner = "team-polisyos"
+summary = "Candidate WebEvidenceBundle 1.1 traces observed provider attempts, established causes, and value-free provider error categories, pending G selection."
+evidence = ["docs/reference/scientist/deep-research-evidence.md", "tests/unit/scholar/test_api_web_bootstrap.py"]
+compatibility = "Proposed additive persisted-artifact format; WebEvidenceBundle 1.0 remains readable with attempt detail absent."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: Scholar CAS artifact detail; no supported Python or HTTP entrypoint change"
+migration = "No existing CAS payload is rewritten. If G selects the additive contract, new writes use 1.1; resumed 1.0 query/frontier error strings project to legacy_error_not_established without adding attempt history. Until G selects this unreleased candidate, it is not accepted for publication. 1.0 payloads retain unknown attempt history."
+api = "No new Python facade symbol, HTTP route, or generated-client surface. The nested attempt DTO is part of the candidate persisted WebEvidenceBundle contract."
+limitations = "Candidate only; G is not adjudicated. Persisted provider errors use fixed categories and bounded exception types, not exception text. Observed calls do not prove a complete configured provider roster, global exhaustion, or absence of relevant knowledge."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/scientist/deep-research-evidence.md"]
+runbook_docs = []

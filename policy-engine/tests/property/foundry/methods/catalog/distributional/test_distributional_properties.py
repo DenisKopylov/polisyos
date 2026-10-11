@@ -2,26 +2,22 @@
 
 from __future__ import annotations
 
-import sys
-
 import numpy as np
-import pytest
+from hypothesis import HealthCheck, given, settings
 
-try:
-    from hypothesis import HealthCheck, given, settings
-
-    HYPOTHESIS_AVAILABLE = True
-except ImportError:
-    HYPOTHESIS_AVAILABLE = False
-
-pytestmark = pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
-sys.path.insert(0, "src")
-
+from tests.unit.foundry.methods.testing.property_invocation import invoke_property_method
 from tests.unit.foundry.methods.testing.strategies import distribution_strategy
 
 
-def _method_or_skip(registry, fqn):
-    return registry.get(fqn)
+def _run(registry, dispatcher, fqn, state, params=None):
+    return invoke_property_method(
+        dispatcher=dispatcher,
+        method_class=registry.get(fqn),
+        state=state,
+        bound_inputs=state,
+        params=params or {},
+        seed=17,
+    ).output
 
 
 class TestGiniProperties:
@@ -31,17 +27,20 @@ class TestGiniProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gini_output_finite(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
-        state = {"values": data["income"]}
-        try:
-            result = method.pure_step(state, {})
-            assert isinstance(result, dict)
-            if "result" in result and "gini" in result["result"]:
-                g = float(result["result"]["gini"])
-                assert np.isfinite(g), "Gini is not finite"
-        except Exception:
-            pass
+    def test_gini_output_finite(self, data, isolated_registry, property_method_dispatcher):
+        state = {"values": np.asarray(data["income"], dtype=float)}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.inequality.lorenz_curve@1.0.0",
+            state,
+        )["result"]
+        population = np.asarray(result["population_share"], dtype=float)
+        value_share = np.asarray(result["value_share"], dtype=float)
+        assert population.shape == value_share.shape == (len(data["income"]) + 1,)
+        assert np.all(np.isfinite(population))
+        assert np.all(np.isfinite(value_share))
+        assert np.isfinite(float(result["gini"]))
 
     @given(data=distribution_strategy())
     @settings(
@@ -49,18 +48,18 @@ class TestGiniProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gini_in_range(self, data, isolated_registry):
+    def test_gini_in_range(self, data, isolated_registry, property_method_dispatcher):
         """Gini coefficient should be in [0, 1]."""
-        method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
-        state = {"values": data["income"]}
-        try:
-            result = method.pure_step(state, {})
-            if "result" in result and "gini" in result["result"]:
-                g = float(result["result"]["gini"])
-                if np.isfinite(g):
-                    assert 0.0 <= g <= 1.0, f"Gini out of [0,1]: {g}"
-        except Exception:
-            pass
+        state = {"values": np.asarray(data["income"], dtype=float)}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.inequality.lorenz_curve@1.0.0",
+            state,
+        )["result"]
+        gini = float(result["gini"])
+        assert np.isfinite(gini)
+        assert 0.0 <= gini <= 1.0
 
     @given(data=distribution_strategy())
     @settings(
@@ -68,15 +67,14 @@ class TestGiniProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_gini_deterministic(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "distributional.inequality.lorenz_curve@1.0.0")
-        state = {"values": data["income"]}
-        try:
-            r1 = method.pure_step(state, {})
-            r2 = method.pure_step(state, {})
-            assert set(r1.keys()) == set(r2.keys())
-        except Exception:
-            pass
+    def test_gini_deterministic(self, data, isolated_registry, property_method_dispatcher):
+        state = {"values": np.asarray(data["income"], dtype=float)}
+        fqn = "distributional.inequality.lorenz_curve@1.0.0"
+        first = _run(isolated_registry, property_method_dispatcher, fqn, state)["result"]
+        second = _run(isolated_registry, property_method_dispatcher, fqn, state)["result"]
+        np.testing.assert_array_equal(first["population_share"], second["population_share"])
+        np.testing.assert_array_equal(first["value_share"], second["value_share"])
+        assert first["gini"] == second["gini"]
 
 
 class TestFGTPovertyProperties:
@@ -86,21 +84,22 @@ class TestFGTPovertyProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_fgt_output_finite(self, data, isolated_registry):
-        method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
+    def test_fgt_output_finite(self, data, isolated_registry, property_method_dispatcher):
         state = {
-            "values": data["income"],
-            "poverty_line": data["poverty_line"],
+            "values": np.asarray(data["income"], dtype=float),
+            "poverty_line": float(data["poverty_line"]),
         }
-        try:
-            result = method.pure_step(state, {"alpha": 0})
-            payload = result.get("result", {})
-            for key, val in payload.items():
-                arr = np.asarray(val)
-                if np.issubdtype(arr.dtype, np.floating):
-                    assert np.isfinite(arr).any() or arr.size == 0
-        except Exception:
-            pass
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.poverty.fgt@1.0.0",
+            state,
+            {"alpha": 0},
+        )["result"]
+        assert all(
+            np.isfinite(float(result[key]))
+            for key in ("fgt", "headcount_ratio", "poverty_gap_index", "poverty_line")
+        )
 
     @given(data=distribution_strategy())
     @settings(
@@ -108,18 +107,61 @@ class TestFGTPovertyProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_headcount_ratio_in_range(self, data, isolated_registry):
-        """FGT(0) = headcount ratio should be in [0, 1]."""
-        method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
-        state = {
-            "values": data["income"],
-            "poverty_line": data["poverty_line"],
-        }
-        try:
-            result = method.pure_step(state, {"alpha": 0})
-            if "result" in result and "headcount_ratio" in result["result"]:
-                hcr = float(result["result"]["headcount_ratio"])
-                if np.isfinite(hcr):
-                    assert 0.0 <= hcr <= 1.0
-        except Exception:
-            pass
+    def test_headcount_ratio_in_range(self, data, isolated_registry, property_method_dispatcher):
+        """FGT(0) equals the observed share below the declared poverty line."""
+        values = np.asarray(data["income"], dtype=float)
+        line = float(data["poverty_line"])
+        state = {"values": values, "poverty_line": line}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.poverty.fgt@1.0.0",
+            state,
+            {"alpha": 0},
+        )["result"]
+        headcount = float(result["headcount_ratio"])
+        assert np.isfinite(headcount)
+        assert 0.0 <= headcount <= 1.0
+        expected_headcount = float(np.mean(values < line))
+        assert headcount == expected_headcount
+        assert float(result["fgt"]) == expected_headcount
+
+    def test_fgt_zero_uses_strict_below_line_mask(
+        self, isolated_registry, property_method_dispatcher
+    ):
+        """FGT(0) counts values strictly below the line, not values at the line."""
+        values = np.array([4.0, 9.0, 10.0, 11.0, 12.0], dtype=float)
+        line = 10.0
+        state = {"values": values, "poverty_line": line}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.poverty.fgt@1.0.0",
+            state,
+            {"alpha": 0},
+        )["result"]
+
+        expected = float(np.mean(values < line))
+        adjacent_inclusive = float(np.mean(values <= line))
+        assert expected == 0.4
+        assert adjacent_inclusive == 0.6
+        assert float(result["headcount_ratio"]) == expected
+        assert float(result["fgt"]) == expected
+        assert float(result["fgt"]) != adjacent_inclusive
+
+    def test_fgt_zero_is_zero_when_all_values_are_non_poor(
+        self, isolated_registry, property_method_dispatcher
+    ):
+        """An all-non-poor population has FGT(0)=0, including the line-equal unit."""
+        values = np.array([10.0, 11.0, 12.0], dtype=float)
+        state = {"values": values, "poverty_line": 10.0}
+        result = _run(
+            isolated_registry,
+            property_method_dispatcher,
+            "distributional.poverty.fgt@1.0.0",
+            state,
+            {"alpha": 0},
+        )["result"]
+
+        assert float(result["headcount_ratio"]) == 0.0
+        assert float(result["fgt"]) == 0.0

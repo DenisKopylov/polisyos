@@ -470,6 +470,19 @@
       "title": "Run Id",
       "type": "string"
     },
+    "runtime_event_manifest_profile_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runtime Event Manifest Profile Sha256"
+    },
     "runtime_event_ref": {
       "minLength": 1,
       "title": "Runtime Event Ref",

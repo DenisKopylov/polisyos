@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
@@ -43,7 +44,11 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
         f"inputs.{INPUT_DATA_VIEW_REQUEST_REF}",
     ],
-    state_writes=[f"inputs.{INPUT_DATA_SNAPSHOT_REF}", "params.pii_scan_results"],
+    state_writes=[
+        f"inputs.{INPUT_DATA_SNAPSHOT_REF}",
+        f"inputs.{INPUT_DATA_VIEW_REQUEST_REF}",
+        "params.pii_scan_results",
+    ],
     produces=[INPUT_DATA_SNAPSHOT_REF],
 )
 _logger = get_logger(__name__)
@@ -80,12 +85,16 @@ class BuildDataSnapshotNode:
         inputs = dict(state.inputs)
 
         if self.allow_fabric and ctx.fabric is not None and INPUT_DATA_VIEW_REQUEST_REF in inputs:
-            request_ref = DataViewRequestRef.model_validate(
-                inputs[INPUT_DATA_VIEW_REQUEST_REF].model_dump()
+            request_ref = profile_bound_ref(
+                ctx.store,
+                DataViewRequestRef.model_validate(
+                    inputs[INPUT_DATA_VIEW_REQUEST_REF].model_dump()
+                ),
             )
             snapshot_ref = ctx.fabric.snapshot(ctx.store, request_ref)
             pii_scan_summary = _read_snapshot_pii_summary(ctx, snapshot_ref)
             new_state = branch_state(state, write_paths=_SPEC.state_writes).state
+            new_state.inputs[INPUT_DATA_VIEW_REQUEST_REF] = request_ref
             new_state.inputs[INPUT_DATA_SNAPSHOT_REF] = snapshot_ref
             if pii_scan_summary is not None:
                 new_state.params["pii_scan_results"] = pii_scan_summary

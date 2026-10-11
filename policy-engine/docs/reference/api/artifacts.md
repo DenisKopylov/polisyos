@@ -2,7 +2,7 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-10-11
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/artifact_inspector.py`, `src/polisyos/runtime/http/response_policies.py`, `src/polisyos/core/artifacts/**`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
@@ -35,6 +35,24 @@ If the artifact does not exist or is not visible to the current tenant:
 - `404 artifact_not_found`
 - or `403` for access denial
 
+Manifest views may share one content-addressed `artifact_id` while carrying different selected
+manifest profiles. The `manifest_profile_sha256` query parameter on manifest, content, schema,
+download, and artifact-specific lineage reads selects one exact view. A supplied profile that is malformed or
+unavailable is rejected; it never falls back to the default manifest. Supply the selector at most
+once: repeated values are ambiguous and rejected, including when the repeated values are identical.
+Omitted profile selection is unqualified legacy access and makes no selected-profile claim. Content
+bytes remain addressed by `artifact_id`, while the response metadata and cache identity retain the
+selected profile.
+
+Bureaucratic render accepts the source profile in its strict request body, and export accepts it
+as a query parameter. A supplied selector is resolved exactly and may appear only once. The
+response identifies the source manifest kind, media type, and profile; a missing profile never
+falls back to the mutable default.
+
+The separate quantity `LineageRef`/`/api/v1/lineage/{lineage_id}` contract is ID-only and does not
+carry or infer a manifest profile. Use the artifact-specific endpoint when a selected manifest view
+is required.
+
 ## Endpoint Summary
 
 | Method | Path                                       | Response body              | Notes                                                |
@@ -42,7 +60,8 @@ If the artifact does not exist or is not visible to the current tenant:
 | `POST` | `/api/v1/artifacts/batch`                  | `ArtifactBatchResponse`    | Bulk manifest lookup for dashboard/operator clients  |
 | `GET`  | `/api/v1/artifacts/{artifact_id}`          | `ArtifactManifestResponse` | Manifest metadata and references                     |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/content`  | `ArtifactContentResponse`  | Content preview, text/JSON decode, or binary preview |
-| `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`  | `ArtifactLineageResponse`  | Rooted lineage graph                                 |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic` | `PredictiveCoverageDiagnosticPreview` | Limited reader-materialized coverage projection; server gate disabled by default |
+| `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`  | `ArtifactLineageResponse`  | Profile-qualified rooted lineage graph               |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/schema`   | `ArtifactSchemaResponse`   | Schema metadata and schema ref                       |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/download` | raw bytes                  | OpenAPI-described raw download                       |
 
@@ -86,18 +105,22 @@ Return the manifest view for a single artifact.
 
 - Path parameters:
   - `artifact_id`: `sha256:<64-hex>`
+- Query parameters:
+  - `manifest_profile_sha256`: optional exact profile digest; when supplied, only that manifest
+    profile is resolved
 - Response body: `ArtifactManifestResponse`
   - `artifact`: `ArtifactManifestView`
   - `meta`
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID"
+  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID?manifest_profile_sha256=$PROFILE_SHA256"
 ```
 
 ```bash
 http GET :8000/api/v1/artifacts/$ARTIFACT_ID \
-  "Authorization:Bearer $TOKEN"
+  "Authorization:Bearer $TOKEN" \
+  manifest_profile_sha256==sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ```
 
 ## `GET /api/v1/artifacts/{artifact_id}/content`
@@ -106,6 +129,7 @@ Return a preview of artifact content.
 
 - Query parameters:
   - `max_bytes`: optional preview cap, `1024..2000000`
+  - `manifest_profile_sha256`: optional exact profile digest
 - Response body: `ArtifactContentResponse`
   - `artifact`: `ArtifactContentPreview`
 - Notes:
@@ -115,14 +139,37 @@ Return a preview of artifact content.
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/content?max_bytes=65536"
+  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/content?max_bytes=65536&manifest_profile_sha256=$PROFILE_SHA256"
 ```
 
 ```bash
 http GET :8000/api/v1/artifacts/$ARTIFACT_ID/content \
   "Authorization:Bearer $TOKEN" \
-  max_bytes==65536
+  max_bytes==65536 \
+  manifest_profile_sha256==sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ```
+
+## `GET /api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic`
+
+Return only the existing strict `PredictiveCoverageDiagnosticPreview` projection for a
+selected `ir.backtest_report` 1.0 JSON manifest. The projection is recomputed by the reader
+from the selected CAS bytes; it does not return raw content or a content preview. The route is
+server-gated and returns `409 predictive_coverage_diagnostic_not_admitted` unless server
+composition enables the internal candidate surface. This prototype does not read or verify a
+governance admission record; keep the switch false unless governance explicitly approves this
+disclosure. No request field, query parameter, or header enables it.
+
+- Query parameters:
+  - `manifest_profile_sha256`: optional exact manifest profile; repeated selectors are rejected
+- Response body: `PredictiveCoverageDiagnosticPreview`
+- Unsupported kind/schema and oversized sources return a typed `409` refusal. Malformed supported
+  reports return `measurement_status=invalid_source`.
+- The projection remains `assessment=limited` and marks producer attestation, S10 mapping and
+  thresholds, issuer, effective time, counterfactual credibility, and causal-effect status as
+  `not_established`. Omitted profile selection resolves the current default view and is not a
+  producer-attestation claim.
+- The existing `/content` and `/download` raw artifact gates remain in force. This route does not
+  grant access to those surfaces or to promotion, publication, policy selection, or causal claims.
 
 ## `GET /api/v1/artifacts/{artifact_id}/lineage`
 
@@ -131,24 +178,30 @@ Build a lineage graph rooted at the artifact.
 - Query parameters:
   - `max_depth`: optional depth cap, `1..256`
   - `max_nodes`: optional node cap, `1..20000`
+  - `manifest_profile_sha256`: optional exact root profile digest; the returned root ref echoes
+    the selected profile
 - Response body: `ArtifactLineageResponse`
   - `lineage`: `ArtifactLineageView`
   - `meta`
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/lineage?max_depth=4&max_nodes=500"
+  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/lineage?max_depth=4&max_nodes=500&manifest_profile_sha256=$PROFILE_SHA256"
 ```
 
 ```bash
 http GET :8000/api/v1/artifacts/$ARTIFACT_ID/lineage \
   "Authorization:Bearer $TOKEN" \
-  max_depth==4 max_nodes==500
+  max_depth==4 max_nodes==500 \
+  manifest_profile_sha256==sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ```
 
 ## `GET /api/v1/artifacts/{artifact_id}/schema`
 
 Return schema metadata for the artifact.
+
+- Query parameters:
+  - `manifest_profile_sha256`: optional exact profile digest
 
 - Response body: `ArtifactSchemaResponse`
   - `schema`: `ArtifactSchemaView`
@@ -168,6 +221,8 @@ http GET :8000/api/v1/artifacts/$ARTIFACT_ID/schema \
 
 Download immutable artifact bytes with explicit raw-content negotiation.
 
+- Query parameters:
+  - `manifest_profile_sha256`: optional exact manifest profile; repeated selectors are rejected
 - Request headers:
   - `Accept: application/octet-stream` or the concrete artifact media type
 - Response body: raw artifact bytes
@@ -184,7 +239,7 @@ Download immutable artifact bytes with explicit raw-content negotiation.
 curl -L \
   -H "Authorization: Bearer $TOKEN" \
   -H "Accept: application/octet-stream" \
-  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/download" \
+  "http://localhost:8000/api/v1/artifacts/$ARTIFACT_ID/download?manifest_profile_sha256=$PROFILE_SHA256" \
   -o artifact.bin
 ```
 
@@ -192,6 +247,7 @@ curl -L \
 http GET :8000/api/v1/artifacts/$ARTIFACT_ID/download \
   "Authorization:Bearer $TOKEN" \
   Accept:application/octet-stream \
+  manifest_profile_sha256==sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
   --download
 ```
 
@@ -202,3 +258,54 @@ http GET :8000/api/v1/artifacts/$ARTIFACT_ID/download \
 3. Read `/schema` when the artifact points to a JSON schema or ABI contract.
 4. Read `/lineage` to understand upstream sources, derived artifacts, and downstream dependents.
 5. Read `/download` only when the client needs raw immutable bytes.
+
+
+Selected manifest profiles are exact views of a CAS artifact. A request that
+supplies `manifest_profile_sha256` is immutable-cacheable; a request that omits
+it resolves the current default view and must revalidate. The resolved profile is
+returned and carried by artifact links. Authority admission resolves the same
+selected manifest view used by the route before reading its envelope.
+
+
+A selected manifest envelope is checked together with any authority boundary in
+the artifact payload. Both constraints must permit the requested surface purpose;
+the payload cannot weaken a selected manifest restriction, and the manifest
+cannot upgrade a stricter payload boundary. Render and export apply the selected
+manifest view before and after producing their response.
+
+When a composed authority decision is returned with a refusal, its
+`authority_contributors` rows preserve the evaluated `base_surface` and
+`selected_manifest` decisions, including each boundary reference, reason,
+restriction list, and any selected-envelope resolution error. If an authority
+evaluation supplies the final reason, the top-level boundary fields describe that
+contributor; if a different gate takes precedence, they retain the base-surface
+decision. `may_not_use_for` is the stable union of restrictions from every
+evaluated contributor. These fields explain the existing conjunctive decision
+and do not grant authority to either source. The `selected_manifest` basis means
+the route-resolved view; when the request omits a profile, that is the current
+default view and does not attest which profile a producer selected. The selected
+manifest contributor is omitted when that view has no linked authority
+envelope.
+
+## Composed authority-purpose checks
+
+The route checks compose by effective purpose; every check in the path must allow
+its purpose. The HTTP route matrix follows the current route/service call chain:
+
+| Route representation | Ordered effective-purpose checks |
+| --- | --- |
+| `GET /{artifact_id}` manifest | `runtime_closeout_authority` (route and inspector), then `dashboard_display` |
+| `GET /{artifact_id}/content` JSON preview | `runtime_closeout_authority` (route and inspector), then `dashboard_display` |
+| `GET /{artifact_id}/content` raw bytes | `runtime_closeout_authority` (route, inspector, and raw-response branch) |
+| `GET /{artifact_id}/lineage` | `runtime_closeout_authority` (inspector, lineage service, and route) |
+| `GET /{artifact_id}/schema` | `runtime_closeout_authority` (schema inspector), then `dashboard_display` |
+| `GET /{artifact_id}/download` | `runtime_closeout_authority` (raw admission checks) |
+| `POST /{artifact_id}/render` | `dashboard_display` before and after rendering |
+| `GET /{artifact_id}/export` | `publication` before and after export |
+
+This table records existing gates; it does not change their purposes or introduce a
+new grant. A runtime-purpose refusal blocks the schema inspector before the
+separate dashboard route check, while render and export use their existing
+route-level dashboard and publication checks. Raw content is admitted before its
+conditional-response handling, so an authority refusal is not converted into a
+`304` response.

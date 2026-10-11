@@ -6,7 +6,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 import pytest
 from fastapi.routing import APIRoute
@@ -17,7 +17,11 @@ from polisyos_tests_runtime_http_conftest import (
 from pydantic import TypeAdapter, ValidationError
 
 from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ProducerInfo,
+    SchemaInfo,
+    artifact_ref_identity_key,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -50,6 +54,7 @@ from polisyos.runtime.http.services.run_paper_case_record import (
 )
 from polisyos.runtime.http.services.run_paper_contracts import (
     AuthorityAbstainingRunPaperCase,
+    RunPaperArtifactLink,
     RunPaperBlocker,
     RunPaperCaseRecord,
     RunPaperPacket,
@@ -422,27 +427,33 @@ def _put_binding_payload(store: FileSystemCAS, payload: object):
 
 
 class _FaultingArtifactStore:
-    def __init__(self, store: FileSystemCAS, *, target: str, fault: str) -> None:
+    def __init__(self, store: FileSystemCAS, *, target: CoreArtifactRef, fault: str) -> None:
         self._store = store
-        self._target = target
+        self._target_identity = artifact_ref_identity_key(target)
         self._fault = fault
 
     def __getattr__(self, name: str):
         return getattr(self._store, name)
 
-    def verify(self, artifact_id):
-        if str(artifact_id) == self._target and self._fault == "verify":
+    def _matches_target(self, ref: object) -> bool:
+        return (
+            isinstance(ref, CoreArtifactRef)
+            and artifact_ref_identity_key(ref) == self._target_identity
+        )
+
+    def verify(self, artifact_ref):
+        if self._matches_target(artifact_ref) and self._fault == "verify":
             return SimpleNamespace(ok=False)
-        return self._store.verify(artifact_id)
+        return self._store.verify(artifact_ref)
 
-    def get_bytes(self, artifact_id):
-        if str(artifact_id) == self._target and self._fault == "bytes":
+    def get_bytes(self, artifact_ref):
+        if self._matches_target(artifact_ref) and self._fault == "bytes":
             return b"{}"
-        return self._store.get_bytes(artifact_id)
+        return self._store.get_bytes(artifact_ref)
 
-    def get_manifest(self, artifact_id):
-        sidecar = self._store.get_manifest(artifact_id)
-        if str(artifact_id) != self._target:
+    def get_manifest(self, artifact_ref):
+        sidecar = self._store.get_manifest(artifact_ref)
+        if not self._matches_target(artifact_ref):
             return sidecar
         if self._fault == "kind":
             return sidecar.model_copy(update={"kind": "substituted.kind"})
@@ -462,20 +473,25 @@ class _FaultingArtifactStore:
 
 
 class _SubstitutingArtifactBytesStore:
-    def __init__(self, store: FileSystemCAS, *, target: str, replacement: bytes) -> None:
+    def __init__(
+        self, store: FileSystemCAS, *, target: CoreArtifactRef, replacement: bytes
+    ) -> None:
         self._store = store
-        self._target = target
+        self._target_identity = artifact_ref_identity_key(target)
         self._replacement = replacement
         self.target_reads = 0
 
     def __getattr__(self, name: str):
         return getattr(self._store, name)
 
-    def get_bytes(self, artifact_id):
-        if str(artifact_id) == self._target:
+    def get_bytes(self, artifact_ref):
+        if (
+            isinstance(artifact_ref, CoreArtifactRef)
+            and artifact_ref_identity_key(artifact_ref) == self._target_identity
+        ):
             self.target_reads += 1
             return self._replacement
-        return self._store.get_bytes(artifact_id)
+        return self._store.get_bytes(artifact_ref)
 
 
 @pytest.mark.parametrize(
@@ -874,6 +890,31 @@ def test_run_paper_addresses_serialize_every_pin_before_the_stage_trace_fragment
     assert packet["replay_address"].startswith(packet["stable_address"] + "?")
 
 
+def test_run_paper_artifact_link_href_preserves_selected_manifest_profile() -> None:
+    artifact_id = "sha256:" + "a" * 64
+    profile = "sha256:" + "b" * 64
+    ref = CoreArtifactRef(
+        artifact_id=artifact_id,
+        kind="runtime.shared_report",
+        media_type="application/json",
+        manifest_profile_sha256=profile,
+    )
+    href = f"/api/v1/artifacts/{artifact_id}?{urlencode({'manifest_profile_sha256': profile})}"
+
+    link = RunPaperArtifactLink(artifact_ref=ref, href=href)
+
+    assert link.href == href
+    assert urlsplit(link.href).path == f"/api/v1/artifacts/{artifact_id}"
+    assert parse_qs(urlsplit(link.href).query) == {
+        "manifest_profile_sha256": [profile]
+    }
+    with pytest.raises(ValidationError, match="derive from artifact_ref"):
+        RunPaperArtifactLink(
+            artifact_ref=ref,
+            href=f"/api/v1/artifacts/{artifact_id}",
+        )
+
+
 def test_run_paper_denies_cross_tenant_before_projecting(runtime_api_env) -> None:
     response = runtime_api_env["client"].get(
         f"/api/v1/runs/{runtime_api_env['cross_tenant_run_id']}/paper"
@@ -1020,7 +1061,7 @@ def test_run_bound_case_resolver_hashes_the_exact_manifest_bytes_it_parses(
     assert alternate != original
     substituting_store = _SubstitutingArtifactBytesStore(
         store,
-        target=str(manifest_ref.artifact_id),
+        target=manifest_ref,
         replacement=alternate,
     )
 
@@ -1231,10 +1272,10 @@ def test_run_bound_case_resolver_rejects_every_cas_role_falsifier(
 ) -> None:
     store, core_runs_root, persisted, manifest_ref = _build_bound_case_run(tmp_path)
     targets = {
-        "manifest": str(manifest_ref.artifact_id),
-        "binding": str(persisted.binding_ref.artifact_id),
-        "design_record": str(persisted.design_record_ref.artifact_id),
-        "search_ledger": str(persisted.search_ledger_ref.artifact_id),
+        "manifest": manifest_ref,
+        "binding": persisted.binding_ref,
+        "design_record": persisted.design_record_ref,
+        "search_ledger": persisted.search_ledger_ref,
     }
     faulting_store = _FaultingArtifactStore(store, target=targets[role], fault=fault)
 

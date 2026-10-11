@@ -37,6 +37,22 @@ staying CAS-first and freshness-aware.
 - `KnowledgeBundlePayloadV1`
 - error types: `ScholarError`, `ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`, `ScholarDocsError`, `ScholarClaimsError`, `ScholarReconcileError`, `ScholarBundleError`
 
+## Deep-Research Artifact Compatibility
+
+The canonical Scholar `WebEvidenceBundle` has a proposed additive 1.1
+provider-attempt trace, pending G selection. Version 1.0 remains readable with
+attempt detail absent; old CAS objects are not rewritten. If a legacy bundle is
+resumed into a new 1.1 candidate, old free-text errors become
+`legacy_error_not_established`, with attempt history still unknown. Every 1.1 query
+and frontier error is fixed-category data even when attempt detail is absent. The
+candidate producer would write 1.1, but that behavior is not accepted for
+publication until G selects it. The trace records
+observed calls, causes, and value-free error categories only; exception messages,
+request URLs, credentials, search terms copied from exceptions, and response
+payloads are not persisted. Legacy public search calls retain their error text.
+This does not add a supported Python facade symbol or HTTP endpoint. It is not evidence of a complete provider roster,
+global search exhaustion, or absence of relevant knowledge.
+
 ## Current State
 
 - Last updated: 2026-10-10

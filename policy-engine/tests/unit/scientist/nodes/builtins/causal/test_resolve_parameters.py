@@ -2,18 +2,43 @@
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+)
+from polisyos.core.artifacts.manifest import (
+    CanonInfo as CoreCanonInfo,
+)
+from polisyos.core.artifacts.manifest import (
+    SchemaInfo as CoreSchemaInfo,
+)
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
+    ParameterApplicability,
     persist_context_adaptive_parameter_bundle,
 )
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
+from polisyos.ir.registry.refs import CausalGraphModelRef
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.resolve_parameters import (
     ResolveParametersNode,
 )
@@ -25,6 +50,59 @@ from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+
+
+def _graph_profile_pair(store):
+    """Persist one graph blob under two distinct manifest profiles."""
+    ir_store = _ensure_ir_artifact_store(store)
+    graph_ref = persist_causal_graph_model(
+        ir_store,
+        CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[CausalEdge(src="X", dst="Y")],
+        ),
+    )
+    selected_v1 = profile_bound_ref(ir_store, graph_ref)
+    original_manifest = store.get_manifest(selected_v1)
+    raw = store.get_bytes(selected_v1)
+    second_ref = store.put_bytes(
+        raw,
+        ArtifactWriteOptions(
+            kind="ir.causal_graph_model",
+            media_type="application/json",
+            schema=CoreSchemaInfo(name="ir.causal_graph_model", version="2.0"),
+            canon=CoreCanonInfo.model_validate(original_manifest.canon.model_dump(mode="python")),
+        ),
+    )
+    selected_v2 = profile_bound_ref(
+        ir_store,
+        CausalGraphModelRef.model_validate(second_ref.model_dump(mode="json")),
+    )
+    assert selected_v1.artifact_id == selected_v2.artifact_id
+    assert selected_v1.manifest_profile_sha256 != selected_v2.manifest_profile_sha256
+    return selected_v1, selected_v2
+
+
+def _persist_and_capture(store, bundle, *, inputs, observed):
+    observed["inputs"] = inputs
+    bundle_ref = persist_context_adaptive_parameter_bundle(store, bundle, inputs=inputs)
+    observed["bundle_ref"] = bundle_ref
+    return bundle_ref
+
+
+def _cached_request_state(minimal_state, graph_ref, bundle_ref):
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "target_context": ContextProfile(context_id="control").model_dump(mode="json"),
+            "required_parameters": ["beta"],
+            "domain": "fiscal",
+        }
+    )
+    state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+    return state
 
 
 def test_skip_when_missing_target_context(execution_context, minimal_state):
@@ -144,10 +222,9 @@ def test_target_context_assertion_is_not_swallowed(
 
 
 def test_resolve_parameters_uses_branch_state_for_declared_outputs(
-    execution_context, minimal_state, artifact_ref_factory, tmp_path
+    execution_context, minimal_state, tmp_path
 ):
-    graph_ref = artifact_ref_factory(kind="ir.causal_graph_model")
-    bundle_ref = artifact_ref_factory(kind="ir.context_adaptive_parameter_bundle")
+    graph_ref, _ = _graph_profile_pair(execution_context.store)
     db_path = tmp_path / "skg.duckdb"
     db_path.write_text("", encoding="utf-8")
 
@@ -165,7 +242,7 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
             "nested": {"baseline": True},
         }
     )
-    observed: dict[str, tuple[str, ...]] = {}
+    observed: dict[str, object] = {}
 
     def _spy_branch(base_state, *, write_paths=()):
         observed["write_paths"] = tuple(write_paths)
@@ -191,12 +268,10 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
             "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
         ) as selector_cls,
         patch(
-            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ContextAdaptiveParameterBundle",
-            side_effect=lambda **kwargs: SimpleNamespace(**kwargs),
-        ),
-        patch(
             "polisyos.scientist.nodes.builtins.causal.resolve_parameters.persist_context_adaptive_parameter_bundle",
-            return_value=bundle_ref,
+            side_effect=lambda store, bundle, *, inputs: _persist_and_capture(
+                store, bundle, inputs=inputs, observed=observed
+            ),
         ),
         patch(
             "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterTransferData",
@@ -216,8 +291,17 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
         skg_query_cls.return_value.latest_skg_version_id.return_value = "v1"
         skg_query_cls.return_value.skg_snapshot_ref.return_value = "snapshot"
         selector_cls.return_value.select_for_context.return_value = (
-            {"mean": 1.0},
-            MagicMock(),
+            None,
+            ParameterApplicability(
+                parameter_id="beta",
+                target_context_id="us-2025",
+                transport_status=TransportabilityStatus.UNSUPPORTED,
+                transport_mode=TransportMode.NONE,
+                transport_confidence=0.0,
+                context_distance=0.0,
+                is_applicable=False,
+                adjustment_required=False,
+            ),
         )
         outcome = ResolveParametersNode().execute(execution_context, state)
 
@@ -233,18 +317,27 @@ def test_resolve_parameters_uses_branch_state_for_declared_outputs(
     assert state.params["nested"] == {"baseline": True}
     assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in state.artifacts_index
     assert (
-        outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == bundle_ref
+        outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        == observed["bundle_ref"]
     )
     assert outcome.state.params["phase15_runtime_ready"] is True
+    persisted_inputs = observed["inputs"]
+    assert len(persisted_inputs) == 1
+    assert persisted_inputs[0].role == "causal_graph"
+    assert str(persisted_inputs[0].artifact_id) == str(graph_ref.artifact_id)
+    assert persisted_inputs[0].manifest_profile_sha256 == graph_ref.manifest_profile_sha256
+    persisted_manifest = execution_context.store.get_manifest(observed["bundle_ref"])
+    assert len(persisted_manifest.inputs) == 1
+    assert persisted_manifest.inputs[0].role == "causal_graph"
+    assert persisted_manifest.inputs[0].manifest_profile_sha256 == graph_ref.manifest_profile_sha256
 
 
-def test_cache_hit_replays_b60_bundle_request_and_graph_binding(
+def test_cache_hit_requires_exact_graph_profile_and_role(
     execution_context,
     minimal_state,
-    artifact_ref_factory,
 ):
+    graph_v1, graph_v2 = _graph_profile_pair(execution_context.store)
     target_context = ContextProfile(context_id="control")
-    original_graph_ref = artifact_ref_factory(kind="ir.causal_graph_model")
     bundle_ref = persist_context_adaptive_parameter_bundle(
         _ensure_ir_artifact_store(execution_context.store),
         ContextAdaptiveParameterBundle(
@@ -253,29 +346,137 @@ def test_cache_hit_replays_b60_bundle_request_and_graph_binding(
             unsupported_parameters=["beta"],
         ),
         inputs=[
-            InputRef(
-                artifact_id=str(original_graph_ref.artifact_id),
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_v1.model_dump(mode="json")),
                 role="causal_graph",
             )
         ],
     )
-    cached_state = minimal_state.model_copy(deep=True)
-    cached_state.params.update(
-        {
-            "target_context": target_context.model_dump(mode="json"),
-            "required_parameters": ["beta"],
-            "domain": "fiscal",
-        }
-    )
-    cached_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = original_graph_ref
-    cached_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+    cached_state = _cached_request_state(minimal_state, graph_v1, bundle_ref)
     cached_outcome = NodeOutcome(status="ok", state=cached_state)
     node = ResolveParametersNode()
 
     assert node.validate_cache_hit(execution_context, cached_state, cached_outcome)
-
-    changed_request = cached_state.model_copy(deep=True)
-    changed_request.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = artifact_ref_factory(
-        kind="ir.causal_graph_model"
+    changed_view = _cached_request_state(minimal_state, graph_v2, bundle_ref)
+    assert not node.validate_cache_hit(execution_context, changed_view, cached_outcome)
+    different_id_ref = profile_bound_ref(
+        _ensure_ir_artifact_store(execution_context.store),
+        persist_causal_graph_model(
+            _ensure_ir_artifact_store(execution_context.store),
+            CausalGraphModel(
+                graph_type=GraphType.DAG,
+                nodes=["Z", "W"],
+                edges=[CausalEdge(src="Z", dst="W")],
+            ),
+        ),
     )
-    assert not node.validate_cache_hit(execution_context, changed_request, cached_outcome)
+    different_id = _cached_request_state(minimal_state, different_id_ref, bundle_ref)
+    assert not node.validate_cache_hit(execution_context, different_id, cached_outcome)
+
+    for wrong_inputs in (
+        [],
+        [InputRef(artifact_id=graph_v1.artifact_id, role="wrong_role", manifest_profile_sha256=graph_v1.manifest_profile_sha256)],
+        [InputRef(artifact_id=graph_v1.artifact_id, role="causal_graph")],
+        [InputRef(artifact_id=graph_v1.artifact_id, role="causal_graph", manifest_profile_sha256="sha256:" + "f" * 64)],
+    ):
+        wrong_bundle = persist_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(execution_context.store),
+            ContextAdaptiveParameterBundle(
+                target_context=target_context,
+                simulation_domain="fiscal",
+                unsupported_parameters=["beta"],
+            ),
+            inputs=wrong_inputs,
+        )
+        wrong_state = _cached_request_state(minimal_state, graph_v1, wrong_bundle)
+        assert not node.validate_cache_hit(
+            execution_context, wrong_state, NodeOutcome(status="ok", state=wrong_state)
+        )
+
+
+@pytest.mark.parametrize("corruption", ["malformed", "stale-profile"])
+def test_invalid_supplied_graph_ref_is_not_treated_as_absence_or_cache_hit(
+    execution_context,
+    minimal_state,
+    corruption: str,
+) -> None:
+    graph_v1, _graph_v2 = _graph_profile_pair(execution_context.store)
+    bundle_ref = persist_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(execution_context.store),
+        ContextAdaptiveParameterBundle(
+            target_context=ContextProfile(context_id="control"),
+            simulation_domain="fiscal",
+            unsupported_parameters=["beta"],
+        ),
+        inputs=[
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_v1.model_dump(mode="json")),
+                role="causal_graph",
+            )
+        ],
+    )
+    if corruption == "malformed":
+        supplied_ref = graph_v1.model_copy(update={"kind": "ir.not_a_causal_graph"})
+    else:
+        supplied_ref = graph_v1.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+    state = _cached_request_state(minimal_state, supplied_ref, bundle_ref)
+    node = ResolveParametersNode()
+
+    assert not node.validate_cache_hit(
+        execution_context,
+        state,
+        NodeOutcome(status="ok", state=state),
+    )
+    outcome = node.execute(execution_context, state)
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == node_errors.ERROR_INVALID_STATE
+    assert "Invalid supplied causal graph reference" in outcome.error.message
+
+
+def test_true_graph_absence_keeps_the_existing_skip_boundary(
+    execution_context,
+    minimal_state,
+) -> None:
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "target_context": ContextProfile(context_id="control").model_dump(mode="json"),
+            "required_parameters": ["beta"],
+            "domain": "fiscal",
+        }
+    )
+
+    outcome = ResolveParametersNode().execute(execution_context, state)
+
+    assert outcome.status == "skip"
+    assert outcome.error is None
+    assert any("No causal graph reference available" in event.message for event in outcome.events)
+
+
+def test_existing_bundle_reuse_requires_exact_graph_manifest_profile(
+    execution_context,
+    minimal_state,
+):
+    graph_v1, graph_v2 = _graph_profile_pair(execution_context.store)
+    bundle_ref = persist_context_adaptive_parameter_bundle(
+        _ensure_ir_artifact_store(execution_context.store),
+        ContextAdaptiveParameterBundle(
+            target_context=ContextProfile(context_id="control"),
+            simulation_domain="fiscal",
+            unsupported_parameters=["beta"],
+        ),
+        inputs=[
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_v1.model_dump(mode="json")),
+                role="causal_graph",
+            )
+        ],
+    )
+    matching = _cached_request_state(minimal_state, graph_v1, bundle_ref)
+    mismatching = _cached_request_state(minimal_state, graph_v2, bundle_ref)
+
+    assert ResolveParametersNode().execute(execution_context, matching).status == "ok"
+    assert ResolveParametersNode().execute(execution_context, mismatching).status == "skip"

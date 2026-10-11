@@ -13,6 +13,8 @@ import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScenarioWorkbench } from "@/features/whatif";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
   findRunEvidenceNeed,
   findRunEvidencePlan,
   findRunEvidencePromotion,
@@ -40,24 +42,34 @@ import {
 } from "@/shared/ui/AuthorityStatusPresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
 
-function DecisionPanelContent({ artifactId }: { artifactId: string }) {
+function DecisionPanelContent({
+  artifactRef,
+}: {
+  artifactRef: EvidenceArtifactRef;
+}) {
+  const artifactId = artifactRef.artifact_id;
   const { t, label } = useI18n();
   const summary = useRunInspector();
   const evaluatorGrade = presentDecisionGradeLabel(
     summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
   );
-  const decisionArtifactQuery = useSuspenseArtifactContent(artifactId, {
+  const decisionArtifactQuery = useSuspenseArtifactContent(artifactRef, {
     maxBytes: 256 * 1024,
   });
   const decisionArtifact = decisionArtifactQuery.data.artifact;
-  const isDecisionPacket =
-    summary.pipeline?.decision_packet_ref?.artifact_id === artifactId ||
-    decisionArtifact.kind === "scientist.decision_packet";
-  const readingViewHref = isDecisionPacket
-    ? buildArtifactHref(artifactId, { tab: "content", view: "reading" })
-    : null;
+  const artifactMatchesRef =
+    decisionArtifact.artifact_id === artifactRef.artifact_id &&
+    (artifactRef.kind == null || decisionArtifact.kind === artifactRef.kind) &&
+    (artifactRef.media_type == null ||
+      decisionArtifact.media_type === artifactRef.media_type) &&
+    (artifactRef.manifest_profile_sha256 == null ||
+      decisionArtifact.manifest_profile_sha256 ===
+        artifactRef.manifest_profile_sha256);
 
   useEffect(() => {
+    if (!artifactMatchesRef) {
+      return;
+    }
     markUiMilestone("runs.overview.decision.ready", {
       routeId: "runs.detail.overview",
       surface: "overview",
@@ -70,7 +82,29 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
       endMark: "runs.overview.decision.ready",
       metric: "time_to_decision_ms",
     });
-  }, []);
+  }, [artifactMatchesRef]);
+
+  if (!artifactMatchesRef) {
+    return (
+      <p role="alert" data-testid="overview-artifact-profile-mismatch">
+        {t("pages.runs.artifactProfileMismatch")}
+      </p>
+    );
+  }
+  const pipelineDecisionRef = summary.pipeline?.decision_packet_ref;
+  const isDecisionPacket =
+    (pipelineDecisionRef !== null &&
+      pipelineDecisionRef !== undefined &&
+      evidenceArtifactRefKey(pipelineDecisionRef) ===
+        evidenceArtifactRefKey(artifactRef)) ||
+    decisionArtifact.kind === "scientist.decision_packet";
+  const readingViewHref = isDecisionPacket
+    ? buildArtifactHref(artifactId, {
+        tab: "content",
+        view: "reading",
+        artifactRef,
+      })
+    : null;
 
   if (summary.decisionView) {
     return (
@@ -704,7 +738,7 @@ export default function OverviewTab() {
               <h4>{summary.decisionHeadline}</h4>
             </div>
           </div>
-          {summary.primaryDecisionArtifactId ? (
+          {summary.primaryDecisionArtifactRef ? (
             <FeatureAsyncBoundary
               feature="runs.overview.decision"
               title={t("pages.runs.decisionLoadError")}
@@ -715,10 +749,12 @@ export default function OverviewTab() {
                   className="border-0 bg-transparent p-0"
                 />
               }
-              resetKeys={[summary.primaryDecisionArtifactId]}
+              resetKeys={[
+                evidenceArtifactRefKey(summary.primaryDecisionArtifactRef),
+              ]}
             >
               <DecisionPanelContent
-                artifactId={summary.primaryDecisionArtifactId}
+                artifactRef={summary.primaryDecisionArtifactRef}
               />
             </FeatureAsyncBoundary>
           ) : (

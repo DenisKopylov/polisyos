@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.core.security.quality_gates import SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
 )
@@ -86,6 +87,20 @@ def test_current_schema_is_compatible_for_declared_reader() -> None:
     assert result.diagnostic_readable is True
     assert result.production_closeout_allowed is True
     assert result.schema_family == "policyos.quality_scorecard"
+
+
+@pytest.mark.parametrize("reader", ["scorecard", "bundle_assembler"])
+def test_security_assurance_builder_schema_is_declared_for_its_readers(reader: str) -> None:
+    result = evaluate_schema_compatibility(
+        {"schema_version": SECURITY_ASSURANCE_REPORT_SCHEMA_VERSION},
+        reader=reader,
+        expected_schema_family=(
+            "policyos.security_assurance_report" if reader == "scorecard" else None
+        ),
+    )
+
+    assert result.decision == "compatible"
+    assert result.schema_family == "policyos.security_assurance_report"
 
 
 def test_legacy_bundle_is_diagnostic_readable_but_quarantined_from_closeout() -> None:

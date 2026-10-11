@@ -4,6 +4,11 @@ import {
   toApiTemporalParams,
   type TemporalScope,
 } from "@/shared/lib/domain/temporal";
+import {
+  artifactRefForRequest,
+  artifactRefMatchesResolvedView,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
 import type { BureaucraticGenre } from "@/features/artifacts/bureaucratic/ast/bureaucratic-document-ast";
 
 import { runtimeApiClient } from "../client";
@@ -20,7 +25,7 @@ export type BureaucraticRenderRequest = {
 };
 
 async function fetchBureaucraticRender(
-  artifactId: string,
+  expectedRef: EvidenceArtifactRef,
   request: BureaucraticRenderRequest,
 ) {
   const { data, error, response } = await runtimeApiClient.POST(
@@ -29,6 +34,8 @@ async function fetchBureaucraticRender(
       body: {
         genre: request.genre,
         jurisdiction: request.jurisdiction ?? "ua",
+        manifest_profile_sha256:
+          expectedRef.manifest_profile_sha256 ?? undefined,
         template_version: request.templateVersion ?? undefined,
         temporal_scope: Object.keys(toApiTemporalParams(request.temporalScope))
           .length
@@ -38,7 +45,7 @@ async function fetchBureaucraticRender(
       },
       params: {
         path: {
-          packet_id: artifactId,
+          packet_id: expectedRef.artifact_id,
         },
       },
     },
@@ -48,30 +55,70 @@ async function fetchBureaucraticRender(
     throw createRuntimeApiError(
       response,
       error,
-      `Failed to render bureaucratic document ${artifactId}`,
+      `Failed to render bureaucratic document ${expectedRef.artifact_id}`,
     );
   }
 
-  return bureaucraticRenderSchema.parse(data);
+  const parsed = bureaucraticRenderSchema.parse(data);
+  const metadata = parsed.document.metadata ?? {};
+  const sourceKind = metadata.source_artifact_kind;
+  const sourceMediaType = metadata.source_media_type;
+  const sourceProfile = metadata.source_manifest_profile_sha256;
+  if (
+    (sourceKind !== undefined &&
+      sourceKind !== null &&
+      typeof sourceKind !== "string") ||
+    (sourceMediaType !== undefined &&
+      sourceMediaType !== null &&
+      typeof sourceMediaType !== "string") ||
+    (sourceProfile !== undefined &&
+      sourceProfile !== null &&
+      (typeof sourceProfile !== "string" ||
+        !/^sha256:[0-9a-f]{64}$/u.test(sourceProfile)))
+  ) {
+    throw new Error("Bureaucratic render returned malformed source identity");
+  }
+  if (
+    !artifactRefMatchesResolvedView(expectedRef, {
+      artifact_id: parsed.document.packet_id,
+      kind: typeof sourceKind === "string" ? sourceKind : null,
+      media_type: typeof sourceMediaType === "string" ? sourceMediaType : null,
+      manifest_profile_sha256:
+        typeof sourceProfile === "string" ? sourceProfile : null,
+    })
+  ) {
+    throw new Error(
+      "Bureaucratic render does not match the selected artifact ref",
+    );
+  }
+  return parsed;
 }
 
 export function bureaucraticRenderQueryOptions(
-  artifactId: string,
+  artifact: string | EvidenceArtifactRef,
   request: BureaucraticRenderRequest,
 ) {
+  const expectedRef = artifactRefForRequest(artifact);
+  if (!expectedRef) {
+    throw new Error("Bureaucratic rendering requires an artifact reference");
+  }
   return queryOptions({
-    queryKey: queryKeys.bureaucraticRender(artifactId, request),
-    queryFn: () => fetchBureaucraticRender(artifactId, request),
+    queryKey: queryKeys.bureaucraticRender(expectedRef, request),
+    queryFn: () => fetchBureaucraticRender(expectedRef, request),
   });
 }
 
 export function useBureaucraticRender(
-  artifactId: string | undefined,
+  artifact: string | EvidenceArtifactRef | undefined,
   request: BureaucraticRenderRequest,
   options: { enabled?: boolean } = {},
 ) {
+  const expectedRef = artifactRefForRequest(artifact);
   return useQuery({
-    ...bureaucraticRenderQueryOptions(artifactId ?? "unknown", request),
-    enabled: Boolean(artifactId) && (options.enabled ?? true),
+    ...bureaucraticRenderQueryOptions(
+      expectedRef ?? { artifact_id: "unknown" },
+      request,
+    ),
+    enabled: Boolean(expectedRef) && (options.enabled ?? true),
   });
 }

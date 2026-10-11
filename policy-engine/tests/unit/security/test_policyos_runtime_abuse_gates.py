@@ -11,6 +11,7 @@ from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_REPORT_FILE,
     build_security_assurance_report,
+    security_gates_from_report,
 )
 from polisyos.runtime.quality.scorecard import (
     build_quality_scorecard,
@@ -177,6 +178,115 @@ def test_security_abuse_fixtures_fail_closed_with_operator_envelopes(
     rendered = json.dumps(report, sort_keys=True)
     for literal in case.get("forbidden_literals", []):
         assert literal not in rendered
+
+
+def test_security_report_gate_rejects_inconsistent_or_malformed_inputs() -> None:
+    clean = build_security_assurance_report(payloads={})
+    unsafe = build_security_assurance_report(
+        payloads={"artifact": {"rendered_content": "<script>window.bad=true</script>"}}
+    )
+    malformed = [
+        [],
+        {**clean, "schema_version": "policyos.unregistered_security_report.v1"},
+        {**clean, "status": "fail"},
+        {**clean, "status": []},
+        {**unsafe, "status": "pass"},
+        {**clean, "issues": [None]},
+        {**clean, "blockers": [{"code": "forged"}]},
+        {**clean, "assured_paths": clean["assured_paths"][:-1]},
+    ]
+
+    assert security_gates_from_report(None) == []
+    for report in malformed:
+        gates = security_gates_from_report(report)
+        assert gates
+        assert gates[0]["name"] == "security_assurance_report_passed"
+        assert gates[0]["code"] == "security_assurance_failed"
+        assert gates[0]["status"] == "fail"
+        assert gates[0]["blocking"] is True
+
+
+def test_security_report_gate_consumes_builder_output_and_accepts_unknown_fields() -> None:
+    report = build_security_assurance_report(
+        payloads={
+            "artifact": {"rendered_content": "<script>window.__bad__=true</script>"}
+        },
+        now=datetime(2026, 5, 15, tzinfo=UTC),
+    )
+    assert report["status"] == "fail"
+    assert report["issues"]
+    report["consumer_extension"] = {"schema": "policyos.future_extension.v1"}
+    for issue in report["issues"]:
+        issue["consumer_extension"] = "retained"
+    for blocker in report["blockers"]:
+        blocker["consumer_extension"] = "retained"
+
+    gates = security_gates_from_report(report)
+
+    assert len(gates) == 1
+    assert gates[0]["name"] == "security_artifact_abuse_gate"
+    assert gates[0]["code"] == "unsafe_artifact_rendering_detected"
+    assert gates[0]["status"] == "fail"
+    assert gates[0]["blocking"] is True
+
+
+def test_scorecard_accepts_present_valid_security_report_from_builder() -> None:
+    report = build_security_assurance_report(
+        payloads={},
+        now=datetime(2026, 5, 15, tzinfo=UTC),
+    )
+    quality_evidence = normalize_quality_evidence(
+        {**_complete_quality_evidence(), "security_assurance_report": report},
+        canary_kind="dev",
+    )
+    scorecard = build_quality_scorecard(
+        canary_kind="dev",
+        job_id="job-security-present-valid",
+        run_id="R_security_present_valid",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    report_gates = [
+        gate
+        for gate in scorecard["quality_gates"]
+        if gate["name"] == "security_assurance_report_passed"
+    ]
+    assert len(report_gates) == 1
+    assert report_gates[0]["code"] == "security_assurance_passed"
+    assert report_gates[0]["status"] == "pass"
+    assert report_gates[0]["blocking"] is False
+
+
+def test_serious_scorecard_requires_security_report_but_dev_absence_is_optional() -> None:
+    for canary_kind, required in (("dev", False), ("production", True)):
+        quality_evidence = normalize_quality_evidence(
+            _complete_quality_evidence(),
+            canary_kind=canary_kind,
+        )
+        quality_evidence.pop("security_assurance_report", None)
+        assert "security_assurance_report" not in quality_evidence
+        scorecard = build_quality_scorecard(
+            canary_kind=canary_kind,
+            job_id="job-security-missing",
+            run_id="R_security_missing",
+            execution_status="completed",
+            job_payload=_complete_job_payload(),
+            run_payload=None,
+            provider_preflight={"status": "passed"},
+            quality_evidence=quality_evidence,
+        )
+        report_gates = [
+            gate
+            for gate in scorecard["quality_gates"]
+            if gate["name"] == "security_assurance_report_passed"
+        ]
+        assert bool(report_gates) is required
+        if required:
+            assert any(gate["status"] == "fail" and gate["blocking"] for gate in report_gates)
 
 
 def test_security_report_passes_clean_llm_tool_data_artifact_api_dashboard_paths() -> None:

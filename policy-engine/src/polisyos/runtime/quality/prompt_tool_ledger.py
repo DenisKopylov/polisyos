@@ -28,13 +28,15 @@ from polisyos.runtime.quality.evidence_independence import (
     build_evidence_independence_map,
     validate_evidence_independence_map_record,
 )
+from polisyos.runtime.quality.report_registry import (
+    PROMPT_TOOL_LEDGER_FILENAME,
+    PROMPT_TOOL_LEDGER_REF_KEY,
+    PROMPT_TOOL_LEDGER_REPORT_KEY,
+)
 
 SCHEMA_VERSION = "policyos.prompt_tool_parser_authority_ledger.v1"
 PROMPT_TOOL_LEDGER_KIND = "runtime.prompt_tool_parser_authority_ledger"
 PROMPT_TOOL_LEDGER_SCHEMA = "polisyos.runtime.PromptToolParserAuthorityLedger"
-PROMPT_TOOL_LEDGER_REPORT_KEY = "prompt_tool_ledger"
-PROMPT_TOOL_LEDGER_REF_KEY = "prompt_tool_ledger_ref"
-PROMPT_TOOL_LEDGER_FILENAME = "prompt_tool_ledger.json"
 REPAIR_FMEA_SURFACE_SCHEMA_VERSION = "policyos.runtime.prompt_tool_repair_fmea_surface.v1"
 COMPRESSION_LOSS_SCHEMA_VERSION = "policyos.runtime.compression_loss_receipt.v1"
 ORCHESTRATION_CHOICE_POLICY_CATALOG_SCHEMA_VERSION = (

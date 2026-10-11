@@ -15,6 +15,418 @@ from ._lazy import lazy_dir, load_lazy_export
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_ASSET_GROUP as CATALOG_ASSET_GROUP,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_BASE_SCHEMA_CONTRACTS as CATALOG_BASE_SCHEMA_CONTRACTS,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_BASE_SCHEMA_IDS as CATALOG_BASE_SCHEMA_IDS,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_INDEX_KEY as CATALOG_INDEX_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_NORMALIZED_DATASETS_KEY as CATALOG_NORMALIZED_DATASETS_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_OBSERVATIONS_KEY as CATALOG_OBSERVATIONS_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_RAW_SOURCES_KEY as CATALOG_RAW_SOURCES_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_READINESS_KEY as CATALOG_READINESS_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_SCHEMA_CONTRACTS as CATALOG_SCHEMA_CONTRACTS,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_SOURCE_MODULES_KEY as CATALOG_SOURCE_MODULES_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_SOURCE_PREFLIGHT_KEY as CATALOG_SOURCE_PREFLIGHT_KEY,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CATALOG_SOURCE_SCHEMA_CONTRACTS as CATALOG_SOURCE_SCHEMA_CONTRACTS,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CORE_CATALOG_SOURCE_MODULES as CORE_CATALOG_SOURCE_MODULES,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogBenchmarkReport as CatalogBenchmarkReport,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogExecutionTier as CatalogExecutionTier,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogHistoryPolicy as CatalogHistoryPolicy,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogQCReport as CatalogQCReport,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogReadinessPackage as CatalogReadinessPackage,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogReadinessSummary as CatalogReadinessSummary,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogRunLane as CatalogRunLane,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogRunProfile as CatalogRunProfile,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogShadowArtifact as CatalogShadowArtifact,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogShadowBundle as CatalogShadowBundle,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogShadowDiff as CatalogShadowDiff,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceAssetKeys as CatalogSourceAssetKeys,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceModulePlan as CatalogSourceModulePlan,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceModuleSpec as CatalogSourceModuleSpec,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceRegistryEntry as CatalogSourceRegistryEntry,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceRegistrySpec as CatalogSourceRegistrySpec,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceStage as CatalogSourceStage,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceStageContract as CatalogSourceStageContract,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogSourceSummary as CatalogSourceSummary,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        CatalogStageManifest as CatalogStageManifest,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        build_catalog_schema_registry as build_catalog_schema_registry,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        build_catalog_source_asset_group as build_catalog_source_asset_group,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        catalog_source_modules_from_registry as catalog_source_modules_from_registry,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        compare_catalog_shadow_bundles as compare_catalog_shadow_bundles,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        default_catalog_source_registry_path as default_catalog_source_registry_path,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        load_catalog_benchmark_report as load_catalog_benchmark_report,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        load_catalog_qc_report as load_catalog_qc_report,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        load_catalog_readiness_package as load_catalog_readiness_package,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        load_catalog_shadow_bundle as load_catalog_shadow_bundle,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        load_catalog_source_registry as load_catalog_source_registry,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        plan_catalog_source_modules as plan_catalog_source_modules,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        plan_catalog_source_stage_contracts as plan_catalog_source_stage_contracts,
+    )
+    from polisyos.data_forge.domains.catalog import (
+        select_catalog_source_modules as select_catalog_source_modules,
+    )
+    from polisyos.data_forge.domains.catalog._resources import (
+        catalog_default_resource_path as catalog_default_resource_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        DEFAULT_ACQUISITION_AUTHORITY_PROVISION as DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY as DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionAuthorityEntry as AcquisitionAuthorityEntry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionAuthorityError as AcquisitionAuthorityError,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionAuthorityProvision as AcquisitionAuthorityProvision,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionAuthorityRegistry as AcquisitionAuthorityRegistry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AuthoritySchemaColumn as AuthoritySchemaColumn,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        CanonicalAcquisitionAuthority as CanonicalAcquisitionAuthority,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LiveHarnessReceiptProvisionEntry as LiveHarnessReceiptProvisionEntry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LiveSourceExecutionEvidence as LiveSourceExecutionEvidence,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LocalRightsTrustedAuthority as LocalRightsTrustedAuthority,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LocalRightsTrustRegistry as LocalRightsTrustRegistry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LocalSourceRightsDeclaration as LocalSourceRightsDeclaration,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        LocalSourceRightsReceipt as LocalSourceRightsReceipt,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        ResolvedAcquisitionAuthority as ResolvedAcquisitionAuthority,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        ResolvedL5Trust as ResolvedL5Trust,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        ResolvedLiveHarnessReceipt as ResolvedLiveHarnessReceipt,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_acquisition_authority_provision as build_acquisition_authority_provision,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_authority_entry as build_authority_entry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_authority_registry as build_authority_registry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_live_source_execution_evidence as build_live_source_execution_evidence,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_local_rights_trust_registry as build_local_rights_trust_registry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        build_local_source_rights_declaration as build_local_source_rights_declaration,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        derive_catalog_unit_from_text as derive_catalog_unit_from_text,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        derive_license_disposition as derive_license_disposition,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        normalize_acquisition_unit as normalize_acquisition_unit,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        resolve_live_temporal_bounds as resolve_live_temporal_bounds,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        verify_local_source_rights as verify_local_source_rights,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+        normalize_country_code as normalize_country_code,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionCandidateEvaluation as CatalogSelectionCandidateEvaluation,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionCandidateEvidence as CatalogSelectionCandidateEvidence,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionError as CatalogSelectionError,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionPolicyConfig as CatalogSelectionPolicyConfig,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionRejectionCode as CatalogSelectionRejectionCode,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionRoleConfig as CatalogSelectionRoleConfig,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        DerivationCatalogSelectionOwner as DerivationCatalogSelectionOwner,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        catalog_selection_candidate_rank as catalog_selection_candidate_rank,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        catalog_selection_policies_for_purpose as catalog_selection_policies_for_purpose,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        evaluate_catalog_selection_candidate as evaluate_catalog_selection_candidate,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        load_derivation_catalog_selection as load_derivation_catalog_selection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        resolve_catalog_selection_policy as resolve_catalog_selection_policy,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        AcquisitionDatasetRegistration as AcquisitionDatasetRegistration,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ActivatedAcquisitionObservationProjection as ActivatedAcquisitionObservationProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        BaselineIdentity as BaselineIdentity,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        BaselineMutationError as BaselineMutationError,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CanonicalAcquisitionObservation as CanonicalAcquisitionObservation,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionEpochProjection as CatalogAcquisitionEpochProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionEventProjection as CatalogAcquisitionEventProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionOverlay as CatalogAcquisitionOverlay,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionPassportProjection as CatalogAcquisitionPassportProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        CatalogAcquisitionStateProjection as CatalogAcquisitionStateProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        MetricFieldBinding as MetricFieldBinding,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        ObservationProvenanceClass as ObservationProvenanceClass,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        OverlayAdmissionError as OverlayAdmissionError,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        OverlayAdmissionReceipt as OverlayAdmissionReceipt,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        build_metric_field_binding as build_metric_field_binding,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        default_acquisition_overlay_path as default_acquisition_overlay_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        open_catalog_read_session as open_catalog_read_session,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        project_catalog_acquisition_state as project_catalog_acquisition_state,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        validate_overlay_admission_receipt as validate_overlay_admission_receipt,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        ProxyCandidate as ProxyCandidate,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        ProxyChain as ProxyChain,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        compose_confidence_chain as compose_confidence_chain,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        compose_confidence_harmonic as compose_confidence_harmonic,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        resolve_proxy as resolve_proxy,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.proxy_resolver import (
+        validate_proxy as validate_proxy,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.registry import (
+        DatasetRegistry as DatasetRegistry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.search import (
+        DatasetCatalogGraph as DatasetCatalogGraph,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.search import (
+        SearchFilters as SearchFilters,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.store import (
+        DatasetCatalogStore as DatasetCatalogStore,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogContentIdentity as CatalogContentIdentity,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogEmbeddingProfile as CatalogEmbeddingProfile,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogFetchBinding as CatalogFetchBinding,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogFetchRequest as CatalogFetchRequest,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogFetchResolution as CatalogFetchResolution,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        CatalogQueryGenerationContext as CatalogQueryGenerationContext,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetSearchResponse as DatasetSearchResponse,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        DatasetSearchResult as DatasetSearchResult,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        MetricBindingMatch as MetricBindingMatch,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        PStarZResult as PStarZResult,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.types import (
+        ResolvedFetchTarget as ResolvedFetchTarget,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+        VariableAlignment as VariableAlignment,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+        default_seed_alignments_path as default_seed_alignments_path,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+        load_seed_alignments as load_seed_alignments,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+        score_variable_pair as score_variable_pair,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        EmbeddingGenerationRef as EmbeddingGenerationRef,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        embedding_generation_matches_encoder as embedding_generation_matches_encoder,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        resolve_embedding_generation as resolve_embedding_generation,
+    )
+    from polisyos.data_forge.kernel.io.generation_basis import (
+        generation_basis_matches_members as generation_basis_matches_members,
+    )
+
 _CATALOG_DOMAIN = "polisyos.data_forge.domains.catalog"
 _EXPORTS = {
     "normalize_country_code": ("polisyos.data_forge.domains.catalog.knowledge.country_codes"),

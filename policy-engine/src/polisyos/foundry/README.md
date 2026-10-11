@@ -136,6 +136,11 @@ identification, sampling-law admission and policy authority. See
   [architecture/extension_points.toml](../../../architecture/extension_points.toml).
 - Domain simulation plugins are documented in [plugins/README.md](plugins/README.md)
   and build on `agent_sim` rather than the root facade.
+- Foundry method discovery retains the exported `(target, callable)` builtin loader
+  tuple. The default selection is represented by Core's typed declaration at discovery
+  and checked by catalog admission through the same selected-spec helper; the target and
+  group remain owned by `architecture/extension_points.toml`. Explicit tuple/callable
+  replacements keep their legacy v1 discovery shape.
 
 ## Depends On / Depended On By
 

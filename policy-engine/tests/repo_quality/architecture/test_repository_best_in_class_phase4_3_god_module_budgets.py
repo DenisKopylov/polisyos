@@ -41,7 +41,7 @@ def test_phase4_3_god_module_budgets_have_owner_ready_shrink_metadata() -> None:
     assert header["requires_current_lines"] is True
     assert header["requires_extraction_sequence"] is True
     assert header["requires_risk_notes"] is True
-    assert INITIAL_FOUNDRY_FOCUS <= scoped_paths
+    assert scoped_paths >= INITIAL_FOUNDRY_FOCUS
     assert {"data_forge", "scientist", "runtime"} <= {budget["package"] for budget in budgets}
 
     for budget in budgets:

@@ -3942,6 +3942,8 @@ class FileSystemCAS:
 
     def _capture_inventory_membership(
         self,
+        *,
+        artifact_id: ArtifactID | None = None,
     ) -> tuple[
         tuple[str, ...],
         tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
@@ -3956,25 +3958,28 @@ class FileSystemCAS:
         if self._ownership_enforced:
             tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
 
+        selected_artifact_id = artifact_id
         for (artifact_hex, selector_kind), manifest_path in sorted(members.items()):
+            if selected_artifact_id is not None and artifact_hex != selected_artifact_id.hex:
+                continue
             selector, kind = selector_kind.split(":", 1)
             if kind != "manifest.json":
                 continue
-            artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
+            member_artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
             profile_sha256 = None if selector == "default" else f"sha256:{selector}"
             if self._ownership_enforced:
                 if tenant_id is None:
-                    if self._ownership_index.has_any_tenant_claim(artifact_id):
+                    if self._ownership_index.has_any_tenant_claim(member_artifact_id):
                         continue
                 elif profile_sha256 is None:
                     if not self._ownership_index.is_owned_by(
-                        artifact_id,
+                        member_artifact_id,
                         tenant_id=tenant_id,
                         cell_id=cell_id,
                     ):
                         continue
                 elif not self._ownership_index.is_view_owned_by(
-                    artifact_id,
+                    member_artifact_id,
                     profile_sha256,
                     tenant_id=tenant_id,
                     cell_id=cell_id,
@@ -3982,27 +3987,42 @@ class FileSystemCAS:
                     continue
             manifest_bytes = manifest_path.read_bytes()
             manifest = ArtifactManifest.model_validate_json(manifest_bytes)
-            _validate_manifest_identity(artifact_id, manifest)
+            _validate_manifest_identity(member_artifact_id, manifest)
             actual_profile = self._manifests.profile_sha256(manifest)
             if profile_sha256 is not None and actual_profile != profile_sha256:
                 raise ArtifactIntegrityError("cas_inventory_manifest_profile_mismatch")
             visible_views.append(
-                (artifact_id, profile_sha256, manifest_path, manifest, manifest_bytes)
+                (member_artifact_id, profile_sha256, manifest_path, manifest, manifest_bytes)
             )
 
         return names, tuple(visible_views), self._owner_generation_token()
 
-    def inventory_snapshot(self) -> CASInventorySnapshot:
-        """Verify a stable store-visible artifact/ref inventory in bounded memory.
+    def inventory_snapshot(
+        self,
+        artifact_id: ArtifactID | str | None = None,
+    ) -> CASInventorySnapshot:
+        """Verify a stable inventory, optionally limiting verified views to one blob ID.
 
-        The snapshot covers cooperating local CAS blob, manifest, reference, and
-        owner-generation state. Detached signature bytes and non-cooperating
-        filesystem actors remain explicitly unresolved by construction.
+        The complete CAS name set and shared owner generation are still captured
+        and rechecked. When ``artifact_id`` is supplied, only that ID's visible
+        manifest views and blobs are read and verified. The active tenant scope
+        can hide other tenant views; those remain explicitly unresolved.
         """
+        selected_artifact_id = (
+            None if artifact_id is None else ArtifactID.model_validate(artifact_id)
+        )
         inputs = (
             "canonical CAS root member names",
-            "selected manifest bytes and profiles",
-            "blob bytes streamed under artifact read leases",
+            (
+                "all visible manifest bytes and profiles"
+                if selected_artifact_id is None
+                else f"visible manifest bytes and profiles for {selected_artifact_id}"
+            ),
+            (
+                "all visible blobs streamed under artifact read leases"
+                if selected_artifact_id is None
+                else f"visible blob {selected_artifact_id} streamed under artifact read leases"
+            ),
             "signed ownership-index generation",
         )
         unresolved = (
@@ -4012,7 +4032,9 @@ class FileSystemCAS:
         )
         try:
             with self._coordinator.root_exclusive():
-                names_before, views, generation_before = self._capture_inventory_membership()
+                names_before, views, generation_before = self._capture_inventory_membership(
+                    artifact_id=selected_artifact_id
+                )
         except ArtifactIntegrityError as exc:
             return CASInventorySnapshot(
                 verdict="fail",
@@ -4084,7 +4106,9 @@ class FileSystemCAS:
 
         try:
             with self._coordinator.root_exclusive():
-                names_after, _views_after, generation_after = self._capture_inventory_membership()
+                names_after, _views_after, generation_after = self._capture_inventory_membership(
+                    artifact_id=selected_artifact_id
+                )
         except ArtifactIntegrityError as exc:
             return CASInventorySnapshot(
                 verdict="fail",

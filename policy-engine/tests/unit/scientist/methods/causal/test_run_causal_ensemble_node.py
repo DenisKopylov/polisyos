@@ -190,6 +190,40 @@ def test_run_causal_ensemble_node_persists_ensemble_and_dual_writes_envelope(
     assert ensemble.members[0].discovery_method == "pc"
     assert outcome.state.params["causal_ensemble_member_count"] == 1
 
+    manifest = ctx.store.get_manifest(ensemble_ref)
+    consensus_edges = [edge for edge in manifest.inputs if edge.role == "consensus_graph_ref"]
+    assert ensemble.consensus_graph_ref is not None
+    assert len(consensus_edges) == 1
+    consensus_edge = consensus_edges[0]
+    assert str(consensus_edge.artifact_id) == ensemble.consensus_graph_ref
+    assert consensus_edge.manifest_profile_sha256 is not None
+    selected_consensus_ref = CausalGraphModelRef.model_validate(
+        {
+            "artifact_id": str(consensus_edge.artifact_id),
+            "kind": "ir.causal_graph_model",
+            "media_type": "application/json",
+            "manifest_profile_sha256": consensus_edge.manifest_profile_sha256,
+        }
+    )
+    assert load_causal_graph_model(
+        _ensure_ir_artifact_store(ctx.store), selected_consensus_ref
+    ).nodes == ["X", "Y"]
+
+    member_edges = [edge for edge in manifest.inputs if edge.role == "member_0.graph_ref"]
+    assert len(member_edges) == 1
+    assert member_edges[0].manifest_profile_sha256 is not None
+    selected_member_ref = CausalGraphModelRef.model_validate(
+        {
+            "artifact_id": str(member_edges[0].artifact_id),
+            "kind": "ir.causal_graph_model",
+            "media_type": "application/json",
+            "manifest_profile_sha256": member_edges[0].manifest_profile_sha256,
+        }
+    )
+    assert load_causal_graph_model(
+        _ensure_ir_artifact_store(ctx.store), selected_member_ref
+    ).nodes == ["X", "Y"]
+
 
 def test_run_causal_ensemble_node_applies_budget_cap_10(
     tmp_path,

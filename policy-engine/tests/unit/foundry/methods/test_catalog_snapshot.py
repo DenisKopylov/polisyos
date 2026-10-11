@@ -3,12 +3,23 @@ from __future__ import annotations
 import copy
 import importlib.util
 import subprocess
+import tomllib
 from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
-from polisyos.foundry.extensions.discovery import discover_foundry_method_components
+from polisyos.core.components import (
+    DeclaredBuiltinLoader,
+    DiscoveryDeclaredBuiltinLoaderIdentity,
+)
+from polisyos.core.components.discovery import _component_discovery_manifest_id
+from polisyos.foundry.extensions.discovery import (
+    BUILTIN_LOADER,
+    ENTRY_POINT_GROUP,
+    _selected_foundry_builtin_loader_spec,
+    discover_foundry_method_components,
+)
 from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
 from polisyos.foundry.methods.base import MethodMetadata
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
@@ -105,7 +116,9 @@ def test_value_method_denominator_consumes_controlled_snapshot_without_rediscove
         )
         monkeypatch.setattr(
             "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
-            lambda _registry: pytest.fail("controlled denominator reran ambient discovery"),
+            lambda _registry: pytest.fail(
+                "controlled denominator reran ambient discovery"
+            ),
         )
 
         methods = reachable_value_method_fqns(
@@ -275,10 +288,189 @@ def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() ->
         ambient_manifest=ambient_report.manifest,
     )
 
+    default_loader_target = report.discovery_manifest.builtin_loaders[0]
+    assert (
+        provenance["schema_version"] == "policyos.method_catalog_provenance_manifest.v2"
+    )
+    assert provenance["governed_discovery"]["declared_builtin_loaders"] == [
+        {
+            "name": default_loader_target,
+            "target": default_loader_target,
+            "group": ENTRY_POINT_GROUP,
+        }
+    ]
+    assert provenance["ambient_discovery"]["declared_builtin_loaders"] == []
     assert provenance["governed_discovery"]["registry_binding_sha256"] == (
         report.registry_binding_sha256
     )
     assert provenance["provenance_id"] == method_catalog_provenance_id(provenance)
+
+
+def test_foundry_default_loader_selection_matches_extension_point_config() -> None:
+    architecture_root = Path(__file__).resolve().parents[4]
+    extension_points = tomllib.loads(
+        (architecture_root / "architecture/extension_points.toml").read_text()
+    )["extension_point"]
+    configured = next(
+        row for row in extension_points if row["name"] == "polisyos.foundry_methods"
+    )
+
+    selected = _selected_foundry_builtin_loader_spec()
+
+    assert isinstance(BUILTIN_LOADER, tuple)
+    assert configured["entry_point_group"] == ENTRY_POINT_GROUP
+    assert BUILTIN_LOADER[0] == configured["builtin_loader"]
+    assert selected == DeclaredBuiltinLoader(
+        target=configured["builtin_loader"],
+        group=configured["entry_point_group"],
+    )
+
+
+def test_default_foundry_builtin_identity_flows_into_catalog_provenance() -> None:
+    assert isinstance(BUILTIN_LOADER, tuple)
+    assert callable(BUILTIN_LOADER[1])
+    target = BUILTIN_LOADER[0]
+
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    assert report.discovery_manifest is not None
+    assert ambient_report.manifest is not None
+    assert report.discovery_manifest.builtin_loaders == (target,)
+    assert report.discovery_manifest.declared_builtin_loaders == (
+        DiscoveryDeclaredBuiltinLoaderIdentity(
+            name=target,
+            target=target,
+            group=ENTRY_POINT_GROUP,
+        ),
+    )
+
+    provenance = snapshot_module._build_candidate_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=report,
+        ambient_manifest=ambient_report.manifest,
+    )
+
+    assert (
+        provenance["schema_version"] == "policyos.method_catalog_provenance_manifest.v2"
+    )
+    assert provenance["governed_discovery"]["declared_builtin_loaders"] == [
+        {"name": target, "target": target, "group": ENTRY_POINT_GROUP}
+    ]
+    assert provenance["ambient_discovery"]["declared_builtin_loaders"] == []
+    assert provenance["provenance_id"] == method_catalog_provenance_id(provenance)
+
+    original_manifest = report.discovery_manifest
+    original_declaration = original_manifest.declared_builtin_loaders[0]
+    mutations = (
+        replace(original_declaration, name=original_declaration.name + ":altered"),
+        replace(original_declaration, target=original_declaration.target + ":altered"),
+        replace(original_declaration, group=original_declaration.group + ":altered"),
+        None,
+    )
+    for changed_declaration in mutations:
+        changed_rows = () if changed_declaration is None else (changed_declaration,)
+        changed_manifest = replace(
+            original_manifest,
+            declared_builtin_loaders=changed_rows,
+        )
+        changed_manifest = replace(
+            changed_manifest,
+            manifest_id=_component_discovery_manifest_id(
+                changed_manifest.content_payload()
+            ),
+        )
+        changed_report = replace(report, discovery_manifest=changed_manifest)
+
+        assert changed_manifest.builtin_loaders == original_manifest.builtin_loaders
+        assert changed_manifest.components == original_manifest.components
+        assert changed_manifest.manifest_id != original_manifest.manifest_id
+        with pytest.raises(
+            MethodCatalogDiscoveryProvenanceError,
+            match="catalog_governed_declared_builtin_loader_identity_mismatch",
+        ):
+            snapshot_module._build_candidate_method_catalog_provenance_manifest(
+                snapshot,
+                registry_report=changed_report,
+                ambient_manifest=ambient_report.manifest,
+            )
+
+
+def test_replaced_foundry_builtin_loader_keeps_callable_tuple_compatibility(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.foundry.extensions import discovery as discovery_module
+
+    original_loader = discovery_module.BUILTIN_LOADER
+    equal_copy = (original_loader[0], original_loader[1])
+    assert equal_copy == original_loader
+    assert equal_copy is not original_loader
+    monkeypatch.setattr(discovery_module, "BUILTIN_LOADER", equal_copy)
+    assert _selected_foundry_builtin_loader_spec() is equal_copy
+
+    calls: list[str] = []
+
+    def empty_loader() -> tuple[object, ...]:
+        calls.append("called")
+        return ()
+
+    target = "tests.unit.foundry.methods.test_catalog_snapshot:empty_loader"
+    explicit_replacement = (target, empty_loader)
+    monkeypatch.setattr(discovery_module, "BUILTIN_LOADER", explicit_replacement)
+    assert _selected_foundry_builtin_loader_spec() is explicit_replacement
+
+    with registry_scope() as registry:
+        report = bootstrap_foundry_method_registry(
+            registry,
+            include_builtins=True,
+            include_entry_points=False,
+            include_dev_scan=False,
+            require_bound_discovery_manifest=True,
+        )
+        snapshot = build_method_catalog_snapshot(
+            registry=registry,
+            registry_report=report,
+            require_bound_discovery=True,
+        )
+
+    assert calls == ["called"]
+    assert report.discovery_manifest is not None
+    assert report.discovery_manifest.schema_version == (
+        "policyos.component_discovery_manifest.v1"
+    )
+    assert report.discovery_manifest.builtin_loaders == (target,)
+    assert report.discovery_manifest.declared_builtin_loaders == ()
+
+    ambient_report = discover_foundry_method_components(
+        include_builtins=False,
+        include_entry_points=True,
+        include_dev_scan=True,
+    )
+    assert ambient_report.manifest is not None
+    provenance = snapshot_module._build_candidate_method_catalog_provenance_manifest(
+        snapshot,
+        registry_report=report,
+        ambient_manifest=ambient_report.manifest,
+    )
+    assert (
+        provenance["schema_version"] == "policyos.method_catalog_provenance_manifest.v1"
+    )
+    assert "declared_builtin_loaders" not in provenance["governed_discovery"]
 
 
 def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> None:
@@ -310,7 +502,9 @@ def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> 
         ambient_manifest=ambient_report.manifest,
     )
     changed = copy.deepcopy(recorded)
-    changed["ambient_discovery"]["manifest_id"] = "component_discovery_manifest_ambient_other"
+    changed["ambient_discovery"]["manifest_id"] = (
+        "component_discovery_manifest_ambient_other"
+    )
     changed["ambient_discovery"]["component_count"] += 1
     changed["ambient_discovery"]["unbound_inputs"].append(
         "discovery_error:entry_point:example.weighted_average:ModuleNotFoundError"
@@ -329,10 +523,9 @@ def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> 
     changed["provenance_id"] = method_catalog_provenance_id(changed)
 
     assert recorded["provenance_id"] != changed["provenance_id"]
-    assert (
-        snapshot_module.method_catalog_governed_provenance_projection(recorded)
-        == snapshot_module.method_catalog_governed_provenance_projection(changed)
-    )
+    assert snapshot_module.method_catalog_governed_provenance_projection(
+        recorded
+    ) == snapshot_module.method_catalog_governed_provenance_projection(changed)
     assert snapshot_module.method_catalog_governed_provenance_id(
         recorded
     ) == snapshot_module.method_catalog_governed_provenance_id(changed)
@@ -411,7 +604,9 @@ def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> N
             require_bound_discovery=True,
         )
 
-    identity = snapshot_module._build_candidate_method_catalog_runtime_identity(snapshot)
+    identity = snapshot_module._build_candidate_method_catalog_runtime_identity(
+        snapshot
+    )
 
     assert identity["schema_version"] == "policyos.method_catalog_runtime_identity.v1"
     assert identity["identity_id"].startswith("method_catalog_runtime_identity_")
@@ -428,7 +623,8 @@ def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> N
         for entry in snapshot.entries
     }
     assert {
-        (str(row["backend"]), str(row["fingerprint"])) for row in identity["backend_fingerprints"]
+        (str(row["backend"]), str(row["fingerprint"]))
+        for row in identity["backend_fingerprints"]
     } == expected_fingerprints
 
 
@@ -450,7 +646,9 @@ def test_catalog_runtime_identity_fails_closed_without_policy_engine_package(
         )
     monkeypatch.setattr(
         "polisyos.foundry.methods.catalog.snapshot.safe_version",
-        lambda package_name: None if package_name == "policy-engine" else "test-version",
+        lambda package_name: None
+        if package_name == "policy-engine"
+        else "test-version",
     )
 
     with pytest.raises(
@@ -484,7 +682,9 @@ def test_public_catalog_builders_and_all_callers_are_inside_negative_graph() -> 
 def test_method_catalog_snapshot_contains_stable_entries() -> None:
     ensure_all_methods_registered()
     registered_fqns = tuple(
-        sorted(entry.fqn for entry in MethodRegistry.get_instance().snapshot().entries())
+        sorted(
+            entry.fqn for entry in MethodRegistry.get_instance().snapshot().entries()
+        )
     )
     first = build_method_catalog_snapshot(run_id="R_catalog")
     second = build_method_catalog_snapshot(run_id="R_catalog")
@@ -536,7 +736,9 @@ def test_value_projection_and_joint_simulation_output_axes_compose() -> None:
         registry.register(_ComposedOutputMethod)
         snapshot = build_method_catalog_snapshot(registry=registry)
         entry = next(
-            item for item in snapshot.entries if item.fqn == _ComposedOutputMethod.signature.fqn
+            item
+            for item in snapshot.entries
+            if item.fqn == _ComposedOutputMethod.signature.fqn
         )
 
     assert entry.capability_matrix["value_projection_contracts"]
@@ -547,13 +749,16 @@ def test_value_projection_and_joint_simulation_output_axes_compose() -> None:
         == "time_series_trajectory"
     )
     assert (
-        _ComposedOutputMethod.metadata.assumptions["joint_simulation_equilibrium_semantics"]
+        _ComposedOutputMethod.metadata.assumptions[
+            "joint_simulation_equilibrium_semantics"
+        ]
         == "dynamic_SCM"
     )
 
 
 @pytest.mark.skipif(
-    _Y0_INSTALLED, reason="y0 is installed — symbolic_identify reports causal_available=True"
+    _Y0_INSTALLED,
+    reason="y0 is installed — symbolic_identify reports causal_available=True",
 )
 def test_method_catalog_snapshot_carries_causal_capability_posture() -> None:
     ensure_all_methods_registered()
@@ -563,7 +768,9 @@ def test_method_catalog_snapshot_carries_causal_capability_posture() -> None:
     assert snapshot.causal_runtime_posture
 
     symbolic_entry = next(
-        entry for entry in snapshot.entries if "causal.transport.symbolic_identify@" in entry.fqn
+        entry
+        for entry in snapshot.entries
+        if "causal.transport.symbolic_identify@" in entry.fqn
     )
     assert symbolic_entry.causal_capability_requirements
     assert symbolic_entry.causal_available is False
@@ -690,7 +897,9 @@ def test_method_catalog_snapshot_exposes_v2_capability_matrix_fields() -> None:
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     entry = next(
-        item for item in snapshot.entries if item.fqn == "survey.weighting.horvitz_thompson@1.0.0"
+        item
+        for item in snapshot.entries
+        if item.fqn == "survey.weighting.horvitz_thompson@1.0.0"
     )
 
     assert entry.execution_backend == "numpy"
@@ -717,10 +926,17 @@ def test_method_catalog_snapshot_exposes_v2_capability_matrix_fields() -> None:
     assert entry.effect_semantics["method_kind"] == "pure"
     assert entry.shape_semantics["input_arity"] >= 0
     assert entry.dependency_semantics["hard_requires"] == []
-    assert entry.capability_matrix["declared_determinism_tier"] == "library_deterministic"
-    assert entry.capability_matrix["runtime_determinism_tier"] == "library_deterministic"
+    assert (
+        entry.capability_matrix["declared_determinism_tier"] == "library_deterministic"
+    )
+    assert (
+        entry.capability_matrix["runtime_determinism_tier"] == "library_deterministic"
+    )
     assert entry.capability_matrix["replay_semantics"]
-    assert entry.capability_matrix["tolerance_budget"]["semantic_mode"] == "library_exact_cpu"
+    assert (
+        entry.capability_matrix["tolerance_budget"]["semantic_mode"]
+        == "library_exact_cpu"
+    )
     assert entry.capability_matrix["runtime_posture"]["backend"] == "numpy"
     assert entry.capability_matrix["runtime_posture"]["available"] is True
     assert entry.capability_matrix["runtime_posture"]["fingerprint"]
@@ -741,10 +957,14 @@ def test_method_catalog_snapshot_uses_conservative_effective_determinism_tier() 
     assert entry.capability_matrix["declared_determinism_tier"] == "statistical"
     assert entry.capability_matrix["runtime_determinism_tier"] == "statistical"
     assert entry.determinism_tier == "statistical"
-    assert entry.capability_matrix["replay_semantics"].startswith("Replay is seed-stable")
+    assert entry.capability_matrix["replay_semantics"].startswith(
+        "Replay is seed-stable"
+    )
 
 
-def test_method_catalog_snapshot_exposes_declared_truthfulness_scope_from_metadata() -> None:
+def test_method_catalog_snapshot_exposes_declared_truthfulness_scope_from_metadata() -> (
+    None
+):
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
@@ -760,7 +980,9 @@ def test_method_catalog_snapshot_exposes_declared_truthfulness_scope_from_metada
     assert entry.truthfulness_status == "catalog_only"
 
 
-def test_method_catalog_snapshot_marks_hmc_and_nuts_as_catalog_only_asymptotic() -> None:
+def test_method_catalog_snapshot_marks_hmc_and_nuts_as_catalog_only_asymptotic() -> (
+    None
+):
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
@@ -778,12 +1000,16 @@ def test_method_catalog_snapshot_marks_hmc_and_nuts_as_catalog_only_asymptotic()
         assert entry.capability_matrix["truthfulness_status"] == "catalog_only"
 
 
-def test_method_catalog_snapshot_marks_tabular_transformer_as_heuristic_baseline() -> None:
+def test_method_catalog_snapshot_marks_tabular_transformer_as_heuristic_baseline() -> (
+    None
+):
     ensure_all_methods_registered()
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     entry = next(
-        item for item in snapshot.entries if item.fqn == "ml.deep.tabular_transformer@1.0.0"
+        item
+        for item in snapshot.entries
+        if item.fqn == "ml.deep.tabular_transformer@1.0.0"
     )
 
     assert entry.truthfulness_tier == "unverified"
@@ -796,7 +1022,11 @@ def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
     snapshot = build_method_catalog_snapshot(run_id="R_catalog")
 
     matrix = build_method_capability_matrix(snapshot, runnable_only=True)
-    row = next(item for item in matrix if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0")
+    row = next(
+        item
+        for item in matrix
+        if item["fqn"] == "survey.weighting.horvitz_thompson@1.0.0"
+    )
 
     assert row["truthfulness_tier"] == "unverified"
     assert row["implementation_depth_tier"] == "production_method"

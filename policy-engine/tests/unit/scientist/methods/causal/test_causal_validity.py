@@ -3,21 +3,36 @@ from __future__ import annotations
 import logging
 from types import SimpleNamespace
 
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    profile_bound_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.interference import (
     MAUPInvarianceCertificate,
     MAUPPartitionCheck,
     SpatialHodgeDiagnostics,
     SpatialHodgeScaleProfile,
 )
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.scientist.methods.causal import validity as validity_module
 from polisyos.scientist.methods.causal.validity import (
     _build_spatial_interference_check,
     persist_causal_validity_bundle,
 )
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -84,6 +99,112 @@ def test_causal_validity_bundle_records_ownerless_claim_limitation(
     assert payload["claim_ledger_status"] == "not_established"
     assert payload["claim_ledger_limitation_code"] == "claim_ledger_owner_not_established"
     assert "claims_ref" not in payload
+
+
+def test_pag_refinement_preserves_selected_graph_profile_in_output_lineage(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_causal_validity_profiled_pag",
+    )
+    context = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("test.causal.validity.profiled_pag"),
+    )
+    ir_store = _ensure_ir_artifact_store(store)
+    graph_ref = profile_bound_ref(
+        ir_store,
+        persist_causal_graph_model(
+            ir_store,
+            CausalGraphModel(
+                graph_type=GraphType.PAG,
+                nodes=["X", "Y"],
+                edges=[
+                    CausalEdge(
+                        src="X",
+                        dst="Y",
+                        mark_src=EdgeMark.CIRCLE,
+                        mark_dst=EdgeMark.CIRCLE,
+                    )
+                ],
+            ),
+        ),
+    )
+    state = ExperimentState(
+        run_id="R_causal_validity_profiled_pag",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "causal_validity": {
+                "enable_icp_invariance": False,
+                "enable_proximal": False,
+                "enable_recoverability": False,
+                "enable_pag_refinement": True,
+            }
+        },
+    )
+    monkeypatch.setattr(validity_module, "_coerce_graph_validity_data", lambda **_: None)
+    monkeypatch.setattr(validity_module, "_build_confidence_surface", lambda **_: {})
+    for helper in (
+        "_build_sensitivity_check",
+        "_build_spatial_interference_check",
+        "_run_icp_check",
+        "_run_proximal_check",
+        "_run_recoverability_check",
+    ):
+        monkeypatch.setattr(
+            validity_module,
+            helper,
+            lambda **_: {"status": "not_applicable"},
+        )
+    monkeypatch.setattr(validity_module, "_collect_bundle_warnings", lambda _: [])
+    monkeypatch.setattr(validity_module, "_build_capability_matrix", lambda **_: {})
+    monkeypatch.setattr(
+        validity_module,
+        "project_causal_validity_bundle_claims",
+        lambda *_, **__: object(),
+    )
+
+    bundle_ref = persist_causal_validity_bundle(
+        ctx=context,
+        state=state,
+        report=SimpleNamespace(
+            method=SimpleNamespace(value="synthetic_control"),
+            status=SimpleNamespace(value="success"),
+        ),
+        method_fqn="causal.inference.synthetic_control@1.0.0",
+        method_params={},
+        observational_data=SimpleNamespace(metadata={}),
+        seed=7,
+        sensitivity_ref=None,
+        sensitivity_auto={},
+        inputs=(),
+    )
+
+    assert bundle_ref is not None
+    bundle_inputs = store.get_manifest(bundle_ref).inputs
+    refined_edge = next(
+        edge for edge in bundle_inputs if edge.role == "causal_validity_refined_pag_graph"
+    )
+    refined_ref = CausalGraphModelRef.model_validate(
+        {
+            "artifact_id": str(refined_edge.artifact_id),
+            "kind": "ir.causal_graph_model",
+            "media_type": "application/json",
+            "manifest_profile_sha256": refined_edge.manifest_profile_sha256,
+        }
+    )
+    refined_inputs = store.get_manifest(refined_ref).inputs
+    source_edge = next(
+        edge for edge in refined_inputs if edge.role == "causal_validity_input_graph"
+    )
+    assert str(source_edge.artifact_id) == str(graph_ref.artifact_id)
+    assert source_edge.manifest_profile_sha256 == graph_ref.manifest_profile_sha256
 
 
 def test_spatial_interference_check_prefers_typed_fields_over_metadata() -> None:

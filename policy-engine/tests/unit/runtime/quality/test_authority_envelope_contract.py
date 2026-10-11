@@ -189,3 +189,88 @@ def test_every_runtime_ref_scorecard_gate_requires_authority_envelope_identity()
 
     assert scorecard["quality_status"] == "fail"
     assert "hds_unknown_provenance" in blocking_codes(scorecard)
+
+
+def test_security_assurance_owner_matches_exact_runtime_artifact_identity() -> None:
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_KIND,
+        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+    )
+    from polisyos.runtime.quality.authority import authority_envelope_ownership_issues
+
+    report = {
+        "schema_version": "policyos.security_assurance_report.v1",
+        "status": "pass",
+    }
+    valid = {
+        "artifact_kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
+        "schema_name": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        "phase": "security_assurance_report",
+        "validation_status": "pass",
+    }
+
+    assert authority_envelope_ownership_issues(
+        envelope=valid, report_key="security_assurance_report", report=report
+    ) == []
+
+    wrong_kind = {**valid, "artifact_kind": "runtime.other_security_report"}
+    kind_issues = authority_envelope_ownership_issues(
+        envelope=wrong_kind, report_key="security_assurance_report", report=report
+    )
+    assert {issue["code"] for issue in kind_issues} == {
+        "authority_envelope_artifact_kind_mismatch"
+    }
+
+    wrong_schema = {**valid, "schema_name": "polisyos.runtime.OtherQualityReport"}
+    schema_issues = authority_envelope_ownership_issues(
+        envelope=wrong_schema, report_key="security_assurance_report", report=report
+    )
+    assert {issue["code"] for issue in schema_issues} == {
+        "authority_envelope_schema_mismatch"
+    }
+
+
+
+def test_authority_event_profile_must_match_report_and_reject_malformed_present_values() -> None:
+    from polisyos.runtime.quality.authority import authority_envelope_ownership_issues
+
+    event_id = "sha256:" + "a" * 64
+    event_profile = "sha256:" + "b" * 64
+    report = {
+        "schema_version": "policyos.security_assurance_report.v1",
+        "status": "pass",
+        "runtime_event_ref": event_id,
+        "runtime_event_manifest_profile_sha256": event_profile,
+    }
+    envelope = {
+        "artifact_kind": "security_assurance_report",
+        "schema_name": "polisyos.runtime.SecurityAssuranceReport",
+        "phase": "security_assurance_report",
+        "validation_status": "pass",
+        "runtime_event_ref": event_id,
+        "runtime_event_manifest_profile_sha256": event_profile,
+    }
+    assert authority_envelope_ownership_issues(
+        envelope=envelope,
+        report_key="security_assurance_report",
+        report=report,
+    ) == []
+    wrong_profile = {**envelope, "runtime_event_manifest_profile_sha256": "sha256:" + "c" * 64}
+    issues = authority_envelope_ownership_issues(
+        envelope=wrong_profile,
+        report_key="security_assurance_report",
+        report=report,
+    )
+    assert {issue["code"] for issue in issues} == {
+        "authority_envelope_runtime_event_profile_mismatch"
+    }
+    malformed = {**envelope, "runtime_event_manifest_profile_sha256": "present-but-invalid"}
+    issues = authority_envelope_ownership_issues(
+        envelope=malformed,
+        report_key="security_assurance_report",
+        report=report,
+    )
+    assert {issue["code"] for issue in issues} == {
+        "authority_envelope_runtime_event_profile_invalid",
+        "authority_envelope_runtime_event_profile_mismatch",
+    }

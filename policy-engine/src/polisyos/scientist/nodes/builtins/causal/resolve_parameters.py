@@ -9,7 +9,14 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
@@ -23,15 +30,20 @@ from polisyos.ir.analytics.parameters import (
     load_context_adaptive_parameter_bundle,
     persist_context_adaptive_parameter_bundle,
 )
-from polisyos.ir.artifacts import InputRef
 from polisyos.ir.registry.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
@@ -74,6 +86,10 @@ _SPEC = NodeSpec(
     produces=[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
 )
 
+class _InvalidCausalGraphReference(ValueError):
+    """Identify a supplied graph selector that is malformed or stale."""
+
+
 _RESOLVE_PARAMETERS_LOAD_ERRORS = (
     OSError,
     RuntimeError,
@@ -102,10 +118,16 @@ class ResolveParametersNode:
     ) -> PreparedSKGRead | None:
         """Bind cache lookup to the selected SKG source database."""
         del ctx
+        try:
+            graph_ref = _resolve_causal_graph_ref(state)
+        except _InvalidCausalGraphReference:
+            # Cache preparation is a probe; execute() turns the supplied bad
+            # selector into a typed failure instead of conflating it with absence.
+            return None
         if (
             _resolve_target_context(state) is None
             or not _resolve_required_parameters(state)
-            or _resolve_causal_graph_ref(state) is None
+            or graph_ref is None
         ):
             return None
         db_path_raw = state.params.get("skg_db_path")
@@ -128,13 +150,17 @@ class ResolveParametersNode:
         )
         if bundle_ref is None:
             return False
+        try:
+            graph_ref = _resolve_causal_graph_ref(state)
+        except _InvalidCausalGraphReference:
+            return False
         return _bundle_matches_request(
             ctx,
             bundle_ref,
             target_context=_resolve_target_context(state),
             simulation_domain=str(state.params.get("domain", "unknown")),
             required_parameters=_resolve_required_parameters(state),
-            graph_ref=_resolve_causal_graph_ref(state),
+            graph_ref=graph_ref,
         )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
@@ -145,7 +171,17 @@ class ResolveParametersNode:
         target_context = _resolve_target_context(state)
         required_parameters = _resolve_required_parameters(state)
         simulation_domain = str(state.params.get("domain", "unknown"))
-        graph_ref = _resolve_causal_graph_ref(state)
+        try:
+            graph_ref = _resolve_causal_graph_ref(state)
+        except _InvalidCausalGraphReference as exc:
+            return _invalid_causal_graph_reference(state, exc)
+        if graph_ref is not None:
+            try:
+                graph_ref = profile_bound_ref(
+                    _ensure_ir_artifact_store(ctx.store), graph_ref
+                )
+            except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
+                return _invalid_causal_graph_reference(state, exc)
 
         # A source-unbound bundle can only be reused when this invocation has
         # no current SKG source to consume.  Once an owner-prepared or
@@ -254,7 +290,12 @@ class ResolveParametersNode:
             selection_timestamp=datetime.now(UTC).replace(microsecond=0).isoformat(),
         )
 
-        input_refs = [InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph")]
+        input_refs = [
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                role="causal_graph",
+            )
+        ]
         bundle_ref = persist_context_adaptive_parameter_bundle(
             _ensure_ir_artifact_store(ctx.store),
             bundle,
@@ -339,11 +380,10 @@ def _bundle_matches_request(
     SKG owner/version binding belongs to the separate B61 slice and is not
     inferred from this helper.
     """
+    store = _ensure_ir_artifact_store(ctx.store)
     try:
-        bundle = load_context_adaptive_parameter_bundle(
-            _ensure_ir_artifact_store(ctx.store), bundle_ref
-        )
-        manifest = _ensure_ir_artifact_store(ctx.store).get_manifest(bundle_ref)
+        bundle = load_context_adaptive_parameter_bundle(store, bundle_ref)
+        manifest = store.get_manifest(bundle_ref)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return False
 
@@ -371,8 +411,17 @@ def _bundle_matches_request(
     if not set(required_parameters).issubset(covered_parameters):
         return False
 
-    graph_artifact_id = str(graph_ref.artifact_id)
-    return any(str(input_ref.artifact_id) == graph_artifact_id for input_ref in manifest.inputs)
+    try:
+        selected_graph_ref = profile_bound_ref(store, graph_ref)
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
+        return False
+    graph_inputs = [entry for entry in manifest.inputs if entry.role == "causal_graph"]
+    return (
+        len(graph_inputs) == 1
+        and str(graph_inputs[0].artifact_id) == str(selected_graph_ref.artifact_id)
+        and graph_inputs[0].manifest_profile_sha256
+        == selected_graph_ref.manifest_profile_sha256
+    )
 
 
 def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | None:
@@ -388,8 +437,10 @@ def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | N
         payload = raw
     try:
         return CausalGraphModelRef.model_validate(payload)
-    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
-        return None
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
+        raise _InvalidCausalGraphReference(
+            "supplied causal graph reference is malformed"
+        ) from exc
 
 
 def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
@@ -405,6 +456,21 @@ def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
         return load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return None
+
+
+def _invalid_causal_graph_reference(
+    state: ExperimentState,
+    exc: Exception,
+) -> NodeOutcome:
+    return NodeOutcome(
+        status="fail",
+        state=state,
+        error=NodeError(
+            code=node_errors.ERROR_INVALID_STATE,
+            message=f"Invalid supplied causal graph reference: {exc}",
+            details={"input": "causal_graph_ref"},
+        ),
+    )
 
 
 def _skip(state: ExperimentState, message: str) -> NodeOutcome:

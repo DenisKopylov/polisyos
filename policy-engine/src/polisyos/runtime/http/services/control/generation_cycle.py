@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from pathlib import Path
 
-    from polisyos.core.contracts.control import CatalogRunProfile
+    from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
@@ -1704,6 +1704,9 @@ async def compile_and_run_recursive_generation_cycle(
                 DesignGenerationOrganRun,
             )
             from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+            from polisyos.runtime.quality.generation_source import (
+                _canonical_model_content_hash,
+            )
             from polisyos.runtime.quality.recursive_generation_cycle import (
                 RecursiveGenerationCycleError,
             )
@@ -1755,10 +1758,13 @@ async def compile_and_run_recursive_generation_cycle(
                 n4_child_profile_family_ref=root_handoff.n4_child_profile_family_ref,
             )
             if (
-                loaded_source.problem != problem
-                or loaded_source.generation_result
-                != root_organ.result
-                or loaded_source.cycle_substrate_context != root_handoff.context
+                _canonical_model_content_hash(loaded_source.problem)
+                != _canonical_model_content_hash(problem)
+                or _canonical_model_content_hash(loaded_source.generation_result)
+                != _canonical_model_content_hash(root_organ.result)
+                or loaded_source.cycle_substrate_context is None
+                or _canonical_model_content_hash(loaded_source.cycle_substrate_context)
+                != _canonical_model_content_hash(root_handoff.context)
                 or loaded_source.generation_result.design_problem_ref != producer_problem_ref
             ):
                 raise DesignProblemAuthorityError(

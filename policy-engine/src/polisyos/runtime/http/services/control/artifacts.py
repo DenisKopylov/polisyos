@@ -41,7 +41,10 @@ from polisyos.runtime.quality.authority import (
     GovernanceMetadata,
     SameInputClosure,
 )
-from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.authority_reconciliation import (
+    reconcile_authority_ref,
+    resolve_authority_diagnostic_event_ref,
+)
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -276,12 +279,13 @@ def write_authority_artifact(
         schema=schema,
         producer=producer,
     )
-    existing = _existing_authority_result(
+    existing = _existing_authority_result_for_visible_views(
         store,
         cas_ref_value=cas_ref_value,
         payload_sha256=payload_sha256,
         opts=opts,
         expected_context=expected_context,
+        allow_new_canon_profile=True,
     )
     if existing is not None:
         return existing
@@ -329,6 +333,7 @@ def write_authority_artifact(
         ),
         canon_spec,
     )
+    diagnostic_event_ref = core_artifacts.profile_bound_ref(store, diagnostic_event_ref)
 
     authority_envelope = EvidenceAuthorityEnvelope.model_validate(
         {
@@ -342,6 +347,9 @@ def write_authority_artifact(
             "producer_version": producer.version,
             "owner": owner,
             "runtime_event_ref": str(diagnostic_event_ref.artifact_id),
+            "runtime_event_manifest_profile_sha256": (
+                diagnostic_event_ref.manifest_profile_sha256
+            ),
             "cas_ref": cas_ref_value,
             "payload_sha256": payload_sha256,
             "schema_name": schema.name,
@@ -398,6 +406,9 @@ def write_authority_artifact(
             same_input_closure=closure,
             authority_envelope_ref=authority_envelope_ref,
             diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
+            diagnostic_event_manifest_profile_sha256=(
+                diagnostic_event_ref.manifest_profile_sha256
+            ),
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
         ),
@@ -422,6 +433,7 @@ def write_authority_artifact(
         payload_sha256=payload_sha256,
         opts=opts,
         expected_context=expected_context,
+        selected_ref=cas_ref,
     )
     if verified is None:
         raise ValueError("authority post-write identity readback missing")
@@ -555,7 +567,7 @@ def write_runtime_authority_artifact(
     opts = replace(opts, canon=_authority_manifest_canon(opts, canon_spec))
     payload_sha256 = content_hash(to_canonical_bytes(payload, canon_spec))
     cas_ref_value = f"sha256:{payload_sha256}"
-    expected_context = _identity_context_from_fields(opts, authority_fields)
+    expected_context = _identity_context_from_fields(opts, authority_fields, canon_spec)
     expected_context, _ = _freeze_cas_writer_attestation_identity(
         expected_context,
         cas_ref_value=cas_ref_value,
@@ -564,12 +576,13 @@ def write_runtime_authority_artifact(
         schema=_require_schema(opts),
         producer=_require_producer(opts),
     )
-    existing = _existing_authority_result(
+    existing = _existing_authority_result_for_visible_views(
         store,
         cas_ref_value=cas_ref_value,
         payload_sha256=payload_sha256,
         opts=opts,
         expected_context=expected_context,
+        allow_new_canon_profile=True,
     )
     if existing is not None:
         reconcile_authority_ref(
@@ -598,6 +611,71 @@ def write_runtime_authority_artifact(
     return result
 
 
+def _existing_authority_result_for_visible_views(
+    store: core_artifacts.ArtifactStore,
+    *,
+    cas_ref_value: str,
+    payload_sha256: str,
+    opts: ArtifactWriteOptions,
+    expected_context: AuthorityArtifactIdentityContext,
+    allow_new_canon_profile: bool = False,
+) -> AuthorityArtifactWriteResult | None:
+    """Reconcile every inventory-visible authority view before selecting or writing.
+
+    Backends without the optional filtered inventory capability retain the
+    historical exact-default check; they do not establish absence of sibling
+    non-default views.
+    """
+    snapshotter = getattr(store, "inventory_snapshot", None)
+    if not callable(snapshotter):
+        return _existing_authority_result(
+            store,
+            cas_ref_value=cas_ref_value,
+            payload_sha256=payload_sha256,
+            opts=opts,
+            expected_context=expected_context,
+            allow_new_canon_profile=allow_new_canon_profile,
+        )
+    artifact_id = core_artifacts.ArtifactID.model_validate(cas_ref_value)
+    try:
+        snapshot = snapshotter(artifact_id=artifact_id)
+    except (OSError, TypeError, ValueError) as exc:
+        raise ValueError("authority_profile_inventory_unverified") from exc
+    if getattr(snapshot, "verdict", None) != "pass":
+        raise ValueError("authority_profile_inventory_unverified")
+
+    selected: AuthorityArtifactWriteResult | None = None
+    for entry in getattr(snapshot, "entries", ()):
+        manifest = getattr(entry, "manifest", None)
+        if manifest is None or manifest.artifact_id != artifact_id:
+            raise ValueError("authority_profile_inventory_identity_mismatch")
+        if manifest.authority is None:
+            continue
+        candidate_ref = getattr(entry, "artifact_ref", None)
+        if isinstance(candidate_ref, core_artifacts.ArtifactID):
+            candidate_ref = _make_artifact_ref(
+                str(candidate_ref),
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            )
+        if not isinstance(candidate_ref, ArtifactRef):
+            raise ValueError("authority_profile_inventory_ref_untyped")
+        candidate = _existing_authority_result(
+            store,
+            cas_ref_value=cas_ref_value,
+            payload_sha256=payload_sha256,
+            opts=opts,
+            expected_context=expected_context,
+            selected_ref=candidate_ref,
+            allow_new_canon_profile=allow_new_canon_profile,
+        )
+        if candidate is not None:
+            if selected is not None and candidate != selected:
+                raise ValueError("authority_profile_inventory_multiple_matches")
+            selected = candidate
+    return selected
+
+
 def _existing_authority_result(
     store: core_artifacts.ArtifactStore,
     *,
@@ -605,11 +683,26 @@ def _existing_authority_result(
     payload_sha256: str,
     opts: ArtifactWriteOptions,
     expected_context: AuthorityArtifactIdentityContext,
+    selected_ref: ArtifactRef | None = None,
+    allow_new_canon_profile: bool = False,
 ) -> AuthorityArtifactWriteResult | None:
     artifact_id = core_artifacts.ArtifactID.model_validate(cas_ref_value)
-    if not store.has(artifact_id):
+    artifact_ref = selected_ref or _make_artifact_ref(cas_ref_value, kind=opts.kind)
+    if (
+        artifact_ref.artifact_id != artifact_id
+        or artifact_ref.kind != opts.kind
+        or artifact_ref.media_type != opts.media_type
+    ):
+        raise ValueError("selected authority artifact ref does not match write options")
+    if not store.has(artifact_ref):
+        if selected_ref is not None:
+            return None
+        if store.has(artifact_id):
+            default_manifest = store.get_manifest(artifact_id)
+            if default_manifest.authority is not None:
+                raise ValueError("existing authority identity mismatch")
         return None
-    manifest = store.get_manifest(artifact_id)
+    manifest = store.get_manifest(artifact_ref)
     authority = manifest.authority
     if authority is None:
         return None
@@ -622,8 +715,17 @@ def _existing_authority_result(
     producer = _require_producer(opts)
     manifest_schema = manifest.artifact_schema
     manifest_producer = manifest.producer
+    expected_manifest_canon = _authority_manifest_canon(
+        opts,
+        None,
+        expected_context=expected_context,
+    )
+    stored_manifest_canon = manifest.canon
+    if stored_manifest_canon is None:
+        raise ValueError("existing authority identity mismatch")
+    canon_profile_differs = stored_manifest_canon != expected_manifest_canon
     try:
-        verification = store.verify(artifact_id)
+        verification = store.verify(artifact_ref)
         envelope_ref = core_artifacts.resolve_authority_envelope_ref(store, authority)
         envelope_verification = store.verify(envelope_ref)
         envelope_manifest = store.get_manifest(envelope_ref)
@@ -636,12 +738,7 @@ def _existing_authority_result(
             cell_id=expected_context.cell_id,
             same_input_closure=expected_context.same_input_closure,
         )
-        expected_manifest_canon = _authority_manifest_canon(
-            opts,
-            CanonSpec(),
-            expected_context=expected_context,
-        )
-        expected_envelope_opts = replace(expected_envelope_opts, canon=expected_manifest_canon)
+        expected_envelope_opts = replace(expected_envelope_opts, canon=stored_manifest_canon)
         expected_envelope_manifest = core_artifacts.expected_artifact_manifest_for_write(
             artifact_id=envelope_ref.artifact_id,
             data=envelope_payload,
@@ -652,13 +749,42 @@ def _existing_authority_result(
             envelope_manifest
         ) != core_artifacts.artifact_manifest_profile_projection(expected_envelope_manifest):
             raise ValueError("existing authority envelope manifest identity mismatch")
-        diagnostic_event_id = core_artifacts.ArtifactID.model_validate(
-            authority.diagnostic_event_ref
-        )
-        diagnostic_event_verification = store.verify(diagnostic_event_id)
+        diagnostic_event_ref = resolve_authority_diagnostic_event_ref(store, authority)
+        diagnostic_event_id = diagnostic_event_ref.artifact_id
+        diagnostic_event_manifest = store.get_manifest(diagnostic_event_ref)
+        diagnostic_event_payload = store.get_bytes(diagnostic_event_ref)
         diagnostic_event = DiagnosticEvent.model_validate(
-            from_canonical_bytes(store.get_bytes(diagnostic_event_id))
+            from_canonical_bytes(diagnostic_event_payload)
         )
+        expected_event_opts = _diagnostic_event_write_options(
+            opts,
+            inputs=list(expected_context.manifest_inputs),
+            tenant_id=expected_context.tenant_id,
+            cell_id=expected_context.cell_id,
+            same_input_closure=expected_context.same_input_closure,
+        )
+        expected_event_opts = replace(expected_event_opts, canon=stored_manifest_canon)
+        expected_event_manifest = core_artifacts.expected_artifact_manifest_for_write(
+            artifact_id=diagnostic_event_id,
+            data=diagnostic_event_payload,
+            opts=expected_event_opts,
+            created_at=diagnostic_event.event_time,
+        ).model_copy(
+            update={"manifest_schema_version": diagnostic_event_manifest.manifest_schema_version}
+        )
+        if core_artifacts.artifact_manifest_profile_projection(
+            diagnostic_event_manifest
+        ) != core_artifacts.artifact_manifest_profile_projection(expected_event_manifest):
+            raise ValueError("existing diagnostic event manifest identity mismatch")
+        expected_event_profile = core_artifacts.artifact_manifest_profile_sha256(
+            expected_event_manifest
+        )
+        if (
+            authority.diagnostic_event_manifest_profile_sha256 is not None
+            and authority.diagnostic_event_manifest_profile_sha256 != expected_event_profile
+        ):
+            raise ValueError("existing diagnostic event profile identity mismatch")
+        diagnostic_event_verification = store.verify(diagnostic_event_ref)
         if envelope.attestation_ref != expected_context.attestation_ref:
             raise ValueError("existing authority identity mismatch")
         attestation_id = core_artifacts.ArtifactID.model_validate(expected_context.attestation_ref)
@@ -712,7 +838,6 @@ def _existing_authority_result(
         or manifest_producer.component != producer.component
         or manifest_producer.version != producer.version
         or manifest.inputs != list(expected_context.manifest_inputs)
-        or manifest.canon != expected_manifest_canon
         or manifest.tenant_context != expected_tenant
         or manifest.same_input_closure != expected_closure
         or manifest.governance != expected_context.manifest_governance
@@ -760,11 +885,15 @@ def _existing_authority_result(
         or attestation_schema.version != "1.0"
         or attestation_manifest.producer != producer
         or attestation_manifest.tenant_context != expected_tenant
+        or attestation_manifest.canon
+        != core_artifacts.CanonInfo.from_spec(CanonSpec(forbid_floats=False))
         or attestation_payload != expected_attestation_payload
         or envelope.redaction_policy_ref != expected_context.redaction_policy_ref
         or envelope.state_before != expected_context.state_before
         or envelope.state_after != expected_context.state_after
         or envelope.runtime_event_ref != authority.diagnostic_event_ref
+        or envelope.runtime_event_manifest_profile_sha256
+        != authority.diagnostic_event_manifest_profile_sha256
         or diagnostic_event.event_id != expected_event_id
         or diagnostic_event.event_source != expected_context.event_source
         or diagnostic_event.event_type != expected_context.event_type
@@ -790,15 +919,16 @@ def _existing_authority_result(
         or diagnostic_event.redaction_policy_ref != expected_context.redaction_policy_ref
     ):
         raise ValueError("existing authority identity mismatch")
+    if canon_profile_differs:
+        if allow_new_canon_profile:
+            return None
+        raise ValueError("existing authority identity mismatch")
     return AuthorityArtifactWriteResult(
-        cas_ref=_make_artifact_ref(cas_ref_value, kind=opts.kind),
+        cas_ref=artifact_ref,
         payload_sha256=payload_sha256,
         manifest_ref=authority.manifest_ref,
         authority_envelope_ref=envelope_ref,
-        diagnostic_event_ref=_make_artifact_ref(
-            authority.diagnostic_event_ref,
-            kind=DIAGNOSTIC_EVENT_ARTIFACT_KIND,
-        ),
+        diagnostic_event_ref=diagnostic_event_ref,
         identity_context=expected_context,
     )
 
@@ -806,19 +936,23 @@ def _existing_authority_result(
 def verify_runtime_authority_artifact_identity(
     store: core_artifacts.ArtifactStore,
     *,
-    artifact_id: core_artifacts.ArtifactID,
+    artifact_id: core_artifacts.ArtifactID | ArtifactRef,
     opts: ArtifactWriteOptions,
     expected_context: AuthorityArtifactIdentityContext,
 ) -> AuthorityArtifactWriteResult:
     """Re-read one authority artifact through the shared strict identity owner."""
 
-    typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
+    selected_ref = artifact_id if isinstance(artifact_id, ArtifactRef) else None
+    typed_id = core_artifacts.ArtifactID.model_validate(
+        selected_ref.artifact_id if selected_ref is not None else artifact_id
+    )
     result = _existing_authority_result(
         store,
         cas_ref_value=str(typed_id),
         payload_sha256=typed_id.hex,
         opts=opts,
         expected_context=expected_context,
+        selected_ref=selected_ref,
     )
     if result is None:
         raise ValueError("authority post-write identity readback missing")
@@ -828,6 +962,7 @@ def verify_runtime_authority_artifact_identity(
 def _identity_context_from_fields(
     opts: ArtifactWriteOptions,
     values: Mapping[str, Any],
+    canon_spec: CanonSpec,
 ) -> AuthorityArtifactIdentityContext:
     manifest_inputs = _coerce_manifest_inputs(opts.inputs)
     closure = SameInputClosure.model_validate(values.get("same_input_closure"))
@@ -864,7 +999,7 @@ def _identity_context_from_fields(
         same_input_closure=closure,
         manifest_inputs=tuple(manifest_inputs),
         manifest_governance=_copy_governance(opts),
-        manifest_canon=_authority_manifest_canon(opts, CanonSpec()),
+        manifest_canon=_authority_manifest_canon(opts, canon_spec),
         input_refs=input_refs,
         effective_mode_ref=required("effective_mode_ref"),
         validation_status=required("validation_status"),
@@ -886,26 +1021,44 @@ def _identity_context_from_fields(
 
 def _authority_manifest_canon(
     opts: ArtifactWriteOptions,
-    canon_spec: CanonSpec,
+    canon_spec: CanonSpec | None,
     *,
     expected_context: AuthorityArtifactIdentityContext | None = None,
 ) -> core_artifacts.CanonInfo:
-    """Resolve the producer-owned canonicalization metadata for one artifact view."""
-    option_canon = (
-        None if opts.canon is None else core_artifacts.CanonInfo.model_validate(opts.canon)
-    )
+    """Bind one typed manifest profile to the encoder or preserved writer context."""
+    option_canon = _coerce_authority_canon_info(opts.canon)
     context_canon = (
         None
         if expected_context is None or expected_context.manifest_canon is None
         else core_artifacts.CanonInfo.model_validate(expected_context.manifest_canon)
     )
+    if canon_spec is not None:
+        spec_canon = core_artifacts.CanonInfo.from_spec(canon_spec)
+        if option_canon is not None and option_canon != spec_canon:
+            raise ValueError(
+                "authority canon metadata must match the canonicalization spec used for encoding"
+            )
+        if context_canon is not None and context_canon != spec_canon:
+            raise ValueError("authority context canonicalization identity mismatch")
+        return spec_canon
     if option_canon is not None and context_canon is not None and option_canon != context_canon:
         raise ValueError("authority manifest canonicalization identity mismatch")
-    if option_canon is not None:
-        return option_canon
     if context_canon is not None:
         return context_canon
-    return core_artifacts.CanonInfo.from_spec(canon_spec)
+    if option_canon is not None:
+        return option_canon
+    return core_artifacts.CanonInfo.from_spec(CanonSpec())
+
+
+def _coerce_authority_canon_info(value: object) -> core_artifacts.CanonInfo | None:
+    """Validate a supplied canonical profile without treating invalid input as absence."""
+    if value is None:
+        return None
+    if isinstance(value, core_artifacts.CanonInfo):
+        return value
+    if isinstance(value, Mapping):
+        return core_artifacts.CanonInfo.model_validate(value)
+    raise TypeError("authority canon option must be CanonInfo or a mapping")
 
 
 def _require_producer(opts: ArtifactWriteOptions) -> ProducerInfo:
@@ -1037,6 +1190,7 @@ def _authority_payload_write_options(
     same_input_closure: SameInputClosure,
     authority_envelope_ref: ArtifactRef,
     diagnostic_event_ref: str,
+    diagnostic_event_manifest_profile_sha256: str | None,
     manifest_ref: str,
     payload_sha256: str,
 ) -> ArtifactWriteOptions:
@@ -1054,6 +1208,9 @@ def _authority_payload_write_options(
                 authority_envelope_ref.manifest_profile_sha256
             ),
             diagnostic_event_ref=diagnostic_event_ref,
+            diagnostic_event_manifest_profile_sha256=(
+                diagnostic_event_manifest_profile_sha256
+            ),
             manifest_ref=manifest_ref,
             payload_sha256=payload_sha256,
         ),
@@ -1164,6 +1321,9 @@ def _assert_authority_manifest_linkage(
         authority_envelope_ref=str(authority_envelope_ref.artifact_id),
         authority_envelope_manifest_profile_sha256=(authority_envelope_ref.manifest_profile_sha256),
         diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
+        diagnostic_event_manifest_profile_sha256=(
+            diagnostic_event_ref.manifest_profile_sha256
+        ),
         manifest_ref=manifest_ref,
         payload_sha256=payload_sha256,
     )

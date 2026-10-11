@@ -2,6 +2,7 @@ import { Download, Snowflake, TriangleAlert } from "lucide-react";
 
 import { Glyph } from "@/shared/brand/Glyph";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import { cn } from "@/shared/lib/utils";
 import {
   type EpochSemantics,
@@ -200,8 +201,8 @@ export function EpochStalenessView({
                         : "border-[var(--color-status-warning)] bg-[color-mix(in_srgb,var(--color-status-warning)_12%,transparent)] line-through decoration-[var(--color-status-warning)]",
                     )}
                     data-certificate-status={certificate.status}
-                    data-testid={`epoch-certificate-${certificate.certificate_ref.artifact_id}`}
-                    key={certificate.certificate_ref.artifact_id}
+                    data-testid={`epoch-certificate-${encodeURIComponent(evidenceArtifactRefKey(certificate.certificate_ref))}`}
+                    key={evidenceArtifactRefKey(certificate.certificate_ref)}
                   >
                     <strong>
                       {t(`epochChrome.status.${certificate.status}`)}
@@ -236,7 +237,11 @@ export function EpochStalenessView({
                 {projection.dependencies.map((dependency) => (
                   <li
                     className="rounded border border-[var(--line)] p-2 text-sm"
-                    key={`${dependency.source_ref.artifact_id}:${dependency.target_ref.artifact_id}`}
+                    key={JSON.stringify([
+                      evidenceArtifactRefKey(dependency.source_ref),
+                      evidenceArtifactRefKey(dependency.target_ref),
+                      dependency.relation,
+                    ])}
                   >
                     {t("epochChrome.dependencies.summary", {
                       disposition: t(
@@ -267,7 +272,7 @@ export function EpochStalenessView({
                   <li
                     className="rounded border border-[var(--color-status-warning)] p-2 text-sm"
                     data-testid={`epoch-perturbation-${event.source_class}`}
-                    key={event.event_ref.artifact_id}
+                    key={evidenceArtifactRefKey(event.event_ref)}
                   >
                     <span className="font-semibold">
                       {t(`epochChrome.perturbation.${event.source_class}`)}

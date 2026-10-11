@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.core.security.quality_gates import (
+    SECURITY_SURFACES,
+    build_security_assurance_report,
+)
 from polisyos.runtime.quality.assurance_case import (
     build_capability_duty_record,
     build_capability_selection_ledger,
@@ -2389,6 +2394,13 @@ def complete_job_payload(
 
 
 def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, Any]:
+    security_assurance_report = build_security_assurance_report(
+        payloads={surface: {} for surface in SECURITY_SURFACES},
+        now=datetime(2026, 5, 15, tzinfo=UTC),
+    )
+    security_assurance_report["security_assurance_report_ref"] = runtime_cas_refs()[
+        "security_assurance_report_ref"
+    ]
     source_truth_payload = {
         "status": "pass",
         "provenance": {"producer": "scientist.claim_compiler"},
@@ -2932,14 +2944,7 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
                 }
             ],
         },
-        "security_assurance_report": {
-            "schema_version": "policyos.security_assurance_report.v1",
-            "status": "pass",
-            "security_assurance_report_ref": runtime_cas_refs()["security_assurance_report_ref"],
-            "assured_paths": [],
-            "issues": [],
-            "blockers": [],
-        },
+        "security_assurance_report": security_assurance_report,
         "privacy_compliance_report": {
             "schema_version": "policyos.privacy_compliance_report.v1",
             "status": "pass",

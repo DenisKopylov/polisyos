@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from contextlib import ExitStack
 from dataclasses import replace
 from decimal import Decimal
@@ -14,6 +15,7 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
+from polisyos.core.artifacts._profiled_ref import profile_bound_ref
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -29,25 +31,31 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
 from polisyos.core.contracts.foundry import (
     FoundryInputBindingRule,
     SimulationResult,
-    StateSnapshotRef,
 )
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.tenant_context import tenant_scope
-from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.execute.executor import put_state_snapshot
+from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
+from polisyos.foundry.data_plane.bindings import build_input_bindings
+from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.model_layer.queries import DataViewRequest
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.debug import SimulationResultProjectionError
+from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
@@ -295,28 +303,53 @@ class _IndependentSiblingNode:
         return NodeOutcome(status="ok", state=new_state)
 
 
-def _put_data_snapshot(
+def _produce_sql_snapshot(
+    tmp_path,
     store: FileSystemCAS,
-    state_snapshot_ref: StateSnapshotRef,
-) -> DataSnapshotRef:
-    snapshot = DataSnapshot(data_ref=state_snapshot_ref)
-    ref = store.put_json(
-        snapshot,
-        PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.1.0"),
+) -> tuple[DataViewRequestRef, DataSnapshotRef]:
+    """Produce one real profile-bound snapshot from a controlled SQLite source."""
+    db_path = tmp_path / "policy-inputs.sqlite"
+    with sqlite3.connect(db_path) as connection:
+        connection.execute("CREATE TABLE policy_inputs (income REAL NOT NULL, note TEXT)")
+        connection.executemany(
+            "INSERT INTO policy_inputs VALUES (?, ?)",
+            [(12.5, "first"), (25.0, None)],
+        )
+    connector_registry = ConnectorRegistry()
+    connector_registry.register(
+        SQLQueryConnector,
+        ConnectionConfig(
+            url=f"sqlite:///{db_path}",
+            headers={"X-SQL-Table": "policy_inputs"},
         ),
     )
-    return DataSnapshotRef(artifact_id=ref.artifact_id)
+    request_ref = store.put_json(
+        DataViewRequest(
+            schema_version="1.0",
+            request_id="res03_controlled_sql_inputs",
+            view_type="table",
+            metrics=["policy_inputs"],
+        ),
+        PutOptions(
+            kind="ir.data_view_request",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+        ),
+    )
+    data_view_request_ref = DataViewRequestRef.model_validate(
+        profile_bound_ref(store, request_ref).model_dump(mode="python")
+    )
+    try:
+        snapshot_ref = DefaultFabricPort(connector_registry=connector_registry).snapshot(
+            store,
+            data_view_request_ref,
+        )
+    finally:
+        connector_registry.shutdown()
+    return data_view_request_ref, snapshot_ref
 
 
-def _build_real_trinity(store: FileSystemCAS, registry_bundle_ref: Any) -> Any:
-    base_state = GlobalState.empty(n_agents=5, n_firms=2)
-    snapshot_payload = put_state_snapshot(store, state=base_state, step=0)
-    state_snapshot_ref = StateSnapshotRef(artifact_id=snapshot_payload.artifact_id)
-    data_snapshot_ref = _put_data_snapshot(store, state_snapshot_ref)
-
+def _build_real_trinity(registry_bundle_ref: Any, data_snapshot_ref: DataSnapshotRef) -> Any:
     trinity = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="res03_problem", domain=ProblemDomain.FISCAL),
         policy_spec=PolicySpec(
@@ -342,7 +375,7 @@ def _build_real_trinity(store: FileSystemCAS, registry_bundle_ref: Any) -> Any:
             registry_bundle_ref=str(registry_bundle_ref.artifact_id),
         ),
     )
-    return trinity, data_snapshot_ref
+    return trinity
 
 
 def _build_workflow() -> WorkflowSpec:
@@ -416,7 +449,8 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
 
     with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
         registry_bundle = build_default_registry_bundle(store)
-        trinity, data_snapshot_ref = _build_real_trinity(store, registry_bundle.bundle_ref)
+        data_view_request_ref, data_snapshot_ref = _produce_sql_snapshot(tmp_path, store)
+        trinity = _build_real_trinity(registry_bundle.bundle_ref, data_snapshot_ref)
         trinity_ref = store.put_json(
             trinity,
             PutOptions(
@@ -434,19 +468,27 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                 "trinity_bundle_ref": trinity_ref,
                 "registry_bundle_ref": registry_bundle.bundle_ref,
                 "data_snapshot_ref": data_snapshot_ref,
+                "data_view_request_ref": data_view_request_ref,
             },
             params={
-                # The state-snapshot compatibility path loads the source state
-                # verbatim.  Bind one real slot so the persisted bound snapshot
-                # has distinct bytes before CAS adds its input lineage profile.
+                # The actual SQL income rows seed the agent population. The
+                # tax-rate default keeps the existing simulation mechanics
+                # runnable and makes the bound state distinct from its source.
                 "foundry_input_binding_rules": [
+                    FoundryInputBindingRule(
+                        binding_id="res03.sql_income",
+                        source_path="income",
+                        target_slot_id="agents.income",
+                        required=True,
+                        notes=["bind actual SQLite producer rows into Foundry"],
+                    ),
                     FoundryInputBindingRule(
                         binding_id="res03.fixture_tax_rate",
                         source_path="fixture.tax_rate",
                         target_slot_id="global.tax_rate",
                         default_value=Decimal("0.1"),
                         notes=["test fixture makes bound snapshot distinct"],
-                    )
+                    ),
                 ]
             },
         )
@@ -476,6 +518,13 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
 
     assert result.report.status == "fail"
     assert simulation_result.exec_plan_ref is not None
+    assert simulation_result.state_snapshot_ref is not None
+    simulated_state = load_state_snapshot(
+        store,
+        snapshot_ref=simulation_result.state_snapshot_ref,
+    )
+    assert simulated_state.agents.income.shape == (2,)
+    assert all(float(value) > 0 for value in simulated_state.agents.income.tolist())
     assert records["run_simulation"].status == "ok"
     assert records["later_failure"].status == "fail"
     assert records["later_failure"].error is not None
@@ -529,6 +578,22 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     request.addfinalizer(client_lifecycle.close)
     client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
     workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
+    evidence_context_response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
+    assert evidence_context_response.status_code == 200, evidence_context_response.text
+    evidence_context = evidence_context_response.json()["context"]
+    assert _artifact_ref_contract_identity(
+        ArtifactRef.model_validate(evidence_context["data_snapshot_ref"])
+    ) == (
+        _artifact_ref_contract_identity(data_snapshot_ref)
+    )
+    assert _artifact_ref_contract_identity(
+        ArtifactRef.model_validate(evidence_context["data_view_request_ref"])
+    ) == (
+        _artifact_ref_contract_identity(data_view_request_ref)
+    )
+    assert not any(
+        warning.startswith("data_view_request_") for warning in evidence_context["warnings"]
+    )
     errors_response = client.get(f"/api/v1/debug/runs/{run_id}/errors")
     candidate_response = client.get(
         f"/api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result"
@@ -1009,3 +1074,81 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     _assert_authority_surface_conflict(manifest_response)
     _assert_authority_surface_conflict(content_response)
     _assert_authority_surface_conflict(lineage_response)
+
+
+def test_sql_dataframe_source_binds_into_a_real_foundry_state(tmp_path) -> None:
+    """Trace a controlled SQL request through CAS into Foundry's binding consumer."""
+    db_path = tmp_path / "policy-inputs.sqlite"
+    with sqlite3.connect(db_path) as connection:
+        connection.execute("CREATE TABLE policy_inputs (income REAL NOT NULL, note TEXT)")
+        connection.executemany(
+            "INSERT INTO policy_inputs VALUES (?, ?)",
+            [(12.5, "first"), (25.0, None)],
+        )
+
+    registry = ConnectorRegistry()
+    registry.register(
+        SQLQueryConnector,
+        ConnectionConfig(
+            url=f"sqlite:///{db_path}",
+            headers={"X-SQL-Table": "policy_inputs"},
+        ),
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    request_ref = store.put_json(
+        DataViewRequest(
+            schema_version="1.0",
+            request_id="res03_controlled_sql_inputs",
+            view_type="table",
+            metrics=["policy_inputs"],
+        ),
+        PutOptions(
+            kind="ir.data_view_request",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.DataViewRequest", version="1.0"),
+        ),
+    )
+    data_view_request_ref = DataViewRequestRef.model_validate(
+        profile_bound_ref(store, request_ref).model_dump(mode="python")
+    )
+    try:
+        data_snapshot_ref = DefaultFabricPort(connector_registry=registry).snapshot(
+            store,
+            data_view_request_ref,
+        )
+    finally:
+        registry.shutdown()
+
+    snapshot = DataSnapshot.model_validate(
+        from_canonical_bytes(store.get_bytes(data_snapshot_ref))
+    )
+    records = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
+    snapshot_manifest = store.get_manifest(data_snapshot_ref)
+    request_edges = [
+        edge for edge in snapshot_manifest.inputs if edge.role == "data_view_request_ref"
+    ]
+    assert records == [
+        {"income": 12.5, "note": "first"},
+        {"income": 25.0, "note": None},
+    ]
+    assert data_snapshot_ref.manifest_profile_sha256 is not None
+    assert len(request_edges) == 1
+    assert request_edges[0].artifact_id == data_view_request_ref.artifact_id
+    assert request_edges[0].manifest_profile_sha256 == data_view_request_ref.manifest_profile_sha256
+
+    registry_bundle = build_default_registry_bundle(store)
+    built = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry_bundle.bundle_ref,
+        rules=[
+            FoundryInputBindingRule(
+                binding_id="res03.sql_income",
+                source_path="income",
+                target_slot_id="agents.income",
+                required=True,
+            )
+        ],
+    )
+    foundry_state = load_state_snapshot(store, snapshot_ref=built.bound_state_snapshot_ref)
+    assert foundry_state.agents.income.tolist() == [12.5, 25.0]

@@ -88,17 +88,12 @@ from polisyos.runtime.quality.consultation import (
     validate_policy_design_case_legitimacy_records,
 )
 from polisyos.runtime.quality.cost_degradation import (
-    COST_DEGRADATION_TELEMETRY_FILENAME,
-    COST_DEGRADATION_TELEMETRY_REPORT_KEY,
     cost_degradation_scorecard_gates,
 )
 from polisyos.runtime.quality.cost_gate import (
-    RUN_COST_GATE_FILENAME,
-    RUN_COST_GATE_REPORT_KEY,
     cost_gate_scorecard_gates,
 )
 from polisyos.runtime.quality.data_forge_binding import (
-    DATA_FORGE_SNAPSHOT_BINDING_FILE,
     DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY,
     data_forge_snapshot_binding_scorecard_gates,
     normalize_data_forge_snapshot_binding_report,
@@ -149,7 +144,6 @@ from polisyos.runtime.quality.external_client_surface import (
 )
 from polisyos.runtime.quality.hypothesis_ledger import (
     HYPOTHESIS_LEDGER_FILENAME,
-    HYPOTHESIS_LEDGER_REF_KEY,
     HYPOTHESIS_LEDGER_REPORT_KEY,
 )
 from polisyos.runtime.quality.invariants import (
@@ -187,7 +181,15 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     prompt_tool_repair_machinery_failures,
     validate_prompt_tool_parser_authority,
 )
-from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
+from polisyos.runtime.quality.refs import (
+    RuntimeQualityAuthorityRefs,
+    strip_rejected_quality_ref_inputs,
+)
+from polisyos.runtime.quality.report_registry import (
+    QUALITY_REPORT_FILES,
+    QUALITY_REPORT_RUNTIME_REFS,
+    quality_report_ref_intake_registry,
+)
 from polisyos.runtime.quality.run_cost_proportionality import (
     RunCostProportionalityError,
     build_run_cost_proportionality_ledger_from_quality_context,
@@ -233,89 +235,10 @@ from polisyos.scientist.validation.policy_grounding import (
     normalize_policy_grounding_matrix,
 )
 
-QUALITY_REPORT_FILES = {
-    "golden_scenario_contract": "golden_scenario_contract.json",
-    "production_data_quality": "production_data_quality.json",
-    "normative_evidence": "normative_evidence.json",
-    "fabric_retrieval_trace": "fabric_retrieval_trace.json",
-    "foundry_method_report": "foundry_method_report.json",
-    "policy_grounding_matrix": "policy_grounding_matrix.json",
-    "semantic_binding_ledger": "semantic_binding_ledger.json",
-    "conflict_check": "conflict_check.json",
-    "causal_statistical_validity": "causal_statistical_validity.json",
-    "replay_manifest": "replay_manifest.json",
-    "drift_explanation": "drift_explanation.json",
-    "resilience_matrix": "resilience_matrix.json",
-    "human_review_calibration": "human_review_calibration_report.json",
-    "decision_artifact_quality": "decision_artifact_quality.json",
-    "provider_model_quality_ledger": "provider_model_quality_ledger.json",
-    "prompt_tool_ledger": PROMPT_TOOL_LEDGER_FILENAME,
-    HYPOTHESIS_LEDGER_REPORT_KEY: HYPOTHESIS_LEDGER_FILENAME,
-    COST_DEGRADATION_TELEMETRY_REPORT_KEY: COST_DEGRADATION_TELEMETRY_FILENAME,
-    RUN_COST_GATE_REPORT_KEY: RUN_COST_GATE_FILENAME,
-    "security_assurance_report": "security_assurance_report.json",
-    "privacy_compliance_report": "privacy_compliance_report.json",
-    "policy_design_case": "policy_design_case.json",
-    "claim_registry": "claim_registry.json",
-    "scholar_evidence": "scholar_academic_evidence.json",
-    "scenario_contract_propagation_graph": "scenario_contract_propagation_graph.json",
-    "evidence_spine_handoff_ledger": "evidence_spine_handoff_ledger.json",
-    "producer_pipeline": "producer_pipeline.json",
-    "producer_handshake_ledger": "producer_handshake_ledger.json",
-    "producer_pipeline_readiness": "producer_pipeline_readiness.json",
-    "producer_pipeline_control_plane": "producer_pipeline_control_plane.json",
-    "producer_pipeline_replay": "producer_pipeline_replay.json",
-    "producer_pipeline_bundle_assembly": "producer_pipeline_bundle_assembly.json",
-    "producer_pipeline_inspection": "producer_pipeline_inspection.json",
-    DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY: DATA_FORGE_SNAPSHOT_BINDING_FILE,
-    "continuous_governance_stale": "continuous_governance_stale_report.json",
-    "continuous_governance_reissue": "continuous_governance_reissue_report.json",
-    "continuous_governance_supersede": "continuous_governance_supersede_report.json",
-    "continuous_governance_withdraw": "continuous_governance_withdraw_report.json",
-    "source_truth_conflicts": "source_truth_conflicts.json",
-    "formal_invariants": "formal_invariants.json",
-    "source_truth": "source_truth.json",
-    "conflict_materialization": "conflict_materialization_closeout.json",
-    "attestation": "attestation.json",
-    "policy_design_case_i4_graph": "policy_design_case_i4_graph.json",
-    "policy_design_portfolio_effective_support": (
-        "policy_design_portfolio_effective_support.json"
-    ),
-    "lifecycle_reissue_report": "lifecycle_reissue_report.json",
-    "policy_design_case_projection": "policy_design_case_projection.json",
-    "projection_publication_state": "projection_publication_state.json",
-    "policy_design_case_projection_contract_fixture": (
-        "policy_design_case_projection_contract_fixture.json"
-    ),
-    "calibration_ledger": "calibration_ledger.json",
-    "run_cost_proportionality": "run_cost_proportionality.json",
-    "audit_verifier_ingestion": "audit_verifier.json",
-    "can_i_closeout": "can_i_closeout.json",
-}
-QUALITY_REPORT_RUNTIME_REFS = {
-    "production_data_quality": "production_data_quality_report_ref",
-    "normative_evidence": "normative_applicability_report_ref",
-    "fabric_retrieval_trace": "fabric_retrieval_trace_ref",
-    "foundry_method_report": "foundry_method_report_ref",
-    "policy_grounding_matrix": "policy_grounding_matrix_ref",
-    "semantic_binding_ledger": "semantic_binding_ledger_ref",
-    "conflict_check": "conflict_check_ref",
-    "causal_statistical_validity": "causal_statistical_validity_report_ref",
-    "replay_manifest": "replay_manifest_ref",
-    "drift_explanation": "drift_explanation_ref",
-    "resilience_matrix": "resilience_report_ref",
-    "human_review_calibration": "human_review_calibration_report_ref",
-    "decision_artifact_quality": "decision_artifact_quality_report_ref",
-    "provider_model_quality_ledger": "provider_model_quality_ledger_ref",
-    HYPOTHESIS_LEDGER_REPORT_KEY: HYPOTHESIS_LEDGER_REF_KEY,
-    "security_assurance_report": "security_assurance_report_ref",
-    "privacy_compliance_report": "privacy_compliance_report_ref",
-    "continuous_governance_stale": "continuous_governance_stale_report_ref",
-    "continuous_governance_reissue": "continuous_governance_reissue_report_ref",
-    "continuous_governance_supersede": "continuous_governance_supersede_report_ref",
-    "continuous_governance_withdraw": "continuous_governance_withdraw_report_ref",
-    "can_i_closeout": "can_i_closeout_ref",
-}
+SECURITY_REPORT_INTAKE_KEY = "security_assurance_report_intake"
+SECURITY_REPORT_INTAKE_FILE = "security_assurance_report_intake.json"
+SECURITY_REPORT_INTAKE_SCHEMA_VERSION = "policyos.runtime.security_report_intake.v1"
+
 QUALITY_REPORT_GATE_METADATA = {
     "production_data_quality": (
         "production_data_quality_present",
@@ -961,6 +884,34 @@ def _runtime_authority_refs(
         run_payload=run_payload,
         quality_evidence=quality_evidence,
     )
+
+
+def _admitted_quality_evidence_view(
+    payload: dict[str, Any] | None,
+    *,
+    rejected_keys: set[str],
+    has_unscoped_container_rejection: bool,
+) -> dict[str, Any]:
+    """Return the report/ref projection admitted by the resolver result.
+
+    Raw inputs remain available to the caller for rejection diagnostics. Every
+    scorecard consumer receives this copy so a rejected ref cannot be revived
+    by reading the matching inline report body or another nested ref.
+    """
+    if payload is None:
+        return {}
+
+    registered_ref_keys, body_ref_keys = quality_report_ref_intake_registry()
+    all_report_ref_keys = set(registered_ref_keys)
+    admitted_rejected_keys = set(rejected_keys)
+    if has_unscoped_container_rejection:
+        admitted_rejected_keys.update(all_report_ref_keys)
+    admitted = strip_rejected_quality_ref_inputs(
+        payload,
+        rejected_ref_keys=admitted_rejected_keys,
+        report_body_ref_keys=body_ref_keys,
+    )
+    return admitted if isinstance(admitted, dict) else {}
 
 
 def _serious_canary(canary_kind: str) -> bool:
@@ -2311,7 +2262,7 @@ def _diagnostic_event_gates(
         for ref_key in QUALITY_REPORT_RUNTIME_REFS.values()
         if (runtime_ref := authority_refs.get(ref_key)) is not None
     }
-    runtime_authority_ref_values = set(authority_refs.refs.values())
+    runtime_authority_ref_values = set(authority_refs.unrejected_refs().values())
     event_ref_values: set[str] = set()
     named_runtime_event_ref_keys: set[str] = set()
     event_identity: dict[str, tuple[str | None, tuple[str, ...]]] = {}
@@ -9081,6 +9032,95 @@ def _lifecycle_report_contract_gate(
     }
 
 
+def _security_report_intake_gates(quality_evidence: dict[str, Any]) -> list[dict[str, Any]]:
+    """Fail closed on any persisted security-ref rejection, including malformed input."""
+
+    intake = quality_evidence.get(SECURITY_REPORT_INTAKE_KEY)
+    if intake is None:
+        return []
+    source_ref = (
+        str(intake.get("source_ref")).strip()
+        if isinstance(intake, Mapping)
+        and isinstance(intake.get("source_ref"), str)
+        and intake.get("source_ref", "").strip()
+        else None
+    )
+    raw_rejections = intake.get("resolution_rejections") if isinstance(intake, Mapping) else None
+    resolution_rejections_valid = (
+        isinstance(raw_rejections, list)
+        and bool(raw_rejections)
+        and all(
+            isinstance(row, Mapping)
+            and (
+                row.get("key") == SECURITY_ASSURANCE_REPORT_REF_KEY
+                or (
+                    row.get("key") in {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+                    and isinstance(row.get("path"), str)
+                    and any(
+                        marker in row.get("path")
+                        for marker in (".runtime_quality_refs", ".runtime_quality_artifact_refs")
+                    )
+                )
+            )
+            and all(
+                isinstance(row.get(field), str) and bool(row.get(field))
+                for field in ("source", "path", "reason", "input_type")
+            )
+            and isinstance(row.get("value_sha256"), str)
+            and len(row.get("value_sha256")) == 64
+            and all(character in "0123456789abcdef" for character in row.get("value_sha256"))
+            and (
+                row.get("value_length") is None
+                or (type(row.get("value_length")) is int and row.get("value_length") >= 0)
+            )
+            for row in raw_rejections
+        )
+    )
+    resolution_refusal = (
+        source_ref is None
+        and isinstance(intake, Mapping)
+        and intake.get("reason_code") == "security_report_reference_resolution_rejected"
+        and resolution_rejections_valid
+    )
+    valid = (
+        isinstance(intake, Mapping)
+        and intake.get("schema_version") == SECURITY_REPORT_INTAKE_SCHEMA_VERSION
+        and intake.get("status") == "rejected"
+        and isinstance(intake.get("reason_code"), str)
+        and bool(str(intake.get("reason_code") or "").strip())
+        and isinstance(intake.get("expected_manifest"), Mapping)
+        and (
+            intake.get("observed_manifest") is None
+            or isinstance(intake.get("observed_manifest"), Mapping)
+        )
+        and (source_ref is not None or resolution_refusal)
+    )
+    return [
+        _gate(
+            name="security_assurance_report_intake",
+            stage="ops",
+            code=(
+                "security_report_reference_rejected"
+                if valid
+                else "security_report_intake_record_invalid"
+            ),
+            status="fail",
+            layer="security",
+            phase="security.assurance.intake",
+            message=(
+                "A supplied security report reference was rejected during intake; a later valid "
+                "reference or local candidate cannot clear the recorded refusal."
+            ),
+            evidence_ref=f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}",
+            next_action=(
+                "Repair the referenced artifact or malformed ref input and rerun intake before "
+                "relying on security assurance evidence."
+            ),
+            first_failing_artifact_ref=source_ref,
+        )
+    ]
+
+
 def _report_gates(
     quality_evidence: dict[str, Any],
     *,
@@ -9183,6 +9223,14 @@ def _report_gates(
             ),
         ),
     }
+    if _serious_canary(canary_kind):
+        report_gate_specs["security_assurance_report"] = (
+            "security_assurance_report_passed",
+            "ops",
+            "runtime_diagnostics",
+            "Security assurance evidence is present and internally consistent.",
+            "Persist a producer-owned security_assurance_report_ref before serious closeout.",
+        )
     if _published_decision_lifecycle_in_scope(
         quality_evidence,
         job_payload=job_payload,
@@ -9246,6 +9294,10 @@ def _report_gates(
     ) in report_gate_specs.items():
         report = quality_evidence.get(report_key)
         report_status = _quality_report_status(report)
+        if report_key == "security_assurance_report":
+            structural_gates = security_gates_from_report(report)
+            if any(gate.get("code") == "security_assurance_failed" for gate in structural_gates):
+                report_status = "fail"
         issue_codes = _quality_report_issue_codes(report)
         first_issue = _first_quality_issue(report)
         issue_code = str(first_issue.get("code") or "").strip() if first_issue else ""
@@ -9615,6 +9667,36 @@ def _stage_scores(gates: list[dict[str, Any]]) -> dict[str, float]:
     return scores
 
 
+def _quality_ref_rejection_state(
+    authority_refs: RuntimeQualityAuthorityRefs,
+) -> tuple[set[str], bool]:
+    """Return malformed quality-ref roles without promoting their accepted overlays."""
+
+    rejected_keys: set[str] = set()
+    for rejection in authority_refs.rejections:
+        key = (
+            rejection.get("key")
+            if isinstance(rejection, Mapping)
+            else getattr(rejection, "key", None)
+        )
+        if isinstance(key, str) and key:
+            rejected_keys.add(key)
+    unscoped = bool(
+        rejected_keys & {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+    )
+    return rejected_keys, unscoped
+
+
+def _quality_ref_key_rejected(
+    ref_key: str, rejected_keys: set[str], *, unscoped: bool
+) -> bool:
+    return ref_key in rejected_keys or (unscoped and ref_key.endswith("_ref"))
+
+
+def _quality_report_ref_key(report_key: str) -> str:
+    return QUALITY_REPORT_RUNTIME_REFS.get(report_key, f"{report_key}_ref")
+
+
 def _evidence_refs(
     *,
     provider_preflight: dict[str, Any] | None,
@@ -9634,29 +9716,65 @@ def _evidence_refs(
         run_payload=run_payload,
         quality_evidence=quality_evidence,
     )
+    rejected_ref_keys, has_unscoped_rejection = _quality_ref_rejection_state(
+        authority_refs
+    )
     for ref_key in QUALITY_REPORT_RUNTIME_REFS.values():
+        if _quality_ref_key_rejected(
+            ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection
+        ):
+            continue
         ref_value = authority_refs.get(ref_key)
         if ref_value is not None:
             refs[ref_key] = ref_value
-    provider_quality_ref = authority_refs.get("provider_model_quality_ledger_ref")
-    if provider_quality_ref is not None:
-        refs["provider_model_quality_ledger_ref"] = provider_quality_ref
-    prompt_tool_ledger_ref = authority_refs.get(PROMPT_TOOL_LEDGER_REF_KEY)
-    if prompt_tool_ledger_ref is not None:
-        refs[PROMPT_TOOL_LEDGER_REF_KEY] = prompt_tool_ledger_ref
-    security_ref = authority_refs.get(SECURITY_ASSURANCE_REPORT_REF_KEY)
-    if security_ref is not None:
-        refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = security_ref
+    provider_quality_key = "provider_model_quality_ledger_ref"
+    if not _quality_ref_key_rejected(
+        provider_quality_key, rejected_ref_keys, unscoped=has_unscoped_rejection
+    ):
+        provider_quality_ref = authority_refs.get(provider_quality_key)
+        if provider_quality_ref is not None:
+            refs[provider_quality_key] = provider_quality_ref
+    if not _quality_ref_key_rejected(
+        PROMPT_TOOL_LEDGER_REF_KEY, rejected_ref_keys, unscoped=has_unscoped_rejection
+    ):
+        prompt_tool_ledger_ref = authority_refs.get(PROMPT_TOOL_LEDGER_REF_KEY)
+        if prompt_tool_ledger_ref is not None:
+            refs[PROMPT_TOOL_LEDGER_REF_KEY] = prompt_tool_ledger_ref
+    security_ref_rejected = _quality_ref_key_rejected(
+        SECURITY_ASSURANCE_REPORT_REF_KEY,
+        rejected_ref_keys,
+        unscoped=has_unscoped_rejection,
+    )
+    if not security_ref_rejected:
+        security_ref = authority_refs.get(SECURITY_ASSURANCE_REPORT_REF_KEY)
+        if security_ref is not None:
+            refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = security_ref
+    if SECURITY_REPORT_INTAKE_KEY in quality_evidence:
+        refs[SECURITY_REPORT_INTAKE_KEY] = (
+            f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+        )
     for key, filename in QUALITY_REPORT_FILES.items():
-        if key in quality_evidence:
+        ref_key = _quality_report_ref_key(key)
+        if (
+            key in quality_evidence
+            and not _quality_ref_key_rejected(
+                ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection
+            )
+        ):
             refs[key] = f"quality_evidence/{filename}"
     if (
         "security_assurance_report" in quality_evidence
+        and not security_ref_rejected
         and SECURITY_ASSURANCE_REPORT_REF_KEY not in refs
     ):
         refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = f"quality_evidence/{SECURITY_REPORT_FILE}"
     if (
         PRIVACY_COMPLIANCE_REPORT_KEY in quality_evidence
+        and not _quality_ref_key_rejected(
+            PRIVACY_COMPLIANCE_REPORT_REF_KEY,
+            rejected_ref_keys,
+            unscoped=has_unscoped_rejection,
+        )
         and PRIVACY_COMPLIANCE_REPORT_REF_KEY not in refs
     ):
         refs[PRIVACY_COMPLIANCE_REPORT_REF_KEY] = PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF
@@ -9967,6 +10085,24 @@ def build_quality_scorecard(
 ) -> dict[str, Any]:
     """Build a production-quality scorecard from runtime and domain evidence."""
     generated_at = datetime.now(UTC).replace(microsecond=0)
+    raw_quality_evidence = quality_evidence
+    resolved_authority_refs = _runtime_authority_refs(
+        job_payload=job_payload,
+        run_payload=run_payload,
+        quality_evidence=raw_quality_evidence,
+    )
+    rejected_quality_ref_keys = {
+        rejection.key for rejection in resolved_authority_refs.rejections
+    }
+    has_unscoped_quality_ref_rejection = bool(
+        rejected_quality_ref_keys
+        & {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+    )
+    quality_evidence = _admitted_quality_evidence_view(
+        raw_quality_evidence,
+        rejected_keys=rejected_quality_ref_keys,
+        has_unscoped_container_rejection=has_unscoped_quality_ref_rejection,
+    )
     source_truth_gates, source_truth_conflicts = _source_truth_adapter_gates(
         quality_evidence,
         canary_kind=canary_kind,
@@ -10055,7 +10191,11 @@ def build_quality_scorecard(
             canary_kind=canary_kind,
             serious=_serious_canary(canary_kind),
         ),
-        *security_gates_from_report(quality_evidence.get("security_assurance_report")),
+        *security_gates_from_report(
+            quality_evidence.get("security_assurance_report"),
+            include_report_gate=not _serious_canary(canary_kind),
+        ),
+        *_security_report_intake_gates(quality_evidence),
         *_compliance_gates(
             quality_evidence,
             canary_kind=canary_kind,
@@ -10359,7 +10499,7 @@ def build_quality_scorecard(
     overall_score = round(sum(stage_scores.values()) / len(stage_scores), 6)
     refs = _evidence_refs(
         provider_preflight=provider_preflight,
-        quality_evidence=quality_evidence,
+        quality_evidence=raw_quality_evidence,
         job_payload=job_payload,
         run_payload=run_payload,
     )
@@ -10412,6 +10552,9 @@ __all__ = [
     "QUALITY_REPORT_RUNTIME_REFS",
     "REQUIRED_MATERIALIZATION_REFS",
     "SCORECARD_CONTROL_PROGRESS_KEYS",
+    "SECURITY_REPORT_INTAKE_FILE",
+    "SECURITY_REPORT_INTAKE_KEY",
+    "SECURITY_REPORT_INTAKE_SCHEMA_VERSION",
     "build_quality_scorecard",
     "normalize_quality_evidence",
     "policy_design_case_claim_closeout_gates",

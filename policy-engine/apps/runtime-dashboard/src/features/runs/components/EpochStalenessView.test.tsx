@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import type { AdmittedEpochStalenessProjection } from "@/features/runs/domain/epochStaleness";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import {
   EPOCH_PERTURBATION_CLASSES,
   epochProjection,
@@ -179,7 +180,14 @@ describe("epoch staleness surface", () => {
       />,
     );
     const certificate = screen.getByTestId(
-      `epoch-certificate-${certificateId}`,
+      `epoch-certificate-${encodeURIComponent(
+        JSON.stringify([
+          certificateId,
+          "runtime.epoch_certificate",
+          "application/json",
+          null,
+        ]),
+      )}`,
     );
     expect(certificate).toHaveAttribute("data-certificate-status", "stale");
     expect(certificate).toHaveClass("line-through");
@@ -205,6 +213,63 @@ describe("epoch staleness surface", () => {
     );
     expect(certificate).toHaveAttribute("data-certificate-status", "current");
     expect(certificate).not.toHaveClass("line-through");
+  });
+
+  it("renders same-content certificates with different profiles as distinct rows", () => {
+    const candidate = epochStalenessAbsenceFixture();
+    const artifactId = `sha256:${"7".repeat(64)}`;
+    const firstProfile = `sha256:${"a".repeat(64)}`;
+    const secondProfile = `sha256:${"b".repeat(64)}`;
+    const certificate = (profile: string) => ({
+      authority_purpose: "decision_validity",
+      bound_epoch_ref: `sha256:${"1".repeat(64)}`,
+      certificate_ref: {
+        artifact_id: artifactId,
+        kind: "runtime.epoch_certificate",
+        media_type: "application/json",
+        manifest_profile_sha256: profile,
+      },
+      current_epoch_ref: `sha256:${"2".repeat(64)}`,
+      input_certificate_refs: [],
+      native_coordinate_refs: [],
+      recipe_ref: {
+        artifact_id: `sha256:${"8".repeat(64)}`,
+        kind: "runtime.derivation_recipe",
+        media_type: "application/json",
+      },
+      revalidation_requirements: ["recompute owner evidence"],
+      rule_schema_profile_refs: [],
+      stale_reasons: ["input revision changed"],
+      status: "stale",
+      trigger_event_refs: [],
+    });
+    const certificates = [
+      certificate(firstProfile),
+      certificate(secondProfile),
+    ];
+    epochProjection(candidate).certificates = certificates;
+
+    render(
+      <EpochStalenessView
+        projection={projection(candidate)}
+        rawBytes={new TextEncoder().encode("{}")}
+      />,
+    );
+
+    for (const profile of [firstProfile, secondProfile]) {
+      const ref = {
+        artifact_id: artifactId,
+        kind: "runtime.epoch_certificate",
+        media_type: "application/json",
+        manifest_profile_sha256: profile,
+      };
+      expect(
+        screen.getByTestId(
+          `epoch-certificate-${encodeURIComponent(evidenceArtifactRefKey(ref))}`,
+        ),
+      ).toBeInTheDocument();
+    }
+    expect(screen.getAllByTestId(/^epoch-certificate-/u)).toHaveLength(2);
   });
 
   it("renders and releases the OpenWorldRisk freeze from owner state", () => {

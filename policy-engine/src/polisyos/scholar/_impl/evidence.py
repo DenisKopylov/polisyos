@@ -154,7 +154,7 @@ def build_scholar_academic_evidence_report_from_web_bundle(
         Normalized Scholar academic evidence report with W3.D markers.
     """
 
-    payload = _bundle_payload(bundle)
+    payload = _validated_bundle_payload_for_evidence_report(bundle)
     scholar_requirements = normalize_scholar_support_requirement_specs(requirement_specs)
     requirements_by_claim = requirement_specs_by_claim(scholar_requirements)
     brief = _mapping(payload.get("brief"))
@@ -1132,6 +1132,33 @@ def _bundle_payload(bundle: object) -> dict[str, Any]:
     if isinstance(bundle, Mapping):
         return dict(bundle)
     return {}
+
+
+def _validated_bundle_payload_for_evidence_report(bundle: object) -> dict[str, Any]:
+    """Validate versioned traces before copying them into a persisted report."""
+    payload = _bundle_payload(bundle)
+    if "schema_version" in payload:
+        if payload["schema_version"] not in ("1.0", "1.1"):
+            raise ValueError("unsupported WebEvidenceBundle schema version")
+        from polisyos.scholar.search.models import WebEvidenceBundle
+
+        validated = WebEvidenceBundle.model_validate(payload)
+        return validated._validated_schema_1_1_candidate().model_dump(
+            mode="json",
+            exclude_none=True,
+        )
+
+    for trace in _mapping_list(payload.get("query_traces")):
+        if trace.get("provider_attempts") is not None:
+            raise ValueError(
+                "unversioned provider attempts cannot be copied into an evidence report"
+            )
+        if trace.get("error") is not None:
+            raise ValueError("unversioned provider errors cannot be copied into an evidence report")
+    for frontier in _mapping_list(payload.get("no_hit_frontier")):
+        if frontier.get("error") is not None:
+            raise ValueError("unversioned frontier errors cannot be copied into an evidence report")
+    return payload
 
 
 def _mapping(value: object) -> dict[str, Any]:

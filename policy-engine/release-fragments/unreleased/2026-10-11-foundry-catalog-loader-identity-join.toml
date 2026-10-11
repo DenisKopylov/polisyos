@@ -1,0 +1,17 @@
+id = "2026-10-11-foundry-catalog-loader-identity-join"
+title = "Reconcile selected Foundry loader identity at catalog admission"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Catalog admission now derives the effective builtin-loader specification through the same source helper as discovery, preserving the default typed v2 identity and refusing altered declaration rows even when their manifest hashes are recomputed."
+evidence = ["tests/unit/foundry/methods/test_catalog_snapshot.py"]
+compatibility = "The exported (target, callable) BUILTIN_LOADER tuple remains available. Explicit replacements retain callable compatibility and v1 provenance; the default path continues to emit candidate v2 identity."
+change_class = "internal"
+surface_classification = "internal"
+migration = "No schema migration. The frozen Layer 3 v1 value-gate remains unchanged; its separate admission decision is still required before the default candidate v2 profile can be used there."
+api = "Discovery and catalog admission share the selected-loader identity source. The consumer verifies name, target, and group against the selected typed declaration before candidate provenance is produced."
+limitations = "This reconciles internal producer and consumer identity. Candidate provenance does not establish external authority, policy admissibility, or approval of the candidate v2 schema by the frozen Layer 3 gate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/README.md", "src/polisyos/foundry/README.md"]
+runbook_docs = []

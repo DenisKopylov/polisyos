@@ -107,6 +107,99 @@ describe("run paper governed adapter", () => {
     expect(captured.packet.artifact_links).toHaveLength(2);
   });
 
+  it("preserves selected profiles in run-paper links and refuses profile drift", () => {
+    const packet = runPaperPacketFixture();
+    const selectedProfile = `sha256:${"f".repeat(64)}`;
+    const otherProfile = `sha256:${"e".repeat(64)}`;
+    const link = packet.artifact_links[0];
+    if (!link) {
+      throw new Error("Fixture must carry an artifact link");
+    }
+    link.artifact_ref.manifest_profile_sha256 = selectedProfile;
+    link.href = `/api/v1/artifacts/${link.artifact_ref.artifact_id}?${new URLSearchParams(
+      { manifest_profile_sha256: selectedProfile },
+    ).toString()}`;
+
+    const captured = narrowCapturedRunPaper(
+      "run-1",
+      packet,
+      new Uint8Array([1]),
+    );
+    expect(captured.packet.artifact_links[0]?.artifact_ref).toMatchObject({
+      manifest_profile_sha256: selectedProfile,
+    });
+
+    link.href = `/api/v1/artifacts/${link.artifact_ref.artifact_id}`;
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/artifact link is unbound/iu);
+
+    link.href = `/api/v1/artifacts/${link.artifact_ref.artifact_id}?${new URLSearchParams(
+      { manifest_profile_sha256: otherProfile },
+    ).toString()}`;
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/artifact link is unbound/iu);
+
+    link.href = `/api/v1/artifacts/${link.artifact_ref.artifact_id}?${new URLSearchParams(
+      { manifest_profile_sha256: selectedProfile },
+    ).toString()}`;
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).not.toThrow();
+
+    link.artifact_ref.manifest_profile_sha256 = "not-a-profile";
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/artifact link is unbound/iu);
+  });
+
+  it("binds run-paper case artifacts by profile as well as content ID", () => {
+    const packet = JSON.parse(
+      JSON.stringify(authorityAbstainingRunPaperPacketFixture()),
+    ) as ReturnType<typeof authorityAbstainingRunPaperPacketFixture>;
+    if (
+      packet.case_record.availability !==
+      "record_available_authority_abstaining"
+    ) {
+      throw new Error("Fixture must carry the authority-abstaining case arm");
+    }
+    const selectedProfile = `sha256:${"a".repeat(64)}`;
+    const otherProfile = `sha256:${"b".repeat(64)}`;
+    packet.case_record.design_record_binding.design_record_ref.manifest_profile_sha256 =
+      selectedProfile;
+    packet.case_record.design_record_binding.search_ledger_ref.manifest_profile_sha256 =
+      selectedProfile;
+    for (const link of packet.artifact_links) {
+      link.artifact_ref.manifest_profile_sha256 = selectedProfile;
+      link.href = `/api/v1/artifacts/${link.artifact_ref.artifact_id}?${new URLSearchParams(
+        { manifest_profile_sha256: selectedProfile },
+      ).toString()}`;
+    }
+
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).not.toThrow();
+
+    const firstLink = packet.artifact_links[0];
+    if (!firstLink) {
+      throw new Error("Fixture must carry bound case artifact links");
+    }
+    packet.artifact_links[0] = {
+      ...firstLink,
+      artifact_ref: {
+        ...firstLink.artifact_ref,
+        manifest_profile_sha256: otherProfile,
+      },
+      href: `/api/v1/artifacts/${firstLink.artifact_ref.artifact_id}?${new URLSearchParams(
+        { manifest_profile_sha256: otherProfile },
+      ).toString()}`,
+    };
+    expect(() =>
+      narrowCapturedRunPaper("run-1", packet, new Uint8Array([1])),
+    ).toThrow(/bound artifact requirements are invalid/iu);
+  });
+
   it("rejects valid-looking nonreceipt values assigned to the wrong authority role", () => {
     const mutations = [
       (packet: ReturnType<typeof authorityAbstainingRunPaperPacketFixture>) => {

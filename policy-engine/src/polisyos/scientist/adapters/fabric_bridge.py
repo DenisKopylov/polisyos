@@ -6,7 +6,13 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo, WarningRecord
+from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import profile_bound_ref
+from polisyos.core.artifacts.manifest import (
+    SchemaInfo,
+    WarningRecord,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import (
@@ -111,6 +117,7 @@ class DefaultFabricPort:
                 minimum runtime execution tier.
             ValueError: If the request does not identify a dataset.
         """
+        request_ref = profile_bound_ref(store, request_ref)
         payload = from_canonical_bytes(store.get_bytes(request_ref))
         query_request = _parse_query_request(payload)
 
@@ -135,12 +142,11 @@ class DefaultFabricPort:
                 kind="fabric.tabular_payload",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.fabric.TabularPayload", version="1.0"),
-                inputs=[
-                    InputRef(artifact_id=request_ref.artifact_id, role="data_view_request_ref"),
-                ],
+                inputs=[input_ref_from_artifact_ref(request_ref, role="data_view_request_ref")],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
+        data_ref = profile_bound_ref(store, data_ref)
         schema_ref = store.put_json(
             {
                 "schema_id": fetch_result.schema_id,
@@ -152,6 +158,7 @@ class DefaultFabricPort:
                 schema=SchemaInfo(name="polisyos.fabric.DataSchema", version="1.0"),
             ),
         )
+        schema_ref = profile_bound_ref(store, schema_ref)
         quality_report_ref = store.put_json(
             quality_payload,
             ArtifactWriteOptions(
@@ -161,8 +168,14 @@ class DefaultFabricPort:
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
+        quality_report_ref = profile_bound_ref(store, quality_report_ref)
 
-        warnings_ref = _persist_warnings(store, fetch_result)
+        raw_warnings_ref = _persist_warnings(store, fetch_result)
+        warnings_ref = (
+            profile_bound_ref(store, raw_warnings_ref)
+            if raw_warnings_ref is not None
+            else None
+        )
         evidence_ref = _coerce_evidence_ref(fetch_result)
         pii_scan_summary = (
             fetch_result.pii_scan.model_dump(mode="json")
@@ -171,19 +184,15 @@ class DefaultFabricPort:
         )
 
         snapshot_inputs = [
-            InputRef(artifact_id=request_ref.artifact_id, role="data_view_request_ref"),
-            InputRef(artifact_id=data_ref.artifact_id, role="data_ref"),
-            InputRef(artifact_id=schema_ref.artifact_id, role="data_schema_ref"),
-            InputRef(artifact_id=quality_report_ref.artifact_id, role="quality_report_ref"),
+            input_ref_from_artifact_ref(request_ref, role="data_view_request_ref"),
+            input_ref_from_artifact_ref(data_ref, role="data_ref"),
+            input_ref_from_artifact_ref(schema_ref, role="data_schema_ref"),
+            input_ref_from_artifact_ref(quality_report_ref, role="quality_report_ref"),
         ]
         if evidence_ref is not None:
-            snapshot_inputs.append(
-                InputRef(artifact_id=evidence_ref.artifact_id, role="evidence_ref")
-            )
+            snapshot_inputs.append(input_ref_from_artifact_ref(evidence_ref, role="evidence_ref"))
         if warnings_ref is not None:
-            snapshot_inputs.append(
-                InputRef(artifact_id=warnings_ref.artifact_id, role="warnings_ref")
-            )
+            snapshot_inputs.append(input_ref_from_artifact_ref(warnings_ref, role="warnings_ref"))
 
         snapshot_stats: dict[str, int | str] = {
             "dataset_id": dataset_id,
@@ -219,7 +228,8 @@ class DefaultFabricPort:
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
-        return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
+        snapshot_ref = profile_bound_ref(store, snapshot_ref)
+        return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
 def _parse_query_request(payload: object) -> QueryDataViewRequest | AnalyticsDataViewRequest:
@@ -373,7 +383,7 @@ def _persist_warnings(store: ArtifactStore, result: FetchResult[Any]) -> Warning
             schema=SchemaInfo(name="polisyos.core.WarningsBundle", version="1.0"),
         ),
     )
-    return WarningsRef(artifact_id=warnings_ref.artifact_id)
+    return WarningsRef.model_validate(warnings_ref.model_dump(mode="python"))
 
 
 def _coerce_evidence_ref(result: FetchResult[Any]) -> EvidenceBundleRef | None:
@@ -458,10 +468,40 @@ def _first_field(fields: set[str], *candidates: str) -> str | None:
     return None
 
 
+def _columnar_records(value: ColumnarPayloadLike) -> list[dict[str, Any]]:
+    """Convert only known table APIs to rows without guessing object semantics."""
+    import pandas as pd
+    import pyarrow as pa
+
+    if isinstance(value, pd.DataFrame):
+        columns = list(value.columns)
+        records = value.to_dict(orient="records")
+    elif isinstance(value, pa.Table):
+        columns = list(value.column_names)
+        records = value.to_pylist()
+    else:
+        raise TypeError("unsupported columnar payload type")
+
+    if any(not isinstance(column, str) for column in columns):
+        raise TypeError("columnar payload column names must be strings")
+    if len(columns) != len(set(columns)):
+        raise ValueError("columnar payload has duplicate column names")
+    if not isinstance(records, list):
+        raise TypeError("columnar records conversion must return a list")
+    for index, row in enumerate(records):
+        if not isinstance(row, dict) or list(row) != columns:
+            raise ValueError(
+                f"columnar row {index} does not preserve the declared column schema"
+            )
+    return records
+
+
 def _jsonable(value: object) -> object:
     if isinstance(value, ModelDumpLike):
-        return value.model_dump(mode="json")
-    return value
+        value = value.model_dump(mode="json")
+    elif isinstance(value, ColumnarPayloadLike):
+        value = _columnar_records(value)
+    return to_python_data(value, unsupported="error")
 
 
 def _enforce_execution_tier(

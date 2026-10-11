@@ -16,6 +16,7 @@ from ._atomic_write import (
 )
 from ._integrity_ops import ArtifactIntegrityError, VerificationReport
 from ._manifest_lifecycle import ManifestLifecycle
+from ._profiled_ref import profile_bound_ref
 from ._transfer_ops import ExportReport, ImportReport
 from .async_store import (
     AsyncArtifactStoreAdapter,
@@ -195,6 +196,7 @@ __all__ = [
     "expected_artifact_manifest_for_write",
     "fsync_directory",
     "input_ref_from_artifact_ref",
+    "profile_bound_ref",
     "resolve_authority_envelope_ref",
     "resolve_dependency_graph",
     "resolve_manifest_by_profile",

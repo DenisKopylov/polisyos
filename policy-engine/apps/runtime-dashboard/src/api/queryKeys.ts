@@ -3,6 +3,11 @@ import {
   type TemporalScope,
 } from "@/shared/lib/domain/temporal";
 import {
+  artifactRefForRequest,
+  evidenceArtifactRefKey,
+  type EvidenceArtifactRef,
+} from "@/shared/lib/domain/evidence";
+import {
   scenarioScopeKey,
   type ScenarioScope,
 } from "@/app/providers/scenario-scope";
@@ -179,16 +184,68 @@ export const queryKeys = {
     ["runtime", "run", runId, "debug", "node", alias] as const,
   runErrors: (runId: string) =>
     ["runtime", "run", runId, "debug", "errors"] as const,
-  artifactManifest: (artifactId: string) =>
-    ["runtime", "artifact", artifactId, "manifest"] as const,
-  artifactContent: (artifactId: string, maxBytes: number | null = null) =>
-    ["runtime", "artifact", artifactId, "content", { maxBytes }] as const,
-  artifactSchema: (artifactId: string) =>
-    ["runtime", "artifact", artifactId, "schema"] as const,
-  artifactLineage: (artifactId: string) =>
-    ["runtime", "artifact", artifactId, "lineage"] as const,
+  artifactManifest: (
+    artifact: string | EvidenceArtifactRef,
+    manifestProfileSha256?: string | null,
+  ) => {
+    const ref = artifactRefForRequest(artifact, manifestProfileSha256);
+    const artifactId = ref?.artifact_id ?? "unknown";
+    return [
+      "runtime",
+      "artifact",
+      artifactId,
+      "manifest",
+      { reference: evidenceArtifactRefKey(ref ?? { artifact_id: artifactId }) },
+    ] as const;
+  },
+  artifactContent: (
+    artifact: string | EvidenceArtifactRef,
+    maxBytes: number | null = null,
+    manifestProfileSha256?: string | null,
+  ) => {
+    const ref = artifactRefForRequest(artifact, manifestProfileSha256);
+    const artifactId = ref?.artifact_id ?? "unknown";
+    return [
+      "runtime",
+      "artifact",
+      artifactId,
+      "content",
+      {
+        maxBytes,
+        reference: evidenceArtifactRefKey(ref ?? { artifact_id: artifactId }),
+      },
+    ] as const;
+  },
+  artifactSchema: (
+    artifact: string | EvidenceArtifactRef,
+    manifestProfileSha256?: string | null,
+  ) => {
+    const ref = artifactRefForRequest(artifact, manifestProfileSha256);
+    const artifactId = ref?.artifact_id ?? "unknown";
+    return [
+      "runtime",
+      "artifact",
+      artifactId,
+      "schema",
+      { reference: evidenceArtifactRefKey(ref ?? { artifact_id: artifactId }) },
+    ] as const;
+  },
+  artifactLineage: (
+    artifact: string | EvidenceArtifactRef,
+    manifestProfileSha256?: string | null,
+  ) => {
+    const ref = artifactRefForRequest(artifact, manifestProfileSha256);
+    const artifactId = ref?.artifact_id ?? "unknown";
+    return [
+      "runtime",
+      "artifact",
+      artifactId,
+      "lineage",
+      { reference: evidenceArtifactRefKey(ref ?? { artifact_id: artifactId }) },
+    ] as const;
+  },
   bureaucraticRender: (
-    artifactId: string,
+    artifact: string | EvidenceArtifactRef,
     request: {
       genre: string;
       jurisdiction?: string;
@@ -200,8 +257,13 @@ export const queryKeys = {
     [
       "runtime",
       "artifact",
-      artifactId,
+      artifactRefForRequest(artifact)?.artifact_id ?? "unknown",
       "bureaucratic-render",
+      {
+        reference: evidenceArtifactRefKey(
+          artifactRefForRequest(artifact) ?? { artifact_id: "unknown" },
+        ),
+      },
       request,
     ] as const,
   lineage: (lineageId: string, temporalScope?: TemporalScope | null) =>

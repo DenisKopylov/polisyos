@@ -8,7 +8,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.methods.search.readiness import DecisionReadiness
+from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 
 
 class ClaimType(str, Enum):

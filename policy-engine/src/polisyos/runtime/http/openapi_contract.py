@@ -475,7 +475,10 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
     "get_artifact_manifest": {
         "artifactPreview": {
             "operationId": "get_artifact_content",
-            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "parameters": {
+                "artifact_id": "$response.body#/artifact/artifact_id",
+                "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256",
+            },
             "description": "Fetch a preview or raw representation for the same artifact.",
         },
         "artifactDownload": {
@@ -485,12 +488,18 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
         },
         "artifactSchema": {
             "operationId": "get_artifact_schema",
-            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "parameters": {
+                "artifact_id": "$response.body#/artifact/artifact_id",
+                "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256",
+            },
             "description": "Inspect the schema contract associated with the same artifact.",
         },
         "artifactLineage": {
             "operationId": "get_artifact_lineage",
-            "parameters": {"artifact_id": "$response.body#/artifact/artifact_id"},
+            "parameters": {
+                "artifact_id": "$response.body#/artifact/artifact_id",
+                "manifest_profile_sha256": "$response.body#/artifact/manifest_profile_sha256",
+            },
             "description": "Traverse lineage for the same artifact.",
         },
     },
@@ -3698,6 +3707,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "meta": _META_NO_SOURCE,
         "artifact": {
             "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "manifest_profile_sha256": "sha256:" + "b" * 64,
             "kind": "scientist.workflow_report",
             "media_type": "application/json",
             "byte_size": 1024,
@@ -3715,6 +3725,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "artifacts": [
             {
                 "artifact_id": _ARTIFACT_ID_SAMPLE,
+                "manifest_profile_sha256": "sha256:" + "b" * 64,
                 "kind": "scientist.workflow_report",
                 "media_type": "application/json",
                 "byte_size": 1024,
@@ -3732,6 +3743,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "meta": _META_NO_SOURCE,
         "artifact": {
             "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "manifest_profile_sha256": "sha256:" + "b" * 64,
             "kind": "scientist.decision_packet",
             "media_type": "application/json",
             "mode": "json",
@@ -3781,6 +3793,14 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "meta": _META_NO_SOURCE,
         "lineage": {
             "root_artifact_ids": [_ARTIFACT_ID_SAMPLE],
+            "root_artifact_refs": [
+                {
+                    "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "kind": "scientist.workflow_report",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:" + "b" * 64,
+                }
+            ],
             "total_nodes": 1,
             "total_edges": 0,
             "total_size_bytes": 1024,
@@ -3790,8 +3810,10 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
             "nodes": [
                 {
                     "artifact_id": _ARTIFACT_ID_SAMPLE,
+                    "manifest_profile_sha256": "sha256:" + "b" * 64,
                     "role": "root",
                     "kind": "scientist.workflow_report",
+                    "media_type": "application/json",
                     "status": "ok",
                     "byte_size": 1024,
                     "depth": 0,
@@ -3804,6 +3826,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "meta": _META_NO_SOURCE,
         "schema": {
             "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "manifest_profile_sha256": "sha256:" + "b" * 64,
             "kind": "scientist.workflow_report",
             "media_type": "application/json",
             "schema_name": "scientist.workflow_report",

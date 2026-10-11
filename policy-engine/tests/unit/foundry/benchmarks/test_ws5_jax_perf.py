@@ -13,6 +13,7 @@ from __future__ import annotations
 import jax
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.agent_sim.analysis import BehaviorAnalyzer
 from polisyos.foundry.agent_sim.population import PopulationConfig, batch_create_agents
 from polisyos.foundry.agent_sim.state import GlobalState

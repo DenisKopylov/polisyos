@@ -54,6 +54,10 @@ const profiles = [
 const runContext = {
   dataNeeds: [],
   dataSnapshotRef: null,
+  dataViewRequestRef: null,
+  fabricRetrievalTraceRef: null,
+  materializationRefs: {},
+  productionDataEvidenceContext: {},
   evidenceBundleRef: null,
   executionPlanRef: null,
   fetchPlans: [

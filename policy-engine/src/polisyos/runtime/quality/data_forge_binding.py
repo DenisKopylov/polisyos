@@ -35,6 +35,10 @@ from polisyos.runtime.quality.adapter_contracts import (
     DataRequirementAdmissionGate,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.report_registry import (
+    DATA_FORGE_SNAPSHOT_BINDING_FILE,
+    DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.contracts import DataSnapshotRef
@@ -49,8 +53,6 @@ if TYPE_CHECKING:
 
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = "policyos.runtime.data_forge_snapshot_binding.v1"
-DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY = "data_forge_snapshot_binding"
-DATA_FORGE_SNAPSHOT_BINDING_FILE = "data_forge_snapshot_binding.json"
 DATA_FORGE_SNAPSHOT_BINDING_GATE = "data_forge_snapshot_binding_valid"
 DATA_FORGE_SNAPSHOT_BINDING_LAYER = "data_forge_snapshot_binding"
 DATA_FORGE_SNAPSHOT_BINDING_PHASE = "data_forge_snapshot_binding"
@@ -1301,27 +1303,23 @@ def persist_measurement_root_data_snapshot(
                 version="0.2.0",
             ),
             inputs=[
-                artifacts.InputRef(
-                    artifact_id=payload_ref.artifact_id,
-                    role="fetched_payload",
+                artifacts.input_ref_from_artifact_ref(
+                    payload_ref, role="fetched_payload"
                 ),
-                artifacts.InputRef(
-                    artifact_id=evidence.measurement_root_ref.artifact_id,
-                    role="measurement_root",
+                artifacts.input_ref_from_artifact_ref(
+                    evidence.measurement_root_ref, role="measurement_root"
                 ),
-                artifacts.InputRef(
-                    artifact_id=fetch_receipt_ref.artifact_id,
-                    role="fabric_fetch",
+                artifacts.input_ref_from_artifact_ref(
+                    fetch_receipt_ref, role="fabric_fetch"
                 ),
-                artifacts.InputRef(
-                    artifact_id=catalog_binding_ref.artifact_id,
-                    role="catalog_binding",
+                artifacts.input_ref_from_artifact_ref(
+                    catalog_binding_ref, role="catalog_binding"
                 ),
             ],
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),
     )
-    return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
+    return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
 def resolve_measurement_root_evidence(

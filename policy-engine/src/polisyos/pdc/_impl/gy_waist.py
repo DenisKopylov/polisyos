@@ -1581,6 +1581,11 @@ class ArtifactRef(GyWaistModel):
     schema_ref: str = Field(..., min_length=1, max_length=200)
     uri: str = Field(..., min_length=1, max_length=300)
     version: str = Field(..., min_length=1, max_length=80)
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     @classmethod
     def from_payload(

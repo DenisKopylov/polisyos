@@ -46,9 +46,11 @@ def _live_specs() -> dict[str, dict[str, str]]:
     sys.path.insert(0, str(ROOT / "src"))
     try:
         from loguru import logger as _l  # type: ignore
+    except ModuleNotFoundError as exc:
+        if exc.name != "loguru":
+            raise
+    else:
         _l.remove()
-    except Exception:
-        pass
     from polisyos.scientist.orchestration.workflows.causal_full import causal_full_workflow_spec
     from polisyos.scientist.orchestration.workflows.policy_design import (
         policy_design_workflow_spec,

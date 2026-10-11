@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
@@ -19,6 +20,10 @@ from pydantic import (
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
+from polisyos.core.security.quality_gates import (
+    SECURITY_ASSURANCE_ARTIFACT_KIND,
+    SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+)
 from polisyos.runtime.quality.evaluation_safety import (
     EvalSafetyMetricsProjection,
     evaluation_safety_metrics_projection_identity,
@@ -253,6 +258,24 @@ class AuthorityFailureClassification(BaseModel):
     producer_authority: dict[str, Any] = Field(default_factory=dict)
 
 
+class AuthoritySurfaceContributor(BaseModel):
+    """One source-specific authority decision used by a composed surface gate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    basis: Literal["base_surface", "selected_manifest"]
+    status: Literal["allowed", "blocked", "candidate_only", "downgraded"]
+    authority_result: str = Field(min_length=1)
+    transition_disposition: str | None = None
+    authority_boundary_ref: str | None = None
+    consumed_authority_boundary: bool
+    may_not_use_for: list[str] = Field(default_factory=list)
+    reason: str = Field(min_length=1)
+    blocking: bool
+    visible_downgrade: bool
+    resolution_error: str | None = None
+
+
 class AuthoritySurfaceDecision(BaseModel):
     """Consumer-side authority decision for one runtime/public surface."""
 
@@ -278,6 +301,7 @@ class AuthoritySurfaceDecision(BaseModel):
     time_source_dispositions: list[str] = Field(default_factory=list)
     s12_issue_codes: list[str] = Field(default_factory=list)
     candidate_firewall_issue_codes: list[str] = Field(default_factory=list)
+    authority_contributors: list[AuthoritySurfaceContributor] = Field(default_factory=list)
 
 
 class OutcomeReplayLevelProof(BaseModel):
@@ -662,6 +686,11 @@ class EvidenceAuthorityEnvelope(BaseModel):
     producer_version: str = Field(min_length=1)
     owner: str = Field(min_length=1)
     runtime_event_ref: str = Field(min_length=1)
+    runtime_event_manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     cas_ref: str | None = None
     payload_sha256: str = Field(min_length=1)
     schema_name: str = Field(min_length=1)
@@ -1072,6 +1101,7 @@ def authority_surface_decision(
     block_on_secret_findings: bool = True,
     artifact_store: _ArtifactSurfaceStore | None = None,
     artifact_id: object | None = None,
+    artifact_ref: core_artifacts.ArtifactRef | None = None,
     require_cas_integrity: bool = False,
     enforce_time_source: bool = True,
     enforce_s12: bool = True,
@@ -1087,18 +1117,32 @@ def authority_surface_decision(
     disposition, S12 dereference status, and candidate firewall.
     """
 
+    artifact_target = artifact_ref if artifact_ref is not None else artifact_id
+    artifact_ref_mismatch = (
+        artifact_ref is not None
+        and artifact_id is not None
+        and str(artifact_ref.artifact_id) != str(artifact_id)
+    )
     eval_safety_applies, eval_safety_payload, eval_safety_blocker = (
         _strict_eval_safety_surface_payload(
             surface=surface,
             purpose=purpose,
             artifact_store=artifact_store,
-            artifact_id=artifact_id,
+            artifact_id=artifact_target,
         )
     )
     authority_payload = eval_safety_payload or _surface_authority_payload(
         payload,
         artifact_store=artifact_store,
-        artifact_id=artifact_id,
+        artifact_id=artifact_target,
+    )
+    (
+        selected_manifest_has_authority,
+        selected_manifest_authority_payload,
+        selected_manifest_authority_error,
+    ) = _selected_manifest_authority_payload(
+        artifact_store=artifact_store,
+        artifact_id=artifact_target,
     )
     base = _authority_boundary_surface_decision(
         authority_payload,
@@ -1107,10 +1151,32 @@ def authority_surface_decision(
         missing_authority_disposition=missing_authority_disposition,
         missing_boundary_disposition=missing_boundary_disposition,
     )
+    selected_manifest_decision = (
+        _authority_boundary_surface_decision(
+            selected_manifest_authority_payload,
+            surface=surface,
+            purpose=purpose,
+            missing_authority_disposition=missing_authority_disposition,
+            missing_boundary_disposition=missing_boundary_disposition,
+        )
+        if selected_manifest_authority_payload is not None
+        else None
+    )
     carrier = _authority_payload(authority_payload)
     gate_inputs: list[str] = ["authority_boundary"]
     blocking_reasons: list[str] = []
     downgrade_reasons: list[str] = []
+    if artifact_ref_mismatch:
+        blocking_reasons.append("artifact_ref_identity_mismatch")
+    if selected_manifest_has_authority or selected_manifest_authority_error is not None:
+        gate_inputs.append("selected_manifest_authority")
+        if selected_manifest_authority_error is not None:
+            blocking_reasons.append(selected_manifest_authority_error)
+        elif selected_manifest_decision is not None:
+            if selected_manifest_decision.blocking:
+                blocking_reasons.append(selected_manifest_decision.reason)
+            elif selected_manifest_decision.visible_downgrade:
+                downgrade_reasons.append(selected_manifest_decision.reason)
     secret_findings: list[str] = []
     integrity_status: Literal["not_applicable", "verified", "failed", "missing_input"] = (
         "not_applicable"
@@ -1154,14 +1220,19 @@ def authority_surface_decision(
                 else:
                     downgrade_reasons.append("secret_pii_redacted")
 
-    if require_cas_integrity or artifact_store is not None or artifact_id is not None:
+    if (
+        require_cas_integrity
+        or artifact_store is not None
+        or artifact_id is not None
+        or artifact_ref is not None
+    ):
         gate_inputs.append("cas_integrity")
-        if artifact_store is None or artifact_id is None:
+        if artifact_store is None or artifact_target is None:
             integrity_status = "missing_input"
             blocking_reasons.append("cas_integrity_input_missing")
         else:
             try:
-                verification = artifact_store.verify(artifact_id)
+                verification = artifact_store.verify(artifact_target)
             except Exception as exc:  # pragma: no cover - fail-closed guard.
                 integrity_status = "failed"
                 integrity_error = str(exc)
@@ -1229,19 +1300,98 @@ def authority_surface_decision(
         blocking = False
         visible_downgrade = True
 
+    contributors = [
+        AuthoritySurfaceContributor(
+            basis="base_surface",
+            status=base.status,
+            authority_result=base.authority_result,
+            transition_disposition=base.transition_disposition,
+            authority_boundary_ref=base.authority_boundary_ref,
+            consumed_authority_boundary=base.consumed_authority_boundary,
+            may_not_use_for=list(base.may_not_use_for),
+            reason=base.reason,
+            blocking=base.blocking,
+            visible_downgrade=base.visible_downgrade,
+        )
+    ]
+    selected_contributor: AuthoritySurfaceContributor | None = None
+    if selected_manifest_authority_error is not None:
+        selected_contributor = AuthoritySurfaceContributor(
+            basis="selected_manifest",
+            status="blocked",
+            authority_result="not_applicable",
+            transition_disposition=None,
+            authority_boundary_ref=None,
+            consumed_authority_boundary=False,
+            may_not_use_for=[],
+            reason=selected_manifest_authority_error,
+            blocking=True,
+            visible_downgrade=True,
+            resolution_error=selected_manifest_authority_error,
+        )
+    elif selected_manifest_decision is not None:
+        selected_contributor = AuthoritySurfaceContributor(
+            basis="selected_manifest",
+            status=selected_manifest_decision.status,
+            authority_result=selected_manifest_decision.authority_result,
+            transition_disposition=selected_manifest_decision.transition_disposition,
+            authority_boundary_ref=selected_manifest_decision.authority_boundary_ref,
+            consumed_authority_boundary=(
+                selected_manifest_decision.consumed_authority_boundary
+            ),
+            may_not_use_for=list(selected_manifest_decision.may_not_use_for),
+            reason=selected_manifest_decision.reason,
+            blocking=selected_manifest_decision.blocking,
+            visible_downgrade=selected_manifest_decision.visible_downgrade,
+        )
+    if selected_contributor is not None:
+        contributors.append(selected_contributor)
+
+    primary_authority_result = base.authority_result
+    primary_transition_disposition = base.transition_disposition
+    primary_authority_boundary_ref = base.authority_boundary_ref
+    primary_consumed_authority_boundary = base.consumed_authority_boundary
+    if selected_contributor is not None and (
+        (
+            bool(blocking_reasons)
+            and blocking_reasons[0] == selected_contributor.reason
+            and selected_contributor.blocking
+        )
+        or (
+            not blocking_reasons
+            and bool(downgrade_reasons)
+            and downgrade_reasons[0] == selected_contributor.reason
+            and selected_contributor.visible_downgrade
+        )
+    ):
+        primary_authority_result = selected_contributor.authority_result
+        primary_transition_disposition = selected_contributor.transition_disposition
+        primary_authority_boundary_ref = selected_contributor.authority_boundary_ref
+        primary_consumed_authority_boundary = (
+            selected_contributor.consumed_authority_boundary
+        )
+
+    all_may_not_use = list(
+        dict.fromkeys(
+            purpose_name
+            for contributor in contributors
+            for purpose_name in contributor.may_not_use_for
+        )
+    )
     return AuthoritySurfaceDecision(
         surface=base.surface,
         purpose=base.purpose,
         status=status,
-        authority_result=base.authority_result,
-        transition_disposition=base.transition_disposition,
-        authority_boundary_ref=base.authority_boundary_ref,
-        consumed_authority_boundary=base.consumed_authority_boundary,
-        may_not_use_for=list(base.may_not_use_for),
+        authority_result=primary_authority_result,
+        transition_disposition=primary_transition_disposition,
+        authority_boundary_ref=primary_authority_boundary_ref,
+        consumed_authority_boundary=primary_consumed_authority_boundary,
+        may_not_use_for=all_may_not_use,
         reason=reason,
         blocking=blocking,
         visible_downgrade=visible_downgrade,
         composed_gate_inputs=list(dict.fromkeys(gate_inputs)),
+        authority_contributors=contributors,
         secret_pii_finding_kinds=sorted(set(secret_findings)),
         integrity_status=integrity_status,
         integrity_error=integrity_error,
@@ -1486,6 +1636,48 @@ def _authority_boundary_surface_decision(
         blocking=False,
         visible_downgrade=False,
     )
+
+
+def _selected_manifest_authority_payload(
+    *,
+    artifact_store: _ArtifactSurfaceStore | None,
+    artifact_id: object | None,
+) -> tuple[bool, Mapping[str, Any] | None, str | None]:
+    """Resolve and verify the authority envelope linked by the exact selected manifest."""
+
+    if artifact_store is None or artifact_id is None:
+        return False, None, None
+    try:
+        manifest = artifact_store.get_manifest(artifact_id)
+    except Exception:
+        if isinstance(artifact_id, core_artifacts.ArtifactRef):
+            return False, None, "selected_manifest_resolution_failed"
+        return False, None, None
+
+    authority = getattr(manifest, "authority", None)
+    if authority is None:
+        return False, None, None
+    try:
+        envelope_ref = core_artifacts.resolve_authority_envelope_ref(
+            cast("core_artifacts.ArtifactStore", artifact_store),
+            authority,
+        )
+        verification = artifact_store.verify(envelope_ref)
+        if not getattr(verification, "ok", False):
+            return True, None, "selected_manifest_authority_integrity_failed"
+        artifact_store.get_manifest(envelope_ref)
+        envelope_payload = canon.from_canonical_bytes(artifact_store.get_bytes(envelope_ref))
+    except Exception:
+        return True, None, "selected_manifest_authority_resolution_failed"
+
+    if not isinstance(envelope_payload, Mapping):
+        return True, None, "selected_manifest_authority_payload_invalid"
+    if _has_payload_authority_signal(envelope_payload):
+        return True, envelope_payload, None
+    boundary = _validated_authority_boundary_payload(envelope_payload)
+    if boundary is not None:
+        return True, {"authority_boundary": dict(boundary)}, None
+    return True, None, "selected_manifest_authority_payload_invalid"
 
 
 def _surface_authority_payload(
@@ -1747,6 +1939,47 @@ def authority_envelope_ownership_issues(
                 expected=expected_runtime_event_ref,
                 observed=observed_runtime_event_ref,
                 field="runtime_event_ref",
+            )
+        )
+
+    expected_event_profile_present, expected_event_profile = _runtime_event_profile_from_report(
+        report
+    )
+    observed_event_profile = envelope.get("runtime_event_manifest_profile_sha256")
+    if observed_event_profile is not None and (
+        not isinstance(observed_event_profile, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", observed_event_profile) is None
+    ):
+        issues.append(
+            _ownership_issue(
+                "authority_envelope_runtime_event_profile_invalid",
+                "Authority envelope runtime event profile is malformed.",
+                expected="sha256:<64 lowercase hex>",
+                observed=observed_event_profile,
+                field="runtime_event_manifest_profile_sha256",
+            )
+        )
+    if expected_event_profile_present and (
+        not isinstance(expected_event_profile, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", expected_event_profile) is None
+    ):
+        issues.append(
+            _ownership_issue(
+                "authority_report_runtime_event_profile_invalid",
+                "Report runtime event profile is supplied but malformed.",
+                expected="sha256:<64 lowercase hex>",
+                observed=expected_event_profile,
+                field="runtime_event_manifest_profile_sha256",
+            )
+        )
+    if expected_event_profile_present and observed_event_profile != expected_event_profile:
+        issues.append(
+            _ownership_issue(
+                "authority_envelope_runtime_event_profile_mismatch",
+                "Authority envelope runtime event profile does not match the report event profile.",
+                expected=expected_event_profile,
+                observed=observed_event_profile,
+                field="runtime_event_manifest_profile_sha256",
             )
         )
 
@@ -2310,6 +2543,7 @@ def _producer_authority_summary(payload: Mapping[str, Any]) -> dict[str, Any]:
         "producer_component",
         "owner",
         "runtime_event_ref",
+        "runtime_event_manifest_profile_sha256",
         "cas_ref",
         "validation_status",
         "blocking_status",
@@ -2333,6 +2567,8 @@ def _expected_artifact_kinds(
     if ref_key:
         expected.add(ref_key.removesuffix("_ref"))
         expected.add(ref_key.removesuffix("_report_ref"))
+    if report_key == "security_assurance_report":
+        expected.add(SECURITY_ASSURANCE_ARTIFACT_KIND)
     if report_key == "production_data_quality":
         expected.add("production_data_quality_report")
     if report_key.startswith("continuous_governance_"):
@@ -2352,6 +2588,11 @@ def _schema_matches_report(
         return False
     normalized_schema = _normalize_report_key(schema_name)
     if report_schema and normalized_schema == _normalize_report_key(report_schema):
+        return True
+    if (
+        report_key == "security_assurance_report"
+        and schema_name == SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME
+    ):
         return True
     if report_key in normalized_schema:
         return True
@@ -2389,6 +2630,20 @@ def _validation_status_from_report(report: Mapping[str, Any] | None) -> str | No
     if status in {"fail", "failed", "error"}:
         return "fail"
     return None
+
+
+def _runtime_event_profile_from_report(
+    report: Mapping[str, Any] | None,
+) -> tuple[bool, object | None]:
+    """Return suppliedness separately so malformed explicit values cannot mean legacy absence."""
+    if not isinstance(report, Mapping):
+        return False, None
+    if "runtime_event_manifest_profile_sha256" in report:
+        return True, report.get("runtime_event_manifest_profile_sha256")
+    event = report.get("diagnostic_event")
+    if isinstance(event, Mapping) and "runtime_event_manifest_profile_sha256" in event:
+        return True, event.get("runtime_event_manifest_profile_sha256")
+    return False, None
 
 
 def _runtime_event_ref_from_report(report: Mapping[str, Any] | None) -> str | None:
@@ -2482,6 +2737,7 @@ __all__ = [
     "AuthorityFailureClassification",
     "AuthorityRole",
     "AuthorityRootCauseClass",
+    "AuthoritySurfaceContributor",
     "AuthoritySurfaceDecision",
     "BlockingStatus",
     "ConsumedInputMember",

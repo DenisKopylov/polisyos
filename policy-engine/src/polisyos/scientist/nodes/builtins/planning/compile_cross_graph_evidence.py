@@ -9,8 +9,14 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import SKGQuery
@@ -35,6 +41,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.literature import load_literature_causal_prior
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
@@ -49,6 +56,7 @@ from polisyos.scientist.evidence.sources import (
     normalize_evidence_sources_config,
     update_source_status,
 )
+from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
@@ -57,7 +65,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
@@ -184,7 +197,18 @@ class CompileCrossGraphEvidenceNode:
 
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         target_context = _resolve_target_context(state)
-        causal_graph = _resolve_causal_graph(ctx, state)
+        try:
+            causal_graph_ref, causal_graph = _resolve_causal_graph(ctx, state)
+        except _InvalidCausalGraphReference as exc:
+            return NodeOutcome(
+                status="fail",
+                state=new_state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Invalid supplied causal graph reference: {exc}",
+                    details={"input": ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF},
+                ),
+            )
 
         try:
             from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceConfig
@@ -248,9 +272,14 @@ class CompileCrossGraphEvidenceNode:
                     role="graph_prior_bundle",
                 )
             )
-        graph_ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
+        graph_ref = causal_graph_ref
         if graph_ref is not None:
-            inputs.append(InputRef(artifact_id=str(graph_ref.artifact_id), role="causal_graph"))
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                    role="causal_graph",
+                )
+            )
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
         if literature_prior_ref is not None:
             inputs.append(
@@ -397,17 +426,29 @@ def _resolve_target_context(state: ExperimentState) -> ContextProfile | None:
         return None
 
 
+class _InvalidCausalGraphReference(ValueError):
+    """Identify a supplied graph selector that is malformed or stale."""
+
+
 def _resolve_causal_graph(
     ctx: ExecutionContext,
     state: ExperimentState,
 ):
     ref = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
     if ref is None:
-        return None
+        return None, None
+    store = _ensure_ir_artifact_store(ctx.store)
     try:
-        return load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), ref)
-    except _CROSS_GRAPH_RUNTIME_ERRORS:
-        return None
+        payload = ref.model_dump(mode="json") if hasattr(ref, "model_dump") else ref
+        selected_ref = profile_bound_ref(
+            store, CausalGraphModelRef.model_validate(payload)
+        )
+        graph = load_causal_graph_model(store, selected_ref)
+    except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
+        raise _InvalidCausalGraphReference(
+            "the selected graph could not be profile-bound and loaded"
+        ) from exc
+    return selected_ref, graph
 
 
 def _augment_with_graph_prior(

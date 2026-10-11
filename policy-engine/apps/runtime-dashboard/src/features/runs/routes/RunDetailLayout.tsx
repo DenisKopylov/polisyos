@@ -27,6 +27,7 @@ import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepth
 import { useEpochStaleness } from "@/features/runs/api/useEpochStaleness";
 import { buildPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { metricIdentifiability } from "@/shared/lib/domain/decision";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
 import {
@@ -329,24 +330,29 @@ function RunInspectorContent() {
     authzDecision.kind === "verified" && authzDecision.can("runs.review");
   const { highlightMode } = useAuthorship();
   const readingViewHref = useMemo(() => {
-    if (!summary.primaryDecisionArtifactId) {
+    const decisionRef = summary.primaryDecisionArtifactRef;
+    if (!decisionRef) {
       return null;
     }
-    const decisionPacketId = summary.pipeline?.decision_packet_ref?.artifact_id;
+    const pipelineDecisionRef = summary.pipeline?.decision_packet_ref;
     const isDecisionPacket =
-      decisionPacketId === summary.primaryDecisionArtifactId ||
+      (pipelineDecisionRef !== null &&
+        pipelineDecisionRef !== undefined &&
+        evidenceArtifactRefKey(pipelineDecisionRef) ===
+          evidenceArtifactRefKey(decisionRef)) ||
       summary.decisionArtifact?.kind === "scientist.decision_packet";
     if (!isDecisionPacket) {
       return null;
     }
-    return buildArtifactHref(summary.primaryDecisionArtifactId, {
+    return buildArtifactHref(decisionRef.artifact_id, {
       tab: "content",
       view: "reading",
+      artifactRef: decisionRef,
     });
   }, [
     summary.decisionArtifact?.kind,
-    summary.pipeline?.decision_packet_ref?.artifact_id,
-    summary.primaryDecisionArtifactId,
+    summary.pipeline?.decision_packet_ref,
+    summary.primaryDecisionArtifactRef,
   ]);
 
   const activeTab =
@@ -415,8 +421,11 @@ function RunInspectorContent() {
     run.started_at ??
     undefined;
   const strongestEvidenceHref = buildEvidenceHref({
-    artifactId: summary.primaryDecisionArtifactId ?? undefined,
-    focus: summary.primaryDecisionArtifactId ? "artifact" : "overview",
+    artifactId: summary.primaryDecisionArtifactRef?.artifact_id,
+    artifactRefKey: summary.primaryDecisionArtifactRef
+      ? evidenceArtifactRefKey(summary.primaryDecisionArtifactRef)
+      : undefined,
+    focus: summary.primaryDecisionArtifactRef ? "artifact" : "overview",
     runId,
   });
   const evaluatorScoreQuantity = untracedDecisionQuantity({
@@ -647,9 +656,14 @@ function RunInspectorContent() {
                           {t("pages.runs.replan")}
                         </Button>
                       )
-                    ) : summary.primaryDecisionArtifactId ? (
+                    ) : summary.primaryDecisionArtifactRef ? (
                       <PrefetchButton
-                        to={`/artifacts/${summary.primaryDecisionArtifactId}`}
+                        to={buildArtifactHref(
+                          summary.primaryDecisionArtifactRef.artifact_id,
+                          {
+                            artifactRef: summary.primaryDecisionArtifactRef,
+                          },
+                        )}
                         prefetch="intent"
                         variant="primary"
                       >

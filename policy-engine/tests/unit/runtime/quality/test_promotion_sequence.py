@@ -3271,12 +3271,34 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     monkeypatch.setattr(binding_owner, "resolve_measurement_root_evidence", _replay_forbidden)
     monkeypatch.setattr(binding_owner, "resolve_fabric_measurement_root", _replay_forbidden)
     monkeypatch.setattr(retrieval_custody, "resolve_persisted_fetch", _replay_forbidden)
+    snapshot_payload = DataSnapshot(
+        data_ref=evidence.payload.payload_ref,
+        stats={
+            "snapshot_id": str(evidence.payload.payload_ref.artifact_id),
+            "observed_row_count": evidence.payload.observed_row_count,
+        },
+        notes=[evidence.payload.limitation],
+    )
+    owner.store.put_json(
+        snapshot_payload,
+        core_artifacts.PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.core.DataSnapshot",
+                version="0.2.0",
+            ),
+            inputs=[],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
 
     snapshot_ref = persist(store=owner.store, evidence=evidence)
 
     assert isinstance(snapshot_ref, DataSnapshotRef)
+    assert snapshot_ref.manifest_profile_sha256 is not None
     snapshot = DataSnapshot.model_validate(
         canon.from_canonical_bytes(owner.store.get_bytes(snapshot_ref.artifact_id))
     )
@@ -3285,7 +3307,10 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     assert snapshot.stats["snapshot_id"] == expected_payload_artifact_id
     assert snapshot.stats["observed_row_count"] == evidence.payload.observed_row_count
 
-    manifest = owner.store.get_manifest(snapshot_ref.artifact_id)
+    manifest = owner.store.get_manifest(snapshot_ref)
+    assert snapshot_ref.manifest_profile_sha256 == core_artifacts.artifact_manifest_profile_sha256(
+        manifest
+    )
     assert manifest.kind == "fabric.data_snapshot"
     assert manifest.media_type == "application/json"
     assert manifest.artifact_schema == core_artifacts.SchemaInfo(

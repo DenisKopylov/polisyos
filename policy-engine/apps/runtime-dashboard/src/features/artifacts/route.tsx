@@ -2,6 +2,7 @@ import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 
 import type { AppRouteModule } from "@/app/routes/contracts";
+import type { EvidenceArtifactRef } from "@/shared/lib/domain/evidence";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 import {
   buildArtifactHref,
@@ -18,10 +19,16 @@ type ArtifactRouteHrefInput = {
   artifactId: string;
   tab?: ArtifactTab;
   view?: ArtifactView;
+  artifactRef?: EvidenceArtifactRef;
+  manifestProfileSha256?: string | null;
 };
 
 export const artifactRouteHandle = {
-  buildHref: (input) => buildArtifactHref(input?.artifactId ?? "", input),
+  buildHref: (input) =>
+    buildArtifactHref(
+      input?.artifactId ?? input?.artifactRef?.artifact_id ?? "",
+      input,
+    ),
   parseSearch: parseArtifactSearchParams,
   routeId: "artifacts.inspector",
   workspaceKey: "runsDecisions",

@@ -13,6 +13,7 @@ import {
   RUN_DETAIL_TABS,
 } from "@/features/runs/domain/runDetailTabs";
 import {
+  dedupeEvidenceArtifactRefs,
   type EvidenceArtifactRef,
   findRunEvidenceNeed,
   findRunEvidencePlan,
@@ -24,21 +25,6 @@ import { normalizeGovernanceIssues } from "@/shared/lib/domain/governance";
 import { formatNumber } from "@/shared/lib/utils";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
-
-function dedupeArtifactRefs(
-  refs: Array<EvidenceArtifactRef | null | undefined>,
-): EvidenceArtifactRef[] {
-  const seen = new Set<string>();
-  const result: EvidenceArtifactRef[] = [];
-  for (const ref of refs) {
-    if (!ref?.artifact_id || seen.has(ref.artifact_id)) {
-      continue;
-    }
-    seen.add(ref.artifact_id);
-    result.push(ref);
-  }
-  return result;
-}
 
 function isDecisionArtifact(
   ref: EvidenceArtifactRef | null | undefined,
@@ -133,7 +119,7 @@ export function useRunDetailSummary(
 
   const artifactRefs = useMemo(
     () =>
-      dedupeArtifactRefs([
+      dedupeEvidenceArtifactRefs([
         pipeline?.decision_packet_ref ?? null,
         pipeline?.execution_plan_ref ?? null,
         pipeline?.preflight?.report_ref ?? null,
@@ -150,23 +136,25 @@ export function useRunDetailSummary(
     [evidenceContext, governance?.report_ref, pipeline, run?.root_artifacts],
   );
 
-  const primaryDecisionArtifactId = useMemo(() => {
+  const primaryDecisionArtifactRef = useMemo(() => {
     const refs = [
       pipeline?.decision_packet_ref ?? null,
       ...(run?.root_artifacts ?? []),
       ...(evidenceContext?.relatedArtifacts ?? []),
     ];
-    return refs.find((ref) => isDecisionArtifact(ref))?.artifact_id ?? null;
+    return refs.find((ref) => isDecisionArtifact(ref)) ?? null;
   }, [
     evidenceContext?.relatedArtifacts,
     pipeline?.decision_packet_ref,
     run?.root_artifacts,
   ]);
+  const primaryDecisionArtifactId =
+    primaryDecisionArtifactRef?.artifact_id ?? null;
 
   const decisionArtifactQuery = useArtifactContent(
-    primaryDecisionArtifactId ?? undefined,
+    primaryDecisionArtifactRef ?? undefined,
     {
-      enabled: Boolean(primaryDecisionArtifactId),
+      enabled: Boolean(primaryDecisionArtifactRef),
       maxBytes: 256 * 1024,
     },
   );
@@ -253,6 +241,7 @@ export function useRunDetailSummary(
     liveTransport: Boolean(options?.liveTransport),
     pipeline,
     primaryDecisionArtifactId,
+    primaryDecisionArtifactRef,
     primaryIssue,
     run,
     runBootstrapPending,

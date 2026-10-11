@@ -647,11 +647,12 @@ def _quality_report_specs(repo_root: Path) -> list[dict[str, Any]]:
             "owner_runtime_layer": "security_quality_gates",
             "artifact_fields": [
                 "schema_version",
+                "generated_at",
                 "status",
                 "security_assurance_report_ref",
-                "surfaces",
-                "findings",
+                "assured_paths",
                 "issues",
+                "blockers",
             ],
             "producer": _producer(
                 name="polisyos.core.security.quality_gates.build_security_assurance_report",

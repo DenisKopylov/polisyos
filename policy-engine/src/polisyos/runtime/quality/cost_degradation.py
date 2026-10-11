@@ -7,14 +7,17 @@ from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.runtime.quality.report_registry import (
+    COST_DEGRADATION_TELEMETRY_FILENAME,
+    COST_DEGRADATION_TELEMETRY_REPORT_KEY,
+)
+
 COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.cost_degradation_telemetry.v1"
 )
 COST_DEGRADATION_TELEMETRY_CONTRACT_ID = (
     "policy_design_case.cost_degradation_telemetry.v1"
 )
-COST_DEGRADATION_TELEMETRY_REPORT_KEY = "cost_degradation_telemetry"
-COST_DEGRADATION_TELEMETRY_FILENAME = "cost_degradation_telemetry.json"
 
 _VALID_METRIC_TYPES = frozenset(
     {

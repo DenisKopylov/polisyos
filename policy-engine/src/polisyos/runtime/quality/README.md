@@ -3,6 +3,7 @@
 - Last updated: 2026-10-09
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
+the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
 authority/status composition, evidence and claim binding, replay, closeout
 checks, and audit-oriented exports.
 
@@ -31,6 +32,20 @@ Boundary notes:
   time-step parameter equals the requested horizon step. That adapter
   comparison does not establish the consumed World Model Record's own temporal
   alignment or confer evidence authority.
+- Generic candidate-only N5 request custody uses a versioned Core canonical
+  profile for the complete `JointSimulationRequest`. Request-binding v2 records
+  the canonical profile identity and a typed digest; execution v3 persists the
+  typed request with Decimal/float tags and explicit nulls intact. Before
+  admission, the complete public model-field tree must survive canonical
+  write/read with exact types and values. Core normalizations or unsupported
+  shapes in open `Any` fields (including sequence-kind changes, embedded model
+  flattening, signed-zero collapse, datetime normalization, and unsupported
+  values) refuse the typed binding rather than changing the simulation input.
+  Fresh N8/run-history consumers replay the whole request against the source-bound
+  input before resolving a current projection. Historical request-binding v1 and
+  execution v1/v2 retain their original JSON hashes, CAS schemas, and parser paths;
+  they are never rewritten or upgraded. No world evidence, causal authority, or
+  publication eligibility is conferred.
 - `derived_observations.py` retains selected Core CAS manifest-view profiles through source
   projections, recipe lineage, derived-output certificates, and epoch recompute receipts. It resolves
   and verifies each selected sidecar before reuse and refuses changes to the selected-view contract.
@@ -573,3 +588,10 @@ silently aliased to qualified atom slots. This is an input/selected-composition
 limitation; the bounded producer and child intake mechanisms are available.
 Overview renders qualified component observations; its ordinary API intake still
 requires the separately owned DTO/validator and persisted-reader companions.
+
+
+Runtime authority event references carry the exact CAS manifest profile selected by the writer
+through `ArtifactAuthorityInfo`, the evidence authority envelope, and strict fresh readers. A
+profileless historical link continues to resolve its default manifest view with its persisted
+schema version; it is not upgraded into a producer-attested selected profile. Hidden views outside
+the active CAS owner scope remain unresolved.

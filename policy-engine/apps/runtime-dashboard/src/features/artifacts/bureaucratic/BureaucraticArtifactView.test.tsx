@@ -83,6 +83,26 @@ describe("BureaucraticArtifactView", () => {
       trustView: true,
     });
   });
+
+  it("forwards the selected full artifact ref to the render query", () => {
+    const artifactRef = {
+      artifact_id: "sha256:abc",
+      kind: "decision_packet",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"a".repeat(64)}`,
+    };
+    render(<BureaucraticArtifactView artifactRef={artifactRef} />);
+
+    expect(useBureaucraticRenderMock).toHaveBeenCalledWith(artifactRef, {
+      genre: "postanova_kmu",
+      jurisdiction: "ua",
+      temporalScope: {
+        txAt: "2026-02-11T12:05:00Z",
+        validAt: "2026-02-11T12:00:00Z",
+      },
+      trustView: false,
+    });
+  });
 });
 
 function fixtureDocument(genre: BureaucraticDocumentAST["genre"]) {

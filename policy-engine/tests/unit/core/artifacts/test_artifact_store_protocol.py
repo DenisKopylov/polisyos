@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.ownership import (
@@ -255,3 +254,124 @@ class TestFileSystemCASRoundTrip:
         assert ids == expected
         assert len({str(artifact_id) for artifact_id in ids}) == 2
         assert store.iter_artifact_ids() == expected
+
+
+    def test_inventory_snapshot_scopes_view_verification_to_selected_artifact_id(
+        self, tmp_path: Path
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        default_view = store.put_bytes(
+            b"same selected inventory blob",
+            PutOptions(kind="inventory.default", media_type="text/plain"),
+        )
+        selected_view = store.put_bytes(
+            b"same selected inventory blob",
+            PutOptions(kind="inventory.selected", media_type="application/octet-stream"),
+        )
+        other_blob = store.put_bytes(
+            b"excluded inventory blob",
+            PutOptions(kind="inventory.other", media_type="text/plain"),
+        )
+
+        snapshot = store.inventory_snapshot(artifact_id=selected_view.artifact_id)
+
+        assert snapshot.verdict == "pass"
+        assert selected_view.artifact_id == default_view.artifact_id
+        assert len(snapshot.entries) == 3
+        entry_ids = {
+            str(entry.artifact_ref.artifact_id)
+            if isinstance(entry.artifact_ref, ArtifactRef)
+            else str(entry.artifact_ref)
+            for entry in snapshot.entries
+        }
+        assert entry_ids == {str(selected_view.artifact_id)}
+        assert str(other_blob.artifact_id) not in entry_ids
+        default_entries = [
+            entry for entry in snapshot.entries if isinstance(entry.artifact_ref, ArtifactID)
+        ]
+        profile_entries = [
+            entry for entry in snapshot.entries if isinstance(entry.artifact_ref, ArtifactRef)
+        ]
+        assert len(default_entries) == 1
+        assert default_entries[0].manifest.kind == "inventory.default"
+        assert len(profile_entries) == 2
+        expected_profiles = {
+            store._manifests.profile_sha256(store.get_manifest(ref))
+            for ref in (default_view, selected_view)
+        }
+        assert {entry.artifact_ref.manifest_profile_sha256 for entry in profile_entries} == (
+            expected_profiles
+        )
+        assert "canonical CAS root member names" in snapshot.inputs
+        assert any(str(selected_view.artifact_id) in item for item in snapshot.inputs)
+
+    def test_inventory_snapshot_hides_foreign_tenant_members_without_losing_owned_views(
+        self, tmp_path: Path
+    ) -> None:
+        store = FileSystemCAS(
+            tmp_path / "cas",
+            ownership_enforced=True,
+            ownership_requires_scope=False,
+        )
+        with tenant_scope(None, tenant_id="tenant-b"):
+            foreign_first = store.put_bytes(
+                b"foreign payload",
+                PutOptions(kind="inventory.foreign", media_type="text/plain"),
+            )
+            foreign_same_blob = store.put_bytes(
+                b"tenant-owned payload",
+                PutOptions(kind="inventory.foreign.same_blob", media_type="text/plain"),
+            )
+            foreign_same_profile = store._manifests.profile_sha256(
+                store.get_manifest(foreign_same_blob)
+            )
+        with tenant_scope(None, tenant_id="tenant-a"):
+            owner_default = store.put_bytes(
+                b"tenant-owned payload",
+                PutOptions(kind="inventory.owner.default", media_type="text/plain"),
+            )
+            owner_default_profile = store._manifests.profile_sha256(
+                store.get_manifest(owner_default)
+            )
+            owner_selected = store.put_bytes(
+                b"tenant-owned payload",
+                PutOptions(kind="inventory.owner.selected", media_type="application/octet-stream"),
+            )
+            owner_selected_profile = store._manifests.profile_sha256(
+                store.get_manifest(owner_selected)
+            )
+
+        assert foreign_first.artifact_id.hex < owner_default.artifact_id.hex
+        assert foreign_same_blob.artifact_id == owner_default.artifact_id
+        assert owner_default.artifact_id == owner_selected.artifact_id
+
+        tenant_store = store.for_tenant("tenant-a")
+        with tenant_scope(None, tenant_id="tenant-a"):
+            snapshot = tenant_store.inventory_snapshot()
+
+        assert snapshot.verdict == "pass"
+        assert snapshot.owner_generation_sha256 is not None
+        assert "other tenant views hidden by the active tenant scope" in (
+            snapshot.unresolved_by_construction
+        )
+        entry_ids = {
+            str(entry.artifact_ref.artifact_id)
+            if isinstance(entry.artifact_ref, ArtifactRef)
+            else str(entry.artifact_ref)
+            for entry in snapshot.entries
+        }
+        assert entry_ids == {str(owner_default.artifact_id)}
+        assert str(foreign_first.artifact_id) not in entry_ids
+        default_entries = [
+            entry for entry in snapshot.entries if isinstance(entry.artifact_ref, ArtifactID)
+        ]
+        profile_entries = [
+            entry for entry in snapshot.entries if isinstance(entry.artifact_ref, ArtifactRef)
+        ]
+        assert default_entries == []
+        assert len(profile_entries) == 2
+        observed_profiles = {
+            entry.artifact_ref.manifest_profile_sha256 for entry in profile_entries
+        }
+        assert observed_profiles == {owner_default_profile, owner_selected_profile}
+        assert foreign_same_profile not in observed_profiles

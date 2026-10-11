@@ -159,6 +159,7 @@ from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationReport,
     reconcile_authority_ref,
+    resolve_authority_diagnostic_event_ref,
 )
 from polisyos.runtime.quality.design_axes.value_choice_provenance import (
     NormativeAuthorityTrust,
@@ -422,9 +423,14 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _DesignProblemGatewayClient,
     )
+    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
     from polisyos.runtime.quality.design_generation import GenerationUnderAResult
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationContextHandoffV1,
+    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ExecutionIntent,
         RecursiveCycleBudget,
@@ -1110,7 +1116,10 @@ class HumanDecisionAuthoritySink:
                 authority = manifest.authority
                 if authority is None:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+                event_ref = resolve_authority_diagnostic_event_ref(
+                    self._artifact_store,
+                    authority,
+                )
                 event_manifest = self._artifact_store.get_manifest(event_ref)
                 event_schema = event_manifest.artifact_schema
                 if (
@@ -1265,7 +1274,7 @@ class HumanDecisionAuthoritySink:
         authority = manifest.authority
         if authority is None:
             raise ValueError("human-decision authority manifest linkage is absent")
-        event_id = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+        event_id = resolve_authority_diagnostic_event_ref(self._artifact_store, authority)
         event_manifest = self._artifact_store.get_manifest(event_id)
         event_schema = event_manifest.artifact_schema
         if (
@@ -1424,6 +1433,10 @@ class ControlPlaneService(
         normative_authority_trust: NormativeAuthorityTrust | None = None,
         llm_producer_settlement_store: BudgetMiddleware | None = None,
         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
+        generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner
+        | None = None,
+        generic_cycle_simulation_root_profile_id: str | None = None,
+        enable_contract_testing_credal_source_attempts: bool = False,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -1447,9 +1460,45 @@ class ControlPlaneService(
         ):
             raise ValueError("cycle_substrate_context_admission_owner_invalid")
         self._cycle_substrate_context_admission_owner = cycle_substrate_context_admission_owner
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner as _GenericCycleSimulationAdmissionOwner,
+        )
+
+        if (
+            generic_cycle_simulation_admission_owner is not None
+            and type(generic_cycle_simulation_admission_owner)
+            is not _GenericCycleSimulationAdmissionOwner
+        ):
+            raise ValueError("generic_cycle_simulation_context_owner_invalid")
+        if (generic_cycle_simulation_admission_owner is None) != (
+            generic_cycle_simulation_root_profile_id is None
+        ):
+            raise ValueError("generic_cycle_simulation_root_profile_configuration_incomplete")
+        if generic_cycle_simulation_root_profile_id is not None and (
+            not isinstance(generic_cycle_simulation_root_profile_id, str)
+            or not generic_cycle_simulation_root_profile_id.strip()
+        ):
+            raise ValueError("generic_cycle_simulation_root_profile_id_invalid")
+        if type(enable_contract_testing_credal_source_attempts) is not bool:
+            raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
+        resolved_policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
+        if (
+            enable_contract_testing_credal_source_attempts
+            and resolved_policy_resolver.default_profile != "dev"
+        ):
+            raise ValueError("contract_testing_credal_source_attempts_dev_profile_required")
+        if enable_contract_testing_credal_source_attempts and (
+            generic_cycle_simulation_admission_owner is None
+        ):
+            raise ValueError("contract_testing_credal_source_attempts_require_generic_owner")
+        self._generic_cycle_simulation_admission_owner = generic_cycle_simulation_admission_owner
+        self._generic_cycle_simulation_root_profile_id = generic_cycle_simulation_root_profile_id
+        self._enable_contract_testing_credal_source_attempts = (
+            enable_contract_testing_credal_source_attempts
+        )
         self._metrics = metrics if metrics is not None else _default_runtime_metrics()
         self._tracer = tracer if tracer is not None else _default_runtime_tracer()
-        self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
+        self._policy_resolver = resolved_policy_resolver
         self._capability_discovery_service: CapabilityDiscoveryService | None = None
         if registry_providers is None:
             raise ValueError(
@@ -1477,6 +1526,16 @@ class ControlPlaneService(
             )
         else:
             self._artifact_store = artifact_store
+        if generic_cycle_simulation_admission_owner is not None:
+            if generic_cycle_simulation_admission_owner.store is not self._artifact_store:
+                raise ValueError("generic_cycle_simulation_context_owner_store_mismatch")
+            root_profiles = tuple(
+                profile
+                for profile in generic_cycle_simulation_admission_owner.profiles
+                if profile.profile_id == generic_cycle_simulation_root_profile_id
+            )
+            if len(root_profiles) != 1 or root_profiles[0].profile_selection_kind != "problem":
+                raise ValueError("generic_cycle_simulation_root_profile_not_configured")
         self._async_artifact_store = async_artifact_store or ensure_async_artifact_store(
             self._artifact_store
         )
@@ -1728,6 +1787,11 @@ class ControlPlaneService(
         target_world_scope_profile_id: str | None = None,
         cycle_substrate_context_resolver: Callable[[DesignProblem], object | None] | None = None,
         candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        generic_cycle_simulation_handoff_resolver: (
+            Callable[[DesignProblem], GenericCycleSimulationContextHandoffV1 | None] | None
+        ) = None,
+        generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        verified_nl_job_scope: VerifiedNLJobScope | None = None,
         n4_recursive_source: GenerationUnderAResult | None = None,
         recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
@@ -1760,6 +1824,19 @@ class ControlPlaneService(
             catalog_run_profile=self._catalog_run_profile,
             cycle_substrate_context_resolver=cycle_substrate_context_resolver,
             candidate_simulation_currentness_resolver=(candidate_simulation_currentness_resolver),
+            generic_cycle_simulation_admission_owner=(
+                self._generic_cycle_simulation_admission_owner
+                if generic_cycle_simulation_handoff_resolver is not None
+                else None
+            ),
+            generic_cycle_simulation_handoff_resolver=(generic_cycle_simulation_handoff_resolver),
+            enable_contract_testing_credal_source_attempts=(
+                self._enable_contract_testing_credal_source_attempts
+            ),
+            generic_cycle_simulation_currentness_resolver=(
+                generic_cycle_simulation_currentness_resolver
+            ),
+            verified_nl_job_scope=verified_nl_job_scope,
             n4_recursive_source=n4_recursive_source,
             generation_source_repository=GenerationSourceRepository(self._artifact_store),
             recursive_leaf_context_owner=recursive_leaf_context_owner,
@@ -2046,7 +2123,7 @@ class ControlPlaneService(
                         "refusal_disposition_ref": refusal.disposition_ref,
                         "reason_codes": [reason],
                     }
-                except (ValueError, TypeError, OSError, KeyError):
+                except ValueError, TypeError, OSError, KeyError:
                     pass
             return {
                 "authorization_status": "blocked",
@@ -3834,10 +3911,10 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> DataResolveResponse:
         """Resolve `DataNeed[]` into concrete fetch plans via the retrieval service."""
-        from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+        from polisyos.data_forge.read_api.catalog import (
             CatalogSelectionError,
         )
-        from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
 
         configured_profile = self._catalog_run_profile
         requested_profile = request.catalog_run_profile

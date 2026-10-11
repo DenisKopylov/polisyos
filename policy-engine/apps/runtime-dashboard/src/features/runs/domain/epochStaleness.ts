@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { components } from "@/api/types";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 
 type GeneratedEpochStalenessResponse =
   components["schemas"]["EpochStalenessProjectionResponse"];
@@ -59,8 +60,11 @@ const artifactRefSchema = z
     artifact_id: sha256Schema,
     kind: nonemptyStringSchema,
     media_type: nonemptyStringSchema,
+    manifest_profile_sha256: sha256Schema.nullable().optional(),
   })
   .strict();
+
+export { evidenceArtifactRefKey };
 
 const apiMetaSchema = z
   .object({

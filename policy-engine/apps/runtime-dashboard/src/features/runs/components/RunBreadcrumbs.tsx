@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+import { buildArtifactHref } from "@/features/artifacts";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
@@ -17,11 +18,16 @@ export function RunBreadcrumbs({ runId }: { runId: string }) {
       </Link>
       <span>/</span>
       <span>{runId}</span>
-      {summary.primaryDecisionArtifactId ? (
+      {summary.primaryDecisionArtifactRef ? (
         <>
           <span>/</span>
           <Link
-            to={`/artifacts/${summary.primaryDecisionArtifactId}`}
+            to={buildArtifactHref(
+              summary.primaryDecisionArtifactRef.artifact_id,
+              {
+                artifactRef: summary.primaryDecisionArtifactRef,
+              },
+            )}
             className="decoration-line underline"
           >
             {t("pages.runs.decisionArtifact")}

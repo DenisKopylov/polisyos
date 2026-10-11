@@ -252,9 +252,10 @@ class ScholarDeepSearchService:
         )
 
         bundle = (
-            resume_bundle.model_copy(deep=True)
+            resume_bundle._validated_schema_1_1_candidate()
             if resume_bundle is not None
             else WebEvidenceBundle(
+                schema_version="1.1",
                 bundle_id=_bundle_id(active_brief, graph),
                 brief=active_brief,
                 query_graph=graph,
@@ -317,7 +318,7 @@ class ScholarDeepSearchService:
 
             search_results = await asyncio.gather(
                 *[
-                    self._provider_policy.search(
+                    self._provider_policy.search_with_attempts(
                         node.query,
                         constraints=active_constraints,
                         max_results=max(5, min(search_budgets.max_fetch_pages, 20)),
@@ -329,9 +330,13 @@ class ScholarDeepSearchService:
 
             fetch_specs: list[tuple[WebSearchHit, QueryNode]] = []
             batch_seen_urls: set[str] = set()
-            for node, (provider_name, hits, error) in zip(
+            for node, (provider_name, hits, error, provider_attempts) in zip(
                 batch_nodes, search_results, strict=False
             ):
+                persisted_error = None if hits else next(
+                    (attempt.error for attempt in reversed(provider_attempts) if attempt.error),
+                    None,
+                )
                 node.provider = provider_name
                 node.hit_count = len(hits)
                 node.status = "failed" if error and not hits else "searched"
@@ -341,7 +346,8 @@ class ScholarDeepSearchService:
                     perspective=node.perspective,
                     provider=provider_name,
                     hit_count=len(hits),
-                    error=error,
+                    error=persisted_error,
+                    provider_attempts=provider_attempts,
                 )
                 bundle.query_traces.append(query_trace)
                 if not hits:
@@ -356,7 +362,7 @@ class ScholarDeepSearchService:
                             else "provider_returned_no_hits"
                         ),
                         searched_at=query_trace.searched_at,
-                        error=error,
+                        error=persisted_error,
                     )
                     bundle.no_hit_frontier.append(frontier)
                     if self._no_hit_recorder is not None:
@@ -481,12 +487,16 @@ class ScholarDeepSearchService:
         """Persist a `WebEvidenceBundle` into CAS."""
         if self._cas is None:
             raise ValueError("persist_bundle requires a CAS-backed ScholarDeepSearchService")
+        persistable_bundle = bundle._validated_schema_1_1_candidate()
         return self._cas.put_json(
-            bundle.model_dump(mode="json", exclude_none=True),
+            persistable_bundle.model_dump(mode="json", exclude_none=True),
             ArtifactWriteOptions(
                 kind="scholar.web_evidence_bundle",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.0"),
+                schema=SchemaInfo(
+                    name="polisyos.scholar.web_evidence_bundle",
+                    version=persistable_bundle.schema_version,
+                ),
                 producer=ProducerInfo(component="polisyos.scholar.search.service", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

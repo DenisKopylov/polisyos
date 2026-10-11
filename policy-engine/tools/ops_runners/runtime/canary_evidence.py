@@ -9,16 +9,21 @@ import re
 import shutil
 import subprocess
 import time
+from collections.abc import Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, TypedDict
 from urllib.parse import urlsplit
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.control import policy_authority_profile_mapping
 from polisyos.core.security.quality_gates import (
+    SECURITY_ASSURANCE_ARTIFACT_KIND,
+    SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+    SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+    SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_REPORT_FILE,
     build_security_assurance_report,
@@ -105,22 +110,32 @@ from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_semantics,
 )
 from polisyos.runtime.quality.public_export import build_public_export_bundle
-from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs, resolve_quality_refs
+from polisyos.runtime.quality.refs import (
+    RuntimeQualityAuthorityRefs,
+    resolve_quality_refs,
+)
 from polisyos.runtime.quality.replay import (
     attach_replay_orchestration_continuity,
     build_replay_manifest,
     explain_replay_drift,
+)
+from polisyos.runtime.quality.report_registry import (
+    QUALITY_REPORT_FILES,
+    QUALITY_REPORT_REF_KEYS,
+    QUALITY_REPORT_RUNTIME_REFS,
 )
 from polisyos.runtime.quality.run_cost_proportionality import (
     RunCostProportionalityError,
     build_run_cost_proportionality_ledger_from_quality_context,
 )
 from polisyos.runtime.quality.scorecard import (
-    QUALITY_REPORT_FILES,
     QUALITY_REPORT_GATE_METADATA,
-    QUALITY_REPORT_RUNTIME_REFS,
     REQUIRED_MATERIALIZATION_REFS,
+    SECURITY_REPORT_INTAKE_FILE,
+    SECURITY_REPORT_INTAKE_KEY,
+    SECURITY_REPORT_INTAKE_SCHEMA_VERSION,
     SERIOUS_CANARY_KINDS,
+    _admitted_quality_evidence_view,
     build_quality_scorecard,
     normalize_quality_evidence,
     scorecard_control_progress,
@@ -139,6 +154,40 @@ from tools.quality.testing.runtime_resilience_matrix import (
     build_matrix_payload as build_resilience_matrix_payload,
 )
 
+
+class _SecurityReportManifestIdentity(TypedDict):
+    """Observed immutable CAS fields used to accept or refuse a security report ref."""
+
+    kind: str | None
+    media_type: str | None
+    schema_name: str | None
+    schema_version: str | None
+
+
+class _QualityRefResolutionRejection(TypedDict):
+    """Safe, value-free identity for a rejected quality-ref occurrence."""
+
+    key: str
+    source: str
+    path: str
+    reason: str
+    input_type: str
+    value_sha256: str
+    value_length: int | None
+
+
+class _SecurityReportIntakeRefusal(TypedDict):
+    """Structured refusal emitted when a security report ref cannot be selected."""
+
+    schema_version: Literal["policyos.runtime.security_report_intake.v1"]
+    status: Literal["rejected"]
+    source_ref: str | None
+    reason_code: str
+    expected_manifest: _SecurityReportManifestIdentity
+    observed_manifest: _SecurityReportManifestIdentity | None
+    resolution_rejections: list[_QualityRefResolutionRejection]
+
+
 SECRET_KEY_RE = re.compile(
     r"("
     r"authorization|api[_-]?key|token|secret|password|credential|"
@@ -148,6 +197,12 @@ SECRET_KEY_RE = re.compile(
     re.IGNORECASE,
 )
 REF_KEY_RE = re.compile(r"(^|_)(ref|refs|artifact|artifacts)($|_)", re.IGNORECASE)
+_QUALITY_ROLE_LABEL_RE = re.compile(
+    r"(?<![A-Za-z0-9])(?:"
+    + "|".join(re.escape(key) for key in sorted(QUALITY_REPORT_REF_KEYS, key=len, reverse=True))
+    + r")(?![A-Za-z0-9])",
+    re.IGNORECASE,
+)
 PATH_LIKE_KEY_RE = re.compile(
     r"(^|_)(dir|dirs|file|files|path|paths|root|roots)($|_)",
     re.IGNORECASE,
@@ -613,6 +668,8 @@ def _quality_report_key_for_path(rel_path: str) -> str | None:
     filename = rel_path.removeprefix("quality_evidence/")
     if filename == "quality_scorecard.json":
         return "quality_scorecard"
+    if filename == SECURITY_REPORT_INTAKE_FILE:
+        return SECURITY_REPORT_INTAKE_KEY
     for report_key, report_filename in QUALITY_REPORT_FILES.items():
         if filename == report_filename:
             return report_key
@@ -750,6 +807,8 @@ def _provenance_entry_for_file(
     report_key = _quality_report_key_for_path(rel_path)
     ref_key = QUALITY_REPORT_RUNTIME_REFS.get(report_key or "")
     source_cas_ref = _cas_like_ref(runtime_source_refs.get(ref_key or ""))
+    if report_key == SECURITY_REPORT_INTAKE_KEY and isinstance(payload, dict):
+        source_cas_ref = _cas_like_ref(payload.get("source_ref"))
     overlay_inputs: list[str] = []
     provenance_kind = "bundle_packaged"
     evidence_class = "diagnostic_supporting"
@@ -768,6 +827,10 @@ def _provenance_entry_for_file(
         evidence_class = "authority_bearing"
         authority_role = "producer_authority"
         overlay_inputs = ["trust_boundary_attestations", "runtime_quality_refs"]
+    elif report_key == SECURITY_REPORT_INTAKE_KEY:
+        provenance_kind = "bundle_overlay"
+        authority_role = "diagnostic_only"
+        overlay_inputs = ["quality_ref_resolution", "security_report_cas_manifest"]
     elif report_key is not None:
         overlay_inputs = _quality_overlay_inputs(
             report_key=report_key,
@@ -2369,6 +2432,22 @@ def _optional_runtime_quality_ref_keys(*payloads: Any) -> set[str]:
     return keys
 
 
+def _payload_without_rejected_quality_refs(
+    payload: dict[str, Any] | None,
+    *,
+    rejected_keys: set[str],
+    has_unscoped_container_rejection: bool,
+) -> dict[str, Any] | None:
+    if payload is None:
+        return None
+    """Use the scorecard's generic body/ref admission projection."""
+    return _admitted_quality_evidence_view(
+        payload,
+        rejected_keys=rejected_keys,
+        has_unscoped_container_rejection=has_unscoped_container_rejection,
+    )
+
+
 def _payload_with_security_assurance_ref(
     payload: dict[str, Any] | None,
     security_assurance_report_ref: str,
@@ -3965,9 +4044,16 @@ def _collect_artifact_refs(payload: Any, *, path: str = "$") -> list[dict[str, s
     refs: list[dict[str, str]] = []
     if isinstance(payload, dict):
         for key, value in payload.items():
-            next_path = f"{path}.{key}"
-            if isinstance(value, str) and (
-                REF_KEY_RE.search(str(key)) or value.startswith("sha256:")
+            key_text = str(key)
+            next_path = f"{path}.{key_text}"
+            embedded_quality_role = (
+                key_text not in QUALITY_REPORT_REF_KEYS
+                and _QUALITY_ROLE_LABEL_RE.search(key_text) is not None
+            )
+            if (
+                isinstance(value, str)
+                and not embedded_quality_role
+                and (REF_KEY_RE.search(key_text) or value.startswith("sha256:"))
             ):
                 refs.append({"path": next_path, "value": value})
             refs.extend(_collect_artifact_refs(value, path=next_path))
@@ -4031,6 +4117,225 @@ def _artifact_store_from_context(
         except OSError:
             continue
     return None
+
+
+def _security_assurance_manifest_identity(
+    store: Any | None,
+    ref: str,
+) -> tuple[_SecurityReportManifestIdentity | None, str | None]:
+    """Read and compare the current manifest identity for a supplied security report ref."""
+
+    if store is None:
+        return None, "security_report_artifact_store_unavailable"
+    get_manifest = getattr(store, "get_manifest", None)
+    if not callable(get_manifest):
+        return None, "security_report_manifest_reader_unavailable"
+    try:
+        manifest = get_manifest(ref)
+    except Exception:
+        return None, "security_report_manifest_unavailable"
+    if isinstance(manifest, dict):
+        kind = manifest.get("kind")
+        media_type = manifest.get("media_type")
+        schema = manifest.get("schema", manifest.get("artifact_schema"))
+    else:
+        kind = getattr(manifest, "kind", None)
+        media_type = getattr(manifest, "media_type", None)
+        schema = getattr(manifest, "artifact_schema", None)
+    if isinstance(schema, dict):
+        schema_name = schema.get("name")
+        schema_version = schema.get("version")
+    else:
+        schema_name = getattr(schema, "name", None)
+        schema_version = getattr(schema, "version", None)
+    identity = {
+        "kind": kind if isinstance(kind, str) else None,
+        "media_type": media_type if isinstance(media_type, str) else None,
+        "schema_name": schema_name if isinstance(schema_name, str) else None,
+        "schema_version": schema_version if isinstance(schema_version, str) else None,
+    }
+    expected = {
+        "kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
+        "media_type": SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+        "schema_name": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+        "schema_version": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+    }
+    if identity != expected:
+        return identity, "security_report_manifest_identity_mismatch"
+    return identity, None
+
+
+def _quality_ref_resolution_rejections(
+    *resolutions: Any,
+) -> list[_QualityRefResolutionRejection]:
+    """Keep recognized typed ref rejections without copying supplied values."""
+
+    rows: dict[tuple[Any, ...], _QualityRefResolutionRejection] = {}
+    string_fields = ("key", "source", "path", "reason", "input_type", "value_sha256")
+    for resolution in resolutions:
+        candidates = getattr(resolution, "rejections", ())
+        if not isinstance(candidates, (list, tuple)):
+            continue
+        for candidate in candidates:
+            def field_value(name: str, candidate_value: Any = candidate) -> Any:
+                if isinstance(candidate_value, Mapping):
+                    return candidate_value.get(name)
+                return getattr(candidate_value, name, None)
+
+            values = {
+                name: field_value(name)
+                if isinstance(field_value(name), str)
+                else "not_established"
+                for name in string_fields
+            }
+            raw_length = field_value("value_length")
+            row: _QualityRefResolutionRejection = {
+                **values,
+                "value_length": raw_length if type(raw_length) is int else None,
+            }
+            identity = (*tuple(row[name] for name in string_fields), row["value_length"])
+            rows.setdefault(identity, row)
+    return list(rows.values())
+
+
+
+
+def _rejected_quality_ref_keys(
+    rejections: list[_QualityRefResolutionRejection],
+) -> tuple[set[str], bool]:
+    """Return role-specific rejected keys and whether a ref container was malformed."""
+
+    container_keys = {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+    rejected_keys = {
+        row["key"]
+        for row in rejections
+        if isinstance(row.get("key"), str) and row["key"].endswith("_ref")
+    }
+    has_unscoped_container_rejection = any(
+        row.get("key") in container_keys for row in rejections
+    )
+    if has_unscoped_container_rejection:
+        rejected_keys.update(QUALITY_REPORT_RUNTIME_REFS.values())
+    return rejected_keys, has_unscoped_container_rejection
+
+
+def _quality_ref_key_is_rejected(
+    key: str,
+    rejected_keys: set[str],
+    has_unscoped_container_rejection: bool,
+) -> bool:
+    return key in rejected_keys or (
+        has_unscoped_container_rejection and key.endswith("_ref")
+    )
+
+
+def _unrejected_quality_refs(
+    resolution: Any,
+    *,
+    rejected_keys: set[str],
+    has_unscoped_container_rejection: bool,
+) -> dict[str, str]:
+    refs = resolution.unrejected_refs()
+    if not isinstance(refs, Mapping):
+        return {}
+    return {
+        key: value
+        for key, value in refs.items()
+        if isinstance(key, str)
+        and isinstance(value, str)
+        and not _quality_ref_key_is_rejected(
+            key, rejected_keys, has_unscoped_container_rejection
+        )
+    }
+
+
+def _unrejected_runtime_quality_refs(
+    resolution: Any,
+    *,
+    rejected_keys: set[str],
+    has_unscoped_container_rejection: bool,
+) -> dict[str, str]:
+    refs = dict(resolution.unrejected_refs())
+    selected_refs = resolution.unrejected_selected_refs()
+    if isinstance(selected_refs, Mapping):
+        for key, selected_ref in selected_refs.items():
+            artifact_id = getattr(selected_ref, "artifact_id", None)
+            if isinstance(key, str) and isinstance(artifact_id, str):
+                refs.setdefault(key, artifact_id)
+    return {
+        key: value
+        for key, value in refs.items()
+        if isinstance(key, str)
+        and isinstance(value, str)
+        and not _quality_ref_key_is_rejected(
+            key, rejected_keys, has_unscoped_container_rejection
+        )
+    }
+
+
+def _cas_report_identity_rejections(
+    *,
+    refs: Mapping[str, str],
+    reports: Mapping[str, Any],
+) -> list[_QualityRefResolutionRejection]:
+    """Reject selected refs contradicted by the owner ref inside loaded CAS bytes.
+
+    The CAS object is the selected content basis. A report body may omit its own ref,
+    but if it supplies that identity it must match the selected object exactly.
+    """
+    selected_payload = {"runtime_quality_refs": dict(refs)}
+    cas_payloads: dict[str, dict[str, str]] = {}
+    for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+        report = reports.get(report_key)
+        selected = refs.get(ref_key)
+        if not isinstance(report, Mapping) or selected is None or ref_key not in report:
+            continue
+        cas_payloads[report_key] = {ref_key: report[ref_key]}
+    intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads={
+            "selected_runtime_refs": selected_payload,
+            **{f"cas_report.{key}": value for key, value in cas_payloads.items()},
+        }
+    )
+    return _quality_ref_resolution_rejections(intake)
+
+
+def _security_report_resolution_rejections(
+    rejections: list[_QualityRefResolutionRejection],
+) -> list[_QualityRefResolutionRejection]:
+    """Select security-role and unscoped-ref failures for the security refusal record."""
+
+    security_ref_keys = {
+        SECURITY_ASSURANCE_REPORT_REF_KEY,
+        "runtime_quality_refs",
+        "runtime_quality_artifact_refs",
+    }
+    return [row for row in rejections if row.get("key") in security_ref_keys]
+
+
+def _security_report_intake_failure(
+    *,
+    source_ref: str | None,
+    reason_code: str,
+    observed_manifest: _SecurityReportManifestIdentity | None,
+    resolution_rejections: list[_QualityRefResolutionRejection] | None = None,
+) -> _SecurityReportIntakeRefusal:
+    """Build a machine-readable refusal without copying a malformed ref value."""
+
+    return {
+        "schema_version": SECURITY_REPORT_INTAKE_SCHEMA_VERSION,
+        "status": "rejected",
+        "source_ref": source_ref,
+        "reason_code": reason_code,
+        "expected_manifest": {
+            "kind": SECURITY_ASSURANCE_ARTIFACT_KIND,
+            "media_type": SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+            "schema_name": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+            "schema_version": SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+        },
+        "observed_manifest": observed_manifest,
+        "resolution_rejections": list(resolution_rejections or []),
+    }
 
 
 def _load_json_report_from_store(store: Any, ref: str) -> dict[str, Any] | None:
@@ -4106,30 +4411,53 @@ def _quality_reports_from_refs(
     *,
     refs: dict[str, str],
     store: Any | None,
-) -> dict[str, Any]:
-    reports, _events, _event_log_refs = _quality_reports_from_refs_with_authority(
-        refs=refs,
-        store=store,
-    )
-    return reports
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[str], _SecurityReportIntakeRefusal | None]:
+    return _quality_reports_from_refs_with_authority(refs=refs, store=store)
 
 
 def _quality_reports_from_refs_with_authority(
     *,
     refs: dict[str, str],
     store: Any | None,
-) -> tuple[dict[str, Any], list[dict[str, Any]], list[str]]:
-    if store is None:
-        return {}, [], []
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[str], _SecurityReportIntakeRefusal | None]:
     reports: dict[str, Any] = {}
     diagnostic_events: list[dict[str, Any]] = []
     diagnostic_event_log_refs: list[str] = []
+    security_report_intake: _SecurityReportIntakeRefusal | None = None
+    security_ref = refs.get(SECURITY_ASSURANCE_REPORT_REF_KEY)
+    if store is None:
+        if isinstance(security_ref, str) and security_ref.strip():
+            security_report_intake = _security_report_intake_failure(
+                source_ref=security_ref.strip(),
+                reason_code="security_report_artifact_store_unavailable",
+                observed_manifest=None,
+            )
+        return {}, [], [], security_report_intake
     for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
         ref = refs.get(ref_key)
         if not isinstance(ref, str) or not ref.strip():
             continue
+        observed_manifest: _SecurityReportManifestIdentity | None = None
+        if report_key == "security_assurance_report":
+            observed_manifest, manifest_error = _security_assurance_manifest_identity(
+                store,
+                ref,
+            )
+            if manifest_error is not None:
+                security_report_intake = _security_report_intake_failure(
+                    source_ref=ref.strip(),
+                    reason_code=manifest_error,
+                    observed_manifest=observed_manifest,
+                )
+                continue
         report = _load_json_report_from_store(store, ref)
         if report is None:
+            if report_key == "security_assurance_report":
+                security_report_intake = _security_report_intake_failure(
+                    source_ref=ref.strip(),
+                    reason_code="security_report_payload_unreadable_or_non_mapping",
+                    observed_manifest=observed_manifest,
+                )
             continue
         envelope, diagnostic_event, event_ref = _runtime_authority_sidecars_from_store(
             store=store,
@@ -4142,7 +4470,12 @@ def _quality_reports_from_refs_with_authority(
         if event_ref is not None:
             diagnostic_event_log_refs.append(event_ref)
         reports[report_key] = report
-    return reports, _dedupe_diagnostic_events(diagnostic_events), diagnostic_event_log_refs
+    return (
+        reports,
+        _dedupe_diagnostic_events(diagnostic_events),
+        diagnostic_event_log_refs,
+        security_report_intake,
+    )
 
 
 def _direct_mapping(payload: Any, key: str) -> dict[str, Any] | None:
@@ -4375,7 +4708,8 @@ def _replay_reports_from_payloads(
             ),
             dict(existing_drift),
         )
-    refs = dict(getattr(quality_ref_resolution, "refs", {}) or {})
+    unrejected_refs = getattr(quality_ref_resolution, "unrejected_refs", None)
+    refs = dict(unrejected_refs()) if callable(unrejected_refs) else {}
     manifest = (
         dict(existing_manifest)
         if isinstance(existing_manifest, dict)
@@ -4447,23 +4781,6 @@ def _decision_artifact_quality_from_payloads(
     existing_report = raw_quality_evidence.get("decision_artifact_quality")
     if isinstance(existing_report, dict) and quality_scorecard is None:
         return dict(existing_report)
-    policy_design_case = _first_dict(
-        quality_evidence_payload.get("policy_design_case"),
-        _nested_get(job_payload, "policy_design_case"),
-        _nested_get(run_payload, "policy_design_case"),
-        raw_quality_evidence.get("policy_design_case"),
-    )
-    claim_registry = _first_dict(
-        policy_design_case.get("claim_registry") if policy_design_case else None,
-        quality_evidence_payload.get("claim_registry"),
-        _nested_get(job_payload, "claim_registry"),
-        _nested_get(run_payload, "claim_registry"),
-    )
-    runtime_authority = _first_dict(
-        policy_design_case.get("runtime_authority") if policy_design_case else None,
-        policy_design_case.get("authority_chain") if policy_design_case else None,
-        claim_registry.get("runtime_authority") if claim_registry else None,
-    )
     final_claims = _final_claims_from_payloads(
         job_payload,
         run_payload,
@@ -4699,9 +5016,16 @@ def _quality_ref_resolution_evidence_with_generated_refs(
         for item in evidence.get("missing_evidence", [])
         if isinstance(item, dict) and str(item.get("missing_evidence_type") or "") in missing_set
     ]
+    rejections = evidence.get("rejections")
     evidence.update(
         {
-            "status": "complete" if not missing else "missing",
+            "status": (
+                "invalid"
+                if isinstance(rejections, list) and rejections
+                else "complete"
+                if not missing
+                else "missing"
+            ),
             "refs": refs,
             "matches": matches,
             "missing": missing,
@@ -4732,22 +5056,18 @@ def assemble_canary_evidence(
 ) -> Path:
     """Write one sanitized evidence bundle and return its directory."""
     evidence_started_at = time.perf_counter()
-    job_id = str((job_payload or {}).get("job_id") or "no-job")
-    run_id = (job_payload or {}).get("run_id") or (run_payload or {}).get("run_id")
-    status = str((job_payload or {}).get("state") or (run_payload or {}).get("status") or "unknown")
-    root = Path(output_root)
-    bundle_dir = Path(output_dir) if output_dir else root / f"{_utc_stamp()}_{job_id}"
-    bundle_dir.mkdir(parents=True, exist_ok=True)
-    quality_dir = bundle_dir / "quality_evidence"
-    quality_dir.mkdir(parents=True, exist_ok=True)
     serious_bundle = _serious_canary(canary_kind)
 
-    failure = _extract_failure(job_payload)
-    runtime_quality_evidence = _runtime_quality_evidence_from_payloads(
-        job_payload,
-        run_payload,
-        agents_payload,
-    )
+    raw_source_payloads = {
+        "job": job_payload,
+        "run": run_payload,
+        "agents": agents_payload,
+        "timeline": timeline_payload,
+        "lineage": lineage_payload,
+        "request": request_payload,
+        "quality_evidence": quality_evidence,
+    }
+    raw_input_quality_evidence = quality_evidence
     request_payload_for_quality_refs = None if serious_bundle else request_payload
     quality_ref_resolution = resolve_quality_refs(
         run_params=_first_dict(
@@ -4766,6 +5086,74 @@ def assemble_canary_evidence(
         lineage=lineage_payload,
         control_progress=_nested_get(job_payload, "progress"),
     )
+    runtime_quality_authority_refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+        job_payload=job_payload,
+        run_payload=run_payload,
+        quality_evidence=raw_input_quality_evidence,
+    )
+    whole_source_ref_intake = RuntimeQualityAuthorityRefs.from_sources(
+        source_payloads=raw_source_payloads,
+    )
+    quality_ref_resolution_rejections = _quality_ref_resolution_rejections(
+        quality_ref_resolution,
+        runtime_quality_authority_refs,
+        whole_source_ref_intake,
+    )
+    rejected_quality_ref_keys, has_unscoped_ref_rejection = _rejected_quality_ref_keys(
+        quality_ref_resolution_rejections
+    )
+    admitted_source_payloads = {
+        source_name: _payload_without_rejected_quality_refs(
+            payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        for source_name, payload in raw_source_payloads.items()
+    }
+    job_payload = admitted_source_payloads["job"]
+    run_payload = admitted_source_payloads["run"]
+    agents_payload = admitted_source_payloads["agents"]
+    timeline_payload = admitted_source_payloads["timeline"]
+    lineage_payload = admitted_source_payloads["lineage"]
+    request_payload = admitted_source_payloads["request"]
+    admitted_input_quality_evidence = admitted_source_payloads["quality_evidence"] or {}
+    quality_evidence = admitted_input_quality_evidence
+    job_id = str((job_payload or {}).get("job_id") or "no-job")
+    run_id = (job_payload or {}).get("run_id") or (run_payload or {}).get("run_id")
+    status = str((job_payload or {}).get("state") or (run_payload or {}).get("status") or "unknown")
+    root = Path(output_root)
+    bundle_dir = Path(output_dir) if output_dir else root / f"{_utc_stamp()}_{job_id}"
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+    quality_dir = bundle_dir / "quality_evidence"
+    quality_dir.mkdir(parents=True, exist_ok=True)
+    failure = _extract_failure(job_payload)
+    runtime_quality_evidence = _runtime_quality_evidence_from_payloads(
+        job_payload,
+        run_payload,
+        agents_payload,
+    )
+
+    def admit_quality_evidence_payload(payload: dict[str, Any]) -> dict[str, Any]:
+        return _payload_without_rejected_quality_refs(
+            payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        ) or {}
+
+    admitted_quality_ref_refs = _unrejected_quality_refs(
+        quality_ref_resolution,
+        rejected_keys=rejected_quality_ref_keys,
+        has_unscoped_container_rejection=has_unscoped_ref_rejection,
+    )
+    admitted_runtime_quality_refs = _unrejected_runtime_quality_refs(
+        runtime_quality_authority_refs,
+        rejected_keys=rejected_quality_ref_keys,
+        has_unscoped_container_rejection=has_unscoped_ref_rejection,
+    )
+    security_ref_resolution_rejections = _security_report_resolution_rejections(
+        quality_ref_resolution_rejections
+    )
+    report_refs_for_loading = dict(admitted_quality_ref_refs)
     resolved_artifact_store = _artifact_store_from_context(
         artifact_store=artifact_store,
         cas_root=cas_root,
@@ -4775,10 +5163,41 @@ def assemble_canary_evidence(
         loaded_quality_reports,
         loaded_diagnostic_events,
         loaded_diagnostic_event_log_refs,
+        security_report_intake,
     ) = _quality_reports_from_refs_with_authority(
-        refs=quality_ref_resolution.refs,
+        refs=report_refs_for_loading,
         store=resolved_artifact_store,
     )
+    cas_identity_rejections = _cas_report_identity_rejections(
+        refs=report_refs_for_loading,
+        reports=loaded_quality_reports,
+    )
+    if cas_identity_rejections:
+        quality_ref_resolution_rejections.extend(cas_identity_rejections)
+        new_rejected_keys, new_unscoped_rejection = _rejected_quality_ref_keys(
+            quality_ref_resolution_rejections
+        )
+        rejected_quality_ref_keys.update(new_rejected_keys)
+        has_unscoped_ref_rejection = has_unscoped_ref_rejection or new_unscoped_rejection
+        for row in cas_identity_rejections:
+            key = row.get("key")
+            if isinstance(key, str):
+                report_key = next(
+                    (name for name, role in QUALITY_REPORT_RUNTIME_REFS.items() if role == key),
+                    None,
+                )
+                if report_key is not None:
+                    loaded_quality_reports.pop(report_key, None)
+    security_ref_resolution_rejections = _security_report_resolution_rejections(
+        quality_ref_resolution_rejections
+    )
+    if security_ref_resolution_rejections:
+        security_report_intake = _security_report_intake_failure(
+            source_ref=None,
+            reason_code="security_report_reference_resolution_rejected",
+            observed_manifest=None,
+            resolution_rejections=security_ref_resolution_rejections,
+        )
     dashboard_payload = _collect_dashboard_evidence(dashboard_evidence, env=env)
     production_data_evidence = _extract_production_data_evidence(
         job_payload=job_payload,
@@ -4787,6 +5206,19 @@ def assemble_canary_evidence(
         request_payload=request_payload,
     )
     security_assurance_report_ref = f"quality_evidence/{SECURITY_REPORT_FILE}"
+    supplied_security_report_ref = admitted_quality_ref_refs.get(
+        SECURITY_ASSURANCE_REPORT_REF_KEY
+    )
+    security_report_source_ref = (
+        None
+        if security_ref_resolution_rejections
+        else (
+            supplied_security_report_ref.strip()
+            if isinstance(supplied_security_report_ref, str)
+            and supplied_security_report_ref.strip()
+            else security_assurance_report_ref
+        )
+    )
     security_assurance_report = build_security_assurance_report(
         payloads={
             "llm": sanitize_for_evidence(
@@ -4813,7 +5245,7 @@ def assemble_canary_evidence(
                     )
                     or _nested_get(run_payload, "production_data_evidence_context")
                     or {},
-                    "quality_evidence": quality_evidence or {},
+                    "quality_evidence": admitted_input_quality_evidence,
                 }
             ),
             "artifact": sanitize_for_evidence(
@@ -4858,18 +5290,34 @@ def assemble_canary_evidence(
         evidence_collection_duration_ms=(time.perf_counter() - evidence_started_at) * 1000.0,
     )
     production_data_quality_report_ref = "quality_evidence/production_data_quality.json"
-    input_quality_evidence = dict(quality_evidence or {})
-    merged_quality_evidence = {
-        **input_quality_evidence,
-        **loaded_quality_reports,
-        **runtime_quality_evidence,
-    }
-    security_report_for_payload = (
-        merged_quality_evidence.get("security_assurance_report")
-        if serious_bundle
+    input_quality_evidence = dict(admitted_input_quality_evidence)
+    runtime_quality_evidence = admit_quality_evidence_payload(runtime_quality_evidence)
+    if serious_bundle:
+        merged_quality_evidence = {
+            **admitted_input_quality_evidence,
+            **runtime_quality_evidence,
+            **loaded_quality_reports,
+        }
+    else:
+        merged_quality_evidence = {
+            **admitted_input_quality_evidence,
+            **loaded_quality_reports,
+            **runtime_quality_evidence,
+        }
+    if security_report_intake is not None:
+        # A supplied ref is a selection attempt. Do not replace a rejected ref with an
+        # overlay or a locally generated report; retain the refusal as the deciding input.
+        merged_quality_evidence.pop("security_assurance_report", None)
+        security_report_for_payload = None
+    elif isinstance(loaded_quality_reports.get("security_assurance_report"), dict):
+        security_report_for_payload = loaded_quality_reports["security_assurance_report"]
+    elif (
+        serious_bundle
         and isinstance(merged_quality_evidence.get("security_assurance_report"), dict)
-        else security_assurance_report
-    )
+    ):
+        security_report_for_payload = merged_quality_evidence["security_assurance_report"]
+    else:
+        security_report_for_payload = security_assurance_report
     raw_quality_evidence_payload = {
         **merged_quality_evidence,
         "production_data_quality": _production_data_quality_report_from_payloads(
@@ -4877,13 +5325,24 @@ def assemble_canary_evidence(
             report_ref=production_data_quality_report_ref,
             production_data_evidence=production_data_evidence,
         ),
-        "security_assurance_report": security_report_for_payload,
     }
+    if security_report_for_payload is not None:
+        raw_quality_evidence_payload["security_assurance_report"] = security_report_for_payload
+    if security_report_intake is not None:
+        raw_quality_evidence_payload[SECURITY_REPORT_INTAKE_KEY] = security_report_intake
     quality_evidence_payload = normalize_quality_evidence(
         raw_quality_evidence_payload,
         canary_kind=canary_kind,
     )
-    if (
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    privacy_report_ref_rejected = _quality_ref_key_is_rejected(
+        PRIVACY_COMPLIANCE_REPORT_REF_KEY,
+        rejected_quality_ref_keys,
+        has_unscoped_ref_rejection,
+    )
+    if privacy_report_ref_rejected:
+        quality_evidence_payload.pop(PRIVACY_COMPLIANCE_REPORT_KEY, None)
+    elif (
         serious_bundle
         and isinstance(
             merged_quality_evidence.get(PRIVACY_COMPLIANCE_REPORT_KEY),
@@ -4909,6 +5368,7 @@ def assemble_canary_evidence(
         quality_evidence_payload,
         canary_kind=canary_kind,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     replay_manifest, drift_explanation = _replay_reports_from_payloads(
         raw_quality_evidence=raw_quality_evidence_payload,
         request_payload=request_payload,
@@ -4941,9 +5401,10 @@ def assemble_canary_evidence(
     )
     provisional_assurance_refs = {
         **_generated_runtime_quality_refs(quality_evidence_payload),
-        SECURITY_ASSURANCE_REPORT_REF_KEY: security_assurance_report_ref,
         PRIVACY_COMPLIANCE_REPORT_REF_KEY: PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
     }
+    if security_report_source_ref is not None:
+        provisional_assurance_refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = security_report_source_ref
     quality_evidence_payload.setdefault(
         "decision_artifact_quality",
         _decision_artifact_quality_from_payloads(
@@ -5001,20 +5462,27 @@ def assemble_canary_evidence(
         quality_evidence_payload,
         canary_kind=canary_kind,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    runtime_reports_to_preserve = {
+        **admit_quality_evidence_payload(runtime_quality_evidence),
+        **admit_quality_evidence_payload(loaded_quality_reports),
+    }
+    if security_report_intake is not None:
+        runtime_reports_to_preserve.pop("security_assurance_report", None)
     quality_evidence_payload = _preserve_runtime_report_failures(
         quality_evidence_payload,
-        {
-            **runtime_quality_evidence,
-            **loaded_quality_reports,
-        },
+        runtime_reports_to_preserve,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     quality_evidence_payload = _with_dev_smoke_warn_scoped_reports(
         quality_evidence_payload,
         canary_kind=canary_kind,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     quality_evidence_payload = _with_prompt_tool_secondary_signal_findings(
         quality_evidence_payload,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     quality_evidence_payload = _with_wave7_producer_pipeline(
         quality_evidence_payload=quality_evidence_payload,
         canary_kind=canary_kind,
@@ -5023,15 +5491,15 @@ def assemble_canary_evidence(
         job_payload=job_payload,
         run_payload=run_payload,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     generated_quality_refs = _generated_runtime_quality_refs(quality_evidence_payload)
     runtime_source_refs = {
-        **quality_ref_resolution.refs,
-        **RuntimeQualityAuthorityRefs.from_runtime_payloads(
-            job_payload=job_payload,
-            run_payload=run_payload,
-        ).refs,
+        **admitted_quality_ref_refs,
+        **admitted_runtime_quality_refs,
     }
-    optional_runtime_ref_keys = _optional_runtime_quality_ref_keys(job_payload, run_payload)
+    optional_runtime_ref_keys = _optional_runtime_quality_ref_keys(
+        job_payload, run_payload, admitted_input_quality_evidence
+    )
     scorecard_generated_refs = (
         {}
         if serious_bundle
@@ -5039,6 +5507,9 @@ def assemble_canary_evidence(
             key: value
             for key, value in generated_quality_refs.items()
             if key not in optional_runtime_ref_keys
+            and not _quality_ref_key_is_rejected(
+                key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+            )
         }
     )
     scorecard_runtime_refs = {
@@ -5048,8 +5519,20 @@ def assemble_canary_evidence(
             {}
             if serious_bundle
             else {
-                SECURITY_ASSURANCE_REPORT_REF_KEY: security_assurance_report_ref,
-                PRIVACY_COMPLIANCE_REPORT_REF_KEY: PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
+                **(
+                    {}
+                    if security_ref_resolution_rejections or security_report_source_ref is None
+                    else {SECURITY_ASSURANCE_REPORT_REF_KEY: security_report_source_ref}
+                ),
+                **(
+                    {}
+                    if _quality_ref_key_is_rejected(
+                        PRIVACY_COMPLIANCE_REPORT_REF_KEY,
+                        rejected_quality_ref_keys,
+                        has_unscoped_ref_rejection,
+                    )
+                    else {PRIVACY_COMPLIANCE_REPORT_REF_KEY: PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF}
+                ),
             }
         ),
     }
@@ -5062,12 +5545,18 @@ def assemble_canary_evidence(
                 ref_key: _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir))
                 for ref_key in AGGREGATE_CLOSEOUT_REF_KEYS
                 if ref_key not in scorecard_runtime_refs
+                and not _quality_ref_key_is_rejected(
+                    ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+                )
             }
         )
         for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
             if (
                 report_key in CANARY_GENERATED_RUNTIME_REF_REPORTS
                 and report_key in quality_evidence_payload
+                and not _quality_ref_key_is_rejected(
+                    ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+                )
                 and (
                     ref_key not in scorecard_runtime_refs
                     or _cas_like_ref(scorecard_runtime_refs.get(ref_key)) is None
@@ -5081,6 +5570,10 @@ def assemble_canary_evidence(
                 )
         for report_key in CONTINUOUS_GOVERNANCE_REPORT_KEYS:
             ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
+            if _quality_ref_key_is_rejected(
+                ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+            ):
+                continue
             scorecard_runtime_refs.setdefault(
                 ref_key,
                 _stable_authority_ref(ref_key, run_id, job_id, str(bundle_dir)),
@@ -5095,7 +5588,13 @@ def assemble_canary_evidence(
         )
         for report_key in CONTINUOUS_GOVERNANCE_REPORT_KEYS:
             ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
-            record = preliminary_index["records"][ref_key]
+            if _quality_ref_key_is_rejected(
+                ref_key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+            ):
+                continue
+            record = preliminary_index["records"].get(ref_key)
+            if not isinstance(record, dict):
+                continue
             preliminary_payload[report_key] = _continuous_governance_report(
                 report_key=report_key,
                 runtime_ref=scorecard_runtime_refs[ref_key],
@@ -5118,13 +5617,16 @@ def assemble_canary_evidence(
             job_id=job_id,
             base_authority_envelope=base_closeout_authority_envelope,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload = _quality_evidence_with_closeout_authority_refs(
             quality_evidence_payload,
             closeout_authority_index,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload = _quality_evidence_with_reader_valid_semantic_binding(
             quality_evidence_payload
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     else:
         closeout_authority_index = None
     if serious_bundle:
@@ -5158,6 +5660,7 @@ def assemble_canary_evidence(
                 evidence_ref="quality_evidence/diagnostic_slo_report.json",
             ),
         )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     legacy_migration_sandbox = _write_legacy_migration_sandbox_outputs(
         bundle_dir=bundle_dir,
         canary_kind=canary_kind,
@@ -5168,9 +5671,28 @@ def assemble_canary_evidence(
     )
     if legacy_migration_sandbox is not None:
         quality_evidence_payload["legacy_migration_sandbox"] = legacy_migration_sandbox
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    scorecard_source_job_payload = (
+        _payload_without_rejected_quality_refs(
+            job_payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        if quality_ref_resolution_rejections
+        else job_payload
+    )
+    scorecard_source_run_payload = (
+        _payload_without_rejected_quality_refs(
+            run_payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        if quality_ref_resolution_rejections
+        else run_payload
+    )
     scorecard_job_payload, scorecard_run_payload = _scorecard_payloads_with_quality_refs(
-        job_payload=job_payload,
-        run_payload=run_payload,
+        job_payload=scorecard_source_job_payload,
+        run_payload=scorecard_source_run_payload,
         refs=scorecard_runtime_refs,
     )
     closeout_diagnostic_events = []
@@ -5260,15 +5782,15 @@ def assemble_canary_evidence(
             scorecard_run_payload,
             canary_performance_budget,
         )
-    if not serious_bundle:
+    if not serious_bundle and security_report_source_ref is not None:
         scorecard_job_payload = _payload_with_security_assurance_ref(
             scorecard_job_payload,
-            security_assurance_report_ref,
+            security_report_source_ref,
         )
         if scorecard_job_payload is None:
             scorecard_run_payload = _payload_with_security_assurance_ref(
                 scorecard_run_payload,
-                security_assurance_report_ref,
+                security_report_source_ref,
             )
     scorecard_job_payload = _payload_with_authoritative_progress_state(
         scorecard_job_payload,
@@ -5280,24 +5802,28 @@ def assemble_canary_evidence(
             run_payload=scorecard_run_payload,
             canary_kind=canary_kind,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload = _with_wave4_i4_policy_design_case_outputs(
             quality_evidence_payload=quality_evidence_payload,
             run_id=run_id,
             job_id=job_id,
             canary_kind=canary_kind,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     quality_evidence_payload = _with_cost_degradation_telemetry(
         quality_evidence_payload=quality_evidence_payload,
         job_payload=scorecard_job_payload,
         run_payload=scorecard_run_payload,
         canary_kind=canary_kind,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     quality_evidence_payload = _with_run_cost_gate(
         quality_evidence_payload=quality_evidence_payload,
         job_payload=scorecard_job_payload,
         run_payload=scorecard_run_payload,
         canary_kind=canary_kind,
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     if serious_bundle:
         quality_evidence_payload["public_export_bundle"] = (
             _public_export_bundle_from_quality_evidence(
@@ -5364,6 +5890,19 @@ def assemble_canary_evidence(
         quality_evidence_payload = _with_semantic_binding_ref_on_authority_envelopes(
             quality_evidence_payload
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    scorecard_job_payload = _payload_without_rejected_quality_refs(
+        scorecard_job_payload,
+        rejected_keys=rejected_quality_ref_keys,
+        has_unscoped_container_rejection=has_unscoped_ref_rejection,
+    )
+    scorecard_run_payload = _payload_without_rejected_quality_refs(
+        scorecard_run_payload,
+        rejected_keys=rejected_quality_ref_keys,
+        has_unscoped_container_rejection=has_unscoped_ref_rejection,
+    )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    scorecard_quality_evidence_payload = quality_evidence_payload
     quality_scorecard = build_quality_scorecard(
         canary_kind=canary_kind,
         job_id=None if job_id == "no-job" else job_id,
@@ -5372,7 +5911,7 @@ def assemble_canary_evidence(
         job_payload=scorecard_job_payload,
         run_payload=scorecard_run_payload,
         provider_preflight=provider_preflight,
-        quality_evidence=quality_evidence_payload,
+        quality_evidence=scorecard_quality_evidence_payload or {},
         quality_scorecard_ref="quality_evidence/quality_scorecard.json",
         quality_evidence_bundle_path=str(bundle_dir),
     )
@@ -5418,6 +5957,21 @@ def assemble_canary_evidence(
                     quality_evidence_payload,
                     report_keys=("policy_design_case", "semantic_binding_ledger"),
                 )
+        scorecard_job_payload = _payload_without_rejected_quality_refs(
+            scorecard_job_payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        scorecard_run_payload = _payload_without_rejected_quality_refs(
+            scorecard_run_payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
+        scorecard_quality_evidence_payload = _payload_without_rejected_quality_refs(
+            quality_evidence_payload,
+            rejected_keys=rejected_quality_ref_keys,
+            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        )
         quality_scorecard = build_quality_scorecard(
             canary_kind=canary_kind,
             job_id=None if job_id == "no-job" else job_id,
@@ -5426,7 +5980,7 @@ def assemble_canary_evidence(
             job_payload=scorecard_job_payload,
             run_payload=scorecard_run_payload,
             provider_preflight=provider_preflight,
-            quality_evidence=quality_evidence_payload,
+            quality_evidence=scorecard_quality_evidence_payload or {},
             quality_scorecard_ref="quality_evidence/quality_scorecard.json",
             quality_evidence_bundle_path=str(bundle_dir),
         )
@@ -5440,6 +5994,7 @@ def assemble_canary_evidence(
             quality_scorecard=quality_scorecard,
         )
     )
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     if serious_bundle:
         quality_evidence_payload = _with_wave4_i4_closeout_reader_records(
             quality_evidence_payload=quality_evidence_payload,
@@ -5447,10 +6002,12 @@ def assemble_canary_evidence(
             run_id=run_id,
             job_id=job_id,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload["assurance_case"] = build_assurance_case_for_scorecard(
             quality_scorecard,
             owner="team-assurance",
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload["public_export_bundle"] = (
             _public_export_bundle_from_quality_evidence(
                 run_id=run_id,
@@ -5458,6 +6015,7 @@ def assemble_canary_evidence(
                 quality_scorecard=quality_scorecard,
             )
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload["scenario_contract_propagation_graph"] = (
             build_scenario_contract_propagation_graph(
                 request_payload=request_payload or {},
@@ -5472,6 +6030,7 @@ def assemble_canary_evidence(
                 code_revision=_git_sha(),
             )
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload["evidence_spine_handoff_ledger"] = (
             build_canary_evidence_handoff_ledger(
                 bundle_ref=str(bundle_dir),
@@ -5483,12 +6042,18 @@ def assemble_canary_evidence(
                 dashboard_payload=dashboard_payload,
             )
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     bundle_job_payload = (
         _payload_with_scorecard_control_progress(scorecard_job_payload, quality_scorecard)
         if job_payload is not None and scorecard_job_payload is not None
         else None
     )
     if serious_bundle:
+        replay_manifest_ref_rejected = _quality_ref_key_is_rejected(
+            QUALITY_REPORT_RUNTIME_REFS["replay_manifest"],
+            rejected_quality_ref_keys,
+            has_unscoped_ref_rejection,
+        )
         continuity_bundle_payload = {
             "bundle_ref": str(bundle_dir),
             "files": {
@@ -5517,11 +6082,18 @@ def assemble_canary_evidence(
                     scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
                 ),
                 job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
-                replay_manifest=quality_evidence_payload.get("replay_manifest")
-                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+                replay_manifest=admit_quality_evidence_payload(quality_evidence_payload).get(
+                    "replay_manifest"
+                )
+                if isinstance(
+                    admit_quality_evidence_payload(quality_evidence_payload).get(
+                        "replay_manifest"
+                    ),
+                    dict,
+                )
                 else None,
                 bundle_payload=continuity_bundle_payload,
-                quality_evidence=quality_evidence_payload,
+                quality_evidence=admit_quality_evidence_payload(quality_evidence_payload),
                 inspection_report=continuity_inspection_payload,
                 readiness_payload=continuity_readiness_payload,
                 export_payload=quality_evidence_payload.get("public_export_bundle")
@@ -5529,20 +6101,23 @@ def assemble_canary_evidence(
                 else None,
             )
         )
-        quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
-            quality_evidence_payload.get("replay_manifest")
-            if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
-            else {},
-            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
-        )
-        quality_evidence_payload["drift_explanation"] = explain_replay_drift(
-            baseline_manifest=quality_evidence_payload["replay_manifest"],
-            replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
-        )
+        if not replay_manifest_ref_rejected:
+            quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
+                quality_evidence_payload.get("replay_manifest")
+                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+                else {},
+                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
+            )
+            quality_evidence_payload["drift_explanation"] = explain_replay_drift(
+                baseline_manifest=quality_evidence_payload["replay_manifest"],
+                replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
+            )
         quality_evidence_payload["public_export_bundle"] = (
             _public_export_bundle_from_quality_evidence(
                 run_id=run_id,
-                quality_evidence_payload=quality_evidence_payload,
+                quality_evidence_payload=admit_quality_evidence_payload(
+                    quality_evidence_payload
+                ),
                 quality_scorecard=quality_scorecard,
             )
         )
@@ -5553,33 +6128,42 @@ def assemble_canary_evidence(
                     scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
                 ),
                 job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
-                replay_manifest=quality_evidence_payload["replay_manifest"],
+                replay_manifest=admit_quality_evidence_payload(quality_evidence_payload).get(
+                    "replay_manifest"
+                ),
                 bundle_payload=continuity_bundle_payload,
-                quality_evidence=quality_evidence_payload,
+                quality_evidence=admit_quality_evidence_payload(quality_evidence_payload),
                 inspection_report=continuity_inspection_payload,
                 readiness_payload=continuity_readiness_payload,
-                export_payload=quality_evidence_payload["public_export_bundle"],
+                export_payload=quality_evidence_payload.get("public_export_bundle"),
             )
         )
-        quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
-            quality_evidence_payload["replay_manifest"],
-            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
-        )
-        quality_evidence_payload["drift_explanation"] = explain_replay_drift(
-            baseline_manifest=quality_evidence_payload["replay_manifest"],
-            replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
-        )
+        if not replay_manifest_ref_rejected:
+            quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
+                quality_evidence_payload.get("replay_manifest")
+                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+                else {},
+                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
+            )
+            quality_evidence_payload["drift_explanation"] = explain_replay_drift(
+                baseline_manifest=quality_evidence_payload["replay_manifest"],
+                replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
+            )
         quality_evidence_payload["public_export_bundle"] = (
             _public_export_bundle_from_quality_evidence(
                 run_id=run_id,
-                quality_evidence_payload=quality_evidence_payload,
+                quality_evidence_payload=admit_quality_evidence_payload(
+                    quality_evidence_payload
+                ),
                 quality_scorecard=quality_scorecard,
             )
         )
         quality_evidence_payload["evidence_spine_handoff_ledger"] = (
             build_canary_evidence_handoff_ledger(
                 bundle_ref=str(bundle_dir),
-                quality_evidence_payload=quality_evidence_payload,
+                quality_evidence_payload=admit_quality_evidence_payload(
+                    quality_evidence_payload
+                ),
                 job_payload=bundle_job_payload or job_payload,
                 run_payload=scorecard_run_payload,
                 request_payload=request_payload,
@@ -5588,11 +6172,13 @@ def assemble_canary_evidence(
             )
         )
         quality_evidence_payload = _with_schema_compatibility_for_closeout(
-            quality_evidence_payload=quality_evidence_payload,
+            quality_evidence_payload=admit_quality_evidence_payload(quality_evidence_payload),
             run_id=run_id,
             job_id=job_id,
             canary_kind=canary_kind,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
+    quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     refs = []
     for source_name, payload in (
         ("job", bundle_job_payload if bundle_job_payload is not None else job_payload),
@@ -5704,6 +6290,11 @@ def assemble_canary_evidence(
                     if "effective_mode_ledger" in quality_evidence_payload
                     else None
                 ),
+                "security_assurance_report_intake": (
+                    f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
+                    if SECURITY_REPORT_INTAKE_KEY in quality_evidence_payload
+                    else None
+                ),
                 **{
                     key: (
                         f"quality_evidence/{filename}" if key in quality_evidence_payload else None
@@ -5721,16 +6312,17 @@ def assemble_canary_evidence(
     closeout_compatibility = build_closeout_compatibility_record(
         bundle_payload=bundle,
         scorecard_payload=quality_scorecard,
-        quality_reports=quality_evidence_payload,
+        quality_reports=admit_quality_evidence_payload(quality_evidence_payload),
         authority_profile_version=canary_kind,
     )
     if serious_bundle:
         quality_evidence_payload = _with_wave4_i4_closeout_verdict(
-            quality_evidence_payload=quality_evidence_payload,
+            quality_evidence_payload=admit_quality_evidence_payload(quality_evidence_payload),
             closeout_compatibility=closeout_compatibility,
             quality_scorecard=quality_scorecard,
             run_id=run_id,
         )
+        quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         bundle["files"]["quality_evidence"]["can_i_closeout"] = (
             "quality_evidence/can_i_closeout.json"
         )
@@ -5767,6 +6359,11 @@ def assemble_canary_evidence(
             quality_dir / "effective_mode_ledger.json",
             quality_evidence_payload["effective_mode_ledger"],
         )
+    if SECURITY_REPORT_INTAKE_KEY in quality_evidence_payload:
+        _write_json(
+            quality_dir / SECURITY_REPORT_INTAKE_FILE,
+            quality_evidence_payload[SECURITY_REPORT_INTAKE_KEY],
+        )
     for key, filename in QUALITY_REPORT_FILES.items():
         if key in quality_evidence_payload:
             _write_json(quality_dir / filename, quality_evidence_payload[key])
@@ -5787,20 +6384,129 @@ def assemble_canary_evidence(
         sanitize_for_evidence(request_payload or {}, redact_local_paths=True),
     )
     _write_json(bundle_dir / "env.sanitized.json", collect_sanitized_env(env))
+    quality_resolution_generated_refs = {
+        key: value
+        for key, value in generated_quality_refs.items()
+        if not _quality_ref_key_is_rejected(
+            key, rejected_quality_ref_keys, has_unscoped_ref_rejection
+        )
+    }
+    if not _quality_ref_key_is_rejected(
+        PRIVACY_COMPLIANCE_REPORT_REF_KEY,
+        rejected_quality_ref_keys,
+        has_unscoped_ref_rejection,
+    ):
+        quality_resolution_generated_refs[PRIVACY_COMPLIANCE_REPORT_REF_KEY] = (
+            PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF
+        )
+    if security_report_source_ref is not None:
+        quality_resolution_generated_refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = (
+            security_report_source_ref
+        )
+    quality_ref_resolution_evidence = _quality_ref_resolution_evidence_with_generated_refs(
+        quality_ref_resolution,
+        quality_resolution_generated_refs,
+        include_generated_refs=not serious_bundle,
+    )
+    if quality_ref_resolution_rejections:
+        existing_rejections = quality_ref_resolution_evidence.get("rejections", [])
+        merged_rejections = [
+            dict(item) for item in existing_rejections if isinstance(item, dict)
+        ] if isinstance(existing_rejections, list) else []
+        seen_rejections = {
+            tuple(
+                item.get(name)
+                for name in (
+                    "key",
+                    "source",
+                    "path",
+                    "reason",
+                    "input_type",
+                    "value_sha256",
+                    "value_length",
+                )
+            )
+            for item in merged_rejections
+        }
+        for rejection in quality_ref_resolution_rejections:
+            identity = tuple(
+                rejection[name]
+                for name in (
+                    "key",
+                    "source",
+                    "path",
+                    "reason",
+                    "input_type",
+                    "value_sha256",
+                    "value_length",
+                )
+            )
+            if identity not in seen_rejections:
+                merged_rejections.append(dict(rejection))
+                seen_rejections.add(identity)
+        quality_ref_resolution_evidence["rejections"] = merged_rejections
+        quality_ref_resolution_evidence["status"] = "invalid"
+    resolution_refs = quality_ref_resolution_evidence.get("refs")
+    if isinstance(resolution_refs, Mapping):
+        admitted_resolution_refs = {
+            key: value
+            for key, value in resolution_refs.items()
+            if isinstance(key, str)
+            and not _quality_ref_key_is_rejected(
+                key,
+                rejected_quality_ref_keys,
+                has_unscoped_ref_rejection,
+            )
+        }
+        quality_ref_resolution_evidence["refs"] = admitted_resolution_refs
+    else:
+        quality_ref_resolution_evidence["refs"] = {}
+        admitted_resolution_refs = {}
+    resolution_sources = quality_ref_resolution_evidence.get("sources")
+    if isinstance(resolution_sources, Mapping):
+        quality_ref_resolution_evidence["sources"] = {
+            key: source
+            for key, source in resolution_sources.items()
+            if isinstance(key, str)
+            and key in admitted_resolution_refs
+            and isinstance(source, str)
+        }
+    resolution_matches = quality_ref_resolution_evidence.get("matches")
+    if isinstance(resolution_matches, list):
+        quality_ref_resolution_evidence["matches"] = [
+            match
+            for match in resolution_matches
+            if isinstance(match, dict)
+            and isinstance(match.get("key"), str)
+            and not _quality_ref_key_is_rejected(
+                match["key"],
+                rejected_quality_ref_keys,
+                has_unscoped_ref_rejection,
+            )
+        ]
+    required_resolution_refs = quality_ref_resolution_evidence.get("required")
+    if isinstance(required_resolution_refs, list):
+        missing_resolution_refs = [
+            key
+            for key in required_resolution_refs
+            if isinstance(key, str) and key not in admitted_resolution_refs
+        ]
+        quality_ref_resolution_evidence["missing"] = missing_resolution_refs
+        missing_resolution_set = set(missing_resolution_refs)
+        missing_resolution_evidence = quality_ref_resolution_evidence.get("missing_evidence")
+        if isinstance(missing_resolution_evidence, list):
+            quality_ref_resolution_evidence["missing_evidence"] = [
+                item
+                for item in missing_resolution_evidence
+                if isinstance(item, dict)
+                and item.get("missing_evidence_type") in missing_resolution_set
+            ]
     _write_json(
         bundle_dir / "artifacts.json",
         {
             "refs": refs,
             "materialization_refs": artifacts_materialization_refs,
-            "quality_ref_resolution": _quality_ref_resolution_evidence_with_generated_refs(
-                quality_ref_resolution,
-                {
-                    **generated_quality_refs,
-                    SECURITY_ASSURANCE_REPORT_REF_KEY: security_assurance_report_ref,
-                    PRIVACY_COMPLIANCE_REPORT_REF_KEY: PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
-                },
-                include_generated_refs=not serious_bundle,
-            ),
+            "quality_ref_resolution": quality_ref_resolution_evidence,
         },
     )
     if bundle_job_payload is not None:

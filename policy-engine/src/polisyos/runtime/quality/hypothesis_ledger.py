@@ -14,13 +14,15 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     PromptToolParserAuthorityLedger,
     persist_runtime_quality_json_artifact,
 )
+from polisyos.runtime.quality.report_registry import (
+    HYPOTHESIS_LEDGER_FILENAME,
+    HYPOTHESIS_LEDGER_REF_KEY,
+    HYPOTHESIS_LEDGER_REPORT_KEY,
+)
 
 HYPOTHESIS_LEDGER_SCHEMA_VERSION = "policyos.runtime.hypothesis_ledger.v1"
 HYPOTHESIS_LEDGER_KIND = "runtime.hypothesis_ledger"
 HYPOTHESIS_LEDGER_SCHEMA = "polisyos.runtime.HypothesisLedger"
-HYPOTHESIS_LEDGER_REPORT_KEY = "hypothesis_ledger"
-HYPOTHESIS_LEDGER_REF_KEY = "hypothesis_ledger_ref"
-HYPOTHESIS_LEDGER_FILENAME = "hypothesis_ledger.json"
 
 HypothesisSourceClass = Literal[
     "llm_candidate",

@@ -87,10 +87,10 @@ def _validated_catalog_run_profile(value: object | None) -> CatalogRunProfile | 
     """Validate caller-selected catalog scope without supplying a default."""
     if value is None:
         return None
-    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+    from polisyos.data_forge.read_api.catalog import (
         CatalogSelectionError,
     )
-    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
 
     if not isinstance(value, str):
         raise CatalogSelectionError("unsupported_run_profile", repr(value))

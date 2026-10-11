@@ -7,6 +7,7 @@ import {
   authorityAbstainingRunPaperPacketFixture,
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
+import { evidenceArtifactRefKey } from "@/shared/lib/domain/evidence";
 
 const {
   downloadRunPaperPacketMock,
@@ -183,6 +184,100 @@ describe("RunReportPage", () => {
     );
     expect(useRunPaperMock).toHaveBeenCalledTimes(1);
     expect(screen.queryAllByTestId("run-paper-document")).toHaveLength(1);
+  });
+
+  it("renders same-blob run-paper profiles as separate selected links", () => {
+    const packet = runPaperPacketFixture();
+    const original = packet.artifact_links[0];
+    if (!original) {
+      throw new Error("Fixture must carry a run-paper artifact link");
+    }
+    const firstProfile = `sha256:${"a".repeat(64)}`;
+    const secondProfile = `sha256:${"b".repeat(64)}`;
+    const selectedLink = (profile: string) => ({
+      artifact_ref: {
+        ...original.artifact_ref,
+        manifest_profile_sha256: profile,
+      },
+      href: `/api/v1/artifacts/${original.artifact_ref.artifact_id}?${new URLSearchParams(
+        { manifest_profile_sha256: profile },
+      ).toString()}`,
+      relation: "run_output" as const,
+    });
+    packet.artifact_links = [
+      selectedLink(firstProfile),
+      selectedLink(secondProfile),
+    ];
+    useRunPaperMock.mockReturnValue({
+      data: {
+        packet,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+      },
+      isError: false,
+      isLoading: false,
+    });
+
+    renderReport();
+
+    const firstLink = packet.artifact_links[0];
+    const secondLink = packet.artifact_links[1];
+    if (!firstLink || !secondLink) {
+      throw new Error("Fixture must carry both selected profile links");
+    }
+    const firstKey = evidenceArtifactRefKey(firstLink.artifact_ref);
+    const secondKey = evidenceArtifactRefKey(secondLink.artifact_ref);
+    const expectedProfileByRefKey = new Map([
+      [firstKey, firstProfile],
+      [secondKey, secondProfile],
+    ]);
+    const expectedLinkByRefKey = new Map([
+      [firstKey, firstLink],
+      [secondKey, secondLink],
+    ]);
+    const artifactRows = within(
+      screen.getByTestId("run-paper-document"),
+    ).getAllByRole("listitem");
+    const renderedProfileRefKeys = artifactRows.flatMap((row) =>
+      within(row)
+        .queryAllByRole("link")
+        .map((link) => link.getAttribute("data-run-paper-artifact-ref-key"))
+        .filter((refKey): refKey is string => refKey !== null),
+    );
+    expect([...renderedProfileRefKeys].sort()).toEqual(
+      [firstKey, secondKey].sort(),
+    );
+
+    for (const [refKey, expectedProfile] of expectedProfileByRefKey) {
+      const expectedLink = expectedLinkByRefKey.get(refKey);
+      if (!expectedLink) {
+        throw new Error(
+          "Fixture must bind each profile key to its source link",
+        );
+      }
+      const matchingRows = artifactRows.flatMap((row) =>
+        within(row)
+          .queryAllByRole("link")
+          .filter(
+            (link) =>
+              link.getAttribute("data-run-paper-artifact-ref-key") === refKey,
+          )
+          .map((link) => ({ link, row })),
+      );
+      expect(matchingRows).toHaveLength(1);
+      const selectedRow = matchingRows[0];
+      if (!selectedRow) {
+        throw new Error("Each selected profile key must resolve to one row");
+      }
+      const rowProfileLinks = within(selectedRow.row)
+        .queryAllByRole("link")
+        .filter((link) => link.hasAttribute("data-run-paper-artifact-ref-key"));
+      expect(rowProfileLinks).toHaveLength(1);
+      expect(rowProfileLinks[0]).toBe(selectedRow.link);
+      expect(selectedRow.link).toHaveAttribute("href", expectedLink.href);
+      expect(
+        within(selectedRow.row).getAllByText(new RegExp(expectedProfile, "u")),
+      ).toHaveLength(1);
+    }
   });
 
   it("renders the bound record and each authority-abstaining nonreceipt", () => {

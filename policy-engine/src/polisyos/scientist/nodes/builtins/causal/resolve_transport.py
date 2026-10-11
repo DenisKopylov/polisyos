@@ -796,7 +796,10 @@ class RunTransportabilityNode:
                 target_context=target_context,
             )
 
-        graph = _resolve_causal_graph(ctx, state)
+        try:
+            graph = _resolve_causal_graph(ctx, state)
+        except InvalidTransportInput as exc:
+            return _invalid_transport_input_outcome(state, exc)
         if graph is None:
             if _is_serious_transport_profile(state):
                 return _persist_blocking_transportability_result(

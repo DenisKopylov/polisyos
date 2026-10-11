@@ -3,16 +3,28 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from statistics import mean, pstdev, stdev
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    input_ref_from_artifact_ref,
+    profile_bound_ref,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.ir.analytics.abm_bridge import (
     ABMAlignmentReport,
     AlignmentResult,
@@ -37,7 +49,11 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     load_structural_causal_model_spec,
 )
-from polisyos.ir.registry.refs import FiniteStateAbstractionMapRef, StructuralCausalModelSpecRef
+from polisyos.ir.registry.refs import (
+    CausalGraphModelRef,
+    FiniteStateAbstractionMapRef,
+    StructuralCausalModelSpecRef,
+)
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
@@ -116,6 +132,7 @@ _ABM_CONSISTENCY_RUNTIME_ERRORS = (
     ValueError,
     ValidationError,
 )
+_UNSET = object()
 
 
 @dataclass(frozen=True)
@@ -181,11 +198,19 @@ class _BridgeConfig:
 
 
 @dataclass(frozen=True)
+class _StructuralSCMInput:
+    spec: StructuralCausalModelSpec
+    selected_ref: StructuralCausalModelSpecRef | None
+
+
+@dataclass(frozen=True)
 class _ExactAbstractionInputs:
     micro_scm: StructuralCausalModelSpec
     macro_scm: StructuralCausalModelSpec
     abstraction_map: FiniteStateAbstractionMap
     abstraction_map_ref: FiniteStateAbstractionMapRef | None
+    micro_scm_ref: StructuralCausalModelSpecRef | None
+    macro_scm_ref: StructuralCausalModelSpecRef | None
 
 
 @dataclass(frozen=True)
@@ -195,6 +220,8 @@ class _ContinuousAbstractionInputs:
     abstraction_map: FiniteStateAbstractionMap
     abstraction_map_ref: FiniteStateAbstractionMapRef | None
     bound_config: ContinuousApproximateAbstractionConfig
+    micro_scm_ref: StructuralCausalModelSpecRef | None
+    macro_scm_ref: StructuralCausalModelSpecRef | None
 
 
 def _parse_mappings(raw: Any) -> list[MacroMicroMapping]:
@@ -357,6 +384,48 @@ def _coerce_abstraction_map_ref(value: Any) -> FiniteStateAbstractionMapRef | No
     return FiniteStateAbstractionMapRef.model_validate(value)
 
 
+def _load_selected_typed_input[TModel: BaseModel, TRef: BaseModel](
+    store: ArtifactStore,
+    *,
+    inline_payload: Any,
+    raw_ref: Any,
+    model_type: type[TModel],
+    coerce_ref: Callable[[Any], TRef | None],
+    load_ref: Callable[[ArtifactStore, TRef], TModel],
+) -> tuple[TModel, TRef | None] | None:
+    """Admit one inline/ref pair and bind both selectors to the same typed content.
+
+    An absent pair remains absent. A supplied inline value is validated even when
+    a ref is also supplied; a supplied ref is profile-bound and loaded even when
+    an inline value is also supplied. When both are present, their normalized
+    typed payloads must match before the CAS value and selected ref are returned.
+    """
+    inline_supplied = inline_payload is not _UNSET
+    ref_supplied = raw_ref is not _UNSET
+    inline_value = None
+    if inline_supplied:
+        inline_value = (
+            inline_payload
+            if isinstance(inline_payload, model_type)
+            else model_type.model_validate(inline_payload)
+        )
+
+    if not ref_supplied:
+        return (inline_value, None) if inline_value is not None else None
+
+    typed_ref = coerce_ref(raw_ref)
+    if typed_ref is None:
+        raise ValueError("selected_artifact_ref_is_explicitly_null")
+    selected_ref = profile_bound_ref(store, typed_ref)
+    referenced_value = load_ref(store, selected_ref)
+    if inline_value is not None and (
+        inline_value.model_dump(mode="json")
+        != referenced_value.model_dump(mode="json")
+    ):
+        raise ValueError("inline_payload_ref_content_mismatch")
+    return referenced_value, selected_ref
+
+
 def _load_structural_scm_value(
     ctx: ExecutionContext,
     state: ExperimentState,
@@ -364,25 +433,36 @@ def _load_structural_scm_value(
     payload_key: str,
     ref_key: str,
     artifact_fallback_key: str | None = None,
-) -> StructuralCausalModelSpec | None:
-    payload = state.params.get(payload_key)
-    if payload is not None:
-        if isinstance(payload, StructuralCausalModelSpec):
-            return payload
-        return StructuralCausalModelSpec.model_validate(payload)
-
-    raw_ref = state.params.get(ref_key)
-    if raw_ref is not None:
-        ref = _coerce_structural_scm_ref(raw_ref)
-        if ref is None:
-            return None
-        return load_structural_causal_model_spec(_ensure_ir_artifact_store(ctx.store), ref)
+) -> _StructuralSCMInput | None:
+    store = _ensure_ir_artifact_store(ctx.store)
+    selected = _load_selected_typed_input(
+        store,
+        inline_payload=state.params.get(payload_key, _UNSET),
+        raw_ref=state.params.get(ref_key, _UNSET),
+        model_type=StructuralCausalModelSpec,
+        coerce_ref=_coerce_structural_scm_ref,
+        load_ref=load_structural_causal_model_spec,
+    )
+    if selected is not None:
+        spec, selected_ref = selected
+        return _StructuralSCMInput(spec=spec, selected_ref=selected_ref)
 
     if artifact_fallback_key is not None:
         artifact_ref = state.artifacts_index.get(artifact_fallback_key)
         if artifact_ref is not None:
-            ref = StructuralCausalModelSpecRef.model_validate(artifact_ref.model_dump(mode="json"))
-            return load_structural_causal_model_spec(_ensure_ir_artifact_store(ctx.store), ref)
+            fallback = _load_selected_typed_input(
+                store,
+                inline_payload=_UNSET,
+                raw_ref=StructuralCausalModelSpecRef.model_validate(
+                    artifact_ref.model_dump(mode="json")
+                ),
+                model_type=StructuralCausalModelSpec,
+                coerce_ref=_coerce_structural_scm_ref,
+                load_ref=load_structural_causal_model_spec,
+            )
+            if fallback is not None:
+                spec, selected_ref = fallback
+                return _StructuralSCMInput(spec=spec, selected_ref=selected_ref)
     return None
 
 
@@ -391,7 +471,7 @@ def _load_exact_abstraction_inputs(
     state: ExperimentState,
 ) -> _ExactAbstractionInputs | None:
     any_requested = any(
-        state.params.get(key) is not None
+        key in state.params
         for key in (
             "finite_state_micro_scm",
             "finite_state_micro_scm_ref",
@@ -404,50 +484,45 @@ def _load_exact_abstraction_inputs(
     if not any_requested:
         return None
 
-    micro_scm = _load_structural_scm_value(
+    micro_input = _load_structural_scm_value(
         ctx,
         state,
         payload_key="finite_state_micro_scm",
         ref_key="finite_state_micro_scm_ref",
     )
-    macro_scm = _load_structural_scm_value(
+    macro_input = _load_structural_scm_value(
         ctx,
         state,
         payload_key="finite_state_macro_scm",
         ref_key="finite_state_macro_scm_ref",
         artifact_fallback_key=ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
     )
-    if micro_scm is None or macro_scm is None:
+    if micro_input is None or macro_input is None:
         raise ValueError(
             "Exact abstraction verification requires both finite_state_micro_scm and finite_state_macro_scm"
         )
 
-    map_payload = state.params.get("finite_state_abstraction_map")
-    map_ref = _coerce_abstraction_map_ref(state.params.get("finite_state_abstraction_map_ref"))
-    if map_payload is not None:
-        abstraction_map = (
-            map_payload
-            if isinstance(map_payload, FiniteStateAbstractionMap)
-            else FiniteStateAbstractionMap.model_validate(map_payload)
-        )
-        return _ExactAbstractionInputs(
-            micro_scm=micro_scm,
-            macro_scm=macro_scm,
-            abstraction_map=abstraction_map,
-            abstraction_map_ref=map_ref,
-        )
-    if map_ref is None:
+    store = _ensure_ir_artifact_store(ctx.store)
+    selected_map = _load_selected_typed_input(
+        store,
+        inline_payload=state.params.get("finite_state_abstraction_map", _UNSET),
+        raw_ref=state.params.get("finite_state_abstraction_map_ref", _UNSET),
+        model_type=FiniteStateAbstractionMap,
+        coerce_ref=_coerce_abstraction_map_ref,
+        load_ref=load_finite_state_abstraction_map,
+    )
+    if selected_map is None:
         raise ValueError(
             "Exact abstraction verification requires finite_state_abstraction_map or finite_state_abstraction_map_ref"
         )
-    abstraction_map = load_finite_state_abstraction_map(
-        _ensure_ir_artifact_store(ctx.store), map_ref
-    )
+    abstraction_map, map_ref = selected_map
     return _ExactAbstractionInputs(
-        micro_scm=micro_scm,
-        macro_scm=macro_scm,
+        micro_scm=micro_input.spec,
+        macro_scm=macro_input.spec,
         abstraction_map=abstraction_map,
         abstraction_map_ref=map_ref,
+        micro_scm_ref=micro_input.selected_ref,
+        macro_scm_ref=macro_input.selected_ref,
     )
 
 
@@ -456,7 +531,7 @@ def _load_continuous_abstraction_inputs(
     state: ExperimentState,
 ) -> _ContinuousAbstractionInputs | None:
     any_requested = any(
-        state.params.get(key) is not None
+        key in state.params
         for key in (
             "continuous_micro_scm",
             "continuous_micro_scm_ref",
@@ -470,42 +545,40 @@ def _load_continuous_abstraction_inputs(
     if not any_requested:
         return None
 
-    micro_scm = _load_structural_scm_value(
+    micro_input = _load_structural_scm_value(
         ctx,
         state,
         payload_key="continuous_micro_scm",
         ref_key="continuous_micro_scm_ref",
     )
-    macro_scm = _load_structural_scm_value(
+    macro_input = _load_structural_scm_value(
         ctx,
         state,
         payload_key="continuous_macro_scm",
         ref_key="continuous_macro_scm_ref",
         artifact_fallback_key=ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
     )
-    if micro_scm is None or macro_scm is None:
+    if micro_input is None or macro_input is None:
         raise ValueError(
             "Continuous abstraction verification requires both continuous_micro_scm "
             "and continuous_macro_scm"
         )
 
-    map_payload = state.params.get("continuous_abstraction_map")
-    map_ref = _coerce_abstraction_map_ref(state.params.get("continuous_abstraction_map_ref"))
-    if map_payload is not None:
-        abstraction_map = (
-            map_payload
-            if isinstance(map_payload, FiniteStateAbstractionMap)
-            else FiniteStateAbstractionMap.model_validate(map_payload)
+    store = _ensure_ir_artifact_store(ctx.store)
+    selected_map = _load_selected_typed_input(
+        store,
+        inline_payload=state.params.get("continuous_abstraction_map", _UNSET),
+        raw_ref=state.params.get("continuous_abstraction_map_ref", _UNSET),
+        model_type=FiniteStateAbstractionMap,
+        coerce_ref=_coerce_abstraction_map_ref,
+        load_ref=load_finite_state_abstraction_map,
+    )
+    if selected_map is None:
+        raise ValueError(
+            "Continuous abstraction verification requires continuous_abstraction_map "
+            "or continuous_abstraction_map_ref"
         )
-    else:
-        if map_ref is None:
-            raise ValueError(
-                "Continuous abstraction verification requires continuous_abstraction_map "
-                "or continuous_abstraction_map_ref"
-            )
-        abstraction_map = load_finite_state_abstraction_map(
-            _ensure_ir_artifact_store(ctx.store), map_ref
-        )
+    abstraction_map, map_ref = selected_map
 
     raw_bound_config = state.params.get("continuous_abstraction_bound_config")
     if raw_bound_config is None:
@@ -518,11 +591,13 @@ def _load_continuous_abstraction_inputs(
         else ContinuousApproximateAbstractionConfig.model_validate(raw_bound_config)
     )
     return _ContinuousAbstractionInputs(
-        micro_scm=micro_scm,
-        macro_scm=macro_scm,
+        micro_scm=micro_input.spec,
+        macro_scm=macro_input.spec,
         abstraction_map=abstraction_map,
         abstraction_map_ref=map_ref,
         bound_config=bound_config,
+        micro_scm_ref=micro_input.selected_ref,
+        macro_scm_ref=macro_input.selected_ref,
     )
 
 
@@ -579,6 +654,8 @@ class RunABMConsistencyCheckNode:
         events: list[NodeEvent] = []
         abstraction_map_ref: FiniteStateAbstractionMapRef | None = None
         abstraction_certificate_ref = None
+        micro_graph_ref: CausalGraphModelRef | None = None
+        macro_graph_ref: CausalGraphModelRef | None = None
         abstraction_preservation_type: str | None = None
 
         exact_inputs: _ExactAbstractionInputs | None = None
@@ -612,33 +689,60 @@ class RunABMConsistencyCheckNode:
         if exact_inputs is None and continuous_inputs is None:
             _append_warning(warnings, "heuristic_aggregation_without_abstraction_certificate")
         else:
-            graph_inputs: list[InputRef] = []
-            if state.artifacts_index.get(ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF) is not None:
-                graph_inputs.append(
-                    InputRef(
-                        artifact_id=state.artifacts_index[
-                            ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF
-                        ].artifact_id,
+            store = _ensure_ir_artifact_store(ctx.store)
+            micro_scm_ref = (
+                continuous_inputs.micro_scm_ref
+                if continuous_inputs is not None
+                else exact_inputs.micro_scm_ref
+            )
+            macro_scm_ref = (
+                continuous_inputs.macro_scm_ref
+                if continuous_inputs is not None
+                else exact_inputs.macro_scm_ref
+            )
+            micro_graph_inputs = (
+                [
+                    input_ref_from_artifact_ref(
+                        ArtifactRef.model_validate(micro_scm_ref.model_dump(mode="json")),
+                        role="micro_structural_causal_model_spec",
+                    )
+                ]
+                if micro_scm_ref is not None
+                else None
+            )
+            macro_graph_inputs = (
+                [
+                    input_ref_from_artifact_ref(
+                        ArtifactRef.model_validate(macro_scm_ref.model_dump(mode="json")),
                         role="macro_structural_causal_model_spec",
                     )
-                )
-            micro_graph_ref = persist_causal_graph_model(
-                _ensure_ir_artifact_store(ctx.store),
-                (
-                    continuous_inputs.micro_scm.graph
-                    if continuous_inputs is not None
-                    else exact_inputs.micro_scm.graph
-                ),
-                inputs=graph_inputs or None,
+                ]
+                if macro_scm_ref is not None
+                else None
             )
-            macro_graph_ref = persist_causal_graph_model(
-                _ensure_ir_artifact_store(ctx.store),
-                (
-                    continuous_inputs.macro_scm.graph
-                    if continuous_inputs is not None
-                    else exact_inputs.macro_scm.graph
+            micro_graph_ref = profile_bound_ref(
+                store,
+                persist_causal_graph_model(
+                    store,
+                    (
+                        continuous_inputs.micro_scm.graph
+                        if continuous_inputs is not None
+                        else exact_inputs.micro_scm.graph
+                    ),
+                    inputs=micro_graph_inputs,
                 ),
-                inputs=graph_inputs or None,
+            )
+            macro_graph_ref = profile_bound_ref(
+                store,
+                persist_causal_graph_model(
+                    store,
+                    (
+                        continuous_inputs.macro_scm.graph
+                        if continuous_inputs is not None
+                        else exact_inputs.macro_scm.graph
+                    ),
+                    inputs=macro_graph_inputs,
+                ),
             )
             selected_map = (
                 continuous_inputs.abstraction_map
@@ -652,13 +756,20 @@ class RunABMConsistencyCheckNode:
             )
             if abstraction_map_ref is None:
                 abstraction_map_ref = persist_finite_state_abstraction_map(
-                    _ensure_ir_artifact_store(ctx.store),
+                    store,
                     selected_map,
                     inputs=[
-                        InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
-                        InputRef(artifact_id=str(macro_graph_ref.artifact_id), role="macro_graph"),
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(micro_graph_ref.model_dump(mode="json")),
+                            role="micro_graph",
+                        ),
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(macro_graph_ref.model_dump(mode="json")),
+                            role="macro_graph",
+                        ),
                     ],
                 )
+            abstraction_map_ref = profile_bound_ref(store, abstraction_map_ref)
             preserved_queries = state.params.get("abstraction_preserved_queries")
             normalized_preserved_queries = (
                 tuple(str(item) for item in preserved_queries)
@@ -686,17 +797,26 @@ class RunABMConsistencyCheckNode:
                     abstraction_map_ref=abstraction_map_ref,
                     preserved_queries=normalized_preserved_queries,
                 )
-            abstraction_certificate_ref = persist_abstraction_certificate(
-                _ensure_ir_artifact_store(ctx.store),
-                certificate,
-                inputs=[
-                    InputRef(artifact_id=str(micro_graph_ref.artifact_id), role="micro_graph"),
-                    InputRef(artifact_id=str(macro_graph_ref.artifact_id), role="macro_graph"),
-                    InputRef(
-                        artifact_id=str(abstraction_map_ref.artifact_id),
-                        role="abstraction_map",
-                    ),
-                ],
+            abstraction_certificate_ref = profile_bound_ref(
+                store,
+                persist_abstraction_certificate(
+                    store,
+                    certificate,
+                    inputs=[
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(micro_graph_ref.model_dump(mode="json")),
+                            role="micro_graph",
+                        ),
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(macro_graph_ref.model_dump(mode="json")),
+                            role="macro_graph",
+                        ),
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(abstraction_map_ref.model_dump(mode="json")),
+                            role="abstraction_map",
+                        ),
+                    ],
+                ),
             )
             abstraction_preservation_type = certificate.preservation_type.value
             if abstraction_preservation_type == "exact":
@@ -839,6 +959,34 @@ class RunABMConsistencyCheckNode:
         causal_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
         if causal_ref is not None:
             input_refs.append(InputRef(artifact_id=causal_ref.artifact_id, role="causal_report"))
+        if micro_graph_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(micro_graph_ref.model_dump(mode="json")),
+                    role="micro_graph",
+                )
+            )
+        if macro_graph_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(macro_graph_ref.model_dump(mode="json")),
+                    role="macro_graph",
+                )
+            )
+        if abstraction_map_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(abstraction_map_ref.model_dump(mode="json")),
+                    role="abstraction_map",
+                )
+            )
+        if abstraction_certificate_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(abstraction_certificate_ref.model_dump(mode="json")),
+                    role="abstraction_certificate",
+                )
+            )
 
         report_ref = persist_abm_alignment_report(
             _ensure_ir_artifact_store(ctx.store), report, inputs=input_refs

@@ -325,3 +325,20 @@ def test_runtime_event_without_cas_artifact_fails_serious_authority_checks() -> 
 
     assert scorecard["quality_status"] == "fail"
     assert "authority_cas_missing" in blocking_codes(scorecard)
+
+def test_rejected_runtime_ref_cannot_reconcile_its_diagnostic_event() -> None:
+    job_payload = complete_job_payload()
+    valid_ref = job_payload["progress"]["details"]["policy_grounding_matrix_ref"]
+    job_payload["progress"]["runtime_quality_refs"] = {
+        "policy_grounding_matrix_ref": "bad\nref",
+    }
+
+    scorecard = scorecard_for(job_payload=job_payload)
+
+    assert valid_ref in {
+        event_ref
+        for event in job_payload["progress"]["details"]["diagnostic_events"]
+        for event_ref in event.get("artifact_refs", [])
+    }
+    assert scorecard["quality_status"] == "fail"
+    assert "authority_cas_missing" in blocking_codes(scorecard)

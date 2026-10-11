@@ -9,6 +9,8 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     ApiMeta,
@@ -69,7 +71,15 @@ class BureaucraticRenderingService:
         request: BureaucraticRenderRequest,
     ) -> BureaucraticDocument:
         """Render one artifact payload into a canonical bureaucratic document AST."""
-        manifest = self._store.get_manifest(packet_id)
+        manifest = (
+            resolve_manifest_by_profile(
+                self._store,
+                packet_id,
+                request.manifest_profile_sha256,
+            )
+            if request.manifest_profile_sha256 is not None
+            else self._store.get_manifest(packet_id)
+        )
         payload = _load_json_payload(self._store, packet_id)
         template = _template_for(
             genre=request.genre,
@@ -117,6 +127,9 @@ class BureaucraticRenderingService:
             metadata={
                 "source_artifact_kind": manifest.kind,
                 "source_media_type": manifest.media_type,
+                "source_manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    manifest
+                ),
                 "template_id": template.id,
                 "draft_disclaimer": DRAFT_WATERMARK,
                 "legal_review_status": template.legal_review_status,
@@ -156,6 +169,13 @@ class BureaucraticRenderingService:
                 "template_version": document.template.version,
                 "render_timestamp": document.render_timestamp.isoformat(),
                 "packet_hash": document.packet_hash,
+                "source_artifact_kind": document.metadata.get(
+                    "source_artifact_kind"
+                ),
+                "source_media_type": document.metadata.get("source_media_type"),
+                "source_manifest_profile_sha256": document.metadata.get(
+                    "source_manifest_profile_sha256"
+                ),
                 "parity_source": "bureaucratic_document_ast",
             },
         )

@@ -1,0 +1,363 @@
+{
+  "schema_version": "e02-la032-source-qualified-receipt-r110",
+  "record_kind": "author_source_checkpoint_and_finding_proposal",
+  "finding_id": "LA-032",
+  "captured_at_local_date": "2026-10-11",
+  "record_status": "candidate source and evidence receipt; not an independent acceptance or formal finding adjudication",
+  "formal_adjudication": "not_adjudicated",
+  "closure_ids": [],
+  "source_checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "source_commit": "6580b9b50acef44f29d782f9525d8e0d57d05f53",
+    "source_tree": "64968c92ccc404742cb02c087fbf054f809d8bf1",
+    "parents": [
+      "5e075b49e0836bc3fa1d63f21102333244849b50"
+    ],
+    "source_commit_subject": "fix(e02): bind demographic scalar readers to a complete selected layout",
+    "slice_base": "5e075b49e0836bc3fa1d63f21102333244849b50",
+    "slice_base_tree": "bfb9864f943213807549c93a12c03ef3a0fc5f3e",
+    "checkpoint_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-source-checkpoint-r110-20261011/readback.json",
+      "sha256": "6348b8b3d0e85259711bd1b50096748ba19b53d655eac5002ace7ece88485b77",
+      "selected_footprint_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-source-checkpoint-r110-20261011/selected-footprint.json",
+      "selected_footprint_sha256": "8d7f980122588b9a66ea3e0399069068bdec9a21e8fba3bec0f3545d1f089ca5",
+      "postimages_match_committed_blobs": true,
+      "path_count": 4
+    },
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "role": "shared six-member path classifier, layout selector, scalar/aggregate reader implementation",
+        "before_sha256": "10808586416a8060b5054a0c47a68a7e0cb5a5a3b8b4aea0776185a9cc54bdcb",
+        "committed_blob_oid": "aa7fee16edc63824cd5e4f2598926c1288defff5",
+        "committed_sha256": "614f06d8c1b32a84e09380e23845c5046db5842c5b0e8f8ec7f88c5d39006fbb",
+        "candidate_sha256": "614f06d8c1b32a84e09380e23845c5046db5842c5b0e8f8ec7f88c5d39006fbb",
+        "committed_matches_checkpoint": true
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+        "role": "public-reader behavioral matrix, legacy compatibility, malformed/present negatives and removal-sensitive controls",
+        "before_sha256": "b978bc1a3129d5502cad534a2eb29f96d0572cf7e79d2d51f7f2b3336f648ae7",
+        "committed_blob_oid": "b188931b8c9098e348512beafb5ca93f7583dddb",
+        "committed_sha256": "62be0ee471b5b291c615abd12ab6a3077cb4b82a1cdc98b07208bcb0e8f2376f",
+        "candidate_sha256": "62be0ee471b5b291c615abd12ab6a3077cb4b82a1cdc98b07208bcb0e8f2376f",
+        "committed_matches_checkpoint": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+        "role": "reader contract and migration documentation",
+        "before_sha256": "77cedf9c4b6aa70e680f4ec068e86f6a73e0eb661b846d8e29603c07697f99a2",
+        "committed_blob_oid": "f71ce022ffca79d3a287eef9546402c1452ebb55",
+        "committed_sha256": "6803c398611a4c1dfc888846db62b6f1f1b3611618485fccb57fd17f823de320",
+        "candidate_sha256": "6803c398611a4c1dfc888846db62b6f1f1b3611618485fccb57fd17f823de320",
+        "committed_matches_checkpoint": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml",
+        "role": "release compatibility and scope/limitation declaration",
+        "before_sha256": null,
+        "committed_blob_oid": "031cb4be47dea53478ebd947984b464a95858526",
+        "committed_sha256": "fafccf361e7fee31c39e57a41851299900fd04298cf37813f15821b9fff90ec3",
+        "candidate_sha256": "fafccf361e7fee31c39e57a41851299900fd04298cf37813f15821b9fff90ec3",
+        "committed_matches_checkpoint": true
+      }
+    ],
+    "composition_application": {
+      "composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-v8-root-composition-r106-20261011/composition.json",
+      "composition_sha256": "3885c23ee2178aa4a96dabd072ca7514a7fee86e94f240faae97ad7b1517a1d4",
+      "composition_recorded_sha256": "3885c23ee2178aa4a96dabd072ca7514a7fee86e94f240faae97ad7b1517a1d4",
+      "composition_net_patch_sha256": "b74b922451d6f21f7a2f46c9078d7039cbac004fe4ff0894fff6e3cbd0dca300",
+      "composition_product_writes": false,
+      "application_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-v8-root-composition-r106-20261011/application-readback.json",
+      "application_readback_sha256": "ac0d73621f0f8c4d579ba766a1675fd4256fd80c7193e870d721343b19285869",
+      "application_postimages_match": true,
+      "candidate_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-20261011/candidate-v8-cumulative-from-cd565.patch",
+      "candidate_patch_sha256": "8681ef028c510a0215e423ac8e15aaf8dc1dfa306bb557a08245a5c4873486c3",
+      "candidate_manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-20261011/manifest-v8.json",
+      "candidate_manifest_sha256": "c9174d0a438c92172f9c23b74e759fc0eabe2b54c1f2a0c6b95a3206976dacc4",
+      "interpretation": "R106 composition was a virtual preimage calculation; R110 source commit stores the exact four declared postimages and was read back. No branch or source copy from an earlier recovery lane was imported."
+    }
+  },
+  "original_criterion": {
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "current_document_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "lines_inclusive": [
+      1668,
+      1715
+    ],
+    "criterion_source_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+    "criterion_source_sha256_recomputed_from_current_line_slice": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+    "coverage_file": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "coverage_pointer": "#/findings/256/criterion_refs/0",
+    "coverage_occurrence_count": 1,
+    "coverage_historical_status": "held",
+    "historical_findings_file": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+    "historical_findings_sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0",
+    "historical_findings_pointer": "#/rows/115",
+    "criterion_summary": "One demographic read must select a supported snapshot/layout as a whole rather than independently choosing targets, priors, and optional donor by filename. Preserve supported old layouts and bytes. Full capability requires one source-qualified, versioned source-to-state inventory with ordered IDs/mappings, target and entrant meanings, prior axes/derivation/time, donor-present versus intentional-absence declaration, producer/profile/schema/rule/epoch, and content-bound member references.",
+    "occurrence_policy": "Preserve this one canonical occurrence individually; do not infer closure from adjacent C05, S1, or reader-level work."
+  },
+  "bounded_reader_claim": {
+    "proposal_status": "limited",
+    "claim": "The committed reader implementation classifies all six known new/legacy target, prior, and donor path entries before layout selection. A genuinely absent entry differs from a readable regular file (including a resolving file symlink) and from a present-invalid entry; dangling links, directories/non-files, and inaccessible/malformed parent entries refuse. All three scalar readers and the aggregate reader share the selector. An explicit layout requires that layout’s targets and priors. Optional donor returns an empty mapping only for true absence in an unselected root with no known members, or for a selected complete snapshot that omits donor. No-selector isolated legacy single-member compatibility remains.",
+    "negative_and_positive_bounds": [
+      "New and legacy complete layouts are readable; ambiguous complete layouts require explicit selection.",
+      "Mixed layouts, missing required members under explicit selection, malformed JSON, present-invalid entries, and cross-layout member mixtures refuse rather than falling back.",
+      "Readable file symlinks remain supported; dangling symlinks do not become optional absence.",
+      "The reader validates local file/layout coherence only; it does not prove that members came from one source-authorized inventory."
+    ],
+    "not_a_formal_closure": true
+  },
+  "capability_chain_and_boundary": {
+    "public_reader_chain": [
+      "polisyos.data_forge.read_api.ukraine public facade",
+      "Ukraine domain exports",
+      "domains/ukraine/demography shared member classifier and layout selector",
+      "load_reconciled_targets / load_transition_priors / load_donor_pool / load_demography_artifacts",
+      "typed aggregate validation and build_static_aging_state consumer"
+    ],
+    "reader_surface": "The committed release fragment classifies the API as public experimental and records public_surface_inventory_reviewed=false. Public-surface inventory regeneration/review and release publication remain pending.",
+    "producer_state": "producer_missing for the source-authoritative target/prior/donor inventory. Configured AssetSpecs declare asset roles but do not identify a materializer for those exact outputs. The inspected build_d3_stage emits household/labor/distress/calibrated-cell/observation artifacts, not the missing reconciled demographic members; do not relabel D3 as the producer.",
+    "artifact_state": "artifact_missing for a persisted source-qualified semantic inventory. Local JSON files and generic CAS/basis digests are not equivalent to that inventory.",
+    "bridge_state": "bridge_missing for producer -> one persisted inventory -> all four readers -> static-aging using the same member refs.",
+    "verification_state": "verification_missing for independent inventory completeness, ordered mappings, semantic member roles, and exact producer/profile/rule/time basis.",
+    "semantic_test_state": "semantic_test_missing for a genuine source-owner producer-to-persisted-inventory-to-all-consumers positive with swapped-member/source identity controls.",
+    "byte_binding_substrate": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "sha256": "818ea12a2801534ca9bacc0483ff1ecd80bed505840948187d6d05247c4639bc",
+        "role": "VerifiedUkraineStageArtifacts recomputes path scope and binds output/manifest hashes to CAS refs; its role does not establish demographic semantics or producer authority."
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+        "role": "GenerationBasis binds caller-supplied bytes to a generation/rule basis; it does not establish source-owned completeness or demographic ordering/meaning."
+      }
+    ],
+    "controlled_inventory_falsifier": {
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v7-20261011/inventory-prototype-v1/generation_basis_semantic_gap.py",
+      "script_sha256": "613b5f07659a0521badc42bb9b064a6b3d62abd72e8af1e816adbc48f9d126f2",
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v7-20261011/inventory-prototype-v1/command.json",
+      "command_sha256": "fffb8cec8fc429c85cff5d22006cd56dbeee1bab030c260712fcf053bdffcfee",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v7-20261011/inventory-prototype-v1/stdout.txt",
+      "stdout_sha256": "25a1433ea4d0bf2297e0930312bcab3a9f67fd2def0a8e15c80db82bab1cb76d",
+      "result": "With equal synthetic member bytes and a caller-supplied rule string, GenerationBasis produces the same digest despite different source-profile and state-order claims because it does not bind those fields; changed member bytes become incompatible. This falsifies using the generic basis as a source-semantic proof, not the local reader code."
+    }
+  },
+  "selected_test_inputs": {
+    "input_kind": "test-owned local filesystem JSON fixtures only",
+    "selected_source_profile": "none; no producer-attested profile or source-owner manifest selected",
+    "production_inputs_read": false,
+    "production_payload_census": false,
+    "backend": "local filesystem fixture reader; no production service or live backend",
+    "currentness_or_custody_claim": "not_established"
+  },
+  "verification": {
+    "root_source_worktree_replay": {
+      "status": "PASS for bounded reader behavior on the four exact candidate worktree postimages; not proof of the source-inventory criterion",
+      "execution_head_before_commit": "5e075b49e0836bc3fa1d63f21102333244849b50",
+      "candidate_postimages_present_in_worktree_at_run": true,
+      "source_commit_created_after_run": "6580b9b50acef44f29d782f9525d8e0d57d05f53",
+      "same_postimages_committed_after_run": true,
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-current-public-consumers-r107-20261011/command.json",
+      "command_sha256": "db9c97903aa4f17e3714cacff3314f180685d74f1bc0066001002d7ba4e5e1b2",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-current-public-consumers-r107-20261011/stdout.txt",
+      "stdout_sha256": "9b4f339fc73e767d90a3805e34613fe0590324e2a0126f3b1e10ced2bc7d1eda",
+      "stderr_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-current-public-consumers-r107-20261011/stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-current-public-consumers-r107-20261011/junit.xml",
+      "junit_sha256": "509d4d1fade1d5e4fb3034f6d540497d17672b15246acbb0ff2597bc667ed022",
+      "test_target": "tests/unit/remediation/test_udf_05.py",
+      "pytest_result": {
+        "collected": 51,
+        "passed": 51,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 0.53,
+        "outer_wall_seconds": 1.5615704999072477
+      },
+      "input_hash_snapshot": {
+        "files": 6183,
+        "before_after_equal": true,
+        "source_snapshot": "The command JSON contains the complete before/after hash map and fixture output metadata; it is cited rather than copied."
+      },
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "tools:src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "capture_wrapper_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+      "module_origin_capture": "No separate sys.modules/import-origin receipt was emitted for R107. The run used policy-engine cwd and PYTHONPATH tools:src:.; exact selected source/test hashes matched candidate before and after and the subsequent source commit.",
+      "denominator_note": "R107 ran the 51 cases in test_udf_05.py. It did not include the two test_demography_artifacts.py cases; those are present only in the separate V8 independent overlay replay below."
+    },
+    "independent_v8_review_and_overlay_replay": {
+      "review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/la032-demography-layout-reader-v8-independent-review-20261011.md",
+      "review_sha256": "fae4ca976612f46b51e659783af5729523b238361effb94b664fd0f77794a638",
+      "verdict": "Bounded GO for local layout-member reader; original LA-032 remains held/open; closure_ids empty.",
+      "candidate_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-20261011/candidate-v8-cumulative-from-cd565.patch",
+      "candidate_patch_sha256": "8681ef028c510a0215e423ac8e15aaf8dc1dfa306bb557a08245a5c4873486c3",
+      "candidate_manifest_sha256": "c9174d0a438c92172f9c23b74e759fc0eabe2b54c1f2a0c6b95a3206976dacc4",
+      "candidate_replay_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-independent-review-20261011/pytest-v8-indie.txt",
+      "candidate_replay_stdout_sha256": "256b4ccec83038d1a40886dd3de5e81ff74a118e80ae8fab6e1a052e5c554a96",
+      "candidate_replay_junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-independent-review-20261011/junit.xml",
+      "candidate_replay_junit_sha256": "0c1200b675ce571d8a1e6701293eb42b0a891929c37b0fdfc14f3ddf5bc11567",
+      "candidate_replay_result": "53 passed in 0.64s on virtual candidate overlay: same 51 reader cases plus two aggregate/artifact consumer cases; do not count as the R107 current-source replay.",
+      "public_facade_matrix": {
+        "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-independent-review-20261011/public_api_member_probe_v2.py",
+        "script_sha256": "32aaafede1c8a21481ff2fe2757119e5cbdc425569d9fff6c1dfd16f7d6c11b0",
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-independent-review-20261011/public_api_member_probe_v2.stdout.txt",
+        "stdout_sha256": "c417ff0fb4d7e69b64de828ae381ddf22ac31cc00fcad60acdf9882fe318065e",
+        "result": "48 dangling-link cases refused, 24 readable-file-symlink cases returned expected payloads, 10 true-absence donor cases returned empty, explicit empty-layout selection refused; public read_api.ukraine facade and candidate module origins are recorded in output."
+      },
+      "reviewed_marker_preserving_removal": "The V8 review explicitly describes the V7 dangling-donor escape as the same class widened to all six member paths/all four readers. Author expected-red V7 control stdout is cited separately below."
+    },
+    "v7_removal_control": {
+      "status": "EXPECTED_RED: V8 invalid-member test still present, V7 runtime member classifier substituted",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-layout-reader-v8-20261011/red-v7-donor-exposed/stdout.txt",
+      "stdout_sha256": "3e05a6daa03217fdaf2edc95febac042dcf974911cf955db072489221bfd4c3c",
+      "meaning": "A dangling optional-donor link is treated as absence by V7, so the marker-preserving behavior check is red; V8 centralizes lstat-based classification over all six known entries.",
+      "independence_qualification": "This expected-red artifact is author evidence; the V8 reviewer identifies it as author evidence, not an independent replay."
+    },
+    "canonical_ruff_check": {
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-lint-r108-20261011/command.json",
+      "command_sha256": "b62ff25b8f97e0f099db98a700aef68f95af8d57f229c955f857f9938edad624",
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-lint-r108-20261011/result.json",
+      "result_sha256": "eb1028a0ccaf226d60a6503d00cef4c1ac66a53cfa25d1844b1c739fff9ed376",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-lint-r108-20261011/stdout.txt",
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "policy-engine/tests/unit/remediation/test_udf_05.py"
+      ],
+      "exit_code": 0,
+      "stdout_summary": "[]",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical_ruff_format": {
+      "command_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-format-r109-20261011/command.json",
+      "command_sha256": "2d7de9cae8eedc200da95cc4776a1cb9209dbfe1af51fb47bd7f953230995c8d",
+      "result_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-format-r109-20261011/result.json",
+      "result_sha256": "9a8e06d545ff3b0069c8bb2fae71fba6ad3ef8bee4541f6af2525d493464b09d",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-canonical-format-r109-20261011/stdout.txt",
+      "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "paths": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "policy-engine/tests/unit/remediation/test_udf_05.py"
+      ],
+      "exit_code": 0,
+      "stdout_summary": "2 files already formatted",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "status_by_gate": {
+      "PASS": [
+        "R107 51-case source-worktree test_udf_05 replay",
+        "independent V8 overlay replay and facade matrix (separately scoped)",
+        "R108 canonical root Ruff check on two Python files",
+        "R109 canonical root Ruff format-check on two Python files",
+        "R110 committed four postimages match selected checkpoint readback"
+      ],
+      "FAIL": [],
+      "ERROR": [],
+      "SKIP": [],
+      "UNRUN": [
+        "source-owned inventory producer and authentic selected inventory positive",
+        "actual persisted inventory/CAS/fresh-read path through all four readers and static-aging with swap/profile/time controls",
+        "actual source-commit run of the two test_demography_artifacts.py cases",
+        "public-surface inventory regeneration/validator --check/corrupt-field drift/review and release publication",
+        "native repository gates",
+        "installed wheel and rebuilt sdist consumer checks",
+        "Linux worker/platform consumer checks",
+        "production currentness/custody and source owner semantic input",
+        "G independent code acceptance and formal adjudication"
+      ],
+      "NOT_ESTABLISHED": [
+        "selected production source/profile/producer",
+        "ordered source-to-state mapping and target/entrant meanings",
+        "prior axes/derivation/time semantics",
+        "donor intent and source custody/currentness",
+        "external legal meaning/permission or scientific validity"
+      ]
+    }
+  },
+  "external_input_and_research": {
+    "production_bytes_read": false,
+    "broad_payload_census": false,
+    "locators_and_custody_inputs_reviewed": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/s1-source-facts.json",
+        "sha256": "9dd92d6a8e23f3bf20acec3631f74d7cf8825767702b87cee419a272a9642782",
+        "finding_ref": "#/findings/0",
+        "result": "prior source inspection found no admitted source mapping/profile/member receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/parallel-20261008-l02/prepared/l02_udf_inventory.json",
+        "sha256": "6cf85eafdb462684820340558547d9df60aa4df480ac63777132194ca53cd7a4",
+        "result": "source-owner research did not identify a complete existing inventory capability"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L02/restart-20261008/prepared/data-readiness.json",
+        "sha256": "3ca893aed4f2fe9ddebc53524fbb54fa7dc453cd7d4b3eab53c39053bcc086b6",
+        "finding_ref": "#/findings/LA-032",
+        "result": "selected production path and bytes not established; distinct from other pairing work"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/L01/parallel-20261008-l01/host-inventory.json",
+        "sha256": "be9e5c516dfede510205d9f6779141a67aa7f2f35825969a488a21ac8c079ef8",
+        "result": "opaque directory metadata only; no payload enumerate/open/hash; not an absence claim"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c05-orch02-r2-gproposal-20261008/current-owner-requirements.json",
+        "sha256": "e78f8bd4032bcc39ba5aefbddd3e31049249f94cd3662b50e259da542ed46677",
+        "result": "exact configured target/prior/donor producer remains not established; D3 is not that producer"
+      }
+    ],
+    "current_code_observation": "AssetSpecs assign configured ownership but do not identify the exact materializer; the nearest D3 builder does not emit the target/prior/donor source set. Existing CAS and GenerationBasis primitives bind bytes, not ordered demographic semantics or external source authority.",
+    "minimum_authentic_input": [
+      "Named current Ukraine source/data owner and exact registered target/prior/donor producer route with invocation/generation identity and output roles.",
+      "One selected source-owned versioned inventory with ordered state IDs/mappings; target and entrant meanings; prior axes, derivation/version and time roles; donor-present or intentionally-absent declaration.",
+      "Exact member bytes/immutable refs, source profile, schema/rule/epoch, provenance/custody, and verifier provenance sufficient for independent membership/completeness checks."
+    ],
+    "owner": "C-W19 / configured Ukraine Data Forge source owner; G adjudicates contract and finding separately."
+  },
+  "engineering_options_for_g": {
+    "routine_reader_change": "Already implemented as a shared local file-entry selector; no contract change proposed for that bounded behavior.",
+    "reuse": "Reuse VerifiedUkraineStageArtifacts and/or GenerationBasis only for their established scope, exact byte hashes and CAS reference identity once an actual producer is selected.",
+    "extend_recommended": "After C-W19 supplies the producer and semantic packet, extend that source-owned producer outputs with one versioned inventory and route the existing four readers through one strict resolver; recompute completeness/content binding and retain source-provided schema/rule/epoch/time.",
+    "consolidate": "Consolidate member-specific reads behind the domain resolver only after the admitted inventory schema and producer path are known.",
+    "build_new": "Not proposed: a local producer or generic inventory framework would invent missing source facts, duplicate ownership, and could turn synthetic/D3 data into unsupported authority.",
+    "authority_and_status": "Source owner supplies producer facts and exact source packet; PolicyOS verifies bytes/membership and records verifier provenance; G independently reviews code and adjudicates LA-032. No issuer permissions, law, currentness or scientific semantics are fabricated."
+  },
+  "finding_proposals": [
+    {
+      "finding_id": "LA-032",
+      "occurrence": "coverage.json#/findings/256/criterion_refs/0; exactly one occurrence",
+      "proposal_status": "limited_for_reader_behavior; held_open_for_original_finding",
+      "limited_claim": "Shared classification and selection prevent cross-layout or present-invalid filesystem members from becoming a local default/fallback in the four existing reader routes, while preserving explicit no-selector legacy isolated-member compatibility.",
+      "held_claim": "No single source-qualified persisted inventory currently binds source, producer/profile/schema/rule/epoch, ordered state/member mapping, donor intent and exact refs through all four readers and static aging.",
+      "reason": "The genuine source owner and selected producer output with the required source semantics/custody are not in admitted inputs. Synthetic reader tests cannot supply those facts; generic byte binding does not prove them.",
+      "formal_closure_proposed": false,
+      "adjacent_proposals_used_as_closure": []
+    }
+  ],
+  "next_checks": [
+    "Regenerate/review the canonical public-surface inventory for the additive keyword-only layout API; satisfy the release fragment public_surface_inventory_reviewed requirement, run validators --check and corrupt-field drift control, then independently review release publication.",
+    "Run test_demography_artifacts.py against the committed source to close the two aggregate/static-aging consumer cases not included in R107; retain exact source/module origins and fresh outputs.",
+    "Obtain one minimal authentic source-owner producer/inventory/member-ref packet via the existing L01/L02 custody route, without broad payload census; reconcile it to current AssetSpecs and the actual registered producer.",
+    "After that input, run producer -> persisted inventory/CAS -> fresh GET/read -> all four public readers -> static-aging. Positive and removal controls must bind ordered member identities, completeness, source profile, exact digest, rule/schema/epoch/time, and explicit donor intent; swapped same-shape bytes and missing/corrupt inventory must refuse.",
+    "Run the native repository gates, installed wheel and rebuilt sdist consumer checks, and supported Linux worker checks against the frozen source when the selected composition is ready.",
+    "G independently accepts/rejects the code and adjudicates the one LA-032 occurrence; this source receipt is author provenance only."
+  ],
+  "historical_and_independence_notes": {
+    "prior_C05": "C05 source-owner proposal remains historical input only; no C05 branch or report is treated as source acceptance or closure.",
+    "independent_reviewer": "The V8 independent reviewer is distinct from source author/root; its bounded GO applies only to local reader behavior and explicitly leaves LA-032 held/open.",
+    "historical_V6_V7": "V6/V7 findings are preserved as lineage; V8 widened the same absence-vs-present-invalid class across all six known entries and four readers rather than applying another donor-only patch."
+  }
+}

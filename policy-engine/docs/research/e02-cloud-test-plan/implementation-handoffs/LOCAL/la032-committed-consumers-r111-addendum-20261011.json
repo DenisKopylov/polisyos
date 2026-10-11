@@ -1,0 +1,101 @@
+{
+  "schema_version": "e02-la032-r111-consumer-addendum-v1",
+  "record_kind": "append_only_source_qualified_receipt_addendum",
+  "supersedes_only": {
+    "earlier_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la032-layout-source-qualified-r110-20261011.json",
+      "sha256": "730be26cfd116c9436cd6822ee8ac5d1f1a405673d1fa73f9410504e9319a742"
+    },
+    "changed_status": "The two test_demography_artifacts.py source-commit cases in UNRUN/next_checks[1] are now PASS; all other earlier limitations remain."
+  },
+  "source_checkpoint": "6580b9b50acef44f29d782f9525d8e0d57d05f53",
+  "source_tree": "64968c92ccc404742cb02c087fbf054f809d8bf1",
+  "parents": [
+    "5e075b49e0836bc3fa1d63f21102333244849b50"
+  ],
+  "closure_ids": [],
+  "finding_proposals": [
+    {
+      "finding_id": "LA-032",
+      "coverage_pointer": "#/findings/256/criterion_refs/0",
+      "criterion_source_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+      "proposal_status": "limited_for_reader_behavior; held_open_for_original_finding",
+      "outcome_changed": false,
+      "remaining_boundary": "A genuine source-owned semantic inventory producer, persisted inventory and ordered mappings/profile/rule/time/custody are not established by these synthetic consumer fixtures."
+    }
+  ],
+  "verification": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/command.json",
+      "sha256": "a67c7860e22536b53e84cf7131ac4eebd850cd6728ce195e6642d946b6549cdf"
+    },
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-c",
+      "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=120.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--maxfail=1",
+      "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "--import-mode=importlib",
+      "-vv",
+      "--maxfail=0",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/junit.xml"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "tools:src:.",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/stdout.txt",
+      "sha256": "42323737ecd209091d53bb5a22b7bbc37e08abc403115c631de8a859afbca8e1"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-committed-aggregate-consumers-r111-20261011/junit.xml",
+      "sha256": "7969336b8de4fdca3944a5d7a74d06b2720edfc35f1b0a5aa264ea38d2dc0628"
+    },
+    "exit_code": 0,
+    "wall_seconds": 2.877004957990721,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "snapshot_file_count": 6183,
+    "snapshot_before_after_equal": true,
+    "test_case_ids": [
+      "tests.unit.data_forge.domains.ukraine.test_demography_artifacts::test_load_demography_artifacts_and_build_static_aging_state",
+      "tests.unit.data_forge.domains.ukraine.test_demography_artifacts::test_ukraine_data_shim_reads_reconciled_targets"
+    ],
+    "selected_inputs": "Synthetic supported aggregate layout and legacy shim fixtures. No production payloads or live serving currentness.",
+    "module_origin_limit": "No separate sys.modules origin receipt; actual committed source and target hashes are bound by the complete capture snapshot. Final installed wave must capture installed origins."
+  },
+  "reference_and_branch_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-receipt-reference-readback-r112-20261011/readback.json",
+    "sha256": "6832e8491df8828a2cedccb2e35d9c7acaa83faa634713df61e3ee35c51514cf"
+  },
+  "next_checks": [
+    "Retain all remaining checks in the earlier receipt except the completed two-case source-commit replay.",
+    "After the final composed freeze, regenerate/review surfaces, run native/installed/Linux checks and perform the producer/inventory path only with genuine source-owner inputs.",
+    "G independently accepts code and adjudicates this one occurrence."
+  ]
+}

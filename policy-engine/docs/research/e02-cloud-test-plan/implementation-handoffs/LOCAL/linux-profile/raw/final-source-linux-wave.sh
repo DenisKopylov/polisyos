@@ -13,7 +13,7 @@ transport starts a new clone only when all three destinations are absent.
 resume validates and continues only the recorded root-created 7574c864 partial transport.
 q2 requires the same freeze plus root's explicit serialized heavy-slot grant.
 q2 runs the admitted current primary set x 3 profiles, then six selectors x 3.
-The historical 100-ID subset remains required within the current 127-ID set.
+The historical 100-ID subset remains required within the current 134-ID set.
 The supplement reuses the primary wave's installed environment and wheels.
 USAGE
   exit 2
@@ -71,7 +71,7 @@ check_resume_source_attachment() {
   check_sha "$source_head" CURRENT_ATTACHED_HEAD
   git -C "$source_checkout" merge-base --is-ancestor "$freeze_sha" HEAD || die "recorded freeze is not an ancestor of the attached source branch"
   manifest_sha=$(git -C "$source_checkout" show "$freeze_sha:$Q2_REL/installed-wave-manifest.json" | shasum -a 256 | awk '{print $1}')
-  [[ $manifest_sha == '1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277' ]] || die "frozen primary manifest Git blob SHA mismatch"
+  [[ $manifest_sha == 'fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba' ]] || die "frozen primary manifest Git blob SHA mismatch"
   printf 'source proof: freeze=%s tree=%s; attached branch=%s HEAD=%s descends from freeze; working-tree cleanliness is not asserted or consumed\n' \
     "$freeze_sha" "$freeze_tree" "$branch" "$source_head"
 }
@@ -221,10 +221,10 @@ check_q2_inputs() {
   [[ -f "$Q2_HOST/raw/supplemental_run.py" && -f "$Q2_HOST/raw/supplemental-manifest.json" ]] || die "supplement driver/manifest missing"
   printf '%s  %s\n' \
     'a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0' "$Q2_HOST/raw/run.py" \
-    '0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312' "$Q2_HOST/raw/timeout_driver.py" \
-    '1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277' "$Q2_HOST/installed-wave-manifest.json" \
+    '296a0af330a82b04f4bf269c24eb5077609d55ab4f54e5beea47748caa66caac' "$Q2_HOST/raw/timeout_driver.py" \
+    'fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba' "$Q2_HOST/installed-wave-manifest.json" \
     '4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49' "$Q2_HOST/raw/supplemental_run.py" \
-    'ae2854d95dd2a36283f9bc2a2fcdd24caf0b8712bca92a811ff401112fb4e7df' "$Q2_HOST/raw/supplemental-manifest.json" \
+    '09ea960c6b8124c886e3890289d40ca8a220e39f024d2ae323031d3025ad9903' "$Q2_HOST/raw/supplemental-manifest.json" \
     | shasum -a 256 -c -
   printf '%s  %s\n' \
     '4593febfff4242f5e2004897ed929c97566feab4266b8984a6e23c94a48e37e2' "$SCRIPT_DIR/sitecustomize.py" \
@@ -279,10 +279,10 @@ LOCKS
 verify_copy_hashes() {
   docker_e02 exec -i "$CONTAINER" /bin/bash -lc "cd '$REPO' && sha256sum -c -" <<'TOOL_HASHES'
 a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py
-0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py
-1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json
+296a0af330a82b04f4bf269c24eb5077609d55ab4f54e5beea47748caa66caac  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py
+fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json
 4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py
-ae2854d95dd2a36283f9bc2a2fcdd24caf0b8712bca92a811ff401112fb4e7df  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json
+09ea960c6b8124c886e3890289d40ca8a220e39f024d2ae323031d3025ad9903  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json
 TOOL_HASHES
 }
 q2_input_action() {
@@ -374,10 +374,10 @@ if [[ -d "$raw_dir" ]]; then
 fi
 Q2_LAYOUT_CHECK
   preflight_q2_input "$Q2_REL/raw/run.py" 'a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0'
-  preflight_q2_input "$Q2_REL/raw/timeout_driver.py" '0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312'
-  preflight_q2_input "$Q2_REL/installed-wave-manifest.json" '1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277'
+  preflight_q2_input "$Q2_REL/raw/timeout_driver.py" '296a0af330a82b04f4bf269c24eb5077609d55ab4f54e5beea47748caa66caac'
+  preflight_q2_input "$Q2_REL/installed-wave-manifest.json" 'fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba'
   preflight_q2_input "$Q2_REL/raw/supplemental_run.py" '4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49'
-  preflight_q2_input "$Q2_REL/raw/supplemental-manifest.json" 'ae2854d95dd2a36283f9bc2a2fcdd24caf0b8712bca92a811ff401112fb4e7df'
+  preflight_q2_input "$Q2_REL/raw/supplemental-manifest.json" '09ea960c6b8124c886e3890289d40ca8a220e39f024d2ae323031d3025ad9903'
 }
 capture_hook_action() {
   local freeze_sha=$1 target_dir="/scratch/e02-child-capture/$1" target="/scratch/e02-child-capture/$1/sitecustomize.py"
@@ -477,10 +477,10 @@ fi
 mkdir -p "$directory"
 Q2_RAW_DIR
   copy_q2_input "$Q2_REL/raw/run.py" "$Q2_HOST/raw/run.py" 'a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0'
-  copy_q2_input "$Q2_REL/raw/timeout_driver.py" "$Q2_HOST/raw/timeout_driver.py" '0f6ae40c5fa0a9959718b6eb365c3fa3f4ad172fbae565702c3be357759be312'
-  copy_q2_input "$Q2_REL/installed-wave-manifest.json" "$Q2_HOST/installed-wave-manifest.json" '1656e209631d8fa401ed65a87c8fff90e07f5996bf8435da4f860e2dc987f277'
+  copy_q2_input "$Q2_REL/raw/timeout_driver.py" "$Q2_HOST/raw/timeout_driver.py" '296a0af330a82b04f4bf269c24eb5077609d55ab4f54e5beea47748caa66caac'
+  copy_q2_input "$Q2_REL/installed-wave-manifest.json" "$Q2_HOST/installed-wave-manifest.json" 'fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba'
   copy_q2_input "$Q2_REL/raw/supplemental_run.py" "$Q2_HOST/raw/supplemental_run.py" '4a80f59032665607ff139bf8ed8fbf73e05432f03297b3c82ff78d07d49e5f49'
-  copy_q2_input "$Q2_REL/raw/supplemental-manifest.json" "$Q2_HOST/raw/supplemental-manifest.json" 'ae2854d95dd2a36283f9bc2a2fcdd24caf0b8712bca92a811ff401112fb4e7df'
+  copy_q2_input "$Q2_REL/raw/supplemental-manifest.json" "$Q2_HOST/raw/supplemental-manifest.json" '09ea960c6b8124c886e3890289d40ca8a220e39f024d2ae323031d3025ad9903'
   verify_copy_hashes
   copy_capture_hook "$freeze_sha"
   docker_e02 exec "$CONTAINER" /bin/bash -lc "du -sb '/scratch/e02-$freeze_sha.git' '$REPO'; git -C '$REPO' log -1 --format='HEAD=%H%nTREE=%T%nPARENTS=%P'; git -C '$REPO' status --short --branch"

@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.local.independent-receipt-review.v1",
+  "reviewer": "devx_review",
+  "review_date": "2026-10-11",
+  "reviewed_artifact": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q1-search-autotune-composition-verification-v1.json",
+    "sha256": "645ae47b07a5b6555e9eba2eaa7e1a760eefe88191277dc556f96211b19c16a4",
+    "bytes": 47000
+  },
+  "receipt_verdict": "partial_pending_explicit_qualification_of_31_pass_run",
+  "product_or_g_verdict": "not_assessed; no G acceptance or closure",
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "c3f3f7d3ff2970daa44356535511ef1e84a2c1cd",
+    "tree": "4f5a90ba5627615d80effc8e1a7e4c96e6b56bb7",
+    "parent": "7296a02065fbdac778dae241b137182179667625",
+    "remote_branch_tip_matches_candidate": true
+  },
+  "source_identity_checks": {
+    "receipt_footprint_paths": 21,
+    "candidate_blob_hashes_match_all_footprint_paths": true,
+    "source_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q1-v6-source-checkpoint-20261011/readback.json",
+    "source_readback_sha256": "f0c957a8270a1f479a4ae58bea72b2a4e4c6d86b75a1bb336f36ebf993bf24ea",
+    "remote_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q1-v6-source-checkpoint-20261011/remote-readback.json",
+    "remote_readback_sha256": "0bb1e5bbb080509b2d4317a09cf275ae8f017ca79bea1c534c00c0fc8b82c924",
+    "remote_verified_paths_equal_footprint": true
+  },
+  "run_evidence": [
+    {
+      "name": "four-module replay",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q1-v6-real-funnel-autotune-canonical-import-consumers-20261011/command.json",
+      "command_record_sha256": "89c9ba444ea1bfcb8058e69afa166e2228a9008373e60c4f705041e5761acdd8",
+      "recorded_head": "7296a02065fbdac778dae241b137182179667625",
+      "input_count": 6168,
+      "input_types": {".py": 6158, ".pyi": 5, ".toml": 3, ".ini": 1, ".lock": 1},
+      "before_after_maps_equal": true,
+      "stdout_sha256": "9fcb521776c30834098f8364ee90d91d2228666274ef291a398c159e63ae5ccd",
+      "junit_sha256": "fcc924b88f29f417dd511d9630a32ab7d3cc1778641b24b85a114bffcd294b71",
+      "junit": {"tests": 31, "failures": 0, "errors": 0, "skipped": 0},
+      "candidate_source_qualification": "historical captured snapshot; test_srv_01.py input hash differs from candidate"
+    },
+    {
+      "name": "composed consumer replay plus first-cold and dynamic positive",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q1-v6-dynamic-v3-first-cold-and-composed-consumers-20261011/command.json",
+      "command_record_sha256": "1e9a872ba2f94fc91a726f5348b00f750865187ec89346ee937cf079d23ff873",
+      "recorded_head": "7296a02065fbdac778dae241b137182179667625",
+      "input_count": 6169,
+      "input_types": {".py": 6158, ".pyi": 5, ".toml": 4, ".ini": 1, ".lock": 1},
+      "before_after_maps_equal": true,
+      "stdout_sha256": "24298523122ffccff9cee2ccb760ba64987930ee9d46852c24ba04a32598a688",
+      "junit_sha256": "ff18b69e1a41e6232700ad9fdf7eb6cb1a3f5de2c0a1d881814780c08be3461a",
+      "junit": {"tests": 33, "failures": 0, "errors": 0, "skipped": 0},
+      "candidate_source_qualification": "all 20 Q1 footprint paths present in input map match candidate; README excluded from runtime input map"
+    },
+    {
+      "name": "corrupt-field, missing-call and invalid-target control",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q1-v6-dynamic-v3-corrupt-field-removal-controls-20261011/command.json",
+      "command_record_sha256": "d172aa38c98a7a4864a8b2896fa0fa9f19728c34e0f9b81e519d4d59f294a908",
+      "recorded_head": "c3f3f7d3ff2970daa44356535511ef1e84a2c1cd",
+      "input_count": 6169,
+      "input_types": {".py": 6158, ".pyi": 5, ".toml": 4, ".ini": 1, ".lock": 1},
+      "before_after_maps_equal": true,
+      "stdout_sha256": "d9fb2558a2f2eefe9416a3cf9f8f49466ff5eecbb729e5286d547ab34214755d",
+      "junit_sha256": "68482f30d812e2c6f0bca2855acea054fd8ce9ee8491822ce71217d5785c9c16",
+      "junit": {"tests": 1, "failures": 0, "errors": 0, "skipped": 0},
+      "candidate_source_qualification": "all 20 Q1 footprint paths present in input map match candidate"
+    },
+    {
+      "name": "Ruff on 19 explicit Python paths",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/q1-v6-dynamic-v3-final-nineteen-paths-ruff-20261011/command.json",
+      "command_record_sha256": "fd03c02d06e1b12ca6f5c6ee5c8299cb5ca3b0399625cd76331b8d52e5f91a92",
+      "recorded_head": "c3f3f7d3ff2970daa44356535511ef1e84a2c1cd",
+      "explicit_python_targets": 19,
+      "exit_code": 0,
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stdout_json": [],
+      "before_after_maps_equal": true
+    }
+  ],
+  "candidate_comparison": {
+    "basis": "complete run-2 before_sha256 input map",
+    "input_count": 6169,
+    "candidate_matches": 6083,
+    "candidate_mismatches": 86,
+    "mismatch_file_types": {".py": 86},
+    "recomputed_paths_and_hash_pairs_equal_main_receipt": true,
+    "mismatches_intersect_q1_footprint": 0,
+    "scope": "broader composed worktree inputs; main receipt correctly leaves common freeze and whole-candidate/native-green pending"
+  },
+  "finding": {
+    "severity": "medium receipt qualification",
+    "class": "same source-snapshot-to-candidate linkage class, one level deeper",
+    "detail": "Run 1's test_srv_01.py captured SHA 7ac1c50454509327d83309ba8ef305e2364a4d20d7b5d22d648a2bef09f4dc1f differs from candidate SHA 3ce515607042c32a0f3e8a07021a5c1176b124f78747d989851fb3c35c297459 (and base SHA cf5f4f6963200a848c8f3a41159afa8bfe80439f85f2d0a5440e6f910f446d5d). The captured source map is stable, but that 31-pass run is not exact-candidate proof.",
+    "bounded_correction": "Label the 31-pass output as a prior captured snapshot; use the 33-pass and one-pass runs as candidate-bound test outcomes. No rerun is needed for this receipt correction."
+  },
+  "adjudication": {
+    "closure_ids": [],
+    "formal_g_adjudication": "not_adjudicated",
+    "historical_LA_021": "closed status preserved; Q1 receipt holds its proposal and does not evaluate original Core/IR/profile-history criterion"
+  },
+  "review_actions": {
+    "tests_rerun": false,
+    "imports_or_builds_run": false,
+    "source_or_main_receipt_modified": false,
+    "checks_performed": ["Git identity/readback", "source blob hash reconciliation", "remote tip check", "retained JSON/command/JUnit/output hash reconciliation", "complete input map denominator comparison"]
+  }
+}

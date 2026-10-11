@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.local.independent-receipt-review-delta.v1",
+  "reviewer": "devx_review",
+  "review_date": "2026-10-11",
+  "verdict": "pass_for_bounded_v2_receipt; no whole-candidate or G conclusion",
+  "original_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q1-search-autotune-composition-verification-v1.json",
+    "sha256": "645ae47b07a5b6555e9eba2eaa7e1a760eefe88191277dc556f96211b19c16a4"
+  },
+  "superseding_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q1-search-autotune-composition-verification-v2.json",
+    "sha256": "0be563c22992f8dd62de0bb44ab02e62b92fe8c5db02a885193c15f13bcf08b8",
+    "bytes": 48625,
+    "supersedes_exact_v1_identity": true
+  },
+  "prior_independent_review": {
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q1-search-autotune-composition-receipt-independent-20261011.md",
+    "markdown_sha256": "4cfce6388fb4076311bc31625f5b24fd9e893d242a6b82f591a9722e3a080871",
+    "json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q1-search-autotune-composition-receipt-independent-20261011.json",
+    "json_sha256": "2fa369dae397ec4010a53f68f864b7f21f38a9066d5e2eef39cd6ec53c5d52f1"
+  },
+  "candidate_identity": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head_and_remote_tip": "c3f3f7d3ff2970daa44356535511ef1e84a2c1cd",
+    "tree": "4f5a90ba5627615d80effc8e1a7e4c96e6b56bb7",
+    "parent": "7296a02065fbdac778dae241b137182179667625"
+  },
+  "delta_checks": {
+    "v1_preserved": true,
+    "source_candidate_and_21_path_footprint_unchanged": true,
+    "run_records_and_output_hashes_unchanged": true,
+    "run1_31_pass_reclassified_historical_iteration_only": true,
+    "run1_mismatch": {
+      "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+      "captured_sha256": "7ac1c50454509327d83309ba8ef305e2364a4d20d7b5d22d648a2bef09f4dc1f",
+      "candidate_sha256": "3ce515607042c32a0f3e8a07021a5c1176b124f78747d989851fb3c35c297459",
+      "base_sha256": "cf5f4f6963200a848c8f3a41159afa8bfe80439f85f2d0a5440e6f910f446d5d"
+    },
+    "run2_33_pass_q1_footprint_inputs": {"compared": 20, "mismatches": 0},
+    "run3_1_pass_control_q1_footprint_inputs": {"compared": 20, "mismatches": 0},
+    "run4_ruff_q1_footprint_inputs": {"compared": 19, "mismatches": 0, "explicit_python_targets": 19, "stdout": []},
+    "run_junit_counts": [
+      {"tests": 31, "failures": 0, "errors": 0, "skipped": 0, "classification": "historical_iteration_only"},
+      {"tests": 33, "failures": 0, "errors": 0, "skipped": 0, "classification": "candidate_footprint_only"},
+      {"tests": 1, "failures": 0, "errors": 0, "skipped": 0, "classification": "candidate_footprint_only"}
+    ],
+    "full_captured_input_comparison": {
+      "denominator": 6169,
+      "candidate_matches": 6083,
+      "mismatches": 86,
+      "mismatch_file_types": {".py": 86},
+      "q1_footprint_intersection": 0,
+      "unchanged_from_v1": true
+    },
+    "g_adjudication": "not_adjudicated",
+    "closure_ids": []
+  },
+  "review_actions": {
+    "tests_rerun": false,
+    "source_or_receipt_modified": false,
+    "checks": ["v1/v2 JSON and identity comparison", "per-run Q1 footprint comparison", "retained output/JUnit reconciliation", "branch and remote identity readback"]
+  }
+}

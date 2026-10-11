@@ -1,0 +1,278 @@
+{
+  "schema": "scientist-routine-companion-receipt/v1",
+  "receipt_id": "scientist-nine-routine-companions-20261011",
+  "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "product_root": "policy-engine",
+  "source_checkpoint": {
+    "commit": "55ed8863a8cad50c8189dd9309f0a87e8761016b",
+    "tree": "3bfebe02924b5e5e680afa501a9c515ba6cb668d",
+    "parent": "fd5feb3714fe0395157940027259fe10180db4e0",
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/scientist-nine-source-checkpoint-20261011/readback.json",
+      "sha256": "b7163ca7c11622180708fff145ebea602d8b8bb814934edd60a7c6b65fe8ad16"
+    },
+    "remote_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/scientist-nine-source-checkpoint-20261011/remote-readback.json",
+      "sha256": "2a5891d637169dc3761967930820eec485d32335658b5dcfe77a288d9d28e687",
+      "remote_commit": "55ed8863a8cad50c8189dd9309f0a87e8761016b",
+      "verified_path_count": 9
+    }
+  },
+  "scope": {
+    "residual_route_id": "scientist-workflow-evidence-and-search",
+    "residual_route_path_count": 12,
+    "residual_route_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/residual-source-boundaries-independent-20261011.json",
+      "sha256": "4925b2d84684c06fee482e9422158356750e84b56c86ad9c76c01669cb5b8798"
+    },
+    "reviewed_path_count": 9,
+    "source_path_count": 8,
+    "test_path_count": 1,
+    "result": "PASS_SCOPED: routine source/test companion verification only; no formal capability or route closure"
+  },
+  "reviewed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/evals/red_team.py",
+      "base_sha256": "a9524a010ffaa4db967ea1c3b6e455c7d1447bc10c82867aa8c7d3b819517741",
+      "candidate_sha256": "6c3ff45d1864657aab6222f6ec7a32bd24d3dcaa11fc39a9a633b92df713ce61",
+      "review": "GO_STATIC; redundant TC001 suppression removed, eager ArtifactRef binding retained",
+      "consumer_test": "tests/unit/scientist/evals/test_red_team.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/lifecycle.py",
+      "base_sha256": "6fa0c8adfade770b323807a264508e54d18efdaaf1b3b98047f2dc9e8a3bffb1",
+      "candidate_sha256": "3cc95a5e873472a95779a2102f72bba1016ee8c5c8ff4cf99965932d0fd64316",
+      "review": "GO_STATIC; redundant TC001 suppression removed, Pydantic reference imports and lifecycle semantics retained",
+      "consumer_test": "tests/unit/scientist/evidence/claims/test_lifecycle.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "base_sha256": "f4392a54cf0898e213fa59fb084f55f596462e78842b71fa9bccb67ae20205f5",
+      "candidate_sha256": "0c9e9eb25952535abf5e205cdea6eedfff644b0f71114ee18e0b78fa91b9699b",
+      "review": "GO_STATIC; encode() default UTF-8 preserves deterministic seed payload bytes",
+      "consumer_test": "tests/unit/scientist/methods/doe/test_sampling.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "base_sha256": "7cba0380ad7d4b2c040f63e7487f15faa952136edb19bdd4ed56fd895442e068",
+      "candidate_sha256": "f879413cb4e53ad44ed4afdc4f32a5213edcea729cd227b4062b01a90b4c2836",
+      "review": "GO_STATIC; Any imported for existing submit() annotation",
+      "consumer_test": "tests/unit/scientist/search/test_contracts.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "base_sha256": "482c8fc4e4fb70527e4cd50688b0020fa759dcc8851789fcf9999946d085d431",
+      "candidate_sha256": "c81a0925556d430a52aa6d1f5633688011cf99749d02cb353137c517c6f301db",
+      "review": "GO_STATIC; TYPE_CHECKING aliases added while runtime lazy export path and __all__ are preserved",
+      "consumer_test": "tests/unit/scientist/search/test_contracts.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "base_sha256": "b8f599678d5e57b39276eedd2b6334edeb9d2b389128b67d0ee50e8a7b27cb0c",
+      "candidate_sha256": "671f53350795245a2722a96615f91ca95baedfd981115a9995c54c1c3dc8a70f",
+      "review": "GO_STATIC; optional SciPy availability import and fallback remain, redundant F401 suppression removed",
+      "consumer_test": "tests/unit/scientist/search/strategies/test_space_codec.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+      "base_sha256": "809686aa7329f3f67d07829aaec7f31266ebe38356a8c8cc91058dc93d2fc924",
+      "candidate_sha256": "8a6e01096beabd68cb767db7481e4dfd5cad1b914555df85c98127ef3d72124f",
+      "review": "GO_STATIC; explicit facade forwards api.__all__ values resolved by the same getattr bridge",
+      "consumer_test": "tests/unit/scientist/nodes/test_decision_packet_node_v3.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+      "base_sha256": "4d7befc3ce7a7a168ecc6c254210766d22b19c3e82f2da1ff3ad27ec0d5cb55f",
+      "candidate_sha256": "5ba8cb8c366b5c79f59cb27bd92dbcf1a0f9b4293b3813b03d47b28c99e74fcf",
+      "review": "GO_STATIC; equivalent set displays preserve deduplication, sorted reasons, and status/action logic",
+      "consumer_test": "tests/unit/scientist/orchestration/llm/test_provider_quality.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "base_sha256": "043f6f5fb02c040c7968cc2228788ed9b5675e88072bd2924f8d4a0b255ad3ee",
+      "candidate_sha256": "cca279675b22b2769b4610407a817ffb4bbd9ac5467214316fc83eec72d223dc",
+      "review": "GO_STATIC; comments and S311 suppression added around unchanged deterministic seeded PRNG fixture values"
+    }
+  ],
+  "excluded_route_paths": [
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "base_sha256": "3544eb100db855100d8d8d8e28cbf85b024fc0b6c9cb33b1b154f6c889a72103",
+      "candidate_sha256": "36cbc82acc346b5814382cbe618ac07d1de3a47c39c530ba7aeac5bbd4ee31a3",
+      "status": "UNRUN; separate R4 ownership/decision boundary"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "base_sha256": "60dbc079b2aa5e52177b623657f59797c41d52d0a2b9e9923d9dd656eb2c8a96",
+      "candidate_sha256": "dd8a1792157e6d2091a88246a06b813444ff1973d0a73b11b7aad956995f02d7",
+      "status": "UNRUN; separate checkpoint/resume decision boundary"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+      "base_sha256": "c2ada36e2a115f5b8a842459174a01e4c8f5e5c5938481bc73cf9ad970c2d194",
+      "candidate_sha256": "67e608168d7a2659d83da0161e3b2c73ddaa485ebcefc261157fecad681b0eea",
+      "status": "UNRUN; separate SKG replay decision boundary"
+    }
+  ],
+  "verification": {
+    "pytest": {
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/command.json",
+      "command_record_sha256": "1bab57926775488653de447844015abc370d50ce9384c56378432d789220068f",
+      "capture_head": "fd5feb3714fe0395157940027259fe10180db4e0",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/scientist/evals/test_red_team.py",
+        "tests/unit/scientist/evidence/claims/test_lifecycle.py",
+        "tests/unit/scientist/methods/doe/test_sampling.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/strategies/test_adapter.py",
+        "tests/unit/scientist/search/strategies/test_space_codec.py",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "tests/unit/scientist/orchestration/llm/test_provider_quality.py",
+        "--junitxml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/junit.xml",
+        "--basetemp",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/pytest-tmp"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "result": {
+        "status": "PASS",
+        "exit_code": 0,
+        "tests": 67,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "wall_seconds": 20.880016208044253,
+        "junit_reported_seconds": 13.068,
+        "warnings": "Torch JIT Python 3.14 deprecation and datetime.utcnow deprecations appeared; no test failed."
+      },
+      "captured_input_hash_inventory": {
+        "before_count": 6160,
+        "after_count": 6160,
+        "added": 0,
+        "removed": 0,
+        "changed": 0,
+        "raw_output_entry_count": 2550
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/stdout.txt",
+          "bytes": 2132,
+          "sha256": "fc09df934071bc36448c0a6854aaeab5f346a0d79e651e3c62d3223c6dc6b983"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-real-consumers-20261011/junit.xml",
+          "bytes": 11025,
+          "sha256": "87ce10965b80c5f8bdcb3a468d7c50e6919d15ed964ada15366efb915fcd4b10"
+        }
+      ],
+      "source_binding": "The command's before/after SHA-256 values for all nine target paths match the committed source_checkpoint candidate hashes; the command ran with HEAD fd5feb3714fe0395157940027259fe10180db4e0, before the docs-only/source checkpoint commit."
+    },
+    "ruff": {
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-canonical-ruff-20261011/command.json",
+      "command_record_sha256": "ced196e1f0b6c1318f5ccce0d3cfca89a52a723ed62f480f8f4918fe545bf511",
+      "capture_head": "fd5feb3714fe0395157940027259fe10180db4e0",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format=json",
+        "src/polisyos/scientist/evals/red_team.py",
+        "src/polisyos/scientist/evidence/claims/lifecycle.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/search/adapters.py",
+        "src/polisyos/scientist/methods/search/contracts.py",
+        "src/polisyos/scientist/methods/search/strategies/space.py",
+        "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+        "src/polisyos/scientist/orchestration/llm/provider_quality.py",
+        "tests/unit/scientist/search/strategies/test_space_codec.py"
+      ],
+      "result": {
+        "status": "PASS",
+        "exit_code": 0,
+        "diagnostics": 0,
+        "wall_seconds": 0.08391283301170915,
+        "inputs": 9,
+        "captured_hash_inventory": {
+          "before_count": 11,
+          "after_count": 11,
+          "added": 0,
+          "removed": 0,
+          "changed": 0
+        },
+        "configuration_fingerprints": {
+          "policy-engine/ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+          "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+        },
+        "input_stability": "The command record shows all nine targets and both configuration fingerprints identical before and after (11 hashed input files total)."
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-canonical-ruff-20261011/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "meaning": "empty diagnostics JSON array []"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/scientist-nine-routine-companion-canonical-ruff-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "meaning": "empty stderr"
+        }
+      ]
+    }
+  },
+  "environment": {
+    "pytest_python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "python_runtime_evidence": "The runner executable and warning paths identify the policy-engine .venv Python 3.14 environment; policy-engine/pyproject.toml requires >=3.14,<3.15.",
+    "selected_profile": null,
+    "profile_note": "No separately named profile is present in the command record.",
+    "source_lock": {
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "binding": "Informational source-lock fingerprint only. The pytest command receipt does not fingerprint the installed environment against uv.lock, so lock-to-environment currentness is not_established."
+    }
+  },
+  "independent_review": {
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/scientist-nine-routine-companions-independent-20261011.md",
+      "sha256": "bc58a5c0493931ac8cf6d6de27bb93c343d9d93747a759ed56af8c2f0eeeb1be"
+    },
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/scientist-nine-routine-companions-independent-20261011.json",
+      "sha256": "570dcae01dacfadf61c52436c6480436801ac44be5de1a7a610466c2a20a8bbe"
+    },
+    "result": "GO_STATIC for the nine scoped files; review was read-only and did not run tests/imports."
+  },
+  "p40": {
+    "classification": "SAME_CLASS_DEEPER",
+    "class": "mechanical Scientist Ruff/type/import cleanup with compatibility-facade preservation",
+    "residual": "No second source-level escape observed in the nine paths; R4, checkpoint/resume, and SKG replay remain separate UNRUN decision boundaries."
+  },
+  "candidate_ids": [],
+  "closure_ids": [],
+  "claims_not_made": [
+    "No closure of all 12 Scientist route paths.",
+    "No all-198 or repository-wide native SOTA claim.",
+    "No causal calibration, scientific validity, production currentness, or external authority claim."
+  ],
+  "raw_source_handling": "No tracked source copies or raw outputs embedded; command and full output artifacts are cited by path and SHA-256."
+}

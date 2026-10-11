@@ -1,0 +1,200 @@
+{
+  "schema": "independent-routine-companion-review/v1",
+  "review_id": "scientist-nine-routine-companions-independent-20261011",
+  "reviewer_role": "independent read-only source review",
+  "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "product_root": "policy-engine",
+  "baseline": {
+    "commit": "f8ff8a9e241badab03fdb4d584d36934970e4e15",
+    "tree": "9641b8e4b4eb90078d03ebd6740e9d229aee58e0"
+  },
+  "candidate_worktree": {
+    "head": "f8ff8a9e241badab03fdb4d584d36934970e4e15",
+    "tree": "9641b8e4b4eb90078d03ebd6740e9d229aee58e0",
+    "selected_scope_status": "9 selected paths are modified relative to the baseline; this review did not census unrelated worktree paths"
+  },
+  "denominator_source": {
+    "route_id": "scientist-workflow-evidence-and-search",
+    "route_path_count": 12,
+    "route_paths": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/residual-source-boundaries-independent-20261011.json",
+    "route_paths_sha256": "4925b2d84684c06fee482e9422158356750e84b56c86ad9c76c01669cb5b8798",
+    "route_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/residual-source-boundaries-independent-20261011.md",
+    "route_review_sha256": "ec768705f49ef2188364c9b9595420e9286b1733f8642658af62cf9f6814b36f"
+  },
+  "scope": {
+    "reviewed_path_count": 9,
+    "reviewed_source_count": 8,
+    "reviewed_test_count": 1,
+    "excluded_path_count": 3,
+    "excluded_reason": "R4 shared-study integration, checkpoint/resume integration, and SKG snapshot replay are separate runtime boundaries expressly excluded from this slice. Their prior route status is not changed by this review.",
+    "source_only_verdict": "GO_STATIC",
+    "overall_runtime_verdict": "LIMIT_EXECUTION_NOT_RUN",
+    "blocking_findings": []
+  },
+  "reviewed_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/evals/red_team.py",
+      "base_sha256": "a9524a010ffaa4db967ea1c3b6e455c7d1447bc10c82867aa8c7d3b819517741",
+      "candidate_sha256": "6c3ff45d1864657aab6222f6ec7a32bd24d3dcaa11fc39a9a633b92df713ce61",
+      "verdict": "GO_STATIC",
+      "change": "Removed the inline TC001 noqa from the ArtifactRef import; the import remains eager and the two Pydantic model fields continue to name ArtifactRef.",
+      "api_and_behavior": "The module's explicit __all__ and model definitions are unchanged. The package's Scientist per-file ignore list includes TC001, so the inline directive is redundant and its removal does not move or remove the runtime symbol needed for model annotation resolution.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/evals/test_red_team.py::test_default_red_team_registry_covers_all_required_challenge_classes"
+      ],
+      "coverage_limit": "The identified test checks registry coverage and tags, not ArtifactRef model validation. No test was run in this review."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/lifecycle.py",
+      "base_sha256": "6fa0c8adfade770b323807a264508e54d18efdaaf1b3b98047f2dc9e8a3bffb1",
+      "candidate_sha256": "3cc95a5e873472a95779a2102f72bba1016ee8c5c8ff4cf99965932d0fd64316",
+      "verdict": "GO_STATIC",
+      "change": "Removed the inline TC001 noqa from the ArtifactRef import; the import remains eager and all typed reference fields remain unchanged.",
+      "api_and_behavior": "The module's lifecycle DTOs, validators, transitions, and exports have no source changes. TC001 is ignored for Scientist source, making the inline suppression redundant; keeping the runtime import preserves Pydantic's runtime-resolvable annotation dependency.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/evidence/claims/test_lifecycle.py",
+        "policy-engine/tests/integration/scientist/governance/test_claim_lifecycle_orchestration.py"
+      ],
+      "coverage_limit": "The unit and integration suites are meaningful for event validation, lifecycle projection, and orchestration consumption, but were not run here."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "base_sha256": "f4392a54cf0898e213fa59fb084f55f596462e78842b71fa9bccb67ae20205f5",
+      "candidate_sha256": "0c9e9eb25952535abf5e205cdea6eedfff644b0f71114ee18e0b78fa91b9699b",
+      "verdict": "GO_STATIC",
+      "change": "Changed only the explicit UTF-8 codec argument to str.encode()'s default encoding in the deterministic DOE seed payload.",
+      "api_and_behavior": "For the supported Python runtime, str.encode() defaults to UTF-8, so the payload bytes and downstream BLAKE2b digest/seed are unchanged. No seed or analysis logic changed.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "policy-engine/tests/unit/scientist/methods/doe/test_multi_output.py"
+      ],
+      "coverage_limit": "The selected tests exercise sampling and analysis behavior. A direct test of _derive_backend_seed was not found by the targeted source search; the one-line encoding equivalence was established statically, not by execution."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "base_sha256": "7cba0380ad7d4b2c040f63e7487f15faa952136edb19bdd4ed56fd895442e068",
+      "candidate_sha256": "f879413cb4e53ad44ed4afdc4f32a5213edcea729cd227b4062b01a90b4c2836",
+      "verdict": "GO_STATIC",
+      "change": "Added typing.Any, already used in the existing submit() context annotation.",
+      "api_and_behavior": "The import resolves an existing annotation for runtime introspection and changes no adapter code, output, or exported name.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/search/test_contracts.py::test_legacy_search_service_adapter_exposes_ask_tell",
+        "policy-engine/tests/unit/scientist/search/test_contracts.py::test_orchestrator_funnel_service_submits_and_reads_outcome",
+        "policy-engine/tests/unit/scientist/search/strategies/test_adapter.py"
+      ],
+      "coverage_limit": "These tests exercise the legacy ask/tell and funnel bridges; they were not run."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "base_sha256": "482c8fc4e4fb70527e4cd50688b0020fa759dcc8851789fcf9999946d085d431",
+      "candidate_sha256": "c81a0925556d430a52aa6d1f5633688011cf99749d02cb353137c517c6f301db",
+      "verdict": "GO_STATIC",
+      "change": "Added TYPE_CHECKING-only aliases for LegacySearchServiceAdapter and OrchestratorFunnelService.",
+      "api_and_behavior": "The aliases are only visible to static type analysis. Runtime __getattr__, its two-name lazy-import allowlist, imports, and __all__ are unchanged. Thus the runtime import boundary and lazy compatibility exports remain as before.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/search/test_contracts.py",
+        "policy-engine/tests/unit/scientist/search/test_contract_models.py",
+        "policy-engine/tests/unit/scientist/search/test_judge_stack_imports.py"
+      ],
+      "coverage_limit": "test_contracts exercises the facade exports and both bridges; no import execution was permitted in this review."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "base_sha256": "b8f599678d5e57b39276eedd2b6334edeb9d2b389128b67d0ee50e8a7b27cb0c",
+      "candidate_sha256": "671f53350795245a2722a96615f91ca95baedfd981115a9995c54c1c3dc8a70f",
+      "verdict": "GO_STATIC",
+      "change": "Removed redundant F401 suppression from the optional SciPy Sobol availability-probe import; the import, exception branch, and import-not-found type ignore remain intact.",
+      "api_and_behavior": "The import is still attempted and caught as before, so backend preference and fallback values are unchanged. F401 is ignored for Scientist source; the noqa is redundant.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_sampling_is_deterministic",
+        "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_stream_is_stable_across_request_shape_and_checkpoint",
+        "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py::test_legacy_sobol_checkpoint_fails_closed_with_exact_reason"
+      ],
+      "coverage_limit": "The identified codec tests cover deterministic sampling and checkpoint behavior, not the optional-SciPy availability branch. They were not run."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+      "base_sha256": "809686aa7329f3f67d07829aaec7f31266ebe38356a8c8cc91058dc93d2fc924",
+      "candidate_sha256": "8a6e01096beabd68cb767db7481e4dfd5cad1b914555df85c98127ef3d72124f",
+      "verdict": "GO_STATIC",
+      "change": "Replaced a star import plus __all__ import with an explicit compatibility bridge that aliases decision_packet.api.__all__, resolves each same name through getattr(api, name), and publishes those values in facade globals.",
+      "api_and_behavior": "The source uses the same API module, same __all__ object, and same per-name attribute resolution used by star import; api.__getattr__ still resolves fallback names across its implementation modules. The runtime facade preserves object identities by assigning the resolved objects directly. No node behavior, status, artifact, or payload code changed.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test__decision_packet_contracts.py::test_decision_packet_contracts_are_reexported_from_runtime_module",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test__decision_packet_contracts.py::test_decision_packet_split_modules_preserve_legacy_api_aliases",
+        "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "policy-engine/tests/unit/scientist/evidence/test_decision_packet_web_evidence.py"
+      ],
+      "coverage_limit": "The alias tests check representative names and identity; the node/web-evidence tests exercise consumers. The runtime facade and full export set were not imported or tested in this review, so static parity is not reported as an executable result."
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+      "base_sha256": "4d7befc3ce7a7a168ecc6c254210766d22b19c3e82f2da1ff3ad27ec0d5cb55f",
+      "candidate_sha256": "5ba8cb8c366b5c79f59cb27bd92dbcf1a0f9b4293b3813b03d47b28c99e74fcf",
+      "verdict": "GO_STATIC",
+      "change": "Replaced two set(list-unpacking) expressions with equivalent set displays before the existing sort.",
+      "api_and_behavior": "Both forms consume the same iterable values, deduplicate the same reason strings, and feed the same sorted result. No status/action branch or output field changed.",
+      "existing_behavioral_coverage": [
+        "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_quality.py::test_system_confounded_samples_require_controlled_evidence"
+      ],
+      "coverage_limit": "The test asserts the confounded-sample reasons, require_review action, and warn summary; it was not run."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "base_sha256": "043f6f5fb02c040c7968cc2228788ed9b5675e88072bd2924f8d4a0b255ad3ee",
+      "candidate_sha256": "cca279675b22b2769b4610407a817ffb4bbd9ac5467214316fc83eec72d223dc",
+      "verdict": "GO_STATIC",
+      "change": "Added explanatory comments and S311 noqa markers to two seeded random.Random fixture state constructions.",
+      "api_and_behavior": "The same seeded PRNG state expressions and test assertions remain; the comments clarify that this deterministic fixture is not a security token. No test contract was weakened or changed.",
+      "existing_behavioral_coverage": [
+        "the full test_space_codec.py module (not run)",
+        "policy-engine/tests/unit/scientist/search/strategies/test_adapter.py"
+      ],
+      "coverage_limit": "The changed test file itself is only an explanatory suppression change. No test ran in this review."
+    }
+  ],
+  "excluded_paths": [
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "base_sha256": "3544eb100db855100d8d8d8e28cbf85b024fc0b6c9cb33b1b154f6c889a72103",
+      "candidate_sha256": "36cbc82acc346b5814382cbe618ac07d1de3a47c39c530ba7aeac5bbd4ee31a3",
+      "status": "OUT_OF_SCOPE; no review result or acceptance inferred"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "base_sha256": "60dbc079b2aa5e52177b623657f59797c41d52d0a2b9e9923d9dd656eb2c8a96",
+      "candidate_sha256": "dd8a1792157e6d2091a88246a06b813444ff1973d0a73b11b7aad956995f02d7",
+      "status": "OUT_OF_SCOPE; no review result or acceptance inferred"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+      "base_sha256": "c2ada36e2a115f5b8a842459174a01e4c8f5e5c5938481bc73cf9ad970c2d194",
+      "candidate_sha256": "67e608168d7a2659d83da0161e3b2c73ddaa485ebcefc261157fecad681b0eea",
+      "status": "OUT_OF_SCOPE; no review result or acceptance inferred"
+    }
+  ],
+  "p40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "mechanical scientist Ruff/type/import cleanup and compatibility-facade preservation",
+    "finding": "No new source-level escape was observed in the nine reviewed paths. The decision-packet facade is a public alias-preservation companion to the same import-cleanup class, not a node behavior change.",
+    "bounded_residual": "Runtime import/cycle execution and full facade-symbol enumeration were not exercised under the assigned no-import/no-test constraint.",
+    "falsifier_or_next_check": "After source freeze, run the existing focused facade identity/export tests and search-contract tests; retain exact failures. This review does not certify unrelated Scientist routes, R4 admission, checkpoint/resume, SKG replay, or scientific/currentness claims."
+  },
+  "verification": {
+    "mode": "read-only source review",
+    "commands": [
+      "git rev-parse HEAD; git rev-parse HEAD^{tree}; git status --short -- <nine selected paths>; git diff --stat f8ff8a9e241badab03fdb4d584d36934970e4e15 -- <nine selected paths>",
+      "git diff --unified=8 f8ff8a9e241badab03fdb4d584d36934970e4e15 -- <nine selected paths>",
+      "git show f8ff8a9e241badab03fdb4d584d36934970e4e15:<path> | shasum -a 256; shasum -a 256 <path> (for all 12 route paths)",
+      "jq -c '.reviewed_mechanism_routes[] | select(.id == \"scientist-workflow-evidence-and-search\")' <residual-source-boundaries-independent-20261011.json>",
+      "rg source/test references for the eight modules and codec test; direct file reads of adapter/contracts, decision packet API/facade, Ruff config and focused existing tests"
+    ],
+    "tests": "NOT_RUN (explicit task constraint)",
+    "product_imports": "NOT_RUN (explicit task constraint)",
+    "lint_or_format": "NOT_RUN",
+    "source_or_test_writes": "NONE"
+  },
+  "final_scope_note": "This is a static source-delta review only. GO_STATIC applies to the nine selected paths and exact diff described; it is not runtime verification or a closure of the 12-path route."
+}

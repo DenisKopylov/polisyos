@@ -1,0 +1,281 @@
+{
+  "artifact_type": "implementation_handoff",
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "candidate_id": "can-source-qualified-r83-20261011",
+  "status": "source_committed_composed_candidate_for_independent_G_review",
+  "authorship_and_adjudication": {
+    "source_composer_role": "unified local root executor; source authorship is separate from the cited component authors and independent reviewers",
+    "independent_reviewers_are_not_source_author": true,
+    "formal_code_acceptance_and_finding_adjudication_owner": "G",
+    "integration_publication_owner": "G",
+    "closure_ids": []
+  },
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": "44a72fa7c8f602d555df8a95597b4c27e4953ec9",
+    "candidate_tree": "f6f9ad1ec89a242f1f5b31fc8848e562079eb3aa",
+    "parents": ["2ef920409765656f5b9a6410442cb0bc9d871332"],
+    "slice_base": {
+      "commit": "2ef920409765656f5b9a6410442cb0bc9d871332",
+      "tree": "1dc47dfaca72f7d1688ba4e6b4c4d4f284ca6966"
+    },
+    "tested_precommit_head": "f5412b7e765d355e91b07962dcb69263fab2d652",
+    "tested_precommit_source_bytes_match_candidate": true,
+    "working_tree_readback": "All nine listed source and companion paths are clean and match both the committed blobs and the source-checkpoint postimage hashes. Other root slices remain dirty; this handoff freezes only the nine listed paths."
+  },
+  "source_checkpoint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-source-checkpoint-r83-20261011/readback.json",
+    "sha256": "acf1a267b92be5107649c4d66fec5f76f1bcc1bfa5d6a3d4366e79c9fbbb1429",
+    "selected_footprint_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-source-checkpoint-r83-20261011/selected-footprint.json",
+    "selected_footprint_sha256": "7b3f66be49f8f93a92b1a032e05fa6d78fdf4fbbb62a21900be10f12c2ada0a5",
+    "readback_relation": "candidate commit, tree, parent and all nine postimage digests match the current branch readback"
+  },
+  "composition": {
+    "composed_source_head_at_replay": "f5412b7e765d355e91b07962dcb69263fab2d652",
+    "root_composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-v8-http-v3-quarantine-root-composition-r77-20261011/composition.json",
+      "sha256": "1610f8585f43661955850273820dd4897110d4addd2344a8534c643075a5f4ac",
+      "net_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-v8-http-v3-quarantine-root-composition-r77-20261011/net.patch",
+      "net_patch_sha256": "9c8f56d75323d39988ca8fb5fe92fc9a8877e1e407aca06e8065db14da3256e7",
+      "application_readback_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-v8-http-v3-quarantine-root-composition-r77-20261011/application-readback.json",
+      "application_readback_sha256": "3b8c023e5d8c6dabb5aade96a44f94407997d082aff016e5d4bd9529fdf6a460",
+      "product_writes_in_composition_capture": false
+    },
+    "component_source_pins": [
+      {
+        "component": "authority read refusal classification and sanitized backend failures",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-r9-denied-authority-view-and-s3-remote-error-owner-v8-20261011/patch.diff",
+        "patch_sha256": "f28a82fd882b5b9c2801ba7106af6281efb6b1feb26ddfbae2f65b4702ac7d9d"
+      },
+      {
+        "component": "default artifact route exact-profile ownership",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-r9-1-default-route-profile-ownership-v3-20261011/candidate-v3.patch",
+        "patch_sha256": "2c0ffb69314f0eebc2fe960fea6aff669188149098125d66e05c70c5b62083c2"
+      },
+      {
+        "component": "default-route quarantine test delta",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-r9-1-default-route-profile-ownership-v3-quarantine-delta-v1-20261011/candidate-delta.patch",
+        "patch_sha256": "a1a7827d556080076a9218327125154e39db5d280681498c4ecafbe662e5f862"
+      },
+      {
+        "component": "CAN event/profile authority reconciliation",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-event-profile-v3-final-composition-r3-20261011/net.patch",
+        "patch_sha256": "44fd136d425dba460d84be81ddeeb39e5c9c3fe8942f477dd5d66ce49c09a1cc"
+      },
+      {
+        "component": "CAN report intake registered-body classification",
+        "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-v16-report-intake-overlay-20261011-r5/can-v16-report-intake-v16.patch",
+        "patch_sha256": "bf848a17ca8d1c71c76d2efd853ac8bb0b67307310bed83b340c06eb98bd7030"
+      }
+    ]
+  },
+  "footprint": {
+    "mechanism_path_count": 5,
+    "mandatory_companion_path_count": 4,
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+        "role": "mechanism",
+        "base_sha256": "bace6ec0ef069cc8039997e13baf1520151ded9d5d9a8209031e3f9dbe069bb5",
+        "candidate_sha256": "150b40ab5db8efdae821132d01fd075ed147a3bc950ab440e44afc1810653c8e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+        "role": "mechanism",
+        "base_sha256": "b73594f19e8b01ba95d8ef2351bc4522ba58b1ef0466134d262c69239624f611",
+        "candidate_sha256": "cf82e183b5289d7d9693233e62729776397faa5fec4a6bd30e41da913f1e8733"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+        "role": "mechanism",
+        "base_sha256": "84fd46c9a6105e5f0aa3991699ca7e13deec758b4c72d4eb2ce620fa38b032df",
+        "candidate_sha256": "bb83da7f46c191ea30449e1b8b31043f0acbf320955d1d1e08fdfe366dd00db2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/authority_reconciliation.py",
+        "role": "mechanism",
+        "base_sha256": "de0fcef52847e7e3becdc924d14dc3f1aeb36285b458c9ff5bfbfd683b33d064",
+        "candidate_sha256": "ad2ca089964718a49ac70ef65b6e3f3dd333f177aae5c6f719555b61f830a49d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+        "role": "mechanism",
+        "base_sha256": "171854a8796630e7630683c15c2b3c009f94b038fd6482504eefcdd6a26ff159",
+        "candidate_sha256": "c85a02a3682145e28ecf620d2bcb6a0cc9473778727dc60a3e7dd380f44c6d04"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+        "role": "mandatory_companion",
+        "base_sha256": "4d682418d34bfa116af14c2214f84a04f6ceae4c5867cd708bb353213c09be0e",
+        "candidate_sha256": "f71f18999c0a2abdd0387157ccad8f11fb9258815a8843c4c83456dce130cd35"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+        "role": "mandatory_companion",
+        "base_sha256": "63f4534629714897b91f092beddc724d606e75971a74fb5d434c4ad27c01b3df",
+        "candidate_sha256": "f7c7a7055f949353f5ce2673b45b6a7884dca316bafe0998203c4e37b9994410"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_authority_reconciliation.py",
+        "role": "mandatory_companion",
+        "base_sha256": "7aec5be65ece26d73bb403fff9cbb1130ec9e7cfd967b7c1e754506fcfac2dd9",
+        "candidate_sha256": "b914ba2d197211a79a7760518d60467a0c872034a0d48bdef26cdc721f2d2dbe"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_artifact_surface_safety.py",
+        "role": "mandatory_companion",
+        "base_sha256": "5e95df05377ea7699cb3500ca861bee525d5480cd2ac8b331d70f301dc4f5aad",
+        "candidate_sha256": "a5809ec0eadbdca62c54cd9e587143d1f0db6b3b4ae9c0f00e6dcb8d1b748b90"
+      }
+    ],
+    "api_and_resource_boundary": "The nine paths do not alter Core/IR facade exports or G resource files. The composed replay includes test_profile_bound_ref_is_exported_by_artifacts_facade; this is selected test evidence, not a complete package-resource or installed-wheel census."
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "A selected CAS manifest profile is a typed part of an ArtifactRef and authority/event linkage. Only actual absence is absence; permission, unresolved lookup, malformed profile, verification failure and other owner read errors remain typed refusals without backend exception text.",
+    "producer": "Local Core/IR artifact writers and the runtime authority writer persist JSON/CAS objects and return/use the exact profile selected by the write. No external producer signature is created.",
+    "artifact": "Persisted canonical JSON bytes, selected manifest profile, authority envelope/payload refs, and durable diagnostic event rows. The profileless schema-v2 authority event path preserves its actual stored legacy manifest shape.",
+    "bridge": "Authority reconciliation reads and validates event rows, exact selected manifests and payload bytes, then checks identity, tenant/context, profile, media/schema and linkage before accepting the authority view. The HTTP default selector resolves the discovered default digest through the exact-profile resolver before serving bytes.",
+    "consumers": [
+      "fresh authority reconciliation and runtime-authority reuse",
+      "Core and IR adapters/readers, including selected-view and profileless-history controls",
+      "HTTP artifact default and selected-profile consumers (manifest, download/export safety routes)"
+    ],
+    "verification": "R78 selected consumer replay: 216 passed, 0 failed, 0 errors, 0 skipped across the twelve exact modules below; R80 canonical Ruff and R81 Ruff format checks pass on the nine changed Python paths.",
+    "surface": "Existing artifact HTTP API paths; no new dashboard surface or external authority is claimed.",
+    "semantic_controls": [
+      "GCS/S3 missing object and missing profile are typed absence; permission, namespace, transport, missing bucket and unknown 404 signals are not reclassified as absence.",
+      "S3 remote error controls retain head-bucket call counts around the provider-error loop; backend exception details are projected to fixed typed categories without retaining exception objects or context.",
+      "Profile ownership is checked for default and explicit selectors; missing blob remains distinct from missing exact view, and a default-owner view is not a tenant grant.",
+      "A durable event and CAS artifact must reconcile; malformed event bytes, foreign-tenant/same-byte wrong-media views, explicit null profile, event-log failures and relabelled bytes refuse.",
+      "IR rejects malformed supplied Mapping options and incomplete/unknown/mismatched raw profiles before reading payload bytes; Core-only typed tags remain distinct from the narrower IR tag law.",
+      "V16 r5 is separately source-reviewed for marker-free body and malformed-wrapper behavior over 61 aliases; the V16 intake modules were not part of R78's twelve-module replay, and its bounded extension residual remains below."
+    ]
+  },
+  "selected_input_profile_backend": {
+    "input": "Locally generated test payloads, manifests and diagnostic events; all fixtures are non-production.",
+    "profile": "Exact selected profile returned by the local writer or read from the stored manifest view; profile resolution is content/profile recomputation, not third-party attestation.",
+    "backend": "Filesystem CAS and controlled S3/GCS client fixtures; no external S3/GCS endpoint was contacted.",
+    "production_custody_or_currentness": "not_established"
+  },
+  "source_bound_commands": [
+    {
+      "name": "composed actual consumers",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-composed-actual-consumers-r78-20261011/command.json",
+      "command_record_sha256": "b854dfd4f313206e9db0d042932db0d9f52d882c1e097e38bd3c7b6f096c4e3b",
+      "execution_head": "f5412b7e765d355e91b07962dcb69263fab2d652",
+      "cwd": "policy-engine",
+      "result": {"exit_code": 0, "passed": 216, "failed": 0, "errors": 0, "skipped": 0, "pytest_wall_seconds": 19.930, "wrapper_wall_seconds": 45.443734667031094},
+      "full_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-composed-actual-consumers-r78-20261011/stdout.txt@388d2294be9e854424ed6059d5f7b33680ffbd9e17b65be7a20b055d8a88de05",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-composed-actual-consumers-r78-20261011/junit.xml@625f968cb3484f89a6c1df0e75e656ecfa98d1d4686508340732c24607a730cf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_input_denominator": "The full command record captures 6,183 tracked input hashes before and after; the sets are equal. All nine changed-path postimage hashes equal current committed blobs.",
+      "modules_and_case_counts": {
+        "tests/unit/core/artifacts/backends/test_gcs_store.py": 13,
+        "tests/unit/core/artifacts/backends/test_s3_store.py": 16,
+        "tests/unit/core/artifacts/backends/test_caching_store.py": 35,
+        "tests/unit/core/artifacts/test_profiled_ref.py": 3,
+        "tests/unit/runtime/quality/test_authority_reconciliation.py": 27,
+        "tests/unit/runtime/http/test_authority_values.py": 8,
+        "tests/unit/runtime/http/test_artifact_surface_safety.py": 7,
+        "tests/unit/core/artifacts/test_ir_adapter.py": 70,
+        "tests/unit/core/artifacts/test_storage_protocol_boundaries.py": 3,
+        "tests/unit/remediation/test_can_01.py": 19,
+        "tests/unit/ir/test_canon_hardening.py": 12,
+        "tests/unit/ir/test_canon_hash_parity.py": 3
+      }
+    },
+    {
+      "name": "canonical Ruff check",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-composed-canonical-lint-r80-20261011/command.json",
+      "command_record_sha256": "fe871174a27f0f18a6777a616f8213ccdff8f2d607010e4cb7ca4eba949dc7ea",
+      "cwd": "policy-engine",
+      "result": {"exit_code": 0, "changed_python_paths": 9, "diagnostics": 0},
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "configuration": "The product-root invocation resolves policy-engine/ruff.toml through Ruff's normal discovery; architecture/tooling/tool_config_split.toml documents this split. workspace_root.toml was not the invoked config."
+    },
+    {
+      "name": "Ruff format check",
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-canonical-format-r81-20261011/command.json",
+      "command_record_sha256": "4989bd78a6e1a138e41f10de2e0051db90c4bf83f87c61869aa51e64853763ac",
+      "result_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-canonical-format-r81-20261011/result.json@64335f25b1b69968b83d9eda431415042cfa45ed9fc600fee3dd9abd2e28ed73",
+      "result": {"exit_code": 0, "changed_python_paths": 9}
+    }
+  ],
+  "independent_reviews": [
+    {
+      "scope": "CAN denied authority view and remote error owner V8",
+      "reviewer_role": "independent reviewer /root/can_independent_review; not component patch author",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-r9-denied-authority-view-and-s3-remote-error-owner-v8-independent-review-20261011.md@9717384e6756b3224e99d84815fd7dbbc52ffd8b50b3409bf6ee8c6849a78b9c",
+      "disposition": "bounded GO; no formal closure"
+    },
+    {
+      "scope": "CAN event/profile authority reconciliation V3 r3",
+      "reviewer_role": "independent reviewer /root/can_independent_review; separate from /root/can_event_profile_v3 source author",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-authority-event-profile-v3-independent-r3-review-20261011.md@b5ab0866c83b7ae7a4834228ab9c0e2cfbd8b21efcc87c7167e22ea9d82d8e29",
+      "disposition": "bounded GO; runtime was subsequently covered only by the composed R78 scope"
+    },
+    {
+      "scope": "CAN report intake V16 r5",
+      "reviewer_role": "independent reviewer /root/can_independent_review; separate from /root/can_source_intake_v16 source author",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-v16-report-intake-independent-r5-review-20261011.md@815c94a362ffb9e0c36d26c575567ad2d6c8325d5dc16e25135448b17c3d1a0f",
+      "disposition": "bounded GO with explicit valid-wrapper extension residual; no formal closure"
+    },
+    {
+      "scope": "Cloud backend not-found V3",
+      "reviewer_role": "independent component review, distinct from the source author",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-r9-1-cloud-notfound-v3-independent-review-20261011.md@ecb934761ea98f26c734ad5ffbfefada0be647ea9996fb80047ad59c292873e4",
+      "disposition": "bounded GO for candidate application and replay; live provider remains unrun"
+    },
+    {
+      "scope": "HTTP default route profile ownership V3",
+      "reviewer_role": "independent component review, distinct from the route source author",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-r9-1-default-route-profile-ownership-v3-independent-review-20261011.md@77ca1915280c174772d1fde931679721d6d5918cbff27ff5fc524fead67d28ef",
+      "disposition": "bounded GO; controlled local path only"
+    },
+    {
+      "scope": "LA-021 original-property and current source audit",
+      "reviewer_role": "independent whole-property audit, not G adjudication",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-la021-current-composition-r34-independent-audit-20261011.md@b25960da0036338b712a770432b8013ea21739d940551832823bce039ede1bb3",
+      "disposition": "held / not_adjudicated; current composed replay is now available for its cited consumer scope"
+    }
+  ],
+  "proposals": [
+    {
+      "finding_id": "LA-021",
+      "occurrence": "/findings/245/criterion_refs/0",
+      "criterion_digest": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+      "criterion_source": "LA_r09_original.md lines 990-1021; sha256 2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "historical_ledger_status": "closed (historical record only)",
+      "current_status": "not_adjudicated",
+      "candidate_proposal": "held; no formal closure proposed",
+      "original_whole_property": "Preserve persisted bytes and hashes, strictness and depth, Decimal/date/bytes/float behavior, hashing variants and warnings, and exception identity; keep the narrower IR profile distinct from Core. The criterion forbids inferring one accepted tag law from shared profile labels and requires a versioned migration or explicit legacy selection.",
+      "current_source_evidence": [
+        "The composed replay exercises typed Core/IR Mapping options, malformed and incomplete raw profiles, exact selected-profile refs, Core-only tag acceptance versus IR refusal, and profileless historical-CAS refusal before payload bytes.",
+        "The local authority writer/reconciler binds persisted event/profile/payload views; V2 profileless event identity and bytes remain preserved on the legacy path.",
+        "HTTP tests cover default and selected profile ownership, missing blob versus missing profile, and tenant visibility."
+      ],
+      "bounded_residuals": [
+        "The V16 report intake remains open to Mapping bodies with a registered key plus an unknown extension; the exact falsifier is recorded in decisions/can-v16-report-intake-valid-wrapper-extension-residual-20261011.md@73e3e0a25a8edb229a57df4f8296fee1dd98f2c98cba7721d6e052ae9888590d. It fails closed on role/authority selection but does not establish typed diagnostic refusal; no strict body schema was invented.",
+        "A selected profile from the local CAS writer is a write result, not an external producer signature, custody receipt, issuer fact or legal authority.",
+        "The tested profileless history behaviors are bounded to named schema versions and paths; no complete historical inventory, migration authority or rollout policy is established. The V16 report-intake module was not in R78's selected test set.",
+        "No single global Core/IR tag law is inferred. Shared profile naming does not widen the IR accepted tag set."
+      ],
+      "minimum_G_decision": "Choose whether to keep profileless history fail-closed, define a narrowly versioned legacy read with explicit selection, or authorize a separately custody-bound migration after the actual history boundary is established. Separately decide whether report intake needs a versioned strict body schema or a documented extension rule for the bounded residual.",
+      "next_check": "G reviews the exact candidate source and composed R78 outputs, selects the history/extension policy if needed, then adjudicates this one occurrence against the complete original criterion.",
+      "formal_closure": false
+    }
+  ],
+  "limitations_and_unrun": [
+    "The composed test replay is a local source-bound candidate receipt, not full E02 acceptance; full repo native gates, Linux-only consumers, installed wheel/rebuilt sdist consumers, and the global 282-finding/291-occurrence adjudication remain outside this CAN handoff.",
+    "No live S3/GCS provider, production serving instance, production payload census, issuer/permission fact, legal interpretation, external custody/currentness, qualifying production workload, causal calibration or external producer identity was established.",
+    "The R78 selected tests do not establish a complete public API/package-resource or installed-distribution census, despite preserving the reviewed existing exports and G-resource resolution.",
+    "Any remaining whole-property gaps in raw content/profile conformance, profileless-history rollout and producer-attested versus reader-materialized identity remain held for G; test PASS is not a finding closure."
+  ],
+  "decision_pointer": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/can-la021-current-composition-r34-independent-audit-20261011.md",
+    "sha256": "b25960da0036338b712a770432b8013ea21739d940551832823bce039ede1bb3"
+  },
+  "closure_ids": []
+}

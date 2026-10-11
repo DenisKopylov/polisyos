@@ -1,0 +1,24 @@
+{
+  "purpose": "current path lease, not source/input freeze or closure",
+  "entry": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "head": "43c9d3d64baaf5932852ab2e676b12bbd2c5e14f",
+  "tree": "bb17b9687d94f00c6ff838c535c8f06e4168850b",
+  "branch": "codex/e02-unified-local-20261009",
+  "denominator": "complete entry-to-HEAD union modified/nonignored untracked paths under policy-engine; all file types; canonical LOCAL and misplaced LOCAL packets/raw excluded and retained locally",
+  "physical_writer": "root for all product/source/test/schema/config/generator/lock paths",
+  "virtual_authors": "direct agents only, immutable patches against actual dirty preimages; no product/index/history writes",
+  "serialized_resources": [
+    "physical patch application",
+    "shared generator/schema/lock writes",
+    "one heavy compute slot",
+    "one numerical thread",
+    "fixed browser ports8000/5173",
+    "Linux worker and package staging"
+  ],
+  "complete_path_union": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/active-path-lease-post-core-route-20261011/complete-path-union.json",
+    "sha256": "6bf24a8d5a9efa366d8d090ff9bf7c4579efa3643fbfd7f6a5a3e0922ab05ce4",
+    "paths": 2141
+  },
+  "closure_ids": []
+}

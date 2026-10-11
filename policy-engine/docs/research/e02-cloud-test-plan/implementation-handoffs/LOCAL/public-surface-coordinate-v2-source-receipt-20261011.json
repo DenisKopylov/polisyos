@@ -1,0 +1,77 @@
+{
+  "slice": "public-surface-coordinate-v2",
+  "status": "delivered candidate bounded v1 coordinate repair; actual14PASS1deselected; full historical gate UNRUN",
+  "slice_base": "f1c5c529270b53f511089b0309d5c64e2ea82903",
+  "candidate": "4b01c728d440d8e260c4315039050794e7521b2c",
+  "tree": "91809eb042322c34000ef5c41ff8fba7da7645f1",
+  "parents": [
+    "f1c5c529270b53f511089b0309d5c64e2ea82903"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-snapshot-v1-coordinate-v2-proposal-20261011.md",
+      "before_sha256": null,
+      "candidate_sha256": "0601ec263518a25d03edfb41f91381ee7195ba6814cc316261802823d9179f17"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_snapshot.py",
+      "before_sha256": "a03db4b4fdb849ae756023133c49533a488d06907b2ca0586c2fea0f2ac9487b",
+      "candidate_sha256": "d3f271f9c025bd96e4cb06a8ab11ba8f8c0560dfee349ea09b68245aeac7cc44"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "before_sha256": "fbdc576306832fd849a4aa557fce7d719efad045ca6bc2da6b39d1f3d187de17",
+      "candidate_sha256": "e2e045fd4a52cb6ba1bf15999984496ebbff01f9c197db4418292846412ccde2"
+    }
+  ],
+  "selected_input_profile_backend": "historical v1 snapshot property accepted repository structure plan14.6; static AST and JSON comparator; baseline retained; localPython3.14",
+  "property": "ignore only positive integer nonboolean source line in recognized object row for exact integer version1; retain semantic fields/line keys elsewhere/unknownversion/invalidshape",
+  "real_chain": "source definitions -> actual collector object rows -> baseline comparator -> drift Finding consumer; marker-preserving deletion/semantic API change fails",
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/public-surface-coordinate-v2-independent-review-20261011.md",
+    "sha256": "3c85917baf335e5d09f4e80f0d7f1e30209b7db1e3a809df7ff9312113e61c7f"
+  },
+  "deciding_outputs": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/public-surface-coordinate-v2-committed-exact-fixtures-20261011/command.json",
+      "sha256": "2a613da601360df5c2311f85bec58bcfd583f023f962bbd5e93e44664e37c06c"
+    },
+    "complete_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/public-surface-coordinate-v2-committed-exact-fixtures-20261011/stdout.txt",
+      "sha256": "d707a8c0623bca8dff7a312689b243315432dce663e5756e82b0b49af97a5d0e"
+    },
+    "complete_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/public-surface-coordinate-v2-committed-exact-fixtures-20261011/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/public-surface-coordinate-v2-committed-exact-fixtures-20261011/junit.xml",
+      "sha256": "435e9b74f3ee1dafc630a2de13410f19c087dc10f4a0f5c818496cbc6aa1878c"
+    }
+  },
+  "verification": {
+    "actual_tests": {
+      "pass": 14,
+      "deselected": 1,
+      "wall_seconds": 1.1429460829822347,
+      "complete_source_inputs": 6177,
+      "source_stable": true,
+      "head": "4b01c728d440d8e260c4315039050794e7521b2c"
+    },
+    "historical_baseline_equality": "UNRUN; deliberately separate from coordinate fixture quantity, required native replay remains",
+    "original_author_fixture_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-coordinate-v2-reproduction-adjunct-20261011/provenance.md",
+      "sha256": "92d1c34419923c4c2ad37b34ad0ba23d7a3874e00f4c021514c9fc66620f83c9"
+    }
+  },
+  "limitations": [
+    "Three-file implementation commit also captures prior selected collector/architecture changes; these14tests qualify the coordinate/alias fixture property, not full native historical compatibility.",
+    "Historical baseline remains byte-identical SHA2564d8b67ee939c769b8cd52b9cdae49597d040b9680304e63356b1c449b0eef589. Current alias collector scope differs from historical paired collector; full native replay/G scope decision remain required.",
+    "v1 omits return annotations and complete class/constructor/field ABI; decision packet retains minimalv2prototype and G migration alternatives; no baseline refresh or broader ABI claim.",
+    "Actual6177-input capture is current dirty composition with committed coordinate mechanism; not full clean source freeze."
+  ],
+  "decision_pointer": "decisions/public-surface-snapshot-v1-coordinate-v2-proposal-20261011.md",
+  "closure_ids": [],
+  "proposal_ids": []
+}

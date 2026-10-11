@@ -1,0 +1,66 @@
+{
+  "slice": "architecture-fromlist-p38-v3",
+  "slice_base": "f6d469b181958859752016bbad0f258ccf50bb0f",
+  "candidate": "f1c5c529270b53f511089b0309d5c64e2ea82903",
+  "tree": "ac2f38915e2cbabca155aa6655ddd04c6a2bbe5d",
+  "parents": [
+    "f6d469b181958859752016bbad0f258ccf50bb0f"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "before_sha256": "2f6d7ba372dfa5297229ca86de3d737e1a88eec4734ad00290ce90b04e648965",
+      "candidate_sha256": "d21855a527bd46ffd6e28ecb78f5f0a76a31a6e35b177fef2f1f1087e67b5e73"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/README.md",
+      "before_sha256": "885d8c870dacf889ce0b2d3fdfae92b1da9700aa8902aac99d850b83e718bd64",
+      "candidate_sha256": "2ccd0a09a0b27c0c9cb62f59aba70be78e29b2f7dbcc29fb2ad5130999330ea0"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "before_sha256": "ab19751f999d3ca5385eb4997e78855b2a551e5cbbf26bd0f78addc991af9031",
+      "candidate_sha256": "34a12fccf5d9bfab88c060ec228e86cf531fb63fa543e445a5c008b154d9a4bb"
+    },
+    {
+      "path": "policy-engine/.gitignore",
+      "before_sha256": "77274a4c3534450075f1a95890b59cbacb17ee2a914de3d24916ca308626723c",
+      "candidate_sha256": "4e87209124add0af1d9185693939219e14aec4f2db2244d99c1b28e0f56bfbad"
+    }
+  ],
+  "status": "candidate implementation independently GO; full source graph/native replay UNRUN",
+  "selected_input_profile_backend": "finite static AST export/binding resolver; actual current contract; no package execution/authority inference",
+  "property": "fromlist child-collision suppressed only when complete supported __all__ includes name and unique direct module-level binding is proved; otherwise typed not_established",
+  "real_chain": "actual Python consumer import AST -> complete bounded facade export/binding proof -> architecture edge classification/diagnostic consumer; real Fabric remains not_established at importlib machinery",
+  "source_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/architecture-fromlist-p38-v3-independent-review-20261011.md",
+    "sha256": "8bc3173c87a35ae08ceb08213740feed42047aafbe0c3bafef136d80721c1e05"
+  },
+  "deciding_command_output": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-fromlist-p38-v3-20261011/run_targeted_pytest.py",
+      "sha256": "050a4ef6aebc9845521bda3dafe88fb0ebf816f02a10f4309bdaa53dedf8932f"
+    },
+    "complete_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-fromlist-p38-v3-20261011/targeted-pytest-output.txt",
+      "sha256": "32d909638202e4bae51abbc405792711a56b44afbfa89eb177fa61ecf394b4d8"
+    },
+    "static_checks": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-fromlist-p38-v3-20261011/static-validation.txt",
+      "sha256": "217ddeddcc133c19b2e58a4fc07ee29032c93344ca084a612e681a875d67484d"
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/architecture-fromlist-p38-v3-20261011/manifest.json",
+      "sha256": "e5c1f351f2191220809a45bd1a2d15d904dd870f90a7d5574fe5a16a273eb7d5"
+    }
+  },
+  "verification": "author finite9 fixturesPASS complete retained output0.699s; independent review reports9PASS0.882s; exactapplycheck/pre/post/canonicalRuff; markers-preserved binding removal, unsupported/ambiguous/lazy/unlisted/future controls; full graphUNRUN",
+  "limitations": [
+    "Source-freeze and full native graph required; finite fixtures are not a count/closure of remaining architecture edges.",
+    "Four-file commit retains prior selected guardrail/test changes in full files; only selected P38 mechanism and exact companion delta independently qualified here.",
+    "LOCAL/raw ignore companion retains misplaced valuable raw files locally, prevents accidental staging; moves/deletion not performed."
+  ],
+  "closure_ids": [],
+  "proposal_ids": []
+}

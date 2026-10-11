@@ -1210,7 +1210,12 @@ def select_value_method_for_problem(
     runtime_budget_ms: float | None = None,
     route_constraint: MethodRouteConstraint | None = None,
 ) -> dict[str, Any]:
-    """Select a value method through the real Foundry registry/advisor surface."""
+    """Select a registry value method without relaxing hard query constraints.
+
+    An explicit ``requested_method_fqn`` chooses among methods that satisfy the
+    same runnable, route, and required-modality constraints as advisor ranking.
+    It does not override a required data modality.
+    """
 
     try:
         _manifest_targets(observation_to_contract_manifest)
@@ -1266,6 +1271,14 @@ def select_value_method_for_problem(
                 reason="Registered route methods have no owner-verified native value output.",
                 denominator=denominator,
             )
+    try:
+        _required_modalities(candidate=candidate, problem=problem)
+    except ValueError as exc:
+        return _blocked_value_selection(
+            code=str(exc),
+            reason="Runtime hints and required modalities must use their declared mapping and string-sequence shapes.",
+            denominator=denominator,
+        )
     selection_context_hash = _method_selection_context_hash_for_catalog(
         catalog=catalog,
         registry=reg,
@@ -1276,6 +1289,26 @@ def select_value_method_for_problem(
         runtime_budget_ms=runtime_budget_ms,
         route_constraint=route_constraint,
     )
+    query = _value_method_advisor_query(
+        candidate=candidate,
+        problem=problem,
+        value_entries=value_entries,
+        catalog_entries=catalog.entries,
+        observation_to_contract_manifest=observation_to_contract_manifest,
+        runtime_budget_ms=runtime_budget_ms,
+        route_constraint=route_constraint,
+    )
+    required_data_modalities = tuple(query.criteria.required_data_modalities)
+    eligible_value_entries = tuple(
+        entry
+        for entry in value_entries
+        if _method_entry_meets_hard_selection_criteria(
+            entry,
+            query.criteria,
+            query_runnable_only=query.runnable_only,
+        )
+    )
+    eligible_value_fqns = {entry.fqn for entry in eligible_value_entries}
     if requested_method_fqn:
         requested = str(requested_method_fqn)
         entry = entry_by_fqn.get(requested)
@@ -1292,6 +1325,27 @@ def select_value_method_for_problem(
                 selected_method_fqn=requested,
                 denominator=denominator,
                 disabled_reasons=tuple(str(item) for item in entry.disabled_reasons),
+            )
+        if requested not in eligible_value_fqns:
+            if required_data_modalities:
+                return _blocked_value_selection(
+                    code="value_method_required_data_modality_unavailable",
+                    reason=(
+                        f"Requested value method {requested!r} does not satisfy the required "
+                        f"data modalities: {', '.join(required_data_modalities)}."
+                    ),
+                    selected_method_fqn=requested,
+                    denominator=denominator,
+                    required_data_modalities=required_data_modalities,
+                )
+            return _blocked_value_selection(
+                code="unsupported_method_unavailable",
+                reason=(
+                    f"Requested value method {requested!r} does not satisfy the effective "
+                    "hard selection criteria."
+                ),
+                selected_method_fqn=requested,
+                denominator=denominator,
             )
         selection_receipt = _build_registry_requested_value_method_selection_receipt(
             catalog=catalog,
@@ -1314,31 +1368,6 @@ def select_value_method_for_problem(
             "blockers": (),
         }
 
-    query = _value_method_advisor_query(
-        candidate=candidate,
-        problem=problem,
-        value_entries=value_entries,
-        catalog_entries=catalog.entries,
-        observation_to_contract_manifest=observation_to_contract_manifest,
-        runtime_budget_ms=runtime_budget_ms,
-        route_constraint=route_constraint,
-    )
-    required_data_modalities = tuple(query.criteria.required_data_modalities)
-    allowed_value_fqns = (
-        None
-        if route_constraint is None
-        else set(route_constraint.allowed_method_fqns)
-    )
-    eligible_value_entries = tuple(
-        entry
-        for entry in value_entries
-        if (
-            allowed_value_fqns is None
-            or entry.fqn in allowed_value_fqns
-        )
-        and entry.runnable
-        and set(required_data_modalities).issubset(set(entry.data_modalities))
-    )
     if required_data_modalities and not eligible_value_entries:
         return _blocked_value_selection(
             code="value_method_required_data_modality_unavailable",
@@ -1692,16 +1721,30 @@ def _value_data_characteristics(*, candidate: object, problem: object) -> DataCh
 
 
 def _required_modalities(*, candidate: object, problem: object) -> tuple[str, ...]:
-    hints = _problem_runtime_hints(problem)
-    raw = hints.get("value_required_data_modalities")
-    if isinstance(raw, str):
-        return (raw,)
-    if isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
-        return tuple(str(item) for item in raw if str(item))
+    raw_hints = _object_get(problem, "runtime_hints")
+    if raw_hints is not None and not isinstance(raw_hints, Mapping):
+        raise ValueError("value_method_runtime_hints_projection_required")
+    hints = raw_hints if isinstance(raw_hints, Mapping) else {}
+    hint_modalities: tuple[str, ...] = ()
+    if "value_required_data_modalities" in hints:
+        raw = hints["value_required_data_modalities"]
+        if isinstance(raw, str):
+            normalized = raw.strip()
+            if not normalized:
+                raise ValueError("value_method_required_data_modalities_invalid")
+            hint_modalities = (normalized,)
+        elif isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
+            values: list[str] = []
+            for item in raw:
+                if not isinstance(item, str) or not item.strip():
+                    raise ValueError("value_method_required_data_modalities_invalid")
+                values.append(item.strip())
+            hint_modalities = tuple(dict.fromkeys(values))
+        else:
+            raise ValueError("value_method_required_data_modalities_invalid")
     signal = _candidate_selection_signal(candidate).casefold()
-    if "panel" in signal:
-        return ("panel",)
-    return ()
+    candidate_modalities = ("panel",) if "panel" in signal else ()
+    return tuple(dict.fromkeys((*hint_modalities, *candidate_modalities)))
 
 
 def _manifest_targets(
@@ -1852,6 +1895,30 @@ def rank_method_catalog_entries(
     return [entry for entry, _ in ranked[: max(0, int(limit))]]
 
 
+def _method_entry_meets_hard_selection_criteria(
+    entry: MethodCatalogEntry,
+    criteria: MethodSelectionCriteria,
+    *,
+    query_runnable_only: bool = False,
+) -> bool:
+    """Apply every hard catalog constraint shared by ranking and direct selection."""
+
+    if entry.fqn in criteria.exclude_fqns:
+        return False
+    if (criteria.runnable_only or query_runnable_only) and not entry.runnable:
+        return False
+    if criteria.required_data_modalities and not set(
+        criteria.required_data_modalities
+    ).issubset(set(entry.data_modalities)):
+        return False
+    if criteria.minimum_fidelity_tier is not None:
+        required_rank = _FIDELITY_ORDER.get(criteria.minimum_fidelity_tier, -1)
+        entry_rank = _FIDELITY_ORDER.get(entry.fidelity_tier, -1)
+        if entry_rank < required_rank:
+            return False
+    return True
+
+
 def _rank_entries_with_scores(
     entries: Iterable[MethodCatalogEntry],
     criteria: MethodSelectionCriteria,
@@ -1870,19 +1937,8 @@ def _rank_entries_with_scores(
     scored: list[tuple[MethodRankKey, MethodCatalogEntry]] = []
     for raw_entry in entries:
         entry = _apply_truthfulness_overlay(raw_entry, history)
-        if entry.fqn in criteria.exclude_fqns:
+        if not _method_entry_meets_hard_selection_criteria(entry, criteria):
             continue
-        if criteria.runnable_only and entry.runnable is False:
-            continue
-        if criteria.required_data_modalities and not set(
-            criteria.required_data_modalities
-        ).issubset(set(entry.data_modalities)):
-            continue
-        if criteria.minimum_fidelity_tier is not None:
-            required_rank = _FIDELITY_ORDER.get(criteria.minimum_fidelity_tier, -1)
-            entry_rank = _FIDELITY_ORDER.get(entry.fidelity_tier, -1)
-            if entry_rank < required_rank:
-                continue
         if use_evidence:
             score = _score_entry_v2(
                 entry,

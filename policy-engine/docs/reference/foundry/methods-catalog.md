@@ -119,6 +119,14 @@ answer = advise_methods(snapshot, query)
 rows = build_method_capability_matrix(snapshot, runnable_only=True)
 ```
 
+An explicit `requested_method_fqn` is still subject to the query's hard
+eligibility constraints, including route membership, runnable status, and the
+required data modalities computed as the deduplicated union of the runtime hint,
+candidate-derived panel signal, and projected manifest targets. An incompatible
+explicit request returns a blocked selection with the existing typed reason; malformed
+modality input is refused rather than treated as absent. The selector does not infer or
+perform a modality conversion.
+
 ## External Method Plugin
 
 External packages publish one entry point in `polisyos.foundry_methods`:

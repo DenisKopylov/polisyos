@@ -1,0 +1,18 @@
+id = "2026-10-11-e02-b36-required-modality-explicit-selection"
+title = "Keep hard selection criteria on explicit value-method requests"
+type = "changed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Explicit value-method requests now pass the same hard registry eligibility checks as ranked selection, including route, runnable, and required-modality constraints. Required modalities are the deduplicated union of runtime hints, candidate-derived panel signal, and projected manifest targets; malformed supplied modality input returns a typed refusal. An incompatible request returns the existing typed blocked result."
+compatibility = "Requests for methods that violate a stated hard selection criterion are now blocked rather than selected. Present malformed modality inputs are rejected rather than defaulted. No DTO, facade, or generated client contract changes."
+change_class = "behavioral-fix"
+surface_classification = "public_stable: polisyos.foundry"
+api = "No exports or input/output schemas change. Explicit selection applies the existing hard selection constraints before producing the existing registry-request receipt."
+migration = "Callers should handle the existing blocked status and reason when an explicitly requested method does not satisfy the query's route, runnable, or required-modality constraints. Runtime hints, candidate-derived panel signal, and projected manifest targets all contribute hard modalities. The system does not infer a modality conversion."
+limitations = "Selection eligibility does not establish that a modality conversion exists or authorize a transformation; a compatible producer or transformation bridge remains a separate capability. The generated Foundry public-surface inventory still reports unresolved exports, so this candidate does not claim an inventory-level export proof."
+evidence = [
+  "tests/unit/foundry/methods/test_selection_advisor.py",
+  "src/polisyos/foundry/methods/selection/advisor.py",
+]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

@@ -2527,3 +2527,309 @@ def test_history_receipt_leaf_preserves_frozen_advisor_model_identity() -> None:
     assert receipt.MethodSelectionReceipt.__module__ == (
         "polisyos.foundry.methods.selection.advisor"
     )
+
+
+@pytest.mark.parametrize(
+    ("catalog_fqns", "requested_method_fqn", "expected_status"),
+    [
+        (
+            ("bayesian.gp.gp_regression@1.0.0",),
+            "bayesian.gp.gp_regression@1.0.0",
+            "blocked",
+        ),
+        (
+            (
+                "bayesian.gp.gp_regression@1.0.0",
+                "econometrics.panel.event_study@1.0.0",
+            ),
+            "bayesian.gp.gp_regression@1.0.0",
+            "blocked",
+        ),
+        (
+            (
+                "bayesian.gp.gp_regression@1.0.0",
+                "econometrics.panel.event_study@1.0.0",
+            ),
+            "econometrics.panel.event_study@1.0.0",
+            "selected",
+        ),
+    ],
+)
+def test_explicit_value_method_respects_hard_panel_modality(
+    monkeypatch: pytest.MonkeyPatch,
+    catalog_fqns: tuple[str, ...],
+    requested_method_fqn: str,
+    expected_status: str,
+) -> None:
+    """Explicit registry selection is still constrained by the caller's hard modality."""
+
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(registry, *catalog_fqns)
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: catalog,
+    )
+    candidate = {"candidate_id": "explicit-hard-panel-modality"}
+    problem = {
+        "design_problem_id": "explicit-hard-panel-modality",
+        "problem_statement": "Estimate a panel effect.",
+        "domain": "generic_policy",
+        "runtime_hints": {"value_required_data_modalities": ("panel",)},
+    }
+
+    result = select_value_method_for_problem(
+        registry=registry,
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=requested_method_fqn,
+    )
+
+    assert result["status"] == expected_status
+    if expected_status == "blocked":
+        assert result["blockers"] == ("value_method_required_data_modality_unavailable",)
+        assert result["required_data_modalities"] == ("panel",)
+        assert "panel" in result["reason"]
+        assert result["selected_method_fqn"] == requested_method_fqn
+    else:
+        assert result["selected_method_fqn"] == requested_method_fqn
+        assert result["selection_source"] == "requested_registry_method"
+        receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+        assert receipt.selected_method_fqn == requested_method_fqn
+        assert receipt.selection_authority == "requested_registry_method"
+
+
+def test_explicit_value_method_keeps_all_required_modality_inputs_hard(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Hints, candidate modality, and manifest targets constrain explicit selection."""
+
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(
+        registry,
+        "bayesian.gp.gp_regression@1.0.0",
+    )
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: catalog,
+    )
+    cases = (
+        (
+            "runtime hint",
+            {"candidate_id": "explicit-request"},
+            {
+                "design_problem_id": "runtime-hint-panel",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ("panel",)},
+            },
+            None,
+            ("panel",),
+        ),
+        (
+            "candidate signal",
+            {"candidate_id": "panel-candidate"},
+            {
+                "design_problem_id": "candidate-panel-signal",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+            },
+            None,
+            ("panel",),
+        ),
+        (
+            "manifest target",
+            {"candidate_id": "explicit-request"},
+            {
+                "design_problem_id": "manifest-panel-target",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+            },
+            {"contracts": [{"data_modality": "panel"}]},
+            ("panel",),
+        ),
+        (
+            "hint and manifest union",
+            {"candidate_id": "explicit-request"},
+            {
+                "design_problem_id": "hint-manifest-union",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ("tabular",)},
+            },
+            {"contracts": [{"data_modality": "panel"}]},
+            ("tabular", "panel"),
+        ),
+        (
+            "hint and candidate union",
+            {"candidate_id": "panel-candidate"},
+            {
+                "design_problem_id": "hint-candidate-union",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ("tabular",)},
+            },
+            None,
+            ("tabular", "panel"),
+        ),
+        (
+            "hint candidate and manifest union with duplicates",
+            {"candidate_id": "panel-candidate"},
+            {
+                "design_problem_id": "all-modality-sources",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {
+                    "value_required_data_modalities": ("tabular", "panel", "tabular")
+                },
+            },
+            {
+                "contracts": [
+                    {"data_modality": "panel"},
+                    {"contract_target": "tabular"},
+                ]
+            },
+            ("tabular", "panel"),
+        ),
+        (
+            "empty hint keeps candidate modality",
+            {"candidate_id": "panel-candidate"},
+            {
+                "design_problem_id": "empty-hint-candidate-union",
+                "problem_statement": "Estimate an effect.",
+                "domain": "generic_policy",
+                "runtime_hints": {"value_required_data_modalities": ()},
+            },
+            None,
+            ("panel",),
+        ),
+    )
+
+    observed = []
+    expected = []
+    for label, candidate, problem, manifest, required in cases:
+        result = select_value_method_for_problem(
+            registry=registry,
+            candidate=candidate,
+            problem=problem,
+            requested_method_fqn="bayesian.gp.gp_regression@1.0.0",
+            observation_to_contract_manifest=manifest,
+        )
+        observed.append(
+            (
+                label,
+                result.get("status"),
+                result.get("blockers"),
+                result.get("required_data_modalities"),
+                result.get("selected_method_fqn"),
+            )
+        )
+        expected.append(
+            (
+                label,
+                "blocked",
+                ("value_method_required_data_modality_unavailable",),
+                required,
+                "bayesian.gp.gp_regression@1.0.0",
+            )
+        )
+
+    assert observed == expected, f"unexpected selection outcomes: {observed!r}"
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    [
+        {"required": "tabular"},
+        {"data_modality": "tabular"},
+        ["tabular", None],
+        ["   "],
+        "   ",
+    ],
+)
+def test_present_malformed_runtime_modality_input_blocks_without_candidate_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+    malformed: object,
+) -> None:
+    """A supplied malformed source is not treated as absent or replaced by candidate text."""
+
+    registry = MethodRegistry.get_instance()
+    catalog = _catalog_with_real_entries(registry, "bayesian.gp.gp_regression@1.0.0")
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda **_kwargs: catalog,
+    )
+    candidate = {"candidate_id": "panel-candidate"}
+    problem = {
+        "design_problem_id": "malformed-required-modalities",
+        "runtime_hints": {"value_required_data_modalities": malformed},
+    }
+
+    result = select_value_method_for_problem(
+        registry=registry,
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn="bayesian.gp.gp_regression@1.0.0",
+    )
+
+    assert result["status"] == "blocked"
+    assert result["selected_method_fqn"] is None
+    assert result["blockers"] == ("value_method_required_data_modalities_invalid",)
+    assert result["required_data_modalities"] == ()
+
+
+def test_present_malformed_runtime_hints_container_does_not_become_absent() -> None:
+    result = select_value_method_for_problem(
+        candidate={"candidate_id": "panel-candidate"},
+        problem={"runtime_hints": [{"value_required_data_modalities": ("tabular",)}]},
+        requested_method_fqn="bayesian.gp.gp_regression@1.0.0",
+    )
+
+    assert result["status"] == "blocked"
+    assert result["blockers"] == ("value_method_runtime_hints_projection_required",)
+
+
+def test_required_modalities_require_one_method_with_the_full_source_union() -> None:
+    candidate = {"candidate_id": "panel-candidate"}
+    problem = {
+        "runtime_hints": {"value_required_data_modalities": ("tabular",)},
+    }
+    criteria = advisor_module._value_selection_criteria(
+        candidate=candidate,
+        problem=problem,
+        value_entries=(),
+        catalog_entries=(),
+        observation_to_contract_manifest={"contracts": [{"data_modality": "tabular"}]},
+    )
+
+    assert criteria.required_data_modalities == ("tabular", "panel")
+    compatible = _entry(
+        "test.b36.compatible@1.0.0",
+        family="test.b36",
+        variant="compatible",
+        data_modalities=["tabular", "panel"],
+    )
+    tabular_only = _entry(
+        "test.b36.tabular_only@1.0.0",
+        family="test.b36",
+        variant="tabular_only",
+        data_modalities=["tabular"],
+    )
+    panel_only = _entry(
+        "test.b36.panel_only@1.0.0",
+        family="test.b36",
+        variant="panel_only",
+        data_modalities=["panel"],
+    )
+
+    assert advisor_module._method_entry_meets_hard_selection_criteria(
+        compatible, criteria, query_runnable_only=True
+    )
+    assert not advisor_module._method_entry_meets_hard_selection_criteria(
+        tabular_only, criteria, query_runnable_only=True
+    )
+    assert not advisor_module._method_entry_meets_hard_selection_criteria(
+        panel_only, criteria, query_runnable_only=True
+    )

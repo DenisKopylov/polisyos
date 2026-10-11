@@ -1,0 +1,191 @@
+{
+  "schema": "policyos.e02.local.source_qualified_handoff.v1",
+  "role": "author proposal and scoped runtime receipt; G retains acceptance/integration/adjudication",
+  "slice": "B71 status-bearing checkpoint and full CAS reference companion",
+  "source_checkpoint": {
+    "slice_base": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "candidate": "bca60adfdacd8bf6d7ae74a221da7895db17fbb4",
+    "tree": "80e4c7e102a6598478838559cd512c9fa13db207",
+    "parents": [
+      "512ad7fede6fdc40e86066630fd63df5b2c11161"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "implementation_delta_paths": [
+      "policy-engine/tests/unit/remediation/test_res_01.py"
+    ],
+    "complete_selected_source_test_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "e22dc9dd7872ee0e3867924e5b0de839b6a6f65958624824b056fdf9277b2b67",
+        "git_mode": "100644",
+        "candidate_git_and_worktree_match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "sha256": "c85c7c0a79abfde0131206dc7a98a360ef5cfd6bf19cdd199bb6fa8e40ff5c34",
+        "git_mode": "100644",
+        "candidate_git_and_worktree_match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "7b964d711d62e47f662d78c43a0ee1ee4dcc8f77f0c545eddc583d5e397c0426",
+        "git_mode": "100644",
+        "candidate_git_and_worktree_match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996",
+        "git_mode": "100644",
+        "candidate_git_and_worktree_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_res_01.py",
+        "sha256": "560854a5054fcb7bdc221e9109371aeb513678ac2136efdef6f6f43bf10b9614",
+        "git_mode": "100644",
+        "candidate_git_and_worktree_match": true
+      }
+    ],
+    "source_bound_command_checkpoint": "512ad7fede6fdc40e86066630fd63df5b2c11161 dirty composed WIP; selected source/test bytes read back exactly from subsequent scoped candidate commit",
+    "whole_source_input_backend_freeze": false
+  },
+  "implementation": {
+    "change": "RES01 positive resume fixtures use real CASCheckpointHook publication with explicit completed-node status; full ArtifactRef observations and altered-field controls use actual CAS/custody errors. Product guards are unchanged.",
+    "scope_quantity": "four positive direct-construction/resume fixtures and all four current ArtifactRef fields; deliberate status-blind refusal remains",
+    "candidate_delta_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-fixture-source-boundary-r163-20261012/readback.json",
+      "sha256": "c10684b2742bca7ecff8c8260b849c7ff7aa0e8d91f043c36307c09aac24161e",
+      "availability": "local_full_bytes"
+    },
+    "commit_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-fixture-source-commit-r163-20261012/stdout.txt",
+      "sha256": "affb598ab226ae5ea08f4fb0b0c224e828e32f36cd642b0905a568ff7792d138",
+      "availability": "local_full_bytes"
+    }
+  },
+  "author_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-composed-cas-test-oracles-author-r6-20261012/manifest.json",
+    "sha256": "fd84c240ee35df0e3179e730fa2a71d9abbbefd961a195e5a1f90c3827416b17",
+    "availability": "local_full_bytes"
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b71-checkpoint-status-fixture-oracle-independent-r1-frozen-20261012.md",
+      "sha256": "38ec1b9c06f1d0ce6dcbda0b6774b8d2035244a3a40841edd19cd631753490e4",
+      "availability": "local_full_bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b71-cas-fullref-oracle-independent-r2-frozen-20261012.md",
+      "sha256": "0ad218a09f764433df592e9eb57fb692660071200ea1f40e1f2343bfc7207133",
+      "availability": "local_full_bytes"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "inputs": "controlled graph a→b→c, durable typed checkpoints; valid no-cache state, missing required read, allow_replay, changed fingerprint; full CAS ref selector and alternate same-ID/bytes manifest with foreign producer",
+    "backend": "Darwin Python3.14.3 native filesystem CAS and NodeResultCache; one numerical thread; CPU JAX selected for combined adjacent LA test",
+    "authority": "fixture established-frontier is a test precondition, not production success authority"
+  },
+  "deciding_command_and_full_outputs": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/command.json",
+      "sha256": "98e1b6327f56d1d4e9405651cb37809a78a2f34ea69da148d30589eca7926306",
+      "availability": "local_full_bytes"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/stdout.txt",
+      "sha256": "baf69a318862187c760f88c40f2b96b7db84ae40d4a0f88ecf2d74284aabb805",
+      "availability": "local_full_bytes"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "local_full_bytes"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/junit.xml",
+      "sha256": "4e2a036d9601f79ccfa07c8794fe3d68bb4be757ce023f2cdee9b65717ddbe90",
+      "availability": "local_full_bytes"
+    },
+    "selected_test_denominator": {
+      "modules": [
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+      ],
+      "all_selected_cases": 38,
+      "PASS": 38,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "complete_composed_wave": {
+      "all_cases": 48,
+      "PASS": 47,
+      "FAIL": 1,
+      "failed_property": "LA023 native branch dtype/schema under x64; tracked separately at R7 repair",
+      "pytest_seconds": 18.07,
+      "command_wall_seconds": 22.876868625055067,
+      "status": "FAIL; do not relabel entire combined wave green"
+    },
+    "source_inputs_before_after": "6186 complete declared Python/config inputs stable in deciding command record"
+  },
+  "real_chain": [
+    "CASCheckpointHook fixture input→typed checkpoint bytes and published head",
+    "resume_from_checkpoint→required state/canonical original graph under allow_replay→consumer executed effects",
+    "NodeResultCache real put→CAS manifest/type/producer custody→load/seed index only after successful read",
+    "fresh and warm cache + reopened valid-ref readback"
+  ],
+  "adversarial_controls": [
+    "status-blind completed checkpoint refused",
+    "missing required state default refused before effects; allow_replay executes original graph",
+    "changed functional fingerprint rejected",
+    "changed artifact_id/kind/media_type/manifest_profile_sha256 rejected with fresh zero admission, warm preservation, reopened original ref",
+    "same-ID/same-bytes distinct real producer profile rejected at custody; not an arbitrary missing profile"
+  ],
+  "surface": "checkpoint/history and cache consumers; full protected HTTP/client/Linux surfaces not established by this slice",
+  "finding_proposals": [
+    {
+      "finding_id": "B71",
+      "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/196/criterion_refs/0",
+      "original_criterion": {
+        "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines": [
+          1889,
+          1904
+        ],
+        "sha256": "6239c931b0f33cd80db9286a7010e500f4fcf8f9d03765a4e5c615172c2bb1ca"
+      },
+      "author_proposal": "limited",
+      "evidence": "bounded original resume/no-cache/missing-state/replay behavior and complete current CAS identity matrix executed; 38 selected native consumers pass",
+      "boundary": "no protected authority positive, Linux B61 or whole prepared-B 14-row acceptance established",
+      "next_check": "rebind exact current 14-row prepared-B defining+13 contour recipe after final source/input/backend freeze, run real protected consumers and matched removal controls, then G independent adjudication",
+      "historical_decisions": {
+        "ledger": "partial",
+        "appendix_c": "partial",
+        "closure_now": "not_adjudicated",
+        "unchanged": true
+      }
+    }
+  ],
+  "status_by_gate": {
+    "PASS": [
+      "B71 bounded actual consumer 38/38"
+    ],
+    "FAIL": [],
+    "ERROR": [],
+    "SKIP": [],
+    "UNRUN": [
+      "full prepared-B defining +13 contours on final composition",
+      "Linux B61 and LA029",
+      "protected authority-positive full resume",
+      "final native/source/installed/browser closeout"
+    ]
+  },
+  "historical_attempts": {
+    "R154": "36 cases:33PASS/3FAIL test oracles; retained full output and addressed by R160",
+    "R4_R5_R6": "immutable author packet lineage including failed profile error expectation, corrected under full matrix"
+  },
+  "P40": "SAME_CLASS_DEEPER widened fixture producer protocol and complete current ArtifactRef identity/admission quantity; no product guard changes",
+  "closure_ids": [],
+  "formal_G_adjudication": "not_adjudicated"
+}

@@ -1,0 +1,434 @@
+{
+  "schema": "policyos.e02.b66_b68.frozen_source_qualified_author_receipt.v1",
+  "role": "author receipt; independent review cited; formal G adjudication retained",
+  "closure_ids": [],
+  "formal_adjudication": "not_adjudicated",
+  "source_checkpoint": {
+    "slice_base": "6580b9b50acef44f29d782f9525d8e0d57d05f53",
+    "candidate": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "tree": "887ba4d0e59a604f71409a45bedd0189ca684999",
+    "parents": [
+      "b16a69e6f8cae05ed4f97ae8654822810319c062"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "implementation_delta": "none; selected mechanism/test/caller bytes preserved from prior delivered R3 source",
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "slice_base_sha256": "7b964d711d62e47f662d78c43a0ee1ee4dcc8f77f0c545eddc583d5e397c0426",
+        "candidate_sha256": "7b964d711d62e47f662d78c43a0ee1ee4dcc8f77f0c545eddc583d5e397c0426",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "slice_base_sha256": "f4cdf962c4bb081afa4cad8b4b8156cac806cee7b80c50bd22cd74c0bc49734c",
+        "candidate_sha256": "f4cdf962c4bb081afa4cad8b4b8156cac806cee7b80c50bd22cd74c0bc49734c",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "slice_base_sha256": "2391fa8367a381b558e6ea9e4c92ed26a78204b6531d29e434ff4dca98d6baaf",
+        "candidate_sha256": "2391fa8367a381b558e6ea9e4c92ed26a78204b6531d29e434ff4dca98d6baaf",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "slice_base_sha256": "9c04d537d978797d91affdeea8d5c44cece0166a360f7ce4745cfdc1cf2b3036",
+        "candidate_sha256": "9c04d537d978797d91affdeea8d5c44cece0166a360f7ce4745cfdc1cf2b3036",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "slice_base_sha256": "2b39861329dd273d026cf46062d38f03af417fb3c0d3ce04e6103a8a97aed79c",
+        "candidate_sha256": "2b39861329dd273d026cf46062d38f03af417fb3c0d3ce04e6103a8a97aed79c",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "slice_base_sha256": "9b56d0bb51e4b7ca34589cb4267a6b5ed21826593434d18491415452c0125b75",
+        "candidate_sha256": "9b56d0bb51e4b7ca34589cb4267a6b5ed21826593434d18491415452c0125b75",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "slice_base_sha256": "ff2939c6b7ff899b998567aa9be0d58645df41e4dcc344b01c11ac085f5fbc5f",
+        "candidate_sha256": "ff2939c6b7ff899b998567aa9be0d58645df41e4dcc344b01c11ac085f5fbc5f",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+        "slice_base_sha256": "d8514efd9b75c829b3708d61329a3c1cac061cbbeccb659514f780d7e302d749",
+        "candidate_sha256": "d8514efd9b75c829b3708d61329a3c1cac061cbbeccb659514f780d7e302d749",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py",
+        "slice_base_sha256": "db60c74f39b507d346bb058c221cb38f4873a50cf21fd880a1565346f7eb70a1",
+        "candidate_sha256": "db60c74f39b507d346bb058c221cb38f4873a50cf21fd880a1565346f7eb70a1",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "slice_base_sha256": "383973e92d0f7dd7571a6e67a50516ed14d634a29237d83482b20777fd3cccc9",
+        "candidate_sha256": "383973e92d0f7dd7571a6e67a50516ed14d634a29237d83482b20777fd3cccc9",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+        "slice_base_sha256": "562b2c35d1ff3956be639be4797faddeb3399e5469e8d448555fbe61aa9bcef2",
+        "candidate_sha256": "562b2c35d1ff3956be639be4797faddeb3399e5469e8d448555fbe61aa9bcef2",
+        "current_worktree_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_provider_verification.py",
+        "slice_base_sha256": "67a2bf99604b9abc92815dc9c06af52d7e7eedc9786220f02f766a8f1ffb5783",
+        "candidate_sha256": "67a2bf99604b9abc92815dc9c06af52d7e7eedc9786220f02f766a8f1ffb5783",
+        "current_worktree_matches": true
+      }
+    ],
+    "whole_source_input_backend_freeze": false
+  },
+  "author_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/b66-b68-author-manifest.json",
+    "sha256": "2cec0ed1d069da208572308c5fd36c1f9d6a014dd971914039c7601eafd35ad4",
+    "artifact_records_checked": 31
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b66-b68-cache-concurrency-oracle-independent-r2-frozen-20261012.md",
+    "sha256": "e603c21c1cfa55198302af50f27169c65cbc7548eb373fb2785dbfc17ff56cd8"
+  },
+  "selected_environment": {
+    "all_selected_module_origins_under_product_src": true,
+    "module_origins": {
+      "polisyos.core.artifacts": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "polisyos.core.llm.traced_client": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "polisyos.runtime.http.services.control.run_lifecycle": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "polisyos.scientist.orchestration.engine.budget_ledger": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "polisyos.scientist.orchestration.engine.budget_middleware": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "polisyos.scientist.orchestration.llm.factory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "polisyos.scientist.orchestration.llm.prompt_cache": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "polisyos.scientist.orchestration.llm.provider_verification": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py"
+    },
+    "profile_artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/module-origin-profile.json",
+    "pytest_version": "9.0.2",
+    "python_version": "3.14.3",
+    "sys_executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python"
+  },
+  "selected_inputs": "Controlled same-wrapper four-request fixture with exact request/scope/ref/version and synthetic prices, durable FileBudgetLedger reopen and lost-ack control; no production data or external invoices.",
+  "real_chain": {
+    "producer": "create_traced_gateway_client -> TracedLLMClient -> CachingLLMClient -> local provider fixture",
+    "artifact": "one physical reported event, separate zero-cost reuse events and source origin, persisted durable ledger records",
+    "bridge": "budget middleware reserves/settles exact event identity; lost ACK resolves persisted event",
+    "consumer": "fresh FileBudgetLedger and usable equal client responses; TTL expiry independently emits a new reported event",
+    "surface": "typed internal telemetry/ledger surface verified; external billing/permission and browser/production workload surfaces not established"
+  },
+  "deciding_commands_and_complete_outputs": [
+    {
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/r3-current-208-command.json",
+        "sha256": "1d67fee8ec0c1f373eda7b66d91cf599ccec30dd96655e6ca618774ee4bc3f20"
+      },
+      "elapsed_wrapper_seconds": 203.359,
+      "errors": 0,
+      "failures": 0,
+      "id": "current_recipe_208",
+      "junit_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/r3-current-208-junit.xml",
+        "sha256": "9c325eb30855f52b1b31485aeddd0c7b1d08f2673e90f0f36d3ff07aa65ab7d4"
+      },
+      "outcome": "PASS",
+      "pytest_summary": "208 passed, 1 warning in 186.43s",
+      "skipped": 0,
+      "stderr_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/r3-current-208-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/r3-current-208-stdout.txt",
+        "sha256": "5ddc683933726217bed863b9d0c87486cf4da4ef766f8d97e57584cb484ef0f3"
+      },
+      "tests": 208,
+      "timeout_basis": "historical recipe-208 run 218.289s; 480s is greater than 2x measured prior duration",
+      "timeout_seconds": 480,
+      "warning": "existing PytestConfigWarning: Unknown config option: cache_dir"
+    },
+    {
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/focused-native-command.json",
+        "sha256": "0ec3c36df7d7feb5f1118465876453645922ab8ca74d28158de3219bdd8acacb"
+      },
+      "elapsed_wrapper_seconds": 6.423,
+      "id": "focused_native_cache_factory_tracing",
+      "outcome": "PASS",
+      "pytest_summary": "61 passed, 1 warning in 4.13s",
+      "stderr_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/focused-native-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/focused-native-stdout.txt",
+        "sha256": "e5e9e02c0b3632511cd18cb626e86f96a05a708cdcacf97218d3ef4cdf8fd3aa"
+      },
+      "targets": [
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/core/llm/test_traced_client_settlement.py"
+      ],
+      "warning": "existing PytestConfigWarning: Unknown config option: cache_dir"
+    },
+    {
+      "asserted_behavior": {
+        "actor_ref_axis_version_axis_each_keep_separate_call": true,
+        "client_chain": "create_traced_gateway_client -> TracedLLMClient -> CachingLLMClient -> physical local fixture provider",
+        "equivalent_callers": 4,
+        "equivalent_results_nonempty_and_equal": true,
+        "fresh_ledger_spend": "0.08 synthetic fixture USD",
+        "fresh_reopened_ledger_records": 7,
+        "lost_ack_event_resolved_exactly_once": true,
+        "one_reported_origin_plus_three_reuse_events": true,
+        "total_local_provider_calls": 4
+      },
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory-concurrency-witness-r3.command.json",
+        "sha256": "86b274d9cfda532073301fb22049b9e1b58f6d188397e5d654bcf89aa7851701"
+      },
+      "existing_maintained_regressions": "Same-wrapper tests cover four identical misses, follower/owner cancellation, owner error/deadline cleanup and retry. The focused command includes same-scope CAS admission and tracing/ledger tests.",
+      "id": "factory_to_cache_to_trace_to_ledger_witness",
+      "identity_axes": {
+        "actor_only": "same ref/version and other request fields; second actor is explicitly granted by scratch-only fixture, not institutional authority",
+        "ref_axis": "same actor and version, alternate independently stored CAS object; content/hash necessarily track the alternate object",
+        "version_only": "same actor, ref, bytes and content hash; fixture maps the same bytes under v2"
+      },
+      "outcome": "PASS",
+      "scope": "controlled local fixture; not an external provider invoice/currentness/authority claim",
+      "script_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory_concurrency_witness.py",
+        "sha256": "38345c16fafda1bf747f4464bc3ec9672a18d1192ecb5da7b58871aecaadd023"
+      },
+      "stderr_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory-concurrency-witness-r3.stderr.txt",
+        "sha256": "1756de103df8fd186a27ae94ab87db1840c8c0c9b2d244bb065788d2948bb827"
+      },
+      "stdout_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory-concurrency-witness-r3.stdout.json",
+        "sha256": "7e43f99a164c2b8f3dd33c8087a740c6b6cf8205ced43b37187d2b31646282e9"
+      }
+    },
+    {
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/source-caller-census.command.json",
+        "sha256": "27103e4b01cc1b584f14766d01f8fb1a3a3a2466993cd22e9ef98767e32f61aa"
+      },
+      "denominator": "all 2754 Python files recursively under policy-engine/src; 0 parse errors",
+      "id": "source_caller_census",
+      "outcome": "PASS",
+      "result": "one bound direct/qualified run_provider_preflight callsite in run_lifecycle.py:3569",
+      "result_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/source-caller-census.json",
+        "sha256": "90d7665da214aceef4bf38693192a0b275f472d6927b4ddab2a9f695debd4bde"
+      }
+    },
+    {
+      "all_paths_match_announced_preimage_and_are_tracked_clean": true,
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/source-conservation.command.json",
+        "sha256": "fb2a6edb442b56695292a0e1c4453e6b09aa629b49a3e929864e6f4e83615249"
+      },
+      "head": "d24fdfc9d79ea109b4aa102cc6856a3cd8985583",
+      "id": "source_preimage_conservation",
+      "outcome": "PASS",
+      "paths_checked": 8,
+      "result_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/source-conservation.json",
+        "sha256": "83dd3789f03dfc308ec7efede060400010d05e99edd49827230ccc50c227729a"
+      }
+    },
+    {
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/r3-current-208-wrong-interpreter-interrupted.json",
+        "sha256": "84f7336c39d2a0a2cc9630afdb5b49ec72ab8a261849a7eeb82bb4e2de59c377"
+      },
+      "disposition": "global Python attempt was interrupted after correction; corrected product-.venv replay above is the deciding 208 result",
+      "id": "wrong_interpreter_attempt",
+      "outcome": "INTERRUPTED_NOT_A_TEST_VERDICT"
+    },
+    {
+      "command_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory-concurrency-witness.command.json",
+        "sha256": "d5bd062add077b3fc9b117fcbf6bc3e5bbcbada3f9fcc221a9e975b08fead9d2"
+      },
+      "disposition": "new CAS fixture object was first created outside tenant-owner context; r3 rerun corrected the local fixture context",
+      "id": "first_expanded_witness_setup_attempt",
+      "outcome": "HARNESS_SETUP_ERROR_NOT_A_PRODUCT_VERDICT",
+      "stderr_artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b66-b68-concurrency-author-20261011/factory-concurrency-witness.stderr.txt",
+        "sha256": "a5d6d24bc1f6500400ceb5812403abeea57bd23b895039f7a055af5d9a925a8e"
+      }
+    }
+  ],
+  "controls": {
+    "independent_flight_join_removal": "Expected FAIL retaining _inflight marker/writes, disabling actualjoin: four origins instead ofone; complete outputb6d7a9c… in cited review",
+    "independent_ttl_expiry": "PASS: freshreported event, two durableevents, synthetic0.04",
+    "authorization": "Fixture second-actor grant never establishes institutional permission",
+    "source_integrity": "31artifact sizes/hashes and12 selected source Git/worktree bytebindings reread; sourcecensus is historical scoped witness, not a new full-source census after unrelated changes."
+  },
+  "finding_proposals": [
+    {
+      "author_proposal": "limited",
+      "basis": "Current local runtime composition demonstrates one provider-origin reported event plus three distinct zero-cost reuse events through tracing and a reopened durable FileBudgetLedger, including lost-ack resolve. Current preflight tests also preserve reported/estimated/unknown cost origins and exact reuse-origin identity. No external provider invoice or monetary reconciliation is established.",
+      "finding_id": "B66",
+      "next_check": "Keep the local telemetry/ledger boundary; any external charge claim needs provider billing evidence and a named price authority.",
+      "original_occurrences": [
+        {
+          "finding_id": "B66",
+          "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "occurrence_pointer": "#/findings/191/criterion_refs/0",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines_1_based_inclusive": [
+            1689,
+            1708
+          ],
+          "criterion_sha256": "397fc3ab86c9c5243288fde7c7396afd3146df75bf74bb39973870a9d22c47a5"
+        }
+      ],
+      "historical_decisions": {
+        "ledger": "partial",
+        "appendix_c": "closed_bounded",
+        "formal_now": "not_adjudicated",
+        "unchanged": true
+      },
+      "capability_boundary": "Local persisted event/cache/ledger consumer verified; external billing/permission/workload facts not established."
+    },
+    {
+      "author_proposal": "held",
+      "basis": "The local authorizer fixture is a controlled test input and does not supply named institutional principal/scope/purpose/epoch authority. The scratch actor grant is not a permission decision.",
+      "finding_id": "B67",
+      "next_check": "Obtain named authority-owner input and bind to exact evidence/model/request/epoch at read and publication; do not infer it from this evidence.",
+      "original_occurrences": [
+        {
+          "finding_id": "B67",
+          "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "occurrence_pointer": "#/findings/192/criterion_refs/0",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines_1_based_inclusive": [
+            1709,
+            1728
+          ],
+          "criterion_sha256": "b3d2e0fe856b77f9c1388e795a0f15adeab905c5b60d4d627e83ce23ca4c3278"
+        }
+      ],
+      "historical_decisions": {
+        "ledger": "partial",
+        "appendix_c": "closed_bounded",
+        "formal_now": "not_adjudicated",
+        "unchanged": true
+      },
+      "capability_boundary": "Local persisted event/cache/ledger consumer verified; external billing/permission/workload facts not established."
+    },
+    {
+      "author_proposal": "limited",
+      "basis": "Current maintained per-instance concurrency/cancellation/error/deadline/retry tests and factory→tracing→durable-ledger composition support the original local single-wrapper property. Production route quantity does not admit same-binding concurrent cross-client work, while original criterion explicitly leaves inter-client sharing and production frequency unverified. Actor/ref/version isolated axes are scratch-only evidence; maintained tests do not independently pin each axis.",
+      "finding_id": "B68",
+      "next_check": "Preserve the bounded residual. If a future actual same-binding multi-client caller appears, run the stated falsifier; add maintained isolated actor/ref/version regression only if those axes become a durable admitted contract.",
+      "original_occurrences": [
+        {
+          "finding_id": "B68",
+          "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+          "occurrence_pointer": "#/findings/193/criterion_refs/0",
+          "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines_1_based_inclusive": [
+            1729,
+            1748
+          ],
+          "criterion_sha256": "444a26030aad6d955907fee063845e8938c8348c5c7d970d3d4da6a1c2e3da62"
+        }
+      ],
+      "historical_decisions": {
+        "ledger": "partial",
+        "appendix_c": "closed_bounded",
+        "formal_now": "not_adjudicated",
+        "unchanged": true
+      },
+      "capability_boundary": "Local persisted event/cache/ledger consumer verified; external billing/permission/workload facts not established."
+    }
+  ],
+  "limitations": [
+    "No real external provider invoice, billing record, external price authority, or production charge reconciliation was read.",
+    "No named institutional permission issuer supplied B67 authority facts; fixture authorizations are not operational authority.",
+    "No production caller/workload issuing concurrent same-run-binding calls through separate clients was found or executed; production frequency remains unverified as original B68 states.",
+    "Actor/ref/version isolated axes are not separate maintained regression variants; scratch witness evidence applies only to this packet.",
+    "No full backend/native repository gate, Linux, installed wheel/sdist, browser/dashboard suite, or external provider test is claimed; only listed focused wave and recipe 208 are PASS."
+  ],
+  "p40": {
+    "basis": "The multi-client same-binding race is the same concurrency class one level deeper than the per-CachingLLMClient single-flight property; B68 original lines 1745-1746 explicitly leaves inter-client sharing and production frequency unverified.",
+    "bounded_residual": "No current ordinary production route issues equivalent same-run-binding preflight calls through multiple client instances; the scanned route allocates distinct run/job ids and calls once. Cross-client same-binding sharing remains not verified, not a new defect against the selected route.",
+    "classification": "SAME_CLASS_DEEPER",
+    "falsifier": "For a future admitted same-binding multi-client caller, require one provider-origin event and N equal usable results after fresh ledger reopen, plus follower-cancel and owner-failure/deadline controls. This workload was not run because the selected route does not admit it; the current falsifier is the complete source caller census and fresh-run binding read, not a claim that cross-client duplication is solved.",
+    "smallest_closing_capability": "If a future actual caller admits equivalent same-binding concurrent work across client instances, a generic shared in-flight registry keyed by full admitted request/current authorization+scope/durable run-event identity with owner, deadline and failure cleanup closes this residual. No such cross-client registry is present in the current selected code."
+  },
+  "status_by_gate": {
+    "PASS": [
+      "recipe208;0FAIL/ERROR/SKIP",
+      "focused61",
+      "factory/cache/trace/freshledger/witness",
+      "independentTTLexpiry",
+      "12selectedsourcebindings31artifacts"
+    ],
+    "FAIL": [],
+    "ERROR": [],
+    "SKIP": [],
+    "UNRUN": [
+      "native/fullrepo/Linux/installed/browser/externalprovider gates not partthispacket",
+      "qualifyingproductionfrequency/workload",
+      "crossclient samebinding admittedpositive",
+      "realinvoice/externalpriceauthority",
+      "namedB67permissionissuer",
+      "finalcomposedbackend/native/installed/browsercloseout"
+    ]
+  },
+  "next_checks": [
+    "Retain B68 crossclient residual and run fresh-ledger one-origin/equal-results/cancellation/deadline falsifier only on a genuine same-binding caller; preserve distinctrun/actor/evidence/intent keys.",
+    "Finalsource/profile/input/backend freeze and composed replay remains root queue; do not sum these test passes into individual original finding closures.",
+    "G independently accepts code, publishes integration and adjudicates each occurrence."
+  ],
+  "revision": "v2; gate outcome classification only; R146 original immutable",
+  "supersedes_receipt_for_status_classification_only": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b66-b68-source-qualified-frozen-r146-20261012.json",
+    "sha256": "d2623feef493c6d74d3fbc5a391786ef4cc0cee20ab8e39dd98b22b89e3d41f9",
+    "reason": "Not-executed gates are UNRUN, not SKIP. Correctly failing removal probes are expected controls; corrected earlier fixture error is retained as an attempt, not a current product ERROR."
+  },
+  "historical_attempts": {
+    "ERROR": [
+      "firstexpandedwitnessmissingfixtureownercontext; correctedr3 decidingwitness cited"
+    ],
+    "unexpected_product_FAIL": [],
+    "expected_red_removal_controls": [
+      "expectedremovalprobe red only; original broadercriteria remain limited/held"
+    ],
+    "qualification": "Complete deciding outputs remain at the unchanged bound receipts; no attempt is erased or relabeled."
+  },
+  "expected_control_outcomes": {
+    "join_property_removal": "expected FAIL observed by independent review; control succeeded, not a product-suite failure",
+    "control_evidence_pointer": "#/controls",
+    "qualification": "Native/full repo/Linux/installed/browser checks were not executed in this bounded packet and are explicitly UNRUN."
+  },
+  "historical_author_proposal_layer": {
+    "preserved": true,
+    "qualification": "Historical author proposed-closed assignments are not formal G closures and are not upgraded by this local receipt. The whole 282-ID/291-occurrence projection remains separately qualified."
+  },
+  "review_integration": {
+    "source_footprint_reread_after_revision": true,
+    "all_12_worktree_and_candidate_git_bytes_match": true,
+    "candidate_HEAD_at_creation": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "index_changes": false,
+    "whole_source_input_backend_freeze": false
+  }
+}

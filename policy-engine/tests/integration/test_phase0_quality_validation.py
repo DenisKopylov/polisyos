@@ -9,7 +9,12 @@ import duckdb
 import pandas as pd
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.academic.batch.article_extractor import run_article_extract
+from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
+    materialize_claim_adjudication_result,
+    produce_claim_adjudication_input,
+)
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.fulltext_resolver import FullTextFetchResult
 from polisyos.data_forge.domains.academic.batch.graph_builder import run_graph_load
@@ -27,6 +32,11 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import is_transport_blocked
+from polisyos.scientist.methods.autotune import ChampionRegistry
+from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    evidence_fixture,
+    persist_batch,
+)
 
 _CANONICAL_VAR_RE = re.compile(r"^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){0,3}$")
 
@@ -320,7 +330,44 @@ def test_phase0_quality_validation_deterministic_e2e(monkeypatch, tmp_path: Path
         encoding="utf-8",
     )
 
-    run_graph_load(academic_config)
+    candidate_graph_stats = run_graph_load(academic_config)
+    assert candidate_graph_stats.raw_claims == 200
+    assert candidate_graph_stats.claims == 0
+
+    # Synthetic signatures exercise the existing test-only admission owner;
+    # candidate extraction flags alone must not populate the admitted graph.
+    claim_store = FileSystemCAS(academic_config.claim_adjudication_cas_root)
+    adjudication_input_ref = produce_claim_adjudication_input(
+        academic_config,
+        store=claim_store,
+    )
+    claim_registry = ChampionRegistry(
+        root=academic_config.claim_adjudication_registry_root,
+        store=claim_store,
+    )
+    signed_fixture = evidence_fixture(
+        claim_store,
+        claim_registry,
+        academic_config.claim_adjudication_registry_root,
+        adjudication_input_ref,
+        positive=True,
+    )
+    admitted_batch_ref = persist_batch(signed_fixture)
+    materialized = materialize_claim_adjudication_result(
+        academic_config,
+        admitted_batch_ref,
+        store=claim_store,
+        verifier=signed_fixture.verifier,
+    )
+    assert materialized["claims"] == 200
+    assert materialized["published"] == 200
+
+    admitted_graph_stats = run_graph_load(
+        academic_config,
+        verifier=signed_fixture.verifier,
+    )
+    assert admitted_graph_stats.raw_claims == 200
+    assert admitted_graph_stats.claims == 200
 
     dataset_config = DatasetBatchConfig(snapshot_root=tmp_path / "snap")
     core_stats = run_core_sources_ingest(dataset_config)

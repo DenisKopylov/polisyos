@@ -28,16 +28,6 @@ def _read_json(path: Path) -> dict[str, Any]:
     return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
-def _resolve_artifact_path(root: Path, *candidates: str) -> Path:
-    for candidate in candidates:
-        path = root / candidate
-        if path.exists():
-            return path
-    raise FileNotFoundError(
-        f"none of the expected demographic artifact files exist under {root}: {candidates}"
-    )
-
-
 _DemographyLayout = Literal["new", "legacy"]
 _LAYOUT_PATHS: dict[_DemographyLayout, dict[str, str]] = {
     "new": {
@@ -59,49 +49,94 @@ def _layout_member_paths(
     layout: _DemographyLayout,
 ) -> dict[str, Path]:
     """Resolve every member path for one declared demographic layout."""
-    return {
-        member: root / relative_path
-        for member, relative_path in _LAYOUT_PATHS[layout].items()
-    }
+    return {member: root / relative_path for member, relative_path in _LAYOUT_PATHS[layout].items()}
+
+
+def _classify_member_entry(path: Path) -> Literal["absent", "file", "invalid"]:
+    """Distinguish a missing member from a present invalid filesystem entry.
+
+    A symlink to a regular file remains readable. Broken links, directories,
+    non-file entries, and inaccessible or malformed parent entries are invalid
+    supplied members rather than evidence that an optional member was omitted.
+    """
+    try:
+        path.lstat()
+    except (FileNotFoundError, NotADirectoryError):
+        for ancestor in path.parents:
+            try:
+                ancestor.lstat()
+            except (FileNotFoundError, NotADirectoryError):
+                continue
+            except OSError:
+                return "invalid"
+            if not ancestor.is_dir():
+                return "invalid"
+            return "absent"
+        return "absent"
+    except OSError:
+        return "invalid"
+    return "file" if path.is_file() else "invalid"
 
 
 def _select_demography_layout(
     root: Path,
     requested_layout: _DemographyLayout | None,
+    *,
+    standalone_member: str | None = None,
 ) -> tuple[_DemographyLayout, dict[str, Path]]:
-    """Select one complete layout before reading any demographic member."""
-    layout_paths = {
-        layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS
+    """Select one complete layout before reading any demographic member.
+
+    Scalar compatibility readers may use an isolated single-member source only
+    without an explicit layout selection. Explicit selection requires a complete
+    targets-and-priors snapshot even when one scalar member exists.
+    """
+    layout_paths = {layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS}
+    member_states = {
+        layout: {member: _classify_member_entry(path) for member, path in paths.items()}
+        for layout, paths in layout_paths.items()
     }
+    invalid_members = tuple(
+        (layout, member)
+        for layout, states in member_states.items()
+        for member, state in states.items()
+        if state == "invalid"
+    )
+    if invalid_members:
+        raise ValueError(
+            f"demographic member is present but is not a readable file: {invalid_members}"
+        )
+    present_members = tuple(
+        (layout, member)
+        for layout, states in member_states.items()
+        for member, state in states.items()
+        if state != "absent"
+    )
     complete_layouts = tuple(
         layout
-        for layout, paths in layout_paths.items()
-        if all(paths[member].is_file() for member in _REQUIRED_LAYOUT_MEMBERS)
+        for layout, states in member_states.items()
+        if all(states[member] == "file" for member in _REQUIRED_LAYOUT_MEMBERS)
     )
 
     if requested_layout is not None:
         if requested_layout not in _LAYOUT_PATHS:
             raise ValueError(f"unsupported demographic layout: {requested_layout}")
         selected_paths = layout_paths[requested_layout]
-        if not all(selected_paths[member].is_file() for member in _REQUIRED_LAYOUT_MEMBERS):
+        missing_required = tuple(
+            member
+            for member in _REQUIRED_LAYOUT_MEMBERS
+            if member_states[requested_layout][member] == "absent"
+        )
+        if missing_required:
             raise FileNotFoundError(
                 f"selected demographic layout is incomplete under {root}: "
-                f"{requested_layout}"
-            )
-        selected_donor = selected_paths["donor"]
-        if selected_donor.exists() and not selected_donor.is_file():
-            raise ValueError(
-                f"selected demographic donor member is not a file: {selected_donor}"
+                f"{requested_layout} is missing {missing_required}"
             )
         other_layout = "legacy" if requested_layout == "new" else "new"
         other_members = tuple(
-            member
-            for member, path in layout_paths[other_layout].items()
-            if path.exists()
+            member for member, state in member_states[other_layout].items() if state != "absent"
         )
         if other_members and not all(
-            layout_paths[other_layout][member].is_file()
-            for member in _REQUIRED_LAYOUT_MEMBERS
+            member_states[other_layout][member] == "file" for member in _REQUIRED_LAYOUT_MEMBERS
         ):
             raise ValueError(
                 "demographic layouts are mixed or incomplete; explicit selection "
@@ -110,17 +145,12 @@ def _select_demography_layout(
         return requested_layout, selected_paths
 
     if len(complete_layouts) > 1:
-        raise ValueError(
-            "multiple complete demographic layouts are present; "
-            "select one explicitly"
-        )
+        raise ValueError("multiple complete demographic layouts are present; select one explicitly")
     if len(complete_layouts) == 1:
         selected_layout = complete_layouts[0]
         other_layout = "legacy" if selected_layout == "new" else "new"
         other_members = tuple(
-            member
-            for member, path in layout_paths[other_layout].items()
-            if path.exists()
+            member for member, state in member_states[other_layout].items() if state != "absent"
         )
         if other_members:
             raise ValueError(
@@ -128,19 +158,15 @@ def _select_demography_layout(
                 f"{selected_layout} is complete but {other_layout} has "
                 f"members {other_members}"
             )
-        selected_donor = layout_paths[selected_layout]["donor"]
-        if selected_donor.exists() and not selected_donor.is_file():
-            raise ValueError(
-                f"selected demographic donor member is not a file: {selected_donor}"
-            )
         return selected_layout, layout_paths[selected_layout]
 
-    present_members = tuple(
-        (layout, member)
-        for layout, paths in layout_paths.items()
-        for member, path in paths.items()
-        if path.exists()
-    )
+    if standalone_member is not None and len(present_members) == 1:
+        selected_layout, selected_member = present_members[0]
+        if (
+            selected_member == standalone_member
+            and member_states[selected_layout][selected_member] == "file"
+        ):
+            return selected_layout, layout_paths[selected_layout]
     if present_members:
         raise ValueError(
             "demographic layout is incomplete; required targets and priors "
@@ -246,40 +272,63 @@ class UkraineDemographyArtifacts(BaseModel):
         return self
 
 
-def load_reconciled_targets(root: str | Path) -> dict[str, Any]:
-    """Load the reconciled hard demographic targets for static aging."""
-    root_path = Path(root)
-    path = _resolve_artifact_path(
-        root_path,
-        "demography/targets.json",
-        "demography_targets.json",
+def load_reconciled_targets(
+    root: str | Path,
+    *,
+    layout: _DemographyLayout | None = None,
+) -> dict[str, Any]:
+    """Load targets from one complete layout or an isolated scalar source.
+
+    When both complete layouts exist, callers must select one with ``layout``.
+    A sole isolated targets file remains readable for historical scalar callers;
+    mixed and multi-member incomplete layouts are rejected.
+    """
+    _selected_layout, paths = _select_demography_layout(
+        Path(root), layout, standalone_member="targets"
     )
-    return _read_json(path)
+    return _read_json(paths["targets"])
 
 
-def load_transition_priors(root: str | Path) -> dict[str, Any]:
-    """Load the origin-to-destination transition priors."""
-    root_path = Path(root)
-    path = _resolve_artifact_path(
-        root_path,
-        "demography/transition_priors.json",
-        "demography_transition_priors.json",
+def load_transition_priors(
+    root: str | Path,
+    *,
+    layout: _DemographyLayout | None = None,
+) -> dict[str, Any]:
+    """Load priors from one complete layout or an isolated scalar source.
+
+    When both complete layouts exist, callers must select one with ``layout``.
+    A sole isolated priors file remains readable for scalar callers; mixed and
+    multi-member incomplete layouts are rejected.
+    """
+    _selected_layout, paths = _select_demography_layout(
+        Path(root), layout, standalone_member="priors"
     )
-    return _read_json(path)
+    return _read_json(paths["priors"])
 
 
-def load_donor_pool(root: str | Path) -> dict[str, Any]:
-    """Load the donor-pool artifact used to synthesize entrants."""
+def load_donor_pool(
+    root: str | Path,
+    *,
+    layout: _DemographyLayout | None = None,
+) -> dict[str, Any]:
+    """Load the optional donor pool from one selected demographic layout.
+
+    With no layout selection and no demographic inputs, an absent donor is empty.
+    A selected complete layout may also omit its optional donor; an explicit layout
+    selection still requires that layout's targets and priors. A sole isolated donor
+    file remains readable, while mixed and multi-member incomplete layouts are rejected.
+    """
     root_path = Path(root)
     try:
-        path = _resolve_artifact_path(
-            root_path,
-            "demography/donor_pool.json",
-            "demography_donor_pool.json",
+        _selected_layout, paths = _select_demography_layout(
+            root_path, layout, standalone_member="donor"
         )
     except FileNotFoundError:
+        if layout is not None:
+            raise
         return {}
-    return _read_json(path)
+    donor_path = paths["donor"]
+    return _read_json(donor_path) if donor_path.is_file() else {}
 
 
 def load_demography_artifacts(
@@ -298,11 +347,7 @@ def load_demography_artifacts(
     selected_layout, selected_paths = _select_demography_layout(root_path, layout)
     targets = _read_json(selected_paths["targets"])
     priors = _read_json(selected_paths["priors"])
-    donor = (
-        _read_json(selected_paths["donor"])
-        if selected_paths["donor"].is_file()
-        else {}
-    )
+    donor = _read_json(selected_paths["donor"]) if selected_paths["donor"].is_file() else {}
     payload = {
         **targets,
         **priors,

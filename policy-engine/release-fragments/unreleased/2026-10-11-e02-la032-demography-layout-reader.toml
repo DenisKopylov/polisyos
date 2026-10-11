@@ -1,0 +1,33 @@
+id = "2026-10-11-e02-la032-demography-layout-reader"
+title = "Fail closed on selected demographic layout absence"
+type = "fixed"
+component = "data-forge-ukraine"
+owner = "team-polisyos"
+summary = "Ukraine scalar demographic readers bind to one complete selected layout and no longer treat a missing explicit layout as optional donor absence."
+evidence = [
+  "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+  "tests/unit/remediation/test_udf_05.py",
+]
+compatibility = "The scalar readers retain no-argument selection of one complete layout and isolated single-member compatibility. Their additive keyword-only layout selector pins reads to new or legacy and requires complete targets and priors even for a scalar read; an absent optional donor remains empty only for an unselected root with no known members or a selected complete layout. Missing, malformed, mixed, partial, and ambiguous inputs refuse."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api"
+migration = "Pass the same layout keyword to each scalar read when composing multiple members; prefer load_demography_artifacts when one typed aggregate is needed. The selector does not add provenance or source-custody evidence."
+api = "load_reconciled_targets, load_transition_priors, and load_donor_pool accept a keyword-only layout of new or legacy. Explicit selection requires that snapshot's complete targets and priors; the donor member remains optional within the selected snapshot."
+limitations = "The layout reader validates local file coherence only. It does not establish the authoritative LA-032 inventory, producer/profile identity, member custody, rule epoch, currentness, external law, or permission. No source-inventory finding is closed by this change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/domains/ukraine/demography/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "la032-ukraine-demography-layout-selection"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Ukraine scalar demographic readers accept an explicit new or legacy layout and refuse a missing or incomplete selected snapshot."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/domains/ukraine/demography/README.md"]
+runbook_docs = []

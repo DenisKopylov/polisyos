@@ -17,7 +17,12 @@ def make_dag(directed_edges):
     return CausalGraphModel(graph_type=GraphType.DAG, nodes=nodes, edges=edges)
 
 
-def make_confounded(directed_edges, bidirected_edges):
+def make_confounded(
+    directed_edges: list[tuple[str, str]],
+    bidirected_edges: list[tuple[str, str]],
+    *,
+    graph_type: GraphType,
+) -> CausalGraphModel:
     nodes = list({n for e in directed_edges + bidirected_edges for n in e})
     edges = [
         CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
@@ -26,7 +31,7 @@ def make_confounded(directed_edges, bidirected_edges):
     for s, d in bidirected_edges:
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
     # PAG allows mixed edge marks including bidirected arrows
-    return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+    return CausalGraphModel(graph_type=graph_type, nodes=nodes, edges=edges)
 
 
 def make_data(n=500, seed=42, ate=0.5):
@@ -79,7 +84,7 @@ class TestHedgeEndToEnd:
 
     def setup_method(self):
         # Bow-arc: X->Y with X<->Y (non-identifiable)
-        self.graph = make_confounded([("X", "Y")], [("X", "Y")])
+        self.graph = make_confounded([("X", "Y")], [("X", "Y")], graph_type=GraphType.ADMG)
         self.engine = CausalEngine(registry=None)
 
     def test_run_returns_triple(self):

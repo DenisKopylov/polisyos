@@ -2,6 +2,28 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .artifacts import (
+        BlockingType,
+        BoundsBundle,
+        CausalGraphModel,
+        EpistemicTier,
+        FallbackResult,
+        IdentificationResult,
+        NegativeCertificate,
+        ParametricRescueResult,
+        _is_binary_treatment_vector,
+        _linear_iv_rescue_result,
+        _looks_discrete_vector,
+        _singleton_query_name,
+        _wright_path_tracing_rescue_result,
+        bounds_bundle_from_partial_identification_result,
+        np,
+        recovery_plan_from_negative_certificate,
+    )
+
 from . import artifacts as _artifacts
 
 globals().update(

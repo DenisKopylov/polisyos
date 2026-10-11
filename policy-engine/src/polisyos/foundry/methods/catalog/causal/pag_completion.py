@@ -244,6 +244,9 @@ def apply_pag_orientation_rules(
             f"apply_pag_orientation_rules: graph_type={pag.graph_type.value}, expected PAG — skipping"
         ]
 
+    # Schema-bypass paths must be refused before endpoint-keyed storage can overwrite a row.
+    pag._ensure_pag_unique_adjacencies()
+
     # Build a mutable edge lookup keyed by canonical (src, dst) pairs
     lookup: dict[tuple[str, str], CausalEdge] = {(e.src, e.dst): e for e in pag.edges}
 
@@ -396,6 +399,15 @@ def validate_pag(pag: CausalGraphModel) -> list[str]:
     if pag.graph_type is not GraphType.PAG:
         violations.append(f"graph_type_not_pag: got {pag.graph_type.value}")
         return violations  # remaining checks assume PAG type
+
+    duplicate_adjacencies = pag._pag_duplicate_adjacencies()
+    if duplicate_adjacencies:
+        violations.extend(
+            "duplicate_adjacency: PAG requires at most one edge per unordered node pair; "
+            f"duplicate adjacency ({src!r}, {dst!r})"
+            for src, dst in duplicate_adjacencies
+        )
+        return violations
 
     # Check 2: almost-directed cycles
     # For each edge ending in ARROW at node α (i.e. some β *→ α):

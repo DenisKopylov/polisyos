@@ -23,7 +23,7 @@ def _dag(edges):
     )
 
 
-def _confounded(directed, bidirected):
+def _confounded(directed, bidirected, *, graph_type: GraphType) -> CausalGraphModel:
     nodes = sorted({n for e in directed + bidirected for n in e})
     edges = [
         CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
@@ -31,7 +31,7 @@ def _confounded(directed, bidirected):
     ]
     for s, d in bidirected:
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
-    return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+    return CausalGraphModel(graph_type=graph_type, nodes=nodes, edges=edges)
 
 
 def _admg(directed, bidirected=()):
@@ -198,7 +198,7 @@ class TestSReachable:
 
     def test_s_node_via_bidirected_reachable(self):
         # S_X → X ↔ Y (bidirected): Y should be reachable
-        base = _confounded([("X", "Y")], [("X", "Y")])
+        base = _confounded([("X", "Y")], [("X", "Y")], graph_type=GraphType.ADMG)
         aug = augment_with_s_nodes(base, frozenset({"X"}))
         reached = s_reachable(aug, frozenset({"Y"}), frozenset({"S_X"}))
         assert "Y" in reached

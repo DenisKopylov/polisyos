@@ -63,6 +63,8 @@ def make_dag(edges: list[tuple[str, str]]) -> CausalGraphModel:
 def make_confounded_graph(
     directed: list[tuple[str, str]],
     bidirected: list[tuple[str, str]],
+    *,
+    graph_type: GraphType = GraphType.PAG,
 ) -> CausalGraphModel:
     """Build a graph with directed and bidirected (confounding) edges.
 
@@ -98,7 +100,7 @@ def make_confounded_graph(
             )
         )
     return CausalGraphModel(
-        graph_type=GraphType.PAG,
+        graph_type=graph_type,
         nodes=nodes,
         edges=edge_objs,
     )
@@ -305,6 +307,7 @@ class TestIdentificationResultProofSteps:
         graph = make_confounded_graph(
             directed=[("X", "Y")],
             bidirected=[("X", "Y")],
+            graph_type=GraphType.ADMG,
         )
         result = id_algorithm(
             treatment=frozenset({"X"}),
@@ -319,6 +322,7 @@ class TestIdentificationResultProofSteps:
         graph = make_confounded_graph(
             directed=[("X", "Y")],
             bidirected=[("X", "Y")],
+            graph_type=GraphType.ADMG,
         )
         result = id_algorithm(
             treatment=frozenset({"X"}),
@@ -335,6 +339,7 @@ class TestIdentificationResultProofSteps:
         graph = make_confounded_graph(
             directed=[("X", "Y")],
             bidirected=[("X", "Y")],
+            graph_type=GraphType.ADMG,
         )
         result = id_algorithm(
             treatment=frozenset({"X"}),
@@ -352,6 +357,7 @@ class TestIdentificationResultProofSteps:
         graph = make_confounded_graph(
             directed=[("X", "Y")],
             bidirected=[("X", "Y")],
+            graph_type=GraphType.ADMG,
         )
         result = id_algorithm(
             treatment=frozenset({"X"}),

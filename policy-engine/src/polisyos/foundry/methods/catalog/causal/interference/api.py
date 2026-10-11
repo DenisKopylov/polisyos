@@ -29,7 +29,7 @@ import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import combinations
-from typing import Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import ValidationError
@@ -87,6 +87,23 @@ _MAUP_POSITIVITY_BLOCK_THRESHOLD = 0.01
 
 from . import estimation as _estimation
 from . import identification as _identification
+from .identification import (
+    build_block_stratified_network_causal_data,
+    build_interference_topology_contracts,
+    identify_interference_effect,
+)
+
+if TYPE_CHECKING:
+    from .estimation import (
+        _run_bipartite_interference,
+        _run_network_aipw,
+        _run_partial_interference,
+        _run_spatial_interference,
+    )
+    from .identification import (
+        _extract_network_data,
+        _interference_output_slots,
+    )
 
 globals().update({name: getattr(_identification, name) for name in dir(_identification) if not name.startswith("__")})
 globals().update({name: getattr(_estimation, name) for name in dir(_estimation) if not name.startswith("__")})

@@ -99,32 +99,18 @@ def _pag_id_algorithm(
     domain: DistributionDomain,
     _depth: int,
     _trace: list[str],
-    _pag_steps: list[ProofStep] | None = None,
 ) -> IdentificationResult:
-    """PAG-ID per Malinsky & Spirtes (2017).
+    """Orient a PAG and delegate only a resolved graph to static ID.
 
-    Checks identifiability of P(Y|do(X)) for the PAG equivalence class via a
-    policy-driven strategy stored in ``graph.pag_identification_policy``:
-
-    CONSERVATIVE (default)
-        First apply Zhang (2008) R1–R3 orientation rules to reduce CIRCLE marks,
-        then use ``reachable_closure`` to detect whether remaining CIRCLE marks
-        create an unblocked back-door path from X to Y.
-        If yes → PAG_AMBIGUOUS; otherwise run standard ID on the oriented PAG.
-
-    OPTIMISTIC
-        Apply R1–R3 first, then commit all remaining CIRCLE marks to directed
-        edges (src→dst) and run standard ID on the resulting DAG.
-
-    PROBABILISTIC
-        Apply R1–R3 first, then run standard ID and annotate the trace with
-        ``id_confidence_under_pag`` if the result is IDENTIFIED but confidence < 1.
+    Policy and confidence values remain trace diagnostics. They do not create
+    proof steps, select endpoint completions, or change ordinary static-ID
+    results. This adapter does not identify over a PAG equivalence class.
     """
-    _validate_static_admg(graph)
     from polisyos.foundry.methods.catalog.causal.pag_completion import apply_pag_orientation_rules
-    from polisyos.ir.analytics.causal_graph import EdgeMark, PAGIdentificationPolicy
+    from polisyos.ir.analytics.causal_graph import EdgeMark, GraphType, PAGIdentificationPolicy
 
-    pag_steps: list[ProofStep] = _pag_steps if _pag_steps is not None else []
+    if graph.graph_type is not GraphType.PAG:
+        _validate_static_admg(graph)
 
     policy = graph.pag_identification_policy
     _trace.append(
@@ -132,162 +118,41 @@ def _pag_id_algorithm(
         f"X={sorted(treatment)}, Y={sorted(outcome)}"
     )
 
-    # ------------------------------------------------------------------
-    # Orientation pre-pass: apply R1–R3 to resolve CIRCLE marks (all policies)
-    # ------------------------------------------------------------------
     n_circles_before = sum(
-        1 for e in graph.edges if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE
+        1 for edge in graph.edges if edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
     )
     oriented_pag, _orient_warnings = apply_pag_orientation_rules(graph)
     n_circles_after = sum(
         1
-        for e in oriented_pag.edges
-        if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE
+        for edge in oriented_pag.edges
+        if edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
     )
     n_resolved = n_circles_before - n_circles_after
-
     if n_resolved > 0:
         _trace.append(
             f"[depth={_depth}] PAG-ID orientation pre-pass: "
-            f"resolved {n_resolved} CIRCLE marks ({n_circles_before}→{n_circles_after})"
-        )
-        pag_steps.append(
-            ProofStep(
-                rule_name="PAG_ORIENT_R1",
-                antecedent_vars=(),
-                consequent_vars=(),
-                applied_to_graph_state=(
-                    f"R1-R3 orientation pass resolved {n_resolved} CIRCLE marks "
-                    f"({n_circles_before}→{n_circles_after} circles remain)"
-                ),
-                graph_state_before=f"{n_circles_before} CIRCLE marks before orientation",
-                depth=_depth,
-            )
+            f"resolved {n_resolved} CIRCLE endpoints "
+            f"({n_circles_before}→{n_circles_after} remain)"
         )
 
-    # ------------------------------------------------------------------ OPTIMISTIC
-    if policy is PAGIdentificationPolicy.OPTIMISTIC:
-        # Commit remaining CIRCLE marks on the oriented PAG to directed (TAIL→ARROW) edges
-        committed_edges = []
-        n_committed = 0
-        for e in oriented_pag.edges:
-            if e.mark_src is EdgeMark.CIRCLE or e.mark_dst is EdgeMark.CIRCLE:
-                from polisyos.ir.analytics.causal_graph import CausalEdge
+    # Static ID has no interpretation for unresolved PAG endpoints. This gate
+    # precedes every policy path, so no policy can supply a completion choice.
+    _validate_static_admg(oriented_pag)
 
-                committed_edges.append(
-                    CausalEdge(
-                        src=e.src,
-                        dst=e.dst,
-                        mark_src=EdgeMark.TAIL,
-                        mark_dst=EdgeMark.ARROW,
-                        lag=e.lag,
-                        sources=list(e.sources),
-                    )
-                )
-                n_committed += 1
-            else:
-                committed_edges.append(e)
-
-        pag_steps.append(
-            ProofStep(
-                rule_name="PAG_OPTIMISTIC_COMMIT",
-                antecedent_vars=(),
-                consequent_vars=tuple(sorted(outcome)),
-                applied_to_graph_state=(
-                    f"OPTIMISTIC policy: committing {n_committed} remaining CIRCLE marks "
-                    f"to directed edges after R1-R3 pre-pass"
-                ),
-                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-                depth=_depth,
-            )
-        )
-
-        from polisyos.ir.analytics.causal_graph import GraphType as GT
-
-        dag_graph = CausalGraphModel(
-            schema_version=oriented_pag.schema_version,
-            graph_type=GT.DAG,
-            nodes=list(oriented_pag.nodes),
-            edges=committed_edges,
-            discovery_method=(oriented_pag.discovery_method or "") + "_pag_committed",
-            pag_identification_policy=policy,
-            id_confidence_under_pag=oriented_pag.id_confidence_under_pag,
-            metadata=dict(oriented_pag.metadata),
-        )
-        result = id_algorithm(
-            treatment=treatment,
-            outcome=outcome,
-            graph=dag_graph,
-            available_vars=available_vars,
-            dataset_ref=dataset_ref,
-            domain=domain,
-            _depth=_depth + 1,
-            _trace=_trace,
-        )
-        _trace.append(f"[depth={_depth}] PAG-ID OPTIMISTIC: status={result.status.value}")
-        combined_steps = pag_steps + list(result.proof_steps)
-        return dataclasses.replace(
-            result,
-            algorithm_version="pag_id_optimistic_v1",
-            proof_steps=combined_steps,
-        )
-
-    # ------------------------------------------------------------------ CONSERVATIVE / PROBABILISTIC
-    # Use reachable_closure on the oriented PAG to check whether remaining
-    # CIRCLE marks create an ambiguous back-door path.
-    from polisyos.foundry.methods.catalog.causal.admg_ops import reachable_closure
-
-    pag_reachable = reachable_closure(
-        oriented_pag,
-        query_vars=outcome,
-        intervened=treatment,
-        conditioning=None,
-    )
-    circles_create_ambiguity = bool(pag_reachable & treatment)
-
-    if policy is PAGIdentificationPolicy.CONSERVATIVE and circles_create_ambiguity:
+    if policy is PAGIdentificationPolicy.CONSERVATIVE:
         _trace.append(
-            f"[depth={_depth}] PAG-ID CONSERVATIVE: CIRCLE edges create ambiguity → PAG_AMBIGUOUS"
+            f"[depth={_depth}] PAG-ID CONSERVATIVE diagnostic: "
+            "resolved graph delegated to static ID; no completion-set test performed"
         )
-        pag_steps.append(
-            ProofStep(
-                rule_name="PAG_CONSERVATIVE_BLOCK",
-                antecedent_vars=tuple(sorted(treatment)),
-                consequent_vars=tuple(sorted(outcome)),
-                applied_to_graph_state=(
-                    f"CONSERVATIVE policy: {n_circles_after} unresolved CIRCLE marks create "
-                    f"backdoor ambiguity; pag_reachable∩X={sorted(pag_reachable & treatment)}"
-                ),
-                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-                depth=_depth,
-            )
+    elif policy is PAGIdentificationPolicy.OPTIMISTIC:
+        _trace.append(
+            f"[depth={_depth}] PAG-ID OPTIMISTIC diagnostic: "
+            "resolved graph delegated to static ID; no endpoints committed"
         )
-        return IdentificationResult(
-            status=IdentificationStatus.PAG_AMBIGUOUS,
-            estimand_ast=None,
-            hedge_certificate=None,
-            trace=list(_trace),
-            required_distributions=[],
-            algorithm_version="pag_id_conservative_v1",
-            proof_steps=list(pag_steps),
-        )
-
-    # No CIRCLE ambiguity (conservative) or PROBABILISTIC policy:
-    # run standard ID on the oriented PAG
-    if policy is PAGIdentificationPolicy.PROBABILISTIC:
-        pag_steps.append(
-            ProofStep(
-                rule_name="PAG_PROBABILISTIC",
-                antecedent_vars=(),
-                consequent_vars=tuple(sorted(outcome)),
-                applied_to_graph_state=(
-                    f"PROBABILISTIC policy: running ID on oriented PAG with "
-                    f"{n_circles_after} remaining circles; "
-                    f"id_confidence_under_pag={oriented_pag.id_confidence_under_pag}"
-                ),
-                graph_state_before=f"oriented PAG with {n_circles_after} remaining circles",
-                depth=_depth,
-            )
+    elif policy is PAGIdentificationPolicy.PROBABILISTIC:
+        _trace.append(
+            f"[depth={_depth}] PAG-ID PROBABILISTIC diagnostic: "
+            "resolved graph delegated to static ID; declared confidence is non-authoritative"
         )
 
     result = id_algorithm(
@@ -300,22 +165,17 @@ def _pag_id_algorithm(
         _depth=_depth + 1,
         _trace=_trace,
     )
-    _trace.append(f"[depth={_depth}] PAG-ID ({policy.value}): base status={result.status.value}")
-    if (
-        result.status is IdentificationStatus.IDENTIFIED
-        and oriented_pag.id_confidence_under_pag is not None
-        and oriented_pag.id_confidence_under_pag < 1.0
-    ):
-        _trace.append(
-            f"[depth={_depth}] PAG-ID: id_confidence_under_pag="
-            f"{oriented_pag.id_confidence_under_pag:.3f}"
-        )
-    combined_steps = pag_steps + list(result.proof_steps)
-    return dataclasses.replace(
-        result,
-        algorithm_version="pag_id_v1",
-        proof_steps=combined_steps,
+    _trace.append(
+        f"[depth={_depth}] PAG-ID ({policy.value}): resolved static ID status={result.status.value}"
     )
+    if policy is PAGIdentificationPolicy.PROBABILISTIC:
+        confidence = oriented_pag.id_confidence_under_pag
+        if confidence is not None:
+            _trace.append(
+                f"[depth={_depth}] PAG-ID PROBABILISTIC diagnostic only: "
+                f"id_confidence_under_pag={confidence:.3f}"
+            )
+    return dataclasses.replace(result, trace=list(_trace))
 
 
 # ---------------------------------------------------------------------------

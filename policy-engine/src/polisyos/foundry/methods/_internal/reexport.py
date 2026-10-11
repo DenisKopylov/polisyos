@@ -14,7 +14,8 @@ def reexport_module(module_name: str, target: str, namespace: dict[str, Any]) ->
     )
     namespace.update({name: getattr(module, name) for name in exported})
 
-    def __getattr__(name: str) -> Any:
+    # This callback is installed as the generated module attribute hook.
+    def __getattr__(name: str) -> Any:  # noqa: N807
         if name in exported:
             value = getattr(module, name)
             namespace[name] = value

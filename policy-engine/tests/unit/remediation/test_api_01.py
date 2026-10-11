@@ -97,6 +97,26 @@ def test_interference_characterization_preserves_leaf_identity() -> None:
         assert getattr(runtime, name) is getattr(identification, name)
 
 
+def test_interference_api_leaf_exports_are_bound_and_star_importable() -> None:
+    """Keep leaf __all__ names bound to their canonical implementations."""
+    api_name = f"{INTERFERENCE_MODULE}.api"
+    api = import_module(api_name)
+    identification = import_module(f"{INTERFERENCE_MODULE}.identification")
+    names = (
+        "build_block_stratified_network_causal_data",
+        "build_interference_topology_contracts",
+        "identify_interference_effect",
+    )
+
+    for name in names:
+        assert getattr(api, name) is getattr(identification, name)
+
+    star_exports = _star_import(api_name)
+    assert set(star_exports) == set(api.__all__)
+    for name in names:
+        assert star_exports[name] is getattr(identification, name)
+
+
 @pytest.mark.parametrize(
     ("module_name", "expected_exports"),
     [

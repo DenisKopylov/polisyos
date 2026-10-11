@@ -5,9 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from .api import (
-        CausalEngine,
-    )
+    from .._causal_engine_contracts import _CausalEngineStaticHelpers as CausalEngine
     from .artifacts import (
         ArtifactRefModel,
         BlockingType,
@@ -33,8 +31,8 @@ if TYPE_CHECKING:
         InterventionScope,
         LocalIndependenceAttachment,
         LocalIndependenceEdge,
-        LocalIndependenceGraphSpec,
         LocalIndependenceGraphicalChecks,
+        LocalIndependenceGraphSpec,
         LocalIndependenceIdentificationSpec,
         LocalIndependenceRuntimeRequirements,
         LocalIndependenceTarget,

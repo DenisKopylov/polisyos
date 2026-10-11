@@ -21,7 +21,10 @@ def _dag(edges: list[tuple[str, str]]) -> CausalGraphModel:
 
 
 def _confounded(
-    directed: list[tuple[str, str]], bidirected: list[tuple[str, str]]
+    directed: list[tuple[str, str]],
+    bidirected: list[tuple[str, str]],
+    *,
+    graph_type: GraphType,
 ) -> CausalGraphModel:
     nodes = sorted({n for e in directed + bidirected for n in e})
     edges = [
@@ -30,7 +33,7 @@ def _confounded(
     ]
     for s, d in bidirected:
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
-    return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+    return CausalGraphModel(graph_type=graph_type, nodes=nodes, edges=edges)
 
 
 # ---------------------------------------------------------------------------

@@ -15,7 +15,7 @@ from . import artifacts as _artifacts
 if TYPE_CHECKING:
     from polisyos.ir.analytics.mgraph import MGraphMetadata
 
-    from .api import CausalEngine
+    from .._causal_engine_contracts import _CausalEngineStaticHelpers as CausalEngine
     from .artifacts import (
         Any,
         BlockingType,

@@ -2,7 +2,29 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Protocol
+
 from polisyos.ir.analytics.causal import DataReadinessReport
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.interventions import InterventionExpr, InterventionQuery
+
+
+class _CausalEngineStaticHelpers(Protocol):
+    """Describe static helpers shared by split CausalEngine mixins."""
+
+    @staticmethod
+    def _graph_artifact_ref(graph: CausalGraphModel) -> str: ...
+
+    @staticmethod
+    def _intervention_target_vars(intervention: InterventionExpr) -> frozenset[str]: ...
+
+    @staticmethod
+    def _effective_intervention_expr(intervention: InterventionExpr) -> InterventionExpr: ...
+
+    @staticmethod
+    def _effective_intervention_type_name(query: InterventionQuery) -> str: ...
 
 
 class DataReadinessBlockedError(RuntimeError):

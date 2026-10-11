@@ -109,10 +109,11 @@ class TestValidMinimalDag:
 class TestGraphAcyclicity:
     def test_cycle_in_dag_is_error(self):
         # X → Y → X (cycle)
-        nodes = ["X", "Y"]
+        nodes = ["X", "Y", "Z"]
         edges = [
             CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="Y", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="Z", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
         ]
         # Pydantic DAG validator would reject this, so build a PAG and swap graph_type
         # to simulate a DAG that bypassed model_validator (e.g. loaded from JSON)
@@ -128,10 +129,11 @@ class TestGraphAcyclicity:
         assert "GRAPH_CYCLE" in codes
 
     def test_pag_with_directed_cycle_is_warning_not_error(self):
-        nodes = ["X", "Y"]
+        nodes = ["X", "Y", "Z"]
         edges = [
             CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="Y", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="Z", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
         ]
         graph = CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
         ast = make_backdoor_estimand(

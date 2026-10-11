@@ -131,7 +131,8 @@ from polisyos.ir.analytics.survey_quality import (
     build_survey_quality_certificate,
     persist_survey_quality_certificate,
 )
-from polisyos.ir.artifacts import CanonInfo as IRCanonInfo, get_json_artifact
+from polisyos.ir.artifacts import CanonInfo as IRCanonInfo
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.governance.phase1 import load_phase1_flagship_dataset_ids
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -155,8 +156,13 @@ def make_dag(directed_edges):
     return CausalGraphModel(graph_type=GraphType.DAG, nodes=nodes, edges=edges)
 
 
-def make_confounded(directed_edges, bidirected_edges):
-    """Build graph with both directed and bidirected (confounding) edges."""
+def make_confounded(
+    directed_edges: list[tuple[str, str]],
+    bidirected_edges: list[tuple[str, str]],
+    *,
+    graph_type: GraphType,
+) -> CausalGraphModel:
+    """Build directed and bidirected relations with an explicit graph kind."""
     nodes = list({n for e in directed_edges + bidirected_edges for n in e})
     edges = [
         CausalEdge(src=s, dst=d, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)
@@ -164,8 +170,7 @@ def make_confounded(directed_edges, bidirected_edges):
     ]
     for s, d in bidirected_edges:
         edges.append(CausalEdge(src=s, dst=d, mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW))
-    # PAG allows mixed edge marks including bidirected arrows
-    return CausalGraphModel(graph_type=GraphType.PAG, nodes=nodes, edges=edges)
+    return CausalGraphModel(graph_type=graph_type, nodes=nodes, edges=edges)
 
 
 def make_admg_confounded(directed_edges, bidirected_edges):
@@ -364,14 +369,13 @@ class TestCausalEngineIdentify:
 
     def test_non_identifiable_returns_negative_cert(self):
         # Bow-arc: X -> Y with bidirected X <-> Y (non-identifiable)
-        graph = make_confounded([("X", "Y")], [("X", "Y")])
+        graph = make_confounded([("X", "Y")], [("X", "Y")], graph_type=GraphType.ADMG)
         result = self.engine.identify("X", "Y", graph)
         # May return HEDGE_FOUND as IdentificationResult or NegativeCertificate
         if isinstance(result, IdentificationResult):
             assert result.status in {
                 IdentificationStatus.HEDGE_FOUND,
                 IdentificationStatus.ORACLE_NEEDED,
-                IdentificationStatus.PAG_AMBIGUOUS,  # Track B: PAG graphs may return this
             }
         else:
             assert isinstance(result, NegativeCertificate)
@@ -548,11 +552,12 @@ class TestCausalEngineIdentify:
     def test_identify_cyclic_graph_reduces_to_acyclic_backend_when_cycle_is_irrelevant(self):
         graph = CausalGraphModel(
             graph_type=GraphType.PAG,
-            nodes=["X", "Y", "A", "B"],
+            nodes=["X", "Y", "A", "B", "C"],
             edges=[
                 CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
                 CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="B", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="B", dst="C", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="C", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
             ],
         )
 
@@ -573,7 +578,7 @@ class TestCausalEngineIdentify:
     def test_identify_cyclic_distribution_query_requires_validated_reduction(self):
         graph = CausalGraphModel(
             graph_type=GraphType.PAG,
-            nodes=["tax_policy", "income", "A", "B"],
+            nodes=["tax_policy", "income", "A", "B", "C"],
             edges=[
                 CausalEdge(
                     src="tax_policy",
@@ -582,7 +587,8 @@ class TestCausalEngineIdentify:
                     mark_dst=EdgeMark.ARROW,
                 ),
                 CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="B", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="B", dst="C", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="C", dst="A", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
             ],
         )
         query = DistributionLawQuery(
@@ -611,7 +617,7 @@ class TestCausalEngineIdentify:
             nodes=["X", "Y", "Z"],
             edges=[
                 CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-                CausalEdge(src="Y", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+                CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
                 CausalEdge(src="Z", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
             ],
             metadata={
@@ -1207,16 +1213,18 @@ class TestCausalEngineCompile:
         assert len(eg.nodes) > 0
 
     def test_compile_raises_on_non_identified(self):
-        result = make_confounded([("X", "Y")], [("X", "Y")])
-        non_id_result = self.engine.identify("X", "Y", result)
-        if (
-            isinstance(non_id_result, IdentificationResult)
-            and non_id_result.estimand_ast is not None
-        ):
-            pytest.skip("Unexpectedly identified")
-        if isinstance(non_id_result, NegativeCertificate):
-            pytest.skip("Returns NegativeCertificate — cannot test ValueError from compile")
-        with pytest.raises((ValueError, Exception)):
+        from polisyos.foundry.methods.catalog.causal.id_engine import id_algorithm
+
+        graph = make_confounded([("X", "Y")], [("X", "Y")], graph_type=GraphType.ADMG)
+        non_id_result = id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=graph,
+        )
+
+        assert isinstance(non_id_result, IdentificationResult)
+        assert non_id_result.status is IdentificationStatus.HEDGE_FOUND
+        with pytest.raises(ValueError, match="Cannot compile non-identified result"):
             self.engine.compile(non_id_result)
 
 
@@ -1445,7 +1453,7 @@ class TestCausalEngineRun:
     def test_run_negative_cert_for_non_identifiable(self, tmp_path):
         store = FileSystemCAS(tmp_path / "cas")
         engine = CausalEngine(registry=None, artifact_store=store)
-        graph = make_confounded([("X", "Y")], [("X", "Y")])
+        graph = make_confounded([("X", "Y")], [("X", "Y")], graph_type=GraphType.ADMG)
         report, bundle, cert = engine.run("X", "Y", graph)
         # Should get negative cert or HEDGE_FOUND
         assert (

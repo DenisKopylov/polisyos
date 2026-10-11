@@ -19,7 +19,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.calibration import evaluate_continuous
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
@@ -281,8 +281,34 @@ class ForecastOwnerResult(BaseModel):
         return self.coverage_denominator
 
 
-def _input(artifact_id: object, role: str) -> InputRef:
-    return InputRef(artifact_id=str(artifact_id), role=role)
+def _input(ref: object, role: str) -> InputRef:
+    """Create a lineage edge from the exact selected artifact view."""
+
+    artifact_id = getattr(ref, "artifact_id", ref)
+    profile = getattr(ref, "manifest_profile_sha256", None)
+    return InputRef(
+        artifact_id=str(artifact_id),
+        role=role,
+        manifest_profile_sha256=profile,
+    )
+
+
+def _manifest_for_profile(store: Any, artifact_id: ArtifactID, profile: str) -> Any:
+    """Resolve one manifest profile, failing closed on unsupported non-default views."""
+
+    resolver = getattr(store, "get_manifest_by_profile", None)
+    if callable(resolver):
+        manifest = resolver(artifact_id, profile)
+    else:
+        manifest = store.get_manifest(artifact_id)
+        if artifact_manifest_profile_sha256(manifest) != profile:
+            raise ValueError("artifact store cannot resolve the requested manifest profile")
+    if (
+        str(manifest.artifact_id) != str(artifact_id)
+        or artifact_manifest_profile_sha256(manifest) != profile
+    ):
+        raise ValueError("selected artifact manifest does not match its profile reference")
+    return manifest
 
 
 def _ref_from_payload(value: object) -> ArtifactRefModel:
@@ -303,22 +329,55 @@ def _resolve_json(
             f"artifact kind mismatch: expected {expected_kind!r}, got {normalized.kind!r}"
         )
     artifact_id = ArtifactID.model_validate(str(normalized.artifact_id))
-    manifest = store.get_manifest(str(artifact_id))
+    ir_store = _ensure_ir_artifact_store(store)
+    if normalized.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(str(artifact_id))
+        selected_profile = artifact_manifest_profile_sha256(manifest)
+    else:
+        selected_profile = normalized.manifest_profile_sha256
+        manifest = _manifest_for_profile(ir_store, artifact_id, selected_profile)
     if str(manifest.artifact_id) != str(artifact_id):
         raise ValueError("artifact manifest identity does not match the requested reference")
     if manifest.kind != normalized.kind or manifest.media_type != normalized.media_type:
         raise ValueError("artifact reference is not content-bound to its CAS manifest")
-    return normalized, get_json_artifact(_ensure_ir_artifact_store(store), artifact_id)
+    exact_ref = ArtifactRefModel.model_validate(
+        {
+            **normalized.model_dump(mode="python"),
+            "manifest_profile_sha256": selected_profile,
+        }
+    )
+    if _manifest_for_profile(ir_store, artifact_id, selected_profile) != manifest:
+        raise ValueError("selected artifact manifest changed during resolution")
+    return exact_ref, get_json_artifact(ir_store, exact_ref)
 
 
-def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> None:
+def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> InputRef:
     """Resolve one lineage edge without treating its role as artifact metadata."""
 
     artifact_id = ArtifactID.model_validate(str(item.artifact_id))
-    manifest = store.get_manifest(str(artifact_id))
+    ir_store = _ensure_ir_artifact_store(store)
+    if item.manifest_profile_sha256 is None:
+        manifest = store.get_manifest(str(artifact_id))
+        profile = artifact_manifest_profile_sha256(manifest)
+    else:
+        profile = item.manifest_profile_sha256
+        manifest = _manifest_for_profile(ir_store, artifact_id, profile)
     if str(manifest.artifact_id) != str(artifact_id):
         raise ValueError("manifest input identity does not match the requested artifact")
-    store.get_bytes(str(artifact_id))
+    selected_ref = ArtifactRefModel(
+        artifact_id=artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=profile,
+    )
+    if _manifest_for_profile(ir_store, artifact_id, profile) != manifest:
+        raise ValueError("selected input manifest changed during resolution")
+    ir_store.get_bytes(selected_ref)
+    return InputRef(
+        artifact_id=artifact_id,
+        role=item.role,
+        manifest_profile_sha256=profile,
+    )
 
 
 def _resolve_spec_ref(
@@ -347,15 +406,23 @@ def _resolve_spec_ref(
             f"{role} specification manifest media type mismatch: "
             f"expected 'application/json', got {manifest.media_type!r}"
         )
-    try:
-        store.get_bytes(resolved_id)
-    except FileNotFoundError as exc:
-        raise ValueError(f"{role} specification CAS bytes are missing") from exc
-    return ArtifactRefModel(
+    profile = artifact_manifest_profile_sha256(manifest)
+    selected_ref = ArtifactRefModel(
         artifact_id=resolved_id,
         kind=manifest.kind,
         media_type=manifest.media_type,
+        manifest_profile_sha256=profile,
     )
+    try:
+        if (
+            _manifest_for_profile(_ensure_ir_artifact_store(store), resolved_id, profile)
+            != manifest
+        ):
+            raise ValueError("selected specification manifest changed during resolution")
+        _ensure_ir_artifact_store(store).get_bytes(selected_ref)
+    except FileNotFoundError as exc:
+        raise ValueError(f"{role} specification CAS bytes are missing") from exc
+    return selected_ref
 
 
 def _resolve_model_policy_pair(
@@ -484,19 +551,19 @@ def _expected_input_pairs(
     policy_spec_ref: ArtifactRefModel | None,
 ) -> list[InputRef]:
     required = [
-        _input(observed_source_ref.artifact_id, "observed_source"),
-        _input(observed_data_ref.artifact_id, "observed_data"),
-        _input(calibration_rule_ref.artifact_id, "calibration_rule"),
-        _input(training_slice_ref.artifact_id, "training_slice"),
-        _input(method_artifact_ref.artifact_id, "method_artifact"),
-        _input(uncertainty_bundle_ref.artifact_id, "uncertainty_bundle"),
-        _input(calibration_diagnostics_ref.artifact_id, "calibration_diagnostics"),
+        _input(observed_source_ref, "observed_source"),
+        _input(observed_data_ref, "observed_data"),
+        _input(calibration_rule_ref, "calibration_rule"),
+        _input(training_slice_ref, "training_slice"),
+        _input(method_artifact_ref, "method_artifact"),
+        _input(uncertainty_bundle_ref, "uncertainty_bundle"),
+        _input(calibration_diagnostics_ref, "calibration_diagnostics"),
     ]
     if model_spec_ref is not None and policy_spec_ref is not None:
         required.extend(
             [
-                _input(model_spec_ref.artifact_id, "model_spec"),
-                _input(policy_spec_ref.artifact_id, "policy_spec"),
+                _input(model_spec_ref, "model_spec"),
+                _input(policy_spec_ref, "policy_spec"),
             ]
         )
     return required
@@ -669,10 +736,11 @@ class ForecastOwner:
                 schema_name="polisyos.ir.ForecastTrainingSlice",
                 schema_version="1.0",
                 inputs=[
-                    _input(observed_source_ref.artifact_id, "observed_source"),
-                    _input(observed_data_ref.artifact_id, "observed_data"),
+                    _input(observed_source_ref, "observed_source"),
+                    _input(observed_data_ref, "observed_data"),
                 ],
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
         )
         method_artifact = _method_artifact(
@@ -681,18 +749,21 @@ class ForecastOwner:
             train=train,
             backend=dispatcher_result.reproducibility.backend,
         )
-        method_artifact_ref = _ref_from_payload(store_method_artifact(self._store, method_artifact))
+        method_artifact_ref = _ref_from_payload(
+            store_method_artifact(self._store, method_artifact, return_selected_profile=True)
+        )
 
         bundle_ref = persist_forecasting_uncertainty_bundle(
             _ensure_ir_artifact_store(self._store),
             bundle,
             inputs=[
-                _input(observed_source_ref.artifact_id, "observed_source"),
-                _input(observed_data_ref.artifact_id, "observed_data"),
-                _input(training_slice_ref.artifact_id, "training_slice"),
-                _input(method_artifact_ref.artifact_id, "method_artifact"),
-                _input(calibration_rule_ref.artifact_id, "calibration_rule"),
+                _input(observed_source_ref, "observed_source"),
+                _input(observed_data_ref, "observed_data"),
+                _input(training_slice_ref, "training_slice"),
+                _input(method_artifact_ref, "method_artifact"),
+                _input(calibration_rule_ref, "calibration_rule"),
             ],
+            return_selected_profile=True,
         )
         persisted_bundle = load_forecasting_uncertainty_bundle(
             _ensure_ir_artifact_store(self._store), bundle_ref
@@ -790,14 +861,15 @@ class ForecastOwner:
                 schema_name=CalibrationDiagnosticsReport.contract_id,
                 schema_version="1.0",
                 inputs=[
-                    _input(observed_source_ref.artifact_id, "observed_source"),
-                    _input(observed_data_ref.artifact_id, "observed_data"),
-                    _input(training_slice_ref.artifact_id, "training_slice"),
-                    _input(method_artifact_ref.artifact_id, "method_artifact"),
-                    _input(calibration_rule_ref.artifact_id, "calibration_rule"),
-                    _input(bundle_ref.artifact_id, "uncertainty_bundle"),
+                    _input(observed_source_ref, "observed_source"),
+                    _input(observed_data_ref, "observed_data"),
+                    _input(training_slice_ref, "training_slice"),
+                    _input(method_artifact_ref, "method_artifact"),
+                    _input(calibration_rule_ref, "calibration_rule"),
+                    _input(bundle_ref, "uncertainty_bundle"),
                 ],
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
         )
 
@@ -813,14 +885,23 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
         )
-        report_inputs = (
-            list(request.manifest_inputs) if request.manifest_inputs else required_inputs
-        )
-        required_pairs = {(str(item.artifact_id), item.role) for item in required_inputs}
-        declared_pairs = {(str(item.artifact_id), item.role) for item in report_inputs}
-        if not required_pairs.issubset(declared_pairs):
-            missing = sorted(required_pairs - declared_pairs)
-            raise ValueError(f"manifest inputs omit required content bindings: {missing}")
+        resolved_manifest_inputs = [
+            _resolve_input_ref(self._store, item) for item in request.manifest_inputs
+        ]
+        report_inputs = resolved_manifest_inputs if resolved_manifest_inputs else required_inputs
+        required_edges = {
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in required_inputs
+        }
+        declared_edges = {
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in report_inputs
+        }
+        if not required_edges.issubset(declared_edges):
+            missing = sorted(required_edges - declared_edges)
+            raise ValueError(
+                f"manifest inputs omit required exact-view content bindings: {missing}"
+            )
         for item in report_inputs:
             _resolve_input_ref(self._store, item)
 
@@ -862,7 +943,7 @@ class ForecastOwner:
                 "temporal_roles": request.temporal_roles.model_dump(mode="json"),
             },
         )
-        report = BacktestOrchestrator(cas=self._store).run(
+        report, report_ref = BacktestOrchestrator(cas=self._store).run_with_ref(
             [plan],
             report_id=request.report_id,
             inputs=report_inputs,
@@ -887,7 +968,12 @@ class ForecastOwner:
         )
         if report.cas_artifact_id is None:
             raise ValueError("backtest orchestrator did not persist a report")
-        report_ref = BacktestReportRef.model_validate({"artifact_id": report.cas_artifact_id})
+        if str(report_ref.artifact_id) != report.cas_artifact_id:
+            raise ValueError("backtest report result lost its persisted artifact identity")
+        if report_ref.manifest_profile_sha256 is None:
+            raise ValueError(
+                "backtest report producer did not retain its selected manifest profile"
+            )
         persisted_report: BacktestReport = load_backtest_report(
             _ensure_ir_artifact_store(self._store), report_ref
         )
@@ -908,17 +994,26 @@ class ForecastOwner:
                 raise ValueError(
                     f"persisted backtest report metadata lost its {field_name} binding"
                 )
-        report_manifest = _ensure_ir_artifact_store(self._store).get_manifest(report_ref)
+        report_manifest = _manifest_for_profile(
+            _ensure_ir_artifact_store(self._store),
+            report_ref.artifact_id,
+            report_ref.manifest_profile_sha256,
+        )
         for role, expected_id in (
             ("model_spec", expected_model_id),
             ("policy_spec", expected_policy_id),
         ):
             actual_edges = [
-                (str(item.artifact_id), item.role)
+                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
                 for item in report_manifest.inputs
                 if item.role == role
             ]
-            expected_edges = [] if expected_id is None else [(expected_id, role)]
+            expected_ref = model_spec_ref if role == "model_spec" else policy_spec_ref
+            expected_edges = (
+                []
+                if expected_id is None or expected_ref is None
+                else [(expected_id, role, expected_ref.manifest_profile_sha256)]
+            )
             if actual_edges != expected_edges:
                 raise ValueError(f"persisted backtest report manifest has incorrect {role} binding")
         if persisted_report.trust_eligible or persisted_report.trust_score is not None:

@@ -261,7 +261,14 @@ class BuildDecisionPacketNode:
         claims_ref = claim_attachment.claims_ref
         claim_ledger_v2_ref = claim_attachment.claim_ledger_v2_ref
 
-        inputs = _build_manifest_inputs(packet_payload)
+        inputs = _build_manifest_inputs(
+            packet_payload,
+            source_state=state,
+            source_artifact_refs=(
+                *claim_attachment.artifacts,
+                *(ref for ref in (validation_ref, judge_verdict_ref) if ref is not None),
+            ),
+        )
 
         packet_ref_payload = ctx.store.put_json(
             packet_payload,

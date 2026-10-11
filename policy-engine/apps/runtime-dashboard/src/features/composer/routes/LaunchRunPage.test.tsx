@@ -561,6 +561,7 @@ describe("LaunchRunPage", () => {
               checkpointPolicy: "strict",
               customParams: [],
               dataSourceRef: "sha256:draft-snapshot",
+              dataSourceProfileSha256: "",
               dataSourceType: "snapshot",
               executionIntent: "Saved operator intent",
               expectedOutputs: [
@@ -781,6 +782,52 @@ describe("LaunchRunPage", () => {
       screen.getByPlaceholderText("pages.composer.constraintScopePlaceholder"),
     ).toHaveValue("");
   });
+
+  it("submits a full profile-qualified data-view request from the workflow composer", async () => {
+    const workflowMutateMock = vi.fn();
+    useLaunchRunMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutate: workflowMutateMock,
+    });
+
+    const user = userEvent.setup();
+    renderLaunchRunPage("/compose?mode=workflow");
+
+    await user.click(
+      screen.getByRole("radio", {
+        name: "pages.composer.dataSource.view",
+      }),
+    );
+    await user.type(
+      screen.getByPlaceholderText("pages.composer.placeholders.sha256"),
+      "sha256:data-view-request",
+    );
+    const profile = `sha256:${"e".repeat(64)}`;
+    await user.type(
+      screen.getByTestId("composer-data-source-profile"),
+      profile,
+    );
+
+    const launchButton = screen.getByTestId("composer-launch-workflow");
+    await waitFor(() => expect(launchButton).toBeEnabled());
+    await user.click(launchButton);
+
+    expect(workflowMutateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data_source: {
+          data_view_request_ref: {
+            artifact_id: "sha256:data-view-request",
+            kind: "ir.data_view_request",
+            media_type: "application/json",
+            manifest_profile_sha256: profile,
+          },
+        },
+        mode: "workflow",
+      }),
+      expect.any(Object),
+    );
+  }, 10_000);
 
   it("submits workflow launches and surfaces runtime API errors", async () => {
     const workflowMutateMock = vi.fn();

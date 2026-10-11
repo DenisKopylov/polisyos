@@ -121,6 +121,19 @@ claim that the job is terminal. See the
 - Scientist reference index: [`../../../../docs/reference/scientist/index.md`](../../../../docs/reference/scientist/index.md)
 - Cross-package navigation: [`../workflows/README.md`](../workflows/README.md), [`../nodes/README.md`](../nodes/README.md), and [`../../../../tests/unit/scientist/README.md`](../../../../tests/unit/scientist/README.md)
 
+## Retained SKG replay input
+
+An explicit `ExperimentState.inputs["skg_source_snapshot"]` is resolved by one
+shared workflow-intake helper before local sync/async execution, the serialized
+node worker's async retry, or public dead-letter retry. The helper verifies the
+profile-bound CAS descriptor and chunk closure, materializes the exact source
+under the run, and records the selected ref once in the run manifest. The worker
+rebinds that typed state ref at node intake but leaves run-level recording to the
+workflow owner, avoiding duplicate events across node attempts. It reopens local
+CAS bytes and does not serialize a DuckDB connection. A malformed selected ref fails
+closed; only an absent selector keeps the legacy live-source path. This is local
+replay, not issuer authenticity or production-currentness.
+
 ## Cache Recovery and Deadlines
 
 `AsyncWorkflowExecutor` restores trace and checkpoint cache entries through one

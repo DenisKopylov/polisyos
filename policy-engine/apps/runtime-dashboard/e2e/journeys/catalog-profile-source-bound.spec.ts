@@ -611,3 +611,159 @@ test("switches profile-qualified artifact views and refuses mismatched or absent
     "same-bytes-across-profile-views",
   );
 });
+
+test("keeps a caller-selected DataViewRequest profile through ordinary POST, worker, fresh GET, and evidence UI", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    process.env.POLISYOS_DASHBOARD_SOURCE_BOUND_PROFILE_FIXTURE !== "1",
+    "requires the opt-in source-bound runtime fixture",
+  );
+  test.skip(
+    testInfo.project.name !== "chromium",
+    "the controlled CPU-backed workflow witness runs in desktop Chromium only",
+  );
+  test.setTimeout(180_000);
+  await installDashboardTestState(page);
+  await page.addInitScript(() => {
+    window.localStorage.setItem("polisyos.runtime.locale", "en");
+  });
+
+  const metadata = readFixtureMetadata();
+  expect(metadata.source_bound_workflow_profile_fixture_boundary).toContain(
+    "controlled local SQLite source",
+  );
+  const artifactId =
+    metadata.source_bound_workflow_data_view_request_artifact_id;
+  const selectedProfile =
+    metadata.source_bound_workflow_data_view_request_profile;
+  const trinityRef = metadata.source_bound_workflow_trinity_bundle_ref;
+  expect(artifactId).toMatch(/^sha256:[0-9a-f]{64}$/u);
+  expect(selectedProfile).toMatch(/^sha256:[0-9a-f]{64}$/u);
+  expect(trinityRef).toMatch(/^sha256:[0-9a-f]{64}$/u);
+
+  await page.goto("/compose?mode=workflow");
+  await waitForDashboardSurface(page, "composer");
+  await page.getByLabel("Data view request ref", { exact: true }).check();
+  await page.locator("#workflow-data-source-ref").fill(artifactId!);
+  await page.getByTestId("composer-data-source-profile").fill(selectedProfile!);
+  await page.locator("#workflow-trinity-ref").fill(trinityRef!);
+
+  const addParam = page.getByRole("button", { name: "Add param", exact: true });
+  await addParam.click();
+  await page.getByLabel("param key 1").fill("control_plane_transition");
+  await page.getByLabel("param value 1").fill("legacy_shadow");
+  await addParam.click();
+  await page.getByLabel("param key 2").fill("workflow_id");
+  await page.getByLabel("param value 2").fill("scientist_default");
+  await addParam.click();
+  await page.getByLabel("param key 3").fill("data_view_request_profile_status");
+  await page.getByLabel("param value 3").fill("worker_default_limited");
+
+  const launchResponsePromise = page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      new URL(response.url()).pathname === "/api/v1/control/runs",
+  );
+  await page.getByTestId("composer-launch-workflow").click();
+  const launchResponse = await launchResponsePromise;
+  expect(launchResponse.status()).toBe(200);
+  const requestBody = asRecord(launchResponse.request().postDataJSON());
+  const dataSource = asRecord(requestBody?.data_source);
+  expect(dataSource?.data_view_request_ref).toEqual({
+    artifact_id: artifactId,
+    kind: "ir.data_view_request",
+    media_type: "application/json",
+    manifest_profile_sha256: selectedProfile,
+  });
+  const params = asRecord(requestBody?.params);
+  expect(params?.data_view_request_profile_status).toBe(
+    "worker_default_limited",
+  );
+  expect(params?.control_plane_transition).toBe("legacy_shadow");
+
+  const launchPayload = asRecord(await launchResponse.json());
+  expect(launchPayload?.status).toBe("accepted");
+  expect(typeof launchPayload?.job_id).toBe("string");
+  expect(typeof launchPayload?.run_id).toBe("string");
+  const completedJob = await page.evaluate(async (jobId) => {
+    const deadline = Date.now() + 120_000;
+    while (Date.now() < deadline) {
+      const response = await fetch(
+        `/api/v1/control/jobs/${encodeURIComponent(jobId)}`,
+        { cache: "no-store", credentials: "include" },
+      );
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        throw new Error(`control job read failed: ${response.status}`);
+      }
+      const job =
+        typeof payload === "object" && payload !== null
+          ? (payload as Record<string, unknown>)
+          : {};
+      if (job.state === "completed" || job.state === "failed") {
+        return job;
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
+    }
+    throw new Error(
+      "ordinary workflow profile job did not finish before timeout",
+    );
+  }, launchPayload!.job_id as string);
+  expect(completedJob.state).toBe("completed");
+
+  const runId = launchPayload!.run_id as string;
+  const evidenceResponse = await freshGet(
+    page,
+    `/api/v1/runs/${encodeURIComponent(runId)}/evidence-context`,
+  );
+  expect(evidenceResponse.status).toBe(200);
+  const evidenceContext = asRecord(asRecord(evidenceResponse.payload)?.context);
+  expect(evidenceContext?.data_view_request_profile_status).toBe(
+    "caller_selected_profile",
+  );
+  expect(evidenceContext?.data_view_request_ref).toMatchObject({
+    artifact_id: artifactId,
+    kind: "ir.data_view_request",
+    media_type: "application/json",
+    manifest_profile_sha256: selectedProfile,
+  });
+
+  await page.goto(`/evidence?runId=${encodeURIComponent(runId)}`);
+  await waitForDashboardSurface(page, "evidence");
+  const profileStatus = page.getByTestId(
+    "evidence-data-view-request-profile-status",
+  );
+  await expect(profileStatus).toHaveAttribute(
+    "data-profile-status",
+    "caller_selected_profile",
+  );
+  await expect(profileStatus).toContainText("Caller-selected profile");
+  await expect(profileStatus).toContainText(
+    "does not establish authority or currentness",
+  );
+
+  const malformedBody = {
+    ...requestBody,
+    data_source: {
+      ...dataSource,
+      data_view_request_ref: {
+        ...(asRecord(dataSource?.data_view_request_ref) ?? {}),
+        manifest_profile_sha256: null,
+      },
+    },
+  };
+  const malformedPost = await page.evaluate(async (body) => {
+    const response = await fetch("/api/v1/control/runs", {
+      method: "POST",
+      credentials: "include",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return { body: await response.json(), status: response.status };
+  }, malformedBody);
+  expect(malformedPost.status).toBe(422);
+  expect(JSON.stringify(malformedPost.body)).toContain(
+    "workflow_data_view_request_profile_explicit_null",
+  );
+});

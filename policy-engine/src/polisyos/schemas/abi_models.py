@@ -397,6 +397,13 @@ IR_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         priority=Priority.P2,
     ),
     ABIModelEntry(
+        abi_key="context_adaptive_parameter_bundle_v1_1",
+        fqn="polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundleV11",
+        module="ir",
+        schema_file="context_adaptive_parameter_bundle_v1_1.schema.json",
+        priority=Priority.P2,
+    ),
+    ABIModelEntry(
         abi_key="causal_query",
         fqn="polisyos.ir.analytics.causal_queries.CausalQuery",
         module="ir",

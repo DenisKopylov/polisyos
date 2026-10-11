@@ -575,6 +575,7 @@ describe("DataIntelligencePanel", () => {
           relatedArtifacts: [],
           warnings: [],
           dataSnapshotRef: null,
+          dataViewRequestProfileStatus: "not_established",
           dataViewRequestRef: null,
           fabricRetrievalTraceRef: null,
           materializationRefs: {},

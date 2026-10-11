@@ -1084,21 +1084,16 @@ def _reconcile_frozen_contract(
                 "frozen_manifest": frozen.get("comparison_admission_manifest"),
                 "live_manifest": plan.manifest,
                 "frozen_comparison_identity": {
-                    field: frozen.get(field)
-                    for field in _COMPARISON_IDENTITY_FIELDS
+                    field: frozen.get(field) for field in _COMPARISON_IDENTITY_FIELDS
                 },
                 "frozen_comparison_content_hash": frozen.get("comparison_content_hash"),
             },
         )
     if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
-        v6_source_scope_reissue = _is_authorized_v6_source_scope_epoch_reissue(
-            frozen, live, plan
-        )
+        v6_source_scope_reissue = _is_authorized_v6_source_scope_epoch_reissue(frozen, live, plan)
         if v6_source_scope_reissue:
             return live
-        v3_to_v6_reissue = _is_authorized_v3_to_v6_comparison_reissue(
-            frozen, live, plan.manifest
-        )
+        v3_to_v6_reissue = _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest)
         if not v3_to_v6_reissue:
             receipt_keys = (
                 "contract_lane_anytime_refusal",
@@ -1112,12 +1107,10 @@ def _reconcile_frozen_contract(
                     "frozen_manifest": frozen.get("comparison_admission_manifest"),
                     "live_manifest": plan.manifest,
                     "frozen_receipt_schema_versions": {
-                        key: (frozen.get(key) or {}).get("schema_version")
-                        for key in receipt_keys
+                        key: (frozen.get(key) or {}).get("schema_version") for key in receipt_keys
                     },
                     "live_receipt_schema_versions": {
-                        key: (live.get(key) or {}).get("schema_version")
-                        for key in receipt_keys
+                        key: (live.get(key) or {}).get("schema_version") for key in receipt_keys
                     },
                     "authorized_transition_predicates": {
                         "v6_source_scope_reissue": v6_source_scope_reissue,
@@ -1181,7 +1174,9 @@ def _frozen_comparison_identity_admissible(
 
 
 def _is_authorized_corr_input_epoch_reissue(
-    frozen: dict[str, Any], live: dict[str, Any], plan: GyComparisonProjectionPlan,
+    frozen: dict[str, Any],
+    live: dict[str, Any],
+    plan: GyComparisonProjectionPlan,
 ) -> bool:
     """Reissue only the governed CG2 input epoch and its measured dependencies.
 
@@ -1193,13 +1188,16 @@ def _is_authorized_corr_input_epoch_reissue(
         or live.get("schema_version") != _CONTRACT_SCHEMA_VERSION
         or frozen.get("comparison_admission_manifest") != plan.manifest
         or live.get("comparison_admission_manifest") != plan.manifest
-        or any(frozen.get(field) != live.get(field)
-               for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"})
+        or any(
+            frozen.get(field) != live.get(field)
+            for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"}
+        )
         or frozen.get("comparison_content_hash") != _comparison_content_hash(frozen, plan)
         or "proof_input_strangle" in frozen
         or "synthetic" in frozen
         or live.get("synthetic") is not True
-        or live.get("source_modules") != [*frozen.get("source_modules", ()), _CREDAL_REFERENCE_SOURCE]
+        or live.get("source_modules")
+        != [*frozen.get("source_modules", ()), _CREDAL_REFERENCE_SOURCE]
     ):
         return False
     excluded = _COMPARISON_IDENTITY_FIELDS | _CONTENT_HASH_EXCLUDED_TOP_LEVEL
@@ -1230,7 +1228,8 @@ def _is_authorized_corr_input_epoch_reissue(
                 or new_input.schema_version != "policyos.runtime.grounding_decision_certificate.v2"
                 or old_input.authority_scope != "contract_testing"
                 or new_input.authority_scope != "contract_testing"
-                or old_input.production_promotable or new_input.production_promotable
+                or old_input.production_promotable
+                or new_input.production_promotable
                 or old_input.content_hash != recompute_grounding_decision_content_hash(old_input)
                 or new_input.content_hash != recompute_grounding_decision_content_hash(new_input)
                 or old["cg2_resolution_reason"] != "non_production_anchor_scope"
@@ -1243,11 +1242,13 @@ def _is_authorized_corr_input_epoch_reissue(
             old_reference = old["owner_projection"]["credal_reference"]
             new_reference = new["owner_projection"]["credal_reference"]
             if (
-                old_reference["schema_version"] not in {
+                old_reference["schema_version"]
+                not in {
                     "policyos.runtime.grounding_credal_reference.v1",
                     "policyos.runtime.grounding_credal_reference.v2",
                 }
-                or new_reference["schema_version"] != "policyos.runtime.grounding_credal_reference.v2"
+                or new_reference["schema_version"]
+                != "policyos.runtime.grounding_credal_reference.v2"
                 or old_reference["reference_hash"] != old_input.reference_hash
                 or old_reference["reference_epoch"] != old_input.reference_epoch
                 or new_reference["reference_hash"] != new_input.reference_hash
@@ -1484,7 +1485,7 @@ def _translate_n9_v6_receipt_epoch(
     from polisyos.runtime.quality import promotion_sequence as owner
 
     previous = owner.parse_canonical_promotion_history_receipt(value)
-    if previous.model_dump(mode="json") != value:
+    if previous.historical_projection() != value:
         raise ValueError("promotion_reissue_historical_receipt_incomplete")
     if previous.schema_version != _N9_V6_EPOCH or previous.promoted or previous.consumer_promotable:
         raise ValueError("promotion_reissue_receipt_epoch_or_authority_invalid")
@@ -1505,9 +1506,7 @@ def _translate_n9_v6_receipt_epoch(
     current_owner_payload["candidate_summary"] = current_summary.model_dump(mode="json")
     current_owner_payload.pop("projection_hash", None)
     current_owner_payload["projection_hash"] = gy_content_hash(current_owner_payload)
-    current_owner = owner.CanonicalPromotionOwnerProjection.model_validate(
-        current_owner_payload
-    )
+    current_owner = owner.CanonicalPromotionOwnerProjection.model_validate(current_owner_payload)
     current_input = owner._input_from_owner_projection(current_owner, repo_root=None)
     if current_input.schema_version != _N9_V8_EPOCH or current_input.producer_root_refs:
         raise ValueError("promotion_reissue_requires_unbridged_contract_replay")
@@ -1583,7 +1582,7 @@ def _translate_n9_v6_receipt_epoch(
             old.source_obligation_ref,
             old.obligation_role,
         )
-    payload = previous.model_dump(mode="json")
+    payload = previous.historical_projection()
     payload["schema_version"] = _N9_V8_EPOCH
     payload["owner_projection"] = current_owner.model_dump(mode="json")
     payload["obligations"] = [row.model_dump(mode="json") for row in current_rows]
@@ -1715,7 +1714,21 @@ def _is_authorized_v6_source_scope_epoch_reissue(
         # its outer operational-time semantics. Apply it to the entire translated
         # body, just as for the actual live producer, rather than inserting an
         # already projected receipt after that outer pass has completed.
-        return plan.project(translated_body) == current_projection
+        if plan.project(translated_body) == current_projection:
+            return True
+
+        # The stored v6 source/scope epoch and the live CG2 input epoch are two
+        # independently governed transitions from this same frozen base. First
+        # derive the complete v8 receipt/scope projection above; then present that
+        # exact intermediate to the existing CORR verifier. It may authorize only
+        # its typed certificate/reference, reason, source-module and strangle
+        # changes, while comparing the remaining full projected body. Neither
+        # transition can stand in for the other, and any unrelated drift stays red.
+        intermediate = copy.deepcopy(source)
+        intermediate.update(translated_body)
+        _set_comparison_identity(intermediate, plan)
+        intermediate["contract_content_hash"] = _contract_content_hash(intermediate)
+        return _is_authorized_corr_input_epoch_reissue(intermediate, live, plan)
     except (KeyError, IndexError, TypeError, ValueError):
         return False
 
@@ -2251,7 +2264,9 @@ def _cg2_contract_bind() -> tuple[CredalReference, GroundingDecisionCertificate]
 
 
 def _proof_input_strangle(
-    *, consumed: GroundingDecisionCertificate | None, reference: CredalReference | None,
+    *,
+    consumed: GroundingDecisionCertificate | None,
+    reference: CredalReference | None,
 ) -> dict[str, Any]:
     """Re-run the real binder; never accept post-production certificate authorship."""
     if reference is None or consumed is None:
@@ -2259,7 +2274,8 @@ def _proof_input_strangle(
     engine = GroundingRelationEngine(reference)
     relation = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
     recomputed = GroundingBindGate.for_contract_testing(
-        reference, calibration_seed_anchor=True,
+        reference,
+        calibration_seed_anchor=True,
     ).certificate_for(relation)
     payload = {
         "schema_version": "policyos.runtime.quality.n9_proof_input_strangle.v1",

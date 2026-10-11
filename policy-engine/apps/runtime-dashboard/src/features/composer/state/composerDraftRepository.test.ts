@@ -1,3 +1,4 @@
+import type { WorkflowLaunchFormInputValues } from "@/features/composer/domain/forms";
 import {
   buildComposerDraftKey,
   createComposerDraftRepository,
@@ -5,7 +6,7 @@ import {
 } from "@/features/composer/state/composerDraftRepository";
 
 const scope = { tenantId: "tenant-a", userId: "reviewer-a" };
-const workflowDraft: ComposerDraftRecord = {
+const workflowDraft = {
   fromRunId: "run-7",
   key: "workflow:run-7",
   mode: "workflow",
@@ -14,6 +15,7 @@ const workflowDraft: ComposerDraftRecord = {
     checkpointPolicy: "strict",
     customParams: [],
     dataSourceRef: "artifact-1",
+    dataSourceProfileSha256: "",
     dataSourceType: "snapshot",
     executionIntent: "Launch a verified run",
     expectedOutputs: [
@@ -26,6 +28,9 @@ const workflowDraft: ComposerDraftRecord = {
     policySpecRef: "policy-default",
     trinityRef: "trinity-default",
   },
+} satisfies ComposerDraftRecord & {
+  mode: "workflow";
+  values: WorkflowLaunchFormInputValues;
 };
 const nlDraft: ComposerDraftRecord = {
   fromRunId: null,
@@ -84,6 +89,71 @@ describe("composerDraftRepository", () => {
   it("builds stable logical keys for new and cloned drafts", () => {
     expect(buildComposerDraftKey("workflow", null)).toBe("workflow:new");
     expect(buildComposerDraftKey("nl", "run-7")).toBe("nl:run-7");
+  });
+
+  it("hydrates legacy workflow drafts without inventing a selected profile", async () => {
+    const port = createMemoryPort();
+    const repository = createComposerDraftRepository({
+      clock: () => new Date("2026-08-14T10:00:00.000Z"),
+      database: port,
+    });
+    const { dataSourceProfileSha256: _profile, ...legacyValues } =
+      workflowDraft.values;
+    const legacyDraft = {
+      ...workflowDraft,
+      values: legacyValues,
+    } as unknown as ComposerDraftRecord;
+
+    await expect(repository.save(scope, legacyDraft)).resolves.toBe(true);
+    await expect(
+      repository.load(scope, workflowDraft.key),
+    ).resolves.toMatchObject({
+      values: {
+        dataSourceProfileSha256: "",
+        dataSourceRef: "artifact-1",
+      },
+    });
+  });
+
+  it("rejects unknown workflow draft values without rewriting the saved record", async () => {
+    const port = createMemoryPort();
+    const repository = createComposerDraftRepository({
+      clock: () => new Date("2026-08-14T10:00:00.000Z"),
+      database: port,
+    });
+    await expect(repository.save(scope, workflowDraft)).resolves.toBe(true);
+    const physicalKey = port.put.mock.calls[0]![0].key as string;
+    const valid = port.records.get(physicalKey) as {
+      envelope: Record<string, unknown>;
+      key: string;
+    };
+    const encodedPayload = valid.envelope.encodedPayload as Record<
+      string,
+      unknown
+    >;
+    const values = encodedPayload.values as Record<string, unknown>;
+    const storedWithUnknownValue = {
+      ...valid,
+      envelope: {
+        ...valid.envelope,
+        encodedPayload: {
+          ...encodedPayload,
+          values: {
+            ...values,
+            unexpectedWorkflowValue: "must not be stripped",
+          },
+        },
+      },
+    };
+    port.records.set(physicalKey, storedWithUnknownValue);
+    const serializedRecordBeforeLoad = JSON.stringify(storedWithUnknownValue);
+
+    await expect(repository.load(scope, workflowDraft.key)).resolves.toBeNull();
+    expect(port.records.get(physicalKey)).toBe(storedWithUnknownValue);
+    expect(JSON.stringify(port.records.get(physicalKey))).toBe(
+      serializedRecordBeforeLoad,
+    );
+    expect(port.put).toHaveBeenCalledTimes(1);
   });
 
   it("does not touch IndexedDB without a settled tenant-user scope", async () => {

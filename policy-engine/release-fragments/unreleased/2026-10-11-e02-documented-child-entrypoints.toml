@@ -1,0 +1,43 @@
+id = "2026-10-11-e02-documented-child-entrypoints"
+title = "Register documented Fabric and IR child APIs"
+type = "changed"
+component = "architecture"
+owner = "team-architecture"
+summary = "The public-surface contract recognizes the documented Fabric and IR child APIs without changing runtime exports."
+evidence = [
+  "architecture/public_surface/contract.toml",
+  "src/polisyos/fabric/README.md",
+  "src/polisyos/fabric/data_plane/README.md",
+  "docs/reference/fabric/connectors.md",
+  "src/polisyos/ir/governance/README.md",
+  "src/polisyos/ir/observation/README.md",
+  "src/polisyos/ir/analytics/README.md",
+  "docs/reference/ir/schema-catalog.md",
+]
+compatibility = "Additive support declarations for existing, documented child-module import paths. The runtime facade exports and object identities are unchanged."
+surface_classification = "public_stable: polisyos.fabric and polisyos.ir"
+api = "The contract records polisyos.fabric.connectors, polisyos.fabric.data_plane, polisyos.ir.governance, polisyos.ir.observation, and polisyos.ir.analytics.calibration_diagnostics as supported child entrypoints."
+limitations = "Candidate source classification only; public_surface_inventory_reviewed remains false until canonical generation and independent review."
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "e02-fabric-documented-child-entrypoints"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.connectors and polisyos.fabric.data_plane"
+owner = "team-architecture"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The supported Fabric surface includes its documented connector and data-plane child modules."
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "e02-ir-documented-child-entrypoints"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.governance, polisyos.ir.observation, and polisyos.ir.analytics.calibration_diagnostics"
+owner = "team-architecture"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The supported IR surface includes its documented governance, observation, and calibration-diagnostics child modules."
+generated_client_compatibility = "not_applicable"

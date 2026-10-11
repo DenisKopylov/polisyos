@@ -90,6 +90,22 @@ async def run_node_in_worker(
             )
             ctx = _build_attempt_context(ctx, authority)
 
+        from polisyos.scientist.orchestration.engine.skg_snapshot import (
+            SNAPSHOT_INPUT_KEY,
+            bind_retained_skg_workflow_input,
+        )
+
+        if SNAPSHOT_INPUT_KEY in state.inputs:
+            from polisyos.common.async_tools import run_blocking_async
+
+            state = await run_blocking_async(
+                bind_retained_skg_workflow_input,
+                ctx,
+                state,
+                record_run_input=False,
+                unbounded=True,
+            )
+
         # Resolve and execute the node
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
 
@@ -350,12 +366,25 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
     from the metadata shipped in the payload.
     """
     from polisyos.scientist.orchestration.engine.checkpoint import (
+        CheckpointScopeMismatchError,
         _reconcile_checkpoint_scope,
     )
 
-    _reconcile_checkpoint_scope(
-        meta.get("tenant_id"),
-        meta.get("cell_id"),
+    owner_tenant_id = meta.get("tenant_id")
+    owner_cell_id = meta.get("cell_id")
+    if owner_tenant_id is not None and (
+        not isinstance(owner_tenant_id, str) or not owner_tenant_id.strip()
+    ):
+        raise CheckpointScopeMismatchError("distributed worker tenant scope invalid")
+    if owner_cell_id is not None and (
+        not isinstance(owner_cell_id, str) or not owner_cell_id.strip()
+    ):
+        raise CheckpointScopeMismatchError("distributed worker cell scope invalid")
+    if owner_cell_id is not None and owner_tenant_id is None:
+        raise CheckpointScopeMismatchError("distributed worker cell requires tenant scope")
+    tenant_id, cell_id = _reconcile_checkpoint_scope(
+        owner_tenant_id,
+        owner_cell_id,
         capture_active_when_unset=False,
         operation="distributed worker",
     )
@@ -372,32 +401,65 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
 
     run_id = str(meta.get("run_id", "worker-run"))
     store_config_raw = meta.get("store_config")
+    store_config_supplied = "store_config" in meta
     store_config: ArtifactStoreConfig | None = None
-    if isinstance(store_config_raw, dict):
+    if store_config_supplied:
+        if not isinstance(store_config_raw, dict):
+            raise CheckpointScopeMismatchError("distributed worker store config invalid")
+        for owner_key, run_owner in (("tenant_id", tenant_id), ("cell_id", cell_id)):
+            if owner_key in store_config_raw:
+                if store_config_raw[owner_key] != run_owner:
+                    raise CheckpointScopeMismatchError("distributed worker store owner mismatch")
+                raise CheckpointScopeMismatchError(
+                    "distributed worker owner must be carried by run metadata"
+                )
         try:
             store_config = ArtifactStoreConfig.model_validate(store_config_raw)
         except (TypeError, ValueError, ValidationError) as exc:
-            emit_degraded_path(
-                component="engine.runner.activity_worker",
-                operation="parse_store_config",
-                reason="worker_store_config_invalid",
-                exc=exc,
-                details={"run_id": run_id},
-                log=_logger,
+            raise CheckpointScopeMismatchError("distributed worker store config invalid") from exc
+
+    if store_config is not None and store_config_supplied:
+        store_backend = meta.get("store_backend")
+        if store_backend is not None and store_backend != store_config.backend:
+            raise CheckpointScopeMismatchError("distributed worker store backend metadata mismatch")
+        store_root = meta.get("store_root")
+        if store_root is not None:
+            if (
+                not isinstance(store_root, str)
+                or not store_root.strip()
+                or store_config.backend != "filesystem"
+            ):
+                raise CheckpointScopeMismatchError(
+                    "distributed worker store root metadata mismatch"
+                )
+            configured_root = (
+                Path(store_config.root) if store_config.root else Path.cwd() / ".polisyos" / "cas"
             )
+            if configured_root.resolve(strict=False) != Path(store_root).resolve(strict=False):
+                raise CheckpointScopeMismatchError(
+                    "distributed worker store root metadata mismatch"
+                )
 
     if store_config is None:
         store_backend = meta.get("store_backend")
         store_root = meta.get("store_root")
         if store_backend == "filesystem" and isinstance(store_root, str) and store_root.strip():
             store_config = ArtifactStoreConfig(backend="filesystem", root=store_root)
+        elif tenant_id is not None:
+            raise CheckpointScopeMismatchError(
+                "distributed worker owner scope requires a configured shared store"
+            )
         else:
             import tempfile
 
             cas_dir = Path(tempfile.mkdtemp(prefix="polisyos_worker_"))
             store_config = ArtifactStoreConfig(backend="filesystem", root=str(cas_dir))
 
-    store = build_artifact_store(store_config)
+    if tenant_id is not None and store_config.backend != "filesystem":
+        raise CheckpointScopeMismatchError(
+            "distributed worker store backend cannot enforce tenant ownership"
+        )
+    store = build_artifact_store(store_config, tenant_id=tenant_id, cell_id=cell_id)
     metrics = None
     try:
         from polisyos.scientist.orchestration.engine.metrics import build_engine_metrics
@@ -547,6 +609,8 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
 
     tenant_id = store_meta.get("tenant_id")
     cell_id = store_meta.get("cell_id")
+    if (tenant_id, cell_id) != (run_meta.get("tenant_id"), run_meta.get("cell_id")):
+        raise ValueError("timeout_worker_store_run_owner_mismatch")
     ambient_tenant = tenant_scope_meta.get("tenant_id")
     ambient_cell = tenant_scope_meta.get("cell_id")
     if not isinstance(ambient_tenant, str) or not ambient_tenant.strip():

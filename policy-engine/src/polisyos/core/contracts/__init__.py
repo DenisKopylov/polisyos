@@ -227,6 +227,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "EpochValidityBatchResponse",
         "DataSourceBinding",
         "ExecutionProfile",
+        "WorkflowDataSourceBinding",
         "IngestRequest",
         "IngestResponse",
         "LegalQueryGenerationBasisKind",
@@ -928,6 +929,7 @@ if TYPE_CHECKING:
         NaturalLanguageRunRequest,
         ProductionApprovalCurrentnessReceipt,
         RunLaunchResponse,
+        WorkflowDataSourceBinding,
         WorkflowRunRequest,
         require_production_approval_currentness_receipt,
     )
@@ -1545,6 +1547,7 @@ __all__ = [
     "DataSnapshot",
     "DataSnapshotRef",
     "DataSourceBinding",
+    "WorkflowDataSourceBinding",
     "DataTrust",
     "DataViewRequestRef",
     "DatasetFetchSpecRequest",

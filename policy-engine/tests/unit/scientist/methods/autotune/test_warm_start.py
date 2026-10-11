@@ -6,6 +6,10 @@ import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import pytest
+
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.autotune.models import BenchmarkSplit
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
@@ -54,6 +58,21 @@ def _fingerprint(run_id: str = "new_run") -> RunFingerprint:
         space_hash="abc123",
         objective_names=["score"],
         embedding=[0.1, 0.2, 0.3],
+    )
+
+
+def _complete_fingerprint(run_id: str, *, embedding: list[float]) -> RunFingerprint:
+    return RunFingerprint(
+        run_id=run_id,
+        space_hash="space-v1",
+        objective_names=["score"],
+        bounds={"x": [0.0, 1.0]},
+        split="selection",
+        units={"score": "points"},
+        origin="simulator-v1",
+        tenant_id="tenant-a",
+        objective_directions={"score": OptimizationDirection.MINIMIZE.value},
+        embedding=embedding,
     )
 
 
@@ -238,6 +257,7 @@ class TestTransferLearningManagerWarmStart:
             units={"score": "points"},
             origin="simulator-v1",
             tenant_id="tenant-a",
+            objective_directions={"score": OptimizationDirection.MINIMIZE.value},
             embedding=[0.1],
         )
         store = _MemoryArtifactStore()
@@ -263,6 +283,100 @@ class TestTransferLearningManagerWarmStart:
         assert evaluation.objectives[0].name == "score"
         assert evaluation.objectives[0].raw_value == 0.8
         assert evaluation.objectives[0].direction is OptimizationDirection.MINIMIZE
+
+    def test_indexed_history_positive_reconciles_full_header_before_warm_start(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        writer = TransferLearningManager(store, index)
+        source = _complete_fingerprint("source-run", embedding=[0.1])
+        candidate_id = _artifact_id("7")
+        history_ref = writer.register_run(source, [_make_eval(candidate_id, 0.8, "source-run")])
+        assert history_ref is not None
+
+        target = source.model_copy(update={"run_id": "target-run"})
+        warm_start = WarmStartBridge(TransferLearningManager(store, index)).load_warm_start(target)
+
+        assert len(warm_start) == 1
+        assert warm_start[0].candidate_id == candidate_id
+        assert warm_start[0].metadata["source_run_id"] == "source-run"
+
+    @pytest.mark.parametrize(
+        ("field", "replacement"),
+        [
+            ("run_id", "other-run"),
+            ("space_hash", "other-space"),
+            ("objective_names", ["score", "other-score"]),
+            ("bounds", {"x": [-1.0, 1.0]}),
+            ("split", "holdout"),
+            ("units", {"score": "percent"}),
+            ("origin", "other-simulator"),
+            ("tenant_id", "other-tenant"),
+            ("objective_directions", {"score": OptimizationDirection.MAXIMIZE.value}),
+        ],
+    )
+    def test_indexed_history_payload_header_must_match_selected_index(
+        self, tmp_path, field, replacement
+    ):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        writer = TransferLearningManager(store, index)
+        source = _complete_fingerprint("source-run", embedding=[0.1])
+        history_ref = writer.register_run(
+            source, [_make_eval(_artifact_id("8"), 0.8, "source-run")]
+        )
+        assert history_ref is not None
+
+        mutated = from_canonical_bytes(store.get_bytes(history_ref))
+        mutated[field] = replacement
+        replacement_ref = store.put_json(
+            mutated,
+            PutOptions(kind="search.transfer.history", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        assert replacement_ref.artifact_id != history_ref.artifact_id
+        # Keep index claims stable while selecting a separately content-addressed payload.
+        index._records["source-run"]["artifact_id"] = replacement_ref.artifact_id
+
+        reader = TransferLearningManager(store, index)
+        target = source.model_copy(update={"run_id": "target-run"})
+        selected = reader.find_similar_runs(target)
+        assert len(selected) == 1
+        with pytest.raises(ValueError, match=field):
+            reader.get_warm_start_evaluations(selected, max_evals=1, target_fingerprint=target)
+
+    def test_malformed_present_header_field_is_not_defaulted(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        writer = TransferLearningManager(store, index)
+        source = _complete_fingerprint("source-run", embedding=[0.1])
+        history_ref = writer.register_run(
+            source, [_make_eval(_artifact_id("9"), 0.8, "source-run")]
+        )
+        assert history_ref is not None
+
+        malformed = from_canonical_bytes(store.get_bytes(history_ref))
+        malformed["tenant_id"] = ["tenant-a"]
+        replacement_ref = store.put_json(
+            malformed,
+            PutOptions(kind="search.transfer.history", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        index._records["source-run"]["artifact_id"] = replacement_ref.artifact_id
+
+        target = source.model_copy(update={"run_id": "target-run"})
+        reader = TransferLearningManager(store, index)
+        with pytest.raises(ValueError, match="tenant_id"):
+            reader.get_warm_start_evaluations(
+                reader.find_similar_runs(target), max_evals=1, target_fingerprint=target
+            )
+
+    def test_incomplete_explicit_fingerprint_cannot_be_indexed_for_transfer(self):
+        writer = TransferLearningManager(_MemoryArtifactStore(), _MemoryVectorIndex())
+        incomplete = RunFingerprint(
+            run_id="source-run", space_hash="space-v1", objective_names=["score"], embedding=[0.1]
+        )
+        with pytest.raises(ValueError, match="complete run fingerprint"):
+            writer.register_run(incomplete, [_make_eval(_artifact_id("6"), 0.8, "source-run")])
 
     def test_selects_lowest_normalized_score_first(self):
         lower_id = _artifact_id("l")
@@ -342,6 +456,7 @@ class TestTransferLearningManagerWarmStart:
             units={"score": "points"},
             origin="simulator-v1",
             tenant_id="tenant-a",
+            objective_directions={"score": OptimizationDirection.MINIMIZE.value},
             embedding=[0.1],
         )
 

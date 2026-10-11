@@ -27,15 +27,30 @@ from polisyos.lex import (
     LexPolicyBundleInput,
     LexProvisionDirective,
 )
+from polisyos.scientist.agent.vector_memory import VectorMemoryStore
+from polisyos.scientist.methods.autotune.models import BayesianSourceProfile
 from polisyos.scientist.methods.search.contracts import (
     ParetoBasisScope,
     ParetoViewAssessment,
     ParetoViewProjection,
 )
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveValue,
+)
+from polisyos.scientist.methods.search.objective import (
+    OptimizationDirection as SearchOptimizationDirection,
+)
+from polisyos.scientist.methods.search.strategies.codec import _get_path
+from polisyos.scientist.methods.search.strategies.transfer import (
+    RunFingerprint,
+    TransferLearningManager,
+)
+from polisyos.scientist.methods.search.strategies.types import Evaluation
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
+    _candidate_payload_without_hash,
     _evaluate_candidate_payload,
     _persist_frontier_report,
 )
@@ -43,11 +58,18 @@ from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
 from polisyos.scientist.policy_design.output import (
     PolicyFrontierReport,
     load_policy_frontier_report,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.policy_design.search import (
+    HierarchicalSearchConfig,
+    HierarchicalSearchCoordinator,
+    PolicyParameterCodec,
+    _diagnostic_policy_score,
+)
 from polisyos.scientist.policy_design.search import (
     PolicySearchLevel as ScientistPolicySearchLevel,
 )
@@ -256,10 +278,7 @@ def test_run_hierarchical_policy_search_uses_branch_state_for_final_outputs(
     minimal_state,
     artifact_ref_factory,
 ) -> None:
-    candidate = MagicMock()
-    candidate.candidate_id = "champion"
-    candidate.candidate_hash.return_value = "hash:champion"
-    candidate.trinity_bundle = {"bundle": "payload"}
+    candidate = PolicyCandidateSchema.from_trinity_bundle(_bundle(), candidate_id="champion")
     search_result = SimpleNamespace(model_dump=lambda mode="json": {"status": "ok"})
     calls: list[tuple[str, ...]] = []
 
@@ -568,3 +587,290 @@ def test_hierarchical_stage_b_absent_or_mismatched_eval_safety_refuses_without_e
         "polisyos.eval_safety.execution_context_missing@1.0.0"
     ]
     assert evaluation_work.call_count == 0
+
+
+def test_registered_search_rechecks_indexed_transfer_as_policy_candidate(
+    execution_context,
+    minimal_state,
+) -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="candidate_transfer_target"
+    ).model_copy(update={"parameter_schedule": []})
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(
+            max_structure_candidates=1,
+            max_parameter_iterations=1,
+            enable_hybrid_seeds=False,
+        )
+    )
+    spec = coordinator.build_parameter_search_spec(candidate)
+    assert len(spec.parameter_paths) == 1
+    parameter_name = next(iter(spec.parameter_paths))
+    bound = spec.search_space.bounds[0]
+    source_value = (bound.lower + bound.upper) / 2.0
+    source_params = {parameter_name: source_value}
+    profile = BayesianSourceProfile(
+        profile_kind="injected_optimizer",
+        optimizer_fqn="tests.controlled_v5_source",
+        optimizer_config_fingerprint="controlled-config",
+        proposal_source="injected_optimizer",
+        search_space_fingerprint=spec.search_space.sobol_space_fingerprint(),
+        warm_start_eligible=False,
+    )
+    source_evaluation = Evaluation(
+        candidate_id="source_candidate",
+        params=source_params,
+        params_normalized=spec.search_space.normalize(source_params),
+        objectives=[
+            ObjectiveValue(
+                name="source_score",
+                raw_value=123456.0,
+                direction=SearchOptimizationDirection.MAXIMIZE,
+            )
+        ],
+        scalar_score=-987654.0,
+        stage_a_passed=True,
+        metadata={"warm_start_compatibility": profile.model_dump(mode="json")},
+    )
+    tenant_id = "controlled-tenant"
+    execution_context.run.tenant_id = tenant_id
+    source_fingerprint = RunFingerprint(
+        run_id="v5_source_run",
+        space_hash=profile.search_space_fingerprint,
+        objective_names=["source_score"],
+        bounds={parameter_name: {"lower": bound.lower, "upper": bound.upper}},
+        split="selection",
+        units={parameter_name: "dimensionless"},
+        origin="controlled-v5-candidate-source",
+        tenant_id=tenant_id,
+        objective_directions={"source_score": "maximize"},
+        embedding=[1.0, 0.0],
+        num_evaluations=1,
+    )
+    vector_index = VectorMemoryStore(dim=2)
+    transfer_manager = TransferLearningManager(execution_context.store, vector_index)
+    source_history_ref = transfer_manager.register_run(
+        source_fingerprint,
+        [source_evaluation],
+    )
+    assert source_history_ref is not None
+    index_ref = vector_index.save_to_artifact(execution_context.store)
+    loop_id = f"{minimal_state.run_id}:policy_search"
+    query_fingerprint = source_fingerprint.model_copy(update={"run_id": loop_id})
+    minimal_state.params["policy_candidate_schema"] = candidate
+    minimal_state.params["hierarchical_policy_search_config"] = {
+        "max_structure_candidates": 1,
+        "max_parameter_iterations": 1,
+        "enable_hybrid_seeds": False,
+    }
+    minimal_state.params["policy_search_candidate_transfer"] = {
+        "index_ref": index_ref.model_dump(mode="json"),
+        "query_fingerprint": query_fingerprint.model_dump(mode="json"),
+        "max_source_runs": 1,
+        "max_candidates": 5,
+    }
+
+    real_run_search = HierarchicalPolicySearchAdapter.run_search
+    captured_results = []
+
+    def _capture_search(adapter, *args, **kwargs):
+        result = real_run_search(adapter, *args, **kwargs)
+        captured_results.append(result)
+        return result
+
+    def _controlled_policy_stage_b(
+        _ctx,
+        _state,
+        *,
+        candidate_payload,
+        context,
+    ):
+        transfer_record = context.get("candidate_only_transfer")
+        if transfer_record is not None:
+            assert transfer_record["generic_source_objectives_used"] is False
+            assert transfer_record["generic_source_scalar_used_as_policy_objective"] is False
+        current_candidate = PolicyCandidateSchema.model_validate(
+            _candidate_payload_without_hash(candidate_payload)
+        )
+        evaluation = ObjectiveStack().evaluate(PolicyEvaluationBundle(candidate=current_candidate))
+        evaluation = evaluation.model_copy(
+            update={
+                "candidate_id": current_candidate.candidate_id,
+                "metadata": {
+                    **dict(evaluation.metadata),
+                    "candidate_hash": current_candidate.candidate_hash(),
+                },
+            }
+        )
+        return {
+            "status": "ok",
+            "feasible": evaluation.feasible,
+            "objective_value": 654321.0,
+            "policy_evaluation": evaluation.model_dump(mode="json"),
+        }
+
+    with (
+        patch.object(HierarchicalPolicySearchAdapter, "run_search", new=_capture_search),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+            "_evaluate_candidate_payload",
+            side_effect=_controlled_policy_stage_b,
+        ),
+    ):
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, minimal_state)
+
+    assert outcome.status == "ok"
+    assert len(captured_results) == 1
+    parameter_results = captured_results[0].state.parameter_search_results
+    assert len(parameter_results) == 1
+    history = next(iter(parameter_results.values())).history
+    transferred = next(item for item in history if item.iteration < 0)
+    transferred_amount = _get_path(
+        transferred.candidate,
+        spec.parameter_paths[parameter_name],
+    )
+    assert isinstance(transferred_amount, MoneyValue)
+    assert transferred_amount.amount == Decimal(str(source_value))
+    assert transferred_amount.currency == "UAH"
+    parameter_codec = PolicyParameterCodec(
+        parameter_paths=spec.parameter_paths,
+        template_values=spec.template_values,
+    )
+    assert set(parameter_codec.encode(transferred.candidate)) == set(spec.parameter_paths)
+    assert parameter_codec.encode(transferred.candidate) == source_params
+    assert transferred.policy_evaluation is not None
+    assert transferred.objective_value == _diagnostic_policy_score(transferred.policy_evaluation)
+    assert transferred.objective_value not in {source_evaluation.scalar_score, 654321.0}
+    provenance = transferred.policy_evaluation.metadata["candidate_only_transfer"]
+    reconstructed_candidate = PolicyCandidateSchema.model_validate(
+        _candidate_payload_without_hash(transferred.candidate)
+    )
+    assert transferred.candidate["candidate_hash"] == provenance["candidate_hash"]
+    assert reconstructed_candidate.candidate_hash() == provenance["candidate_hash"]
+    assert provenance["source_history_ref"]["artifact_id"] == str(source_history_ref.artifact_id)
+    assert provenance["source_profile_kind"] == "injected_optimizer"
+    assert provenance["source_warm_start_eligible"] is False
+    assert provenance["generic_source_objectives_used"] is False
+    assert provenance["generic_source_scalar_used_as_policy_objective"] is False
+
+    def _marker_only_stage_b(_ctx, _state, *, candidate_payload, context):
+        transfer_record = context.get("candidate_only_transfer")
+        if transfer_record is not None:
+            assert transfer_record["source_profile_kind"] == "injected_optimizer"
+        assert candidate_payload["candidate_hash"]
+        return {"status": "ok", "objective_value": 654321.0}
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+        "_evaluate_candidate_payload",
+        side_effect=_marker_only_stage_b,
+    ):
+        removed_property = RunHierarchicalPolicySearchNode().execute(
+            execution_context,
+            minimal_state,
+        )
+
+    assert removed_property.status == "fail"
+    assert "no source candidate passed" in (
+        removed_property.error.message if removed_property.error else ""
+    )
+
+
+def _candidate_transfer_intent_payload(*, index_kind: str) -> dict[str, object]:
+    return {
+        "index_ref": {
+            "artifact_id": "sha256:" + "0" * 64,
+            "kind": index_kind,
+            "media_type": "application/json",
+        },
+        "query_fingerprint": {
+            "run_id": "source-run",
+            "space_hash": "candidate-space",
+            "objective_names": ["score"],
+            "embedding": [1.0],
+            "tenant_id": "controlled-tenant",
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param(None, id="explicit-null"),
+        pytest.param(False, id="explicit-false"),
+        pytest.param([], id="list"),
+        pytest.param("invalid", id="string"),
+        pytest.param({}, id="empty-mapping"),
+        pytest.param({"unknown": "field"}, id="unknown-field"),
+        pytest.param(
+            _candidate_transfer_intent_payload(index_kind="wrong.bundle"),
+            id="wrong-index-ref-kind",
+        ),
+        pytest.param(
+            {
+                **_candidate_transfer_intent_payload(index_kind="vector_memory.bundle"),
+                "unknown": "field",
+            },
+            id="valid-shaped-request-with-unknown-field",
+        ),
+    ],
+)
+def test_explicit_malformed_candidate_transfer_fails_before_missing_candidate_skip(
+    execution_context,
+    minimal_state,
+    payload,
+) -> None:
+    state = minimal_state.model_copy(deep=True)
+    state.params["policy_search_candidate_transfer"] = payload
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+        "_resolve_search_candidate",
+        return_value=None,
+    ) as resolve_candidate:
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "Invalid policy_search_candidate_transfer intent" in outcome.error.message
+    resolve_candidate.assert_not_called()
+
+
+def test_valid_candidate_transfer_without_policy_input_fails_instead_of_skipping(
+    execution_context,
+    minimal_state,
+) -> None:
+    state = minimal_state.model_copy(deep=True)
+    state.params["policy_search_candidate_transfer"] = _candidate_transfer_intent_payload(
+        index_kind="vector_memory.bundle"
+    )
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+        "_resolve_search_candidate",
+        return_value=None,
+    ) as resolve_candidate:
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "requires a policy candidate or Lex bundle input" in outcome.error.message
+    resolve_candidate.assert_called_once()
+
+
+def test_absent_candidate_transfer_intent_preserves_missing_candidate_skip(
+    execution_context,
+    minimal_state,
+) -> None:
+    state = minimal_state.model_copy(deep=True)
+    state.params.pop("policy_search_candidate_transfer", None)
+
+    with patch(
+        "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search."
+        "_resolve_search_candidate",
+        return_value=None,
+    ) as resolve_candidate:
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+
+    assert outcome.status == "skip"
+    resolve_candidate.assert_called_once()

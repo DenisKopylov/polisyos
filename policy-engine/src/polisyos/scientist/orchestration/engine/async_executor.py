@@ -262,7 +262,6 @@ class AsyncWorkflowExecutor:
                 publication_budget=checkpoint_budget,
                 operation="skg_snapshot_input",
             )
-            self._ctx.run.add_input(state.inputs[SNAPSHOT_INPUT_KEY])
 
         _validate_required_binds(workflow.required_binds, state)
 

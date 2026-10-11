@@ -57,26 +57,47 @@ __all__ = [
 def store_method_artifact(
     cas: FileSystemCAS,
     artifact: MethodArtifact,
+    *,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    """Persist one `MethodArtifact` describing code identity and specialization."""
+    """Persist one method artifact, optionally returning the profile from that write.
+
+    Args:
+        cas: CAS receiving the immutable artifact.
+        artifact: Method identity and specialization to persist.
+        return_selected_profile: Return the exact selected manifest profile emitted by this write.
+
+    Returns:
+        The content-addressed reference, including the selected profile when requested.
+
+    Raises:
+        TypeError: If the selected-profile option is not a boolean.
+        ValueError: If the CAS does not return a profile for an opted-in write.
+    """
     from polisyos.core.artifacts.store import PutOptions
 
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+
     content = artifact.to_canonical_bytes()
-    return cas.put_bytes(
-        content,
-        PutOptions(
-            kind="foundry.method_artifact",
-            media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.foundry.method_artifact",
-                version=MethodArtifact.SCHEMA_VERSION,
-            ),
-            producer=ProducerInfo(
-                component="foundry.artifacts",
-                version=__version__,
-            ),
+    options = PutOptions(
+        kind="foundry.method_artifact",
+        media_type="application/json",
+        schema=SchemaInfo(
+            name="polisyos.foundry.method_artifact",
+            version=MethodArtifact.SCHEMA_VERSION,
+        ),
+        producer=ProducerInfo(
+            component="foundry.artifacts",
+            version=__version__,
         ),
     )
+    if return_selected_profile:
+        ref = cas.put_bytes(content, options, return_selected_profile=True)
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("artifact_write_selected_profile_missing")
+        return ref
+    return cas.put_bytes(content, options)
 
 
 def store_chain_artifact(

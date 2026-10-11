@@ -2312,13 +2312,9 @@ class RunGenericCycleSimulationChildProfileBinding(BaseModel):
             or not self.source_atom_refs
             or len(self.source_atom_refs) != len(set(self.source_atom_refs))
             or tuple(self.source_atom_refs) != tuple(sorted(self.source_atom_refs))
+            or (self.historical_binding_status == "resolved" and self.limitation_code is not None)
             or (
-                self.historical_binding_status == "resolved"
-                and self.limitation_code is not None
-            )
-            or (
-                self.historical_binding_status == "not_established"
-                and self.limitation_code is None
+                self.historical_binding_status == "not_established" and self.limitation_code is None
             )
         ):
             raise ValueError("run_generic_child_profile_binding_invalid")
@@ -2371,8 +2367,7 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
             (self.n5_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
         )
         if any(
-            ref.kind != kind or ref.media_type != "application/json"
-            for ref, kind in typed_refs
+            ref.kind != kind or ref.media_type != "application/json" for ref, kind in typed_refs
         ):
             raise ValueError("run_generic_n5_ref_kind_invalid")
         for ref, kind in (
@@ -2392,22 +2387,17 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
             self.simulation_result_ref is None or self.n5_execution_ref is None
         ):
             raise ValueError("run_generic_n5_success_result_missing")
-        if (
-            self.n5_request_binding_status == "resolved"
-        ) != (self.n5_request_content_hash is not None):
-            raise ValueError("run_generic_n5_request_binding_shape_invalid")
-        if self.n8_lineage_status == "resolved" and (
-            self.n5_request_binding_status != "resolved"
+        if (self.n5_request_binding_status == "resolved") != (
+            self.n5_request_content_hash is not None
         ):
+            raise ValueError("run_generic_n5_request_binding_shape_invalid")
+        if self.n8_lineage_status == "resolved" and (self.n5_request_binding_status != "resolved"):
             raise ValueError("run_generic_n8_request_binding_not_established")
         if self.n8_status == "value_conditional":
-            if (
-                self.n8_lineage_status == "resolved"
-                and (
-                    self.simulation_result_ref is None
-                    or self.n8_value_ref != str(self.simulation_result_ref.artifact_id)
-                    or self.n8_limitation_code is not None
-                )
+            if self.n8_lineage_status == "resolved" and (
+                self.simulation_result_ref is None
+                or self.n8_value_ref != str(self.simulation_result_ref.artifact_id)
+                or self.n8_limitation_code is not None
             ):
                 raise ValueError("run_generic_n8_conditional_binding_invalid")
             if self.n8_lineage_status == "not_established" and (
@@ -2447,10 +2437,13 @@ class RunGenericCycleSimulationProjection(BaseModel):
     child_profile_set_ref: ArtifactRef | None = None
     credal_source_attempt_ref: ArtifactRef | None = None
     credal_source_status: Literal["not_established"] | None = None
-    credal_source_limitation_code: Literal[
-        "candidate_source_authority_not_established",
-        "candidate_source_attempt_replay_not_established",
-    ] | None = None
+    credal_source_limitation_code: (
+        Literal[
+            "candidate_source_authority_not_established",
+            "candidate_source_attempt_replay_not_established",
+        ]
+        | None
+    ) = None
     child_profile_status: Literal["not_attempted", "resolved", "not_established"]
     child_profile_limitation_code: str | None = Field(default=None, min_length=1)
     child_profile_bindings: tuple[RunGenericCycleSimulationChildProfileBinding, ...] = ()
@@ -2468,8 +2461,7 @@ class RunGenericCycleSimulationProjection(BaseModel):
         )
         if has_credal_attempt_projection:
             if (
-                self.schema_version
-                != "policyos.runtime.run_generic_cycle_simulation_projection.v2"
+                self.schema_version != "policyos.runtime.run_generic_cycle_simulation_projection.v2"
                 or self.credal_source_status != "not_established"
                 or self.credal_source_limitation_code is None
                 or self.child_profile_status != "not_established"
@@ -2522,7 +2514,6 @@ class RunGenericCycleSimulationProjection(BaseModel):
         ):
             raise ValueError("run_generic_projection_refusal_shape_invalid")
         return self
-
 
 
 class RunDetails(RunRecordV1):
@@ -3063,6 +3054,14 @@ class RunEvidenceContextView(BaseModel):
     fabric_retrieval_trace_ref: ArtifactRef | None = None
     data_snapshot_ref: ArtifactRef | None = None
     data_view_request_ref: ArtifactRef | None = None
+    data_view_request_profile_status: Literal[
+        "caller_selected_profile", "worker_default_limited", "not_requested", "not_established"
+    ] = Field(
+        default="not_established",
+        description=(
+            "Profile-selection provenance only; does not establish source authority or currentness."
+        ),
+    )
     input_bindings_ref: ArtifactRef | None = None
     materialization_refs: dict[str, ArtifactRef] = Field(default_factory=dict)
     production_data_evidence_context: dict[str, Any] = Field(default_factory=dict)

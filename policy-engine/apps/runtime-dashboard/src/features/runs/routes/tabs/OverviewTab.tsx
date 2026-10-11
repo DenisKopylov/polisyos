@@ -9,6 +9,7 @@ import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
+import { normalizeGenericCycleSimulation } from "@/features/runs/domain/genericCycleSimulation";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScenarioWorkbench } from "@/features/whatif";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -716,12 +717,251 @@ function CandidateSimulationPanel({ run }: { run: unknown }) {
   );
 }
 
+function GenericCycleSimulationPanel({
+  presentation,
+}: {
+  presentation: ReturnType<typeof normalizeGenericCycleSimulation>;
+}) {
+  const { t } = useI18n();
+  if (presentation.kind === "absent") {
+    return null;
+  }
+  if (presentation.kind === "refused") {
+    return (
+      <Card
+        className="space-y-3"
+        data-testid="overview-generic-cycle-simulation"
+      >
+        <h4>{t("pages.runs.genericCycleSimulation.title")}</h4>
+        <p>{t("pages.runs.genericCycleSimulation.authority")}</p>
+        <p role="alert" data-testid="overview-generic-cycle-simulation-refused">
+          {t("pages.runs.genericCycleSimulation.refused", {
+            reason: presentation.reason,
+          })}
+        </p>
+      </Card>
+    );
+  }
+
+  const { projection } = presentation;
+  const observations =
+    projection.artifact_status === "resolved" ? projection.n5_observations : [];
+  const profileBindings =
+    projection.artifact_status === "resolved"
+      ? projection.child_profile_bindings
+      : [];
+  const checkpoint =
+    projection.artifact_status === "resolved"
+      ? projection.recursive_cycle_checkpoint
+      : null;
+
+  return (
+    <Card className="space-y-4" data-testid="overview-generic-cycle-simulation">
+      <h4>{t("pages.runs.genericCycleSimulation.title")}</h4>
+      <p className="text-muted text-sm">
+        {t("pages.runs.genericCycleSimulation.authority")}
+      </p>
+      <div
+        className="space-y-1"
+        data-testid="overview-generic-cycle-simulation-status"
+      >
+        <p>
+          {t("pages.runs.genericCycleSimulation.artifactStatus", {
+            status: projection.artifact_status,
+          })}
+        </p>
+        <p>
+          {t("pages.runs.genericCycleSimulation.childProfileStatus", {
+            status: projection.child_profile_status,
+          })}
+        </p>
+        <p>
+          {t("pages.runs.genericCycleSimulation.currentnessStatus", {
+            status: projection.currentness_status,
+          })}
+        </p>
+        {projection.n4_source_status ? (
+          <p>
+            {t("pages.runs.genericCycleSimulation.n4SourceStatus", {
+              status: projection.n4_source_status,
+            })}
+          </p>
+        ) : null}
+      </div>
+      {projection.artifact_status !== "resolved" ? (
+        <p data-testid="overview-generic-cycle-simulation-unavailable">
+          {t("pages.runs.genericCycleSimulation.unavailable", {
+            reason:
+              projection.limitation_code ??
+              projection.n4_source_limitation_code ??
+              projection.n5_limitation_code ??
+              "not_established",
+          })}
+        </p>
+      ) : null}
+      {projection.limitation_code ? (
+        <p data-testid="overview-generic-cycle-simulation-limitation">
+          {projection.limitation_code}
+        </p>
+      ) : null}
+      {projection.child_profile_limitation_code ? (
+        <p data-testid="overview-generic-cycle-simulation-profile-limitation">
+          {projection.child_profile_limitation_code}
+        </p>
+      ) : null}
+      {projection.n4_source_limitation_code ? (
+        <p data-testid="overview-generic-cycle-simulation-n4-limitation">
+          {projection.n4_source_limitation_code}
+        </p>
+      ) : null}
+      {projection.n5_limitation_code ? (
+        <p data-testid="overview-generic-cycle-simulation-n5-limitation">
+          {projection.n5_limitation_code}
+        </p>
+      ) : null}
+
+      {projection.artifact_status === "resolved" ? (
+        <section
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-generic-cycle-n5-observations"
+        >
+          <h5>{t("pages.runs.genericCycleSimulation.observationsTitle")}</h5>
+          {observations.length === 0 ? (
+            <p>{t("pages.runs.genericCycleSimulation.observationsEmpty")}</p>
+          ) : null}
+          <ul className="space-y-3">
+            {observations.map((observation) => (
+              <li
+                className="space-y-1 rounded border p-3"
+                key={`${observation.node_ref}:${observation.cycle_index}:${observation.candidate_id}`}
+                data-testid="overview-generic-cycle-n5-row"
+              >
+                <p>{observation.candidate_id}</p>
+                <p>{observation.node_ref}</p>
+                <p>{observation.status}</p>
+                <p>{observation.n5_request_binding_status}</p>
+                {observation.n5_request_content_hash ? (
+                  <p>{observation.n5_request_content_hash}</p>
+                ) : null}
+                <p>{observation.n8_status}</p>
+                <p>{observation.n8_lineage_status}</p>
+                <p>
+                  {t("pages.runs.genericCycleSimulation.currentnessStatus", {
+                    status: observation.currentness_status,
+                  })}
+                </p>
+                <p>{observation.profile_selection_ref}</p>
+                {observation.n8_limitation_code ? (
+                  <p>{observation.n8_limitation_code}</p>
+                ) : null}
+                {observation.authority_blockers.map((blocker) => (
+                  <p key={blocker}>{blocker}</p>
+                ))}
+                {observation.n8_authority_blockers.map((blocker) => (
+                  <p key={blocker}>{blocker}</p>
+                ))}
+                {observation.simulation_result_ref ? (
+                  <p data-testid="overview-generic-cycle-simulation-result-ref">
+                    {observation.simulation_result_ref.artifact_id}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {profileBindings.length > 0 ? (
+        <section
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-generic-cycle-profile-bindings"
+        >
+          <h5>{t("pages.runs.genericCycleSimulation.profileBindingsTitle")}</h5>
+          <ul className="space-y-3">
+            {profileBindings.map((binding) => (
+              <li
+                className="space-y-1 rounded border p-3"
+                key={`${binding.node_ref}:${binding.profile_id}`}
+                data-testid="overview-generic-cycle-profile-binding"
+              >
+                <p>{binding.node_ref}</p>
+                <p>{binding.profile_id}</p>
+                <p>{binding.historical_binding_status}</p>
+                <p>
+                  {t("pages.runs.genericCycleSimulation.currentnessStatus", {
+                    status: binding.currentness_status,
+                  })}
+                </p>
+                <p>{binding.profile_selection_ref}</p>
+                <p>{binding.profile_ref.artifact_id}</p>
+                <p>{binding.context_job_ref.artifact_id}</p>
+                <p>{binding.source_result_ref}</p>
+                {binding.limitation_code ? (
+                  <p>{binding.limitation_code}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {checkpoint ? (
+        <section
+          className="space-y-2 border-t pt-3"
+          data-testid="overview-generic-cycle-checkpoint"
+        >
+          <h5>{t("pages.runs.candidateSimulation.checkpointTitle")}</h5>
+          <p>{checkpoint.status}</p>
+          <p>
+            {t("pages.runs.candidateSimulation.rootN9", {
+              status: checkpoint.root_n9_status,
+            })}
+          </p>
+          <p>
+            {t("pages.runs.candidateSimulation.frontier", {
+              refs: checkpoint.pending_frontier.join(", ") || "—",
+            })}
+          </p>
+          <p>
+            {t("pages.runs.candidateSimulation.completed", {
+              refs: checkpoint.completed_design_refs.join(", ") || "—",
+            })}
+          </p>
+          {checkpoint.failed_branches.length > 0 ? (
+            <ul
+              className="space-y-2"
+              data-testid="overview-generic-cycle-failed-branches"
+            >
+              {checkpoint.failed_branches.map((failure) => (
+                <li
+                  className="rounded border p-3"
+                  key={`${failure.failed_branch_ref}:${failure.stage}:${failure.exception_type}`}
+                >
+                  <p>{failure.failed_branch_ref}</p>
+                  <p>{failure.stage}</p>
+                  <p>{failure.exception_type}</p>
+                  {failure.error_code ? <p>{failure.error_code}</p> : null}
+                  <p>{failure.error_message}</p>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
+    </Card>
+  );
+}
+
 export default function OverviewTab() {
   const { t } = useI18n();
   const whatIfEnabled = useFeatureFlag("enableWhatIfAnalysis");
   const canReviewCycleBoard = usePermission("runs.review");
   const { runId } = useParams();
   const summary = useRunInspector();
+  const genericCycleSimulation = normalizeGenericCycleSimulation(
+    summary.run?.run_id ?? runId ?? "unknown-run",
+    summary.run?.generic_cycle_simulation,
+  );
 
   if (!summary.run || !runId) {
     return null;
@@ -730,6 +970,7 @@ export default function OverviewTab() {
   return (
     <div className="space-y-5" data-testid="run-tab-overview">
       <CandidateSimulationPanel run={summary.run} />
+      <GenericCycleSimulationPanel presentation={genericCycleSimulation} />
       <div className="grid gap-5 xl:grid-cols-2">
         <Card className="space-y-4">
           <div className="panel-header">

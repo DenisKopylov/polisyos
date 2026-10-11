@@ -391,10 +391,15 @@
       "dataSource": {
         "snapshot": "Data snapshot ref",
         "bindings": "Input bindings ref",
-        "view": "Data view request ref"
+        "view": "Data view request ref",
+        "profileSha256": "Manifest profile SHA-256 (optional)",
+        "profileSelectorLegacy": "Leave blank to retain the legacy string selector.",
+        "profileSelectorInvalid": "Use sha256: followed by 64 lowercase hexadecimal characters.",
+        "profileSelectorRequiresView": "A manifest profile selector requires a data view request."
       },
       "placeholders": {
         "sha256": "sha256:...",
+        "manifestProfile": "sha256:<64 lowercase hex>",
         "trinity": "sha256:trinity",
         "policySpec": "sha256:policy-spec",
         "modelSpec": "sha256:model-spec",
@@ -708,6 +713,19 @@
         "source": "Source"
       },
       "overview": "Overview",
+      "genericCycleSimulation": {
+        "title": "Generic cycle simulation",
+        "authority": "Persisted candidate lineage only. Currentness and publication authority are not established.",
+        "artifactStatus": "Artifact status: {status}",
+        "childProfileStatus": "Child-profile status: {status}",
+        "currentnessStatus": "Currentness: {status}",
+        "n4SourceStatus": "N4 source status: {status}",
+        "observationsTitle": "N5 observations",
+        "observationsEmpty": "No persisted N5 observations are present in this record.",
+        "profileBindingsTitle": "Historical child-profile bindings",
+        "unavailable": "Generic cycle observations are withheld: {reason}.",
+        "refused": "Generic cycle projection withheld: {reason}"
+      },
       "candidateSimulation": {
         "title": "Conditional simulation",
         "authority": "Candidate scenario evidence. Publication authority is not established.",
@@ -1345,6 +1363,16 @@
       "connectorsLoadError": "Unable to load connectors",
       "checkedAt": "checked {date}",
       "contextRefs": "Context refs",
+      "profileSelection": {
+        "title": "Data view request profile selection",
+        "provenanceOnly": "Profile-selection provenance only; it does not establish authority or currentness.",
+        "status": {
+          "callerSelected": "Caller-selected profile",
+          "workerDefaultLimited": "Worker default (limited)",
+          "notRequested": "No data view request was made",
+          "notEstablished": "Profile selection not established"
+        }
+      },
       "promotionLane": "Promotion lane",
       "selectedArtifact": "Selected artifact",
       "promotionReviewTitle": "Promotion review and collaboration lane",

@@ -19,6 +19,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     CalibrationBundleManifest,
     RuntimeBundleManifest,
     ValidationFinding,
+    _make_validation_finding,
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
@@ -105,9 +106,7 @@ _SURVEY_MICRODATA_CONTRACT_ID = "foundry.microsim.survey_micro_data.v1"
 _SURVIVAL_CONTRACT_ID = "foundry.ml.survival_data.v1"
 _NETWORK_CONTRACT_ID = "foundry.network.data.v1"
 _MULTIPLEX_NETWORK_CONTRACT_ID = "foundry.network.multiplex_data.v1"
-_IDENTITY_RESOLUTION_COHORT_SCHEMA = (
-    "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
-)
+_IDENTITY_RESOLUTION_COHORT_SCHEMA = "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
 
 
 def _identity_resolution_cohort_rows(
@@ -725,7 +724,7 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
     findings: list[ValidationFinding] = []
     if spending_coverage is None:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="spending_coverage_not_evaluable",
                 message="runtime spending coverage could not be evaluated because no participant identifiers were present",
@@ -733,7 +732,7 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         )
     elif spending_coverage < config.stages[StageId.D0_P0.value].coverage_threshold:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="spending_coverage_below_threshold",
                 message=f"runtime spending coverage {spending_coverage:.3f} < threshold",
@@ -745,7 +744,7 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         )
     elif procurement_coverage < config.stages[StageId.D0_P0.value].coverage_threshold:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="procurement_coverage_below_threshold",
                 message=f"runtime procurement coverage {procurement_coverage:.3f} < threshold",
@@ -2085,7 +2084,7 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
         )
     if missing_families:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="missing_observation_families",
                 message=f"missing observation families: {', '.join(missing_families)}",

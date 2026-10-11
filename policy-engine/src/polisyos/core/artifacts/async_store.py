@@ -8,7 +8,12 @@ from typing import TYPE_CHECKING, TypeGuard, cast
 
 from polisyos.common.async_tools import run_blocking_async
 
-from .protocol import ArtifactStore, AsyncArtifactStore
+from .protocol import (
+    ArtifactStore,
+    AsyncArtifactStore,
+    _require_return_selected_profile_writer,
+    _validate_return_selected_profile,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.canon.canon_json import CanonSpec
@@ -73,11 +78,17 @@ class AsyncArtifactStoreAdapter:
         self,
         data: bytes,
         opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self.store, "put_bytes")
         return await run_blocking_async(
             self.store.put_bytes,
             data,
             opts,
+            **({"return_selected_profile": True} if return_selected_profile else {}),
             timeout_seconds=self.timeout_seconds,
             unbounded=self.unbounded,
         )
@@ -87,12 +98,18 @@ class AsyncArtifactStoreAdapter:
         obj: object,
         opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self.store, "put_json")
         return await run_blocking_async(
             self.store.put_json,
             obj,
             opts,
             canon_spec=canon_spec,
+            **({"return_selected_profile": True} if return_selected_profile else {}),
             timeout_seconds=self.timeout_seconds,
             unbounded=self.unbounded,
         )
@@ -167,11 +184,17 @@ class AsyncFileSystemArtifactStore:
         self,
         data: bytes,
         opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self.store, "put_bytes")
         return await run_blocking_async(
             self.store.put_bytes,
             data,
             opts,
+            **({"return_selected_profile": True} if return_selected_profile else {}),
             timeout_seconds=self.timeout_seconds,
             unbounded=self.unbounded,
         )
@@ -181,12 +204,18 @@ class AsyncFileSystemArtifactStore:
         obj: object,
         opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self.store, "put_json")
         return await run_blocking_async(
             self.store.put_json,
             obj,
             opts,
             canon_spec=canon_spec,
+            **({"return_selected_profile": True} if return_selected_profile else {}),
             timeout_seconds=self.timeout_seconds,
             unbounded=self.unbounded,
         )

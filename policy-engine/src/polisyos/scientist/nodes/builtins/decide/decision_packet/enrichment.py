@@ -9,7 +9,10 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
@@ -343,7 +346,7 @@ def _attach_claim_ledger_to_packet(
     claims_ref = claim_owner.persist_candidate_ledger(
         ledger=ledger,
         inputs=tuple(
-            InputRef(artifact_id=ref.artifact_id, role=f"claim_source[{index}]")
+            input_ref_from_artifact_ref(ref, role=f"claim_source[{index}]")
             for index, ref in enumerate(source_refs)
         ),
     )

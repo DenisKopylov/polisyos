@@ -245,6 +245,50 @@ describe("EvidenceFabricPage", () => {
     });
   });
 
+  it("renders the server-derived data-view profile-selection status", () => {
+    useRunEvidenceContextMock.mockReturnValueOnce({
+      data: {
+        context: {
+          dataNeeds: [],
+          dataViewRequestProfileStatus: "caller_selected_profile",
+          dataViewRequestRef: {
+            artifact_id: "sha256:request-profile",
+            kind: "ir.data_view_request",
+            media_type: "application/json",
+            manifest_profile_sha256: `sha256:${"d".repeat(64)}`,
+          },
+          executionPlanRef: null,
+          evidenceBundleRef: null,
+          fetchPlans: [],
+          inputBindingsRef: null,
+          promotionCandidates: [],
+          relatedArtifacts: [],
+          runId: "run-profile-origin",
+          warnings: [],
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderEvidencePage("/evidence?runId=run-profile-origin");
+
+    const profileStatus = screen.getByTestId(
+      "evidence-data-view-request-profile-status",
+    );
+    expect(profileStatus).toHaveAttribute(
+      "data-profile-status",
+      "caller_selected_profile",
+    );
+    expect(profileStatus).toHaveTextContent(
+      "pages.evidence.profileSelection.status.callerSelected",
+    );
+    expect(profileStatus).toHaveTextContent(
+      "pages.evidence.profileSelection.provenanceOnly",
+    );
+  });
+
   it("binds a palette-selected capability ref into the real discovery request", () => {
     renderEvidencePage(
       "/evidence?capability=capability%3Agenerated%3Aowner-row",

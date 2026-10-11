@@ -68,10 +68,11 @@ from polisyos.scientist.orchestration.engine.retry import (
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
-    bind_retained_skg_source,
+    bind_retained_skg_workflow_input,
     load_retained_skg_snapshot,
     prepare_retained_skg_read,
     retain_prepared_skg_read,
+    retained_skg_snapshot_directory,
 )
 from polisyos.scientist.orchestration.engine.state_branching import (
     _completed_producer_state,
@@ -495,31 +496,12 @@ def _bind_retained_workflow_input(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> ExperimentState:
-    """Select a verified saved source before persistence, branching and cache keys.
-
-    Ordinary execution retains live lookup semantics. A selected descriptor is
-    a distinct explicit replay input; errors never delegate to the live source.
-    """
-    if SNAPSHOT_INPUT_KEY not in state.inputs:
-        return state
-    ref = state.inputs[SNAPSHOT_INPUT_KEY]
-    if not isinstance(ref, ArtifactRef):
-        raise RetainedSKGSnapshotError("retained_skg_input_ref_required")
-    if not isinstance(ctx.store, FileSystemCAS):
-        raise RetainedSKGSnapshotError("retained_skg_local_cas_required")
-    return bind_retained_skg_source(
-        ctx.store,
-        ref,
-        state,
-        directory=_retained_snapshot_directory(ctx),
-    )
+    """Compatibility entrypoint for shared retained-source workflow intake."""
+    return bind_retained_skg_workflow_input(ctx, state)
 
 
 def _retained_snapshot_directory(ctx: ExecutionContext) -> Path:
-    trace_path = ctx.run.trace_path
-    if trace_path is None:
-        raise RetainedSKGSnapshotError("retained_skg_run_path_required")
-    return trace_path.parent / "skg-snapshots"
+    return retained_skg_snapshot_directory(ctx.run.trace_path)
 
 
 def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dict[str, str] | None:
@@ -1013,8 +995,6 @@ class WorkflowExecutor:
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
-        if replay_source_ref is not None:
-            self._ctx.run.add_input(replay_source_ref)
         self._cache = NodeResultCache(self._ctx.store, run_id=state.run_id)
         restored_entries = self._cache.seed_from_trace(self._ctx.run.trace_path)
         restored_from_checkpoint = self._cache.seed_from_entry_refs(

@@ -13,7 +13,11 @@ from .._manifest_lifecycle import ManifestLifecycle
 from ..ids import ArtifactID
 from ..manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
 from ..ownership import ArtifactOwnershipError
-from ..protocol import ArtifactStore
+from ..protocol import (
+    ArtifactStore,
+    _require_return_selected_profile_writer,
+    _validate_return_selected_profile,
+)
 from ..store import PutOptions, VerificationReport
 
 logger = get_logger(__name__)
@@ -377,10 +381,30 @@ class CachingArtifactStore:
 
         raise FileNotFoundError(f"Selected manifest profile not found for {aid}")
 
-    def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
-        ref = self._local.put_bytes(data, opts)
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self._local, "put_bytes")
+            if self._write_through:
+                _require_return_selected_profile_writer(self._remote, "put_bytes")
+            ref = self._local.put_bytes(data, opts, return_selected_profile=True)
+            _require_selected_profile_ref(ref)
+        else:
+            ref = self._local.put_bytes(data, opts)
         if self._write_through:
-            remote_ref = self._remote.put_bytes(data, opts)
+            remote_ref = (
+                self._remote.put_bytes(data, opts, return_selected_profile=True)
+                if return_selected_profile
+                else self._remote.put_bytes(data, opts)
+            )
+            if return_selected_profile:
+                _require_selected_profile_ref(remote_ref)
             if not self._same_manifest_view(ref, remote_ref):
                 raise ArtifactIntegrityError(
                     "Local and remote CAS owners returned different manifest views"
@@ -393,10 +417,26 @@ class CachingArtifactStore:
         obj: Any,
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        ref = self._local.put_json(obj, opts, canon_spec)
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            _require_return_selected_profile_writer(self._local, "put_json")
+            if self._write_through:
+                _require_return_selected_profile_writer(self._remote, "put_json")
+            ref = self._local.put_json(obj, opts, canon_spec, return_selected_profile=True)
+            _require_selected_profile_ref(ref)
+        else:
+            ref = self._local.put_json(obj, opts, canon_spec)
         if self._write_through:
-            remote_ref = self._remote.put_json(obj, opts, canon_spec)
+            remote_ref = (
+                self._remote.put_json(obj, opts, canon_spec, return_selected_profile=True)
+                if return_selected_profile
+                else self._remote.put_json(obj, opts, canon_spec)
+            )
+            if return_selected_profile:
+                _require_selected_profile_ref(remote_ref)
             if not self._same_manifest_view(ref, remote_ref):
                 raise ArtifactIntegrityError(
                     "Local and remote CAS owners returned different manifest views"
@@ -491,6 +531,12 @@ class CachingArtifactStore:
                 local_cache_dir=local_config.root,
             )
         return None
+
+
+def _require_selected_profile_ref(ref: ArtifactRef) -> None:
+    """Reject a writer that accepted the option but returned only a legacy selector."""
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise ArtifactIntegrityError("artifact_write_selected_profile_missing")
 
 
 def _is_selector_free_default(ref: ArtifactRef | None) -> bool:

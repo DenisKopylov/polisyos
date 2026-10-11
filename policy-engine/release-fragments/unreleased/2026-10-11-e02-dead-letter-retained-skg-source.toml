@@ -1,0 +1,21 @@
+id = "2026-10-11-e02-dead-letter-retained-skg-source"
+title = "Bind dead-letter replay to selected retained SKG source"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "All five retry call expressions across local sync/async execution, the shared serialized worker, and public dead-letter replay use one selected-source binder; v1.1 bundles resolve and content-bind at most one exact-profile SKG snapshot input, and retry facades delegate verified reads while preserving write revocation."
+evidence = [
+  "src/polisyos/scientist/replay/backend.py",
+  "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+  "src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+  "src/polisyos/ir/analytics/parameters.py",
+  "src/polisyos/scientist/orchestration/engine/README.md",
+  "src/polisyos/scientist/replay/README.md",
+  "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+  "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+]
+compatibility = "Additive behavior for callers that already provide ExperimentState.inputs[skg_source_snapshot]. Calls without the explicit input keep their existing live-source behavior."
+surface_classification = "public_stable: polisyos.scientist.replay.replay_dead_letter"
+api = "Public signatures and facade exports are unchanged. Run owners record an explicit selected ref once; per-node workers rebind it from CAS without duplicate run-level events."
+limitations = "An explicit selector requires the verified member-read capabilities of the supported local filesystem CAS and its full profile-bound descriptor/chunk closure; unsupported stores and malformed supplied refs refuse without live fallback. Attempt-facade reads do not authorize writes. Issuer authenticity, production currentness, native Ray/Temporal backend execution, and scientific output dependence remain unestablished."
+generated_client_compatibility = "not_applicable"

@@ -1052,6 +1052,16 @@ class DebugService:
         """Return data-needs, fetch-plan, promotion, and related-artifact context."""
         warnings: list[str] = []
         state_payload = self._load_experiment_state_payload(run.experiment_state_ref)
+        request_profile_origin, request_profile_origin_issue = (
+            _workflow_data_view_request_profile_origin(
+                store=self._store,
+                control_job_store=self._producer_control_job_store,
+                control_job_id=run.details.control_job_id,
+                state_payload=state_payload,
+            )
+        )
+        if request_profile_origin_issue is not None:
+            warnings.append(request_profile_origin_issue)
         decision_packet_payload = self._load_json_artifact(run.decision_packet_ref)
         params = state_payload.get("params")
         params_dict = params if isinstance(params, dict) else {}
@@ -1278,6 +1288,8 @@ class DebugService:
             )
         )
         data_view_request_ref = None
+        state_request_ref: ArtifactRef | None = None
+        state_request_issue: str | None = None
         if data_snapshot_ref is not None:
             state_request_ref, state_request_issue = _state_input_ref(
                 state_payload,
@@ -1294,6 +1306,16 @@ class DebugService:
                 )
                 if source_warning is not None:
                     warnings.append(source_warning)
+        if request_profile_origin == "not_requested":
+            data_view_request_profile_status = "not_requested"
+        elif data_view_request_ref is not None and request_profile_origin == "caller_selected":
+            data_view_request_profile_status = "caller_selected_profile"
+        elif data_view_request_ref is not None and request_profile_origin == "worker_default":
+            data_view_request_profile_status = "worker_default_limited"
+            warnings.append("data_view_request_profile_selection_limited_to_worker_default")
+        else:
+            data_view_request_profile_status = "not_established"
+            warnings.append("data_view_request_profile_origin_or_lineage_not_established")
         if data_snapshot_ref is not None:
             materialization_refs["data_snapshot_ref"] = data_snapshot_ref
         if input_bindings_ref is not None:
@@ -1340,6 +1362,7 @@ class DebugService:
             fabric_retrieval_trace_ref=fabric_retrieval_trace_ref,
             data_snapshot_ref=data_snapshot_ref,
             data_view_request_ref=data_view_request_ref,
+            data_view_request_profile_status=data_view_request_profile_status,
             input_bindings_ref=input_bindings_ref,
             materialization_refs=materialization_refs,
             production_data_evidence_context=production_data_context,
@@ -2952,6 +2975,154 @@ def _state_input_ref(
     return ref, None
 
 
+def _workflow_data_view_request_profile_origin(
+    *,
+    store: ArtifactStore,
+    control_job_store: _ReadOnlyControlJobStore | None,
+    control_job_id: str | None,
+    state_payload: dict[str, Any],
+) -> tuple[
+    Literal["caller_selected", "worker_default", "not_requested", "not_established"],
+    str | None,
+]:
+    """Bind profile-origin status to immutable workflow-job input and actual lineage."""
+    from polisyos.runtime.http.services._control_contracts import (
+        _WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY,
+        WorkflowDataViewRequestIntent,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmissionError,
+        _json_values_equal_strict,
+    )
+
+    not_established = (
+        "not_established",
+        "data_view_request_profile_origin_not_established",
+    )
+    if (
+        not isinstance(control_job_id, str)
+        or not control_job_id.strip()
+        or control_job_store is None
+    ):
+        return not_established
+    try:
+        job = control_job_store.get_job(control_job_id)
+        if job is None:
+            return not_established
+        event_payload = control_job_store.get_job_created_event_payload(control_job_id)
+        outbox_event = control_job_store.get_job_created_outbox_event(control_job_id)
+    except (
+        ControlJobExecutionAdmissionError,
+        OSError,
+        PermissionError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
+        return not_established
+
+    outbox_payload = getattr(outbox_event, "payload", None)
+    expected_job_fields = {
+        "job_id": job.job_id,
+        "run_id": job.run_id,
+        "job_kind": job.kind,
+        "pipeline_id": job.pipeline_id,
+        "payload_ref": job.payload_ref,
+        "submitted_by": job.submitted_by,
+        "requested_execution_profile": job.requested_execution_profile,
+        "effective_execution_profile": job.effective_execution_profile,
+        "policy_flags": job.policy_flags,
+    }
+    if (
+        job.job_id != control_job_id
+        or job.kind != "workflow_run"
+        or not isinstance(job.run_id, str)
+        or job.run_id != state_payload.get("run_id")
+        or getattr(outbox_event, "topic", None) != "control.job.created"
+        or getattr(outbox_event, "job_id", None) != job.job_id
+        or getattr(outbox_event, "run_id", None) != job.run_id
+        or not isinstance(outbox_payload, dict)
+        or not _json_values_equal_strict(outbox_payload, event_payload)
+        or any(
+            field not in event_payload
+            or not _json_values_equal_strict(event_payload[field], expected)
+            for field, expected in expected_job_fields.items()
+        )
+        or not isinstance(job.payload_ref, str)
+        or not job.payload_ref
+    ):
+        return not_established
+
+    try:
+        payload_ref = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(job.payload_ref),
+            kind="runtime.control_job_payload.workflow_run",
+            media_type="application/json",
+        )
+        verification = store.verify(payload_ref)
+        manifest = store.get_manifest(payload_ref)
+        schema = manifest.artifact_schema
+        payload = from_canonical_bytes(store.get_bytes(payload_ref))
+    except FileNotFoundError, OSError, PermissionError, RuntimeError, TypeError, ValueError:
+        return not_established
+    if (
+        not verification.ok
+        or manifest.artifact_id != payload_ref.artifact_id
+        or manifest.kind != payload_ref.kind
+        or manifest.media_type != payload_ref.media_type
+        or schema is None
+        or schema.name != "polisyos.runtime.ControlJobPayload"
+        or schema.version != "1.0"
+        or not isinstance(payload, dict)
+        or payload.get("run_id") != job.run_id
+    ):
+        return not_established
+
+    original_state = payload.get("state_payload")
+    if not isinstance(original_state, dict) or original_state.get("run_id") != job.run_id:
+        return not_established
+    original_inputs = original_state.get("inputs")
+    current_inputs = state_payload.get("inputs")
+    if not isinstance(original_inputs, dict) or not isinstance(current_inputs, dict):
+        return not_established
+    has_original_request = "data_view_request_ref" in original_inputs
+    has_current_request = "data_view_request_ref" in current_inputs
+    has_intent = _WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY in payload
+    if not has_original_request:
+        if has_current_request or has_intent:
+            return not_established
+        return "not_requested", None
+    if not has_current_request or not has_intent:
+        return not_established
+    try:
+        original_ref = ArtifactRef.model_validate(original_inputs["data_view_request_ref"])
+        current_ref = ArtifactRef.model_validate(current_inputs["data_view_request_ref"])
+        intent = WorkflowDataViewRequestIntent.model_validate(
+            payload[_WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY]
+        )
+    except TypeError, ValueError, ValidationError:
+        return not_established
+    if (
+        original_ref.kind != "ir.data_view_request"
+        or original_ref.media_type != "application/json"
+        or current_ref.kind != "ir.data_view_request"
+        or current_ref.media_type != "application/json"
+        or original_ref.artifact_id != current_ref.artifact_id
+        or current_ref.manifest_profile_sha256 is None
+    ):
+        return not_established
+    if intent.profile_origin == "caller_selected":
+        if (
+            original_ref.manifest_profile_sha256 is None
+            or original_ref.manifest_profile_sha256 != current_ref.manifest_profile_sha256
+        ):
+            return not_established
+        return "caller_selected", None
+    if intent.profile_origin == "worker_default" and original_ref.manifest_profile_sha256 is None:
+        return "worker_default", None
+    return not_established
+
+
 def _data_view_request_ref_from_snapshot(
     store: ArtifactStore,
     snapshot_ref: ArtifactRef,
@@ -2964,6 +3135,8 @@ def _data_view_request_ref_from_snapshot(
     if snapshot_ref.manifest_profile_sha256 is None:
         return None, "data_snapshot_profile_not_established"
     try:
+        if not store.verify(snapshot_ref).ok:
+            return None, "data_snapshot_integrity_failed"
         snapshot_manifest = resolve_manifest_by_profile(
             store,
             snapshot_ref.artifact_id,
@@ -3006,6 +3179,11 @@ def _data_view_request_ref_from_snapshot(
         media_type=request_manifest.media_type,
         manifest_profile_sha256=edge.manifest_profile_sha256,
     )
+    try:
+        if not store.verify(selected_request_ref).ok:
+            return None, "data_view_request_integrity_failed"
+    except FileNotFoundError, OSError, PermissionError, TypeError, ValueError:
+        return None, "data_view_request_integrity_failed"
     if expected_request_ref is not None and _artifact_ref_identity_key(
         expected_request_ref
     ) != _artifact_ref_identity_key(selected_request_ref):

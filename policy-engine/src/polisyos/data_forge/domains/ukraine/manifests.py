@@ -62,6 +62,32 @@ class ValidationFinding(BaseModel):
     message: str = Field(..., min_length=1, max_length=255)
 
 
+_VALIDATION_FINDING_MESSAGE_MAX_LENGTH: int | None = ValidationFinding.model_json_schema()[
+    "properties"
+]["message"].get("maxLength")
+
+
+def _make_validation_finding(*, severity: str, code: str, message: str) -> ValidationFinding:
+    """Project producer-authored text to the finding DTO's display limit.
+
+    This factory is for internally generated display messages only. Direct DTO
+    construction and validation of supplied payloads remain strict.
+    """
+
+    max_length = _VALIDATION_FINDING_MESSAGE_MAX_LENGTH
+    if max_length is not None and max_length > 0 and len(message) > max_length:
+        marker = "…"
+        if max_length <= len(marker):
+            message = message[:max_length]
+        else:
+            retained_length = max_length - len(marker)
+            prefix_length = (retained_length + 1) // 2
+            suffix_length = retained_length - prefix_length
+            suffix = message[-suffix_length:] if suffix_length else ""
+            message = f"{message[:prefix_length]}{marker}{suffix}"
+    return ValidationFinding(severity=severity, code=code, message=message)
+
+
 class BuildRunManifest(BaseModel):
     """Top-level manifest emitted for every bootstrap, validation, and build stage."""
 
@@ -196,9 +222,7 @@ class D5ReleaseHandoffRequest(BaseModel):
     schema_version: Literal["policyos.data_forge.ukraine.d5_release_handoff_request.v1"] = (
         "policyos.data_forge.ukraine.d5_release_handoff_request.v1"
     )
-    handoff_rule_version: Literal["ukraine-d5-release-handoff.v1"] = (
-        "ukraine-d5-release-handoff.v1"
-    )
+    handoff_rule_version: Literal["ukraine-d5-release-handoff.v1"] = "ukraine-d5-release-handoff.v1"
     authority_purpose: Literal["producer_release_handoff_request"] = (
         "producer_release_handoff_request"
     )

@@ -187,6 +187,7 @@ export type RunEvidenceContext = {
   evidenceBundleRef: EvidenceArtifactRef | null;
   dataSnapshotRef: EvidenceArtifactRef | null;
   dataViewRequestRef: EvidenceArtifactRef | null;
+  dataViewRequestProfileStatus: DataViewRequestProfileStatus;
   inputBindingsRef: EvidenceArtifactRef | null;
   fabricRetrievalTraceRef: EvidenceArtifactRef | null;
   materializationRefs: Record<string, EvidenceArtifactRef>;
@@ -206,6 +207,8 @@ export type EvidenceFocus =
   | "artifact";
 
 type EvidenceContextPayload = RunEvidenceContextPayload["context"];
+export type DataViewRequestProfileStatus =
+  EvidenceContextPayload["data_view_request_profile_status"];
 
 export function normalizeRunEvidenceContext(
   payload: EvidenceContextPayload | null | undefined,
@@ -221,6 +224,8 @@ export function normalizeRunEvidenceContext(
     evidenceBundleRef: payload.evidence_bundle_ref ?? null,
     dataSnapshotRef: payload.data_snapshot_ref ?? null,
     dataViewRequestRef: payload.data_view_request_ref ?? null,
+    dataViewRequestProfileStatus:
+      payload.data_view_request_profile_status ?? "not_established",
     inputBindingsRef: payload.input_bindings_ref ?? null,
     fabricRetrievalTraceRef: payload.fabric_retrieval_trace_ref ?? null,
     materializationRefs: payload.materialization_refs ?? {},

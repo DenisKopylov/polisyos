@@ -33,6 +33,109 @@ from polisyos.runtime.http.resilience import guard_runtime_cas
 _FAKE_ID = "sha256:" + "aa" * 32
 
 
+def test_cache_write_through_returns_remote_selected_profile(tmp_path: Path) -> None:
+    local = FileSystemCAS(tmp_path / "local")
+    remote = FileSystemCAS(tmp_path / "remote")
+    cached = CachingArtifactStore(remote=remote, local=local, write_through=True)
+
+    ref = cached.put_bytes(
+        b"same selected profile",
+        PutOptions(kind="test.cache_profile", media_type="application/json"),
+        return_selected_profile=True,
+    )
+
+    assert ref.manifest_profile_sha256 is not None
+    assert local.get_manifest(ref) == remote.get_manifest(ref)
+    assert remote.get_manifest(ref).kind == "test.cache_profile"
+
+
+def test_cache_write_through_returns_remote_selected_profile_for_json(tmp_path: Path) -> None:
+    local = FileSystemCAS(tmp_path / "local-json")
+    remote = FileSystemCAS(tmp_path / "remote-json")
+    cached = CachingArtifactStore(remote=remote, local=local, write_through=True)
+
+    ref = cached.put_json(
+        {"value": "json selected profile"},
+        PutOptions(kind="test.cache_json_profile", media_type="application/json"),
+        return_selected_profile=True,
+    )
+
+    assert ref.manifest_profile_sha256 is not None
+    assert local.get_manifest(ref) == remote.get_manifest(ref)
+    assert remote.get_manifest(ref).kind == "test.cache_json_profile"
+
+
+def test_cache_refuses_unsupported_profile_owner_before_local_write(tmp_path: Path) -> None:
+    class LegacyRemote:
+        def put_bytes(self, data, opts):
+            raise AssertionError("unsupported remote must not be called")
+
+        def put_json(self, obj, opts, canon_spec=None):
+            raise AssertionError("unsupported remote must not be called")
+
+    local = FileSystemCAS(tmp_path / "local")
+    cached = CachingArtifactStore(remote=LegacyRemote(), local=local, write_through=True)
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        cached.put_bytes(
+            b"must not mutate local",
+            PutOptions(kind="test.cache_profile_unsupported", media_type="text/plain"),
+            return_selected_profile=True,
+        )
+    assert local.iter_artifact_ids() == []
+
+
+@pytest.mark.parametrize(
+    "signature_kind",
+    ["positional_only", "variadic_positional", "variadic_keyword"],
+)
+def test_cache_refuses_non_keyword_profile_parameter_before_local_write(
+    signature_kind: str,
+    tmp_path: Path,
+) -> None:
+    class PositionalOnlyRemote:
+        called = False
+
+        def put_bytes(self, data, opts, return_selected_profile=False, /):
+            self.called = True
+
+    class VariadicPositionalRemote:
+        called = False
+
+        def put_bytes(self, data, opts, *return_selected_profile):
+            self.called = True
+
+    class VariadicKeywordRemote:
+        called = False
+
+        def put_bytes(self, data, opts, **return_selected_profile):
+            self.called = True
+
+    remote_type = {
+        "positional_only": PositionalOnlyRemote,
+        "variadic_positional": VariadicPositionalRemote,
+        "variadic_keyword": VariadicKeywordRemote,
+    }[signature_kind]
+    remote = remote_type()
+    local = FileSystemCAS(tmp_path / signature_kind)
+    cached = CachingArtifactStore(remote=remote, local=local, write_through=True)
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        cached.put_bytes(
+            b"must not mutate local",
+            PutOptions(kind="test.cache_bad_profile_signature", media_type="text/plain"),
+            return_selected_profile=True,
+        )
+
+    assert remote.called is False
+    assert local.iter_artifact_ids() == []
+
+
 def _make_ref(kind: str = "test") -> ArtifactRef:
     return ArtifactRef(artifact_id=_FAKE_ID, kind=kind, media_type="text/plain")
 

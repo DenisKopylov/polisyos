@@ -179,6 +179,7 @@ class VectorMemoryStore:
             Reference to the persisted index artifact.
         """
         from polisyos.core.artifacts.store import PutOptions
+        from polisyos.core.canon import CanonSpec
 
         with tempfile.TemporaryDirectory() as tmpdir:
             index_path = Path(tmpdir) / "hnsw.index"
@@ -199,6 +200,7 @@ class VectorMemoryStore:
         meta_ref = store.put_json(
             payload,
             PutOptions(kind="vector_memory.meta", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
         # Store index as raw bytes
@@ -212,14 +214,17 @@ class VectorMemoryStore:
         return store.put_json(
             payload,
             PutOptions(kind="vector_memory.bundle", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
         )
 
     def load_from_artifact(self, store: ArtifactStore, ref: ArtifactRef) -> None:
         """Load the index + metadata from the artifact store."""
-        import json
+        from polisyos.core.canon import from_canonical_bytes
 
         bundle_bytes = store.get_bytes(ref)
-        bundle = json.loads(bundle_bytes)
+        bundle = from_canonical_bytes(bundle_bytes)
+        if not isinstance(bundle, dict):
+            raise ValueError("Vector memory bundle must be a canonical object")
 
         dim = int(bundle["dim"])
         max_elements = int(bundle["max_elements"])

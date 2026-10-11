@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactRef, InputRef
+from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
@@ -190,7 +190,7 @@ def _build_sensitivity_section(
         bundle_ref = persist_sensitivity_analysis_bundle(
             _ensure_ir_artifact_store(ctx.store),
             bundle,
-            inputs=[InputRef(artifact_id=ref.artifact_id, role="legacy_sensitivity_result")],
+            inputs=[input_ref_from_artifact_ref(ref, role="legacy_sensitivity_result")],
         )
         payload["sensitivity_analysis_bundle_ref"] = str(bundle_ref.artifact_id)
         payload["sensitivity_analysis_bundle"] = bundle.model_dump(mode="json")

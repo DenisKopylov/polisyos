@@ -13,6 +13,7 @@ from polisyos.data_forge.domains.ukraine.adapters import (
 from polisyos.data_forge.domains.ukraine.manifests import (
     SkippedSourceManifest,
     SourceSnapshotManifest,
+    ValidationFinding,
 )
 from polisyos.data_forge.domains.ukraine.models import BuildRootConfig, SourceConfig, StageId
 
@@ -463,6 +464,33 @@ def test_tabular_adapter_normalizes_household_microdata_from_manual_drop(tmp_pat
     assert set(frame["period_id"]) == {"2018-12", "2018-06"}
     assert set(frame["region_code"]) == {"05", "80"}
     assert set(frame["income"]) == {1200.0, 1800.0}
+
+
+def test_household_read_failure_projects_legal_long_filename_and_exception(
+    tmp_path: Path, monkeypatch
+) -> None:
+    source_dir = tmp_path / "mic_doch_i_umovy"
+    source_dir.mkdir()
+    prefix = "Households_microdani_anonimni_"
+    suffix = ".xlsx"
+    filename = prefix + "x" * (255 - len(prefix) - len(suffix)) + suffix
+    source_path = source_dir / filename
+    source_path.touch()
+    assert len(source_path.name.encode("utf-8")) == 255
+
+    def fail_read_excel(*args: object, **kwargs: object) -> pd.DataFrame:
+        raise OSError("reader-detail-" + "x" * 300)
+
+    monkeypatch.setattr(pd, "read_excel", fail_read_excel)
+    _, findings = TabularSourceAdapter()._normalize_household_microdata(tmp_path)
+
+    finding = findings[0]
+    message_limit = ValidationFinding.model_json_schema()["properties"]["message"]["maxLength"]
+    assert isinstance(message_limit, int)
+    assert finding.code == "household_microdata_read_failed"
+    assert len(finding.message) <= message_limit
+    assert finding.message.startswith("Failed reading household microdata file ")
+    assert finding.message.endswith("x" * 16)
 
 
 def test_tabular_adapter_normalizes_labor_force_microdata_from_manual_drop(tmp_path: Path) -> None:

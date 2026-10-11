@@ -23,11 +23,11 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+import polisyos.fabric.ingestion as fabric_ingestion
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
-from polisyos.fabric import ingestion as fabric_ingestion
 
 epoch_contract = contracts.epoch
 

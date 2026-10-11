@@ -7,9 +7,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+import polisyos.scientist.policy_design as policy_design
 from polisyos.core import artifacts, contracts
 from polisyos.ir import governance
-from polisyos.scientist import policy_design
 
 ArtifactRef = artifacts.ArtifactRef
 PolicyCandidateSchema = policy_design.PolicyCandidateSchema

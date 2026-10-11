@@ -23,6 +23,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     PartAGateManifest,
     SkippedSourceManifest,
     ValidationFinding,
+    _make_validation_finding,
     load_manifest,
     utc_now_iso,
     write_manifest,
@@ -93,12 +94,17 @@ def _discover_workspace_root() -> Path | None:
     instead of guessing from a package directory's parent depth.
     """
 
-    for candidate in Path(__file__).resolve().parents:
-        if (
-            (candidate / "pyproject.toml").is_file()
-            and (candidate / "src" / "polisyos").is_dir()
-        ):
-            return candidate
+    module_source = Path(__file__).resolve()
+    for candidate in module_source.parents:
+        source_package = (candidate / "src" / "polisyos").resolve()
+        if not source_package.is_dir():
+            continue
+        try:
+            module_source.relative_to(source_package)
+        except ValueError:
+            continue
+        if (candidate / "pyproject.toml").is_file():
+            return candidate.resolve()
     return None
 
 
@@ -527,7 +533,7 @@ class UkraineDataOrchestrator:
         for output in manifest.outputs:
             if not Path(output.path).exists():
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="error",
                         code="missing_output",
                         message=f"expected output missing: {output.path}",

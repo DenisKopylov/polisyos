@@ -67,6 +67,18 @@ def _fail_outcome(state, code="node.exception"):
     )
 
 
+def _select_timeout_test_route(monkeypatch, route: str) -> None:
+    """Select a route that this platform actually admits for the tested input."""
+    if route.endswith("-fork"):
+        if retry_module._timeout_worker_start_method() != "fork":
+            pytest.skip("native Linux fork timeout worker required")
+        return
+    if route == "thread" or route.endswith("-thread"):
+        if sys.platform == "darwin":
+            pytest.skip("Darwin timed execution admits canonical spawn nodes, not thread fallback")
+        monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: None)
+
+
 # ---------------------------------------------------------------------------
 # RetryPolicy model
 # ---------------------------------------------------------------------------
@@ -166,6 +178,267 @@ class TestBackoffDelay:
 
 
 class TestExecuteWithRetrySync:
+    def test_attempt_store_preserves_typed_refs_and_refuses_revoked_persistence(self):
+        from polisyos.ir.artifacts import normalize_artifact_ref
+
+        ref = ArtifactRef(
+            artifact_id="sha256:" + "0" * 64,
+            kind="ir.context_adaptive_parameter_bundle",
+            media_type="application/json",
+        )
+        state = ExperimentState(run_id="run", artifacts_index={"graph": ref})
+        authority = retry_module._AttemptAuthority()
+        attempt_state = retry_module._AttemptModelFacade(state, authority)
+        selected_ref = attempt_state.artifacts_index["graph"]
+        assert normalize_artifact_ref(selected_ref) == normalize_artifact_ref(ref)
+
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.put_calls: list[tuple[bytes, object]] = []
+
+            def put_bytes(self, data: bytes, options: object) -> ArtifactRef:
+                self.put_calls.append((data, options))
+                return ref
+
+        store = _RecordingStore()
+        attempt_store = retry_module._AttemptFacade(
+            store,
+            authority,
+            write_methods=frozenset({"put_bytes"}),
+            raise_on_revoked_write=True,
+        )
+        assert attempt_store.put_bytes(b"on-time", {}) is ref
+        authority.revoke()
+        with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+            attempt_store.put_bytes(b"late", {})
+        assert denied.value.code == "attempt_write_revoked"
+        assert denied.value.reason_code == "attempt_write_revoked"
+        assert store.put_calls == [(b"on-time", {})]
+
+    def test_execution_context_store_views_preserve_profile_kwargs_and_authority(self):
+        from types import SimpleNamespace
+
+        from polisyos.ir.artifacts import normalize_artifact_ref
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+        ref = ArtifactRef(
+            artifact_id="sha256:" + "1" * 64,
+            kind="ir.context_adaptive_parameter_bundle",
+            media_type="application/json",
+        )
+
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, tuple[object, ...], dict[str, object]]] = []
+
+            def put_bytes(
+                self,
+                data: bytes,
+                opts: object,
+                *,
+                return_selected_profile: bool = False,
+            ) -> ArtifactRef:
+                self.calls.append(
+                    (
+                        "put_bytes",
+                        (data, opts),
+                        {"return_selected_profile": return_selected_profile},
+                    )
+                )
+                return ref
+
+            def put_json(
+                self,
+                obj: object,
+                opts: object,
+                canon_spec: object = None,
+                *,
+                return_selected_profile: bool = False,
+            ) -> ArtifactRef:
+                self.calls.append(
+                    (
+                        "put_json",
+                        (obj, opts),
+                        {
+                            "canon_spec": canon_spec,
+                            "return_selected_profile": return_selected_profile,
+                        },
+                    )
+                )
+                return ref
+
+            def record_artifact_owner(
+                self,
+                artifact_id: str,
+                *,
+                tenant_id: str | None = None,
+                cell_id: str | None = None,
+                writer: str | None = None,
+            ) -> None:
+                self.calls.append(
+                    (
+                        "record_artifact_owner",
+                        (artifact_id,),
+                        {"tenant_id": tenant_id, "cell_id": cell_id, "writer": writer},
+                    )
+                )
+
+        store = _RecordingStore()
+
+        class _RecordingSink:
+            def __init__(self) -> None:
+                self.calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+            def emit(self, *args: object, **kwargs: object) -> None:
+                self.calls.append((args, kwargs))
+
+        manifest = SimpleNamespace(status="running", errors=[{"nested": {"events": []}}])
+        trace_sink = _RecordingSink()
+        audit_sink = _RecordingSink()
+        run_emit_calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+        run = SimpleNamespace(
+            store=store,
+            run_manifest=manifest,
+            trace=trace_sink,
+            _audit_sink=audit_sink,
+            emit=lambda *args, **kwargs: run_emit_calls.append((args, kwargs)),
+        )
+        target = ExecutionContext(store=store, run=run, logger=MagicMock())
+        authority = retry_module._AttemptAuthority()
+        attempt = retry_module._build_attempt_context(target, authority)
+
+        assert isinstance(attempt, ExecutionContext)
+        store_views = (attempt.store, attempt.run.store)
+        assert store_views[0] is store_views[1]
+        assert store_views[0]._target is store
+
+        for view in store_views:
+            assert view.put_bytes(b"bytes", object(), return_selected_profile=True) is ref
+            assert view.put_json({"value": 1}, object(), return_selected_profile=True) is ref
+            assert (
+                view.record_artifact_owner(
+                    ref.artifact_id,
+                    tenant_id="tenant",
+                    cell_id="cell",
+                    writer="attempt-test",
+                )
+                is None
+            )
+        assert normalize_artifact_ref(store_views[0].put_json({"ref": True}, object())) == (
+            normalize_artifact_ref(ref)
+        )
+        selected_profile_calls = [
+            kwargs["return_selected_profile"]
+            for method, _args, kwargs in store.calls
+            if method in {"put_bytes", "put_json"}
+        ]
+        assert selected_profile_calls == [True, True, True, True, False]
+        call_count = len(store.calls)
+        assert call_count == 7
+
+        authority.revoke()
+        for view in store_views:
+            for write in (
+                lambda view=view: view.put_bytes(b"late", object(), return_selected_profile=True),
+                lambda view=view: view.put_json(
+                    {"late": True}, object(), return_selected_profile=True
+                ),
+                lambda view=view: view.record_artifact_owner(ref.artifact_id),
+            ):
+                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                    write()
+                assert denied.value.code == "attempt_write_revoked"
+                assert denied.value.reason_code == "attempt_write_revoked"
+        assert len(store.calls) == call_count
+
+        for field_name, original in (("store", attempt.store), ("run", attempt.run)):
+            with pytest.raises(AttributeError):
+                setattr(attempt, field_name, store)
+            with pytest.raises(AttributeError):
+                delattr(attempt, field_name)
+            assert getattr(attempt, field_name) is original
+
+        for field_name in ("store", "run_manifest", "trace", "_audit_sink"):
+            original = getattr(attempt.run, field_name)
+            with pytest.raises(AttributeError):
+                setattr(attempt.run, field_name, store)
+            with pytest.raises(AttributeError):
+                delattr(attempt.run, field_name)
+            assert getattr(attempt.run, field_name) is original
+
+        attempt.run.run_manifest.status = "late"
+        attempt.run.run_manifest.errors[0]["nested"]["events"].append("late")
+        attempt.run.trace.emit({"late": True})
+        attempt.run._audit_sink.emit({"late": True})
+        attempt.run.emit("late", "LATE_WRITE")
+        assert manifest.status == "running"
+        assert manifest.errors == [{"nested": {"events": []}}]
+        assert trace_sink.calls == []
+        assert audit_sink.calls == []
+        assert run_emit_calls == []
+
+    def test_generic_attempt_context_cannot_rebind_mutation_facades(self):
+        from types import SimpleNamespace
+
+        class _RecordingStore:
+            def __init__(self) -> None:
+                self.calls: list[tuple[object, object]] = []
+
+            def put_json(self, payload: object, options: object) -> object:
+                self.calls.append((payload, options))
+                return payload
+
+        store = _RecordingStore()
+        run = SimpleNamespace(
+            store=store,
+            run_manifest=SimpleNamespace(status="running"),
+            trace=SimpleNamespace(emit=lambda record: None),
+            _audit_sink=SimpleNamespace(emit=lambda record: None),
+            emit=lambda *args, **kwargs: None,
+        )
+        target = SimpleNamespace(
+            store=store,
+            run=run,
+            audit=SimpleNamespace(append=lambda **kwargs: None),
+            claim_ledger_owner=SimpleNamespace(persist_candidate_ledger=lambda **kwargs: None),
+        )
+        authority = retry_module._AttemptAuthority()
+        attempt = retry_module._build_attempt_context(target, authority)
+
+        assert isinstance(attempt, retry_module._AttemptContext)
+        store_view = attempt.store
+        run_view = attempt.run
+        assert run_view.store is store_view
+        for field_name, replacement in (
+            ("store", store),
+            ("run", run),
+            ("audit", target.audit),
+            ("claim_ledger_owner", target.claim_ledger_owner),
+        ):
+            with pytest.raises(AttributeError, match="cannot be rebound"):
+                setattr(attempt, field_name, replacement)
+            with pytest.raises(AttributeError, match="cannot be removed"):
+                delattr(attempt, field_name)
+        assert attempt.store is store_view
+        assert attempt.run is run_view
+        assert run_view.store is store_view
+        for field_name in ("store", "run_manifest", "trace", "_audit_sink"):
+            original = getattr(run_view, field_name)
+            with pytest.raises(AttributeError, match="cannot be rebound"):
+                setattr(run_view, field_name, store)
+            with pytest.raises(AttributeError, match="cannot be removed"):
+                delattr(run_view, field_name)
+            assert getattr(run_view, field_name) is original
+
+        assert attempt.store.put_json({"on_time": True}, object()) == {"on_time": True}
+        authority.revoke()
+        with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+            attempt.run.store.put_json({"late": True}, object())
+        assert denied.value.code == "attempt_write_revoked"
+        assert denied.value.reason_code == "attempt_write_revoked"
+        assert len(store.calls) == 1
+        assert store.calls[0][0] == {"on_time": True}
+
     def test_attempt_context_preserves_claim_capable_context_type(self):
         target = ClaimCapableExecutionContext(
             store=MagicMock(),
@@ -253,7 +526,10 @@ class TestExecuteWithRetrySync:
                 release.wait(timeout=1.0)
                 passed_ctx.run.run_manifest.status = "late"
                 passed_ctx.run.run_manifest.errors[0]["nested"]["events"].append("late")
-                passed_ctx.store.put_json({"late": "write"}, object())
+                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                    passed_ctx.store.put_json({"late": "write"}, object())
+                assert denied.value.code == "attempt_write_revoked"
+                assert denied.value.reason_code == "attempt_write_revoked"
                 passed_ctx.run.emit("late", "LATE_WRITE")
                 passed_ctx.run._audit_sink.emit({"late": "audit"})
                 passed_ctx.audit.append(action="late")
@@ -262,10 +538,7 @@ class TestExecuteWithRetrySync:
                 return _ok_outcome(passed_state)
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        monkeypatch.setattr(
-            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
-            lambda: False,
-        )
+        _select_timeout_test_route(monkeypatch, "thread")
         monkeypatch.setattr(
             "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
             lambda: executor,
@@ -378,10 +651,7 @@ class TestExecuteWithRetrySync:
             claim_ledger_owner=_RecordingClaimOwner(),
         )
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        monkeypatch.setattr(
-            "polisyos.scientist.orchestration.engine.retry._can_use_forked_timeout_worker",
-            lambda: False,
-        )
+        _select_timeout_test_route(monkeypatch, "thread")
         monkeypatch.setattr(
             "polisyos.scientist.orchestration.engine.retry.get_shared_executor",
             lambda: executor,
@@ -523,6 +793,10 @@ class TestExecuteWithRetrySync:
         # Second backoff: 1.0 * 2^1 = 2.0
         assert mock_sleep.call_args_list[1][0][0] == pytest.approx(2.0)
 
+    @pytest.mark.skipif(
+        retry_module._timeout_worker_start_method() != "fork",
+        reason="arbitrary-node timeout is verified on the native Linux fork route",
+    )
     def test_timeout_raises(self, ctx, state):
         import time as _time
 
@@ -596,7 +870,10 @@ class TestExecuteWithRetrySync:
                 release.wait(timeout=1.0)
                 passed_state.params["late_write"] = "unauthorised"
                 passed_ctx.run.run_manifest.status = "late"
-                passed_ctx.store.put_json({"late": "write"}, object())
+                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                    passed_ctx.store.put_json({"late": "write"}, object())
+                assert denied.value.code == "attempt_write_revoked"
+                assert denied.value.reason_code == "attempt_write_revoked"
                 passed_ctx.run.emit("late-authority", "LATE_WRITE")
                 passed_ctx.audit.append(run_id="run", actor="node", action="late")
                 passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
@@ -723,7 +1000,10 @@ class TestExecuteWithRetrySync:
                     await release.wait()
                 passed_state.params["late_write"] = "unauthorised"
                 passed_ctx.run.run_manifest.status = "late"
-                passed_ctx.store.put_json({"late": "write"}, object())
+                with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                    passed_ctx.store.put_json({"late": "write"}, object())
+                assert denied.value.code == "attempt_write_revoked"
+                assert denied.value.reason_code == "attempt_write_revoked"
                 passed_ctx.run.emit("late-authority", "LATE_WRITE")
                 passed_ctx.audit.append(run_id="run", actor="node", action="late")
                 passed_ctx.claim_ledger_owner.persist_candidate_ledger(ledger="late")
@@ -774,7 +1054,7 @@ class TestExecuteWithRetrySync:
                 return _ok_outcome(passed_state)
 
         with _SharedExecutor(max_workers=4) as executor:
-            monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+            _select_timeout_test_route(monkeypatch, "thread")
             monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
             result = execute_with_retry_sync(
                 Node(),
@@ -903,6 +1183,10 @@ class TestExecuteWithRetryAsync:
         bridge.assert_awaited_once()
 
     @pytest.mark.asyncio
+    @pytest.mark.skipif(
+        retry_module._timeout_worker_start_method() != "fork",
+        reason="arbitrary-node timeout is verified on the native Linux fork route",
+    )
     async def test_timeout_raises(self, ctx, state):
         node = MagicMock()
         node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
@@ -917,7 +1201,10 @@ class TestExecuteWithRetryAsync:
             )
 
     @pytest.mark.asyncio
-    @pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork worker required")
+    @pytest.mark.skipif(
+        retry_module._timeout_worker_start_method() != "fork",
+        reason="native Linux fork worker required",
+    )
     async def test_timeout_does_not_leave_child_process(self, ctx, state):
         node = MagicMock()
         node.execute.side_effect = lambda *a, **kw: (_time.sleep(5), _ok_outcome(state))[1]
@@ -994,7 +1281,8 @@ class _PayloadTransportNode:
 
 
 @pytest.mark.skipif(
-    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
 )
 @pytest.mark.parametrize("mode", ["sync", "async"])
 @pytest.mark.parametrize("payload_size", [64, 1024 * 1024], ids=["small", "one-mib"])
@@ -1134,7 +1422,8 @@ class _DescendantProcessNode:
 
 
 @pytest.mark.skipif(
-    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
 )
 @pytest.mark.parametrize("mode", ["sync", "async"])
 def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> None:
@@ -1183,7 +1472,8 @@ class _ExitedWorkerWithDescendantNode:
 
 
 @pytest.mark.skipif(
-    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
 )
 def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> None:
     """Cleanup must still reap an owned group after its worker has exited."""
@@ -1230,7 +1520,8 @@ class _OutputAwareTransportNode:
 
 
 @pytest.mark.skipif(
-    "fork" not in mp.get_all_start_methods(), reason="actual fork worker unavailable"
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
 )
 @pytest.mark.parametrize("mode", ["sync", "async"])
 def test_output_aware_fork_retry_preserves_complete_outcome(tmp_path, ctx, mode) -> None:
@@ -1409,6 +1700,10 @@ def test_framed_result_reader_never_blocks_on_an_actual_partial_pipe():
         channel.close()
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="process-start failure transport is verified on the native Linux fork route",
+)
 def test_real_process_start_failure_preserves_original_error_and_no_body_effect(
     tmp_path, ctx, state, monkeypatch
 ):
@@ -1512,6 +1807,7 @@ def test_canonical_retry_boundary_uses_actual_attempt_files(
     tmp_path, ctx, state, monkeypatch, route, kind
 ):
     """Error shape and boundary preserve category/code and actual retry count."""
+    _select_timeout_test_route(monkeypatch, route)
     import contextvars
 
     attempt_file = tmp_path / "attempts.txt"
@@ -1541,9 +1837,6 @@ def test_canonical_retry_boundary_uses_actual_attempt_files(
         async def execute_async(self, passed_ctx, passed_state):
             return self.execute(passed_ctx, passed_state)
 
-    monkeypatch.setattr(
-        retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
-    )
     kwargs = dict(
         retry_policy=RetryPolicy(
             max_retries=1,
@@ -1573,6 +1866,7 @@ def test_canonical_retry_boundary_uses_actual_attempt_files(
 )
 def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, monkeypatch, route):
     """A retry cannot enter user code after its one invocation budget expired."""
+    _select_timeout_test_route(monkeypatch, route)
     attempts = tmp_path / "attempts.txt"
 
     class Node:
@@ -1587,9 +1881,6 @@ def test_whole_invocation_deadline_includes_retry_backoff(tmp_path, ctx, state, 
         async def execute_async(self, passed_ctx, passed_state):
             return self.execute(passed_ctx, passed_state)
 
-    monkeypatch.setattr(
-        retry_module, "_can_use_forked_timeout_worker", lambda: route.endswith("fork")
-    )
     start = _time.monotonic()
     with pytest.raises(NodeTimeoutError):
         _invoke_boundary(
@@ -1682,6 +1973,7 @@ async def test_queued_async_thread_attempt_never_enters_body_after_termination(
 ):
     from polisyos.common.async_tools import _SharedExecutor
 
+    _select_timeout_test_route(monkeypatch, "thread")
     executor = _SharedExecutor(max_workers=4)
     occupied = threading.Barrier(5)
     release = threading.Event()
@@ -1694,7 +1986,6 @@ async def test_queued_async_thread_attempt_never_enters_body_after_termination(
     blockers = [executor.submit(blocker) for _ in range(4)]
     occupied.wait(timeout=2)
     monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
-    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
 
     class Node:
         def execute(self, passed_ctx, passed_state):
@@ -1735,6 +2026,10 @@ async def test_queued_async_thread_attempt_never_enters_body_after_termination(
         executor.shutdown(wait=True, cancel_futures=True)
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="control-exception transport is verified on the native Linux fork route",
+)
 @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
 @pytest.mark.parametrize("mode", ["sync", "async"])
 def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
@@ -1799,7 +2094,7 @@ def test_expired_retry_budget_preserves_spend_without_failed_branch(
             passed_state.budgets["run_spent_usd"] = Decimal("0.25")
             return _fail_outcome(passed_state)
 
-    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    _select_timeout_test_route(monkeypatch, "thread")
     with pytest.raises(NodeTimeoutError):
         execute_with_retry_sync(
             Node(),
@@ -1837,7 +2132,10 @@ async def test_unbounded_thread_cancellation_revokes_owned_writes_but_cannot_sto
             started.set()
             release.wait(timeout=2)
             raw.write_text("already running arbitrary user effect")
-            passed_ctx.store.put_json({}, None)
+            with pytest.raises(retry_module._AttemptWriteDeniedError) as denied:
+                passed_ctx.store.put_json({}, None)
+            assert denied.value.code == "attempt_write_revoked"
+            assert denied.value.reason_code == "attempt_write_revoked"
             finished.set()
             return _ok_outcome(passed_state)
 
@@ -1961,8 +2259,7 @@ def test_completed_failed_spend_settles_without_ordinary_branch(
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.protocol import NodeSpec
 
-    if "fork" in route and not retry_module._can_use_forked_timeout_worker():
-        pytest.skip("actual fork consumer required")
+    _select_timeout_test_route(monkeypatch, route)
     effects = tmp_path / "attempts.jsonl"
     store = FileSystemCAS(tmp_path / "cas")
     bundle = build_default_registry_bundle(store)
@@ -2011,8 +2308,6 @@ def test_completed_failed_spend_settles_without_ordinary_branch(
             await asyncio.sleep(0)
             return self.execute(passed_ctx, passed_state)
 
-    if "thread" in route:
-        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
     node = AsyncProvider() if "provider" in route else Provider()
     finite = route not in {"sync-direct", "async-provider-unbounded", "async-sync-unbounded"}
     kwargs = dict(
@@ -2130,7 +2425,8 @@ def test_late_failed_spend_stays_unknown_after_owner_timeout(route, tmp_path, ct
                 await asyncio.sleep(0.001)
             return self.body(passed_state)
 
-    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    if route == "thread":
+        _select_timeout_test_route(monkeypatch, route)
 
     async def invoke():
         with pytest.raises(NodeTimeoutError):

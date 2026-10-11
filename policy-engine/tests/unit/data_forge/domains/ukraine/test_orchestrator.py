@@ -5,17 +5,39 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
+from pydantic import ValidationError
 
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,
     NormalizedArtifactManifest,
     PartAGateManifest,
+    ValidationFinding,
     load_manifest,
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import StageId, build_default_pipeline_config
-from polisyos.data_forge.domains.ukraine.orchestrator import UkraineDataOrchestrator
+from polisyos.data_forge.domains.ukraine.orchestrator import (
+    UkraineDataOrchestrator,
+    _discover_workspace_root,
+)
+
+
+def test_source_checkout_default_discovers_canonical_product_root() -> None:
+    """Source execution discovers a root that contains this module's real origin."""
+
+    module_source = Path(_discover_workspace_root.__code__.co_filename).resolve()
+    source_roots = [
+        source_root
+        for source_root in module_source.parents
+        if source_root.name == "src"
+        and module_source.is_relative_to((source_root / "polisyos").resolve())
+    ]
+    assert len(source_roots) == 1
+    product_root = source_roots[0].parent
+    assert (product_root / "pyproject.toml").is_file()
+    assert _discover_workspace_root() == product_root
 
 
 def test_bootstrap_server_writes_expected_outputs(tmp_path: Path) -> None:
@@ -54,7 +76,9 @@ def test_validate_stage_outputs_reports_missing_artifact(tmp_path: Path) -> None
         config.build_root.part_a_gate_manifest_path,
         PartAGateManifest(status="passed", passed=True),
     )
-    missing_path = tmp_path / "does_not_exist.json"
+    long_component = f"missing_{'x' * 190}"
+    missing_path = tmp_path / long_component / "does_not_exist.json"
+    assert len(str(missing_path)) > 255
     stage_manifest = BuildRunManifest(
         run_id="d0_test",
         stage_id=StageId.D0_P0,
@@ -68,7 +92,22 @@ def test_validate_stage_outputs_reports_missing_artifact(tmp_path: Path) -> None
     summary = orchestrator.validate_stage_outputs(StageId.D0_P0)
 
     assert summary.status == "failed"
-    assert summary.manifest.findings[0].code == "missing_output"
+    finding = summary.manifest.findings[0]
+    assert finding.code == "missing_output"
+    message_limit = ValidationFinding.model_json_schema()["properties"]["message"]["maxLength"]
+    assert isinstance(message_limit, int)
+    assert len(finding.message) <= message_limit
+    assert finding.message.startswith("expected output missing:")
+    assert finding.message.endswith("does_not_exist.json")
+    # The display message is bounded; the source record retains the complete path.
+    assert summary.manifest.inputs[0].path == str(missing_path)
+    # Supplied DTO values remain strict; only explicit producer paths project.
+    with pytest.raises(ValidationError):
+        ValidationFinding(
+            severity="error",
+            code="missing_output",
+            message="x" * (message_limit + 1),
+        )
 
 
 def _seed_explicit_period_d3_inputs(tmp_path: Path) -> UkraineDataOrchestrator:
@@ -177,7 +216,11 @@ def _seed_explicit_period_d3_inputs(tmp_path: Path) -> UkraineDataOrchestrator:
 def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> None:
     orchestrator = _seed_explicit_period_d3_inputs(tmp_path)
     config = orchestrator.config
-    before = {p.relative_to(config.build_root.root) for p in config.build_root.root.rglob("*") if p.is_file()}
+    before = {
+        p.relative_to(config.build_root.root)
+        for p in config.build_root.root.rglob("*")
+        if p.is_file()
+    }
 
     summary = orchestrator.build_stage(StageId.D3)
     persisted = load_manifest(orchestrator.stage_manifest_path(StageId.D3), BuildRunManifest)
@@ -199,9 +242,7 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
     assert set(outputs) == set(config.stages[StageId.D3.value].output_artifacts)
     assert len(persisted.inputs) == 5
     assert len({record.path for record in persisted.inputs}) == 5
-    assert {
-        Path(record.path).parent.name for record in persisted.inputs
-    } == {
+    assert {Path(record.path).parent.name for record in persisted.inputs} == {
         "household_microdata",
         "labor_force_microdata",
         "pfu_debt",
@@ -236,18 +277,26 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
         assert hashlib.sha256(path.read_bytes()).hexdigest() == record.sha256
         assert path.stat().st_size == record.size_bytes
         if path.suffix == ".parquet":
-            semantic = pd.read_parquet(path).to_json(
-                orient="split", date_format="iso", double_precision=12
-            ).encode()
+            semantic = (
+                pd.read_parquet(path)
+                .to_json(orient="split", date_format="iso", double_precision=12)
+                .encode()
+            )
         else:
             semantic = json.dumps(
                 json.loads(path.read_text(encoding="utf-8")),
                 sort_keys=True,
                 separators=(",", ":"),
             ).encode()
-        assert hashlib.sha256(semantic).hexdigest() == expected_semantic_sha256[path.name], path.name
+        assert hashlib.sha256(semantic).hexdigest() == expected_semantic_sha256[path.name], (
+            path.name
+        )
 
-    after = {p.relative_to(config.build_root.root) for p in config.build_root.root.rglob("*") if p.is_file()}
+    after = {
+        p.relative_to(config.build_root.root)
+        for p in config.build_root.root.rglob("*")
+        if p.is_file()
+    }
     created = {path.as_posix() for path in after - before}
     assert created == {
         "calibration/d3/calibrated_household_cells.parquet",
@@ -267,7 +316,9 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
         "manifests/resource_usage.jsonl",
         "manifests/stage_metrics.json",
     }
-    labor_report = json.loads(Path(outputs["labor_bias_validation.json"].path).read_text(encoding="utf-8"))
+    labor_report = json.loads(
+        Path(outputs["labor_bias_validation.json"].path).read_text(encoding="utf-8")
+    )
     assert labor_report["family"] == "labor_market"
     assert labor_report["overlap_rows"] >= 1
 

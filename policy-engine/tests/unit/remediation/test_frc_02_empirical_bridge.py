@@ -143,7 +143,14 @@ def test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report(
     report_with_times_ref = persist_backtest_report(
         _ensure_ir_artifact_store(store),
         report,
-        inputs=[InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()],
+        inputs=[
+            InputRef(
+                artifact_id=ref["artifact_id"],
+                role=role,
+                manifest_profile_sha256=ref.get("manifest_profile_sha256"),
+            )
+            for role, ref in refs.items()
+        ],
     )
 
     shifted_roles = {
@@ -185,7 +192,14 @@ def test_bridge_refuses_context_when_report_does_not_bind_temporal_roles(
     report_without_times_ref = persist_backtest_report(
         _ensure_ir_artifact_store(store),
         report.model_copy(update={"metadata": metadata}),
-        inputs=[InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()],
+        inputs=[
+            InputRef(
+                artifact_id=ref["artifact_id"],
+                role=role,
+                manifest_profile_sha256=ref.get("manifest_profile_sha256"),
+            )
+            for role, ref in refs.items()
+        ],
     )
     evidence = produce_empirical_calibration_evidence(
         store,

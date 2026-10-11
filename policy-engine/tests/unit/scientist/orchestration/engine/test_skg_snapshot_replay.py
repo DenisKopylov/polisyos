@@ -31,8 +31,10 @@ from polisyos.core.artifacts import (
     ArtifactWriteOptions,
     FileSystemCAS,
     artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -55,10 +57,24 @@ from polisyos.scientist.orchestration.engine import skg_snapshot
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, WorkflowTimeoutError
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.executor import (
+    WorkflowExecutor,
+    _bind_retained_workflow_input,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync
+from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+    _build_timeout_worker_context,
+    run_node_in_worker,
+    run_node_in_worker_sync,
+)
+from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_outcome,
+    serialize_context_meta,
+    serialize_state,
+    serialize_timeout_context,
+)
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
     RetainedSKGSnapshotError,
@@ -69,6 +85,7 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.replay import replay_dead_letter
 from tests._helpers.b61_timeout_worker import run_delayed_timeout_task_after_release
 
 if TYPE_CHECKING:
@@ -143,6 +160,24 @@ def test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks(tmp_
             store.get_manifest(selected)
         )
         assert store.verify(selected).ok
+
+
+def test_selected_snapshot_reader_accepts_revocable_attempt_read_facade(tmp_path: Path) -> None:
+    _, store, ref = _captured(tmp_path)
+    authority = retry_module._AttemptAuthority(None)
+    facade = retry_module._AttemptFacade(store, authority, write_methods=frozenset({"put_bytes"}))
+    authority.revoke()
+
+    prepared = prepare_retained_skg_read(
+        facade,
+        ref,
+        directory=tmp_path / "attempt-reader",
+        index_dir=tmp_path,
+    )
+    try:
+        assert _value(prepared) == 1.25
+    finally:
+        prepared.close()
 
 
 def test_descriptor_without_selected_profile_is_refused(tmp_path: Path) -> None:
@@ -387,7 +422,13 @@ def _workflow_fixture(
     _seed(source, 1.25)
     store = FileSystemCAS(tmp_path / "cas").for_tenant("retained-tenant", "retained-cell")
     registry_bundle = build_default_registry_bundle(store)
-    run = RunContext.start(store, registry_bundle.bundle_ref, run_id="R_retained_skg")
+    run = RunContext.start(
+        store,
+        registry_bundle.bundle_ref,
+        run_id="R_retained_skg",
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retained-skg"))
     graph_ref = persist_causal_graph_model(
         _ensure_ir_artifact_store(store),
@@ -412,6 +453,23 @@ def _workflow_fixture(
     _seed(replacement, 9.75)
     os.replace(replacement, source)
     return source, store, run, ctx, state, ref
+
+
+def _put_dead_letter(store: FileSystemCAS, *, run_id: str) -> ArtifactRef:
+    return store.put_json(
+        {
+            "kind": "scientist.dead_letter",
+            "run_id": run_id,
+            "alias": "resolve",
+            "node_id": "scientist.node_resolve_parameters@1.0.0",
+            "error_type": "RuntimeError",
+            "error_message": "injected prior failure",
+            "attempts": 1,
+            "policy": {"max_retries": 0},
+            "created_at": "2026-10-11T12:00:00Z",
+        },
+        PutOptions(kind="scientist.dead_letter", media_type="application/json"),
+    )
 
 
 def _workflow(mode: Literal["sync", "timed", "async"]) -> WorkflowSpec:
@@ -439,6 +497,192 @@ def _execute_workflow(
             AsyncWorkflowExecutor(ctx, registry, workflow_timeout_s=30.0).execute(workflow, state)
         )
     return WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+
+@pytest.mark.parametrize("worker_entry", ["async", "sync"])
+@pytest.mark.asyncio
+async def test_shared_worker_intake_reads_selected_cas_source_before_retry(
+    tmp_path: Path,
+    worker_entry: Literal["async", "sync"],
+) -> None:
+    """Serialized worker variants publish owner-readable, selected-source bundles."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, _run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
+        replay_state = state.model_copy(
+            update={
+                "inputs": {SNAPSHOT_INPUT_KEY: selected_ref},
+                "params": {
+                    key: value for key, value in state.params.items() if key != "skg_db_path"
+                },
+            }
+        )
+        live = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        try:
+            assert _value(live) == 9.75
+        finally:
+            live.close()
+
+        payload = {
+            "node_id": "scientist.node_resolve_parameters@1.0.0",
+            "alias": "resolve",
+            "params": {},
+            "state_bytes": serialize_state(replay_state),
+            "trace_carrier": {},
+            "timeout_s": None,
+            "max_retries": 0,
+            "context_meta": serialize_context_meta(
+                ctx, workflow_id="retained-skg-worker", runner_backend="portable-test"
+            ),
+        }
+        if worker_entry == "async":
+            outcome_bytes = await run_node_in_worker(payload)
+        else:
+            outcome_bytes = await asyncio.to_thread(run_node_in_worker_sync, payload)
+        outcome = deserialize_outcome(outcome_bytes)
+
+        assert outcome.status == "ok"
+        bundle_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
+        input_roles = {item.role: item for item in store.get_manifest(bundle_ref).inputs}
+        assert set(input_roles) == {"causal_graph", "skg_source_snapshot"}
+        assert input_roles["skg_source_snapshot"] == input_ref_from_artifact_ref(
+            selected_ref, role="skg_source_snapshot"
+        )
+
+
+def test_timeout_worker_rejects_store_run_owner_mismatch_before_reconstruction(
+    tmp_path: Path,
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _source, _store, _run, ctx, state, _selected_ref = _workflow_fixture(tmp_path)
+        worker_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
+        worker_meta["store"]["tenant_id"] = None
+        worker_meta["store"]["cell_id"] = None
+
+        with pytest.raises(ValueError, match="timeout_worker_store_run_owner_mismatch"):
+            _build_timeout_worker_context(worker_meta)
+
+
+@pytest.mark.asyncio
+async def test_shared_worker_intake_refuses_tampered_snapshot_without_live_path(
+    tmp_path: Path,
+) -> None:
+    """A corrupt selected materialization cannot fall back to the absent live path."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _source, _store, _run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
+        replay_state = state.model_copy(
+            update={
+                "inputs": {SNAPSHOT_INPUT_KEY: selected_ref},
+                "params": {
+                    key: value for key, value in state.params.items() if key != "skg_db_path"
+                },
+            }
+        )
+        assert "skg_db_path" not in replay_state.params
+        snapshot = load_retained_skg_snapshot(ctx.store, selected_ref)
+        assert ctx.run.trace_path is not None
+        snapshot_dir = ctx.run.trace_path.parent / "skg-snapshots"
+        materialized = materialize_retained_skg_snapshot(
+            ctx.store, selected_ref, directory=snapshot_dir
+        )
+        original = materialized.read_bytes()
+        damaged = bytes([original[0] ^ 1]) + original[1:]
+        materialized.write_bytes(damaged)
+
+        payload = {
+            "node_id": "scientist.node_resolve_parameters@1.0.0",
+            "alias": "resolve",
+            "params": {},
+            "state_bytes": serialize_state(replay_state),
+            "trace_carrier": {},
+            "timeout_s": None,
+            "max_retries": 0,
+            "context_meta": serialize_context_meta(
+                ctx, workflow_id="retained-skg-worker", runner_backend="portable-test"
+            ),
+        }
+        with pytest.raises(RetainedSKGSnapshotError, match="materialization_digest"):
+            await run_node_in_worker(payload)
+        assert materialized.read_bytes() == damaged
+        assert not (snapshot_dir / f"{snapshot.source_sha256}.duckdb-wal").exists()
+
+
+@pytest.mark.asyncio
+async def test_public_dead_letter_replay_binds_selected_skg_source_before_resolve(
+    tmp_path: Path,
+) -> None:
+    """Public dead-letter replay consumes and records the exact selected retained source."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
+        dead_letter_ref = _put_dead_letter(store, run_id=state.run_id)
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: selected_ref}})
+
+        live = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        try:
+            assert _value(live) == 9.75
+        finally:
+            live.close()
+
+        outcome = await replay_dead_letter(
+            store,
+            dead_letter_ref.artifact_id,
+            ctx=ctx,
+            state=replay_state,
+            node=ResolveParametersNode(),
+        )
+
+        assert outcome.status == "ok"
+        bundle_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
+        manifest = store.get_manifest(bundle_ref)
+        input_roles = {item.role: item for item in manifest.inputs}
+        assert set(input_roles) == {"causal_graph", "skg_source_snapshot"}
+        assert input_roles["skg_source_snapshot"] == input_ref_from_artifact_ref(
+            selected_ref, role="skg_source_snapshot"
+        )
+        assert run.run_manifest.inputs.count(selected_ref) == 1
+
+
+@pytest.mark.asyncio
+async def test_public_dead_letter_replay_refuses_profileless_selected_skg_source(
+    tmp_path: Path,
+) -> None:
+    """A malformed explicit source refuses before the consumer can read live bytes."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, run, ctx, state, selected_ref = _workflow_fixture(tmp_path)
+        dead_letter_ref = _put_dead_letter(store, run_id=state.run_id)
+        profileless_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: profileless_ref}})
+        node_calls: list[bool] = []
+
+        class ObservedResolveParametersNode(ResolveParametersNode):
+            def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+                node_calls.append(True)
+                return super().execute(ctx, state)
+
+        with pytest.raises(RetainedSKGSnapshotError, match="descriptor_profile_required"):
+            await replay_dead_letter(
+                store,
+                dead_letter_ref.artifact_id,
+                ctx=ctx,
+                state=replay_state,
+                node=ObservedResolveParametersNode(),
+            )
+
+        assert node_calls == []
+        assert replay_state.params["skg_db_path"] == str(source)
+        assert profileless_ref not in run.run_manifest.inputs
+        live = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        try:
+            assert _value(live) == 9.75
+        finally:
+            live.close()
 
 
 def test_async_workflow_deadline_cancels_checkpoint_after_real_skg_node_completed(
@@ -553,6 +797,12 @@ def test_real_workflow_selector_replays_saved_source_with_current_live_replaceme
             result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
         )
         assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
+        bundle_manifest = store.get_manifest(
+            result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        )
+        assert (
+            input_ref_from_artifact_ref(ref, role="skg_source_snapshot") in bundle_manifest.inputs
+        )
         assert state.params["skg_db_path"] == str(source)
         assert replay_state.params["skg_db_path"] == str(source)
         assert SNAPSHOT_INPUT_KEY not in state.inputs
@@ -573,6 +823,76 @@ def test_real_workflow_selector_replays_saved_source_with_current_live_replaceme
             assert _value(live) == 9.75
         finally:
             live.close()
+
+
+def test_selected_snapshot_consumer_rechecks_and_recovers_exact_source_after_bind(
+    tmp_path: Path,
+) -> None:
+    """A post-bind replacement is refused; a missing cache file is restored from CAS."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
+        selected = load_retained_skg_snapshot(store, ref)
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+        bound_state = _bind_retained_workflow_input(ctx, replay_state)
+        target = Path(bound_state.params["skg_db_path"])
+        assert run.trace_path is not None
+        assert target == (
+            run.trace_path.parent / "skg-snapshots" / f"{selected.source_sha256}.duckdb"
+        )
+
+        changed_source = tmp_path / "changed-materialization.duckdb"
+        _seed(changed_source, 9.75)
+        os.replace(changed_source, target)
+        changed_bytes = target.read_bytes()
+        with pytest.raises(RetainedSKGSnapshotError, match="retained_skg_materialization_digest"):
+            ResolveParametersNode().execute(ctx, bound_state)
+        assert target.read_bytes() == changed_bytes
+
+        # Absence is recoverable only from the still-selected typed CAS descriptor.
+        target.unlink()
+        outcome = ResolveParametersNode().execute(ctx, bound_state)
+        assert outcome.status == "ok"
+        bundle_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
+        assert (
+            input_ref_from_artifact_ref(ref, role="skg_source_snapshot")
+            in store.get_manifest(bundle_ref).inputs
+        )
+        assert hashlib.sha256(target.read_bytes()).hexdigest() == selected.source_sha256
+        live = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        try:
+            assert _value(live) == 9.75
+        finally:
+            live.close()
+
+
+def test_selected_snapshot_ref_cannot_be_reused_as_absent_source(
+    tmp_path: Path,
+) -> None:
+    """A selected descriptor cannot take the no-source cached-bundle shortcut."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, _, _, ctx, state, ref = _workflow_fixture(tmp_path)
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        built = _execute_workflow("sync", ctx, registry, state)
+        assert built.report.status == "ok"
+        params_without_source = {
+            key: value for key, value in built.state.params.items() if key != "skg_db_path"
+        }
+        selected_without_path = built.state.model_copy(
+            update={
+                "params": params_without_source,
+                "inputs": {SNAPSHOT_INPUT_KEY: ref},
+            }
+        )
+        with pytest.raises(
+            RetainedSKGSnapshotError,
+            match="retained_skg_selected_path_required",
+        ):
+            ResolveParametersNode().execute(ctx, selected_without_path)
 
 
 def test_spawn_timeout_reaps_worker_and_reports_unresolved_group_truthfully(

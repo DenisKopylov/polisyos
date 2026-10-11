@@ -26,6 +26,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     SkippedSourceManifest,
     SourceSnapshotManifest,
     ValidationFinding,
+    _make_validation_finding,
     utc_now_iso,
     write_manifest,
 )
@@ -296,7 +297,7 @@ class TabularSourceAdapter:
         selected_daily_paths = self._evenly_spaced_paths(daily_paths, file_limit)
         if file_limit is not None and daily_paths and len(selected_daily_paths) < len(daily_paths):
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_spending_files",
                     message=f"Normalization sampled {len(selected_daily_paths)} of {len(daily_paths)} daily Spending files due configured cap.",
@@ -455,7 +456,7 @@ class TabularSourceAdapter:
         findings: list[ValidationFinding] = []
         if not manifest.normalized_artifact.sha256:
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="error",
                     code="missing_sha256",
                     message=f"{source.source_id} normalized artifact is missing a SHA256 hash",
@@ -466,7 +467,7 @@ class TabularSourceAdapter:
             and manifest.normalized_artifact.row_count <= 0
         ):
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="error",
                     code="empty_normalized_artifact",
                     message=f"{source.source_id} normalized artifact has no rows",
@@ -526,7 +527,7 @@ class TabularSourceAdapter:
             archive_path = raw_path / zip_name
             if not archive_path.exists():
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="missing_edr_archive",
                         message=f"Expected EDR archive is missing: {zip_name}",
@@ -576,7 +577,7 @@ class TabularSourceAdapter:
         selected_daily_paths = self._evenly_spaced_paths(daily_paths, file_limit)
         if file_limit is not None and daily_paths and len(selected_daily_paths) < len(daily_paths):
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_spending_files",
                     message=f"Normalization sampled {len(selected_daily_paths)} of {len(daily_paths)} daily Spending files due configured cap.",
@@ -649,7 +650,7 @@ class TabularSourceAdapter:
         selected_paths = self._evenly_spaced_paths(contract_paths, file_limit)
         if file_limit is not None and contract_paths and len(selected_paths) < len(contract_paths):
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_spending_contract_files",
                     message=f"Normalization sampled {len(selected_paths)} of {len(contract_paths)} Spending contract files due configured cap.",
@@ -765,7 +766,7 @@ class TabularSourceAdapter:
 
         if documents_without_visible_supplier_id:
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="spending_contracts_hidden_supplier_ids",
                     message=(
@@ -776,7 +777,7 @@ class TabularSourceAdapter:
             )
         if prozorro_linked_documents:
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="info",
                     code="spending_contracts_linked_to_prozorro",
                     message=(
@@ -803,7 +804,7 @@ class TabularSourceAdapter:
                 frame = pd.read_excel(path)
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="household_microdata_read_failed",
                         message=f"Failed reading household microdata file {path.name}: {exc}",
@@ -819,7 +820,7 @@ class TabularSourceAdapter:
             income_col = self._first_existing_column(frame, "totalinc", "totalres", "cashinc")
             if year_col is None or family_col is None or weight_col is None or income_col is None:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="household_microdata_missing_columns",
                         message=f"Skipping household microdata file {path.name} because required columns are missing.",
@@ -913,7 +914,7 @@ class TabularSourceAdapter:
                 frame = pd.read_excel(path, sheet_name=0)
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="labor_microdata_read_failed",
                         message=f"Failed reading labor-force microdata file {path.name}: {exc}",
@@ -930,7 +931,7 @@ class TabularSourceAdapter:
             informal_col = self._first_existing_column(frame, "informal_empl", "INFORMAL_EMPL")
             if id_col is None or year_col is None or labour_force_col is None:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="labor_microdata_missing_columns",
                         message=f"Skipping labor-force microdata file {path.name} because required columns are missing.",
@@ -1020,7 +1021,7 @@ class TabularSourceAdapter:
                 )
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="pfu_debt_read_failed",
                         message=f"Failed reading PFU debt file {path.name}: {exc}",
@@ -1082,7 +1083,7 @@ class TabularSourceAdapter:
                     if not frame.empty:
                         return frame, findings
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="wage_arrears_proxy_from_pfu_debt",
                     message=(
@@ -1227,7 +1228,7 @@ class TabularSourceAdapter:
                 frame = pd.read_excel(path, sheet_name=0)
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="logistics_mobility_read_failed",
                         message=f"Failed reading logistics mobility file {path.name}: {exc}",
@@ -1238,7 +1239,7 @@ class TabularSourceAdapter:
             region_col = self._detect_region_like_column(frame)
             if region_col is None:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="logistics_mobility_region_column_missing",
                         message=f"Could not infer region column for logistics mobility file {path.name}.",
@@ -1249,7 +1250,7 @@ class TabularSourceAdapter:
             valid = region_codes != "00"
             if not valid.any():
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="logistics_mobility_no_resolved_regions",
                         message=f"No resolvable regions found in logistics mobility file {path.name}.",
@@ -1300,7 +1301,7 @@ class TabularSourceAdapter:
                 frame = pd.read_excel(path, header=None, sheet_name=0)
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="land_cadastre_read_failed",
                         message=f"Failed reading land cadastre file {path.name}: {exc}",
@@ -1319,7 +1320,7 @@ class TabularSourceAdapter:
             land_use_proxy = float(numeric.fillna(0.0).sum().sum())
             if land_use_proxy <= 0.0:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="land_cadastre_zero_proxy",
                         message=f"Land cadastre file {path.name} produced zero proxy mass and was skipped.",
@@ -1403,7 +1404,7 @@ class TabularSourceAdapter:
             return frame, findings
 
         findings = [
-            ValidationFinding(
+            _make_validation_finding(
                 severity="warning",
                 code="prozorro_feed_without_contract_details",
                 message="Normalization uses contracts feed pages; buyer/supplier and amount require detail hydration that is not available in current raw layer.",
@@ -1417,7 +1418,7 @@ class TabularSourceAdapter:
         selected_pages = self._evenly_spaced_paths(page_paths, page_limit)
         if page_limit is not None and page_paths and len(selected_pages) < len(page_paths):
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_prozorro_pages",
                     message=f"Normalization sampled {len(selected_pages)} of {len(page_paths)} Prozorro feed pages due configured cap.",
@@ -1501,7 +1502,7 @@ class TabularSourceAdapter:
         )
         if record_limit is not None and balance_rows and len(balance_rows) >= record_limit:
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_dps_balance_records",
                     message=f"Normalization capped DPS balance records at {record_limit}.",
@@ -1509,14 +1510,14 @@ class TabularSourceAdapter:
             )
         if record_limit is not None and income_rows and len(income_rows) >= record_limit:
             findings.append(
-                ValidationFinding(
+                _make_validation_finding(
                     severity="warning",
                     code="capped_dps_income_records",
                     message=f"Normalization capped DPS income records at {record_limit}.",
                 )
             )
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="warning",
                 code="dps_employment_not_available",
                 message=(
@@ -1907,7 +1908,7 @@ class TabularSourceAdapter:
                 )
             except Exception as exc:
                 findings.append(
-                    ValidationFinding(
+                    _make_validation_finding(
                         severity="warning",
                         code="wage_arrears_read_failed",
                         message=f"Failed reading wage arrears file {path.name}: {exc}",

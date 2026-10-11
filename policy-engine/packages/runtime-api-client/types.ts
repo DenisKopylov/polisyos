@@ -6607,7 +6607,7 @@ export interface components {
         };
         /**
          * DataSourceBinding
-         * @description Exactly one of these fields must be provided.
+         * @description Legacy string-only source binding retained for natural-language runs.
          */
         DataSourceBinding: {
             /** Data Snapshot Ref */
@@ -6616,6 +6616,25 @@ export interface components {
             data_view_request_ref?: string | null;
             /** Input Bindings Ref */
             input_bindings_ref?: string | null;
+        };
+        /**
+         * DataViewRequestRef
+         * @description Artifact reference for the original Fabric data-view request payload.
+         */
+        DataViewRequestRef: {
+            artifact_id: components["schemas"]["ArtifactID-Input"];
+            /**
+             * Kind
+             * @default ir.data_view_request
+             */
+            kind?: string;
+            /** Manifest Profile Sha256 */
+            manifest_profile_sha256?: string | null;
+            /**
+             * Media Type
+             * @default application/json
+             */
+            media_type?: string;
         };
         /**
          * DatasetFetchSpecRequest
@@ -14997,6 +15016,13 @@ export interface components {
             /** Data Needs */
             data_needs?: components["schemas"]["RunEvidenceNeedView"][];
             data_snapshot_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Data View Request Profile Status
+             * @description Profile-selection provenance only; does not establish source authority or currentness.
+             * @default not_established
+             * @enum {string}
+             */
+            data_view_request_profile_status: "caller_selected_profile" | "worker_default_limited" | "not_requested" | "not_established";
             data_view_request_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             evidence_bundle_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             execution_plan_ref?: components["schemas"]["ArtifactRef-Output"] | null;
@@ -17742,6 +17768,18 @@ export interface components {
             media_type: "application/json";
         };
         /**
+         * WorkflowDataSourceBinding
+         * @description Select one workflow source while preserving typed profile intent.
+         */
+        WorkflowDataSourceBinding: {
+            /** Data Snapshot Ref */
+            data_snapshot_ref?: string | null;
+            /** Data View Request Ref */
+            data_view_request_ref?: components["schemas"]["DataViewRequestRef"] | string | null;
+            /** Input Bindings Ref */
+            input_bindings_ref?: string | null;
+        };
+        /**
          * WorkflowRunRequest
          * @description POST /api/v1/control/runs — launch a workflow run.
          */
@@ -17754,7 +17792,7 @@ export interface components {
              * @enum {string}
              */
             checkpoint_policy?: "strict" | "lenient" | "disabled";
-            data_source: components["schemas"]["DataSourceBinding"];
+            data_source: components["schemas"]["WorkflowDataSourceBinding"];
             /** Execution Profile */
             execution_profile?: ("dev" | "research" | "governed" | "production") | null;
             /** Knowledge Bundle Ref */

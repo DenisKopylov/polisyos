@@ -11,15 +11,15 @@ import {
 } from "@/app/offline/composerDraftDb";
 import {
   naturalLanguageLaunchSchema,
-  workflowLaunchSchema,
+  workflowLaunchDraftSchema,
   type NaturalLanguageLaunchFormValues,
-  type WorkflowLaunchFormValues,
+  type WorkflowLaunchFormInputValues,
 } from "@/features/composer/domain/forms";
 
 export type ComposerDraftMode = "nl" | "workflow";
 export type ComposerDraftValues =
   | NaturalLanguageLaunchFormValues
-  | WorkflowLaunchFormValues;
+  | WorkflowLaunchFormInputValues;
 export type ComposerDraftRecord = {
   fromRunId: string | null;
   key: string;
@@ -39,9 +39,7 @@ export type ComposerDraftDatabasePort = Readonly<{
 const COMPOSER_DRAFT_TTL_MS = 24 * 60 * 60 * 1_000;
 const COMPOSER_DRAFT_FAMILY = "composer-draft" as const;
 
-const workflowDraftValuesSchema = workflowLaunchSchema
-  .extend({ dataSourceRef: z.string() })
-  .strict();
+const workflowDraftValuesSchema = workflowLaunchDraftSchema;
 const naturalLanguageDraftValuesSchema = naturalLanguageLaunchSchema
   .extend({
     nlRequest: z.string(),

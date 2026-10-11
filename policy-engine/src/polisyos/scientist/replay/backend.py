@@ -292,10 +292,25 @@ async def replay_dead_letter(
     timeout_s: float | None = None,
     max_retries: int | None = None,
 ) -> Any:
-    """Replay a dead-lettered node with caller-supplied execution context/state."""
+    """Replay a dead-lettered node, binding any explicitly selected SKG snapshot first."""
     from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
 
     record = load_dead_letter(store, artifact_id)
+    from polisyos.scientist.orchestration.engine.skg_snapshot import (
+        SNAPSHOT_INPUT_KEY,
+        bind_retained_skg_workflow_input,
+    )
+
+    if SNAPSHOT_INPUT_KEY in state.inputs:
+        from polisyos.common.async_tools import run_blocking_async
+
+        state = await run_blocking_async(
+            bind_retained_skg_workflow_input,
+            ctx,
+            state,
+            unbounded=True,
+        )
+
     resolved_node = node
     if resolved_node is None:
         if registry is None:

@@ -40,6 +40,12 @@ environment fingerprints.
   import these from the artifacts facade; they do not copy the projection algorithm or
   import its private lifecycle owner. A profile selects a manifest view; it does not
   attest producer authority or currentness.
+- write-selected profile result: existing `put_bytes`/`put_json` methods accept the strict
+  keyword `return_selected_profile=True` to return the exact profile computed and committed
+  inside the write lease. The default stays profileless for a default view. Caching, cloud,
+  IR, and timeout-aware async adapters forward the explicit request; unsupported wrappers
+  refuse before cache-local mutation. This is a write result, not producer authority or
+  currentness.
 - producer-bound profile selection: `profile_bound_ref` resolves the supplied ref
   through the CAS store and returns the same typed ref pinned to the exact manifest
   view selected at this producer boundary. A profileless input binds the current

@@ -408,14 +408,26 @@ _CLAIM_WRITE_METHODS = frozenset(
         "produce_owner_event_candidate",
     }
 )
+_ATTEMPT_CONTEXT_FACADE_FIELDS = frozenset({"store", "run", "audit", "claim_ledger_owner"})
+_ATTEMPT_RUN_FACADE_FIELDS = frozenset({"store", "run_manifest", "trace", "_audit_sink"})
+
+
+class _AttemptWriteDeniedError(RuntimeError):
+    """Identify a persistent write refused after attempt authority expires."""
+
+    code = "attempt_write_revoked"
+    reason_code = "attempt_write_revoked"
+
+    def __init__(self) -> None:
+        super().__init__(self.reason_code)
 
 
 class _AttemptAuthority:
     """Serialize attempt-owned writes and revoke them after a timeout.
 
-    The lock is deliberately shared by every facade for one attempt.  A write
+    The lock is deliberately shared by every facade for one attempt. A write
     that has acquired it is linearized before ``revoke``; every later write is
-    denied.  This is a local authority boundary, not a process sandbox.
+    denied. This is a local authority boundary, not a process sandbox.
     """
 
     def __init__(
@@ -429,14 +441,22 @@ class _AttemptAuthority:
         self._deadline = deadline_monotonic
         self._shared_active = shared_active
 
+    def _is_active_locked(self) -> bool:
+        active = self._active if self._shared_active is None else bool(self._shared_active.value)
+        return active and (self._deadline is None or time.monotonic() < self._deadline)
+
     def invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
-        """Run one authorized operation, or deny it after revocation."""
+        """Run a best-effort operation; revoked non-persistent writes are no-ops."""
         with self._lock:
-            active = (
-                self._active if self._shared_active is None else bool(self._shared_active.value)
-            )
-            if not active or (self._deadline is not None and time.monotonic() >= self._deadline):
+            if not self._is_active_locked():
                 return None
+            return operation(*args, **kwargs)
+
+    def invoke_persistent_write(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+        """Run a CAS persistence operation or raise a typed revocation refusal."""
+        with self._lock:
+            if not self._is_active_locked():
+                raise _AttemptWriteDeniedError()
             return operation(*args, **kwargs)
 
     def revoke(self) -> None:
@@ -471,15 +491,22 @@ class _AttemptFacade:
         authority: _AttemptAuthority,
         *,
         write_methods: frozenset[str],
+        raise_on_revoked_write: bool = False,
     ) -> None:
         self._target = target
         self._authority = authority
         self._write_methods = write_methods
+        self._raise_on_revoked_write = raise_on_revoked_write
 
     def __getattr__(self, name: str) -> Any:
         value = getattr(self._target, name)
         if callable(value) and name in self._write_methods:
-            return lambda *args, **kwargs: self._authority.invoke(
+            invoke = (
+                self._authority.invoke_persistent_write
+                if self._raise_on_revoked_write
+                else self._authority.invoke
+            )
+            return lambda *args, **kwargs: invoke(
                 value,
                 *(_unwrap_manifest_value(arg) for arg in args),
                 **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
@@ -636,72 +663,103 @@ class _AttemptRunFacade(_AttemptFacade):
             _AttemptManifestFacade(manifest, authority) if manifest is not None else None,
         )
         for name in ("trace", "_audit_sink"):
-            sink = getattr(target, name, None)
-            if sink is not None:
-                setattr(
-                    self,
-                    name,
-                    _AttemptFacade(
-                        sink,
-                        authority,
-                        write_methods=_TRACE_WRITE_METHODS,
-                    ),
+            try:
+                sink = getattr(target, name)
+            except AttributeError:
+                continue
+            wrapped_sink = (
+                _AttemptFacade(
+                    sink,
+                    self._authority,
+                    write_methods=_TRACE_WRITE_METHODS,
                 )
+                if sink is not None
+                else None
+            )
+            object.__setattr__(self, name, wrapped_sink)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if "_target" in self.__dict__:
-            target_value = _unwrap_manifest_value(value)
-            if name in {"store", "trace", "_audit_sink"}:
-                self._authority.invoke(setattr, self._target, name, target_value)
-                if target_value is None:
-                    value = None
-                else:
-                    write_methods = (
-                        _STORE_WRITE_METHODS if name == "store" else _TRACE_WRITE_METHODS
-                    )
-                    value = _AttemptFacade(
-                        target_value,
-                        self._authority,
-                        write_methods=write_methods,
-                    )
-            elif name == "run_manifest":
-                self._authority.invoke(
-                    setattr,
-                    self._target,
-                    name,
-                    target_value,
-                )
-                value = _AttemptManifestFacade(target_value, self._authority)
+        if name in _ATTEMPT_RUN_FACADE_FIELDS and "_target" in self.__dict__:
+            raise AttributeError("timed run facade fields cannot be rebound")
         object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in _ATTEMPT_RUN_FACADE_FIELDS and "_target" in self.__dict__:
+            raise AttributeError("timed run facade fields cannot be removed")
+        object.__delattr__(self, name)
+
+    def __getattr__(self, name: str) -> Any:
+        if name in _ATTEMPT_RUN_FACADE_FIELDS:
+            try:
+                target_value = getattr(self._target, name)
+            except AttributeError:
+                raise AttributeError(
+                    f"protected timed run facade field {name!r} is unavailable"
+                ) from None
+            if target_value is None:
+                return None
+            raise AttributeError(f"protected timed run facade field {name!r} is unavailable")
+        return super().__getattr__(name)
 
 
 class _AttemptContext:
     """Private worker context preserving the public context attribute surface."""
 
     def __init__(self, target: Any, authority: _AttemptAuthority) -> None:
-        self._target = target
-        self.store = _AttemptFacade(
-            target.store,
-            authority,
-            write_methods=_STORE_WRITE_METHODS,
+        object.__setattr__(self, "_target", target)
+        object.__setattr__(
+            self,
+            "store",
+            _AttemptFacade(
+                target.store,
+                authority,
+                write_methods=_STORE_WRITE_METHODS,
+                raise_on_revoked_write=True,
+            ),
         )
-        self.run = _AttemptRunFacade(target.run, authority, self.store)
+        object.__setattr__(self, "run", _AttemptRunFacade(target.run, authority, self.store))
         audit = getattr(target, "audit", None)
         if audit is not None:
-            self.audit = _AttemptFacade(
-                audit,
-                authority,
-                write_methods=_AUDIT_WRITE_METHODS,
+            object.__setattr__(
+                self,
+                "audit",
+                _AttemptFacade(
+                    audit,
+                    authority,
+                    write_methods=_AUDIT_WRITE_METHODS,
+                ),
             )
         claim_owner = getattr(target, "claim_ledger_owner", None)
         if claim_owner is not None:
-            self.claim_ledger_owner = _AttemptFacade(
-                claim_owner,
-                authority,
-                write_methods=_CLAIM_WRITE_METHODS,
+            object.__setattr__(
+                self,
+                "claim_ledger_owner",
+                _AttemptFacade(
+                    claim_owner,
+                    authority,
+                    write_methods=_CLAIM_WRITE_METHODS,
+                ),
             )
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in _ATTEMPT_CONTEXT_FACADE_FIELDS and "_target" in self.__dict__:
+            raise AttributeError("timed attempt context facades cannot be rebound")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name: str) -> None:
+        if name in _ATTEMPT_CONTEXT_FACADE_FIELDS and "_target" in self.__dict__:
+            raise AttributeError("timed attempt context facades cannot be removed")
+        object.__delattr__(self, name)
+
     def __getattr__(self, name: str) -> Any:
+        if name in _ATTEMPT_CONTEXT_FACADE_FIELDS:
+            try:
+                target_value = getattr(self._target, name)
+            except AttributeError:
+                raise AttributeError(f"{type(self).__name__} has no attribute {name!r}") from None
+            if target_value is None:
+                return None
+            raise AttributeError(f"protected timed attempt facade field {name!r} is unavailable")
         return getattr(self._target, name)
 
 

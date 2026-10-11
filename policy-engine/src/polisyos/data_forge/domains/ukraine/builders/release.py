@@ -16,6 +16,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     D5ReleaseProducerFacts,
     ReleaseManifest,
     ValidationFinding,
+    _make_validation_finding,
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
@@ -363,9 +364,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         "cell_registry": ArtifactRecord.from_path(
             runtime_stage / "cell_registry_region_sector.parquet"
         ),
-        "d4_governance_request": ArtifactRecord.from_path(
-            d4_stage / "d4_governance_request.json"
-        ),
+        "d4_governance_request": ArtifactRecord.from_path(d4_stage / "d4_governance_request.json"),
         "graph_compression_bundle": outputs["graph_compression_bundle.json"],
     }
     handoff_request = _build_d5_release_handoff_request(
@@ -468,7 +467,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     )
     release_manifest_path = stage_dir / "release_manifest_v1.json"
     findings: list[ValidationFinding] = [
-        ValidationFinding(
+        _make_validation_finding(
             severity="warning",
             code="downstream_release_authority_not_established",
             message=(
@@ -479,7 +478,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     ]
     if float(graph_compression_bundle["fidelity_metrics"]["degree_preservation_score"]) < 0.85:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="compression_degree_preservation_below_threshold",
                 message="graph compression degree preservation fell below the minimum release threshold",
@@ -490,7 +489,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         > 0.15
     ):
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="error",
                 code="compression_edge_weight_error_above_threshold",
                 message="graph compression edge-weight reconstruction error exceeds the release threshold",
@@ -508,7 +507,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
 
     if float(release_manifest.metrics["runtime_bundle_size_gib"]) >= 25.0:
         findings.append(
-            ValidationFinding(
+            _make_validation_finding(
                 severity="warning",
                 code="runtime_bundle_size_budget_exceeded",
                 message="runtime bundle size exceeds 25 GiB target budget",

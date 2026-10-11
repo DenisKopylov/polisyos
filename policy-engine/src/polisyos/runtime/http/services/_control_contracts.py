@@ -6,9 +6,9 @@ import os
 import re
 import time
 import uuid
-from typing import Any, Protocol, cast, get_args
+from typing import Any, Literal, Protocol, cast, get_args
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
@@ -16,12 +16,26 @@ from polisyos.core.contracts.control import (
     DataSourceBinding,
     ExecutionProfile,
     RetrievalMode,
+    WorkflowDataSourceBinding,
 )
+from polisyos.core.contracts.fabric import DataViewRequestRef
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 
 _CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
 _RETRIEVAL_MODES = frozenset({"fastlane", "explorelane", "hybrid"})
+_WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY = "data_view_request_intent"
+
+
+class WorkflowDataViewRequestIntent(BaseModel):
+    """Immutable server-recorded origin of a workflow data-view selector."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.workflow_data_view_request_intent.v1"] = (
+        "polisyos.runtime.workflow_data_view_request_intent.v1"
+    )
+    profile_origin: Literal["caller_selected", "worker_default"]
 
 
 class _MethodCatalogSnapshotAware(Protocol):
@@ -84,7 +98,7 @@ def _artifact_ref_from_summary_payload(
 _DATA_SOURCE_KEYS = {
     "data_snapshot_ref": "fabric.data_snapshot",
     "input_bindings_ref": "foundry.input_bindings",
-    "data_view_request_ref": "fabric.data_view_request",
+    "data_view_request_ref": "ir.data_view_request",
 }
 
 _OPTIONAL_INPUT_KEYS = {
@@ -109,6 +123,51 @@ def _resolve_data_source(binding: DataSourceBinding) -> tuple[str, str]:
         "At least one data source must be provided: "
         "data_snapshot_ref, input_bindings_ref, or data_view_request_ref"
     )
+
+
+def _resolve_workflow_data_source(
+    binding: WorkflowDataSourceBinding,
+) -> tuple[str, ArtifactRef, WorkflowDataViewRequestIntent | None]:
+    """Preserve the exact typed request through workflow job creation."""
+    if binding.data_snapshot_ref is not None:
+        return (
+            "data_snapshot_ref",
+            _make_artifact_ref(
+                binding.data_snapshot_ref,
+                kind=_DATA_SOURCE_KEYS["data_snapshot_ref"],
+            ),
+            None,
+        )
+    if binding.input_bindings_ref is not None:
+        return (
+            "input_bindings_ref",
+            _make_artifact_ref(
+                binding.input_bindings_ref,
+                kind=_DATA_SOURCE_KEYS["input_bindings_ref"],
+            ),
+            None,
+        )
+    value = binding.data_view_request_ref
+    if isinstance(value, DataViewRequestRef):
+        request_ref = ArtifactRef.model_validate(value.model_dump(mode="python"))
+    elif isinstance(value, str):
+        request_ref = _typed_artifact_ref(
+            value,
+            kind=_DATA_SOURCE_KEYS["data_view_request_ref"],
+            ref_type=DataViewRequestRef,
+        )
+    else:
+        raise ValueError("workflow_data_source_must_select_exactly_one")
+    if request_ref.kind != "ir.data_view_request" or request_ref.media_type != "application/json":
+        raise ValueError("workflow_data_view_request_ref_kind_or_media_type_invalid")
+    intent = WorkflowDataViewRequestIntent(
+        profile_origin=(
+            "caller_selected"
+            if request_ref.manifest_profile_sha256 is not None
+            else "worker_default"
+        )
+    )
+    return "data_view_request_ref", request_ref, intent
 
 
 def _as_bool(value: str | None, *, default: bool) -> bool:
@@ -201,6 +260,8 @@ def _now_ms() -> int:
 __all__ = [
     "_DATA_SOURCE_KEYS",
     "_OPTIONAL_INPUT_KEYS",
+    "_WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY",
+    "WorkflowDataViewRequestIntent",
     "_MethodCatalogSnapshotAware",
     "_artifact_ref_from_summary_payload",
     "_as_bool",
@@ -222,5 +283,6 @@ __all__ = [
     "_normalize_model_variant_id",
     "_now_ms",
     "_resolve_data_source",
+    "_resolve_workflow_data_source",
     "_typed_artifact_ref",
 ]

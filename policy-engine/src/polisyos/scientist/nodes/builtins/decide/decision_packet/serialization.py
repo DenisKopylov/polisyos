@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyKind,
@@ -97,12 +103,12 @@ def _claim_source_artifact_refs(state: ExperimentState) -> list[ArtifactRef]:
     refs.extend(state.artifacts_index.values())
     refs.extend(state.reports_index.values())
     output: list[ArtifactRef] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str, str, str | None]] = set()
     for ref in refs:
-        artifact_id = str(ref.artifact_id)
-        if artifact_id in seen:
+        identity = artifact_ref_identity_key(ref)
+        if identity in seen:
             continue
-        seen.add(artifact_id)
+        seen.add(identity)
         output.append(ref)
     return output
 
@@ -433,8 +439,42 @@ def _load_json_payload_by_ref(
     return None
 
 
-def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
+def _build_manifest_inputs(
+    packet_payload: dict[str, object],
+    *,
+    source_state: ExperimentState | None = None,
+    source_artifact_refs: tuple[ArtifactRef, ...] = (),
+) -> list[InputRef]:
     collected: dict[tuple[str, str], InputRef] = {}
+    source_refs_by_id: dict[str, list[ArtifactRef]] = {}
+    source_refs_by_role: dict[str, ArtifactRef] = {}
+    ambiguous_source_roles: set[str] = set()
+    if source_state is not None:
+        for ref in _claim_source_artifact_refs(source_state):
+            source_refs_by_id.setdefault(str(ref.artifact_id), []).append(ref)
+        source_maps = (
+            ("input", source_state.inputs),
+            ("artifact", source_state.artifacts_index),
+            ("artifact", source_state.reports_index),
+        )
+        for prefix, refs_by_name in source_maps:
+            for name, ref in refs_by_name.items():
+                role = f"{prefix}.{name}"
+                previous = source_refs_by_role.get(role)
+                if role in ambiguous_source_roles:
+                    continue
+                if previous is None:
+                    source_refs_by_role[role] = ref
+                elif artifact_ref_identity_key(previous) != artifact_ref_identity_key(ref):
+                    source_refs_by_role.pop(role, None)
+                    ambiguous_source_roles.add(role)
+    for ref in source_artifact_refs:
+        refs = source_refs_by_id.setdefault(str(ref.artifact_id), [])
+        if all(
+            artifact_ref_identity_key(existing) != artifact_ref_identity_key(ref)
+            for existing in refs
+        ):
+            refs.append(ref)
     for section_name, prefix in (
         ("inputs", "input"),
         ("artifacts", "artifact"),
@@ -460,7 +500,13 @@ def _build_manifest_inputs(packet_payload: dict[str, object]) -> list[InputRef]:
         ("judge_verdict_ref", "judge_verdict"),
     ):
         section = packet_payload.get(section_name)
-        _collect_manifest_refs(section, prefix, collected)
+        _collect_manifest_refs(
+            section,
+            prefix,
+            collected,
+            source_refs_by_id=source_refs_by_id,
+            source_refs_by_role=source_refs_by_role,
+        )
     return list(collected.values())
 
 
@@ -468,26 +514,58 @@ def _collect_manifest_refs(
     value: object,
     role_prefix: str,
     collected: dict[tuple[str, str], InputRef],
+    *,
+    source_refs_by_id: Mapping[str, list[ArtifactRef]] | None = None,
+    source_refs_by_role: Mapping[str, ArtifactRef] | None = None,
 ) -> None:
     if isinstance(value, str):
         try:
             artifact_id = ArtifactID.model_validate(value)
         except (ValidationError, ValueError, TypeError):
             return
-        collected[(artifact_id.hex, role_prefix)] = InputRef(
-            artifact_id=artifact_id,
-            role=role_prefix,
-        )
+        selected_ref = (source_refs_by_role or {}).get(role_prefix)
+        if selected_ref is not None and selected_ref.artifact_id == artifact_id:
+            input_ref = input_ref_from_artifact_ref(selected_ref, role=role_prefix)
+        else:
+            candidates = (source_refs_by_id or {}).get(str(artifact_id), [])
+            if len(candidates) > 1:
+                raise ValueError("decision_packet_manifest_input_profile_ambiguous")
+            input_ref = (
+                input_ref_from_artifact_ref(candidates[0], role=role_prefix)
+                if candidates
+                else InputRef(artifact_id=artifact_id, role=role_prefix)
+            )
+        collected[(artifact_id.hex, role_prefix)] = input_ref
         return
 
     if isinstance(value, list):
         for idx, nested in enumerate(value):
-            _collect_manifest_refs(nested, f"{role_prefix}[{idx}]", collected)
+            _collect_manifest_refs(
+                nested,
+                f"{role_prefix}[{idx}]",
+                collected,
+                source_refs_by_id=source_refs_by_id,
+                source_refs_by_role=source_refs_by_role,
+            )
         return
 
     if isinstance(value, dict):
+        ref_fields = {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+        if {"artifact_id", "kind", "media_type"} <= value.keys():
+            ref_payload = {key: value[key] for key in ref_fields if key in value}
+            ref = ArtifactRef.model_validate(ref_payload)
+            collected[(ref.artifact_id.hex, role_prefix)] = input_ref_from_artifact_ref(
+                ref, role=role_prefix
+            )
+            return
         for key, nested in value.items():
-            _collect_manifest_refs(nested, f"{role_prefix}.{key}", collected)
+            _collect_manifest_refs(
+                nested,
+                f"{role_prefix}.{key}",
+                collected,
+                source_refs_by_id=source_refs_by_id,
+                source_refs_by_role=source_refs_by_role,
+            )
 
 
 __all__ = [

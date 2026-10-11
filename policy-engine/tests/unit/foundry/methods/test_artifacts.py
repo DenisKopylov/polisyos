@@ -19,6 +19,7 @@ from uuid import uuid4
 
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
 from polisyos.foundry.methods.artifacts import (
     ChainArtifact,
     ChainNodeRecord,
@@ -30,6 +31,7 @@ from polisyos.foundry.methods.artifacts import (
     _fingerprint,
     compute_source_fingerprint,
     compute_source_hash,
+    store_method_artifact,
 )
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -158,13 +160,15 @@ class TestSafeGitInvocation:
 
         monkeypatch.setattr(_fingerprint.shutil, "which", lambda name: str(fake_git))
         monkeypatch.setattr(_fingerprint.subprocess, "run", fake_run)
-        result = _fingerprint._safe_run(
-            ["git", "-C", str(tmp_path), "rev-parse", "HEAD"]
-        )
+        result = _fingerprint._safe_run(["git", "-C", str(tmp_path), "rev-parse", "HEAD"])
 
         assert result == "revision"
         assert seen["command"] == [
-            str(fake_git.resolve()), "-C", str(tmp_path), "rev-parse", "HEAD"
+            str(fake_git.resolve()),
+            "-C",
+            str(tmp_path),
+            "rev-parse",
+            "HEAD",
         ]
         assert seen["kwargs"]["shell"] is False
 
@@ -331,6 +335,33 @@ class TestMethodArtifact:
         assert manifest.artifact_schema.name == "polisyos.foundry.method_artifact"
         assert manifest.integrity is not None
         assert len(manifest.integrity.sha256) == 64
+
+    def test_store_method_artifact_preserves_opt_in_selected_profile(
+        self,
+        sample_signature: MethodSignature,
+        sample_metadata: MethodMetadata,
+        sample_specialization: Specialization,
+        tmp_path: Path,
+    ) -> None:
+        method_class = create_mock_method_class(sample_signature, sample_metadata)
+        artifact = MethodArtifact.from_method(method_class, sample_specialization)
+        store = FileSystemCAS(tmp_path / "cas")
+
+        legacy_ref = store_method_artifact(store, artifact)
+        selected_ref = store_method_artifact(store, artifact, return_selected_profile=True)
+
+        assert legacy_ref.manifest_profile_sha256 is None
+        assert selected_ref.manifest_profile_sha256 is not None
+        manifest = store.get_manifest_by_profile(
+            selected_ref.artifact_id, selected_ref.manifest_profile_sha256
+        )
+        assert str(manifest.artifact_id) == str(selected_ref.artifact_id)
+        assert artifact_manifest_profile_sha256(manifest) == selected_ref.manifest_profile_sha256
+        assert manifest.kind == selected_ref.kind == "foundry.method_artifact"
+        assert manifest.media_type == selected_ref.media_type == "application/json"
+        assert manifest.artifact_schema is not None
+        assert manifest.artifact_schema.name == "polisyos.foundry.method_artifact"
+        assert manifest.artifact_schema.version == MethodArtifact.SCHEMA_VERSION
 
     def test_source_unavailable_flag(
         self,

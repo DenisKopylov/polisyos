@@ -99,20 +99,44 @@ class NamespacedArtifactStore:
         """Read a namespaced artifact manifest from the wrapped store."""
         return cast("ArtifactManifest", self._inner.get_manifest(self._ns(artifact_id)))
 
-    def put_bytes(self, data: bytes, opts: PutOptions | None = None) -> ArtifactRef:
-        """Persist artifact bytes using the wrapped store's native write contract."""
-        ref = cast("ArtifactRef", self._inner.put_bytes(data, opts))
-        return ref
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        """Persist bytes, preserving an optional exact write-selected profile."""
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self._inner, "put_bytes")
+            ref = self._inner.put_bytes(data, opts, return_selected_profile=True)
+        else:
+            ref = self._inner.put_bytes(data, opts)
+        return cast("ArtifactRef", ref)
 
     def put_json(
         self,
         obj: Any,
         opts: PutOptions | None = None,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        """Persist a JSON artifact using the wrapped store's native write contract."""
-        ref = cast("ArtifactRef", self._inner.put_json(obj, opts, canon_spec))
-        return ref
+        """Persist JSON, preserving an optional exact write-selected profile."""
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self._inner, "put_json")
+            ref = self._inner.put_json(obj, opts, canon_spec, return_selected_profile=True)
+        else:
+            ref = self._inner.put_json(obj, opts, canon_spec)
+        return cast("ArtifactRef", ref)
 
     def verify(self, artifact_id: str) -> VerificationReport:
         """Run integrity verification for a tenant-local artifact id."""

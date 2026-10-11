@@ -391,10 +391,15 @@
       "dataSource": {
         "snapshot": "Ref data snapshot",
         "bindings": "Ref input bindings",
-        "view": "Ref data view request"
+        "view": "Ref data view request",
+        "profileSha256": "SHA-256 профілю маніфесту (необов'язково)",
+        "profileSelectorLegacy": "Залиште поле порожнім для сумісного вибору рядковим ref.",
+        "profileSelectorInvalid": "Використовуйте sha256: і 64 рядкові шістнадцяткові символи.",
+        "profileSelectorRequiresView": "Селектор профілю маніфесту потребує data view request."
       },
       "placeholders": {
         "sha256": "sha256:...",
+        "manifestProfile": "sha256:<64 lowercase hex>",
         "trinity": "sha256:trinity",
         "policySpec": "sha256:policy-spec",
         "modelSpec": "sha256:model-spec",
@@ -708,6 +713,19 @@
         "source": "Джерело"
       },
       "overview": "Огляд",
+      "genericCycleSimulation": {
+        "title": "Загальна симуляція циклу",
+        "authority": "Лише збережена історія кандидата. Поточність і право публікації не встановлені.",
+        "artifactStatus": "Статус артефакту: {status}",
+        "childProfileStatus": "Статус профілю дочірніх вузлів: {status}",
+        "currentnessStatus": "Поточність: {status}",
+        "n4SourceStatus": "Статус джерела N4: {status}",
+        "observationsTitle": "Спостереження N5",
+        "observationsEmpty": "У цьому записі немає збережених спостережень N5.",
+        "profileBindingsTitle": "Історичні прив’язки профілів дочірніх вузлів",
+        "unavailable": "Спостереження циклу приховано: {reason}.",
+        "refused": "Проєкцію циклу приховано: {reason}"
+      },
       "candidateSimulation": {
         "title": "Умовна симуляція",
         "authority": "Дані сценарію кандидата. Право публікації не встановлено.",
@@ -1345,6 +1363,16 @@
       "connectorsLoadError": "Не вдалося завантажити конектори",
       "checkedAt": "перевірено {date}",
       "contextRefs": "Context refs",
+      "profileSelection": {
+        "title": "Вибір профілю data view request",
+        "provenanceOnly": "Це лише походження вибору профілю; воно не встановлює повноваження чи актуальність.",
+        "status": {
+          "callerSelected": "Профіль вибрав caller",
+          "workerDefaultLimited": "Обмежений профіль за замовчуванням worker",
+          "notRequested": "Data view request не надсилався",
+          "notEstablished": "Вибір профілю не встановлений"
+        }
+      },
       "promotionLane": "Promotion lane",
       "selectedArtifact": "Вибраний артефакт",
       "promotionReviewTitle": "Лінія review та collaboration для promotion",

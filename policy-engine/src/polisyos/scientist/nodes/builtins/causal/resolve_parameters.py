@@ -23,12 +23,15 @@ from polisyos.foundry.methods.catalog.causal.parameter_transfer import Parameter
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
+from polisyos.ir.analytics.cross_graph import (
+    CrossGraphEvidenceProfile,
+    load_cross_graph_evidence_profile,
+)
 from polisyos.ir.analytics.parameters import (
-    ContextAdaptiveParameterBundle,
+    ContextAdaptiveParameterBundleV11,
     ParameterApplicability,
     load_context_adaptive_parameter_bundle,
-    persist_context_adaptive_parameter_bundle,
+    persist_context_adaptive_parameter_bundle_v1_1,
 )
 from polisyos.ir.registry.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -43,6 +46,12 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeEvent,
     NodeOutcome,
     NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.skg_snapshot import (
+    SNAPSHOT_INPUT_KEY,
+    RetainedSKGSnapshotError,
+    prepare_or_validate_retained_skg_read,
+    retained_skg_snapshot_directory,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
@@ -71,7 +80,9 @@ _SPEC = NodeSpec(
         "params.phase15_runtime_backend",
         "params.phase15_runtime_draws",
         "params.phase15_runtime_seed",
+        f"inputs.{SNAPSHOT_INPUT_KEY}",
         "params.causal_graph_ref",
+        f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF}",
         f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
     ],
@@ -86,8 +97,13 @@ _SPEC = NodeSpec(
     produces=[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF],
 )
 
+
 class _InvalidCausalGraphReference(ValueError):
     """Identify a supplied graph selector that is malformed or stale."""
+
+
+class _InvalidCrossGraphEvidenceProfileReference(ValueError):
+    """Identify a supplied cross-graph profile selector that cannot be resolved."""
 
 
 _RESOLVE_PARAMETERS_LOAD_ERRORS = (
@@ -117,10 +133,15 @@ class ResolveParametersNode:
         state: ExperimentState,
     ) -> PreparedSKGRead | None:
         """Bind cache lookup to the selected SKG source database."""
-        del ctx
         try:
             graph_ref = _resolve_causal_graph_ref(state)
-        except _InvalidCausalGraphReference:
+            _cross_graph_profile, _cross_graph_profile_ref = _resolve_cross_graph_profile(
+                ctx, state
+            )
+        except (
+            _InvalidCausalGraphReference,
+            _InvalidCrossGraphEvidenceProfileReference,
+        ):
             # Cache preparation is a probe; execute() turns the supplied bad
             # selector into a typed failure instead of conflating it with absence.
             return None
@@ -144,7 +165,7 @@ class ResolveParametersNode:
         state: ExperimentState,
         cached_outcome: NodeOutcome,
     ) -> bool:
-        """Re-run B60 request and graph binding checks before replaying a cached bundle."""
+        """Re-run request, graph, and cross-graph bindings before cache replay."""
         bundle_ref = cached_outcome.state.artifacts_index.get(
             ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
         )
@@ -152,7 +173,11 @@ class ResolveParametersNode:
             return False
         try:
             graph_ref = _resolve_causal_graph_ref(state)
-        except _InvalidCausalGraphReference:
+            _cross_graph_profile, cross_graph_profile_ref = _resolve_cross_graph_profile(ctx, state)
+        except (
+            _InvalidCausalGraphReference,
+            _InvalidCrossGraphEvidenceProfileReference,
+        ):
             return False
         return _bundle_matches_request(
             ctx,
@@ -161,6 +186,7 @@ class ResolveParametersNode:
             simulation_domain=str(state.params.get("domain", "unknown")),
             required_parameters=_resolve_required_parameters(state),
             graph_ref=graph_ref,
+            cross_graph_profile_ref=cross_graph_profile_ref,
         )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
@@ -177,22 +203,25 @@ class ResolveParametersNode:
             return _invalid_causal_graph_reference(state, exc)
         if graph_ref is not None:
             try:
-                graph_ref = profile_bound_ref(
-                    _ensure_ir_artifact_store(ctx.store), graph_ref
-                )
+                graph_ref = profile_bound_ref(_ensure_ir_artifact_store(ctx.store), graph_ref)
             except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
                 return _invalid_causal_graph_reference(state, exc)
+        try:
+            cross_graph_profile, cross_graph_profile_ref = _resolve_cross_graph_profile(ctx, state)
+        except _InvalidCrossGraphEvidenceProfileReference as exc:
+            return _invalid_cross_graph_profile_reference(state, exc)
 
         # A source-unbound bundle can only be reused when this invocation has
-        # no current SKG source to consume.  Once an owner-prepared or
-        # configured source is present, recompute because v1.0 bundle records
-        # do not persist a selector-read binding.
+        # no current SKG source to consume. Once an owner-prepared or
+        # configured source is present, recompute because this bundle does not
+        # persist the selector-read binding.
         skg_path_raw = state.params.get("skg_db_path")
         has_current_skg_source = isinstance(skg_path_raw, str) and bool(skg_path_raw.strip())
         if (
             existing_bundle_ref is not None
             and ctx.prepared_skg_read is None
             and not has_current_skg_source
+            and SNAPSHOT_INPUT_KEY not in state.inputs
             and _bundle_matches_request(
                 ctx,
                 existing_bundle_ref,
@@ -200,6 +229,7 @@ class ResolveParametersNode:
                 simulation_domain=simulation_domain,
                 required_parameters=required_parameters,
                 graph_ref=graph_ref,
+                cross_graph_profile_ref=cross_graph_profile_ref,
             )
         ):
             return NodeOutcome(status="ok", state=state)
@@ -230,14 +260,20 @@ class ResolveParametersNode:
                 "Failed to load causal graph artifact; parameter resolution skipped.",
             )
 
+        has_selected_snapshot = SNAPSHOT_INPUT_KEY in state.inputs
+        selected_snapshot_ref = state.inputs.get(SNAPSHOT_INPUT_KEY)
+        if has_selected_snapshot and not isinstance(selected_snapshot_ref, ArtifactRef):
+            raise RetainedSKGSnapshotError("retained_skg_descriptor_ref_required")
         db_path_raw = state.params.get("skg_db_path")
         if not isinstance(db_path_raw, str) or not db_path_raw.strip():
+            if has_selected_snapshot:
+                raise RetainedSKGSnapshotError("retained_skg_selected_path_required")
             return _skip(
                 state,
                 "Missing params.skg_db_path; parameter resolution skipped.",
             )
         db_path = Path(db_path_raw)
-        if not db_path.exists():
+        if not db_path.exists() and not has_selected_snapshot:
             return _skip(
                 state,
                 f"SKG database '{db_path}' is unavailable; parameter resolution skipped.",
@@ -248,11 +284,20 @@ class ResolveParametersNode:
         parameters: dict[str, Any] = {}
         applicability: dict[str, ParameterApplicability] = {}
         unsupported: list[str] = []
-        cross_graph_profile = _resolve_cross_graph_profile(ctx, state)
-
         prepared_read = ctx.prepared_skg_read
         owns_prepared_read = False
-        if prepared_read is None:
+        if has_selected_snapshot:
+            assert isinstance(selected_snapshot_ref, ArtifactRef)
+            prepared_read = prepare_or_validate_retained_skg_read(
+                ctx.store,
+                selected_snapshot_ref,
+                directory=retained_skg_snapshot_directory(ctx.run.trace_path),
+                index_dir=index_dir,
+                expected_path=db_path,
+                prepared_read=prepared_read,
+            )
+            owns_prepared_read = ctx.prepared_skg_read is None
+        elif prepared_read is None:
             prepared_read = SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
             owns_prepared_read = True
         elif not prepared_read.matches_path(db_path):
@@ -275,11 +320,13 @@ class ResolveParametersNode:
 
             skg_version_id = skg_query.latest_skg_version_id()
             skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version_id) or ""
+            if selected_snapshot_ref is not None and not prepared_read.source_generation_matches():
+                raise RetainedSKGSnapshotError("retained_skg_prepared_source_changed_during_read")
         finally:
             if owns_prepared_read:
                 prepared_read.close()
 
-        bundle = ContextAdaptiveParameterBundle(
+        bundle = ContextAdaptiveParameterBundleV11(
             target_context=target_context,
             simulation_domain=simulation_domain,
             parameters=parameters,
@@ -288,6 +335,7 @@ class ResolveParametersNode:
             skg_snapshot_ref=skg_snapshot_ref,
             skg_version_id=skg_version_id,
             selection_timestamp=datetime.now(UTC).replace(microsecond=0).isoformat(),
+            selected_cross_graph_profile_ref=cross_graph_profile_ref,
         )
 
         input_refs = [
@@ -296,7 +344,21 @@ class ResolveParametersNode:
                 role="causal_graph",
             )
         ]
-        bundle_ref = persist_context_adaptive_parameter_bundle(
+        if cross_graph_profile_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(cross_graph_profile_ref.model_dump(mode="json")),
+                    role="cross_graph_evidence_profile",
+                )
+            )
+        if selected_snapshot_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    selected_snapshot_ref,
+                    role="skg_source_snapshot",
+                )
+            )
+        bundle_ref = persist_context_adaptive_parameter_bundle_v1_1(
             _ensure_ir_artifact_store(ctx.store),
             bundle,
             inputs=input_refs,
@@ -373,12 +435,12 @@ def _bundle_matches_request(
     simulation_domain: str,
     required_parameters: list[str],
     graph_ref: CausalGraphModelRef | None,
+    cross_graph_profile_ref: CrossGraphEvidenceProfileRef | None,
 ) -> bool:
-    """Check bundle custody and the exact request bindings used by this node.
+    """Check bundle custody and exact graph/profile bindings for this request.
 
-    This deliberately validates only the bundle's request and graph lineage.
-    SKG owner/version binding belongs to the separate B61 slice and is not
-    inferred from this helper.
+    SKG owner/version binding belongs to its separate slice and is not inferred
+    from this helper.
     """
     store = _ensure_ir_artifact_store(ctx.store)
     try:
@@ -390,17 +452,28 @@ def _bundle_matches_request(
     if (
         manifest.kind != "ir.context_adaptive_parameter_bundle"
         or manifest.artifact_schema is None
-        or (manifest.artifact_schema.name, manifest.artifact_schema.version)
-        != ("ir.context_adaptive_parameter_bundle", "1.0")
+        or manifest.artifact_schema.name != "ir.context_adaptive_parameter_bundle"
+        or manifest.artifact_schema.version not in {"1.0", "1.1"}
     ):
         return False
 
     # With no new request, preserve the historical replay path only after
     # validating that the stored artifact itself is real and well-typed.
-    if target_context is None and not required_parameters and graph_ref is None:
+    if (
+        target_context is None
+        and not required_parameters
+        and graph_ref is None
+        and cross_graph_profile_ref is None
+    ):
         return True
 
     if target_context is None or not required_parameters or graph_ref is None:
+        return False
+    if manifest.artifact_schema.version != "1.1" or not isinstance(
+        bundle, ContextAdaptiveParameterBundleV11
+    ):
+        # v1.0 never recorded whether an optional profile was absent or merely
+        # unobserved; it is readable historically but cannot satisfy a request.
         return False
     if bundle.target_context != target_context:
         return False
@@ -416,20 +489,44 @@ def _bundle_matches_request(
     except _RESOLVE_PARAMETERS_LOAD_ERRORS:
         return False
     graph_inputs = [entry for entry in manifest.inputs if entry.role == "causal_graph"]
+    selected_profile_ref = None
+    if cross_graph_profile_ref is not None:
+        try:
+            selected_profile_ref = profile_bound_ref(store, cross_graph_profile_ref)
+        except _RESOLVE_PARAMETERS_LOAD_ERRORS:
+            return False
+    if bundle.selected_cross_graph_profile_ref != selected_profile_ref:
+        return False
+    profile_inputs = [
+        entry for entry in manifest.inputs if entry.role == "cross_graph_evidence_profile"
+    ]
+    profile_matches = (
+        not profile_inputs
+        if selected_profile_ref is None
+        else len(profile_inputs) == 1
+        and str(profile_inputs[0].artifact_id) == str(selected_profile_ref.artifact_id)
+        and profile_inputs[0].manifest_profile_sha256
+        == selected_profile_ref.manifest_profile_sha256
+    )
     return (
         len(graph_inputs) == 1
         and str(graph_inputs[0].artifact_id) == str(selected_graph_ref.artifact_id)
-        and graph_inputs[0].manifest_profile_sha256
-        == selected_graph_ref.manifest_profile_sha256
+        and graph_inputs[0].manifest_profile_sha256 == selected_graph_ref.manifest_profile_sha256
+        and profile_matches
     )
 
 
 def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | None:
-    raw = state.artifacts_index.get(ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF)
-    if raw is None:
-        raw = state.params.get("causal_graph_ref")
-    if raw is None:
+    if ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF in state.artifacts_index:
+        raw = state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+        source = "artifacts_index"
+    elif "causal_graph_ref" in state.params:
+        raw = state.params["causal_graph_ref"]
+        source = "params.causal_graph_ref"
+    else:
         return None
+    if raw is None:
+        raise _InvalidCausalGraphReference(f"supplied {source} is explicitly null")
 
     if hasattr(raw, "model_dump"):
         payload = raw.model_dump(mode="json")
@@ -438,24 +535,43 @@ def _resolve_causal_graph_ref(state: ExperimentState) -> CausalGraphModelRef | N
     try:
         return CausalGraphModelRef.model_validate(payload)
     except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
-        raise _InvalidCausalGraphReference(
-            "supplied causal graph reference is malformed"
-        ) from exc
+        raise _InvalidCausalGraphReference("supplied causal graph reference is malformed") from exc
 
 
-def _resolve_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
-    raw = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
+def _resolve_cross_graph_profile(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> tuple[CrossGraphEvidenceProfile | None, CrossGraphEvidenceProfileRef | None]:
+    if ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF not in state.artifacts_index:
+        return None, None
+    raw = state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
     if raw is None:
-        return None
+        raise _InvalidCrossGraphEvidenceProfileReference(
+            "supplied cross-graph evidence profile reference is explicitly null"
+        )
     try:
         if hasattr(raw, "model_dump"):
             payload = raw.model_dump(mode="json")
         else:
             payload = raw
         ref = CrossGraphEvidenceProfileRef.model_validate(payload)
-        return load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
-    except _RESOLVE_PARAMETERS_LOAD_ERRORS:
-        return None
+        store = _ensure_ir_artifact_store(ctx.store)
+        selected_ref = profile_bound_ref(store, ref)
+        manifest = store.get_manifest(selected_ref)
+        if (
+            manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "ir.cross_graph_evidence_profile"
+            or manifest.artifact_schema.version != "2.1"
+        ):
+            raise ValueError("cross-graph evidence profile artifact schema is incompatible")
+        profile = load_cross_graph_evidence_profile(store, selected_ref)
+        if profile.schema_version != "2.1":
+            raise ValueError("cross-graph evidence profile payload schema is incompatible")
+        return profile, selected_ref
+    except _RESOLVE_PARAMETERS_LOAD_ERRORS as exc:
+        raise _InvalidCrossGraphEvidenceProfileReference(
+            "supplied cross-graph evidence profile reference is malformed, stale, or unloadable"
+        ) from exc
 
 
 def _invalid_causal_graph_reference(
@@ -469,6 +585,21 @@ def _invalid_causal_graph_reference(
             code=node_errors.ERROR_INVALID_STATE,
             message=f"Invalid supplied causal graph reference: {exc}",
             details={"input": "causal_graph_ref"},
+        ),
+    )
+
+
+def _invalid_cross_graph_profile_reference(
+    state: ExperimentState,
+    exc: Exception,
+) -> NodeOutcome:
+    return NodeOutcome(
+        status="fail",
+        state=state,
+        error=NodeError(
+            code=node_errors.ERROR_INVALID_STATE,
+            message=f"Invalid supplied cross-graph evidence profile reference: {exc}",
+            details={"input": ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF},
         ),
     )
 

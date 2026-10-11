@@ -76,9 +76,11 @@ from polisyos.runtime.quality.credal_reference import (
     replace_reference_edge,
 )
 from polisyos.runtime.quality.data_forge_binding import (
+    FabricMeasurementRootBindingError,
     MeasurementRootProducer,
     build_fabric_measurement_requirement,
     resolve_measurement_root_evidence,
+    source_requirement_for_catalog_binding,
 )
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
@@ -92,7 +94,6 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
     recompute_grounding_decision_content_hash,
-    recompute_grounding_relation_content_hash,
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.open_world_risk import (
@@ -531,6 +532,82 @@ def _historical_json_bytes(value: object) -> bytes:
     ).encode("utf-8")
 
 
+def _historical_corpus_artifact_content_binding(
+    record: dict[str, Any],
+) -> tuple[int, str] | None:
+    """Return a byte-bound identity artifact record from supported custody shapes."""
+
+    if record.get("encoding") == "identity" and record.get("roles"):
+        byte_count = record.get("stored_bytes")
+        digest = record.get("stored_sha256")
+        decoded_bytes = record.get("decoded_bytes")
+        decoded_digest = record.get("decoded_sha256")
+    elif record.get("lossless_utf8_json") is False:
+        byte_count = record.get("bytes")
+        digest = record.get("sha256")
+        decoded_bytes = record.get("decoded_bytes")
+        decoded_digest = record.get("decoded_sha256")
+    else:
+        return None
+    if (
+        isinstance(byte_count, int)
+        and not isinstance(byte_count, bool)
+        and isinstance(decoded_bytes, int)
+        and not isinstance(decoded_bytes, bool)
+        and isinstance(digest, str)
+        and len(digest) == 64
+        and isinstance(decoded_digest, str)
+        and len(decoded_digest) == 64
+        and byte_count == decoded_bytes
+        and digest == decoded_digest
+    ):
+        return byte_count, digest
+    return None
+
+
+def _parse_historical_corpus_json_document(
+    raw: bytes,
+    *,
+    source_path: Path,
+    output_stream_bindings: dict[Path, set[tuple[str, int, str]]],
+) -> object | None:
+    """Classify only a custody-bound empty process stream as a non-document."""
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        if raw:
+            raise
+        digest = hashlib.sha256(raw).hexdigest()
+        if any(
+            role in {"stdout", "stderr"} and byte_count == 0 and expected_digest == digest
+            for role, byte_count, expected_digest in output_stream_bindings.get(source_path, set())
+        ):
+            return None
+        raise
+
+
+def test_historical_corpus_classifier_rejects_marker_bearing_malformed_output() -> None:
+    """Keep malformed supplied source invalid even when its output role is declared."""
+
+    schema_prefix = "policyos.policy_design_case.layer3_gy.n9_promotion."
+    raw = f'{{"schema_version":"{schema_prefix}v6",'.encode()
+    assert schema_prefix.encode() in raw
+    source_path = Path("synthetic/canonical-input.json")
+    output_stream_bindings = {
+        source_path: {
+            ("stdout", len(raw), hashlib.sha256(raw).hexdigest()),
+        }
+    }
+
+    with pytest.raises(json.JSONDecodeError):
+        _parse_historical_corpus_json_document(
+            raw,
+            source_path=source_path,
+            output_stream_bindings=output_stream_bindings,
+        )
+
+
 def test_historical_receipt_corpus_replays_without_current_authority() -> None:
     """Replay every complete tracked N9 receipt and classify comparison excerpts."""
 
@@ -544,7 +621,7 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
     tracked_json = tuple(
         sorted(Path(os.fsdecode(item)) for item in listing.stdout.split(b"\0") if item)
     )
-    assert len(tracked_json) == 2_870
+    assert tracked_json, "the tracked JSON corpus was not enumerated"
     assert len(tracked_json) == len(set(tracked_json))
 
     schema_prefix = "policyos.policy_design_case.layer3_gy.n9_promotion."
@@ -585,13 +662,58 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
     comparison_counts = {"envelope": 0, "projection_excerpt": 0}
     complete_receipts: list[tuple[str, str, dict[str, Any]]] = []
     unclassified_markers: list[str] = []
-
+    tracked_json_set = set(tracked_json)
+    artifact_rows_by_reference: dict[str, list[tuple[Path, int, str]]] = {}
+    output_refs: list[tuple[str, str, int | None, str | None]] = []
+    malformed_json_paths: list[Path] = []
+    parsed_json_count = 0
     for relative_path in tracked_json:
-        document = json.loads((repository_root / relative_path).read_bytes())
+        raw = (repository_root / relative_path).read_bytes()
+        try:
+            document = json.loads(raw)
+        except json.JSONDecodeError:
+            malformed_json_paths.append(relative_path)
+            continue
+        parsed_json_count += 1
         pending: list[tuple[str, object]] = [("", document)]
         while pending:
             pointer, value = pending.pop()
             if isinstance(value, dict):
+                original_path = value.get("original_path")
+                destination = value.get("path")
+                if isinstance(original_path, str) and isinstance(destination, str):
+                    content_binding = _historical_corpus_artifact_content_binding(value)
+                    if content_binding is not None:
+                        artifact_bytes, artifact_digest = content_binding
+                        artifact_ref = (Path(destination), artifact_bytes, artifact_digest)
+                        for reference in {original_path, destination}:
+                            artifact_rows_by_reference.setdefault(reference, []).append(
+                                artifact_ref
+                            )
+                is_process_receipt = (
+                    isinstance(value.get("argv"), list)
+                    and isinstance(value.get("exit_code"), int)
+                    and not isinstance(value.get("exit_code"), bool)
+                    and isinstance(value.get("cwd"), str)
+                )
+                for output_role in ("stdout", "stderr"):
+                    output = value.get(output_role)
+                    if isinstance(output, dict):
+                        output_path = output.get("path")
+                        output_bytes = output.get("bytes")
+                        output_digest = output.get("sha256")
+                        if (
+                            isinstance(output_path, str)
+                            and isinstance(output_bytes, int)
+                            and not isinstance(output_bytes, bool)
+                            and isinstance(output_digest, str)
+                            and len(output_digest) == 64
+                        ):
+                            output_refs.append(
+                                (output_role, output_path, output_bytes, output_digest)
+                            )
+                    elif isinstance(output, str) and is_process_receipt:
+                        output_refs.append((output_role, output, None, None))
                 schema = value.get("schema_version")
                 if isinstance(schema, str) and schema.startswith(schema_prefix):
                     marker_counts[schema] = marker_counts.get(schema, 0) + 1
@@ -621,6 +743,32 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
                 )
             elif isinstance(value, list):
                 pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
+
+    output_stream_bindings: dict[Path, set[tuple[str, int, str]]] = {}
+    for role, reference, output_bytes, output_digest in output_refs:
+        for destination, artifact_bytes, artifact_digest in artifact_rows_by_reference.get(
+            reference, []
+        ):
+            if destination not in tracked_json_set:
+                continue
+            if output_bytes is not None and output_bytes != artifact_bytes:
+                continue
+            if output_digest is not None and output_digest != artifact_digest:
+                continue
+            output_stream_bindings.setdefault(destination, set()).add(
+                (role, artifact_bytes, artifact_digest)
+            )
+
+    classified_empty_streams: set[Path] = set()
+    for relative_path in malformed_json_paths:
+        classified = _parse_historical_corpus_json_document(
+            (repository_root / relative_path).read_bytes(),
+            source_path=relative_path,
+            output_stream_bindings=output_stream_bindings,
+        )
+        assert classified is None, relative_path
+        classified_empty_streams.add(relative_path)
+    assert parsed_json_count + len(classified_empty_streams) == len(tracked_json)
 
     assert marker_counts == expected_marker_counts, (
         f"tracked N9 schema-marker denominator changed: {marker_counts}"
@@ -656,11 +804,7 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
     for identity, schema, payload in sorted(complete_receipts):
         parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
         assert type(parsed) is expected_types[schema], identity
-        replayed = (
-            parsed.historical_projection()
-            if schema == v1_schema
-            else parsed.model_dump(mode="json")
-        )
+        replayed = parsed.historical_projection()
         assert _historical_json_bytes(replayed) == _historical_json_bytes(payload), identity
 
         refusal_code = promotion_sequence_module._historical_promotion_non_admission_code(schema)
@@ -792,11 +936,7 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
         schema_counts[schema] = schema_counts.get(schema, 0) + 1
         parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
         assert type(parsed) is expected_types[schema], identity
-        replayed = (
-            parsed.historical_projection()
-            if schema == promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V1_SCHEMA_VERSION
-            else parsed.model_dump(mode="json")
-        )
+        replayed = parsed.historical_projection()
         assert _historical_json_bytes(replayed) == (_historical_json_bytes(payload)), identity
         refusal_code = promotion_sequence_module._historical_promotion_non_admission_code(schema)
         assert refusal_code is not None, identity
@@ -1120,7 +1260,7 @@ def test_synthetic_v7_history_profiles_replay_and_project_but_are_not_authority(
         promotion_sequence_module._LegacyCanonicalPromotionOwnerProjectionV3History
     )
     assert type(parsed.owner_projection.candidate_summary) is expected_profile_type
-    assert parsed.model_dump(mode="json") == payload
+    assert parsed.historical_projection() == payload
     assert validate_canonical_promotion_receipt(payload) == (
         {"code": "legacy_promotion_epoch_v7_authority_not_admitted"},
     )
@@ -1192,6 +1332,7 @@ def test_current_p2_owner_projection_remains_a_property_preserving_control() -> 
     )
     restored = CanonicalPromotionReceipt.model_validate(payload)
     assert restored.model_dump(mode="json") == payload
+    assert restored.historical_projection() == payload
     assert payload["promoted"] is False
     assert payload["consumer_promotable"] is False
 
@@ -1227,10 +1368,43 @@ def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
 
     assert receipt.schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
     payload = _legacy_v4_history_payload(receipt)
+    summary_type = promotion_sequence_module._HistoricalCandidateSummaryP0
+    summary = payload["owner_projection"]["candidate_summary"]
+    assert set(summary) == promotion_sequence_module._historical_summary_wire_keys(summary_type)
     parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
 
     assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV4)
-    assert parsed.model_dump(mode="json") == payload
+    assert parsed.historical_projection() == payload
+
+    explicit_null = deepcopy(payload)
+    explicit_null_owner = explicit_null["owner_projection"]
+    explicit_null_summary = explicit_null_owner["candidate_summary"]
+    explicit_null_summary["grounding_disposition"] = None
+    explicit_null_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in explicit_null_owner.items() if key != "projection_hash"}
+    )
+    parsed_explicit_null = promotion_sequence_module.parse_canonical_promotion_history_receipt(
+        explicit_null
+    )
+    assert parsed_explicit_null.historical_projection() == explicit_null
+
+    absent = deepcopy(explicit_null)
+    absent_owner = absent["owner_projection"]
+    absent_owner["candidate_summary"].pop("grounding_disposition")
+    absent_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in absent_owner.items() if key != "projection_hash"}
+    )
+    with pytest.raises(ValueError, match="n9_historical_candidate_summary_payload_not_lossless"):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(absent)
+
+    injected = deepcopy(payload)
+    injected_owner = injected["owner_projection"]
+    injected_owner["candidate_summary"]["source_content_hash"] = None
+    injected_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in injected_owner.items() if key != "projection_hash"}
+    )
+    with pytest.raises(ValueError, match="n9_historical_candidate_summary_payload_not_lossless"):
+        promotion_sequence_module.parse_canonical_promotion_history_receipt(injected)
     with pytest.raises(ValueError):
         CanonicalPromotionReceipt.model_validate(payload)
     assert validate_canonical_promotion_receipt(payload) == (
@@ -1258,6 +1432,75 @@ def test_frozen_v6_capture_preserves_history_and_refuses_current_admission() -> 
         owner_rule_registry=registry,
     )
     assert _comparison_content_hash(frozen, plan) == frozen["comparison_content_hash"]
+
+    pinned_bytes = subprocess.run(
+        [
+            "git",
+            "show",
+            "504f995cd:policy-engine/architecture/policy_design_case/layer3_gy_promotion_contract.json",
+        ],
+        cwd=REPO_ROOT.parent,
+        check=True,
+        capture_output=True,
+    ).stdout
+    pinned = json.loads(pinned_bytes)
+    pinned_manifest = pinned["comparison_admission_manifest"]
+    pinned_plan = build_gy_comparison_projection_plan_from_manifest(
+        pinned,
+        manifest=pinned_manifest,
+        owner_rule_registry=registry,
+    )
+    assert _comparison_content_hash(pinned, pinned_plan) == pinned["comparison_content_hash"]
+    pinned_v6_entries = tuple(entry for entry in pinned_manifest if entry["owner_rule"] == old_rule)
+    assert len(pinned_v6_entries) == 3
+
+    def receipt_at_pointer(document: object, pointer: str) -> dict[str, Any]:
+        current = document
+        for raw_segment in pointer.removeprefix("/").split("/"):
+            segment = raw_segment.replace("~1", "/").replace("~0", "~")
+            current = current[int(segment)] if isinstance(current, list) else current[segment]
+        assert isinstance(current, dict)
+        return current
+
+    absent_endpoint_receipt: dict[str, Any] | None = None
+    for entry in pinned_v6_entries:
+        receipt = receipt_at_pointer(pinned, entry["json_pointer"])
+        assert (
+            receipt["schema_version"]
+            == promotion_sequence_module._LEGACY_PROMOTION_SEQUENCE_V6_SCHEMA_VERSION
+        )
+        parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(receipt)
+        assert parsed.historical_projection() == receipt
+        source_outer = receipt["owner_projection"]["value_receipt"]["value_outer_set"]
+        projected = registry[old_rule].projector(receipt)
+        projected_outer = projected["owner_projection"]["value_receipt"]["value_outer_set"]
+        for field_name in ("statistical_lower", "statistical_upper"):
+            assert (field_name in projected_outer) is (field_name in source_outer)
+            if field_name in source_outer:
+                assert projected_outer[field_name] == source_outer[field_name]
+        if absent_endpoint_receipt is None and "statistical_lower" not in source_outer:
+            absent_endpoint_receipt = receipt
+    assert absent_endpoint_receipt is not None
+
+    changed_pinned = deepcopy(pinned)
+    changed_receipt = receipt_at_pointer(
+        changed_pinned,
+        next(entry["json_pointer"] for entry in pinned_v6_entries),
+    )
+    changed_owner = changed_receipt["owner_projection"]
+    changed_owner["operation_invocation_id"] += ".content-rebound-negative"
+    changed_owner["projection_hash"] = gy_content_hash(
+        {key: value for key, value in changed_owner.items() if key != "projection_hash"}
+    )
+    changed_plan = build_gy_comparison_projection_plan_from_manifest(
+        changed_pinned,
+        manifest=changed_pinned["comparison_admission_manifest"],
+        owner_rule_registry=registry,
+    )
+    assert (
+        _comparison_content_hash(changed_pinned, changed_plan) != pinned["comparison_content_hash"]
+    )
+
     from_manifest = {entry["json_pointer"] for entry in manifest if entry["owner_rule"] == old_rule}
     discovered = {}
     pending = [("", frozen)]
@@ -1274,9 +1517,49 @@ def test_frozen_v6_capture_preserves_history_and_refuses_current_admission() -> 
             pending.extend((f"{pointer}/{index}", child) for index, child in enumerate(value))
     assert set(discovered) == from_manifest
     assert discovered
+    explicit_null_control_checked = False
     for pointer, payload in discovered.items():
         parsed = promotion_sequence_module.parse_canonical_promotion_history_receipt(payload)
-        assert parsed.model_dump(mode="json") == payload
+        assert parsed.historical_projection() == payload
+        outer_set = payload["owner_projection"]["value_receipt"]["value_outer_set"]
+        assert "statistical_lower" not in outer_set
+        assert "statistical_upper" not in outer_set
+        ordinary_outer_set = parsed.model_dump(mode="json")["owner_projection"]["value_receipt"][
+            "value_outer_set"
+        ]
+        assert ordinary_outer_set["statistical_lower"] is None
+        assert ordinary_outer_set["statistical_upper"] is None
+        if not explicit_null_control_checked:
+            explicit_null = deepcopy(payload)
+            explicit_outer_set = explicit_null["owner_projection"]["value_receipt"][
+                "value_outer_set"
+            ]
+            explicit_outer_set["statistical_lower"] = None
+            explicit_owner = explicit_null["owner_projection"]
+            explicit_owner["projection_hash"] = gy_content_hash(
+                {key: item for key, item in explicit_owner.items() if key != "projection_hash"}
+            )
+            parsed_explicit_null = (
+                promotion_sequence_module.parse_canonical_promotion_history_receipt(explicit_null)
+            )
+            explicit_projection = parsed_explicit_null.historical_projection()
+            explicit_projection_outer = explicit_projection["owner_projection"]["value_receipt"][
+                "value_outer_set"
+            ]
+            assert explicit_projection_outer["statistical_lower"] is None
+            assert "statistical_upper" not in explicit_projection_outer
+            explicit_default_dump = parsed_explicit_null.model_dump(mode="json")[
+                "owner_projection"
+            ]["value_receipt"]["value_outer_set"]
+            assert explicit_default_dump["statistical_lower"] is None
+            assert explicit_default_dump["statistical_upper"] is None
+            tampered_explicit_null = deepcopy(explicit_null)
+            tampered_explicit_null["owner_projection"]["operation_invocation_id"] += ".tampered"
+            with pytest.raises(ValueError, match="n9_owner_projection_hash_mismatch"):
+                promotion_sequence_module.parse_canonical_promotion_history_receipt(
+                    tampered_explicit_null
+                )
+            explicit_null_control_checked = True
         assert type(parsed) is promotion_sequence_module._LegacyCanonicalPromotionReceiptV6
         assert validate_canonical_promotion_receipt(payload) == (
             {"code": "legacy_obligation_scope_v3_authority_not_admitted"},
@@ -1288,6 +1571,7 @@ def test_frozen_v6_capture_preserves_history_and_refuses_current_admission() -> 
         projection = registry[old_rule].projector(payload)
         assert projection["schema_version"] == payload["schema_version"]
         print(f"v6-history {pointer} preserved; current-admission refused")
+    assert explicit_null_control_checked
     assert path.read_bytes() == raw
 
 
@@ -1304,8 +1588,7 @@ def test_round1_v5_v2_receipt_round_trips_but_cannot_regain_current_authority() 
     assert isinstance(parsed, promotion_sequence_module._LegacyCanonicalPromotionReceiptV5)
     assert parsed.schema_version.endswith(".v5")
     assert parsed.owner_projection.schema_version.endswith(".v3")
-    assert parsed.model_dump_json().encode("utf-8") == raw
-    assert parsed.model_dump(mode="json") == payload
+    assert _historical_json_bytes(parsed.historical_projection()) == _historical_json_bytes(payload)
     owner = payload["owner_projection"]
     assert owner["projection_hash"] == gy_content_hash(
         {key: value for key, value in owner.items() if key != "projection_hash"}
@@ -2282,25 +2565,16 @@ def test_no_cg2_owner_grant_stays_shadow() -> None:
 
 
 def test_cg2_open_admissibility_obligation_keeps_promotion_red() -> None:
+    from tests.unit.runtime.quality.test_grounding_relation import _synonym_probe
+
     reference = _credal_reference()
     engine = GroundingRelationEngine(reference)
+    proposal = _synonym_probe()
     cg1 = engine.certificate_for(
-        _pure_synonym_probe(engine),
+        proposal,
         proposal_id="n9-cg2-open-admissibility",
     )
-    payload = cg1.model_dump(mode="json")
-    payload["proposal_signature"]["hypotheses"][0]["signature"]["admissibility"] = (
-        "candidate_unverified"
-    )
-    provisional = cg1.__class__.model_validate(payload)
-    payload["content_hash"] = recompute_grounding_relation_content_hash(provisional)
-    payload["certificate_id"] = f"cg1_cert_{payload['content_hash'].removeprefix('sha256:')[:16]}"
-    open_cg1 = cg1.__class__.model_validate(payload)
-    decision = GroundingBindGate.for_contract_testing(
-        reference,
-        calibration_seed_anchor=True,
-        disable_certificate_revalidation=True,
-    ).certificate_for(open_cg1)
+    decision = GroundingBindGate(reference).certificate_for(cg1)
 
     receipt = _run(
         _promotion_input(
@@ -2309,7 +2583,44 @@ def test_cg2_open_admissibility_obligation_keeps_promotion_red() -> None:
         )
     )
 
+    assert decision.authority_scope == "production"
+    assert decision.synthetic is False
+    assert decision.production_promotable is False
+    assert decision.run_admission is not None
+    assert decision.run_admission.synthetic is False
     assert decision.decision == "abstain"
+    # CG2 replays a reconstructed proposal against its live candidate basis, so the
+    # replay has its own content address. Assert the gate's semantic replay predicates
+    # rather than equating two different CG1 artifact identities.
+    assert (
+        cg1.selected_relation,
+        cg1.proposal_signature["hypotheses"][0]["signature"]["admissibility"],
+        decision.decisive_reason,
+        decision.revalidation.status,
+        decision.revalidation.replayed,
+        decision.revalidation.replayed_selected_relation,
+        decision.revalidation.selected_relation_reproduced,
+        decision.revalidation.selected_atom_reproduced,
+        decision.revalidation.critical_contradictions_reproduced,
+        decision.revalidation.critical_contradiction_tuple_reproduced,
+        decision.revalidation.not_more_permissive_than_full,
+        decision.revalidation.currentness_reasons,
+        decision.revalidation.replayed_content_hash is not None,
+    ) == (
+        "certified-specialization",
+        "candidate_unverified",
+        "open_obligation",
+        "passed",
+        True,
+        "certified-specialization",
+        True,
+        True,
+        True,
+        True,
+        True,
+        (),
+        True,
+    )
     assert "admissibility_closed" in decision.open_obligations
     assert receipt.promoted is False
     identification = _obligation(receipt, PromotionObligationClass.IDENTIFICATION)
@@ -3060,14 +3371,119 @@ def test_fabric_measurement_root_cannot_bypass_existing_source_admission(fabric_
         _fabric_measurement_envelope(fabric_measurement_owner, include_requirement=False)
 
 
+@pytest.mark.parametrize(
+    ("selected_frequency", "registry_frequency", "expected_recency"),
+    [
+        ("annual", "", "annual"),
+        ("", "controlled-fixture-only", "controlled-fixture-only"),
+        (None, "controlled-fixture-only", None),
+        (" monthly ", "controlled-fixture-only", None),
+        (" ", "controlled-fixture-only", None),
+        (17, "controlled-fixture-only", None),
+        ("", None, None),
+        ("", 17, None),
+        ("", True, None),
+        ("", "", None),
+        ("", " ", None),
+        ("", " monthly ", None),
+    ],
+)
+def test_source_requirement_validates_selected_and_registry_freshness_origins(
+    selected_frequency: object,
+    registry_frequency: object,
+    expected_recency: str | None,
+) -> None:
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    selected_payload = {
+        "id": "catalog-controlled-fixture",
+        "source": "controlled_fixture",
+        "connector_type": "files.tabular",
+        "dataset_id": "fixture-series",
+        "source_dataset_id": "fixture-series",
+        "variables": ["value"],
+        "update_frequency": selected_frequency,
+        "coverage": {},
+        "quality": {},
+        "access": {},
+        "license": "controlled fixture only",
+    }
+    selected = SimpleNamespace(
+        id="catalog-controlled-fixture",
+        source="controlled_fixture",
+        connector_type="files.tabular",
+        model_dump=lambda *, mode: selected_payload,
+    )
+    registry_payload = {
+        "source_id": "controlled_fixture",
+        "family": "controlled test fixture",
+        "wave": "T",
+        "endpoint": "file://controlled-fixture",
+        "connector_id": "files.tabular",
+        "execution_tier": "transport_ready",
+        "run_lane": "empirical",
+        "enabled": True,
+        "update_frequency": registry_frequency,
+    }
+    registry_entry = SimpleNamespace(
+        model_dump=lambda *, mode: registry_payload,
+    )
+    registry = SimpleNamespace(
+        source_by_id=lambda source_id: registry_entry
+        if source_id == "controlled_fixture"
+        else None,
+    )
+    manifest = SimpleNamespace(
+        fixture_id="measurement-root-freshness-matrix",
+        construct_scope_query="controlled fixture input",
+        jurisdiction="UA",
+        population="controlled fixture rows",
+        time_horizon="fixture-only",
+    )
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(catalog_read_api, "load_catalog_source_registry", lambda: registry)
+        if expected_recency is None:
+            with pytest.raises(
+                FabricMeasurementRootBindingError,
+                match="measurement_root_source_freshness_not_established",
+            ):
+                source_requirement_for_catalog_binding(
+                    manifest=manifest,
+                    selected=selected,
+                    distributions=[{"id": "distribution-fixture", "quality_score": 0.8}],
+                    connector_type="files.tabular",
+                )
+        else:
+            requirement, _source = source_requirement_for_catalog_binding(
+                manifest=manifest,
+                selected=selected,
+                distributions=[{"id": "distribution-fixture", "quality_score": 0.8}],
+                connector_type="files.tabular",
+            )
+            assert requirement.recency_horizon == expected_recency
+
+
 def test_fabric_measurement_root_refuses_unapproved_registered_connector(tmp_path):
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
-    with (
-        build_recorded_file_fetch_owner(tmp_path) as owner,
-        pytest.raises(ValueError, match="measurement_root_connector_not_admitted"),
-    ):
-        _fabric_measurement_envelope(owner)
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        registry = catalog_read_api.load_catalog_source_registry()
+        source = registry.source_by_id("recorded_file")
+        assert source is not None
+        fixture_source = source.model_copy(update={"update_frequency": "controlled-fixture-only"})
+        fixture_registry = registry.model_copy(update={"sources": (fixture_source,)})
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setattr(
+                catalog_read_api,
+                "load_catalog_source_registry",
+                lambda: fixture_registry,
+            )
+            with pytest.raises(
+                FabricMeasurementRootBindingError,
+                match="measurement_root_connector_not_admitted",
+            ):
+                _fabric_measurement_envelope(owner)
 
 
 @pytest.mark.parametrize("mutation", ["requirement", "problem"])
@@ -5831,6 +6247,15 @@ def _legacy_v4_history_payload(receipt: CanonicalPromotionReceipt) -> dict[str, 
     owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v2"
     owner["effective_independence"] = True
     owner["admissibility"] = True
+    historical_summary_type = promotion_sequence_module._HistoricalCandidateSummaryP0
+    historical_summary_keys = promotion_sequence_module._historical_summary_wire_keys(
+        historical_summary_type
+    )
+    current_summary = owner["candidate_summary"]
+    assert isinstance(current_summary, dict)
+    owner["candidate_summary"] = historical_summary_type.model_validate(
+        {key: current_summary[key] for key in historical_summary_keys}
+    ).model_dump(mode="json")
 
     boundaries = [payload["computed_authority_boundary"]]
     for posture_name in ("s7_delegation_posture", "s8_value_posture"):

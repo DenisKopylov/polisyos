@@ -37,6 +37,7 @@ describe("evidence domain", () => {
         },
       ],
       related_artifacts: [{ artifact_id: "artifact-1", media_type: "json" }],
+      data_view_request_profile_status: "caller_selected_profile",
       data_view_request_ref: {
         artifact_id: "request-1",
         kind: "ir.data_view_request",
@@ -72,6 +73,7 @@ describe("evidence domain", () => {
         },
       ],
       dataSnapshotRef: null,
+      dataViewRequestProfileStatus: "caller_selected_profile",
       dataViewRequestRef: {
         artifact_id: "request-1",
         kind: "ir.data_view_request",
@@ -139,6 +141,15 @@ describe("evidence domain", () => {
       findRunEvidencePromotion(context, "promotion-1")?.matchedPlanId,
     ).toBe("plan-1");
     expect(resolveDefaultEvidenceFocus(context)).toBe("promotion");
+  });
+
+  it("keeps an omitted legacy profile status limited to not-established", () => {
+    const context = normalizeRunEvidenceContext({
+      run_id: "run-legacy-profile-status",
+      source_kind: "core_run",
+    } as never);
+
+    expect(context?.dataViewRequestProfileStatus).toBe("not_established");
   });
 
   it("returns null-safe defaults for missing context and identifiers", () => {

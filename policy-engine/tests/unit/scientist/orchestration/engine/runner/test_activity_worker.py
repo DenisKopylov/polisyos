@@ -55,13 +55,17 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_build_worker_context_reconstructs_run_and_registry_bundle() -> None:
+def test_build_worker_context_reconstructs_run_and_registry_bundle(tmp_path: Path) -> None:
     with tenant_scope(None, tenant_id="tenant-1", cell_id="cell-1"):
         ctx = _build_worker_context(
             {
                 "run_id": "worker-run-1",
                 "tenant_id": "tenant-1",
                 "cell_id": "cell-1",
+                "store_config": {
+                    "backend": "filesystem",
+                    "root": str(tmp_path / "shared-cas"),
+                },
                 "depth": 3,
                 "workflow_id": "scientist_default",
                 "runner_backend": "ray",
@@ -255,6 +259,212 @@ def test_build_worker_context_reuses_shared_filesystem_store(tmp_path: Path) -> 
     )
 
     assert getattr(ctx.store, "root", None) == tmp_path
+
+
+def test_build_worker_context_binds_owner_for_persisted_writes(tmp_path: Path) -> None:
+    root = tmp_path / "shared-cas"
+    with tenant_scope(None, tenant_id="worker-tenant", cell_id="worker-cell"):
+        ctx = _build_worker_context(
+            {
+                "run_id": "worker-run-owned-store",
+                "tenant_id": "worker-tenant",
+                "cell_id": "worker-cell",
+                "store_config": {"backend": "filesystem", "root": str(root)},
+            }
+        )
+        assert isinstance(ctx.store, FileSystemCAS)
+        assert ctx.store._tenant_id == "worker-tenant"
+        assert ctx.store._cell_id == "worker-cell"
+        assert ctx.store._ownership_enforced is True
+        ref = ctx.store.put_json(
+            {"candidate": "worker-owned"},
+            PutOptions(kind="core.worker_owner_probe", media_type="application/json"),
+        )
+
+        parent_reader = FileSystemCAS(root).for_tenant("worker-tenant", "worker-cell")
+        assert parent_reader.get_bytes(ref) == ctx.store.get_bytes(ref)
+
+
+def test_build_worker_context_preserves_unowned_legacy_candidate_store(tmp_path: Path) -> None:
+    root = tmp_path / "legacy-cas"
+    ctx = _build_worker_context(
+        {
+            "run_id": "worker-run-unowned-legacy",
+            "store_config": {"backend": "filesystem", "root": str(root)},
+        }
+    )
+
+    assert isinstance(ctx.store, FileSystemCAS)
+    assert ctx.store._tenant_id is None
+    assert ctx.store._ownership_enforced is False
+    ref = ctx.store.put_json(
+        {"candidate": "legacy-unowned"},
+        PutOptions(kind="core.worker_candidate_probe", media_type="application/json"),
+    )
+    assert FileSystemCAS(root).get_bytes(ref) == ctx.store.get_bytes(ref)
+
+
+@pytest.mark.parametrize(
+    "store_config",
+    [
+        None,
+        [],
+        "malformed-config",
+        {"backend": "not-a-backend"},
+        {"backend": 17},
+        {"unexpected": True},
+    ],
+    ids=["none", "list", "string", "unknown-backend", "malformed-backend", "extra-field"],
+)
+@pytest.mark.parametrize(
+    "legacy_route",
+    [False, True],
+    ids=["ephemeral-default", "legacy-root-fallback"],
+)
+def test_build_worker_context_refuses_malformed_supplied_store_config_before_fallback(
+    tmp_path: Path,
+    monkeypatch,
+    store_config: object,
+    legacy_route: bool,
+) -> None:
+    build_calls: list[bool] = []
+    temp_calls: list[bool] = []
+
+    def _unexpected_store_build(config, **kwargs):
+        del config, kwargs
+        build_calls.append(True)
+        raise AssertionError(
+            "invalid supplied store config must be rejected before CAS construction"
+        )
+
+    def _unexpected_temp_directory(*args, **kwargs):
+        del args, kwargs
+        temp_calls.append(True)
+        raise AssertionError("invalid supplied store config must be rejected before temp creation")
+
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.config.build_artifact_store",
+        _unexpected_store_build,
+    )
+    monkeypatch.setattr("tempfile.mkdtemp", _unexpected_temp_directory)
+    fallback_root = tmp_path / "legacy-fallback"
+    meta: dict[str, object] = {
+        "run_id": "worker-run-invalid-supplied-config",
+        "store_config": store_config,
+    }
+    if legacy_route:
+        meta.update({"store_backend": "filesystem", "store_root": str(fallback_root)})
+
+    with pytest.raises(CheckpointScopeMismatchError, match="store config invalid"):
+        _build_worker_context(meta)
+
+    assert build_calls == []
+    assert temp_calls == []
+    assert not fallback_root.exists()
+
+
+def test_build_worker_context_refuses_owner_without_shared_store(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    build_calls: list[bool] = []
+
+    def _unexpected_store_build(config, **kwargs):
+        del config, kwargs
+        build_calls.append(True)
+        raise AssertionError("explicit owner must not receive an ephemeral CAS")
+
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.config.build_artifact_store",
+        _unexpected_store_build,
+    )
+    with tenant_scope(None, tenant_id="worker-tenant", cell_id="worker-cell"):
+        with pytest.raises(
+            CheckpointScopeMismatchError,
+            match="owner scope requires a configured shared store",
+        ):
+            _build_worker_context(
+                {
+                    "run_id": "worker-run-owner-without-store",
+                    "tenant_id": "worker-tenant",
+                    "cell_id": "worker-cell",
+                }
+            )
+
+    assert build_calls == []
+    assert not (tmp_path / "worker-cas").exists()
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_error"),
+    [
+        ("malformed_run_owner", "tenant scope invalid"),
+        ("cell_without_tenant", "cell requires tenant scope"),
+        ("mismatched_store_owner", "store owner mismatch"),
+        ("mismatched_store_root", "store root metadata mismatch"),
+        ("mismatched_store_backend", "store backend metadata mismatch"),
+        ("malformed_scoped_store_config", "store config invalid"),
+        ("non_mapping_scoped_store_config", "store config invalid"),
+        ("unsupported_scoped_backend", "backend cannot enforce tenant ownership"),
+    ],
+)
+def test_build_worker_context_refuses_owner_loss_before_store_creation(
+    tmp_path: Path,
+    monkeypatch,
+    case: str,
+    expected_error: str,
+) -> None:
+    root = tmp_path / "must-not-be-created"
+    build_calls: list[bool] = []
+
+    def _unexpected_store_build(config, **kwargs):
+        del config, kwargs
+        build_calls.append(True)
+        raise AssertionError("owner validation must precede CAS construction")
+
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.config.build_artifact_store",
+        _unexpected_store_build,
+    )
+    tenant_id: object = "worker-tenant"
+    cell_id: str | None = "worker-cell"
+    store_config: object = {"backend": "filesystem", "root": str(root)}
+    extra: dict[str, object] = {}
+    if case == "malformed_run_owner":
+        tenant_id = 17
+    elif case == "cell_without_tenant":
+        tenant_id = None
+    elif case == "mismatched_store_owner":
+        store_config["tenant_id"] = "other-tenant"
+    elif case == "mismatched_store_root":
+        extra["store_backend"] = "filesystem"
+        extra["store_root"] = str(tmp_path / "other-cas")
+    elif case == "mismatched_store_backend":
+        extra["store_backend"] = "gcs"
+    elif case == "malformed_scoped_store_config":
+        assert isinstance(store_config, dict)
+        store_config["backend"] = 17
+    elif case == "non_mapping_scoped_store_config":
+        store_config = "malformed-config"
+    elif case == "unsupported_scoped_backend":
+        store_config = {"backend": "gcs", "bucket": "unused-test-bucket"}
+    else:
+        raise AssertionError(f"unknown fixture case: {case}")
+
+    with tenant_scope(None, tenant_id="worker-tenant", cell_id="worker-cell"):
+        with pytest.raises(CheckpointScopeMismatchError, match=expected_error):
+            _build_worker_context(
+                {
+                    "run_id": "worker-run-rejected-owner",
+                    "tenant_id": tenant_id,
+                    "cell_id": cell_id,
+                    "store_config": store_config,
+                    **extra,
+                }
+            )
+
+    assert build_calls == []
+    assert not root.exists()
 
 
 def test_build_worker_context_prefers_store_config(tmp_path: Path) -> None:

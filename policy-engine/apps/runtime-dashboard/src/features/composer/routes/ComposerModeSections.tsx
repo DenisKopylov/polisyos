@@ -51,6 +51,7 @@ import {
   naturalLanguageLaunchSchema,
   type NaturalLanguageLaunchFormValues,
   type ParamFormValue,
+  type WorkflowLaunchFormInputValues,
   type WorkflowLaunchFormValues,
   workflowLaunchSchema,
 } from "../domain/forms";
@@ -223,6 +224,7 @@ function buildWorkflowDefaults(
   return {
     dataSourceType: "snapshot",
     dataSourceRef: "",
+    dataSourceProfileSha256: "",
     trinityRef: "",
     policySpecRef: "",
     modelSpecRef: "",
@@ -438,7 +440,7 @@ function WorkflowParamList({
   fields: Array<{ id: string } & ParamFormValue>;
   keyPlaceholder: string;
   onRemove: (index: number) => void;
-  register: UseFormRegister<WorkflowLaunchFormValues>;
+  register: UseFormRegister<WorkflowLaunchFormInputValues>;
   removeLabel: string;
   valuePlaceholder: string;
 }) {
@@ -930,7 +932,11 @@ function DraftNotice({
   );
 }
 
-function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
+function useComposerDraftPersistence<
+  TFieldValues extends ComposerDraftValues,
+  TContext,
+  TTransformedValues extends ComposerDraftValues = TFieldValues,
+>({
   defaults,
   draftKey,
   form,
@@ -938,9 +944,9 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   mode,
   scope,
 }: {
-  defaults: TValues;
+  defaults: TFieldValues;
   draftKey: string;
-  form: UseFormReturn<TValues>;
+  form: UseFormReturn<TFieldValues, TContext, TTransformedValues>;
   fromRunId: string | null;
   mode: ComposerDraftMode;
   scope: AuthorityLocalScope | null;
@@ -948,7 +954,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   const { clearDraft, drafts, hydrateDraft, upsertDraft } =
     useComposerDraftStore();
   const hydratedRef = useRef(false);
-  const latestValuesRef = useRef<TValues>(defaults);
+  const latestValuesRef = useRef<TFieldValues>(defaults);
   const saveTimerRef = useRef<number | null>(null);
   const persistenceDisabledRef = useRef(false);
   const scopeGenerationRef = useRef(0);
@@ -1012,7 +1018,8 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
         return;
       }
       hydrateDraft(draft ?? null);
-      const nextValues = (draft?.values as TValues | undefined) ?? defaults;
+      const nextValues =
+        (draft?.values as TFieldValues | undefined) ?? defaults;
       latestValuesRef.current = nextValues;
       form.reset(nextValues);
       hydratedRef.current = true;
@@ -1026,7 +1033,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
 
   useEffect(() => {
     const subscription = form.watch((values) => {
-      latestValuesRef.current = values as TValues;
+      latestValuesRef.current = values as TFieldValues;
       if (!hydratedRef.current || !dirtyRef.current) {
         return;
       }
@@ -1111,7 +1118,11 @@ export function WorkflowComposerSection({
     () => buildWorkflowDefaults(t, fromRunId),
     [fromRunId, t],
   );
-  const form = useForm<WorkflowLaunchFormValues>({
+  const form = useForm<
+    WorkflowLaunchFormInputValues,
+    unknown,
+    WorkflowLaunchFormValues
+  >({
     defaultValues: defaults,
     mode: "onChange",
     resolver: zodResolver(workflowLaunchSchema),
@@ -1146,6 +1157,8 @@ export function WorkflowComposerSection({
     control: form.control,
     name: "dataSourceType",
   });
+  const dataSourceProfileError =
+    form.formState.errors.dataSourceProfileSha256?.message;
   const workflowCheckpointPolicy = useWatch({
     control: form.control,
     name: "checkpointPolicy",
@@ -1258,11 +1271,18 @@ export function WorkflowComposerSection({
                       value={value}
                       label={itemLabel}
                       checked={dataSourceType === value}
-                      onChange={() =>
+                      onChange={() => {
                         form.setValue("dataSourceType", value, {
                           shouldDirty: true,
-                        })
-                      }
+                          shouldValidate: true,
+                        });
+                        if (value !== "view") {
+                          form.setValue("dataSourceProfileSha256", "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }
+                      }}
                     />
                   ))}
                 </div>
@@ -1281,6 +1301,35 @@ export function WorkflowComposerSection({
                 <FieldError
                   message={form.formState.errors.dataSourceRef?.message}
                 />
+                {dataSourceType === "view" ? (
+                  <div className="mt-4">
+                    <Label
+                      htmlFor="workflow-data-source-profile"
+                      className="text-muted block text-xs"
+                    >
+                      {t("pages.composer.dataSource.profileSha256")}
+                    </Label>
+                    <Input
+                      id="workflow-data-source-profile"
+                      {...form.register("dataSourceProfileSha256")}
+                      data-testid="composer-data-source-profile"
+                      placeholder={t(
+                        "pages.composer.placeholders.manifestProfile",
+                      )}
+                      className="atlas-input--mono mt-1"
+                    />
+                    <p className="text-muted mt-2 text-xs">
+                      {t("pages.composer.dataSource.profileSelectorLegacy")}
+                    </p>
+                    <FieldError
+                      message={
+                        dataSourceProfileError
+                          ? t(dataSourceProfileError)
+                          : undefined
+                      }
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
           </AtlasFormSection>

@@ -12,9 +12,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1604`.
+- Total IR types: `1605`.
 - Public/root-or-package facade types: `456`.
-- ABI snapshot-backed types: `98`.
+- ABI snapshot-backed types: `99`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 992 | 263 | 40 |
+| `analytics` | 993 | 264 | 41 |
 | `artifacts` | 26 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
@@ -14746,6 +14746,30 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `applicability` | `dict[str, polisyos.ir.analytics.parameters.ParameterApplicability]` | `no` | `—` | `polisyos.ir.analytics.parameters.ParameterApplicability` |
 | `parameters` | `dict[str, polisyos.ir.analytics.literature.EvidenceParameter]` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceParameter` |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
+| `selection_timestamp` | `str` | `no` | `''` | — |
+| `simulation_domain` | `str` | `yes` | `—` | — |
+| `skg_snapshot_ref` | `str` | `no` | `''` | — |
+| `skg_version_id` | `int \| NoneType` | `no` | `—` | — |
+| `target_context` | `polisyos.ir.analytics.context.ContextProfile` | `yes` | `—` | `polisyos.ir.analytics.context.ContextProfile` |
+| `unsupported_parameters` | `list[str]` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundleV11` { #polisyos-ir-analytics-parameters-contextadaptiveparameterbundlev11 }
+
+- Kind: `pydantic_model`
+- Public status: `snapshot_only`
+- Current version: `1.1`
+- Exported from: —
+- ABI snapshot: `context_adaptive_parameter_bundle_v1_1` / `schemas/snapshots/ir/context_adaptive_parameter_bundle_v1_1.schema.json`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.literature.EvidenceParameter`, `polisyos.ir.analytics.parameters.ParameterApplicability`, `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef`
+- Summary: Versioned bundle that records the selected optional profile, including absence.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `applicability` | `dict[str, polisyos.ir.analytics.parameters.ParameterApplicability]` | `no` | `—` | `polisyos.ir.analytics.parameters.ParameterApplicability` |
+| `parameters` | `dict[str, polisyos.ir.analytics.literature.EvidenceParameter]` | `no` | `—` | `polisyos.ir.analytics.literature.EvidenceParameter` |
+| `schema_version` | `Literal[1.1]` | `no` | `'1.1'` | — |
+| `selected_cross_graph_profile_ref` | `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef \| NoneType` | `yes` | `—` | `polisyos.ir.registry.refs.CrossGraphEvidenceProfileRef` |
 | `selection_timestamp` | `str` | `no` | `''` | — |
 | `simulation_domain` | `str` | `yes` | `—` | — |
 | `skg_snapshot_ref` | `str` | `no` | `''` | — |

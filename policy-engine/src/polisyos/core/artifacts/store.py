@@ -125,6 +125,7 @@ from .ownership import (
     ArtifactTransactionPendingError,
     _ArtifactTransactionLease,
 )
+from .protocol import _validate_return_selected_profile
 from .signing import (
     BulkSigningReport,
     BulkVerificationReport,
@@ -2009,8 +2010,8 @@ class FileSystemCAS:
         sha: str,
         owner: dict[str, str | None] | None,
         lease: _ArtifactTransactionLease,
-    ) -> tuple[bool, str | None]:
-        """Resume only the exact owner, content, and manifest-profile request."""
+    ) -> tuple[bool, str | None, str]:
+        """Resume an exact write and return both compatibility and selected profiles."""
         if (
             intent["schema_version"]
             not in {
@@ -2160,7 +2161,7 @@ class FileSystemCAS:
             reference_profile = profile_sha256
         else:
             reference_profile = None
-        return intent["blob_stage"] is None, reference_profile
+        return intent["blob_stage"] is None, reference_profile, profile_sha256
 
     def _put_blob_and_manifest_once(
         self,
@@ -2169,8 +2170,8 @@ class FileSystemCAS:
         opts: PutOptions,
         aid: ArtifactID,
         sha: str,
-    ) -> tuple[bool, str | None]:
-        """Publish one blob/view under its durable deny-only owner intent."""
+    ) -> tuple[bool, str | None, str]:
+        """Publish one blob/view and return its exact computed selected profile."""
         blob_path, default_manifest_path = self._paths(aid)
         with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
             # Input ownership is mutable owner-generation state. Re-evaluate it
@@ -2402,23 +2403,37 @@ class FileSystemCAS:
                 reference_profile = (
                     profile_sha256 if profile_sha256 != default_profile_sha256 else None
                 )
-            return blob_preexisted, reference_profile
+            return blob_preexisted, reference_profile, profile_sha256
 
-    def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
-        """Store raw bytes under their content hash and create the immutable manifest sidecar."""
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        """Store bytes, optionally returning the exact profile selected by this write.
+
+        The default preserves the historical profileless selector for the default view.
+        When requested, the returned profile comes from the manifest computed and committed
+        inside this write's artifact lease; no later default-view read is used to infer it.
+        """
+        _validate_return_selected_profile(return_selected_profile)
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
         self._require_input_owners(opts)
 
         if not self._hpc_enabled or self._tracer is None:
-            _deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+            _deduplicated, default_ref_profile, selected_profile = self._put_blob_and_manifest_once(
                 data=data, opts=opts, aid=aid, sha=sha
             )
             ref = ArtifactRef(
                 artifact_id=aid,
                 kind=opts.kind,
                 media_type=opts.media_type,
-                manifest_profile_sha256=ref_profile_sha256,
+                manifest_profile_sha256=(
+                    selected_profile if return_selected_profile else default_ref_profile
+                ),
             )
             self._maybe_sign_on_put(ref)
             return ref
@@ -2435,7 +2450,7 @@ class FileSystemCAS:
             },
         ) as span:
             start = time.perf_counter()
-            deduplicated, ref_profile_sha256 = self._put_blob_and_manifest_once(
+            deduplicated, default_ref_profile, selected_profile = self._put_blob_and_manifest_once(
                 data=data,
                 opts=opts,
                 aid=aid,
@@ -2473,7 +2488,9 @@ class FileSystemCAS:
                 artifact_id=aid,
                 kind=opts.kind,
                 media_type=opts.media_type,
-                manifest_profile_sha256=ref_profile_sha256,
+                manifest_profile_sha256=(
+                    selected_profile if return_selected_profile else default_ref_profile
+                ),
             )
             self._maybe_sign_on_put(ref)
             return ref
@@ -2483,8 +2500,11 @@ class FileSystemCAS:
         obj: object,
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        """Canonicalize a JSON-like payload, persist it as CAS bytes, and return its ref."""
+        """Canonicalize JSON and optionally return the exact profile from this write."""
+        _validate_return_selected_profile(return_selected_profile)
         canon_spec = canon_spec or CanonSpec()
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
@@ -2502,6 +2522,8 @@ class FileSystemCAS:
             authority=getattr(opts, "authority", None),
             warnings=getattr(opts, "warnings", None),
         )
+        if return_selected_profile:
+            return self.put_bytes(data, opts2, return_selected_profile=True)
         return self.put_bytes(data, opts2)
 
     @_transactional_read()

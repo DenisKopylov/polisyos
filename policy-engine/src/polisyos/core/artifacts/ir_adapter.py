@@ -279,8 +279,18 @@ class CoreToIRArtifactStoreAdapter:
         obj: Any,
         opts: StorePutOptions | Mapping[str, Any] | ArtifactWriteOptions,
         canon_spec: IRCanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> Any:
         import polisyos.ir.model_layer.canon as ir_canon
+
+        from .protocol import _validate_return_selected_profile
+
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            from .protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self.store, "put_bytes")
 
         spec = canon_spec or ir_canon.CanonSpec()
         write_options = _coerce_write_options(opts)
@@ -293,17 +303,37 @@ class CoreToIRArtifactStoreAdapter:
             media_type="application/json",
             canon=canon,
         )
+        if return_selected_profile:
+            ref = self.store.put_bytes(data, write_options, return_selected_profile=True)
+            if ref.manifest_profile_sha256 is None:
+                raise ValueError("artifact_write_selected_profile_missing")
+            return ref
         return self.store.put_bytes(data, write_options)
 
     def put_bytes(
         self,
         data: bytes,
         opts: StorePutOptions | Mapping[str, Any] | ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> CoreArtifactRef:
-        """Persist caller-owned canonical bytes with the complete Core write options."""
+        """Persist caller-owned canonical bytes with complete Core write options."""
+        from .protocol import _validate_return_selected_profile
+
+        _validate_return_selected_profile(return_selected_profile)
+        if return_selected_profile:
+            from .protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self.store, "put_bytes")
         if not isinstance(data, bytes):
             raise TypeError("IR artifact bytes must be bytes")
-        return self.store.put_bytes(data, _coerce_write_options(opts))
+        write_options = _coerce_write_options(opts)
+        if return_selected_profile:
+            ref = self.store.put_bytes(data, write_options, return_selected_profile=True)
+            if ref.manifest_profile_sha256 is None:
+                raise ValueError("artifact_write_selected_profile_missing")
+            return ref
+        return self.store.put_bytes(data, write_options)
 
     def get_bytes(self, artifact_id: ArtifactSelector) -> bytes:
         return self.store.get_bytes(_coerce_core_artifact_selector(artifact_id))

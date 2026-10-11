@@ -12,6 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.scientist.methods.search.contracts import ParetoViewProjection
@@ -29,7 +30,12 @@ from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
 from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
+from polisyos.scientist.methods.search.strategies.types import (
+    Evaluation,
+    ParameterBounds,
+    ParameterType,
+)
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.critic import ConstraintCritic, ConstraintCriticInput
@@ -322,14 +328,10 @@ class HierarchicalSearchCoordinator:
                 continue
             default = _normalize_value_like(parameter.default_value)
             lower = (
-                None
-                if parameter.min_value is None
-                else _normalize_value_like(parameter.min_value)
+                None if parameter.min_value is None else _normalize_value_like(parameter.min_value)
             )
             upper = (
-                None
-                if parameter.max_value is None
-                else _normalize_value_like(parameter.max_value)
+                None if parameter.max_value is None else _normalize_value_like(parameter.max_value)
             )
             dtype = _parameter_type(parameter.default_value)
             if self._config.require_explicit_parameter_bounds:
@@ -379,14 +381,10 @@ class HierarchicalSearchCoordinator:
                 continue
             default = _normalize_value_like(entry.scheduled_value)
             lower = (
-                None
-                if parameter.min_value is None
-                else _normalize_value_like(parameter.min_value)
+                None if parameter.min_value is None else _normalize_value_like(parameter.min_value)
             )
             upper = (
-                None
-                if parameter.max_value is None
-                else _normalize_value_like(parameter.max_value)
+                None if parameter.max_value is None else _normalize_value_like(parameter.max_value)
             )
             dtype = _parameter_type(entry.scheduled_value)
             if self._config.require_explicit_parameter_bounds:
@@ -482,6 +480,7 @@ class HierarchicalSearchCoordinator:
         stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]]
         | None = None,
         initial_context: dict[str, Any] | None = None,
+        candidate_only_seed_evaluations: list[Evaluation] | None = None,
     ) -> SearchResult:
         spec = self.build_parameter_search_spec(structure.candidate)
         objective_spec = self.build_optimizer_objective_spec(structure.candidate)
@@ -532,15 +531,32 @@ class HierarchicalSearchCoordinator:
             },
         )
         context.setdefault("loop_id", loop_id)
+        effective_stage_a = stage_a_evaluator or _always_pass_stage_a
+        transfer_initials, transfer_report, transfer_stage_a_count, transfer_stage_b_count = (
+            _reevaluate_candidate_only_transfer_seeds(
+                candidate_only_seed_evaluations or [],
+                spec=spec,
+                codec=codec,
+                context=context,
+                stage_a_evaluator=effective_stage_a,
+                stage_b_evaluator=stage_b_evaluator,
+                constraint_critic=self._constraint_critic,
+            )
+        )
+        initial_evaluations.extend(transfer_initials)
         result = _run_blueprint_parameter_search(
             loop_id=loop_id,
             adapter=adapter,
             max_iterations=self._config.max_parameter_iterations,
             stage_b_evaluator=stage_b_evaluator,
-            stage_a_evaluator=stage_a_evaluator or _always_pass_stage_a,
+            stage_a_evaluator=effective_stage_a,
             context=context,
             initial_evaluations=initial_evaluations,
         )
+        result.stage_a_evaluations += transfer_stage_a_count
+        result.stage_b_evaluations += transfer_stage_b_count
+        if candidate_only_seed_evaluations is not None:
+            result.telemetry["candidate_only_transfer"] = transfer_report
         result.telemetry["optimizer_objectives"] = list(objective_spec.objective_names)
         result.telemetry["frontier_projection_names"] = list(
             objective_spec.frontier_projection_names
@@ -573,9 +589,9 @@ class HierarchicalSearchCoordinator:
                     },
                 )
             result.pareto_front = self._pareto_registry.as_legacy_frontier_payload(loop_id)
-            result.pareto_projection = self._pareto_registry.get_snapshot(
-                loop_id
-            ).project_view(ParetoView.GLOBAL_FEASIBLE)
+            result.pareto_projection = self._pareto_registry.get_snapshot(loop_id).project_view(
+                ParetoView.GLOBAL_FEASIBLE
+            )
         return result
 
     def run_narrative_search(
@@ -626,7 +642,10 @@ class HierarchicalSearchCoordinator:
         ]
         | None = None,
         initial_context: dict[str, Any] | None = None,
+        candidate_only_seed_evaluations: list[Evaluation] | None = None,
     ) -> HierarchicalSearchResult:
+        if candidate_only_seed_evaluations and stage_b_evaluator is None:
+            raise ValueError("candidate-only transfer requires a policy Stage B evaluator")
         state = HierarchicalSearchState(current_level=PolicySearchLevel.STRUCTURE)
         structures = self.generate_structure_candidates(
             candidate,
@@ -645,6 +664,18 @@ class HierarchicalSearchCoordinator:
                     stage_b_evaluator=stage_b_evaluator,
                     stage_a_evaluator=stage_a_evaluator,
                     initial_context=initial_context,
+                    candidate_only_seed_evaluations=candidate_only_seed_evaluations,
+                )
+
+        if candidate_only_seed_evaluations:
+            admitted = sum(
+                int(result.telemetry.get("candidate_only_transfer", {}).get("accepted_count", 0))
+                for result in state.parameter_search_results.values()
+            )
+            if admitted == 0:
+                raise ValueError(
+                    "candidate-only transfer requested but no source candidate passed "
+                    "policy validation and Stage A/Stage B re-evaluation"
                 )
 
         if narrative_input_builder is not None:
@@ -1162,6 +1193,214 @@ def _history_record(iteration: SearchIteration) -> dict[str, Any]:
         "is_promising": iteration.is_promising,
         "stage_a_passed": iteration.stage_a_passed,
     }
+
+
+def _reevaluate_candidate_only_transfer_seeds(
+    evaluations: list[Evaluation],
+    *,
+    spec: ParameterSearchSpec,
+    codec: PolicyParameterCodec,
+    context: dict[str, Any],
+    stage_a_evaluator: Callable[[dict[str, Any], dict[str, Any]], tuple[float, bool]],
+    stage_b_evaluator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]],
+    constraint_critic: ConstraintCritic,
+) -> tuple[list[dict[str, Any]], dict[str, Any], int, int]:
+    """Turn exact-space V5 rows into policy candidates, never into policy scores."""
+    from polisyos.scientist.methods.autotune.models import BayesianSourceProfile
+
+    accepted: list[dict[str, Any]] = []
+    report: dict[str, Any] = {
+        "requested_count": len(evaluations),
+        "considered_count": 0,
+        "accepted_count": 0,
+        "rejected_by_reason": {},
+        "source_reported_profile_kind_counts": {},
+        "accepted_sources": [],
+        "generic_source_objectives_used": False,
+        "generic_source_scalar_used_as_policy_objective": False,
+        "source_scalar_may_order_candidate_proposals": True,
+        "candidate_policy_stage_b_recomputed": True,
+        "candidate_policy_constraint_critic_applied": True,
+        "source_profile_attestation": "producer_reported_not_independently_recomputed",
+    }
+    stage_a_count = 0
+    stage_b_count = 0
+
+    def reject(reason: str) -> None:
+        reasons = report["rejected_by_reason"]
+        reasons[reason] = int(reasons.get(reason, 0)) + 1
+
+    expected_space = spec.search_space.sobol_space_fingerprint()
+    for evaluation in evaluations:
+        report["considered_count"] += 1
+        if not evaluation.is_valid:
+            reject("source_evaluation_not_successful")
+            continue
+        source_metadata = evaluation.metadata
+        history_payload = source_metadata.get("candidate_only_transfer_source_history_ref")
+        binding_payload = source_metadata.get("candidate_only_transfer_source_binding")
+        index_payload = source_metadata.get("candidate_only_transfer_index_ref")
+        try:
+            history_ref = ArtifactRef.model_validate(history_payload)
+            index_ref = ArtifactRef.model_validate(index_payload)
+            if not isinstance(binding_payload, dict):
+                raise TypeError("source binding must be an object")
+            source_binding = RunFingerprint.model_validate({**binding_payload, "embedding": []})
+        except (TypeError, ValueError):
+            reject("source_history_or_index_ref_invalid")
+            continue
+        if (history_ref.kind, history_ref.media_type) != (
+            "search.transfer.history",
+            "application/json",
+        ) or (index_ref.kind, index_ref.media_type) != (
+            "vector_memory.bundle",
+            "application/json",
+        ):
+            reject("source_history_or_index_ref_kind_mismatch")
+            continue
+        profile_payload = source_metadata.get("warm_start_compatibility")
+        try:
+            profile = BayesianSourceProfile.model_validate(profile_payload)
+        except (TypeError, ValueError):
+            reject("source_profile_missing_or_invalid")
+            continue
+        profile_kinds = report["source_reported_profile_kind_counts"]
+        profile_kinds[profile.profile_kind] = int(profile_kinds.get(profile.profile_kind, 0)) + 1
+        if source_binding.history_ref != history_ref or source_binding.run_id != str(
+            source_metadata.get("source_run_id") or ""
+        ):
+            reject("source_index_binding_history_mismatch")
+            continue
+        if (
+            profile.search_space_fingerprint != expected_space
+            or profile.search_space_fingerprint != source_binding.space_hash
+        ):
+            reject("source_profile_search_space_mismatch")
+            continue
+        params = evaluation.params
+        invalid_params = _candidate_only_parameter_error(params, spec.search_space)
+        if invalid_params is not None:
+            reject(invalid_params)
+            continue
+        try:
+            candidate_payload = codec.decode(
+                dict(params),
+                template=spec.candidate.as_search_payload(),
+            )
+            candidate_payload.pop("candidate_hash", None)
+            policy_candidate = PolicyCandidateSchema.model_validate(candidate_payload)
+        except (TypeError, ValueError):
+            reject("source_parameters_do_not_form_policy_candidate")
+            continue
+        candidate_payload = policy_candidate.as_search_payload()
+        candidate_runtime_payload = codec.decode(
+            dict(params),
+            template=candidate_payload,
+        )
+        candidate_hash = policy_candidate.candidate_hash()
+        critique = constraint_critic.evaluate(ConstraintCriticInput(candidate=policy_candidate))
+        stage_a_count += 1
+        if not critique.passed:
+            reject("policy_constraint_critic_rejected")
+            continue
+        stage_a_score, stage_a_passed = stage_a_evaluator(candidate_payload, dict(context))
+        del stage_a_score
+        if not stage_a_passed:
+            reject("policy_stage_a_rejected")
+            continue
+        stage_b_count += 1
+        transfer_record = {
+            "source_run_id": str(source_metadata.get("source_run_id") or ""),
+            "source_candidate_id": evaluation.candidate_id,
+            "source_history_ref": history_ref.model_dump(mode="json"),
+            "source_index_ref": index_ref.model_dump(mode="json"),
+            "source_run_binding": binding_payload,
+            "source_profile": profile.model_dump(mode="json", exclude_none=True),
+            "source_profile_attestation": "producer_reported_not_independently_recomputed",
+            "source_profile_kind": profile.profile_kind,
+            "source_proposal_source": profile.proposal_source,
+            "source_warm_start_eligible": profile.warm_start_eligible,
+            "candidate_hash": candidate_hash,
+            "generic_source_objectives_used": False,
+            "generic_source_scalar_used_as_policy_objective": False,
+            "evaluation_basis": "current_policy_constraint_critic_and_stage_b",
+            "source_scalar_may_order_candidate_proposals": True,
+        }
+        stage_context = {
+            **dict(context),
+            "candidate_only_transfer": transfer_record,
+        }
+        stage_b_result = stage_b_evaluator(candidate_payload, stage_context)
+        if not isinstance(stage_b_result, dict) or stage_b_result.get("status") != "ok":
+            reject("policy_stage_b_did_not_complete")
+            continue
+        policy_evaluation = _coerce_policy_evaluation(stage_b_result)
+        if (
+            policy_evaluation is None
+            or policy_evaluation.metadata.get("candidate_hash") != candidate_hash
+        ):
+            reject("policy_stage_b_vector_not_bound_to_candidate")
+            continue
+        policy_evaluation = policy_evaluation.model_copy(
+            update={
+                "metadata": {
+                    **dict(policy_evaluation.metadata),
+                    "candidate_only_transfer": transfer_record,
+                }
+            }
+        )
+        current_stage_b_result = {
+            **stage_b_result,
+            "policy_evaluation": policy_evaluation.model_dump(mode="json"),
+            "candidate_only_transfer": transfer_record,
+        }
+        accepted.append(
+            {
+                "candidate": candidate_runtime_payload,
+                "stage_b_result": current_stage_b_result,
+                "objective_value": _diagnostic_policy_score(policy_evaluation),
+                "is_promising": policy_evaluation.feasible,
+            }
+        )
+        report["accepted_sources"].append(
+            {
+                "source_run_id": transfer_record["source_run_id"],
+                "source_candidate_id": evaluation.candidate_id,
+                "source_history_ref": transfer_record["source_history_ref"],
+                "source_profile_kind": profile.profile_kind,
+                "source_warm_start_eligible": profile.warm_start_eligible,
+                "candidate_hash": candidate_hash,
+            }
+        )
+    report["accepted_count"] = len(accepted)
+    report["policy_stage_a_evaluations"] = stage_a_count
+    report["policy_stage_b_evaluations"] = stage_b_count
+    return accepted, report, stage_a_count, stage_b_count
+
+
+def _candidate_only_parameter_error(
+    params: dict[str, Any],
+    search_space: SearchSpace,
+) -> str | None:
+    """Reject incomplete, clipped, or type-coerced transferred parameters."""
+    if set(params) != {bound.name for bound in search_space.bounds}:
+        return "source_parameter_set_mismatch"
+    for bound in search_space.bounds:
+        value = params[bound.name]
+        if bound.dtype is ParameterType.CATEGORICAL:
+            if bound.categories is None or value not in bound.categories:
+                return "source_parameter_category_mismatch"
+            continue
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return "source_parameter_type_mismatch"
+        numeric = float(value)
+        if not math.isfinite(numeric):
+            return "source_parameter_non_finite"
+        if numeric < bound.lower or numeric > bound.upper:
+            return "source_parameter_out_of_bounds"
+        if bound.dtype is ParameterType.INTEGER and not numeric.is_integer():
+            return "source_parameter_integer_mismatch"
+    return None
 
 
 def _always_pass_stage_a(candidate: dict[str, Any], context: dict[str, Any]) -> tuple[float, bool]:

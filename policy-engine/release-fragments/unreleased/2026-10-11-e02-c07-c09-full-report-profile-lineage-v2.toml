@@ -1,0 +1,37 @@
+id = "2026-10-11-e02-c07-c09-full-report-profile-lineage-v2"
+title = "Preserve selected forecast report and context manifest profiles"
+type = "changed"
+component = "calibration"
+owner = "team-polisyos"
+summary = "ForecastOwner returns exact selected profiles from the same writes for all four generated report-basis artifacts, preserves selected input profiles through the report manifest, and the calibration bridge compares full selected-view edges."
+evidence = [
+  "tests/unit/remediation/test_frc_02_owner.py",
+  "tests/unit/foundry/methods/test_artifacts.py",
+  "tests/unit/ir/test_forecasting_uncertainty.py",
+  "tests/unit/remediation/test_frc_02_bridge.py",
+  "tests/unit/remediation/test_frc_02_empirical_bridge.py",
+  "tests/unit/runtime/http/test_artifact_inspector_service.py",
+]
+compatibility = "BacktestOrchestrator.run retains its historical BacktestReport return shape; run_with_ref adds the exact persisted report ref. Selected-profile returns remain opt-in: store_method_artifact and the uncertainty persistence helper preserve profileless defaults for existing callers, while ForecastOwner opts in for its four generated report-basis artifacts. Empirical evidence schemas 1.0 and 1.1 remain readable with their historical ID/role edge semantics; new profile-bearing evidence uses schema 1.2."
+change_class = "internal-and-schema-versioned-artifact"
+surface_classification = "internal: forecast/calibration artifact lineage; existing runtime content preview remains default-off for predictive diagnostics"
+migration = "New empirical-calibration evidence writes use schema 1.2. Existing 1.0/1.1 artifacts remain readable and are not rewritten."
+api = "The existing BacktestOrchestrator.run API is unchanged. The additive run_with_ref returns the typed BacktestReportRef emitted by persistence. Core/IR write methods add an opt-in return_selected_profile keyword to retain the profile computed inside the same write. No generated HTTP/OpenAPI contract changes."
+limitations = "Exact profile lineage identifies CAS manifest views but does not prove complete or semantically adequate inputs, producer authority, S10 mapping, issuer/currentness, causal validity, or dashboard consumption. The predictive content sidecar continues to require the existing default-false server setting."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/api/artifacts.md", "src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "empirical-calibration-evidence-profile-lineage-v1-2"
+change_class = "internal-and-schema-versioned-artifact"
+impact = "additive"
+surface = "internal: ir.empirical_calibration_evidence schema 1.2"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "New empirical calibration evidence carries selected context manifest profiles and validates complete ID/role/profile input edges."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []

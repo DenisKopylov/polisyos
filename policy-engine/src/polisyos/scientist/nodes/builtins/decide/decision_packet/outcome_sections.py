@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from polisyos.core.artifacts import ArtifactRef, InputRef
+from polisyos.core.artifacts import ArtifactRef, InputRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
@@ -372,7 +372,7 @@ def _build_feedback_loop(
             state.artifacts_index.get(ARTIFACT_METRICS_REF),
         ):
             if ref is not None:
-                input_refs.append(InputRef(artifact_id=ref.artifact_id, role="feedback_source"))
+                input_refs.append(input_ref_from_artifact_ref(ref, role="feedback_source"))
         monitoring_contract_ref = feedback_service.persist_monitoring_contract(
             contract,
             inputs=input_refs or None,

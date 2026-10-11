@@ -4,6 +4,7 @@ import type { NaturalLanguageRunRequest } from "@/api/hooks/useLaunchNlRun";
 import type { WorkflowRunRequest } from "@/api/hooks/useLaunchRun";
 
 const checkpointPolicySchema = z.enum(["strict", "lenient", "disabled"]);
+const manifestProfileSha256Pattern = /^sha256:[0-9a-f]{64}$/u;
 
 const paramSchema = z.object({
   key: z.string(),
@@ -21,9 +22,17 @@ const governanceConstraintSchema = z.object({
   severity: z.string(),
 });
 
-export const workflowLaunchSchema = z.object({
+const workflowLaunchFieldsSchema = z.object({
   dataSourceType: z.enum(["snapshot", "bindings", "view"]),
   dataSourceRef: z.string().trim().min(1),
+  dataSourceProfileSha256: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || manifestProfileSha256Pattern.test(value),
+      "pages.composer.dataSource.profileSelectorInvalid",
+    )
+    .default(""),
   trinityRef: z.string(),
   policySpecRef: z.string(),
   modelSpecRef: z.string(),
@@ -33,6 +42,31 @@ export const workflowLaunchSchema = z.object({
   governanceConstraints: z.array(governanceConstraintSchema).min(1),
   customParams: z.array(paramSchema),
 });
+
+function validateWorkflowProfileSelection(
+  values: {
+    dataSourceType: "snapshot" | "bindings" | "view";
+    dataSourceProfileSha256: string;
+  },
+  context: z.RefinementCtx,
+) {
+  if (values.dataSourceProfileSha256 && values.dataSourceType !== "view") {
+    context.addIssue({
+      code: "custom",
+      message: "pages.composer.dataSource.profileSelectorRequiresView",
+      path: ["dataSourceProfileSha256"],
+    });
+  }
+}
+
+export const workflowLaunchSchema = workflowLaunchFieldsSchema.superRefine(
+  validateWorkflowProfileSelection,
+);
+
+export const workflowLaunchDraftSchema = workflowLaunchFieldsSchema
+  .extend({ dataSourceRef: z.string() })
+  .strict()
+  .superRefine(validateWorkflowProfileSelection);
 
 export const naturalLanguageLaunchSchema = z.object({
   nlRequest: z.string().trim().min(1),
@@ -49,7 +83,10 @@ export const naturalLanguageLaunchSchema = z.object({
   governanceConstraints: z.array(governanceConstraintSchema).min(1),
 });
 
-export type WorkflowLaunchFormValues = z.infer<typeof workflowLaunchSchema>;
+export type WorkflowLaunchFormInputValues = z.input<
+  typeof workflowLaunchSchema
+>;
+export type WorkflowLaunchFormValues = z.output<typeof workflowLaunchSchema>;
 export type NaturalLanguageLaunchFormValues = z.infer<
   typeof naturalLanguageLaunchSchema
 >;
@@ -94,18 +131,20 @@ export function buildWorkflowLaunchRequest(
     autoMaterializationEnabled: boolean;
   },
 ): WorkflowRunRequest {
+  const validatedValues = workflowLaunchSchema.parse(values);
+  const selectedProfile = validatedValues.dataSourceProfileSha256.trim();
   const sourceKey =
-    values.dataSourceType === "snapshot"
+    validatedValues.dataSourceType === "snapshot"
       ? "data_snapshot_ref"
-      : values.dataSourceType === "bindings"
+      : validatedValues.dataSourceType === "bindings"
         ? "input_bindings_ref"
         : "data_view_request_ref";
 
   const params: Record<string, unknown> = {
-    operator_intent: values.executionIntent.trim() || null,
-    expected_outputs: toExpectedOutputSpecs(values.expectedOutputs),
+    operator_intent: validatedValues.executionIntent.trim() || null,
+    expected_outputs: toExpectedOutputSpecs(validatedValues.expectedOutputs),
     governance_constraints: toGovernanceConstraintSpecs(
-      values.governanceConstraints,
+      validatedValues.governanceConstraints,
     ),
     atlas_context: {
       locale_preference: context.locale,
@@ -114,29 +153,41 @@ export function buildWorkflowLaunchRequest(
     },
   };
 
-  for (const param of values.customParams) {
+  for (const param of validatedValues.customParams) {
     if (param.key.trim()) {
       params[param.key.trim()] = param.value;
     }
   }
 
+  const dataSource: WorkflowRunRequest["data_source"] =
+    validatedValues.dataSourceType === "view" && selectedProfile
+      ? {
+          data_view_request_ref: {
+            artifact_id: validatedValues.dataSourceRef.trim(),
+            kind: "ir.data_view_request",
+            media_type: "application/json",
+            manifest_profile_sha256: selectedProfile,
+          },
+        }
+      : ({
+          [sourceKey]: validatedValues.dataSourceRef.trim(),
+        } as WorkflowRunRequest["data_source"]);
+
   const body: WorkflowRunRequest = {
     mode: "workflow",
-    checkpoint_policy: values.checkpointPolicy,
-    data_source: {
-      [sourceKey]: values.dataSourceRef.trim(),
-    } as WorkflowRunRequest["data_source"],
+    checkpoint_policy: validatedValues.checkpointPolicy,
+    data_source: dataSource,
     params,
   };
 
-  if (values.trinityRef.trim()) {
-    body.trinity_bundle_ref = values.trinityRef.trim();
+  if (validatedValues.trinityRef.trim()) {
+    body.trinity_bundle_ref = validatedValues.trinityRef.trim();
   }
-  if (values.policySpecRef.trim()) {
-    body.policy_spec_ref = values.policySpecRef.trim();
+  if (validatedValues.policySpecRef.trim()) {
+    body.policy_spec_ref = validatedValues.policySpecRef.trim();
   }
-  if (values.modelSpecRef.trim()) {
-    body.model_spec_ref = values.modelSpecRef.trim();
+  if (validatedValues.modelSpecRef.trim()) {
+    body.model_spec_ref = validatedValues.modelSpecRef.trim();
   }
 
   return body;

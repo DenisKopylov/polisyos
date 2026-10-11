@@ -292,10 +292,15 @@
       "dataSource": {
         "snapshot": "Data snapshot ref",
         "bindings": "Input bindings ref",
-        "view": "Data view request ref"
+        "view": "Data view request ref",
+        "profileSha256": "SHA-256 профиля манифеста (необязательно)",
+        "profileSelectorLegacy": "Оставьте поле пустым, чтобы сохранить legacy string selector.",
+        "profileSelectorInvalid": "Используйте sha256: и 64 строчные шестнадцатеричные цифры.",
+        "profileSelectorRequiresView": "Селектор профиля манифеста требует data view request."
       },
       "placeholders": {
         "sha256": "sha256:...",
+        "manifestProfile": "sha256:<64 lowercase hex>",
         "trinity": "sha256:trinity",
         "policySpec": "sha256:policy-spec",
         "modelSpec": "sha256:model-spec",
@@ -435,6 +440,19 @@
         "source": "Source"
       },
       "overview": "Overview",
+      "genericCycleSimulation": {
+        "title": "Общая симуляция цикла",
+        "authority": "Только сохранённая история кандидата. Актуальность и право публикации не установлены.",
+        "artifactStatus": "Статус артефакта: {status}",
+        "childProfileStatus": "Статус профиля дочерних узлов: {status}",
+        "currentnessStatus": "Актуальность: {status}",
+        "n4SourceStatus": "Статус источника N4: {status}",
+        "observationsTitle": "Наблюдения N5",
+        "observationsEmpty": "В этой записи нет сохранённых наблюдений N5.",
+        "profileBindingsTitle": "Исторические привязки профилей дочерних узлов",
+        "unavailable": "Наблюдения цикла скрыты: {reason}.",
+        "refused": "Проекция цикла скрыта: {reason}"
+      },
       "candidateSimulation": {
         "acquisitionHistoryTitle": "История получения и повторного запуска",
         "acquisitionHistoryAuthority": "Только сохранённая история кандидатов. Актуальность и право публикации не установлены.",
@@ -921,6 +939,16 @@
       "connectorsLoadError": "Unable to load connectors",
       "checkedAt": "checked {date}",
       "contextRefs": "Context refs",
+      "profileSelection": {
+        "title": "Выбор профиля data view request",
+        "provenanceOnly": "Только происхождение выбора профиля; это не подтверждает полномочия или актуальность.",
+        "status": {
+          "callerSelected": "Профиль выбран caller",
+          "workerDefaultLimited": "Ограниченный профиль worker по умолчанию",
+          "notRequested": "Data view request не отправлялся",
+          "notEstablished": "Выбор профиля не установлен"
+        }
+      },
       "promotionLane": "Promotion lane",
       "selectedArtifact": "Selected artifact",
       "promotionReviewTitle": "Promotion review and collaboration lane",

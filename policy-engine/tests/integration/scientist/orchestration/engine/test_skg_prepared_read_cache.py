@@ -4,6 +4,8 @@ import hashlib
 import json
 import logging
 import os
+import signal
+import sys
 from dataclasses import replace
 from pathlib import Path
 from threading import Event
@@ -14,6 +16,7 @@ import duckdb
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import input_ref_from_artifact_ref, profile_bound_ref
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -45,9 +48,9 @@ from polisyos.ir.analytics.literature import (
     persist_literature_causal_prior,
 )
 from polisyos.ir.analytics.parameters import (
-    ContextAdaptiveParameterBundle,
+    ContextAdaptiveParameterBundleV11,
     load_context_adaptive_parameter_bundle,
-    persist_context_adaptive_parameter_bundle,
+    persist_context_adaptive_parameter_bundle_v1_1,
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
@@ -84,8 +87,14 @@ from polisyos.scientist.orchestration.engine.idempotency import (
 )
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+from polisyos.scientist.orchestration.engine.skg_snapshot import (
+    SNAPSHOT_INPUT_KEY,
+    load_retained_skg_snapshot,
+    retain_prepared_skg_read,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from tests.unit.scientist.nodes import conftest as _node_fixtures
 
 # Re-export the unit owner fixtures locally; their conftest scope excludes this integration tree.
@@ -152,6 +161,11 @@ def _set_skg_value(path: Path, value: float) -> None:
         connection.close()
 
 
+def _file_sha256(path: Path) -> str:
+    with path.open("rb") as source:
+        return hashlib.file_digest(source, "sha256").hexdigest()
+
+
 def _set_unrelated_value(path: Path, value: int) -> None:
     connection = duckdb.connect(str(path))
     try:
@@ -160,13 +174,21 @@ def _set_unrelated_value(path: Path, value: int) -> None:
         connection.close()
 
 
-def _build_run_context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, NodeRegistry]:
+def _build_run_context(
+    store: FileSystemCAS,
+    run_id: str,
+    *,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+) -> tuple[ExecutionContext, NodeRegistry]:
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         registry_bundle = build_default_registry_bundle(store)
         run = RunContext.start(
             store=store,
             registry_bundle=registry_bundle.bundle_ref,
             run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
     context = ExecutionContext(
         store=store,
@@ -305,11 +327,8 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
     """The direct nested ResolveParameters call receives the exact outer prepared owner read."""
     prepared_read = object()
     context = replace(execution_context, prepared_skg_read=prepared_read)
-    candidate = SimpleNamespace(
-        as_search_payload=lambda: {"candidate_id": "candidate-prepared-read"},
-        trinity_bundle=object(),
-        candidate_id="candidate-prepared-read",
-        candidate_hash=lambda: "candidate-hash",
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _trinity_bundle(), candidate_id="candidate-prepared-read"
     )
     state = minimal_state.model_copy(deep=True)
     observed: list[object | None] = []
@@ -321,7 +340,11 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
         candidate_payload: dict[str, Any],
         context: dict[str, Any],
     ) -> dict[str, object]:
-        del candidate_payload, context
+        typed_payload = {
+            key: value for key, value in candidate_payload.items() if key != "candidate_hash"
+        }
+        assert PolicyCandidateSchema.model_validate(typed_payload) == candidate
+        del context
         observed.append(ctx.prepared_skg_read)
         return {"status": "ok", "feasible": True, "objective_value": 1.0}
 
@@ -615,16 +638,34 @@ def test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes(
     assert prepared_reads[0]._closed is True
 
 
-def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
+def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finishes(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A timed call skips a stale unbound cache row and uses its own read lifetime."""
+    """A late thread fallback read cannot persist after its timeout expires."""
     from polisyos.scientist.orchestration.engine import retry as retry_module
 
     db_path = tmp_path / "skg-timeout-lifetime.duckdb"
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    underlying_store_write_calls: list[tuple[str, ArtifactRef | None]] = []
+    for method_name in sorted(retry_module._STORE_WRITE_METHODS):
+        original_store_write = getattr(store, method_name)
+
+        def track_store_write(
+            *args,
+            _method_name=method_name,
+            _original_store_write=original_store_write,
+            **kwargs,
+        ):
+            call_index = len(underlying_store_write_calls)
+            underlying_store_write_calls.append((_method_name, None))
+            result = _original_store_write(*args, **kwargs)
+            if isinstance(result, ArtifactRef):
+                underlying_store_write_calls[call_index] = (_method_name, result)
+            return result
+
+        monkeypatch.setattr(store, method_name, track_store_write)
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         graph_ref = persist_causal_graph_model(
             _ensure_ir_artifact_store(store),
@@ -641,7 +682,9 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
         },
     )
     context, registry = _build_run_context(store, state.run_id)
+    writes_before_warmup = tuple(underlying_store_write_calls)
     warmup = _execute_workflow(context, registry, _workflow(), state)
+    warmup_write_delta = tuple(underlying_store_write_calls)[len(writes_before_warmup) :]
     assert warmup.report.status == "ok"
     assert _resolved_value(store, warmup.state) == 1.4
 
@@ -649,6 +692,18 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
         event for event in _trace_events(context) if event.get("event") == "NODE_CACHE_STORE"
     )
     source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
+    warmup_bundle_ref = ArtifactRef.model_validate(
+        warmup.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    )
+    assert any(method == "put_bytes" for method, _ref in warmup_write_delta)
+    assert any(
+        method == "put_bytes" and written_ref == source_bound_entry_ref
+        for method, written_ref in warmup_write_delta
+    )
+    assert any(
+        method == "put_bytes" and written_ref == warmup_bundle_ref
+        for method, written_ref in warmup_write_delta
+    )
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         source_bound_entry = NodeCacheEntry.model_validate(
             from_canonical_bytes(store.get_bytes(source_bound_entry_ref.artifact_id))
@@ -743,7 +798,8 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
             selected_source_values.append(float(selected.value))
         return selected, applicability
 
-    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    monkeypatch.setattr(retry_module, "mp", SimpleNamespace(get_all_start_methods=lambda: []))
+    monkeypatch.setattr(retry_module, "sys", SimpleNamespace(platform="win32"))
     monkeypatch.setattr(SKGQuery, "prepare_read", staticmethod(track_prepare))
     monkeypatch.setattr(PreparedSKGRead, "close", track_close)
     monkeypatch.setattr(ResolveParametersNode, "prepare_cache_input", track_cache_prepare)
@@ -751,6 +807,7 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
     monkeypatch.setattr(ResolveParametersNode, "execute", delayed_execute)
     monkeypatch.setattr(ParameterSelector, "select_for_context", track_selected_source)
 
+    store_writes_at_timeout: tuple[tuple[str, ArtifactRef | None], ...] | None = None
     try:
         result = _execute_workflow(context, registry, _workflow(timeout_s=1.0), state)
         assert started.is_set()
@@ -767,6 +824,7 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
         )
         assert cache_validation_calls == []
         assert not finished.is_set()
+        store_writes_at_timeout = tuple(underlying_store_write_calls)
     finally:
         release.set()
 
@@ -777,17 +835,387 @@ def test_timed_prepared_read_bypasses_shared_handle_until_worker_finishes(
         f"worker_errors={[(type(exc).__module__, type(exc).__qualname__, str(exc)) for exc in worker_errors]!r}"
     )
     assert len(worker_outcomes) + len(worker_errors) == 1
-    if worker_outcomes:
-        assert len(worker_outcomes) == 1
-        assert _resolved_value(store, worker_outcomes[0].state) == 2.6
-    else:
-        assert type(worker_errors[0]) is ValueError
-        assert str(worker_errors[0]) == (
-            "artifact ref payload must include artifact_id, kind, media_type"
-        )
+    assert worker_outcomes == []
+    assert len(worker_errors) == 1
+    assert type(worker_errors[0]) is retry_module._AttemptWriteDeniedError
+    assert worker_errors[0].code == "attempt_write_revoked"
+    assert worker_errors[0].reason_code == "attempt_write_revoked"
+    assert store_writes_at_timeout is not None
+    assert tuple(underlying_store_write_calls) == store_writes_at_timeout
     assert len(prepared_reads) == 1
     assert close_calls == prepared_reads
     assert prepared_reads[0]._closed is True
+
+
+@pytest.mark.skipif(
+    sys.platform != "darwin", reason="requires the native Darwin spawn timeout route"
+)
+def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A canonical spawn worker reads current SKG bytes and publishes a typed bundle."""
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+
+    allowed_cleanup_exitcodes = {0, -signal.SIGTERM}
+
+    db_path = tmp_path / "skg-spawn-source.duckdb"
+    _seed_skg(db_path)
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store),
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+        profile_ref = persist_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(store),
+            CrossGraphEvidenceProfile(
+                summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
+                notes=["spawn-worker-profile"],
+            ),
+        )
+    state = ExperimentState(
+        run_id="R_skg_spawn_timeout_lifetime",
+        artifacts_index={
+            ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref,
+            ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: profile_ref,
+        },
+        params={
+            "target_context": {"context_id": "us-2025", "countries": ["US"]},
+            "required_parameters": ["fiscal_multiplier"],
+            "domain": "fiscal",
+            "skg_db_path": str(db_path),
+        },
+    )
+    context, registry = _build_run_context(
+        store,
+        state.run_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    warmup = _execute_workflow(context, registry, _workflow(), state)
+    assert warmup.report.status == "ok"
+    assert _resolved_value(store, warmup.state) == 1.4
+
+    warmup_store_event = next(
+        event for event in _trace_events(context) if event.get("event") == "NODE_CACHE_STORE"
+    )
+    source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        source_bound_entry = NodeCacheEntry.model_validate(
+            from_canonical_bytes(store.get_bytes(source_bound_entry_ref.artifact_id))
+        )
+        prior_cache = NodeResultCache(store, run_id=state.run_id)
+        assert prior_cache.load_entry(source_bound_entry_ref)
+        prior_outcome = prior_cache.get(source_bound_entry.idempotency_key)
+        assert prior_outcome is not None
+        unbound_key = compute_idempotency_key(
+            spec=ResolveParametersNode().spec,
+            state=state,
+            bind_params={},
+        )
+        assert unbound_key != source_bound_entry.idempotency_key
+        unbound_entry_ref = prior_cache.put(
+            unbound_key,
+            node_id=_RESOLVE_NODE_ID,
+            outcome=prior_outcome,
+        )
+        stale_outcome = prior_cache.get(unbound_key)
+        assert stale_outcome is not None
+        assert _resolved_value(store, stale_outcome.state) == 1.4
+    context.run.emit(
+        "scientist.node.resolve",
+        "NODE_CACHE_STORE",
+        outputs=[unbound_entry_ref],
+    )
+
+    # Preserve the 1s negative result separately; this positive run tests the same
+    # native spawn consumer with an explicit, larger test-only observation budget.
+    _set_skg_value(db_path, 2.6)
+    selected_read = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            selected_snapshot_ref = retain_prepared_skg_read(store, selected_read)
+    finally:
+        selected_read.close()
+    assert selected_snapshot_ref.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        selected_snapshot = load_retained_skg_snapshot(store, selected_snapshot_ref)
+    replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: selected_snapshot_ref}})
+    _set_skg_value(db_path, 9.75)
+    live_read = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    try:
+        assert live_read.query.query_parameters("fiscal_multiplier")[0].parameter.value == 9.75
+    finally:
+        live_read.close()
+    trace_start = _trace_event_count(context)
+    worker_closes: list[dict[str, object]] = []
+    original_close_worker = retry_module._close_worker_process
+
+    def observe_worker_close(process) -> None:
+        facts = {
+            "pid": process.pid,
+            "alive_before_close": process.is_alive(),
+            "exitcode_before_close": process.exitcode,
+        }
+        original_close_worker(process)
+        facts["closed_after"] = process._closed
+        worker_closes.append(facts)
+
+    monkeypatch.setattr(retry_module, "_close_worker_process", observe_worker_close)
+    result = _execute_workflow(context, registry, _workflow(timeout_s=30.0), replay_state)
+
+    assert result.report.nodes[0].status == "ok"
+    assert _resolved_value(store, result.state) == 2.6
+    assert result.state.inputs[SNAPSHOT_INPUT_KEY] == selected_snapshot_ref
+    events = _trace_events(context, start_line=trace_start)
+    bypasses = [event for event in events if event.get("event") == "NODE_CACHE_BYPASS"]
+    assert len(bypasses) == 1
+    assert bypasses[0]["metrics"]["reason_code"] == 7
+    assert not any(event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"} for event in events)
+    assert len(worker_closes) == 1
+    assert worker_closes[0]["pid"] not in {None, os.getpid()}
+    assert worker_closes[0]["alive_before_close"] is False
+    assert worker_closes[0]["exitcode_before_close"] in allowed_cleanup_exitcodes
+    assert worker_closes[0]["closed_after"] is True
+
+    assert context.run.trace_path is not None
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        bundle_manifest = store.get_manifest(bundle_ref)
+        selected_graph_ref = profile_bound_ref(_ensure_ir_artifact_store(store), graph_ref)
+        selected_profile_ref = profile_bound_ref(_ensure_ir_artifact_store(store), profile_ref)
+        assert isinstance(bundle, ContextAdaptiveParameterBundleV11)
+        assert bundle.schema_version == "1.1"
+        assert bundle.parameters["fiscal_multiplier"].value == 2.6
+        assert bundle.skg_version_id == 7
+        selected_materialization = (
+            context.run.trace_path.parent
+            / "skg-snapshots"
+            / f"{selected_snapshot.source_sha256}.duckdb"
+        )
+        assert bundle.skg_snapshot_ref == f"duckdb://{selected_materialization.resolve()}#v7"
+        assert bundle.selected_cross_graph_profile_ref == selected_profile_ref
+        assert load_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(store), selected_profile_ref
+        ).notes == ["spawn-worker-profile"]
+        assert bundle_manifest.artifact_schema is not None
+        assert bundle_manifest.artifact_schema.name == "ir.context_adaptive_parameter_bundle"
+        assert bundle_manifest.artifact_schema.version == "1.1"
+        expected_inputs = [
+            input_ref_from_artifact_ref(selected_graph_ref, role="causal_graph"),
+            input_ref_from_artifact_ref(
+                selected_profile_ref,
+                role="cross_graph_evidence_profile",
+            ),
+            input_ref_from_artifact_ref(
+                selected_snapshot_ref,
+                role="skg_source_snapshot",
+            ),
+        ]
+        assert bundle_manifest.inputs == expected_inputs
+        inputs_by_role = {item.role: item for item in bundle_manifest.inputs}
+        assert str(inputs_by_role["causal_graph"].artifact_id) == str(
+            selected_graph_ref.artifact_id
+        )
+        assert (
+            inputs_by_role["causal_graph"].manifest_profile_sha256
+            == selected_graph_ref.manifest_profile_sha256
+        )
+        assert str(inputs_by_role["cross_graph_evidence_profile"].artifact_id) == str(
+            selected_profile_ref.artifact_id
+        )
+        assert (
+            inputs_by_role["cross_graph_evidence_profile"].manifest_profile_sha256
+            == selected_profile_ref.manifest_profile_sha256
+        )
+        assert str(inputs_by_role["skg_source_snapshot"].artifact_id) == str(
+            selected_snapshot_ref.artifact_id
+        )
+        assert (
+            inputs_by_role["skg_source_snapshot"].manifest_profile_sha256
+            == selected_snapshot_ref.manifest_profile_sha256
+        )
+
+    race_run_id = "R_skg_spawn_snapshot_race"
+    race_context, race_registry = _build_run_context(
+        store,
+        race_run_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    assert race_context.run.run_manifest.run_id == race_run_id
+    race_state = replay_state.model_copy(update={"run_id": race_run_id})
+    assert race_context.run.trace_path is not None
+    race_materialization = (
+        race_context.run.trace_path.parent
+        / "skg-snapshots"
+        / f"{selected_snapshot.source_sha256}.duckdb"
+    )
+    replacement_path = tmp_path / "skg-spawn-replacement.duckdb"
+    _seed_skg(replacement_path)
+    _set_skg_value(replacement_path, 4.4)
+    spawn_context = retry_module.mp.get_context("spawn")
+    real_mp = retry_module.mp
+    mutations: list[tuple[str, str]] = []
+    raced_processes: list[Any] = []
+
+    class MutatingStartProcess:
+        """Change only the bound local copy immediately before its real child starts."""
+
+        def __init__(self, process) -> None:
+            self._process = process
+
+        def start(self) -> None:
+            assert race_materialization.is_file()
+            before = _file_sha256(race_materialization)
+            assert before == selected_snapshot.source_sha256
+            os.replace(replacement_path, race_materialization)
+            after = _file_sha256(race_materialization)
+            mutations.append((before, after))
+            self._process.start()
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self._process, name)
+
+    def process_factory(*args, **kwargs):
+        process = spawn_context.Process(*args, **kwargs)
+        if kwargs.get("target") is retry_module._typed_node_timeout_worker:
+            process = MutatingStartProcess(process)
+            raced_processes.append(process)
+        return process
+
+    class SpawnContextProxy:
+        def __getattr__(self, name: str) -> Any:
+            if name == "Process":
+                return process_factory
+            return getattr(spawn_context, name)
+
+    context_proxy = SpawnContextProxy()
+    monkeypatch.setattr(
+        retry_module,
+        "mp",
+        SimpleNamespace(
+            get_all_start_methods=real_mp.get_all_start_methods,
+            get_context=lambda _method: context_proxy,
+        ),
+    )
+    race_worker_closes: list[dict[str, object]] = []
+
+    def observe_race_worker_close(process) -> None:
+        facts = {
+            "pid": process.pid,
+            "exitcode_before_close": process.exitcode,
+            "alive_before_close": process.is_alive(),
+        }
+        original_close_worker(process)
+        facts["closed_after"] = process._closed
+        race_worker_closes.append(facts)
+
+    monkeypatch.setattr(retry_module, "_close_worker_process", observe_race_worker_close)
+    race_result = _execute_workflow(
+        race_context,
+        race_registry,
+        _workflow(timeout_s=30.0),
+        race_state,
+    )
+    assert len(mutations) == 1
+    before, after = mutations[0]
+    assert before == selected_snapshot.source_sha256
+    assert after != selected_snapshot.source_sha256
+    assert race_result.report.nodes[0].status == "fail"
+    race_error = race_result.report.nodes[0].error
+    assert race_error is not None
+    assert race_error.code == "node.retry_exhausted"
+    assert race_error.message == "Node resolve: all 0 retries exhausted"
+    assert race_result.state.inputs[SNAPSHOT_INPUT_KEY] == selected_snapshot_ref
+    assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in race_result.state.artifacts_index
+    dead_letter_events = [
+        event for event in _trace_events(race_context) if event.get("event") == "NODE_DEAD_LETTER"
+    ]
+    assert len(dead_letter_events) == 1
+    assert dead_letter_events[0]["metrics"]["attempts"] == 1
+    dead_letter_refs = dead_letter_events[0]["refs"]["outputs"]
+    assert len(dead_letter_refs) == 1
+    dead_letter_ref = ArtifactRef.model_validate(dead_letter_refs[0])
+    assert dead_letter_ref.kind == "scientist.dead_letter"
+    from polisyos.scientist.replay import load_dead_letter
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        dead_letter = load_dead_letter(store, dead_letter_ref.artifact_id)
+    assert dead_letter.artifact_ref.artifact_id == dead_letter_ref.artifact_id
+    assert dead_letter.artifact_ref.kind == "scientist.dead_letter"
+    assert dead_letter.run_id == race_context.run.run_manifest.run_id
+    assert dead_letter.alias == "resolve"
+    assert dead_letter.node_id == _RESOLVE_NODE_ID
+    assert dead_letter.attempts == 1
+    assert (
+        "RetainedSKGSnapshotError: retained_skg_materialization_digest" in dead_letter.error_message
+    )
+    assert len(raced_processes) == 1
+    assert len(race_worker_closes) == 1
+    assert race_worker_closes[0]["pid"] not in {None, os.getpid()}
+    assert race_worker_closes[0]["exitcode_before_close"] in allowed_cleanup_exitcodes
+    assert race_worker_closes[0]["alive_before_close"] is False
+    assert race_worker_closes[0]["closed_after"] is True
+    assert _file_sha256(race_materialization) == after
+
+
+def test_spawn_timeout_refuses_live_prepared_read_before_child_start(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The spawn wire rejects a live DuckDB handle before creating a child process."""
+    from polisyos.scientist.orchestration.engine import retry as retry_module
+    from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError
+
+    db_path = tmp_path / "skg-spawn-owned-read.duckdb"
+    _seed_skg(db_path)
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    run_id = "R_skg_spawn_owned_read"
+    context, _registry = _build_run_context(store, run_id)
+    prepared_read = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path)
+    context = replace(context, prepared_skg_read=prepared_read)
+    spawn_context = retry_module.mp.get_context("spawn")
+
+    process_constructions: list[object] = []
+
+    def process_factory(*args, **kwargs):
+        process_constructions.append((args, kwargs))
+        return spawn_context.Process(*args, **kwargs)
+
+    context_probe = SimpleNamespace(
+        Process=process_factory,
+        Value=spawn_context.Value,
+    )
+    monkeypatch.setattr(retry_module, "_timeout_worker_start_method", lambda: "spawn")
+    monkeypatch.setattr(
+        retry_module,
+        "mp",
+        SimpleNamespace(get_context=lambda _method: context_probe),
+    )
+    try:
+        with (
+            tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+            pytest.raises(NodeTimeoutError) as caught,
+        ):
+            retry_module.execute_with_retry_sync(
+                ResolveParametersNode(),
+                context,
+                ExperimentState(run_id=run_id),
+                retry_policy=retry_module.RetryPolicy(),
+                timeout_s=5.0,
+                alias="resolve",
+            )
+        assert caught.value.code == "node.timeout_worker_unsupported"
+        assert caught.value.details["reason"] == "timeout_worker_optional_context_port_unsupported"
+        assert process_constructions == []
+    finally:
+        prepared_read.close()
+    assert prepared_read._closed is True
 
 
 def test_duckdb_cache_preparation_failure_bypasses_cache_and_runs_node(
@@ -988,12 +1416,20 @@ def test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_sou
             _ensure_ir_artifact_store(store),
             CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
-        old_bundle_ref = persist_context_adaptive_parameter_bundle(
+        graph_ref = profile_bound_ref(_ensure_ir_artifact_store(store), graph_ref)
+        old_bundle_ref = persist_context_adaptive_parameter_bundle_v1_1(
             _ensure_ir_artifact_store(store),
-            ContextAdaptiveParameterBundle(
+            ContextAdaptiveParameterBundleV11(
                 target_context=ContextProfile.model_validate(target_context),
                 simulation_domain="fiscal",
+                selected_cross_graph_profile_ref=None,
             ),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                    role="causal_graph",
+                )
+            ],
         )
     state = ExperimentState(
         run_id="R_existing_resolved_parameters",

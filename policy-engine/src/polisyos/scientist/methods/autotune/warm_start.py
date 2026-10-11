@@ -39,9 +39,20 @@ class WarmStartBridge:
     def load_warm_start(
         self,
         fingerprint: RunFingerprint,
+        *,
+        similar_runs: list[RunFingerprint] | None = None,
     ) -> list[Evaluation]:
-        """Find similar runs and retrieve their evaluations for warm-start."""
-        similar = self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
+        """Load indexed evaluations, optionally using an already-resolved source set.
+
+        The manager rechecks the full fingerprint binding before reading each
+        selected history, so callers may retain the exact index result and its
+        immutable history reference without repeating discovery.
+        """
+        similar = (
+            self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
+            if similar_runs is None
+            else similar_runs
+        )
         if not similar:
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
             return []

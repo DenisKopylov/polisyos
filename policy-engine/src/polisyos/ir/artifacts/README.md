@@ -43,7 +43,7 @@ store contract, schema metadata и helpers, через которые `analytics
   even though Core and IR currently use the same canon name/version. A complete profile
   is a decoding input, not proof of an IR producer or authority. Raw Core writes and
   historical profile migration remain separate C02/G compatibility decisions.
-- **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface.
+- **Shared helpers** — analytics и observation bundles используют один и тот же `put_json_artifact()` / `get_json_artifact()` surface. При необходимости producer может вызвать `put_json_artifact(..., return_selected_profile=True)`, чтобы получить точный профиль из той же операции записи. Unsupported stores refuse before calling the writer; writer exceptions propagate without a current-default lookup fallback.
 
 ## Public API
 

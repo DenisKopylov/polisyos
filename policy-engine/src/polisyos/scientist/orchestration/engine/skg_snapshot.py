@@ -16,7 +16,7 @@ import stat
 import tempfile
 from dataclasses import replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -32,13 +32,38 @@ from polisyos.core.artifacts import (
     fsync_directory,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.data_forge.read_api.academic import SKGQuery
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 SNAPSHOT_INPUT_KEY = "skg_source_snapshot"
+
+
+class _RetainedSKGReadStore(Protocol):
+    """Verified CAS member-read capabilities needed to reopen one selected source."""
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest: ...
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes: ...
+
+    def open_member(
+        self, artifact_id: ArtifactID | ArtifactRef | str, member: Literal["blob"]
+    ) -> Any: ...
+
+    def copy_member_to(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        member: Literal["blob"],
+        destination: Any,
+    ) -> Any: ...
+
+
+_RETAINED_SKG_READ_METHODS = ("get_manifest", "get_bytes", "open_member", "copy_member_to")
 _SNAPSHOT_KIND = "scientist.skg_source_snapshot"
 _CHUNK_KIND = "scientist.skg_source_chunk"
 _VERSION: Literal["1.0"] = "1.0"
@@ -91,6 +116,17 @@ def _write_options(kind: str, media_type: str) -> ArtifactWriteOptions:
     )
 
 
+def _require_retained_skg_read_store(store: object) -> _RetainedSKGReadStore:
+    """Require the profile and verified-member reads used by retained replay.
+
+    Retry attempt facades delegate these read methods while keeping CAS writes
+    behind their revocable authority. Do not unwrap their private target.
+    """
+    if not all(callable(getattr(store, name, None)) for name in _RETAINED_SKG_READ_METHODS):
+        raise RetainedSKGSnapshotError("retained_skg_member_read_store_required")
+    return cast("_RetainedSKGReadStore", store)
+
+
 def _select_written_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
     """Bind the producer's actual manifest view through the canonical CAS profile."""
     manifest = store.get_manifest(ref)
@@ -109,10 +145,11 @@ def _select_written_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
 
 
 def load_retained_skg_snapshot(
-    store: FileSystemCAS,
+    store: _RetainedSKGReadStore,
     ref: ArtifactRef,
 ) -> RetainedSKGSnapshot:
     """Read the exact descriptor and verify its complete retained byte closure."""
+    store = _require_retained_skg_read_store(store)
     if ref.manifest_profile_sha256 is None:
         raise RetainedSKGSnapshotError("retained_skg_descriptor_profile_required")
     manifest = store.get_manifest(ref)
@@ -257,14 +294,21 @@ def _require_local_file(path: Path, snapshot: RetainedSKGSnapshot) -> None:
         raise RetainedSKGSnapshotError("retained_skg_materialization_digest")
 
 
-def materialize_retained_skg_snapshot(
-    store: FileSystemCAS,
-    ref: ArtifactRef,
+def retained_skg_snapshot_directory(trace_path: Path | None) -> Path:
+    """Return the one run-local directory used for selected SKG snapshots."""
+    if trace_path is None:
+        raise RetainedSKGSnapshotError("retained_skg_run_path_required")
+    return trace_path.parent / "skg-snapshots"
+
+
+def _materialize_loaded_retained_skg_snapshot(
+    store: _RetainedSKGReadStore,
+    snapshot: RetainedSKGSnapshot,
     *,
     directory: Path,
 ) -> Path:
-    """Restore retained bytes once, with no overwrite or fallback to the live DB."""
-    snapshot = load_retained_skg_snapshot(store, ref)
+    """Materialize a descriptor already verified from its selected CAS profile."""
+    store = _require_retained_skg_read_store(store)
     directory = directory.absolute()
     if any(component.is_symlink() for component in (directory, *directory.parents)):
         raise RetainedSKGSnapshotError("retained_skg_materialization_symlink")
@@ -301,29 +345,86 @@ def materialize_retained_skg_snapshot(
     return target
 
 
+def materialize_retained_skg_snapshot(
+    store: _RetainedSKGReadStore,
+    ref: ArtifactRef,
+    *,
+    directory: Path,
+) -> Path:
+    """Restore retained bytes once, with no overwrite or fallback to the live DB."""
+    snapshot = load_retained_skg_snapshot(store, ref)
+    return _materialize_loaded_retained_skg_snapshot(store, snapshot, directory=directory)
+
+
 def prepare_retained_skg_read(
-    store: FileSystemCAS,
+    store: _RetainedSKGReadStore,
     ref: ArtifactRef,
     *,
     directory: Path,
     index_dir: Path,
 ) -> PreparedSKGRead:
-    """Open the real canonical reader and verify its actual bound retained digest."""
+    """Open the canonical reader and verify its selected retained byte binding."""
+    return prepare_or_validate_retained_skg_read(
+        store,
+        ref,
+        directory=directory,
+        index_dir=index_dir,
+    )
+
+
+def prepare_or_validate_retained_skg_read(
+    store: _RetainedSKGReadStore,
+    ref: ArtifactRef,
+    *,
+    directory: Path,
+    index_dir: Path,
+    expected_path: Path | None = None,
+    prepared_read: PreparedSKGRead | None = None,
+) -> PreparedSKGRead:
+    """Open or reconcile a reader against the descriptor actually selected from CAS.
+
+    The expected digest/schema/query values are loaded from the profile-bound
+    descriptor and its complete chunk closure. Caller-supplied paths or a live
+    ``PreparedSKGRead`` never replace that selected basis.
+    """
+    from polisyos.data_forge.read_api.academic import PreparedSKGRead
+
+    store = _require_retained_skg_read_store(store)
+    if not isinstance(ref, ArtifactRef):
+        raise RetainedSKGSnapshotError("retained_skg_descriptor_ref_required")
+    if prepared_read is not None and type(prepared_read) is not PreparedSKGRead:
+        raise RetainedSKGSnapshotError("retained_skg_prepared_read_type_required")
+
     snapshot = load_retained_skg_snapshot(store, ref)
-    path = materialize_retained_skg_snapshot(store, ref, directory=directory)
-    prepared = SKGQuery.prepare_read(db_path=path, index_dir=index_dir)
-    if (
-        prepared.source_snapshot_sha256 != snapshot.source_sha256
-        or prepared.source_binding_schema_version != snapshot.source_binding_schema_version
-        or prepared.query_version != snapshot.query_version
-    ):
-        prepared.close()
-        raise RetainedSKGSnapshotError("retained_skg_prepared_source_mismatch")
-    return prepared
+    selected_path = directory.absolute() / f"{snapshot.source_sha256}.duckdb"
+    if expected_path is not None and Path(expected_path).resolve() != selected_path.resolve():
+        raise RetainedSKGSnapshotError("retained_skg_selected_path_mismatch")
+    path = _materialize_loaded_retained_skg_snapshot(store, snapshot, directory=directory)
+
+    owns_prepared_read = prepared_read is None
+    active_read = (
+        SKGQuery.prepare_read(db_path=path, index_dir=index_dir)
+        if prepared_read is None
+        else prepared_read
+    )
+    try:
+        if (
+            not active_read.matches_path(path)
+            or active_read.source_snapshot_sha256 != snapshot.source_sha256
+            or active_read.source_binding_schema_version != snapshot.source_binding_schema_version
+            or active_read.query_version != snapshot.query_version
+            or not active_read.source_generation_matches()
+        ):
+            raise RetainedSKGSnapshotError("retained_skg_prepared_source_mismatch")
+    except BaseException:
+        if owns_prepared_read:
+            active_read.close()
+        raise
+    return active_read
 
 
 def bind_retained_skg_source(
-    store: FileSystemCAS,
+    store: _RetainedSKGReadStore,
     ref: ArtifactRef,
     state: ExperimentState,
     *,
@@ -342,3 +443,33 @@ def bind_retained_skg_source(
             "inputs": {**state.inputs, SNAPSHOT_INPUT_KEY: ref},
         }
     )
+
+
+def bind_retained_skg_workflow_input(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    record_run_input: bool = True,
+) -> ExperimentState:
+    """Bind an explicitly selected retained source at each workflow consumer intake.
+
+    The complete typed descriptor remains in workflow state. Run owners record it
+    once in the run manifest; per-node workers can bind with recording disabled
+    when the workflow owner already admitted that input. A malformed supplied
+    selector fails closed; only an absent selector preserves the live-source path.
+    """
+    if SNAPSHOT_INPUT_KEY not in state.inputs:
+        return state
+    ref = state.inputs[SNAPSHOT_INPUT_KEY]
+    if not isinstance(ref, ArtifactRef):
+        raise RetainedSKGSnapshotError("retained_skg_input_ref_required")
+    store = _require_retained_skg_read_store(ctx.store)
+    bound_state = bind_retained_skg_source(
+        store,
+        ref,
+        state,
+        directory=retained_skg_snapshot_directory(ctx.run.trace_path),
+    )
+    if record_run_input and ref not in ctx.run.run_manifest.inputs:
+        ctx.run.add_input(ref)
+    return bound_state

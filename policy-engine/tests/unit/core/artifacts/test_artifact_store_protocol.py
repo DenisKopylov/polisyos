@@ -6,7 +6,10 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.artifacts.ownership import (
     ArtifactOwnershipError,
@@ -58,6 +61,148 @@ class TestArtifactStoreProtocol:
         # Protocol members (exclude dunder / internal)
         members = {name for name in dir(ArtifactStore) if not name.startswith("_")}
         assert expected.issubset(members)
+
+
+class _NoopSpan:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def set_attribute(self, *_args):
+        return None
+
+
+class _NoopTracer:
+    def start_as_current_span(self, *_args, **_kwargs):
+        return _NoopSpan()
+
+
+@pytest.mark.parametrize("instrumented", [False, True])
+def test_put_bytes_can_return_the_exact_write_selected_profile(
+    tmp_path: Path,
+    instrumented: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    if instrumented:
+        store._hpc_enabled = True
+        store._tracer = _NoopTracer()
+
+    first_options = PutOptions(kind="test.profile.default", media_type="application/json")
+    legacy = store.put_bytes(b"shared", first_options)
+    assert legacy.manifest_profile_sha256 is None
+
+    selected_options = PutOptions(kind="test.profile.sibling", media_type="text/plain")
+    selected = store.put_bytes(b"shared", selected_options, return_selected_profile=True)
+    selected_manifest = store.get_manifest(selected)
+    assert selected.artifact_id == legacy.artifact_id
+    assert selected.manifest_profile_sha256 == artifact_manifest_profile_sha256(selected_manifest)
+    assert selected_manifest.kind == selected_options.kind
+    assert store.get_manifest(legacy).kind == first_options.kind
+
+    first_selected = store.put_bytes(
+        b"new first-write blob",
+        PutOptions(kind="test.profile.first", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    assert first_selected.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+        store.get_manifest(first_selected)
+    )
+
+    selected_json = store.put_json(
+        {"value": "profile from json write"},
+        PutOptions(kind="test.profile.json", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert selected_json.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+        store.get_manifest(selected_json)
+    )
+
+    before_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        store.put_bytes(
+            b"invalid option must not write",
+            PutOptions(kind="test.profile.invalid", media_type="application/json"),
+            return_selected_profile=1,  # type: ignore[arg-type]
+        )
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        store.put_json(
+            {"value": "invalid option must not write"},
+            PutOptions(kind="test.profile.invalid_json", media_type="application/json"),
+            return_selected_profile=1,  # type: ignore[arg-type]
+        )
+    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_ids
+
+
+def test_core_adapter_accepts_explicit_positional_or_keyword_profile_parameter() -> None:
+    class PositionalOrKeywordStore:
+        called = False
+
+        def put_bytes(self, data, opts, return_selected_profile=False):
+            self.called = True
+            assert return_selected_profile is True
+            return ArtifactRef(
+                artifact_id=ArtifactID.from_sha256_hex("0" * 64),
+                kind=opts.kind,
+                media_type=opts.media_type,
+                manifest_profile_sha256="sha256:" + "1" * 64,
+            )
+
+    store = PositionalOrKeywordStore()
+    ref = CoreToIRArtifactStoreAdapter(store).put_bytes(
+        b"selected",
+        PutOptions(kind="test.profile.pos_or_kw", media_type="application/json"),
+        return_selected_profile=True,
+    )
+
+    assert store.called is True
+    assert ref.manifest_profile_sha256 == "sha256:" + "1" * 64
+
+
+@pytest.mark.parametrize(
+    "signature_kind",
+    ["positional_only", "variadic_positional", "variadic_keyword"],
+)
+def test_core_adapter_refuses_non_keyword_profile_parameters_before_writer_call(
+    signature_kind: str,
+) -> None:
+    class PositionalOnlyStore:
+        called = False
+
+        def put_bytes(self, data, opts, return_selected_profile=False, /):
+            self.called = True
+
+    class VariadicPositionalStore:
+        called = False
+
+        def put_bytes(self, data, opts, *return_selected_profile):
+            self.called = True
+
+    class VariadicKeywordStore:
+        called = False
+
+        def put_bytes(self, data, opts, **return_selected_profile):
+            self.called = True
+
+    store_type = {
+        "positional_only": PositionalOnlyStore,
+        "variadic_positional": VariadicPositionalStore,
+        "variadic_keyword": VariadicKeywordStore,
+    }[signature_kind]
+    store = store_type()
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        CoreToIRArtifactStoreAdapter(store).put_bytes(
+            b"must not reach writer",
+            object(),  # type: ignore[arg-type]
+            return_selected_profile=True,
+        )
+
+    assert store.called is False
 
 
 class TestFileSystemCASRoundTrip:
@@ -254,7 +399,6 @@ class TestFileSystemCASRoundTrip:
         assert ids == expected
         assert len({str(artifact_id) for artifact_id in ids}) == 2
         assert store.iter_artifact_ids() == expected
-
 
     def test_inventory_snapshot_scopes_view_verification_to_selected_artifact_id(
         self, tmp_path: Path

@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 
+import { runDetailsSchema } from "@/api/validators";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 
@@ -72,6 +73,171 @@ vi.mock("@/features/runs/components/RunExplainabilityPanel", () => ({
 vi.mock("@/features/whatif", () => ({ ScenarioWorkbench: () => null }));
 
 import OverviewTab from "./OverviewTab";
+function genericCycleSimulationProjection(runId: string) {
+  const ref = (kind: string, suffix: string) => ({
+    artifact_id: "sha256:" + suffix.repeat(64),
+    kind,
+    media_type: "application/json",
+  });
+  const sourceRef = ref("runtime.compiled_recursive_generation_cycle", "a");
+  const n4SourceRef = ref("runtime.generation_source_handoff", "c");
+  const contextJobRef = ref("runtime.quality.cycle_substrate_context_job", "b");
+  const profileRef = ref(
+    "runtime.quality.generic_cycle_simulation_profile",
+    "a",
+  );
+  const childFamilyRef = ref(
+    "runtime.quality.generic_cycle_simulation_child_profile_family",
+    "7",
+  );
+  const childSetRef = ref(
+    "runtime.quality.recursive_n4_child_profile_set",
+    "8",
+  );
+  const designProblemRef = "sha256:" + "d".repeat(64);
+
+  const observation = (
+    cycleIndex: number,
+    digest: string,
+    candidateId: string,
+    status: "joint_simulated" | "simulation_pending_n5",
+  ) => {
+    const resultRef =
+      status === "joint_simulated"
+        ? ref("polisyos.runtime.joint_simulation_result", "5")
+        : null;
+    return {
+      atom_ids: [`atom-${cycleIndex}`],
+      authority_blockers: ["publication_not_admitted"],
+      authority_purpose: "cycle_input_candidate_only",
+      candidate_id: candidateId,
+      child_profile_family_ref: childFamilyRef,
+      child_profile_set_ref: childSetRef,
+      context_job_ref: contextJobRef,
+      currentness_status: "not_established",
+      cycle_index: cycleIndex,
+      design_problem_ref: "sha256:" + digest.repeat(64),
+      n4_source_ref: n4SourceRef,
+      n5_execution_ref:
+        status === "joint_simulated"
+          ? ref("runtime.quality.generic_cycle_simulation_n5_execution", "2")
+          : null,
+      n5_input_ref: ref(
+        "runtime.quality.generic_cycle_simulation_n5_input",
+        "3",
+      ),
+      n5_request_binding_status:
+        status === "joint_simulated" ? "resolved" : "not_established",
+      n5_request_content_hash:
+        status === "joint_simulated" ? "sha256:" + "4".repeat(64) : null,
+      n8_authority_blockers: ["n9_not_admitted"],
+      n8_limitation_code:
+        status === "joint_simulated"
+          ? null
+          : "generic_n5_request_binding_not_established",
+      n8_lineage_status:
+        status === "joint_simulated" ? "resolved" : "not_established",
+      n8_status: "value_conditional",
+      n8_value_ref: resultRef?.artifact_id ?? null,
+      node_ref: "design-problem://" + digest.repeat(64),
+      profile_ref: profileRef,
+      profile_selection_ref: "sha256:" + "e".repeat(64),
+      publication_authority: false,
+      selected_outcomes: status === "joint_simulated" ? ["outcome-a"] : [],
+      simulation_result_ref: resultRef,
+      status,
+      world_model_record_content_hash: "sha256:" + "6".repeat(64),
+    };
+  };
+
+  return {
+    artifact_status: "resolved",
+    authority_purpose: "cycle_input_candidate_only",
+    child_profile_bindings: [
+      {
+        context_job_ref: contextJobRef,
+        currentness_status: "not_established",
+        design_problem_ref: designProblemRef,
+        historical_binding_status: "resolved",
+        limitation_code: null,
+        node_ref: "design-problem://" + "d".repeat(64),
+        profile_id: "profile-a",
+        profile_ref: profileRef,
+        profile_selection_ref: "sha256:" + "e".repeat(64),
+        semantic_ref: "sha256:" + "f".repeat(64),
+        source_atom_refs: ["atom-a"],
+        source_ref: n4SourceRef,
+        source_result_ref: "sha256:" + "1".repeat(64),
+      },
+    ],
+    child_profile_family_ref: childFamilyRef,
+    child_profile_limitation_code: null,
+    child_profile_set_ref: childSetRef,
+    child_profile_status: "resolved",
+    credal_source_attempt_ref: null,
+    credal_source_limitation_code: null,
+    credal_source_status: null,
+    currentness_status: "not_established",
+    limitation_code: "n5_sibling_failure_retained",
+    n4_source_limitation_code: null,
+    n4_source_ref: n4SourceRef,
+    n4_source_status: "resolved",
+    n5_limitation_code: "n5_sibling_failure_retained",
+    n5_observations: [
+      observation(0, "d", "candidate-a", "joint_simulated"),
+      observation(1, "8", "candidate-b", "simulation_pending_n5"),
+    ],
+    parent_context_job_ref: contextJobRef,
+    parent_profile_id: "parent-profile",
+    parent_profile_ref: profileRef,
+    publication_authority: false,
+    recursive_cycle_checkpoint: {
+      schema_version: "policyos.runtime.recursive_cycle_checkpoint.v2",
+      status: "partial",
+      publication_authority: false,
+      budget_stop_node_ref: null,
+      pending_frontier: ["design-problem://" + "8".repeat(64)],
+      completed_design_refs: [designProblemRef],
+      root_n9_status: "not_run",
+      leaf_terminal_kinds: {
+        ["design-problem://" + "d".repeat(64)]: "completed",
+      },
+      failed_branches: [
+        {
+          failed_branch_ref: "design-problem://" + "8".repeat(64),
+          origin_node_ref: "design-problem://" + "8".repeat(64),
+          stage: "n5",
+          exception_type: "BudgetStopped",
+          error_code: "child_budget_exhausted",
+          error_message:
+            "Sibling retained after its independent attempt stopped.",
+        },
+      ],
+    },
+    run_id: runId,
+    schema_version:
+      "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+    source_content_hash: "sha256:" + "6".repeat(64),
+    source_ref: sourceRef,
+  };
+}
+function parsedRunWithGenericCycleSimulation(projectionRunId = "run-1") {
+  return runDetailsSchema.parse({
+    meta: {
+      request_id: "req-generic-cycle",
+      generated_at: "2026-10-11T10:00:00Z",
+      source_kinds: ["core_run"],
+    },
+    run: {
+      run_id: "run-1",
+      source_kind: "core_run",
+      status: "failed",
+      generic_cycle_simulation:
+        genericCycleSimulationProjection(projectionRunId),
+    },
+    temporal_scope: null,
+  }).run;
+}
 
 describe("OverviewTab", () => {
   afterEach(() => vi.restoreAllMocks());
@@ -154,6 +320,63 @@ describe("OverviewTab", () => {
         },
       ],
     ]);
+  });
+
+  it("renders parsed generic cycle children and the retained failed sibling as candidate-only history", () => {
+    overviewState.run =
+      parsedRunWithGenericCycleSimulation() as unknown as Record<
+        string,
+        unknown
+      >;
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-generic-cycle-simulation");
+    expect(panel).toHaveTextContent("Generic cycle simulation");
+    expect(panel).toHaveTextContent(
+      "Persisted candidate lineage only. Currentness and publication authority are not established.",
+    );
+    expect(panel).toHaveTextContent("Artifact status: resolved");
+    expect(panel).toHaveTextContent("Child-profile status: resolved");
+    expect(panel).toHaveTextContent("Currentness: not_established");
+    expect(screen.getAllByTestId("overview-generic-cycle-n5-row")).toHaveLength(
+      2,
+    );
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-observations"),
+    ).toHaveTextContent("joint_simulated");
+    expect(
+      screen.getByTestId("overview-generic-cycle-n5-observations"),
+    ).toHaveTextContent("simulation_pending_n5");
+    expect(
+      screen.getByTestId("overview-generic-cycle-profile-bindings"),
+    ).toHaveTextContent("profile-a");
+    expect(
+      screen.getByTestId("overview-generic-cycle-profile-bindings"),
+    ).toHaveTextContent("resolved");
+    expect(
+      screen.getByTestId("overview-generic-cycle-failed-branches"),
+    ).toHaveTextContent(
+      "Sibling retained after its independent attempt stopped.",
+    );
+    expect(panel).not.toHaveTextContent("publication_ready");
+  });
+
+  it("withholds otherwise well-shaped children when the generic projection belongs to another run", () => {
+    overviewState.run = parsedRunWithGenericCycleSimulation(
+      "run-other",
+    ) as unknown as Record<string, unknown>;
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-generic-cycle-simulation");
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-refused"),
+    ).toHaveTextContent("run_id_mismatch");
+    expect(panel).not.toHaveTextContent("candidate-a");
+    expect(panel).not.toHaveTextContent(
+      "child_profile_currentness_not_established",
+    );
   });
 
   it("renders governance severity only through the private issuer", () => {

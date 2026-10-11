@@ -529,6 +529,9 @@ export type DataResolveResponse =
 export type DataSourceBinding =
   RuntimeApiComponents["schemas"]["DataSourceBinding"];
 
+export type DataViewRequestRef =
+  RuntimeApiComponents["schemas"]["DataViewRequestRef"];
+
 export type DatasetFetchSpecRequest =
   RuntimeApiComponents["schemas"]["DatasetFetchSpecRequest"];
 
@@ -1680,6 +1683,9 @@ export type WelfareBoundReportRef =
 
 export type WelfareBundleRef =
   RuntimeApiComponents["schemas"]["WelfareBundleRef"];
+
+export type WorkflowDataSourceBinding =
+  RuntimeApiComponents["schemas"]["WorkflowDataSourceBinding"];
 
 export type WorkflowRunRequest =
   RuntimeApiComponents["schemas"]["WorkflowRunRequest"];

@@ -8,6 +8,7 @@ import http.client
 import importlib
 import json
 import os
+import sqlite3
 import sys
 import threading
 from contextlib import ExitStack, contextmanager
@@ -366,9 +367,7 @@ def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str,
                         authority_envelope_manifest_profile_sha256=(
                             envelope_ref.manifest_profile_sha256
                         ),
-                        diagnostic_event_ref=(
-                            f"event://tests/dashboard/profile-inspector/{role}"
-                        ),
+                        diagnostic_event_ref=(f"event://tests/dashboard/profile-inspector/{role}"),
                         manifest_ref=f"cas-manifest://{payload_ref}",
                         payload_sha256=payload_sha256,
                     ),
@@ -397,16 +396,117 @@ def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str,
         "source_bound_profile_inspector_artifact_id": str(primary.artifact_id),
         "source_bound_profile_inspector_primary_kind": primary.kind,
         "source_bound_profile_inspector_primary_media_type": primary.media_type,
-        "source_bound_profile_inspector_primary_profile": str(
-            primary.manifest_profile_sha256
-        ),
+        "source_bound_profile_inspector_primary_profile": str(primary.manifest_profile_sha256),
         "source_bound_profile_inspector_sibling_kind": sibling.kind,
         "source_bound_profile_inspector_sibling_media_type": sibling.media_type,
-        "source_bound_profile_inspector_sibling_profile": str(
-            sibling.manifest_profile_sha256
-        ),
+        "source_bound_profile_inspector_sibling_profile": str(sibling.manifest_profile_sha256),
         "source_bound_profile_inspector_authority_scope": (
             "controlled_fixture_runtime_inspector_and_dashboard_only_no_publication_claim"
+        ),
+    }
+
+
+def _seed_profiled_workflow_data_view_request(
+    env: dict[str, object],
+    tmp_root: Path,
+    stack: ExitStack,
+) -> dict[str, str]:
+    """Persist a typed request and local SQL source for the ordinary-POST browser path."""
+    from _helpers.runtime_http import _record_fixture_owner
+
+    from polisyos.core.artifacts import profile_bound_ref
+    from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.contracts.fabric import DataViewRequestRef
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
+    from polisyos.foundry._quickstart import (
+        build_trivial_trinity_bundle,
+        put_trivial_trinity_bundle,
+    )
+    from polisyos.ir.model_layer.queries import DataViewRequest
+
+    database = tmp_root / "workflow-profile-input.sqlite3"
+    with sqlite3.connect(database) as connection:
+        connection.execute("CREATE TABLE policy_inputs (metric TEXT NOT NULL)")
+        connection.execute(
+            "INSERT INTO policy_inputs VALUES (?)",
+            ("controlled-profile-selection",),
+        )
+
+    connector_registry = ConnectorRegistry()
+    connector_registry.register(
+        SQLQueryConnector,
+        ConnectionConfig(
+            url=f"sqlite:///{database}",
+            headers={"X-SQL-Table": "policy_inputs"},
+        ),
+    )
+    stack.callback(connector_registry.shutdown)
+    fabric_api = importlib.import_module("polisyos.fabric.api")
+    stack.enter_context(
+        patch.object(
+            fabric_api,
+            "_default_connector_registry",
+            lambda: connector_registry,
+        )
+    )
+
+    runtime_context = env["app"].state.runtime_container.runtime_api_context
+    store = runtime_context.store
+    request = DataViewRequest(
+        schema_version="1.0",
+        request_id="dashboard-ordinary-post-profile-selection",
+        view_type="table",
+        metrics=["policy_inputs"],
+    )
+    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
+        request_payload_ref = store.put_json(
+            request,
+            ArtifactWriteOptions(
+                kind="ir.data_view_request",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.ir.DataViewRequest",
+                    version="1.0",
+                ),
+                producer=ProducerInfo(
+                    component="polisyos.tests.runtime_dashboard.ordinary_post_profile_fixture",
+                    version="1",
+                ),
+            ),
+        )
+        selected_request_ref = DataViewRequestRef.model_validate(
+            profile_bound_ref(store, request_payload_ref).model_dump(mode="json")
+        )
+        registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
+        trinity_ref = put_trivial_trinity_bundle(
+            store,
+            build_trivial_trinity_bundle(str(registry_bundle_ref.artifact_id)),
+        )
+    _record_fixture_owner(
+        store,
+        selected_request_ref,
+        trinity_ref,
+        tenant_id=_TENANT_ID,
+        cell_id=_CELL_ID,
+        runtime_api_env=env,
+    )
+    profile = selected_request_ref.manifest_profile_sha256
+    if profile is None:
+        raise RuntimeError("workflow_profile_fixture_lacks_selected_manifest_profile")
+    return {
+        "source_bound_workflow_data_view_request_artifact_id": str(
+            selected_request_ref.artifact_id
+        ),
+        "source_bound_workflow_data_view_request_profile": profile,
+        "source_bound_workflow_trinity_bundle_ref": str(trinity_ref.artifact_id),
+        "source_bound_workflow_profile_fixture_boundary": (
+            "controlled local SQLite source and fixture CAS request; "
+            "no production or currentness claim"
         ),
     }
 
@@ -549,4 +649,5 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         )
         env.update(_seed_v6_partial_run(env))
         env.update(_seed_profile_qualified_inspector_views(env))
+        env.update(_seed_profiled_workflow_data_view_request(env, tmp_root, stack))
         yield env

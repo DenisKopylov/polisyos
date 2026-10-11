@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.s3_store import S3ArtifactStore
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
@@ -129,6 +130,22 @@ def test_s3_store_get_bytes_rehashes_blob_on_read() -> None:
         store.get_bytes(ref.artifact_id)
 
     assert metrics.events == [("s3", "ArtifactIntegrityError")]
+
+
+def test_s3_write_can_return_the_exact_profile_for_a_first_write() -> None:
+    store = S3ArtifactStore(bucket="test-bucket")
+    store._client = _FakeS3Client()
+
+    ref = store.put_json(
+        {"payload": "profiled first write"},
+        PutOptions(kind="test.s3_profile", media_type="application/json"),
+        return_selected_profile=True,
+    )
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    assert ManifestLifecycle.profile_sha256(manifest) == ref.manifest_profile_sha256
+    assert manifest.kind == "test.s3_profile"
 
 
 def test_s3_store_accepts_injected_metrics(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -156,12 +156,28 @@ class TenantScopedCAS:
         """Export declarative config so worker/bootstrap paths can rebuild this store."""
         return self._config.model_copy(deep=True)
 
-    def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
-        """Persist bytes inside the tenant namespace with quota enforcement."""
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        """Persist bytes with quota enforcement and optional exact write profile."""
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self._cas, "put_bytes")
         estimated_delta = len(data) + 4_096
         self._quota.check_storage_delta(estimated_delta)
         before_size = self._directory_size(self.root)
-        ref = self._cas.put_bytes(data, opts)
+        ref = (
+            self._cas.put_bytes(data, opts, return_selected_profile=True)
+            if return_selected_profile
+            else self._cas.put_bytes(data, opts)
+        )
         after_size = self._directory_size(self.root)
         delta = max(0, after_size - before_size)
         if delta > 0:
@@ -173,8 +189,16 @@ class TenantScopedCAS:
         obj: object,
         opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        """Persist canonical JSON payload inside the tenant namespace."""
+        """Persist canonical JSON and optionally return the exact write profile."""
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+            _require_return_selected_profile_writer(self._cas, "put_json")
         spec = canon_spec or CanonSpec()
         if opts.canon is not None and opts.canon != CanonInfo.from_spec(spec):
             raise CanonViolation(
@@ -184,7 +208,11 @@ class TenantScopedCAS:
         estimated_delta = len(payload) + 4_096
         self._quota.check_storage_delta(estimated_delta)
         before_size = self._directory_size(self.root)
-        ref = self._cas.put_json(obj, opts=opts, canon_spec=spec)
+        ref = (
+            self._cas.put_json(obj, opts=opts, canon_spec=spec, return_selected_profile=True)
+            if return_selected_profile
+            else self._cas.put_json(obj, opts=opts, canon_spec=spec)
+        )
         after_size = self._directory_size(self.root)
         delta = max(0, after_size - before_size)
         if delta > 0:

@@ -122,6 +122,7 @@ const evidenceContext: RunEvidenceContext = {
     artifact_id: "snapshot-public",
     kind: "data_snapshot",
   },
+  dataViewRequestProfileStatus: "not_established",
   dataViewRequestRef: null,
   fabricRetrievalTraceRef: null,
   materializationRefs: {},

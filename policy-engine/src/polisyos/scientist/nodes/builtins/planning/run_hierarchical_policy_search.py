@@ -10,14 +10,15 @@ persists a frontier report plus the selected champion Trinity bundle.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -38,6 +39,8 @@ from polisyos.scientist.methods.search.controller import (
     SearchResult,
     SearchStatus,
 )
+from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
+from polisyos.scientist.methods.search.strategies.types import Evaluation
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     resolve_baseline_policy_value,
@@ -134,6 +137,7 @@ _SPEC = NodeSpec(
         "params.lex_policy_bundle_input",
         "params.policy_loop_id",
         "params.policy_search_config",
+        "params.policy_search_candidate_transfer",
         "params.hierarchical_policy_search_config",
         "params.cross_graph_evidence_config",
         "params.evidence_sources",
@@ -177,7 +181,55 @@ _INNER_CANDIDATE_ARTIFACT_KEYS = (
 )
 
 _POLICY_SEARCH_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
-_POLICY_SEARCH_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+_POLICY_SEARCH_EXECUTION_ERRORS = (
+    ImportError,
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+
+
+class _CandidateOnlyPolicyTransferIntent(BaseModel):
+    """Opt-in request to discover typed history and transfer parameters as candidates."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    index_ref: ArtifactRef
+    query_fingerprint: RunFingerprint
+    max_source_runs: int = Field(default=5, ge=1, le=20, strict=True)
+    max_candidates: int = Field(default=20, ge=1, le=100, strict=True)
+
+    @field_validator("query_fingerprint", mode="before")
+    @classmethod
+    def _validate_query_fingerprint(cls, value: object) -> RunFingerprint:
+        if isinstance(value, RunFingerprint):
+            return value
+        if not isinstance(value, Mapping):
+            raise TypeError("query_fingerprint must be a RunFingerprint object")
+        return RunFingerprint.model_validate(value, strict=True)
+
+    @model_validator(mode="after")
+    def _validate_candidate_only_scope(self) -> _CandidateOnlyPolicyTransferIntent:
+        if (self.index_ref.kind, self.index_ref.media_type) != (
+            "vector_memory.bundle",
+            "application/json",
+        ):
+            raise ValueError("candidate transfer requires a vector_memory.bundle JSON ref")
+        if self.query_fingerprint.history_ref is not None:
+            raise ValueError("candidate transfer query cannot assert a history_ref")
+        if not self.query_fingerprint.embedding or any(
+            not math.isfinite(value) for value in self.query_fingerprint.embedding
+        ):
+            raise ValueError("candidate transfer query requires a finite non-empty embedding")
+        if not self.query_fingerprint.objective_names or len(
+            set(self.query_fingerprint.objective_names)
+        ) != len(self.query_fingerprint.objective_names):
+            raise ValueError("candidate transfer query requires unique objective names")
+        if not self.query_fingerprint.tenant_id:
+            raise ValueError("candidate transfer query requires an explicit tenant identity")
+        return self
 
 
 class HierarchicalPolicySearchAdapter:
@@ -416,6 +468,7 @@ class HierarchicalPolicySearchAdapter:
         policy_family: str | None = None,
         metadata: Mapping[str, Any] | None = None,
         initial_context: Mapping[str, Any] | None = None,
+        candidate_only_seed_evaluations: list[Evaluation] | None = None,
     ) -> Any:
         resolved_candidate = self._resolve_candidate_payload(
             candidate,
@@ -437,6 +490,10 @@ class HierarchicalPolicySearchAdapter:
         except ValueError as exc:
             if "No tunable policy parameters" not in str(exc):
                 raise
+            if candidate_only_seed_evaluations:
+                raise ValueError(
+                    "candidate-only transfer requires tunable policy parameters"
+                ) from exc
             return self._run_parameterless_search(
                 coordinator,
                 resolved_candidate,
@@ -454,6 +511,7 @@ class HierarchicalPolicySearchAdapter:
             structure_validator=structure_validator,
             narrative_input_builder=narrative_input_builder,
             initial_context=merged_context,
+            candidate_only_seed_evaluations=candidate_only_seed_evaluations,
         )
 
     def _resolve_candidate_payload(
@@ -647,8 +705,32 @@ class RunHierarchicalPolicySearchNode:
             inner candidate evaluation raises, otherwise `ok` with the champion
             Trinity ref and optional frontier report ref.
         """
+        try:
+            transfer_intent = _candidate_only_transfer_intent_from_state(state)
+        except _POLICY_SEARCH_VALIDATION_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_INVALID_STATE,
+                    message=f"Invalid policy_search_candidate_transfer intent: {exc}",
+                ),
+            )
+
         candidate = _resolve_search_candidate(ctx, state)
         if candidate is None:
+            if transfer_intent is not None:
+                return NodeOutcome(
+                    status="fail",
+                    state=state,
+                    error=NodeError(
+                        code=node_errors.ERROR_INVALID_STATE,
+                        message=(
+                            "policy_search_candidate_transfer requires a policy candidate "
+                            "or Lex bundle input"
+                        ),
+                    ),
+                )
             return NodeOutcome(
                 status="skip",
                 state=state,
@@ -665,11 +747,15 @@ class RunHierarchicalPolicySearchNode:
 
         try:
             search_config = _runtime_search_config_from_state(state)
+            candidate_only_seed_evaluations = _load_candidate_only_transfer_evaluations(
+                ctx, loop_id=loop_id, intent=transfer_intent
+            )
             search_result = adapter.run_search(
                 candidate,
                 loop_id=loop_id,
                 search_config=search_config,
                 initial_context={"run_id": state.run_id},
+                candidate_only_seed_evaluations=candidate_only_seed_evaluations,
                 stage_b_evaluator=lambda candidate_payload, context: _evaluate_candidate_payload(
                     ctx,
                     state,
@@ -723,6 +809,85 @@ class RunHierarchicalPolicySearchNode:
         if frontier_ref is not None:
             artifacts.append(frontier_ref)
         return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+
+
+def _candidate_only_transfer_intent_from_state(
+    state: ExperimentState,
+) -> _CandidateOnlyPolicyTransferIntent | None:
+    """Parse an explicitly supplied candidate-transfer request without defaulting null."""
+    key = "policy_search_candidate_transfer"
+    if key not in state.params:
+        return None
+    payload = state.params[key]
+    if isinstance(payload, _CandidateOnlyPolicyTransferIntent):
+        return _CandidateOnlyPolicyTransferIntent.model_validate(payload.model_dump(mode="python"))
+    return _CandidateOnlyPolicyTransferIntent.model_validate(payload)
+
+
+def _load_candidate_only_transfer_evaluations(
+    ctx: ExecutionContext,
+    *,
+    loop_id: str,
+    intent: _CandidateOnlyPolicyTransferIntent | None,
+) -> list[Evaluation] | None:
+    """Load index-bound V5 history candidates for current policy re-evaluation."""
+    if intent is None:
+        return None
+    fingerprint = intent.query_fingerprint
+    if fingerprint.run_id != loop_id:
+        raise ValueError("candidate transfer fingerprint must identify this policy-search loop")
+    if not ctx.run.tenant_id or fingerprint.tenant_id != ctx.run.tenant_id:
+        raise ValueError("candidate transfer tenant identity does not match the current run")
+
+    from polisyos.scientist.agent.vector_memory import VectorMemoryStore
+    from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+
+    index = VectorMemoryStore()
+    index.load_from_artifact(ctx.store, intent.index_ref)
+    manager = TransferLearningManager(ctx.store, index)
+    similar_runs = manager.find_similar_runs(
+        fingerprint,
+        top_k=intent.max_source_runs,
+    )
+    if not similar_runs:
+        raise ValueError("candidate transfer found no fully bound indexed history")
+    bridge = WarmStartBridge(
+        manager,
+        max_evals=intent.max_candidates,
+        top_k_runs=intent.max_source_runs,
+    )
+    evaluations = bridge.load_warm_start(fingerprint, similar_runs=similar_runs)
+    source_fingerprints = {source.run_id: source for source in similar_runs}
+    prepared: list[Evaluation] = []
+    for evaluation in evaluations:
+        source_run_id = str(evaluation.metadata.get("source_run_id") or "")
+        source = source_fingerprints.get(source_run_id)
+        if source is None or source.history_ref is None:
+            continue
+        history_ref = source.history_ref
+        evaluation.metadata["candidate_only_transfer_source_history_ref"] = history_ref.model_dump(
+            mode="json"
+        )
+        evaluation.metadata["candidate_only_transfer_source_binding"] = {
+            "run_id": source_run_id,
+            "space_hash": source.space_hash,
+            "objective_names": list(source.objective_names),
+            "bounds": dict(source.bounds),
+            "split": source.split,
+            "units": dict(source.units),
+            "origin": source.origin,
+            "tenant_id": source.tenant_id,
+            "objective_directions": dict(source.objective_directions),
+            "history_ref": history_ref.model_dump(mode="json"),
+        }
+        evaluation.metadata["candidate_only_transfer_index_ref"] = intent.index_ref.model_dump(
+            mode="json"
+        )
+        prepared.append(evaluation)
+    if not prepared:
+        raise ValueError("candidate transfer history contained no addressed evaluations")
+    return prepared
 
 
 def _runtime_search_config_from_state(state: ExperimentState) -> object:
@@ -1092,8 +1257,11 @@ def _coerce_policy_evaluation(payload: Any) -> PolicyEvaluationVector | None:
 
 
 def _candidate_payload_without_hash(payload: dict[str, Any]) -> dict[str, Any]:
+    """Remove strategy-only envelope fields before validating a policy candidate."""
     cleaned = dict(payload)
     cleaned.pop("candidate_hash", None)
+    cleaned.pop("semantic", None)
+    cleaned.pop("_strategy_metadata", None)
     return cleaned
 
 

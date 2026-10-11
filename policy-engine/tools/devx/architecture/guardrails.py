@@ -20,7 +20,7 @@ import subprocess
 import sys
 import tempfile
 import tomllib
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -186,12 +186,15 @@ class DeepImportEdge:
     target_module: str
     target_root: str
     resolution_status: Literal["source_resolved", "not_established"] = "source_resolved"
-    resolution_reason: Literal[
-        "export_manifest_unresolved",
-        "name_not_declared_export",
-        "bound_but_unlisted",
-        "declared_binding_unproven",
-    ] | None = None
+    resolution_reason: (
+        Literal[
+            "export_manifest_unresolved",
+            "name_not_declared_export",
+            "bound_but_unlisted",
+            "declared_binding_unproven",
+        ]
+        | None
+    ) = None
 
     @property
     def key(self) -> str:
@@ -593,7 +596,9 @@ def _supported_future_import_is_passive(tree: ast.Module, node: ast.AST) -> bool
     """Admit legal top-level compiler directives without executing facade source."""
     if not _future_import_features_are_supported(node):
         return False
-    index = next((position for position, statement in enumerate(tree.body) if statement is node), None)
+    index = next(
+        (position for position, statement in enumerate(tree.body) if statement is node), None
+    )
     if index is None:
         return False
     first = tree.body[0] if tree.body else None
@@ -649,6 +654,520 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
 def _export_source_locator(source: Path) -> str:
     """Use a canonical repository locator in reproducible generated refusals."""
     return source.relative_to(REPO_ROOT).as_posix()
+
+
+def _module_namespace_uses_are_closed(tree: ast.Module, source: Path | None = None) -> bool:
+    """Accept only read-only namespace access and exact lazy-name caching.
+
+    Export names are static evidence only when no source construct can rebind the
+    module namespace behind the resolver. Every callable in the source tree is
+    checked for global/nonlocal rebinding and module-attribute or subscript writes.
+    The sole writable exception is the standard ``globals()[name] = value`` cache
+    inside the one-argument ``__getattr__``; the route proof separately establishes
+    that the selected name is finite and the returned value is the exact child.
+    Unknown helpers and reflection remain fail-closed through the loader and
+    namespace checks below.
+    """
+    parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+    top_functions = {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    if len(top_functions) != sum(
+        1 for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ):
+        return False
+
+    def enclosing_function(node: ast.AST) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+        parent = parents.get(node)
+        while parent is not None:
+            if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                return parent
+            parent = parents.get(parent)
+        return None
+
+    def globals_call(node: ast.AST) -> bool:
+        if not (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "globals"
+            and not node.args
+            and not node.keywords
+            and not list(_symbol_binding_nodes(tree, "globals"))
+        ):
+            return False
+        function = enclosing_function(node)
+        if function is None:
+            return True
+        if any(arg.arg == "globals" for arg in _function_arguments(function)):
+            return False
+        if any(
+            isinstance(child, ast.Name)
+            and child.id == "globals"
+            and isinstance(child.ctx, (ast.Store, ast.Del))
+            for child in ast.walk(function)
+        ):
+            return False
+        return not any(
+            isinstance(child, ast.Global) and "globals" in child.names
+            for child in ast.walk(function)
+        )
+
+    def safe_dir_expression(node: ast.AST) -> bool:
+        if isinstance(node, ast.Name):
+            return node.id in {"__all__", "_SURFACE_NAMES", "_EXPORTS", "_LAZY_IMPORTS"}
+        if isinstance(node, ast.Constant):
+            return isinstance(node.value, str)
+        if isinstance(node, ast.Starred):
+            return safe_dir_expression(node.value)
+        if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+            return all(safe_dir_expression(item) for item in node.elts)
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            return safe_dir_expression(node.left) and safe_dir_expression(node.right)
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id == "globals":
+                return globals_call(node)
+            return (
+                node.func.id in {"sorted", "list", "set"}
+                and len(node.args) == 1
+                and not node.keywords
+                and not list(_symbol_binding_nodes(tree, node.func.id))
+                and safe_dir_expression(node.args[0])
+            )
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            return (
+                node.func.attr == "keys"
+                and not node.args
+                and not node.keywords
+                and safe_dir_expression(node.func.value)
+            )
+        return globals_call(node)
+
+    def valid_dir_function(function: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
+        if function not in tree.body or function.decorator_list or function.type_params:
+            return False
+        if _function_arguments(function) or function.args.defaults or function.args.kw_defaults:
+            return False
+        header_expressions = [function.returns]
+        header_expressions.extend(arg.annotation for arg in _function_arguments(function))
+        if any(
+            isinstance(node, ast.Call)
+            for expression in header_expressions
+            if expression is not None
+            for node in ast.walk(expression)
+        ):
+            return False
+        body = list(function.body)
+        if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+            if isinstance(body[0].value.value, str):
+                body.pop(0)
+        return (
+            len(body) == 1
+            and isinstance(body[0], ast.Return)
+            and body[0].value is not None
+            and safe_dir_expression(body[0].value)
+            and not any(
+                isinstance(node, ast.Call)
+                and node.func is not None
+                and not (
+                    (
+                        isinstance(node.func, ast.Name)
+                        and node.func.id in {"sorted", "list", "set", "globals"}
+                    )
+                    or (isinstance(node.func, ast.Attribute) and node.func.attr == "keys")
+                )
+                for node in ast.walk(body[0].value)
+            )
+        )
+
+    def valid_getattr_cache(call: ast.Call) -> bool:
+        function = enclosing_function(call)
+        if function is None or function is not top_functions.get("__getattr__"):
+            return False
+        arguments = _function_arguments(function)
+        if len(arguments) != 1 or arguments[0].arg != "name":
+            return False
+        subscript = parents.get(call)
+        statement = parents.get(subscript) if isinstance(subscript, ast.Subscript) else None
+        return (
+            isinstance(subscript, ast.Subscript)
+            and subscript.value is call
+            and isinstance(subscript.slice, ast.Name)
+            and subscript.slice.id == "name"
+            and isinstance(statement, ast.Assign)
+            and len(statement.targets) == 1
+            and statement.targets[0] is subscript
+            and isinstance(statement.value, ast.Name)
+        )
+
+    # A declaration cannot support a lazy-route proof if a callable can later
+    # replace a module binding. Reject the entire source-language class rather
+    # than naming one export table: ``global`` and ``nonlocal`` have the same
+    # effect for every binding, including an immutable tuple such as ``__all__``.
+    if any(isinstance(node, (ast.Global, ast.Nonlocal)) for node in ast.walk(tree)):
+        return False
+    callable_nodes = [
+        node for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    if any(node not in tree.body for node in callable_nodes):
+        return False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            return False
+        if enclosing_function(node) is None:
+            continue
+        if isinstance(node, ast.Subscript) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            if not (isinstance(node.ctx, ast.Store) and valid_getattr_cache(node.value)):
+                return False
+
+    reflection_aliases = {
+        "globals",
+        "vars",
+        "locals",
+        "exec",
+        "eval",
+        "setattr",
+        "delattr",
+        "__import__",
+    }
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "builtins":
+            if any(alias.name in reflection_aliases for alias in node.names):
+                return False
+        if isinstance(node, ast.ImportFrom) and node.module == "sys":
+            if any(alias.name == "modules" for alias in node.names):
+                return False
+        if isinstance(node, ast.Import) and any(
+            alias.name in {"builtins", "sys"} for alias in node.names
+        ):
+            return False
+        if (
+            isinstance(node, ast.Name)
+            and node.id == "__builtins__"
+            and isinstance(node.ctx, ast.Load)
+        ):
+            return False
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node in tree.body:
+            if node.decorator_list or node.type_params:
+                return False
+            header_expressions = [node.returns, *node.args.defaults, *node.args.kw_defaults]
+            header_expressions.extend(arg.annotation for arg in _function_arguments(node))
+            if any(
+                isinstance(child, ast.Call)
+                for expression in header_expressions
+                if expression is not None
+                for child in ast.walk(expression)
+            ):
+                return False
+        if isinstance(node, ast.Name) and node.id in reflection_aliases - {"globals"}:
+            if isinstance(node.ctx, ast.Load):
+                return False
+        if isinstance(node, ast.Name) and node.id == "globals" and isinstance(node.ctx, ast.Load):
+            if not isinstance(parents.get(node), ast.Call) or parents[node].func is not node:
+                return False
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "builtins" and (alias.asname or "builtins") in {
+                    child.id for child in ast.walk(tree) if isinstance(child, ast.Name)
+                }:
+                    builtins_alias = alias.asname or "builtins"
+                    if any(
+                        isinstance(child, ast.Attribute)
+                        and isinstance(child.value, ast.Name)
+                        and child.value.id == builtins_alias
+                        and child.attr in reflection_aliases
+                        for child in ast.walk(tree)
+                    ):
+                        return False
+                if alias.name == "sys":
+                    sys_alias = alias.asname or "sys"
+                    if any(
+                        isinstance(child, ast.Attribute)
+                        and isinstance(child.value, ast.Name)
+                        and child.value.id == sys_alias
+                        and child.attr == "modules"
+                        for child in ast.walk(tree)
+                    ):
+                        return False
+        if isinstance(node, ast.Attribute) and node.attr in {
+            "__dict__",
+            "__globals__",
+            "f_globals",
+            "__getattribute__",
+            "__setattr__",
+            "__delattr__",
+        }:
+            return False
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name) and node.func.id in reflection_aliases - {"globals"}:
+                return False
+            if isinstance(node.func, ast.Attribute) and node.func.attr in reflection_aliases:
+                return False
+            if isinstance(node.func, ast.Name) and node.func.id == "getattr":
+                if any(
+                    isinstance(argument, ast.Constant)
+                    and argument.value
+                    in {"__all__", "__dict__", "__getattr__", "__getattribute__", "modules"}
+                    for argument in node.args[1:]
+                ):
+                    return False
+            if isinstance(node.func, ast.Attribute) and node.func.attr == "modules":
+                return False
+            if isinstance(node.func, ast.Name) and node.func.id == "globals":
+                function = enclosing_function(node)
+                if function is top_functions.get("__dir__"):
+                    if not valid_dir_function(function):
+                        return False
+                elif not valid_getattr_cache(node):
+                    return False
+                if not globals_call(node):
+                    return False
+        if isinstance(node, ast.Constant) and node.value == "__dict__":
+            return False
+    return "__getattr__" not in top_functions or _facade_callable_effects_are_closed(
+        tree,
+        source,
+        top_functions,
+        enclosing_function,
+        globals_call,
+        valid_getattr_cache,
+        valid_dir_function,
+    )
+
+
+def _facade_callable_effects_are_closed(
+    tree: ast.Module,
+    source: Path | None,
+    top_functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+    enclosing_function: Callable[[ast.AST], ast.FunctionDef | ast.AsyncFunctionDef | None],
+    globals_call: Callable[[ast.AST], bool],
+    valid_getattr_cache: Callable[[ast.Call], bool],
+    valid_dir_function: Callable[[ast.FunctionDef | ast.AsyncFunctionDef], bool],
+) -> bool:
+    """Bound facade call effects to loader, finite-map, and read-only hook forms.
+
+    A lazy facade is source evidence only when every callable and every import-time
+    call uses the same small grammar. Unknown calls are refused even when they are
+    in an otherwise-unused helper: a helper can return a mutable export table and
+    mutate it through an alias without mentioning ``__all__`` at the mutation site.
+    Imported helpers are accepted only when their source is bound and their existing
+    read-api catalog or exact loader proof establishes the returned module.
+    """
+    module_info = None if source is None else _module_name_for_path(source)
+
+    def has_static_dict_initializer(symbol: str) -> bool:
+        initializers: list[ast.AST] = []
+        for statement in tree.body:
+            if isinstance(statement, ast.Assign):
+                if any(
+                    isinstance(target, ast.Name) and target.id == symbol
+                    for target in statement.targets
+                ) and isinstance(statement.value, ast.Dict):
+                    initializers.append(statement)
+            elif (
+                isinstance(statement, ast.AnnAssign)
+                and isinstance(statement.target, ast.Name)
+                and statement.target.id == symbol
+                and isinstance(statement.value, ast.Dict)
+            ):
+                initializers.append(statement)
+        return len(initializers) == 1
+
+    def imported_surface_helper(name: str) -> bool:
+        if source is None or module_info is None:
+            return False
+        imported = _imported_function_source(module_info[0], source, tree, name)
+        if imported is None:
+            return False
+        imported_module, imported_source, imported_tree = imported
+        if name not in {"available_surfaces", "load_surface"}:
+            return False
+        helper = _top_level_function(imported_tree, name)
+        if (
+            helper is None
+            or (name == "available_surfaces" and _function_arguments(helper))
+            or (name == "load_surface" and not _has_exact_positional_parameters(helper, "name"))
+        ):
+            return False
+        records = _read_api_surface_records(imported_source, imported_tree)
+        return bool(
+            imported_module == "polisyos.data_forge.read_api.surfaces" and records is not None
+        )
+
+    def pure_loader_helper(
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+        seen: frozenset[str] = frozenset(),
+    ) -> bool:
+        if function.name in seen or function.name in {"__getattr__", "__dir__"}:
+            return False
+        if not _loader_helper_body_is_closed(function):
+            return False
+        arguments = _function_arguments(function)
+        if (
+            len(arguments) != 1
+            or function.args.vararg is not None
+            or function.args.kwarg is not None
+            or function.args.kwonlyargs
+            or len(function.args.posonlyargs) + len(function.args.args) != 1
+        ):
+            return False
+        body = _function_body_without_docstring(function)
+        if len(body) != 1 or not isinstance(body[0], ast.Return):
+            return False
+        value = body[0].value
+        if not isinstance(value, ast.Call) or value.keywords or len(value.args) != 1:
+            return False
+        if _import_module_callable_is_stdlib(tree, value.func):
+            return True
+        if not isinstance(value.func, ast.Name) or not isinstance(value.args[0], ast.Name):
+            return False
+        if value.args[0].id != arguments[0].arg:
+            return False
+        next_helper = top_functions.get(value.func.id)
+        if next_helper is not None:
+            return pure_loader_helper(next_helper, seen | {function.name})
+        return imported_surface_helper(value.func.id)
+
+    def function_call_is_closed(
+        call: ast.Call,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+    ) -> bool:
+        if function is top_functions.get("__dir__"):
+            return valid_dir_function(function)
+        if function is top_functions.get("__getattr__"):
+            if isinstance(call.func, ast.Name):
+                if call.func.id == "globals":
+                    return valid_getattr_cache(call) and globals_call(call)
+                if call.func.id == "AttributeError":
+                    return (
+                        not list(_symbol_binding_nodes(tree, "AttributeError"))
+                        and len(call.args) == 1
+                        and not call.keywords
+                    )
+                if call.func.id == "getattr":
+                    return (
+                        not list(_symbol_binding_nodes(tree, "getattr"))
+                        and len(call.args) == 2
+                        and not call.keywords
+                    )
+                if call.func.id == "import_module":
+                    return _import_module_callable_is_stdlib(tree, call.func) or any(
+                        isinstance(node, ast.ImportFrom)
+                        and node.level == 0
+                        and node.module == "importlib"
+                        and any(
+                            alias.name == "import_module"
+                            and (alias.asname or alias.name) == "import_module"
+                            for alias in node.names
+                        )
+                        for node in ast.walk(function)
+                    )
+                if call.func.id == "load_surface":
+                    return (
+                        source is not None
+                        and module_info is not None
+                        and len(call.args) == 1
+                        and isinstance(call.args[0], ast.Name)
+                        and not call.keywords
+                        and imported_surface_helper("load_surface")
+                    )
+                helper = top_functions.get(call.func.id)
+                return bool(
+                    helper is not None
+                    and len(call.args) == 1
+                    and isinstance(call.args[0], ast.Name)
+                    and _function_arguments(helper)
+                    and call.args[0].id == _function_arguments(helper)[0].arg
+                    and not call.keywords
+                    and pure_loader_helper(helper)
+                )
+            if isinstance(call.func, ast.Attribute):
+                if call.func.attr == "import_module":
+                    return (
+                        _import_module_callable_is_stdlib(tree, call.func)
+                        and len(call.args) == 1
+                        and not call.keywords
+                    )
+                if call.func.attr == "get":
+                    return (
+                        isinstance(call.func.value, ast.Name)
+                        and has_static_dict_initializer(call.func.value.id)
+                        and len(call.args) == 1
+                        and isinstance(call.args[0], ast.Name)
+                        and call.args[0].id == "name"
+                        and not call.keywords
+                    )
+            return False
+
+        return pure_loader_helper(function)
+
+    def module_call_is_closed(call: ast.Call) -> bool:
+        if isinstance(call.func, ast.Name):
+            if call.func.id in {"frozenset", "tuple", "list", "set", "dict"}:
+                return (
+                    not list(_symbol_binding_nodes(tree, call.func.id))
+                    and len(call.args) == 1
+                    and not call.keywords
+                )
+            return imported_surface_helper(call.func.id) and not call.args and not call.keywords
+        if isinstance(call.func, ast.Attribute):
+            receiver = call.func.value
+            if not isinstance(receiver, ast.Name) or not has_static_dict_initializer(receiver.id):
+                return False
+            if call.func.attr == "items":
+                return not call.args and not call.keywords
+            if call.func.attr == "update":
+                return len(call.args) == 1 and not call.keywords
+        return False
+
+    for call in (node for node in ast.walk(tree) if isinstance(node, ast.Call)):
+        function = enclosing_function(call)
+        if function is None:
+            if not module_call_is_closed(call):
+                return False
+        elif not function_call_is_closed(call, function):
+            return False
+    return True
+
+
+def _function_arguments(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> list[ast.arg]:
+    args = function.args
+    result = [*args.posonlyargs, *args.args, *args.kwonlyargs]
+    if args.vararg is not None:
+        result.append(args.vararg)
+    if args.kwarg is not None:
+        result.append(args.kwarg)
+    return result
+
+
+def _loader_helper_body_is_closed(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Only follow a loader helper whose complete body is one pure return."""
+    if (
+        function.decorator_list
+        or function.type_params
+        or function.args.defaults
+        or any(value is not None for value in function.args.kw_defaults)
+    ):
+        return False
+    expressions = [function.returns]
+    expressions.extend(arg.annotation for arg in _function_arguments(function))
+    if any(
+        isinstance(node, ast.Call)
+        for expression in expressions
+        if expression is not None
+        for node in ast.walk(expression)
+    ):
+        return False
+    body = list(function.body)
+    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+        if isinstance(body[0].value.value, str):
+            body.pop(0)
+    return len(body) == 1 and isinstance(body[0], ast.Return) and body[0].value is not None
 
 
 class _UnresolvedExportDeclarationError(ValueError):
@@ -766,10 +1285,138 @@ class _StaticExportResolver:
         finally:
             self._active.remove(key)
 
+    def selected_collection_consumers_are_closed(self) -> bool:
+        """Refuse export collections with opaque consumers or source mutation."""
+
+        def safe_collection_expression(tree: ast.Module, node: ast.AST, symbol: str) -> bool:
+            if isinstance(node, ast.Name):
+                return node.id == symbol
+            if isinstance(node, ast.Constant):
+                return isinstance(node.value, (str, int, bool, type(None)))
+            if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+                return all(safe_collection_expression(tree, item, symbol) for item in node.elts)
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+                return safe_collection_expression(
+                    tree, node.left, symbol
+                ) and safe_collection_expression(tree, node.right, symbol)
+            if not isinstance(node, ast.Call) or node.keywords:
+                return False
+            if isinstance(node.func, ast.Name):
+                if list(_symbol_binding_nodes(tree, node.func.id)):
+                    return False
+                if node.func.id in {"sorted", "tuple", "frozenset", "list"}:
+                    return len(node.args) == 1 and safe_collection_expression(
+                        tree, node.args[0], symbol
+                    )
+                return node.func.id == "globals" and not node.args
+            return (
+                isinstance(node.func, ast.Attribute)
+                and node.func.attr == "keys"
+                and not node.args
+                and isinstance(node.func.value, ast.Call)
+                and isinstance(node.func.value.func, ast.Name)
+                and node.func.value.func.id == "globals"
+                and not list(_symbol_binding_nodes(tree, "globals"))
+                and not node.func.value.args
+                and not node.func.value.keywords
+            )
+
+        for source, symbol in self._resolved:
+            tree = self._tree(source)
+            bindings = list(_symbol_binding_nodes(tree, symbol))
+            if len(bindings) != 1 or bindings[0] not in tree.body:
+                return False
+            declaration = bindings[0]
+            try:
+                value = self.resolve(source, symbol)
+            except (OSError, ValueError, TypeError, SyntaxError):
+                return False
+            mutable = isinstance(value, (list, set, dict))
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Call):
+                    if isinstance(node.func, ast.Attribute) and any(
+                        isinstance(child, ast.Name) and child.id == symbol
+                        for child in ast.walk(node.func.value)
+                    ):
+                        return False
+                    symbol_is_argument = any(
+                        isinstance(child, ast.Name)
+                        and child.id == symbol
+                        and isinstance(child.ctx, ast.Load)
+                        for argument in (*node.args, *(keyword.value for keyword in node.keywords))
+                        for child in ast.walk(argument)
+                    )
+                    if symbol_is_argument and not safe_collection_expression(tree, node, symbol):
+                        return False
+                if mutable and isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
+                    if node is declaration:
+                        continue
+                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                    if any(
+                        isinstance(child, ast.Name) and child.id == symbol
+                        for target in targets
+                        for child in ast.walk(target)
+                    ):
+                        return False
+                    assigned_value = node.value
+                    if assigned_value is not None and any(
+                        isinstance(child, ast.Name) and child.id == symbol
+                        for child in ast.walk(assigned_value)
+                    ):
+                        return False
+                if isinstance(node, ast.Delete) and any(
+                    isinstance(child, ast.Name) and child.id == symbol
+                    for target in node.targets
+                    for child in ast.walk(target)
+                ):
+                    return False
+                if isinstance(node, (ast.AugAssign, ast.For, ast.AsyncFor)) and any(
+                    isinstance(child, ast.Name) and child.id == symbol
+                    for child in ast.walk(node.target)
+                ):
+                    return False
+        return True
+
     def _value(self, source: Path, node: ast.AST) -> object:
         if isinstance(node, ast.Name):
             self._allowed_reads.add((source, id(node)))
             return self.resolve(source, node.id)
+        if isinstance(node, ast.Constant):
+            return node.value
+        if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+            values: list[object] = []
+            for item in node.elts:
+                if isinstance(item, ast.Starred):
+                    expanded = self._value(source, item.value)
+                    if not isinstance(expanded, (list, tuple, set, frozenset)):
+                        raise _UnresolvedExportDeclarationError(
+                            f"Unresolved export expansion: {_export_source_locator(source)}"
+                        )
+                    values.extend(expanded)
+                else:
+                    values.append(self._value(source, item))
+            if not all(isinstance(item, str) for item in values):
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved non-string export item: {_export_source_locator(source)}"
+                )
+            if isinstance(node, ast.Tuple):
+                return tuple(values)
+            if isinstance(node, ast.Set):
+                return set(values)
+            return values
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if (
+                node.func.id in {"set", "frozenset"}
+                and len(node.args) == 1
+                and not node.keywords
+                and not any(_symbol_binding_nodes(self._tree(source), node.func.id))
+            ):
+                value = self._value(source, node.args[0])
+                if isinstance(value, (list, tuple, set, frozenset)) and all(
+                    isinstance(item, str) for item in value
+                ):
+                    self._allowed_calls.add((source, id(node)))
+                    return set(value) if node.func.id == "set" else frozenset(value)
         if isinstance(node, ast.Dict):
             # Only keys contribute to iterating/sorting a manifest map. Its values
             # identify runtime owners, which this static reader does not execute.
@@ -945,7 +1592,9 @@ class _StaticExportResolver:
                         self._refuse_effect(source, node)
                 else:
                     imported = self._import_source(source, node, "")
-                    alias = next(alias for alias in node.names if (alias.asname or alias.name) == name)
+                    alias = next(
+                        alias for alias in node.names if (alias.asname or alias.name) == name
+                    )
                     self._passive_binding(imported, alias.name, module_binding=True)
             elif isinstance(node, ast.Import):
                 for alias in node.names:
@@ -1421,6 +2070,603 @@ def _module_level_attribute_is_bound(tree: ast.Module, symbol: str) -> bool:
     )
 
 
+def _static_string_collection(
+    source: Path,
+    tree: ast.Module,
+    symbol: str,
+) -> tuple[str, ...] | None:
+    resolver = _StaticExportResolver(source, tree)
+    try:
+        value = resolver.resolve(source, symbol)
+    except (OSError, ValueError, TypeError, SyntaxError):
+        return None
+    if isinstance(value, (list, tuple, set, frozenset)) and all(
+        isinstance(item, str) for item in value
+    ):
+        if (
+            not resolver.selected_collection_consumers_are_closed()
+            or not _module_namespace_uses_are_closed(tree, source)
+        ):
+            return None
+        return tuple(value)
+    return None
+
+
+def _module_level_assignment(tree: ast.Module, symbol: str) -> ast.Assign | ast.AnnAssign | None:
+    bindings = list(_symbol_binding_nodes(tree, symbol))
+    if len(bindings) != 1 or bindings[0] not in tree.body:
+        return None
+    binding = bindings[0]
+    if (
+        isinstance(binding, ast.Assign)
+        and len(binding.targets) == 1
+        and isinstance(binding.targets[0], ast.Name)
+        and binding.targets[0].id == symbol
+    ):
+        return binding
+    if isinstance(binding, ast.AnnAssign) and isinstance(binding.target, ast.Name):
+        return binding
+    return None
+
+
+def _top_level_function(tree: ast.Module, name: str) -> ast.FunctionDef | None:
+    functions = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name
+    ]
+    if len(functions) != 1 or not isinstance(functions[0], ast.FunctionDef):
+        return None
+    function = functions[0]
+    return function if not function.decorator_list else None
+
+
+def _has_exact_positional_parameters(function: ast.FunctionDef, *names: str) -> bool:
+    args = function.args
+    return (
+        [argument.arg for argument in args.posonlyargs] == []
+        and [argument.arg for argument in args.args] == list(names)
+        and not args.vararg
+        and not args.kwonlyargs
+        and not args.kwarg
+        and not args.defaults
+        and not any(args.kw_defaults)
+    )
+
+
+def _import_module_callable_is_stdlib(tree: ast.Module, function: ast.AST) -> bool:
+    if isinstance(function, ast.Attribute) and function.attr == "import_module":
+        if not isinstance(function.value, ast.Name):
+            return False
+        bindings = list(_symbol_binding_nodes(tree, function.value.id))
+        if len(bindings) != 1 or not isinstance(bindings[0], ast.Import):
+            return False
+        return any(
+            alias.name == "importlib"
+            and (alias.asname or alias.name.split(".")[0]) == function.value.id
+            for alias in bindings[0].names
+        )
+    if isinstance(function, ast.Name):
+        bindings = list(_symbol_binding_nodes(tree, function.id))
+        if len(bindings) != 1 or not isinstance(bindings[0], ast.ImportFrom):
+            return False
+        binding = bindings[0]
+        return (
+            binding.level == 0
+            and binding.module == "importlib"
+            and any(
+                alias.name == "import_module" and (alias.asname or alias.name) == function.id
+                for alias in binding.names
+            )
+        )
+    return False
+
+
+def _static_module_name(
+    node: ast.AST,
+    *,
+    parent_module: str,
+    alias_name: str,
+) -> str | None:
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    if isinstance(node, ast.JoinedStr):
+        pieces: list[str] = []
+        for value in node.values:
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                pieces.append(value.value)
+            elif isinstance(value, ast.FormattedValue) and isinstance(value.value, ast.Name):
+                if value.value.id == "__name__":
+                    pieces.append(parent_module)
+                elif value.value.id == "name":
+                    pieces.append(alias_name)
+                else:
+                    return None
+            else:
+                return None
+        return "".join(pieces)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left = _static_module_name(node.left, parent_module=parent_module, alias_name=alias_name)
+        right = _static_module_name(node.right, parent_module=parent_module, alias_name=alias_name)
+        return None if left is None or right is None else left + right
+    return None
+
+
+def _function_return_expressions(function: ast.FunctionDef) -> list[ast.AST]:
+    body = _function_body_without_docstring(function)
+    if len(body) != 1 or not isinstance(body[0], ast.Return) or body[0].value is None:
+        return []
+    return [body[0].value]
+
+
+def _function_body_without_docstring(function: ast.FunctionDef) -> list[ast.stmt]:
+    body = list(function.body)
+    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
+        if isinstance(body[0].value.value, str):
+            body.pop(0)
+    return body
+
+
+def _read_api_surface_records(
+    source: Path,
+    tree: ast.Module,
+) -> dict[str, str] | None:
+    """Resolve a read_api registry through its typed table and source helpers."""
+    record_class = next(
+        (
+            node
+            for node in tree.body
+            if isinstance(node, ast.ClassDef) and node.name == "ReadApiSurface"
+        ),
+        None,
+    )
+    dataclass_decorator = (
+        record_class.decorator_list[0]
+        if record_class is not None and len(record_class.decorator_list) == 1
+        else None
+    )
+    if (
+        record_class is None
+        or not isinstance(dataclass_decorator, ast.Call)
+        or not isinstance(dataclass_decorator.func, ast.Name)
+        or dataclass_decorator.func.id != "dataclass"
+        or dataclass_decorator.args
+        or not any(
+            keyword.arg == "frozen"
+            and isinstance(keyword.value, ast.Constant)
+            and keyword.value.value is True
+            for keyword in dataclass_decorator.keywords
+        )
+        or any(
+            keyword.arg not in {"frozen", "slots"}
+            or not isinstance(keyword.value, ast.Constant)
+            or keyword.value.value is not True
+            for keyword in dataclass_decorator.keywords
+        )
+    ):
+        return None
+    fields = {
+        node.target.id: ast.unparse(node.annotation)
+        for node in record_class.body
+        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
+    }
+    if (
+        set(fields) != {"name", "module", "summary"}
+        or any(annotation != "str" for annotation in fields.values())
+        or any(
+            not (isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name))
+            and not (
+                isinstance(node, ast.Expr)
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            )
+            for node in record_class.body
+        )
+    ):
+        return None
+
+    surfaces_binding = _module_level_assignment(tree, "READ_API_SURFACES")
+    if surfaces_binding is None or surfaces_binding.value is None:
+        return None
+    records_node = surfaces_binding.value
+    if not isinstance(records_node, (ast.Tuple, ast.List)):
+        return None
+    records: dict[str, str] = {}
+    for node in records_node.elts:
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            return None
+        if node.func.id != "ReadApiSurface" or node.args:
+            return None
+        fields_by_name = {
+            keyword.arg: keyword.value for keyword in node.keywords if keyword.arg is not None
+        }
+        if set(fields_by_name) != {"name", "module", "summary"}:
+            return None
+        name_node, module_node = fields_by_name["name"], fields_by_name["module"]
+        if not (
+            isinstance(name_node, ast.Constant)
+            and isinstance(name_node.value, str)
+            and isinstance(module_node, ast.Constant)
+            and isinstance(module_node.value, str)
+        ):
+            return None
+        if name_node.value in records:
+            return None
+        records[name_node.value] = module_node.value
+
+    by_name = _module_level_assignment(tree, "_SURFACES_BY_NAME")
+    if by_name is None or not isinstance(by_name.value, ast.DictComp):
+        return None
+    expected_map = ast.parse(
+        "{surface.name: surface for surface in READ_API_SURFACES}", mode="eval"
+    ).body
+    if ast.dump(by_name.value, include_attributes=False) != ast.dump(
+        expected_map, include_attributes=False
+    ):
+        return None
+
+    available = _top_level_function(tree, "available_surfaces")
+    expected_names = ast.parse(
+        "tuple(surface.name for surface in READ_API_SURFACES)", mode="eval"
+    ).body
+    available_body = [] if available is None else _function_body_without_docstring(available)
+    if (
+        available is None
+        or not _has_exact_positional_parameters(available)
+        or len(available_body) != 1
+        or not isinstance(available_body[0], ast.Return)
+        or ast.dump(available_body[0].value, include_attributes=False)
+        != ast.dump(expected_names, include_attributes=False)
+    ):
+        return None
+
+    lookup = _top_level_function(tree, "get_surface")
+    expected_lookup = ast.parse("_SURFACES_BY_NAME[name]", mode="eval").body
+    lookup_body = [] if lookup is None else _function_body_without_docstring(lookup)
+    if (
+        lookup is None
+        or not _has_exact_positional_parameters(lookup, "name")
+        or len(lookup_body) != 1
+        or not isinstance(lookup_body[0], ast.Try)
+        or len(lookup_body[0].body) != 1
+        or not isinstance(lookup_body[0].body[0], ast.Return)
+        or ast.dump(lookup_body[0].body[0].value, include_attributes=False)
+        != ast.dump(expected_lookup, include_attributes=False)
+        or len(lookup_body[0].handlers) != 1
+        or not isinstance(lookup_body[0].handlers[0].type, ast.Name)
+        or lookup_body[0].handlers[0].type.id != "KeyError"
+        or len(lookup_body[0].handlers[0].body) != 1
+        or not isinstance(lookup_body[0].handlers[0].body[0], ast.Raise)
+        or not isinstance(lookup_body[0].handlers[0].body[0].exc, ast.Call)
+        or not isinstance(lookup_body[0].handlers[0].body[0].exc.func, ast.Name)
+        or lookup_body[0].handlers[0].body[0].exc.func.id != "KeyError"
+        or lookup_body[0].orelse
+        or lookup_body[0].finalbody
+    ):
+        return None
+
+    loader = _top_level_function(tree, "load_surface")
+    expected_load = ast.parse("import_module(get_surface(name).module)", mode="eval").body
+    loader_body = [] if loader is None else _function_body_without_docstring(loader)
+    if (
+        loader is None
+        or not _has_exact_positional_parameters(loader, "name")
+        or len(loader_body) != 1
+        or not isinstance(loader_body[0], ast.Return)
+        or ast.dump(loader_body[0].value, include_attributes=False)
+        != ast.dump(expected_load, include_attributes=False)
+        or not _import_module_callable_is_stdlib(tree, expected_load.func)
+    ):
+        return None
+    if not all(module.startswith("polisyos.") for module in records.values()):
+        return None
+    return records
+
+
+def _imported_function_source(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    symbol: str,
+) -> tuple[str, Path, ast.Module] | None:
+    info = _module_name_for_path(source)
+    if info is None:
+        return None
+    bindings = list(_symbol_binding_nodes(tree, symbol))
+    matches: list[tuple[str, str, ast.ImportFrom]] = []
+    for node in tree.body:
+        if not isinstance(node, ast.ImportFrom):
+            continue
+        imported_module = _resolve_import_module(*info, node)
+        if imported_module is None:
+            continue
+        matches.extend(
+            (imported_module, alias.name, node)
+            for alias in node.names
+            if alias.name != "*" and (alias.asname or alias.name) == symbol
+        )
+    if (
+        len(bindings) != 1
+        or len(matches) != 1
+        or bindings[0] is not matches[0][2]
+        or not matches[0][0].startswith("polisyos.")
+    ):
+        return None
+    imported_module, imported_symbol, _ = matches[0]
+    try:
+        imported_source = _facade_source_for(imported_module)
+        imported_tree = ast.parse(admitted_read_bytes(imported_source, REPO_ROOT))
+    except (OSError, ValueError, TypeError, SyntaxError, FileNotFoundError):
+        return None
+    if _top_level_function(imported_tree, imported_symbol) is None:
+        return None
+    return imported_module, imported_source, imported_tree
+
+
+def _resolve_module_loader_expression(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    node: ast.AST,
+    alias_name: str,
+    *,
+    seen: frozenset[tuple[str, str]] = frozenset(),
+) -> str | None:
+    if isinstance(node, ast.Call) and len(node.args) == 1 and not node.keywords:
+        if _import_module_callable_is_stdlib(tree, node.func):
+            argument = node.args[0]
+            if (
+                isinstance(argument, ast.Attribute)
+                and argument.attr == "module"
+                and isinstance(argument.value, ast.Call)
+                and isinstance(argument.value.func, ast.Name)
+                and argument.value.func.id == "get_surface"
+            ):
+                records = _read_api_surface_records(source, tree)
+                return None if records is None else records.get(alias_name)
+            return _static_module_name(
+                argument,
+                parent_module=module,
+                alias_name=alias_name,
+            )
+        if isinstance(node.func, ast.Name):
+            helper = _top_level_function(tree, node.func.id)
+            helper_module, helper_source, helper_tree = module, source, tree
+            if helper is None:
+                imported = _imported_function_source(module, source, tree, node.func.id)
+                if imported is None:
+                    return None
+                helper_module, helper_source, helper_tree = imported
+                helper = _top_level_function(helper_tree, node.func.id)
+            if (
+                helper is None
+                or not _loader_helper_body_is_closed(helper)
+                or not _module_namespace_uses_are_closed(helper_tree, helper_source)
+                or len(node.args) != 1
+                or not isinstance(node.args[0], ast.Name)
+                or not _has_exact_positional_parameters(helper, node.args[0].id)
+            ):
+                return None
+            key = (helper_module, helper.name)
+            if key in seen:
+                return None
+            return_values = _function_return_expressions(helper)
+            if not return_values:
+                return None
+            resolved = {
+                _resolve_module_loader_expression(
+                    helper_module,
+                    helper_source,
+                    helper_tree,
+                    value,
+                    alias_name,
+                    seen=seen | {key},
+                )
+                for value in return_values
+            }
+            return next(iter(resolved)) if len(resolved) == 1 and None not in resolved else None
+    return None
+
+
+def _static_collection_for_facade(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    symbol: str,
+) -> tuple[str, ...] | None:
+    if symbol != "_SURFACE_NAMES":
+        return _static_string_collection(source, tree, symbol)
+    assignment = _module_level_assignment(tree, symbol)
+    expected = ast.parse("frozenset(available_surfaces())", mode="eval").body
+    if assignment is None or assignment.value is None:
+        return None
+    if list(_symbol_binding_nodes(tree, "frozenset")):
+        return None
+    if ast.dump(assignment.value, include_attributes=False) != ast.dump(
+        expected, include_attributes=False
+    ):
+        return None
+    facade_info = _imported_function_source(module, source, tree, "available_surfaces")
+    loader_info = _imported_function_source(module, source, tree, "load_surface")
+    if facade_info is None or loader_info is None or facade_info[0] != loader_info[0]:
+        return None
+    _helper_module, helper_source, helper_tree = facade_info
+    records = _read_api_surface_records(helper_source, helper_tree)
+    if records is None:
+        return None
+    return tuple(
+        record_name
+        for record_name, record_module in records.items()
+        if record_module.startswith(f"{module}.")
+    )
+
+
+def _condition_for_facade_alias(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    condition: ast.AST,
+    alias_name: str,
+) -> bool | None:
+    if (
+        not isinstance(condition, ast.Compare)
+        or len(condition.ops) != 1
+        or len(condition.comparators) != 1
+    ):
+        return None
+    if not isinstance(condition.left, ast.Name) or condition.left.id != "name":
+        return None
+    if not isinstance(condition.comparators[0], ast.Name):
+        return None
+    collection = _static_collection_for_facade(
+        module,
+        source,
+        tree,
+        condition.comparators[0].id,
+    )
+    if collection is None:
+        return None
+    member = alias_name in collection
+    if isinstance(condition.ops[0], ast.In):
+        return member
+    if isinstance(condition.ops[0], ast.NotIn):
+        return not member
+    return None
+
+
+def _block_returns_exact_child_module(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    statements: list[ast.stmt],
+    alias_name: str,
+    expected_module: str,
+) -> bool:
+    module_values: dict[str, str] = {}
+    for statement in statements:
+        if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
+            if isinstance(statement.value.value, str):
+                continue
+        if isinstance(statement, ast.ImportFrom) and statement.module == "importlib":
+            if (
+                statement.level != 0
+                or not statement.names
+                or not all(alias.name == "import_module" for alias in statement.names)
+            ):
+                return False
+            continue
+        if isinstance(statement, ast.If):
+            branch = _condition_for_facade_alias(module, source, tree, statement.test, alias_name)
+            if branch is None:
+                return False
+            selected = statement.body if branch else statement.orelse
+            if _block_returns_exact_child_module(
+                module, source, tree, selected, alias_name, expected_module
+            ):
+                return True
+            if selected and any(isinstance(item, (ast.Return, ast.Raise)) for item in selected):
+                return False
+            continue
+        if isinstance(statement, (ast.Assign, ast.AnnAssign)):
+            value = statement.value
+            targets = statement.targets if isinstance(statement, ast.Assign) else [statement.target]
+            if value is None:
+                return False
+            if len(targets) == 1 and isinstance(targets[0], ast.Name):
+                resolved = _resolve_module_loader_expression(
+                    module, source, tree, value, alias_name
+                )
+                if resolved is None:
+                    return False
+                module_values[targets[0].id] = resolved
+                continue
+            if (
+                len(targets) == 1
+                and isinstance(targets[0], ast.Subscript)
+                and isinstance(targets[0].value, ast.Call)
+                and isinstance(targets[0].value.func, ast.Name)
+                and targets[0].value.func.id == "globals"
+                and isinstance(targets[0].slice, ast.Name)
+                and targets[0].slice.id == "name"
+                and isinstance(value, ast.Name)
+                and module_values.get(value.id) == expected_module
+            ):
+                continue
+            return False
+        if isinstance(statement, ast.Return):
+            if isinstance(statement.value, ast.Name):
+                return module_values.get(statement.value.id) == expected_module
+            return (
+                _resolve_module_loader_expression(module, source, tree, statement.value, alias_name)
+                == expected_module
+            )
+        if isinstance(statement, ast.Raise):
+            return False
+        if isinstance(statement, ast.Pass):
+            continue
+        return False
+    return False
+
+
+def _facade_lazy_child_target(
+    module: str,
+    source: Path,
+    tree: ast.Module,
+    alias_name: str,
+) -> str | None:
+    """Prove a declared lazy child alias returns the exact child module object.
+
+    The proof reads the complete static export declaration, then follows the
+    facade's first applicable name gate and each source-defined loader helper to
+    a standard importlib.import_module call. It never imports a candidate module.
+    """
+    module_info = _module_name_for_path(source)
+    if module_info is None or module_info[0] != module:
+        return None
+    exports = _static_string_collection(source, tree, "__all__")
+    if exports is None or alias_name not in exports:
+        return None
+    getter = _top_level_function(tree, "__getattr__")
+    if getter is None or not _has_exact_positional_parameters(getter, "name"):
+        return None
+    expected_module = f"{module}.{alias_name}"
+    body = _function_body_without_docstring(getter)
+
+    for index, statement in enumerate(body):
+        if not isinstance(statement, ast.If):
+            return None
+        branch = _condition_for_facade_alias(module, source, tree, statement.test, alias_name)
+        if branch is None:
+            return None
+        if branch:
+            if _block_returns_exact_child_module(
+                module, source, tree, statement.body, alias_name, expected_module
+            ):
+                return expected_module
+            return None
+        is_declared_export_guard = (
+            isinstance(statement.test, ast.Compare)
+            and isinstance(statement.test.comparators[0], ast.Name)
+            and statement.test.comparators[0].id == "__all__"
+        )
+        if not is_declared_export_guard or statement.orelse or len(statement.body) != 1:
+            return None
+        refusal = statement.body[0]
+        if (
+            not isinstance(refusal, ast.Raise)
+            or not isinstance(refusal.exc, ast.Call)
+            or not isinstance(refusal.exc.func, ast.Name)
+            or refusal.exc.func.id != "AttributeError"
+        ):
+            return None
+        if _block_returns_exact_child_module(
+            module, source, tree, body[index + 1 :], alias_name, expected_module
+        ):
+            return expected_module
+        return None
+    return None
+
+
 def _facade_star_exports(
     module: str,
     facade: tuple[Path, ast.Module] | None,
@@ -1492,11 +2738,14 @@ def _maybe_add_fromlist_deep_imports(
             and facade_tree is not None
             and _module_level_attribute_is_bound(facade_tree, name)
         )
-        if (
-            name != "*"
-            and declared_exports is not None
-            and name in declared_exports
-            and directly_bound
+        lazy_child_target = (
+            _facade_lazy_child_target(target_module, facade[0], facade_tree, name)
+            if name != "*" and facade is not None and facade_tree is not None
+            else None
+        )
+        if name != "*" and (
+            (declared_exports is not None and name in declared_exports and directly_bound)
+            or lazy_child_target == f"{target_module}.{name}"
         ):
             continue
         if facade_tree is None or declared_exports is None:
@@ -1590,7 +2839,8 @@ def _maybe_add_deep_import(
         "name_not_declared_export",
         "bound_but_unlisted",
         "declared_binding_unproven",
-    ] | None = None,
+    ]
+    | None = None,
 ) -> None:
     if target_module == "polisyos" or not target_module.startswith("polisyos."):
         return
@@ -3942,7 +5192,10 @@ def _check_deep_import_creep(
                                 "The facade __all__ declares this name, but a unique direct "
                                 "module binding was not established; this candidate is not baselinable."
                             ),
-                        }.get(edge.resolution_reason or "", "A required facade property is not established.")
+                        }.get(
+                            edge.resolution_reason or "",
+                            "A required facade property is not established.",
+                        )
                     ),
                 )
             )

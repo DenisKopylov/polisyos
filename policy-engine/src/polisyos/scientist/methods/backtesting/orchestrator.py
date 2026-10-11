@@ -67,6 +67,7 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+from polisyos.ir.registry.refs import BacktestReportRef
 from polisyos.scientist import run_experiment
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
@@ -410,13 +411,39 @@ class BacktestOrchestrator:
         metadata: dict[str, Any] | None = None,
         trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
     ) -> BacktestReport:
-        """Execute every historical plan and persist the aggregated report in CAS.
+        """Execute every historical plan and persist its report in CAS.
 
-        ``report_id`` and ``inputs`` are caller-owned handoff values.  When they
-        are absent, the historical generated-ID and empty-lineage behavior is
-        retained; plan fields are never promoted into manifest inputs.  Input
+        This compatibility method preserves the historical ``BacktestReport``
+        return shape. Call :meth:`run_with_ref` when the producer must retain
+        the exact selected report manifest returned by the CAS write.
+        """
+        report, _report_ref = self.run_with_ref(
+            plans,
+            report_id=report_id,
+            inputs=inputs,
+            metadata=metadata,
+            trust_screening=trust_screening,
+        )
+        return report
+
+    def run_with_ref(
+        self,
+        plans: list[HistoricalValidationPlan],
+        *,
+        report_id: str | None = None,
+        inputs: Sequence[InputRef] | None = None,
+        metadata: dict[str, Any] | None = None,
+        trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
+    ) -> tuple[BacktestReport, BacktestReportRef]:
+        """Execute the plans and return the report plus its exact persisted CAS ref.
+
+        ``report_id`` and ``inputs`` are caller-owned handoff values. When they
+        are absent, historical generated-ID and empty-lineage behavior is
+        retained; plan fields are never promoted into manifest inputs. Input
         roles and content/schema semantics remain the caller's explicit
         contract; this owner resolves only the exact refs in its configured CAS.
+        The returned ref is the selected view returned by the report write; it
+        is not reconstructed from the content-addressed artifact ID.
         """
         resolved_report_id = _resolve_report_id(
             report_id,
@@ -481,7 +508,7 @@ class BacktestOrchestrator:
             inputs=report_inputs or None,
         )
         report.cas_artifact_id = str(ref.artifact_id)
-        return report
+        return report, ref
 
     def _run_single_scenario(
         self,

@@ -29,7 +29,12 @@ from polisyos.calibration.forecast_bridge import (
     persist_empirical_calibration_evidence,
     produce_empirical_calibration_evidence,
 )
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    PutOptions,
+    SchemaInfo,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts._profiled_ref import profile_bound_ref
 from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef
@@ -58,6 +63,7 @@ def _put_json(store: FileSystemCAS, payload: object, *, kind: str) -> ArtifactRe
         payload,
         PutOptions(kind=kind, media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -91,7 +97,12 @@ def _source(
         snapshot.model_dump(mode="json"),
         kind="fabric.data_snapshot",
     )
-    return DataSnapshotRef(artifact_id=snapshot_ref.artifact_id)
+    return DataSnapshotRef(
+        artifact_id=snapshot_ref.artifact_id,
+        kind=snapshot_ref.kind,
+        media_type=snapshot_ref.media_type,
+        manifest_profile_sha256=snapshot_ref.manifest_profile_sha256,
+    )
 
 
 def _rule(
@@ -159,6 +170,7 @@ def _request(
                 "artifact_id": str(rule_ref.artifact_id),
                 "kind": rule_ref.kind,
                 "media_type": rule_ref.media_type,
+                "manifest_profile_sha256": rule_ref.manifest_profile_sha256,
             },
         ),
         temporal_roles=_temporal_roles(),
@@ -192,6 +204,46 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert result.uncertainty_bundle_ref.kind == "ir.forecasting_uncertainty_bundle"
     assert result.calibration_diagnostics_ref.kind == "ir.calibration_diagnostics_report"
     assert result.backtest_report_ref.kind == "ir.backtest_report"
+
+    generated_refs = (
+        (result.training_slice_ref, "polisyos.ir.ForecastTrainingSlice", "1.0"),
+        (result.method_artifact_ref, "polisyos.foundry.method_artifact", "1.0.0"),
+        (result.uncertainty_bundle_ref, "ir.forecasting_uncertainty_bundle", "1.0"),
+        (
+            result.calibration_diagnostics_ref,
+            "ir.calibration_diagnostics_report.v1",
+            "1.0",
+        ),
+    )
+    for ref, schema_name, schema_version in generated_refs:
+        selected_profile = ref.manifest_profile_sha256
+        assert selected_profile is not None
+        manifest = store.get_manifest_by_profile(ref.artifact_id, selected_profile)
+        assert str(manifest.artifact_id) == str(ref.artifact_id)
+        assert artifact_manifest_profile_sha256(manifest) == selected_profile
+        assert (manifest.kind, manifest.media_type) == (ref.kind, "application/json")
+        assert manifest.artifact_schema is not None
+        assert (manifest.artifact_schema.name, manifest.artifact_schema.version) == (
+            schema_name,
+            schema_version,
+        )
+
+    report_profile = result.backtest_report_ref.manifest_profile_sha256
+    assert report_profile is not None
+    report_manifest = store.get_manifest_by_profile(
+        result.backtest_report_ref.artifact_id, report_profile
+    )
+    report_edges_by_role = {item.role: item for item in report_manifest.inputs}
+    for role, (ref, _schema_name, _schema_version) in zip(
+        ("training_slice", "method_artifact", "uncertainty_bundle", "calibration_diagnostics"),
+        generated_refs,
+        strict=True,
+    ):
+        matching_edges = [item for item in report_manifest.inputs if item.role == role]
+        assert len(matching_edges) == 1
+        edge = matching_edges[0]
+        assert str(edge.artifact_id) == str(ref.artifact_id)
+        assert edge.manifest_profile_sha256 == ref.manifest_profile_sha256
 
     bundle = load_forecasting_uncertainty_bundle(
         _ensure_ir_artifact_store(store), result.uncertainty_bundle_ref
@@ -271,15 +323,40 @@ def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(
     assert report.trust_eligible is False
     assert report.trust_score is None
 
-    manifest = store.get_manifest(result.backtest_report_ref.artifact_id)
+    report_profile = result.backtest_report_ref.manifest_profile_sha256
+    assert report_profile is not None
+    manifest = store.get_manifest_by_profile(result.backtest_report_ref.artifact_id, report_profile)
+    expected_roles = [
+        "observed_source",
+        "observed_data",
+        "calibration_rule",
+        "training_slice",
+        "method_artifact",
+        "uncertainty_bundle",
+        "calibration_diagnostics",
+        "model_spec",
+        "policy_spec",
+    ]
+    assert [item.role for item in manifest.inputs] == expected_roles
+    assert all(item.manifest_profile_sha256 is not None for item in manifest.inputs)
+    model_manifest = store.get_manifest(model_ref.artifact_id)
+    policy_manifest = store.get_manifest(policy_ref.artifact_id)
     model_edges = [
-        (str(item.artifact_id), item.role) for item in manifest.inputs if item.role == "model_spec"
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in manifest.inputs
+        if item.role == "model_spec"
     ]
     policy_edges = [
-        (str(item.artifact_id), item.role) for item in manifest.inputs if item.role == "policy_spec"
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in manifest.inputs
+        if item.role == "policy_spec"
     ]
-    assert model_edges == [(model_id, "model_spec")]
-    assert policy_edges == [(policy_id, "policy_spec")]
+    assert model_edges == [
+        (model_id, "model_spec", artifact_manifest_profile_sha256(model_manifest))
+    ]
+    assert policy_edges == [
+        (policy_id, "policy_spec", artifact_manifest_profile_sha256(policy_manifest))
+    ]
 
 
 def test_real_ets_owner_rejects_missing_model_policy_cas_binding_before_derived_writes(
@@ -402,8 +479,16 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                     horizon=3,
                 )
             )
-            selected_ir_ref = profile_bound_ref(store, result.backtest_report_ref)
-            selected_ref = ArtifactRef.model_validate(selected_ir_ref.model_dump(mode="json"))
+            selected_ref = ArtifactRef.model_validate(
+                result.backtest_report_ref.model_dump(mode="json")
+            )
+            assert selected_ref.manifest_profile_sha256 is not None
+            manifest = store.get_manifest(selected_ref)
+            assert (
+                artifact_manifest_profile_sha256(manifest) == selected_ref.manifest_profile_sha256
+            )
+            assert manifest.inputs
+            assert all(item.manifest_profile_sha256 is not None for item in manifest.inputs)
             owner_results.append(result)
             report_refs.append(selected_ref)
 
@@ -471,10 +556,14 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                 params={"manifest_profile_sha256": "sha256:" + "f" * 64},
             )
             assert unavailable_profile_response.status_code == 404
-            assert unavailable_profile_response.json()["code"] == "artifact_manifest_profile_not_found"
+            assert (
+                unavailable_profile_response.json()["code"] == "artifact_manifest_profile_not_found"
+            )
             assert "preview" not in default_projection
             assert "raw_content" not in default_projection
-            assert default_projection["assessment"] == explicit_projection["assessment"] == "limited"
+            assert (
+                default_projection["assessment"] == explicit_projection["assessment"] == "limited"
+            )
 
             raw_default = fetch_content(report_refs[0], selected_profile=False)
             raw_explicit = fetch_content(report_refs[1])
@@ -501,9 +590,13 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
 
             first_scenario = default_projection["scenarios"][0]
             second_scenario = explicit_projection["scenarios"][0]
-            assert first_scenario["interval_evaluated_count"] == owner_results[0].coverage_denominator
+            assert (
+                first_scenario["interval_evaluated_count"] == owner_results[0].coverage_denominator
+            )
             assert first_scenario["interval_hit_count"] == owner_results[0].coverage_numerator
-            assert second_scenario["interval_evaluated_count"] == owner_results[1].coverage_denominator
+            assert (
+                second_scenario["interval_evaluated_count"] == owner_results[1].coverage_denominator
+            )
             assert second_scenario["interval_hit_count"] == owner_results[1].coverage_numerator
             assert first_scenario["observed_hit_rate"] != second_scenario["observed_hit_rate"]
             assert owner_results[0].empirical_suitability == "supported"
@@ -598,7 +691,9 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
 
             malformed_payload = json.loads(report_bytes.decode("utf-8"))
             malformed_scenario = malformed_payload["scenarios"][0]
-            malformed_scenario["interval_hit_count"] = malformed_scenario["interval_evaluated_count"] + 1
+            malformed_scenario["interval_hit_count"] = (
+                malformed_scenario["interval_evaluated_count"] + 1
+            )
             malformed_ref = store.put_json(
                 malformed_payload,
                 PutOptions(
@@ -707,7 +802,12 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                 row["basis"] == "selected_manifest" and row["status"] != "allowed"
                 for row in denied_decision["authority_contributors"]
             )
-            for invalid_ref in (malformed_ref, missing_count_ref, missing_row_ref, duplicate_row_ref):
+            for invalid_ref in (
+                malformed_ref,
+                missing_count_ref,
+                missing_row_ref,
+                duplicate_row_ref,
+            ):
                 invalid_response = fetch_diagnostic(invalid_ref)
                 assert invalid_response.status_code == 200
                 invalid_projection = invalid_response.json()

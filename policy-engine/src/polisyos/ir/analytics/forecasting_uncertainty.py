@@ -725,8 +725,21 @@ def persist_forecasting_uncertainty_bundle(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.forecasting_uncertainty_bundle",
     schema_version: str = "1.0",
+    return_selected_profile: bool = False,
 ) -> ForecastingUncertaintyBundleRef:
-    """Persist a forecasting uncertainty bundle as a typed JSON artifact."""
+    """Persist a forecasting uncertainty bundle as a typed JSON artifact.
+
+    Args:
+        store: IR artifact store used for the write.
+        bundle: Validated forecasting uncertainty payload.
+        inputs: Typed provenance inputs for the bundle.
+        schema_name: Artifact schema name.
+        schema_version: Artifact schema version.
+        return_selected_profile: Return the exact manifest profile emitted by this write.
+
+    Returns:
+        The typed bundle reference, including its selected write profile when requested.
+    """
 
     if isinstance(bundle, ForecastingUncertaintyBundleV2) and schema_version == "1.0":
         schema_version = "2.0"
@@ -739,6 +752,7 @@ def persist_forecasting_uncertainty_bundle(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return ForecastingUncertaintyBundleRef.model_validate(ref)
 

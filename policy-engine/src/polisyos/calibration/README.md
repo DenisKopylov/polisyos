@@ -24,3 +24,18 @@ separate `scientist/calibration` package root.
 - `apply_calibrator`
 - `compare_calibrators`
 - `to_validation_report`
+
+## Selected report and context profiles
+
+The ForecastOwner path retains the exact `BacktestReportRef` returned by the CAS
+write and carries each input's `manifest_profile_sha256` into the persisted report
+manifest. The empirical-calibration bridge compares context edges by artifact ID,
+role, and selected manifest profile. Same report bytes under a sibling manifest
+profile therefore do not satisfy the original producer's report-basis edge.
+
+New empirical-calibration evidence uses schema `1.2` to persist these selected
+context profiles and its own full input-edge bindings. Schemas `1.0` and `1.1`
+remain readable with their historical ID/role edge semantics; they are not upgraded
+or relabeled as producer-selected profile lineage. A profile digest identifies a
+CAS manifest view; it does not establish completeness, semantic adequacy, producer
+authority, currentness, issuer, or causal/S10 authority.

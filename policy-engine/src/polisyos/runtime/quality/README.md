@@ -12,6 +12,16 @@ output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
 
+N9 historical receipts are parsed with `parse_canonical_promotion_history_receipt`.
+Use the parsed receipt's `historical_projection()` when serializing its stored
+schema epoch: absent historical fields remain absent and explicitly stored nulls
+remain null. Ordinary `model_dump(mode="json")` is the complete DTO view and may
+materialize defaults introduced after a legacy epoch; do not use it as a legacy
+history write or reissue source. Every registered v2-v7 comparison owner rule uses this same historical
+projection before applying its frozen typed profile, so absent legacy defaults
+cannot change a stored comparison hash. The current v8 projection remains
+complete and uses its current rule.
+
 Rule replay lives in `rule_replay_engine.py`. Closed cases should replay through
 their stored rule, capability, and data references, and C33 rule-change classes
 must produce explicit revalidation triggers rather than silently changing old

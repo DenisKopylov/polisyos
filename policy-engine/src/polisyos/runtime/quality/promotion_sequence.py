@@ -2173,7 +2173,9 @@ class _LegacyCanonicalPromotionOwnerProjectionV1(_StrictModel):
     def _projection_hash_is_content_bound(
         self,
     ) -> _LegacyCanonicalPromotionOwnerProjectionV1:
-        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        expected = gy_content_hash(
+            self.model_dump(mode="json", exclude={"projection_hash"}, exclude_unset=True)
+        )
         if self.projection_hash != expected:
             raise ValueError("n9_owner_projection_hash_mismatch")
         return self
@@ -2289,7 +2291,9 @@ class _LegacyCanonicalPromotionOwnerProjectionV3(_StrictModel):
     def _projection_hash_is_content_bound(
         self,
     ) -> _LegacyCanonicalPromotionOwnerProjectionV3:
-        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        expected = gy_content_hash(
+            self.model_dump(mode="json", exclude={"projection_hash"}, exclude_unset=True)
+        )
         if self.projection_hash != expected:
             raise ValueError("n9_owner_projection_hash_mismatch")
         return self
@@ -2355,7 +2359,9 @@ class _LegacyCanonicalPromotionOwnerProjectionV3History(_StrictModel):
     def _projection_hash_is_content_bound(
         self,
     ) -> _LegacyCanonicalPromotionOwnerProjectionV3History:
-        expected = gy_content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        expected = gy_content_hash(
+            self.model_dump(mode="json", exclude={"projection_hash"}, exclude_unset=True)
+        )
         if self.projection_hash != expected:
             raise ValueError("n9_owner_projection_hash_mismatch")
         return self
@@ -2394,6 +2400,18 @@ class CanonicalPromotionReceipt(_StrictModel):
     non_promotable_reason: str | None = None
     cg2_resolution_reason: str | None = None
     sequence_ref: str = PROMOTION_SEQUENCE_REF
+
+    def historical_projection(self) -> dict[str, Any]:
+        """Serialize this receipt in its own schema epoch's canonical wire shape.
+
+        Legacy receipt DTOs may declare fields added after their stored epoch.
+        Their projection preserves absent fields while retaining explicitly
+        supplied nulls. The current v8 receipt keeps its complete DTO projection.
+        """
+
+        if self.schema_version == CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+            return self.model_dump(mode="json")
+        return self.model_dump(mode="json", exclude_unset=True)
 
     @model_validator(mode="after")
     def _promoted_requires_trace(self) -> CanonicalPromotionReceipt:
@@ -2944,15 +2962,11 @@ def _historical_promotion_non_admission_code(
 
 
 def _historical_receipt_projection(parsed: BaseModel) -> dict[str, Any]:
-    """Serialize an epoch through its frozen wire model.
+    """Serialize a supported receipt model through its own epoch projection."""
 
-    V1 used sparse dumps, so its serializer preserves the fields physically set.
-    Later epochs use their version-specific complete DTO serializers.
-    """
-
-    if isinstance(parsed, _LegacyCanonicalPromotionReceiptV1):
+    if isinstance(parsed, (_LegacyCanonicalPromotionReceiptV1, CanonicalPromotionReceipt)):
         return parsed.historical_projection()
-    return parsed.model_dump(mode="json")
+    raise ValueError("promotion_history_model_unsupported")
 
 
 def _parse_lossless_historical_receipt[HistoricalModelT: BaseModel](
@@ -3258,7 +3272,7 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
             _LegacyCanonicalPromotionReceiptV3,
             value,
         )
-        full_payload = receipt.model_dump(mode="json")
+        full_payload = receipt.historical_projection()
         class_rows = [
             _project_typed_fields(
                 row,
@@ -3281,7 +3295,7 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
             _LegacyCanonicalPromotionReceiptV2,
             value,
         )
-        full_payload = receipt.model_dump(mode="json")
+        full_payload = receipt.historical_projection()
         model_type = _LegacyCanonicalPromotionReceiptV2
         owner_model_type = _LegacyCanonicalPromotionOwnerProjectionV1
     else:
@@ -3351,7 +3365,7 @@ def _canonical_promotion_receipt_v4_semantic_projection(
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
     return _project_promotion_receipt_payload(
-        receipt.model_dump(mode="json"),
+        receipt.historical_projection(),
         model_type=_LegacyCanonicalPromotionReceiptV4,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV2,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
@@ -3374,7 +3388,7 @@ def _canonical_promotion_receipt_v6_semantic_projection(
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
     return _project_promotion_receipt_payload(
-        receipt.model_dump(mode="json"),
+        receipt.historical_projection(),
         model_type=_LegacyCanonicalPromotionReceiptV6,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
@@ -3397,7 +3411,7 @@ def _canonical_promotion_receipt_v5_semantic_projection(
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
     return _project_promotion_receipt_payload(
-        receipt.model_dump(mode="json"),
+        receipt.historical_projection(),
         model_type=_LegacyCanonicalPromotionReceiptV5,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
@@ -3420,7 +3434,7 @@ def _canonical_promotion_receipt_v7_semantic_projection(
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
     return _project_promotion_receipt_payload(
-        receipt.model_dump(mode="json"),
+        receipt.historical_projection(),
         model_type=_LegacyCanonicalPromotionReceiptV7,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV3History,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
@@ -3443,7 +3457,7 @@ def _canonical_promotion_receipt_v3_semantic_projection(
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
     return _project_promotion_receipt_payload(
-        receipt.model_dump(mode="json"),
+        receipt.historical_projection(),
         model_type=_LegacyCanonicalPromotionReceiptV3,
         owner_model_type=_LegacyCanonicalPromotionOwnerProjectionV1,
         receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,

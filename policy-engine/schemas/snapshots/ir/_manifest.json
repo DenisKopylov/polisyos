@@ -6,7 +6,7 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "bd93e1ab5b9bb8ec4adf9fdad6078d0b39838e925dd36e3ebddb960cf97b2f19",
+  "content_hash": "c94926a2099aa66fd744b6fa073c842833e5d834096db614bb3e4974c4509b59",
   "generated_at": "2026-10-09T23:57:00+00:00",
   "generator_version": "1.0.0",
   "models": {
@@ -284,6 +284,18 @@
       "schema_version": "1.0",
       "sha256_full": "e1fe6414d57ca8e7325119af5f1a332256f524788e63a67ded870a700ba61787",
       "sha256_semantic": "bc57f90862f0a500fbb3f052a8998396e0f56c06e3189a461ed4d121ade17b86",
+      "version_field": "schema_version"
+    },
+    "context_adaptive_parameter_bundle_v1_1": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.parameters.ContextAdaptiveParameterBundleV11",
+      "lifecycle": "active",
+      "priority": "p2",
+      "schema_file": "context_adaptive_parameter_bundle_v1_1.schema.json",
+      "schema_version": "1.1",
+      "sha256_full": "fd8ae347e40c2ab342a6929edfe05164b069b6f1dbd38d94d7e3b121ea4c78f4",
+      "sha256_semantic": "a3e771fe1811ad7249c71ce28490c0ed130173490cd70c510354297eb250e82e",
       "version_field": "schema_version"
     },
     "data_view_request": {

@@ -9,6 +9,7 @@ describe("composer form schemas and mappers", () => {
   it("builds workflow payload from valid workflow form values", () => {
     const parsed = workflowLaunchSchema.parse({
       dataSourceType: "snapshot",
+      dataSourceProfileSha256: "",
       dataSourceRef: "sha256:data",
       trinityRef: "sha256:trinity",
       policySpecRef: "",
@@ -40,6 +41,97 @@ describe("composer form schemas and mappers", () => {
         operator_intent: "Review blockers first",
       },
     });
+  });
+
+  it("sends the selected full DataViewRequestRef and preserves legacy string calls", () => {
+    const profile = `sha256:${"c".repeat(64)}`;
+    const selected = workflowLaunchSchema.parse({
+      dataSourceType: "view",
+      dataSourceRef: "sha256:data-view-request",
+      dataSourceProfileSha256: profile,
+      trinityRef: "",
+      policySpecRef: "",
+      modelSpecRef: "",
+      executionIntent: "Use the selected profile-bound request",
+      checkpointPolicy: "strict",
+      expectedOutputs: [
+        { kind: "decision_packet", description: "Decision packet" },
+      ],
+      governanceConstraints: [
+        { scope: "legal", rule: "Surface blockers", severity: "blocker" },
+      ],
+      customParams: [],
+    });
+
+    const typedBody = buildWorkflowLaunchRequest(selected, {
+      locale: "en",
+      preflightEnabled: true,
+      autoMaterializationEnabled: false,
+    });
+    expect(typedBody.data_source).toEqual({
+      data_view_request_ref: {
+        artifact_id: "sha256:data-view-request",
+        kind: "ir.data_view_request",
+        media_type: "application/json",
+        manifest_profile_sha256: profile,
+      },
+    });
+
+    const { dataSourceProfileSha256: _selectedProfile, ...legacyValues } =
+      selected;
+    const legacy = workflowLaunchSchema.parse(legacyValues);
+    expect(
+      buildWorkflowLaunchRequest(legacy, {
+        locale: "en",
+        preflightEnabled: true,
+        autoMaterializationEnabled: false,
+      }).data_source,
+    ).toEqual({ data_view_request_ref: "sha256:data-view-request" });
+  });
+
+  it("refuses malformed supplied profile selectors instead of dropping them", () => {
+    const malformed = workflowLaunchSchema.safeParse({
+      dataSourceType: "view",
+      dataSourceRef: "sha256:data-view-request",
+      dataSourceProfileSha256: "sha256:short",
+      trinityRef: "",
+      policySpecRef: "",
+      modelSpecRef: "",
+      executionIntent: "",
+      checkpointPolicy: "strict",
+      expectedOutputs: [
+        { kind: "decision_packet", description: "Decision packet" },
+      ],
+      governanceConstraints: [
+        { scope: "legal", rule: "Surface blockers", severity: "blocker" },
+      ],
+      customParams: [],
+    });
+
+    const malformedIssuePaths = malformed.success
+      ? []
+      : malformed.error.issues.map((issue) => issue.path.join("."));
+    expect(malformed.success).toBe(false);
+    expect(malformedIssuePaths).toContain("dataSourceProfileSha256");
+
+    const misplaced = workflowLaunchSchema.safeParse({
+      dataSourceType: "snapshot",
+      dataSourceRef: "sha256:data-view-request",
+      dataSourceProfileSha256: `sha256:${"f".repeat(64)}`,
+      trinityRef: "",
+      policySpecRef: "",
+      modelSpecRef: "",
+      executionIntent: "",
+      checkpointPolicy: "strict",
+      expectedOutputs: [
+        { kind: "decision_packet", description: "Decision packet" },
+      ],
+      governanceConstraints: [
+        { scope: "legal", rule: "Surface blockers", severity: "blocker" },
+      ],
+      customParams: [],
+    });
+    expect(misplaced.success).toBe(false);
   });
 
   it("builds nl payload with deduplicated model ids", () => {

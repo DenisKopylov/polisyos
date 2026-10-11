@@ -851,6 +851,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         split=BenchmarkSplit.SELECTION.value,
         units={},
         origin="b157-native-methodjob-test",
+        tenant_id=None,
         objective_directions={"ate": "maximize"},
         embedding=[1.0],
         num_evaluations=len(source_evaluations),

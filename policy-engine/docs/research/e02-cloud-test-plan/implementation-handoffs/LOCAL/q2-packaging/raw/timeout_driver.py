@@ -16,7 +16,7 @@ from typing import Any
 
 
 EXPECTED_RUNNER_SHA256 = "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0"
-EXPECTED_MANIFEST_SHA256 = "fefbc85839898a4ea1d89e86e9d3c47cb5ade059e175d713b815d243996a3aba"
+EXPECTED_MANIFEST_SHA256 = "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd"
 EXPECTED_PROFILE_ORDER = (
     "source-wheel",
     "rebuilt-sdist-wheel",

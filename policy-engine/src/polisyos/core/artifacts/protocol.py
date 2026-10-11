@@ -12,6 +12,7 @@ excluded — they belong to separate, optional protocols if needed.
 
 from __future__ import annotations
 
+import inspect
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
@@ -29,6 +30,30 @@ if TYPE_CHECKING:
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_NAME = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_VERSION = "1.0.0"
+
+
+def _validate_return_selected_profile(value: bool) -> bool:
+    """Reject truthy non-bools before a write can begin."""
+    if type(value) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
+    return value
+
+
+def _require_return_selected_profile_writer(store: object, method_name: str) -> None:
+    """Refuse unsupported writer capabilities before any producer-side mutation."""
+    method = getattr(store, method_name, None)
+    if not callable(method):
+        raise NotImplementedError("artifact_store_return_selected_profile_unsupported")
+    try:
+        signature = inspect.signature(method)
+    except (TypeError, ValueError) as exc:
+        raise NotImplementedError("artifact_store_return_selected_profile_unsupported") from exc
+    parameter = signature.parameters.get("return_selected_profile")
+    if parameter is None or parameter.kind not in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.KEYWORD_ONLY,
+    ):
+        raise NotImplementedError("artifact_store_return_selected_profile_unsupported")
 
 
 @runtime_checkable
@@ -64,8 +89,10 @@ class ArtifactStore(Protocol):
         self,
         data: bytes,
         opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:  # pragma: no cover - protocol
-        """Persist raw bytes and return the resulting content-addressed artifact reference."""
+        """Persist bytes, optionally returning the exact profile selected by this write."""
         ...
 
     def put_json(
@@ -73,8 +100,10 @@ class ArtifactStore(Protocol):
         obj: object,
         opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:  # pragma: no cover - protocol
-        """Canonicalize and persist a JSON payload as one artifact reference."""
+        """Persist JSON, optionally returning the exact profile selected by this write."""
         ...
 
     # -- integrity -----------------------------------------------------
@@ -270,6 +299,8 @@ class AsyncArtifactStore(Protocol):
         self,
         data: bytes,
         opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:  # pragma: no cover - protocol
         ...
 
@@ -278,6 +309,8 @@ class AsyncArtifactStore(Protocol):
         obj: object,
         opts: ArtifactWriteOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:  # pragma: no cover - protocol
         ...
 

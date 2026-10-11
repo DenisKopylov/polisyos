@@ -205,14 +205,14 @@ from polisyos.scientist.orchestration.llm.provider_verification import run_provi
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 from .._control_contracts import (
-    _DATA_SOURCE_KEYS,
     _OPTIONAL_INPUT_KEYS,
+    _WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY,
     _build_api_meta,
     _coerce_optional_execution_profile,
     _coerce_retrieval_mode,
     _dedupe_models,
     _is_multimodel_enabled,
-    _resolve_data_source,
+    _resolve_workflow_data_source,
 )
 from ..control_plane_store import (
     AcquisitionActionHeadRecord,
@@ -2983,8 +2983,10 @@ class ControlPlaneService(
         inputs: dict[str, Any] = {}
 
         # Data source (required)
-        ds_key, ds_value = _resolve_data_source(request.data_source)
-        inputs[ds_key] = _make_artifact_ref(ds_value, kind=_DATA_SOURCE_KEYS[ds_key])
+        ds_key, ds_ref, data_view_request_intent = _resolve_workflow_data_source(
+            request.data_source
+        )
+        inputs[ds_key] = ds_ref
 
         # Optional refs
         for field_name, kind in _OPTIONAL_INPUT_KEYS.items():
@@ -3009,6 +3011,10 @@ class ControlPlaneService(
             "state_payload": state_payload,
             "checkpoint_policy": request.checkpoint_policy,
         }
+        if data_view_request_intent is not None:
+            payload[_WORKFLOW_DATA_VIEW_REQUEST_INTENT_KEY] = data_view_request_intent.model_dump(
+                mode="json"
+            )
         self._enqueue_job(
             job_id=job_id,
             job_kind="workflow_run",

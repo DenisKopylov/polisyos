@@ -126,16 +126,12 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
         status="generation_unavailable",
         design_problem_ref=n4.gy_content_hash(problem.model_dump(mode="json")),
         model_id="synthetic-c2",
-        preflight=n4.ModelProfilePreflight(
-            status="gateway_unavailable", model_id="synthetic-c2"
-        ),
+        preflight=n4.ModelProfilePreflight(status="gateway_unavailable", model_id="synthetic-c2"),
         diversity_report=n4.GenerationDiversityReport(
             min_required=1, candidate_count=0, unique_diversity_key_count=0
         ),
     )
-    context = _cycle_context(
-        design_problem_ref=gy_content_hash(problem.model_dump(mode="json"))
-    )
+    context = _cycle_context(design_problem_ref=gy_content_hash(problem.model_dump(mode="json")))
     organ = replace(result.as_organ_run(), cycle_substrate_context=context)
     repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "cas"))
     ref = repository.persist_ref(
@@ -177,9 +173,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     class WireEquivalentContext(CycleSubstrateContext):
         pass
 
-    same_wire_other_context = WireEquivalentContext.model_validate(
-        context.model_dump(mode="json")
-    )
+    same_wire_other_context = WireEquivalentContext.model_validate(context.model_dump(mode="json"))
     assert same_wire_other_context != context
     _require_unavailable_candidate_credal_source(
         fresh, problem=same_wire_other_problem_type, context=same_wire_other_context
@@ -188,9 +182,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     altered_result_payload = same_wire_other_result_type.model_dump(mode="python")
     altered_result_payload["design_problem_ref"] = "sha256:" + "f" * 64
     altered_result = WireEquivalentResult.model_validate(altered_result_payload)
-    assert _canonical_model_content_hash(altered_result) != (
-        _canonical_model_content_hash(result)
-    )
+    assert _canonical_model_content_hash(altered_result) != (_canonical_model_content_hash(result))
 
     problem_payload = problem.model_dump(mode="python")
     problem_payload["nl_provenance"]["source_context"] = {
@@ -214,9 +206,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
             fresh, problem=captured_problem, context=context
         )
 
-    context = _cycle_context(
-        design_problem_ref=gy_content_hash(problem.model_dump(mode="json"))
-    )
+    context = _cycle_context(design_problem_ref=gy_content_hash(problem.model_dump(mode="json")))
     context_payload = context.model_dump(mode="python", exclude={"content_hash"})
     context_payload["source_pack_content_hash"] = "sha256:" + "e" * 64
     context_payload["content_hash"] = cycle_substrate_context_content_hash(context_payload)
@@ -1300,10 +1290,9 @@ def test_candidate_owner_profile_preserves_warning_view_semantics(tmp_path):
 
 def test_tracked_owner_epochs_remain_exactly_readable():
     """Walk complete tracked owner records; historical nested CG2 gets no new defaults."""
+    import copy
     import json
     from pathlib import Path
-
-    from pydantic import ValidationError
 
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRun
     from polisyos.runtime.quality.promotion_sequence import (
@@ -1372,8 +1361,21 @@ def test_tracked_owner_epochs_remain_exactly_readable():
         schema_version = payload["schema_version"]
         if schema_version in historical_schemas:
             historical = parse_canonical_promotion_history_receipt(payload)
-            observed = historical.model_dump(mode="json")
+            observed = historical.historical_projection()
             assert observed == payload
+            value_outer_set = payload["owner_projection"]["value_receipt"]["value_outer_set"]
+            typed_outer_set = historical.owner_projection.value_receipt.value_outer_set
+            for field_name in ("statistical_lower", "statistical_upper"):
+                if field_name not in value_outer_set:
+                    assert field_name not in typed_outer_set.model_fields_set
+                    assert (
+                        field_name
+                        not in observed["owner_projection"]["value_receipt"]["value_outer_set"]
+                    )
+            corrupted = copy.deepcopy(payload)
+            corrupted["owner_projection"]["operation_invocation_id"] += ".tampered"
+            with pytest.raises(ValidationError, match="n9_owner_projection_hash_mismatch"):
+                parse_canonical_promotion_history_receipt(corrupted)
             with pytest.raises(ValidationError):
                 CanonicalPromotionReceipt.model_validate(payload)
             assert validate_canonical_promotion_receipt(payload) == (
@@ -1404,6 +1406,7 @@ async def test_default_controller_custody_and_missing_protected_admission(
     monkeypatch,
 ):
     """The real default N4/N6 handoff survives before the real protected N9 refusal."""
+    from collections import Counter
     from pathlib import Path
 
     from polisyos.core import artifacts
@@ -1465,11 +1468,20 @@ async def test_default_controller_custody_and_missing_protected_admission(
         repository = controller._source_repository
         assert repository is not None
         assert repository.store is store
-        summary = next(
-            row
-            for row in run.candidate_summaries
-            if row.candidate_id == organ.result.candidates[0].candidate_id
+        retained_organ = actual_emissions[0]
+        emitted_candidates = tuple(retained_organ.result.candidates)
+        assert emitted_candidates
+        summary_by_candidate_id = {row.candidate_id: row for row in run.candidate_summaries}
+        emitted_candidate_ids = {candidate.candidate_id for candidate in emitted_candidates}
+        assert emitted_candidate_ids <= summary_by_candidate_id.keys()
+        assert all(
+            summary_by_candidate_id[candidate.candidate_id].generation_channel == "n4_owner"
+            and summary_by_candidate_id[candidate.candidate_id].content_hash
+            == candidate.atom.content_hash
+            for candidate in emitted_candidates
         )
+        emitted_candidate = emitted_candidates[0]
+        summary = summary_by_candidate_id[emitted_candidate.candidate_id]
         resolved = repository.resolve(
             refs=run.source_handoff_refs,
             run_id=run.run_id,
@@ -1478,26 +1490,86 @@ async def test_default_controller_custody_and_missing_protected_admission(
         )
         assert resolved.status == "resolved", resolved.code
         assert resolved.source_ref in run.source_handoff_refs
+        initial_context = controller._promotion_source_context(summary, problem)
+        assert (
+            initial_context["world_model_record"]
+            == organ.cycle_substrate_context.world_model_record
+        )
+        assert (
+            initial_context["effect_obligation_writer_input"].intervention_atom
+            == emitted_candidate.atom
+        )
+        stale_fixture_summary = _source_summary(organ)
+        assert (stale_fixture_summary.candidate_id, stale_fixture_summary.content_hash) != (
+            summary.candidate_id,
+            summary.content_hash,
+        )
+        stale_fixture_resolution = repository.resolve(
+            refs=run.source_handoff_refs,
+            run_id=run.run_id,
+            summary=stale_fixture_summary,
+            problem=problem,
+        )
+        assert stale_fixture_resolution.status == "not_established"
+        assert stale_fixture_resolution.code == "source_missing"
         before = controller._grounding_run_budget
         controller._restore_source_run(run)
         assert controller._grounding_run_budget is before
         assert tuple(controller._source_handoff_refs) == run.source_handoff_refs
         # Repeating the actual default N4 handoff is permitted without changing the problem.
-        await controller._generate_node({"problem": problem, "cycle_index": 1})
+        repeated_state = await controller._generate_node({"problem": problem, "cycle_index": 1})
         assert supplied_budgets[-1] is before
+        repeated_organ = actual_emissions[-1]
+        repeated_candidates = tuple(repeated_organ.result.candidates)
+        assert repeated_candidates
+        assert repeated_state["generation_result"] is repeated_organ.result
+        repeated_grounded_state = controller._ground_node(repeated_state)
+        repeated_summaries = tuple(repeated_grounded_state["candidate_summaries"])
+        assert repeated_state["cycle_index"] == 1
+        assert repeated_state["generation_channel"] == "n4_owner"
+        repeated_candidates_by_id = {
+            candidate.candidate_id: candidate for candidate in repeated_candidates
+        }
+        assert len(repeated_candidates_by_id) == len(repeated_candidates)
+        emitted_occurrences = Counter(
+            (
+                candidate.candidate_id,
+                candidate.atom.content_hash,
+                repeated_state["cycle_index"],
+                repeated_state["generation_channel"],
+            )
+            for candidate in repeated_candidates
+        )
+        summary_occurrences = Counter(
+            (
+                owner_summary.candidate_id,
+                owner_summary.content_hash,
+                owner_summary.cycle_index,
+                owner_summary.generation_channel,
+            )
+            for owner_summary in repeated_summaries
+        )
+        assert summary_occurrences == emitted_occurrences
         receipt = controller._source_preservation_receipt()
         assert receipt.status == "strangled", receipt.issues
-        retained_organ = actual_emissions[0]
-        actual_context = controller._promotion_source_context(
-            _source_summary(retained_organ), problem
+        for owner_summary in repeated_summaries:
+            candidate = repeated_candidates_by_id[owner_summary.candidate_id]
+            actual_context = controller._promotion_source_context(owner_summary, problem)
+            assert (
+                actual_context["world_model_record"]
+                == repeated_organ.cycle_substrate_context.world_model_record
+            )
+            assert (
+                actual_context["effect_obligation_writer_input"].intervention_atom == candidate.atom
+            )
+        prior_epoch = repository.resolve(
+            refs=tuple(controller._source_handoff_selected_refs),
+            run_id=run.run_id,
+            summary=summary,
+            problem=problem,
         )
-        assert (
-            actual_context["world_model_record"] == organ.cycle_substrate_context.world_model_record
-        )
-        assert (
-            actual_context["effect_obligation_writer_input"].intervention_atom
-            == retained_organ.result.candidates[0].atom
-        )
+        assert prior_epoch.status == "not_established"
+        assert prior_epoch.code == "source_occurrence_missing"
 
     with tenant_scope(None, tenant_id="tenant-source-b", cell_id="cell-source-b"):
         refused = repository.resolve(

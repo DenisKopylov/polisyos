@@ -11934,7 +11934,7 @@
       },
       "DataSourceBinding": {
         "additionalProperties": false,
-        "description": "Exactly one of these fields must be provided.",
+        "description": "Legacy string-only source binding retained for natural-language runs.",
         "properties": {
           "data_snapshot_ref": {
             "anyOf": [
@@ -11971,6 +11971,42 @@
           }
         },
         "title": "DataSourceBinding",
+        "type": "object"
+      },
+      "DataViewRequestRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the original Fabric data-view request payload.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/ArtifactID-Input"
+          },
+          "kind": {
+            "default": "ir.data_view_request",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "DataViewRequestRef",
         "type": "object"
       },
       "DatasetFetchSpecRequest": {
@@ -32449,6 +32485,18 @@
               }
             ]
           },
+          "data_view_request_profile_status": {
+            "default": "not_established",
+            "description": "Profile-selection provenance only; does not establish source authority or currentness.",
+            "enum": [
+              "caller_selected_profile",
+              "worker_default_limited",
+              "not_requested",
+              "not_established"
+            ],
+            "title": "Data View Request Profile Status",
+            "type": "string"
+          },
           "data_view_request_ref": {
             "anyOf": [
               {
@@ -39306,6 +39354,50 @@
         "title": "WelfareBundleRef",
         "type": "object"
       },
+      "WorkflowDataSourceBinding": {
+        "additionalProperties": false,
+        "description": "Select one workflow source while preserving typed profile intent.",
+        "properties": {
+          "data_snapshot_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Snapshot Ref"
+          },
+          "data_view_request_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataViewRequestRef"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data View Request Ref"
+          },
+          "input_bindings_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Bindings Ref"
+          }
+        },
+        "title": "WorkflowDataSourceBinding",
+        "type": "object"
+      },
       "WorkflowRunRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs — launch a workflow run.",
@@ -39332,7 +39424,7 @@
             "type": "string"
           },
           "data_source": {
-            "$ref": "#/components/schemas/DataSourceBinding"
+            "$ref": "#/components/schemas/WorkflowDataSourceBinding"
           },
           "execution_profile": {
             "anyOf": [
@@ -61165,18 +61257,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b",
+                      "projection_hash": "sha256:b8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ab8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:6f44366cb31ee1b0b607a8fb86313c4fde9f4c0c4194eaf6d8edb1d961c8a60b",
+                        "projection_hash": "sha256:b8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043"
+                        "source_dependency_hash": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -61185,7 +61277,7 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
+                          "bound_dependency_aggregate_identity": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
                           "bound_dependency_count": 1461,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
@@ -61201,16 +61293,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061"
+                          "worker_validation_receipt_hash": "sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:8da15f5ec46ba9f05896eaef73cad953d33612d115ced478e8d651b6d5b83043",
+                      "source_dependency_hash": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:cc301bcf222f7cae80c2c123e63ac31af999890fc4e9c9b5653c16a34101b061"
+                      "worker_validation_receipt_hash": "sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf"
                     }
                   }
                 },

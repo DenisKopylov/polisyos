@@ -1303,18 +1303,12 @@ def persist_measurement_root_data_snapshot(
                 version="0.2.0",
             ),
             inputs=[
-                artifacts.input_ref_from_artifact_ref(
-                    payload_ref, role="fetched_payload"
-                ),
+                artifacts.input_ref_from_artifact_ref(payload_ref, role="fetched_payload"),
                 artifacts.input_ref_from_artifact_ref(
                     evidence.measurement_root_ref, role="measurement_root"
                 ),
-                artifacts.input_ref_from_artifact_ref(
-                    fetch_receipt_ref, role="fabric_fetch"
-                ),
-                artifacts.input_ref_from_artifact_ref(
-                    catalog_binding_ref, role="catalog_binding"
-                ),
+                artifacts.input_ref_from_artifact_ref(fetch_receipt_ref, role="fabric_fetch"),
+                artifacts.input_ref_from_artifact_ref(catalog_binding_ref, role="catalog_binding"),
             ],
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),
@@ -1880,6 +1874,9 @@ def source_requirement_for_catalog_binding(
         connector_type=connector_type,
         source_registry_payload=source_registry_payload,
     )
+    freshness = facet_values["freshness"]
+    if not isinstance(freshness, str) or not freshness or freshness != freshness.strip():
+        raise FabricMeasurementRootBindingError("measurement_root_source_freshness_not_established")
     source_contract_requirement = {
         "requirement_id": f"req-{_gy_slug(manifest.fixture_id)}",
         "claim_id": f"claim-{_gy_slug(manifest.fixture_id)}",
@@ -1905,7 +1902,7 @@ def source_requirement_for_catalog_binding(
             time=manifest.time_horizon,
             time_role="observation_time",
         ),
-        recency_horizon=str(facet_values["freshness"]),
+        recency_horizon=freshness,
         lineage_strictness="strict",
         quality_minima=DataQualityMinimums(
             min_quality_score=0.7,
@@ -1993,6 +1990,18 @@ def _source_contract_facet_values(
         selected_payload.get("quality") if isinstance(selected_payload.get("quality"), dict) else {}
     )
     source_registry_ref = source_registry_payload.get("source_id")
+    selected_update_frequency = selected_payload.get("update_frequency", "")
+    if selected_update_frequency is None or not isinstance(selected_update_frequency, str):
+        raise FabricMeasurementRootBindingError("measurement_root_source_freshness_not_established")
+    if selected_update_frequency:
+        freshness = selected_update_frequency
+    else:
+        registry_update_frequency = source_registry_payload.get("update_frequency", "")
+        if registry_update_frequency is None or not isinstance(registry_update_frequency, str):
+            raise FabricMeasurementRootBindingError(
+                "measurement_root_source_freshness_not_established"
+            )
+        freshness = registry_update_frequency
     validation_status = (
         "source_registry_verified"
         if selected_payload.get("id")
@@ -2012,8 +2021,7 @@ def _source_contract_facet_values(
             "population": manifest.population,
             "catalog_coverage": coverage,
         },
-        "freshness": selected_payload.get("update_frequency")
-        or source_registry_payload.get("update_frequency"),
+        "freshness": freshness,
         "granularity": coverage.get("granularity"),
         "jurisdiction": manifest.jurisdiction,
         "license": access.get("license") or selected_payload.get("license"),

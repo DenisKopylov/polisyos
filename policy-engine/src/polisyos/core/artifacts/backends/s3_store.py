@@ -30,6 +30,7 @@ from ..manifest import (
 from ..manifest import (
     CanonInfo as CanonInfo,
 )
+from ..protocol import _validate_return_selected_profile
 from ..store import PutOptions
 from ._cache_namespace import cache_namespace
 
@@ -313,7 +314,14 @@ class S3ArtifactStore:
             response = self._s3().get_object(Bucket=self._bucket, Key=key)
             return cast("bytes", response["Body"].read())
 
-    def put_bytes(self, data: bytes, opts: PutOptions) -> ArtifactRef:
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
         sha = content_hash(data)
         aid = ArtifactID.from_sha256_hex(sha)
         persisted_blob = self._put_immutable_once(
@@ -373,7 +381,9 @@ class S3ArtifactStore:
             kind=opts.kind,
             media_type=opts.media_type,
             manifest_profile_sha256=(
-                profile_sha256 if profile_sha256 != default_profile_sha256 else None
+                profile_sha256
+                if return_selected_profile or profile_sha256 != default_profile_sha256
+                else None
             ),
         )
 
@@ -382,7 +392,10 @@ class S3ArtifactStore:
         obj: Any,
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
+        _validate_return_selected_profile(return_selected_profile)
         canon_spec = canon_spec or CanonSpec()
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
@@ -400,6 +413,8 @@ class S3ArtifactStore:
             authority=getattr(opts, "authority", None),
             warnings=getattr(opts, "warnings", None),
         )
+        if return_selected_profile:
+            return self.put_bytes(data, opts2, return_selected_profile=True)
         return self.put_bytes(data, opts2)
 
     def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:

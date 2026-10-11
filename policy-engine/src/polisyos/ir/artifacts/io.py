@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
@@ -43,8 +44,15 @@ def put_json_artifact(
     schema_version: str,
     inputs: Sequence[Any] | None = None,
     canon_spec: CanonSpec | None = None,
+    return_selected_profile: bool = False,
 ) -> dict[str, str]:
-    """Persist JSON plus schema/canonical metadata and return a normalized artifact reference."""
+    """Persist JSON and optionally return the exact profile selected by this write.
+
+    Stores without this write-result capability refuse the request. This helper never
+    synthesizes a producer profile from a later default-manifest read.
+    """
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
     canon_spec = canon_spec or CanonSpec()
     options = PutOptions(
         kind=kind,
@@ -53,12 +61,34 @@ def put_json_artifact(
         inputs=normalize_input_refs(inputs),
         canon=CanonInfo.from_spec(canon_spec),
     )
-    ref = store.put_json(
-        payload,
-        opts=to_store_put_options(options),
-        canon_spec=canon_spec,
-    )
-    return normalize_artifact_ref(ref)
+    put_json = store.put_json
+    if return_selected_profile:
+        try:
+            signature = inspect.signature(put_json)
+        except (TypeError, ValueError) as exc:
+            raise NotImplementedError("artifact_store_return_selected_profile_unsupported") from exc
+        parameter = signature.parameters.get("return_selected_profile")
+        if parameter is None or parameter.kind not in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ):
+            raise NotImplementedError("artifact_store_return_selected_profile_unsupported")
+        ref = put_json(
+            payload,
+            opts=to_store_put_options(options),
+            canon_spec=canon_spec,
+            return_selected_profile=True,
+        )
+    else:
+        ref = put_json(
+            payload,
+            opts=to_store_put_options(options),
+            canon_spec=canon_spec,
+        )
+    normalized = normalize_artifact_ref(ref)
+    if return_selected_profile and not normalized.get("manifest_profile_sha256"):
+        raise ValueError("artifact_write_selected_profile_missing")
+    return normalized
 
 
 def _validated_ir_canon_info(value: Any) -> CanonInfo:

@@ -42,6 +42,30 @@ def test_async_artifact_store_round_trip(tmp_path) -> None:
     assert ref.artifact_id in artifact_ids
 
 
+def test_async_artifact_store_returns_the_exact_write_selected_profile(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    adapter = AsyncArtifactStoreAdapter(store, timeout_seconds=5.0)
+
+    async def _exercise():
+        json_ref = await adapter.put_json(
+            {"value": 1},
+            ArtifactWriteOptions(kind="test.async_profile.json", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        bytes_ref = await adapter.put_bytes(
+            b"async selected profile",
+            ArtifactWriteOptions(kind="test.async_profile.bytes", media_type="text/plain"),
+            return_selected_profile=True,
+        )
+        return json_ref, bytes_ref
+
+    json_ref, bytes_ref = run_coro_sync(_exercise())
+    assert json_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(json_ref).kind == "test.async_profile.json"
+    assert bytes_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(bytes_ref).kind == "test.async_profile.bytes"
+
+
 def test_async_artifact_store_times_out_on_slow_backend() -> None:
     class _SlowStore:
         def get_bytes(self, artifact_id):

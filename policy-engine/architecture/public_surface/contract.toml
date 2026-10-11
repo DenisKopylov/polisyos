@@ -174,7 +174,14 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/ir/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.ir", "polisyos.ir.analytics", "polisyos.ir.api"]
+supported_entrypoints = [
+  "polisyos.ir",
+  "polisyos.ir.analytics",
+  "polisyos.ir.analytics.calibration_diagnostics",
+  "polisyos.ir.api",
+  "polisyos.ir.governance",
+  "polisyos.ir.observation",
+]
 major_subsystem = true
 notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
 
@@ -232,6 +239,8 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.fabric",
   "polisyos.fabric.api",
+  "polisyos.fabric.connectors",
+  "polisyos.fabric.data_plane",
   "polisyos.fabric.world",
 ]
 major_subsystem = true

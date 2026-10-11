@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
 
@@ -22,6 +22,21 @@ if TYPE_CHECKING:
     from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 
 logger = logging.getLogger(__name__)
+
+_HISTORY_BINDING_FIELDS = (
+    "run_id",
+    "space_hash",
+    "objective_names",
+    "bounds",
+    "split",
+    "units",
+    "origin",
+    "tenant_id",
+    "objective_directions",
+)
+_HISTORY_INDEX_FIELDS = tuple(field for field in _HISTORY_BINDING_FIELDS if field != "run_id")
+_HISTORY_NULLABLE_FIELDS = ("split", "origin", "tenant_id")
+_HISTORY_DIRECTIONS = frozenset(direction.value for direction in OptimizationDirection)
 
 
 class RunFingerprint(BaseModel):
@@ -79,6 +94,10 @@ class TransferLearningManager:
 
         if not evaluations:
             return None
+        if not self._has_complete_binding_basis(fingerprint):
+            raise ValueError(
+                "transfer history requires an explicitly supplied complete run fingerprint"
+            )
 
         # Persist evaluations
         eval_dicts = [self._serialize_evaluation(e) for e in evaluations if e.is_valid]
@@ -139,7 +158,7 @@ class TransferLearningManager:
         Returns up to ``top_k`` fingerprints, sorted by similarity (most
         similar first).  Only returns runs with the same objective names.
         """
-        if not fingerprint.embedding:
+        if not fingerprint.embedding or not self._has_complete_binding_basis(fingerprint):
             return []
 
         results = self._index.query(fingerprint.embedding, top_k=top_k * 2)
@@ -152,44 +171,16 @@ class TransferLearningManager:
             if history_ref is None:
                 logger.warning("Skipping run %s without a valid history ArtifactRef", key)
                 continue
-            # Similarity is discovery only; numeric reuse requires full binding.
-            obj_names = meta.get("objective_names", [])
-            if set(obj_names) != set(fingerprint.objective_names):
+            # Similarity is discovery only; numeric reuse requires the complete
+            # typed index basis and a later payload-header reconciliation.
+            try:
+                source = self._fingerprint_from_index_metadata(key, meta, history_ref)
+            except (TypeError, ValueError) as exc:
+                logger.warning("Skipping run %s with invalid transfer metadata: %s", key, exc)
                 continue
-            if meta.get("space_hash") != fingerprint.space_hash:
+            if not self._binding_matches(fingerprint, source):
                 continue
-            if not self._binding_matches(
-                fingerprint,
-                RunFingerprint(
-                    run_id=key,
-                    space_hash=meta.get("space_hash", ""),
-                    objective_names=obj_names,
-                    bounds=meta.get("bounds", {}),
-                    split=meta.get("split"),
-                    units=meta.get("units", {}),
-                    origin=meta.get("origin"),
-                    tenant_id=meta.get("tenant_id"),
-                    objective_directions=meta.get("objective_directions", {}),
-                    best_score=meta.get("best_score"),
-                    history_ref=history_ref,
-                ),
-            ):
-                continue
-            similar.append(
-                RunFingerprint(
-                    run_id=key,
-                    space_hash=meta.get("space_hash", ""),
-                    objective_names=obj_names,
-                    bounds=meta.get("bounds", {}),
-                    split=meta.get("split"),
-                    units=meta.get("units", {}),
-                    origin=meta.get("origin"),
-                    tenant_id=meta.get("tenant_id"),
-                    objective_directions=meta.get("objective_directions", {}),
-                    best_score=meta.get("best_score"),
-                    history_ref=history_ref,
-                )
-            )
+            similar.append(source)
             if len(similar) >= top_k:
                 break
 
@@ -208,6 +199,10 @@ class TransferLearningManager:
         ``max_evals`` total.
         """
         if max_evals <= 0 or not similar_runs:
+            return []
+        if target_fingerprint is not None and not self._has_complete_binding_basis(
+            target_fingerprint
+        ):
             return []
 
         prepared: list[list[Evaluation]] = []
@@ -271,12 +266,15 @@ class TransferLearningManager:
             "metadata": dict(evaluation.metadata),
         }
 
-    @staticmethod
-    def _binding_matches(target: RunFingerprint, source: RunFingerprint) -> bool:
-        """Return whether source observations are numerically reusable for target."""
+    @classmethod
+    def _binding_matches(cls, target: RunFingerprint, source: RunFingerprint) -> bool:
+        """Return whether both complete, typed run bases identify reusable observations."""
+        if not cls._has_complete_binding_basis(target) or not cls._has_complete_binding_basis(
+            source
+        ):
+            return False
         return (
-            bool(target.space_hash)
-            and target.space_hash == source.space_hash
+            target.space_hash == source.space_hash
             and set(target.objective_names) == set(source.objective_names)
             and target.bounds == source.bounds
             and target.split == source.split
@@ -285,6 +283,88 @@ class TransferLearningManager:
             and target.tenant_id == source.tenant_id
             and target.objective_directions == source.objective_directions
         )
+
+    @classmethod
+    def _has_complete_binding_basis(cls, run_fingerprint: RunFingerprint) -> bool:
+        """Require every identity field to have been supplied and retain its declared type."""
+        if not set(_HISTORY_BINDING_FIELDS).issubset(run_fingerprint.model_fields_set):
+            return False
+        try:
+            cls._fingerprint_from_identity_fields(cls._identity_payload(run_fingerprint))
+        except (TypeError, ValueError):
+            return False
+        return True
+
+    @staticmethod
+    def _identity_payload(run_fingerprint: RunFingerprint) -> dict[str, Any]:
+        """Project only the complete source/run identity carried by a history row."""
+        return {field: getattr(run_fingerprint, field) for field in _HISTORY_BINDING_FIELDS}
+
+    @staticmethod
+    def _fingerprint_from_identity_fields(fields: dict[str, Any]) -> RunFingerprint:
+        """Validate a complete run identity without coercing malformed JSON fields."""
+        missing = [field for field in _HISTORY_BINDING_FIELDS if field not in fields]
+        if missing:
+            raise ValueError(f"transfer history identity is missing {', '.join(missing)}")
+        for field in ("run_id", "space_hash"):
+            value = fields[field]
+            if not isinstance(value, str) or not value.strip():
+                raise TypeError(f"transfer history identity {field} must be a non-empty string")
+        names = fields["objective_names"]
+        if (
+            not isinstance(names, list)
+            or not names
+            or any(not isinstance(name, str) or not name.strip() for name in names)
+            or len(set(names)) != len(names)
+        ):
+            raise TypeError("transfer history identity objective_names must be unique strings")
+        for field in ("bounds", "units", "objective_directions"):
+            value = fields[field]
+            if not isinstance(value, dict) or any(not isinstance(key, str) for key in value):
+                raise TypeError(
+                    f"transfer history identity {field} must be an object with string keys"
+                )
+        for field in _HISTORY_NULLABLE_FIELDS:
+            value = fields[field]
+            if value is not None and not isinstance(value, str):
+                raise TypeError(f"transfer history identity {field} must be a string or null")
+        directions = fields["objective_directions"]
+        if any(value not in _HISTORY_DIRECTIONS for value in directions.values()):
+            raise ValueError(
+                "transfer history identity objective_directions contains an unknown value"
+            )
+        if not set(directions).issubset(names):
+            raise ValueError(
+                "transfer history identity objective_directions names an unknown objective"
+            )
+        return RunFingerprint(**{field: fields[field] for field in _HISTORY_BINDING_FIELDS})
+
+    @classmethod
+    def _fingerprint_from_index_metadata(
+        cls, run_id: str, metadata: dict[str, Any], history_ref: ArtifactRef
+    ) -> RunFingerprint:
+        """Build a source fingerprint only from complete, typed index metadata."""
+        if not isinstance(run_id, str) or not run_id.strip():
+            raise TypeError("transfer history index key must be a non-empty run id")
+        if not isinstance(metadata, dict):
+            raise TypeError("transfer history index metadata must be an object")
+        missing = [field for field in _HISTORY_INDEX_FIELDS if field not in metadata]
+        if missing:
+            raise ValueError(f"transfer history index metadata is missing {', '.join(missing)}")
+        fields = {"run_id": run_id, **{field: metadata[field] for field in _HISTORY_INDEX_FIELDS}}
+        indexed_fingerprint = cls._fingerprint_from_identity_fields(fields)
+        return indexed_fingerprint.model_copy(
+            update={"best_score": metadata.get("best_score"), "history_ref": history_ref}
+        )
+
+    @classmethod
+    def _history_cache_key(cls, history_ref: ArtifactRef, run_fingerprint: RunFingerprint) -> str:
+        """Key cached rows by both immutable address and their complete expected identity."""
+        identity_hash = fingerprint(
+            cls._identity_payload(run_fingerprint),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        return f"{history_ref.artifact_id}:{identity_hash}"
 
     @staticmethod
     def _history_ref_from_metadata(meta: dict[str, Any]) -> ArtifactRef | None:
@@ -401,37 +481,56 @@ class TransferLearningManager:
         if isinstance(source, RunFingerprint):
             run_id = source.run_id
             history_ref = source.history_ref
+            expected_fingerprint = source
         else:
             run_id = source
             history_ref = None
-
-        cache_key = str(history_ref.artifact_id) if history_ref is not None else run_id
+            expected_fingerprint = None
+        if history_ref is not None:
+            if expected_fingerprint is None or not self._has_complete_binding_basis(
+                expected_fingerprint
+            ):
+                raise ValueError("exact history ref requires a complete expected run fingerprint")
+            cache_key = self._history_cache_key(history_ref, expected_fingerprint)
+        else:
+            cache_key = run_id
         if cache_key in self._eval_cache:
             return list(self._eval_cache[cache_key])
-
         if history_ref is not None:
-            evals = self._read_history(history_ref)
+            evals = self._read_history(history_ref, expected_fingerprint)
             self._eval_cache[cache_key] = evals
             return list(evals)
 
-        # Legacy callers may only have a run_id.  Keep this compatibility path
-        # while ensuring newly discovered snapshots use the direct path above.
-        results = self._index.query(
-            [0.0] * self._index.dim,
-            top_k=1000,
-        )
+        # Legacy callers may only have a run id. Resolve an indexed ref and apply
+        # the same complete binding and content check as the direct path.
+        results = self._index.query([0.0] * self._index.dim, top_k=1000)
         for key, _, meta in results:
-            if key == run_id:
-                history_ref = self._history_ref_from_metadata(meta)
-                if history_ref is None:
-                    continue
-                evals = self._read_history(history_ref)
-                self._eval_cache[str(history_ref.artifact_id)] = evals
-                return list(evals)
+            if key != run_id:
+                continue
+            history_ref = self._history_ref_from_metadata(meta)
+            if history_ref is None:
+                continue
+            try:
+                indexed_fingerprint = self._fingerprint_from_index_metadata(key, meta, history_ref)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"Invalid indexed transfer history for {run_id}: {exc}") from exc
+            if expected_fingerprint is not None and not self._binding_matches(
+                expected_fingerprint, indexed_fingerprint
+            ):
+                continue
+            evals = self._read_history(history_ref, indexed_fingerprint)
+            self._eval_cache[self._history_cache_key(history_ref, indexed_fingerprint)] = evals
+            return list(evals)
         return []
 
-    def _read_history(self, ref: ArtifactRef) -> list[dict[str, Any]]:
-        """Read one validated JSON history payload from its exact CAS ref."""
+    def _read_history(
+        self, ref: ArtifactRef, expected_fingerprint: RunFingerprint
+    ) -> list[dict[str, Any]]:
+        """Read and identity-bind JSON history from its selected immutable CAS ref."""
+        if ref.kind != "search.transfer.history" or ref.media_type != "application/json":
+            raise ValueError("Transfer history ref has an unexpected kind or media type")
+        if not self._has_complete_binding_basis(expected_fingerprint):
+            raise ValueError("Transfer history read requires a complete expected run fingerprint")
         raw = self._store.get_bytes(ref)
         try:
             data = from_canonical_bytes(raw)
@@ -439,7 +538,36 @@ class TransferLearningManager:
             raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
         if not isinstance(data, dict):
             raise ValueError(f"Transfer history artifact {ref.artifact_id} is not an object")
+        fields: dict[str, Any] = {}
+        for field in _HISTORY_BINDING_FIELDS:
+            if field in data:
+                fields[field] = data[field]
+            elif field in _HISTORY_NULLABLE_FIELDS and getattr(expected_fingerprint, field) is None:
+                # CanonSpec excludes null values; only an explicitly null index
+                # field permits this known wire omission.
+                fields[field] = None
+            else:
+                raise ValueError(
+                    f"Transfer history artifact {ref.artifact_id} is missing identity field {field}"
+                )
+        try:
+            stored_fingerprint = self._fingerprint_from_identity_fields(fields)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Transfer history artifact {ref.artifact_id} has invalid identity: {exc}"
+            ) from exc
+        if stored_fingerprint.run_id != expected_fingerprint.run_id:
+            raise ValueError("Transfer history run_id does not match its selected index entry")
+        if not self._binding_matches(expected_fingerprint, stored_fingerprint):
+            mismatched = [
+                field
+                for field in _HISTORY_BINDING_FIELDS
+                if field != "run_id"
+                and getattr(stored_fingerprint, field) != getattr(expected_fingerprint, field)
+            ]
+            field = mismatched[0] if mismatched else "identity"
+            raise ValueError(f"Transfer history {field} does not match its selected index entry")
         evals = data.get("evaluations")
-        if not isinstance(evals, list):
-            raise ValueError(f"Transfer history artifact {ref.artifact_id} has no evaluations list")
+        if not isinstance(evals, list) or any(not isinstance(row, dict) for row in evals):
+            raise ValueError(f"Transfer history artifact {ref.artifact_id} has invalid evaluations")
         return list(evals)

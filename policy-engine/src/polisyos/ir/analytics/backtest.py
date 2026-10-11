@@ -230,6 +230,7 @@ def persist_backtest_report(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return BacktestReportRef.model_validate(ref)
 

@@ -34,6 +34,7 @@ from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.artifacts import (
     ArtifactID,
     ArtifactStore,
+    InputRef,
     get_json_artifact,
     put_json_artifact,
 )
@@ -62,9 +63,14 @@ REPORT_SCHEMA_VERSION = "1.0"
 EVIDENCE_KIND = "ir.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_NAME = "polisyos.calibration.empirical_calibration_evidence"
 LEGACY_EVIDENCE_SCHEMA_VERSION = "1.0"
-EVIDENCE_SCHEMA_VERSION = "1.1"
+PREVIOUS_EVIDENCE_SCHEMA_VERSION = "1.1"
+EVIDENCE_SCHEMA_VERSION = "1.2"
 _SUPPORTED_EVIDENCE_SCHEMA_VERSIONS = frozenset(
-    {LEGACY_EVIDENCE_SCHEMA_VERSION, EVIDENCE_SCHEMA_VERSION}
+    {
+        LEGACY_EVIDENCE_SCHEMA_VERSION,
+        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
+        EVIDENCE_SCHEMA_VERSION,
+    }
 )
 
 ReferenceRole = Literal[
@@ -199,6 +205,11 @@ class EvidenceArtifactRef(BaseModel):
     schema_version: str = Field(min_length=1, max_length=120)
     identity_path: str = Field(min_length=1, max_length=300)
     identity_value: str = Field(min_length=1, max_length=500)
+    manifest_profile_sha256: str | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     @field_validator(
         "kind",
@@ -327,7 +338,7 @@ class EmpiricalCalibrationEvidence(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1"] = EVIDENCE_SCHEMA_VERSION
+    schema_version: Literal["1.0", "1.1", "1.2"] = EVIDENCE_SCHEMA_VERSION
     report_id: str = Field(min_length=1)
     report_ref: BacktestReportRef
 
@@ -393,6 +404,20 @@ def produce_empirical_calibration_evidence(
 ) -> EmpiricalCalibrationEvidence:
     """Read a verified report and produce neutral, reconciled evidence."""
 
+    return _produce_empirical_calibration_evidence(
+        store, report_ref, context=context, require_selected_profiles=True
+    )
+
+
+def _produce_empirical_calibration_evidence(
+    store: ArtifactStore,
+    report_ref: BacktestReportRef,
+    *,
+    context: EmpiricalCalibrationContext | None,
+    require_selected_profiles: bool,
+) -> EmpiricalCalibrationEvidence:
+    """Recompute evidence under the stored schema's input-lineage semantics."""
+
     validated_report_ref, report = _load_verified_report(store, report_ref)
     (
         recomputed_numerator,
@@ -405,6 +430,12 @@ def produce_empirical_calibration_evidence(
     ) = _recompute_and_reconcile(report)
 
     issues = list(observation_issues)
+    report_profile_issues = (
+        ("report_profile_not_established",)
+        if require_selected_profiles and validated_report_ref.manifest_profile_sha256 is None
+        else ()
+    )
+    issues.extend(report_profile_issues)
     nominal_confidence_level, nominal_confidence_issues = _nominal_confidence_level(report)
     issues.extend(nominal_confidence_issues)
     binding_issues: tuple[str, ...] = ()
@@ -419,10 +450,12 @@ def produce_empirical_calibration_evidence(
             validated_report_ref,
             report,
             context,
+            require_selected_profiles=require_selected_profiles,
         )
         binding_issues = _dedupe(
             (
                 *binding_issues,
+                *report_profile_issues,
                 *_scope_binding_issues(
                     provenance_payloads.get("scope_binding", ()),
                     report,
@@ -509,16 +542,26 @@ def persist_empirical_calibration_evidence(
         raise ValueError("legacy empirical calibration evidence must not be repersisted")
     expected = _reproduce_evidence(store, evidence)
     if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
-        raise ValueError("new empirical calibration evidence must use schema 1.1")
+        raise ValueError("new empirical calibration evidence must use schema 1.2")
     if not expected.context_bound or any(
         code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
     ):
         raise ValueError("blocked empirical calibration evidence cannot be persisted")
-    inputs: list[dict[str, object]] = [
-        {"artifact_id": str(expected.report_ref.artifact_id), "role": "backtest_report"}
+    inputs: list[InputRef] = [
+        InputRef(
+            artifact_id=expected.report_ref.artifact_id,
+            role="backtest_report",
+            manifest_profile_sha256=expected.report_ref.manifest_profile_sha256,
+        )
     ]
     for role, ref in _context_refs(expected):
-        inputs.append({"artifact_id": str(ref.artifact_id), "role": role})
+        inputs.append(
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+        )
 
     payload = put_json_artifact(
         _ensure_ir_artifact_store(store),
@@ -591,32 +634,52 @@ def _validate_evidence_input_edges(
     """Require the persisted evidence manifest's complete input edge set."""
 
     expected = [
-        (str(evidence.report_ref.artifact_id), "backtest_report"),
-        *((str(ref.artifact_id), role) for role, ref in _context_refs(evidence)),
+        (
+            str(evidence.report_ref.artifact_id),
+            "backtest_report",
+            evidence.report_ref.manifest_profile_sha256,
+        ),
+        *(
+            (str(ref.artifact_id), role, ref.manifest_profile_sha256)
+            for role, ref in _context_refs(evidence)
+        ),
     ]
     actual = _manifest_input_edges(store, evidence_ref)
-    if sorted(actual) != sorted(expected):
-        raise ValueError("empirical evidence manifest input edge/role binding mismatch")
+    if evidence.schema_version in {
+        LEGACY_EVIDENCE_SCHEMA_VERSION,
+        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
+    }:
+        actual_pairs = [(artifact_id, role) for artifact_id, role, _profile in actual]
+        expected_pairs = [(artifact_id, role) for artifact_id, role, _profile in expected]
+        matches = sorted(actual_pairs) == sorted(expected_pairs)
+    else:
+        matches = sorted(actual, key=lambda edge: (edge[0], edge[1], edge[2] or "")) == sorted(
+            expected, key=lambda edge: (edge[0], edge[1], edge[2] or "")
+        )
+    if not matches:
+        raise ValueError("empirical evidence manifest input edge/profile binding mismatch")
 
 
 def _manifest_input_edges(
     store: ArtifactStore,
     selector: ArtifactRefModel | ArtifactID,
-) -> tuple[tuple[str, str], ...]:
-    """Decode an artifact manifest's input edges without trusting its shape."""
+) -> tuple[tuple[str, str, str | None], ...]:
+    """Decode complete typed input edges, including their selected profiles."""
 
     manifest = _as_mapping(_ensure_ir_artifact_store(store).get_manifest(selector))
     raw_inputs = _field(manifest, "inputs")
     if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         raise ValueError("artifact manifest inputs are missing or malformed")
-    edges: list[tuple[str, str]] = []
+    edges: list[tuple[str, str, str | None]] = []
     for raw_input in raw_inputs:
         input_payload = _as_mapping(raw_input)
-        raw_artifact_id = _field(input_payload, "artifact_id")
-        raw_role = _field(input_payload, "role")
-        if raw_artifact_id is None or not isinstance(raw_role, str) or not raw_role.strip():
-            raise ValueError("artifact manifest input edge is malformed")
-        edges.append((str(raw_artifact_id), raw_role.strip()))
+        try:
+            item = InputRef.model_validate(input_payload)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("artifact manifest input edge is malformed") from exc
+        if not item.role or item.role != item.role.strip():
+            raise ValueError("artifact manifest input role is malformed")
+        edges.append((str(item.artifact_id), item.role, item.manifest_profile_sha256))
     return tuple(edges)
 
 
@@ -632,14 +695,19 @@ def _reproduce_evidence(
     """
 
     context = _context_from_evidence(store, evidence)
-    expected = produce_empirical_calibration_evidence(
+    expected = _produce_empirical_calibration_evidence(
         store,
         evidence.report_ref,
         context=context,
+        require_selected_profiles=evidence.schema_version == EVIDENCE_SCHEMA_VERSION,
     )
     expected_payload = expected.model_dump(mode="json")
+    if evidence.schema_version in {
+        LEGACY_EVIDENCE_SCHEMA_VERSION,
+        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
+    }:
+        expected_payload["schema_version"] = evidence.schema_version
     if evidence.schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION:
-        expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
         expected_payload["nominal_confidence_level"] = None
     if expected_payload != evidence.model_dump(mode="json"):
         raise ValueError("empirical evidence payload is not reproducible from its report")
@@ -810,16 +878,14 @@ def _validate_json_artifact(
 def _store_selector_for_ref(
     ref: ArtifactRefModel | EvidenceArtifactRef,
 ) -> ArtifactRefModel:
-    """Project the profileless legacy evidence wrapper at its explicit boundary."""
+    """Project evidence selectors without dropping their selected manifest profile."""
 
     if isinstance(ref, EvidenceArtifactRef):
-        # This wrapper has no manifest-profile field. Project only its explicit
-        # store-selector contract here; never teach the generic Core/IR adapter
-        # to discard the wrapper's identity fields.
         return ArtifactRefModel(
             artifact_id=ref.artifact_id,
             kind=ref.kind,
             media_type=ref.media_type,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
         )
     return ref
 
@@ -829,6 +895,8 @@ def _context_reference_issues(
     report_ref: BacktestReportRef,
     report: BacktestReport,
     context: EmpiricalCalibrationContext,
+    *,
+    require_selected_profiles: bool,
 ) -> tuple[tuple[str, ...], dict[str, tuple[object, ...]]]:
     """Resolve context refs against a role-bound report manifest.
 
@@ -843,22 +911,58 @@ def _context_reference_issues(
     input_edges = _report_input_edges(store, report_ref)
     relations = set(input_edges)
     relation_roles: dict[str, set[str]] = {}
-    for artifact_id, role in relations:
+    relation_profiles: dict[tuple[str, str], set[str | None]] = {}
+    for artifact_id, role, profile in relations:
         relation_roles.setdefault(artifact_id, set()).add(role)
+        relation_profiles.setdefault((artifact_id, role), set()).add(profile)
 
-    expected_context_edges = tuple(
-        (str(ref.artifact_id), role) for role, ref in _context_refs(context)
-    )
-    actual_context_edges = tuple(
-        (artifact_id, role) for artifact_id, role in input_edges if role in _REFERENCE_INPUT_ROLES
-    )
-    if sorted(actual_context_edges) != sorted(expected_context_edges):
+    if require_selected_profiles:
+        expected_context_edges = tuple(
+            (str(ref.artifact_id), role, ref.manifest_profile_sha256)
+            for role, ref in _context_refs(context)
+        )
+        actual_context_edges = tuple(
+            (artifact_id, role, profile)
+            for artifact_id, role, profile in input_edges
+            if role in _REFERENCE_INPUT_ROLES
+        )
+        context_edges_match = sorted(
+            actual_context_edges, key=lambda edge: (edge[0], edge[1], edge[2] or "")
+        ) == sorted(expected_context_edges, key=lambda edge: (edge[0], edge[1], edge[2] or ""))
+    else:
+        expected_context_edges = tuple(
+            (str(ref.artifact_id), role) for role, ref in _context_refs(context)
+        )
+        actual_context_edges = tuple(
+            (artifact_id, role)
+            for artifact_id, role, _profile in input_edges
+            if role in _REFERENCE_INPUT_ROLES
+        )
+        context_edges_match = sorted(actual_context_edges) == sorted(expected_context_edges)
+    if not context_edges_match:
         issues.append("report_context_input_edges_mismatch")
 
     for role, ref in _context_refs(context):
         artifact_id = str(ref.artifact_id)
-        if (artifact_id, role) not in relations:
-            if artifact_id in relation_roles:
+        if require_selected_profiles and ref.manifest_profile_sha256 is None:
+            issues.append("reference_report_profile_not_established")
+        edge = (artifact_id, role, ref.manifest_profile_sha256)
+        relation_matches = (
+            edge in relations
+            if require_selected_profiles
+            else any(
+                (candidate_id, candidate_role) == (artifact_id, role)
+                for candidate_id, candidate_role, _profile in relations
+            )
+        )
+        if not relation_matches:
+            if (artifact_id, role) in relation_profiles:
+                issues.append(
+                    "reference_report_profile_mismatch"
+                    if require_selected_profiles
+                    else "reference_report_role_mismatch"
+                )
+            elif artifact_id in relation_roles:
                 issues.append("reference_report_role_mismatch")
             else:
                 issues.append("reference_report_relation_not_established")
@@ -900,7 +1004,7 @@ def _context_reference_issues(
 def _report_input_edges(
     store: ArtifactStore,
     report_ref: BacktestReportRef,
-) -> tuple[tuple[str, str], ...]:
+) -> tuple[tuple[str, str, str | None], ...]:
     """Return the report's declared artifact input edges.
 
     Missing or malformed input edges intentionally produce an empty set.  The
@@ -915,20 +1019,23 @@ def _report_input_edges(
     raw_inputs = _field(manifest, "inputs")
     if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         return ()
-    relations: list[tuple[str, str]] = []
+    relations: list[tuple[str, str, str | None]] = []
     for raw_input in raw_inputs:
         input_payload = _as_mapping(raw_input)
-        artifact_id = _field(input_payload, "artifact_id")
-        role = _field(input_payload, "role")
-        if artifact_id is not None and isinstance(role, str) and role.strip():
-            relations.append((str(artifact_id), role.strip()))
+        try:
+            item = InputRef.model_validate(input_payload)
+        except (TypeError, ValueError):
+            return ()
+        if not item.role or item.role != item.role.strip():
+            return ()
+        relations.append((str(item.artifact_id), item.role, item.manifest_profile_sha256))
     return tuple(relations)
 
 
 def _report_input_relations(
     store: ArtifactStore,
     report_ref: BacktestReportRef,
-) -> set[tuple[str, str]]:
+) -> set[tuple[str, str, str | None]]:
     """Return report input edges as a set for relation membership checks."""
 
     return set(_report_input_edges(store, report_ref))

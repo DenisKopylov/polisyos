@@ -28,6 +28,7 @@ import {
 } from "@/features/evidence/domain/productionSlice";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
+  type DataViewRequestProfileStatus,
   type EvidenceArtifactRef,
   type EvidenceFocus,
   findRunEvidenceNeed,
@@ -52,6 +53,15 @@ import {
 } from "@/shared/ui";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import { useIsMobile } from "@/shared/ui/responsive";
+
+const DATA_VIEW_REQUEST_PROFILE_STATUS_LABELS = {
+  caller_selected_profile:
+    "pages.evidence.profileSelection.status.callerSelected",
+  worker_default_limited:
+    "pages.evidence.profileSelection.status.workerDefaultLimited",
+  not_requested: "pages.evidence.profileSelection.status.notRequested",
+  not_established: "pages.evidence.profileSelection.status.notEstablished",
+} as const satisfies Record<DataViewRequestProfileStatus, string>;
 
 const evidenceHeroProvenance: ProvenanceItem[] = [
   {
@@ -117,6 +127,8 @@ export default function EvidenceFabric() {
     () => normalizeRunEvidenceContext(runContextQuery.data?.context),
     [runContextQuery.data],
   );
+  const dataViewRequestProfileStatus =
+    runContext?.dataViewRequestProfileStatus ?? "not_established";
   const effectiveFocus =
     requestedFocus ?? resolveDefaultEvidenceFocus(runContext);
 
@@ -410,6 +422,29 @@ export default function EvidenceFabric() {
                     artifacts: formatNumber(contextArtifactRefs.length),
                   })}
                 </p>
+                {runContext ? (
+                  <div
+                    className="mt-3 space-y-1"
+                    data-testid="evidence-data-view-request-profile-status"
+                    data-profile-status={dataViewRequestProfileStatus}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-muted text-xs">
+                        {t("pages.evidence.profileSelection.title")}
+                      </span>
+                      <Badge kind="neutral">
+                        {t(
+                          DATA_VIEW_REQUEST_PROFILE_STATUS_LABELS[
+                            dataViewRequestProfileStatus
+                          ],
+                        )}
+                      </Badge>
+                    </div>
+                    <p className="text-muted text-xs">
+                      {t("pages.evidence.profileSelection.provenanceOnly")}
+                    </p>
+                  </div>
+                ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" onClick={clearRunContext} variant="ghost">

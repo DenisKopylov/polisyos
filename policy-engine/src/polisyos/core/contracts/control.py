@@ -21,6 +21,7 @@ from .decision_validity import (
     DecisionValidityTransition,
     EpochValidityBatchReceipt,
 )
+from .fabric import DataViewRequestRef
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta
 
@@ -166,13 +167,61 @@ def _default_supported_execution_profiles() -> list[ExecutionProfile]:
 
 
 class DataSourceBinding(BaseModel):
-    """Exactly one of these fields must be provided."""
+    """Legacy string-only source binding retained for natural-language runs."""
 
     model_config = ConfigDict(extra="forbid")
 
     data_snapshot_ref: str | None = None
     input_bindings_ref: str | None = None
     data_view_request_ref: str | None = None
+
+
+class WorkflowDataSourceBinding(DataSourceBinding):
+    """Select one workflow source while preserving typed profile intent."""
+
+    data_view_request_ref: DataViewRequestRef | str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _require_complete_typed_data_view_request_ref(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            raw_ref = value.get("data_view_request_ref")
+            if isinstance(raw_ref, dict) and not {
+                "artifact_id",
+                "kind",
+                "media_type",
+            }.issubset(raw_ref):
+                raise ValueError("workflow_data_view_request_ref_incomplete")
+        return value
+
+    @model_validator(mode="after")
+    def _select_one_workflow_data_source(self) -> Self:
+        if "data_view_request_ref" in self.model_fields_set and self.data_view_request_ref is None:
+            raise ValueError("workflow_data_view_request_selector_explicit_null")
+        selected = [
+            field_name
+            for field_name in (
+                "data_snapshot_ref",
+                "input_bindings_ref",
+                "data_view_request_ref",
+            )
+            if getattr(self, field_name) is not None
+        ]
+        if len(selected) > 1:
+            raise ValueError("workflow_data_source_must_select_exactly_one")
+        request_ref = self.data_view_request_ref
+        if isinstance(request_ref, DataViewRequestRef):
+            if (
+                request_ref.kind != "ir.data_view_request"
+                or request_ref.media_type != "application/json"
+            ):
+                raise ValueError("workflow_data_view_request_ref_kind_or_media_type_invalid")
+            if (
+                "manifest_profile_sha256" in request_ref.model_fields_set
+                and request_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("workflow_data_view_request_profile_explicit_null")
+        return self
 
 
 class PolicyFlags(BaseModel):
@@ -359,7 +408,7 @@ class WorkflowRunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mode: RunMode = "workflow"
-    data_source: DataSourceBinding
+    data_source: WorkflowDataSourceBinding
     trinity_bundle_ref: str | None = None
     policy_spec_ref: str | None = None
     model_spec_ref: str | None = None
@@ -1976,6 +2025,7 @@ __all__ = [
     "RunMode",
     "SourceProfileInfo",
     "SourceProfilesListResponse",
+    "WorkflowDataSourceBinding",
     "WorkflowRunRequest",
     "policy_authority_profile_mapping",
     "require_production_approval_currentness_receipt",

@@ -125,6 +125,11 @@ http GET :8000/api/v1/artifacts/$ARTIFACT_ID \
 
 ## `GET /api/v1/artifacts/{artifact_id}/content`
 
+The optional `predictive_coverage_diagnostic` field is a reader-materialized projection.
+It is emitted only when the existing `allow_candidate_predictive_diagnostic_surface`
+server setting is enabled; that setting defaults to false. It does not attest the
+report producer's input basis.
+
 Return a preview of artifact content.
 
 - Query parameters:
@@ -309,3 +314,9 @@ separate dashboard route check, while render and export use their existing
 route-level dashboard and publication checks. Raw content is admitted before its
 conditional-response handling, so an authority refusal is not converted into a
 `304` response.
+
+### Writer-selected manifest profiles
+
+`put_bytes()` and `put_json()` keep their historical ID/default-view result by default. A producer that must retain the exact manifest selected by its own write can pass the strict `return_selected_profile=True` keyword. The returned profile is computed inside the write operation and selects that immutable sidecar after later sibling writes. Stores that do not implement this result capability refuse; they do not synthesize the profile from a later default-manifest read.
+
+An opted-in store must accept `return_selected_profile` as an explicit keyword parameter. Positional-only and variadic catch-all signatures are refused before a write; a parameter name alone does not establish this capability.

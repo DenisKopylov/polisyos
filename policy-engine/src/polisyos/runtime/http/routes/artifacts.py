@@ -95,6 +95,7 @@ def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
         manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
     )
 
+
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
 
@@ -460,6 +461,9 @@ if router is not None:
                 parsed_id,
                 max_bytes=max_bytes,
                 manifest=manifest,
+                allow_candidate_predictive_diagnostic_surface=(
+                    ctx.allow_candidate_predictive_diagnostic_surface
+                ),
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
@@ -1211,9 +1215,7 @@ def _ensure_predictive_coverage_diagnostic_admission_allowed(
         missing_authority_disposition="downgrade",
         missing_boundary_disposition="downgrade",
     )
-    base_rows = [
-        row for row in decision.authority_contributors if row.basis == "base_surface"
-    ]
+    base_rows = [row for row in decision.authority_contributors if row.basis == "base_surface"]
     selected_rows = [
         row for row in decision.authority_contributors if row.basis == "selected_manifest"
     ]

@@ -202,6 +202,8 @@ class ArtifactStore(Protocol):
         obj: Any,
         opts: StorePutOptions | Mapping[str, Any],
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> Any: ...
 
     def get_bytes(self, artifact_id: ArtifactSelector) -> bytes: ...

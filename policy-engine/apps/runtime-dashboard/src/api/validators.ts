@@ -127,6 +127,25 @@ const temporalCapabilitiesViewSchema = z.object({
   event_points: z.array(temporalEventPointSchema).optional(),
 });
 
+type DataViewRequestProfileStatus =
+  components["schemas"]["RunEvidenceContextView"]["data_view_request_profile_status"];
+
+const dataViewRequestProfileStatusMembers = {
+  caller_selected_profile: true,
+  worker_default_limited: true,
+  not_requested: true,
+  not_established: true,
+} as const satisfies Record<DataViewRequestProfileStatus, true>;
+
+const dataViewRequestProfileStatusSchema = z
+  .string()
+  .refine(
+    (value): value is DataViewRequestProfileStatus =>
+      Object.hasOwn(dataViewRequestProfileStatusMembers, value),
+    "unknown generated data-view request profile status",
+  )
+  .default("not_established");
+
 const artifactRefSchema = z.object({
   artifact_id: z.string(),
   kind: z.string().optional(),
@@ -247,6 +266,26 @@ const runRecursiveCycleCheckpointSchema = z
   })
   .strict();
 
+const runGenericCycleSimulationCheckpointSchema =
+  runRecursiveCycleCheckpointSchema.superRefine((checkpoint, context) => {
+    const v1Shape =
+      checkpoint.schema_version ===
+        "policyos.runtime.recursive_cycle_checkpoint.v1" &&
+      typeof checkpoint.budget_stop_node_ref === "string" &&
+      checkpoint.failed_branches.length === 0;
+    const v2Shape =
+      checkpoint.schema_version ===
+        "policyos.runtime.recursive_cycle_checkpoint.v2" &&
+      checkpoint.budget_stop_node_ref == null &&
+      checkpoint.failed_branches.length > 0;
+    if (!v1Shape && !v2Shape) {
+      context.addIssue({
+        code: "custom",
+        message: "generic_cycle_checkpoint_version_shape_invalid",
+      });
+    }
+  });
+
 const runCandidateSimulationAcquisitionHistoryEntrySchema = z
   .object({
     route_receipt_ref: artifactRefSchema,
@@ -291,7 +330,7 @@ const runCandidateSimulationProjectionSchema = z
       .nullable()
       .optional(),
     n5_observations: z.array(runCandidateSimulationN5ObservationSchema),
-    recursive_cycle_checkpoint: runRecursiveCycleCheckpointSchema
+    recursive_cycle_checkpoint: runGenericCycleSimulationCheckpointSchema
       .nullable()
       .optional(),
     acquisition_history: z
@@ -309,6 +348,506 @@ const runCandidateSimulationProjectionSchema = z
       .optional(),
   })
   .strict();
+
+const runGenericCycleSimulationArtifactRefSchema = z
+  .object({
+    artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    kind: z.string(),
+    media_type: z.string(),
+    manifest_profile_sha256: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+  })
+  .strict();
+
+function compareUnicodeCodePoints(left: string, right: string): number {
+  const leftPoints = Array.from(
+    left,
+    (character) => character.codePointAt(0) ?? 0,
+  );
+  const rightPoints = Array.from(
+    right,
+    (character) => character.codePointAt(0) ?? 0,
+  );
+  const sharedLength = Math.min(leftPoints.length, rightPoints.length);
+  for (let index = 0; index < sharedLength; index += 1) {
+    const leftPoint = leftPoints[index]!;
+    const rightPoint = rightPoints[index]!;
+    if (leftPoint !== rightPoint) {
+      return leftPoint - rightPoint;
+    }
+  }
+  return leftPoints.length - rightPoints.length;
+}
+
+const runGenericCycleSimulationChildProfileBindingSchema = z
+  .object({
+    context_job_ref: runGenericCycleSimulationArtifactRefSchema,
+    currentness_status: z.literal("not_established"),
+    design_problem_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    historical_binding_status: z.enum(["resolved", "not_established"]),
+    limitation_code: z.string().min(1).nullable().optional(),
+    node_ref: z.string().min(1),
+    profile_id: z.string().min(1),
+    profile_ref: runGenericCycleSimulationArtifactRefSchema,
+    profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    semantic_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    source_atom_refs: z.array(z.string()).min(1),
+    source_ref: runGenericCycleSimulationArtifactRefSchema,
+    source_result_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  })
+  .strict()
+  .superRefine((binding, context) => {
+    const expectedNodeRef =
+      "design-problem://" + binding.design_problem_ref.slice("sha256:".length);
+    if (binding.node_ref !== expectedNodeRef) {
+      context.addIssue({
+        code: "custom",
+        path: ["node_ref"],
+        message: "generic_cycle_child_design_problem_node_mismatch",
+      });
+    }
+
+    const requiredRefs = [
+      ["source_ref", binding.source_ref, "runtime.generation_source_handoff"],
+      [
+        "context_job_ref",
+        binding.context_job_ref,
+        "runtime.quality.cycle_substrate_context_job",
+      ],
+      [
+        "profile_ref",
+        binding.profile_ref,
+        "runtime.quality.generic_cycle_simulation_profile",
+      ],
+    ] as const;
+    for (const [field, ref, kind] of requiredRefs) {
+      if (ref.kind !== kind || ref.media_type !== "application/json") {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "generic_cycle_child_profile_ref_kind_invalid",
+        });
+      }
+    }
+
+    const sourceAtoms = binding.source_atom_refs;
+    const atomsAreSorted = sourceAtoms.every(
+      (atom, index) =>
+        index === 0 ||
+        compareUnicodeCodePoints(sourceAtoms[index - 1] ?? "", atom) <= 0,
+    );
+    if (sourceAtoms.length !== new Set(sourceAtoms).size || !atomsAreSorted) {
+      context.addIssue({
+        code: "custom",
+        path: ["source_atom_refs"],
+        message: "generic_cycle_child_source_atoms_not_canonical",
+      });
+    }
+
+    if (
+      (binding.historical_binding_status === "resolved" &&
+        binding.limitation_code != null) ||
+      (binding.historical_binding_status === "not_established" &&
+        binding.limitation_code == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["limitation_code"],
+        message: "generic_cycle_child_binding_status_limitation_mismatch",
+      });
+    }
+  });
+
+const runGenericCycleSimulationN5ObservationSchema = z
+  .object({
+    atom_ids: z.array(z.string()),
+    authority_blockers: z.array(z.string()),
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    candidate_id: z.string().min(1),
+    child_profile_family_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    child_profile_set_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    context_job_ref: runGenericCycleSimulationArtifactRefSchema,
+    currentness_status: z.literal("not_established"),
+    cycle_index: z.number().int().nonnegative(),
+    design_problem_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    n4_source_ref: runGenericCycleSimulationArtifactRefSchema,
+    n5_execution_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    n5_input_ref: runGenericCycleSimulationArtifactRefSchema,
+    n5_request_binding_status: z.enum(["resolved", "not_established"]),
+    n5_request_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    n8_authority_blockers: z.array(z.string()),
+    n8_limitation_code: z.string().min(1).nullable().optional(),
+    n8_lineage_status: z.enum(["resolved", "not_established"]),
+    n8_status: z.enum([
+      "value_ready",
+      "value_conditional",
+      "value_blocked",
+      "value_pending_n8",
+    ]),
+    n8_value_ref: z.string().nullable().optional(),
+    node_ref: z.string().min(1),
+    profile_ref: runGenericCycleSimulationArtifactRefSchema,
+    profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    publication_authority: z.literal(false),
+    selected_outcomes: z.array(z.string()),
+    simulation_result_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    status: z.enum([
+      "joint_simulated",
+      "simulation_pending_n5",
+      "simulation_blocked",
+    ]),
+    world_model_record_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  })
+  .strict()
+  .superRefine((observation, context) => {
+    const expectedNodeRef =
+      "design-problem://" +
+      observation.design_problem_ref.slice("sha256:".length);
+    if (observation.node_ref !== expectedNodeRef) {
+      context.addIssue({
+        code: "custom",
+        path: ["node_ref"],
+        message: "generic_cycle_n5_design_problem_node_mismatch",
+      });
+    }
+
+    const requiredRefs = [
+      [
+        "n4_source_ref",
+        observation.n4_source_ref,
+        "runtime.generation_source_handoff",
+      ],
+      [
+        "context_job_ref",
+        observation.context_job_ref,
+        "runtime.quality.cycle_substrate_context_job",
+      ],
+      [
+        "profile_ref",
+        observation.profile_ref,
+        "runtime.quality.generic_cycle_simulation_profile",
+      ],
+      [
+        "n5_input_ref",
+        observation.n5_input_ref,
+        "runtime.quality.generic_cycle_simulation_n5_input",
+      ],
+    ] as const;
+    for (const [field, ref, kind] of requiredRefs) {
+      if (ref.kind !== kind || ref.media_type !== "application/json") {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "generic_cycle_n5_required_ref_kind_invalid",
+        });
+      }
+    }
+    const optionalRefs = [
+      [
+        "child_profile_family_ref",
+        observation.child_profile_family_ref,
+        "runtime.quality.generic_cycle_simulation_child_profile_family",
+      ],
+      [
+        "child_profile_set_ref",
+        observation.child_profile_set_ref,
+        "runtime.quality.recursive_n4_child_profile_set",
+      ],
+      [
+        "n5_execution_ref",
+        observation.n5_execution_ref,
+        "runtime.quality.generic_cycle_simulation_n5_execution",
+      ],
+      [
+        "simulation_result_ref",
+        observation.simulation_result_ref,
+        "polisyos.runtime.joint_simulation_result",
+      ],
+    ] as const;
+    for (const [field, ref, kind] of optionalRefs) {
+      if (
+        ref != null &&
+        (ref.kind !== kind || ref.media_type !== "application/json")
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "generic_cycle_n5_optional_ref_kind_invalid",
+        });
+      }
+    }
+
+    if (
+      (observation.child_profile_family_ref == null) !==
+      (observation.child_profile_set_ref == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["child_profile_set_ref"],
+        message: "generic_cycle_n5_child_family_set_pair_invalid",
+      });
+    }
+    if (
+      observation.status === "joint_simulated" &&
+      (observation.simulation_result_ref == null ||
+        observation.n5_execution_ref == null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["simulation_result_ref"],
+        message: "generic_cycle_n5_success_result_missing",
+      });
+    }
+    if (
+      (observation.n5_request_binding_status === "resolved") !==
+      (observation.n5_request_content_hash != null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n5_request_content_hash"],
+        message: "generic_cycle_n5_request_binding_shape_invalid",
+      });
+    }
+    if (
+      observation.n8_lineage_status === "resolved" &&
+      observation.n5_request_binding_status !== "resolved"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_lineage_status"],
+        message: "generic_cycle_n8_request_binding_not_established",
+      });
+    }
+    if (observation.n8_status === "value_conditional") {
+      if (observation.n8_lineage_status === "resolved") {
+        if (
+          observation.simulation_result_ref == null ||
+          observation.n8_value_ref !==
+            observation.simulation_result_ref.artifact_id ||
+          observation.n8_limitation_code != null
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["n8_value_ref"],
+            message: "generic_cycle_n8_conditional_binding_invalid",
+          });
+        }
+      } else if (
+        observation.n8_limitation_code == null ||
+        observation.n8_value_ref != null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_limitation_code"],
+          message: "generic_cycle_n8_conditional_limitation_missing",
+        });
+      }
+    } else if (observation.n8_lineage_status === "resolved") {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_lineage_status"],
+        message: "generic_cycle_n8_nonconditional_resolved_invalid",
+      });
+    }
+    if (
+      (observation.n8_lineage_status === "not_established") !==
+      (observation.n8_limitation_code != null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_limitation_code"],
+        message: "generic_cycle_n8_limitation_shape_invalid",
+      });
+    }
+  });
+
+const runGenericCycleSimulationProjectionSchema = z
+  .object({
+    artifact_status: z.enum(["resolved", "not_established"]),
+    authority_purpose: z.literal("cycle_input_candidate_only"),
+    child_profile_bindings: z.array(
+      runGenericCycleSimulationChildProfileBindingSchema,
+    ),
+    child_profile_family_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    child_profile_limitation_code: z.string().min(1).nullable().optional(),
+    child_profile_set_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    child_profile_status: z.enum([
+      "not_attempted",
+      "resolved",
+      "not_established",
+    ]),
+    credal_source_attempt_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    credal_source_limitation_code: z
+      .enum([
+        "candidate_source_authority_not_established",
+        "candidate_source_attempt_replay_not_established",
+      ])
+      .nullable()
+      .optional(),
+    credal_source_status: z.literal("not_established").nullable().optional(),
+    currentness_status: z.literal("not_established"),
+    limitation_code: z.string().min(1).nullable().optional(),
+    n4_source_limitation_code: z.string().min(1).nullable().optional(),
+    n4_source_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    n4_source_status: z
+      .enum(["resolved", "not_established"])
+      .nullable()
+      .optional(),
+    n5_limitation_code: z.string().min(1).nullable().optional(),
+    n5_observations: z.array(runGenericCycleSimulationN5ObservationSchema),
+    parent_context_job_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    parent_profile_id: z.string().min(1).nullable().optional(),
+    parent_profile_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+    publication_authority: z.literal(false),
+    recursive_cycle_checkpoint: runGenericCycleSimulationCheckpointSchema
+      .nullable()
+      .optional(),
+    run_id: z.string().min(1),
+    schema_version: z.enum([
+      "policyos.runtime.run_generic_cycle_simulation_projection.v1",
+      "policyos.runtime.run_generic_cycle_simulation_projection.v2",
+    ]),
+    source_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    source_ref: runGenericCycleSimulationArtifactRefSchema
+      .nullable()
+      .optional(),
+  })
+  .strict()
+  .superRefine((projection, context) => {
+    const hasCredalAttemptProjection =
+      projection.credal_source_attempt_ref != null ||
+      projection.credal_source_status != null ||
+      projection.credal_source_limitation_code != null;
+    if (hasCredalAttemptProjection) {
+      if (
+        projection.schema_version !==
+          "policyos.runtime.run_generic_cycle_simulation_projection.v2" ||
+        projection.credal_source_status !== "not_established" ||
+        projection.credal_source_limitation_code == null ||
+        projection.child_profile_status !== "not_established" ||
+        projection.n5_observations.length > 0 ||
+        (projection.credal_source_attempt_ref != null &&
+          (projection.credal_source_attempt_ref.kind !==
+            "runtime.quality.candidate_credal_source_attempt" ||
+            projection.credal_source_attempt_ref.media_type !==
+              "application/json"))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["credal_source_attempt_ref"],
+          message: "generic_projection_credal_source_attempt_invalid",
+        });
+      }
+    } else if (
+      projection.schema_version !==
+      "policyos.runtime.run_generic_cycle_simulation_projection.v1"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["schema_version"],
+        message: "generic_projection_schema_extension_without_attempt",
+      });
+    }
+
+    if (projection.artifact_status === "resolved") {
+      if (
+        projection.source_ref == null ||
+        projection.source_content_hash == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["source_ref"],
+          message: "generic_projection_compiled_source_missing",
+        });
+      }
+      if (
+        projection.n4_source_status === "resolved" &&
+        (projection.n4_source_ref == null ||
+          projection.n4_source_limitation_code != null ||
+          projection.parent_context_job_ref == null ||
+          projection.parent_profile_ref == null ||
+          projection.parent_profile_id == null)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n4_source_ref"],
+          message: "generic_projection_n4_binding_missing",
+        });
+      }
+      if (
+        projection.child_profile_status === "resolved" &&
+        (projection.child_profile_family_ref == null ||
+          projection.child_profile_set_ref == null ||
+          projection.child_profile_limitation_code != null ||
+          projection.child_profile_bindings.length === 0 ||
+          projection.child_profile_bindings.some(
+            (row) => row.historical_binding_status !== "resolved",
+          ))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["child_profile_bindings"],
+          message: "generic_projection_child_binding_missing",
+        });
+      }
+      if (
+        projection.child_profile_status === "not_established" &&
+        projection.child_profile_limitation_code == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["child_profile_limitation_code"],
+          message: "generic_projection_child_limitation_missing",
+        });
+      }
+      return;
+    }
+
+    if (
+      projection.source_content_hash != null ||
+      projection.n4_source_status != null ||
+      projection.child_profile_bindings.length > 0 ||
+      projection.n5_observations.length > 0 ||
+      projection.limitation_code == null
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["artifact_status"],
+        message: "generic_projection_refusal_shape_invalid",
+      });
+    }
+  });
 
 const runSummarySchema = z.object({
   run_id: z.string(),
@@ -344,6 +883,9 @@ const runDetailsSchemaInner = z.object({
     .nullable()
     .optional(),
   candidate_simulation: runCandidateSimulationProjectionSchema
+    .nullable()
+    .optional(),
+  generic_cycle_simulation: runGenericCycleSimulationProjectionSchema
     .nullable()
     .optional(),
   trace_ref: artifactRefSchema.nullable().optional(),
@@ -1050,6 +1592,7 @@ const runEvidenceContextViewSchema = z.object({
   evidence_bundle_ref: artifactRefSchema.nullable().optional(),
   data_snapshot_ref: artifactRefSchema.nullable().optional(),
   data_view_request_ref: artifactRefSchema.nullable().optional(),
+  data_view_request_profile_status: dataViewRequestProfileStatusSchema,
   input_bindings_ref: artifactRefSchema.nullable().optional(),
   fabric_retrieval_trace_ref: artifactRefSchema.nullable().optional(),
   materialization_refs: z.record(z.string(), artifactRefSchema).optional(),

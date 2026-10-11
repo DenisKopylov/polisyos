@@ -19,8 +19,9 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -29,6 +30,7 @@ from polisyos.ir.analytics.backtest import (
     persist_backtest_report,
 )
 from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import BacktestReportRef
 
 MODEL_REF = "model://frc02/ets/v1"
@@ -103,12 +105,29 @@ class _WriteSpyCAS(FileSystemCAS):
         self.write_calls: list[str] = []
         super().__init__(*args, **kwargs)
 
-    def put_bytes(self, data: bytes, opts: Any) -> Any:
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: Any,
+        *,
+        return_selected_profile: bool = False,
+    ) -> Any:
         self.write_calls.append(f"put_bytes:{opts.kind}")
+        if return_selected_profile:
+            return super().put_bytes(data, opts, return_selected_profile=True)
         return super().put_bytes(data, opts)
 
-    def put_json(self, obj: object, opts: Any, canon_spec: Any = None) -> Any:
+    def put_json(
+        self,
+        obj: object,
+        opts: Any,
+        canon_spec: Any = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> Any:
         self.write_calls.append(f"put_json:{opts.kind}")
+        if return_selected_profile:
+            return super().put_json(obj, opts, canon_spec=canon_spec, return_selected_profile=True)
         return super().put_json(obj, opts, canon_spec=canon_spec)
 
     def clear_write_trace(self) -> None:
@@ -148,6 +167,7 @@ def _persist_context_ref(
         kind=kind,
         schema_name=schema_name,
         schema_version=schema_version,
+        return_selected_profile=True,
     )
     ref.update(
         {
@@ -309,6 +329,7 @@ def _persist_report_into_store(
         "calibration_denominator": denominator,
         "interval_hit_count": numerator,
         "interval_evaluated_count": denominator,
+        "temporal_roles": {name: value.isoformat() for name, value in _temporal_roles().items()},
     }
     report = BacktestReport(
         schema_version="1.0",
@@ -328,7 +349,14 @@ def _persist_report_into_store(
         policy_ref=POLICY_REF,
         threshold=threshold,
     )
-    inputs = [InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()]
+    inputs = [
+        InputRef(
+            artifact_id=ref["artifact_id"],
+            role=role,
+            manifest_profile_sha256=ref.get("manifest_profile_sha256"),
+        )
+        for role, ref in refs.items()
+    ]
     report_ref = persist_backtest_report(_ensure_ir_artifact_store(store), report, inputs=inputs)
     persisted = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return report_ref, persisted, refs
@@ -355,6 +383,19 @@ def _persist_report(
     return store, report_ref, persisted, refs
 
 
+def _temporal_roles() -> dict[str, datetime]:
+    """Return the six fixed time roles shared by this persisted report fixture."""
+    start = datetime(2026, 1, 1, tzinfo=UTC)
+    return {
+        "data_valid_time": start,
+        "calibration_window_start": start + timedelta(days=1),
+        "calibration_window_end": start + timedelta(days=2),
+        "policy_effective_time": start + timedelta(days=3),
+        "prediction_time": start + timedelta(days=4),
+        "observation_time": start + timedelta(days=5),
+    }
+
+
 def _context(
     refs: dict[str, dict[str, str]],
     *,
@@ -373,7 +414,6 @@ def _context(
     def typed_ref(role: str) -> Any:
         return bridge.EvidenceArtifactRef.model_validate(refs[role])
 
-    start = datetime(2026, 1, 1, tzinfo=UTC)
     payload: dict[str, object] = {
         "model_spec_ref": model_ref,
         "policy_spec_ref": policy_ref,
@@ -390,16 +430,11 @@ def _context(
         "credible_evaluation_evidence_ref": typed_ref("credible_evaluation"),
         "source_lineage_refs": (typed_ref("source_lineage"),),
         "method_lineage_refs": (typed_ref("method_lineage"),),
-        # The six roles have distinct meanings and an explicit causal order:
-        # data_valid < calibration_start < calibration_end <= prediction < observation.
-        "data_valid_time": start,
-        "calibration_window_start": start + timedelta(days=1),
-        "calibration_window_end": start + timedelta(days=2),
-        "policy_effective_time": start + timedelta(days=3),
-        "prediction_time": start + timedelta(days=4),
-        "observation_time": start + timedelta(days=5),
         "evidence_origin": "persisted_backtest",
     }
+    # The six roles have distinct meanings and an explicit causal order:
+    # data_valid < calibration_start < calibration_end <= prediction < observation.
+    payload.update(_temporal_roles())
     payload.update(temporal_updates or {})
     return bridge.EmpiricalCalibrationContext.model_validate(payload)
 
@@ -417,26 +452,35 @@ class _StoreOverride:
         bytes_overrides: Mapping[str, bytes] | None = None,
     ) -> None:
         self._store = store
+        self._reader = _ensure_ir_artifact_store(store)
         self._manifest = manifest
         self._bytes_override = bytes_override
         self._manifest_overrides = dict(manifest_overrides or {})
         self._bytes_overrides = dict(bytes_overrides or {})
 
+    @staticmethod
+    def _artifact_key(selector: object) -> str:
+        if isinstance(selector, Mapping):
+            artifact_id = selector.get("artifact_id", selector)
+        else:
+            artifact_id = getattr(selector, "artifact_id", selector)
+        return str(artifact_id)
+
     def get_manifest(self, artifact_id: object) -> object:
-        artifact_key = str(artifact_id)
+        artifact_key = self._artifact_key(artifact_id)
         if artifact_key in self._manifest_overrides:
             return self._manifest_overrides[artifact_key]
         if self._manifest is not None:
             return self._manifest
-        return self._store.get_manifest(artifact_id)
+        return self._reader.get_manifest(artifact_id)
 
     def get_bytes(self, artifact_id: object) -> bytes:
-        artifact_key = str(artifact_id)
+        artifact_key = self._artifact_key(artifact_id)
         if artifact_key in self._bytes_overrides:
             return self._bytes_overrides[artifact_key]
         if self._bytes_override is not None:
             return self._bytes_override
-        return self._store.get_bytes(artifact_id)
+        return self._reader.get_bytes(artifact_id)
 
 
 def _assert_rejected_without_write(
@@ -498,8 +542,232 @@ def _persist_contradictory_projection(
             "metadata": forged_metadata,
         }
     )
-    inputs = [InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()]
+    inputs = [
+        InputRef(
+            artifact_id=ref["artifact_id"],
+            role=role,
+            manifest_profile_sha256=ref.get("manifest_profile_sha256"),
+        )
+        for role, ref in refs.items()
+    ]
     return persist_backtest_report(_ensure_ir_artifact_store(store), forged_report, inputs=inputs)
+
+
+def test_context_sibling_manifest_profile_for_same_bytes_is_not_report_basis(
+    tmp_path: Path,
+) -> None:
+    """Same report bytes under a sibling context profile do not match the declared report edge."""
+
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path,
+        label="sibling-context-profile",
+        observations=(True, True),
+    )
+    bridge = _bridge()
+    context = _context(refs)
+    original = context.observed_outcome_ref
+    original_selector = bridge._store_selector_for_ref(original)
+    ir_store = _ensure_ir_artifact_store(store)
+    original_manifest = ir_store.get_manifest(original_selector)
+    original_bytes = ir_store.get_bytes(original_selector)
+    sibling = store.put_bytes(
+        original_bytes,
+        PutOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=original_manifest.artifact_schema,
+            producer=ProducerInfo(component="test.sibling-context-view", version="1.0"),
+            inputs=original_manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert str(sibling.artifact_id) == str(original.artifact_id)
+    assert sibling.manifest_profile_sha256 != original.manifest_profile_sha256
+    assert store.get_bytes(sibling) == original_bytes
+
+    sibling_ref = original.model_copy(
+        update={"manifest_profile_sha256": sibling.manifest_profile_sha256}
+    )
+    sibling_context = context.model_copy(update={"observed_outcome_ref": sibling_ref})
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=sibling_context,
+    )
+
+    assert "reference_report_profile_mismatch" in evidence.failure_codes
+    assert "report_context_input_edges_mismatch" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
+
+
+def test_profileless_report_ref_is_not_a_producer_selected_basis(tmp_path: Path) -> None:
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path, label="profileless-report-ref", observations=(True, True)
+    )
+    bridge = _bridge()
+    profileless = report_ref.model_copy(update={"manifest_profile_sha256": None})
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store, profileless, context=_context(refs)
+    )
+
+    assert "report_profile_not_established" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+    with pytest.raises(ValueError, match="blocked empirical calibration evidence"):
+        bridge.persist_empirical_calibration_evidence(store, evidence)
+
+
+def test_profileless_context_ref_is_not_selected_report_basis(tmp_path: Path) -> None:
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path, label="profileless-context-ref", observations=(True, True)
+    )
+    bridge = _bridge()
+    context = _context(refs)
+    observed = context.observed_outcome_ref
+    profileless = observed.model_copy(update={"manifest_profile_sha256": None})
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        report_ref,
+        context=context.model_copy(update={"observed_outcome_ref": profileless}),
+    )
+
+    assert "reference_report_profile_not_established" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+
+
+def test_missing_report_input_profile_does_not_satisfy_full_basis(tmp_path: Path) -> None:
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path, label="missing-report-input-profile", observations=(True, True)
+    )
+    bridge = _bridge()
+    context = _context(refs)
+    ir_store = _ensure_ir_artifact_store(store)
+    manifest = ir_store.get_manifest(report_ref)
+    original_bytes = ir_store.get_bytes(report_ref)
+    inputs = [
+        item.model_copy(update={"manifest_profile_sha256": None})
+        if item.role == "observed_outcome"
+        else item
+        for item in manifest.inputs
+    ]
+    missing_input_profile_ref = store.put_bytes(
+        original_bytes,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert missing_input_profile_ref.manifest_profile_sha256 is not None
+    selected_manifest = store.get_manifest_by_profile(
+        missing_input_profile_ref.artifact_id,
+        missing_input_profile_ref.manifest_profile_sha256,
+    )
+    # The fixture changes only the selected input-edge profile and the new
+    # manifest timestamp; every other report-basis field remains source-bound.
+    assert selected_manifest == manifest.model_copy(
+        update={"inputs": inputs, "created_at": selected_manifest.created_at}
+    )
+    assert selected_manifest.canon == manifest.canon
+    assert str(missing_input_profile_ref.artifact_id) == str(report_ref.artifact_id)
+    assert missing_input_profile_ref.manifest_profile_sha256 != report_ref.manifest_profile_sha256
+    assert selected_manifest.kind == manifest.kind
+    assert selected_manifest.media_type == manifest.media_type
+    assert selected_manifest.artifact_schema == manifest.artifact_schema
+    selected_edges = [
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in selected_manifest.inputs
+    ]
+    expected_edges = [
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in inputs
+    ]
+    assert selected_edges == expected_edges
+    original_profile_edges = [item for item in manifest.inputs if item.role == "observed_outcome"]
+    assert len(original_profile_edges) == 1
+    assert original_profile_edges[0].manifest_profile_sha256 is not None
+    missing_profile_edges = [
+        item for item in selected_manifest.inputs if item.role == "observed_outcome"
+    ]
+    assert len(missing_profile_edges) == 1
+    assert missing_profile_edges[0].manifest_profile_sha256 is None
+    assert all(
+        item.manifest_profile_sha256 is not None
+        for item in selected_manifest.inputs
+        if item.role != "observed_outcome"
+    )
+    assert store.get_bytes(missing_input_profile_ref) == original_bytes
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        BacktestReportRef.model_validate(missing_input_profile_ref.model_dump(mode="json")),
+        context=context,
+    )
+    assert "reference_report_profile_mismatch" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+
+
+def test_legacy_profileless_evidence_keeps_historical_id_role_semantics(
+    tmp_path: Path,
+) -> None:
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path, label="legacy-profileless-evidence", observations=(True, True)
+    )
+    bridge = _bridge()
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store, report_ref, context=_context(refs)
+    )
+    payload = evidence.model_dump(mode="json")
+    payload["schema_version"] = "1.1"
+
+    def remove_profiles(value: object) -> object:
+        if isinstance(value, dict):
+            return {
+                key: remove_profiles(item)
+                for key, item in value.items()
+                if key != "manifest_profile_sha256"
+            }
+        if isinstance(value, list):
+            return [remove_profiles(item) for item in value]
+        return value
+
+    payload = remove_profiles(payload)
+    assert isinstance(payload, dict)
+    legacy_inputs = [
+        InputRef(artifact_id=report_ref.artifact_id, role="backtest_report"),
+        *(InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()),
+    ]
+    persisted_ref = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        payload,
+        kind=bridge.EVIDENCE_KIND,
+        schema_name=bridge.EVIDENCE_SCHEMA_NAME,
+        schema_version="1.1",
+        inputs=legacy_inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    legacy_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(persisted_ref)
+    loaded = bridge.load_empirical_calibration_evidence(store, legacy_ref)
+    assert loaded.schema_version == "1.1"
+    assert loaded.report_ref.manifest_profile_sha256 is None
+    assert loaded.observed_outcome_ref is not None
+    assert loaded.observed_outcome_ref.manifest_profile_sha256 is None
+    assert loaded.context_bound is True
 
 
 def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
@@ -512,6 +780,8 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
         label="neutral",
         observations=(True, False),
     )
+    assert set(refs) == set(REFERENCE_PROFILES)
+    assert all(ref.get("manifest_profile_sha256") for ref in refs.values())
     bridge = _bridge()
     evidence = bridge.produce_empirical_calibration_evidence(
         store,
@@ -676,6 +946,49 @@ def test_context_temporal_roles_are_aware_and_ordered(tmp_path: Path) -> None:
     assert len(set(roles)) == 6
 
 
+def test_report_temporal_roles_must_match_context_before_cas_write(
+    tmp_path: Path,
+) -> None:
+    """A persisted report cannot be rebound to a different observation time."""
+
+    store, report_ref, persisted, refs = _persist_report(
+        tmp_path, label="temporal-report-mismatch", observations=(True, False)
+    )
+    bridge = _bridge()
+    changed_roles = _temporal_roles()
+    changed_roles["observation_time"] += timedelta(days=1)
+    forged_report = persisted.model_copy(
+        update={
+            "metadata": {
+                **persisted.metadata,
+                "temporal_roles": {
+                    name: value.isoformat() for name, value in changed_roles.items()
+                },
+            }
+        }
+    )
+    original_manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    report_inputs = [
+        InputRef(
+            artifact_id=item.artifact_id,
+            role=item.role,
+            manifest_profile_sha256=item.manifest_profile_sha256,
+        )
+        for item in original_manifest.inputs
+    ]
+    forged_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store), forged_report, inputs=report_inputs
+    )
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store, forged_ref, context=_context(refs)
+    )
+
+    assert "temporal_roles_report_mismatch" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+
+
 @pytest.mark.parametrize("invalid_temporal_case", ["collapsed", "naive", "out_of_order"])
 def test_context_rejects_collapsed_naive_and_out_of_order_temporal_roles(
     tmp_path: Path,
@@ -814,8 +1127,10 @@ def test_forged_report_manifest_or_content_binding_is_refused_before_persistence
         ),
     )
 
-    forged_manifest = store.get_manifest(report_ref.artifact_id).model_copy(
-        update={"kind": "ir.not_a_backtest_report"}
+    forged_manifest = (
+        _ensure_ir_artifact_store(store)
+        .get_manifest(report_ref)
+        .model_copy(update={"kind": "ir.not_a_backtest_report"})
     )
     _assert_rejected_without_write(
         store,
@@ -865,8 +1180,9 @@ def test_forged_context_scope_bytes_and_threshold_manifest_fail_before_cas_write
     # Keep the EvidenceArtifactRef unchanged and plausible; only the bytes
     # returned by the CAS are forged.  A caller-declared ref mutation would not
     # exercise the persisted content-binding check this witness requires.
-    scope_artifact_id = refs["scope_binding"]["artifact_id"]
-    scope_payload = json.loads(store.get_bytes(scope_artifact_id))
+    scope_ref = bridge._store_selector_for_ref(context.scope_binding_ref)
+    scope_artifact_id = str(scope_ref.artifact_id)
+    scope_payload = json.loads(_ensure_ir_artifact_store(store).get_bytes(scope_ref))
     scope_payload["report_id"] = "frc02-bridge-forged-context"
     forged_scope_bytes = json.dumps(
         scope_payload,
@@ -885,9 +1201,12 @@ def test_forged_context_scope_bytes_and_threshold_manifest_fail_before_cas_write
         ),
     )
 
-    threshold_artifact_id = refs["calibration_threshold"]["artifact_id"]
-    forged_threshold_manifest = store.get_manifest(threshold_artifact_id).model_copy(
-        update={"kind": "ir.calibration.threshold.forged"}
+    threshold_ref = bridge._store_selector_for_ref(context.calibration_threshold_ref)
+    threshold_artifact_id = str(threshold_ref.artifact_id)
+    forged_threshold_manifest = (
+        _ensure_ir_artifact_store(store)
+        .get_manifest(threshold_ref)
+        .model_copy(update={"kind": "ir.calibration.threshold.forged"})
     )
     _assert_rejected_without_write(
         store,

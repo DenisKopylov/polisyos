@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.forecasting_uncertainty import (
@@ -175,8 +176,27 @@ def test_forecasting_uncertainty_bundle_cas_roundtrip(tmp_path) -> None:
     loaded = load_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), ref_1)
 
     assert ref_1.kind == "ir.forecasting_uncertainty_bundle"
+    assert ref_1.manifest_profile_sha256 is None
+    assert ref_2.manifest_profile_sha256 is None
     assert ref_1.artifact_id == ref_2.artifact_id
     assert loaded == bundle
+
+
+def test_forecasting_uncertainty_bundle_returns_selected_write_profile(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = _sample_bundle()
+
+    ref = persist_forecasting_uncertainty_bundle(
+        _ensure_ir_artifact_store(store), bundle, return_selected_profile=True
+    )
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+    assert str(manifest.artifact_id) == str(ref.artifact_id)
+    assert artifact_manifest_profile_sha256(manifest) == ref.manifest_profile_sha256
+    assert manifest.kind == ref.kind == "ir.forecasting_uncertainty_bundle"
+    assert manifest.media_type == "application/json"
+    assert load_forecasting_uncertainty_bundle(_ensure_ir_artifact_store(store), ref) == bundle
 
 
 def test_forecasting_uncertainty_bundle_v1_rejects_reconciliation_certificate() -> None:

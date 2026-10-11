@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.agent import vector_memory as vector_memory_module
@@ -56,10 +57,21 @@ def _history_payload(
     run_id: str,
     *rows: tuple[str, float],
 ) -> bytes:
+    fingerprint = _fingerprint(run_id)
     return json.dumps(
         {
             "run_id": run_id,
-            "evaluations": [_stored_eval(candidate_id, score, run_id) for candidate_id, score in rows],
+            "space_hash": fingerprint.space_hash,
+            "objective_names": fingerprint.objective_names,
+            "bounds": fingerprint.bounds,
+            "split": fingerprint.split,
+            "units": fingerprint.units,
+            "origin": fingerprint.origin,
+            "tenant_id": fingerprint.tenant_id,
+            "objective_directions": fingerprint.objective_directions,
+            "evaluations": [
+                _stored_eval(candidate_id, score, run_id) for candidate_id, score in rows
+            ],
         }
     ).encode("utf-8")
 
@@ -79,15 +91,26 @@ def _fingerprint(run_id: str, *, embedding: list[float] | None = None) -> RunFin
     )
 
 
+def _artifact_id_key(artifact_id: ArtifactID | ArtifactRef | str) -> str:
+    """Normalize a Core CAS selector without stringifying an ArtifactRef."""
+    if isinstance(artifact_id, ArtifactRef):
+        artifact_id = artifact_id.artifact_id
+    normalized_id = (
+        artifact_id
+        if isinstance(artifact_id, ArtifactID)
+        else ArtifactID.model_validate(artifact_id)
+    )
+    return str(normalized_id)
+
+
 class _ReadStore:
     def __init__(self, payloads: dict[str, bytes]) -> None:
         self._payloads = payloads
-        self.reads: list[str] = []
+        self.reads: list[ArtifactID | ArtifactRef | str] = []
 
-    def get_bytes(self, artifact_id: object) -> bytes:
-        key = str(artifact_id)
-        self.reads.append(key)
-        return self._payloads[key]
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        self.reads.append(artifact_id)
+        return self._payloads[_artifact_id_key(artifact_id)]
 
 
 class _DiscoveryIndex:
@@ -119,9 +142,7 @@ class _DiscoveryIndex:
                     "units": {"score": "points"},
                     "origin": "simulator-v1",
                     "tenant_id": "tenant-a",
-                    "objective_directions": {
-                        "score": OptimizationDirection.MINIMIZE.value
-                    },
+                    "objective_directions": {"score": OptimizationDirection.MINIMIZE.value},
                     "artifact_id": str(self.history_ref.artifact_id),
                 },
             )
@@ -132,9 +153,12 @@ class _BundleStore:
     def __init__(self, bundle_ref: ArtifactRef, index_ref: ArtifactRef) -> None:
         self.bundle_ref = bundle_ref
         self.index_ref = index_ref
+        self.reads: list[ArtifactID | ArtifactRef | str] = []
 
-    def get_bytes(self, artifact_id: object) -> bytes:
-        if str(artifact_id) == str(self.bundle_ref.artifact_id):
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        self.reads.append(artifact_id)
+        key = _artifact_id_key(artifact_id)
+        if key == str(self.bundle_ref.artifact_id):
             return json.dumps(
                 {
                     "dim": 2,
@@ -146,9 +170,9 @@ class _BundleStore:
                     "index_artifact_id": str(self.index_ref.artifact_id),
                 }
             ).encode("utf-8")
-        if str(artifact_id) == str(self.index_ref.artifact_id):
+        if key == str(self.index_ref.artifact_id):
             return b"controlled-load-failure-payload"
-        raise KeyError(str(artifact_id))
+        raise KeyError(key)
 
 
 def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann() -> None:
@@ -168,7 +192,7 @@ def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann() -> N
 
     assert [evaluation.candidate_id for evaluation in evaluations] == ["candidate"]
     assert len(index.query_calls) == 1
-    assert store.reads == [str(history_ref.artifact_id)]
+    assert store.reads == [history_ref]
 
 
 def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating() -> None:
@@ -194,7 +218,7 @@ def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating() 
 
     assert [evaluation.candidate_id for evaluation in first] == ["old-low"]
     assert [evaluation.candidate_id for evaluation in second] == ["new"]
-    assert store.reads == [str(old_ref.artifact_id), str(new_ref.artifact_id)]
+    assert store.reads == [old_ref, new_ref]
 
 
 def test_failed_native_add_does_not_publish_a_second_python_record() -> None:
@@ -237,9 +261,11 @@ def test_failed_native_load_does_not_publish_partial_bundle(
         _ControlledLoadFailureIndex,
     )
 
-    with pytest.raises(RuntimeError):
-        memory.load_from_artifact(_BundleStore(bundle_ref, index_ref), bundle_ref)
+    store = _BundleStore(bundle_ref, index_ref)
+    with pytest.raises(RuntimeError, match="controlled native load failure"):
+        memory.load_from_artifact(store, bundle_ref)
 
+    assert store.reads == [bundle_ref, str(index_ref.artifact_id)]
     assert len(memory) == 1
     assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]
 

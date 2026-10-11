@@ -54,6 +54,7 @@ const profiles = [
 const runContext = {
   dataNeeds: [],
   dataSnapshotRef: null,
+  dataViewRequestProfileStatus: "not_established",
   dataViewRequestRef: null,
   fabricRetrievalTraceRef: null,
   materializationRefs: {},

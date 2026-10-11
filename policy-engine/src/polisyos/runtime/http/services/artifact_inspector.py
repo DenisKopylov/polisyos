@@ -49,7 +49,6 @@ _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES = 2_000_000
 logger = get_logger(__name__)
 
 
-
 def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
     """Return the exact CAS view selected for an inspector operation."""
     return ArtifactRef(
@@ -240,9 +239,8 @@ def _predictive_coverage_preview(
         nominal_raw = scenario.get("nominal_confidence_level")
         nominal = None if nominal_raw is None else _coverage_number(nominal_raw)
         interval_type = scenario.get("interval_type")
-        if (
-            (nominal_raw is not None and (nominal is None or not 0.0 < nominal < 1.0))
-            or (interval_type is not None and not isinstance(interval_type, str))
+        if (nominal_raw is not None and (nominal is None or not 0.0 < nominal < 1.0)) or (
+            interval_type is not None and not isinstance(interval_type, str)
         ):
             return invalid("malformed_report_shape")
         summaries.append(
@@ -665,6 +663,7 @@ class ArtifactInspectorService:
         *,
         max_bytes: int | None = None,
         manifest: ArtifactManifest | None = None,
+        allow_candidate_predictive_diagnostic_surface: bool = False,
     ) -> ArtifactContentPreview:
         """Return a bounded, redacted content preview for an artifact payload.
 
@@ -677,6 +676,8 @@ class ArtifactInspectorService:
             artifact_id: Canonical CAS artifact identifier.
             max_bytes: Optional per-request preview byte limit. Values are
                 clamped to `[1024, 2_000_000]`.
+            allow_candidate_predictive_diagnostic_surface: Explicitly admit the
+                reader-materialized predictive diagnostic sidecar. Defaults off.
 
         Returns:
             A content preview DTO with mode, truncation metadata, and sanitized
@@ -743,7 +744,7 @@ class ArtifactInspectorService:
         )
         predictive_coverage_diagnostic = (
             _predictive_coverage_preview(preview, manifest)
-            if mode == "json" and not truncated
+            if allow_candidate_predictive_diagnostic_surface and mode == "json" and not truncated
             else None
         )
         decision_packet_preview = (

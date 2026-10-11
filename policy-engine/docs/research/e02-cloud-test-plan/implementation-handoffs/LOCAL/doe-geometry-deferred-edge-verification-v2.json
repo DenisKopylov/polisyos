@@ -1,0 +1,429 @@
+{
+  "schema": "polisyos.deferred_source_edge_verification.v1",
+  "receipt_id": "DOE-GEOMETRY-DEFERRED-EDGE-VERIFICATION-20261011-V2",
+  "record_date": "2026-10-11",
+  "slice_id": "DOE-GEOMETRY-DEFERRED-EDGE",
+  "slice_base": "702a206d82d573b77fa6614f7a3e80231bf75c12",
+  "candidate_source": {
+    "commit": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+    "tree": "a068273c0782d8a0ec06f441d5f442c70ea0e3e6",
+    "parents": [
+      "702a206d82d573b77fa6614f7a3e80231bf75c12"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "remote_readback_confirmed": true,
+    "source_checkpoint_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-geometry-source-checkpoint-20261011/readback.json",
+      "sha256": "d4f20e8daeb2bb0eea87578c1e90e2f5f6731bbdb70b76bb48f516a636e2e7c9"
+    },
+    "remote_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-geometry-source-checkpoint-20261011/remote-readback.json",
+      "sha256": "eb346218530b8d438afd655d5b16b0437e1e3e58c272a38d865fc43c29c9951c"
+    }
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "base_preimage_sha256": "c10fa072989243cd6352aac4db867d34b17b4cbb68fad175571d0ce93df99a6e",
+      "committed_candidate_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "base_preimage_sha256": "90919724445055814ffd862d3f4e2673627cbeaf3adf5771cc9e827ef80f278d",
+      "committed_candidate_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+      "base_preimage": null,
+      "committed_candidate_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb"
+    }
+  ],
+  "candidate_verification_binding": {
+    "pytest_and_ruff_capture_head": "702a206d82d573b77fa6614f7a3e80231bf75c12",
+    "binding_rule": "Each complete before/after inventory is stable; compare the three committed DOE path bytes individually. The 133-case run precedes the import-only changes. The 26-case and Ruff runs bind all three final source paths. No sum of these receipts is a composed final native gate."
+  },
+  "historical_proposal_reconciliation": {
+    "proposal_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-doe-geometry-deferred-edge-20261011/doe-geometry-deferred-edge.patch",
+      "sha256": "326451b38c5e0295dec455cd80ad39fb38ead5ce1d8db9d4684aa82eb8b5796d"
+    },
+    "proposal_readiness_note": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dx0-native/native-doe-geometry-deferred-edge-readiness-20261011.md",
+      "sha256": "78bd3686c49f555590a517d93c0acc65526865e10677a64630726c5f4724cb96"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/native-doe-geometry-deferred-edge-independent-20261011.md",
+      "sha256": "5ea32e523f9e0ccc7c524974e88b66e050ec355b3148160ba587f35f1c516481"
+    },
+    "root_composition": {
+      "composition_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-causal-full-composition-20261011/composition.json",
+        "sha256": "4fe684bce0b4f55b934b8740c182af516f2abaae408aa9242d1160f069a60ab2"
+      },
+      "application_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-causal-full-composition-20261011/application-readback.json",
+        "sha256": "632d25845e2bb984feb57a93ba70ec1dfa1c6a66907ecc346d32b9c7ea8f1c67",
+        "composition_sha256": "4fe684bce0b4f55b934b8740c182af516f2abaae408aa9242d1160f069a60ab2",
+        "net_patch_sha256": "e7401e8110516ac476a450d7c40fc4c2e4efa04a68c31b61931a0ef557c32f9e"
+      }
+    },
+    "root_import_order_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-i001-root-delta-20261011/readback.json",
+      "sha256": "a9945d4dabcdda499831349f8f422b2d0354dedb9b16b78160d977a9f6fd760d",
+      "blank_line_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/doe-i001-root-delta-20261011/blank-line-readback.json",
+        "sha256": "eca7ef7afd11f4dd3bfb7c966f220b4ea992f86679144040414c4965edcd31c6"
+      }
+    },
+    "proposal_to_final_import_only_delta": {
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+          "proposal_sha256": "3f01bcbca1d506232e24e4b11963e5b221d2f2f3740186ad9ef3ccec0e8f7d85",
+          "final_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d",
+          "import_alias_multiset_equal": true,
+          "non_import_AST_equal": true,
+          "comments_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+          "proposal_sha256": "6776e1af643cebd8ace6e906b1b4aa5cc9818a27324b86729631d3e7d311298b",
+          "final_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb",
+          "import_alias_multiset_equal": true,
+          "non_import_AST_equal": true,
+          "comments_equal": true
+        }
+      ],
+      "handling": "The readiness 3f01 hash is the real complete-patch postimage, also captured by the 133-pass command. A first two-file import-edit attempt applied geometry before refusing the test import-group AST comparison; no receipt was written on that failed attempt. The second attempt began at d7f747, grouped the test imports, and temporarily left one extra blank line in geometry; the recorded blank-line edit returned geometry to d7f747. The original source proposal is available, not hash-mismatched. The source tests final bytes are f7016515. Import-only equivalence is checked here but is not a final full-133 execution."
+    }
+  },
+  "verification": [
+    {
+      "kind": "focused_doe_and_causal_real_consumers",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/command.json",
+        "sha256": "8075772d29ec8cb50500eb79d2bc857b3540ff52936d48bb79b27d1d3bebd496"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+        "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+        "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+        "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "captured_head": "702a206d82d573b77fa6614f7a3e80231bf75c12",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 33.189195332932286,
+      "captured_input_counts": {
+        "before": 6164,
+        "after": 6164,
+        "unchanged": true
+      },
+      "outputs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/stdout.txt",
+          "sha256": "54a5beabfd9da221278edfc4b67aaf060f68c4920fcf491f155db4bf538dcb02",
+          "bytes": 1227
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-real-producer-consumers-20261011/junit.xml",
+          "sha256": "cee398547b99ec223d3a6bb2b6d0f40e71460d19e94e28b9e95be5d860ec9c86",
+          "bytes": 24024
+        }
+      },
+      "result": {
+        "status": "PASS",
+        "tests": 133,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 3,
+        "pytest_reported_seconds": 28.72,
+        "selector_files": [
+          "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+          "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+          "tests/unit/scientist/methods/doe/test_uncertainty.py",
+          "tests/unit/scientist/methods/doe/test_stability.py",
+          "tests/unit/scientist/methods/doe/test_sensitivity_plan.py",
+          "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+          "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+          "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py"
+        ]
+      },
+      "changed_path_binding": {
+        "final_path_matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+            "captured_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b",
+            "committed_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b"
+          }
+        ],
+        "pre_final_path_differences": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+            "captured_sha256": "3f01bcbca1d506232e24e4b11963e5b221d2f2f3740186ad9ef3ccec0e8f7d85",
+            "committed_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+            "captured_sha256": "6776e1af643cebd8ace6e906b1b4aa5cc9818a27324b86729631d3e7d311298b",
+            "committed_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb"
+          }
+        ],
+        "classification": "pre_import_order_candidate"
+      }
+    },
+    {
+      "kind": "final_doe_import_boundary_geometry_and_stability_consumers",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/command.json",
+        "sha256": "76b13013e763364f1b7a8cb5cf40ab95706fa61e2dbe8cd475795c6af0efabbb"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=120.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+        "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "captured_head": "702a206d82d573b77fa6614f7a3e80231bf75c12",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 3.670236708014272,
+      "captured_input_counts": {
+        "before": 6164,
+        "after": 6164,
+        "unchanged": true
+      },
+      "outputs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/stdout.txt",
+          "sha256": "af9476e108a976cfb7ca6398bd76e6f1e85b8da6fd6fd293d9453923c0d1b85e",
+          "bytes": 712
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-final-import-order-real-consumers-20261011/junit.xml",
+          "sha256": "f6d8ab6f2370cbbd46743aabeaf9d29ad16f38e0fa081b5b5288fe6e80b40594",
+          "bytes": 4678
+        }
+      },
+      "result": {
+        "status": "PASS",
+        "tests": 26,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 1,
+        "pytest_reported_seconds": 2.24,
+        "selector_files": [
+          "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+          "tests/unit/scientist/methods/doe/test_morris_geometry.py",
+          "tests/unit/scientist/methods/doe/test_stability.py"
+        ]
+      },
+      "changed_path_binding": {
+        "final_path_matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+            "captured_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d",
+            "committed_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+            "captured_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b",
+            "committed_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+            "captured_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb",
+            "committed_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb"
+          }
+        ],
+        "pre_final_path_differences": [],
+        "classification": "final_committed_DOE_paths"
+      }
+    },
+    {
+      "kind": "canonical_ruff_check_seven_source_test_targets",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-seven-canonical-ruff-final-20261011/command.json",
+        "sha256": "eb1f87e81d972bde1fbc5c29f9a70ffbc62f42a8959d1e41979626fce5b1113a"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/scientist/methods/doe/morris_geometry.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+        "src/polisyos/foundry/methods/catalog/causal/_causal_engine_contracts.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "captured_head": "702a206d82d573b77fa6614f7a3e80231bf75c12",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 0.04257258400321007,
+      "captured_input_counts": {
+        "before": 10,
+        "after": 10,
+        "unchanged": true
+      },
+      "outputs": {
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-seven-canonical-ruff-final-20261011/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/doe-causal-seven-canonical-ruff-final-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "result": {
+        "status": "PASS",
+        "diagnostic_count": 0,
+        "input_count": 10,
+        "target_count": 7,
+        "targets": [
+          "src/polisyos/scientist/methods/doe/morris_geometry.py",
+          "src/polisyos/scientist/methods/doe/stability.py",
+          "tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+          "src/polisyos/foundry/methods/catalog/causal/_causal_engine_contracts.py",
+          "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py",
+          "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+          "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py"
+        ]
+      },
+      "changed_path_binding": {
+        "final_path_matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+            "captured_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d",
+            "committed_sha256": "d7f74707c58196860f6fcc9275e17a6619e0caed638b2ee5cc8a23d859d9c82d"
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+            "captured_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b",
+            "committed_sha256": "7fd7e45f609235578c1da873a638c7704dc370b4944b68b6e66f50bb60979a0b"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry_import_boundary.py",
+            "captured_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb",
+            "committed_sha256": "f7016515b60de100ded2b3291d7cc58dc752944ca052000cd6ca55f93d4700fb"
+          }
+        ],
+        "pre_final_path_differences": [],
+        "classification": "final_committed_DOE_paths"
+      }
+    }
+  ],
+  "whole_native_gate": {
+    "status": "UNRUN_AFTER_REPAIR",
+    "scope": "The native import-cycle gate was not rerun after the DOE source commit. Earlier V18 reported four full-only SCCs and 487 unresolved dispatch findings; these are not inherited, closed, or reclassified by this receipt."
+  },
+  "scope_and_limits": {
+    "p40_bucket": "NEW_CLASS: deferred source coupling in the shared DOE Morris geometry boundary; distinct from import-dispatch analysis.",
+    "observed_source_effect": "The committed source footprint is limited to the DOE geometry module, stability consumer, and an import-boundary test. Selected DOE and causal-consumer tests passed on captured candidate bytes.",
+    "scientific_semantics": "No new scientific rule or capability is asserted. The source companion relocates the canonical builder handoff and preserves the existing numerical validation contract; these focused tests do not establish the full native import architecture property.",
+    "not_established": [
+      "Full post-repair whole-source import graph / native gate result.",
+      "Formal closure of any broader DOE or native architecture finding.",
+      "All 133 selectors against the final post-import-order bytes in one run; final narrower evidence is 26 selectors plus Ruff."
+    ],
+    "claims_not_made": [
+      "No claim that the 4 prior SCC rows or 487 unresolved dispatch findings are inherited from a prior base.",
+      "No claim of a full-native-gate pass.",
+      "No claim of scientific capability or formal closure."
+    ]
+  },
+  "closure_ids": [],
+  "proposal_fields": {
+    "finding_ids": [],
+    "outcome": "bounded DOE geometry source companion with focused verification recorded; whole-native-gate verification and any formal closure remain pending"
+  },
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/doe-geometry-deferred-edge-verification.json",
+    "sha256": "81359e93e93c25110ba2cae4fc067b88cb4484f7a4369bcaf98a2c9d7a9d7ade",
+    "reason": "correct branch typo, distinguish 133 pre-import-order input bytes from final 26/Ruff bytes, reconcile actual proposal hash rather than declare it unavailable"
+  }
+}

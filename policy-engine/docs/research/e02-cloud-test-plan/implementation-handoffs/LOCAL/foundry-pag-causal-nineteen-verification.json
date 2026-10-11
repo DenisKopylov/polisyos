@@ -1,0 +1,528 @@
+{
+  "schema": "polisyos.e02.foundry-pag-causal-nineteen-verification.v1",
+  "record_type": "bounded_source_and_consumer_verification",
+  "verification_status": "EXECUTED_BOUNDED_PASS",
+  "source_candidate": {
+    "repository": "polisyos",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "edf9bbac35635727a500dad8bcc30ab5f6bfc13c",
+    "tree": "4414307d06261987720aba50f558f9d426bf7a56",
+    "parent": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+    "slice_base": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+    "commit_subject": "fix(foundry): preserve PAG refusal and causal leaf contracts across consumers",
+    "changed_paths": 19,
+    "path_classes": {
+      "production_python": 8,
+      "typing_stubs": 2,
+      "tests": 9
+    },
+    "changed_path_set_matches_checkpoint": true,
+    "current_target_bytes_match_committed_blobs": true,
+    "source_paths": [
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/_internal/reexport.py",
+        "base_sha256": "513a5818d802278bc08924186a3d8f8a593776b62aa6a4ad160abd6f10aaa862",
+        "candidate_sha256": "b5d5664db4f23c708b96c8b0bcc9aa73e399d822c0d46c6aafaca748fc57bdab",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_causal_engine_contracts.py",
+        "base_sha256": "1cba38a70a3ea49f622966ea2e0f4be5e8b590feaef33a98b3071f718983efbd",
+        "candidate_sha256": "034f4617027ded641681ce422178dfb64a352d3b1d8cc172c184928246f53bc7",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py",
+        "base_sha256": "45b913c9591144953d0e47561978adee641b81998403888c57591af6ca296cfb",
+        "candidate_sha256": "6ae8c06ccda5d4ccdea5e0c71c4bd524e7c8dfe5e2b9b76c0535cd1825941212",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "base_sha256": "20d053be981aab1270fd984d3810f73b7c5db91000c45d68ede39e2656b0f372",
+        "candidate_sha256": "98722e702c3d2f284ed3bb37b8ebcf83709458cbf6024c0648babf6105659d42",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/sensitivity.py",
+        "base_sha256": "4ed148c93c820f26833c073d116902fb4f6ac73f0681a88c17561ed1b75c76d9",
+        "candidate_sha256": "342e2a611141c14a8a2e796c4693014c22d9629a015274af9da3bc8fc9dca91c",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "base_sha256": "54a919c33f3b0ba0720116d587590da5d86fa487f09a6c4d681bbc0cf84c6cef",
+        "candidate_sha256": "14d1513d463f11fe23e7ce0e7c2aefb31d74c74fc4e2ad853ff568d47a7922e6",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/api.py",
+        "base_sha256": "4d322ffafcddbb41a20150f868e7f6f6b1e2a7b230b79b18ea81d994771d411e",
+        "candidate_sha256": "9d9aa10e8a056a5ac0f36a7f2c34a0b543501e993fbc79b4bd441fa01fbfa70a",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/pag_completion.py",
+        "base_sha256": "f306b63df278188a36f58d11c8b197d506c50bcf0f17001ba43ff7e371a27414",
+        "candidate_sha256": "2e6bc68a4da9c84d2be1f9d8312ab3ea6cb364b270e7f7dfe062c289cc271016",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+        "base_sha256": "46d5d113361d487abf5cef5c85f88b8bbe1cd22f70ba266d763a1deb4aa4e781",
+        "candidate_sha256": "8f1a1667781c1797529f3683a3c9d0c0d63cbba5ba52a73c8f134b2105e88b7a",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+        "base_sha256": "57f3509e55e92e57e7c5cc3fd6f257c0ff433bfefcb3d6286747126eae1377ef",
+        "candidate_sha256": "b9ebb5dc33ec14db6fc72edeb3b214dbb3365d176539c81bd83e0f88eff60a1f",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+        "base_sha256": "3b5cf547a57130403e479f4516b52b2ddd77166f202e5262be6d77063bf397d4",
+        "candidate_sha256": "52dc5ab986d9131063fe8fe6e55e6395e151f34f7573482fcce450aa147d076c",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+        "base_sha256": "e3ab6ffbc6159d43dd745492ecc33334ddb5f409ba7c292598d2d689bcbd7fc4",
+        "candidate_sha256": "7946acccf3baa7bf086a636c52c3521c588e7b43105c7a8d62ae73ef2b3d7170",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "base_sha256": "86b7e9790db9699e8839b569af049cf2d61c634c921347a5e738c5e9896ce51f",
+        "candidate_sha256": "d30096041276b9523d1aedd3a677904cff2bc4aa47d4d35e3447c0d84044d421",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_mz_id_negative_cert.py",
+        "base_sha256": "de7805005905d221a3e3625ddd402c8bfacb9d53d18541936715ede50cbe93cd",
+        "candidate_sha256": "0b8b2067e5e1931634f57d96c2752ae660db486ca0b84f8809c61e8473903b0f",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+        "base_sha256": "6a55a6067df5f4324435ed3f4da2cc2dfb03a59b7f332062821fda8f4eef9365",
+        "candidate_sha256": "2897f3da95eb2bb4c47fc8a1470f55a24ab08ce0a3a61c62b589ff9e3e1ae606",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+        "base_sha256": "1cf27404ed71534330f9883956bebc21cde4d718e5a6d368e3dcd25f5b3367e3",
+        "candidate_sha256": "0be714fa968c53b7d06d69e60c513d639f20e860d4808d34943362cd025718f3",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_query_validator.py",
+        "base_sha256": "8e8eed576c0fa1cec4f1436f0e3d4a799ceceb1fa421157f1ef317225ee7f79d",
+        "candidate_sha256": "b402c47315f494d90df598e090bd5cd5f05052b41c757337652976d71f6da52e",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/foundry/methods/test_causal_engine_integration.py",
+        "base_sha256": "e98f5424a0e745ed1071f0544b31c123ae320740103f8e66b87f96c182232936",
+        "candidate_sha256": "c51d764a8f5213b7279404f94a04345ee40962371d3174533de8e7979eda1486",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      },
+      {
+        "repository_path": "policy-engine/tests/unit/remediation/test_api_01.py",
+        "base_sha256": "a1e8db9f7aba0c42f8c3af50101f9bc898ae3d70f5c3707f45000d07d18919d8",
+        "candidate_sha256": "5a6e85cb64423a1c2b860278ef2760135bfcc4a0c095343f816ae619224e92d0",
+        "remote_readback_matches": true,
+        "committed_blob_matches": true,
+        "current_worktree_matches": true
+      }
+    ],
+    "source_checkpoint": {
+      "readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-pag-causal-nineteen-source-checkpoint-20261011/readback.json",
+        "bytes": 5823,
+        "sha256": "9244f1d82a90b4ae37bb03dcc808ba4cc42b9b3bfe0719a2140742262ca4081d"
+      },
+      "remote_readback": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-pag-causal-nineteen-source-checkpoint-20261011/remote-readback.json",
+        "bytes": 3802,
+        "sha256": "7dc27b2d6ff43eea00405643612486528a9c0c5580744282573c39c81a65f71e"
+      },
+      "selected_footprint": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-pag-causal-nineteen-source-checkpoint-20261011/selected-footprint.json",
+        "bytes": 5643,
+        "sha256": "75f8b5c95d8e9b97ffc9d36b6523c8c468f71ba7570f53fe7f91ba5bf52547d5"
+      },
+      "remote_readback_same_commit_and_tree": true,
+      "remote_readback_verified_path_count": 19
+    },
+    "interpretation": "The committed source and test footprint is independently bound by all three retained checkpoint records. The worktree contains unrelated peer changes; this receipt asserts byte identity only for the 19 named committed paths, not global cleanliness."
+  },
+  "consumer_test_runs": [
+    {
+      "name": "foundry-causal-15-selector-consumer-wave",
+      "role": "primary_focused_consumer_suite",
+      "status": "PASS",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+      "candidate_commit_was_execution_head": false,
+      "candidate_parent_is_execution_head": true,
+      "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+      "argv_receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/command.json",
+        "bytes": 1801709,
+        "sha256": "7199ff4002ac09f87f302f1b459dd154d7d67744e52d43af542d27ce649c53b9"
+      },
+      "selected_test_paths": [
+        "tests/unit/foundry/methods/catalog/causal/test_admg_s_ops.py",
+        "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+        "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+        "tests/unit/foundry/methods/catalog/causal/test_mz_id_negative_cert.py",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+        "tests/unit/foundry/methods/catalog/causal/test_query_validator.py",
+        "tests/unit/foundry/methods/test_causal_engine_integration.py",
+        "tests/unit/remediation/test_api_01.py",
+        "tests/unit/foundry/methods/test_composer.py",
+        "tests/unit/foundry/methods/test_registry.py",
+        "tests/unit/foundry/methods/test_discovery.py",
+        "tests/unit/foundry/methods/catalog/causal/test_sensitivity_metrics.py",
+        "tests/unit/ir/test_causal_graph_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 44.69570504198782,
+      "junit_summary": {
+        "tests": 521,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "junit_duration_seconds": 40.035
+      },
+      "stdout_summary": "521 passed, 10 warnings in 40.04s",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "execution_input_hash_inventory": {
+        "path_count": 6164,
+        "paths_changed_during_run": 0,
+        "pre_post_maps_equal": true,
+        "target_candidate_paths_total": 19,
+        "target_candidate_paths_matching_execution_input": 18,
+        "target_candidate_paths_mismatching_execution_input": 1,
+        "mismatches": [
+          {
+            "path": "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+            "execution_sha256": "c35aa8345449c0274c8f77053c5e4f3b07a25641fbae7a3105ea57796e967246",
+            "candidate_sha256": "2897f3da95eb2bb4c47fc8a1470f55a24ab08ce0a3a61c62b589ff9e3e1ae606"
+          }
+        ]
+      },
+      "raw_outputs": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/stdout.txt",
+          "bytes": 2347,
+          "sha256": "68d434911832ffc8c1e76a988144e8a63ab0e1e5e8252bdebf47348261a3b0f1"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/junit.xml",
+          "bytes": 83731,
+          "sha256": "03a5d8f0ff7e7525929ee95e5a874701705cb6f787b50ba18a8bbc63094b7ccd"
+        }
+      }
+    },
+    {
+      "name": "pag-final-import-order-consumer-rerun",
+      "role": "exact_final_PAG_test_file_rerun",
+      "status": "PASS",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "execution_head": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+      "candidate_commit_was_execution_head": false,
+      "candidate_parent_is_execution_head": true,
+      "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+      "argv_receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/command.json",
+        "bytes": 1604080,
+        "sha256": "de777f1a38a9995a3538d2711b8515ace9d0c154e92dd6d9a3a9602e55f20c6a"
+      },
+      "selected_test_paths": [
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 6.262314666993916,
+      "junit_summary": {
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "junit_duration_seconds": 3.415
+      },
+      "stdout_summary": "23 passed in 3.42s",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "execution_input_hash_inventory": {
+        "path_count": 6164,
+        "paths_changed_during_run": 0,
+        "pre_post_maps_equal": true,
+        "target_candidate_paths_total": 19,
+        "target_candidate_paths_matching_execution_input": 19,
+        "target_candidate_paths_mismatching_execution_input": 0,
+        "mismatches": []
+      },
+      "raw_outputs": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/stdout.txt",
+          "bytes": 99,
+          "sha256": "39ba2adb20148000b156da33be9a53d38f13ab09402c65b9795676013e357020"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/junit.xml",
+          "bytes": 3916,
+          "sha256": "7c431a44b60c58ca6ef07c263f06db67da26c660d2c773d55e023202ff14a72a"
+        }
+      }
+    }
+  ],
+  "ruff_run": {
+    "status": "PASS_ZERO_DIAGNOSTICS",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "execution_head": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+    "candidate_commit_was_execution_head": false,
+    "candidate_parent_is_execution_head": true,
+    "capture_source_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+    "argv_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-nineteen-canonical-ruff-20261011/command.json",
+      "bytes": 8243,
+      "sha256": "ed11f435040bbfb4f574368713c6aea2e8375bbc5546fc87655227fe58baed19"
+    },
+    "command_summary": ".venv/bin/python -B -m ruff check --output-format json on all 19 changed production/stub/test paths",
+    "target_path_count": 19,
+    "execution_input_hash_inventory": {
+      "path_count": 22,
+      "paths_changed_during_run": 0,
+      "pre_post_maps_equal": true,
+      "all_19_candidate_paths_match": true,
+      "stable_configuration_inputs": {
+        "ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+        "ruff.generated.toml": "3e9528c1d2c0ce1767f73e567feaeefb2e78f139b96b00f3a9b26270d31496b9",
+        "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      }
+    },
+    "exit_code": 0,
+    "wall_seconds": 0.046669041039422154,
+    "diagnostics": 0,
+    "raw_outputs": {
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-nineteen-canonical-ruff-20261011/stdout.txt",
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-nineteen-canonical-ruff-20261011/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "bounded_properties": [
+    {
+      "property": "PAG static-ID admission and proof authority",
+      "source_paths": [
+        "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "src/polisyos/foundry/methods/catalog/causal/pag_completion.py"
+      ],
+      "tested_by": [
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_r1_private_route_surfaces_only_static_proof_steps",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_r1_private_route_requires_orientation_property",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_each_policy_refuses_residual_circles_before_static_id",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_resolved_identified_pag_matches_static_admg_result",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_resolved_bidirected_pag_matches_static_admg_for_each_policy",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_optimistic_resolved_policy_is_trace_only",
+        "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_probabilistic_confidence_is_trace_only"
+      ],
+      "observed": "R1-R3 orientation is followed by static-profile validation before policy handling. Residual circles are refused for all three policies; OPTIMISTIC does not commit endpoints, PROBABILISTIC confidence is trace-only, and resolved PAG results/proof steps match static ADMG results. The no-op orientation control retains the PAG/policy setup but removes the orientation property and still must refuse.",
+      "audit_surface": "The actual CausalEngine.audit consumer returns an EvidenceBundle whose proof_steps equal the existing internal-to-IR proof-step projection, with no PAG/policy/confidence marker claims. This selector proves the audit/EvidenceBundle projection, not a CAS/fresh-process persistence or general API claim.",
+      "positive_controls": [
+        "A directed ADMG remains identified.",
+        "An ADMG bow remains HEDGE_FOUND with a hedge certificate.",
+        "A resolved bidirected X<->Y PAG has the same static result as its ADMG counterpart under every policy; this is not a full equivalence-class identification result."
+      ],
+      "authority_boundary": "PAG policy and declared confidence are trace diagnostics only. PAG-specific synthetic ProofStep claims and policy-driven endpoint commitments are absent from the current result path."
+    },
+    {
+      "property": "PAG consumers reject duplicate adjacency rows after schema bypass",
+      "source_path": "src/polisyos/foundry/methods/catalog/causal/pag_completion.py",
+      "tested_by": "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py::test_pag_consumers_refuse_duplicate_rows_after_schema_bypass",
+      "observed": "Directly constructed duplicate unordered endpoint rows are rejected before endpoint-keyed orientation/validation structures can silently overwrite a row."
+    },
+    {
+      "property": "CausalEngine split-module runtime surface and import-cycle behavior",
+      "source_paths": [
+        "src/polisyos/foundry/methods/catalog/causal/_causal_engine_contracts.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/discovery.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+        "src/polisyos/foundry/methods/catalog/causal/causal_engine/sensitivity.py",
+        "src/polisyos/foundry/methods/catalog/causal/interference/api.py",
+        "src/polisyos/foundry/methods/_internal/reexport.py",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/registry.pyi"
+      ],
+      "tested_by": [
+        "tests/unit/foundry/methods/catalog/causal/test_phase41_module_splits.py",
+        "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+        "tests/unit/foundry/methods/test_causal_engine_integration.py"
+      ],
+      "observed": "The selected consumer run exercised the legacy split-module runtime surface and actual CausalEngine/facade integration selectors. The 19-file source identity is separately verified above."
+    }
+  ],
+  "p40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "PAG policy/confidence metadata crossing into proof authority",
+    "property": "Only graph-grounded static ID proof for an R1-R3-resolved graph reaches the proof surface; policy labels and declared confidence cannot manufacture completion choices or proof steps.",
+    "closure_move_in_this_source": "One shared unresolved-endpoint gate covers every policy path, while policy and confidence remain diagnostic. The audit-side test verifies the resulting static proof projection.",
+    "falsifier": "Keep PAG and policy markers while replacing the orientation function with a no-op. If the graph retains circles and the static-ID result or EvidenceBundle proof surface still succeeds, this property is broken.",
+    "residual": "The code does not identify over the complete PAG equivalence class and does not evaluate all endpoint completions; unresolved endpoints remain blocked."
+  },
+  "related_records": [
+    {
+      "role": "prior_foundry_15_path_static_review",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/foundry-fifteen-final-boundary-independent-20261011.json",
+      "bytes": 18046,
+      "sha256": "8d61c3ac101df8b529a94af983dea0fab8b0e16022670a27cbc476165d88453e",
+      "interpretation": "Historical independent static review; its own disposition is LIMIT and it is not this execution receipt.",
+      "prior_outcome": "LIMIT",
+      "formal_closure_ids": []
+    },
+    {
+      "role": "prior_pag_v5_patch",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pag-v5-wholechain-strict-gate-companion-20261011/pag-v5-wholechain-strict-gate-companion.patch",
+      "bytes": 7101,
+      "sha256": "414455712389b7005c3fc3038dd98a72b838def875c64492b049dff4fd6a9b21",
+      "interpretation": "Historical virtual patch artifact; not itself execution evidence for this source candidate."
+    },
+    {
+      "role": "prior_pag_v5_decision",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/pag-v5-wholechain-strict-gate-companion-20261011.md",
+      "bytes": 4194,
+      "sha256": "88d995a44163b7c4400ea40cfbd8c3b4b92663a92a341cedad92e33f163e5583",
+      "interpretation": "Historical review/decision note; read for provenance only."
+    },
+    {
+      "role": "prior_pag_v5_independent_review",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/pag-v5-wholechain-strict-gate-companion-independent-20261011.md",
+      "bytes": 5207,
+      "sha256": "619290d60c9aa1a0087ba2b75666b3d8c5878bae0a3979b08b1b7576dc12d45e",
+      "interpretation": "Historical independent review of the virtual patch; not formal closure."
+    },
+    {
+      "role": "causal_engine_deferred_scc_patch_v2",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-causal-engine-deferred-scc-20261011/causal-engine-deferred-scc-virtual-v2.patch",
+      "bytes": 3124,
+      "sha256": "942ac620b81e630d24e3c5c74633a6a46415f33a2a53dcaf57052ccdc338abc4",
+      "interpretation": "Prior source-SCC companion incorporated in the current committed footprint."
+    },
+    {
+      "role": "causal_engine_deferred_scc_manifest_v2",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-causal-engine-deferred-scc-20261011/manifest-v2.json",
+      "bytes": 2023,
+      "sha256": "363bb1fd26f7c219486537f699c24617895665a34e0b8561239107de9b286ff7",
+      "interpretation": "Prior source hash/preimage manifest for that companion."
+    },
+    {
+      "role": "causal_engine_deferred_scc_decision",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/native-causal-engine-deferred-scc-20261011.md",
+      "bytes": 5259,
+      "sha256": "3f3f1758d53d0f21daac96e18acbbf5bbba4ab4b0d59264e2625fe89f15ec30d",
+      "interpretation": "Prior source-SCC decision note; runtime execution is separately recorded below."
+    },
+    {
+      "role": "causal_engine_deferred_scc_independent_review",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/causal-engine-deferred-scc-independent-20261011.md",
+      "bytes": 4655,
+      "sha256": "39e55f3a8b35cce6974c790f8665796f339b3b56aa13c7d88c53ab01834a9144",
+      "interpretation": "Prior independent review; it explicitly marked runtime acceptance pending."
+    }
+  ],
+  "not_established": [
+    "Full PAG equivalence-class identification, all completions, or complete orientation beyond the implemented R1-R3 pass.",
+    "Temporal-PAG semantics, causal calibration, currentness/staleness semantics, generalized CAS/fresh-process persistence, or a broad API capability claim.",
+    "A full native or whole-repository gate; only the exact focused pytest selectors and 19-file Ruff command recorded above were run.",
+    "Formal G acceptance or closure of any finding; prior reviewer/author proposals remain separate evidence."
+  ],
+  "formal_closure_ids": [],
+  "formal_g_acceptance": false,
+  "p41": {
+    "classification": "not_established",
+    "inherited_reds": [],
+    "statement": "This receipt assigns no inherited failure and makes no baseline-red ownership claim."
+  },
+  "retention": {
+    "raw_execution_records": "Retained locally under LOCAL/raw; each command receipt and deciding stdout/stderr/JUnit file is identified by path, byte length, and SHA-256. Raw files are not copied into this canonical JSON.",
+    "source_records": "The committed source paths are named by per-path base/candidate SHA-256 and tied to the exact source commit/tree and local/remote checkpoint readbacks."
+  },
+  "public_surface_boundary": {
+    "status": "partial",
+    "verified_behavior": "The current path supports ordinary static ID only after the R1-R3 orientation pass resolves all PAG circles; unresolved endpoints are refused.",
+    "not_claimed": "This receipt does not establish complete PAG equivalence-class identification, all-completion semantics, or a broader public capability."
+  }
+}

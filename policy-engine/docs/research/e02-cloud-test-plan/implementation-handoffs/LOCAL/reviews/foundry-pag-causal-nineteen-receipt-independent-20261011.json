@@ -1,0 +1,90 @@
+{
+  "schema": "polisyos.e02.foundry-pag-causal-nineteen-independent-review.v1",
+  "review_status": "GO_BOUNDED_RECEIPT_ONLY",
+  "review_scope": "Independent read-only verification of the canonical Foundry PAG/Causal 19-path execution receipt and its retained source/output bindings.",
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "edf9bbac35635727a500dad8bcc30ab5f6bfc13c",
+    "tree": "4414307d06261987720aba50f558f9d426bf7a56",
+    "parent_and_slice_base": "bba2140a4ed71276e01e999fb0f7f634a4e147aa",
+    "review_checkout_head": "edf9bbac35635727a500dad8bcc30ab5f6bfc13c",
+    "review_checkout_tree": "4414307d06261987720aba50f558f9d426bf7a56",
+    "working_tree_note": "The checkout is globally dirty with unrelated peer work. Review verified the receipt's 19 named source paths only; neither this review nor the receipt claims global cleanliness."
+  },
+  "subject_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/foundry-pag-causal-nineteen-verification.json",
+    "bytes": 30043,
+    "sha256": "40082901e8b513dbb1d263bd01e688dd957a7332cb8924ebd595fae72edba63f"
+  },
+  "checks": {
+    "source_identity": {
+      "status": "PASS",
+      "candidate_paths": 19,
+      "candidate_paths_matching_current_worktree_and_git_show": 19,
+      "source_checkpoint_refs_sha_and_size_verified": 3,
+      "remote_readback_commit_tree_and_paths_match": true,
+      "local_branch_and_origin_branch_point_to_candidate": true,
+      "details": "Recomputed SHA-256 for each named path from the current worktree and git show at the candidate commit. Confirmed candidate tree and parent; recomputed receipt, source-checkpoint, test-command, JUnit/stdout/stderr, Ruff-output, and related-record refs by path, byte count, and SHA-256."
+    },
+    "broad_consumer_run": {
+      "status": "PASS_WITH_ONE_INPUT_MISMATCH",
+      "tests": 521,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 44.69570504198782,
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/command.json@7199ff4002ac09f87f302f1b459dd154d7d67744e52d43af542d27ce649c53b9",
+      "outputs": {
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/stdout.txt@68d434911832ffc8c1e76a988144e8a63ab0e1e5e8252bdebf47348261a3b0f1",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-pag-v5-causal-scc-real-consumers-20261011/junit.xml@03a5d8f0ff7e7525929ee95e5a874701705cb6f787b50ba18a8bbc63094b7ccd"
+      },
+      "input_binding": "The recorded inventory is stable across 6,164 paths, but one named candidate path differs from the execution input: tests/unit/foundry/methods/catalog/causal/test_pag_completion.py. Do not cite this run alone as a fully candidate-bound 521-test pass."
+    },
+    "candidate_pag_file_rerun": {
+      "status": "PASS",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 6.262314666993916,
+      "candidate_paths_matching_execution_input": 19,
+      "candidate_paths_mismatching_execution_input": 0,
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/command.json@de777f1a38a9995a3538d2711b8515ace9d0c154e92dd6d9a3a9602e55f20c6a",
+      "outputs": {
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/stdout.txt@39ba2adb20148000b156da33be9a53d38f13ab09402c65b9795676013e357020",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/pag-v5-final-import-order-consumers-20261011/junit.xml@7c431a44b60c58ca6ef07c263f06db67da26c660d2c773d55e023202ff14a72a"
+      },
+      "interpretation": "This full-file rerun covers the current candidate version of the sole mismatching test path. The two run counts are not additive and should remain separately qualified."
+    },
+    "ruff": {
+      "status": "PASS_ZERO_DIAGNOSTICS",
+      "paths": 19,
+      "all_candidate_paths_match_execution_input": true,
+      "wall_seconds": 0.046669041039422154,
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-nineteen-canonical-ruff-20261011/command.json@ed11f435040bbfb4f574368713c6aea2e8375bbc5546fc87655227fe58baed19",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/foundry-nineteen-canonical-ruff-20261011/stdout.txt@4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "retention_and_claims": {
+      "raw_command_and_deciding_outputs_present_and_hash_bound": true,
+      "source_text_copied_into_canonical_receipt": false,
+      "formal_closure_ids": [],
+      "formal_g_acceptance": false,
+      "public_surface_status": "partial",
+      "whole_repository_or_native_gate_claimed": false,
+      "reviewer_proposals_promoted_to_formal_closure": false,
+      "p40": "SAME_CLASS_DEEPER; the receipt states one shared unresolved-endpoint gate and keeps policy/confidence diagnostic-only, with a no-op-orientation falsifier and residual unresolved circles blocked."
+    }
+  },
+  "bounded_scope": {
+    "verified_behavior": "For the focused selectors recorded, R1-R3 orientation is followed by static-profile validation; unresolved circles are refused across policies, policy/confidence do not promote proof authority, the audit/EvidenceBundle projection carries static proof steps, and duplicate adjacency rows after schema bypass are rejected.",
+    "not_established": [
+      "Complete PAG equivalence-class identification or all endpoint completions.",
+      "Temporal-PAG, calibration, currentness/staleness, generalized CAS/fresh-process persistence, or broad API capability.",
+      "The full native gate or full repository suite.",
+      "Formal G acceptance or closure of any finding."
+    ]
+  },
+  "reviewer_disposition": "The canonical receipt is internally consistent for its declared bounded scope and retains a usable source/output audit trail. Keep the broad-run input mismatch explicit; the targeted rerun and all-19 Ruff receipt support the narrower candidate-bound claims. No source or property expansion is requested by this receipt review."
+}

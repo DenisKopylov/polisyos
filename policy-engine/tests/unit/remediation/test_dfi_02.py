@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 
-from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-from polisyos.data_forge.domains.catalog.batch.core_sources import api, loaders, transformers
+from polisyos.data_forge.domains.catalog.batch import pipeline
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CoreSourcesIngestStats,
 )
-from polisyos.data_forge.domains.catalog.batch import pipeline
+from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.core_sources import api, loaders, transformers
 from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
 
 
@@ -94,7 +94,8 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     original = transformers._to_iso3
-    replacement = lambda _country: "BOUND"
+    def replacement(_country):
+        return "BOUND"
     monkeypatch.setattr(facade, "_to_iso3", replacement)
 
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]

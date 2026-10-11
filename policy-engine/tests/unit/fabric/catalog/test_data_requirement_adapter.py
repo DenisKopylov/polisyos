@@ -150,12 +150,24 @@ def test_fabric_consumes_capability_binding_result_with_source_assets_and_reject
         ],
     )
 
-    selected = [
-        row for row in report["source_contract_bindings"] if row["binding_status"] == "selected"
-    ][0]
-    rejected = [
-        row for row in report["source_contract_bindings"] if row["binding_status"] == "rejected"
-    ][0]
+    selected = next(
+        (
+            row
+            for row in report["source_contract_bindings"]
+            if row["binding_status"] == "selected"
+        ),
+        None,
+    )
+    rejected = next(
+        (
+            row
+            for row in report["source_contract_bindings"]
+            if row["binding_status"] == "rejected"
+        ),
+        None,
+    )
+    assert selected is not None, "expected a selected source-contract binding"
+    assert rejected is not None, "expected a rejected source-contract binding"
 
     assert selected["capability_ref"] == "capability:firm_survival_signal__ua__wartime_2022"
     assert selected["construct_ref"] == "construct:firm_survival"

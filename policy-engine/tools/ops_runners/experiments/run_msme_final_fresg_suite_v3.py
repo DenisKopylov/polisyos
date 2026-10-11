@@ -29,10 +29,8 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-
 import run_msme_final_fresg_suite as base
 import run_msme_final_fresg_suite_v2 as v2
-
 
 FINAL_EXPERIMENT_ID = "msme_final_fresg_evaluation_v3_20260501"
 V3_CAUSAL_METHODS = (
@@ -92,8 +90,12 @@ def stable_float(*parts: Any, low: float = 0.0, high: float = 1.0) -> float:
 
 def _import_sklearn():
     from sklearn.base import clone
-    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-    from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+    from sklearn.ensemble import (
+        HistGradientBoostingClassifier,
+        HistGradientBoostingRegressor,
+        RandomForestClassifier,
+        RandomForestRegressor,
+    )
     from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression
     from sklearn.model_selection import KFold
     from sklearn.pipeline import make_pipeline
@@ -578,7 +580,7 @@ def stage_05b_causal_discovery(ctx: dict[str, Any]) -> dict[str, Any]:
     write_json(out / "discovery_inputs.json", {"rows": rows, "algorithms": algos, "bootstrap_resamples": resamples})
     write_markdown(
         out / "e3b_discovery_summary.md",
-        f"""
+        """
 # E3b Corrective Causal Discovery Ensemble
 
 Execution mode: `algorithmic_partial_correlation_bootstrap`.
@@ -635,7 +637,7 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
             survival_samples = []
             employment_samples = []
             utility_samples = []
-            for seed_id in range(seeds):
+            for _seed_id in range(seeds):
                 noise = rng.normal(0, 0.025, size=agents)
                 alive = np.ones(agents, dtype=bool)
                 employment = np.clip(0.42 + 0.25 * liquidity + 0.08 * digital - 0.22 * conflict * conflict_m, 0, 1)

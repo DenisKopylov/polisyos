@@ -15,17 +15,17 @@ import hashlib
 import json
 import shutil
 import sys
+from collections.abc import Iterator  # noqa: TC003 - Preserve public runtime annotation resolution.
 from pathlib import Path
-from typing import Iterator
 
 import yaml
-
-from polisyos.ir.loading.loaders import load_trinity_bundle
 from polisyos.ir.legacy.migrations.surface_to_trinity import (
     is_legacy_trinity_bundle_payload,
     is_trinity_bundle_payload,
     migrate_trinity_to_surface_ir,
 )
+
+from polisyos.ir.loading.loaders import load_trinity_bundle
 
 
 class MigrationReport:
@@ -121,6 +121,7 @@ def verify_migration(original_data: dict, trinity_data: dict) -> tuple[bool, str
         (success, message) tuple
     """
     from polisyos.ir.legacy.surface import PolicySurfaceIR
+
     from polisyos.ir.trinity import TrinityBundle
 
     try:

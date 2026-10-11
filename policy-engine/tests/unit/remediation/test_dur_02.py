@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime, timedelta
+from importlib import import_module
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
@@ -12,18 +13,17 @@ import pytest
 # Import the eager compatibility facade first.  It initializes the split
 # control modules before the store reaches ``response_shapes`` and avoids the
 # ``control.py`` shim import cycle in this standalone remediation module.
-import polisyos.runtime.http.services.control as _control_facade
-import polisyos.runtime.http.services.control_worker as _control_worker_module
-
+import_module("polisyos.runtime.http.services.control")
+import_module("polisyos.runtime.http.services.control_worker")
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
+from polisyos.scientist.orchestration.engine.runner import fallback_runner as fallback_runner_module
 from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
-    FallbackWorkflowRunner,
     FallbackNotAuthorizedError,
+    FallbackWorkflowRunner,
     HealthFailureDisposition,
     PrimaryExecutionOutcomeUnknownError,
 )
-from polisyos.scientist.orchestration.engine.runner import fallback_runner as fallback_runner_module
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 
 

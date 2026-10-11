@@ -12,13 +12,13 @@ import pandas as pd
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_age, utc_now
 from polisyos.fabric.numerics.finite import (
     ensure_non_negative_finite,
     ensure_probability,
     is_finite_number,
 )
 from polisyos.fabric.quality.safety import quote_sql_identifier, validate_sql_identifier
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_age, utc_now
 
 logger = get_logger(__name__)
 
@@ -529,7 +529,8 @@ def compute_quality_from_duckdb(
     )
     conn = duckdb.connect(db_path, read_only=True)
     try:
-        row_count_query = "SELECT COUNT(*) FROM " + safe_table_name
+        # Identifiers cannot be bound as SQL values; this relation is validated and quoted above.
+        row_count_query = "SELECT COUNT(*) FROM " + safe_table_name  # noqa: S608
         row_count = conn.execute(row_count_query).fetchone()[0]
 
         columns_info = conn.execute(f"DESCRIBE {safe_table_name}").fetchall()
@@ -549,7 +550,8 @@ def compute_quality_from_duckdb(
             null_checks = " + ".join(
                 [f"CASE WHEN {col} IS NULL THEN 1 ELSE 0 END" for col in quoted_columns]
             )
-            null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name
+            # Every dynamic token here is a validated, quoted identifier; no values are interpolated.
+            null_count_query = "SELECT SUM(" + null_checks + ") FROM " + safe_table_name  # noqa: S608
             total_nulls = conn.execute(null_count_query).fetchone()[0] or 0
             non_finite_cells = 0
             if numeric_non_finite_columns:
@@ -559,7 +561,8 @@ def compute_quality_from_duckdb(
                         for col in numeric_non_finite_columns
                     ]
                 )
-                non_finite_query = "SELECT SUM(" + non_finite_checks + ") FROM " + safe_table_name
+                # This predicate also contains only fixed SQL and quoted identifiers.
+                non_finite_query = "SELECT SUM(" + non_finite_checks + ") FROM " + safe_table_name  # noqa: S608
                 non_finite_cells = conn.execute(non_finite_query).fetchone()[0] or 0
             total_cells = row_count * len(column_names)
             missingness = min(1.0, (total_nulls + non_finite_cells) / total_cells)

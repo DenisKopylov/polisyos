@@ -4,8 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.connectors.quality.statistics import AnomalyFinding, AnomalyReport
-from polisyos.fabric.quality.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.fabric.quality import (
     QualityIndicators,
     QualityLevel,
@@ -13,6 +13,7 @@ from polisyos.fabric.quality import (
     compute_quality_from_duckdb,
     compute_quality_indicators,
 )
+from polisyos.fabric.quality.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.fabric.quality.safety import UnsafeIdentifierError
 
 
@@ -262,6 +263,19 @@ class TestDuckDBQualityComputation:
                 "safe_table; DROP TABLE safe_table; --",
                 "metric",
             )
+
+    def test_rejects_unsafe_catalog_column_before_dynamic_queries(self, tmp_path) -> None:
+        duckdb = pytest.importorskip("duckdb")
+        db_path = tmp_path / "quality.duckdb"
+        with duckdb.connect(str(db_path)) as conn:
+            conn.execute('CREATE TABLE safe_table ("value; DROP TABLE safe_table; --" INTEGER)')
+            conn.execute("INSERT INTO safe_table VALUES (1)")
+
+        with pytest.raises(UnsafeIdentifierError, match="Unsafe DuckDB column"):
+            compute_quality_from_duckdb(str(db_path), "safe_table", "metric")
+
+        with duckdb.connect(str(db_path), read_only=True) as conn:
+            assert conn.execute("SELECT COUNT(*) FROM safe_table").fetchone()[0] == 1
 
     def test_compute_quality_from_duckdb_accepts_injected_metrics(
         self,

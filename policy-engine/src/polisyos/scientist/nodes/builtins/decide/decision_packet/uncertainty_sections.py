@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import DataSnapshot, SimulationResult, UncertaintyEnvelopeRef
 from polisyos.ir.analytics.uncertainty import (

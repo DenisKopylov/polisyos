@@ -19,10 +19,12 @@ from polisyos.core.artifacts import (
     ArtifactRef as CoreArtifactRef,
 )
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+    resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts import (
-    resolve_manifest_by_profile,
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.ir_adapter import (
@@ -30,7 +32,6 @@ from polisyos.core.artifacts.ir_adapter import (
     build_ir_artifact_store,
     ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
     CompileRequest,

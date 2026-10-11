@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import InputRef
 from polisyos.foundry.uncertainty.covariance import (
     CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
     CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,

@@ -14,7 +14,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (

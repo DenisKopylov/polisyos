@@ -15,10 +15,9 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.core.contracts.skip_blockers import (
     SkippedNodeBlocker,

@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts import ArtifactID
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,

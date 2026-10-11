@@ -9,8 +9,8 @@ from typing import Any
 import numpy as np
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import InputRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import InputRef
 from polisyos.foundry.methods.catalog.distributional.poverty_advanced import (
     OrdinalMultidimensionalPovertyEstimator,
 )

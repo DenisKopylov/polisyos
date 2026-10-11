@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import artifacts, registry, run
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts import NaturalLanguageRunRequest

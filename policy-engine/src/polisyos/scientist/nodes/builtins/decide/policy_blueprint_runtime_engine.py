@@ -7,7 +7,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator

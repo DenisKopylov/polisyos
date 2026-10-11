@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.scientist.methods.search.calibration_report import (
     build_calibration_report,
     persist_funnel_calibration_report,

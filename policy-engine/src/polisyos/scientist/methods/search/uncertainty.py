@@ -7,8 +7,13 @@ from typing import Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    FileSystemCAS,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir import UncertaintyType
 

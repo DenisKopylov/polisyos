@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
-from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (
@@ -28,6 +28,7 @@ from polisyos.runtime.quality.authority import (
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationError,
     reconcile_authority_ref,
+    resolve_authority_diagnostic_event_ref,
 )
 from polisyos.runtime.quality.evaluation_safety import (
     EVALUATION_SAFETY_ARTIFACT_IDENTITIES,
@@ -629,7 +630,7 @@ class EvaluationSafetyPersistenceService:
         intake: EvaluationAttemptIntake,
         context: EvaluationSafetyPersistenceContext,
     ) -> tuple[_PromotionReplaySource | None, list[str], list[str], list[str]]:
-        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.core.artifacts import artifact_ref_identity_key
         from polisyos.runtime.http.services.adapters.core_run import (
             load_completed_control_job_core_run_source,
         )
@@ -1183,11 +1184,14 @@ class EvaluationSafetyPersistenceService:
                 ):
                     raise ValueError("eval_safety_decision_producer_mismatch")
                 reconciled.append((selected_ref, rebuilt))
-                event_manifest = self._artifact_store.get_manifest(
-                    core_artifacts.ArtifactID.model_validate(
-                        self._artifact_store.get_manifest(typed_id).authority.diagnostic_event_ref
-                    )
+                event_authority = self._artifact_store.get_manifest(typed_id).authority
+                if event_authority is None:
+                    raise ValueError("eval_safety_diagnostic_event_linkage_missing")
+                selected_event_ref = resolve_authority_diagnostic_event_ref(
+                    self._artifact_store,
+                    event_authority,
                 )
+                event_manifest = self._artifact_store.get_manifest(selected_event_ref)
                 event_refs.append(
                     EvalSafetyArtifactRef(
                         artifact_id=str(event_manifest.artifact_id),
@@ -1196,6 +1200,7 @@ class EvaluationSafetyPersistenceService:
                         schema_ref=event_manifest.artifact_schema.name,
                         uri=f"cas://sha256/{event_manifest.artifact_id.hex}",
                         version=event_manifest.artifact_schema.version,
+                        manifest_profile_sha256=(selected_event_ref.manifest_profile_sha256),
                     )
                 )
                 if report.status != "pass":
@@ -1515,6 +1520,8 @@ class EvaluationSafetyPersistenceService:
             and envelope.evidence_class == identity.evidence_class
             and envelope.authority_role == identity.authority_role
             and envelope.runtime_event_ref == authority.diagnostic_event_ref
+            and envelope.runtime_event_manifest_profile_sha256
+            == authority.diagnostic_event_manifest_profile_sha256
         )
 
     def _read_model[ModelT: BaseModel](

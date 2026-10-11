@@ -12,8 +12,11 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import ensure_ir_artifact_store, resolve_manifest_by_profile
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ensure_ir_artifact_store,
+    resolve_manifest_by_profile,
+)
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.protocol import PropagationResult, UncertaintyDecomposition
 from polisyos.ir import ArtifactRefModel

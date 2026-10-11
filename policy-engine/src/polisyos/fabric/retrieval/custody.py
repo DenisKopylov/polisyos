@@ -22,7 +22,7 @@ from polisyos.ir.connectors import FetchRequest, FetchResult
 from .providers import RetrievalProviders
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
 
 _CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _PRODUCER = core_artifacts.ProducerInfo(

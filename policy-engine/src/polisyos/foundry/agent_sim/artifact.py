@@ -23,9 +23,9 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Generic, TypeVar
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.foundry.runtime.fingerprint import (

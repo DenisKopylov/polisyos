@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.contracts import (
     AgentPipelineCostEvent,
     ControlJobResponse,
@@ -37,6 +37,10 @@ from polisyos.runtime.quality.design_problem import (
     DesignProblem,
     DesignProblemAuthorityError,
 )
+from polisyos.runtime.quality.generic_simulation_admission import (
+    GenericCycleSimulationAdmissionOwner,
+    GenericCycleSimulationContextHandoffV1,
+)
 from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskPublicLimitation,
 )
@@ -51,6 +55,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCyclePartialRunV2,
     RecursiveGenerationCyclePartialRunV3,
     RecursiveGenerationCycleRun,
+    RecursiveLeafContextOwner,
     build_default_recursive_generation_cycle_controller,
 )
 
@@ -64,7 +69,10 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.confidence_ledger import N6DeploymentCurrentnessObservation
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        VerifiedNLJobScope,
+    )
     from polisyos.runtime.quality.design_generation import (
         DesignGenerationOrganRun,
         GenerationUnderAResult,
@@ -80,7 +88,6 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
-        RecursiveLeafContextOwner,
     )
     from polisyos.scientist import BudgetState
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -96,6 +103,12 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION = (
 )
 COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v4"
+)
+COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION = (
+    "policyos.runtime.http.compiled_recursive_generation_cycle.v5"
+)
+COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION = (
+    "policyos.runtime.http.compiled_recursive_generation_cycle.v6"
 )
 NORMATIVE_RUN_DISPOSITION_KIND = "runtime.normative_generation_composition"
 NORMATIVE_RUN_DISPOSITION_V1_SCHEMA = "policyos.normative_generation_composition.v1"
@@ -179,22 +192,33 @@ class RecursiveBudgetResolution(BaseModel):
     effective_candidate_children: int | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
-    child_budget_profile: Literal["candidate-lever-exploration-at-most-2.v1"] | None = Field(
-        default=None, exclude_if=lambda value: value is None
-    )
+    child_budget_profile: Literal[
+        "candidate-lever-exploration-at-most-2.v1",
+        "n4-source-complete-child-set.v1",
+    ] | None = Field(default=None, exclude_if=lambda value: value is None)
 
 
 def _resolve_http_recursive_budget(
     requested_max_iterations: object,
     *,
     candidate_child_count: int | None = None,
+    generic_child_count: int | None = None,
 ) -> tuple[int, RecursiveBudgetResolution]:
-    """Resolve the existing HTTP cap without hiding its requested value."""
+    """Resolve HTTP cycles and an exact source-derived child-set budget."""
 
     if candidate_child_count is not None and (
         type(candidate_child_count) is not int or not 1 <= candidate_child_count <= 2
     ):
         raise DesignProblemAuthorityError("n4_recursive_child_count_outside_supported_profile")
+    if generic_child_count is not None and (
+        candidate_child_count is not None
+        or type(generic_child_count) is not int
+        or generic_child_count < 1
+    ):
+        raise DesignProblemAuthorityError("generic_n4_recursive_child_count_invalid")
+    complete_child_count = (
+        generic_child_count if generic_child_count is not None else candidate_child_count
+    )
     requested = int(requested_max_iterations or 1)
     effective = max(1, min(requested, _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF))
     if requested > _HTTP_RECURSIVE_MAX_CYCLES_PER_LEAF:
@@ -207,19 +231,23 @@ def _resolve_http_recursive_budget(
         requested_max_iterations=requested,
         effective_max_iterations=effective,
         recursive_budget=RecursiveBudgetProjection(
-            max_depth=1 if candidate_child_count is not None else _HTTP_RECURSIVE_MAX_DEPTH,
-            max_nodes=1 + candidate_child_count
-            if candidate_child_count is not None
+            max_depth=1 if complete_child_count is not None else _HTTP_RECURSIVE_MAX_DEPTH,
+            max_nodes=1 + complete_child_count
+            if complete_child_count is not None
             else _HTTP_RECURSIVE_MAX_NODES,
             min_cycles_per_leaf=1,
             max_cycles_per_leaf=effective,
         ),
         clamp_reason=clamp_reason,
-        requested_candidate_children=candidate_child_count,
-        effective_candidate_children=candidate_child_count,
-        child_budget_profile="candidate-lever-exploration-at-most-2.v1"
-        if candidate_child_count is not None
-        else None,
+        requested_candidate_children=complete_child_count,
+        effective_candidate_children=complete_child_count,
+        child_budget_profile=(
+            "n4-source-complete-child-set.v1"
+            if generic_child_count is not None
+            else "candidate-lever-exploration-at-most-2.v1"
+            if candidate_child_count is not None
+            else None
+        ),
     )
 
 
@@ -811,6 +839,8 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         "policyos.runtime.http.compiled_recursive_generation_cycle.v2",
         "policyos.runtime.http.compiled_recursive_generation_cycle.v3",
         "policyos.runtime.http.compiled_recursive_generation_cycle.v4",
+        "policyos.runtime.http.compiled_recursive_generation_cycle.v5",
+        "policyos.runtime.http.compiled_recursive_generation_cycle.v6",
     ] = COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     design_problem: DesignProblem
@@ -881,6 +911,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         ]
         | None
     ) = Field(default=None, exclude_if=lambda value: value is None)
+    n4_credal_source_attempt_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     n4_child_profile_status: Literal[
         "not_attempted",
         "resolved",
@@ -895,6 +929,24 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         min_length=1,
         exclude_if=lambda value: value is None,
     )
+    generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1 | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    generic_n4_child_profile_status: Literal[
+        "not_attempted",
+        "resolved",
+        "not_established",
+    ] = Field(default="not_attempted", exclude_if=lambda value: value == "not_attempted")
+    n4_child_profile_set_ref: ArtifactRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    generic_n4_child_profile_limitation_code: str | None = Field(
+        default=None,
+        min_length=1,
+        exclude_if=lambda value: value is None,
+    )
     open_world_risk_limitations: tuple[OpenWorldRiskPublicLimitation, ...] = Field(
         default=(),
         exclude_if=lambda rows: not rows,
@@ -903,7 +955,15 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
 
     @model_validator(mode="after")
     def _verify_bindings(self) -> CompiledRecursiveGenerationCycleRun:
-        expected_problem_ref = gy_content_hash(self.design_problem.model_dump(mode="json"))
+        if (
+            self.schema_version
+            == COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION
+        ):
+            from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+            expected_problem_ref = cycle_job_design_problem_ref(self.design_problem)
+        else:
+            expected_problem_ref = gy_content_hash(self.design_problem.model_dump(mode="json"))
         if self.design_problem_ref != expected_problem_ref:
             raise ValueError("compiled_recursive_design_problem_hash_mismatch")
         if self.recursive_run.root_design_problem_ref != self.design_problem_ref:
@@ -951,6 +1011,89 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             self.n4_child_profile_limitation_code is not None
         ):
             raise ValueError("compiled_recursive_child_profile_limitation_unexpected")
+        has_generic_handoff = self.generic_cycle_simulation_handoff is not None
+        has_generic_family = self.n4_child_profile_set_ref is not None
+        has_credal_source_attempt = self.n4_credal_source_attempt_ref is not None
+        if has_credal_source_attempt:
+            from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+
+            if (
+                self.generic_cycle_simulation_handoff is None
+                or self.generic_cycle_simulation_handoff.profile.profile_selection_ref
+                != cycle_job_profile_selection_ref(self.design_problem)
+            ):
+                raise ValueError("compiled_recursive_credal_source_attempt_root_profile_mismatch")
+        if has_credal_source_attempt and (
+            type(self.n4_credal_source_attempt_ref) is not ArtifactRef
+            or self.n4_credal_source_attempt_ref.kind
+            != "runtime.quality.candidate_credal_source_attempt"
+            or self.n4_credal_source_attempt_ref.media_type != "application/json"
+            or not has_generic_handoff
+            or not has_scoped_n4_source
+            or self.n4_recursive_source_result_status
+            not in {"generation_unavailable", "preflight_rejected"}
+            or self.generic_n4_child_profile_status != "not_established"
+            or self.generic_n4_child_profile_limitation_code is None
+            or self.n4_recursive_source_job_id
+            != self.generic_cycle_simulation_handoff.job_id
+            or self.n4_recursive_source_run_id
+            != self.generic_cycle_simulation_handoff.run_id
+            or self.n4_recursive_source_tenant_id
+            != self.generic_cycle_simulation_handoff.tenant_id
+            or self.n4_recursive_source_cell_id
+            != self.generic_cycle_simulation_handoff.cell_id
+            or self.n4_recursive_source_context_job_ref
+            != self.generic_cycle_simulation_handoff.context_job_ref
+            or self.n4_recursive_source_profile_config_ref
+            != self.generic_cycle_simulation_handoff.profile.profile_id
+            or self.n4_recursive_source_profile_selection_ref
+            != self.generic_cycle_simulation_handoff.profile.profile_selection_ref
+            or self.generic_cycle_simulation_handoff.profile.profile_selection_kind != "problem"
+        ):
+            raise ValueError("compiled_recursive_credal_source_attempt_binding_invalid")
+        if (
+            "n4_credal_source_attempt_ref" in self.model_fields_set
+            and self.schema_version
+            != COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION
+        ):
+            raise ValueError("compiled_recursive_credal_source_attempt_requires_v6")
+        if self.generic_n4_child_profile_status == "resolved":
+            handoff = self.generic_cycle_simulation_handoff
+            family_ref = self.n4_child_profile_set_ref
+            if (
+                not has_scoped_n4_source
+                or handoff is None
+                or family_ref is None
+                or self.generic_n4_child_profile_limitation_code is not None
+                or family_ref.kind != "runtime.quality.recursive_n4_child_profile_set"
+                or family_ref.media_type != "application/json"
+                or (
+                    handoff.job_id,
+                    handoff.run_id,
+                    handoff.tenant_id,
+                    handoff.cell_id,
+                )
+                != (
+                    self.n4_recursive_source_job_id,
+                    self.n4_recursive_source_run_id,
+                    self.n4_recursive_source_tenant_id,
+                    self.n4_recursive_source_cell_id,
+                )
+                or handoff.context_job_ref != self.n4_recursive_source_context_job_ref
+            ):
+                raise ValueError("compiled_recursive_generic_child_profile_resolution_invalid")
+        elif self.generic_n4_child_profile_status == "not_established":
+            if self.generic_n4_child_profile_limitation_code is None or has_generic_family:
+                raise ValueError("compiled_recursive_generic_child_profile_limitation_missing")
+        elif self.generic_n4_child_profile_limitation_code is not None or has_generic_family:
+            raise ValueError("compiled_recursive_generic_child_profile_projection_unexpected")
+        if has_generic_handoff and self.generic_n4_child_profile_status == "not_attempted":
+            raise ValueError("compiled_recursive_generic_handoff_without_attempt")
+        if self.n4_child_profile_status != "not_attempted" and has_generic_handoff:
+            raise ValueError("compiled_recursive_candidate_and_generic_child_profile_conflict")
+        has_generic_projection = has_generic_handoff or has_generic_family or (
+            self.generic_n4_child_profile_status != "not_attempted"
+        ) or self.generic_n4_child_profile_limitation_code is not None or has_credal_source_attempt
         child_nodes = tuple(row.node_ref for row in self.n4_child_profile_bindings)
         if len(child_nodes) != len(set(child_nodes)):
             raise ValueError("compiled_recursive_child_profile_binding_duplicate")
@@ -967,7 +1110,13 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         has_n4_projection = self.n4_child_profile_status != "not_attempted" or bool(
             self.n4_child_profile_bindings
         )
-        if has_producer_events or has_scoped_n4_source or has_n4_projection:
+        if has_generic_projection:
+            expected_schema_version = (
+                COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION
+                if has_credal_source_attempt
+                else COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION
+            )
+        elif has_producer_events or has_scoped_n4_source or has_n4_projection:
             expected_schema_version = COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION
         elif isinstance(self.recursive_run, RecursiveGenerationCyclePartialRunV2):
             expected_schema_version = COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION
@@ -983,6 +1132,17 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             has_producer_events or has_scoped_n4_source or has_n4_projection
         ):
             raise ValueError("compiled_recursive_v4_payload_extension_missing")
+        if has_credal_source_attempt:
+            if (
+                self.schema_version
+                != COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION
+            ):
+                raise ValueError("compiled_recursive_v6_payload_extension_mismatch")
+        elif (
+            self.schema_version
+            == COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION
+        ) != has_generic_projection:
+            raise ValueError("compiled_recursive_v5_payload_extension_mismatch")
         if (
             isinstance(
                 self.recursive_run,
@@ -1051,6 +1211,13 @@ async def compile_and_run_recursive_generation_cycle(
     cycle_substrate_context: CycleSubstrateContext | None = None,
     cycle_substrate_context_resolver: Callable[[DesignProblem], object | None] | None = None,
     candidate_simulation_currentness_resolver: Callable[[], bool] | None = None,
+    generic_cycle_simulation_handoff_resolver: (
+        Callable[[DesignProblem], GenericCycleSimulationContextHandoffV1 | None] | None
+    ) = None,
+    generic_cycle_simulation_admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
+    verified_nl_job_scope: VerifiedNLJobScope | None = None,
+    generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
+    enable_contract_testing_credal_source_attempts: bool = False,
     root_n4_generation_port: N4GenerationPort | None = None,
     root_n4_generation_client: object | None = None,
     n4_recursive_source: GenerationUnderAResult | None = None,
@@ -1072,6 +1239,16 @@ async def compile_and_run_recursive_generation_cycle(
     those identities in persisted DesignProblem provenance.
     """
 
+    if type(enable_contract_testing_credal_source_attempts) is not bool:
+        raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
+    if enable_contract_testing_credal_source_attempts and (
+        generic_cycle_simulation_admission_owner is None
+        or generic_cycle_simulation_handoff_resolver is None
+    ):
+        raise DesignProblemAuthorityError(
+            "contract_testing_credal_source_attempts_owner_missing",
+            "The candidate source attempt requires the configured generic test lane.",
+        )
     if promotion_runtime is None:
         raise DesignProblemAuthorityError(
             "promotion_runtime_not_established",
@@ -1223,8 +1400,10 @@ async def compile_and_run_recursive_generation_cycle(
             "cycle_plain_language_content_mismatch",
             "compiled DesignProblem does not preserve the caller's raw request",
         )
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    producer_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    problem_ref = producer_problem_ref
     candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None
+    generic_cycle_simulation_handoff: GenericCycleSimulationContextHandoffV1 | None = None
     context_refresh_limitation_code: str | None = None
     n4_recursive_source_ref: ArtifactRef | None = None
     n4_recursive_source_job_id: str | None = None
@@ -1240,8 +1419,20 @@ async def compile_and_run_recursive_generation_cycle(
     )
     n4_child_profile_bindings: tuple[CompiledN4ChildProfileBinding, ...] = ()
     n4_child_profile_limitation_code: str | None = None
+    generic_n4_child_profile_status: Literal[
+        "not_attempted", "resolved", "not_established"
+    ] = "not_attempted"
+    generic_n4_child_profile_limitation_code: str | None = None
+    n4_child_profile_set_ref: ArtifactRef | None = None
+    n4_credal_source_attempt_ref: ArtifactRef | None = None
+    generic_child_handoffs_by_node: dict[str, GenericCycleSimulationContextHandoffV1] = {}
     planned_child_handoffs: dict[str, CandidateSimulationContextHandoff] = {}
-    if cycle_substrate_context_resolver is not None:
+    def _resolve_candidate_context() -> None:
+        nonlocal candidate_simulation_handoff
+        nonlocal context_refresh_limitation_code
+        nonlocal cycle_substrate_context
+        if cycle_substrate_context_resolver is None:
+            return
         from polisyos.runtime.quality.candidate_simulation import (
             CandidateSimulationContextHandoff,
         )
@@ -1271,6 +1462,68 @@ async def compile_and_run_recursive_generation_cycle(
                     "cycle_substrate_context_resolver_returned_untyped",
                     "The served context resolver must return the canonical typed artifact.",
                 )
+
+    if generic_cycle_simulation_handoff_resolver is not None:
+        if (
+            execution_intent != "simulate_only"
+            or root_evaluation_context is not None
+            or n4_proposal_only
+            or type(generic_cycle_simulation_admission_owner)
+            is not GenericCycleSimulationAdmissionOwner
+            or type(recursive_leaf_context_owner) is not RecursiveLeafContextOwner
+            or recursive_leaf_context_owner._generic_admission_owner
+            is not generic_cycle_simulation_admission_owner
+            or verified_nl_job_scope is None
+            or recursive_leaf_context_owner._verified_nl_job_scope is not verified_nl_job_scope
+        ):
+            raise DesignProblemAuthorityError(
+                "generic_cycle_simulation_handoff_scope_mismatch",
+                "The generic N4/N5 route needs the configured owner and exact issued worker scope.",
+            )
+        resolved_generic_handoff = generic_cycle_simulation_handoff_resolver(problem)
+        if resolved_generic_handoff is not None and (
+            type(resolved_generic_handoff) is not GenericCycleSimulationContextHandoffV1
+            or resolved_generic_handoff.profile.profile_selection_kind != "problem"
+        ):
+            raise DesignProblemAuthorityError(
+                "generic_cycle_simulation_root_handoff_not_established",
+                "The server resolver must return the configured root problem handoff or no match.",
+            )
+        if resolved_generic_handoff is not None:
+            if candidate_simulation_handoff is not None:
+                raise DesignProblemAuthorityError(
+                    "candidate_and_generic_root_handoffs_conflict"
+                )
+            if (
+                generic_cycle_simulation_currentness_resolver is not None
+                and not generic_cycle_simulation_currentness_resolver()
+            ):
+                raise DesignProblemAuthorityError(
+                    "generic_cycle_simulation_currentness_not_established"
+                )
+            generic_cycle_simulation_handoff = (
+                generic_cycle_simulation_admission_owner.resolve_handoff(
+                    handoff=resolved_generic_handoff,
+                    problem=problem,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                    context_owner=recursive_leaf_context_owner._context_owner,
+                )
+            )
+            cycle_substrate_context = generic_cycle_simulation_handoff.context
+            generic_n4_child_profile_status = "not_established"
+            generic_n4_child_profile_limitation_code = "generic_n4_child_profile_not_resolved"
+    if generic_cycle_simulation_handoff is None:
+        _resolve_candidate_context()
+    if generic_cycle_simulation_handoff is None and (
+        generic_cycle_simulation_currentness_resolver is not None
+        or (
+            generic_cycle_simulation_admission_owner is not None
+            and generic_cycle_simulation_handoff_resolver is None
+        )
+    ):
+        raise DesignProblemAuthorityError(
+            "generic_cycle_simulation_owner_without_handoff"
+        )
 
     # The served simulate-only lane derives recursive children from a real N4
     # result. A root profile is used only to run this producer; each child must
@@ -1436,6 +1689,176 @@ async def compile_and_run_recursive_generation_cycle(
                         n4_child_profile_bindings = tuple(child_bindings)
                         n4_child_profile_status = "resolved"
                         n4_child_profile_limitation_code = None
+    if (
+        n4_recursive_source is None
+        and generic_cycle_simulation_handoff is not None
+        and execution_intent == "simulate_only"
+    ):
+        if generation_source_repository is None or recursive_leaf_context_owner is None:
+            generic_n4_child_profile_status = "not_established"
+            generic_n4_child_profile_limitation_code = (
+                "generic_n4_source_or_family_owner_not_established"
+            )
+        else:
+            from polisyos.runtime.quality.design_generation import (
+                DesignGenerationOrganRun,
+            )
+            from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+            from polisyos.runtime.quality.recursive_generation_cycle import (
+                RecursiveGenerationCycleError,
+            )
+
+            root_handoff = generic_cycle_simulation_handoff
+            root_source_port = N4GenerationPort(
+                model_id=model_name,
+                llm_client=root_n4_generation_client,
+                repo_root=repo_root,
+                cycle_substrate_context=root_handoff.context,
+                producer_run_id=producer_run_id,
+                producer_settlement_store=producer_settlement_store,
+                call_observer=_observe_n4_call,
+            )
+            root_organ = await root_source_port(problem, cycle_index=0)
+            if type(root_organ) is not DesignGenerationOrganRun:
+                raise DesignProblemAuthorityError(
+                    "generic_n4_source_producer_untyped",
+                    "The configured N4 source port did not return its canonical organ run.",
+                )
+            internal_source_run_id = producer_run_id or root_handoff.run_id
+            source_ref = generation_source_repository.persist_ref(
+                run_id=internal_source_run_id,
+                expected_run_id=root_handoff.run_id,
+                cycle_index=0,
+                problem=problem,
+                organ=root_organ,
+                execution_scope=(
+                    "contract_testing"
+                    if enable_contract_testing_credal_source_attempts
+                    else "production"
+                ),
+                job_id=root_handoff.job_id,
+                tenant_id=root_handoff.tenant_id,
+                cell_id=root_handoff.cell_id,
+                context_job_ref=root_handoff.context_job_ref,
+                profile_ref=root_handoff.profile_ref,
+                n4_child_profile_family_ref=root_handoff.n4_child_profile_family_ref,
+            )
+            loaded_source = generation_source_repository.load(
+                source_ref,
+                run_id=internal_source_run_id,
+                expected_run_id=root_handoff.run_id,
+                expected_job_id=root_handoff.job_id,
+                expected_tenant_id=root_handoff.tenant_id,
+                expected_cell_id=root_handoff.cell_id,
+                context_job_ref=root_handoff.context_job_ref,
+                profile_ref=root_handoff.profile_ref,
+                n4_child_profile_family_ref=root_handoff.n4_child_profile_family_ref,
+            )
+            if (
+                loaded_source.problem != problem
+                or loaded_source.generation_result
+                != root_organ.result
+                or loaded_source.cycle_substrate_context != root_handoff.context
+                or loaded_source.generation_result.design_problem_ref != producer_problem_ref
+            ):
+                raise DesignProblemAuthorityError(
+                    "generic_n4_source_readback_binding_mismatch",
+                    "Fresh N4 source readback did not match the producer and generic handoff.",
+                )
+            n4_recursive_source_ref = source_ref
+            n4_recursive_source_job_id = root_handoff.job_id
+            n4_recursive_source_run_id = root_handoff.run_id
+            n4_recursive_source_tenant_id = root_handoff.tenant_id
+            n4_recursive_source_cell_id = root_handoff.cell_id
+            n4_recursive_source_context_job_ref = root_handoff.context_job_ref
+            n4_recursive_source_profile_config_ref = root_handoff.profile.profile_id
+            n4_recursive_source_profile_selection_ref = (
+                root_handoff.profile.profile_selection_ref
+            )
+            n4_recursive_source_result_status = loaded_source.generation_result.status
+            n4_recursive_source = loaded_source.generation_result
+            if enable_contract_testing_credal_source_attempts:
+                n4_credal_source_attempt_ref = (
+                    generation_source_repository.persist_candidate_credal_source_attempt(
+                        n4_source_ref=source_ref,
+                        source_run_id=internal_source_run_id,
+                        job_id=root_handoff.job_id,
+                        run_id=root_handoff.run_id,
+                        tenant_id=root_handoff.tenant_id,
+                        cell_id=root_handoff.cell_id,
+                        problem=problem,
+                        context=root_handoff.context,
+                        context_job_ref=root_handoff.context_job_ref,
+                        profile_ref=root_handoff.profile_ref,
+                        profile_id=root_handoff.profile.profile_id,
+                        profile_selection_ref=root_handoff.profile.profile_selection_ref,
+                        n4_child_profile_family_ref=(
+                            root_handoff.n4_child_profile_family_ref
+                        ),
+                    )
+                )
+            if loaded_source.generation_result.status != "generated":
+                generic_n4_child_profile_status = "not_established"
+                generic_n4_child_profile_limitation_code = (
+                    "generic_n4_source_generation_not_complete"
+                )
+            elif root_handoff.n4_child_profile_family_ref is None:
+                generic_n4_child_profile_status = "not_established"
+                generic_n4_child_profile_limitation_code = (
+                    "generic_n4_child_profile_family_not_established"
+                )
+            else:
+                try:
+                    children, child_handoffs = (
+                        recursive_leaf_context_owner.admit_n4_child_profile_family(
+                            parent_problem=problem,
+                            parent_handoff=root_handoff,
+                            source_ref=source_ref,
+                            source_run_id=internal_source_run_id,
+                            source_repository=generation_source_repository,
+                        )
+                    )
+                except RecursiveGenerationCycleError as exc:
+                    if exc.code not in {
+                        "recursive_generic_n4_child_family_denominator_mismatch",
+                        "recursive_generic_n4_child_profile_not_in_pre_family",
+                    }:
+                        raise
+                    generic_n4_child_profile_status = "not_established"
+                    generic_n4_child_profile_limitation_code = exc.code
+                else:
+                    requested_iterations = (
+                        recursive_budget_resolution.requested_max_iterations
+                        if recursive_budget_resolution is not None
+                        else recursive_budget.max_cycles_per_leaf
+                    )
+                    _effective_iterations, child_budget_resolution = (
+                        _resolve_http_recursive_budget(
+                            requested_iterations,
+                            generic_child_count=len(children),
+                        )
+                    )
+                    recursive_budget_resolution = child_budget_resolution
+                    recursive_budget = type(recursive_budget).model_validate(
+                        child_budget_resolution.recursive_budget.model_dump(mode="python")
+                    )
+                    n4_child_profile_set_ref = (
+                        recursive_leaf_context_owner.persist_n4_child_profile_set(
+                            parent_problem=problem,
+                            parent_handoff=root_handoff,
+                            source_ref=source_ref,
+                            child_handoffs=child_handoffs,
+                            source_run_id=internal_source_run_id,
+                            source_repository=generation_source_repository,
+                        )
+                    )
+                    generic_child_handoffs_by_node = child_handoffs
+                    generic_n4_child_profile_status = "resolved"
+                    generic_n4_child_profile_limitation_code = None
+    if generic_cycle_simulation_handoff is not None:
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        problem_ref = cycle_job_design_problem_ref(problem)
     if cycle_substrate_context is None:
         scope_selection = _classify_target_world_scope_profile(target_world_scope_profile_id)
     else:
@@ -1555,20 +1978,19 @@ async def compile_and_run_recursive_generation_cycle(
     contexts_by_node = None
     handoffs_by_node = None
     generation_ports_by_node = None
+    generic_handoffs_by_node: dict[str, GenericCycleSimulationContextHandoffV1] | None = None
     if n4_recursive_source is not None and (
-        n4_child_profile_status == "resolved" or n4_recursive_source_ref is None
+        n4_child_profile_status == "resolved"
+        or generic_n4_child_profile_status == "resolved"
+        or n4_recursive_source_ref is None
     ):
-        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
         from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
         from polisyos.runtime.quality.generation_cycle import N4GenerationPort
-        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveLeafContextOwner
 
         if execution_intent != "simulate_only" or root_evaluation_context is not None:
             raise DesignProblemAuthorityError("n4_recursive_child_intent_not_candidate")
         if type(recursive_leaf_context_owner) is not RecursiveLeafContextOwner:
             raise DesignProblemAuthorityError("n4_recursive_child_context_owner_missing")
-        if cycle_substrate_context_resolver is None:
-            raise DesignProblemAuthorityError("n4_recursive_child_context_resolver_missing")
         children = derive_n4_candidate_child_problems(
             problem, n4_recursive_source, model_id=model_name
         )
@@ -1577,51 +1999,133 @@ async def compile_and_run_recursive_generation_cycle(
         if (
             recursive_budget_resolution is None
             or recursive_budget_resolution.child_budget_profile
-            != "candidate-lever-exploration-at-most-2.v1"
+            != (
+                "n4-source-complete-child-set.v1"
+                if generic_n4_child_profile_status == "resolved"
+                else "candidate-lever-exploration-at-most-2.v1"
+            )
             or recursive_budget_resolution.requested_candidate_children != len(children)
             or recursive_budget_resolution.effective_candidate_children != len(children)
             or recursive_budget.max_depth != 1
             or recursive_budget.max_nodes != 1 + len(children)
         ):
             raise DesignProblemAuthorityError("n4_recursive_child_supported_budget_missing")
-        problems_by_node = {}
-        contexts_by_node = {}
-        handoffs_by_node = {}
-        generation_ports_by_node = {}
-        root_scope = (
-            (
-                candidate_simulation_handoff.job_id,
-                candidate_simulation_handoff.run_id,
-                candidate_simulation_handoff.tenant_id,
-                candidate_simulation_handoff.cell_id,
+        if generic_n4_child_profile_status == "resolved":
+            if (
+                generic_cycle_simulation_handoff is None
+                or n4_child_profile_set_ref is None
+                or generation_source_repository is None
+            ):
+                raise DesignProblemAuthorityError(
+                    "generic_n4_child_profile_set_inputs_missing"
+                )
+            family = recursive_leaf_context_owner.load_n4_child_profile_set(
+                n4_child_profile_set_ref,
+                expected_job_id=generic_cycle_simulation_handoff.job_id,
+                expected_run_id=generic_cycle_simulation_handoff.run_id,
+                expected_tenant_id=generic_cycle_simulation_handoff.tenant_id,
+                expected_cell_id=generic_cycle_simulation_handoff.cell_id,
+                expected_parent_handoff=generic_cycle_simulation_handoff,
+                source_repository=generation_source_repository,
             )
-            if candidate_simulation_handoff is not None
-            else None
-        )
-        for child in children:
-            child_ref = "design-problem://" + gy_content_hash(
-                child.problem.model_dump(mode="json")
-            ).removeprefix("sha256:")
-            handoff = planned_child_handoffs.get(child_ref)
-            if handoff is None:
-                handoff = cycle_substrate_context_resolver(child.problem)
-            if type(handoff) is not CandidateSimulationContextHandoff:
-                raise DesignProblemAuthorityError("n4_recursive_child_configured_context_missing")
-            scope = (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
-            if root_scope is not None and scope != root_scope:
-                raise DesignProblemAuthorityError("n4_recursive_child_job_scope_mismatch")
-            problems_by_node[child_ref] = child.problem
-            contexts_by_node[child_ref] = handoff.context
-            handoffs_by_node[child_ref] = handoff
-            generation_ports_by_node[child_ref] = N4GenerationPort(
-                model_id=model_name,
-                repo_root=repo_root,
-                cycle_substrate_context=handoff.context,
-                candidate_simulation_handoff=handoff,
-                producer_run_id=producer_run_id,
-                producer_settlement_store=producer_settlement_store,
-                call_observer=_observe_n4_call,
+            if len(family.children) != len(children):
+                raise DesignProblemAuthorityError(
+                    "generic_n4_child_profile_family_source_denominator_mismatch"
+                )
+            family_rows = {row.node_ref: row for row in family.children}
+            from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+            actual_children = {
+                "design-problem://"
+                + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:"):
+                child
+                for child in children
+            }
+            if set(family_rows) != set(actual_children):
+                raise DesignProblemAuthorityError(
+                    "generic_n4_child_profile_family_source_denominator_mismatch"
+                )
+            problems_by_node = {}
+            contexts_by_node = {}
+            generic_handoffs_by_node = {}
+            generation_ports_by_node = {}
+            root_scope = (
+                generic_cycle_simulation_handoff.job_id,
+                generic_cycle_simulation_handoff.run_id,
+                generic_cycle_simulation_handoff.tenant_id,
+                generic_cycle_simulation_handoff.cell_id,
             )
+            for node_ref, child in actual_children.items():
+                row = family_rows[node_ref]
+                handoff = generic_child_handoffs_by_node.get(node_ref)
+                if (
+                    handoff is None
+                    or handoff != row.handoff
+                    or row.problem != child.problem
+                    or (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+                    != root_scope
+                ):
+                    raise DesignProblemAuthorityError(
+                        "generic_n4_child_profile_family_current_binding_mismatch"
+                    )
+                problems_by_node[node_ref] = child.problem
+                contexts_by_node[node_ref] = handoff.context
+                generic_handoffs_by_node[node_ref] = handoff
+                generation_ports_by_node[node_ref] = N4GenerationPort(
+                    model_id=model_name,
+                    repo_root=repo_root,
+                    cycle_substrate_context=handoff.context,
+                    producer_run_id=producer_run_id,
+                    producer_settlement_store=producer_settlement_store,
+                    call_observer=_observe_n4_call,
+                )
+        else:
+            if cycle_substrate_context_resolver is None:
+                raise DesignProblemAuthorityError(
+                    "n4_recursive_child_context_resolver_missing"
+                )
+            problems_by_node = {}
+            contexts_by_node = {}
+            handoffs_by_node = {}
+            generation_ports_by_node = {}
+            root_scope = (
+                (
+                    candidate_simulation_handoff.job_id,
+                    candidate_simulation_handoff.run_id,
+                    candidate_simulation_handoff.tenant_id,
+                    candidate_simulation_handoff.cell_id,
+                )
+                if candidate_simulation_handoff is not None
+                else None
+            )
+            for child in children:
+                child_ref = "design-problem://" + gy_content_hash(
+                    child.problem.model_dump(mode="json")
+                ).removeprefix("sha256:")
+                handoff = planned_child_handoffs.get(child_ref)
+                if handoff is None:
+                    handoff = cycle_substrate_context_resolver(child.problem)
+                if type(handoff) is not CandidateSimulationContextHandoff:
+                    raise DesignProblemAuthorityError(
+                        "n4_recursive_child_configured_context_missing"
+                    )
+                scope = (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+                if root_scope is not None and scope != root_scope:
+                    raise DesignProblemAuthorityError(
+                        "n4_recursive_child_job_scope_mismatch"
+                    )
+                problems_by_node[child_ref] = child.problem
+                contexts_by_node[child_ref] = handoff.context
+                handoffs_by_node[child_ref] = handoff
+                generation_ports_by_node[child_ref] = N4GenerationPort(
+                    model_id=model_name,
+                    repo_root=repo_root,
+                    cycle_substrate_context=handoff.context,
+                    candidate_simulation_handoff=handoff,
+                    producer_run_id=producer_run_id,
+                    producer_settlement_store=producer_settlement_store,
+                    call_observer=_observe_n4_call,
+                )
 
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
     if (
@@ -1689,6 +2193,16 @@ async def compile_and_run_recursive_generation_cycle(
                 problems_by_node or (root_ref,), execution_intent
             ),
             leaf_context_owner=recursive_leaf_context_owner,
+            generic_simulation_handoffs_by_node=generic_handoffs_by_node,
+            generic_n4_child_profile_set_ref=n4_child_profile_set_ref
+            if generic_handoffs_by_node
+            else None,
+            generic_n4_source_repository=generation_source_repository
+            if generic_handoffs_by_node
+            else None,
+            generic_parent_handoff=generic_cycle_simulation_handoff
+            if generic_handoffs_by_node
+            else None,
         )
     except _N4CandidateScenarioProposalOnlyError as signal:
         return N4CandidateScenarioProposalOnlyExecution(
@@ -1766,6 +2280,15 @@ async def compile_and_run_recursive_generation_cycle(
     )
     payload = {
         "schema_version": (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_CREDAL_SOURCE_ATTEMPT_SCHEMA_VERSION
+            if n4_credal_source_attempt_ref is not None
+            else COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION
+            if (
+                generic_cycle_simulation_handoff is not None
+                or generic_n4_child_profile_status != "not_attempted"
+                or n4_child_profile_set_ref is not None
+            )
+            else
             COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION
             if (
                 nl_preflight_cost_events
@@ -1822,6 +2345,22 @@ async def compile_and_run_recursive_generation_cycle(
         ]
     if n4_child_profile_limitation_code is not None:
         payload["n4_child_profile_limitation_code"] = n4_child_profile_limitation_code
+    if generic_cycle_simulation_handoff is not None:
+        payload["generic_cycle_simulation_handoff"] = (
+            generic_cycle_simulation_handoff.model_dump(mode="json")
+        )
+    if generic_n4_child_profile_status != "not_attempted":
+        payload["generic_n4_child_profile_status"] = generic_n4_child_profile_status
+    if n4_child_profile_set_ref is not None:
+        payload["n4_child_profile_set_ref"] = n4_child_profile_set_ref.model_dump(mode="json")
+    if n4_credal_source_attempt_ref is not None:
+        payload["n4_credal_source_attempt_ref"] = (
+            n4_credal_source_attempt_ref.model_dump(mode="json")
+        )
+    if generic_n4_child_profile_limitation_code is not None:
+        payload["generic_n4_child_profile_limitation_code"] = (
+            generic_n4_child_profile_limitation_code
+        )
     if recursive_budget_resolution is not None:
         payload["recursive_budget_resolution"] = recursive_budget_resolution.model_dump(mode="json")
     if limitations:
@@ -1852,6 +2391,17 @@ async def compile_and_run_recursive_generation_cycle(
             "n4_child_profile_status": n4_child_profile_status,
             "n4_child_profile_bindings": n4_child_profile_bindings,
             "n4_child_profile_limitation_code": n4_child_profile_limitation_code,
+            "generic_cycle_simulation_handoff": generic_cycle_simulation_handoff,
+            "generic_n4_child_profile_status": generic_n4_child_profile_status,
+            "n4_child_profile_set_ref": n4_child_profile_set_ref,
+            **(
+                {"n4_credal_source_attempt_ref": n4_credal_source_attempt_ref}
+                if n4_credal_source_attempt_ref is not None
+                else {}
+            ),
+            "generic_n4_child_profile_limitation_code": (
+                generic_n4_child_profile_limitation_code
+            ),
             "content_hash": gy_content_hash(payload),
         }
     )

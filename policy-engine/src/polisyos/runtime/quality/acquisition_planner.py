@@ -40,7 +40,7 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.data_forge.domains.catalog.selection import CatalogRunProfile
     from polisyos.data_forge.read_api import academic
     from polisyos.runtime.quality.design_problem import DesignProblem

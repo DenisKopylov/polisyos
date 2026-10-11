@@ -7,8 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec, CanonViolation, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.methods.backtesting.adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,

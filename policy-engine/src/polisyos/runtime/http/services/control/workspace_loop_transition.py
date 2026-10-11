@@ -18,7 +18,7 @@ from polisyos.pdc import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
+    from polisyos.core.artifacts import ArtifactManifest, ArtifactRef
     from polisyos.runtime.quality.workspace.loop import WorkspaceSearchExitContract
 
     from ..control_plane_store import ControlJobRecord
@@ -186,8 +186,8 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         try:
             if production_case_ref is not None:
                 if legacy_production_case_ref is not None:
-                    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
-                    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+                    from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+                    from polisyos.core.artifacts import artifact_ref_identity_key
 
                     if isinstance(legacy_production_case_ref, str):
                         matches_selected_id = legacy_production_case_ref == str(
@@ -610,7 +610,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         input_artifacts: list[str],
         fixture_id: str,
     ) -> WorkspaceSearchExitContract:
-        from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+        from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
         from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 
         try:
@@ -1344,7 +1344,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         state_payload: dict[str, Any],
     ) -> list[tuple[str, ArtifactRef, str]]:
         """Keep each workflow input bound to its declared slot and selected view."""
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts import ArtifactRef
         from polisyos.runtime.http.services._control_contracts import (
             _DATA_SOURCE_KEYS,
             _OPTIONAL_INPUT_KEYS,

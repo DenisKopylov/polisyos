@@ -7,11 +7,13 @@ redaction, and delegates lineage expansion to `LineageService`.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import math
+from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core import scan_secret_and_pii
+from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
@@ -24,6 +26,8 @@ from polisyos.core.contracts.runtime import (
     DecisionPacketMetricSignificance,
     DecisionPacketOutlineEntry,
     DecisionPacketPreview,
+    PredictiveCoverageDiagnosticPreview,
+    PredictiveCoverageScenarioPreview,
     PreviewMode,
 )
 from polisyos.runtime.quality.authority import (
@@ -32,6 +36,7 @@ from polisyos.runtime.quality.authority import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactManifest
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.protocol import ArtifactStore
 
@@ -40,7 +45,227 @@ if TYPE_CHECKING:
 RedactionHook = Callable[[Any, PreviewMode], Any]
 _SENSITIVE_KIND_MARKERS = ("secret", "token", "credential", "password", "key_material")
 _REDACTED_PREVIEW = "[REDACTED]"
+_MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES = 2_000_000
 logger = get_logger(__name__)
+
+
+
+def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
+    """Return the exact CAS view selected for an inspector operation."""
+    return ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+
+
+def _coverage_number(value: object) -> float | None:
+    """Return a finite numeric value without coercing strings or booleans."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        numeric = float(value)
+    except OverflowError:
+        return None
+    return numeric if math.isfinite(numeric) else None
+
+
+def _coverage_count(value: object) -> int | None:
+    """Return a non-negative integer count without accepting bool-as-int."""
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
+def _predictive_coverage_preview(
+    payload: object,
+    manifest: ArtifactManifest,
+) -> PredictiveCoverageDiagnosticPreview | None:
+    """Recompute one persisted predictive interval report without grading it."""
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != "ir.backtest_report"
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != "ir.backtest_report"
+        or schema.version != "1.0"
+    ):
+        return None
+
+    shared = {
+        "source_artifact_id": str(manifest.artifact_id),
+        "source_manifest_profile_sha256": artifact_manifest_profile_sha256(manifest),
+        "source_schema_version": "1.0",
+        "metric": "predictive_interval_coverage",
+        "assessment": "limited",
+        "source_materialization": "reader_materialized",
+        "producer_attestation_status": "not_established",
+        "s10_metric_mapping_status": "not_established",
+        "s10_threshold_status": "not_established",
+        "issuer_status": "not_established",
+        "effective_time_status": "not_established",
+        "counterfactual_credibility_status": "not_established",
+        "causal_effect_status": "not_established",
+        "may_not_use_for": ["promotion", "publication", "policy_selection", "causal_effect_claim"],
+    }
+
+    def invalid(reason: str) -> PredictiveCoverageDiagnosticPreview:
+        return PredictiveCoverageDiagnosticPreview(
+            **shared,
+            measurement_status="invalid_source",
+            reason_code=reason,
+            scenarios=[],
+        )
+
+    if not isinstance(payload, Mapping):
+        return invalid("malformed_report_shape")
+    metadata = payload.get("metadata")
+    degraded_reasons = payload.get("degraded_reasons")
+    if (
+        payload.get("schema_version") != "1.0"
+        or not isinstance(metadata, Mapping)
+        or metadata.get("estimand") != "predictive_interval_coverage"
+        or metadata.get("authority_scope") != "predictive_only"
+        or metadata.get("bridge_status") != "bridge_pending"
+        or payload.get("trust_eligible") is not False
+        or payload.get("trust_score") is not None
+        or payload.get("degraded") is not True
+        or not isinstance(degraded_reasons, list)
+        or "trust_screening:predictive_only_bridge_pending" not in degraded_reasons
+    ):
+        return invalid("predictive_scope_not_established")
+
+    scenarios = payload.get("scenarios")
+    declared_scenario_count = _coverage_count(payload.get("n_scenarios"))
+    if (
+        not isinstance(scenarios, list)
+        or declared_scenario_count is None
+        or declared_scenario_count != len(scenarios)
+        or len(scenarios) != 1
+    ):
+        return invalid("unsupported_report_scope")
+
+    summaries: list[PredictiveCoverageScenarioPreview] = []
+    for scenario in scenarios:
+        if not isinstance(scenario, Mapping):
+            return invalid("malformed_report_shape")
+        scenario_id = scenario.get("scenario_id")
+        requested = _coverage_count(scenario.get("requested_count"))
+        compared = _coverage_count(scenario.get("compared_count"))
+        missing = _coverage_count(scenario.get("missing_count"))
+        invalid_count = _coverage_count(scenario.get("invalid_count"))
+        interval_requested = _coverage_count(scenario.get("interval_requested_count"))
+        interval_available = _coverage_count(scenario.get("interval_available_count"))
+        interval_evaluated = _coverage_count(scenario.get("interval_evaluated_count"))
+        interval_hits = _coverage_count(scenario.get("interval_hit_count"))
+        comparisons = scenario.get("outcome_comparisons")
+        if (
+            not isinstance(scenario_id, str)
+            or not scenario_id
+            or requested is None
+            or compared is None
+            or missing is None
+            or invalid_count is None
+            or interval_requested is None
+            or interval_available is None
+            or interval_evaluated is None
+            or interval_hits is None
+            or not isinstance(comparisons, list)
+            or requested != compared + missing + invalid_count
+            or compared != len(comparisons)
+            or missing != 0
+            or invalid_count != 0
+            or interval_requested != requested
+            or interval_available > interval_requested
+            or interval_evaluated > interval_available
+            or interval_hits > interval_evaluated
+        ):
+            return invalid("malformed_interval_counts")
+
+        metric_names: set[str] = set()
+        recomputed_available = 0
+        recomputed_evaluated = 0
+        recomputed_hits = 0
+        for comparison in comparisons:
+            if not isinstance(comparison, Mapping):
+                return invalid("malformed_report_shape")
+            metric_name = comparison.get("metric_name")
+            y_true = _coverage_number(comparison.get("y_true"))
+            lower_raw = comparison.get("ci_lower")
+            upper_raw = comparison.get("ci_upper")
+            if not isinstance(metric_name, str) or not metric_name or y_true is None:
+                return invalid("malformed_report_shape")
+            metric_names.add(metric_name)
+            if lower_raw is None and upper_raw is None:
+                if comparison.get("within_ci") is not None:
+                    return invalid("malformed_interval_counts")
+                continue
+            lower = _coverage_number(lower_raw)
+            upper = _coverage_number(upper_raw)
+            if lower is None or upper is None or lower > upper:
+                return invalid("malformed_interval_counts")
+            hit = lower <= y_true <= upper
+            if comparison.get("within_ci") is not hit:
+                return invalid("malformed_interval_counts")
+            recomputed_available += 1
+            recomputed_evaluated += 1
+            recomputed_hits += int(hit)
+
+        if (
+            len(metric_names) != 1
+            or recomputed_available != interval_available
+            or recomputed_evaluated != interval_evaluated
+            or recomputed_hits != interval_hits
+        ):
+            return invalid("malformed_interval_counts")
+
+        hit_rate = recomputed_hits / recomputed_evaluated if recomputed_evaluated else None
+        stored_hit_rate = scenario.get("interval_hit_rate")
+        stored_coverage = scenario.get("coverage_probability")
+        if hit_rate is None:
+            if stored_hit_rate is not None or stored_coverage is not None:
+                return invalid("stored_hit_rate_mismatch")
+        else:
+            stored_hit = _coverage_number(stored_hit_rate)
+            stored_coverage_value = _coverage_number(stored_coverage)
+            if (
+                stored_hit is None
+                or stored_coverage_value is None
+                or not math.isclose(stored_hit, hit_rate, rel_tol=0.0, abs_tol=1e-12)
+                or not math.isclose(stored_coverage_value, hit_rate, rel_tol=0.0, abs_tol=1e-12)
+            ):
+                return invalid("stored_hit_rate_mismatch")
+
+        nominal_raw = scenario.get("nominal_confidence_level")
+        nominal = None if nominal_raw is None else _coverage_number(nominal_raw)
+        interval_type = scenario.get("interval_type")
+        if (
+            (nominal_raw is not None and (nominal is None or not 0.0 < nominal < 1.0))
+            or (interval_type is not None and not isinstance(interval_type, str))
+        ):
+            return invalid("malformed_report_shape")
+        summaries.append(
+            PredictiveCoverageScenarioPreview(
+                scenario_id=scenario_id,
+                metric_name=next(iter(metric_names)),
+                interval_requested_count=interval_requested,
+                interval_available_count=interval_available,
+                interval_evaluated_count=interval_evaluated,
+                interval_hit_count=interval_hits,
+                nominal_confidence_level=nominal,
+                interval_type=interval_type,
+                observed_hit_rate=hit_rate,
+            )
+        )
+
+    measured = any(item.interval_evaluated_count > 0 for item in summaries)
+    return PredictiveCoverageDiagnosticPreview(
+        **shared,
+        measurement_status="measured" if measured else "not_measured",
+        reason_code="none" if measured else "no_evaluated_intervals",
+        scenarios=summaries,
+    )
 
 
 class ArtifactSurfaceAdmissionError(RuntimeError):
@@ -355,7 +580,12 @@ class ArtifactInspectorService:
         self._default_max_preview_bytes = max(default_max_preview_bytes, 1024)
         self._redaction_hooks = dict(redaction_hooks or {})
 
-    def get_manifest_view(self, artifact_id: ArtifactID) -> ArtifactManifestView:
+    def get_manifest_view(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        manifest: ArtifactManifest | None = None,
+    ) -> ArtifactManifestView:
         """Return the manifest metadata used by `/artifacts/{id}/manifest`.
 
         Args:
@@ -369,11 +599,12 @@ class ArtifactInspectorService:
             FileNotFoundError: If the artifact or its manifest sidecar is
                 missing from CAS.
         """
-        manifest = self._store.get_manifest(artifact_id)
+        manifest = manifest or self._store.get_manifest(artifact_id)
         payload = manifest.model_dump(mode="json")
         self._assert_surface_admission_allowed(
             payload,
             artifact_id=artifact_id,
+            manifest=manifest,
             surface="artifact",
             scope="CAS manifests",
         )
@@ -381,6 +612,7 @@ class ArtifactInspectorService:
         producer = manifest.producer
         return ArtifactManifestView(
             artifact_id=str(manifest.artifact_id),
+            manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
             kind=manifest.kind,
             media_type=manifest.media_type,
             byte_size=int(manifest.byte_size),
@@ -393,11 +625,46 @@ class ArtifactInspectorService:
             integrity_sha256=manifest.integrity.sha256,
         )
 
+    def get_predictive_coverage_diagnostic(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        manifest: ArtifactManifest | None = None,
+    ) -> PredictiveCoverageDiagnosticPreview | None:
+        """Recompute a limited diagnostic from one exact persisted report view.
+
+        Unsupported kind/schema and oversized reports return ``None`` so the
+        HTTP layer can refuse rather than substituting a different report. A
+        malformed but supported report returns the existing typed
+        ``invalid_source`` diagnostic.
+        """
+        selected_manifest = manifest or self._store.get_manifest(artifact_id)
+        schema = selected_manifest.artifact_schema
+        if (
+            selected_manifest.kind != "ir.backtest_report"
+            or selected_manifest.media_type != "application/json"
+            or schema is None
+            or schema.name != "ir.backtest_report"
+            or schema.version != "1.0"
+            or selected_manifest.byte_size > _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES
+        ):
+            return None
+
+        raw = self._store.get_bytes(_artifact_ref_for_manifest(selected_manifest))
+        if len(raw) > _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES:
+            return None
+        try:
+            payload = from_canonical_bytes(raw)
+        except (OverflowError, RecursionError, TypeError, UnicodeDecodeError, ValueError):
+            payload = None
+        return _predictive_coverage_preview(payload, selected_manifest)
+
     def get_content_preview(
         self,
         artifact_id: ArtifactID,
         *,
         max_bytes: int | None = None,
+        manifest: ArtifactManifest | None = None,
     ) -> ArtifactContentPreview:
         """Return a bounded, redacted content preview for an artifact payload.
 
@@ -419,8 +686,8 @@ class ArtifactInspectorService:
             FileNotFoundError: If the artifact bytes or manifest sidecar do not
                 exist in CAS.
         """
-        manifest = self._store.get_manifest(artifact_id)
-        data = self._store.get_bytes(artifact_id)
+        manifest = manifest or self._store.get_manifest(artifact_id)
+        data = self._store.get_bytes(_artifact_ref_for_manifest(manifest))
         byte_size = len(data)
         preview_limit = _normalize_preview_limit(
             max_bytes,
@@ -460,6 +727,7 @@ class ArtifactInspectorService:
         self._assert_surface_admission_allowed(
             preview if mode == "json" else data,
             artifact_id=artifact_id,
+            manifest=manifest,
             surface="artifact",
             scope="raw artifact content/download routes",
         )
@@ -473,6 +741,11 @@ class ArtifactInspectorService:
             preview,
             artifact_id=str(artifact_id),
         )
+        predictive_coverage_diagnostic = (
+            _predictive_coverage_preview(preview, manifest)
+            if mode == "json" and not truncated
+            else None
+        )
         decision_packet_preview = (
             _build_decision_packet_preview(preview)
             if manifest.kind == "scientist.decision_packet" and mode == "json"
@@ -481,6 +754,7 @@ class ArtifactInspectorService:
 
         return ArtifactContentPreview(
             artifact_id=str(artifact_id),
+            manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
             kind=manifest.kind,
             media_type=manifest.media_type,
             mode=mode,
@@ -489,9 +763,15 @@ class ArtifactInspectorService:
             truncated=truncated,
             preview=preview,
             decision_packet_preview=decision_packet_preview,
+            predictive_coverage_diagnostic=predictive_coverage_diagnostic,
         )
 
-    def get_schema_view(self, artifact_id: ArtifactID) -> ArtifactSchemaView:
+    def get_schema_view(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        manifest: ArtifactManifest | None = None,
+    ) -> ArtifactSchemaView:
         """Return schema metadata plus top-level JSON keys when available.
 
         Args:
@@ -504,7 +784,7 @@ class ArtifactInspectorService:
         Raises:
             FileNotFoundError: If the artifact manifest or bytes are missing.
         """
-        manifest = self._store.get_manifest(artifact_id)
+        manifest = manifest or self._store.get_manifest(artifact_id)
         schema = manifest.artifact_schema
 
         top_keys: list[str] = []
@@ -525,6 +805,7 @@ class ArtifactInspectorService:
 
         view = ArtifactSchemaView(
             artifact_id=str(artifact_id),
+            manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
             kind=manifest.kind,
             media_type=manifest.media_type,
             schema_name=schema.name if schema is not None else None,
@@ -534,6 +815,7 @@ class ArtifactInspectorService:
         self._assert_surface_admission_allowed(
             view.model_dump(mode="json"),
             artifact_id=artifact_id,
+            manifest=manifest,
             surface="artifact",
             scope="dashboard/public/export packets",
         )
@@ -545,6 +827,8 @@ class ArtifactInspectorService:
         *,
         max_depth: int | None = None,
         max_nodes: int | None = None,
+        manifest: ArtifactManifest | None = None,
+        manifest_profile_sha256: str | None = None,
     ) -> ArtifactLineageView:
         """Build an upstream lineage graph rooted at one artifact.
 
@@ -552,18 +836,27 @@ class ArtifactInspectorService:
             artifact_id: Root artifact to inspect.
             max_depth: Optional traversal depth override.
             max_nodes: Optional graph size override.
+            manifest: Exact resolved root manifest when a profile is selected.
+            manifest_profile_sha256: The selected root profile, or `None` for
+                an explicitly legacy/default lookup.
 
         Returns:
             A lineage graph with completeness and corruption flags.
         """
+        selected_manifest = manifest or self._store.get_manifest(artifact_id)
+        selected_ref = _artifact_ref_for_manifest(selected_manifest)
         self._assert_surface_admission_allowed(
-            {"lineage_root_artifact_id": str(artifact_id)},
+            {
+                "lineage_root_artifact_id": str(artifact_id),
+                "selected_manifest": selected_manifest.model_dump(mode="json"),
+            },
             artifact_id=artifact_id,
+            artifact_ref=selected_ref,
             surface="lineage",
             scope="dashboard/public/export packets",
         )
         return self._lineage_service.build_for_artifact_ids(
-            [artifact_id],
+            [selected_ref],
             max_depth=max_depth,
             max_nodes=max_nodes,
         )
@@ -575,6 +868,8 @@ class ArtifactInspectorService:
         artifact_id: ArtifactID,
         surface: str,
         scope: str,
+        manifest: ArtifactManifest | None = None,
+        artifact_ref: ArtifactRef | None = None,
     ) -> None:
         decision = authority_surface_decision(
             payload,
@@ -584,6 +879,10 @@ class ArtifactInspectorService:
             block_on_secret_findings=True,
             artifact_store=self._store,
             artifact_id=artifact_id,
+            artifact_ref=(
+                artifact_ref
+                or (_artifact_ref_for_manifest(manifest) if manifest is not None else None)
+            ),
             require_cas_integrity=True,
         )
         if decision.blocking or decision.visible_downgrade:

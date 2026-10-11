@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts import ensure_ir_artifact_store
-from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts import ArtifactStore, ensure_ir_artifact_store
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore

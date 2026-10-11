@@ -9,9 +9,8 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.calibration.report import CalibrationCoordinateProjection

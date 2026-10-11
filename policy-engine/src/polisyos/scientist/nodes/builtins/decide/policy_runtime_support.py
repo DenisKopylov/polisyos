@@ -11,9 +11,9 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import ValidationError
 
 from polisyos.core import components as core_components
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics

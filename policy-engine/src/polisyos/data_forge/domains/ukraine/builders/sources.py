@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,

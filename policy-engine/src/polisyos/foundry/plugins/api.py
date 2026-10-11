@@ -10,13 +10,12 @@ from typing import Any, Literal
 import jax
 import jax.numpy as jnp
 
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
     with_ambient_ownership_enforcement_if_supported,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
 from polisyos.foundry.agent_sim.training import TrainingConfig

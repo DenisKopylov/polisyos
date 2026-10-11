@@ -12,7 +12,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactRef,
     artifact_ref_identity_key,
 )

@@ -7,6 +7,14 @@ import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.core.artifacts import (
+    ArtifactIntegrityError,
+    ArtifactManifest,
+    ArtifactOwnershipError,
+    ArtifactRef,
+    artifact_manifest_profile_sha256,
+    resolve_manifest_by_profile,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
     ArtifactBatchRequest,
@@ -20,6 +28,7 @@ from polisyos.core.contracts.runtime import (
     BureaucraticGenre,
     BureaucraticRenderRequest,
     BureaucraticRenderResponse,
+    PredictiveCoverageDiagnosticPreview,
     TemporalScope,
 )
 from polisyos.runtime.http.authorization import (
@@ -41,20 +50,55 @@ from polisyos.runtime.http.response_policies import (
     add_artifact_link_relations,
     build_artifact_etag,
     build_not_modified_response,
-    set_immutable_resource_headers,
+    set_artifact_view_headers,
 )
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.artifact_inspector import ArtifactSurfaceAdmissionError
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.quality.authority import authority_surface_decision
 
+_PREDICTIVE_COVERAGE_DIAGNOSTIC_SCAN_SCOPE = "dashboard/public/export packets"
+
 _BUREAUCRATIC_OBSERVATION_TIMESTAMP = re.compile(
     r"(?<=Дата формування: )\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
     + r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
 )
 
+
+def _single_manifest_profile_selection(
+    request: Request,
+    parsed_value: str | None,
+) -> str | None:
+    """Reject repeated profile selectors instead of choosing one value."""
+    values = request.query_params.getlist("manifest_profile_sha256")
+    if len(values) > 1:
+        raise bad_request(
+            "manifest_profile_sha256 must be supplied at most once",
+            code="ambiguous_manifest_profile_selector",
+        )
+    if not values:
+        return None
+    if values[0] != parsed_value:
+        raise bad_request(
+            "manifest_profile_sha256 did not resolve to the supplied selector",
+            code="invalid_manifest_profile_selector",
+        )
+    return parsed_value
+
+
+def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
+    """Bind a route's selected CAS manifest to its exact artifact reference."""
+    return ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
+
+    from polisyos.core.artifacts import ArtifactStore
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import APIRouter, Depends, Query, Request, Response
@@ -158,8 +202,22 @@ if router is not None:
         artifact_id: str,
         request: Request,
         response: Response,
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactManifestResponse | Response:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -169,7 +227,11 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = ctx.store.get_manifest(parsed_id)
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
             _ensure_surface_admission_allowed(
                 manifest.model_dump(mode="json"),
                 artifact_ref_or_route=f"cas-manifest://{parsed_id}",
@@ -177,8 +239,9 @@ if router is not None:
                 scope="CAS manifests",
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
+                artifact_ref=_artifact_ref_for_manifest(manifest),
             )
-            view = ctx.artifacts.get_manifest_view(parsed_id)
+            view = ctx.artifacts.get_manifest_view(parsed_id, manifest=manifest)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
         except ArtifactSurfaceAdmissionError as exc:
@@ -186,14 +249,24 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
             ) from exc
-        etag = build_artifact_etag(view.artifact_id, view.integrity_sha256, "manifest")
+        etag = build_artifact_etag(
+            view.artifact_id,
+            view.integrity_sha256,
+            "manifest",
+            view.manifest_profile_sha256 or "unqualified",
+        )
         not_modified = build_not_modified_response(
             request.headers,
             etag=etag,
             last_modified=view.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
         )
         if not_modified is not None:
-            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            add_artifact_link_relations(
+                not_modified,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=view.manifest_profile_sha256,
+            )
             return not_modified
         _ensure_surface_admission_allowed(
             view.model_dump(mode="json"),
@@ -202,15 +275,135 @@ if router is not None:
             scope="dashboard/public/export packets",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
         )
-        set_immutable_resource_headers(response, etag=etag, last_modified=view.created_at)
-        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=view.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        add_artifact_link_relations(
+            response,
+            artifact_id=str(parsed_id),
+            manifest_profile_sha256=view.manifest_profile_sha256,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
         )
         return ArtifactManifestResponse(meta=build_meta(request), artifact=view)
+
+    @router.get(
+        "/{artifact_id}/predictive-coverage-diagnostic",
+        response_model=PredictiveCoverageDiagnosticPreview,
+        operation_id="get_predictive_coverage_diagnostic",
+    )
+    def get_predictive_coverage_diagnostic(
+        artifact_id: str,
+        request: Request,
+        response: Response,
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> PredictiveCoverageDiagnosticPreview | Response:
+        """Return a reader-materialized predictive diagnostic, never raw report bytes."""
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
+        parsed_id = _parse_artifact_id(artifact_id)
+        tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
+        set_authz_resource(
+            request,
+            tenant_id=tenant_id or getattr(request.state, "tenant_id", None),
+            kind="runtime.artifact.predictive_coverage_diagnostic",
+            artifact_id=str(parsed_id),
+        )
+        if not ctx.allow_candidate_predictive_diagnostic_surface:
+            raise conflict(
+                "Predictive coverage diagnostics are not admitted on this server",
+                code="predictive_coverage_diagnostic_not_admitted",
+            )
+        route_ref = f"/api/v1/artifacts/{parsed_id}/predictive-coverage-diagnostic"
+        try:
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
+            projection = ctx.artifacts.get_predictive_coverage_diagnostic(
+                parsed_id,
+                manifest=manifest,
+            )
+            if projection is None:
+                raise conflict(
+                    "The selected manifest is not a supported predictive report view",
+                    code="predictive_coverage_source_unsupported",
+                    extensions={"artifact_ref_or_route": route_ref},
+                )
+            _ensure_predictive_coverage_diagnostic_admission_allowed(
+                projection.model_dump(mode="json"),
+                artifact_ref_or_route=route_ref,
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                artifact_ref=_artifact_ref_for_manifest(manifest),
+            )
+        except FileNotFoundError as exc:
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        except ArtifactIntegrityError as exc:
+            raise conflict(
+                "The selected predictive report failed CAS integrity verification",
+                code="artifact_integrity_failed",
+            ) from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=route_ref,
+            ) from exc
+
+        selected_profile = projection.source_manifest_profile_sha256
+        etag = build_artifact_etag(
+            str(parsed_id),
+            manifest.integrity.sha256,
+            "predictive-coverage-diagnostic",
+            selected_profile,
+        )
+        not_modified = build_not_modified_response(
+            request.headers,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        if not_modified is not None:
+            return not_modified
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        response.headers["X-Manifest-Profile-SHA256"] = selected_profile
+        record_data_access_audit(
+            request,
+            resource_id=str(parsed_id),
+            tenant_id=tenant_id,
+            metadata={
+                "representation": "predictive_coverage_diagnostic",
+                "manifest_profile_sha256": selected_profile,
+                "measurement_status": projection.measurement_status,
+            },
+        )
+        return projection
 
     @router.get(
         "/{artifact_id}/content",
@@ -222,8 +415,22 @@ if router is not None:
         request: Request,
         response: Response,
         max_bytes: int | None = Query(default=None, ge=1024, le=2_000_000),
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactContentResponse | Response:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -233,8 +440,12 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = ctx.store.get_manifest(parsed_id)
-            payload = ctx.store.get_bytes(parsed_id)
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
+            payload = ctx.store.get_bytes(_artifact_ref_for_manifest(manifest))
             _ensure_surface_admission_allowed(
                 payload,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
@@ -242,9 +453,14 @@ if router is not None:
                 scope="raw artifact content/download routes",
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
+                artifact_ref=_artifact_ref_for_manifest(manifest),
                 require_cas_integrity=True,
             )
-            view = ctx.artifacts.get_content_preview(parsed_id, max_bytes=max_bytes)
+            view = ctx.artifacts.get_content_preview(
+                parsed_id,
+                max_bytes=max_bytes,
+                manifest=manifest,
+            )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
         except ArtifactSurfaceAdmissionError as exc:
@@ -252,14 +468,24 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
             ) from exc
-        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "content")
+        etag = build_artifact_etag(
+            str(parsed_id),
+            manifest.integrity.sha256,
+            "content",
+            view.manifest_profile_sha256 or "unqualified",
+        )
         not_modified = build_not_modified_response(
             request.headers,
             etag=etag,
             last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
         )
         if not_modified is not None:
-            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            add_artifact_link_relations(
+                not_modified,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=view.manifest_profile_sha256,
+            )
             return not_modified
         if _prefers_raw_representation(request, media_type=manifest.media_type):
             _ensure_surface_admission_allowed(
@@ -269,18 +495,27 @@ if router is not None:
                 scope="raw artifact content/download routes",
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
+                artifact_ref=_artifact_ref_for_manifest(manifest),
                 require_cas_integrity=True,
             )
             raw_response = Response(
                 content=payload,
                 media_type=manifest.media_type,
             )
-            set_immutable_resource_headers(
+            set_artifact_view_headers(
                 raw_response,
                 etag=etag,
                 last_modified=manifest.created_at,
+                profile_selected=manifest_profile_sha256 is not None,
             )
-            add_artifact_link_relations(raw_response, artifact_id=str(parsed_id))
+            raw_response.headers["X-Manifest-Profile-SHA256"] = (
+                view.manifest_profile_sha256 or "unqualified"
+            )
+            add_artifact_link_relations(
+                raw_response,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=view.manifest_profile_sha256,
+            )
             filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
             raw_response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
             record_data_access_audit(
@@ -297,9 +532,19 @@ if router is not None:
             scope="raw artifact content/download routes",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
         )
-        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
-        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        add_artifact_link_relations(
+            response,
+            artifact_id=str(parsed_id),
+            manifest_profile_sha256=view.manifest_profile_sha256,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -319,8 +564,22 @@ if router is not None:
         response: Response,
         max_depth: int | None = Query(default=None, ge=1, le=256),
         max_nodes: int | None = Query(default=None, ge=1, le=20000),
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactLineageResponse | Response:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -330,11 +589,17 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = ctx.store.get_manifest(parsed_id)
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
             lineage = ctx.artifacts.get_lineage_view(
                 parsed_id,
                 max_depth=max_depth,
                 max_nodes=max_nodes,
+                manifest=manifest,
+                manifest_profile_sha256=manifest_profile_sha256,
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
@@ -343,14 +608,33 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/lineage",
             ) from exc
-        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "lineage")
+        resolved_profile = manifest_profile_sha256 or next(
+            (
+                str(ref.manifest_profile_sha256)
+                for ref in lineage.root_artifact_refs
+                if str(ref.artifact_id) == str(parsed_id)
+                and ref.manifest_profile_sha256 is not None
+            ),
+            None,
+        )
+        etag = build_artifact_etag(
+            str(parsed_id),
+            manifest.integrity.sha256,
+            "lineage",
+            resolved_profile or "unqualified",
+        )
         not_modified = build_not_modified_response(
             request.headers,
             etag=etag,
             last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
         )
         if not_modified is not None:
-            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            add_artifact_link_relations(
+                not_modified,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=resolved_profile,
+            )
             return not_modified
         _ensure_surface_admission_allowed(
             lineage.model_dump(mode="json"),
@@ -359,9 +643,19 @@ if router is not None:
             scope="dashboard/public/export packets",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
         )
-        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
-        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        add_artifact_link_relations(
+            response,
+            artifact_id=str(parsed_id),
+            manifest_profile_sha256=resolved_profile,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -379,8 +673,22 @@ if router is not None:
         artifact_id: str,
         request: Request,
         response: Response,
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> ArtifactSchemaResponse | Response:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -390,8 +698,12 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = ctx.store.get_manifest(parsed_id)
-            schema_view = ctx.artifacts.get_schema_view(parsed_id)
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
+            schema_view = ctx.artifacts.get_schema_view(parsed_id, manifest=manifest)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
         except ArtifactSurfaceAdmissionError as exc:
@@ -399,14 +711,24 @@ if router is not None:
                 exc,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
             ) from exc
-        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "schema")
+        etag = build_artifact_etag(
+            str(parsed_id),
+            manifest.integrity.sha256,
+            "schema",
+            schema_view.manifest_profile_sha256 or "unqualified",
+        )
         not_modified = build_not_modified_response(
             request.headers,
             etag=etag,
             last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
         )
         if not_modified is not None:
-            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            add_artifact_link_relations(
+                not_modified,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=schema_view.manifest_profile_sha256,
+            )
             return not_modified
         _ensure_surface_admission_allowed(
             schema_view.model_dump(mode="json"),
@@ -415,9 +737,19 @@ if router is not None:
             scope="dashboard/public/export packets",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
         )
-        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
-        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        add_artifact_link_relations(
+            response,
+            artifact_id=str(parsed_id),
+            manifest_profile_sha256=schema_view.manifest_profile_sha256,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -454,7 +786,13 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            payload = ctx.store.get_bytes(parsed_id)
+            selected_manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                body.manifest_profile_sha256,
+            )
+            selected_ref = _artifact_ref_for_manifest(selected_manifest)
+            payload = ctx.store.get_bytes(selected_ref)
             _ensure_surface_admission_allowed(
                 payload,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
@@ -462,6 +800,7 @@ if router is not None:
                 scope="raw artifact content/download routes",
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
+                artifact_ref=selected_ref,
                 require_cas_integrity=True,
             )
             document = ctx.bureaucratic_rendering.render_document(parsed_id, body)
@@ -474,6 +813,7 @@ if router is not None:
             scope="dashboard/public/export packets",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=selected_ref,
         )
         record_data_access_audit(
             request,
@@ -481,6 +821,7 @@ if router is not None:
             tenant_id=tenant_id,
             metadata={
                 "genre": body.genre,
+                "manifest_profile_sha256": body.manifest_profile_sha256,
                 "template_version": body.template_version,
                 "trust_view": body.trust_view,
             },
@@ -517,12 +858,26 @@ if router is not None:
         genre: BureaucraticGenre = Query(default="postanova_kmu"),
         jurisdiction: str = Query(default="ua", min_length=1),
         template_version: str | None = Query(default=None),
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         trust_view: bool = Query(default=False),
         valid_at: datetime | None = Query(default=None),
         tx_at: datetime | None = Query(default=None),
         export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> BureaucraticExportResponse:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(packet_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -538,11 +893,18 @@ if router is not None:
             genre=genre,
             jurisdiction=jurisdiction,
             template_version=template_version,
+            manifest_profile_sha256=manifest_profile_sha256,
             temporal_scope=temporal_scope,
             trust_view=trust_view,
         )
         try:
-            payload = ctx.store.get_bytes(parsed_id)
+            selected_manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
+            selected_ref = _artifact_ref_for_manifest(selected_manifest)
+            payload = ctx.store.get_bytes(selected_ref)
             _ensure_surface_admission_allowed(
                 payload,
                 artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
@@ -550,6 +912,7 @@ if router is not None:
                 scope="raw artifact content/download routes",
                 artifact_store=ctx.store,
                 artifact_id=parsed_id,
+                artifact_ref=selected_ref,
                 require_cas_integrity=True,
             )
             export = ctx.bureaucratic_rendering.export_document(
@@ -567,6 +930,7 @@ if router is not None:
             scope="dashboard/public/export packets",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=selected_ref,
         )
         record_data_access_audit(
             request,
@@ -575,6 +939,7 @@ if router is not None:
             metadata={
                 "format": format,
                 "genre": genre,
+                "manifest_profile_sha256": manifest_profile_sha256,
                 "template_version": template_version,
                 "trust_view": trust_view,
             },
@@ -612,8 +977,22 @@ if router is not None:
     def download_artifact_content(
         artifact_id: str,
         request: Request,
+        manifest_profile_sha256: str | None = Query(
+            default=None,
+            description=(
+                "Optional exact manifest profile. Supply at most once; repeated values are "
+                "ambiguous and rejected."
+            ),
+            min_length=71,
+            max_length=71,
+            pattern=r"^sha256:[0-9a-f]{64}$",
+        ),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> Response:
+        manifest_profile_sha256 = _single_manifest_profile_selection(
+            request,
+            manifest_profile_sha256,
+        )
         parsed_id = _parse_artifact_id(artifact_id)
         tenant_id = enforce_artifact_tenant_access(request, ctx=ctx, artifact_id=parsed_id)
         set_authz_resource(
@@ -623,7 +1002,11 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = ctx.store.get_manifest(parsed_id)
+            manifest = _resolve_artifact_manifest(
+                ctx.store,
+                parsed_id,
+                manifest_profile_sha256,
+            )
             payload = ctx.store.get_bytes(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
@@ -639,6 +1022,7 @@ if router is not None:
             scope="raw artifact content/download routes",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
             require_cas_integrity=True,
         )
         _ensure_surface_admission_allowed(
@@ -648,27 +1032,48 @@ if router is not None:
             scope="raw artifact content/download routes",
             artifact_store=ctx.store,
             artifact_id=parsed_id,
+            artifact_ref=_artifact_ref_for_manifest(manifest),
             require_cas_integrity=True,
         )
-        etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "download")
+        resolved_profile = artifact_manifest_profile_sha256(manifest)
+        etag = build_artifact_etag(
+            str(parsed_id),
+            manifest.integrity.sha256,
+            "download",
+            resolved_profile,
+        )
         not_modified = build_not_modified_response(
             request.headers,
             etag=etag,
             last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
         )
         if not_modified is not None:
-            add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
+            add_artifact_link_relations(
+                not_modified,
+                artifact_id=str(parsed_id),
+                manifest_profile_sha256=resolved_profile,
+            )
             return not_modified
         response = Response(content=payload, media_type=manifest.media_type)
-        set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
-        add_artifact_link_relations(response, artifact_id=str(parsed_id))
+        set_artifact_view_headers(
+            response,
+            etag=etag,
+            last_modified=manifest.created_at,
+            profile_selected=manifest_profile_sha256 is not None,
+        )
+        add_artifact_link_relations(
+            response,
+            artifact_id=str(parsed_id),
+            manifest_profile_sha256=resolved_profile,
+        )
         filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
         response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
-            metadata={"representation": "download"},
+            metadata={"representation": "download", "manifest_profile_sha256": resolved_profile},
         )
         return response
 
@@ -698,6 +1103,27 @@ def _bureaucratic_replay_as_of(
     if temporal_scope is None:
         return observed_at
     return temporal_scope.valid_at or temporal_scope.tx_at or observed_at
+
+
+def _resolve_artifact_manifest(
+    store: ArtifactStore,
+    artifact_id: ArtifactID,
+    manifest_profile_sha256: str | None,
+) -> ArtifactManifest:
+    """Resolve an explicit manifest profile or the legacy default view."""
+    if manifest_profile_sha256 is None:
+        return store.get_manifest(artifact_id)
+    try:
+        return resolve_manifest_by_profile(
+            store,
+            artifact_id,
+            manifest_profile_sha256,
+        )
+    except (ArtifactOwnershipError, FileNotFoundError, TypeError, ValueError) as exc:
+        raise not_found(
+            "Selected artifact manifest profile is unavailable",
+            code="artifact_manifest_profile_not_found",
+        ) from exc
 
 
 def _parse_artifact_id(value: str) -> ArtifactID:
@@ -756,6 +1182,71 @@ def _artifact_filename(artifact_id: str, kind: str, media_type: str) -> str:
     return f"{safe_kind}-{short_id}{suffix}"
 
 
+def _ensure_predictive_coverage_diagnostic_admission_allowed(
+    payload: object,
+    *,
+    artifact_ref_or_route: str,
+    artifact_store: object,
+    artifact_id: ArtifactID,
+    artifact_ref: ArtifactRef,
+) -> None:
+    """Admit only the limited dashboard projection under its candidate policy.
+
+    The projection deliberately has no authority claim, so one exact missing
+    base-surface signal is carried as a downgrade. Any selected manifest
+    restriction, failed integrity check, scanner finding, or other downgrade
+    remains a refusal.
+    """
+    decision = authority_surface_decision(
+        cast("Any", payload),
+        surface="dashboard",
+        purpose="dashboard_display",
+        artifact_ref_or_route=artifact_ref_or_route,
+        secret_pii_scope=_PREDICTIVE_COVERAGE_DIAGNOSTIC_SCAN_SCOPE,
+        block_on_secret_findings=True,
+        artifact_store=cast("Any", artifact_store),
+        artifact_id=artifact_id,
+        artifact_ref=artifact_ref,
+        require_cas_integrity=True,
+        missing_authority_disposition="downgrade",
+        missing_boundary_disposition="downgrade",
+    )
+    base_rows = [
+        row for row in decision.authority_contributors if row.basis == "base_surface"
+    ]
+    selected_rows = [
+        row for row in decision.authority_contributors if row.basis == "selected_manifest"
+    ]
+    expected_projection_downgrade = (
+        len(base_rows) == 1
+        and base_rows[0].status == "downgraded"
+        and base_rows[0].reason == "authority_surface_signal_missing"
+        and not base_rows[0].blocking
+    )
+    selected_manifest_allows_dashboard = all(
+        row.status == "allowed" and not row.blocking for row in selected_rows
+    )
+    if (
+        decision.blocking
+        or not expected_projection_downgrade
+        or not selected_manifest_allows_dashboard
+        or decision.integrity_status != "verified"
+        or decision.secret_pii_finding_kinds
+        or decision.time_source_dispositions
+        or decision.s12_issue_codes
+        or decision.candidate_firewall_issue_codes
+        or "dashboard_display" in decision.may_not_use_for
+    ):
+        raise conflict(
+            "Predictive coverage diagnostic is blocked by composed surface admission",
+            code="authority_surface_admission_blocked",
+            extensions={
+                "artifact_ref_or_route": artifact_ref_or_route,
+                "authority_surface_decision": decision.model_dump(mode="json"),
+            },
+        )
+
+
 def _ensure_surface_admission_allowed(
     payload: object,
     *,
@@ -764,8 +1255,18 @@ def _ensure_surface_admission_allowed(
     scope: str,
     artifact_store: object | None = None,
     artifact_id: ArtifactID | None = None,
+    artifact_ref: ArtifactRef | None = None,
     require_cas_integrity: bool = False,
 ) -> None:
+    if (
+        artifact_ref is not None
+        and artifact_id is not None
+        and artifact_ref.artifact_id != artifact_id
+    ):
+        raise bad_request(
+            "artifact_ref does not match artifact_id",
+            code="artifact_reference_mismatch",
+        )
     decision = authority_surface_decision(
         payload,
         surface=surface,
@@ -774,6 +1275,7 @@ def _ensure_surface_admission_allowed(
         block_on_secret_findings=True,
         artifact_store=artifact_store,
         artifact_id=artifact_id,
+        artifact_ref=artifact_ref,
         require_cas_integrity=require_cas_integrity,
     )
     if not (decision.blocking or decision.visible_downgrade):

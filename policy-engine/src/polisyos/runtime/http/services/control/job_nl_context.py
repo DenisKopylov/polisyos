@@ -12,11 +12,16 @@ if TYPE_CHECKING:
     from typing import Any
 
     from polisyos.core import run
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.runtime.http.services.control.job_scope_admission import (
         _ControlEvaluationSafetyResult,
     )
+    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.evaluation_modes import ExecutionIntentBand
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationContextHandoffV1,
+    )
 
     from ..control_plane_store import (
         ControlJobExecutionAdmission,
@@ -47,6 +52,11 @@ class _ControlNLJobContext:
     candidate_simulation_context_binding: dict[str, object] = field(default_factory=dict)
     candidate_simulation_currentness_resolver: Callable[[], bool] | None = None
     cycle_substrate_context_resolver: Callable[[object], object | None] | None = None
+    generic_cycle_simulation_handoff_resolver: (
+        Callable[[DesignProblem], GenericCycleSimulationContextHandoffV1 | None] | None
+    ) = None
+    generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None
+    verified_nl_job_scope: VerifiedNLJobScope | None = None
     recursive_leaf_context_owner: object | None = None
     recursive_budget_resolution: RecursiveBudgetResolution | None = None
     max_cycles: int | None = None

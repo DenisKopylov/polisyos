@@ -11,8 +11,8 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import Metrics, SimulationResult
 from polisyos.ir.analytics import DistributionalReport
 from polisyos.ir.analytics.normative_arbitration import (

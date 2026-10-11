@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts, registry, run
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.control import DecisionValidityEventRequest, PolicyFlags
@@ -195,8 +195,7 @@ class ControlJobScopeAdmissionMixin:
         ).hex
 
     def _load_payload_ref(self, payload_ref: str, *, kind: str) -> dict[str, Any]:
-        from polisyos.core.artifacts import artifact_manifest_profile_sha256
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
         from polisyos.core.canon import from_canonical_bytes
 
         declared_ref = _make_artifact_ref(payload_ref, kind=kind)

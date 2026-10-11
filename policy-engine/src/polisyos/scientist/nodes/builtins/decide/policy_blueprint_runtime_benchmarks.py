@@ -3,8 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceKind

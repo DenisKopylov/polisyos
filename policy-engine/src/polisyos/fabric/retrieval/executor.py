@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts as core_artifacts
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts import ArtifactStore, ArtifactStoreConfig, build_artifact_store
 from polisyos.core.contracts.control import (
     DataContextMetric,
     FetchPlan,

@@ -27,7 +27,7 @@ from polisyos.ir.connectors import ConnectorCapability, DataVersion, FetchReques
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.fabric.connectors.contracts import DataSchema
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.data_plane.streaming import StreamSchemaBinding

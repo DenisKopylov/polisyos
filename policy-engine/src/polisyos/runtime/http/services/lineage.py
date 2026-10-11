@@ -9,6 +9,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import content_hash, from_canonical_bytes
@@ -99,7 +100,7 @@ class LineageService:
 
     def build_for_artifact_ids(
         self,
-        artifact_ids: list[ArtifactID],
+        artifact_ids: list[ArtifactID | ArtifactRef],
         *,
         max_depth: int | None = None,
         max_nodes: int | None = None,
@@ -110,9 +111,13 @@ class LineageService:
         if not artifact_ids:
             return ArtifactLineageView(root_artifact_ids=[])
 
-        for root_id in artifact_ids:
+        root_ids = [
+            root.artifact_id if isinstance(root, ArtifactRef) else root
+            for root in artifact_ids
+        ]
+        for root in artifact_ids:
             self._assert_surface_admission_allowed(
-                root_id,
+                root,
                 surface="lineage",
                 enforce_missing_authority=enforce_missing_authority,
             )
@@ -125,41 +130,54 @@ class LineageService:
             else self._default_timeout_seconds
         )
 
-        node_map: dict[str, ArtifactLineageNode] = {}
-        edge_map: dict[tuple[str, str, str], ArtifactLineageEdge] = {}
+        node_map: dict[tuple[str, str | None], ArtifactLineageNode] = {}
+        edge_map: dict[tuple[str, str | None, str, str | None, str], ArtifactLineageEdge] = {}
         missing_ids: set[str] = set()
         corrupted_ids: set[str] = set()
         is_complete = True
+        root_refs: list[ArtifactRef] = []
+        profile_limitations: list[str] = []
 
-        for root_id in artifact_ids:
+        for root in artifact_ids:
+            preserve_profiles = isinstance(root, ArtifactRef)
             graph = resolve_dependency_graph(
                 self._store,
-                root_id,
+                root,
                 max_depth=depth_limit,
                 max_nodes=node_limit,
                 verify_integrity=True,
                 timeout_seconds=timeout_budget,
                 batch_size=self._traversal_batch_size,
+                preserve_manifest_profiles=preserve_profiles,
             )
+            if isinstance(root, ArtifactRef):
+                root_refs.append(root)
+                if root.manifest_profile_sha256 is None:
+                    profile_limitations.append("root_manifest_profile_not_established")
+            else:
+                profile_limitations.append("root_manifest_profile_not_established")
             if graph.timed_out or not graph.is_complete:
                 is_complete = False
 
             for node in graph.nodes.values():
                 artifact_id = str(node.artifact_id)
                 status = node.status.value
-                existing = node_map.get(artifact_id)
+                identity = (artifact_id, node.manifest_profile_sha256)
+                existing = node_map.get(identity)
                 candidate = ArtifactLineageNode(
                     artifact_id=artifact_id,
+                    manifest_profile_sha256=node.manifest_profile_sha256,
                     role=node.role,
                     kind=node.kind,
+                    media_type=node.media_type,
                     status=status,
                     byte_size=max(int(node.byte_size), 0),
                     depth=max(int(node.depth), 0),
                 )
                 if existing is None:
-                    node_map[artifact_id] = candidate
+                    node_map[identity] = candidate
                 else:
-                    node_map[artifact_id] = _merge_nodes(existing, candidate)
+                    node_map[identity] = _merge_nodes(existing, candidate)
 
                 if node.status == NodeStatus.CORRUPTED:
                     corrupted_ids.add(artifact_id)
@@ -169,27 +187,50 @@ class LineageService:
                     is_complete = False
 
             for edge in graph.edges:
-                key = (str(edge.parent_id), str(edge.child_id), edge.role)
+                key = (
+                    str(edge.parent_id),
+                    edge.parent_manifest_profile_sha256,
+                    str(edge.child_id),
+                    edge.child_manifest_profile_sha256,
+                    edge.role,
+                )
                 if key not in edge_map:
                     edge_map[key] = ArtifactLineageEdge(
                         parent_artifact_id=key[0],
-                        child_artifact_id=key[1],
-                        role=key[2],
+                        parent_manifest_profile_sha256=key[1],
+                        child_artifact_id=key[2],
+                        child_manifest_profile_sha256=key[3],
+                        role=key[4],
                     )
 
-        nodes = sorted(node_map.values(), key=lambda item: (item.depth, item.artifact_id))
+        nodes = sorted(
+            node_map.values(),
+            key=lambda item: (
+                item.depth,
+                item.artifact_id,
+                item.manifest_profile_sha256 or "",
+            ),
+        )
         edges = sorted(
             edge_map.values(),
-            key=lambda item: (item.parent_artifact_id, item.child_artifact_id, item.role),
+            key=lambda item: (
+                item.parent_artifact_id,
+                item.parent_manifest_profile_sha256 or "",
+                item.child_artifact_id,
+                item.child_manifest_profile_sha256 or "",
+                item.role,
+            ),
         )
         total_size = sum(node.byte_size for node in nodes)
 
         return ArtifactLineageView(
-            root_artifact_ids=[str(item) for item in artifact_ids],
+            root_artifact_ids=[str(item) for item in root_ids],
+            root_artifact_refs=root_refs,
             total_nodes=len(nodes),
             total_edges=len(edges),
             total_size_bytes=total_size,
-            is_complete=is_complete,
+            is_complete=is_complete and not profile_limitations,
+            notes=sorted(set(profile_limitations)),
             missing_artifact_ids=sorted(missing_ids),
             corrupted_artifact_ids=sorted(corrupted_ids),
             nodes=nodes,
@@ -529,7 +570,7 @@ class LineageService:
 
     def _assert_surface_admission_allowed(
         self,
-        artifact_id: ArtifactID,
+        artifact_id: ArtifactID | ArtifactRef,
         *,
         surface: str,
         enforce_missing_authority: bool = False,
@@ -537,14 +578,18 @@ class LineageService:
         # User-facing surfaces pass ``enforce_missing_authority=True`` so a
         # clean no-authority artifact is blocked (fail closed). Internal flows
         # (reissue/feedback/compare/scenarios) reuse the lenient default.
+        selected_ref = artifact_id if isinstance(artifact_id, ArtifactRef) else None
+        selected_id = selected_ref.artifact_id if selected_ref is not None else artifact_id
         decision = authority_surface_decision(
-            {"lineage_root_artifact_id": str(artifact_id)},
+            {"lineage_root_artifact_id": str(selected_id)},
             surface=surface,
-            artifact_ref_or_route=f"lineage://{artifact_id}",
-            secret_pii_scope="dashboard/public/export packets",
+            artifact_ref_or_route=f"lineage://{selected_id}",
+            # This is a fixed secret-scan scope label, not a credential.
+            secret_pii_scope="dashboard/public/export packets",  # noqa: S106
             block_on_secret_findings=True,
             artifact_store=self._store,
-            artifact_id=artifact_id,
+            artifact_id=selected_id,
+            artifact_ref=selected_ref,
             require_cas_integrity=True,
             missing_authority_disposition="block" if enforce_missing_authority else "downgrade",
         )
@@ -564,8 +609,10 @@ def _merge_nodes(lhs: ArtifactLineageNode, rhs: ArtifactLineageNode) -> Artifact
 
     return ArtifactLineageNode(
         artifact_id=lhs.artifact_id,
+        manifest_profile_sha256=lhs.manifest_profile_sha256,
         role=lhs.role or rhs.role,
         kind=lhs.kind or rhs.kind,
+        media_type=lhs.media_type or rhs.media_type,
         status=best_status,
         byte_size=max(lhs.byte_size, rhs.byte_size),
         depth=min(lhs.depth, rhs.depth),

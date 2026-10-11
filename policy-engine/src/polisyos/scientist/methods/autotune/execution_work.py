@@ -8,18 +8,18 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactRef,
+    ArtifactWriteOptions,
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
 
 
 class MethodInputValueFingerprint(BaseModel):

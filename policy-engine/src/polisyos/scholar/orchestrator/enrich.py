@@ -9,7 +9,7 @@ from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts import ArtifactID
 from polisyos.core.canon import content_hash
 from polisyos.core.components import (
     ENTRY_POINT_GROUP_LEX_EXTRACTORS,

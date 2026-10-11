@@ -478,8 +478,7 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
 
 def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     """Reconstruct only the exact filesystem/run context admitted for timeout work."""
-    from polisyos.core.artifacts.signing import SigningConfig
-    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts import FileSystemCAS, SigningConfig
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
     from polisyos.core.run.manifest import RunManifest

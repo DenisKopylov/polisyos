@@ -22,8 +22,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.protocol import ArtifactStore
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,

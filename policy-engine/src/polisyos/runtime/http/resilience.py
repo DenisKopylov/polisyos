@@ -23,9 +23,13 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts.ids import ArtifactID
-    from polisyos.core.artifacts.protocol import ArtifactStore, SignatureVerifyingArtifactStore
-    from polisyos.core.artifacts.signing import Ed25519Verifier, SignatureVerificationResult
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        ArtifactStore,
+        Ed25519Verifier,
+        SignatureVerificationResult,
+        SignatureVerifyingArtifactStore,
+    )
 
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.fabric.connectors.resilience.circuit_breaker import (

@@ -11,8 +11,7 @@ from typing import Any
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.canon.hashing import content_hash

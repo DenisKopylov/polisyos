@@ -7,9 +7,8 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import Metrics, SimulationResult, SimulationResultRef
 from polisyos.ir.analytics.welfare import (

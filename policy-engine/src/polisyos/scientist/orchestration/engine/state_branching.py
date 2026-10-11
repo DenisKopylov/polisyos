@@ -28,7 +28,7 @@ from typing import Any, ClassVar, Literal, Self, SupportsIndex, cast
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import ArtifactRefModel
 from polisyos.scientist.orchestration.engine.state import ExperimentState

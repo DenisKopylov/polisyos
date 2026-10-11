@@ -79,7 +79,7 @@ def _candidate_simulation_is_current(
 ) -> bool:
     """Recompute the selected profile/context under the live worker lease."""
 
-    from polisyos.core.artifacts.manifest import (
+    from polisyos.core.artifacts import (
         ArtifactRef,
         artifact_ref_identity_key,
     )
@@ -312,10 +312,15 @@ class ControlNLJobAdmissionMixin:
         execution_intent_binding = context.execution_intent_binding
         intent_band = context.intent_band
         cycle_substrate_context_resolver = None
+        generic_cycle_simulation_handoff_resolver = None
+        generic_cycle_simulation_currentness_resolver = None
         candidate_simulation_context_binding = context.candidate_simulation_context_binding
         recursive_leaf_context_owner = None
         profile_id = context.profile_id
         admission_owner = self._cycle_substrate_context_admission_owner
+        generic_admission_owner = self._generic_cycle_simulation_admission_owner
+        generic_root_profile_id = self._generic_cycle_simulation_root_profile_id
+        context_artifact_owner = None
         from polisyos.runtime.quality.cycle_substrate import (
             ConfiguredCandidateSimulationContextAdmissionOwner,
         )
@@ -379,6 +384,7 @@ class ControlNLJobAdmissionMixin:
                     store=self._artifact_store,
                     context_owner=context_artifact_owner,
                     admission_owner=admission_owner,
+                    generic_admission_owner=generic_admission_owner,
                     verified_nl_job_scope=verified_nl_job_scope,
                 )
 
@@ -458,10 +464,155 @@ class ControlNLJobAdmissionMixin:
                 return replayed.context
 
             cycle_substrate_context_resolver = resolve_cycle_substrate_context
+
+        if (
+            intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
+            and generic_admission_owner is not None
+            and isinstance(generic_root_profile_id, str)
+            and generic_root_profile_id.strip()
+            and isinstance(bound_tenant_id, str)
+            and bound_tenant_id.strip()
+            and isinstance(bound_cell_id, str)
+            and bound_cell_id.strip()
+            and job.run_id is not None
+        ):
+            from polisyos.runtime.quality.cycle_substrate import (
+                CycleSubstrateContextArtifactOwner,
+                VerifiedNLJobScope,
+                cycle_job_profile_selection_ref,
+            )
+            from polisyos.runtime.quality.design_problem import DesignProblem
+            from polisyos.runtime.quality.generic_simulation_admission import (
+                GenericCycleSimulationAdmissionOwner,
+                GenericCycleSimulationContextHandoffV1,
+            )
+
+            verified_nl_job_scope = execution_intent_binding.get("_verified_nl_job_scope")
+            if (
+                type(generic_admission_owner) is not GenericCycleSimulationAdmissionOwner
+                or type(verified_nl_job_scope) is not VerifiedNLJobScope
+                or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+            ):
+                raise RuntimeError("generic_cycle_simulation_verified_worker_scope_not_established")
+            root_profiles = tuple(
+                profile
+                for profile in generic_admission_owner.profiles
+                if profile.profile_id == generic_root_profile_id
+            )
+            if len(root_profiles) != 1 or root_profiles[0].profile_selection_kind != "problem":
+                raise RuntimeError("generic_cycle_simulation_root_profile_not_configured")
+            root_profile = root_profiles[0]
+            if context_artifact_owner is None:
+                context_artifact_owner = CycleSubstrateContextArtifactOwner(
+                    store=self._artifact_store,
+                    control_store=self._control_store,
+                )
+            if recursive_leaf_context_owner is None:
+                from polisyos.runtime.quality.recursive_generation_cycle import (
+                    RecursiveLeafContextOwner,
+                )
+
+                recursive_leaf_context_owner = RecursiveLeafContextOwner(
+                    store=self._artifact_store,
+                    context_owner=context_artifact_owner,
+                    admission_owner=(admission_owner if configured_candidate_owner else None),
+                    generic_admission_owner=generic_admission_owner,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                )
+
+            generic_handoff_binding: dict[str, object] = {}
+
+            def resolve_generic_cycle_simulation_handoff(
+                problem: DesignProblem,
+            ) -> GenericCycleSimulationContextHandoffV1 | None:
+                """Issue the configured generic parent handoff for an exact problem key."""
+                if cycle_job_profile_selection_ref(problem) != root_profile.profile_selection_ref:
+                    return None
+                offer = generic_admission_owner.admit_context(
+                    generic_simulation_profile_id=generic_root_profile_id,
+                    problem=problem,
+                    job_id=job.job_id,
+                    run_id=str(job.run_id),
+                    tenant_id=bound_tenant_id,
+                    cell_id=bound_cell_id,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                )
+                handoff = generic_admission_owner.persist_handoff(
+                    offer=offer,
+                    problem=problem,
+                    job_id=job.job_id,
+                    run_id=str(job.run_id),
+                    tenant_id=bound_tenant_id,
+                    cell_id=bound_cell_id,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                    context_owner=context_artifact_owner,
+                )
+                replayed = generic_admission_owner.resolve_handoff(
+                    handoff=handoff,
+                    problem=problem,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                    context_owner=context_artifact_owner,
+                )
+                if replayed != handoff:
+                    raise RuntimeError("generic_cycle_simulation_handoff_replay_changed")
+                if handoff.n4_child_profile_family_ref is not None:
+                    generic_admission_owner.resolve_child_profile_family(
+                        handoff.n4_child_profile_family_ref,
+                        parent_handoff=handoff,
+                        parent_problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                        context_owner=context_artifact_owner,
+                    )
+                generic_handoff_binding["handoff"] = handoff
+                generic_handoff_binding["problem"] = problem
+                context.start_core_attempt()
+                return handoff
+
+            def assert_generic_cycle_simulation_currentness() -> bool:
+                """Replay the exact parent profile/context/family under this worker lease."""
+                handoff = generic_handoff_binding.get("handoff")
+                problem = generic_handoff_binding.get("problem")
+                if (
+                    type(handoff) is not GenericCycleSimulationContextHandoffV1
+                    or type(problem) is not DesignProblem
+                ):
+                    return False
+                try:
+                    replayed = generic_admission_owner.resolve_handoff(
+                        handoff=handoff,
+                        problem=problem,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                        context_owner=context_artifact_owner,
+                    )
+                    if replayed != handoff:
+                        return False
+                    if handoff.n4_child_profile_family_ref is not None:
+                        generic_admission_owner.resolve_child_profile_family(
+                            handoff.n4_child_profile_family_ref,
+                            parent_handoff=handoff,
+                            parent_problem=problem,
+                            verified_nl_job_scope=verified_nl_job_scope,
+                            context_owner=context_artifact_owner,
+                        )
+                except Exception:
+                    return False
+                return True
+
+            generic_cycle_simulation_handoff_resolver = resolve_generic_cycle_simulation_handoff
+            generic_cycle_simulation_currentness_resolver = (
+                assert_generic_cycle_simulation_currentness
+            )
+            context.verified_nl_job_scope = verified_nl_job_scope
         context.candidate_simulation_currentness_resolver = (
             candidate_simulation_currentness_resolver
         )
         context.cycle_substrate_context_resolver = cycle_substrate_context_resolver
+        context.generic_cycle_simulation_handoff_resolver = (
+            generic_cycle_simulation_handoff_resolver
+        )
+        context.generic_cycle_simulation_currentness_resolver = (
+            generic_cycle_simulation_currentness_resolver
+        )
         context.recursive_leaf_context_owner = recursive_leaf_context_owner
 
     def _prepare_control_nl_budget_context(self, context: _ControlNLJobContext) -> None:

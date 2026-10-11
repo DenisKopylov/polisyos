@@ -11,8 +11,8 @@ from typing import Any, Literal
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import DataSnapshot
 from polisyos.core.contracts.foundry import (
     EquilibriumMultiplicityReport,

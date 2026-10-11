@@ -129,8 +129,7 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
     """Return the closed set of Pydantic models admitted by this transport."""
     global _WIRE_MODEL_TYPES
     if _WIRE_MODEL_TYPES is None:
-        from polisyos.core.artifacts.ids import ArtifactID
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts import ArtifactID, ArtifactRef
         from polisyos.core.contracts import SkippedNodeBlocker
         from polisyos.scientist.orchestration.engine.protocol import (
             NodeError,
@@ -849,7 +848,7 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     import logging
     from pathlib import Path
 
-    from polisyos.core.artifacts.signing import SigningConfig
+    from polisyos.core.artifacts import SigningConfig
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext

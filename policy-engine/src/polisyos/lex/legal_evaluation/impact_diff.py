@@ -8,8 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
 from polisyos.core.contracts import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.passes.legal_pass import LegalPass

@@ -11,7 +11,7 @@ from polisyos.scientist.evidence.claim_support import validate_claim_support_lin
 from polisyos.scientist.evidence.safe_fetch import detect_prompt_injection
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scholar.search.models import WebEvidenceBundle
 
 

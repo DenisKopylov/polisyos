@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.async_tools import run_coro_sync
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
 from polisyos.scholar.errors import ScholarAcquireError

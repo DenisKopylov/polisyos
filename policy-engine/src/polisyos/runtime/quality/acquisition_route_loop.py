@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Literal, Protocol
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import canon
-from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionActionRecord,
     AcquisitionCostBasisRecord,
@@ -365,7 +365,7 @@ class AcquisitionRouteLoop:
             )
         except (TypeError, ValueError, OSError) as exc:
             raise AcquisitionRouteClosureError("source_core_attempt_not_established") from exc
-        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.core.artifacts import artifact_ref_identity_key
 
         compiled_outputs = tuple(
             ref

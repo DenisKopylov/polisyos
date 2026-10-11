@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
     DistributionalReportRef,

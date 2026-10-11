@@ -6,9 +6,8 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts import artifact_manifest_profile_sha256
-from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
 
 TArtifactRef = TypeVar("TArtifactRef", bound=BaseModel)
 

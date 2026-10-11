@@ -5,14 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon import content_hash
 from polisyos.scholar.search.fetcher import _extract_title_and_text
 from polisyos.scholar.search.security import sanitize_untrusted_text
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scholar.search.models import SourceMetadata, SourceSnippet, WebEvidenceBundle
 
 _RAW_PAGE_KIND = "scholar.web_fetch_payload"

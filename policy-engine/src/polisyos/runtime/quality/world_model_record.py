@@ -29,9 +29,9 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
     ExecPlanRef,

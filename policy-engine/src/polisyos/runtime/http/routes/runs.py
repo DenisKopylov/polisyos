@@ -13,6 +13,11 @@ from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    artifact_ref_identity_key,
+)
 from polisyos.core.contracts.control import (
     ProductionApprovalOverrideRequest,
     ProductionApprovalRequest,
@@ -30,6 +35,9 @@ from polisyos.core.contracts.runtime import (
     RunDetailsResponse,
     RunEvidenceContextResponse,
     RunEvidenceContextView,
+    RunGenericCycleSimulationChildProfileBinding,
+    RunGenericCycleSimulationN5Observation,
+    RunGenericCycleSimulationProjection,
     RunLineageResponse,
     RunNodesResponse,
     RunOperatorDiagnostic,
@@ -322,7 +330,7 @@ def _candidate_acquisition_history_projection(
     if not callable(list_heads) or not callable(source_resolver) or event_log is None:
         return (), "acquisition_action_history_not_observed"
 
-    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+    from polisyos.core.artifacts import artifact_ref_identity_key
 
     try:
         control_job = control_store.get_job(control_job_id)
@@ -371,8 +379,7 @@ def _candidate_acquisition_history_projection(
     if not heads:
         return (), "acquisition_action_history_not_observed"
 
-    from polisyos.core.artifacts.ids import ArtifactID
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts import ArtifactID, ArtifactRef, artifact_ref_identity_key
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionRouteLoopReceipt,
@@ -832,6 +839,12 @@ def _candidate_simulation_projection(
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(
             from_canonical_bytes(payload_bytes)
         )
+        if (
+            compiled.generic_cycle_simulation_handoff is not None
+            or compiled.n4_child_profile_set_ref is not None
+            or compiled.generic_n4_child_profile_status != "not_attempted"
+        ):
+            return None
         expected_manifest_schema_version = {
             COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION: "1.0",
             COMPILED_RECURSIVE_GENERATION_CYCLE_PARTIAL_SCHEMA_VERSION: "1.0",
@@ -1373,6 +1386,688 @@ def _candidate_simulation_projection(
     )
 
 
+def _generic_cycle_simulation_refusal(
+    *,
+    run_id: str,
+    limitation_code: str,
+    source_ref: Any = None,
+) -> RunGenericCycleSimulationProjection:
+    """Keep an unverifiable generic chain visible without promoting it."""
+    return RunGenericCycleSimulationProjection(
+        run_id=run_id,
+        artifact_status="not_established",
+        source_ref=source_ref,
+        child_profile_status="not_established",
+        limitation_code=limitation_code,
+    )
+
+
+def _generic_cycle_simulation_projection(
+    *,
+    run_id: str,
+    tenant_id: str | None,
+    cell_id: str | None,
+    root_artifacts: tuple[Any, ...],
+    store: Any,
+) -> RunGenericCycleSimulationProjection | None:
+    """Replay persisted generic N4-family, N5, and conditional N8 lineage."""
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_design_problem_ref,
+    )
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.generation_cycle import (
+        _joint_simulation_port_outcome,
+        load_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5ExecutionV3,
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationN5RequestBindingV2,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleNode,
+        RecursiveLeafContextOwner,
+    )
+
+    compiled_refs = tuple(
+        ref
+        for ref in root_artifacts
+        if getattr(ref, "kind", None) == "runtime.compiled_recursive_generation_cycle"
+    )
+    if not compiled_refs:
+        return None
+    if len(compiled_refs) != 1:
+        return _generic_cycle_simulation_refusal(
+            run_id=run_id,
+            limitation_code="compiled_cycle_artifact_ambiguous",
+        )
+    ref = compiled_refs[0]
+    if getattr(ref, "media_type", None) != "application/json" or not tenant_id or not cell_id:
+        return _generic_cycle_simulation_refusal(
+            run_id=run_id,
+            source_ref=ref,
+            limitation_code="compiled_cycle_artifact_binding_not_established",
+        )
+    try:
+        verification = store.verify(ref)
+        manifest = store.get_manifest(ref)
+        context = manifest.tenant_context
+        payload_bytes = store.get_bytes(ref)
+        expected_id = f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
+        if (
+            not verification.ok
+            or manifest.kind != "runtime.compiled_recursive_generation_cycle"
+            or manifest.media_type != "application/json"
+            or context is None
+            or context.tenant_id != tenant_id
+            or context.cell_id != cell_id
+            or str(ref.artifact_id) != expected_id
+            or str(manifest.artifact_id) != expected_id
+            or manifest.integrity.sha256 != expected_id.removeprefix("sha256:")
+            or manifest.byte_size != len(payload_bytes)
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name
+            != "polisyos.runtime.CompiledRecursiveGenerationCycleRun"
+        ):
+            raise ValueError("compiled_generic_cycle_manifest_or_content_mismatch")
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            from_canonical_bytes(payload_bytes)
+        )
+        if manifest.artifact_schema.version != "1.0":
+            raise ValueError("compiled_generic_cycle_schema_version_mismatch")
+    except Exception:
+        return _generic_cycle_simulation_refusal(
+            run_id=run_id,
+            source_ref=ref,
+            limitation_code="compiled_cycle_artifact_integrity_not_established",
+        )
+
+    has_generic_projection = (
+        compiled.generic_cycle_simulation_handoff is not None
+        or compiled.n4_child_profile_set_ref is not None
+        or compiled.n4_credal_source_attempt_ref is not None
+        or compiled.generic_n4_child_profile_status != "not_attempted"
+        or compiled.generic_n4_child_profile_limitation_code is not None
+    )
+    if not has_generic_projection:
+        return None
+    checkpoint = _candidate_simulation_checkpoint(compiled.recursive_run)
+    if compiled.generic_n4_child_profile_status != "resolved":
+        if compiled.n4_credal_source_attempt_ref is not None:
+            attempt_ref = compiled.n4_credal_source_attempt_ref
+            source_ref = compiled.n4_recursive_source_ref
+            handoff = compiled.generic_cycle_simulation_handoff
+            if (
+                source_ref is not None
+                and handoff is not None
+                and compiled.n4_recursive_source_run_id is not None
+                and handoff.tenant_id == tenant_id
+                and handoff.cell_id == cell_id
+                and handoff.job_id == compiled.n4_recursive_source_job_id
+                and handoff.run_id == compiled.n4_recursive_source_run_id
+                and handoff.context_job_ref == compiled.n4_recursive_source_context_job_ref
+                and handoff.profile.profile_id
+                == compiled.n4_recursive_source_profile_config_ref
+                and handoff.profile.profile_selection_ref
+                == compiled.n4_recursive_source_profile_selection_ref
+                and handoff.profile.profile_selection_kind == "problem"
+            ):
+                try:
+                    from polisyos.runtime.quality.generation_source import (
+                        CandidateCredalSourceAttemptV1,
+                    )
+
+                    generic_owner = GenericCycleSimulationAdmissionOwner(
+                        profiles=(), store=store
+                    )
+                    source_repository = GenerationSourceRepository(store)
+                    if handoff.n4_child_profile_family_ref is not None:
+                        generic_owner.resolve_child_profile_family_historical(
+                            handoff.n4_child_profile_family_ref,
+                            expected_parent_handoff=handoff,
+                            expected_parent_problem=compiled.design_problem,
+                        )
+                    else:
+                        context_owner = CycleSubstrateContextArtifactOwner(store=store)
+                        parent_context = context_owner.resolve_historical_job_artifact(
+                            handoff.context_job_ref,
+                            problem=compiled.design_problem,
+                            expected_job_id=handoff.job_id,
+                            expected_run_id=handoff.run_id,
+                            expected_tenant_id=tenant_id or "",
+                            expected_cell_id=cell_id or "",
+                        )
+                        if parent_context.context != handoff.context:
+                            raise ValueError("candidate_source_attempt_parent_context_mismatch")
+                        generic_owner.resolve_profile_historical(
+                            handoff.profile_ref,
+                            expected_profile=handoff.profile,
+                            job_id=handoff.job_id,
+                            run_id=handoff.run_id,
+                            tenant_id=tenant_id or "",
+                            cell_id=cell_id or "",
+                        )
+                    attempt = source_repository.load_candidate_credal_source_attempt(
+                        attempt_ref,
+                        n4_source_ref=source_ref,
+                        source_run_id=compiled.n4_recursive_source_run_id or "",
+                        job_id=handoff.job_id,
+                        run_id=handoff.run_id,
+                        tenant_id=tenant_id or "",
+                        cell_id=cell_id or "",
+                        problem=compiled.design_problem,
+                        context=handoff.context,
+                        context_job_ref=handoff.context_job_ref,
+                        profile_ref=handoff.profile_ref,
+                        profile_id=handoff.profile.profile_id,
+                        profile_selection_ref=handoff.profile.profile_selection_ref,
+                        n4_child_profile_family_ref=(
+                            handoff.n4_child_profile_family_ref
+                        ),
+                    )
+                    if (
+                        type(attempt) is not CandidateCredalSourceAttemptV1
+                        or attempt.n4_status
+                        != compiled.n4_recursive_source_result_status
+                        or attempt.source_run_id
+                        != compiled.n4_recursive_source_run_id
+                        or attempt.design_problem_ref != compiled.design_problem_ref
+                    ):
+                        raise ValueError(
+                            "candidate_credal_source_attempt_compiled_binding_mismatch"
+                        )
+                    return RunGenericCycleSimulationProjection(
+                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v2",
+                        run_id=run_id,
+                        artifact_status="resolved",
+                        source_ref=ref,
+                        source_content_hash=compiled.content_hash,
+                        n4_source_ref=source_ref,
+                        n4_source_status="resolved",
+                        parent_context_job_ref=handoff.context_job_ref,
+                        parent_profile_ref=handoff.profile_ref,
+                        parent_profile_id=handoff.profile.profile_id,
+                        child_profile_family_ref=handoff.n4_child_profile_family_ref,
+                        credal_source_attempt_ref=attempt_ref,
+                        credal_source_status="not_established",
+                        credal_source_limitation_code=attempt.limitation_code,
+                        child_profile_status="not_established",
+                        child_profile_limitation_code=(
+                            compiled.generic_n4_child_profile_limitation_code
+                            or "generic_n4_source_generation_not_complete"
+                        ),
+                        n5_limitation_code="generic_n4_source_generation_not_complete",
+                        recursive_cycle_checkpoint=checkpoint,
+                        limitation_code=attempt.limitation_code,
+                    )
+                except Exception:
+                    return RunGenericCycleSimulationProjection(
+                        schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v2",
+                        run_id=run_id,
+                        artifact_status="resolved",
+                        source_ref=ref,
+                        source_content_hash=compiled.content_hash,
+                        n4_source_ref=source_ref,
+                        n4_source_status="not_established",
+                        n4_source_limitation_code=(
+                            "candidate_source_attempt_replay_not_established"
+                        ),
+                        credal_source_attempt_ref=attempt_ref,
+                        credal_source_status="not_established",
+                        credal_source_limitation_code=(
+                            "candidate_source_attempt_replay_not_established"
+                        ),
+                        child_profile_status="not_established",
+                        child_profile_limitation_code=(
+                            "candidate_source_attempt_replay_not_established"
+                        ),
+                        n5_limitation_code="candidate_source_attempt_replay_not_established",
+                        recursive_cycle_checkpoint=checkpoint,
+                        limitation_code="candidate_source_attempt_replay_not_established",
+                    )
+        limitation = (
+            compiled.generic_n4_child_profile_limitation_code
+            or "generic_n4_child_profile_set_not_established"
+        )
+        return RunGenericCycleSimulationProjection(
+            run_id=run_id,
+            artifact_status="resolved",
+            source_ref=ref,
+            source_content_hash=compiled.content_hash,
+            n4_source_ref=compiled.n4_recursive_source_ref,
+            n4_source_status=(
+                "resolved" if compiled.n4_recursive_source_ref is not None else "not_established"
+            ),
+            n4_source_limitation_code=(
+                None
+                if compiled.n4_recursive_source_ref is not None
+                else "n4_recursive_source_reference_not_established"
+            ),
+            parent_context_job_ref=(
+                compiled.generic_cycle_simulation_handoff.context_job_ref
+                if compiled.generic_cycle_simulation_handoff is not None
+                else None
+            ),
+            parent_profile_ref=(
+                compiled.generic_cycle_simulation_handoff.profile_ref
+                if compiled.generic_cycle_simulation_handoff is not None
+                else None
+            ),
+            parent_profile_id=(
+                compiled.generic_cycle_simulation_handoff.profile.profile_id
+                if compiled.generic_cycle_simulation_handoff is not None
+                else None
+            ),
+            child_profile_family_ref=(
+                compiled.generic_cycle_simulation_handoff.n4_child_profile_family_ref
+                if compiled.generic_cycle_simulation_handoff is not None
+                else None
+            ),
+            child_profile_set_ref=compiled.n4_child_profile_set_ref,
+            child_profile_status="not_established",
+            child_profile_limitation_code=limitation,
+            n5_limitation_code="generic_n4_child_profile_set_not_established",
+            recursive_cycle_checkpoint=checkpoint,
+            limitation_code=limitation,
+        )
+
+    parent_handoff = compiled.generic_cycle_simulation_handoff
+    set_ref = compiled.n4_child_profile_set_ref
+    source_ref = compiled.n4_recursive_source_ref
+    if (
+        parent_handoff is None
+        or set_ref is None
+        or source_ref is None
+        or compiled.n4_recursive_source_job_id is None
+        or compiled.n4_recursive_source_run_id is None
+        or compiled.n4_recursive_source_tenant_id != tenant_id
+        or compiled.n4_recursive_source_cell_id != cell_id
+        or parent_handoff.context_job_ref != compiled.n4_recursive_source_context_job_ref
+        or parent_handoff.profile.profile_selection_kind != "problem"
+        or parent_handoff.profile.profile_selection_ref
+        != compiled.n4_recursive_source_profile_selection_ref
+        or compiled.n4_child_profile_status != "not_attempted"
+    ):
+        return RunGenericCycleSimulationProjection(
+            run_id=run_id,
+            artifact_status="resolved",
+            source_ref=ref,
+            source_content_hash=compiled.content_hash,
+            n4_source_ref=source_ref,
+            n4_source_status="not_established",
+            n4_source_limitation_code="generic_n4_source_compiled_binding_mismatch",
+            parent_context_job_ref=parent_handoff.context_job_ref if parent_handoff else None,
+            parent_profile_ref=parent_handoff.profile_ref if parent_handoff else None,
+            parent_profile_id=parent_handoff.profile.profile_id if parent_handoff else None,
+            child_profile_family_ref=(
+                parent_handoff.n4_child_profile_family_ref if parent_handoff else None
+            ),
+            child_profile_set_ref=set_ref,
+            child_profile_status="not_established",
+            child_profile_limitation_code="generic_n4_source_compiled_binding_mismatch",
+            n5_limitation_code="generic_n4_source_compiled_binding_mismatch",
+            recursive_cycle_checkpoint=checkpoint,
+            limitation_code="generic_n4_source_compiled_binding_mismatch",
+        )
+
+    generic_owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    context_owner = CycleSubstrateContextArtifactOwner(store=store)
+    source_repository = GenerationSourceRepository(store)
+    history_owner = RecursiveLeafContextOwner(
+        store=store,
+        context_owner=context_owner,
+        admission_owner=None,
+        generic_admission_owner=generic_owner,
+    )
+    try:
+        family = history_owner.load_n4_child_profile_set(
+            set_ref,
+            expected_job_id=parent_handoff.job_id,
+            expected_run_id=parent_handoff.run_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            expected_parent_handoff=parent_handoff,
+            source_repository=source_repository,
+        )
+        if (
+            family.source_ref != source_ref
+            or family.parent_problem != compiled.design_problem
+            or family.parent_problem_ref != compiled.design_problem_ref
+            or family.n4_child_profile_family_ref
+            != parent_handoff.n4_child_profile_family_ref
+            or family.authority_purpose != "cycle_input_candidate_only"
+        ):
+            raise ValueError("generic_n4_child_profile_set_compiled_binding_mismatch")
+        parent_context = context_owner.resolve_historical_job_artifact(
+            parent_handoff.context_job_ref,
+            problem=compiled.design_problem,
+            expected_job_id=parent_handoff.job_id,
+            expected_run_id=parent_handoff.run_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        if parent_context.context != parent_handoff.context:
+            raise ValueError("generic_parent_context_history_mismatch")
+        generic_owner.resolve_profile_historical(
+            parent_handoff.profile_ref,
+            expected_profile=parent_handoff.profile,
+            job_id=parent_handoff.job_id,
+            run_id=parent_handoff.run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        child_rows = {
+            row.node_ref: row
+            for row in family.children
+        }
+        if len(child_rows) != len(family.children):
+            raise ValueError("generic_child_profile_set_duplicate_node")
+        source = source_repository.load(
+            family.source_ref,
+            run_id=family.source_run_id,
+            expected_run_id=family.run_id,
+            expected_job_id=family.job_id,
+            expected_tenant_id=family.tenant_id,
+            expected_cell_id=family.cell_id,
+            context_job_ref=family.parent_handoff.context_job_ref,
+            profile_ref=family.parent_handoff.profile_ref,
+            n4_child_profile_family_ref=family.n4_child_profile_family_ref,
+        )
+        derived = derive_n4_candidate_child_problems(
+            family.parent_problem,
+            source.generation_result,
+            model_id=source.generation_result.model_id,
+        )
+        # ``load_n4_child_profile_set`` already derives and replays the exact source
+        # children. This second set comparison prevents compiled graph rows from
+        # becoming the source of their own denominator.
+        expected_child_nodes = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            for child in derived
+        }
+        root_node_ref = (
+            "design-problem://"
+            + cycle_job_design_problem_ref(compiled.design_problem).removeprefix("sha256:")
+        )
+        if set(child_rows) != expected_child_nodes:
+            raise ValueError("generic_child_profile_set_source_denominator_mismatch")
+        nodes = tuple(compiled.recursive_run.nodes)
+        if len({node.node_ref for node in nodes}) != len(nodes):
+            raise ValueError("generic_recursive_graph_duplicate_node")
+        root_node = next(
+            node
+            for node in nodes
+            if isinstance(node, RecursiveCycleNode) and node.node_ref == root_node_ref
+        )
+        if set(root_node.child_refs) != expected_child_nodes:
+            raise ValueError("generic_recursive_graph_source_denominator_mismatch")
+        resolved_child_bindings = tuple(
+            RunGenericCycleSimulationChildProfileBinding(
+                node_ref=row.node_ref,
+                design_problem_ref=cycle_job_design_problem_ref(row.problem),
+                source_ref=row.source_ref,
+                source_result_ref=row.source_result_ref,
+                source_atom_refs=row.source_atom_refs,
+                semantic_ref=row.semantic_ref,
+                context_job_ref=row.handoff.context_job_ref,
+                profile_ref=row.handoff.profile_ref,
+                profile_id=row.handoff.profile.profile_id,
+                profile_selection_ref=row.handoff.profile.profile_selection_ref,
+                historical_binding_status="resolved",
+            )
+            for row in family.children
+        )
+    except Exception:
+        return RunGenericCycleSimulationProjection(
+            run_id=run_id,
+            artifact_status="resolved",
+            source_ref=ref,
+            source_content_hash=compiled.content_hash,
+            n4_source_ref=source_ref,
+            n4_source_status="not_established",
+            n4_source_limitation_code="generic_n4_source_reference_not_established",
+            parent_context_job_ref=parent_handoff.context_job_ref,
+            parent_profile_ref=parent_handoff.profile_ref,
+            parent_profile_id=parent_handoff.profile.profile_id,
+            child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
+            child_profile_set_ref=set_ref,
+            child_profile_status="not_established",
+            child_profile_limitation_code="generic_n4_child_profile_set_reference_not_established",
+            n5_limitation_code="generic_n4_child_profile_set_reference_not_established",
+            recursive_cycle_checkpoint=checkpoint,
+            limitation_code="generic_n4_child_profile_set_reference_not_established",
+        )
+
+    observations: list[RunGenericCycleSimulationN5Observation] = []
+    n5_limitation: str | None = None
+    nodes_by_ref = {node.node_ref: node for node in nodes}
+    for node_ref in sorted(expected_child_nodes):
+        try:
+            node = nodes_by_ref.get(node_ref)
+            if not isinstance(node, RecursiveCycleNode) or node.cycle_run is None:
+                # Keep a typed limitation for failed, pending, or missing
+                # siblings while preserving observations already replayed.
+                n5_limitation = "generic_n5_sibling_checkpoint_not_established"
+                continue
+            binding = child_rows[node_ref]
+            for cycle in node.cycle_run.cycles:
+                simulation = cycle.simulation
+                generic_refs = (
+                    simulation.generic_n4_source_ref,
+                    simulation.generic_context_job_ref,
+                    simulation.generic_profile_ref,
+                    simulation.generic_n4_child_profile_family_ref,
+                    simulation.generic_n4_child_profile_set_ref,
+                    simulation.generic_n5_input_ref,
+                    simulation.generic_n5_execution_ref,
+                    simulation.generic_profile_selection_ref,
+                )
+                if not any(value is not None for value in generic_refs):
+                    n5_limitation = "generic_n5_observation_not_emitted"
+                    continue
+                if any(value is None for value in generic_refs):
+                    raise ValueError("generic_n5_compiled_lineage_incomplete")
+                (
+                    cycle_source_ref,
+                    cycle_context_ref,
+                    cycle_profile_ref,
+                    cycle_family_ref,
+                    cycle_set_ref,
+                    input_ref,
+                    execution_ref,
+                    selection_ref,
+                ) = generic_refs
+                if (
+                    cycle.design_problem_ref != cycle_job_design_problem_ref(binding.problem)
+                    or cycle_source_ref != family.source_ref
+                    or cycle_context_ref != binding.handoff.context_job_ref
+                    or cycle_profile_ref != binding.handoff.profile_ref
+                    or cycle_family_ref != family.n4_child_profile_family_ref
+                    or cycle_set_ref != set_ref
+                    or selection_ref != binding.selection.profile_selection_ref
+                ):
+                    raise ValueError("generic_n5_compiled_child_binding_mismatch")
+                input_record = GenericCycleSimulationN5InputV1.model_validate(
+                    from_canonical_bytes(store.get_bytes(input_ref))
+                )
+                generic_owner.resolve_n5_input(input_ref, expected=input_record)
+                execution = parse_generic_cycle_simulation_n5_execution(
+                    from_canonical_bytes(store.get_bytes(execution_ref))
+                )
+                generic_owner.resolve_n5_execution(execution_ref, expected=execution)
+                request_binding_status = (
+                    "resolved"
+                    if type(execution) is GenericCycleSimulationN5ExecutionV3
+                    and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
+                    else "not_established"
+                )
+                request_content_hash = (
+                    execution.request_binding.request_content_hash
+                    if type(execution) is GenericCycleSimulationN5ExecutionV3
+                    and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
+                    else None
+                )
+                if (
+                    input_record.n4_source_ref != family.source_ref
+                    or input_record.n4_child_profile_family_ref
+                    != family.n4_child_profile_family_ref
+                    or input_record.n4_child_profile_set_ref != set_ref
+                    or input_record.child_selection != binding.selection
+                    or input_record.context_job_ref != binding.handoff.context_job_ref
+                    or input_record.profile_ref != binding.handoff.profile_ref
+                    or input_record.profile != binding.handoff.profile
+                    or input_record.design_problem_ref != cycle.design_problem_ref
+                    or input_record.candidate_id != simulation.candidate_id
+                    or input_record.profile.profile_selection_ref != selection_ref
+                    or execution.input_ref != input_ref
+                    or execution.result_ref != simulation.simulation_result_ref
+                    or execution.n4_source_ref != family.source_ref
+                    or execution.n4_child_profile_family_ref
+                    != family.n4_child_profile_family_ref
+                    or execution.n4_child_profile_set_ref != set_ref
+                    or execution.context_job_ref != binding.handoff.context_job_ref
+                    or execution.profile_ref != binding.handoff.profile_ref
+                    or execution.profile_selection_ref != selection_ref
+                    or execution.status != simulation.status
+                    or execution.world_model_record_content_hash
+                    != input_record.profile.context_inputs.world_model_record.content_hash
+                ):
+                    raise ValueError("generic_n5_persisted_input_execution_join_mismatch")
+                resolved_result = None
+                blockers = tuple(simulation.authority_blockers)
+                if execution.result_ref is not None:
+                    result_manifest = store.get_manifest(execution.result_ref)
+                    result_context = result_manifest.tenant_context
+                    if (
+                        result_context is None
+                        or result_context.tenant_id != tenant_id
+                        or result_context.cell_id != cell_id
+                        or not store.verify(execution.result_ref).ok
+                    ):
+                        raise ValueError("generic_n5_result_scope_or_integrity_mismatch")
+                    resolved_result = load_joint_simulation_result(
+                        execution.result_ref,
+                        store=store,
+                        expected_world_model_record_content_hash=(
+                            input_record.profile.context_inputs.world_model_record.content_hash
+                        ),
+                        expected_selected_outcomes=(input_record.outcome_variable,),
+                    )
+                    result_status, result_blockers = _joint_simulation_port_outcome(resolved_result)
+                    if (
+                        (
+                            execution.status == "joint_simulated"
+                            and result_status != "joint_simulated"
+                        )
+                        or not set(result_blockers).issubset(blockers)
+                    ):
+                        raise ValueError("generic_n5_result_execution_status_mismatch")
+                elif simulation.status == "joint_simulated":
+                    raise ValueError("generic_n5_result_reference_not_established")
+                value_port = cycle.value_port
+                n8_resolved = False
+                n8_value_ref = None
+                n8_limitation = "generic_n8_conditional_projection_not_established"
+                if value_port.status == "value_conditional":
+                    if (
+                        resolved_result is None
+                        or value_port.candidate_id != simulation.candidate_id
+                        or value_port.value_ref != str(execution.result_ref.artifact_id)
+                        or value_port.evaluation_mode != "simulate_only"
+                        or value_port.decision_grade != "low"
+                        or value_port.world_model_record_content_hash
+                        != input_record.profile.context_inputs.world_model_record.content_hash
+                        or value_port.value_receipt is not None
+                        or value_port.method_selection_receipt is not None
+                        or "simulation_only_k_sim_not_world_evidence" not in blockers
+                    ):
+                        raise ValueError("generic_n8_conditional_consumer_binding_mismatch")
+                    if request_binding_status == "resolved":
+                        n8_resolved = True
+                        n8_value_ref = value_port.value_ref
+                        n8_limitation = None
+                    else:
+                        n8_limitation = "generic_n5_request_binding_not_established"
+                elif value_port.authority_blockers:
+                    n8_limitation = value_port.authority_blockers[0]
+                observations.append(
+                    RunGenericCycleSimulationN5Observation(
+                        node_ref=node_ref,
+                        design_problem_ref=cycle.design_problem_ref,
+                        cycle_index=cycle.cycle_index,
+                        candidate_id=simulation.candidate_id,
+                        status=simulation.status,
+                        simulation_result_ref=execution.result_ref,
+                        n4_source_ref=family.source_ref,
+                        context_job_ref=binding.handoff.context_job_ref,
+                        profile_ref=binding.handoff.profile_ref,
+                        child_profile_family_ref=family.n4_child_profile_family_ref,
+                        child_profile_set_ref=set_ref,
+                        n5_input_ref=input_ref,
+                        n5_execution_ref=execution_ref,
+                        n5_request_binding_status=request_binding_status,
+                        n5_request_content_hash=request_content_hash,
+                        profile_selection_ref=selection_ref,
+                        atom_ids=(
+                            tuple(resolved_result.atom_ids)
+                            if resolved_result is not None
+                            else ()
+                        ),
+                        selected_outcomes=(
+                            tuple(resolved_result.selected_outcomes)
+                            if resolved_result is not None
+                            else ()
+                        ),
+                        world_model_record_content_hash=(
+                            execution.world_model_record_content_hash
+                        ),
+                        authority_blockers=blockers,
+                        n8_status=value_port.status,
+                        n8_lineage_status="resolved" if n8_resolved else "not_established",
+                        n8_value_ref=n8_value_ref,
+                        n8_authority_blockers=tuple(value_port.authority_blockers),
+                        n8_limitation_code=n8_limitation,
+                    )
+                )
+        except Exception:
+            # Preserve each sibling that independently replayed. The recursive
+            # checkpoint carries the failed sibling's exact terminal state.
+            n5_limitation = "generic_n5_persisted_lineage_not_established"
+            continue
+
+    return RunGenericCycleSimulationProjection(
+        run_id=run_id,
+        artifact_status="resolved",
+        source_ref=ref,
+        source_content_hash=compiled.content_hash,
+        n4_source_ref=source_ref,
+        n4_source_status="resolved",
+        parent_context_job_ref=parent_handoff.context_job_ref,
+        parent_profile_ref=parent_handoff.profile_ref,
+        parent_profile_id=parent_handoff.profile.profile_id,
+        child_profile_family_ref=family.n4_child_profile_family_ref,
+        child_profile_set_ref=set_ref,
+        child_profile_status="resolved",
+        child_profile_bindings=resolved_child_bindings,
+        n5_observations=tuple(observations),
+        n5_limitation_code=(
+            n5_limitation
+            or (None if observations else "generic_n5_observation_not_emitted")
+        ),
+        recursive_cycle_checkpoint=checkpoint,
+        limitation_code=n5_limitation,
+    )
+
+
 @dataclass(frozen=True)
 class LiveStreamPolicy:
     min_interval_seconds: float
@@ -1826,6 +2521,31 @@ def _resolve_replay_bound_paper_packet(
             code=source_invalid_code,
         ) from exc
 
+
+
+def _filter_temporal_lineage_roots(
+    root_refs: list[ArtifactID | ArtifactRef], events: list[Any]
+) -> tuple[list[ArtifactID | ArtifactRef], bool]:
+    """Keep only root refs present in the scoped trace with full identity."""
+    visible: set[tuple[str, str, str, str | None]] = {
+        artifact_ref_identity_key(ref)
+        for event in events
+        for ref in event.output_artifact_refs
+    }
+    selected: list[ArtifactID | ArtifactRef] = []
+    limitation = False
+    for ref in root_refs:
+        if not isinstance(ref, ArtifactRef):
+            limitation = True
+            continue
+        key = artifact_ref_identity_key(ref)
+        if key not in visible:
+            limitation = True
+            continue
+        selected.append(ref)
+        if ref.manifest_profile_sha256 is None:
+            limitation = True
+    return selected, limitation
 
 if router is not None:
 
@@ -2314,6 +3034,15 @@ if router is not None:
         )
         if candidate_simulation is not None:
             updates["candidate_simulation"] = candidate_simulation
+        generic_cycle_simulation = _generic_cycle_simulation_projection(
+            run_id=run.details.run_id,
+            tenant_id=run.details.tenant_id,
+            cell_id=run.details.cell_id,
+            root_artifacts=tuple(run.details.root_artifacts),
+            store=ctx.store,
+        )
+        if generic_cycle_simulation is not None:
+            updates["generic_cycle_simulation"] = generic_cycle_simulation
         if operator_diagnostic is not None:
             updates["operator_diagnostic"] = operator_diagnostic
         if policy_design_case_projection is not None:
@@ -2538,10 +3267,15 @@ if router is not None:
             kind="runtime.run_lineage",
         )
 
-        root_ids = ctx.run_index.resolve_root_artifact_ids(
+        root_refs = ctx.run_index.resolve_root_artifact_refs(
             run,
             requested_root_ids=root_artifact_id or None,
         )
+        root_profile_not_established = False
+        root_ids = [
+            ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+            for ref in root_refs
+        ]
         if (
             temporal_scope is not None
             and ctx.temporal.project_run_details(run.details, temporal_scope).finished_at is None
@@ -2550,13 +3284,12 @@ if router is not None:
                 ctx.timeline.build_for_run(run).timeline,
                 temporal_scope,
             )
-            visible_output_ids = {
-                artifact_id
-                for event in visible_timeline.events
-                for artifact_id in event.output_artifact_ids
-            }
+            root_refs, root_profile_not_established = _filter_temporal_lineage_roots(
+                root_refs, visible_timeline.events
+            )
             root_ids = [
-                artifact_id for artifact_id in root_ids if str(artifact_id) in visible_output_ids
+                ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+                for ref in root_refs
             ]
 
         if not root_ids and temporal_scope is None:
@@ -2568,13 +3301,22 @@ if router is not None:
         try:
             lineage = (
                 ctx.lineage.build_for_artifact_ids(
-                    root_ids,
+                    root_refs,
                     max_depth=max_depth,
                     max_nodes=max_nodes,
                 )
-                if root_ids
+                if root_refs
                 else ArtifactLineageView(root_artifact_ids=[])
             )
+            if root_profile_not_established:
+                lineage = lineage.model_copy(
+                    update={
+                        "is_complete": False,
+                        "notes": sorted(
+                            set(lineage.notes).union({"root_manifest_profile_not_established"})
+                        ),
+                    }
+                )
         except LineageSurfaceAdmissionError as exc:
             raise conflict(
                 "Run lineage blocked or downgraded by composed authority surface admission",
@@ -2588,7 +3330,7 @@ if router is not None:
             request,
             resource_id=run_id,
             tenant_id=run.details.tenant_id,
-            metadata={"root_artifact_count": len(root_ids)},
+            metadata={"root_artifact_count": len(root_refs)},
         )
         add_run_link_relations(response, run_id=run_id)
         return RunLineageResponse(

@@ -762,6 +762,85 @@ def _build_node_context(
     return store, ctx, state
 
 
+@pytest.mark.parametrize(
+    "raw_mapping",
+    [
+        pytest.param(None, id="present-null"),
+        pytest.param([], id="wrong-top-level-type"),
+        pytest.param({}, id="empty-top-level-map"),
+        pytest.param({"y": None}, id="null-metric-map"),
+        pytest.param({"unknown": {"x": 1.0}}, id="unknown-output-id"),
+        pytest.param({"y": {"unknown": 1.0}}, id="unknown-input-id"),
+        pytest.param({"y": {"x": "1.0"}}, id="string-coefficient"),
+        pytest.param({"y": {"x": True}}, id="boolean-coefficient"),
+        pytest.param({"y": {"x": float("nan")}}, id="nan-coefficient"),
+    ],
+)
+def test_present_malformed_sensitivity_map_fails_before_propagation(
+    tmp_path: Path,
+    raw_mapping: Any,
+) -> None:
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id="R_b190_invalid_mapping",
+        metric_values={"y": 10},
+        propagation_config={"preferred_method": "delta", "compute_sensitivity": False},
+    )
+    params = dict(state.params)
+    params["propagation_sensitivity"] = raw_mapping
+    state = state.model_copy(update={"params": params}, deep=True)
+    initial_files = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
+
+    outcome = PropagateUncertaintyNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "propagation_sensitivity_invalid"
+    assert outcome.error.details["input"] == "params.propagation_sensitivity"
+    assert outcome.artifacts == []
+    assert outcome.state == state
+    assert {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()} == (
+        initial_files
+    )
+
+
+def test_partial_raw_sensitivity_map_is_candidate_only_for_every_output(tmp_path: Path) -> None:
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id="R_b190_limited_mapping",
+        metric_values={"mapped": 10, "unmapped": 20},
+        propagation_config={"preferred_method": "delta", "compute_sensitivity": False},
+        propagation_sensitivity={"mapped": {"x": 1.0}},
+    )
+
+    outcome = PropagateUncertaintyNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    sim_ref = outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(sim_ref.artifact_id))
+    )
+    report = from_canonical_bytes(store.get_bytes(simulation.propagation_report_ref.artifact_id))
+    assert report["mapping_status"] == "partial"
+    assert report["mapping_source"] == "caller_parameters"
+    assert report["mapping_basis_status"] == "consumer_asserted"
+    assert report["unmapped_metric_ids"] == ["unmapped"]
+    diagnostics = {row["metric_id"]: row["diagnostics"] for row in report["diagnostics"]}
+    assert diagnostics["mapped"]["sensitivity_mapping"] == "consumer_asserted"
+    assert diagnostics["unmapped"]["sensitivity_mapping"] == "unresolved"
+    for metric_id, expected_status in (
+        ("mapped", "consumer_asserted"),
+        ("unmapped", "unresolved"),
+    ):
+        envelope = load_uncertainty_envelope(
+            _ensure_ir_artifact_store(store), simulation.uncertainty_envelopes[metric_id]
+        )
+        assert envelope.gate_eligible is False
+        assert envelope.metadata["sensitivity_mapping"] == expected_status
+        assert envelope.metadata["sensitivity_mapping_source"] == "caller_parameters"
+        assert envelope.metadata["sensitivity_mapping_limited"] is True
+
+
 def _persist_uncertainty_normative_frame(store: FileSystemCAS):
     problem_frame = ProblemFrame(
         problem_id="b194_uncertainty_consumer",
@@ -855,7 +934,10 @@ def test_complete_persisted_draws_remain_limited_in_fresh_normative_consumer(tmp
         _ensure_ir_artifact_store(store), sim_result.uncertainty_envelopes["y"]
     )
     report = from_canonical_bytes(store.get_bytes(sim_result.propagation_report_ref.artifact_id))
-    assert output_env.gate_eligible is True
+    assert output_env.gate_eligible is False
+    assert output_env.metadata["sensitivity_mapping"] == "consumer_asserted"
+    assert output_env.metadata["sensitivity_mapping_source"] == "caller_parameters"
+    assert report["mapping_status"] == "consumer_asserted"
     assert report["draw_outcome_provenance"]["outcome_denominator_complete"] is True
     assert report["draw_outcome_provenance"]["requested_draw_count"] == 100
     assert report["draw_outcome_provenance"]["attempted_draw_count"] == 100
@@ -938,7 +1020,9 @@ def test_b194_transient_retry_survives_fresh_cas_normative_consumption(
     )
     report = from_canonical_bytes(store.get_bytes(sim_result.propagation_report_ref.artifact_id))
     ledger = report["draw_outcome_provenance"]
-    assert output_env.gate_eligible is True
+    assert output_env.gate_eligible is False
+    assert output_env.metadata["sensitivity_mapping"] == "consumer_asserted"
+    assert report["mapping_status"] == "consumer_asserted"
     assert ledger["requested_draw_count"] == 100
     assert ledger["attempted_draw_count"] == 100
     assert ledger["successful_draw_count"] == 100
@@ -1171,7 +1255,9 @@ def test_normative_admission_recomputes_denominator_while_markers_stay_true(tmp_
         _ensure_ir_artifact_store(store), sim_result.uncertainty_envelopes["y"]
     )
     report = from_canonical_bytes(store.get_bytes(sim_result.propagation_report_ref.artifact_id))
-    assert envelope.gate_eligible is True
+    assert envelope.gate_eligible is False
+    assert envelope.metadata["sensitivity_mapping"] == "consumer_asserted"
+    assert report["mapping_status"] == "consumer_asserted"
     assert report["diagnostics"][0]["diagnostics"]["output_coverage_complete"] is True
     ledger = report["draw_outcome_provenance"]
     assert ledger["outcome_denominator_complete"] is True

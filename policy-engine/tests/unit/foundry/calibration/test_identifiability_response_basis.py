@@ -20,6 +20,7 @@ from polisyos.core.contracts.foundry import (
     FoundryExecConfig,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    Metrics,
     ProgramGraph,
     SimulationResult,
     StateSnapshotRef,
@@ -164,6 +165,43 @@ def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
     variance = Fraction(4) ** 2 * Fraction(1, 16)
     assert variance == 1
     assert payload["response_basis"]["gate_eligible"] is False
+
+
+def test_metric_name_collision_does_not_bind_counter_to_response_unit(tmp_path):
+    """A key collision is insufficient to join an execution counter to a state response."""
+    store, simulation_ref, parameter = _native_fixture(tmp_path)
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(simulation_ref))
+    )
+    metrics = Metrics.model_validate(from_canonical_bytes(store.get_bytes(simulation.metrics_ref)))
+    assert "step_latency_ms" in metrics.values
+    assert "unit" not in Metrics.model_fields
+    assert "source_ref" not in Metrics.model_fields
+
+    diagnostic = identifiability_diagnostic(
+        store,
+        simulation_result_ref=simulation_ref,
+        observed_moment_bundle={"step_latency_ms": float(metrics.values["step_latency_ms"])},
+        parameter_center={parameter: 0.5},
+        response_slots={"step_latency_ms": "government.balance"},
+        config=IdentifiabilityDiagnosticConfig(
+            simulation_reps=2,
+            bootstrap_reps=0,
+            profile_grid_size=0,
+            seed=29,
+            finite_diff_rel_step=0.01,
+        ),
+    )
+
+    assert diagnostic.sensitivity_matrix_ref is not None
+    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
+    basis = payload["response_basis"]
+    assert basis["gate_eligible"] is False
+    assert basis["state_paths"]["step_latency_ms"] == "government_balance"
+    assert basis["moment_units"]["step_latency_ms"]["currency"] == "USD"
+    # The native graph producer's same-name metric is a wall-clock counter in milliseconds.
+    # The typed Metrics carrier has no per-key unit/source binding, so this candidate basis
+    # cannot authorize propagation merely because the strings happen to match.
 
 
 def test_fresh_reader_recomputes_actual_native_response(tmp_path):

@@ -348,7 +348,10 @@ def test_small_monte_carlo_report_is_consumed_from_fresh_cas(
     envelope = load_uncertainty_envelope(
         ensure_ir_artifact_store(store), produced_simulation.uncertainty_envelopes["y"]
     )
-    assert envelope.gate_eligible is True
+    assert envelope.gate_eligible is False
+    assert envelope.metadata["sensitivity_mapping"] == "consumer_asserted"
+    assert report["mapping_status"] == "consumer_asserted"
+    assert report["mapping_basis_status"] == "consumer_asserted"
     assert report["schema_version"] == "1.1"
     assert isinstance(report["diagnostics"], list)
     metric_diagnostic = next(row for row in report["diagnostics"] if row["metric_id"] == "y")

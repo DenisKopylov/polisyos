@@ -5,7 +5,9 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Protocol, cast
+from decimal import Decimal
+from numbers import Real
+from typing import Any, Literal, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -35,7 +37,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
@@ -43,12 +50,18 @@ logger = get_logger(__name__)
 
 _PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _PROPAGATION_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+_SENSITIVITY_MAPPING_PARAM = "propagation_sensitivity"
+
+
+class _InvalidSensitivityMapping(ValueError):
+    """A supplied sensitivity map cannot be interpreted against this run."""
 
 
 class _PropagationFunction(Protocol):
     """Callable response carrying its resolved sensitivity map."""
 
     _sensitivity_map: dict[str, dict[str, float]]
+    _sensitivity_mapping_source: Literal["absent", "caller_parameters"]
 
     def __call__(self, **current_params: Any) -> dict[str, Any]: ...
 
@@ -95,6 +108,12 @@ class PropagateUncertaintyNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        raw_mapping_supplied = _SENSITIVITY_MAPPING_PARAM in state.params
+        try:
+            _validate_sensitivity_mapping_shape(state.params)
+        except _InvalidSensitivityMapping as exc:
+            return _sensitivity_mapping_failure(state, exc)
+
         sim_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if sim_result_ref is None:
             return NodeOutcome(
@@ -130,11 +149,14 @@ class PropagateUncertaintyNode:
         dispatcher = PropagationDispatcher(config)
 
         nominal_params = {name: env.point_estimate for name, env in input_envelopes.items()}
-        simulation_fn, mapped_params = _build_propagation_fn(
-            state.params,
-            base_metric_values=metric_values,
-            nominal_params=nominal_params,
-        )
+        try:
+            simulation_fn, mapped_params = _build_propagation_fn(
+                state.params,
+                base_metric_values=metric_values,
+                nominal_params=nominal_params,
+            )
+        except _InvalidSensitivityMapping as exc:
+            return _sensitivity_mapping_failure(state, exc)
         output_metric_ids = sorted(metric_values.keys())
 
         results = dispatcher.propagate(
@@ -156,9 +178,24 @@ class PropagateUncertaintyNode:
         unmapped_metric_ids = [
             metric_id for metric_id in output_metric_ids if not sensitivity_map.get(metric_id)
         ]
-        if unmapped_metric_ids:
+        if raw_mapping_supplied:
             results = [
-                _mark_unresolved_sensitivity(item)
+                _mark_sensitivity_mapping(
+                    item,
+                    mapping_status=(
+                        "consumer_asserted" if sensitivity_map.get(item.metric_id) else "unresolved"
+                    ),
+                    mapping_source="caller_parameters",
+                )
+                for item in results
+            ]
+        elif unmapped_metric_ids:
+            results = [
+                _mark_sensitivity_mapping(
+                    item,
+                    mapping_status="unresolved",
+                    mapping_source="not_established",
+                )
                 if item.metric_id in unmapped_metric_ids
                 else item
                 for item in results
@@ -192,6 +229,7 @@ class PropagateUncertaintyNode:
             unmapped_metric_ids=unmapped_metric_ids,
             missing_output_metric_ids=missing_output_metric_ids,
             incomplete_output_metric_ids=incomplete_output_metric_ids,
+            mapping_source=("caller_parameters" if raw_mapping_supplied else "not_established"),
         )
 
         updated_sim = sim_result.model_copy(
@@ -243,6 +281,73 @@ class PropagateUncertaintyNode:
                 )
             ],
         )
+
+
+def _sensitivity_mapping_failure(
+    state: ExperimentState,
+    error: _InvalidSensitivityMapping,
+) -> NodeOutcome:
+    """Return a typed refusal for malformed or unbindable caller sensitivity input."""
+    return NodeOutcome(
+        status="fail",
+        state=state,
+        error=NodeError(
+            code="propagation_sensitivity_invalid",
+            message=str(error),
+            details={"input": f"params.{_SENSITIVITY_MAPPING_PARAM}"},
+        ),
+    )
+
+
+def _validate_sensitivity_mapping_shape(
+    params: Mapping[str, Any],
+) -> dict[str, dict[str, float]] | None:
+    """Validate supplied map structure before any skip/default can hide malformed input."""
+    if _SENSITIVITY_MAPPING_PARAM not in params:
+        return None
+
+    raw = params[_SENSITIVITY_MAPPING_PARAM]
+    if not isinstance(raw, Mapping) or not raw:
+        raise _InvalidSensitivityMapping(
+            "propagation_sensitivity must be a non-empty mapping of output ids to coefficients"
+        )
+
+    normalized: dict[str, dict[str, float]] = {}
+    for metric_id, raw_metric in raw.items():
+        if not isinstance(metric_id, str) or not metric_id.strip():
+            raise _InvalidSensitivityMapping(
+                "propagation_sensitivity output ids must be non-empty strings"
+            )
+        if not isinstance(raw_metric, Mapping) or not raw_metric:
+            raise _InvalidSensitivityMapping(
+                f"propagation_sensitivity[{metric_id!r}] must be a non-empty mapping"
+            )
+        normalized_metric: dict[str, float] = {}
+        for param_name, coefficient in raw_metric.items():
+            if not isinstance(param_name, str) or not param_name.strip():
+                raise _InvalidSensitivityMapping(
+                    f"propagation_sensitivity[{metric_id!r}] parameter ids must be strings"
+                )
+            if isinstance(coefficient, bool) or not isinstance(coefficient, (Real, Decimal)):
+                raise _InvalidSensitivityMapping(
+                    f"propagation_sensitivity[{metric_id!r}][{param_name!r}] "
+                    "must be a finite numeric coefficient"
+                )
+            try:
+                coefficient_value = float(coefficient)
+            except (OverflowError, TypeError, ValueError) as exc:
+                raise _InvalidSensitivityMapping(
+                    f"propagation_sensitivity[{metric_id!r}][{param_name!r}] "
+                    "must be a finite numeric coefficient"
+                ) from exc
+            if not math.isfinite(coefficient_value):
+                raise _InvalidSensitivityMapping(
+                    f"propagation_sensitivity[{metric_id!r}][{param_name!r}] "
+                    "must be a finite numeric coefficient"
+                )
+            normalized_metric[param_name] = coefficient_value
+        normalized[metric_id] = normalized_metric
+    return normalized
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
@@ -369,44 +474,50 @@ def _resolve_sensitivity_map(
     param_names: list[str],
     base_metric_values: Mapping[str, float],
 ) -> tuple[dict[str, dict[str, float]], set[str]]:
-    raw = params.get("propagation_sensitivity")
+    raw = _validate_sensitivity_mapping_shape(params)
     sensitivity: dict[str, dict[str, float]] = {}
     mapped: set[str] = set()
+    if raw is None:
+        return sensitivity, mapped
 
-    if isinstance(raw, dict):
-        for metric_id in metric_ids:
-            per_metric = raw.get(metric_id)
-            if not isinstance(per_metric, dict):
-                continue
-            metric_map: dict[str, float] = {}
-            for param_name, coef in per_metric.items():
-                if not isinstance(param_name, str):
-                    continue
-                if param_name not in param_names:
-                    continue
-                try:
-                    coef_float = float(coef)
-                except (TypeError, ValueError):
-                    continue
-                metric_map[param_name] = coef_float
-                mapped.add(param_name)
-            if metric_map:
-                sensitivity[metric_id] = metric_map
+    known_metrics = set(metric_ids)
+    unknown_metrics = sorted(set(raw) - known_metrics)
+    if unknown_metrics:
+        raise _InvalidSensitivityMapping(
+            f"propagation_sensitivity references unknown output metric ids: {unknown_metrics}"
+        )
+
+    known_params = set(param_names)
+    for metric_id, per_metric in raw.items():
+        unknown_params = sorted(set(per_metric) - known_params)
+        if unknown_params:
+            raise _InvalidSensitivityMapping(
+                f"propagation_sensitivity[{metric_id!r}] references unknown input ids: "
+                f"{unknown_params}"
+            )
+        sensitivity[metric_id] = dict(per_metric)
+        mapped.update(per_metric)
 
     return sensitivity, mapped
 
 
-def _mark_unresolved_sensitivity(result: PropagationResult) -> PropagationResult:
-    """Mark a result non-authoritative when no response map was established."""
-
-    metadata = {
-        **result.envelope.metadata,
-        "sensitivity_mapping": "unresolved",
+def _mark_sensitivity_mapping(
+    result: PropagationResult,
+    *,
+    mapping_status: str,
+    mapping_source: str,
+) -> PropagationResult:
+    """Keep caller-mapped output candidate-only and label its non-authoritative origin."""
+    mapping_evidence = {
+        "sensitivity_mapping": mapping_status,
+        "sensitivity_mapping_source": mapping_source,
+        "sensitivity_mapping_limited": True,
+        "candidate_only": True,
     }
     envelope = result.envelope.model_copy(
         update={
             "gate_eligible": False,
-            "metadata": metadata,
+            "metadata": {**result.envelope.metadata, **mapping_evidence},
         }
     )
     return PropagationResult(
@@ -414,10 +525,7 @@ def _mark_unresolved_sensitivity(result: PropagationResult) -> PropagationResult
         envelope=envelope,
         input_envelopes_used=result.input_envelopes_used,
         method_used=result.method_used,
-        diagnostics={
-            **result.diagnostics,
-            "sensitivity_mapping": "unresolved",
-        },
+        diagnostics={**result.diagnostics, **mapping_evidence},
     )
 
 
@@ -463,14 +571,16 @@ def _persist_report(
     unmapped_metric_ids: list[str],
     missing_output_metric_ids: list[str],
     incomplete_output_metric_ids: list[str],
+    mapping_source: Literal["caller_parameters", "not_established"],
 ) -> ArtifactRef:
-    mapping_status = (
-        "resolved"
-        if not unmapped_metric_ids
-        else "partial"
-        if len(unmapped_metric_ids) < len(output_metrics)
-        else "unresolved"
-    )
+    if mapping_source == "caller_parameters" and not unmapped_metric_ids:
+        mapping_status = "consumer_asserted"
+    elif not unmapped_metric_ids:
+        mapping_status = "resolved"
+    elif len(unmapped_metric_ids) < len(output_metrics):
+        mapping_status = "partial"
+    else:
+        mapping_status = "unresolved"
     shared_provenance = results[0].diagnostics.get("draw_outcome_provenance") if results else None
     if shared_provenance is not None and not all(
         item.diagnostics.get("draw_outcome_provenance") is shared_provenance for item in results
@@ -497,6 +607,10 @@ def _persist_report(
         "mapped_param_count": len(mapped_params),
         "mapped_params": sorted(mapped_params),
         "mapping_status": mapping_status,
+        "mapping_source": mapping_source,
+        "mapping_basis_status": (
+            "consumer_asserted" if mapping_source == "caller_parameters" else "not_established"
+        ),
         "unmapped_metric_ids": sorted(unmapped_metric_ids),
         "missing_output_metric_ids": sorted(missing_output_metric_ids),
         "methods": [item.method_used.value for item in results],

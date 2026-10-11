@@ -1517,6 +1517,69 @@ def test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare(tmp_path) 
         rtol=0,
     )
 
+    # Reopen every producer artifact through a distinct CAS reader. The writer-side
+    # objects above are not the consumer receipt for this source-to-welfare chain.
+    fresh_store = FileSystemCAS(tmp_path)
+    fresh_ir_store = _ensure_ir_artifact_store(fresh_store)
+    fresh_calibration = CalibrationReport.model_validate(
+        from_canonical_bytes(fresh_store.get_bytes(report_ref))
+    )
+    assert fresh_calibration.coordinate_projection is not None
+    assert fresh_calibration.coordinate_projection.field_order == ("A.rate", "B.rate")
+    assert fresh_calibration.uncertainty_envelopes is not None
+    assert fresh_calibration.uncertainty_envelopes["A.rate"].metadata[
+        "covariance_row"
+    ] == pytest.approx([0.0025, 0.0025], rel=0, abs=1e-9)
+
+    fresh_delta_ref = ArtifactRef(
+        artifact_id=delta_report_id,
+        kind="foundry.welfare_propagation_report",
+        media_type="application/json",
+    )
+    fresh_delta_report = from_canonical_bytes(fresh_store.get_bytes(fresh_delta_ref))
+    assert fresh_delta_report["covariance_order"] == ["A.rate", "B.rate"]
+    np.testing.assert_allclose(
+        fresh_delta_report["covariance"],
+        [[0.0025, 0.0025], [0.0025, 0.0025]],
+        rtol=1e-6,
+        atol=1e-9,
+    )
+    fresh_delta_bundle_ref = delta_outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    fresh_delta_bundle = load_welfare_bundle(fresh_ir_store, fresh_delta_bundle_ref)
+    assert fresh_delta_bundle.point_estimate == pytest.approx(2.0)
+    assert _manifest_has_input(fresh_store, fresh_delta_ref, report_ref, "calibration_report")
+    assert _manifest_has_input(
+        fresh_store, fresh_delta_bundle_ref, report_ref, "calibration_report"
+    )
+
+    fresh_mc_samples = load_welfare_sample_bundle(fresh_ir_store, mc_bundle.sample_bundle_ref)
+    assert len(fresh_mc_samples.welfare_draws) == 100
+    assert fresh_mc_samples.metadata["calibration_covariance_order"] == ["A.rate", "B.rate"]
+    np.testing.assert_allclose(
+        fresh_mc_samples.metadata["calibration_covariance_matrix"],
+        [[0.0025, 0.0025], [0.0025, 0.0025]],
+        rtol=1e-6,
+        atol=1e-9,
+    )
+    np.testing.assert_allclose(fresh_mc_samples.welfare_draws, np.zeros(100), atol=1e-8, rtol=0)
+    fresh_mc_report_ref = ArtifactRef(
+        artifact_id=mc_report_id,
+        kind="foundry.welfare_propagation_report",
+        media_type="application/json",
+    )
+    fresh_mc_report = from_canonical_bytes(fresh_store.get_bytes(fresh_mc_report_ref))
+    assert fresh_mc_report["dependence_sampling"]["strategy"] == (
+        "calibration_report_optimizer_coordinates"
+    )
+    assert _manifest_has_input(fresh_store, fresh_mc_report_ref, report_ref, "calibration_report")
+    assert _manifest_has_input(
+        fresh_store, fresh_mc_report_ref, mc_bundle.sample_bundle_ref, "sample_bundle"
+    )
+    fresh_mc_bundle_ref = mc_outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF]
+    fresh_mc_bundle = load_welfare_bundle(fresh_ir_store, fresh_mc_bundle_ref)
+    assert fresh_mc_bundle.status == mc_bundle.status
+    assert _manifest_has_input(fresh_store, fresh_mc_bundle_ref, report_ref, "calibration_report")
+
 
 @pytest.mark.parametrize("method", ["delta", "monte_carlo"])
 @pytest.mark.parametrize(

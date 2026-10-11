@@ -355,6 +355,24 @@ plans, or backlog docs.
   they diverge. If the divergent case cannot be eliminated, record it as a declared bounded limitation;
   never leave it implicit. Check P38 together with P37: they are the consumer-side and producer-side
   halves of one failure.
+- Issued-artifact identity and review-output custody (`P30`/`P35`/`P40`; see
+  `P38`'s address-versus-identity boundary): a path is a locator, not a version.
+  The issuing owner publishes one final artifact version atomically, stops writes,
+  reads back the published bytes, and records the artifact role, issuing owner,
+  version, canonical path, and SHA-256. The independent reviewer re-reads those
+  bytes and binds its report to that exact identity. Any later byte change creates
+  a new identity: the prior review remains valid only for its original bytes and
+  cannot be cited for the new version until those bytes are reviewed. Before
+  writing, assign each reviewer a unique output path keyed by reviewer and
+  input-artifact identity; reject a shared or already-leased generic destination.
+  If prior bytes are unavailable, retain the known hash and mark the bytes
+  unavailable—never reconstruct them or claim restoration. Preserve available
+  irrecomputable receipts; cite tracked source by `path@sha` instead of copying it.
+  Falsifier: overwrite an issued artifact at its old path without rebinding the
+  report, or offer the same destination to a second reviewer; if the stale report
+  still passes for the new bytes or either output is lost, the procedure still
+  treats a locator as identity.
+
 - Do not label a capability chain that does not exist as `contract_only` merely because a contract,
   research package, or plan section describes it: if no admitted prerequisite chain and no appointed
   owner exist, the honest label is `absent/unallocated`, and the missing prerequisite is named.

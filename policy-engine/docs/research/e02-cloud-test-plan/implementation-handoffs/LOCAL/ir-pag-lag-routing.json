@@ -1,0 +1,231 @@
+{
+  "record_type": "ir_pag_lag_routing",
+  "recorded_at": "2026-10-11",
+  "disposition": "implemented_pushed_and_remote_readback_verified",
+  "implementation_scope": {
+    "property": "GraphType.PAG admission permits one adjacency per unordered endpoint pair; changing lag or endpoint marks does not create a second adjacency identity.",
+    "behavior": "A mixed lag-1 directed and contemporaneous bidirected row for the same pair is refused in either storage order. The actual PCMCI+ and PC discovery path keeps positive-lag rows in temporal_dag and the PC report output in unified_pag, persists the report, reads it through a fresh CAS reader, and preserves the static identification consumer's typed refusal for positive lag.",
+    "scientific_limit": "The PC pair is a report-routing witness only. The seeded VAR fixture has Y[t] depend on X[t-1] and Y[t-1], not a contemporaneous X[t] effect; this run does not establish a true contemporaneous causal relation or a temporal-PAG law.",
+    "schema_or_public_law_change": false,
+    "capability_state": {
+      "existing_static_pair_guard": "implemented",
+      "producer_to_persisted_report_to_fresh_reader_to_static_refusal": "verified_by_focused_run",
+      "temporal_pag_profile_and_consumer": "absent_unallocated",
+      "external_surface": "out_of_scope"
+    }
+  },
+  "source_checkpoint": {
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "e038ab5701f59841a0b30229e8edfcd8e303b64c",
+    "commit": "8c42e13b76e13c0d1f81ab3b2b3e974c9e2cdf71",
+    "tree": "e1e4833c523f65dc07a8a9f751e8b08ae34dd460",
+    "parents": [
+      "e038ab5701f59841a0b30229e8edfcd8e303b64c"
+    ],
+    "remote_ref": "origin/codex/e02-unified-local-20261009",
+    "remote_ref_commit": "8c42e13b76e13c0d1f81ab3b2b3e974c9e2cdf71",
+    "remote_readback": {
+      "path": "raw/ir-pag-lag-source-checkpoint-20261011/remote-readback.json",
+      "sha256": "90200c6fe5dd8e626bac42e11548275e0f8723201de24a17cfda17ebb5489b52"
+    },
+    "readback": {
+      "path": "raw/ir-pag-lag-source-checkpoint-20261011/readback.json",
+      "sha256": "2dd003fc53434617cb80780b5ceb026d0cbc23ff0b1204ee5c805ec281c8ca3e"
+    },
+    "selected_footprint": {
+      "path": "raw/ir-pag-lag-source-checkpoint-20261011/selected-footprint.json",
+      "sha256": "cad8aa9a146aa4b385d8ef9e27d8796a10891614cfa159bbaeb6087c2820666d"
+    },
+    "changed_path_count": 3,
+    "changed_paths": [
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "before_sha256": "09cde2335fbbe9c3f562079011a794b2b9ddddc9cb610cea593318dad4a03c8d",
+        "after_sha256": "270b6bdc2665256c4a28bc41a0597e19bee7c18dd14bbc434bfcf9091dad5f8a",
+        "worktree_matches_commit": true
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+        "before_sha256": "82e936f60109d828a689dbb917586556aed01260b7568a063825d052aabc916e",
+        "after_sha256": "ef692a674e5a934674e8d980975d79368c8a90a8a947e9fa3f0cf3022320d360",
+        "worktree_matches_commit": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+        "before_sha256": "fe825595f5e6cdceaafe2bd86a4fc5ec54fb432a025d2ba63bb4c2a93aaf46fd",
+        "after_sha256": "22c2f446266127d2d7f7cee9a86ed07733bc3c0006aab0fe518ea271505b0e70",
+        "worktree_matches_commit": true,
+        "normalization": "The final candidate removes exactly one added empty EOF line from the proposed test postimage; no test body changed.",
+        "normalization_receipt": {
+          "path": "raw/ir-pag-lag-controls-application-20261011/trailing-eof-whitespace-normalization.json",
+          "sha256": "366c1f884a06844b4bcad58f5a51ee41b36088b3391ea4317f6fe8c0aece4a61"
+        }
+      }
+    ],
+    "changed_lines": {
+      "policy-engine/src/polisyos/ir/analytics/causal_graph.py": {
+        "added": 27,
+        "removed": 0
+      },
+      "policy-engine/tests/unit/ir/test_causal_graph_contract.py": {
+        "added": 209,
+        "removed": 0
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py": {
+        "added": 87,
+        "removed": 0
+      },
+      "total_added": 323,
+      "total_removed": 0,
+      "receipt": "git show --format= --numstat 8c42e13b76e13c0d1f81ab3b2b3e974c9e2cdf71"
+    }
+  },
+  "application_receipts": [
+    {
+      "path": "raw/ir-pag-lag-controls-application-20261011/admission.json",
+      "sha256": "493d1222d909b8c74fe0cbdd628ce807a90fce54e69056f82c7578ebb56f057e"
+    },
+    {
+      "path": "raw/ir-pag-lag-controls-application-20261011/readback.json",
+      "sha256": "90eac8c76c02d6ac7190b66b11cde697303ee07da3cbac49706bd0ae869e5fd7"
+    }
+  ],
+  "focused_verification": {
+    "pytest": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow",
+        "tests/unit/runtime/quality/test_promotion_sequence.py::test_contract_testing_bind_receipt_is_intrinsically_non_promotable",
+        "tests/unit/ir/test_causal_graph_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+        "--junitxml",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/junit.xml",
+        "--basetemp",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/pytest-tmp"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "head_when_run": "55ed8863a8cad50c8189dd9309f0a87e8761016b",
+      "exit_code": 0,
+      "result": {
+        "passed": 48,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "class_counts": {
+        "tests.unit.ir.test_causal_graph_contract": 37,
+        "tests.unit.foundry.methods.catalog.causal.test_discovery_reconciliation_limitations": 9,
+        "tests.unit.runtime.quality.test_promotion_sequence": 2
+      },
+      "scope_note": "The 48 cases comprise 46 IR/discovery cases and 2 promotion cases; the 48 are not all IR cases.",
+      "junit_reported_seconds": 40.146,
+      "captured_wall_seconds": 44.16434316697996,
+      "receipts": [
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/command.json",
+          "sha256": "b558b19452fe5cd33f4d5a70d3a3e48217ef7c2fba8de32bc864ce603a9d0fce"
+        },
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/stdout.txt",
+          "sha256": "3e976b655a27bb74489b50c9202231ec5269243f3aab2c2598afa8110fc95043"
+        },
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/junit.xml",
+          "sha256": "1e640013008df61d6746e875098188392874fea71a09c0e2fefe941e9f216a2a"
+        }
+      ]
+    },
+    "ruff": {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format=json",
+        "tests/unit/runtime/quality/test_promotion_sequence.py",
+        "src/polisyos/ir/analytics/causal_graph.py",
+        "tests/unit/ir/test_causal_graph_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_discovery_reconciliation_limitations.py",
+        "tools/archive/migrate_to_trinity.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "head_when_run": "28efd19763dee0a12d64e6794f6cc4b4c0829b04",
+      "exit_code": 0,
+      "targets": 5,
+      "config_inputs_unchanged": {
+        "ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+        "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "diagnostics": 0,
+      "receipts": [
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-ir-archive-five-canonical-ruff-final-20261011/command.json",
+          "sha256": "654454a9d12b06ceaa8b621298080f70a35508b91043881c015444ffb7e84232"
+        },
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-ir-archive-five-canonical-ruff-final-20261011/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "raw/batched-blocking-focused-20261010/promotion-ir-archive-five-canonical-ruff-final-20261011/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  },
+  "decision_packets": {
+    "original": {
+      "path": "decisions/pag-lag-pair-identity-contract-choice-20261011.md",
+      "sha256": "c1c87b1d6bea3860ceda91b4599af9c5436215c7f347f16ac7c0168cecdccad1",
+      "disposition": "preserve one unordered endpoint pair per static PAG adjacency; do not infer temporal-PAG law from lag, Core tags, or metadata"
+    },
+    "executable_followup": {
+      "path": "decisions/ir-pag-lag-temporal-segregation-falsifier-20261011.md",
+      "sha256": "a70bb2e23f08f8c4c38f2b4cf383d4e5e66cceead6f9d7b8dcf0b7d4b8176fff",
+      "disposition": "test-only producer/CAS/fresh-reader falsifier, now executed under the focused receipt above"
+    },
+    "virtual_patch": {
+      "path": "raw/ir-pag-lag-controls-20261011/ir-pag-lag-controls-20261011.patch",
+      "sha256": "09c9edc0e91f89cea2f4dbcbe3be169d33b67c83734c2651056863d7cc64a8be",
+      "state": "historical proposal artifact; applied source is bound by the checkpoint readback"
+    },
+    "independent_review": {
+      "id": "19961",
+      "path": "reviews/ir-pag-lag-temporal-segregation-falsifier-independent-20261011.md",
+      "sha256": "19961ec21e41c723b8863e209b62d4d0c91064bc00aa3b9b25051b915bd084cb",
+      "verdict": "GO for narrow test-only companion; LIMIT as evidence for B218-B220",
+      "timing": "review preceded the actual focused run; its UNRUN note is historical, superseded only for execution status by the run receipt above"
+    }
+  },
+  "criterion_status": {
+    "B214": "not_adjudicated_by_this_change",
+    "B218": "partial; lag-1 report split and typed static refusal are evidenced, but lag-2 round-trip/export, unchanged static-DAG controls, and temporal self-lag versus static self-loop remain unverified",
+    "B219": "no evidence added; actual to_networkx exporter and its mixed/lagged multiedge round-trip were not exercised",
+    "B220": "no evidence added; topology immutability, warmed-cache mutation, serialization/ancestor/export agreement, and cache cleanup remain unverified",
+    "formal_closures": []
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P38",
+      "P40"
+    ],
+    "P38_divergence": "The guard checks unordered endpoint identity, while lag-bearing pairs could be a different relation family only under a temporal-PAG law that is not admitted here.",
+    "P40_bucket": "Same unordered-pair identity class, one level deeper in lag. Preserve the current guard; no per-lag exception or temporal-PAG promotion is made."
+  }
+}

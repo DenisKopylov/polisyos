@@ -1,0 +1,116 @@
+{
+  "record_type": "runtime_promotion_reason_precedence_test_receipt",
+  "record_version": 1,
+  "disposition": "test_expectation_alignment_verified_in_bounded_wave",
+  "source_checkpoint": {
+    "commit": "e038ab5701f59841a0b30229e8edfcd8e303b64c",
+    "tree": "a610b9e1c0b5a2f0a786ba8d4b5344b06d3c3053",
+    "parent_and_slice_base": "28efd19763dee0a12d64e6794f6cc4b4c0829b04",
+    "changed_path_count": 1,
+    "changed_path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+    "assertion_replacements": [
+      {
+        "line": 423,
+        "from": "non_production_anchor_scope",
+        "to": "synthetic_input_cannot_grant_authority"
+      },
+      {
+        "line": 2327,
+        "from": "non_production_anchor_scope",
+        "to": "synthetic_input_cannot_grant_authority"
+      }
+    ],
+    "preimage_sha256": "8175f936bc311b80a645681c3b2cf0ee1013ab2d4f66013841182611b725c1a0",
+    "postimage_sha256": "eba17d969546fd412a7b9414cb764c740f81884012c7db26ce536fecc3a0f219",
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-promotion-test-source-checkpoint-20261011/readback.json",
+      "sha256": "07aa23c8177ef7d2de26cfb6db0e043065f8fb089575142af593c3044836d948",
+      "remote_readback_sha256": "058393eb858814c3cd3a69cd70afb494ed01f7bed6b58de115b91a154c756713",
+      "selected_footprint_sha256": "8078799f09a868597abdc8af1e0b4a17d14e4295c7af2f5ca0a86837b494d555"
+    }
+  },
+  "semantics": {
+    "reason_precedence": "synthetic contract-testing input is refused before the non-production-store fallback",
+    "receipt_status_or_lane_changed": false,
+    "calibration_or_ledger_behavior_changed": false,
+    "old_history_expectations_weakened": false,
+    "synthetic_input_grants_authority": false,
+    "p40_bucket": "same_class_deeper; both direct current-receipt reason assertions were updated",
+    "pattern_ids": ["P04", "P05", "P32", "P40"]
+  },
+  "bounded_test_wave": {
+    "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/command.json",
+    "command_manifest_sha256": "b558b19452fe5cd33f4d5a70d3a3e48217ef7c2fba8de32bc864ce603a9d0fce",
+    "capture_head": "55ed8863a8cad50c8189dd9309f0a87e8761016b",
+    "input_path_count": 6160,
+    "inputs_stable_before_after": true,
+    "test_source_sha256_before_after": "eba17d969546fd412a7b9414cb764c740f81884012c7db26ce536fecc3a0f219",
+    "wall_seconds": 44.16434316697996,
+    "exit_code": 0,
+    "results": {
+      "total_passed": 48,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "promotion_selectors_passed": 2,
+      "ir_contract_tests_passed": 37,
+      "discovery_reconciliation_tests_passed": 9
+    },
+    "outputs": {
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/promotion-two-current-refusals-and-ir-lag-routing-20261011/stdout.txt",
+      "stdout_bytes": 665,
+      "stdout_sha256": "3e976b655a27bb74489b50c9202231ec5269243f3aab2c2598afa8110fc95043",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit_bytes": 8314,
+      "junit_sha256": "1e640013008df61d6746e875098188392874fea71a09c0e2fefe941e9f216a2a",
+      "output_manifest_entries": 85,
+      "output_manifest_entries_total_bytes": 206370
+    }
+  },
+  "bounded_ruff": {
+    "command_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/promotion-ir-archive-five-canonical-ruff-final-20261011/command.json",
+    "command_manifest_sha256": "654454a9d12b06ceaa8b621298080f70a35508b91043881c015444ffb7e84232",
+    "head": "28efd19763dee0a12d64e6794f6cc4b4c0829b04",
+    "target_count": 5,
+    "config_count": 2,
+    "input_path_count": 7,
+    "inputs_stable_before_after": true,
+    "exit_code": 0,
+    "diagnostic_count": 0,
+    "wall_seconds": 0.03980137500911951,
+    "stdout_bytes": 2,
+    "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "stderr_bytes": 0
+  },
+  "limits": {
+    "initial_177_case_batch": {
+      "command_manifest_sha256": "9f9dacef1335a0500c66a15d4f75602c4022cf318232adb411dd056c3bd99f49",
+      "collected": 177,
+      "passed_before_first_failure": 13,
+      "failed": 1,
+      "not_run_after_maxfail": 163,
+      "first_failure": "test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow",
+      "outcome": "stale_reason_expectation; not a full-suite result"
+    },
+    "full_177_case_rerun_after_alignment": "not_run",
+    "full_native_linux_suite": "not_run",
+    "full_repository_suite": "not_run",
+    "interrupted_broad_attempt": {
+      "status": "operator_SIGINT",
+      "return_code": -2,
+      "wall_seconds": 431.5,
+      "junit": "absent",
+      "one_archived_input_drift": true,
+      "usable_as_test_result_or_P41_inheritance_proof": false
+    },
+    "final_freeze_sha": null
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/runtime-promotion-reason-precedence-independent-20261011.md",
+    "sha256": "dc5721656e5e55c16060d1c1eeeefeab87289bbbd1ea0ae901cfbb04376b29a3",
+    "verdict": "static test-only GO; focused verification required"
+  },
+  "id_proposals": [],
+  "formal_closure_claimed": false
+}

@@ -13,6 +13,10 @@ ExplanationContext = _adapter_protocol.ExplanationContext
 RawExplanation = _adapter_protocol.RawExplanation
 ScalarModel = _adapter_protocol.ScalarModel
 
+TREE_SHAP_FALLBACK_REASON = (
+    "path-dependent TreeSHAP backend unavailable; using exact empirical Shapley enumeration"
+)
+
 
 @dataclass(frozen=True, slots=True)
 class TreeSHAPAdapter(KernelSHAPAdapter):
@@ -34,10 +38,7 @@ class TreeSHAPAdapter(KernelSHAPAdapter):
         """Run empirical Shapley while exposing the unsupported tree fallback."""
 
         raw = super().explain(model, x, context)
-        fallback_reason = (
-            "path-dependent TreeSHAP backend unavailable; "
-            "using exact empirical Shapley enumeration"
-        )
+        fallback_reason = TREE_SHAP_FALLBACK_REASON
         params = {
             **dict(raw.params),
             "requested_method_id": self.method_id,

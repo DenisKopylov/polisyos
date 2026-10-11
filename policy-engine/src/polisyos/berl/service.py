@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import struct
 import uuid
-from collections.abc import Mapping as MappingABC
-from dataclasses import dataclass, field, fields, is_dataclass
+from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
+from enum import Enum
 from typing import TYPE_CHECKING, Literal, cast
 
 from polisyos.berl.adapters import (
@@ -28,6 +29,7 @@ from polisyos.berl.adapters.protocol import (
 from polisyos.berl.adapters.shap_kernel import (
     SUPPORTED_KERNEL_SHAP_FEATURE_DEPENDENCE_POLICIES,
 )
+from polisyos.berl.adapters.shap_tree import TREE_SHAP_FALLBACK_REASON
 from polisyos.berl.contracts.explanation_bundle import (
     AuditReport,
     BackgroundData,
@@ -75,6 +77,16 @@ if TYPE_CHECKING:
 
 
 MethodScope = Literal["local", "global", "local_bin", "diagnostic"]
+_CACHE_IDENTITY_UNSUPPORTED = object()
+_BUILTIN_EFFECTIVE_METHODS: dict[type[object], str] = {
+    ALEAdapter: "ale_local_bin",
+    EBMComponentAdapter: "ebm_components",
+    FiniteDifferenceGradientAdapter: "finite_difference_gradient",
+    KernelSHAPAdapter: "kernel_shap",
+    LIMEAdapter: "lime",
+    PermutationImportanceAdapter: "permutation_importance",
+    TreeSHAPAdapter: "kernel_shap",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +179,7 @@ class ExplanationOrchestrator:
         )
         methods: list[MethodExplanation] = []
         attribution_vectors: list[AttributionVector] = []
+        compared_method_ids: set[str] = set()
         for method_id in request.methods:
             adapter = _adapter_for_request(
                 method_id,
@@ -184,7 +197,7 @@ class ExplanationOrchestrator:
                 adapter=adapter,
                 effective_method_id=effective_method_id,
             )
-            cached = effective_cache.get(cache_key)
+            cached = effective_cache.get(cache_key) if cache_key is not None else None
             if cached is None:
                 method, vector = self._run_adapter(
                     model=model,
@@ -197,17 +210,20 @@ class ExplanationOrchestrator:
                     perturbations=perturbations,
                 )
                 cached = _CachedAdapterRun(method=method, vector=vector)
-                effective_cache[cache_key] = cached
+                if cache_key is not None:
+                    effective_cache[cache_key] = cached
             else:
                 method = _reidentify_method(
                     cached.method,
+                    adapter=adapter,
                     requested_method_id=method_id,
                     effective_method_id=effective_method_id,
                 )
                 vector = None
             methods.append(method)
-            if vector is not None:
+            if vector is not None and vector.method_id not in compared_method_ids:
                 attribution_vectors.append(vector)
+                compared_method_ids.add(vector.method_id)
 
         ood_rate, constraint_violation_rate = perturbation_support_rates(perturbations)
         bundle = ExplanationBundle(
@@ -315,11 +331,8 @@ class ExplanationOrchestrator:
             )
 
         uncertainty = adapter.estimator_uncertainty(raw)
-        raw_effective_method_id = (
-            raw.effective_method_id
-            or _string_param(raw.params, "effective_method_id")
-            or effective_method_id
-        )
+        # The selected adapter is the execution binding. A result payload may
+        # describe the run, but it cannot relabel which implementation was called.
         raw_fallback = raw.fallback or raw.params.get("fallback") is True
         raw_fallback_reason = raw.fallback_reason or _string_param(
             raw.params,
@@ -327,7 +340,7 @@ class ExplanationOrchestrator:
         )
         params = dict(raw.params)
         params["requested_method_id"] = requested_method_id
-        params["effective_method_id"] = raw_effective_method_id
+        params["effective_method_id"] = effective_method_id
         if raw_fallback:
             params["fallback"] = True
         if raw_fallback_reason is not None:
@@ -348,7 +361,7 @@ class ExplanationOrchestrator:
         method = MethodExplanation(
             method_id=requested_method_id,
             requested_method_id=requested_method_id,
-            effective_method_id=raw_effective_method_id,
+            effective_method_id=effective_method_id,
             fallback=raw_fallback,
             fallback_reason=raw_fallback_reason,
             library="polisyos.berl",
@@ -373,7 +386,7 @@ class ExplanationOrchestrator:
         return (
             method,
             AttributionVector(
-                raw_effective_method_id,
+                effective_method_id,
                 raw.attributions,
                 uncertainty.confidence_intervals,
             ),
@@ -512,6 +525,9 @@ def detect_redundancy_clusters_from_bundle(
 
 
 def _effective_method_id(adapter: ExplanationAdapter) -> str:
+    builtin_profile = _BUILTIN_EFFECTIVE_METHODS.get(type(adapter))
+    if builtin_profile is not None:
+        return builtin_profile
     candidate = getattr(adapter, "effective_method_id", None)
     if isinstance(candidate, str) and candidate:
         return candidate
@@ -525,23 +541,35 @@ def _effective_request_key(
     context: ExplanationContext,
     adapter: ExplanationAdapter,
     effective_method_id: str,
-) -> tuple[object, ...]:
-    """Return the complete identity needed to reuse one effective adapter run."""
+) -> tuple[object, ...] | None:
+    """Return a complete request key only for known built-ins and typed inputs.
 
+    Custom adapters remain executable, but are not automatically reused because
+    the protocol has no source-owned cache-identity contract for their state.
+    """
+
+    adapter_identity = _adapter_cache_identity(adapter, effective_method_id)
+    if adapter_identity is None:
+        return None
+    request_values = (
+        _freeze(request.x),
+        _freeze(request.feature_names),
+        _freeze(request.background_rows),
+        _freeze(request.adapter_params),
+        _freeze(request.constraints),
+    )
+    if any(value is _CACHE_IDENTITY_UNSUPPORTED for value in request_values):
+        return None
     return (
-        "berl-effective-request-v1",
-        _adapter_cache_identity(adapter, effective_method_id),
+        "berl-effective-request-v3",
+        adapter_identity,
         id(model),
         request.model_id,
         request.model_hash,
         request.model_class,
         request.training_data_hash,
         request.calibration_ref,
-        _freeze(request.x),
-        _freeze(request.feature_names),
-        _freeze(request.background_rows),
-        _freeze(request.adapter_params),
-        _freeze(request.constraints),
+        *request_values,
         context.output_scale,
         context.perturbation_distribution,
         context.feature_dependence_policy,
@@ -557,44 +585,139 @@ def _effective_request_key(
 def _adapter_cache_identity(
     adapter: ExplanationAdapter,
     effective_method_id: str,
-) -> tuple[object, ...]:
-    if not is_dataclass(adapter):
-        return (type(adapter).__module__, type(adapter).__qualname__, effective_method_id)
-    configuration = tuple(
-        (item.name, _freeze(getattr(adapter, item.name)))
-        for item in fields(adapter)
-        if item.name != "method_id"
+) -> tuple[object, ...] | None:
+    """Return identity for an exact, source-owned immutable built-in adapter.
+
+    Custom adapters, dataclass or otherwise, execute every selected route until
+    the adapter protocol supplies an admitted cache-configuration contract.
+    """
+
+    builtin_profile = _BUILTIN_EFFECTIVE_METHODS.get(type(adapter))
+    if builtin_profile is None or effective_method_id != builtin_profile:
+        return None
+
+    adapter_method_id = object.__getattribute__(adapter, "method_id")
+    shared_kernel_profile = (
+        type(adapter) is KernelSHAPAdapter
+        and adapter_method_id in {"kernel_shap", "kernel_shap_marginal"}
+        and builtin_profile == "kernel_shap"
     )
+    shared_tree_fallback = (
+        type(adapter) is TreeSHAPAdapter
+        and adapter_method_id == "tree_shap"
+        and builtin_profile == "kernel_shap"
+    )
+    identity_type = (
+        KernelSHAPAdapter if shared_kernel_profile or shared_tree_fallback else type(adapter)
+    )
+    configuration: list[tuple[str, object]] = []
+    for item in fields(adapter):
+        if (shared_kernel_profile or shared_tree_fallback) and item.name == "method_id":
+            continue
+        frozen_value = _freeze_immutable_configuration(object.__getattribute__(adapter, item.name))
+        if frozen_value is _CACHE_IDENTITY_UNSUPPORTED:
+            return None
+        configuration.append((item.name, frozen_value))
     return (
-        type(adapter).__module__,
-        type(adapter).__qualname__,
-        effective_method_id,
-        configuration,
+        identity_type.__module__,
+        identity_type.__qualname__,
+        builtin_profile,
+        tuple(configuration),
     )
+
+
+def _freeze_scalar(value: object) -> object:
+    """Encode supported scalar values with their exact primitive type."""
+
+    if value is None:
+        return ("none",)
+    if type(value) is bool:
+        return ("bool", value)
+    if type(value) is int:
+        return ("int", value)
+    if type(value) is float:
+        return ("float64", struct.pack(">d", value).hex())
+    if type(value) is str:
+        return ("str", value)
+    return _CACHE_IDENTITY_UNSUPPORTED
+
+
+def _freeze_immutable_configuration(value: object) -> object:
+    """Freeze typed immutable values for source-owned built-in configuration."""
+
+    if isinstance(value, Enum):
+        frozen_value = _freeze_immutable_configuration(value.value)
+        if frozen_value is _CACHE_IDENTITY_UNSUPPORTED:
+            return _CACHE_IDENTITY_UNSUPPORTED
+        return ("enum", type(value).__module__, type(value).__qualname__, frozen_value)
+    scalar = _freeze_scalar(value)
+    if scalar is not _CACHE_IDENTITY_UNSUPPORTED:
+        return scalar
+    if type(value) is dict:
+        items = []
+        for key, item in value.items():
+            frozen_key = _freeze_immutable_configuration(key)
+            frozen_item = _freeze_immutable_configuration(item)
+            if (
+                frozen_key is _CACHE_IDENTITY_UNSUPPORTED
+                or frozen_item is _CACHE_IDENTITY_UNSUPPORTED
+            ):
+                return _CACHE_IDENTITY_UNSUPPORTED
+            items.append((frozen_key, frozen_item))
+        return ("dict", tuple(sorted(items, key=lambda pair: repr(pair[0]))))
+    if type(value) is tuple or type(value) is frozenset:
+        frozen_items = tuple(_freeze_immutable_configuration(item) for item in value)
+        if any(item is _CACHE_IDENTITY_UNSUPPORTED for item in frozen_items):
+            return _CACHE_IDENTITY_UNSUPPORTED
+        if type(value) is frozenset:
+            frozen_items = tuple(sorted(frozen_items, key=repr))
+        return (type(value).__name__, frozen_items)
+    if type(value) is FeatureConstraint:
+        lower = _freeze_immutable_configuration(object.__getattribute__(value, "lower"))
+        upper = _freeze_immutable_configuration(object.__getattribute__(value, "upper"))
+        if lower is _CACHE_IDENTITY_UNSUPPORTED or upper is _CACHE_IDENTITY_UNSUPPORTED:
+            return _CACHE_IDENTITY_UNSUPPORTED
+        return ("feature_constraint", lower, upper)
+    return _CACHE_IDENTITY_UNSUPPORTED
 
 
 def _freeze(value: object) -> object:
-    if isinstance(value, MappingABC):
-        return tuple(
-            sorted(
-                ((str(key), _freeze(item)) for key, item in value.items()),
-                key=lambda item: item[0],
-            )
-        )
-    if isinstance(value, (tuple, list)):
-        return tuple(_freeze(item) for item in value)
-    if isinstance(value, (set, frozenset)):
-        frozen = tuple(_freeze(item) for item in value)
-        return tuple(sorted(frozen, key=repr))
-    if is_dataclass(value):
-        return (
-            type(value).__module__,
-            type(value).__qualname__,
-            tuple((item.name, _freeze(getattr(value, item.name))) for item in fields(value)),
-        )
-    if isinstance(value, (str, int, float, bool, type(None))):
-        return value
-    return (type(value).__module__, type(value).__qualname__, repr(value))
+    """Freeze canonical request values; opaque values disable cross-route reuse."""
+
+    if isinstance(value, Enum):
+        frozen_value = _freeze(value.value)
+        if frozen_value is _CACHE_IDENTITY_UNSUPPORTED:
+            return _CACHE_IDENTITY_UNSUPPORTED
+        return ("enum", type(value).__module__, type(value).__qualname__, frozen_value)
+    scalar = _freeze_scalar(value)
+    if scalar is not _CACHE_IDENTITY_UNSUPPORTED:
+        return scalar
+    if type(value) is dict:
+        items = []
+        for key, item in value.items():
+            frozen_key = _freeze(key)
+            frozen_item = _freeze(item)
+            if (
+                frozen_key is _CACHE_IDENTITY_UNSUPPORTED
+                or frozen_item is _CACHE_IDENTITY_UNSUPPORTED
+            ):
+                return _CACHE_IDENTITY_UNSUPPORTED
+            items.append((frozen_key, frozen_item))
+        return ("dict", tuple(sorted(items, key=lambda pair: repr(pair[0]))))
+    if type(value) in {tuple, list, set, frozenset}:
+        frozen_items = tuple(_freeze(item) for item in value)
+        if any(item is _CACHE_IDENTITY_UNSUPPORTED for item in frozen_items):
+            return _CACHE_IDENTITY_UNSUPPORTED
+        if type(value) in {set, frozenset}:
+            frozen_items = tuple(sorted(frozen_items, key=repr))
+        return (type(value).__name__, frozen_items)
+    if type(value) is FeatureConstraint:
+        lower = _freeze(object.__getattribute__(value, "lower"))
+        upper = _freeze(object.__getattribute__(value, "upper"))
+        if lower is _CACHE_IDENTITY_UNSUPPORTED or upper is _CACHE_IDENTITY_UNSUPPORTED:
+            return _CACHE_IDENTITY_UNSUPPORTED
+        return ("feature_constraint", lower, upper)
+    return _CACHE_IDENTITY_UNSUPPORTED
 
 
 def _string_param(params: Mapping[str, object], name: str) -> str | None:
@@ -605,18 +728,44 @@ def _string_param(params: Mapping[str, object], name: str) -> str | None:
 def _reidentify_method(
     method: MethodExplanation,
     *,
+    adapter: ExplanationAdapter,
     requested_method_id: str,
     effective_method_id: str,
 ) -> MethodExplanation:
     params = dict(method.params)
+    assumptions = dict(method.assumptions)
+    fallback = method.fallback
+    fallback_reason = method.fallback_reason
     params["requested_method_id"] = requested_method_id
     params["effective_method_id"] = effective_method_id
+
+    if type(adapter) is TreeSHAPAdapter and adapter.method_id == "tree_shap":
+        fallback = True
+        fallback_reason = TREE_SHAP_FALLBACK_REASON
+        params["fallback"] = True
+        params["fallback_reason"] = fallback_reason
+        assumptions["tree_exactness_claimed"] = False
+        assumptions["fallback_reason"] = fallback_reason
+    elif type(adapter) is KernelSHAPAdapter and adapter.method_id in {
+        "kernel_shap",
+        "kernel_shap_marginal",
+    }:
+        fallback = False
+        fallback_reason = None
+        params["fallback"] = False
+        params.pop("fallback_reason", None)
+        assumptions.pop("tree_exactness_claimed", None)
+        assumptions.pop("fallback_reason", None)
+
     return method.model_copy(
         update={
             "method_id": requested_method_id,
             "requested_method_id": requested_method_id,
             "effective_method_id": effective_method_id,
+            "fallback": fallback,
+            "fallback_reason": fallback_reason,
             "params": params,
+            "assumptions": assumptions,
         }
     )
 

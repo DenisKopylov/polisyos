@@ -12,6 +12,7 @@ which contracts, ADRs, tests, and runbooks back the published claims.
 | [IR Design](ir-design.md)                         | Why IR is the compatibility layer and how schema evolution works        | ADR-0104..0109, IR schema catalog, transport contracts              |
 | [Security Model](security-model.md)               | Runtime trust boundaries, authn/authz, tenant isolation, signing, audit | auth/tenant reference, security compliance, runtime runbooks        |
 | [Data Fabric](data-fabric.md)                     | Connector ingestion, lineage, schema governance, world/data plane       | Fabric reference set, Fabric runbooks                               |
+| [BERL method identity](berl-method-identity.md)                 | Requested and effective explainer identities, alias reuse, and explicit fallback semantics | `LA-036`, BER-01 identity and disagreement tests |
 | [Causal Engine](causal-engine.md)                 | Foundry compile/execute and Scientist causal orchestration              | Foundry and Scientist references, method tests, benchmarks          |
 | [Lex Pipeline](lex-pipeline.md)                   | Legal corpus to NormPack and intervention flows                         | Lex reference and Lex contracts                                     |
 | [Governance Model](governance-model.md)           | Workflow gating, governance artifacts, human review, accountability     | Scientist workflows, governance passes, accountability artifacts    |

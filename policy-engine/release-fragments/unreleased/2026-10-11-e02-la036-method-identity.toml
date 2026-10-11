@@ -1,0 +1,20 @@
+id = "2026-10-11-e02-la036-method-identity"
+title = "Bind BERL effective method identity to the selected implementation"
+type = "fixed"
+component = "berl"
+owner = "team-runtime-quality"
+summary = "BERL now binds effective identity to the selected adapter, reuses compatible aliases only for exact source-owned built-in adapter types with complete typed request identity, and compares distinct implementation profiles. Custom adapters, including frozen dataclasses, remain executable but are not automatically reused across routes. TreeSHAP remains an explicit empirical fallback; conditional KernelSHAP remains unavailable."
+evidence = [
+  "tests/unit/remediation/test_ber_01.py",
+  "tests/unit/berl/test_service.py",
+  "tests/unit/berl/test_adapters.py",
+]
+compatibility = "No bundle schema change. Requested IDs and historical records remain intact. disagreement.methods_compared may contain fewer IDs when requested names resolve to the same effective implementation profile."
+change_class = "internal"
+surface_classification = "public_experimental: BERL explanation method identity and disagreement presentation"
+migration = "Consumers should use requested_method_id to preserve caller intent and effective_method_id to identify the executed profile. Do not infer independent methods from distinct request names or adapter configurations. All custom adapter types, including frozen dataclasses, continue to execute normally but are not cross-route cached until the protocol has a source-owned cache-configuration contract."
+api = "The service uses selected built-in adapter identity instead of raw-result labels, shares exact registered built-in aliases only with complete typed snapshots, disables reuse for all custom or subclass adapters, and materializes fallback metadata for each requested name."
+limitations = "No conditional-law producer or native TreeSHAP implementation is added. The confidence adjustment continues to count requested methods, including aliases; the empirical attribution law and background semantics are unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/explanation/berl-method-identity.md"]
+runbook_docs = []

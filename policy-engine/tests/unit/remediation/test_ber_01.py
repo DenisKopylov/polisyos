@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from unittest.mock import Mock
 
 import pytest
@@ -15,14 +16,25 @@ from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from pydantic import ValidationError as PydanticValidationError
 
 from polisyos.berl.adapters.protocol import (
+    AssumptionReport,
     ExplanationContext,
+    RawExplanation,
+    ScalarModel,
     UnavailableAdapter,
+    UncertaintyReport,
 )
 from polisyos.berl.adapters.shap_kernel import KernelSHAPAdapter
 from polisyos.berl.adapters.shap_tree import TreeSHAPAdapter
 from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
 from polisyos.berl.contracts.schema import generated_explanation_bundle_schema
-from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
+from polisyos.berl.service import (
+    _BUILTIN_EFFECTIVE_METHODS,
+    ExplanationOrchestrator,
+    ExplanationRequest,
+    _freeze,
+    _freeze_immutable_configuration,
+    default_adapters,
+)
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 PERSISTED_SCHEMA_PATH = (
@@ -250,6 +262,245 @@ class _CountingModel:
         return self.x1_weight * row["x1"] + self.x2_weight * row["x2"]
 
 
+class _SelfLabelingKernelAdapter(KernelSHAPAdapter):
+    """Exercise service identity when an adapter result reports a false label."""
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        raw = super().explain(model, x, context)
+        return replace(
+            raw,
+            method_id="adapter-claimed-method",
+            effective_method_id="adapter-claimed-effective",
+            params={**raw.params, "effective_method_id": "adapter-claimed-effective"},
+        )
+
+
+class _KernelDelegatingBehavior:
+    """Forward one custom adapter configuration to the real empirical kernel."""
+
+    __slots__ = ()
+
+    method_id: str
+    max_exact_features: int
+
+    @property
+    def effective_method_id(self) -> str:
+        return "kernel_shap"
+
+    def _kernel(self) -> KernelSHAPAdapter:
+        return KernelSHAPAdapter(max_exact_features=self.max_exact_features)
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        return self._kernel().explain(model, x, context)
+
+    def reconstruct_delta(
+        self,
+        explanation: RawExplanation,
+        perturbation: Mapping[str, float],
+    ) -> float:
+        return self._kernel().reconstruct_delta(explanation, perturbation)
+
+    def estimator_uncertainty(self, explanation: RawExplanation) -> UncertaintyReport:
+        return self._kernel().estimator_uncertainty(explanation)
+
+    def assumptions(self, context: ExplanationContext) -> AssumptionReport:
+        return self._kernel().assumptions(context)
+
+
+class _OpaqueConfiguredKernelAdapter(_KernelDelegatingBehavior):
+    """Custom protocol adapter with mutable configuration that is not enumerable."""
+
+    method_id = "opaque_configured"
+
+    def __init__(
+        self, max_exact_features: int, *, mutate_after_first_success: bool = False
+    ) -> None:
+        self.max_exact_features = max_exact_features
+        self.mutate_after_first_success = mutate_after_first_success
+        self.explain_calls = 0
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        self.explain_calls += 1
+        raw = self._kernel().explain(model, x, context)
+        if self.mutate_after_first_success and self.explain_calls == 1:
+            self.max_exact_features = 1
+        return raw
+
+
+@dataclass(frozen=True, slots=True)
+class _TypedConfiguredKernelAdapter(_KernelDelegatingBehavior):
+    """Custom frozen/slotted adapter whose complete configuration is enumerable."""
+
+    method_id: str
+    max_exact_features: int
+    calls: ClassVar[list[int]] = []
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        type(self).calls.append(1)
+        return _KernelDelegatingBehavior.explain(self, model, x, context)
+
+
+@dataclass(frozen=True, slots=True)
+class _TypedBooleanLimitKernelAdapter(_KernelDelegatingBehavior):
+    """Custom adapter whose bool and integer settings have distinct meanings."""
+
+    method_id: str
+    config: bool | int
+
+    @property
+    def max_exact_features(self) -> int:
+        return 2 if self.config is True else int(self.config)
+
+
+class _OpaqueLimit:
+    __slots__ = ("limit",)
+
+    def __init__(self, limit: int) -> None:
+        self.limit = limit
+
+    def __repr__(self) -> str:
+        return "<same-repr-for-distinct-limits>"
+
+
+@dataclass(frozen=True, slots=True)
+class _TypedOpaqueConfiguredKernelAdapter(_KernelDelegatingBehavior):
+    """Dataclass adapter with a nested opaque configuration value."""
+
+    method_id: str
+    config: _OpaqueLimit
+
+    @property
+    def max_exact_features(self) -> int:
+        return self.config.limit
+
+
+class _HiddenDictionaryKernelAdapter(KernelSHAPAdapter):
+    """Custom subclass hides its dynamic result-affecting state from hasattr."""
+
+    def __init__(self, hidden_limit: int) -> None:
+        super().__init__()
+        object.__setattr__(self, "_hidden_limit", hidden_limit)
+
+    def __getattribute__(self, name: str) -> object:
+        if name == "__dict__":
+            raise AttributeError(name)
+        return super().__getattribute__(name)
+
+    def explain(
+        self,
+        model: ScalarModel,
+        x: Mapping[str, float],
+        context: ExplanationContext,
+    ) -> RawExplanation:
+        return KernelSHAPAdapter(
+            max_exact_features=object.__getattribute__(self, "_hidden_limit")
+        ).explain(model, x, context)
+
+
+def test_freezers_preserve_scalar_and_mapping_key_types() -> None:
+    for freeze in (_freeze, _freeze_immutable_configuration):
+        assert freeze(True) != freeze(1)
+        assert freeze(1) != freeze(1.0)
+        assert freeze(1) != freeze("1")
+        assert freeze({"limit": True}) != freeze({"limit": 1})
+        assert freeze({True: "limit"}) != freeze({1: "limit"})
+
+
+def test_bool_and_integer_adapter_limits_are_distinct_at_the_runtime_cache() -> None:
+    first = _TypedBooleanLimitKernelAdapter(method_id="typed_limit", config=True)
+    second = _TypedBooleanLimitKernelAdapter(method_id="typed_limit", config=1)
+    request = replace(
+        _request(
+            methods=("bool_limit", "integer_limit"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"bool_limit": first, "integer_limit": second}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_default_cache_allowlist_matches_exact_registered_builtin_types() -> None:
+    registered_types = {
+        type(adapter)
+        for adapter in default_adapters().values()
+        if type(adapter) is not UnavailableAdapter
+    }
+
+    assert registered_types == set(_BUILTIN_EFFECTIVE_METHODS)
+
+
+def test_hidden_dynamic_subclass_state_cannot_reuse_another_adapter_result() -> None:
+    first = _HiddenDictionaryKernelAdapter(hidden_limit=2)
+    second = _HiddenDictionaryKernelAdapter(hidden_limit=1)
+    request = replace(
+        _request(
+            methods=("hidden_first", "hidden_second"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"hidden_first": first, "hidden_second": second}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_custom_frozen_dataclass_adapters_execute_each_selected_route() -> None:
+    request = replace(
+        _request(
+            methods=("custom_first", "custom_second"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+    first = _TypedConfiguredKernelAdapter(method_id="same-custom", max_exact_features=2)
+    second = _TypedConfiguredKernelAdapter(method_id="same-custom", max_exact_features=2)
+    model = _CountingModel()
+    _TypedConfiguredKernelAdapter.calls.clear()
+
+    bundle = ExplanationOrchestrator(
+        adapters={"custom_first": first, "custom_second": second}
+    ).explain(model, request)
+
+    assert [method.scope for method in bundle.methods] == ["local", "local"]
+    assert len(_TypedConfiguredKernelAdapter.calls) == 2
+
+
 def test_full_bundle_is_accepted_by_both_input_and_persisted_profiles() -> None:
     payload = _full_payload()
 
@@ -455,6 +706,319 @@ def test_marginal_aliases_share_one_raw_calculation_and_are_not_disagreement_met
     assert len(two_alias_model.calls) == len(one_alias_model.calls)
     assert two_alias_bundle.disagreement is None
     assert one_alias_bundle.methods[0].method_id == "kernel_shap"
+
+
+@pytest.mark.parametrize(
+    "alias_order",
+    [
+        ("tree_shap", "kernel_shap", "kernel_shap_marginal"),
+        ("kernel_shap", "kernel_shap_marginal", "tree_shap"),
+        ("kernel_shap_marginal", "tree_shap", "kernel_shap"),
+    ],
+)
+def test_tree_and_kernel_aliases_preserve_request_but_compare_one_profile(
+    alias_order: tuple[str, ...],
+) -> None:
+    aliases_model = _CountingModel()
+    aliases = (
+        *alias_order,
+        alias_order[0],
+        "kernel_shap_conditional",
+        "gradient",
+        "finite_difference_gradient",
+        "lime",
+    )
+    aliases_bundle = ExplanationOrchestrator().explain(
+        aliases_model,
+        _request(methods=aliases, feature_dependence_policy="marginal_interventional"),
+    )
+
+    comparison_model = _CountingModel()
+    comparison_bundle = ExplanationOrchestrator().explain(
+        comparison_model,
+        _request(
+            methods=("kernel_shap", "gradient", "lime"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+    )
+
+    assert len(aliases_bundle.methods) == len(aliases)
+    assert [method.method_id for method in aliases_bundle.methods] == list(aliases)
+    assert all(method.requested_method_id == method.method_id for method in aliases_bundle.methods)
+    assert all(
+        method.effective_method_id == "kernel_shap"
+        for method in aliases_bundle.methods
+        if method.method_id in {"kernel_shap", "kernel_shap_marginal", "tree_shap"}
+    )
+    tree_methods = [method for method in aliases_bundle.methods if method.method_id == "tree_shap"]
+    kernel_methods = [
+        method
+        for method in aliases_bundle.methods
+        if method.method_id in {"kernel_shap", "kernel_shap_marginal"}
+    ]
+    assert tree_methods
+    assert all(method.fallback for method in tree_methods)
+    assert all("empirical" in str(method.fallback_reason).lower() for method in tree_methods)
+    assert all(method.assumptions["tree_exactness_claimed"] is False for method in tree_methods)
+    assert kernel_methods
+    assert all(not method.fallback for method in kernel_methods)
+    assert all(method.fallback_reason is None for method in kernel_methods)
+    assert all("tree_exactness_claimed" not in method.assumptions for method in kernel_methods)
+    conditional_methods = [
+        method for method in aliases_bundle.methods if method.method_id == "kernel_shap_conditional"
+    ]
+    assert len(conditional_methods) == 1
+    assert conditional_methods[0].scope == "diagnostic"
+    assert conditional_methods[0].attributions == []
+    gradient_methods = [
+        method
+        for method in aliases_bundle.methods
+        if method.method_id in {"gradient", "finite_difference_gradient"}
+    ]
+    assert all(
+        method.effective_method_id == "finite_difference_gradient" for method in gradient_methods
+    )
+    assert aliases_bundle.disagreement is not None
+    assert aliases_bundle.disagreement.methods_compared == [
+        "kernel_shap",
+        "finite_difference_gradient",
+        "lime",
+    ]
+    assert (
+        aliases_bundle.disagreement.methods_compared
+        == comparison_bundle.disagreement.methods_compared
+    )
+    assert len(aliases_model.calls) == len(comparison_model.calls)
+    assert all(
+        method.infidelity is not None
+        and method.infidelity.confidence == pytest.approx(1.0 - (0.05 / len(aliases)))
+        for method in aliases_bundle.methods
+        if method.scope != "diagnostic"
+    )
+
+
+def test_conditional_adapter_alias_cannot_reuse_a_marginal_cache_entry() -> None:
+    model = _CountingModel()
+    adapters = default_adapters()
+    adapters["conditional_alias"] = KernelSHAPAdapter(method_id="kernel_shap_conditional")
+
+    bundle = ExplanationOrchestrator(adapters=adapters).explain(
+        model,
+        _request(
+            methods=("kernel_shap", "conditional_alias"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+    )
+
+    marginal_method, unsupported_method = bundle.methods
+    assert marginal_method.scope == "local"
+    assert marginal_method.attributions
+    assert unsupported_method.method_id == "conditional_alias"
+    assert unsupported_method.scope == "diagnostic"
+    assert unsupported_method.attributions == []
+    assert "verified conditional law" in str(unsupported_method.params["diagnostic"])
+    assert bundle.disagreement is None
+
+
+def test_service_uses_selected_adapter_identity_not_raw_self_label() -> None:
+    bundle = ExplanationOrchestrator(
+        adapters={"selected_kernel": _SelfLabelingKernelAdapter(method_id="selected_kernel")}
+    ).explain(
+        _CountingModel(),
+        _request(
+            methods=("selected_kernel",),
+            feature_dependence_policy="marginal_interventional",
+        ),
+    )
+
+    method = bundle.methods[0]
+    assert method.method_id == "selected_kernel"
+    assert method.requested_method_id == "selected_kernel"
+    assert method.effective_method_id == "kernel_shap"
+    assert method.params["effective_method_id"] == "kernel_shap"
+    assert "adapter-claimed-effective" not in method.model_dump_json()
+
+
+def test_alias_cache_keeps_distinct_adapter_configuration_separate() -> None:
+    model = _CountingModel()
+    adapters = {
+        "kernel_shap": KernelSHAPAdapter(max_exact_features=2),
+        "configured_alias": KernelSHAPAdapter(
+            method_id="configured_alias",
+            max_exact_features=3,
+        ),
+    }
+    request = replace(
+        _request(
+            methods=("kernel_shap", "configured_alias"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(adapters=adapters).explain(model, request)
+
+    baseline_model = _CountingModel()
+    ExplanationOrchestrator(adapters={"kernel_shap": adapters["kernel_shap"]}).explain(
+        baseline_model,
+        replace(request, methods=("kernel_shap",)),
+    )
+
+    assert all(method.effective_method_id == "kernel_shap" for method in bundle.methods)
+    assert bundle.disagreement is None
+    assert len(model.calls) > len(baseline_model.calls)
+
+
+def test_distinct_opaque_adapter_configs_do_not_share_cached_results() -> None:
+    first = _OpaqueConfiguredKernelAdapter(max_exact_features=2)
+    second = _OpaqueConfiguredKernelAdapter(max_exact_features=1)
+    request = replace(
+        _request(
+            methods=("opaque_first", "opaque_second"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"opaque_first": first, "opaque_second": second}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert first.explain_calls == 1
+    assert second.explain_calls == 1
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_same_opaque_adapter_rechecks_mutable_config_between_routes() -> None:
+    adapter = _OpaqueConfiguredKernelAdapter(
+        max_exact_features=2,
+        mutate_after_first_success=True,
+    )
+    request = replace(
+        _request(
+            methods=("before_mutation", "after_mutation"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"before_mutation": adapter, "after_mutation": adapter}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert adapter.explain_calls == 2
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_frozen_dataclass_configurations_do_not_collide() -> None:
+    first = _TypedConfiguredKernelAdapter(method_id="typed", max_exact_features=2)
+    second = _TypedConfiguredKernelAdapter(method_id="typed", max_exact_features=1)
+    request = replace(
+        _request(
+            methods=("typed_first", "typed_second"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"typed_first": first, "typed_second": second}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_opaque_nested_dataclass_configuration_disables_reuse() -> None:
+    first = _TypedOpaqueConfiguredKernelAdapter(
+        method_id="typed_opaque",
+        config=_OpaqueLimit(2),
+    )
+    second = _TypedOpaqueConfiguredKernelAdapter(
+        method_id="typed_opaque",
+        config=_OpaqueLimit(1),
+    )
+    request = replace(
+        _request(
+            methods=("opaque_nested_first", "opaque_nested_second"),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        adapter_params={},
+    )
+
+    bundle = ExplanationOrchestrator(
+        adapters={"opaque_nested_first": first, "opaque_nested_second": second}
+    ).explain(_CountingModel(), request)
+
+    first_method, second_method = bundle.methods
+    assert first_method.scope == "local"
+    assert second_method.scope == "diagnostic"
+    assert second_method.attributions == []
+    assert "exponential" in str(second_method.params["diagnostic"])
+
+
+def test_kernel_outputs_follow_the_selected_model_and_background() -> None:
+    orchestrator = ExplanationOrchestrator()
+    request = replace(
+        _request(
+            methods=("kernel_shap",),
+            feature_dependence_policy="marginal_interventional",
+        ),
+        model_hash="sha256:model-a",
+    )
+    model_a = _CountingModel(x1_weight=2.0, x2_weight=3.0)
+    model_b = _CountingModel(x1_weight=5.0, x2_weight=3.0)
+
+    model_a_bundle = orchestrator.explain(model_a, request)
+    model_b_bundle = orchestrator.explain(
+        model_b,
+        replace(request, model_hash="sha256:model-b"),
+    )
+
+    model_a_attributions = {
+        item.feature: item.value for item in model_a_bundle.methods[0].attributions
+    }
+    model_b_attributions = {
+        item.feature: item.value for item in model_b_bundle.methods[0].attributions
+    }
+    assert model_a_attributions["x1"] == pytest.approx(1.0)
+    assert model_b_attributions["x1"] == pytest.approx(2.5)
+    assert model_a.calls
+    assert model_b.calls
+
+    def interaction(features: Mapping[str, float]) -> float:
+        return features["x1"] * features["x2"]
+
+    background_a = replace(
+        request,
+        model_hash="sha256:interaction-model",
+        x={"x1": 1.0, "x2": 0.0},
+        background_rows=({"x1": 0.0, "x2": 0.0},),
+    )
+    background_b = replace(
+        background_a,
+        background_rows=({"x1": 0.0, "x2": 1.0},),
+    )
+    first_background_bundle = orchestrator.explain(interaction, background_a)
+    second_background_bundle = orchestrator.explain(interaction, background_b)
+    first_background_attributions = {
+        item.feature: item.value for item in first_background_bundle.methods[0].attributions
+    }
+    second_background_attributions = {
+        item.feature: item.value for item in second_background_bundle.methods[0].attributions
+    }
+    assert first_background_attributions != second_background_attributions
 
 
 def test_marginal_alias_dedup_preserves_claim_confidence_and_validation_posture() -> None:

@@ -1,0 +1,133 @@
+{
+  "slice": "nl-cost-oracle-20261011",
+  "author_role": "candidate_source_author",
+  "closure_ids": [],
+  "slice_base": "978c7ed8c140c4d651b7d80f12c4470c8f9b0818",
+  "candidate": "37a22cc3655bb35784cca5213e177e33d55bbbc5",
+  "tree": "804449af7baec95a8a8f28ee2b366b6f3a60e698",
+  "parents": [
+    "978c7ed8c140c4d651b7d80f12c4470c8f9b0818"
+  ],
+  "implementation_footprint": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "sha256": "64cccf2fbf49f94f5a887890a3b014f40d5c8d985f9d706ca9a89bfa8d64e520"
+    }
+  ],
+  "mandatory_companions": {
+    "receipt_note": "i1-c05/nl-durable-cost-v13-r3-ordinary-cost-receipt-draft-20261011.md",
+    "source_readback": "raw/nl-cost-oracle-source-checkpoint-20261011/readback.json"
+  },
+  "selected_input_profile_backend": {
+    "execution_profile": "dev",
+    "provider": "simulated-qwen / simulated_gateway",
+    "scientific_source": "candidate-only terminal N4; N5/N9 not_run",
+    "currentness": "not_established",
+    "monetary_origin": "explicit reported simulation zero and pending unknown"
+  },
+  "source_bound_command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "tests/unit/runtime/http/test_artifact_inspector_api.py::test_artifact_inspector_resolves_exact_manifest_profile_for_all_views",
+    "tests/unit/runtime/http/test_artifact_inspector_api.py::test_selected_manifest_lineage_preserves_each_input_profile",
+    "tests/unit/runtime/http/test_artifact_inspector_api.py::test_selected_manifest_authority_controls_all_artifact_http_surfaces",
+    "tests/unit/remediation/test_frc_02_owner.py::test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view",
+    "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+    "--import-mode=importlib",
+    "--maxfail=0",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/junit.xml"
+  ],
+  "source_bound_run_head": "978c7ed8c140c4d651b7d80f12c4470c8f9b0818",
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/command.json",
+      "sha256": "d8aa9f22d141218b533d3c636d17a3253dae5fa0e34691a458f58014eca1e1ed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/stdout.txt",
+      "sha256": "f3792de64b96d87964f9ee0e5403570d6c1b22900be650a20e02600a91c40be2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/batched-blocking-focused-20261010/s3-v20-emp-scan-nl-cost-v15-http-consumers-20261011/junit.xml",
+      "sha256": "3934273c6344ea2f702924be3c8334e8156b76c5b6abefa9e72401e846b9c08f"
+    }
+  ],
+  "runtime_result": {
+    "exit_code": 0,
+    "wall_seconds": 48.55916291696485,
+    "selected_cases": 5,
+    "passed": 5,
+    "failed": 0,
+    "target_cases": 1,
+    "target_passed": 1,
+    "complete_input_denominator": 6174,
+    "source_inputs_unchanged": true
+  },
+  "real_chain": "ordinary NL POST -> existing producer calls -> FileBudgetLedger persisted events with job/tenant/cell/profile/run binding -> reopened ledger -> fresh GET /runs/{core_run_id}/agents",
+  "adversarial_controls": [
+    "pending unknown amount remains null rather than reported zero",
+    "control-job owner tamper refuses steps",
+    "fresh HTTP fields reconcile every persisted event identity and amount/status/receipt"
+  ],
+  "consumer_surface": "actual HTTP agents projection; controlled local ASGI instance",
+  "review": {
+    "path": "reviews/nl-durable-cost-v13-candidate-test-repair-independent-20261011.md",
+    "sha256": "d63c850bb7bfc97ec6cbb04120c3e25b76b01928dac99d89a9c543c8d652e5cb",
+    "status": "GO to apply and execute prior patch; bounded"
+  },
+  "limitations": [
+    "Receipt run includes uncommitted composed dependency bytes: command.json pins them; this one-file commit does not claim branch-wide green.",
+    "Simulated provider amount is not production billing, and this candidate-only run supplies no Security report positive.",
+    "Full R3 replay and original whole-property review per ID remain unrun."
+  ],
+  "proposals": [
+    {
+      "id": "B10",
+      "outcome": "limited",
+      "whole_property": "held_pending_full_R3_original_criterion_check",
+      "evidence_scope": "one ordinary local NL durable-cost route",
+      "next_check": "frozen composed R3 producer and monetary suite; evaluate original occurrence separately"
+    },
+    {
+      "id": "B66",
+      "outcome": "limited",
+      "whole_property": "held_pending_full_R3_original_criterion_check",
+      "evidence_scope": "one ordinary local NL durable-cost route",
+      "next_check": "frozen composed R3 producer and monetary suite; evaluate original occurrence separately"
+    },
+    {
+      "id": "B67",
+      "outcome": "limited",
+      "whole_property": "held_pending_full_R3_original_criterion_check",
+      "evidence_scope": "one ordinary local NL durable-cost route",
+      "next_check": "frozen composed R3 producer and monetary suite; evaluate original occurrence separately"
+    },
+    {
+      "id": "B68",
+      "outcome": "limited",
+      "whole_property": "held_pending_full_R3_original_criterion_check",
+      "evidence_scope": "one ordinary local NL durable-cost route",
+      "next_check": "frozen composed R3 producer and monetary suite; evaluate original occurrence separately"
+    }
+  ],
+  "historical_decisions": "unchanged; no formal G closures/adjudications",
+  "independent_acceptance": "G remains required"
+}

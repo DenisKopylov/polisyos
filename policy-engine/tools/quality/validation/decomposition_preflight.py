@@ -5,18 +5,21 @@ from __future__ import annotations
 
 import argparse
 import ast
+import builtins
 import hashlib
 import importlib.util
+import inspect
 import json
 import os
 import pickle
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import time
 import tomllib
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -119,6 +122,254 @@ class Finding:
     def render(self) -> str:
         suffix = f" :: {self.detail}" if self.detail else ""
         return f"[{self.gate}] {self.message}{suffix}"
+
+
+@dataclass(frozen=True)
+class _ImportSourceSnapshot:
+    """One immutable observation of the source files used by the cycle gate."""
+
+    module_paths: dict[str, Path]
+    trees: dict[str, ast.Module]
+    input_manifest: tuple[dict[str, Any], ...]
+    discovery_errors: tuple[dict[str, Any], ...]
+
+
+class ImportGraphInputError(RuntimeError):
+    """Raised when a complete import graph cannot be built from selected source."""
+
+    def __init__(self, message: str, *, source_snapshot: _ImportSourceSnapshot) -> None:
+        super().__init__(message)
+        self.source_snapshot = source_snapshot
+
+
+def _import_source_path(path: Path) -> str:
+    """Return a lexical, repository-relative label without resolving symlinks."""
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _read_import_source_bytes(path: Path) -> bytes:
+    """Read one selected source file so the same bytes can be hashed and parsed."""
+    return path.read_bytes()
+
+
+def _collect_import_source_snapshot() -> _ImportSourceSnapshot:
+    """Enumerate and parse every source selected by the import-cycle gate."""
+    roots = [SRC_ROOT / "polisyos" / "scientist", SRC_ROOT / "polisyos" / "foundry"]
+    module_paths: dict[str, Path] = {}
+    trees: dict[str, ast.Module] = {}
+    manifest: list[dict[str, Any]] = []
+    discovery_errors: list[dict[str, Any]] = []
+
+    def record_walk_error(error: OSError, *, root: Path) -> None:
+        filename = Path(error.filename) if error.filename else root
+        discovery_errors.append(
+            {
+                "path": _import_source_path(filename),
+                "outcome": "discovery_error",
+                "error_type": type(error).__name__,
+                "error": error.strerror or str(error),
+            }
+        )
+
+    for root in roots:
+        if not root.is_dir():
+            discovery_errors.append(
+                {
+                    "path": _import_source_path(root),
+                    "outcome": "root_unavailable",
+                    "error_type": "FileNotFoundError",
+                    "error": "selected import root is absent or is not a directory",
+                }
+            )
+            continue
+
+        def onerror(error: OSError, *, selected_root: Path = root) -> None:
+            record_walk_error(error, root=selected_root)
+
+        for directory, dirnames, filenames in os.walk(root, onerror=onerror):
+            dirnames[:] = sorted(name for name in dirnames if name != "__pycache__")
+            for filename in sorted(filenames):
+                if Path(filename).suffix != ".py":
+                    continue
+                path = Path(directory) / filename
+                label = _import_source_path(path)
+                try:
+                    if not stat.S_ISREG(path.stat().st_mode):
+                        continue
+                except OSError as error:
+                    discovery_errors.append(
+                        {
+                            "path": label,
+                            "outcome": "stat_error",
+                            "error_type": type(error).__name__,
+                            "error": error.strerror or str(error),
+                        }
+                    )
+                    continue
+                try:
+                    raw = _read_import_source_bytes(path)
+                except OSError as error:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": None,
+                            "outcome": "read_error",
+                            "error_type": type(error).__name__,
+                            "error": error.strerror or str(error),
+                        }
+                    )
+                    continue
+                digest = hashlib.sha256(raw).hexdigest()
+                try:
+                    module = module_fqn_from_path(path)
+                except (OSError, ValueError) as error:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": digest,
+                            "outcome": "identity_error",
+                            "error_type": type(error).__name__,
+                            "error": str(error),
+                        }
+                    )
+                    continue
+                if module in module_paths:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": digest,
+                            "outcome": "duplicate_module_identity",
+                            "module": module,
+                            "error_type": "ValueError",
+                            "error": f"selected source maps to existing module {module}",
+                        }
+                    )
+                    continue
+                module_paths[module] = path
+                try:
+                    text = raw.decode("utf-8", errors="strict")
+                except UnicodeDecodeError as error:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": digest,
+                            "outcome": "decode_error",
+                            "encoding": "utf-8",
+                            "start": error.start,
+                            "end": error.end,
+                            "error": error.reason,
+                        }
+                    )
+                    continue
+                try:
+                    tree = ast.parse(text, filename=label)
+                except SyntaxError as error:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": digest,
+                            "outcome": "parse_error",
+                            "error_type": type(error).__name__,
+                            "line": error.lineno,
+                            "offset": error.offset,
+                            "error": error.msg,
+                        }
+                    )
+                    continue
+                except (ValueError, RecursionError) as error:
+                    manifest.append(
+                        {
+                            "path": label,
+                            "sha256": digest,
+                            "outcome": "parse_error",
+                            "error_type": type(error).__name__,
+                            "error": str(error),
+                        }
+                    )
+                    continue
+                trees[module] = tree
+                manifest.append({"path": label, "sha256": digest, "outcome": "parsed"})
+
+    manifest.sort(key=lambda item: str(item["path"]))
+    discovery_errors.sort(key=lambda item: (str(item["path"]), str(item["outcome"])))
+    return _ImportSourceSnapshot(
+        module_paths=module_paths,
+        trees=trees,
+        input_manifest=tuple(manifest),
+        discovery_errors=tuple(discovery_errors),
+    )
+
+
+def _import_source_errors(snapshot: _ImportSourceSnapshot) -> list[dict[str, Any]]:
+    errors = [dict(item) for item in snapshot.discovery_errors]
+    errors.extend(
+        dict(item) for item in snapshot.input_manifest if item["outcome"] != "parsed"
+    )
+    return errors
+
+
+def _import_graph_input_receipt(snapshot: _ImportSourceSnapshot) -> dict[str, Any]:
+    """Build the complete, content-bound receipt for a deciding cycle-gate run."""
+    selector = {
+        "roots": [
+            _import_source_path(SRC_ROOT / "polisyos" / "scientist"),
+            _import_source_path(SRC_ROOT / "polisyos" / "foundry"),
+        ],
+        "recursive": True,
+        "filename_suffix": ".py",
+        "regular_files_only": True,
+        "symlink_file_policy": "follow-target",
+        "follow_symlink_directories": False,
+        "excluded_directory_names": ["__pycache__"],
+        "encoding": "utf-8-strict",
+        "parser": "ast.parse",
+    }
+    inputs = [dict(item) for item in snapshot.input_manifest]
+    discovery_errors = [dict(item) for item in snapshot.discovery_errors]
+    hashed_payload = {
+        "selector": selector,
+        "input_manifest": inputs,
+        "discovery_errors": discovery_errors,
+    }
+    manifest_hash = hashlib.sha256(
+        json.dumps(hashed_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
+    ).hexdigest()
+    counts: dict[str, int] = {}
+    for item in inputs:
+        outcome = str(item["outcome"])
+        counts[outcome] = counts.get(outcome, 0) + 1
+    errors = _import_source_errors(snapshot)
+    full_graph = collect_import_graph(source_snapshot=snapshot, allow_incomplete=True)
+    eager_graph = collect_import_graph(
+        runtime_only=True, source_snapshot=snapshot, allow_incomplete=True
+    )
+    return {
+        "selector": selector,
+        "selected_count": len(inputs),
+        "outcome_counts": dict(sorted(counts.items())),
+        "discovery_errors": discovery_errors,
+        "input_manifest_sha256": manifest_hash,
+        "input_manifest": inputs,
+        "coverage_status": "complete" if not errors else "partial",
+        "observed_graphs": {
+            "full_ast": {
+                "module_count": full_graph["module_count"],
+                "edge_count": full_graph["edge_count"],
+                "cycles": full_graph["cycles"],
+            },
+            "module_initialization": {
+                "module_count": eager_graph["module_count"],
+                "edge_count": eager_graph["edge_count"],
+                "cycles": eager_graph["cycles"],
+                "dispatch_resolution": eager_graph["dispatch_resolution"],
+            },
+        },
+    }
 
 
 def _rel(path: Path) -> str:
@@ -571,54 +822,198 @@ def collect_external_importers(
     return importers
 
 
+class _PublicSurfaceBindingVisitor(ast.NodeVisitor):
+    """Find names rebound by one module-scope statement without entering callables."""
+
+    def __init__(self) -> None:
+        self.names: set[str] = set()
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            self.names.add(node.id)
+
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self.names.add(alias.asname or alias.name.split(".", 1)[0])
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        for alias in node.names:
+            if alias.name != "*":
+                self.names.add(alias.asname or alias.name)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self.names.add(node.name)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self.names.add(node.name)
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self.names.add(node.name)
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+        if node.name:
+            self.names.add(node.name)
+        for child in node.body:
+            self.visit(child)
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        return
+
+
+def _public_surface_definition_record(
+    node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,
+    *,
+    name: str,
+    module: str,
+    line: int,
+) -> dict[str, Any]:
+    if isinstance(node, ast.ClassDef):
+        bases = (
+            sorted(set().union(*(_base_names(base) for base in node.bases)))
+            if node.bases
+            else []
+        )
+        return {
+            "kind": "class",
+            "name": name,
+            "fqn": f"{module}.{name}",
+            "bases": bases,
+            "pydantic": "BaseModel" in bases,
+            "line": line,
+        }
+    return {
+        "kind": "function" if isinstance(node, ast.FunctionDef) else "async_function",
+        "name": name,
+        "fqn": f"{module}.{name}",
+        "signature": _signature(node),
+        "line": line,
+    }
+
+
+def _collect_public_surface_bindings(
+    module: str,
+    tree: ast.Module,
+    bindings: dict[tuple[str, str], tuple[str, object, int]],
+    *,
+    is_package: bool,
+) -> None:
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bindings[(module, node.name)] = ("definition", node, node.lineno)
+        elif isinstance(node, ast.ImportFrom):
+            imported_module = _runtime_relative_import(
+                module, node.module, node.level, is_package=is_package
+            )
+            for alias in node.names:
+                if alias.name != "*":
+                    local_name = alias.asname or alias.name
+                    bindings[(module, local_name)] = (
+                        "import",
+                        (imported_module, alias.name),
+                        node.lineno,
+                    )
+        else:
+            visitor = _PublicSurfaceBindingVisitor()
+            visitor.visit(node)
+            for name in visitor.names:
+                bindings[(module, name)] = ("unknown", None, node.lineno)
+
+
+def _resolve_public_surface_definition(
+    module: str,
+    name: str,
+    bindings: Mapping[tuple[str, str], tuple[str, object, int]],
+    seen: frozenset[tuple[str, str]] = frozenset(),
+) -> ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef | None:
+    key = (module, name)
+    if key in seen:
+        return None
+    binding = bindings.get(key)
+    if binding is None:
+        return None
+    kind, value, _ = binding
+    if kind == "definition" and isinstance(
+        value,
+        (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
+    ):
+        return value
+    if kind == "import" and isinstance(value, tuple) and len(value) == 2:
+        target_module, target_name = value
+        if isinstance(target_module, str) and isinstance(target_name, str):
+            return _resolve_public_surface_definition(
+                target_module,
+                target_name,
+                bindings,
+                seen | {key},
+            )
+    return None
+
+
+def _public_surface_module_objects(
+    module: str,
+    tree: ast.Module,
+    bindings: Mapping[tuple[str, str], tuple[str, object, int]],
+) -> tuple[list[str], list[dict[str, Any]]]:
+    exports = _literal_all(tree)
+    objects: list[dict[str, Any]] = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if not node.name.startswith("_"):
+                objects.append(
+                    _public_surface_definition_record(
+                        node,
+                        name=node.name,
+                        module=module,
+                        line=node.lineno,
+                    )
+                )
+    for name in exports:
+        if name.startswith("_"):
+            continue
+        binding = bindings.get((module, name))
+        if binding is None or binding[0] != "import":
+            continue
+        definition = _resolve_public_surface_definition(module, name, bindings)
+        if definition is not None:
+            objects.append(
+                _public_surface_definition_record(
+                    definition,
+                    name=name,
+                    module=module,
+                    line=binding[2],
+                )
+            )
+    objects.sort(key=lambda item: item["line"])
+    return exports, objects
+
+
 def collect_public_surface_snapshot() -> dict[str, Any]:
+    """Snapshot public definitions and statically resolved exported aliases."""
     packages: list[dict[str, Any]] = []
     root = SRC_ROOT / "polisyos"
+    module_sources: dict[str, tuple[Path, ast.Module]] = {}
+    for path in sorted(root.rglob("*.py")):
+        if "__pycache__" in path.parts:
+            continue
+        tree = _parse_python(path)
+        if tree is not None:
+            module_sources[module_fqn_from_path(path)] = (path, tree)
+
+    bindings: dict[tuple[str, str], tuple[str, object, int]] = {}
+    for module, (path, tree) in module_sources.items():
+        _collect_public_surface_bindings(
+            module, tree, bindings, is_package=path.name == "__init__.py"
+        )
+
     for package_dir in sorted(path for path in root.iterdir() if path.is_dir()):
         if not (package_dir / "__init__.py").exists():
             continue
         package = f"polisyos.{package_dir.name}"
         modules: list[dict[str, Any]] = []
-        for path in sorted(package_dir.rglob("*.py")):
-            if "__pycache__" in path.parts:
+        for module_fqn, (path, tree) in sorted(module_sources.items()):
+            if not path.is_relative_to(package_dir):
                 continue
-            tree = _parse_python(path)
-            if tree is None:
-                continue
-            module_fqn = module_fqn_from_path(path)
-            exports = _literal_all(tree)
-            objects: list[dict[str, Any]] = []
-            for node in tree.body:
-                if isinstance(
-                    node, (ast.FunctionDef, ast.AsyncFunctionDef)
-                ) and not node.name.startswith("_"):
-                    objects.append(
-                        {
-                            "kind": "function"
-                            if isinstance(node, ast.FunctionDef)
-                            else "async_function",
-                            "name": node.name,
-                            "fqn": f"{module_fqn}.{node.name}",
-                            "signature": _signature(node),
-                            "line": node.lineno,
-                        }
-                    )
-                elif isinstance(node, ast.ClassDef) and not node.name.startswith("_"):
-                    bases = (
-                        sorted(set().union(*(_base_names(base) for base in node.bases)))
-                        if node.bases
-                        else []
-                    )
-                    objects.append(
-                        {
-                            "kind": "class",
-                            "name": node.name,
-                            "fqn": f"{module_fqn}.{node.name}",
-                            "bases": bases,
-                            "pydantic": "BaseModel" in bases,
-                            "line": node.lineno,
-                        }
-                    )
+            exports, objects = _public_surface_module_objects(module_fqn, tree, bindings)
             if exports or objects:
                 modules.append(
                     {
@@ -634,7 +1029,6 @@ def collect_public_surface_snapshot() -> dict[str, Any]:
         "generated_at": datetime.now(UTC).isoformat(),
         "packages": packages,
     }
-
 
 def _literal_all(tree: ast.Module) -> list[str]:
     exports: list[str] = []
@@ -696,34 +1090,4097 @@ def _resolve_relative_import(current_module: str, module: str | None, level: int
     return ".".join(base)
 
 
-def collect_import_graph() -> dict[str, Any]:
-    roots = [SRC_ROOT / "polisyos" / "scientist", SRC_ROOT / "polisyos" / "foundry"]
-    module_paths = {
-        module_fqn_from_path(path): path
-        for root in roots
-        for path in root.rglob("*.py")
-        if "__pycache__" not in path.parts
-    }
-    module_names = set(module_paths)
-    edges: dict[str, set[str]] = {module: set() for module in module_names}
-    for module, path in module_paths.items():
-        tree = _parse_python(path)
-        if tree is None:
-            continue
-        for node in ast.walk(tree):
-            candidates: list[str] = []
-            if isinstance(node, ast.Import):
-                candidates.extend(alias.name for alias in node.names)
-            elif isinstance(node, ast.ImportFrom):
-                base = _resolve_relative_import(module, node.module, node.level)
-                candidates.append(base)
-                candidates.extend(
-                    f"{base}.{alias.name}" for alias in node.names if alias.name != "*"
+def _runtime_relative_import(
+    current_module: str,
+    module: str | None,
+    level: int,
+    *,
+    is_package: bool,
+) -> str:
+    """Resolve a relative import using the source path's package identity."""
+    if level == 0:
+        return module or ""
+    current_parts = current_module.split(".")
+    if not is_package:
+        current_parts = current_parts[:-1]
+    base = current_parts[: max(0, len(current_parts) - level + 1)]
+    if module:
+        base.extend(module.split("."))
+    return ".".join(base)
+
+
+def _callable_definitions(
+    tree: ast.Module,
+    module: str,
+) -> tuple[dict[tuple[str, str, int, int], ast.FunctionDef | ast.AsyncFunctionDef], set[str]]:
+    """Index every function definition by module, lexical name, and source identity."""
+    functions: dict[tuple[str, str, int, int], ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    classes: set[str] = set()
+
+    def walk(statements: Sequence[ast.stmt], prefix: str = "") -> None:
+        for statement in statements:
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                name = f"{prefix}.{statement.name}" if prefix else statement.name
+                identity = (module, name, statement.lineno, statement.col_offset)
+                functions[identity] = statement
+                walk(statement.body, name)
+            elif isinstance(statement, ast.ClassDef):
+                name = f"{prefix}.{statement.name}" if prefix else statement.name
+                classes.add(name)
+                walk(statement.body, name)
+            elif isinstance(statement, (ast.If, ast.For, ast.AsyncFor, ast.While)):
+                walk(statement.body, prefix)
+                walk(statement.orelse, prefix)
+            elif isinstance(statement, (ast.With, ast.AsyncWith)):
+                walk(statement.body, prefix)
+            elif isinstance(statement, (ast.Try, ast.TryStar)):
+                walk(statement.body, prefix)
+                walk(statement.orelse, prefix)
+                walk(statement.finalbody, prefix)
+                for handler in statement.handlers:
+                    walk(handler.body, prefix)
+            elif isinstance(statement, ast.Match):
+                for case in statement.cases:
+                    walk(case.body, prefix)
+
+    walk(tree.body)
+    return functions, classes
+
+def _binding_names(target: ast.AST) -> set[str]:
+    """Return names assigned by an assignment target."""
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return set().union(*(_binding_names(item) for item in target.elts)) if target.elts else set()
+    if isinstance(target, ast.Starred):
+        return _binding_names(target.value)
+    return set()
+
+
+def _binding_target_owner_names(target: ast.AST) -> set[str]:
+    """Return names owning attribute or subscript targets in an assignment."""
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return set().union(
+            *(_binding_target_owner_names(item) for item in target.elts)
+        ) if target.elts else set()
+    if isinstance(target, ast.Starred):
+        return _binding_target_owner_names(target.value)
+    if isinstance(target, (ast.Attribute, ast.Subscript)):
+        return _expression_owner_names(target.value)
+    return set()
+
+
+def _expression_owner_names(node: ast.AST) -> set[str]:
+    """Find a lexical name owning a stored attribute or subscript value."""
+    if isinstance(node, ast.Name):
+        return {node.id}
+    if isinstance(node, (ast.Attribute, ast.Subscript)):
+        return _expression_owner_names(node.value)
+    return set()
+
+
+def _pattern_binding_names(pattern: ast.pattern) -> set[str]:
+    """Return captured names from a structural-match pattern."""
+    if isinstance(pattern, ast.MatchAs):
+        names = {pattern.name} if pattern.name else set()
+        return names | (_pattern_binding_names(pattern.pattern) if pattern.pattern else set())
+    if isinstance(pattern, ast.MatchStar):
+        return {pattern.name} if pattern.name else set()
+    if isinstance(pattern, ast.MatchMapping):
+        names = {pattern.rest} if pattern.rest else set()
+        for child in pattern.patterns:
+            names.update(_pattern_binding_names(child))
+        return names
+    if isinstance(pattern, ast.MatchClass):
+        children = [*pattern.patterns, *pattern.kwd_patterns]
+        return set().union(*(_pattern_binding_names(child) for child in children)) if children else set()
+    if isinstance(pattern, ast.MatchSequence):
+        return set().union(*(_pattern_binding_names(child) for child in pattern.patterns)) if pattern.patterns else set()
+    if isinstance(pattern, ast.MatchOr):
+        return set().union(*(_pattern_binding_names(child) for child in pattern.patterns)) if pattern.patterns else set()
+    return set()
+
+
+class _FunctionBindingCollector(ast.NodeVisitor):
+    """Find bindings owned by one function scope without entering nested scopes."""
+
+    def __init__(self) -> None:
+        self.bound: set[str] = set()
+        self.globals: set[str] = set()
+        self.nonlocals: set[str] = set()
+
+    def visit_Name(self, node: ast.Name) -> None:
+        if isinstance(node.ctx, (ast.Store, ast.Del)):
+            self.bound.add(node.id)
+
+    def visit_Import(self, node: ast.Import) -> None:
+        self.bound.update(alias.asname or alias.name.split(".")[0] for alias in node.names)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        self.bound.update(alias.asname or alias.name for alias in node.names if alias.name != "*")
+
+    def visit_Global(self, node: ast.Global) -> None:
+        self.globals.update(node.names)
+
+    def visit_Nonlocal(self, node: ast.Nonlocal) -> None:
+        self.nonlocals.update(node.names)
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+        if node.name:
+            self.bound.add(node.name)
+        if node.type is not None:
+            self.visit(node.type)
+        for statement in node.body:
+            self.visit(statement)
+
+    def visit_Match(self, node: ast.Match) -> None:
+        self.visit(node.subject)
+        for case in node.cases:
+            self.bound.update(_pattern_binding_names(case.pattern))
+            if case.guard is not None:
+                self.visit(case.guard)
+            for statement in case.body:
+                self.visit(statement)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self.bound.add(node.name)
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_AsyncFunctionDef = visit_FunctionDef  # noqa: N815
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        self.bound.add(node.name)
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        return
+
+
+def _function_scope_bindings(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> tuple[set[str], set[str], set[str]]:
+    """Return local, module-global, and enclosing-scope writes separately."""
+    collector = _FunctionBindingCollector()
+    arguments = function.args
+    for argument in (
+        *arguments.posonlyargs,
+        *arguments.args,
+        *arguments.kwonlyargs,
+    ):
+        collector.bound.add(argument.arg)
+    if arguments.vararg is not None:
+        collector.bound.add(arguments.vararg.arg)
+    if arguments.kwarg is not None:
+        collector.bound.add(arguments.kwarg.arg)
+    for statement in function.body:
+        collector.visit(statement)
+    global_writes = collector.bound & collector.globals
+    nonlocal_writes = collector.bound & collector.nonlocals
+    local_names = collector.bound - collector.globals - collector.nonlocals
+    return local_names, global_writes, nonlocal_writes
+
+
+def _global_writes_in_statements(statements: Sequence[ast.stmt]) -> set[str]:
+    """Find explicit global names assigned in one class/module statement block."""
+    names: set[str] = set()
+    globals_declared: set[str] = set()
+
+    class GlobalWrites(ast.NodeVisitor):
+        def visit_Name(self, node: ast.Name) -> None:
+            if isinstance(node.ctx, (ast.Store, ast.Del)):
+                names.add(node.id)
+
+        def visit_Global(self, node: ast.Global) -> None:
+            globals_declared.update(node.names)
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            return
+
+        # ast.NodeVisitor requires these exact protocol spellings.
+        visit_AsyncFunctionDef = visit_FunctionDef  # noqa: N815
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> None:
+            return
+
+        def visit_Lambda(self, node: ast.Lambda) -> None:
+            return
+
+    visitor = GlobalWrites()
+    for statement in statements:
+        visitor.visit(statement)
+    return names & globals_declared
+
+
+def _type_checking_runtime_branch(
+    node: ast.AST,
+    *,
+    bindings: Mapping[str, str],
+) -> bool | None:
+    """Classify only a still-live imported typing sentinel as a deferred branch."""
+    if isinstance(node, ast.Name) and bindings.get(node.id) == "type_checking":
+        return False
+    if (
+        isinstance(node, ast.Attribute)
+        and node.attr == "TYPE_CHECKING"
+        and isinstance(node.value, ast.Name)
+        and bindings.get(node.value.id) == "typing_module"
+    ):
+        return False
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+        branch = _type_checking_runtime_branch(node.operand, bindings=bindings)
+        return None if branch is None else not branch
+    return None
+
+
+def _future_annotations_enabled(tree: ast.Module) -> bool:
+    return any(
+        isinstance(node, ast.ImportFrom)
+        and node.module == "__future__"
+        and any(alias.name == "annotations" for alias in node.names)
+        for node in tree.body
+    )
+
+
+@dataclass(frozen=True)
+class _BindingTarget:
+    """One source-identified possible value target in a binding."""
+
+    kind: str
+    module: str
+    symbol: str | None
+    line: int = -1
+    column: int = -1
+
+    def sort_key(self) -> tuple[str, str, bool, str, int, int]:
+        return (
+            self.kind,
+            self.module,
+            self.symbol is None,
+            self.symbol or "",
+            self.line,
+            self.column,
+        )
+
+
+@dataclass(frozen=True)
+class _BindingKnowledge:
+    """Joined targets, uncertainty, and sticky source-value provenance."""
+
+    known_possible_targets: frozenset[_BindingTarget] = frozenset()
+    possible_unknown: bool = False
+    source_value_origins: frozenset[_BindingTarget] = frozenset()
+    builtin_value_kinds: frozenset[str] = frozenset()
+
+    def join(self, other: _BindingKnowledge) -> _BindingKnowledge:
+        return _BindingKnowledge(
+            self.known_possible_targets | other.known_possible_targets,
+            self.possible_unknown or other.possible_unknown,
+            self.source_value_origins | other.source_value_origins,
+            self.builtin_value_kinds | other.builtin_value_kinds,
+        )
+
+    def targets_for(self, kind: str) -> set[_BindingTarget]:
+        return {target for target in self.known_possible_targets if target.kind == kind}
+
+    @property
+    def definitely_resolved(self) -> bool:
+        return bool(self.known_possible_targets) and not self.possible_unknown
+
+
+@dataclass(frozen=True)
+class _CapturedDefault:
+    """Abstract value captured when a source function is defined."""
+
+    knowledge: _BindingKnowledge
+
+
+_GlobalEffect = tuple[_BindingKnowledge, str | None]
+_SourceCallContext = tuple[tuple[str, str, int, int], tuple[tuple[str, _BindingKnowledge], ...]]
+
+
+@dataclass(frozen=True)
+class _EvaluatedCallFrame:
+    """Values frozen in Python's order while evaluating one call expression."""
+
+    callable_targets: frozenset[tuple[str, str, int, int]]
+    class_targets: frozenset[tuple[str, str]]
+    callable_knowledge: _BindingKnowledge
+    receiver_knowledge: _BindingKnowledge | None
+    argument_knowledge: tuple[tuple[int, _BindingKnowledge], ...]
+    builtin_symbol: str | None
+
+
+def _instance_class_for_target(target: _BindingTarget) -> tuple[str, str] | None:
+    """Decode the class identity carried by an instance binding target."""
+    if target.kind != "instance" or target.symbol is None:
+        return None
+    if "::" in target.symbol:
+        class_module, class_symbol = target.symbol.split("::", 1)
+        return class_module, class_symbol
+    # Receiver parameters retain class knowledge but lack allocation identity.
+    return target.module, target.symbol
+
+
+class _RuntimeImportCollector(ast.NodeVisitor):
+    """Collect eager edges with scope-aware, monotone call-target states."""
+
+    def __init__(
+        self,
+        module: str,
+        module_names: set[str],
+        callable_index: set[tuple[str, str]],
+        functions: Mapping[tuple[str, str, int, int], ast.FunctionDef | ast.AsyncFunctionDef],
+        source_functions: Mapping[
+            tuple[str, str, int, int], ast.FunctionDef | ast.AsyncFunctionDef
+        ],
+        classes: set[str],
+        class_index: set[tuple[str, str]],
+        source_class_bases: dict[tuple[str, str], set[tuple[str, str]]],
+        source_class_base_unknown: set[tuple[str, str]],
+        source_class_metaclasses: dict[tuple[str, str], _BindingKnowledge],
+        *,
+        is_package: bool,
+        source_path: str,
+    ) -> None:
+        self.module = module
+        self.source_path = source_path
+        self.module_names = module_names
+        self.callable_index = callable_index
+        self.functions = functions
+        self.source_functions = source_functions
+        self.classes = classes
+        self.class_index = class_index
+        self.source_class_bases = source_class_bases
+        self.source_class_base_unknown = source_class_base_unknown
+        self.source_class_metaclasses = source_class_metaclasses
+        self.is_package = is_package
+        self.edges: set[str] = set()
+        self.called: set[tuple[str, str, int, int]] = set()
+        self.called_with_bindings: set[
+            tuple[
+                tuple[str, str, int, int],
+                tuple[tuple[str, _BindingKnowledge], ...],
+            ]
+        ] = set()
+        # One call's possible local callees are a single alternative group. Their
+        # effects must start from one snapshot and be joined, not replayed in order.
+        self.pending_local_call_contexts: list[tuple[_SourceCallContext, ...]] = []
+        self.global_effect_frames: list[dict[str, _GlobalEffect]] = []
+        self.function_local_names_stack: list[set[str]] = []
+        self.dispatch_observations: dict[tuple[Any, ...], dict[str, Any]] = {}
+        self.pending_class_constructor_calls: list[
+            tuple[ast.Call, set[tuple[str, str]]]
+        ] = []
+        self.visited_functions: set[tuple[tuple[str, str, int, int], tuple[Any, ...]]] = set()
+        self.import_bindings: dict[str, set[tuple[str, str | None]]] = {}
+        self.callable_aliases: dict[str, set[tuple[str, str, int, int]]] = {}
+        self.class_aliases: dict[str, set[tuple[str, str]]] = {}
+        self.instance_aliases: dict[str, set[tuple[str, str, int, int]]] = {}
+        self.function_default_bindings: dict[
+            tuple[str, str, int, int], dict[str, _BindingKnowledge]
+        ] = {}
+        self.external_function_default_bindings: Mapping[
+            tuple[str, str, int, int], Mapping[str, _BindingKnowledge]
+        ] = {}
+        self.class_member_bindings: dict[str, dict[str, _BindingKnowledge]] = {}
+        # Object/member state is keyed by source-identified class or allocation-site
+        # identity, not by the spelling of the variable currently holding it.
+        self.owner_member_bindings: dict[
+            _BindingTarget, dict[str, _BindingKnowledge]
+        ] = {}
+        self.owner_member_wildcard_overrides: dict[_BindingTarget, set[str]] = {}
+        self.external_owner_member_exports: Mapping[
+            str, Mapping[_BindingTarget, Mapping[str, _BindingKnowledge]]
+        ] = {}
+        self.external_module_exports: Mapping[str, Mapping[str, _BindingKnowledge]] = {}
+        self.external_class_exports: Mapping[
+            str, Mapping[str, Mapping[str, _BindingKnowledge]]
+        ] = {}
+        self.type_checking_bindings: dict[str, str] = {}
+        self.unknown_bindings: set[str] = set()
+        self.source_call_result_bindings: dict[str, set[tuple[str, str, int, int]]] = {}
+        self.source_value_origin_bindings: dict[str, set[_BindingTarget]] = {}
+        self.builtin_value_kind_bindings: dict[str, set[str]] = {}
+        self.future_annotations = False
+        self.scope_kind = "module"
+        self.scope_prefix = ""
+        self.class_context: str | None = None
+
+    def set_future_annotations(self, tree: ast.Module) -> None:
+        self.future_annotations = _future_annotations_enabled(tree)
+
+    def _clear_type_bindings(self, names: set[str]) -> None:
+        for name in names:
+            self.type_checking_bindings.pop(name, None)
+
+    def _clear_name_bindings(self, names: set[str]) -> None:
+        for name in names:
+            self.import_bindings.pop(name, None)
+            self.callable_aliases.pop(name, None)
+            self.class_aliases.pop(name, None)
+            self.instance_aliases.pop(name, None)
+            self.type_checking_bindings.pop(name, None)
+            self.unknown_bindings.discard(name)
+            self.source_call_result_bindings.pop(name, None)
+            self.source_value_origin_bindings.pop(name, None)
+            self.builtin_value_kind_bindings.pop(name, None)
+
+    def _binding_knowledge(self, name: str) -> _BindingKnowledge:
+        targets = {
+            *(
+                _BindingTarget("import", module, symbol)
+                for module, symbol in self.import_bindings.get(name, set())
+            ),
+            *(
+                _BindingTarget("callable", module, symbol, line, column)
+                for module, symbol, line, column in self.callable_aliases.get(name, set())
+            ),
+            *(
+                _BindingTarget("source_call", module, symbol, line, column)
+                for module, symbol, line, column in self.source_call_result_bindings.get(
+                    name, set()
                 )
-            for candidate in candidates:
-                resolved = _nearest_known_module(candidate, module_names)
-                if resolved and resolved != module:
-                    edges[module].add(resolved)
+            ),
+            *(
+                _BindingTarget("class", module, symbol)
+                for module, symbol in self.class_aliases.get(name, set())
+            ),
+            *(
+                _BindingTarget("instance", module, symbol, line, column)
+                for module, symbol, line, column in self.instance_aliases.get(name, set())
+            ),
+        }
+        origins = set(self.source_value_origin_bindings.get(name, set()))
+        origins.update(self._source_origins_from_targets(targets))
+        return _BindingKnowledge(
+            frozenset(targets),
+            name in self.unknown_bindings,
+            frozenset(origins),
+            frozenset(self.builtin_value_kind_bindings.get(name, set())),
+        )
+
+    def _source_origins_from_targets(
+        self,
+        targets: Sequence[_BindingTarget] | set[_BindingTarget] | frozenset[_BindingTarget],
+    ) -> set[_BindingTarget]:
+        """Keep repository-owned values as provenance when later expressions transform them."""
+        source_kinds = {"import", "callable", "source_call", "class", "instance"}
+        return {
+            target
+            for target in targets
+            if target.kind in source_kinds and target.module in self.module_names
+        }
+
+    def _instance_class_target(
+        self, target: _BindingTarget
+    ) -> tuple[str, str] | None:
+        """Decode the class carried by an allocation-site instance identity."""
+        return _instance_class_for_target(target)
+
+    def _owner_targets_for_knowledge(
+        self, knowledge: _BindingKnowledge
+    ) -> tuple[set[_BindingTarget], bool]:
+        """Return stable object owners and whether the owner set is incomplete."""
+        expanded = self._expand_import_bindings(knowledge)
+        owners = {
+            target
+            for target in expanded.known_possible_targets
+            if target.kind == "class"
+            or (target.kind == "instance" and target.line >= 0 and target.column >= 0)
+        }
+        owners.update(
+            _BindingTarget("class", module, symbol)
+            for module, symbol in self._class_targets_from_knowledge(expanded)
+        )
+        owners.update(
+            _BindingTarget("module", target.module, None)
+            for target in expanded.targets_for("import")
+            if target.symbol is None and target.module in self.module_names
+        )
+        unsupported_targets = any(
+            target.kind == "source_call"
+            or (target.kind == "instance" and target not in owners)
+            for target in expanded.known_possible_targets
+        )
+        incomplete = expanded.possible_unknown or unsupported_targets
+        if expanded.source_value_origins and not owners:
+            incomplete = True
+        return owners, incomplete
+
+    def _owner_member_knowledge(
+        self,
+        owners: set[_BindingTarget],
+        member: str,
+    ) -> tuple[_BindingKnowledge, bool]:
+        """Read exact and wildcard effects without collapsing owner identities."""
+        result = _BindingKnowledge()
+        found = False
+        for owner in sorted(owners, key=lambda target: target.sort_key()):
+            local_members = self.owner_member_bindings.get(owner, {})
+            local_exact = local_members.get(member)
+            local_wildcard = local_members.get("*")
+            if local_exact is not None:
+                result = result.join(local_exact)
+                found = True
+            if (
+                local_wildcard is not None
+                and member not in self.owner_member_wildcard_overrides.get(owner, set())
+            ):
+                result = result.join(local_wildcard)
+                found = True
+
+            external_knowledge = _BindingKnowledge()
+            external_exact_found = False
+            for source_module, owner_exports in self.external_owner_member_exports.items():
+                if source_module == self.module:
+                    continue
+                exported_members = owner_exports.get(owner, {})
+                exported_exact = exported_members.get(member)
+                exported_wildcard = exported_members.get("*")
+                if exported_exact is not None:
+                    external_knowledge = external_knowledge.join(exported_exact)
+                    external_exact_found = True
+                if exported_wildcard is not None:
+                    external_knowledge = external_knowledge.join(exported_wildcard)
+                    found = True
+            if (
+                external_exact_found
+                or external_knowledge.known_possible_targets
+                or external_knowledge.possible_unknown
+            ):
+                result = result.join(external_knowledge).join(
+                    _BindingKnowledge(possible_unknown=True)
+                )
+                found = True
+
+            # A possible write to an unknown member does not prove that it
+            # replaced an exact class-suite member. Preserve both alternatives.
+            if local_exact is None and not external_exact_found:
+                class_target: tuple[str, str] | None = None
+                if owner.kind == "class" and owner.symbol is not None:
+                    class_target = (owner.module, owner.symbol)
+                elif owner.kind == "instance":
+                    class_target = self._instance_class_target(owner)
+                if class_target is not None and member.startswith("attr:"):
+                    fallback = self._class_member_knowledge(
+                        {class_target}, member.removeprefix("attr:")
+                    )
+                    if fallback.known_possible_targets or fallback.possible_unknown:
+                        result = result.join(fallback)
+                        found = True
+        return result, found
+
+    def _binding_knowledge_snapshot(self) -> dict[str, _BindingKnowledge]:
+        names = (
+            set(self.import_bindings)
+            | set(self.callable_aliases)
+            | set(self.source_call_result_bindings)
+            | set(self.source_value_origin_bindings)
+            | set(self.builtin_value_kind_bindings)
+            | set(self.class_aliases)
+            | set(self.instance_aliases)
+            | self.unknown_bindings
+        )
+        return {name: self._binding_knowledge(name) for name in names}
+
+    def _write_binding_knowledge(
+        self, name: str, knowledge: _BindingKnowledge
+    ) -> None:
+        self.import_bindings.pop(name, None)
+        self.callable_aliases.pop(name, None)
+        self.unknown_bindings.discard(name)
+        self.source_call_result_bindings.pop(name, None)
+        self.class_aliases.pop(name, None)
+        self.instance_aliases.pop(name, None)
+        self.source_value_origin_bindings.pop(name, None)
+        self.builtin_value_kind_bindings.pop(name, None)
+        for target in knowledge.known_possible_targets:
+            if target.kind == "import":
+                self.import_bindings.setdefault(name, set()).add(
+                    (target.module, target.symbol)
+                )
+            elif target.kind == "callable":
+                self.callable_aliases.setdefault(name, set()).add(
+                    (target.module, target.symbol or "", target.line, target.column)
+                )
+            elif target.kind == "source_call":
+                self.source_call_result_bindings.setdefault(name, set()).add(
+                    (target.module, target.symbol or "", target.line, target.column)
+                )
+            elif target.kind == "class":
+                self.class_aliases.setdefault(name, set()).add(
+                    (target.module, target.symbol or "")
+                )
+            elif target.kind == "instance":
+                self.instance_aliases.setdefault(name, set()).add(
+                    (target.module, target.symbol or "", target.line, target.column)
+                )
+        if knowledge.possible_unknown:
+            self.unknown_bindings.add(name)
+        if knowledge.source_value_origins:
+            self.source_value_origin_bindings[name] = set(
+                knowledge.source_value_origins
+            )
+        if knowledge.builtin_value_kinds:
+            self.builtin_value_kind_bindings[name] = set(knowledge.builtin_value_kinds)
+
+    def _install_binding_knowledge(
+        self, bindings: Mapping[str, _BindingKnowledge]
+    ) -> None:
+        self.import_bindings = {}
+        self.callable_aliases = {}
+        self.unknown_bindings = set()
+        self.source_call_result_bindings = {}
+        self.source_value_origin_bindings = {}
+        self.builtin_value_kind_bindings = {}
+        self.class_aliases = {}
+        self.instance_aliases = {}
+        for name, knowledge in bindings.items():
+            self._write_binding_knowledge(name, knowledge)
+
+    def _snapshot_bindings(self) -> tuple[Any, ...]:
+        return (
+            self._binding_knowledge_snapshot(),
+            self.type_checking_bindings.copy(),
+            {
+                class_name: members.copy()
+                for class_name, members in self.class_member_bindings.items()
+            },
+            {
+                owner: members.copy()
+                for owner, members in self.owner_member_bindings.items()
+            },
+            {
+                owner: members.copy()
+                for owner, members in self.owner_member_wildcard_overrides.items()
+            },
+            tuple(dict(frame) for frame in self.global_effect_frames),
+        )
+
+    def _restore_bindings(self, state: tuple[Any, ...]) -> None:
+        bindings, type_checking, classes, owners, wildcard_overrides, global_effects = state
+        self._install_binding_knowledge(bindings)
+        self.type_checking_bindings = type_checking.copy()
+        self.class_member_bindings = {
+            class_name: members.copy() for class_name, members in classes.items()
+        }
+        self.owner_member_bindings = {
+            owner: members.copy() for owner, members in owners.items()
+        }
+        self.owner_member_wildcard_overrides = {
+            owner: members.copy() for owner, members in wildcard_overrides.items()
+        }
+        self.global_effect_frames = [dict(frame) for frame in global_effects]
+
+    def _merge_binding_states(self, states: Sequence[tuple[Any, ...]]) -> None:
+        if not states:
+            return
+        bindings: dict[str, _BindingKnowledge] = {}
+        class_members: dict[str, dict[str, _BindingKnowledge]] = {}
+        owner_members: dict[_BindingTarget, dict[str, _BindingKnowledge]] = {}
+        binding_names = set().union(*(set(state[0]) for state in states))
+        for name in binding_names:
+            for state in states:
+                knowledge = state[0].get(name)
+                if knowledge is None:
+                    knowledge = _BindingKnowledge(possible_unknown=True)
+                bindings[name] = bindings.get(name, _BindingKnowledge()).join(knowledge)
+
+        class_names = set().union(*(set(state[2]) for state in states))
+        for class_name in class_names:
+            member_names = set().union(
+                *(set(state[2].get(class_name, {})) for state in states)
+            )
+            for member in member_names:
+                for state in states:
+                    knowledge = state[2].get(class_name, {}).get(member)
+                    if knowledge is None:
+                        knowledge = _BindingKnowledge(possible_unknown=True)
+                    member_map = class_members.setdefault(class_name, {})
+                    member_map[member] = member_map.get(member, _BindingKnowledge()).join(
+                        knowledge
+                    )
+        owner_ids = set().union(*(set(state[3]) for state in states))
+        for owner in owner_ids:
+            member_names = set().union(
+                *(set(state[3].get(owner, {})) for state in states)
+            )
+            for member in member_names:
+                for state in states:
+                    knowledge = state[3].get(owner, {}).get(member)
+                    if knowledge is None:
+                        # A no-write branch can still expose a class-suite value
+                        # or a wildcard effect. Resolve that state before using
+                        # the unknown sentinel for a genuinely absent member.
+                        self._restore_bindings(state)
+                        knowledge, found = self._owner_member_knowledge(
+                            {owner}, member
+                        )
+                        if not found:
+                            knowledge = _BindingKnowledge(possible_unknown=True)
+                    member_map = owner_members.setdefault(owner, {})
+                    member_map[member] = member_map.get(
+                        member, _BindingKnowledge()
+                    ).join(knowledge)
+        override_owners = set().union(*(set(state[4]) for state in states))
+        wildcard_overrides: dict[_BindingTarget, set[str]] = {}
+        for owner in override_owners:
+            common_members = set(states[0][4].get(owner, set()))
+            for state in states[1:]:
+                common_members.intersection_update(state[4].get(owner, set()))
+            if common_members:
+                wildcard_overrides[owner] = common_members
+        self._install_binding_knowledge(bindings)
+        self.class_member_bindings = class_members
+        self.owner_member_bindings = owner_members
+        self.owner_member_wildcard_overrides = wildcard_overrides
+        common = dict(states[0][1])
+        for state in states[1:]:
+            common = {name: kind for name, kind in common.items() if state[1].get(name) == kind}
+        self.type_checking_bindings = common
+
+        frame_count = max((len(state[5]) for state in states), default=0)
+        merged_frames: list[dict[str, _GlobalEffect]] = []
+        for frame_index in range(frame_count):
+            names = set().union(
+                *(set(state[5][frame_index]) for state in states if frame_index < len(state[5]))
+            )
+            merged: dict[str, _GlobalEffect] = {}
+            for name in names:
+                effects: list[_GlobalEffect] = []
+                for state in states:
+                    frame = state[5][frame_index] if frame_index < len(state[5]) else {}
+                    effect = frame.get(name)
+                    if effect is None:
+                        # A branch without this effect keeps its binding, while
+                        # the path-sensitive write possibility remains unknown.
+                        effect = (
+                            state[0]
+                            .get(name, _BindingKnowledge())
+                            .join(_BindingKnowledge(possible_unknown=True)),
+                            state[1].get(name),
+                        )
+                    effects.append(effect)
+                knowledge = _BindingKnowledge()
+                type_kinds: set[str | None] = set()
+                for effect_knowledge, type_kind in effects:
+                    knowledge = knowledge.join(effect_knowledge)
+                    type_kinds.add(type_kind)
+                type_kind = next(iter(type_kinds)) if len(type_kinds) == 1 else None
+                merged[name] = (knowledge, type_kind)
+            merged_frames.append(merged)
+        self.global_effect_frames = merged_frames
+
+    def _visit_binding_paths(self, paths: Sequence[Sequence[ast.AST]]) -> None:
+        base = self._snapshot_bindings()
+        states: list[tuple[Any, ...]] = []
+        for nodes in paths:
+            self._restore_bindings(base)
+            for node in nodes:
+                self.visit(node)
+            states.append(self._snapshot_bindings())
+        self._merge_binding_states(states)
+
+    def _binding_state_key(self) -> tuple[Any, ...]:
+        bindings = tuple(
+            (
+                name,
+                tuple(sorted(target.sort_key() for target in knowledge.known_possible_targets)),
+                knowledge.possible_unknown,
+                tuple(
+                    sorted(
+                        target.sort_key()
+                        for target in knowledge.source_value_origins
+                    )
+                ),
+                tuple(sorted(knowledge.builtin_value_kinds)),
+            )
+            for name, knowledge in sorted(self._binding_knowledge_snapshot().items())
+        )
+        class_members = tuple(
+            (
+                class_name,
+                tuple(
+                    (
+                        member,
+                        tuple(
+                            sorted(
+                                target.sort_key()
+                                for target in knowledge.known_possible_targets
+                            )
+                        ),
+                        knowledge.possible_unknown,
+                        tuple(
+                            sorted(
+                                target.sort_key()
+                                for target in knowledge.source_value_origins
+                            )
+                        ),
+                        tuple(sorted(knowledge.builtin_value_kinds)),
+                    )
+                    for member, knowledge in sorted(members.items())
+                ),
+            )
+            for class_name, members in sorted(self.class_member_bindings.items())
+        )
+        owner_members = tuple(
+            (
+                owner.sort_key(),
+                tuple(
+                    (
+                        member,
+                        tuple(
+                            sorted(
+                                target.sort_key()
+                                for target in knowledge.known_possible_targets
+                            )
+                        ),
+                        knowledge.possible_unknown,
+                        tuple(
+                            sorted(
+                                target.sort_key()
+                                for target in knowledge.source_value_origins
+                            )
+                        ),
+                        tuple(sorted(knowledge.builtin_value_kinds)),
+                    )
+                    for member, knowledge in sorted(members.items())
+                ),
+            )
+            for owner, members in sorted(
+                self.owner_member_bindings.items(),
+                key=lambda item: item[0].sort_key(),
+            )
+        )
+        wildcard_overrides = tuple(
+            (
+                owner.sort_key(),
+                tuple(sorted(members)),
+            )
+            for owner, members in sorted(
+                self.owner_member_wildcard_overrides.items(),
+                key=lambda item: item[0].sort_key(),
+            )
+        )
+        merged_effects: dict[str, _GlobalEffect] = {}
+        for frame in self.global_effect_frames:
+            for name, (knowledge, type_kind) in frame.items():
+                previous = merged_effects.get(name)
+                if previous is None:
+                    merged_effects[name] = (knowledge, type_kind)
+                else:
+                    prior_knowledge, prior_type = previous
+                    merged_effects[name] = (
+                        prior_knowledge.join(knowledge),
+                        prior_type if prior_type == type_kind else None,
+                    )
+        global_effects = tuple(
+            (
+                name,
+                tuple(sorted(target.sort_key() for target in knowledge.known_possible_targets)),
+                knowledge.possible_unknown,
+                tuple(sorted(target.sort_key() for target in knowledge.source_value_origins)),
+                tuple(sorted(knowledge.builtin_value_kinds)),
+                type_kind,
+            )
+            for name, (knowledge, type_kind) in sorted(merged_effects.items())
+        )
+        return (
+            bindings,
+            tuple(sorted(self.type_checking_bindings.items())),
+            class_members,
+            owner_members,
+            wildcard_overrides,
+            global_effects,
+        )
+
+    def _record_candidate(self, candidate: str) -> None:
+        resolved = _nearest_known_module(candidate, self.module_names)
+        if not resolved:
+            return
+        parts = resolved.split(".")
+        for index in range(2, len(parts) + 1):
+            parent = ".".join(parts[:index])
+            if parent in self.module_names and parent != self.module:
+                self.edges.add(parent)
+
+    def _dotted_name(self, node: ast.AST) -> list[str]:
+        if isinstance(node, ast.Name):
+            return [node.id]
+        if isinstance(node, ast.Attribute):
+            return [*self._dotted_name(node.value), node.attr]
+        return []
+
+    def _local_callable_targets(self, name: str) -> set[tuple[str, str, int, int]]:
+        prefixes = self.scope_prefix.split(".") if self.scope_prefix else []
+        while True:
+            symbol = ".".join([*prefixes, name]) if prefixes else name
+            targets = self._callable_in_module(self.module, symbol)
+            if targets:
+                return targets
+            if not prefixes:
+                return set()
+            prefixes.pop()
+
+    def _local_class_symbols(self, name: str) -> set[str]:
+        knowledge = self._binding_knowledge(name)
+        if knowledge.targets_for("import") or knowledge.possible_unknown:
+            return set()
+        prefixes = self.scope_prefix.split(".") if self.scope_prefix else []
+        while True:
+            symbol = ".".join([*prefixes, name]) if prefixes else name
+            if symbol in self.classes:
+                return {symbol}
+            if not prefixes:
+                return set()
+            prefixes.pop()
+
+    def _expand_import_bindings(
+        self,
+        knowledge: _BindingKnowledge,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> _BindingKnowledge:
+        """Preserve imported bindings while joining their complete source export."""
+        expanded = knowledge
+        for target in knowledge.targets_for("import"):
+            if target.symbol is None:
+                continue
+            key = (target.module, target.symbol)
+            if key in seen:
+                continue
+            exported = self.external_module_exports.get(target.module, {}).get(
+                target.symbol
+            )
+            if exported is not None:
+                expanded = expanded.join(
+                    self._expand_import_bindings(exported, seen | {key})
+                )
+        return expanded
+
+    def _class_targets_from_knowledge(
+        self,
+        knowledge: _BindingKnowledge,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> set[tuple[str, str]]:
+        """Resolve source class values through complete module export bindings."""
+        targets: set[tuple[str, str]] = set()
+        for target in knowledge.known_possible_targets:
+            if target.kind == "class" and target.symbol is not None:
+                targets.add((target.module, target.symbol))
+            elif target.kind == "import" and target.symbol is not None:
+                key = (target.module, target.symbol)
+                if key in self.class_index:
+                    targets.add(key)
+                    continue
+                if key in seen:
+                    continue
+                exported = self.external_module_exports.get(target.module, {}).get(
+                    target.symbol
+                )
+                if exported is not None:
+                    targets.update(
+                        self._class_targets_from_knowledge(exported, seen | {key})
+                    )
+        return targets
+
+    def _class_targets(self, node: ast.AST) -> set[tuple[str, str]]:
+        """Resolve source-known class values through joined binding knowledge."""
+        if isinstance(node, ast.Name):
+            knowledge = self._binding_knowledge(node.id)
+            targets = self._class_targets_from_knowledge(knowledge)
+            if (
+                not targets
+                and not knowledge.known_possible_targets
+                and not knowledge.possible_unknown
+            ):
+                targets.update(
+                    (self.module, symbol) for symbol in self._local_class_symbols(node.id)
+                )
+            return targets
+
+        if not isinstance(node, ast.Attribute):
+            return set()
+        parts = self._dotted_name(node)
+        if len(parts) < 2:
+            return set()
+        first, suffix = parts[0], parts[1:]
+        knowledge = self._binding_knowledge(first)
+        targets: set[tuple[str, str]] = set()
+        for module, class_name in self._class_targets_from_knowledge(knowledge):
+            symbol = ".".join([class_name, *suffix])
+            if (module, symbol) in self.class_index:
+                targets.add((module, symbol))
+
+        for imported in knowledge.targets_for("import"):
+            if imported.symbol is not None:
+                symbol = ".".join([imported.symbol, *suffix])
+                if (imported.module, symbol) in self.class_index:
+                    targets.add((imported.module, symbol))
+                exported = self.external_module_exports.get(imported.module, {}).get(symbol)
+                if exported is not None:
+                    targets.update(self._class_targets_from_knowledge(exported))
+                if suffix:
+                    candidate_module = ".".join(
+                        [imported.module, imported.symbol, *suffix[:-1]]
+                    )
+                    resolved_module = _nearest_known_module(
+                        candidate_module, self.module_names
+                    )
+                    if resolved_module:
+                        candidate_symbol = suffix[-1]
+                        if (resolved_module, candidate_symbol) in self.class_index:
+                            targets.add((resolved_module, candidate_symbol))
+                        exported = self.external_module_exports.get(
+                            resolved_module, {}
+                        ).get(candidate_symbol)
+                        if exported is not None:
+                            targets.update(self._class_targets_from_knowledge(exported))
+            elif suffix:
+                candidate_module = ".".join([imported.module, *suffix[:-1]])
+                resolved_module = _nearest_known_module(candidate_module, self.module_names)
+                if resolved_module:
+                    candidate_symbol = suffix[-1]
+                    if (resolved_module, candidate_symbol) in self.class_index:
+                        targets.add((resolved_module, candidate_symbol))
+                    exported = self.external_module_exports.get(resolved_module, {}).get(
+                        candidate_symbol
+                    )
+                    if exported is not None:
+                        targets.update(self._class_targets_from_knowledge(exported))
+
+        if not targets and not knowledge.known_possible_targets and not knowledge.possible_unknown:
+            for class_symbol in self._local_class_symbols(first):
+                symbol = ".".join([class_symbol, *suffix])
+                if (self.module, symbol) in self.class_index:
+                    targets.add((self.module, symbol))
+            candidate_module = ".".join(parts[:-1])
+            resolved_module = _nearest_known_module(candidate_module, self.module_names)
+            if resolved_module:
+                candidate_symbol = parts[-1]
+                if (resolved_module, candidate_symbol) in self.class_index:
+                    targets.add((resolved_module, candidate_symbol))
+                exported = self.external_module_exports.get(resolved_module, {}).get(
+                    candidate_symbol
+                )
+                if exported is not None:
+                    targets.update(self._class_targets_from_knowledge(exported))
+        return targets
+
+    def _instance_class_targets(self, node: ast.AST) -> set[tuple[str, str]]:
+        """Resolve instances produced by source class calls or joined aliases."""
+        if isinstance(node, ast.Name):
+            targets = self._binding_knowledge(node.id).targets_for("instance")
+        elif isinstance(node, ast.Call):
+            return self._class_targets(node.func)
+        else:
+            targets = self._knowledge_for_expression(node).targets_for("instance")
+        return {
+            class_target
+            for target in targets
+            if (class_target := self._instance_class_target(target)) is not None
+        }
+
+    def _class_member_knowledge(
+        self,
+        class_targets: set[tuple[str, str]],
+        member: str,
+        seen: frozenset[tuple[str, str, str]] = frozenset(),
+    ) -> _BindingKnowledge:
+        """Join complete member bindings, including source base-class members."""
+        knowledge = _BindingKnowledge()
+        found = False
+        for module, class_name in class_targets:
+            key = (module, class_name, member)
+            if key in seen:
+                knowledge = knowledge.join(_BindingKnowledge(possible_unknown=True))
+                continue
+            members = (
+                self.class_member_bindings
+                if module == self.module
+                else self.external_class_exports.get(module, {})
+            ).get(class_name, {})
+            member_knowledge = members.get(member)
+            if member_knowledge is not None:
+                invocation = self._callable_targets_for_knowledge(member_knowledge)
+                if not invocation.known_possible_targets:
+                    direct_methods = self._indexed_source_method_targets(
+                        (module, class_name), member
+                    )
+                    if direct_methods:
+                        member_knowledge = member_knowledge.join(
+                            _BindingKnowledge(
+                                frozenset(
+                                    _BindingTarget("callable", *reference)
+                                    for reference in direct_methods
+                                )
+                            )
+                        )
+                knowledge = knowledge.join(member_knowledge)
+                found = True
+                continue
+            direct_methods = self._indexed_source_method_targets(
+                (module, class_name), member
+            )
+            if direct_methods:
+                knowledge = knowledge.join(
+                    _BindingKnowledge(
+                        frozenset(
+                            _BindingTarget("callable", *reference)
+                            for reference in direct_methods
+                        )
+                    )
+                )
+                found = True
+                continue
+            bases = self.source_class_bases.get((module, class_name), set())
+            if bases:
+                inherited = self._class_member_knowledge(
+                    bases, member, seen | {key}
+                )
+                knowledge = knowledge.join(inherited)
+                found = found or bool(inherited.known_possible_targets)
+                continue
+            if module in self.module_names:
+                knowledge = knowledge.join(_BindingKnowledge(possible_unknown=True))
+        if class_targets and not found and not knowledge.possible_unknown:
+            return _BindingKnowledge(possible_unknown=True)
+        return knowledge
+
+    def _callable_targets_for_knowledge(
+        self,
+        knowledge: _BindingKnowledge,
+        seen: frozenset[tuple[str, str, str]] = frozenset(),
+    ) -> _BindingKnowledge:
+        """Derive callable source targets without dropping any possible value."""
+        callable_targets: set[_BindingTarget] = set()
+        possible_unknown = knowledge.possible_unknown
+        for target in knowledge.known_possible_targets:
+            if target.kind == "callable":
+                callable_targets.add(target)
+                continue
+            if target.kind == "source_call":
+                callable_targets.add(
+                    _BindingTarget(
+                        "callable", target.module, target.symbol, target.line, target.column
+                    )
+                )
+                possible_unknown = True
+                continue
+            if target.kind == "import":
+                imported_classes = self._class_targets_from_knowledge(
+                    _BindingKnowledge(frozenset({target}))
+                )
+                if imported_classes:
+                    invocation = self._callable_targets_for_knowledge(
+                        _BindingKnowledge(
+                            frozenset(
+                                _BindingTarget("class", module, class_name)
+                                for module, class_name in imported_classes
+                            )
+                        ),
+                        seen,
+                    )
+                    callable_targets.update(invocation.known_possible_targets)
+                    possible_unknown = possible_unknown or invocation.possible_unknown
+                    continue
+                resolved = self._targets_from_import(target.module, target.symbol, ())
+                callable_targets.update(
+                    _BindingTarget("callable", module, symbol, line, column)
+                    for module, symbol, line, column in resolved
+                )
+                if not resolved and target.module in self.module_names:
+                    possible_unknown = True
+                continue
+            if target.kind == "class" and target.symbol is not None:
+                class_key = (target.module, target.symbol, "<call>")
+                if class_key in seen:
+                    possible_unknown = True
+                    continue
+                class_targets = {(target.module, target.symbol)}
+                constructors = self._class_member_knowledge(
+                    class_targets, "__new__", seen | {class_key}
+                ).join(
+                    self._class_member_knowledge(
+                        class_targets, "__init__", seen | {class_key}
+                    )
+                )
+                invocation = self._callable_targets_for_knowledge(
+                    constructors, seen | {class_key}
+                )
+                callable_targets.update(invocation.known_possible_targets)
+                possible_unknown = possible_unknown or invocation.possible_unknown
+                if not constructors.known_possible_targets and not constructors.possible_unknown:
+                    callable_targets.add(
+                        _BindingTarget("class_call", target.module, target.symbol)
+                    )
+                continue
+            if target.kind == "instance" and target.symbol is not None:
+                instance_class = self._instance_class_target(target)
+                if instance_class is None:
+                    possible_unknown = True
+                    continue
+                class_key = (*instance_class, "__call__")
+                if class_key in seen:
+                    possible_unknown = True
+                    continue
+                method_targets, method_incomplete = self._source_method_targets_for_class(
+                    instance_class, "__call__"
+                )
+                callable_targets.update(
+                    _BindingTarget("callable", *reference)
+                    for reference in method_targets
+                )
+                possible_unknown = possible_unknown or method_incomplete
+                if not method_targets:
+                    # A source class with no resolved __call__ can still be an
+                    # unsupported callable through an unmodeled base/runtime hook.
+                    possible_unknown = True
+                continue
+            possible_unknown = True
+        return _BindingKnowledge(
+            frozenset(callable_targets),
+            possible_unknown,
+            knowledge.source_value_origins,
+        )
+
+    def _class_method_targets(
+        self,
+        class_targets: set[tuple[str, str]],
+        member: str,
+    ) -> set[tuple[str, str, int, int]]:
+        knowledge = self._class_member_knowledge(class_targets, member)
+        invocation = self._callable_targets_for_knowledge(knowledge)
+        targets = {
+            (target.module, target.symbol or "", target.line, target.column)
+            for target in invocation.known_possible_targets
+            if target.kind == "callable"
+        }
+        for class_target in class_targets:
+            source_targets, _unresolved = self._source_method_targets_for_class(
+                class_target, member
+            )
+            targets.update(source_targets)
+        return targets
+
+    def _enclosing_class(self, callable_name: str) -> str | None:
+        parts = callable_name.split(".")
+        for length in range(len(parts) - 1, 0, -1):
+            candidate = ".".join(parts[:length])
+            if candidate in self.classes:
+                return candidate
+        return None
+
+    def _targets_from_import(
+        self,
+        imported_module: str,
+        imported_symbol: str | None,
+        suffix: Sequence[str],
+    ) -> set[tuple[str, str, int, int]]:
+        if imported_symbol is not None:
+            symbol = ".".join([imported_symbol, *suffix]) if suffix else imported_symbol
+            if not suffix:
+                exported = self.external_module_exports.get(imported_module, {}).get(symbol)
+                if exported is not None:
+                    invocation = self._callable_targets_for_knowledge(exported)
+                    return {
+                        (target.module, target.symbol or "", target.line, target.column)
+                        for target in invocation.known_possible_targets
+                        if target.kind == "callable"
+                    }
+            return self._callable_in_module(imported_module, symbol)
+        if not suffix:
+            return set()
+        module_candidate = ".".join([imported_module, *suffix[:-1]])
+        resolved_module = _nearest_known_module(module_candidate, self.module_names)
+        if resolved_module is None:
+            return set()
+        exported = self.external_module_exports.get(resolved_module, {}).get(suffix[-1])
+        if exported is not None:
+            invocation = self._callable_targets_for_knowledge(exported)
+            return {
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in invocation.known_possible_targets
+                if target.kind == "callable"
+            }
+        return self._callable_in_module(resolved_module, suffix[-1])
+
+    def _callable_target(self, node: ast.AST) -> set[tuple[str, str, int, int]]:
+        targets: set[tuple[str, str, int, int]] = set()
+        if isinstance(node, ast.Call):
+            invocation = self._callable_targets_for_knowledge(
+                self._knowledge_for_expression(node)
+            )
+            return {
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in invocation.known_possible_targets
+                if target.kind == "callable"
+            }
+        if isinstance(node, ast.Attribute):
+            receiver_classes = self._instance_class_targets(node.value)
+            receiver_classes.update(self._class_targets(node.value))
+            targets.update(self._class_method_targets(receiver_classes, node.attr))
+        parts = self._dotted_name(node)
+        if not parts:
+            return targets
+        if len(parts) == 1:
+            name = parts[0]
+            knowledge = self._binding_knowledge(name)
+            invocation = self._callable_targets_for_knowledge(knowledge)
+            targets.update(
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in invocation.known_possible_targets
+                if target.kind == "callable"
+            )
+            for imported in knowledge.targets_for("import"):
+                targets.update(
+                    self._targets_from_import(imported.module, imported.symbol, ())
+                )
+            if (
+                not targets
+                and not knowledge.targets_for("import")
+                and not knowledge.possible_unknown
+            ):
+                targets.update(self._local_callable_targets(name))
+            return targets
+
+        first = parts[0]
+        suffix = parts[1:]
+        knowledge = self._binding_knowledge(first)
+        for target in knowledge.targets_for("callable"):
+            if len(suffix) == 1:
+                targets.update(
+                    self._callable_in_module(
+                        target.module, f"{target.symbol}.{suffix[0]}"
+                    )
+                )
+        for imported in knowledge.targets_for("import"):
+            targets.update(
+                self._targets_from_import(imported.module, imported.symbol, suffix)
+            )
+        if (
+            not targets
+            and not knowledge.targets_for("import")
+            and not knowledge.possible_unknown
+        ):
+            for class_symbol in self._local_class_symbols(first):
+                targets.update(
+                    self._callable_in_module(
+                        self.module,
+                        f"{class_symbol}.{'.'.join(suffix)}",
+                    )
+                )
+            module_candidate = ".".join(parts[:-1])
+            resolved_module = _nearest_known_module(module_candidate, self.module_names)
+            if resolved_module is not None:
+                targets.update(self._callable_in_module(resolved_module, parts[-1]))
+        return targets
+
+    def _callable_in_module(self, module: str, symbol: str) -> set[tuple[str, str, int, int]]:
+        if module == self.module:
+            if "." in symbol:
+                class_name, _, member = symbol.rpartition(".")
+                knowledge = self.class_member_bindings.get(class_name, {}).get(member)
+                if knowledge is not None:
+                    invocation = self._callable_targets_for_knowledge(knowledge)
+                    return {
+                        (target.module, target.symbol or "", target.line, target.column)
+                        for target in invocation.known_possible_targets
+                        if target.kind == "callable"
+                    }
+            else:
+                targets = self.callable_aliases.get(symbol)
+                if targets:
+                    return set(targets)
+            direct = {reference for reference in self.functions if reference[1] == symbol}
+            if direct:
+                return direct
+            constructor = f"{symbol}.__init__"
+            return {reference for reference in self.functions if reference[1] == constructor}
+        if "." in symbol:
+            class_name, _, member = symbol.rpartition(".")
+            knowledge = self.external_class_exports.get(module, {}).get(class_name, {}).get(
+                member
+            )
+            if knowledge is not None:
+                invocation = self._callable_targets_for_knowledge(knowledge)
+                return {
+                    (target.module, target.symbol or "", target.line, target.column)
+                    for target in invocation.known_possible_targets
+                    if target.kind == "callable"
+                }
+        if (module, symbol) in self.callable_index:
+            return {(module, symbol, -1, -1)}
+        constructor = f"{symbol}.__init__"
+        if (module, constructor) in self.callable_index:
+            return {(module, constructor, -1, -1)}
+        return set()
+
+    def _record_targets(self, targets: set[tuple[str, str, int, int]]) -> None:
+        for target in sorted(targets):
+            if target[0] == self.module and target[2] >= 0:
+                self.visit_callable(target)
+            else:
+                self.called.add(target)
+
+    def _record_callable(self, node: ast.AST) -> None:
+        self._record_targets(self._callable_target(node))
+
+    def _record_class_constructors(
+        self,
+        node: ast.AST,
+        call: ast.Call,
+        *,
+        class_targets: set[tuple[str, str]] | None = None,
+        knowledge: _BindingKnowledge | None = None,
+    ) -> None:
+        class_targets = self._class_targets(node) if class_targets is None else class_targets
+        knowledge = self._knowledge_for_expression(node) if knowledge is None else knowledge
+        if class_targets:
+            if knowledge.possible_unknown:
+                constructor_targets = set().union(
+                    *(
+                        self._class_method_targets({(module, class_name)}, method)
+                        for module, class_name in class_targets
+                        for method in ("__new__", "__init__")
+                    )
+                )
+                self._record_dispatch_observation(
+                    call,
+                    receiver_form="Call",
+                    class_targets=class_targets,
+                    callable_targets=constructor_targets,
+                    reasons={"source_possible_unknown_target"},
+                    binding_knowledge=self._observation_knowledge(
+                        knowledge,
+                        class_targets,
+                        constructor_targets,
+                        {"source_possible_unknown_target"},
+                    ),
+                )
+            self.pending_class_constructor_calls.append((call, class_targets))
+        for module, class_name in sorted(class_targets):
+            for method in ("__new__", "__init__"):
+                self._record_targets(
+                    self._class_method_targets({(module, class_name)}, method)
+                )
+
+    def _inherited_source_method_targets(
+        self,
+        class_target: tuple[str, str],
+        method: str,
+        seen: set[tuple[str, str]] | None = None,
+    ) -> set[tuple[str, str, int, int]]:
+        seen = set() if seen is None else seen
+        if class_target in seen:
+            return set()
+        seen.add(class_target)
+        targets: set[tuple[str, str, int, int]] = set()
+        for base in sorted(self.source_class_bases.get(class_target, set())):
+            direct = self._callable_in_module(base[0], f"{base[1]}.{method}")
+            if direct:
+                targets.update(direct)
+            else:
+                targets.update(self._inherited_source_method_targets(base, method, seen))
+        return targets
+
+    def resolve_pending_class_constructor_calls(self) -> bool:
+        pending = self.pending_class_constructor_calls
+        self.pending_class_constructor_calls = []
+        for call, class_targets in pending:
+            inherited_targets: set[tuple[str, str, int, int]] = set()
+            for target in class_targets:
+                for method in ("__new__", "__init__"):
+                    if self._callable_in_module(target[0], f"{target[1]}.{method}"):
+                        continue
+                    inherited_targets.update(
+                        self._inherited_source_method_targets(target, method)
+                    )
+            if not inherited_targets:
+                continue
+            for target in sorted(inherited_targets):
+                self._record_targets({target})
+            self._record_dispatch_observation(
+                call,
+                receiver_form="Call",
+                class_targets=class_targets,
+                callable_targets=inherited_targets,
+                reasons={"source_class_base_constructor_lookup_not_summarized"},
+                binding_knowledge=self._observation_knowledge(
+                    _BindingKnowledge(),
+                    class_targets,
+                    inherited_targets,
+                    {"source_class_base_constructor_lookup_not_summarized"},
+                ),
+            )
+        return bool(pending)
+
+    def visit_Import(self, node: ast.Import) -> None:
+        for alias in node.names:
+            self._record_candidate(alias.name)
+            bound_name = alias.asname or alias.name.split(".")[0]
+            bound_module = alias.name if alias.asname else alias.name.split(".")[0]
+            self._clear_name_bindings({bound_name})
+            self.import_bindings[bound_name] = {(bound_module, None)}
+            if alias.name in {"typing", "typing_extensions"}:
+                self.type_checking_bindings[bound_name] = "typing_module"
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        base = _runtime_relative_import(
+            self.module,
+            node.module,
+            node.level,
+            is_package=self.is_package,
+        )
+        if base:
+            self._record_candidate(base)
+        for alias in node.names:
+            if alias.name == "*":
+                self.type_checking_bindings.clear()
+                continue
+            candidate = f"{base}.{alias.name}" if base else alias.name
+            self._record_candidate(candidate)
+            resolved_candidate = _nearest_known_module(candidate, self.module_names)
+            bound_name = alias.asname or alias.name
+            self._clear_name_bindings({bound_name})
+            if node.module in {"typing", "typing_extensions"} and alias.name == "TYPE_CHECKING":
+                self.type_checking_bindings[bound_name] = "type_checking"
+            if resolved_candidate == candidate:
+                self.import_bindings[bound_name] = {(candidate, None)}
+            else:
+                resolved_base = _nearest_known_module(base, self.module_names) if base else None
+                self.import_bindings[bound_name] = {(resolved_base or base, alias.name)}
+
+    def visit_If(self, node: ast.If) -> None:
+        self.visit(node.test)
+        runtime_branch = _type_checking_runtime_branch(
+            node.test,
+            bindings=self.type_checking_bindings,
+        )
+        if runtime_branch is False:
+            for statement in node.orelse:
+                self.visit(statement)
+            return
+        if runtime_branch is True:
+            for statement in node.body:
+                self.visit(statement)
+            return
+        self._visit_binding_paths((node.body, node.orelse))
+
+    def visit_Match(self, node: ast.Match) -> None:
+        subject_knowledge = self._knowledge_for_expression(node.subject)
+        self.visit(node.subject)
+        base = self._snapshot_bindings()
+        states = [base]
+        for case in node.cases:
+            self._restore_bindings(base)
+            self._bind_pattern_values(
+                case.pattern, node.subject, subject_knowledge=subject_knowledge
+            )
+            if case.guard is not None:
+                self.visit(case.guard)
+            for statement in case.body:
+                self.visit(statement)
+            states.append(self._snapshot_bindings())
+        self._merge_binding_states(states)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call):
+                self._record_callable(decorator)
+            self.visit(decorator)
+        qualified_name = (
+            f"{self.scope_prefix}.{node.name}" if self.scope_prefix else node.name
+        )
+        reference = (self.module, qualified_name, node.lineno, node.col_offset)
+        default_bindings: dict[str, _BindingKnowledge] = {}
+        positional = [*node.args.posonlyargs, *node.args.args]
+        first_default = len(positional) - len(node.args.defaults)
+        for parameter, default in zip(
+            positional[first_default:], node.args.defaults, strict=True
+        ):
+            default_bindings[parameter.arg] = self._knowledge_for_expression(default)
+            self.visit(default)
+        for parameter, default in zip(
+            node.args.kwonlyargs, node.args.kw_defaults, strict=True
+        ):
+            if default is not None:
+                default_bindings[parameter.arg] = self._knowledge_for_expression(default)
+                self.visit(default)
+        if default_bindings:
+            previous_defaults = self.function_default_bindings.get(reference, {})
+            joined_defaults = dict(previous_defaults)
+            for parameter, knowledge in default_bindings.items():
+                joined_defaults[parameter] = joined_defaults.get(
+                    parameter, _BindingKnowledge()
+                ).join(knowledge)
+            self.function_default_bindings[reference] = joined_defaults
+        if not self.future_annotations:
+            annotation_arguments = [
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+            ]
+            if node.args.vararg is not None:
+                annotation_arguments.append(node.args.vararg)
+            if node.args.kwarg is not None:
+                annotation_arguments.append(node.args.kwarg)
+            for argument in annotation_arguments:
+                if argument.annotation is not None:
+                    self.visit(argument.annotation)
+            if node.returns is not None:
+                self.visit(node.returns)
+        self._clear_name_bindings({node.name})
+        self.callable_aliases[node.name] = {
+            (self.module, qualified_name, node.lineno, node.col_offset)
+        }
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_AsyncFunctionDef = visit_FunctionDef  # noqa: N815
+
+    def visit_Lambda(self, node: ast.Lambda) -> None:
+        defaults = [*node.args.defaults, *(item for item in node.args.kw_defaults if item)]
+        for default in defaults:
+            self.visit(default)
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        saved_bindings = self._snapshot_bindings()
+        saved_scope_kind = self.scope_kind
+        saved_scope_prefix = self.scope_prefix
+        saved_class_context = self.class_context
+        base_targets: set[tuple[str, str]] = set()
+        unknown_base = False
+        metaclass_knowledge: _BindingKnowledge | None = None
+        for decorator in node.decorator_list:
+            if not isinstance(decorator, ast.Call):
+                self._record_callable(decorator)
+            self.visit(decorator)
+        for base in node.bases:
+            self.visit(base)
+            resolved_bases = self._class_targets(base)
+            base_targets.update(resolved_bases)
+            if not resolved_bases and not self._is_known_builtin_class_expression(base):
+                unknown_base = True
+        for keyword in node.keywords:
+            if keyword.arg == "metaclass":
+                if self._known_builtin_symbol(keyword.value) != "type":
+                    metaclass_knowledge = self._knowledge_for_expression(keyword.value)
+                self._record_callable(keyword.value)
+            self.visit(keyword.value)
+        qualified_name = f"{self.scope_prefix}.{node.name}" if self.scope_prefix else node.name
+        class_target = (self.module, qualified_name)
+        if unknown_base:
+            self.source_class_base_unknown.add(class_target)
+        if metaclass_knowledge is not None:
+            self.source_class_metaclasses[class_target] = (
+                self.source_class_metaclasses.get(class_target, _BindingKnowledge()).join(
+                    metaclass_knowledge
+                )
+            )
+        if base_targets:
+            self.source_class_bases.setdefault((self.module, qualified_name), set()).update(
+                base_targets
+            )
+        class_global_writes = _global_writes_in_statements(node.body)
+        class_scope_collector = _FunctionBindingCollector()
+        for statement in node.body:
+            class_scope_collector.visit(statement)
+        class_bound_names = class_scope_collector.bound - class_global_writes
+        self.scope_prefix = qualified_name
+        self.scope_kind = "class"
+        self.class_context = qualified_name
+        self.function_local_names_stack.append(class_bound_names)
+        self.global_effect_frames.append({})
+        for statement in node.body:
+            self.visit(statement)
+        class_bindings = self._snapshot_bindings()
+        class_effects = dict(class_bindings[5][-1])
+        for global_name in class_global_writes:
+            class_effects[global_name] = (
+                class_bindings[0].get(global_name, _BindingKnowledge()),
+                class_bindings[1].get(global_name),
+            )
+        self._restore_bindings(saved_bindings)
+        self.function_local_names_stack.pop()
+        self.owner_member_bindings = {
+            owner: members.copy() for owner, members in class_bindings[3].items()
+        }
+        self.owner_member_wildcard_overrides = {
+            owner: members.copy() for owner, members in class_bindings[4].items()
+        }
+        self.scope_kind = saved_scope_kind
+        self.scope_prefix = saved_scope_prefix
+        self.class_context = saved_class_context
+        self._clear_name_bindings({node.name} | class_global_writes)
+        (
+            class_knowledge,
+            _class_type_checking,
+            _class_member_exports,
+            _class_owner_members,
+            _class_wildcard_overrides,
+            _class_global_effect_frames,
+        ) = class_bindings
+        self.class_member_bindings[qualified_name] = {
+            name: knowledge
+            for name, knowledge in class_knowledge.items()
+            if name in class_bound_names
+        }
+        constructor_targets = self._callable_in_module(
+            self.module, f"{qualified_name}.__init__"
+        )
+        class_knowledge = _BindingKnowledge(
+            frozenset(
+                {
+                    _BindingTarget("class", self.module, qualified_name),
+                    *(
+                        _BindingTarget("callable", module, symbol, line, column)
+                        for module, symbol, line, column in constructor_targets
+                    ),
+                }
+            )
+        )
+        self._write_binding_knowledge(node.name, class_knowledge)
+        caller_locals = (
+            self.function_local_names_stack[-1] if self.function_local_names_stack else set()
+        )
+        for global_name, effect in class_effects.items():
+            self._apply_global_effect(global_name, effect, shadowed_names=caller_locals)
+
+    def _bind_knowledge_to_names(
+        self, names: set[str], knowledge: _BindingKnowledge
+    ) -> None:
+        """Write one complete binding lattice through the shared assignment sink."""
+        self._clear_name_bindings(names)
+        for name in names:
+            self._write_binding_knowledge(name, knowledge)
+
+    def _bind_pattern_values(
+        self,
+        pattern: ast.pattern,
+        subject: ast.AST,
+        *,
+        subject_knowledge: _BindingKnowledge | None = None,
+    ) -> None:
+        """Carry subject provenance into captures without inventing element types."""
+        names = _pattern_binding_names(pattern)
+        if not names:
+            return
+        if subject_knowledge is None:
+            subject_knowledge = self._knowledge_for_expression(subject)
+        self._bind_unknown(
+            names, source_value_origins=subject_knowledge.source_value_origins
+        )
+        # A top-level MatchAs captures the subject itself. Nested captures may
+        # select an element or attribute, so retain provenance but not its type.
+        if isinstance(pattern, ast.MatchAs) and pattern.name:
+            self._bind_knowledge_to_names({pattern.name}, subject_knowledge)
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        knowledge = self._knowledge_for_expression(node.value)
+        self.visit(node.value)
+        for target in node.targets:
+            self.visit(target)
+            self._bind_target_knowledge(target, knowledge)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        knowledge = (
+            self._knowledge_for_expression(node.value) if node.value is not None else None
+        )
+        self.visit(node.target)
+        if self.scope_kind != "function" and not self.future_annotations:
+            self.visit(node.annotation)
+        if node.value is not None:
+            self.visit(node.value)
+        if knowledge is None:
+            self._bind_unknown(_binding_names(node.target))
+        else:
+            self._bind_target_knowledge(node.target, knowledge)
+
+    def visit_AugAssign(self, node: ast.AugAssign) -> None:
+        origins = self._source_value_origins_for_expression(node.target)
+        origins.update(self._source_value_origins_for_expression(node.value))
+        self.visit(node.target)
+        self.visit(node.value)
+        self._bind_unknown_target(node.target, origins)
+
+    def _storage_targets(self, target: ast.AST) -> list[ast.AST]:
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return [
+                stored
+                for item in target.elts
+                for stored in self._storage_targets(item)
+            ]
+        if isinstance(target, ast.Starred):
+            return self._storage_targets(target.value)
+        return [target] if isinstance(target, (ast.Attribute, ast.Subscript)) else []
+
+    def _storage_member_name(self, target: ast.AST) -> str | None:
+        if isinstance(target, ast.Attribute):
+            return f"attr:{target.attr}"
+        if isinstance(target, ast.Subscript) and isinstance(target.slice, ast.Constant):
+            value = target.slice.value
+            if value is None or isinstance(value, (bool, int, str, bytes)):
+                return f"sub:{type(value).__name__}:{value!r}"
+        return None
+
+    def _record_unresolved_storage(
+        self, target: ast.AST, origins: Iterable[_BindingTarget]
+    ) -> None:
+        self._record_dispatch_observation(
+            target,
+            receiver_form="BindingTarget",
+            class_targets=set(),
+            callable_targets=set(),
+            reasons={"source_derived_binding_target_not_summarized"},
+            binding_knowledge=_BindingKnowledge(
+                possible_unknown=True,
+                source_value_origins=frozenset(origins),
+            ),
+            record_unresolved_value=True,
+        )
+
+    def _apply_owner_member_effect(
+        self,
+        node: ast.AST,
+        owner_knowledge: _BindingKnowledge,
+        member: str | None,
+        value_knowledge: _BindingKnowledge,
+        *,
+        must_apply: bool,
+    ) -> None:
+        """Transfer one possible/guaranteed write without erasing prior origins."""
+        owners, owner_incomplete = self._owner_targets_for_knowledge(owner_knowledge)
+        origins = set(owner_knowledge.source_value_origins)
+        origins.update(value_knowledge.source_value_origins)
+        effect_is_exact = (
+            must_apply
+            and not owner_incomplete
+            and len(owners) == 1
+            and member is not None
+        )
+
+        # Exact owner/key state can retain a possible effect without producing a
+        # premature gate finding: a later source-member read observes the joined
+        # value. Untrackable owners and dynamic keys need an explicit observation.
+        exact_builtin_dict_storage = (
+            owner_knowledge.builtin_value_kinds == frozenset({"dict"})
+            and not owner_knowledge.possible_unknown
+            and member is not None
+            and member.startswith("sub:")
+        )
+        if origins and (not owners or owner_incomplete or member is None) and not exact_builtin_dict_storage:
+            self._record_unresolved_storage(node, origins)
+
+        effect_knowledge = (
+            value_knowledge
+            if effect_is_exact
+            else value_knowledge.join(_BindingKnowledge(possible_unknown=True))
+        )
+        for owner in owners:
+            member_map = self.owner_member_bindings.setdefault(owner, {})
+            if member is None:
+                member_map["*"] = member_map.get("*", _BindingKnowledge()).join(
+                    effect_knowledge
+                )
+                self.owner_member_wildcard_overrides.pop(owner, None)
+            elif effect_is_exact:
+                member_map[member] = effect_knowledge
+                self.owner_member_wildcard_overrides.setdefault(owner, set()).add(
+                    member
+                )
+            else:
+                prior, _found = self._owner_member_knowledge({owner}, member)
+                member_map[member] = prior.join(effect_knowledge)
+
+    def _bind_target_knowledge(
+        self,
+        target: ast.AST,
+        knowledge: _BindingKnowledge,
+        *,
+        member_effect_must_apply: bool = True,
+    ) -> None:
+        """Write lexical bindings and transfer the complete owner/member effect."""
+        names = _binding_names(target)
+        if names:
+            self._bind_knowledge_to_names(names, knowledge)
+
+        for owner_name in _binding_target_owner_names(target):
+            owner_knowledge = self._binding_knowledge(owner_name).join(
+                _BindingKnowledge(
+                    source_value_origins=knowledge.source_value_origins
+                )
+            )
+            self._bind_knowledge_to_names({owner_name}, owner_knowledge)
+
+        storage_targets = self._storage_targets(target)
+        unpacked = isinstance(target, (ast.Tuple, ast.List, ast.Starred))
+        for stored in storage_targets:
+            owner_expression = stored.value
+            owner_knowledge = self._knowledge_for_expression(owner_expression)
+            stored_knowledge = (
+                _BindingKnowledge(
+                    possible_unknown=True,
+                    source_value_origins=knowledge.source_value_origins,
+                )
+                if unpacked
+                else knowledge
+            )
+            self._apply_owner_member_effect(
+                stored,
+                owner_knowledge,
+                self._storage_member_name(stored),
+                stored_knowledge,
+                must_apply=member_effect_must_apply,
+            )
+
+    def _bind_unknown_target(
+        self,
+        target: ast.AST,
+        source_value_origins: Iterable[_BindingTarget] = (),
+        *,
+        member_effect_must_apply: bool = True,
+    ) -> None:
+        """Bind unknown values while retaining whether the member write is certain."""
+        self._bind_target_knowledge(
+            target,
+            _BindingKnowledge(
+                possible_unknown=True,
+                source_value_origins=frozenset(source_value_origins),
+            ),
+            member_effect_must_apply=member_effect_must_apply,
+        )
+
+    def _bind_unknown(
+        self,
+        names: set[str],
+        *,
+        source_value_origins: Iterable[_BindingTarget] = (),
+    ) -> None:
+        self._bind_knowledge_to_names(
+            names,
+            _BindingKnowledge(
+                possible_unknown=True,
+                source_value_origins=frozenset(source_value_origins),
+            ),
+        )
+
+    def visit_NamedExpr(self, node: ast.NamedExpr) -> None:
+        knowledge = self._knowledge_for_expression(node.value)
+        self.visit(node.value)
+        self._bind_target_knowledge(node.target, knowledge)
+
+    def visit_Delete(self, node: ast.Delete) -> None:
+        for target in node.targets:
+            origins = self._source_value_origins_for_expression(target)
+            self._bind_unknown_target(target, origins)
+            self.visit(target)
+
+    def visit_For(self, node: ast.For) -> None:
+        iter_knowledge = self._knowledge_for_expression(node.iter)
+        self.visit(node.iter)
+        self._bind_target_knowledge(
+            node.target,
+            _BindingKnowledge(
+                possible_unknown=True,
+                source_value_origins=iter_knowledge.source_value_origins,
+                builtin_value_kinds=self._iterated_builtin_value_kinds(iter_knowledge),
+            ),
+            member_effect_must_apply=False,
+        )
+        self._visit_binding_paths(((), (*node.body, *node.orelse)))
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_AsyncFor = visit_For  # noqa: N815
+
+    def visit_While(self, node: ast.While) -> None:
+        self.visit(node.test)
+        self._visit_binding_paths(((), (*node.body, *node.orelse)))
+
+    def visit_Try(self, node: ast.Try) -> None:
+        base = self._snapshot_bindings()
+        states = []
+        self._restore_bindings(base)
+        for statement in (*node.body, *node.orelse, *node.finalbody):
+            self.visit(statement)
+        states.append(self._snapshot_bindings())
+        for handler in node.handlers:
+            self._restore_bindings(base)
+            handler_origins = (
+                self._source_value_origins_for_expression(handler.type)
+                if handler.type is not None
+                else set()
+            )
+            if handler.type is not None:
+                self.visit(handler.type)
+            if handler.name:
+                self._bind_unknown(
+                    {handler.name}, source_value_origins=handler_origins
+                )
+            for statement in (*handler.body, *node.finalbody):
+                self.visit(statement)
+            if handler.name:
+                self._bind_unknown({handler.name})
+            states.append(self._snapshot_bindings())
+        self._merge_binding_states(states)
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_TryStar = visit_Try  # noqa: N815
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+        handler_origins = (
+            self._source_value_origins_for_expression(node.type)
+            if node.type is not None
+            else set()
+        )
+        if node.type is not None:
+            self.visit(node.type)
+        if node.name:
+            self._bind_unknown(
+                {node.name}, source_value_origins=handler_origins
+            )
+        for statement in node.body:
+            self.visit(statement)
+        if node.name:
+            self._bind_unknown({node.name})
+
+    def visit_With(self, node: ast.With) -> None:
+        for item in node.items:
+            context_origins = self._source_value_origins_for_expression(
+                item.context_expr
+            )
+            self.visit(item.context_expr)
+            if item.optional_vars is not None:
+                self._bind_unknown_target(item.optional_vars, context_origins)
+        for statement in node.body:
+            self.visit(statement)
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_AsyncWith = visit_With  # noqa: N815
+
+    def _visit_comprehension(
+        self, node: ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp
+    ) -> None:
+        generators = node.generators
+        target_names = set().union(
+            *(_binding_names(generator.target) for generator in generators)
+        ) if generators else set()
+        previous_bindings = self._binding_knowledge_snapshot()
+        previous_type_bindings = self.type_checking_bindings.copy()
+        try:
+            for generator in generators:
+                iter_knowledge = self._knowledge_for_expression(generator.iter)
+                self.visit(generator.iter)
+                self._bind_target_knowledge(
+                    generator.target,
+                    _BindingKnowledge(
+                        possible_unknown=True,
+                        source_value_origins=iter_knowledge.source_value_origins,
+                        builtin_value_kinds=self._iterated_builtin_value_kinds(
+                            iter_knowledge
+                        ),
+                    ),
+                    member_effect_must_apply=False,
+                )
+                for condition in generator.ifs:
+                    self.visit(condition)
+            if isinstance(node, ast.DictComp):
+                self.visit(node.key)
+                self.visit(node.value)
+            else:
+                self.visit(node.elt)
+        finally:
+            for name in target_names:
+                self._clear_name_bindings({name})
+                if name in previous_bindings:
+                    self._write_binding_knowledge(name, previous_bindings[name])
+                if name in previous_type_bindings:
+                    self.type_checking_bindings[name] = previous_type_bindings[name]
+
+    def visit_ListComp(self, node: ast.ListComp) -> None:
+        self._visit_comprehension(node)
+
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_SetComp = visit_ListComp  # noqa: N815
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_DictComp = visit_ListComp  # noqa: N815
+    # ast.NodeVisitor requires these exact protocol spellings.
+    visit_GeneratorExp = visit_ListComp  # noqa: N815
+
+    def _known_builtin_symbol(self, node: ast.AST) -> str | None:
+        """Resolve an unshadowed builtin or an exact ``builtins`` import."""
+        if isinstance(node, ast.Name):
+            knowledge = self._binding_knowledge(node.id)
+            if knowledge.possible_unknown or knowledge.source_value_origins:
+                return None
+            imports = knowledge.targets_for("import")
+            if imports:
+                if len(imports) == 1:
+                    imported = next(iter(imports))
+                    if imported.module == "builtins" and imported.symbol is not None:
+                        return imported.symbol
+                return None
+            return node.id if not knowledge.known_possible_targets else None
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            knowledge = self._binding_knowledge(node.value.id)
+            imports = knowledge.targets_for("import")
+            if (
+                not knowledge.possible_unknown
+                and not knowledge.source_value_origins
+                and len(imports) == 1
+                and next(iter(imports)).module == "builtins"
+                and next(iter(imports)).symbol is None
+            ):
+                return node.attr
+        return None
+
+    def _is_known_builtin_class_expression(self, node: ast.AST) -> bool:
+        """Return whether an expression resolves to a real builtin class object."""
+        symbol = self._known_builtin_symbol(node)
+        return symbol is not None and isinstance(getattr(builtins, symbol, None), type)
+
+    def _effective_metaclass_knowledge(
+        self,
+        class_target: tuple[str, str],
+        seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> _BindingKnowledge:
+        """Resolve a source class's inherited metaclass without using syntax presence."""
+        if class_target in seen:
+            return _BindingKnowledge(possible_unknown=True)
+        explicit = self.source_class_metaclasses.get(class_target)
+        if explicit is not None:
+            if class_target in self.source_class_base_unknown:
+                return explicit.join(_BindingKnowledge(possible_unknown=True))
+            return explicit
+        if class_target in self.source_class_base_unknown:
+            inherited = _BindingKnowledge()
+            for base in sorted(self.source_class_bases.get(class_target, set())):
+                inherited = inherited.join(
+                    self._effective_metaclass_knowledge(base, seen | {class_target})
+                )
+            return inherited.join(_BindingKnowledge(possible_unknown=True))
+        bases = self.source_class_bases.get(class_target, set())
+        if not bases:
+            if class_target not in self.class_index:
+                return _BindingKnowledge(possible_unknown=True)
+            return _BindingKnowledge(builtin_value_kinds=frozenset({"type"}))
+
+        inherited = _BindingKnowledge()
+        for base in sorted(bases):
+            inherited = inherited.join(
+                self._effective_metaclass_knowledge(base, seen | {class_target})
+            )
+        candidates = self._class_targets_from_knowledge(inherited)
+        if not candidates:
+            if (
+                inherited.builtin_value_kinds == frozenset({"type"})
+                and not inherited.possible_unknown
+            ):
+                return inherited
+            return inherited.join(_BindingKnowledge(possible_unknown=True))
+        most_derived = {
+            candidate
+            for candidate in candidates
+            if all(
+                candidate == other or self._source_class_is_subclass(candidate, other)
+                for other in candidates
+            )
+        }
+        if len(most_derived) != 1:
+            return inherited.join(_BindingKnowledge(possible_unknown=True))
+        selected = next(iter(most_derived))
+        return _BindingKnowledge(
+            frozenset({_BindingTarget("class", *selected)}),
+            inherited.possible_unknown,
+            inherited.source_value_origins,
+        )
+
+    def _indexed_source_method_targets(
+        self, class_target: tuple[str, str], member: str
+    ) -> set[tuple[str, str, int, int]]:
+        """Return all source definitions with this class-member identity."""
+        module, class_name = class_target
+        qualified_name = f"{class_name}.{member}"
+        return {
+            reference
+            for reference in self.source_functions
+            if reference[0] == module and reference[1] == qualified_name
+        }
+
+    def _source_method_targets_for_class(
+        self,
+        class_target: tuple[str, str],
+        member: str,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> tuple[set[tuple[str, str, int, int]], bool]:
+        """Resolve a source method through its complete source-base lineage."""
+        if class_target in seen:
+            return set(), True
+        module, class_name = class_target
+        members = (
+            self.class_member_bindings
+            if module == self.module
+            else self.external_class_exports.get(module, {})
+        ).get(class_name, {})
+        member_knowledge = members.get(member)
+        if member_knowledge is not None:
+            invocation = self._callable_targets_for_knowledge(member_knowledge)
+            targets = {
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in invocation.known_possible_targets
+                if target.kind == "callable"
+            }
+            if not targets:
+                targets.update(self._indexed_source_method_targets(class_target, member))
+            return targets, invocation.possible_unknown or not bool(targets)
+
+        indexed = self._indexed_source_method_targets(class_target, member)
+        if indexed:
+            return indexed, False
+        direct = self._callable_in_module(module, f"{class_name}.{member}")
+        if direct:
+            return direct, False
+        if class_target in self.source_class_base_unknown:
+            return set(), True
+        bases = self.source_class_bases.get(class_target, set())
+        if not bases:
+            return set(), class_target not in self.class_index
+
+        targets: set[tuple[str, str, int, int]] = set()
+        unresolved = False
+        for base in sorted(bases):
+            inherited, incomplete = self._source_method_targets_for_class(
+                base, member, seen | {class_target}
+            )
+            targets.update(inherited)
+            unresolved = unresolved or incomplete
+        return targets, unresolved
+
+    def _function_returns_exact_builtin_strings(
+        self, reference: tuple[str, str, int, int]
+    ) -> bool:
+        """Prove a hook returns only literal, exact builtin strings on all returns."""
+        function = self.source_functions.get(reference)
+        if function is None or function.decorator_list or not function.body:
+            return False
+        if not isinstance(function.body[-1], ast.Return):
+            return False
+        return_nodes: list[ast.Return] = []
+
+        class _Returns(ast.NodeVisitor):
+            def visit_Return(self, node: ast.Return) -> None:
+                return_nodes.append(node)
+
+            def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+                if node is function:
+                    for statement in node.body:
+                        self.visit(statement)
+
+            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+                if node is function:
+                    for statement in node.body:
+                        self.visit(statement)
+
+            def visit_ClassDef(self, node: ast.ClassDef) -> None:
+                return
+
+        _Returns().visit(function)
+        if not return_nodes:
+            return False
+        for return_node in return_nodes:
+            value = return_node.value
+            if not isinstance(value, (ast.List, ast.Tuple)):
+                return False
+            if any(
+                not isinstance(element, ast.Constant)
+                or type(element.value) is not str
+                for element in value.elts
+            ):
+                return False
+        return True
+
+    def _builtin_dir_hook_summary(
+        self,
+        node: ast.Call,
+        *,
+        receiver_knowledge: _BindingKnowledge | None = None,
+    ) -> tuple[
+        set[tuple[str, str, int, int]],
+        bool,
+        set[_BindingTarget],
+        set[tuple[str, str]],
+    ]:
+        """Resolve source hooks and uncertainty behind the builtin ``dir`` call."""
+        hooks: set[tuple[str, str, int, int]] = set()
+        unresolved = False
+        origins: set[_BindingTarget] = set()
+        class_targets: set[tuple[str, str]] = set()
+        if not node.args:
+            return hooks, unresolved, origins, class_targets
+
+        receiver = node.args[0]
+        knowledge = (
+            receiver_knowledge
+            if receiver_knowledge is not None
+            else self._knowledge_for_expression(receiver)
+        )
+        origins.update(knowledge.source_value_origins)
+        origins.update(self._source_origins_from_targets(knowledge.known_possible_targets))
+
+        for target in knowledge.targets_for("import"):
+            if target.symbol is not None:
+                continue
+            if target.module not in self.module_names:
+                continue
+            module_binding = (
+                self._binding_knowledge("__dir__")
+                if target.module == self.module
+                else self.external_module_exports.get(target.module, {}).get(
+                    "__dir__", _BindingKnowledge()
+                )
+            )
+            if not module_binding.known_possible_targets and not module_binding.possible_unknown:
+                continue
+            invocation = self._callable_targets_for_knowledge(module_binding)
+            module_hooks = {
+                (item.module, item.symbol or "", item.line, item.column)
+                for item in invocation.known_possible_targets
+                if item.kind == "callable"
+            }
+            hooks.update(module_hooks)
+            unresolved = unresolved or invocation.possible_unknown or not bool(module_hooks)
+
+        instance_classes = {
+            class_target
+            for target in knowledge.targets_for("instance")
+            if (class_target := _instance_class_for_target(target)) is not None
+        }
+        for instance_class in sorted(instance_classes):
+            method_hooks, incomplete = self._source_method_targets_for_class(
+                instance_class, "__dir__"
+            )
+            hooks.update(method_hooks)
+            unresolved = unresolved or incomplete
+            class_targets.add(instance_class)
+
+        class_object_targets = self._class_targets_from_knowledge(knowledge)
+        class_targets.update(class_object_targets)
+        for class_target in sorted(class_object_targets):
+            metaclass = self._effective_metaclass_knowledge(class_target)
+            metaclass_classes = self._class_targets_from_knowledge(metaclass)
+            if metaclass.possible_unknown:
+                unresolved = True
+            if not metaclass_classes:
+                if "type" not in metaclass.builtin_value_kinds:
+                    unresolved = True
+                continue
+            for metaclass_class in sorted(metaclass_classes):
+                method_hooks, incomplete = self._source_method_targets_for_class(
+                    metaclass_class, "__dir__"
+                )
+                hooks.update(method_hooks)
+                unresolved = unresolved or incomplete
+
+        if not class_targets and not any(
+            target.kind == "import" and target.symbol is None
+            and target.module in self.module_names
+            for target in knowledge.known_possible_targets
+        ):
+            if knowledge.source_value_origins or self._source_origins_from_targets(
+                knowledge.known_possible_targets
+            ):
+                unresolved = True
+        origins.update(
+            _BindingTarget("source_call", module, symbol, line, column)
+            for module, symbol, line, column in hooks
+            if module in self.module_names
+        )
+        return hooks, unresolved, origins, class_targets
+
+    def _builtin_dir_result_knowledge(self, node: ast.Call) -> _BindingKnowledge | None:
+        """Keep exact builtin-name results distinct from source-defined values."""
+        if self._known_builtin_symbol(node.func) != "dir":
+            return None
+        if not node.args:
+            return _BindingKnowledge(builtin_value_kinds=frozenset({"sequence[str]"}))
+        hooks, unresolved, origins, _class_targets = self._builtin_dir_hook_summary(node)
+        if not hooks and not unresolved:
+            return _BindingKnowledge(builtin_value_kinds=frozenset({"sequence[str]"}))
+        if hooks and not unresolved and all(
+            self._function_returns_exact_builtin_strings(reference)
+            for reference in hooks
+        ):
+            return _BindingKnowledge(builtin_value_kinds=frozenset({"sequence[str]"}))
+        return _BindingKnowledge(
+            possible_unknown=True,
+            source_value_origins=frozenset(origins),
+            builtin_value_kinds=frozenset({"sequence[unknown]"}),
+        )
+
+    def _builtin_call_result_kinds(self, node: ast.Call) -> frozenset[str]:
+        """Return only result kinds established by source and builtin identity."""
+        result = self._builtin_dir_result_knowledge(node)
+        return result.builtin_value_kinds if result is not None else frozenset()
+
+    def _iterated_builtin_value_kinds(
+        self, knowledge: _BindingKnowledge
+    ) -> frozenset[str]:
+        """Transfer known element kinds from builtin string sequences."""
+        if (
+            "sequence[str]" in knowledge.builtin_value_kinds
+            or "str" in knowledge.builtin_value_kinds
+        ):
+            return frozenset({"str"})
+        return frozenset()
+
+    def _source_value_origins_for_expression(self, node: ast.AST) -> set[_BindingTarget]:
+        """Carry source-owned expression ancestry through every visited AST form."""
+        if isinstance(node, ast.Call):
+            builtin_result = self._builtin_dir_result_knowledge(node)
+            if builtin_result is not None:
+                return set(builtin_result.source_value_origins)
+        if isinstance(node, ast.Name):
+            knowledge = self._binding_knowledge(node.id)
+            origins = set(knowledge.source_value_origins)
+            origins.update(self._source_origins_from_targets(knowledge.known_possible_targets))
+            return origins
+
+        origins = set().union(
+            *(
+                self._source_value_origins_for_expression(child)
+                for child in ast.iter_child_nodes(node)
+            )
+        )
+        if isinstance(node, ast.Call):
+            class_targets = self._class_targets(node.func)
+            if class_targets:
+                origins.update(
+                    _BindingTarget(
+                        "instance",
+                        self.module,
+                        f"{module}::{class_name}",
+                        node.lineno,
+                        node.col_offset,
+                    )
+                    for module, class_name in class_targets
+                )
+            else:
+                origins.update(
+                    _BindingTarget("source_call", module, symbol, line, column)
+                    for module, symbol, line, column in self._callable_target(node.func)
+                    if module in self.module_names
+                )
+        return origins
+
+    def _knowledge_for_expression(self, node: ast.AST) -> _BindingKnowledge:
+        if isinstance(node, ast.Name):
+            return self._expand_import_bindings(self._binding_knowledge(node.id))
+
+        origins = frozenset(self._source_value_origins_for_expression(node))
+        if isinstance(node, (ast.Dict, ast.DictComp)):
+            # Dictionary literals/comprehensions construct exact builtin dicts.
+            # Their contents may be source-derived, but that does not make key
+            # storage an unknown dispatch operation.
+            return _BindingKnowledge(
+                source_value_origins=origins,
+                builtin_value_kinds=frozenset({"dict"}),
+            )
+        if isinstance(node, ast.Call):
+            builtin_result = self._builtin_dir_result_knowledge(node)
+            if builtin_result is not None:
+                return builtin_result
+        if isinstance(node, ast.Attribute):
+            receiver_knowledge = self._knowledge_for_expression(node.value)
+            if (
+                receiver_knowledge.builtin_value_kinds == frozenset({"str"})
+                and not receiver_knowledge.known_possible_targets
+                and not receiver_knowledge.source_value_origins
+            ):
+                # Exact builtin strings cannot resolve to source-defined methods.
+                return _BindingKnowledge(
+                    builtin_value_kinds=frozenset({"builtin_member"})
+                )
+            receiver_classes = self._instance_class_targets(node.value)
+            receiver_classes.update(self._class_targets(node.value))
+            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(
+                receiver_knowledge
+            )
+            stored_member, stored_found = self._owner_member_knowledge(
+                owner_targets, f"attr:{node.attr}"
+            )
+            if stored_found:
+                if owner_incomplete:
+                    stored_member = stored_member.join(
+                        _BindingKnowledge(possible_unknown=True)
+                    )
+                return stored_member.join(
+                    _BindingKnowledge(source_value_origins=origins)
+                )
+            if receiver_classes:
+                member_knowledge = self._class_member_knowledge(receiver_classes, node.attr)
+                if receiver_knowledge.possible_unknown or owner_incomplete:
+                    member_knowledge = member_knowledge.join(
+                        _BindingKnowledge(possible_unknown=True)
+                    )
+                return member_knowledge.join(
+                    _BindingKnowledge(source_value_origins=origins)
+                )
+            parts = self._dotted_name(node)
+            if len(parts) > 1:
+                root = self._binding_knowledge(parts[0])
+                suffix = parts[1:]
+                resolved = _BindingKnowledge()
+                for imported in root.targets_for("import"):
+                    if imported.symbol is not None:
+                        symbol = ".".join([imported.symbol, *suffix])
+                        exported = self.external_module_exports.get(imported.module, {}).get(
+                            symbol
+                        )
+                        if exported is not None:
+                            resolved = resolved.join(exported)
+                    elif suffix:
+                        candidate_module = ".".join([imported.module, *suffix[:-1]])
+                        resolved_module = _nearest_known_module(
+                            candidate_module, self.module_names
+                        )
+                        if resolved_module:
+                            exported = self.external_module_exports.get(
+                                resolved_module, {}
+                            ).get(suffix[-1])
+                            if exported is not None:
+                                resolved = resolved.join(exported)
+                if resolved.known_possible_targets or resolved.possible_unknown:
+                    if root.possible_unknown:
+                        resolved = resolved.join(_BindingKnowledge(possible_unknown=True))
+                    return resolved.join(
+                        _BindingKnowledge(source_value_origins=origins)
+                    )
+            return _BindingKnowledge(
+                possible_unknown=True, source_value_origins=origins
+            )
+
+        if isinstance(node, ast.Subscript):
+            owner_knowledge = self._knowledge_for_expression(node.value)
+            owner_targets, owner_incomplete = self._owner_targets_for_knowledge(
+                owner_knowledge
+            )
+            member = self._storage_member_name(node)
+            if member is not None:
+                stored_member, stored_found = self._owner_member_knowledge(
+                    owner_targets, member
+                )
+                if stored_found:
+                    if owner_incomplete:
+                        stored_member = stored_member.join(
+                            _BindingKnowledge(possible_unknown=True)
+                        )
+                    return stored_member.join(
+                        _BindingKnowledge(source_value_origins=origins)
+                    )
+            return _BindingKnowledge(
+                possible_unknown=True, source_value_origins=origins
+            )
+
+        if isinstance(node, ast.Call):
+            callee_knowledge = self._knowledge_for_expression(node.func)
+            class_targets = self._class_targets(node.func)
+            if class_targets:
+                allocation_unknown = any(
+                    self._callable_in_module(module, f"{class_name}.__new__")
+                    for module, class_name in class_targets
+                )
+                return _BindingKnowledge(
+                    frozenset(
+                        _BindingTarget(
+                            "instance",
+                            self.module,
+                            f"{module}::{class_name}",
+                            node.lineno,
+                            node.col_offset,
+                        )
+                        for module, class_name in class_targets
+                    ),
+                    callee_knowledge.possible_unknown or allocation_unknown,
+                    origins,
+                )
+            invocation = self._callable_targets_for_knowledge(callee_knowledge)
+            factories = {
+                _BindingTarget(
+                    "source_call", target.module, target.symbol, target.line, target.column
+                )
+                for target in invocation.known_possible_targets
+                if target.kind == "callable"
+            }
+            return _BindingKnowledge(
+                frozenset(factories),
+                bool(factories) or invocation.possible_unknown,
+                origins,
+            )
+
+        # Subscripts, containers, operators, and other unmodeled expression forms
+        # remain unknown while retaining every source-owned child origin.
+        return _BindingKnowledge(possible_unknown=True, source_value_origins=origins)
+
+    def _observation_knowledge(
+        self,
+        base: _BindingKnowledge,
+        class_targets: set[tuple[str, str]],
+        callable_targets: set[tuple[str, str, int, int]],
+        reasons: set[str],
+    ) -> _BindingKnowledge:
+        targets = set(base.known_possible_targets)
+        targets.update(
+            _BindingTarget("dispatch_class", module, symbol)
+            for module, symbol in class_targets
+        )
+        targets.update(
+            _BindingTarget("dispatch_callable", module, symbol, line, column)
+            for module, symbol, line, column in callable_targets
+        )
+        return _BindingKnowledge(
+            frozenset(targets),
+            base.possible_unknown or bool(reasons),
+            base.source_value_origins,
+        )
+
+    def _record_dispatch_resolution(
+        self, node: ast.AST, *, call: ast.Call | None = None
+    ) -> None:
+        function_knowledge = self._knowledge_for_expression(node)
+        invocation = self._callable_targets_for_knowledge(function_knowledge)
+        callable_targets = {
+            (target.module, target.symbol or "", target.line, target.column)
+            for target in invocation.known_possible_targets
+            if target.kind == "callable"
+        }
+        class_targets: set[tuple[str, str]] = set()
+        source_derived_receiver = False
+        receiver_knowledge = function_knowledge
+        if isinstance(node, ast.Name):
+            class_targets = self._class_targets(node)
+            if class_targets:
+                # Constructor dispatch has its own observation and allocation rules.
+                return
+            source_derived_receiver = (
+                invocation.possible_unknown and bool(function_knowledge.source_value_origins)
+            )
+            instance_classes = self._instance_class_targets(node)
+            has_unresolved_known_value = invocation.possible_unknown and bool(
+                function_knowledge.known_possible_targets
+                or function_knowledge.source_value_origins
+            )
+            if not instance_classes and not has_unresolved_known_value:
+                return
+            class_targets.update(instance_classes)
+            receiver_form = "Name"
+        elif isinstance(node, ast.Attribute):
+            receiver = node.value
+            receiver_knowledge = self._knowledge_for_expression(receiver)
+            source_derived_receiver = (
+                receiver_knowledge.possible_unknown
+                and bool(receiver_knowledge.source_value_origins)
+            )
+            class_targets = self._instance_class_targets(receiver)
+            class_targets.update(self._class_targets(receiver))
+            callable_targets.update(self._class_method_targets(class_targets, node.attr))
+            receiver_form = type(receiver).__name__
+        elif isinstance(node, ast.Call):
+            class_targets = self._instance_class_targets(node)
+            source_derived_receiver = (
+                function_knowledge.possible_unknown
+                and bool(function_knowledge.source_value_origins)
+            )
+            receiver_form = "Call"
+        else:
+            return
+
+        reasons: set[str] = set()
+        if invocation.possible_unknown:
+            if source_derived_receiver:
+                reason = (
+                    "source_callable_return_not_summarized"
+                    if any(
+                        target.kind == "source_call"
+                        for target in receiver_knowledge.source_value_origins
+                    )
+                    else "source_derived_receiver_not_summarized"
+                )
+                reasons.add(reason)
+            else:
+                reasons.add(
+                    "source_member_call_target_not_summarized"
+                    if not function_knowledge.possible_unknown
+                    and function_knowledge.known_possible_targets
+                    else "source_possible_unknown_target"
+                )
+        if class_targets and not callable_targets and not invocation.possible_unknown:
+            reasons.add("source_class_method_lookup_not_summarized")
+        if not class_targets and not callable_targets and not source_derived_receiver:
+            return
+        observation_base = (
+            function_knowledge.join(receiver_knowledge)
+            if source_derived_receiver
+            else function_knowledge
+        )
+        binding_knowledge = self._observation_knowledge(
+            observation_base, class_targets, callable_targets, reasons
+        )
+        self._record_dispatch_observation(
+            call or node,
+            receiver_form=receiver_form,
+            class_targets=class_targets,
+            callable_targets=callable_targets,
+            reasons=reasons,
+            binding_knowledge=binding_knowledge,
+            record_unresolved_value=source_derived_receiver,
+        )
+
+    def _record_dispatch_observation(
+        self,
+        node: ast.AST,
+        *,
+        receiver_form: str,
+        class_targets: set[tuple[str, str]],
+        callable_targets: set[tuple[str, str, int, int]],
+        reasons: set[str],
+        binding_knowledge: _BindingKnowledge,
+        record_unresolved_value: bool = False,
+    ) -> None:
+        if not class_targets and not callable_targets and not record_unresolved_value:
+            return
+        try:
+            expression = ast.unparse(node)
+        except (AttributeError, ValueError):
+            expression = f"{type(node).__name__}@{node.lineno}:{node.col_offset}"
+        source_targets = sorted(
+            [f"{module}.{symbol}" for module, symbol in class_targets]
+            + [
+                f"{module}.{symbol}@{line}:{column}"
+                for module, symbol, line, column in callable_targets
+            ]
+        )
+        resolved = binding_knowledge.definitely_resolved and not reasons
+        status = "resolved" if resolved else "not_established"
+        reason = sorted(reasons)[0] if reasons else "source_target_resolved"
+        row = {
+            "status": status,
+            "source_path": self.source_path,
+            "source_module": self.module,
+            "line": node.lineno,
+            "column": node.col_offset,
+            "expression": expression,
+            "receiver_form": receiver_form,
+            "reason": reason,
+            "known_source_targets": source_targets,
+            "source_value_origins": sorted(
+                f"{target.module}.{target.symbol or ''}@{target.line}:{target.column}"
+                for target in binding_knowledge.source_value_origins
+                if target.module in self.module_names
+            ),
+        }
+        key = (
+            node.lineno,
+            node.col_offset,
+            expression,
+            status,
+            reason,
+            tuple(source_targets),
+        )
+        self.dispatch_observations[key] = row
+
+    def _builtin_owner_mutators(
+        self,
+        function: ast.AST,
+        *,
+        function_knowledge: _BindingKnowledge | None = None,
+        attribute_receiver_knowledge: _BindingKnowledge | None = None,
+    ) -> tuple[frozenset[str], bool]:
+        """Return possible builtin effects and whether that effect is guaranteed."""
+        known_targets: set[_BindingTarget] = set()
+        possible_unknown = False
+        implicit_builtin: str | None = None
+        if isinstance(function, ast.Name):
+            knowledge = function_knowledge or self._binding_knowledge(function.id)
+            known_targets = set(knowledge.known_possible_targets)
+            possible_unknown = knowledge.possible_unknown
+            if function.id in {"setattr", "delattr"}:
+                if not known_targets and not possible_unknown:
+                    implicit_builtin = function.id
+                elif possible_unknown:
+                    # An unknown branch may be the unshadowed builtin name.
+                    implicit_builtin = function.id
+        elif isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
+            if function.attr not in {"setattr", "delattr"}:
+                return frozenset(), False
+            module_knowledge = (
+                attribute_receiver_knowledge
+                if attribute_receiver_knowledge is not None
+                else self._binding_knowledge(function.value.id)
+            )
+            known_targets = set(module_knowledge.known_possible_targets)
+            possible_unknown = module_knowledge.possible_unknown
+            if possible_unknown:
+                implicit_builtin = function.attr
+
+        mutators = {
+            target.symbol
+            for target in known_targets
+            if target.kind == "import"
+            and target.module == "builtins"
+            and target.symbol in {"setattr", "delattr"}
+        }
+        if isinstance(function, ast.Attribute) and isinstance(function.value, ast.Name):
+            if any(
+                target.kind == "import"
+                and target.module == "builtins"
+                and target.symbol is None
+                for target in known_targets
+            ):
+                mutators.add(function.attr)
+        if implicit_builtin is not None:
+            mutators.add(implicit_builtin)
+        exact_builtin = (
+            len(mutators) == 1
+            and not possible_unknown
+            and (
+                implicit_builtin == next(iter(mutators))
+                or (
+                    len(known_targets) == 1
+                    and next(iter(known_targets)).kind == "import"
+                    and next(iter(known_targets)).module == "builtins"
+                    and next(iter(known_targets)).symbol == next(iter(mutators))
+                )
+                or (
+                    isinstance(function, ast.Attribute)
+                    and len(known_targets) == 1
+                    and next(iter(known_targets)).kind == "import"
+                    and next(iter(known_targets)).module == "builtins"
+                    and next(iter(known_targets)).symbol is None
+                )
+            )
+        )
+        return frozenset(mutators), exact_builtin
+
+    def _record_unresolved_builtin_override(
+        self, node: ast.Call, knowledge: _BindingKnowledge, class_targets: set[tuple[str, str]]
+    ) -> None:
+        reason = "source_builtin_override_not_summarized"
+        self._record_dispatch_observation(
+            node,
+            receiver_form="BuiltinOverride",
+            class_targets=class_targets,
+            callable_targets=set(),
+            reasons={reason},
+            binding_knowledge=self._observation_knowledge(
+                knowledge, class_targets, set(), {reason}
+            ),
+            record_unresolved_value=True,
+        )
+
+    def _record_builtin_call_overrides(
+        self,
+        node: ast.Call,
+        *,
+        builtin_symbol: str | None = None,
+        first_argument_knowledge: _BindingKnowledge | None = None,
+    ) -> None:
+        """Follow the evaluated builtin ``dir`` call through source class lineage."""
+        resolved_symbol = (
+            self._known_builtin_symbol(node.func) if builtin_symbol is None else builtin_symbol
+        )
+        if resolved_symbol != "dir" or not node.args:
+            return
+        hooks, unresolved, origins, class_targets = self._builtin_dir_hook_summary(
+            node, receiver_knowledge=first_argument_knowledge
+        )
+        self._record_targets(hooks)
+        if unresolved:
+            self._record_unresolved_builtin_override(
+                node,
+                _BindingKnowledge(
+                    possible_unknown=True,
+                    source_value_origins=frozenset(origins),
+                ),
+                class_targets,
+            )
+
+    def _record_builtin_owner_mutation(self, node: ast.Call, *, frame: _EvaluatedCallFrame) -> None:
+        mutators, mutator_is_guaranteed = self._builtin_owner_mutators(
+            node.func,
+            function_knowledge=frame.callable_knowledge,
+            attribute_receiver_knowledge=frame.receiver_knowledge,
+        )
+        captured_arguments = dict(frame.argument_knowledge)
+
+        def captured(value: ast.AST) -> _BindingKnowledge:
+            knowledge = captured_arguments.get(id(value))
+            if knowledge is not None:
+                return knowledge
+            return self._knowledge_for_expression(value)
+
+        if not mutators:
+            return
+
+        valid_setter = "setattr" in mutators and len(node.args) == 3
+        valid_deleter = "delattr" in mutators and len(node.args) == 2
+        has_valid_shape = not node.keywords and (valid_setter or valid_deleter)
+        owner_knowledge = (
+            captured(node.args[0]) if node.args else _BindingKnowledge(possible_unknown=True)
+        )
+        origins = set(owner_knowledge.source_value_origins)
+        for argument in node.args:
+            argument_value = captured(argument)
+            origins.update(argument_value.source_value_origins)
+            origins.update(self._source_origins_from_targets(argument_value.known_possible_targets))
+
+        attribute = node.args[1] if len(node.args) > 1 else None
+        member = (
+            f"attr:{attribute.value}"
+            if isinstance(attribute, ast.Constant) and isinstance(attribute.value, str)
+            else None
+        )
+        value_knowledge = _BindingKnowledge()
+        if valid_setter:
+            value_knowledge = captured(node.args[2])
+        if "delattr" in mutators:
+            value_knowledge = value_knowledge.join(
+                _BindingKnowledge(
+                    possible_unknown=True,
+                    source_value_origins=owner_knowledge.source_value_origins,
+                )
+            )
+        if not has_valid_shape:
+            value_knowledge = value_knowledge.join(
+                _BindingKnowledge(
+                    possible_unknown=True,
+                    source_value_origins=frozenset(origins),
+                )
+            )
+            member = None
+        must_apply = (
+            mutator_is_guaranteed
+            and has_valid_shape
+            and len(mutators) == 1
+        )
+        self._apply_owner_member_effect(
+            node,
+            owner_knowledge,
+            member,
+            value_knowledge,
+            must_apply=must_apply,
+        )
+
+    def _parameter_is_referenced(
+        self, function: ast.FunctionDef | ast.AsyncFunctionDef, parameter: str
+    ) -> bool:
+        """Find formal uses in the body, including aliases and closures."""
+        return any(
+            isinstance(child, ast.Name) and child.id == parameter
+            for statement in function.body
+            for child in ast.walk(statement)
+        )
+
+    def _parameter_call_usage(
+        self, function: ast.FunctionDef | ast.AsyncFunctionDef, parameter: str
+    ) -> str | None:
+        """Classify a formal's use as a direct or unsupported call target.
+
+        A binding is a callback only when it is actually used as a call target.
+        Mere reads (for example, ``selected = inherited``) do not make the
+        imported value a callback. Calls through subscripts or attributes remain
+        explicit not-established observations rather than being guessed.
+        """
+        direct = False
+        indirect = False
+
+        class _CallTargetUsage(ast.NodeVisitor):
+            def __init__(self) -> None:
+                self.nested_scope = 0
+
+            def visit_Call(self, node: ast.Call) -> None:
+                nonlocal direct, indirect
+                formal_names = {
+                    child.id
+                    for child in ast.walk(node.func)
+                    if isinstance(child, ast.Name) and child.id == parameter
+                }
+                if formal_names:
+                    if (
+                        self.nested_scope == 0
+                        and isinstance(node.func, ast.Name)
+                        and node.func.id == parameter
+                    ):
+                        direct = True
+                    else:
+                        indirect = True
+                self.generic_visit(node)
+
+            def _visit_nested_scope(self, node: ast.AST) -> None:
+                self.nested_scope += 1
+                self.generic_visit(node)
+                self.nested_scope -= 1
+
+            def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+                self._visit_nested_scope(node)
+
+            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+                self._visit_nested_scope(node)
+
+            def visit_Lambda(self, node: ast.Lambda) -> None:
+                self._visit_nested_scope(node)
+
+            def visit_ClassDef(self, node: ast.ClassDef) -> None:
+                self._visit_nested_scope(node)
+
+        visitor = _CallTargetUsage()
+        for statement in function.body:
+            visitor.visit(statement)
+        if indirect:
+            return "indirect"
+        if direct:
+            return "direct"
+        return None
+
+    def _source_class_is_subclass(
+        self,
+        candidate: tuple[str, str],
+        base: tuple[str, str],
+        seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> bool:
+        if candidate == base:
+            return True
+        if candidate in seen:
+            return False
+        return any(
+            self._source_class_is_subclass(parent, base, seen | {candidate})
+            for parent in self.source_class_bases.get(candidate, set())
+        )
+
+    def _method_descriptor_symbols(
+        self, function: ast.FunctionDef | ast.AsyncFunctionDef
+    ) -> tuple[set[str], bool]:
+        """Resolve descriptor decorators by binding identity, not final spelling."""
+        symbols: set[str] = set()
+        unknown = False
+        for decorator in function.decorator_list:
+            resolved = self._known_builtin_symbol(decorator)
+            if resolved in {"staticmethod", "classmethod"}:
+                symbols.add(resolved)
+            else:
+                unknown = True
+        return symbols, unknown
+
+    def _method_receiver_binding(
+        self,
+        node: ast.Call,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+        reference: tuple[str, str, int, int],
+        *,
+        receiver_knowledge: _BindingKnowledge | None = None,
+    ) -> tuple[_BindingKnowledge | None, str | None, bool]:
+        """Bind self/cls using the receiver captured before argument evaluation."""
+        class_name, separator, method_name = reference[1].rpartition(".")
+        if not separator or (reference[0], class_name) not in self.class_index:
+            return None, None, False
+        positional = [*function.args.posonlyargs, *function.args.args]
+        if not positional:
+            return None, None, False
+        decorator_names, unknown_descriptor = self._method_descriptor_symbols(function)
+        if unknown_descriptor:
+            return None, None, False
+        if "staticmethod" in decorator_names and "classmethod" in decorator_names:
+            return None, None, False
+        receiver_parameter = positional[0].arg
+        if "staticmethod" in decorator_names:
+            return None, receiver_parameter, True
+        if not isinstance(node.func, ast.Attribute) or node.func.attr != method_name:
+            return None, None, False
+        receiver = (
+            receiver_knowledge
+            if receiver_knowledge is not None
+            else self._knowledge_for_expression(node.func.value)
+        )
+        receiver_classes = self._class_targets_from_knowledge(receiver)
+        receiver_classes.update(
+            class_target
+            for target in receiver.targets_for("instance")
+            if (class_target := _instance_class_for_target(target)) is not None
+        )
+        owner_class = (reference[0], class_name)
+        if "classmethod" in decorator_names:
+            matching = {
+                candidate
+                for candidate in receiver_classes
+                if self._source_class_is_subclass(candidate, owner_class)
+            }
+            if matching:
+                bound = _BindingKnowledge(
+                    frozenset(
+                        _BindingTarget("class", module, symbol) for module, symbol in matching
+                    ),
+                    receiver.possible_unknown,
+                    receiver.source_value_origins,
+                )
+            else:
+                bound = _BindingKnowledge(
+                    possible_unknown=True,
+                    source_value_origins=receiver.source_value_origins,
+                )
+            return bound, receiver_parameter, True
+        matching_instances = {
+            target
+            for target in receiver.targets_for("instance")
+            if (class_target := _instance_class_for_target(target)) is not None
+            and self._source_class_is_subclass(class_target, owner_class)
+        }
+        if matching_instances:
+            return (
+                _BindingKnowledge(
+                    frozenset(matching_instances),
+                    receiver.possible_unknown,
+                    receiver.source_value_origins,
+                ),
+                receiver_parameter,
+                True,
+            )
+        if receiver_classes:
+            # Entry through Class.method is unbound: receiver is explicit, but is
+            # still not a callback formal.
+            return None, receiver_parameter, True
+        return (
+            _BindingKnowledge(
+                possible_unknown=True,
+                source_value_origins=receiver.source_value_origins,
+            ),
+            receiver_parameter,
+            True,
+        )
+
+    def _visit_call_argument_expression(
+        self,
+        expression: ast.AST,
+        captured: dict[int, _BindingKnowledge],
+        *,
+        expand_literal: bool = False,
+    ) -> _BindingKnowledge:
+        """Visit one argument and freeze any statically expanded values."""
+        if expand_literal and isinstance(expression, (ast.Tuple, ast.List)):
+            for item in expression.elts:
+                self.visit(item)
+                captured[id(item)] = self._knowledge_for_expression(item)
+            knowledge = self._knowledge_for_expression(expression)
+        elif expand_literal and isinstance(expression, ast.Dict):
+            for key, value in zip(expression.keys, expression.values, strict=True):
+                if key is not None:
+                    self.visit(key)
+                    captured[id(key)] = self._knowledge_for_expression(key)
+                self.visit(value)
+                captured[id(value)] = self._knowledge_for_expression(value)
+            knowledge = self._knowledge_for_expression(expression)
+        else:
+            self.visit(expression)
+            knowledge = self._knowledge_for_expression(expression)
+        captured[id(expression)] = knowledge
+        return knowledge
+
+    def _call_argument_bindings(
+        self,
+        node: ast.Call,
+        function: ast.FunctionDef | ast.AsyncFunctionDef,
+        reference: tuple[str, str, int, int],
+        *,
+        bound_receiver: _BindingKnowledge | None = None,
+        evaluated_argument_knowledge: Mapping[int, _BindingKnowledge] | None = None,
+    ) -> tuple[dict[str, _BindingKnowledge], list[_BindingKnowledge]]:
+        """Bind call inputs from their evaluated values and captured defaults."""
+        captured_values = evaluated_argument_knowledge or {}
+
+        def argument_knowledge(value: ast.AST) -> _BindingKnowledge:
+            captured = captured_values.get(id(value))
+            return captured if captured is not None else self._knowledge_for_expression(value)
+
+        default_bindings = (
+            self.function_default_bindings.get(reference, {})
+            if reference[0] == self.module
+            else self.external_function_default_bindings.get(reference, {})
+        )
+        parameters: list[inspect.Parameter] = []
+        positional = [*function.args.posonlyargs, *function.args.args]
+        positional_default_names = {
+            parameter.arg
+            for parameter in positional[len(positional) - len(function.args.defaults) :]
+        }
+        keyword_default_names = {
+            parameter.arg
+            for parameter, default in zip(
+                function.args.kwonlyargs, function.args.kw_defaults, strict=True
+            )
+            if default is not None
+        }
+
+        def parameter_default(name: str, has_default: bool) -> Any:
+            if not has_default:
+                return inspect.Parameter.empty
+            return _CapturedDefault(
+                default_bindings.get(name, _BindingKnowledge(possible_unknown=True))
+            )
+
+        for argument in function.args.posonlyargs:
+            parameters.append(
+                inspect.Parameter(
+                    argument.arg,
+                    inspect.Parameter.POSITIONAL_ONLY,
+                    default=parameter_default(
+                        argument.arg, argument.arg in positional_default_names
+                    ),
+                )
+            )
+        for argument in function.args.args:
+            parameters.append(
+                inspect.Parameter(
+                    argument.arg,
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    default=parameter_default(
+                        argument.arg, argument.arg in positional_default_names
+                    ),
+                )
+            )
+        if function.args.vararg is not None:
+            parameters.append(
+                inspect.Parameter(function.args.vararg.arg, inspect.Parameter.VAR_POSITIONAL)
+            )
+        for argument, default in zip(
+            function.args.kwonlyargs, function.args.kw_defaults, strict=True
+        ):
+            parameters.append(
+                inspect.Parameter(
+                    argument.arg,
+                    inspect.Parameter.KEYWORD_ONLY,
+                    default=parameter_default(argument.arg, argument.arg in keyword_default_names),
+                )
+            )
+        if function.args.kwarg is not None:
+            parameters.append(
+                inspect.Parameter(function.args.kwarg.arg, inspect.Parameter.VAR_KEYWORD)
+            )
+
+        try:
+            signature = inspect.Signature(parameters)
+        except ValueError:
+            # A malformed or otherwise unsupported signature cannot justify a
+            # complete callback binding claim.
+            all_values = [*node.args, *(keyword.value for keyword in node.keywords)]
+            unbound = [argument_knowledge(value) for value in all_values]
+            unbound.extend(
+                default_bindings[name]
+                for name in default_bindings
+                if self._parameter_is_referenced(function, name)
+            )
+            return {}, unbound
+
+        positional_values: list[Any] = (
+            [_CapturedDefault(bound_receiver)] if bound_receiver is not None else []
+        )
+        keyword_values: dict[str, ast.AST] = {}
+        unknown_expansion = False
+        for actual in node.args:
+            if not isinstance(actual, ast.Starred):
+                positional_values.append(actual)
+                continue
+            value = actual.value
+            if isinstance(value, (ast.Tuple, ast.List)) and all(
+                not isinstance(item, ast.Starred) for item in value.elts
+            ):
+                positional_values.extend(value.elts)
+            else:
+                unknown_expansion = True
+        for keyword in node.keywords:
+            if keyword.arg is not None:
+                if keyword.arg in keyword_values:
+                    unknown_expansion = True
+                keyword_values[keyword.arg] = keyword.value
+                continue
+            value = keyword.value
+            if isinstance(value, ast.Dict):
+                for key, item in zip(value.keys, value.values, strict=True):
+                    if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                        if key.value in keyword_values:
+                            unknown_expansion = True
+                        keyword_values[key.value] = item
+                    else:
+                        unknown_expansion = True
+            else:
+                unknown_expansion = True
+
+        if unknown_expansion:
+            all_values = [*node.args, *(keyword.value for keyword in node.keywords)]
+            unbound = [argument_knowledge(value) for value in all_values]
+            unbound.extend(
+                default_bindings[name]
+                for name in default_bindings
+                if self._parameter_is_referenced(function, name)
+            )
+            return {}, unbound
+
+        try:
+            bound = signature.bind(*positional_values, **keyword_values)
+        except TypeError:
+            # Calls which fail Python's own arity/duplicate rules never enter
+            # the source callee, so their arguments do not transfer callbacks.
+            return {}, []
+        bound.apply_defaults()
+
+        def value_knowledge(value: Any) -> _BindingKnowledge:
+            if isinstance(value, _CapturedDefault):
+                return value.knowledge
+            if isinstance(value, ast.AST):
+                return argument_knowledge(value)
+            if isinstance(value, (tuple, list)):
+                knowledge = _BindingKnowledge()
+                for item in value:
+                    knowledge = knowledge.join(value_knowledge(item))
+                return knowledge
+            if isinstance(value, dict):
+                knowledge = _BindingKnowledge()
+                for item in value.values():
+                    knowledge = knowledge.join(value_knowledge(item))
+                return knowledge
+            return _BindingKnowledge(possible_unknown=True)
+
+        return (
+            {name: value_knowledge(value) for name, value in bound.arguments.items()},
+            [],
+        )
+
+    def _record_source_call_context(
+        self,
+        node: ast.Call,
+        *,
+        frame: _EvaluatedCallFrame,
+    ) -> None:
+        """Queue source callees with one frozen, ordered call frame."""
+        targets = set(frame.callable_targets)
+        evaluated_arguments = dict(frame.argument_knowledge)
+        contextual_targets: set[tuple[str, str, int, int]] = set()
+        local_contexts: list[_SourceCallContext] = []
+        for reference in sorted(targets):
+            if reference[0] not in self.module_names:
+                continue
+            function = self.source_functions.get(reference)
+            if function is None:
+                continue
+            receiver_knowledge, _receiver_parameter, descriptor_known = (
+                self._method_receiver_binding(
+                    node,
+                    function,
+                    reference,
+                    receiver_knowledge=frame.receiver_knowledge,
+                )
+            )
+            if "." in reference[1] and not descriptor_known:
+                continue
+            bindings, unbound = self._call_argument_bindings(
+                node,
+                function,
+                reference,
+                bound_receiver=receiver_knowledge,
+                evaluated_argument_knowledge=evaluated_arguments,
+            )
+            if unbound:
+                continue
+            context = tuple(sorted(bindings.items()))
+            if reference[0] == self.module:
+                local_contexts.append((reference, context))
+            else:
+                self.called_with_bindings.add((reference, context))
+            contextual_targets.add(reference)
+
+        if local_contexts:
+            self.pending_local_call_contexts.append(
+                tuple(sorted(local_contexts, key=lambda item: item[0]))
+            )
+
+        # Keep existing conservative traversal for external functions, unsupported
+        # descriptors, and calls whose source signature cannot be bound.
+        self._record_targets(targets - contextual_targets)
+
+    def _drain_local_call_contexts(self) -> None:
+        """Join possible callees from the same evaluated call, never last-wins."""
+        while self.pending_local_call_contexts:
+            contexts = self.pending_local_call_contexts.pop()
+            base = self._snapshot_bindings()
+            branch_states: list[tuple[Any, ...]] = []
+            for reference, context in contexts:
+                self._restore_bindings(base)
+                self.visit_callable(reference, parameter_bindings=dict(context))
+                branch_states.append(self._snapshot_bindings())
+            if len(branch_states) == 1:
+                self._restore_bindings(branch_states[0])
+            elif branch_states:
+                self._merge_binding_states(branch_states)
+
+    def _apply_global_effect(
+        self, name: str, effect: _GlobalEffect, *, shadowed_names: set[str]
+    ) -> None:
+        knowledge, type_kind = effect
+        if name not in shadowed_names:
+            self._clear_name_bindings({name})
+            self._write_binding_knowledge(name, knowledge)
+            if type_kind is None:
+                self.type_checking_bindings.pop(name, None)
+            else:
+                self.type_checking_bindings[name] = type_kind
+        if self.global_effect_frames:
+            # Calls execute in source order; later definite writes replace earlier
+            # effects. Conditional writes are joined by the branch merge.
+            self.global_effect_frames[-1][name] = (knowledge, type_kind)
+
+    def _record_source_callback_argument(
+        self,
+        node: ast.Call,
+        *,
+        frame: _EvaluatedCallFrame,
+    ) -> None:
+        """Transfer callbacks from their frozen left-to-right call values."""
+        argument_knowledge = dict(frame.argument_knowledge)
+
+        def captured(value: ast.AST) -> _BindingKnowledge:
+            knowledge = argument_knowledge.get(id(value))
+            if knowledge is not None:
+                return knowledge
+            return self._knowledge_for_expression(value)
+
+        references = {
+            reference for reference in frame.callable_targets if reference[0] in self.module_names
+        }
+        if not references:
+            return
+
+        callback_values: list[_BindingKnowledge] = []
+        for reference in references:
+            module, symbol, _line, _column = reference
+            function = self.source_functions.get(reference)
+            receiver_knowledge: _BindingKnowledge | None = None
+            receiver_parameter: str | None = None
+            descriptor_known = False
+            if function is not None:
+                receiver_knowledge, receiver_parameter, descriptor_known = (
+                    self._method_receiver_binding(
+                        node,
+                        function,
+                        reference,
+                        receiver_knowledge=frame.receiver_knowledge,
+                    )
+                )
+            if function is None or ("." in symbol and not descriptor_known):
+                callback_values.extend(
+                    captured(argument.value if isinstance(argument, ast.Starred) else argument)
+                    for argument in node.args
+                )
+                callback_values.extend(captured(keyword.value) for keyword in node.keywords)
+                if function is not None:
+                    defaults = (
+                        self.function_default_bindings.get(reference, {})
+                        if module == self.module
+                        else self.external_function_default_bindings.get(reference, {})
+                    )
+                    callback_values.extend(
+                        knowledge
+                        for parameter, knowledge in defaults.items()
+                        if self._parameter_call_usage(function, parameter) is not None
+                    )
+                continue
+
+            bindings, unbound = self._call_argument_bindings(
+                node,
+                function,
+                reference,
+                bound_receiver=receiver_knowledge,
+                evaluated_argument_knowledge=argument_knowledge,
+            )
+            callback_values.extend(unbound)
+            for parameter, knowledge in bindings.items():
+                if parameter == receiver_parameter:
+                    continue
+                usage = self._parameter_call_usage(function, parameter)
+                if usage is None:
+                    continue
+                invocation = self._callable_targets_for_knowledge(knowledge)
+                source_callbacks = {
+                    target
+                    for target in invocation.known_possible_targets
+                    if target.kind == "callable" and target.module in self.module_names
+                }
+                if not source_callbacks and not knowledge.source_value_origins:
+                    continue
+                if (
+                    usage == "direct"
+                    and source_callbacks
+                    and not knowledge.possible_unknown
+                    and invocation.definitely_resolved
+                ):
+                    # The enclosing call context already carries these exact
+                    # bindings into this source function. Its Call.func is then
+                    # traversed as an ordinary source call with its own context.
+                    continue
+                # Possible targets and unmodeled subscript/member callback forms
+                # remain explicit notest observations, even when known targets exist.
+                callback_values.append(knowledge)
+
+        callback_knowledge = _BindingKnowledge()
+        callback_classes: set[tuple[str, str]] = set()
+        callback_targets: set[tuple[str, str, int, int]] = set()
+        found_callback_argument = False
+        for value_knowledge in callback_values:
+            invocation = self._callable_targets_for_knowledge(value_knowledge)
+            source_callbacks = {
+                target
+                for target in invocation.known_possible_targets
+                if target.kind == "callable" and target.module in self.module_names
+            }
+            if not source_callbacks and not value_knowledge.source_value_origins:
+                continue
+            found_callback_argument = True
+            callback_knowledge = callback_knowledge.join(value_knowledge).join(invocation)
+            callback_targets.update(
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in source_callbacks
+            )
+            callback_targets.update(
+                (target.module, target.symbol or "", target.line, target.column)
+                for target in value_knowledge.source_value_origins
+                if target.kind == "callable" and target.module in self.module_names
+            )
+            callback_classes.update(
+                (target.module, target.symbol or "")
+                for target in value_knowledge.known_possible_targets
+                if target.kind == "class" and target.symbol is not None
+            )
+            callback_classes.update(
+                instance_class
+                for target in value_knowledge.known_possible_targets
+                if (instance_class := _instance_class_for_target(target)) is not None
+            )
+        if not found_callback_argument:
+            return
+        reasons = {"source_callback_argument_not_summarized"}
+        self._record_dispatch_observation(
+            node,
+            receiver_form="CallbackArgument",
+            class_targets=callback_classes,
+            callable_targets=callback_targets,
+            reasons=reasons,
+            binding_knowledge=self._observation_knowledge(
+                callback_knowledge,
+                callback_classes,
+                callback_targets,
+                reasons,
+            ),
+            record_unresolved_value=True,
+        )
+
+    def visit_Call(self, node: ast.Call) -> None:
+        # Python evaluates the callable expression first. Visiting it also applies
+        # any nested source-call effects before the outer target is captured.
+        self.visit(node.func)
+        callable_targets = frozenset(self._callable_target(node.func))
+        class_targets = frozenset(self._class_targets(node.func))
+        callable_knowledge = self._knowledge_for_expression(node.func)
+        receiver_knowledge = (
+            self._knowledge_for_expression(node.func.value)
+            if isinstance(node.func, ast.Attribute)
+            else None
+        )
+        builtin_symbol = self._known_builtin_symbol(node.func)
+        self._record_dispatch_resolution(node.func, call=node)
+
+        captured_arguments: dict[int, _BindingKnowledge] = {}
+        actuals: list[tuple[int, int, ast.AST, str]] = []
+        actuals.extend(
+            (argument.lineno, argument.col_offset, argument, "positional") for argument in node.args
+        )
+        actuals.extend(
+            (keyword.lineno, keyword.col_offset, keyword.value, "keyword")
+            for keyword in node.keywords
+        )
+        for _line, _column, expression, kind in sorted(
+            actuals, key=lambda item: (item[0], item[1])
+        ):
+            if kind == "positional" and isinstance(expression, ast.Starred):
+                value_knowledge = self._visit_call_argument_expression(
+                    expression.value,
+                    captured_arguments,
+                    expand_literal=True,
+                )
+                exact_literal = isinstance(expression.value, (ast.Tuple, ast.List)) and all(
+                    not isinstance(item, ast.Starred) for item in expression.value.elts
+                )
+                captured_arguments[id(expression)] = (
+                    value_knowledge
+                    if exact_literal
+                    else value_knowledge.join(_BindingKnowledge(possible_unknown=True))
+                )
+            elif kind == "keyword" and isinstance(expression, ast.Dict):
+                self._visit_call_argument_expression(
+                    expression, captured_arguments, expand_literal=True
+                )
+            else:
+                value_knowledge = self._visit_call_argument_expression(
+                    expression, captured_arguments
+                )
+                if kind == "keyword":
+                    keyword = next(item for item in node.keywords if item.value is expression)
+                    if keyword.arg is None:
+                        captured_arguments[id(expression)] = value_knowledge.join(
+                            _BindingKnowledge(possible_unknown=True)
+                        )
+
+        frame = _EvaluatedCallFrame(
+            callable_targets=callable_targets,
+            class_targets=class_targets,
+            callable_knowledge=callable_knowledge,
+            receiver_knowledge=receiver_knowledge,
+            argument_knowledge=tuple(sorted(captured_arguments.items())),
+            builtin_symbol=builtin_symbol,
+        )
+        first_argument_knowledge = captured_arguments.get(id(node.args[0])) if node.args else None
+        self._record_builtin_call_overrides(
+            node,
+            builtin_symbol=frame.builtin_symbol,
+            first_argument_knowledge=first_argument_knowledge,
+        )
+        self._record_source_call_context(node, frame=frame)
+        self._record_source_callback_argument(node, frame=frame)
+        self._record_class_constructors(
+            node.func,
+            node,
+            class_targets=set(frame.class_targets),
+            knowledge=frame.callable_knowledge,
+        )
+        self._record_builtin_owner_mutation(node, frame=frame)
+        self._drain_local_call_contexts()
+
+    def visit_callable(
+        self,
+        reference: tuple[str, str, int, int],
+        *,
+        parameter_bindings: Mapping[str, _BindingKnowledge] | None = None,
+    ) -> None:
+        context_key = tuple(
+            (name, knowledge) for name, knowledge in sorted((parameter_bindings or {}).items())
+        )
+        visit_key = (reference, (self._binding_state_key(), context_key))
+        if visit_key in self.visited_functions:
+            return
+        function = self.functions.get(reference)
+        if function is None:
+            return
+        name = reference[1]
+        self.visited_functions.add(visit_key)
+        saved_bindings = self._snapshot_bindings()
+        saved_scope_kind = self.scope_kind
+        saved_scope_prefix = self.scope_prefix
+        saved_class_context = self.class_context
+        local_names, global_writes, nonlocal_writes = _function_scope_bindings(function)
+        self.function_local_names_stack.append(local_names)
+        self.global_effect_frames.append({})
+        self._bind_unknown(local_names)
+        self.scope_kind = "function"
+        # Nested functions are indexed under their complete lexical parent. Keep
+        # that parent while visiting the body so direct local calls resolve.
+        self.scope_prefix = name
+        enclosing_class = self._enclosing_class(name)
+        self.class_context = enclosing_class
+        positional = [*function.args.posonlyargs, *function.args.args]
+        is_direct_class_method = bool(
+            enclosing_class and name.rpartition(".")[0] == enclosing_class
+        )
+        if is_direct_class_method and positional:
+            decorator_names, unknown_descriptor = self._method_descriptor_symbols(function)
+            receiver = positional[0].arg
+            self._clear_name_bindings({receiver})
+            if unknown_descriptor or (
+                "staticmethod" in decorator_names and "classmethod" in decorator_names
+            ):
+                self._write_binding_knowledge(
+                    receiver,
+                    _BindingKnowledge(
+                        possible_unknown=True,
+                        source_value_origins=frozenset(
+                            {
+                                _BindingTarget(
+                                    "instance",
+                                    self.module,
+                                    f"{self.module}::{enclosing_class}",
+                                    function.lineno,
+                                    function.col_offset,
+                                )
+                            }
+                        ),
+                    ),
+                )
+            elif "staticmethod" not in decorator_names:
+                if "classmethod" in decorator_names:
+                    self.class_aliases[receiver] = {(self.module, enclosing_class)}
+                else:
+                    self.instance_aliases[receiver] = {(self.module, enclosing_class, -1, -1)}
+        for parameter, knowledge in (parameter_bindings or {}).items():
+            self._write_binding_knowledge(parameter, knowledge)
+        for statement in function.body:
+            self.visit(statement)
+        function_bindings = self._snapshot_bindings()
+        function_global_effects = dict(function_bindings[5][-1])
+        self._restore_bindings(saved_bindings)
+        self.function_local_names_stack.pop()
+        self.owner_member_bindings = {
+            owner: members.copy() for owner, members in function_bindings[3].items()
+        }
+        self.owner_member_wildcard_overrides = {
+            owner: members.copy() for owner, members in function_bindings[4].items()
+        }
+        self.scope_kind = saved_scope_kind
+        self.scope_prefix = saved_scope_prefix
+        self.class_context = saved_class_context
+        (
+            function_knowledge,
+            function_type_checking,
+            _function_class_exports,
+            _function_owner_members,
+            _function_wildcard_overrides,
+            _function_global_effect_frames,
+        ) = function_bindings
+        for global_name in global_writes:
+            # An empty binding lattice is an ordinary non-source value. Flow
+            # uncertainty is represented by possible_unknown in that lattice.
+            function_global_effects[global_name] = (
+                function_knowledge.get(global_name, _BindingKnowledge()),
+                function_type_checking.get(global_name),
+            )
+        for nonlocal_name in nonlocal_writes:
+            knowledge = function_knowledge.get(
+                nonlocal_name, _BindingKnowledge(possible_unknown=True)
+            )
+            self._clear_name_bindings({nonlocal_name})
+            self._write_binding_knowledge(nonlocal_name, knowledge)
+            type_kind = function_type_checking.get(nonlocal_name)
+            if type_kind is None:
+                self.type_checking_bindings.pop(nonlocal_name, None)
+            else:
+                self.type_checking_bindings[nonlocal_name] = type_kind
+        caller_locals = (
+            self.function_local_names_stack[-1] if self.function_local_names_stack else set()
+        )
+        for global_name, effect in function_global_effects.items():
+            self._apply_global_effect(global_name, effect, shadowed_names=caller_locals)
+
+def _collect_runtime_import_edges(
+    trees: Mapping[str, ast.Module],
+    module_paths: Mapping[str, Path],
+) -> tuple[dict[str, set[str]], list[dict[str, Any]]]:
+    """Build module-eager edges using source-identified, flow-joined call targets."""
+    module_names = set(module_paths)
+    functions_by_module: dict[
+        str, dict[tuple[str, str, int, int], ast.FunctionDef | ast.AsyncFunctionDef]
+    ] = {}
+    classes_by_module: dict[str, set[str]] = {}
+    callable_index: set[tuple[str, str]] = set()
+    for module, tree in trees.items():
+        functions, classes = _callable_definitions(tree, module)
+        functions_by_module[module] = functions
+        classes_by_module[module] = classes
+        callable_index.update((reference[0], reference[1]) for reference in functions)
+    source_functions = {
+        reference: function
+        for module_functions in functions_by_module.values()
+        for reference, function in module_functions.items()
+    }
+    class_index = {
+        (module, class_name)
+        for module, class_names in classes_by_module.items()
+        for class_name in class_names
+    }
+    source_class_bases: dict[tuple[str, str], set[tuple[str, str]]] = {}
+    source_class_base_unknown: set[tuple[str, str]] = set()
+    source_class_metaclasses: dict[tuple[str, str], _BindingKnowledge] = {}
+
+    def run_collectors(
+        external_module_exports: Mapping[str, Mapping[str, _BindingKnowledge]] | None = None,
+        external_class_exports: Mapping[
+            str, Mapping[str, Mapping[str, _BindingKnowledge]]
+        ] | None = None,
+        external_owner_member_exports: Mapping[
+            str, Mapping[_BindingTarget, Mapping[str, _BindingKnowledge]]
+        ] | None = None,
+        external_function_default_bindings: Mapping[
+            tuple[str, str, int, int], Mapping[str, _BindingKnowledge]
+        ] | None = None,
+    ) -> dict[str, _RuntimeImportCollector]:
+        collectors = {
+            module: _RuntimeImportCollector(
+                module,
+                module_names,
+                callable_index,
+                functions_by_module[module],
+                source_functions,
+                classes_by_module[module],
+                class_index,
+                source_class_bases,
+                source_class_base_unknown,
+                source_class_metaclasses,
+                is_package=module_paths[module].name == "__init__.py",
+                source_path=_import_source_path(module_paths[module]),
+            )
+            for module in trees
+        }
+        for collector in collectors.values():
+            collector.external_module_exports = external_module_exports or {}
+            collector.external_class_exports = external_class_exports or {}
+            collector.external_owner_member_exports = (
+                external_owner_member_exports or {}
+            )
+            collector.external_function_default_bindings = (
+                external_function_default_bindings or {}
+            )
+        for module, tree in trees.items():
+            collectors[module].set_future_annotations(tree)
+            collectors[module].visit(tree)
+        return collectors
+
+    def module_binding_exports(
+        selected: Mapping[str, _RuntimeImportCollector],
+    ) -> dict[str, dict[str, _BindingKnowledge]]:
+        return {
+            module: collector._binding_knowledge_snapshot()
+            for module, collector in selected.items()
+        }
+
+    def class_member_exports(
+        selected: Mapping[str, _RuntimeImportCollector],
+    ) -> dict[str, dict[str, dict[str, _BindingKnowledge]]]:
+        return {
+            module: {
+                class_name: members.copy()
+                for class_name, members in collector.class_member_bindings.items()
+            }
+            for module, collector in selected.items()
+        }
+
+    def owner_member_exports(
+        selected: Mapping[str, _RuntimeImportCollector],
+    ) -> dict[str, dict[_BindingTarget, dict[str, _BindingKnowledge]]]:
+        return {
+            module: {
+                owner: members.copy()
+                for owner, members in collector.owner_member_bindings.items()
+            }
+            for module, collector in selected.items()
+        }
+
+    def function_default_exports(
+        selected: Mapping[str, _RuntimeImportCollector],
+    ) -> dict[tuple[str, str, int, int], dict[str, _BindingKnowledge]]:
+        return {
+            reference: defaults.copy()
+            for collector in selected.values()
+            for reference, defaults in collector.function_default_bindings.items()
+        }
+
+    first_pass = run_collectors()
+    first_module_exports = module_binding_exports(first_pass)
+    first_class_exports = class_member_exports(first_pass)
+    first_owner_member_exports = owner_member_exports(first_pass)
+    first_function_default_exports = function_default_exports(first_pass)
+    # Recollect with first-pass namespaces and owner/member snapshots. External
+    # mutable-owner snapshots remain uncertain at reads because module execution
+    # and mutation order is not established by this whole-tree export pass.
+    collectors = run_collectors(
+        first_module_exports,
+        first_class_exports,
+        first_owner_member_exports,
+        first_function_default_exports,
+    )
+    module_exports = module_binding_exports(collectors)
+    class_exports = class_member_exports(collectors)
+
+    def resolve_reference(
+        reference: tuple[str, str, int, int],
+        seen: set[tuple[str, str, int, int]] | None = None,
+    ) -> set[tuple[str, str, int, int]]:
+        if reference[2] >= 0:
+            return {reference}
+        seen = set() if seen is None else seen
+        if reference in seen:
+            return set()
+        seen.add(reference)
+        module, symbol, _line, _column = reference
+        class_name, separator, member = symbol.rpartition(".")
+        knowledge = (
+            class_exports.get(module, {}).get(class_name, {}).get(member)
+            if separator
+            else None
+        )
+        if knowledge is None:
+            knowledge = module_exports.get(module, {}).get(symbol)
+        if knowledge is None:
+            return {reference} if (module, symbol) in callable_index else set()
+        return resolve_binding_knowledge(knowledge, seen)
+
+    def resolve_class_members(
+        module: str,
+        class_name: str,
+        members: Sequence[str],
+        seen: set[tuple[str, str, int, int]],
+    ) -> set[tuple[str, str, int, int]]:
+        resolved: set[tuple[str, str, int, int]] = set()
+        for member in members:
+            resolved.update(
+                resolve_reference(
+                    (module, f"{class_name}.{member}", -1, -1), seen.copy()
+                )
+            )
+        return resolved
+
+    def resolve_binding_knowledge(
+        knowledge: _BindingKnowledge,
+        seen: set[tuple[str, str, int, int]],
+    ) -> set[tuple[str, str, int, int]]:
+        resolved: set[tuple[str, str, int, int]] = set()
+        for target in knowledge.known_possible_targets:
+            if target.kind in {"callable", "source_call"} and target.symbol is not None:
+                resolved.update(
+                    resolve_reference(
+                        (target.module, target.symbol, target.line, target.column),
+                        seen.copy(),
+                    )
+                )
+            elif target.kind == "import" and target.symbol is not None:
+                resolved.update(
+                    resolve_reference(
+                        (target.module, target.symbol, -1, -1), seen.copy()
+                    )
+                )
+            elif target.kind == "class" and target.symbol is not None:
+                resolved.update(
+                    resolve_class_members(
+                        target.module,
+                        target.symbol,
+                        ("__new__", "__init__"),
+                        seen.copy(),
+                    )
+                )
+            elif target.kind == "instance" and target.symbol is not None:
+                instance_class = _instance_class_for_target(target)
+                if instance_class is not None:
+                    resolved.update(
+                        resolve_class_members(
+                            instance_class[0],
+                            instance_class[1],
+                            ("__call__",),
+                            seen.copy(),
+                        )
+                    )
+        return resolved
+
+    visited: set[tuple[str, str, int, int]] = set()
+    visited_contexts: set[
+        tuple[tuple[str, str, int, int], tuple[tuple[str, _BindingKnowledge], ...]]
+    ] = set()
+    while True:
+        finalized_constructor_calls = False
+        for collector in collectors.values():
+            finalized_constructor_calls = (
+                collector.resolve_pending_class_constructor_calls()
+                or finalized_constructor_calls
+            )
+        pending_contexts = [
+            context
+            for collector in collectors.values()
+            for context in collector.called_with_bindings
+            if context not in visited_contexts
+        ]
+        if pending_contexts:
+            reference, context = pending_contexts.pop()
+            visited_contexts.add((reference, context))
+            target_collector = collectors.get(reference[0])
+            if target_collector is not None:
+                target_collector.visit_callable(
+                    reference, parameter_bindings=dict(context)
+                )
+            continue
+        pending = [
+            target
+            for collector in collectors.values()
+            for target in collector.called
+            if target not in visited
+        ]
+        if not pending:
+            if finalized_constructor_calls:
+                continue
+            break
+        target = pending.pop()
+        for resolved_target in resolve_reference(target):
+            if resolved_target in visited:
+                continue
+            visited.add(resolved_target)
+            collector = collectors.get(resolved_target[0])
+            if collector is None:
+                continue
+            collector.visit_callable(resolved_target)
+    edges = {
+        module: set(collectors[module].edges) if module in collectors else set()
+        for module in module_names
+    }
+    dispatch_observations = sorted(
+        (
+            dict(row)
+            for collector in collectors.values()
+            for row in collector.dispatch_observations.values()
+        ),
+        key=lambda row: (
+            str(row["source_path"]),
+            int(row["line"]),
+            int(row["column"]),
+            str(row["reason"]),
+        ),
+    )
+    return edges, dispatch_observations
+
+def collect_import_graph(
+    *,
+    runtime_only: bool = False,
+    source_snapshot: _ImportSourceSnapshot | None = None,
+    allow_incomplete: bool = False,
+) -> dict[str, Any]:
+    """Collect the full AST baseline graph or its module-initialization import graph."""
+    snapshot = source_snapshot or _collect_import_source_snapshot()
+    input_errors = _import_source_errors(snapshot)
+    if input_errors and not allow_incomplete:
+        first = input_errors[0]
+        raise ImportGraphInputError(
+            "cannot build a complete import graph: "
+            f"{first.get('path')} [{first.get('outcome')}]",
+            source_snapshot=snapshot,
+        )
+    module_paths = snapshot.module_paths
+    trees = snapshot.trees
+    module_names = set(module_paths)
+    dispatch_observations: list[dict[str, Any]] = []
+    if runtime_only:
+        edges, dispatch_observations = _collect_runtime_import_edges(trees, module_paths)
+    else:
+        edges = {module: set() for module in module_names}
+        for module, tree in trees.items():
+            for node in ast.walk(tree):
+                candidates: list[str] = []
+                if isinstance(node, ast.Import):
+                    candidates.extend(alias.name for alias in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    base = _resolve_relative_import(module, node.module, node.level)
+                    candidates.append(base)
+                    candidates.extend(
+                        f"{base}.{alias.name}" for alias in node.names if alias.name != "*"
+                    )
+                for candidate in candidates:
+                    resolved = _nearest_known_module(candidate, module_names)
+                    if resolved and resolved != module:
+                        edges[module].add(resolved)
     edge_rows = [
         {"source": source, "target": target}
         for source, targets in sorted(edges.items())
@@ -734,23 +5191,55 @@ def collect_import_graph() -> dict[str, Any]:
         {"id": f"cycle-{_sha('|'.join(cycle))}", "modules": cycle}
         for cycle in sorted(cycles, key=lambda item: (len(item), item))
     ]
-    return {
+    graph: dict[str, Any] = {
         "version": 1,
         "generated_at": datetime.now(UTC).isoformat(),
         "collector": "tools.quality.validation.decomposition_preflight.collect_import_graph",
-        "collector_mode": "internal_ast_import_graph",
+        "collector_mode": (
+            "internal_ast_runtime_import_graph" if runtime_only else "internal_ast_import_graph"
+        ),
         "pydeps_available": shutil.which("pydeps") is not None,
         "import_linter_available": importlib.util.find_spec("importlinter") is not None
         or importlib.util.find_spec("import_linter") is not None,
         "notes": (
-            "Phase 3A uses a deterministic AST import graph collector because pydeps/import-linter "
-            "are not required dev dependencies in this workspace."
+            "Module-eager graph includes module/class bodies and source-resolved calls within "
+            "the AST binding collector's supported forms; targetless reflective/callback "
+            "dispatch remains separately not_established. TYPE_CHECKING and deferred function "
+            "bodies are omitted."
+            if runtime_only
+            else (
+                "Phase 3A uses a deterministic AST import graph collector because pydeps/import-linter "
+                "are not required dev dependencies in this workspace."
+            )
         ),
         "module_count": len(module_names),
         "edge_count": len(edge_rows),
         "cycles": cycle_rows,
         "edges": edge_rows,
     }
+    if runtime_only:
+        graph["dispatch_resolution"] = {
+            "scope": "source-resolved module-initialization calls supported by the AST binding collector",
+            "status": "not_established"
+            if any(row["status"] == "not_established" for row in dispatch_observations)
+            else "resolved_within_scope",
+            "resolved_count": sum(row["status"] == "resolved" for row in dispatch_observations),
+            "unresolved_count": sum(
+                row["status"] == "not_established" for row in dispatch_observations
+            ),
+            "observations": dispatch_observations,
+            "unresolved": [
+                row for row in dispatch_observations if row["status"] == "not_established"
+            ],
+            "unmodeled_dispatch_forms": [
+                {
+                    "form": "reflective_or_callback_valued_receiver",
+                    "status": "not_established",
+                    "reason": "no source-resolved target is available for enumeration",
+                }
+            ],
+        }
+    return graph
 
 
 def _nearest_known_module(candidate: str, module_names: set[str]) -> str | None:
@@ -811,7 +5300,7 @@ def render_lazy_toml(import_graph: Mapping[str, Any]) -> str:
         'status = "fail_closed"',
         'owner = "team-architecture"',
         'phase = "3A"',
-        'notes = "Allowed pre-decomposition lazy SCCs. New SCC signatures fail import_cycles_gate."',
+        'notes = "Registered deferred SCCs are retained; new full-graph SCCs and source-resolved module-eager cycles fail the gate, as does source-known not-established module-time dispatch."',
         "",
     ]
     for cycle in import_graph.get("cycles", []):
@@ -1088,24 +5577,66 @@ def validate_dynamic_imports() -> list[Finding]:
     return findings
 
 
-def validate_import_cycles() -> list[Finding]:
+def validate_import_cycles(
+    *, source_snapshot: _ImportSourceSnapshot | None = None
+) -> list[Finding]:
     findings: list[Finding] = []
     if not LAZY_IMPORTS_PATH.exists():
-        return [
-            Finding(
-                "import_cycles_gate", "lazy import registry is missing", _rel(LAZY_IMPORTS_PATH)
-            )
-        ]
-    data = tomllib.loads(LAZY_IMPORTS_PATH.read_text(encoding="utf-8"))
-    allowed = {tuple(sorted(entry["modules"])) for entry in data.get("allowed_cycle", [])}
-    current_graph = collect_import_graph()
-    current = {tuple(sorted(cycle["modules"])) for cycle in current_graph.get("cycles", [])}
-    for cycle in sorted(current - allowed):
         findings.append(
-            Finding("import_cycles_gate", "new non-lazy import cycle", ", ".join(cycle))
+            Finding("import_cycles_gate", "lazy import registry is missing", _rel(LAZY_IMPORTS_PATH))
         )
-    return findings
+    else:
+        data = tomllib.loads(LAZY_IMPORTS_PATH.read_text(encoding="utf-8"))
+        allowed = {tuple(sorted(entry["modules"])) for entry in data.get("allowed_cycle", [])}
+        snapshot = source_snapshot or _collect_import_source_snapshot()
+        full_graph = collect_import_graph(source_snapshot=snapshot, allow_incomplete=True)
+        eager_graph = collect_import_graph(
+            runtime_only=True, source_snapshot=snapshot, allow_incomplete=True
+        )
+        full_cycles = {tuple(sorted(cycle["modules"])) for cycle in full_graph.get("cycles", [])}
+        eager_cycles = {tuple(sorted(cycle["modules"])) for cycle in eager_graph.get("cycles", [])}
 
+        for cycle in sorted(full_cycles - allowed):
+            message = (
+                "new module-eager import cycle"
+                if cycle in eager_cycles
+                else "new import cycle without deferred-cycle registration"
+            )
+            findings.append(Finding("import_cycles_gate", message, ", ".join(cycle)))
+        allowed_components = {frozenset(cycle) for cycle in allowed}
+        for cycle in sorted(eager_cycles):
+            eager_component = frozenset(cycle)
+            if any(eager_component <= registered for registered in allowed_components):
+                findings.append(
+                    Finding(
+                        "import_cycles_gate",
+                        "registered deferred-cycle signature contains a module-eager cycle",
+                        ", ".join(cycle),
+                    )
+                )
+        for dispatch in eager_graph["dispatch_resolution"]["unresolved"]:
+            findings.append(
+                Finding(
+                    "import_cycles_gate",
+                    "module-time source-known dispatch is not established",
+                    (
+                        f"{dispatch['source_path']}:{dispatch['line']}:{dispatch['column']} "
+                        f"{dispatch['expression']} [{dispatch['reason']}]"
+                    ),
+                )
+            )
+        for error in _import_source_errors(snapshot):
+            findings.append(
+                Finding(
+                    "import_cycles_gate",
+                    "selected source input is incomplete",
+                    (
+                        f"{error.get('path')} [{error.get('outcome')}] "
+                        f"{error.get('error_type', '')}: {error.get('error', '')}"
+                    ).strip(),
+                )
+            )
+    return findings
 
 def validate_public_surface_snapshot() -> list[Finding]:
     return _compare_json_snapshot(
@@ -1113,6 +5644,7 @@ def validate_public_surface_snapshot() -> list[Finding]:
         PUBLIC_SURFACE_BASELINE_PATH,
         collect_public_surface_snapshot(),
         ignore_keys={"generated_at"},
+        normalizer=_normalize_public_surface_snapshot,
     )
 
 
@@ -1212,12 +5744,21 @@ def validate_import_time_regression(
 
 
 def _compare_json_snapshot(
-    gate: str, baseline_path: Path, current: Mapping[str, Any], *, ignore_keys: set[str]
+    gate: str,
+    baseline_path: Path,
+    current: Mapping[str, Any],
+    *,
+    ignore_keys: set[str],
+    normalizer: Callable[[Any], Any] | None = None,
 ) -> list[Finding]:
     if not baseline_path.exists():
         return [Finding(gate, "baseline snapshot is missing", _rel(baseline_path))]
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
-    if _normalize_snapshot(baseline, ignore_keys) != _normalize_snapshot(current, ignore_keys):
+    baseline_value = baseline if normalizer is None else normalizer(baseline)
+    current_value = current if normalizer is None else normalizer(current)
+    if _normalize_snapshot(baseline_value, ignore_keys) != _normalize_snapshot(
+        current_value, ignore_keys
+    ):
         return [Finding(gate, "snapshot drift detected", _rel(baseline_path))]
     return []
 
@@ -1234,7 +5775,58 @@ def _normalize_snapshot(value: Any, ignore_keys: set[str]) -> Any:
     return value
 
 
-def generate_blueprint() -> str:
+def _is_public_surface_object_record(value: Any) -> bool:
+    """Return whether a v1 object row has the collector's source-coordinate shape."""
+    if not isinstance(value, dict):
+        return False
+    line = value.get("line")
+    if not isinstance(line, int) or isinstance(line, bool) or line <= 0:
+        return False
+    if not isinstance(value.get("name"), str) or not isinstance(
+        value.get("fqn"), str
+    ):
+        return False
+    if value.get("kind") == "class":
+        return isinstance(value.get("bases"), list) and isinstance(
+            value.get("pydantic"), bool
+        )
+    return value.get("kind") in {"function", "async_function"} and isinstance(
+        value.get("signature"), str
+    )
+
+
+def _normalize_public_surface_snapshot(value: Any) -> Any:
+    """Drop only the v1 object-row source coordinate before snapshot comparison."""
+    normalized = _normalize_snapshot(value, set())
+    if not isinstance(normalized, dict):
+        return normalized
+    schema_version = normalized.get("version")
+    if type(schema_version) is not int or schema_version != 1:
+        return normalized
+    packages = normalized.get("packages")
+    if not isinstance(packages, list):
+        return normalized
+    for package in packages:
+        if not isinstance(package, dict):
+            continue
+        modules = package.get("modules")
+        if not isinstance(modules, list):
+            continue
+        for module in modules:
+            if not isinstance(module, dict):
+                continue
+            objects = module.get("objects")
+            if not isinstance(objects, list):
+                continue
+            for object_record in objects:
+                if _is_public_surface_object_record(object_record):
+                    object_record.pop("line")
+    return normalized
+
+
+def generate_blueprint(
+    *, import_source_snapshot: _ImportSourceSnapshot | None = None
+) -> str:
     move_map = collect_move_map()
     move_paths = [REPO_ROOT / item["source_path"] for item in move_map]
     importers = collect_external_importers(move_map)
@@ -1242,7 +5834,7 @@ def generate_blueprint() -> str:
     schema_usage = collect_openapi_model_usage(pydantic_models)
     registrations = collect_registration_audit(move_paths)
     pickle_inventory = collect_pickle_inventory()
-    import_graph = collect_import_graph()
+    import_graph = collect_import_graph(source_snapshot=import_source_snapshot)
     dynamic_entries = collect_dynamic_imports()
     max_lifetime_days = _max_workflow_lifetime_days()
     shim_sunset_days = max(60, 2 * max_lifetime_days)
@@ -1347,8 +5939,15 @@ def generate_blueprint() -> str:
             "",
             f"- Modules in scientist/foundry graph: {import_graph['module_count']}",
             f"- Edges in graph: {import_graph['edge_count']}",
-            f"- Pre-existing lazy SCCs: {len(import_graph['cycles'])}",
-            "- Allowed lazy cycles are frozen in `architecture/imports/lazy.toml`.",
+            "- Deferred SCCs remain in the full AST baseline and the historical inventory in `architecture/imports/lazy.toml`.",
+            "- The blocking gate checks source-resolved module-initialization calls supported by the deterministic AST binding collector, including direct construction, tracked instances, and joined class-member values.",
+            "- Source-known calls whose factory return, inherited method, custom-`__new__` allocation, rebound receiver, or possible binding target remains unresolved produce machine-readable `not_established` rows and fail the gate.",
+            "- One `_BindingKnowledge` value carries every known value variant and the possible-unknown bit through function, module, and class-member exports; joins union targets and OR uncertainty, so one known candidate cannot erase another path.",
+            "- Targetless reflective or callback-valued receivers remain machine-reported as "
+            "`not_established` outside the source-resolved gate scope; this collector does not "
+            "claim whole-language module-eager completeness. `TYPE_CHECKING` and uncalled "
+            "function bodies are deferred.",
+            "- A deferred-cycle entry never suppresses a source-resolved module-eager cycle.",
             "- The baseline graph records the collector mode; this workspace uses the internal",
             "  deterministic AST graph because `pydeps`/`import-linter` are not required dev",
             "  dependencies here.",
@@ -1430,11 +6029,14 @@ def _parse_datetime(value: str) -> datetime | None:
     return parsed
 
 
-def write_phase3a_artifacts(*, import_runs: int = 10, include_import_time: bool = True) -> None:
+def write_phase3a_artifacts(
+    *, import_runs: int = 10, include_import_time: bool = True
+) -> dict[str, Any]:
+    import_source_snapshot = _collect_import_source_snapshot()
+    import_graph = collect_import_graph(source_snapshot=import_source_snapshot)
+    dynamic_entries = collect_dynamic_imports()
     BASELINE_DIR.mkdir(parents=True, exist_ok=True)
     (REPO_ROOT / "architecture" / "imports").mkdir(parents=True, exist_ok=True)
-    dynamic_entries = collect_dynamic_imports()
-    import_graph = collect_import_graph()
     create_checkpoint_fixtures()
     atomic_write_text(DYNAMIC_IMPORTS_PATH, render_dynamic_imports_toml(dynamic_entries))
     atomic_write_text(LAZY_IMPORTS_PATH, render_lazy_toml(import_graph))
@@ -1446,15 +6048,45 @@ def write_phase3a_artifacts(*, import_runs: int = 10, include_import_time: bool 
         atomic_write_json(IMPORT_TIME_BASELINE_PATH, measure_import_time(runs=import_runs))
     elif not IMPORT_TIME_BASELINE_PATH.exists():
         atomic_write_json(IMPORT_TIME_BASELINE_PATH, {"version": 1, "runs": 0})
-    atomic_write_text(BLUEPRINT_PATH, generate_blueprint())
+    atomic_write_text(
+        BLUEPRINT_PATH, generate_blueprint(import_source_snapshot=import_source_snapshot)
+    )
+    return _import_graph_input_receipt(import_source_snapshot)
 
 
-def run_all_gates(*, live_import_time: bool = False) -> list[Finding]:
+
+def _print_import_graph_input_receipt(receipt: Mapping[str, Any]) -> None:
+    """Print selector facts and every selected path/hash/outcome for text callers."""
+    print("Import graph input receipt:")
+    print(
+        json.dumps(
+            {
+                "coverage_status": receipt["coverage_status"],
+                "selected_count": receipt["selected_count"],
+                "outcome_counts": receipt["outcome_counts"],
+                "input_manifest_sha256": receipt["input_manifest_sha256"],
+                "selector": receipt["selector"],
+                "dispatch_resolution": receipt["observed_graphs"]["module_initialization"]["dispatch_resolution"],
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    )
+    for item in receipt["input_manifest"]:
+        print(json.dumps(item, ensure_ascii=False, sort_keys=True))
+    for error in receipt["discovery_errors"]:
+        print(json.dumps(error, ensure_ascii=False, sort_keys=True))
+
+def run_all_gates(
+    *,
+    live_import_time: bool = False,
+    import_source_snapshot: _ImportSourceSnapshot | None = None,
+) -> list[Finding]:
     findings: list[Finding] = []
     findings.extend(validate_dynamic_imports())
     findings.extend(validate_pickle_fixtures())
     findings.extend(validate_public_surface_snapshot())
-    findings.extend(validate_import_cycles())
+    findings.extend(validate_import_cycles(source_snapshot=import_source_snapshot))
     findings.extend(validate_schema_diff())
     findings.extend(validate_reexport_shim_shapes())
     findings.extend(validate_import_time_regression(live=live_import_time))
@@ -1476,14 +6108,27 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.command == "generate":
-        write_phase3a_artifacts(
-            import_runs=args.import_runs,
-            include_import_time=not args.skip_import_time,
-        )
+        try:
+            import_receipt = write_phase3a_artifacts(
+                import_runs=args.import_runs,
+                include_import_time=not args.skip_import_time,
+            )
+        except ImportGraphInputError as error:
+            print(f"Phase 3A decomposition preflight artifacts NOT generated: {error}")
+            _print_import_graph_input_receipt(
+                _import_graph_input_receipt(error.source_snapshot)
+            )
+            return 1
         print("Phase 3A decomposition preflight artifacts generated.")
+        _print_import_graph_input_receipt(import_receipt)
         return 0
 
-    findings = run_all_gates(live_import_time=args.live_import_time)
+    import_source_snapshot = _collect_import_source_snapshot()
+    import_receipt = _import_graph_input_receipt(import_source_snapshot)
+    findings = run_all_gates(
+        live_import_time=args.live_import_time,
+        import_source_snapshot=import_source_snapshot,
+    )
     payload = {
         "status": "failed" if findings else "passed",
         "finding_count": len(findings),
@@ -1491,9 +6136,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             {"gate": finding.gate, "message": finding.message, "detail": finding.detail}
             for finding in findings
         ],
+        "import_graph_input_receipt": import_receipt,
     }
     if args.output_json is not None:
         atomic_write_json(args.output_json, payload)
+    _print_import_graph_input_receipt(import_receipt)
     if findings:
         print("Phase 3A decomposition preflight gates FAILED:")
         for finding in findings:

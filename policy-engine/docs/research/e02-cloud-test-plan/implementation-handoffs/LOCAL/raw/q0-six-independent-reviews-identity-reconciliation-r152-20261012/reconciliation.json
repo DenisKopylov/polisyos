@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.q0_six_review_identity_reconciliation.v1",
+  "source_checkpoint": {
+    "head": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "tree": "887ba4d0e59a604f71409a45bedd0189ca684999",
+    "candidate_freeze": false
+  },
+  "coverage": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "denominator": "ALL findings rows and ALL criterion_refs",
+    "findings": 282,
+    "occurrences": 291,
+    "unique_occurrences": 291
+  },
+  "independent_review_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket0-independent-r1-20261012/independent-bucket0-review.json",
+      "sha256": "4e6b6ff56f6c24e7192939844d4124fb74a9e2c8cbe652a06c4a607a716254fc",
+      "rows": 65,
+      "row_key": "rows",
+      "next_check_pointer_key": "next_falsifier_or_input",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket0-independent-r1-20261012/independent-bucket0-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket1-independent-r1-20261012/bucket1-independent-review.json",
+      "sha256": "acbe9d3db1d0a8fe45c78f5688f695c0996c65d22cb788d1b401baad64405d4c",
+      "rows": 65,
+      "row_key": "occurrences",
+      "next_check_pointer_key": "next_falsifier_or_missing_input",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket1-independent-r1-20261012/bucket1-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket2-independent-r1-20261012/independent-bucket2-review.json",
+      "sha256": "2402e5a81c0c8b5df98623b43e8867f00df113ad334995fa3e7247fb0700305b",
+      "rows": 65,
+      "row_key": "rows",
+      "next_check_pointer_key": "next_discriminator_and_authority_input",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket2-independent-r1-20261012/independent-bucket2-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket0-independent-r1-20261012/review.json",
+      "sha256": "a96c8c44df23d60b5c66ed5ea17b381615f0a7e2b839aa04e57f3d7dcaeac126",
+      "rows": 32,
+      "row_key": "rows",
+      "next_check_pointer_key": "next_discriminating_input",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket0-independent-r1-20261012/review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket1-independent-r1-20261012/complement-bucket1-independent-review.json",
+      "sha256": "f5acf8ea7f3a37b0ec339ae993115d220deeb6cf91c2b84a1331163505e46b64",
+      "rows": 32,
+      "row_key": "occurrences",
+      "next_check_pointer_key": "next_falsifier_or_genuine_missing_input",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket1-independent-r1-20261012/complement-bucket1-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket2-independent-r1-20261012/32-row-independent-review.json",
+      "sha256": "66dac818822ea9509657f797b40171069eb4cdd1474247b21b0f279dde930193",
+      "rows": 32,
+      "row_key": "rows",
+      "next_check_pointer_key": "independent_review",
+      "availability": "local_readback",
+      "git_object": "HEAD:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket2-independent-r1-20261012/32-row-independent-review.json"
+    }
+  ],
+  "controls": {
+    "complete_counter_equal": true,
+    "row_removed_rejected": true,
+    "duplicate_replacing_sibling_rejected": true,
+    "criterion_hash_corrupt_rejected": true
+  },
+  "repeated_canonical_occurrences": {
+    "finding_ids": 8,
+    "occurrences": 17,
+    "excess_over_one_per_id": 9,
+    "collapsed": false
+  },
+  "historical_ledger_status_counts": {
+    "partial": 260,
+    "open": 1,
+    "closed": 9,
+    "held": 12
+  },
+  "B198": [
+    {
+      "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/117",
+      "criterion_refs": 1,
+      "ledger_status_historical": "closed",
+      "closure_now": "not_adjudicated"
+    }
+  ],
+  "claim_boundary": "Identity/count/source-review availability reconciliation only. Independent whole-property interpretations remain source-inspection evidence; current candidate runtime verification and criterion-owner alignment are not established by these checks. Individual outcomes/boundaries/next checks stay at the cited per-row source pointers. This is not closure adjudication.",
+  "formal_closure_ids": []
+}

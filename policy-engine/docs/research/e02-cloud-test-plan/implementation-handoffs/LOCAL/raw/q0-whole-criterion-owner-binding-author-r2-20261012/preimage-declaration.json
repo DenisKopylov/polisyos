@@ -1,0 +1,378 @@
+{
+  "schema": "policyos.e02.q0_whole_criterion_owner_binding_preimage_declaration.r2.v1",
+  "status": "PREIMAGES_VERIFIED_ALL_R2_TARGETS_ABSENT_BEFORE_PROJECTION",
+  "lease": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012",
+  "observed_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "tree": "887ba4d0e59a604f71409a45bedd0189ca684999",
+    "qualification": "committed checkpoint only; root-owned shared worktree contains other uncommitted changes, no tracked source path will be written by this lease"
+  },
+  "target_preimages": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/preimage-declaration.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/virtual_projection.py",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/virtual-projection.patch",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/binding-decision-packet.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/controls.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/checks/negative-controls.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/checks/summary.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/checks/projection-self-check.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/checks/projection-self-check.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    }
+  ],
+  "immutable_r1": {
+    "preimage_declaration_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/preimage-declaration.json",
+    "preimage_declaration_sha256": "c9006bf7c514c808cd4f56fa6a75aef8f3212b4051b33f463476ae20d665da32",
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/binding-decision-packet.json",
+        "bytes": 19366,
+        "sha256": "74b2dd55c356acb7a5fc21c111b68228134e51feb302da327d86cc8da84b5378",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/negative-controls.json",
+        "bytes": 59957,
+        "sha256": "cd358046012ffccbadd205c7ff29481b4911d4b889b93c28adacdf66a3d1d1d2",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/projection-self-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/projection-self-check.stdout.txt",
+        "bytes": 14843,
+        "sha256": "7dafaf2bd579205495ef8e4060a7c68ea73aab48a0617ebe3fdabc59478358db",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/summary.json",
+        "bytes": 13278,
+        "sha256": "3d53a54661682977d43b9f0b9e10b3cccf2777132e9107ca8eae6b057fe9ebd8",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/controls.json",
+        "bytes": 2478,
+        "sha256": "2c089c6de4e2b76867a320f6488adfd64a9b1d412134aabe18b0e60424e62420",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/preimage-declaration.json",
+        "bytes": 16159,
+        "sha256": "c9006bf7c514c808cd4f56fa6a75aef8f3212b4051b33f463476ae20d665da32",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/virtual-projection.patch",
+        "bytes": 14908,
+        "sha256": "4b56eb6313d2fedd9b057bb502f0d75dab1987b63e0a9996d0998c6edda10dd4",
+        "mode_octal": "0644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/virtual_projection.py",
+        "bytes": 72897,
+        "sha256": "ee9032be198322fa51b68e59115b3d3363df68e4d4ac18516c8a7eff7e990e73",
+        "mode_octal": "0644"
+      }
+    ],
+    "qualification": "read-only exact R1 base; independent-review findings are residuals in the same class and no R1 file is modified"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-whole-criterion-owner-binding-independent-r1-20261012.md",
+    "sha256": "9bce4024c717a967410cbe6be1f278088ccf8ab579de4bcefc8bdb99d86098b8",
+    "probe_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-independent-r1-20261012/mutation-probes.json",
+    "probe_sha256": "d60fb15f1a4d18031b230dd0171bca4e013ad87b11deeff46554cf5428290a99"
+  },
+  "owner_input_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+    "bytes": 3164592,
+    "sha256": "82d6fcfe2b8f74b725e51a19467b5aa4a506788f3c7349ae5c41599ba775d339",
+    "filesystem_mode_octal": "0644",
+    "git_tree_mode": null,
+    "tracked_path": false,
+    "would_be_blob_object_present": false,
+    "local_availability": "available_local_readback_only_untracked",
+    "source_commit": null,
+    "qualification": "SHA-256 and filesystem mode identify current local bytes only; no Git object, commit, capsule, producer authority, or positive criterion alignment is claimed"
+  },
+  "projection_target": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual_emitter.py",
+    "sha256": "8aea1349580570fd4c73869072e0abb4f4cb8bc8deb096dafc7639ff32d04afb",
+    "mode_octal": "0644",
+    "qualification": "read-only local consumer projection preimage, not a registered product consumer"
+  },
+  "registered_producer": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+    "sha256": "4d5e70c67f62af07cdb7d3313ad3caa2a689172888b44051c13bb07e6dbbacec",
+    "qualification": "read-only input; R2 does not modify canonical emitter"
+  },
+  "identity_helper": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-occurrence-identity-repair-r1-20261011/occurrence_identity.py",
+    "sha256": "b86ff9c636193f184d0e3a21bae87dccd8d41629b8f14336ccbbe70df4c660ee",
+    "use": "preserve exact full occurrence identity multiset"
+  },
+  "source_preimages": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "bytes": 648034,
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 550854,
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "bytes": 27989,
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/final-author-proposal-report-readiness.md",
+      "bytes": 6266,
+      "sha256": "3ec8d4e7ffe6b916d90b505e34d9ce14a91dc1b499da573c20b3637b2f23dbf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-canonical-validation-r1-20261011.md",
+      "bytes": 7367,
+      "sha256": "4c348a42eefc2915dfa9c07d9220a0a4ab7d9d76a94f4373b291c68869fce93e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-current-draft-readiness.md",
+      "bytes": 6471,
+      "sha256": "def2c1a286dd9be5857acb34b3a662d03cab02577ba2ae12a8830a6f5f476ad6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-current-source-readiness-1ab7d354-20261011.json",
+      "bytes": 2594876,
+      "sha256": "251223abbdb43a897a315f8381118174a4b74f0e2f2672e72e84192dd2b7edad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-evidence-intake-r9-20261011.md",
+      "bytes": 5221,
+      "sha256": "c6cbd56a1ff19b6bb99fe3f1c1dbc83c926d96034fbecd96a27dd0a2073a2983"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-prefreeze-current-proposal-intake-20261011-v1.json",
+      "bytes": 2788607,
+      "sha256": "6877638035b47477a91ce10d566de261586716333d1544c141bfa89814e2c169"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+      "bytes": 3164592,
+      "sha256": "82d6fcfe2b8f74b725e51a19467b5aa4a506788f3c7349ae5c41599ba775d339"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+      "bytes": 301151,
+      "sha256": "4d5e70c67f62af07cdb7d3313ad3caa2a689172888b44051c13bb07e6dbbacec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/build_final_author_proposal_report.py",
+      "bytes": 71979,
+      "sha256": "bd76d9c0174029400131cebaa49964d7b6d853af68479594a2947b13c2a4c6ed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-evidence-intake-r9-20261011/full-id-evidence-intake.json",
+      "bytes": 331014,
+      "sha256": "b1bb010af6db0f98fe8fd60c145e478a520f8936ba23b2522f5f55184ec038e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-occurrence-identity-repair-r1-20261011/occurrence_identity.py",
+      "bytes": 3657,
+      "sha256": "b86ff9c636193f184d0e3a21bae87dccd8d41629b8f14336ccbbe70df4c660ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/checks/full-manifest.json",
+      "bytes": 17252,
+      "sha256": "a180c4c5d3dcb92c29133df51c229847b738a58de41e1e8321ab2c6d0bff5bb4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/fixture_patch.diff",
+      "bytes": 1887,
+      "sha256": "609863a802fbb500b1d1291e6c82a9b54d463f8f64c42beea690d5bc25c08f38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/preimage-declaration.json",
+      "bytes": 15812,
+      "sha256": "cc9ea5dfe97b7caf19ea5ca7cb77b10305751efa79dc51497bdb40273d21edba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/synthetic-environment.json",
+      "bytes": 290,
+      "sha256": "6db7f492fa94f5563d8d92b492f7811f3c6dfc2fef8e02e736fb4aaabb680b68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/verify_fixture_fix.py",
+      "bytes": 54866,
+      "sha256": "d36b0225381079bece6da2de468cf58d33b684adc9cdaa288bd9bbc75a272fe9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/controls.json",
+      "bytes": 2208,
+      "sha256": "9acf4439c480ea582730852008e94c5276843176be19a03b1293f667bd44c653"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/full-manifest.json",
+      "bytes": 28585,
+      "sha256": "5881ecd1544df279d9d6748ae5e582703a1c21d23eeb61e2aa00b9c19cf0d143"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/preimage-declaration.json",
+      "bytes": 13030,
+      "sha256": "19ba38a5f33564fc377aafa32c89bcdd0bb68a65732484530e5668d288c3e9e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/proposal-decision-packet.json",
+      "bytes": 4985925,
+      "sha256": "93c0ddd918e8d95502a2fdd4d85802065b3d9fdb75bd2d6f608bcd6080f28c0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual_emitter.py",
+      "bytes": 42157,
+      "sha256": "8aea1349580570fd4c73869072e0abb4f4cb8bc8deb096dafc7639ff32d04afb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/binding-decision-packet.json",
+      "bytes": 19366,
+      "sha256": "74b2dd55c356acb7a5fc21c111b68228134e51feb302da327d86cc8da84b5378"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/negative-controls.json",
+      "bytes": 59957,
+      "sha256": "cd358046012ffccbadd205c7ff29481b4911d4b889b93c28adacdf66a3d1d1d2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/projection-self-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/projection-self-check.stdout.txt",
+      "bytes": 14843,
+      "sha256": "7dafaf2bd579205495ef8e4060a7c68ea73aab48a0617ebe3fdabc59478358db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/checks/summary.json",
+      "bytes": 13278,
+      "sha256": "3d53a54661682977d43b9f0b9e10b3cccf2777132e9107ca8eae6b057fe9ebd8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/controls.json",
+      "bytes": 2478,
+      "sha256": "2c089c6de4e2b76867a320f6488adfd64a9b1d412134aabe18b0e60424e62420"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/preimage-declaration.json",
+      "bytes": 16159,
+      "sha256": "c9006bf7c514c808cd4f56fa6a75aef8f3212b4051b33f463476ae20d665da32"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/virtual-projection.patch",
+      "bytes": 14908,
+      "sha256": "4b56eb6313d2fedd9b057bb502f0d75dab1987b63e0a9996d0998c6edda10dd4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r1-20261012/virtual_projection.py",
+      "bytes": 72897,
+      "sha256": "ee9032be198322fa51b68e59115b3d3363df68e4d4ac18516c8a7eff7e990e73"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-independent-r1-20261012/mutation-probes.json",
+      "bytes": 1896,
+      "sha256": "d60fb15f1a4d18031b230dd0171bca4e013ad87b11deeff46554cf5428290a99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket0-independent-r1-20261012/independent-bucket0-review.json",
+      "bytes": 711752,
+      "sha256": "4e6b6ff56f6c24e7192939844d4124fb74a9e2c8cbe652a06c4a607a716254fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket1-independent-r1-20261012/complement-bucket1-independent-review.json",
+      "bytes": 343117,
+      "sha256": "f5acf8ea7f3a37b0ec339ae993115d220deeb6cf91c2b84a1331163505e46b64"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-whole-criterion-owner-binding-independent-r1-20261012.md",
+      "bytes": 8205,
+      "sha256": "9bce4024c717a967410cbe6be1f278088ccf8ab579de4bcefc8bdb99d86098b8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/README.md",
+      "bytes": 6543,
+      "sha256": "23c41494d14ad9d28e5914d0de9cbb3ab2a59b2a8bc838313a10358d03965c80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "bytes": 114380,
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "bytes": 11686,
+      "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "bytes": 7835,
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    }
+  ],
+  "review_findings": {
+    "class": "SAME_CLASS_DEEPER projection integrity gap",
+    "property": "the actual local report consumer must source-recompute and compare the complete owner-derived projection, not a fixed subset of siblings",
+    "required_result": "all 291 rows remain explicitly not_established; original criterion identity and owner scope remain distinct"
+  },
+  "scope": {
+    "finding_ids": 282,
+    "canonical_occurrences": 291,
+    "assignment_refs": 319,
+    "expanded_routes": 331,
+    "historical_source_author_closed_ids": 198,
+    "B198": "preserve existing historical/source-author fields; candidate remains UNRUN and formal closure false",
+    "candidate_states": {
+      "UNRUN": 291
+    },
+    "formal_G": "not_adjudicated",
+    "formal_closure_ids": [],
+    "owner_assessed_property": "null on all rows",
+    "criterion_owner_alignment": "not_established on all rows",
+    "criterion_text_copied": false
+  },
+  "source_freeze_requirements_for_root": {
+    "replayable_owner_input": "commit the exact owner draft path/content with Git object and mode, or create an immutable content-addressed capsule that preserves bytes, SHA-256, mode, producer/schema/provenance and source refs; update the consumer input manifest to that durable identity",
+    "replayable_consumer": "promote/register the currently local raw report builder and its dependency/validation code as a normal source artifact, wire its producer and consumer, and bind source version/provenance/time",
+    "positive_alignment": "require a separate source-qualified independent semantic basis; owner input availability, owner refs, role names, or hash adjacency alone cannot establish alignment"
+  },
+  "decision_scope": "virtual local review projection only; no tracked source, index, history, or candidate/runtime result writes"
+}

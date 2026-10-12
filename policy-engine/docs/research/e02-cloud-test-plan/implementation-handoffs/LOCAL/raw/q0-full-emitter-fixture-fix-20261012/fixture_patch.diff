@@ -1,0 +1,31 @@
+diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py
+index 7c813b526697e8016431136949bdc87a00e1854f..d8bcdb79f8a8729268583f0d20c57f40e65177d6 100644
+--- a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py
++++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py
+@@ -5833,10 +5833,25 @@
+         "parents": candidate_parent_ids,
+         "source_footprint": [{"path": "policy-engine/tests/unit/example.py", "change": "M"}],
+         "selected_inputs": [],
+-        "backend_profile": {"status": "named"},
++        "backend_profile": {
++            "backend_id": "self-check-backend",
++            "profile_id": "self-check-profile",
++            "environment_sha256": "6db7f492fa94f5563d8d92b492f7811f3c6dfc2fef8e02e736fb4aaabb680b68",
++            "environment_manifest_ref": {
++                "storage": "ignored_local_raw",
++                "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/synthetic-environment.json",
++                "sha256": "6db7f492fa94f5563d8d92b492f7811f3c6dfc2fef8e02e736fb4aaabb680b68",
++                "candidate_source": {
++                    "commit": "b16a69e6f8cae05ed4f97ae8654822810319c062",
++                    "tree": "8e92cd8ab1d8bff5d49bb5f099b1fadda3492696"
++                },
++                "availability": "available_local_readback"
++            }
++        },
+         "commands": [
+             {
+                 "argv": ["python", "-m", "pytest"],
++                "cwd": "policy-engine",
+                 "status": "PASS",
+                 "stdout_ref": {
+                     "storage": "ignored_local_raw",

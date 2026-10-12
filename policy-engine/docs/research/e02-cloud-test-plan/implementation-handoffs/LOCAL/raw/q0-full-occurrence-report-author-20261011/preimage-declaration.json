@@ -1,0 +1,208 @@
+{
+  "schema": "policyos.e02.q0_full_occurrence_report_preimage_declaration.v1",
+  "status": "PREIMPLEMENTATION_DECLARATION_READY",
+  "observed_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d24fdfc9d79ea109b4aa102cc6856a3cd8985583",
+    "tree": "d9f977e7bd6c568f4a0e3f83195d9241a3e68f9a",
+    "worktree": "dirty; unrelated/root-owned source paths preserved"
+  },
+  "lease": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011",
+  "generator": {
+    "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+    "canonical_sha256": "4d5e70c67f62af07cdb7d3313ad3caa2a689172888b44051c13bb07e6dbbacec",
+    "execution": "reuse load_sources(provisional=True), build_ledger(None), validate_ledger(), serialized_json(); no write to canonical finding-proposals.json or crosswalk/receipt.json",
+    "identity_helper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-occurrence-identity-repair-r1-20261011/occurrence_identity.py",
+    "identity_helper_sha256": "b86ff9c636193f184d0e3a21bae87dccd8d41629b8f14336ccbbe70df4c660ee",
+    "known_unregistered_adapter_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/build_final_author_proposal_report.py",
+    "known_unregistered_adapter_sha256": "bd76d9c0174029400131cebaa49964d7b6d853af68479594a2947b13c2a4c6ed",
+    "adapter_use": "inspection only; not invoked as report producer or admission path"
+  },
+  "source_preimages": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 550854,
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/README.md",
+      "bytes": 6543,
+      "sha256": "23c41494d14ad9d28e5914d0de9cbb3ab2a59b2a8bc838313a10358d03965c80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "bytes": 7835,
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "bytes": 114380,
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/inputs.json",
+      "bytes": 11686,
+      "sha256": "5c9068d134f391eeb26dbed01d59197b009bda01bef55646eb97dcf4a1079b28"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "bytes": 27989,
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py",
+      "bytes": 301151,
+      "sha256": "4d5e70c67f62af07cdb7d3313ad3caa2a689172888b44051c13bb07e6dbbacec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-occurrence-identity-repair-r1-20261011/occurrence_identity.py",
+      "bytes": 3657,
+      "sha256": "b86ff9c636193f184d0e3a21bae87dccd8d41629b8f14336ccbbe70df4c660ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/build_final_author_proposal_report.py",
+      "bytes": 71979,
+      "sha256": "bd76d9c0174029400131cebaa49964d7b6d853af68479594a2947b13c2a4c6ed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+      "bytes": 3164592,
+      "sha256": "82d6fcfe2b8f74b725e51a19467b5aa4a506788f3c7349ae5c41599ba775d339"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-prefreeze-current-proposal-intake-20261011-v1.json",
+      "bytes": 2788607,
+      "sha256": "6877638035b47477a91ce10d566de261586716333d1544c141bfa89814e2c169"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-evidence-intake-r9-20261011/full-id-evidence-intake.json",
+      "bytes": 331014,
+      "sha256": "b1bb010af6db0f98fe8fd60c145e478a520f8936ba23b2522f5f55184ec038e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-current-source-readiness-1ab7d354-20261011.json",
+      "bytes": 2594876,
+      "sha256": "251223abbdb43a897a315f8381118174a4b74f0e2f2672e72e84192dd2b7edad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/final-author-proposal-report-readiness.md",
+      "bytes": 6266,
+      "sha256": "3ec8d4e7ffe6b916d90b505e34d9ce14a91dc1b499da573c20b3637b2f23dbf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-current-draft-readiness.md",
+      "bytes": 6471,
+      "sha256": "def2c1a286dd9be5857acb34b3a662d03cab02577ba2ae12a8830a6f5f476ad6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-canonical-validation-r1-20261011.md",
+      "bytes": 7367,
+      "sha256": "4c348a42eefc2915dfa9c07d9220a0a4ab7d9d76a94f4373b291c68869fce93e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/full-id-evidence-intake-r9-20261011.md",
+      "bytes": 5221,
+      "sha256": "c6cbd56a1ff19b6bb99fe3f1c1dbc83c926d96034fbecd96a27dd0a2073a2983"
+    }
+  ],
+  "target_preimages": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual_emitter.py",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual-emitter.patch",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/proposal-decision-packet.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/full-manifest.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/controls.json",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/import-results-check.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/import-results-check.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-check.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-check.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-self-check.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-self-check.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-emit.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-emit.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-check.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-check.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-finalize.stdout.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-finalize.stderr.txt",
+      "preimage": "ABSENT_VERIFIED"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/source-bound-checks.json",
+      "preimage": "ABSENT_VERIFIED"
+    }
+  ],
+  "property": "Preserve the exact multiset (finding_id, coverage_pointer, criterion_sha256) for the 282 IDs / 291 whole original criterion occurrences while keeping source-author history, current proposal, candidate evaluation, and formal G state distinct.",
+  "authority_boundary": {
+    "candidate_evaluation": "UNRUN until source freeze and semantic composition",
+    "source_freeze": "provisional only; final freeze not established",
+    "formal_G": "not_adjudicated",
+    "formal_closure_ids": []
+  },
+  "command_output_targets": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/import-results-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/import-results-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-self-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/registered-emitter-self-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-emit.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-emit.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-check.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-finalize.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/virtual-emitter-finalize.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/checks/source-bound-checks.json"
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "schema": "policyos.e02.q0_whole_criterion_owner_binding_decision_packet.v1",
+  "status": "VIRTUAL_CONSUMER_PROJECTION_ONLY",
+  "decision": "Keep the original criterion and owner-scoped assertion separate. Withhold `owner_assessed_property` as a whole-property claim until a source-qualified independent semantic binding is actually available; current prototype supports only not_established.",
+  "pattern_pass": {
+    "P40_bucket": "NEW_CLASS criterion↔owner scoped-property misbinding; B26 is SAME_CLASS_DEEPER, so repair the all-291 projection mechanism rather than patching LA-033 alone.",
+    "relevant_register_ids": [
+      "P32",
+      "P36",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_anti_pattern": "The report consumer copies the owner current_mechanism.property into the field named owner_assessed_property under whole_property without an independent criterion↔owner semantic binding.",
+    "property": "The original source-qualified whole criterion for each occurrence remains distinct from a narrower owner-scoped mechanism/assertion.",
+    "implementation": "The current consumer projected owner property field; the virtual repair emits it as null and retains the exact owner assertion pointer under a separate scoped reference, while binding original criterion identity/source.",
+    "divergent_case": "LA-033: original LA_r09 criterion source span vs owner replay/PII-scan scoped assertion. B26: original B_r19 pairwise-vs-global criterion vs owner N5/CAS/fresh-N8 persistence chain.",
+    "bounded_state": "all 291 criterion-owner alignments remain not_established; no positive or partial independent alignment is implemented in this prototype",
+    "capability_state": "local review projection only; no public surface, runtime candidate execution, or formal adjudication"
+  },
+  "examples": {
+    "LA-033": {
+      "finding_id": "LA-033",
+      "coverage_occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/257/criterion_refs/0",
+      "criterion_sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+      "original_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "lines_1_based_inclusive": [
+          1994,
+          2028
+        ]
+      },
+      "owner_scoped_assertion": {
+        "draft_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+        "draft_occurrence_pointer": "#/occurrences/262",
+        "property_pointer": "#/occurrences/262/technical_assessment/current_mechanism_or_bounded_path/property",
+        "owner_assessment_row_pointer": "#/rows/31"
+      },
+      "independent_review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket1-independent-r1-20261012/complement-bucket1-independent-review.json",
+        "sha256": "f5acf8ea7f3a37b0ec339ae993115d220deeb6cf91c2b84a1331163505e46b64",
+        "qualification": "source-qualified review ref; this virtual repair does not convert review into authority closure or runtime evidence"
+      }
+    },
+    "B26": {
+      "finding_id": "B26",
+      "coverage_occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/151/criterion_refs/0",
+      "criterion_sha256": "5463d473d7e526f8ae3debc24fee9850889ed6c33dfbd4bcd44ae05dab8ea5a2",
+      "original_source": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          517,
+          530
+        ]
+      },
+      "owner_scoped_assertion": {
+        "draft_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+        "draft_occurrence_pointer": "#/occurrences/151",
+        "owner_assessment_row_pointer": "#/rows/21"
+      },
+      "provenance_qualification": "root-supplied second SAME_CLASS_DEEPER example; source/draft identity is bound by the input preimages, new complement review stream is not treated as frozen here"
+    }
+  },
+  "alternatives": [
+    {
+      "name": "Minimal consumer projection qualification",
+      "choice": "selected for virtual review",
+      "impact": "Preserves both source sides and the owner mechanism, sets the direct whole-property field to null, and makes every row explicitly not_established until independent binding exists.",
+      "compatibility": "Keeps the existing v1 field key but changes an unqualified owner string to null. Consumers that require a string must read the explicit scoped owner reference; no source/crosswalk schema or historical artifact changes.",
+      "boundary": "No owner assertion, task route, field role, or self-label can produce an independently reconciled state."
+    },
+    {
+      "name": "Consolidate alignment admission into the registered emitter",
+      "choice": "defer to root design/source-freeze decision",
+      "impact": "Would move the crosswalk/whole-property admission contract into the canonical producer and require a typed independent-basis artifact, content-bound admission, and consumer/source-freeze integration.",
+      "compatibility": "Broader migration of the registered ledger/report schema and validator; not required to safely render this provisional human-review artifact and no basis contract is established here.",
+      "boundary": "A future consolidation must not treat owner role refs, text similarity, marker presence, or SHA-only adjacency as alignment proof."
+    },
+    {
+      "name": "Keep owner string and add a qualification marker",
+      "choice": "rejected",
+      "impact": "Leaves the old direct field consumable as a whole-property value and relies on readers to honor a neighboring marker.",
+      "failure_class": "P32/P38 marker or proxy gate; fails remove-qualification/keep-markers falsifier."
+    }
+  ],
+  "preservation": {
+    "source_author_closed_ids": 198,
+    "B198_history_and_closure": "preserved unchanged; candidate remains UNRUN and formal closure remains false",
+    "finding_ids": 282,
+    "occurrences": 291,
+    "distinct_task_assignment_refs": 319,
+    "expanded_occurrence_route_refs": 331,
+    "candidate_states": {
+      "UNRUN": 291
+    },
+    "formal_G": "not_adjudicated",
+    "formal_closure_ids": []
+  },
+  "source_checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+    "tree": "887ba4d0e59a604f71409a45bedd0189ca684999",
+    "source_freeze_status": "provisional_source_checkpoint_not_frozen",
+    "source_freeze_candidate_source": {
+      "commit": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+      "tree": "887ba4d0e59a604f71409a45bedd0189ca684999"
+    },
+    "source_change_census_ref": "/source_boundary/source_freeze/source_change_census",
+    "qualification": "provisional source checkpoint; not final candidate identity"
+  },
+  "original_criterion_source_validation": {
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_file_type_denominator": {
+      "json": 1
+    },
+    "canonical_occurrences_walked": 291,
+    "distinct_finding_ids": 282,
+    "criterion_source_reference_file_type_denominator": {
+      "md": 291
+    },
+    "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_source_documents": 2,
+    "source_document_file_type_denominator": {
+      "md": 2
+    },
+    "coverage_blobs_match_historical_head_and_worktree": true,
+    "all_original_line_span_hashes_recomputed": true,
+    "criterion_text_copied": false
+  },
+  "fixture_overlay": {
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/fixture_patch.diff",
+    "patch_sha256": "609863a802fbb500b1d1291e6c82a9b54d463f8f64c42beea690d5bc25c08f38",
+    "environment_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/synthetic-environment.json",
+    "environment_sha256": "6db7f492fa94f5563d8d92b492f7811f3c6dfc2fef8e02e736fb4aaabb680b68",
+    "historical_environment_candidate_source": {
+      "commit": "b16a69e6f8cae05ed4f97ae8654822810319c062",
+      "tree": "8e92cd8ab1d8bff5d49bb5f099b1fadda3492696"
+    },
+    "historical_patch_exactly_reproduced": true,
+    "historical_patch_strict_apply_check_exit_code": 0,
+    "historical_patch_check_stdout": "",
+    "historical_patch_check_stderr": "Checking patch policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py...\n",
+    "historical_fixture_self_check": "not_replayed_against_descendant_source; pinned source marker is historical",
+    "current_source_candidate": {
+      "commit": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+      "tree": "887ba4d0e59a604f71409a45bedd0189ca684999"
+    },
+    "current_environment_virtual_sha256": "60a2994d15572b2c7a25802fd0a89950805bcce11cae27bd4e5c1f2b254db59b",
+    "current_fixture_patch_virtual_sha256": "1c6bbc34f53a81fb573f0afab581d4ddf0de865bed0f7e6ce67adf7298f960c9",
+    "current_virtual_emitter_sha256": "436e96c9059b43f22b30afc8c6241e1d1ae1ca68d76f786414c50b8c8430b534",
+    "current_patch_strict_apply_check_exit_code": 0,
+    "current_patch_check_stdout": "",
+    "current_patch_check_stderr": "Checking patch policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/emit_proposals.py...\n",
+    "git_apply_check_exit_code": 0,
+    "self_check_mode": "self_check",
+    "candidate_evaluations_written": 0,
+    "self_check_stdout": "{\n  \"scope\": \"ledger integrity only; no runtime proof or G closure\",\n  \"finding_ids\": 282,\n  \"canonical_occurrences\": 291,\n  \"candidate_states\": {\n    \"UNRUN\": 291\n  },\n  \"author_crosswalk_occurrence_states\": {\n    \"exact_occurrence_and_card_bound\": 220,\n    \"finding_and_card_bound_distinct_author_criterion_text\": 60,\n    \"exact_text_occurrence_card_not_established\": 11\n  },\n  \"author_crosswalk_by_source\": {\n    \"A\": {\n      \"exact_occurrence_and_card_bound\": 35\n    },\n    \"B\": {\n      \"finding_and_card_bound_distinct_author_criterion_text\": 60\n    },\n    \"C\": {\n      \"exact_occurrence_and_card_bound\": 50,\n      \"exact_text_occurrence_card_not_established\": 9\n    },\n    \"D\": {\n      \"exact_occurrence_and_card_bound\": 46\n    },\n    \"E\": {\n      \"exact_occurrence_and_card_bound\": 55\n    },\n    \"F\": {\n      \"exact_occurrence_and_card_bound\": 34,\n      \"exact_text_occurrence_card_not_established\": 2\n    }\n  },\n  \"route_census\": {\n    \"task_definitions\": 26,\n    \"route_assignments\": 319,\n    \"routed_finding_ids\": 282,\n    \"route_gaps\": 0,\n    \"ids_with_multiple_task_routes\": 35,\n    \"q0_finding_ids\": 206,\n    \"author_closed_ids\": 198,\n    \"author_closed_ids_on_q0\": 198,\n    \"author_closed_ids_missing_q0\": [],\n    \"q0_nonclosed_ids\": [\n      \"B11\",\n      \"B14\",\n      \"B24\",\n      \"LA-029\",\n      \"LA-034\",\n      \"LA-038\",\n      \"LA-039\",\n      \"LA-045\"\n    ],\n    \"q0_occurrences\": 212,\n    \"author_proposal_counts\": {\n      \"open\": 7,\n      \"limited\": 54,\n      \"closed\": 198,\n      \"held\": 23\n    },\n    \"basis\": {\n      \"coverage\": {\n        \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json\",\n        \"file_type\": \"JSON\",\n        \"finding_ids\": 282,\n        \"criterion_occurrences\": 291\n      },\n      \"author_findings\": {\n        \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json\",\n        \"file_type\": \"JSON\",\n        \"finding_ids\": 282,\n        \"criterion_occurrences\": 291\n      },\n      \"task_routes\": {\n        \"path\": \"policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json\",\n        \"file_type\": \"JSON\"\n      }\n    }\n  },\n  \"source_freeze_status\": \"provisional_source_checkpoint_not_frozen\",\n  \"provisional_review_states\": {\n    \"source_qualified_author_review_pending_final_candidate_freeze\": 291\n  },\n  \"external_or_g_choice_kinds\": {\n    \"named_source_owner_action\": 29,\n    \"G_decision_or_intake\": 4,\n    \"named_owner_next_verifiable_result\": 43,\n    \"targeted_current_candidate_verification_then_G_adjudication\": 46,\n    \"external_served_input_or_G_review\": 4,\n    \"G_criterion_scoped_action\": 59,\n    \"named_owner_or_G_review\": 56,\n    \"external_owner_input_then_G_source_admission\": 12,\n    \"G_source_review_and_affected_consumer_replay\": 34,\n    \"external_input_or_G_review\": 2,\n    \"source_author_residual_or_G_review\": 2\n  },\n  \"remaining_queue\": {\n    \"G_intake_after_frozen_wave_receipt_reconciliation\": {\n      \"occurrences\": 1,\n      \"finding_ids\": 1\n    },\n    \"G_review_of_exact_A_receipt_and_selected_source\": {\n      \"occurrences\": 5,\n      \"finding_ids\": 5\n    },\n    \"G_source_acceptance_and_exact_finding_intake\": {\n      \"occurrences\": 36,\n      \"finding_ids\": 36\n    },\n    \"check_generic_join_compatibility_and_diagnostic_claim_boundary\": {\n      \"occurrences\": 1,\n      \"finding_ids\": 1\n    },\n    \"execute_exact_selected_plan_or_record_tested_supported_profile_unavailability\": {\n      \"occurrences\": 45,\n      \"finding_ids\": 42\n    },\n    \"freeze_public_boundary_review_then_affected_native_routes\": {\n      \"occurrences\": 2,\n      \"finding_ids\": 2\n    },\n    \"historical_closed_regression_falsifier_only\": {\n      \"occurrences\": 1,\n      \"finding_ids\": 1\n    },\n    \"replay_final_public_reader_affected_native_sampling\": {\n      \"occurrences\": 2,\n      \"finding_ids\": 2\n    },\n    \"replay_named_changed_consumer_paths\": {\n      \"occurrences\": 14,\n      \"finding_ids\": 14\n    },\n    \"resolve_author_named_residual_then_G_adjudication\": {\n      \"occurrences\": 44,\n      \"finding_ids\": 42\n    },\n    \"reuse_carried_evidence_only_if_exact_candidate_property_unchanged\": {\n      \"occurrences\": 33,\n      \"finding_ids\": 31\n    },\n    \"run_occurrence_specific_current_property_consumer_negative\": {\n      \"occurrences\": 40,\n      \"finding_ids\": 39\n    },\n    \"verify_admitted_F_source_and_per_ID_evidence_for_exact_occurrence\": {\n      \"occurrences\": 34,\n      \"finding_ids\": 33\n    },\n    \"verify_retained_scope_on_selected_source_then_G_intake\": {\n      \"occurrences\": 33,\n      \"finding_ids\": 33\n    }\n  },\n  \"formal_closure_ids\": [],\n  \"occurrences\": 291,\n  \"unrun_occurrences\": 291,\n  \"count_preserving_mutations_rejected\": 11,\n  \"typed_report_artifact_rejections\": 6,\n  \"empty_occurrence_update_input_accepted\": true,\n  \"frozen_context_corruptions_rejected\": 2,\n  \"task_level_status_rejected\": true,\n  \"input_context_corruptions_rejected\": 2,\n  \"candidate_evaluations_written\": 0,\n  \"typed_slice_handoff_probe_accepted\": true,\n  \"typed_slice_source_relation_candidate_parent_count\": 1,\n  \"typed_slice_forged_parent_rejected\": true,\n  \"typed_slice_candidate_tree_mismatch_rejected\": true,\n  \"typed_slice_base_tree_mismatch_rejected\": true,\n  \"typed_slice_nonancestor_base_rejected\": true,\n  \"typed_slice_root_commit_without_parents_accepted\": true,\n  \"typed_slice_empty_initial_commit_header_accepted\": true,\n  \"typed_slice_ordered_merge_parent_header_accepted\": true,\n  \"git_read_boundary_checks\": {\n    \"production_git_subprocess_calls_centralized\": true,\n    \"immutable_git_reads_observed\": 9,\n    \"synthetic_replacement_parent_view_demonstrated\": true,\n    \"synthetic_replacement_parent_view_rejected\": true,\n    \"shallow_repository_rejected\": true,\n    \"active_grafts_rejected\": true,\n    \"missing_candidate_normalized_to_value_error\": true,\n    \"missing_slice_base_normalized_to_value_error\": true,\n    \"missing_parent_normalized_to_value_error\": true,\n    \"complete_census_path_count\": 3376,\n    \"graph_self_ancestry_delta_count\": 0\n  },\n  \"ignored_local_raw_available_readback_accepted\": true,\n  \"ignored_local_raw_mutations_rejected\": 6,\n  \"ignored_local_raw_symlink_rejected\": true,\n  \"ignored_local_raw_parent_symlink_rejected\": true,\n  \"shared_two_occurrence_decision_map_accepted\": true,\n  \"three_distinct_decisions_for_one_occurrence_accepted\": true,\n  \"all_selected_decision_sources_validated\": true,\n  \"shared_second_occurrence_decision_source_validated\": true,\n  \"exact_duplicate_decision_row_rejected\": true,\n  \"later_selected_decision_source_corruption_rejected\": true,\n  \"foreign_occurrence_decision_source_rejected\": true,\n  \"issuer_only_g_refusal_context_accepted\": true,\n  \"issuer_only_wrong_criterion_hash_rejected\": true,\n  \"issuer_only_wrong_decision_role_rejected\": true,\n  \"shared_decision_mapping_mutations_rejected\": 5,\n  \"forged_occurrence_criterion_rejected\": true,\n  \"p40_sequence_probe_accepted\": true,\n  \"p40_sequence_mutations_rejected\": 4,\n  \"mode\": \"self_check\"\n}\n",
+    "self_check_stderr": "",
+    "self_check_stdout_sha256": "f3d80b78580149addf123baab543f468f40b66631d5529b04d77c4dbd393119f",
+    "self_check_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualification": "synthetic validator-shape fixture only; no runtime/candidate evidence"
+  },
+  "virtual_patch": {
+    "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual_emitter.py",
+    "base_sha256": "8aea1349580570fd4c73869072e0abb4f4cb8bc8deb096dafc7639ff32d04afb",
+    "virtual_sha256": "7b76d6f02ac27b0bbe22c34ad5752090b3ac36ffda378789f18cc145f2271925",
+    "patch_bytes": 21835,
+    "patch_sha256": "91e8e8c79e07d1da33f8c7309077dd39855011686144a6f56f1e31045f905bcc",
+    "strict_zero_fuzz_check": {
+      "argv": [
+        "git",
+        "apply",
+        "--check",
+        "--verbose"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Checking patch policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-occurrence-report-author-20261011/virtual_emitter.py...\n"
+    },
+    "applied_to_source": false
+  },
+  "limitations": [
+    "The output is a provisional author/review projection, not a final source freeze or product capability claim.",
+    "All 291 candidates remain UNRUN and all formal G states remain not_adjudicated.",
+    "The prototype cannot admit positive or partial alignment; a proper source-qualified semantic basis and consumer contract remain a root design decision.",
+    "No original criterion text is copied into this packet; source paths, spans, pointers, and hashes are retained."
+  ],
+  "r2_projection_integrity": {
+    "review_disposition": "SAME_CLASS_DEEPER; close the complete-projection quantity rather than patching LA-033, B26, or three siblings individually.",
+    "property": "The report consumer must render every whole_property member from its source-bound inputs without accepting packet-side corruption/removal; this is projection integrity only, not semantic alignment or runtime proof.",
+    "implementation": "At the consumer boundary, rebuild the complete report through the registered proposal path from the pinned inputs, then compare the full whole_property object for each (finding_id, coverage pointer, criterion SHA-256). The source draft's local bytes, SHA-256, and filesystem mode are reread and bound before accepting a packet.",
+    "actual_consumer_falsifier": "Every canonical row has a sibling corruption/removal probe through the shared whole-object comparator; LA-033 and B26 additionally exercise corrupt/remove for each reviewed sibling through the actual packet validator.",
+    "source_identity": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/crosswalk/occurrence-evaluations-draft.json",
+      "bytes": 3164592,
+      "sha256": "82d6fcfe2b8f74b725e51a19467b5aa4a506788f3c7349ae5c41599ba775d339",
+      "filesystem_mode_octal": "0644",
+      "git_tree_mode": null,
+      "tracked_path": false,
+      "would_be_blob_object_present": false,
+      "local_availability": "available_local_readback_only_untracked",
+      "source_commit": null,
+      "qualification": "SHA-256 and filesystem mode identify current local bytes only; no Git object, commit, capsule, producer authority, or positive criterion alignment is claimed"
+    },
+    "semantic_alignment": "not_established for all 291 occurrences; owner_assessed_property stays null, no partial or positive alignment is produced, and the owner-scoped assertion remains a separate reference.",
+    "capability_state": "virtual local report projection only; the local raw report builder is not a registered product consumer, and the untracked owner draft is not a replayable committed/capsule input",
+    "decision": "Keep the minimal qualification at the actual local report consumer and widen its validator to full source recomputation. Do not consolidate into the registered emitter until owner input has durable identity and a typed integration contract; do not use a field-name/marker or SHA-adjacency proxy as semantic alignment.",
+    "alternatives": [
+      {
+        "option": "Full local consumer recomputation and comparison (selected for this virtual repair)",
+        "impact": "Catches drift or packet mutation anywhere in the complete owner-derived occurrence object while keeping authority status fail-closed.",
+        "compatibility": "Preserves existing report shape and history; source owner assertion is still available via its scoped reference; candidate remains UNRUN."
+      },
+      {
+        "option": "Consolidate into the registered canonical emitter",
+        "impact": "Would make this a broader persisted producer/consumer contract and needs source-freeze integration.",
+        "required_inputs": [
+          "durable owner draft object/capsule with bytes, SHA-256, mode, provenance, producer/schema, source refs, and currentness",
+          "registered report projection/validator and its consumer integration",
+          "independent criterion-to-owner semantic basis before any positive admission"
+        ],
+        "choice": "deferred; required for a replayable product capability, not asserted by this local prototype"
+      },
+      {
+        "option": "Patch the three reported sibling fields or keep a qualification marker",
+        "impact": "Rejected: sibling escapes are the same class and finite field patching/marker presence does not prove whole-object integrity.",
+        "failure_class": "P32/P38/P40"
+      }
+    ],
+    "minimal_ordinary_source_commit_or_capsule_inputs_for_root": {
+      "owner_source": "Preserve the exact current owner draft path and content as a tracked commit/blob with tree mode, or an immutable capsule containing exact bytes and mode; include producer/schema/version, provenance, source refs, and source/currentness semantics. The current local digest is a readback pin only.",
+      "report_consumer": "Promote the ignored local report builder and its complete validator as a normal versioned source artifact, bind it to the producer input manifest, and wire its consumer and behavioral test.",
+      "alignment": "Keep criterion/owner alignment not_established until an independent source-qualified semantic comparison is available; owner references and projection hashes do not create this basis."
+    },
+    "source_checkpoint_ref": "#/source_checkpoint",
+    "formal_authority": {
+      "formal_G": "not_adjudicated",
+      "formal_closure_ids": [],
+      "candidate_states": {
+        "UNRUN": 291
+      },
+      "history_198_and_B198": "preserved unchanged"
+    },
+    "P37_predicate_classification": {
+      "criterion_source_identity": "recomputed from the coverage occurrence and pinned historical source span/hash",
+      "owner_local_file_bytes_and_mode": "recomputed from current local readback; durable source provenance not_established",
+      "criterion_to_owner_semantic_alignment": "not_established",
+      "owner assertion meaning/scope": "consumer_asserted in the local owner draft",
+      "candidate execution and formal closure": "not_established / not_adjudicated"
+    },
+    "P38_boundary": {
+      "property_checked": "complete consumer projection equals the fresh source-derived projection for each exact occurrence identity",
+      "code_checks": "fresh full packet rebuild plus equality of each entire whole_property object; owner input file SHA/mode and untracked status are freshly checked",
+      "divergent_semantic_case": "LA-033 original LA_r09 migration-compatibility criterion vs narrower owner replay/PII assertion; B26 original pairwise-vs-global additivity criterion vs owner persistence chain",
+      "limit": "This prevents consumer-side projection divergence; a generator and its re-run could still share a semantic mapping error. No owner assertion is admitted as whole criterion, so that semantic alignment remains not_established."
+    },
+    "preimage_declaration": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-whole-criterion-owner-binding-author-r2-20261012/preimage-declaration.json",
+      "sha256": "31612369e86d6dd0801ea881c12caae76f7ba4aa0971d5c6f19af0d1eea287bc"
+    }
+  }
+}

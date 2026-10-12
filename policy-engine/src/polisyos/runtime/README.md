@@ -10,7 +10,9 @@ clients, dashboards, and operator tooling.
 ## Where to Start
 
 - `src/polisyos/runtime/__init__.py` for the stable replay facade.
-- `src/polisyos/runtime/replay.py` for replay planning and verification logic.
+- `src/polisyos/runtime/replay.py` only for the legacy compatibility facade; the
+  canonical replay implementation is
+  `src/polisyos/scientist/replay/deterministic.py`.
 - `src/polisyos/runtime/quality/closeout_reader.py` for the fail-closed
   Universal Policy Design Case closeout reader skeleton.
 - `src/polisyos/runtime/quality/concept_spine.py` for W2.A hybrid concept-spine

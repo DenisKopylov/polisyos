@@ -73,7 +73,6 @@ from polisyos.ir.registry.refs import (
     PolicyRecommendationRef,
     StrategicPayoffTableRef,
 )
-from polisyos.runtime.replay import measure_replayable_audit_bundle
 from polisyos.scientist.compute import run_c7_advanced_suite
 from polisyos.scientist.governance import (
     BacktestKind,
@@ -100,6 +99,7 @@ from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
 )
+from polisyos.scientist.replay.deterministic import measure_replayable_audit_bundle
 
 pytestmark = [
     pytest.mark.integration,

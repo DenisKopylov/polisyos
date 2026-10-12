@@ -6,7 +6,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindings,
     StateSnapshotRef,
 )
-from polisyos.runtime.replay import completeness_check
+from polisyos.scientist.replay.deterministic import completeness_check
 
 
 def _put_json(store: FileSystemCAS, payload, *, kind: str):

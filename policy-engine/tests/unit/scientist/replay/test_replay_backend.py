@@ -18,7 +18,6 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.run.context import RunContext
-from polisyos.runtime.replay import VerificationConfig, VerificationMode
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -28,6 +27,7 @@ from polisyos.scientist.replay.backend import (
     replay_dead_letter,
     replay_packet,
 )
+from polisyos.scientist.replay.deterministic import VerificationConfig, VerificationMode
 
 
 class _ArtifactStoreProxy:

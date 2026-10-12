@@ -12,7 +12,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     StateSnapshotRef,
 )
-from polisyos.runtime.replay import (
+from polisyos.scientist.replay.deterministic import (
     VerificationConfig,
     VerificationMode,
     completeness_check,

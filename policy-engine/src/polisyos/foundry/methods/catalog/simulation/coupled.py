@@ -404,7 +404,8 @@ class CoupledSMMEstimator:
             "Gourieroux, C., Monfort, A., and Renault, E. (1993). Indirect inference. Journal of Applied Econometrics.",
         ),
         output_interpretation=(
-            "Best comparable grid point, fitted moments, loss, and the evaluated surface; "
+            "Best comparable grid point, fitted moments with repeat denominators, required-set "
+            "loss, and the evaluated surface; non-required moments are diagnostic-only, and "
             "no-comparable candidates are blocked rather than selecting the first point."
         ),
     )
@@ -449,6 +450,11 @@ class CoupledSMMEstimator:
                 "best_params": result.best_params,
                 "best_loss": result.best_loss,
                 "fitted_summary": result.fitted_summary,
+                "fitted_moment_counts": result.fitted_moment_counts,
+                "fitted_repeat_denominator": result.fitted_repeat_denominator,
+                "required_moments": result.required_moments,
+                "comparison_basis": result.comparison_basis,
+                "optional_moment_status": result.optional_moment_status,
                 "observed_summary": result.observed_summary,
                 "evaluated": list(result.evaluated),
                 "comparison_status": result.comparison_status,

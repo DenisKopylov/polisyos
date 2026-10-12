@@ -85,3 +85,75 @@ def test_explicit_empty_required_moment_set_is_not_replaced_by_observed_keys() -
             {"welfare": 0.0},
             required_moment_names=(),
         )
+
+
+def test_smm_optional_means_keep_their_repeat_denominators_and_do_not_rank() -> None:
+    """B25: returned optional diagnostics retain each metric's actual sample count."""
+
+    def runner(params: dict[str, float], seed: int | None) -> dict[str, float]:
+        assert seed is not None
+        required = 0.0 if params["candidate"] == 0.0 else 10.0
+        summary = {"required": required}
+        if params["candidate"] == 1.0 or seed == 11:
+            summary["optional_signal"] = 1.0
+        if seed == 13:
+            summary["emergent_optional_13"] = 9.0
+        return summary
+
+    kwargs = {
+        "parameter_grid": {"candidate": (0.0, 1.0)},
+        "runner": runner,
+        "observed_summary": {"required": 0.0},
+        "required_moment_names": ("required",),
+        "seeds": (11, 13, 17),
+    }
+    result = calibrate_coupled_smm(**kwargs)
+    reversed_result = calibrate_coupled_smm(**{**kwargs, "seeds": (17, 13, 11)})
+    sparse, dense = result.evaluated
+    reversed_sparse, reversed_dense = reversed_result.evaluated
+
+    assert sparse["summary"]["optional_signal"] == dense["summary"]["optional_signal"] == 1.0
+    assert sparse["moment_counts"]["optional_signal"] == 1
+    assert dense["moment_counts"]["optional_signal"] == 3
+    assert sparse["moment_counts"]["emergent_optional_13"] == 1
+    assert dense["moment_counts"]["emergent_optional_13"] == 1
+    assert sparse["diagnostic_only_moments"] == ("emergent_optional_13", "optional_signal")
+    assert sparse["optional_moment_status"] == "diagnostic_only"
+    assert sparse["comparison_basis"] == "required_moments_only"
+    assert sparse["summary"] == reversed_sparse["summary"]
+    assert sparse["moment_counts"] == reversed_sparse["moment_counts"]
+    assert dense["summary"] == reversed_dense["summary"]
+    assert dense["moment_counts"] == reversed_dense["moment_counts"]
+
+    # Optional coverage is descriptive; the required moment alone still selects the fit.
+    assert result.best_params == {"candidate": 0.0}
+    assert result.fitted_summary == sparse["summary"]
+    assert result.fitted_moment_counts == sparse["moment_counts"]
+    assert result.fitted_repeat_denominator == 3
+    assert result.required_moments == ("required",)
+    assert result.comparison_basis == "required_moments_only"
+    assert result.optional_moment_status == "diagnostic_only"
+
+
+def test_smm_missing_required_moment_cannot_win_with_complete_optional_diagnostics() -> None:
+    """Optional coverage cannot compensate for a missing required comparison moment."""
+
+    def runner(params: dict[str, float], seed: int | None) -> dict[str, float]:
+        del seed
+        if params["candidate"] == 0.0:
+            return {"easy": 0.0, "optional": 0.0}
+        return {"easy": 0.0, "hard": 99.0, "optional": 0.0}
+
+    result = calibrate_coupled_smm(
+        {"candidate": (0.0, 1.0)},
+        runner,
+        {"easy": 0.0, "hard": 100.0},
+        required_moment_names=("easy", "hard"),
+        seeds=(11, 13, 17),
+    )
+
+    assert result.best_params == {"candidate": 1.0}
+    missing = next(item for item in result.evaluated if item["params"] == {"candidate": 0.0})
+    assert missing["loss"] == float("inf")
+    assert missing["missing_moments"] == ("hard",)
+    assert missing["moment_counts"] == {"easy": 3, "hard": 0, "optional": 3}

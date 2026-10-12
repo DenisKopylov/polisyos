@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import numpy as np
+import pytest
 
 from polisyos.ir.analytics.phase4_dynamics import verify_strangle_receipt
 
@@ -187,3 +188,40 @@ def test_coupled_smm_exposes_blocked_when_no_candidate_is_comparable(isolated_re
     assert result["best_params"] is None
     assert result["comparison_status"] == "no_comparable"
     assert result["status"] == "blocked"
+
+
+def test_coupled_smm_serializes_selected_repeat_denominators(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The native method output binds fitted means to their counts and comparison basis."""
+    import polisyos.foundry.methods.catalog.simulation.coupled as coupled_module
+
+    def fake_run_coupled_policy(
+        state: dict[str, object], params: dict[str, object]
+    ) -> dict[str, dict[str, float]]:
+        del state
+        summary = {"required": 0.0}
+        if params["seed"] == 11:
+            summary["diagnostic_only_signal"] = 1.0
+        return {"summary": summary}
+
+    monkeypatch.setattr(coupled_module, "_run_coupled_policy", fake_run_coupled_policy)
+    output = coupled_module.CoupledSMMEstimator.pure_step(
+        {"observed_moments": np.asarray([0.0])},
+        {
+            "moment_names": ("required",),
+            "service_rate_grid": (1.0,),
+            "benefit_amount_grid": (0.0,),
+            "seeds": (11, 13, 17),
+        },
+    )["result"]
+    selected = output["evaluated"][0]
+
+    assert output["fitted_summary"] == selected["summary"]
+    assert output["fitted_moment_counts"] == selected["moment_counts"]
+    assert output["fitted_moment_counts"] == {"diagnostic_only_signal": 1, "required": 3}
+    assert output["fitted_repeat_denominator"] == 3
+    assert output["required_moments"] == ("required",)
+    assert output["comparison_basis"] == "required_moments_only"
+    assert output["optional_moment_status"] == "diagnostic_only"
+    assert selected["diagnostic_only_moments"] == ("diagnostic_only_signal",)

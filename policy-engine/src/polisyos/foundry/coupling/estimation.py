@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import product
 from math import sqrt
 from typing import Any, Literal
@@ -32,7 +32,7 @@ class QueueMLEEstimate:
 
 @dataclass(frozen=True)
 class SMMResult:
-    """Best summary-match fit over a bounded parameter search surface."""
+    """Best summary-match fit with metric counts and its comparison basis."""
 
     best_params: dict[str, float] | None
     best_loss: float
@@ -41,6 +41,11 @@ class SMMResult:
     evaluated: tuple[dict[str, Any], ...]
     comparison_status: Literal["comparable", "no_comparable"]
     status: Literal["ready", "blocked"]
+    required_moments: tuple[str, ...] = ()
+    fitted_moment_counts: dict[str, int] = field(default_factory=dict)
+    fitted_repeat_denominator: int | None = None
+    comparison_basis: Literal["required_moments_only"] = "required_moments_only"
+    optional_moment_status: Literal["diagnostic_only"] = "diagnostic_only"
 
 
 @dataclass(frozen=True)
@@ -243,14 +248,23 @@ def calibrate_coupled_smm(
     evaluated: list[dict[str, Any]] = []
     best_params: dict[str, float] | None = None
     best_summary: dict[str, float] | None = None
+    best_moment_counts: dict[str, int] | None = None
+    best_repeat_denominator: int | None = None
     best_loss = float("inf")
     for combination in product(*values):
         params = dict(zip(names, combination, strict=True))
         summaries = [runner(params, seed) for seed in seeds]
         averaged = _average_summaries(summaries)
+        returned_moment_names = sorted(
+            set(required).union(*(summary.keys() for summary in summaries))
+        )
         moment_counts = {
-            name: sum(1 for summary in summaries if name in summary) for name in required
+            name: sum(1 for summary in summaries if name in summary)
+            for name in returned_moment_names
         }
+        diagnostic_only_moments = tuple(
+            name for name in returned_moment_names if name not in required
+        )
         missing_moments = tuple(
             name for name in required if moment_counts[name] != len(summaries)
         )
@@ -270,6 +284,10 @@ def calibrate_coupled_smm(
                 "summary": averaged,
                 "required_moments": required,
                 "moment_counts": moment_counts,
+                "repeat_denominator": len(summaries),
+                "diagnostic_only_moments": diagnostic_only_moments,
+                "optional_moment_status": "diagnostic_only",
+                "comparison_basis": "required_moments_only",
                 "missing_moments": missing_moments,
             }
         )
@@ -277,6 +295,8 @@ def calibrate_coupled_smm(
             best_loss = loss
             best_params = params
             best_summary = averaged
+            best_moment_counts = moment_counts
+            best_repeat_denominator = len(summaries)
 
     comparison_status: Literal["comparable", "no_comparable"] = (
         "comparable" if best_params is not None else "no_comparable"
@@ -292,6 +312,11 @@ def calibrate_coupled_smm(
         evaluated=tuple(evaluated),
         comparison_status=comparison_status,
         status=status,
+        required_moments=required,
+        fitted_moment_counts=best_moment_counts or {},
+        fitted_repeat_denominator=best_repeat_denominator,
+        comparison_basis="required_moments_only",
+        optional_moment_status="diagnostic_only",
     )
 
 

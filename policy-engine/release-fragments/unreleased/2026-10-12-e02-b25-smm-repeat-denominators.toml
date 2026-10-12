@@ -1,0 +1,15 @@
+id = "2026-10-12-e02-b25-smm-repeat-denominators"
+title = "Retain actual repeat denominators for fitted SMM diagnostics"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "SMM results retain per-moment counts for the complete required and returned metric set, the repeat denominator, and the selected fit's counts. The registered coupled estimator carries these fields into its result. Optional moments remain diagnostic-only; only complete required moments determine candidate comparability and ranking."
+compatibility = "Existing callable parameters and exported names remain compatible. SMMResult adds trailing defaulted constructor fields, and method result keys are additive."
+change_class = "internal"
+surface_classification = "Internal Foundry coupling result and registered method output; supported compile/execute facade exports are unchanged."
+migration = "Consumers interpreting fitted optional means should read fitted_moment_counts and fitted_repeat_denominator. Optional coverage does not change required-moment ranking."
+api = "The selected result exposes required_moments, fitted_moment_counts, fitted_repeat_denominator, comparison_basis=required_moments_only, and optional_moment_status=diagnostic_only. Every evaluated candidate retains counts for required and returned metrics."
+limitations = "These counts describe actual supplied repeat summaries. They establish neither model calibration nor causal validity, and do not create a persisted artifact, workflow bridge, or external authority claim."
+evidence = ["src/polisyos/foundry/coupling/estimation.py", "src/polisyos/foundry/methods/catalog/simulation/coupled.py", "tests/unit/foundry/coupling/test_estimation.py", "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

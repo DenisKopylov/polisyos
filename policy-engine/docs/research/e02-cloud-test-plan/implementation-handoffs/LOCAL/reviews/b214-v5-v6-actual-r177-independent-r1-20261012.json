@@ -1,0 +1,278 @@
+{
+  "artifact_id": "b214-v5-v6-actual-r177-independent-r1-20261012",
+  "reviewer_role": "independent read-only actual-receipt review",
+  "decision": {
+    "candidate_runtime_property": "GO-limited",
+    "v6_test_oracle_correction": "GO-limited",
+    "whole_b214_completion_semantics": "HELD_OPEN",
+    "closure_ids": [],
+    "p40_classification": "SAME_CLASS_DEEPER",
+    "formal_closure_claimed": false
+  },
+  "worktree": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e635319f150c55b529357888b582ec857220c3a6",
+    "tree": "6e09d0ca6158920805f76374bdfa076cb7ee73c4",
+    "index_empty_at_review": true,
+    "review_actions": "read-only source/test/receipt inspection; only this new review pair is written",
+    "product_source_index_history_written_by_reviewer": false
+  },
+  "candidate_identity": {
+    "v5_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-admitted-consumed-snapshot-author-v5-20261012/candidate-v5-delta.patch",
+      "sha256": "766256aa46e5b90f0e99d3741dca288cf4f05bf0f297c5279a4e7f7addfc906f"
+    },
+    "v5_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-admitted-consumed-snapshot-author-v5-20261012/candidate-v5-manifest.json",
+      "sha256": "db21b9d12e0fc298a1be176beb4b6d9b485a5552aa0df66ffca803db92225e0e"
+    },
+    "v6_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-admitted-consumed-snapshot-author-v6-20261012/candidate-v6-delta.patch",
+      "sha256": "96ad8c040b7b261c7c67968be79846920763beb2df4aad30bab23aef3d3898e6"
+    },
+    "v6_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-admitted-consumed-snapshot-author-v6-20261012/candidate-v6-manifest.json",
+      "sha256": "d397d5e5fc47c879cd434dbc5fa45819281ed434f59aa688695fb494f2c122a8"
+    },
+    "v6_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b214-fullgraph-admission-v6-20261012.md",
+      "sha256": "7d1ed7620f37b370368ac7f1ea85e9624c5e324b819ad435fe69579919297673"
+    },
+    "original_b214_g_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B214-pag-extension-claim-options-2026-10-11.md",
+      "sha256": "bcce607e2bfe1c1a333b6ede146e2cac8324fb959ca006fd4360f7496c97af8d",
+      "four_semantic_options_remain_open": true
+    }
+  },
+  "root_composition": {
+    "composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-root-composition-r168-20261012/composition.json",
+      "sha256": "87d06ef797b57fdca8d96ddc49642840dddd3c04e308f9549cc8866b3313454f"
+    },
+    "net_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-root-composition-r168-20261012/net.patch",
+      "sha256": "8f9c2a4d47d516335847a791452901d5efbe9a23f31b16b6646dd2a4014e33f6"
+    },
+    "physical_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-root-composition-r168-20261012/application-readback.json",
+      "sha256": "60962c9ac4633986c15df88e92120581bc8b12ad1fa5a1542b4a635dea6b4844",
+      "postimages_match": true,
+      "diff_check_exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "actual_head_bound": "e635319f150c55b529357888b582ec857220c3a6",
+    "composition_changed_paths": 6,
+    "seven_path_product_test_documentation_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+        "candidate_delta": "V5 runtime source",
+        "current_sha256": "b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129",
+        "status": "changed by V5; V6 leaves it unchanged",
+        "preimage_sha256": "b0eddaa3e9ee4399244ad23a67c8bd608f2d422f1341f19c4316929bce7c5db4",
+        "expected_postimage_sha256": "b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+        "candidate_delta": "unchanged registered companion",
+        "current_sha256": "7e31b3f2c97ae1a72f1a7663f2831ccb7d99defdf6a5912dc94ce92d70d70218",
+        "status": "unchanged in V5/V6; exact manifest companion hash"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+        "candidate_delta": "unchanged registered companion",
+        "current_sha256": "01c8870f44b4013318e28ab17c0b8fe6230ceccbed03ee88e2eda2b16d13beb1",
+        "status": "unchanged in V5/V6; exact manifest companion hash"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+        "candidate_delta": "V5 regression tests",
+        "current_sha256": "3b3f5cdb435329b15dee1f2ff3dae31f19c263f57ae455e0a049305fcc0924fc",
+        "status": "changed by V5; V6 leaves it unchanged",
+        "preimage_sha256": "198999ba3e3f14e992927a62cc2f421744f2dc97f1b9a15f49fe791bf63d93fb",
+        "expected_postimage_sha256": "3b3f5cdb435329b15dee1f2ff3dae31f19c263f57ae455e0a049305fcc0924fc"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+        "candidate_delta": "V5 tests plus V6 alias-oracle-only correction",
+        "current_sha256": "13666857c1cc6347744520dfcaa28e6ba26b41111848b92a71fc25b07db76269",
+        "status": "V5 postimage then one V6 test-only hunk",
+        "preimage_sha256": "1af5fcff1828d952dd85f2a246147dd9f76696099f1984fe53949bb79969f4a8",
+        "v5_postimage_sha256": "9e9a302f82676003580c9a2025d9aa93d670944dfabdf0f75d61358b8622392f",
+        "v6_postimage_sha256": "13666857c1cc6347744520dfcaa28e6ba26b41111848b92a71fc25b07db76269"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "candidate_delta": "V5 component README addition, composed over shared dirty preimage",
+        "current_sha256": "e43ba97f9b6341cc9732663401d4b521bb00883a27c037d9f30e38cbae2860bd",
+        "status": "exact composed postimage; B214 section and existing shared README tail both present",
+        "preimage_sha256": "ba6a21b09b9b10abf7de0e8dec9d042915f570865a09aebb9cdb565b652fecec",
+        "expected_postimage_sha256": "e43ba97f9b6341cc9732663401d4b521bb00883a27c037d9f30e38cbae2860bd"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-b214-pag-refusal.toml",
+        "candidate_delta": "V5 unreleased fragment",
+        "current_sha256": "28c0e358fd37096658f2dfa3da8800a246f5cc825282974e10256cc6d9105b88",
+        "status": "exact composed postimage",
+        "preimage_sha256": "ef0910c6eb31ac32321fd78c8efcd3dd6e54c266530d19ab3cb08dc25067eae2",
+        "expected_postimage_sha256": "28c0e358fd37096658f2dfa3da8800a246f5cc825282974e10256cc6d9105b88"
+      }
+    ],
+    "additional_candidate_proposal_path": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b214-fullgraph-admission-v5-20261012.md",
+      "sha256": "53b07c3ec7afdc42de7a37beeb4b7bc5ec44477423bf696f97724816d7b40eee",
+      "expected_postimage_sha256": "53b07c3ec7afdc42de7a37beeb4b7bc5ec44477423bf696f97724816d7b40eee"
+    },
+    "all_six_composition_postimages_match_physical_readback": true,
+    "shared_readme": {
+      "preimage_sha256": "ba6a21b09b9b10abf7de0e8dec9d042915f570865a09aebb9cdb565b652fecec",
+      "postimage_sha256": "e43ba97f9b6341cc9732663401d4b521bb00883a27c037d9f30e38cbae2860bd",
+      "b214_section_lines": "25-42",
+      "preserved_shared_tail_lines": "301-327 (native causal value output slots / N8 run-basis v2 notes)",
+      "readback_matches_composed_postimage": true
+    }
+  },
+  "actual_r177_run": {
+    "command_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/command.json",
+      "sha256": "2bace3270410f7963261dd4007dd778f66cd7d26a7da59137803095db00cb2a2",
+      "bytes": 1610262,
+      "contains_exact_argv_cwd_environment_and_before_after_inventory": true
+    },
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "head": "e635319f150c55b529357888b582ec857220c3a6",
+    "argv_summary": ".venv/bin/python -B -m pytest -o addopts= -q -ra --maxfail=1 tests/unit/foundry/methods/catalog/causal/test_transport_check.py tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py --import-mode=importlib -vv --maxfail=0 --basetemp <LOCAL fixtures> --junitxml <LOCAL junit.xml>; wrapped with 180s subprocess timeout",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "tools:src:.",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "exit_code": 0,
+    "pytest": "9.0.2",
+    "python": "3.14.0",
+    "pytest_tests": 547,
+    "pytest_failures": 0,
+    "pytest_errors": 0,
+    "pytest_skipped": 0,
+    "pytest_reported_seconds": 4.201,
+    "wall_seconds": 7.493690749979578,
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/stdout.txt",
+      "sha256": "85689d0b816d48d14ce7d2686e8f90ff307ed3ead86fbea2017d1753f09bc676",
+      "bytes": 114409
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/junit.xml",
+      "sha256": "0ecb4e2ef657ee0bb967ff8024ff2319cffb7fca175a2f294d5a2d6d1c78a122",
+      "bytes": 127482
+    },
+    "scope_limit": "two selected unit modules on CPU only; not full backend verification, JAX/Metal, or scientific completion validation"
+  },
+  "behavioral_controls": {
+    "old_graph_guard_removal": {
+      "current_junit_passes": [
+        "test_symbolic_partial_graph_refusal_gate_removal_control",
+        "test_symbolic_admg_profile_gate_removal_restores_frontdoor_claim",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[check-CheckTransportability-params0]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v1-y0-SymbolicIdentify-params1]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v2-fallback-y0-SymbolicIdentifyV2-params2]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v2-native-SymbolicIdentifyV2-params3]"
+      ],
+      "witness": "removing the partial-graph/shared-profile predicate while retaining typed result/proof markers restores the actual front-door IDENTIFIED result; refusal assertion then fails by design",
+      "source_bindings": [
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py@13666857c1cc6347744520dfcaa28e6ba26b41111848b92a71fc25b07db76269",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py@b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129"
+      ]
+    },
+    "snapshot_removal_mutant": {
+      "mutant": "replace _snapshot_typed_model with identity while retaining helper/guard/proof markers",
+      "selected_test": "test_public_dispatcher_refuses_model_copy_hidden_s_nodes",
+      "routes": [
+        "CheckTransportability",
+        "SymbolicIdentify Y0",
+        "SymbolicIdentifyV2 fallback Y0",
+        "SymbolicIdentifyV2 native"
+      ],
+      "expected_mutant_result": "4 assertion failures because each route produces IDENTIFIED for HiddenSNodes whose __bool__ returns False",
+      "independent_raw_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/removal-r3.stdout.txt",
+        "sha256": "82037ab2f025560f9ee5c70dc8da5034bf2273274e4258ea60645ec03367e621"
+      },
+      "same_function_body_v5_vs_actual_v6_sha256": "9ccf4e78f5b770b1bf395dfb06e2e00dbc4a2fe6a6d4c409fa0f4693e5310ede",
+      "engine_source_v5_and_actual_sha256": "b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129",
+      "v6_hunk_is_separate_alias_test_only": true
+    },
+    "actual_current_suite_case_counts": {
+      "hidden_s_nodes_registered_routes_pass": 4,
+      "hidden_s_nodes_direct_solver_pass": 1,
+      "noncanonical_container_routes_pass": 8,
+      "same_snapshot_registered_routes_pass": 4,
+      "original_graph_post_admission_mutation_pass": 2,
+      "dispatcher_numpy_runner_typed_refusal_pass": 4,
+      "endpoint_profile_removal_property_controls_pass": 4,
+      "corrected_serialized_alias_equivalence_pass": 1
+    }
+  },
+  "retained_source_bound_independent_v5_evidence_not_rerun": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b214-v5-admitted-consumed-snapshot-independent-oracle-r1-20261012.md",
+      "sha256": "bd2d668ea76a758bedfe11ecd0231a6c4bb6c0815bc51256c50f4b4422289a58"
+    },
+    "focused_20": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/focused-r3.stdout.txt",
+      "sha256": "c193760d56e93b51ae11f89e8f8519620f6a26c408c1167f665bba9b9dc3b30d"
+    },
+    "profile_matrix_360": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/matrix-r3.stdout.txt",
+      "sha256": "3b84a2adeb79d2c67356c96e3684ab361328b440b87bdd38efcec980557fdff3"
+    },
+    "nested_schema_30": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/adversarial-r2.stdout.txt",
+      "sha256": "091914735ac7f545fa198ccf7542a2b45eeb417b644386597b658a6586a4b8d5"
+    },
+    "old_snapshot_removal_probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/removal-r3.stdout.txt",
+      "sha256": "82037ab2f025560f9ee5c70dc8da5034bf2273274e4258ea60645ec03367e621"
+    },
+    "v6_test_oracle_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b214-v6-test-oracle-independent-review-r1-20261012.md",
+      "sha256": "498d50776e47c726876c53d621f53ff922be50a19ef1470cbb0637f5be61b036"
+    }
+  },
+  "p37_premise_labels": {
+    "diagram_schema_field_set_and_nested_consumed_quantity": {
+      "label": "recomputed",
+      "basis": "runtime model_fields plus declared field annotations; detached schema-rebuilt SelectionDiagram feeds admission and consumer"
+    },
+    "resolved_static_DAG_ADMG_profile": {
+      "label": "recomputed",
+      "basis": "canonical stored structural fields plus reused _validate_static_admg and topological_order validators, exercised by complete route/profile matrix"
+    },
+    "metadata_not_consumed_by_static_profile_owner": {
+      "label": "independently_reconciled",
+      "basis": "the static graph profile owner consumes structural graph fields; metadata is omitted from that profile snapshot only"
+    },
+    "PAG_CPDAG_completion_semantics_probability_external_causal_truth_publication_authority": {
+      "label": "not_established",
+      "basis": "no completion law, prior, extension-set guarantee, external graph truth, or publication authority selected"
+    }
+  },
+  "p40_and_boundary": {
+    "finding_class": "same-class deeper full admitted-and-consumed diagram/snapshot quantity; V5 widens the mechanism, V6 corrects one test oracle only",
+    "candidate_state": "limited runtime graph-admission behavior; safe refusal and route consistency only",
+    "whole_b214_state": "original four G alternatives remain open; integration/authority/scientific semantics not adjudicated",
+    "historical_v5_broad_attempt": "545 passed/2 failed; retained as failed and not reclassified by this receipt; V6 corrected the candidate-owned alias assertion; prior JAX/Metal failure remains not_established",
+    "no_new_full_or_heavy_suite_run": true,
+    "closure_ids": []
+  }
+}

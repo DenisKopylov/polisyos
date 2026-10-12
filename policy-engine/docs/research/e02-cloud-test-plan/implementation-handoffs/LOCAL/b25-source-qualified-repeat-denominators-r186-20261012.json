@@ -1,0 +1,436 @@
+{
+  "artifact_type": "source_qualified_candidate_handoff",
+  "schema": "policyos.e02.local_source_qualified_handoff.v1",
+  "receipt_id": "B25-source-qualified-repeat-denominators-r186-20261012",
+  "created_on": "2026-10-12",
+  "task": {
+    "finding_id": "B25",
+    "title": "Required-moment comparison and complete repeat-denominator preservation",
+    "scope_status": "Bounded estimator/result serialization and local selected-consumer evidence are source-qualified; accepted-decision behavior and full B25 closure remain unadjudicated."
+  },
+  "authorship_boundary": {
+    "author_role": "Independent local source-qualified evidence receipt author",
+    "G_code_acceptance": "not granted by this receipt",
+    "integration_publication": "not performed or claimed",
+    "formal_finding_adjudication": "not performed",
+    "closure_ids": [],
+    "formal_closure_claimed": false
+  },
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "ceaab590d64fa09ef66589d0b45ff4bc12ba8a75",
+    "slice_base_tree": "2b775eceecb2cb65cbadab66cabcca1b0fbc9f55",
+    "candidate_commit": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+    "candidate_tree": "60aa02e83c62b8335e5bf1317feaf06a5da97d3f",
+    "parents": [
+      "ceaab590d64fa09ef66589d0b45ff4bc12ba8a75"
+    ],
+    "candidate_subject": "fix(foundry): retain SMM metric counts and repeat denominators",
+    "state": "local committed source slice; G acceptance and remote publication not established",
+    "current_workspace_at_receipt": {
+      "head": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+      "tree": "60aa02e83c62b8335e5bf1317feaf06a5da97d3f",
+      "index_empty": true,
+      "shared_worktree_note": "The shared checkout contains unrelated dirty and untracked work. This receipt binds only the listed source paths; it does not claim a clean whole worktree."
+    },
+    "global_e02_source_freeze": "not_established",
+    "remote_publication": "not_verified; no push is claimed",
+    "source_boundary_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-source-boundary-r184-20261012/readback.json",
+      "sha256": "747af6a8455801a8daa759e7909f25325636e4ebb45d1931ddbdfa3e8e963247",
+      "bytes": 1682,
+      "available_locally": true
+    },
+    "source_commit_capture": {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-source-commit-r184-20261012/command.json",
+        "sha256": "04e154205069d9fc40721823675f469e5777e8de8cdfeabe3bc4e968bfca4fff",
+        "bytes": 853,
+        "available_locally": true
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-source-commit-r184-20261012/result.json",
+        "sha256": "140c78938b77af1348e72cc0aba0000bf0b5479d696c0abd62d687ba65e2fbbc",
+        "bytes": 233,
+        "available_locally": true
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-source-commit-r184-20261012/stdout.txt",
+        "sha256": "0cdb252f0c3628ed6f8982042cb5408666afffc8be7bd60d172b8a0f72703f59",
+        "bytes": 537,
+        "available_locally": true
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-source-commit-r184-20261012/stderr.txt",
+        "sha256": "2a0f75d7a7ed9711253dd208fc1c43a8b8fef3f217973e657b30afcf1950d66e",
+        "bytes": 653,
+        "available_locally": true
+      },
+      "result_exit_code": 0,
+      "result_json": {
+        "exit_code": 0,
+        "wall_seconds": 2.0151366249192506,
+        "stdout_sha256": "0cdb252f0c3628ed6f8982042cb5408666afffc8be7bd60d172b8a0f72703f59",
+        "stderr_sha256": "2a0f75d7a7ed9711253dd208fc1c43a8b8fef3f217973e657b30afcf1950d66e"
+      }
+    },
+    "footprint_denominator": {
+      "complete_candidate_paths": 5,
+      "path_type_counts": {
+        "runtime_code": 2,
+        "tests": 2,
+        "release_config": 1
+      },
+      "method": "All paths are enumerated from the source-boundary readback and source commit tree. Byte sizes are Git blob sizes at slice base/candidate; tracked source content is referenced by path and SHA, not copied."
+    },
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+        "role": "estimator_mechanism",
+        "base_sha256": "6c53fa2224cd6e7c8333c51db5eb3fee93728a9bde03c01064bd7c757f232205",
+        "candidate_sha256": "cac2c5a881a5d628182bac6e26a88aeb4169f1ae810d03fe220a7498342e08bb",
+        "base_bytes": 16260,
+        "candidate_bytes": 17560,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+        "role": "registered_result_serializer",
+        "base_sha256": "597218fefeab92971cb8d5cb16da456f47f0044308358e597b0d96322da3a0a5",
+        "candidate_sha256": "2dc1b12c4e02d1c20bb25792e6c931039ec1c3cdd9a747abbcd3e040da0d568c",
+        "base_bytes": 26107,
+        "candidate_bytes": 26549,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/coupling/test_estimation.py",
+        "role": "test_estimator_and_repeat_denominators",
+        "base_sha256": "a5682a5257db97f289096c807c6db9929aa5b931c37df84ef58648f8aa27b57d",
+        "candidate_sha256": "85ece3855aee6c6de626c8a9d4170891e04d56c9f6148ded081a7ffdb96c1060",
+        "base_bytes": 2774,
+        "candidate_bytes": 6075,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py",
+        "role": "test_registered_result_serializer",
+        "base_sha256": "dff2fb7c67186414187545848dfae8657060a4b914e024c9b4251f6fa406ccfe",
+        "candidate_sha256": "c73d819215318dbd3f95c0d4e8e4a89716d019dbcbb08f0cb6f89143ca77f88d",
+        "base_bytes": 6713,
+        "candidate_bytes": 8289,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b25-smm-repeat-denominators.toml",
+        "role": "release_config",
+        "base_sha256": null,
+        "candidate_sha256": "5e8d051ef57e1c5012525b6f074fdffe25f9ec3aa9b034aa2ef718139bfda838",
+        "base_bytes": 0,
+        "candidate_bytes": 1874,
+        "current_worktree_matches_candidate": true
+      }
+    ],
+    "byte_totals_by_role": {
+      "code": {
+        "paths": 2,
+        "base_bytes": 42367,
+        "candidate_bytes": 44109
+      },
+      "tests": {
+        "paths": 2,
+        "base_bytes": 9487,
+        "candidate_bytes": 14364
+      },
+      "documentation_companion": {
+        "paths": 0,
+        "base_bytes": 0,
+        "candidate_bytes": 0
+      },
+      "release_config": {
+        "paths": 1,
+        "base_bytes": 0,
+        "candidate_bytes": 1874
+      },
+      "all": {
+        "paths": 5,
+        "base_bytes": 51854,
+        "candidate_bytes": 60347,
+        "net_bytes": 8493
+      }
+    },
+    "commit_path_readback": "All five current worktree target bytes match the candidate commit postimages; candidate commit is a child of the declared slice base."
+  },
+  "criterion": {
+    "finding_id": "B25",
+    "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "original_source_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "original_source_lines": [
+      503,
+      516
+    ],
+    "original_criterion_excerpt_sha256": "f7e4a5e349589575920d7885587f7cce2b62c0148bf8ef57b7f8b9f684959c81",
+    "criterion_summary": "Removing a metric must not improve a candidate on the same task. Different required metric sets must be incomparable or handled by an explicit prior comparison rule. Repeat means must retain and expose their actual per-metric denominators rather than imply one common sample.",
+    "coverage_owner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "pointer": "/findings/150",
+      "historical_status": "closed",
+      "appendix_c_status_separate": "no_finding_level_record",
+      "closure_now": "not_adjudicated",
+      "capability_label": "surface_out_of_scope",
+      "criterion_specific_acceptance_not_executed": "closure expansion to optional metrics/other methods is an unsupported proxy."
+    }
+  },
+  "property_and_result": {
+    "bounded_property": "The SMM path requires one declared required-moment set for comparison/ranking. A candidate missing any required moment in any repeat has infinite loss and cannot win. Counts are computed for every returned key over all supplied repeats, optional moments are diagnostic only, and the selected SMMResult plus registered pure_step output retain the fitted per-key counts, repeat denominator and comparison basis.",
+    "observed_result": "The local selected tests cover six test_estimation.py cases, one actual coupled pure_step serializer test, and two named SIM03 negative controls; all nine B25-relevant cases pass in the R161 mixed run. This does not establish a real accepted calibration decision.",
+    "p37": "Required names are recomputed from the explicit required_moment_names input or the observed summary when omitted; per-key counts are recomputed over each actual runner summary and the denominator is len(summaries). No caller-declared count is accepted as the result.",
+    "p38": "The property is complete required-set comparability and honest repeat denominators; the mechanism checks required keys across each repeat and makes any missing required key incomparable, while counting optional keys for diagnostics only. The divergent case is an optional signal observed in one versus all three repeats: its count changes, but it cannot change the required-set ranking. The actual assertions and required-only removal mutant distinguish this from status/basis markers.",
+    "p40_bucket": {
+      "estimator_repeat_denominator": "NEW_CLASS",
+      "owner_summary_criterion_binding_omission": "SAME_CLASS_DEEPER of LA-033 criterion/owner-property binding",
+      "classification_note": "Preserve both classifications from the source-bound author and independent review; this receipt introduces no new repair class.",
+      "residual": "The bounded result/serialization mechanism is source tested, but a genuine calibration decision and persisted SMM artifact/bridge/consumer remain unestablished.",
+      "smallest_closing_capability": "An actual accepted calibration producer with persisted SMM result artifact and a consuming workflow/surface that checks the required metric basis; this chain is absent in the reviewed source slice."
+    },
+    "not_established": [
+      "A real accepted calibration decision or improvement on real observed data.",
+      "JAX computation/training or real native simulation in this B25 evidence.",
+      "A method-result CAS artifact/readback, SMM-specific orchestration bridge, persisted consumer, API/dashboard acceptance, external authority, or capability closure."
+    ],
+    "capability_assessment": {
+      "scope": "End-to-end SMM calibration capability",
+      "label": "surface_out_of_scope",
+      "explanation": "This slice establishes estimator diagnostics and registered result serialization only; the actual artifact/bridge/consumer surface remains outside the slice, matching the current coverage owner label."
+    }
+  },
+  "selected_input_profile_backend": {
+    "inputs": "Controlled synthetic observed/simulated summary maps with explicit required keys, optional keys present in different subsets of three repeats, a missing-required candidate with richer optional diagnostics, and serializer output from the selected fit. No accepted real-world decision or production dataset was used.",
+    "profile": "R161 runs all 12 RES01 tests, all 26 checkpoint tests, six estimator tests, one serializer test and two SIM03 negatives plus one PLG03 unrelated case. The nine B25-relevant cases are named below; the full 48-case run remains separately reported with its failure.",
+    "backend": "Local Python estimator and registered pure_step serialization. No external provider; no JAX computation/training or real native simulation was run in this evidence. R161 sets JAX_PLATFORMS=cpu; the unrelated PLG03 test encounters a JAX branch dtype mismatch.",
+    "module_origin": "pytest runs in policy-engine with PYTHONPATH=tools:src:.; the full input map binds the four mechanism/test postimages. A separate runtime __file__ trace was not retained."
+  },
+  "verification": {
+    "actual_selected_consumer_run": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/command.json",
+        "sha256": "98e1b6327f56d1d4e9405651cb37809a78a2f34ea69da148d30589eca7926306",
+        "bytes": 1787575,
+        "available_locally": true
+      },
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "recorded_head": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/remediation/test_res_01.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "tests/unit/foundry/coupling/test_estimation.py",
+        "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py::test_coupled_smm_serializes_selected_repeat_denominators",
+        "tests/unit/remediation/test_sim_03.py::test_smm_missing_required_moment_cannot_win_calibration",
+        "tests/unit/remediation/test_sim_03.py::test_smm_all_incomparable_candidates_are_explicitly_blocked",
+        "tests/unit/remediation/test_plg_03.py::test_invalid_economics_producer_is_terminal_through_native_bridge_and_cas",
+        "--import-mode=importlib",
+        "-vv",
+        "--maxfail=0",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/junit.xml"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "tools:src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "full_input_hash_map": {
+        "entry_count": 6186,
+        "before_and_after_identical": true,
+        "path": "complete maps retained in command_record; not duplicated in this receipt"
+      },
+      "candidate_target_hashes_match_both_maps": true,
+      "exit_code": 1,
+      "wall_seconds": 22.876868625055067,
+      "pytest": {
+        "tests": 48,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 18.064
+      },
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/stdout.txt",
+          "sha256": "baf69a318862187c760f88c40f2b96b7db84ae40d4a0f88ecf2d74284aabb805",
+          "bytes": 16533,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b71-b25-la023-actual-selected-consumers-r161-20261012/junit.xml",
+          "sha256": "4e2a036d9601f79ccfa07c8794fe3d68bb4be757ce023f2cdee9b65717ddbe90",
+          "bytes": 16379,
+          "available_locally": true
+        }
+      ],
+      "source_resolution_note": "The command ran from the policy-engine root with the recorded in-tree PYTHONPATH; target file hashes in the full before/after map match the source-slice postimages. A separate runtime __file__ import trace was not retained."
+    },
+    "actual_run_disposition": "The command exits 1: 47 passed, 1 failed, 0 errors, 0 skipped across 48. The nine B25-relevant cases passed. The failing test is tests.unit.remediation.test_plg_03::test_invalid_economics_producer_is_terminal_through_native_bridge_and_cas; JUnit records a JAX cond branch dtype mismatch (float64[10] versus float32[10]) in foundry/plugins/training_adapter.py. R161 was recorded at HEAD 512ad7f, not B25 slice base ceaab; under P41 the failure origin relative to the B25 slice is not_established and is not called inherited.",
+    "B25_relevant_passing_cases": [
+      "tests.unit.foundry.coupling.test_estimation::test_estimate_queue_mle_recovers_event_log_rates",
+      "tests.unit.foundry.coupling.test_estimation::test_calibrate_coupled_smm_selects_best_summary_match",
+      "tests.unit.foundry.coupling.test_estimation::test_particle_filter_and_paired_monte_carlo_return_stable_shapes",
+      "tests.unit.foundry.coupling.test_estimation::test_explicit_empty_required_moment_set_is_not_replaced_by_observed_keys",
+      "tests.unit.foundry.coupling.test_estimation::test_smm_optional_means_keep_their_repeat_denominators_and_do_not_rank",
+      "tests.unit.foundry.coupling.test_estimation::test_smm_missing_required_moment_cannot_win_with_complete_optional_diagnostics",
+      "tests.unit.foundry.methods.catalog.simulation.test_coupled_policy::test_coupled_smm_serializes_selected_repeat_denominators",
+      "tests.unit.remediation.test_sim_03::test_smm_missing_required_moment_cannot_win_calibration",
+      "tests.unit.remediation.test_sim_03::test_smm_all_incomparable_candidates_are_explicitly_blocked"
+    ],
+    "ruff_check": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-native-root-ruff-r180-20261012/command.json",
+        "sha256": "c5fbc63227d43a52697741a94c230bd67dbe7b4b89f4ff4427263feaa5de5a9d",
+        "bytes": 2994,
+        "available_locally": true
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "src/polisyos/foundry/coupling/estimation.py",
+        "src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+        "tests/unit/foundry/coupling/test_estimation.py",
+        "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "recorded_head": "e635319f150c55b529357888b582ec857220c3a6",
+      "exit_code": 0,
+      "wall_seconds": 0.1154396659694612,
+      "changed_path_postimages_match": true,
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-native-root-ruff-r180-20261012/stdout.txt",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "bytes": 2,
+        "available_locally": true
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-native-root-ruff-r180-20261012/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "available_locally": true
+      },
+      "result": "Ruff check returned exit 0 and JSON stdout [] (no diagnostics)."
+    },
+    "property_removal_probe": {
+      "author_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-author-r2-20261012/manifest.json",
+        "sha256": "8481b0b0466c1c02f96dcd8901d1033a151524ea78c28f5b2ade9c2125791451",
+        "bytes": 13567,
+        "available_locally": true
+      },
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-author-r2-20261012/run_removal_probe.py",
+        "sha256": "7c0061b7897644eed9433dc96e8f7cd91d6d93bddaf5c9ffe426cdc7bf894bf2",
+        "bytes": 1777,
+        "available_locally": true
+      },
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "meaning": "The required-only count mutant leaves status/basis markers present while three semantic denominator/consumer assertions fail. The candidate’s four code/test postimages in the manifest match the committed source paths.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-author-r2-20261012/removal-probe-output.txt",
+        "sha256": "70c241a45aa936c01c1f76075415ad12a4ecdcfd5a7feb04b97c1295a79d549a",
+        "bytes": 6972,
+        "available_locally": true
+      },
+      "local_availability": true
+    },
+    "focused_positive_run": {
+      "meaning": "Seven focused candidate estimator and serializer tests passed.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b25-repeat-denominator-author-r2-20261012/deciding-green-output.txt",
+        "sha256": "a2b248f6e5bc2b80af8f433eae3138306df0c6374bb77f8cbe3b35f70844e843",
+        "bytes": 849,
+        "available_locally": true
+      },
+      "local_availability": true
+    },
+    "independent_reviews": {
+      "actual_selected_consumers_and_release_companion": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b25-release-companion-actual-r161-r180-independent-r2-20261012.md",
+        "sha256": "70fd0972e113482dc7927a0cb0f55b068ba69bd6788fa25cfe7b12079fa220ef",
+        "bytes": 6622,
+        "available_locally": true
+      },
+      "whole_property_research": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b25-repeat-denominator-whole-property-research-r1-20261012.md",
+        "sha256": "44d7022d092e61589cdfac9428ced443491334d04438a87bc318a7c6db86517f",
+        "bytes": 15599,
+        "available_locally": true
+      },
+      "author_r2_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b25-repeat-denominator-author-r2-independent-20261012.md",
+        "sha256": "e3dc3e0734baf4e207acc520376eb59350e75edb4fbc2b3c6a40d13597f19980",
+        "bytes": 8976,
+        "available_locally": true
+      }
+    },
+    "source_readback_and_complete_outputs_are_local_only": true
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "A candidate is compared only against the same declared required-moment set; missing required values block comparability, while optional metrics remain diagnostic and retain their actual repeat counts.",
+    "producer": "calibrate_coupled_smm runs the configured local SummaryRunner and computes per-key counts from each returned summary.",
+    "artifact": "SMMResult carries required moments, fitted moment counts, fitted repeat denominator, comparison basis and optional-moment status; this slice does not establish persisted CAS storage.",
+    "bridge": "No SMM-specific workflow/orchestration bridge is in the candidate footprint.",
+    "consumer": "The registered coupled pure_step serializer emits the selected result and its denominators; the targeted local test reads and asserts those fields.",
+    "surface": "Bounded Python method-result surface only; no HTTP/API/dashboard or accepted-decision surface is established.",
+    "semantic_test": "Required-only ranking, missing-required blocker, repeated optional-moment denominator and actual pure_step serialization are exercised. Property-removal control leaves markers but breaks three semantic assertions."
+  },
+  "proposal": {
+    "individual_finding_disposition": "limited",
+    "closure_ids": [],
+    "historical_ledger_status": "closed",
+    "current_closure_status": "not_adjudicated",
+    "G_acceptance": "not performed by this receipt",
+    "formal_closure_claimed": false,
+    "scope_note": "Historical B25 closed status remains historical only; no new finding-level formal closure is asserted."
+  },
+  "evidence_integrity": {
+    "tracked_source_copied_into_receipt": false,
+    "complete_outputs_copied_into_receipt": false,
+    "raw_evidence_paths_are_local_and_sha256_checked": true,
+    "receipt_writes_only": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b214-source-qualified-consumed-snapshot-r186-20261012.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b25-source-qualified-repeat-denominators-r186-20261012.json"
+    ],
+    "source_commit_captures_local_only": true
+  }
+}

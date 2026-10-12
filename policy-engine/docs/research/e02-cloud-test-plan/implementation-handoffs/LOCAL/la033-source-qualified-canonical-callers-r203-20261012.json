@@ -1,0 +1,471 @@
+{
+  "schema": "policyos.e02.local_source_qualified_handoff.v1",
+  "artifact_type": "source_qualified_candidate_handoff",
+  "receipt_id": "LA033-source-qualified-canonical-callers-r203-20261012",
+  "created_on": "2026-10-12",
+  "task": {
+    "finding_id": "LA-033",
+    "title": "Runtime replay canonical caller transition and compatibility lifecycle",
+    "scope_status": "The six-path local source slice is committed and bound to actual selected-source tests and Ruff. Whole LA-033 remains LIMITED / NOT ADJUDICATED."
+  },
+  "authorship_boundary": {
+    "author_role": "Independent local source-qualified evidence receipt author",
+    "G_code_acceptance": "not granted by this receipt",
+    "integration_publication": "not performed or claimed",
+    "formal_finding_adjudication": "not performed",
+    "formal_closure_claimed": false,
+    "closure_ids": []
+  },
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+    "slice_base_tree": "60aa02e83c62b8335e5bf1317feaf06a5da97d3f",
+    "candidate_commit": "fd25c9b461c860c54c1857b3d8af22664a9885b9",
+    "candidate_tree": "f4130fb753b6cf36573638ab41fd11ab3ad81a50",
+    "parents": [
+      "ce60ac7ff4e8cf999866e2f94e86f0314e98b464"
+    ],
+    "candidate_subject": "test(e02): route replay callers through canonical Scientist owner",
+    "state": "local committed source slice; remote publication pending; no G acceptance claimed",
+    "current_workspace_at_receipt": {
+      "head": "fd25c9b461c860c54c1857b3d8af22664a9885b9",
+      "tree": "f4130fb753b6cf36573638ab41fd11ab3ad81a50",
+      "index_empty": true,
+      "target_paths_match_candidate": true,
+      "shared_worktree_note": "The shared checkout contains unrelated modified and untracked work. This receipt binds only the six listed source paths and makes no whole-worktree cleanliness claim."
+    },
+    "remote_publication": {
+      "state": "pending; no push claimed",
+      "local_origin_tracking_ref": "origin/codex/e02-unified-local-20261009",
+      "observed_tracking_commit": "e635319f150c55b529357888b582ec857220c3a6",
+      "observation_scope": "local tracking-ref read; no fetch or publication performed by this receipt"
+    },
+    "global_e02_source_freeze": "not_established",
+    "source_boundary_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-boundary-r212-20261012/readback.json",
+      "sha256": "edf67e106d12058b78a89c8c2d7a8a72afe9853e8cdf1cdcb33670188ae4871f",
+      "bytes": 1978,
+      "available_locally": true
+    },
+    "selected_footprint_declaration": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-boundary-r212-20261012/selected-footprint.json",
+      "sha256": "f168b925e4c7e2afbdfa1b68b966e21628cdefb38c8534062d6e1b0c9bac2aba",
+      "bytes": 1798,
+      "available_locally": true
+    },
+    "source_commit_capture": {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-commit-capture-r212-20261012/command.json",
+        "sha256": "a0ae59e0ef732086c16750bcedceb612a437c6a4e3aece9a6b7d2e2c5bcc897f",
+        "bytes": 866,
+        "available_locally": true
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-commit-capture-r212-20261012/result.json",
+        "sha256": "b1f6ae10f4e447a505a60d29057d9bd3e97462fb91755736ccc6be6a9e5d773c",
+        "bytes": 232,
+        "available_locally": true
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-commit-capture-r212-20261012/stdout.txt",
+        "sha256": "8e50f6ff0aa9e160f68238484c4feee89f39e059d30d772ca5d9c5edaa8419b1",
+        "bytes": 427,
+        "available_locally": true
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-source-commit-capture-r212-20261012/stderr.txt",
+        "sha256": "7d9768c560d040a6644924dba821d50d8b501ec5bf51627c088258111ede78b9",
+        "bytes": 653,
+        "available_locally": true,
+        "interpretation": "The captured output contains only expected pre-commit hook skip notices for unmatched frontend files; the commit helper exited zero."
+      },
+      "result_exit_code": 0,
+      "wall_seconds": 2.014231957960874,
+      "result_json": {
+        "exit_code": 0,
+        "stdout_sha256": "8e50f6ff0aa9e160f68238484c4feee89f39e059d30d772ca5d9c5edaa8419b1",
+        "stderr_sha256": "7d9768c560d040a6644924dba821d50d8b501ec5bf51627c088258111ede78b9"
+      }
+    },
+    "footprint_denominator": {
+      "complete_candidate_paths": 6,
+      "path_type_counts": {
+        "tests": 5,
+        "documentation_companion": 1
+      },
+      "method": "Enumerated by the source-boundary readback and verified against the candidate commit tree. Each target has a 64-character SHA-256 content digest, a 40-character Git blob id, mode, and Git blob byte size; tracked source contents are referenced, not copied."
+    },
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/README.md",
+        "role": "documentation_companion",
+        "mode": "100644",
+        "git_blob": "19295d2d767668b033aea15737d6e5e394f42e2f",
+        "base_sha256": "b71a5c0b2e4661a255e75090725bc60fc239b73057ca6590fb50aa0107604713",
+        "candidate_sha256": "88d4053f053e8a906502ba6ad749308433e3ae8e62666a76c23479c049707285",
+        "base_bytes": 11281,
+        "candidate_bytes": 11372,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+        "role": "integration_caller_test",
+        "mode": "100644",
+        "git_blob": "69a60250bf6e7ffae776b9dc98436e720fce20f0",
+        "base_sha256": "d5b2efa44ed00410f9a20b0ed4be8f7727d751b3dcece2d216c45453c15b0cb9",
+        "candidate_sha256": "f179dbb33d2802972f543204507d27e92f1c004c87f6c6d4d8113d4f9a4e5a4f",
+        "base_bytes": 27269,
+        "candidate_bytes": 27285,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/test_replay_input_bindings_completeness.py",
+        "role": "unit_caller_test",
+        "mode": "100644",
+        "git_blob": "5f26709656b06dbb6e3c02a3dcc9cbfb2200fdc5",
+        "base_sha256": "089c0531d639ba0f63ff7dc096869a8ae61c03a7a1e4f2e94623333ba0ceaef3",
+        "candidate_sha256": "18e366f98e02d067ff2ea9100232d76805fce14db1f55f0aca6811cc45f0d34d",
+        "base_bytes": 4768,
+        "candidate_bytes": 4784,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/test_replay_runtime.py",
+        "role": "unit_caller_test",
+        "mode": "100644",
+        "git_blob": "44cd7e644cdc3ed7b7686a310f7b015960b76052",
+        "base_sha256": "a606159cf1007ec9d7fcc6bcc9369a16adf8885850721e774d0a50d0308b4205",
+        "candidate_sha256": "acbced54bb34cf5e09953312ac3b45959f94e4b768519702cdacd69a4f91fe1a",
+        "base_bytes": 5415,
+        "candidate_bytes": 5431,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/replay/test_replay_backend.py",
+        "role": "unit_caller_test",
+        "mode": "100644",
+        "git_blob": "b3dba740379a0fd7d40897b5741b376ba684ade7",
+        "base_sha256": "78a732740ed10138a2058fadccbb558b0d6780d797e701729d779a14ea259b77",
+        "candidate_sha256": "6f10485da14753e19d0e59c010d442c30b84f45fc27f3f75812d83f2ecacfabb",
+        "base_bytes": 8077,
+        "candidate_bytes": 8093,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/replay/test_runtime_replay_measurement.py",
+        "role": "unit_caller_test",
+        "mode": "100644",
+        "git_blob": "de64dc3b9c44444f4efdace9d43ac839af012f5d",
+        "base_sha256": "e4bcf2e3e8de309511134d73c9a4177e30071d8430f0d2b8cef0a507f34a9f62",
+        "candidate_sha256": "7df80b03df6372e30d81ae05e412b3f0edb8ea710f159e6e1596ff36dbed5ced",
+        "base_bytes": 3266,
+        "candidate_bytes": 3282,
+        "current_worktree_matches_candidate": true
+      }
+    ],
+    "byte_totals_by_role": {
+      "tests": {
+        "paths": 5,
+        "base_bytes": 48795,
+        "candidate_bytes": 48875,
+        "net_bytes": 80
+      },
+      "documentation_companion": {
+        "paths": 1,
+        "base_bytes": 11281,
+        "candidate_bytes": 11372,
+        "net_bytes": 91
+      },
+      "all": {
+        "paths": 6,
+        "base_bytes": 60076,
+        "candidate_bytes": 60247,
+        "net_bytes": 171
+      }
+    },
+    "commit_path_readback": "The candidate is a direct child of the declared slice base. All six commit-tree entries are mode 100644; 64-character content digests, exact 40-character blob ids, and byte sizes were checked against git ls-tree/show. All six current worktree files match the candidate commit bytes."
+  },
+  "criterion": {
+    "finding_id": "LA-033",
+    "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "original_source_commit": "01f3dfba07a62ad16acb96112fa772b6864cfd31",
+    "original_source_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "original_source_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "original_source_file_bytes": 648034,
+    "original_source_lines": [
+      1994,
+      2028
+    ],
+    "original_criterion_excerpt_sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+    "coverage_owner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "pointer": "/findings/257",
+      "historical_status": "partial",
+      "appendix_c_status_separate": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing"
+    },
+    "criterion_summary": "Move internal replay functional callers to the canonical Scientist owner while preserving the exact 20-symbol runtime/replay.py compatibility surface and ten lazy Runtime-root exports until the supported window and external-caller scope are resolved. Preserve object identity, signatures, enum values, and lazy import behavior; keep dynamic-import inventory and justified delayed CLI load coherent. Do not invent an issuer, retirement date, or zero external usage. Whole acceptance includes real CLI/check-only, retained supported CAS bundle import/export/replay/resume with byte and identity preservation, a fresh schema-valid Foundry execution/readback, wheel import smoke, import-budget and reflective/FQN/monkeypatch consumer checks; removal timing is a separate G/API lifecycle decision."
+  },
+  "property_and_result": {
+    "bounded_property": "This source slice relocates functional test imports in five maintained test files to polisyos.scientist.replay.deterministic and updates the Runtime README ownership description. It makes no production runtime, CLI, dynamic-import inventory, benchmark, or compatibility-shim change.",
+    "observed_result": "The independent actual-source review found no substantive defect in the six-path delta and recommends GO to commit this bounded slice. R190 actual-source selected tests passed 23 distinct cases and R192 Ruff passed; those runs occurred while the candidate bytes were in the worktree at base HEAD ce60, then were bound to the later commit by exact six-path content hashes. Whole LA-033 remains limited.",
+    "p37": "No new authority gate or lifecycle predicate was introduced. External caller absence and the compatibility retirement condition remain not_established; no gate may infer them from the local import census.",
+    "p38": "The bounded tests exercise real canonical and compatibility module routes for their selected cases, but the selected six-file pytest profile does not measure full product-wide caller absence or actual C7 Foundry execution. A divergent case is a reflective/FQN, installed-package, or retained-CAS consumer outside the selected profile; the source change leaves the compatibility facade intact."
+  },
+  "selected_input_profile_backend": {
+    "inputs": "Local maintained replay test fixtures and compatibility cases; no production CAS corpus or external artifact is asserted.",
+    "profile": "Six R190 test files: four caller/unit files and two unchanged compatibility-control files, 23 distinct JUnit cases. The virtual 35 count is corrected below because it included 12 duplicate collector executions.",
+    "backend": "In-process Python pytest from the policy-engine root using the recorded local .venv; Ruff is likewise the local Python module. No installed wheel/sdist or external replay backend was selected.",
+    "module_origin": {
+      "command_cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "pytest_pythonpath": "tools:src:.",
+      "observed_import_roles": "The functional test files import polisyos.scientist.replay.deterministic; the compatibility controls intentionally import polisyos.runtime.replay and polisyos.runtime.",
+      "runtime_file_trace": "not captured; no claim that pytest recorded imported module __file__ values",
+      "source_binding": "All six target postimage hashes match the complete 6,186-entry before/after input maps stored in the R190 command record; the maps are unchanged and are not duplicated here."
+    }
+  },
+  "verification": {
+    "actual_source_review": {
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/la033-actual-canonical-callers-r190-independent-r3-20261012.md",
+        "sha256": "bc885696df6bf05542ef329a52de2cf46270d6027e38a9d1965bc2b019302e9c",
+        "bytes": 5645,
+        "available_locally": true
+      },
+      "machine_readable": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/la033-actual-canonical-callers-r190-independent-r3-20261012.json",
+        "sha256": "66fbbc8ad98c56ea9d87654a0afc001751cbdb54532631eb51258b1e3af5ddcd",
+        "bytes": 5374,
+        "available_locally": true
+      },
+      "verdict": "GO_TO_COMMIT for the exact six-path slice; this is not whole LA-033 acceptance or closure",
+      "review_actions": "Reviewer read the frozen deltas and actual R190/R192 outputs and checked source hashes/ASTs; reviewer did not rerun tests or lint."
+    },
+    "composition_and_application": {
+      "r187_composition": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-root-canonical-callers-composition-r187-20261012/composition.json",
+        "sha256": "c73f477e63ee02de8cd1cd3984aee358f78a05a485a3d2b7fc3e0cf3e45edee8",
+        "bytes": 4321,
+        "available_locally": true
+      },
+      "r187_application_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-root-canonical-callers-composition-r187-20261012/application-readback.json",
+        "sha256": "3996cb18d0ebe5a22f80aa8a25ba0e9ab2452354f322777d721e969ee264f189",
+        "bytes": 2167,
+        "available_locally": true
+      },
+      "r189_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-canonical-import-companion-r189-20261012/readback.json",
+        "sha256": "45cc1523649f3c39b780b20ffee41f6c672b1b9d4fa304b284ae1affaa097db3",
+        "bytes": 1126,
+        "available_locally": true
+      },
+      "r189_patch_sha256": "8633eb8bb54cb499deb28ccddcec591f3edd6802e1dcebb4215eaf14a7c9a854",
+      "bounded_delta": "R187 introduced canonical imports and README correction; R189 only reordered imports in three already-scoped tests. Review found Python module bodies and normalized import bindings unchanged across those import reorderings."
+    },
+    "selected_test_run": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/command.json",
+        "sha256": "11fb9f99f4fd5522b613c078e62821522bf5ea21c061a409319b0207f80ebe3d",
+        "bytes": 1705453,
+        "available_locally": true
+      },
+      "recorded_head_during_run": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=120.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/runtime/test_replay_input_bindings_completeness.py",
+        "tests/unit/runtime/test_replay_runtime.py",
+        "tests/unit/scientist/replay/test_replay_backend.py",
+        "tests/unit/scientist/replay/test_runtime_replay_measurement.py",
+        "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+        "tests/unit/remediation/test_rep_01.py",
+        "--import-mode=importlib",
+        "-vv",
+        "--maxfail=0",
+        "--basetemp",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/fixtures",
+        "--junitxml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "tools:src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "result": {
+        "exit_code": 0,
+        "tests": 23,
+        "passed": 23,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 22.03,
+        "wall_seconds": 25.643247499945574
+      },
+      "case_counts_by_file": {
+        "test_replay_input_bindings_completeness.py": 3,
+        "test_replay_runtime.py": 3,
+        "test_replay_backend.py": 5,
+        "test_runtime_replay_measurement.py": 1,
+        "test_deterministic_compatibility.py": 2,
+        "test_rep_01.py": 9
+      },
+      "stable_input_file_count": 6186,
+      "input_hash_differences": 0,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/stdout.txt",
+          "sha256": "3ea33d0c192f482a2cf005ecdbecb394c9bf22e7cd73b559ae3669692afce16c",
+          "bytes": 4173,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012/junit.xml",
+          "sha256": "a42c9cbfd61ef15ac13759e46ca7b4449a453a398c80a618c5daae225b08f4e6",
+          "bytes": 3629,
+          "available_locally": true
+        }
+      ],
+      "source_binding_note": "The actual-source command ran on the candidate worktree overlay while HEAD was the declared slice base. Its full before/after input maps contain the final six candidate hashes, unchanged across execution; the later committed candidate tree has identical bytes. The command is not represented as having run after the new commit."
+    },
+    "ruff_run": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-canonical-callers-root-ruff-r192-20261012/command.json",
+        "sha256": "afde82d66ca016115043e358cc23191b31e2265d4d16bd3395b8a4f20c506600",
+        "bytes": 3308,
+        "available_locally": true
+      },
+      "recorded_head_during_run": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "tests/integration/test_c7_synthetic_full_pipeline.py",
+        "tests/unit/runtime/test_replay_input_bindings_completeness.py",
+        "tests/unit/runtime/test_replay_runtime.py",
+        "tests/unit/scientist/replay/test_replay_backend.py",
+        "tests/unit/scientist/replay/test_runtime_replay_measurement.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "result": {
+        "exit_code": 0,
+        "wall_seconds": 0.04087824991438538,
+        "diagnostics": 0
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-canonical-callers-root-ruff-r192-20261012/stdout.txt",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "bytes": 2,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-canonical-callers-root-ruff-r192-20261012/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "available_locally": true
+        }
+      ],
+      "checked_file_count": 5,
+      "checked_files": [
+        "tests/integration/test_c7_synthetic_full_pipeline.py",
+        "tests/unit/runtime/test_replay_input_bindings_completeness.py",
+        "tests/unit/runtime/test_replay_runtime.py",
+        "tests/unit/scientist/replay/test_replay_backend.py",
+        "tests/unit/scientist/replay/test_runtime_replay_measurement.py"
+      ],
+      "interpretation": "Ruff passed on five candidate Python test files; it did not execute the C7 pipeline."
+    },
+    "virtual_run_correction": {
+      "earlier_virtual_reported_pass_count": 35,
+      "actual_source_distinct_pass_count": 23,
+      "duplicate_excess": 12,
+      "cause": "The pytest_collect_file hook is multi-result: the virtual custom collector and the built-in Python module collector both executed each of four targeted .py files. R190 is the deciding actual-source count."
+    }
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "Canonical Scientist replay owner and the legacy Runtime compatibility contract retain exact identities, lazy-loading behavior, and supported historical artifact semantics while internal consumers migrate.",
+    "producer": "Canonical algorithm ownership is in the existing Scientist deterministic replay module; this six-path slice does not modify its producer implementation.",
+    "artifact": "Replayable audit bundles and checkpoints are covered only by the selected unit/compatibility scope; this slice does not establish preserved external CAS bytes across import/export/replay/resume.",
+    "bridge": "Existing Runtime and CLI paths are not changed by this slice; dynamic inventory and benchmark implementation are outside its six paths.",
+    "consumer": "Five caller test files now refer to the canonical Scientist owner; the selected compatibility controls continue to exercise the Runtime facade and root exports.",
+    "surface": "The 20-symbol Runtime replay facade and ten lazy Runtime-root exports remain preserved; no API or removal decision is made.",
+    "semantic_test": "R190 provides 23 actual-source test cases, including selected compatibility controls; the C7 integration pipeline and installed-package lifecycle remain unrun."
+  },
+  "whole_finding_residuals": {
+    "status": "LIMITED_NOT_ADJUDICATED",
+    "capability_label": "verification_missing",
+    "closure_now": "not_adjudicated",
+    "closure_ids": [],
+    "unrun_or_not_established": [
+      "C7 full numerical/Foundry integration and fresh schema-valid artifact readback: UNRUN; R190 did not select the C7 test and R192 Ruff is lint only.",
+      "Supported retained CAS artifact import/export/default CLI --check-only/replay/resume with byte and identity preservation: UNRUN.",
+      "Installed wheel and sdist consumer/import smoke: UNRUN.",
+      "G/API lifecycle decision selecting permanent compatibility or a dated retirement window and naming an accountable issuer: not made; no owner/date is invented.",
+      "Complete zero-use proof for reflective, monkeypatch/FQN, persisted, or external consumers: not established by the bounded local import census.",
+      "Product facade-removal “remove the property, keep the markers” falsifier: UNRUN; the compatibility facade remains present."
+    ],
+    "next_check": {
+      "first_decision": "G/API release owner selects the supported lifecycle (permanent compatibility or a dated retirement window) and names the accountable issuer; do not infer or fabricate either.",
+      "criterion_matched_execution": "Then execute a fresh schema-valid C7 Foundry producer plus persisted readback, run a preserved supported CAS bundle through import/export and default CLI check-only/replay/resume with exact byte and identity comparison, and perform installed wheel/sdist import smoke including the 10 lazy root exports and 20-symbol compatibility facade. Test facade removal only if the lifecycle decision authorizes it; include reflective/FQN/monkeypatch caller controls and retain external-use scope as not_established unless independently evidenced.",
+      "source_owner_reference": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md#task-a10 and coverage.json#/findings/257"
+    }
+  },
+  "proposal": {
+    "individual_finding_disposition": "limited",
+    "closure_ids": [],
+    "G_acceptance": "not performed by this receipt",
+    "formal_closure_claimed": false,
+    "scope_note": "The source slice is a local, six-path test/documentation change. Passing selected tests and lint do not close LA-033, authorize facade removal, establish zero external use, or substitute for the original C7/CAS/install acceptance."
+  },
+  "evidence_integrity": {
+    "tracked_source_copied_into_receipt": false,
+    "complete_outputs_copied_into_receipt": false,
+    "raw_evidence_paths_are_local_and_sha256_checked": true,
+    "source_commit_sha256_and_git_blob_ids_both_recorded": true,
+    "module_origin_trace_overclaim": false,
+    "receipt_writes_only": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la033-source-qualified-canonical-callers-r203-20261012.json"
+    ],
+    "source_commit_capture_local_only": true
+  }
+}

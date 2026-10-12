@@ -1,0 +1,408 @@
+{
+  "artifact_type": "source_qualified_candidate_handoff",
+  "schema": "policyos.e02.local_source_qualified_handoff.v1",
+  "receipt_id": "B214-source-qualified-consumed-snapshot-r186-20261012",
+  "created_on": "2026-10-12",
+  "task": {
+    "finding_id": "B214",
+    "title": "Canonical graph snapshot admission and consumed-snapshot witness",
+    "scope_status": "Bounded candidate source and selected-consumer evidence are source-qualified; whole B214 semantic decision and formal closure remain unadjudicated."
+  },
+  "authorship_boundary": {
+    "author_role": "Independent local source-qualified evidence receipt author",
+    "G_code_acceptance": "not granted by this receipt",
+    "integration_publication": "not performed or claimed",
+    "formal_finding_adjudication": "not performed",
+    "closure_ids": [],
+    "formal_closure_claimed": false
+  },
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "e635319f150c55b529357888b582ec857220c3a6",
+    "slice_base_tree": "6e09d0ca6158920805f76374bdfa076cb7ee73c4",
+    "candidate_commit": "ceaab590d64fa09ef66589d0b45ff4bc12ba8a75",
+    "candidate_tree": "2b775eceecb2cb65cbadab66cabcca1b0fbc9f55",
+    "parents": [
+      "e635319f150c55b529357888b582ec857220c3a6"
+    ],
+    "candidate_subject": "fix(foundry): bind graph admission and consumers to one canonical snapshot",
+    "state": "local committed source slice; G acceptance and remote publication not established",
+    "current_workspace_at_receipt": {
+      "head": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+      "tree": "60aa02e83c62b8335e5bf1317feaf06a5da97d3f",
+      "index_empty": true,
+      "shared_worktree_note": "The shared checkout contains unrelated dirty and untracked work. This receipt binds only the listed source paths; it does not claim a clean whole worktree."
+    },
+    "global_e02_source_freeze": "not_established",
+    "remote_publication": "not_verified; no push is claimed",
+    "source_boundary_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-source-boundary-r183-20261012/readback.json",
+      "sha256": "52ea7d44b47076a83b958261504b1fadb8525dcb2e2a343072e2c7b0976ad885",
+      "bytes": 2291,
+      "available_locally": true
+    },
+    "source_commit_capture": {
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-source-commit-r183-20261012/command.json",
+        "sha256": "5321159764758b590d1a53914eae8df7aad37364883daac6f451d93ee21109ef",
+        "bytes": 1048,
+        "available_locally": true
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-source-commit-r183-20261012/result.json",
+        "sha256": "a582478b54205db5d0c280eea771e90441802e1fc53fd5010d83c736937a7d19",
+        "bytes": 232,
+        "available_locally": true
+      },
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-source-commit-r183-20261012/stdout.txt",
+        "sha256": "6f03bb167fbe1de80167a08580c7d9d0998e0715b10c2b7b5130c81ca2b4e08a",
+        "bytes": 540,
+        "available_locally": true
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-source-commit-r183-20261012/stderr.txt",
+        "sha256": "39129a9fcfcd5090a0c4db1d383ffe0ef90fc141b9662e1e0a2b456b1709dfdf",
+        "bytes": 653,
+        "available_locally": true
+      },
+      "result_exit_code": 0,
+      "result_json": {
+        "exit_code": 0,
+        "wall_seconds": 2.231684875092469,
+        "stdout_sha256": "6f03bb167fbe1de80167a08580c7d9d0998e0715b10c2b7b5130c81ca2b4e08a",
+        "stderr_sha256": "39129a9fcfcd5090a0c4db1d383ffe0ef90fc141b9662e1e0a2b456b1709dfdf"
+      }
+    },
+    "footprint_denominator": {
+      "complete_candidate_paths": 7,
+      "path_type_counts": {
+        "runtime_code": 3,
+        "tests": 2,
+        "documentation_companion": 1,
+        "release_config": 1
+      },
+      "method": "All paths are enumerated from the source-boundary readback and source commit tree. Byte sizes are Git blob sizes at slice base/candidate; tracked source content is referenced by path and SHA, not copied."
+    },
+    "source_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+        "role": "runtime_graph_admission",
+        "base_sha256": "5c3ae7fd89cfa012d23bf84963948de69b46e9e276212542f21f5fb08ee30d5d",
+        "candidate_sha256": "b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129",
+        "base_bytes": 28616,
+        "candidate_bytes": 51269,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+        "role": "registered_route_companion",
+        "base_sha256": "38673294ad24db9a19c4854caeaf04470dd3953001a65813714eead60916c097",
+        "candidate_sha256": "7e31b3f2c97ae1a72f1a7663f2831ccb7d99defdf6a5912dc94ce92d70d70218",
+        "base_bytes": 32564,
+        "candidate_bytes": 34568,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+        "role": "registered_route_companion",
+        "base_sha256": "24c903433b9de3c00487443255329644581efb7b929360d571ed7e060bf7c6d7",
+        "candidate_sha256": "01c8870f44b4013318e28ab17c0b8fe6230ceccbed03ee88e2eda2b16d13beb1",
+        "base_bytes": 32765,
+        "candidate_bytes": 36906,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+        "role": "test_registered_transport_check",
+        "base_sha256": "158d42507e3a6ccce1f6e2cb0a1b617f2dc0b9cd76141301b763874a0da593be",
+        "candidate_sha256": "3b3f5cdb435329b15dee1f2ff3dae31f19c263f57ae455e0a049305fcc0924fc",
+        "base_bytes": 7791,
+        "candidate_bytes": 21572,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+        "role": "test_registered_symbolic_consumers_and_controls",
+        "base_sha256": "4679fa00bdb5b4620c4d7546e981d4911e0a8fd281f7e9312141897f90228e1e",
+        "candidate_sha256": "13666857c1cc6347744520dfcaa28e6ba26b41111848b92a71fc25b07db76269",
+        "base_bytes": 6642,
+        "candidate_bytes": 44039,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "role": "documentation_companion",
+        "base_sha256": "14313e6632be29b256238cd354a38c96c3a68577a55baf2eab9a205aa4567618",
+        "candidate_sha256": "e43ba97f9b6341cc9732663401d4b521bb00883a27c037d9f30e38cbae2860bd",
+        "base_bytes": 16922,
+        "candidate_bytes": 20312,
+        "current_worktree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-b214-pag-refusal.toml",
+        "role": "release_config",
+        "base_sha256": null,
+        "candidate_sha256": "28c0e358fd37096658f2dfa3da8800a246f5cc825282974e10256cc6d9105b88",
+        "base_bytes": 0,
+        "candidate_bytes": 3066,
+        "current_worktree_matches_candidate": true
+      }
+    ],
+    "byte_totals_by_role": {
+      "code": {
+        "paths": 3,
+        "base_bytes": 93945,
+        "candidate_bytes": 122743
+      },
+      "tests": {
+        "paths": 2,
+        "base_bytes": 14433,
+        "candidate_bytes": 65611
+      },
+      "documentation_companion": {
+        "paths": 1,
+        "base_bytes": 16922,
+        "candidate_bytes": 20312
+      },
+      "release_config": {
+        "paths": 1,
+        "base_bytes": 0,
+        "candidate_bytes": 3066
+      },
+      "all": {
+        "paths": 7,
+        "base_bytes": 125300,
+        "candidate_bytes": 211732,
+        "net_bytes": 86432
+      }
+    },
+    "commit_path_readback": "All seven current worktree target bytes match the candidate commit postimages; candidate commit is a child of the declared slice base."
+  },
+  "criterion": {
+    "finding_id": "B214",
+    "original_source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_source_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "original_source_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "original_source_lines": [
+      5218,
+      5229
+    ],
+    "original_criterion_excerpt_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+    "criterion_summary": "A known reversed endpoint must not be storage-order oriented. Unknown/equivalence-class edges must not be chosen by storage order and then relabeled as a DAG or allowed to introduce cycles; consumers need a valid acyclic extension with known directions preserved. A sound general partial-graph extension/identification method is a separate unresolved choice.",
+    "coverage_owner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "pointer": "/findings/135",
+      "historical_status": "partial",
+      "appendix_c_status_separate": "closed_bounded",
+      "closure_now": "not_adjudicated",
+      "criterion_specific_acceptance_not_executed": "PAG/CPDAG projection cannot reverse a known direction or introduce a cycle. Distinguish unknown/equivalence classes from known arrows, produce an acyclic extension, and prove downstream DAG consumers use it. Source-card check UNRUN; J1062 is B215 only."
+    },
+    "held_semantics_decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B214-pag-extension-claim-options-2026-10-11.md",
+      "sha256": "bcce607e2bfe1c1a333b6ede146e2cac8324fb959ca006fd4360f7496c97af8d",
+      "status": "G choice remains held; no PAG/CPDAG completion or scientific semantics selected."
+    }
+  },
+  "property_and_result": {
+    "bounded_property": "Successful graph admission recursively rebuilds a detached SelectionDiagram from declared typed fields; the admission guard, all selected registered consumers, and the direct solver consume the same snapshot. Malformed/noncanonical graph DTOs and graph profiles whose completion semantics are not established yield typed refusal before scalar identification.",
+    "observed_result": "The final selected-consumer run covers transport check and symbolic identification v1, v2 fallback, v2 native, and the direct solver. It includes route-same-snapshot cases, mutation/noncanonical-container adversarial cases, and passing gate-removal marker controls. The independent report judges the structural snapshot property GO-limited only.",
+    "p37": "The schema field set and consumed nested values are recomputed from declared runtime model fields/annotations. PAG/CPDAG extension-set semantics, external causal truth and probability remain not_established.",
+    "p38": "The guarded property is equality of the admitted graph input and the graph actually consumed. The implementation rebuilds one detached snapshot and passes it to the gate and consumer; the divergent case is a caller mutating/overriding nested graph containers after admission, which otherwise could make the consumer use different bytes than the checked graph. The actual selected tests exercise same-snapshot use and typed refusal.",
+    "p40_bucket": {
+      "classification": "SAME_CLASS_DEEPER",
+      "quantity_closed": "The mechanism is applied to the full typed SelectionDiagram consumed across registered routes and the direct solver, rather than one route or leaf.",
+      "residual": "The general PAG/CPDAG extension/identification semantics are explicitly unselected, not patched here.",
+      "smallest_closing_capability": "A G-selected typed partial-graph semantics contract plus a sound algorithm and semantic tests over the permitted graph family; this capability is not present in this source slice and the alternatives remain held in the cited G decision.",
+      "falsifier": "The property-removal run replaces the snapshot function with identity and the four hidden-s-node consumer assertions fail; complete output is retained below."
+    },
+    "not_established": [
+      "A generic sound partial-graph extension algorithm or all-extension/invariance identification semantics.",
+      "External causal truth, probability over graph extensions, institutional authority, publication eligibility, or a real-world causal conclusion.",
+      "Formal B214 closure or a selected G decision."
+    ],
+    "capability_assessment": {
+      "scope": "Full B214 partial-graph completion/identification capability",
+      "label": "semantic_test_missing",
+      "explanation": "The bounded canonical-snapshot/refusal property is behaviorally verified, but no selected general PAG/CPDAG completion semantics or semantic acceptance test for that capability exists while the G choice remains held."
+    }
+  },
+  "selected_input_profile_backend": {
+    "inputs": "Controlled local typed graph/SelectionDiagram fixtures including known reversed endpoints, unresolved PAG/CPDAG/equivalence cases, nested/noncanonical container and model_copy mutations, and post-admission mutation cases. No production graph dataset is used.",
+    "profile": "The complete two-module selected consumer profile, not a single ladder instance: transport check plus symbolic-identify v1, v2 fallback, v2 native, and direct transport solver paths; full module test count is in the JUnit output.",
+    "backend": "In-process Python graph and registered-method routes; no external graph provider or production backend. Captured environment sets JAX_PLATFORMS=cpu; this is an environment setting, not evidence of causal or JAX computation.",
+    "module_origin": "pytest runs in policy-engine with PYTHONPATH=tools:src:.; full path/hash maps bind the changed source and test bytes. A separate runtime __file__ trace was not captured."
+  },
+  "verification": {
+    "selected_consumer_run": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/command.json",
+        "sha256": "2bace3270410f7963261dd4007dd778f66cd7d26a7da59137803095db00cb2a2",
+        "bytes": 1610262,
+        "available_locally": true
+      },
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "recorded_head": "e635319f150c55b529357888b582ec857220c3a6",
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+        "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+        "--import-mode=importlib",
+        "-vv",
+        "--maxfail=0",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/junit.xml"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "tools:src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1",
+        "JAX_PLATFORMS": "cpu"
+      },
+      "full_input_hash_map": {
+        "entry_count": 6186,
+        "before_and_after_identical": true,
+        "path": "complete maps retained in command_record; not duplicated in this receipt"
+      },
+      "candidate_target_hashes_match_both_maps": true,
+      "exit_code": 0,
+      "wall_seconds": 7.493690749979578,
+      "pytest": {
+        "tests": 547,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 4.201
+      },
+      "complete_outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/stdout.txt",
+          "sha256": "85689d0b816d48d14ce7d2686e8f90ff307ed3ead86fbea2017d1753f09bc676",
+          "bytes": 114409,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "available_locally": true
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-v6-actual-selected-consumers-r177-20261012/junit.xml",
+          "sha256": "0ecb4e2ef657ee0bb967ff8024ff2319cffb7fca175a2f294d5a2d6d1c78a122",
+          "bytes": 127482,
+          "available_locally": true
+        }
+      ],
+      "source_resolution_note": "The command ran from the policy-engine root with the recorded in-tree PYTHONPATH; target file hashes in the full before/after map match the source-slice postimages. A separate runtime __file__ import trace was not retained."
+    },
+    "selected_profile_result": "547 passed, 0 failed, 0 errors, 0 skipped; pytest time 4.201 s; command wall time 7.49369075 s; exit 0.",
+    "behavioral_controls": {
+      "present_in_full_R177_JUnit": [
+        "test_symbolic_partial_graph_refusal_gate_removal_control",
+        "test_symbolic_admg_profile_gate_removal_restores_frontdoor_claim",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[check-CheckTransportability-params0]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v1-y0-SymbolicIdentify-params1]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v2-fallback-y0-SymbolicIdentifyV2-params2]",
+        "test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification[symbolic-v2-native-SymbolicIdentifyV2-params3]"
+      ],
+      "same_snapshot_route_cases": [
+        "check",
+        "symbolic-v1",
+        "symbolic-v2-fallback",
+        "symbolic-v2-native"
+      ]
+    },
+    "snapshot_removal_probe": {
+      "runner": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/run_v5_independent_oracle_r3.py",
+        "sha256": "bd64b127052bb1db53f43545519d7854c47773678e60927ad1beb1d0892b1632",
+        "bytes": 3344,
+        "available_locally": true
+      },
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/runs-r3.json",
+        "sha256": "4db7cb3ecaff92023a1c9d0d57e72264e01c2ad94a2e5e55df249bcdfabe1d31",
+        "bytes": 3549,
+        "available_locally": true
+      },
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "meaning": "Identity snapshot mutant leaves four hidden-s-node route assertions failing because the routes again identify; this is expected property-removal red, not a green suite.",
+      "complete_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/removal-r3.stdout.txt",
+        "sha256": "82037ab2f025560f9ee5c70dc8da5034bf2273274e4258ea60645ec03367e621",
+        "bytes": 16325,
+        "available_locally": true
+      },
+      "complete_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-v5-independent-oracle-r1-20261012/removal-r3.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "available_locally": true
+      }
+    },
+    "independent_review": {
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b214-v5-v6-actual-r177-independent-r1-20261012.md",
+        "sha256": "56666cd2bc16de7b9fe16b921ec25af2ead827c87659ab63baf88b44f58f775c",
+        "bytes": 10317,
+        "available_locally": true
+      },
+      "machine_readable": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b214-v5-v6-actual-r177-independent-r1-20261012.json",
+        "sha256": "d557bf16dac4f6254ece2dbaeda48835f8ee72c8b018823eb04f98a8643c2588",
+        "bytes": 16778,
+        "available_locally": true
+      },
+      "verdict": "GO-limited for the applied structural graph-admission property and corrected V6 test oracle; whole B214 semantics decision remains open."
+    },
+    "source_readback_and_complete_outputs_are_local_only": true
+  },
+  "producer_artifact_bridge_consumer": {
+    "contract": "At method admission, only a detached, typed and validated graph snapshot is handed to the scalar graph consumers; unsupported or malformed profiles return a typed limitation/refusal.",
+    "producer": "The runtime graph validation and snapshot path in transport_engine.py, exercised through actual registered consumers and direct solver.",
+    "artifact": "Typed SelectionDiagram/graph inputs and method result/proof-bundle outputs within local tests; no persistent graph artifact is established by this slice.",
+    "bridge": "Registered method dispatch routes are exercised; no workflow or external orchestration bridge is claimed.",
+    "consumer": "Transport check; SymbolicIdentify v1; SymbolicIdentifyV2 fallback and native paths; direct solve_transportability helper.",
+    "surface": "Bounded registered method result surface in selected tests; public workflow/API/dashboard behavior and publication authority are outside the evidence.",
+    "semantic_test": "Snapshot-removal, endpoint/profile gate-removal, same-snapshot route, and malformed-container controls are retained; broad partial-graph scientific semantics remain unselected."
+  },
+  "proposal": {
+    "individual_finding_disposition": "limited",
+    "closure_ids": [],
+    "G_acceptance": "not performed by this receipt",
+    "formal_closure_claimed": false,
+    "scope_note": "Do not convert the bounded structural admission result into a claim of graph truth, a general partial-graph solver, or whole B214 closure."
+  },
+  "evidence_integrity": {
+    "tracked_source_copied_into_receipt": false,
+    "complete_outputs_copied_into_receipt": false,
+    "raw_evidence_paths_are_local_and_sha256_checked": true,
+    "receipt_writes_only": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b214-source-qualified-consumed-snapshot-r186-20261012.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b25-source-qualified-repeat-denominators-r186-20261012.json"
+    ],
+    "source_commit_captures_local_only": true
+  }
+}

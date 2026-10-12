@@ -1,0 +1,123 @@
+{
+  "schema": "la033-actual-canonical-callers-independent-review/v1",
+  "date": "2026-10-12",
+  "verdict": {
+    "six_path_change": "GO_TO_COMMIT",
+    "whole_la033": "LIMITED_NOT_ADJUDICATED",
+    "capability_label": "verification_missing",
+    "closure_ids": [],
+    "g_acceptance": false
+  },
+  "current_state": {
+    "head": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+    "tree": "60aa02e83c62b8335e5bf1317feaf06a5da97d3f",
+    "index_empty": true
+  },
+  "composition": {
+    "author_patch_sha256": "fa55dd789de4af1f7ca90c538b4ab3f8c946bdb34767f7f130ab72f4bb3e6a0c",
+    "composition_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-root-canonical-callers-composition-r187-20261012/composition.json",
+    "composition_sha256": "c73f477e63ee02de8cd1cd3984aee358f78a05a485a3d2b7fc3e0cf3e45edee8",
+    "net_patch_sha256": "61a03af0912531cb78d79eeb6104e2e9f802c7cffac10cdb6b924ea33b74fcf3",
+    "application_readback_sha256": "3996cb18d0ebe5a22f80aa8a25ba0e9ab2452354f322777d721e969ee264f189"
+  },
+  "import_order_delta": {
+    "patch_sha256": "8633eb8bb54cb499deb28ccddcec591f3edd6802e1dcebb4215eaf14a7c9a854",
+    "readback_sha256": "45cc1523649f3c39b780b20ffee41f6c672b1b9d4fa304b284ae1affaa097db3",
+    "files": 3,
+    "property": "imports reordered only; module-body AST and normalized import bindings unchanged"
+  },
+  "final_paths": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/README.md",
+      "sha256": "88d4053f053e8a906502ba6ad749308433e3ae8e62666a76c23479c049707285"
+    },
+    {
+      "path": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+      "sha256": "f179dbb33d2802972f543204507d27e92f1c004c87f6c6d4d8113d4f9a4e5a4f"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/test_replay_input_bindings_completeness.py",
+      "sha256": "18e366f98e02d067ff2ea9100232d76805fce14db1f55f0aca6811cc45f0d34d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/test_replay_runtime.py",
+      "sha256": "acbced54bb34cf5e09953312ac3b45959f94e4b768519702cdacd69a4f91fe1a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/replay/test_replay_backend.py",
+      "sha256": "6f10485da14753e19d0e59c010d442c30b84f45fc27f3f75812d83f2ecacfabb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/replay/test_runtime_replay_measurement.py",
+      "sha256": "7df80b03df6372e30d81ae05e412b3f0edb8ea710f159e6e1596ff36dbed5ced"
+    }
+  ],
+  "actual_test_receipt": {
+    "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-actual-canonical-callers-r190-20261012",
+    "command_sha256": "11fb9f99f4fd5522b613c078e62821522bf5ea21c061a409319b0207f80ebe3d",
+    "stdout_sha256": "3ea33d0c192f482a2cf005ecdbecb394c9bf22e7cd73b559ae3669692afce16c",
+    "junit_sha256": "a42c9cbfd61ef15ac13759e46ca7b4449a453a398c80a618c5daae225b08f4e6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exit_code": 0,
+    "pytest_cases": 23,
+    "summary": "23 passed in 22.03s; captured wall 25.643s",
+    "cases_by_file": {
+      "test_replay_input_bindings_completeness.py": 3,
+      "test_replay_runtime.py": 3,
+      "test_replay_backend.py": 5,
+      "test_runtime_replay_measurement.py": 1,
+      "test_deterministic_compatibility.py": 2,
+      "test_rep_01.py": 9
+    },
+    "stable_input_file_count": 6186,
+    "input_hash_differences": 0,
+    "c7_included": false
+  },
+  "lint_receipt": {
+    "raw_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la033-canonical-callers-root-ruff-r192-20261012",
+    "command_sha256": "afde82d66ca016115043e358cc23191b31e2265d4d16bd3395b8a4f20c506600",
+    "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exit_code": 0,
+    "checked_python_files": 5
+  },
+  "virtual_suite_correction": {
+    "prior_virtual_count": 35,
+    "actual_count": 23,
+    "duplicate_excess": 12,
+    "per_file_virtual_vs_actual": {
+      "test_replay_input_bindings_completeness.py": [
+        6,
+        3
+      ],
+      "test_replay_runtime.py": [
+        6,
+        3
+      ],
+      "test_replay_backend.py": [
+        10,
+        5
+      ],
+      "test_runtime_replay_measurement.py": [
+        2,
+        1
+      ],
+      "compatibility_controls_total": [
+        11,
+        11
+      ]
+    },
+    "cause": "pytest_collect_file is multi-result; virtual custom collector and built-in Python collector both collect each targeted .py file",
+    "classification": "virtual receipt count is duplicated collection; actual R190 receipt is deciding"
+  },
+  "remaining_limitations": [
+    "C7 numerical integration UNRUN",
+    "No preserved CAS import/export/replay/resume byte-identity run",
+    "No installed wheel/sdist consumer run",
+    "No G/API permanent-versus-dated lifecycle decision",
+    "No complete proof of zero reflective, persisted, or external consumers",
+    "No product facade-removal falsifier"
+  ],
+  "review_markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/la033-actual-canonical-callers-r190-independent-r3-20261012.md",
+  "review_markdown_sha256": "bc885696df6bf05542ef329a52de2cf46270d6027e38a9d1965bc2b019302e9c"
+}

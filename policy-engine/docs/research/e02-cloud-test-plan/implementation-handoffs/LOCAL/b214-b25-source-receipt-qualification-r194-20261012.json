@@ -1,0 +1,75 @@
+{
+  "schema": "policyos.e02.source_receipt_qualification.v1",
+  "created_on": "2026-10-12",
+  "actual_readback_head": "ce60ac7ff4e8cf999866e2f94e86f0314e98b464",
+  "closure_ids": [],
+  "root_validation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b25-receipt-root-validation-r194-20261012/readback.json",
+    "sha256": "b0699f019e81ac99c691bbaa25461aa4138288a06b1f8def2dcf56a2f9c5b996"
+  },
+  "qualifications": [
+    {
+      "finding_id": "B214",
+      "source_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b214-source-qualified-consumed-snapshot-r186-20261012.json",
+        "sha256": "04fbfb286cd9830d39e966a0d572b44c535ee4bf74027dd880a131c3627ae7fd"
+      },
+      "input_map_denominator": {
+        "python_paths": 5,
+        "readme_release_companions_in_commit_footprint": 2,
+        "total_source_commit_paths": 7
+      },
+      "predicate_scope": "candidate_target_hashes_match_both_maps is the Python target predicate. README/release bytes are bound by the exact seven-path Git commit and readback separately.",
+      "proposal_outcome": "limited",
+      "boundary": "Canonical admission and consumed-snapshot behavior are verified; unresolved PAG/CPDAG semantics and protected mathematical backend qualification are separate. Future Y0 edits require affected-consumer verification on their exact composition.",
+      "next_checks": [
+        {
+          "check": "G reviews the four partial-graph alternatives and the source-bound discriminator before choosing any completion semantics.",
+          "decision_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B214-pag-extension-claim-options-2026-10-11.md",
+          "decision_sha256": "bcce607e2bfe1c1a333b6ede146e2cac8324fb959ca006fd4360f7496c97af8d"
+        },
+        {
+          "check": "After the actual Y0 shared-solver and protected-status repair is independently reviewed and source-frozen, replay the two existing causal consumer modules and their marker-preserving actual-call/snapshot-removal controls.",
+          "selectors": [
+            "tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+            "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py"
+          ],
+          "state": "UNRUN_on_future_composition"
+        }
+      ]
+    },
+    {
+      "finding_id": "B25",
+      "source_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b25-source-qualified-repeat-denominators-r186-20261012.json",
+        "sha256": "b8593e6f6bc38889cd1aea3286611774d45cdd577f6b21f1c622b05e43e9133c"
+      },
+      "input_map_denominator": {
+        "python_paths": 4,
+        "release_companion_in_commit_footprint": 1,
+        "total_source_commit_paths": 5
+      },
+      "predicate_scope": "candidate_target_hashes_match_both_maps is the four Python target predicate. The release companion is bound by the exact five-path Git commit and readback separately.",
+      "historical_status": "closed",
+      "proposal_outcome": "limited",
+      "boundary": "Nine B25-selected cases pass within R161 48 total/47 PASS/1 FAIL; no blanket green or inherited-red claim. This source establishes result counts and serialization, while the full persisted accepted-calibration chain is not established.",
+      "next_checks": [
+        {
+          "check": "After the full source/input/backend freeze, exercise a configured CoupledSMMEstimator through the actual method-job/result persistence and fresh consuming route, or record the absent bridge against the literal original criterion. Preserve required-set ranking and all returned-key denominators; do not demand unrelated scientific or institutional facts.",
+          "state": "UNRUN"
+        },
+        {
+          "check": "Replay current estimator and serializer consumers with the required-only denominator removal control; preserve historical closure and ask G for separate finding adjudication.",
+          "selectors": [
+            "tests/unit/foundry/coupling/test_estimation.py",
+            "tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py::test_coupled_smm_serializes_selected_repeat_denominators"
+          ],
+          "state": "UNRUN_on_final_composition"
+        }
+      ]
+    }
+  ],
+  "G_acceptance": "not_granted",
+  "global_source_freeze": "not_established",
+  "remote_publication_at_this_boundary": "e635319 confirmed; source ceaab590 and ce60ac7 still local until an ordinary own-topic push and exact remote readback"
+}

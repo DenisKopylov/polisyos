@@ -1,0 +1,101 @@
+{
+  "schema": "e02.local.incident-recovery.v1",
+  "slice": "protocol-incident-recovery-r322",
+  "closure_ids": [],
+  "proposals": [],
+  "source_base": {
+    "sha": "b214e3f5364c6ce0c081d470da8f4e0ed2560de7",
+    "tree": "bc10a2ed7381510c5586c799601c3b8d54fbda43",
+    "parents": [
+      "a4aa6541676c2ab19b2a348116643eecac64da58"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "source_boundary": "Incident recovery only; full E02 candidate source is uncommitted and not frozen. Restored protocol matches the named source commit exactly. No R215 acceptance or capability closure is asserted.",
+  "cause": {
+    "owner": "/root/rq10_import_oracle",
+    "class": "NEW_CLASS wrong shell cwd and automatic reverse application",
+    "commands_utc": [
+      "2026-10-12T14:19:15.041Z",
+      "2026-10-12T14:21:40.172Z"
+    ],
+    "mechanism": "Python seeded a temporary overlay, but subsequent POSIX patch inherited the physical checkout cwd. Repeated patch auto-reversed 69 paths and duplicated the insertion-only protocol hunk."
+  },
+  "code_footprint": [
+    "policy-engine/src/polisyos/core/artifacts/protocol.py"
+  ],
+  "net_source_delta_to_named_HEAD": "zero for protocol; all other E02 WIP preserved",
+  "full_readback_denominator": {
+    "paths": 70,
+    "file_types": {
+      ".py": 58,
+      ".md": 7,
+      ".ts": 2,
+      ".toml": 2,
+      ".json": 1
+    },
+    "matches_original_preimages": 70
+  },
+  "controls": "Two protocol-only patch applications in isolated scratch reproduced the exact first and second accidental hashes. Recovery removes exactly48addedlines, addsnone, and restores the original hash. Root invocation binds resolved physical checkout plus Git top-level, branch/HEAD/index, helpers, patch and all70pre/post hashes.",
+  "source_preimage_sha256": "a492819e3c2476878efd7c4695aaead44e7b7ab2bee42ca543ce85b4aaf063ec",
+  "source_postimage_sha256": "a55a20f86ef529f3d81326a617f68981e6f65b9d23d06984ed7fc123b7028c8e",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/attributed-tool-calls.json",
+      "sha256": "fb155603d4d95c1845405b7b7a9354f3810b88cb6092e51542a075d8549fd4f1",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/second-patch-replay.stdout.txt",
+      "sha256": "f0957a93461b14136387f06bedd02937370280e375c0358b83a44d098d47b812",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/r215-complete-70-path-state.json",
+      "sha256": "ca0be28c1d7afb617ff905e5c0b628fe83ce4bf0298bf67e55ab3963397567b3",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/affected-path-backups-and-rejects.json",
+      "sha256": "03e31c5be3b1bfc821196ccb9c17b0cdc996eccfb1beb7e2b9ca9e581ec48faf",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/recovery-proposal.json",
+      "sha256": "095578fc522baad74139b11ff090abb3d3cde4b2b8aafec5b6d3d54468d3a6be",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded_recovery.py",
+      "sha256": "bfe86dc42ee84011e4b9ee557c88f156843539a982dcb3c4a2da33d31db8d01a",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded-apply.stdout.txt",
+      "sha256": "ca31e9090a7a50305a20a07c21635f4a08470376365461764d3ef507fe531594",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded-apply.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded-recovery-readback.json",
+      "sha256": "29a32fddff1c9097144d50a1407aff9eba75187f2fdc6321f0816e0785f161f1",
+      "available_locally": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/protocol-incident-recovery-r322-postapply-independent-review-20261012.json",
+      "sha256": "48990b22ead22bcb844e86f4cbc5762e339667ade41e89ddfaa5a2abd933f747",
+      "available_locally": true
+    }
+  ],
+  "receipt_effects": {
+    "R319": "Completed14:19:04UTC before first accidental application; original6195input before/after hashes remain stable.",
+    "R320": "Failed boundedattempt already used duplicate protocol as capturedsource; retained asFAIL, neveracceptedGPcapabilityproof."
+  },
+  "writer_lease": "Physical source/index/history writes are root-only. Delegates create virtual candidates via strict Python materializer and may not use POSIX patch in the physical checkout. Root checks absolute repo, exact preimages and complete byte readback before applying.",
+  "remaining_verification": "Full E02 source/input/backend freeze, canonical generators, native gates and independent G adjudication remain pending."
+}

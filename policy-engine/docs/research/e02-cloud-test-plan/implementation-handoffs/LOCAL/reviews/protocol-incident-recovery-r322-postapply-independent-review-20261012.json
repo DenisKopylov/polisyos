@@ -1,0 +1,57 @@
+{
+  "schema": "e02.protocol-incident-recovery-postapply-review.v1",
+  "review_date": "2026-10-12",
+  "result": "BOUNDED_RECOVERY_VERIFIED",
+  "preapply_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/protocol-incident-recovery-r322-independent-review-20261012.md",
+    "sha256": "d641d6ed493f462468e0317909a7845191410e142fb206f59b231bf1636c00f7"
+  },
+  "root_apply": {
+    "executed_once_by_root": true,
+    "guarded_wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded_recovery.py",
+    "guarded_wrapper_sha256": "bfe86dc42ee84011e4b9ee557c88f156843539a982dcb3c4a2da33d31db8d01a",
+    "apply_stdout_sha256": "ca31e9090a7a50305a20a07c21635f4a08470376365461764d3ef507fe531594",
+    "apply_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diff_check_exit": 0,
+    "application_helper_sha256": "838d86cef78cdaf985c8260352bb7caa7d681ed6318c82f07ae52c87939cb20f",
+    "materialization_helper_sha256": "60a37f5ad54c656311636a0e4379f1c1c8718ad66dfc384d19c17e2914e9ad43"
+  },
+  "postapply_readback": {
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/guarded-recovery-readback.json",
+    "receipt_sha256": "29a32fddff1c9097144d50a1407aff9eba75187f2fdc6321f0816e0785f161f1",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-publicconsumer-r215-fullclass-r2-20261012/manifest-r215-r2.json",
+    "manifest_sha256": "de34bb7fce06100a37f09d2f2d0384c4ee7480ee43dced87e500720cab270102",
+    "path_denominator": 70,
+    "unique_paths": 70,
+    "file_type_denominator": 70,
+    "file_type_counts": {
+      ".py": 58,
+      ".md": 7,
+      ".ts": 2,
+      ".toml": 2,
+      ".json": 1
+    },
+    "receipt_paths_match_manifest": true,
+    "receipt_preimages_match_manifest": true,
+    "current_worktree_matches_all_preimages": true,
+    "protocol_path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+    "protocol_sha256": "a55a20f86ef529f3d81326a617f68981e6f65b9d23d06984ed7fc123b7028c8e",
+    "protocol_equals_head_bytes": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b214e3f5364c6ce0c081d470da8f4e0ed2560de7",
+    "index_empty": true,
+    "closure_ids": []
+  },
+  "pattern_disposition": {
+    "P35": "Complete 70-path post-apply readback verified.",
+    "P38": "Physical checkout root and Git top-level assertions verified in executed wrapper.",
+    "P40": "NEW procedural class; the root applied one exact-preimage recovery and read it back."
+  },
+  "scope_limit": "This verifies only the incident recovery; it is not E02 closure or R215 acceptance.",
+  "verification_actions": [
+    "Read-only hash walk over the full 70-path manifest",
+    "Read-back of wrapper and materializer receipts",
+    "No tests or runtime imports"
+  ],
+  "review_worker_applied_patch": false
+}

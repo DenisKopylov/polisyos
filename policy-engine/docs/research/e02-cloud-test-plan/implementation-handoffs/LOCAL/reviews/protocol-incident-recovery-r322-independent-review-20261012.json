@@ -1,0 +1,82 @@
+{
+  "schema": "e02.protocol-incident-recovery-independent-review.v1",
+  "review_date": "2026-10-12",
+  "verdict": "GO_BOUNDED_WITH_REQUIRED_ROOT_AND_FULL_SET_READBACK",
+  "scope": "One root-authorized protocol.py recovery apply only; not E02 closure or R215 acceptance.",
+  "repository": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b214e3f5364c6ce0c081d470da8f4e0ed2560de7",
+    "index_empty": true,
+    "product_source_changed_by_review": false
+  },
+  "attribution": {
+    "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/attributed-tool-calls.json",
+    "sha256": "fb155603d4d95c1845405b7b7a9354f3810b88cb6092e51542a075d8549fd4f1",
+    "calls_utc": [
+      "2026-10-12T14:19:15.041Z",
+      "2026-10-12T14:21:40.172Z"
+    ],
+    "workdir": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "second_replay_stdout_sha256": "f0957a93461b14136387f06bedd02937370280e375c0358b83a44d098d47b812",
+    "second_replay_reverse_prompts": 69,
+    "second_replay_protocol_action": "Forward patch; no reverse prompt."
+  },
+  "full_path_state": {
+    "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/r215-complete-70-path-state.json",
+    "sha256": "ca0be28c1d7afb617ff905e5c0b628fe83ce4bf0298bf67e55ab3963397567b3",
+    "path_denominator": 70,
+    "unique_paths": 70,
+    "file_type_denominator": 70,
+    "file_type_counts": {
+      ".py": 58,
+      ".md": 7,
+      ".ts": 2,
+      ".toml": 2,
+      ".json": 1
+    },
+    "current_capture_matches": 70,
+    "current_preimage_count": 69,
+    "sole_nonpreimage": "policy-engine/src/polisyos/core/artifacts/protocol.py"
+  },
+  "recovery": {
+    "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/unexpected-core-protocol-r321-20261012/proposed-protocol-only-recovery.patch",
+    "patch_sha256": "e938a8512af12d8ce9da25c9982ef6f0142272728a6602e753a532d96773a069",
+    "paths": [
+      "policy-engine/src/polisyos/core/artifacts/protocol.py"
+    ],
+    "added_lines": 0,
+    "removed_lines": 48,
+    "git_apply_check": "pass",
+    "current_sha256": "a492819e3c2476878efd7c4695aaead44e7b7ab2bee42ca543ce85b4aaf063ec",
+    "reconstructed_sha256": "a55a20f86ef529f3d81326a617f68981e6f65b9d23d06984ed7fc123b7028c8e",
+    "exact_head_bytes": true
+  },
+  "helper_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/apply_materialized_composition.py",
+    "sha256": "838d86cef78cdaf985c8260352bb7caa7d681ed6318c82f07ae52c87939cb20f",
+    "checks": [
+      "branch",
+      "HEAD",
+      "empty index",
+      "target preimage",
+      "overlay hash",
+      "patch hash",
+      "git apply --check",
+      "target postimage"
+    ],
+    "requires_external_expected_git_top_level_check": true,
+    "requires_full_70_path_postimage_walk": true,
+    "composition_helper_sha256_unbound": "60a37f5ad54c656311636a0e4379f1c1c8718ad66dfc384d19c17e2914e9ad43"
+  },
+  "pattern_disposition": {
+    "P35": "Full 70-path set enumerated with path and file-type denominators.",
+    "P38": "Helper must bind the physical worktree root; branch and HEAD are insufficient.",
+    "P40": "NEW procedural class: wrong physical cwd plus per-hunk auto-reverse behavior."
+  },
+  "actions_not_performed": [
+    "No source apply",
+    "No tests",
+    "No runtime imports",
+    "No commit"
+  ]
+}

@@ -40,7 +40,12 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
 )
 
-from .transport_engine import solve_transportability
+from .transport_engine import (
+    scalar_graph_admission_refusal,
+    scalar_graph_refusal_proof_bundle,
+    solve_transportability,
+    validate_scalar_graph_selection_diagram,
+)
 
 
 def _y0_available() -> tuple[bool, str | None]:
@@ -207,7 +212,11 @@ def _unsupported_symbolic_result(
 
 
 def _proof_bundle_from_transport_result(result: TransportabilityResult) -> ProofBundle:
-    """Build a heuristic-backed proof bundle for transport-only symbolic paths."""
+    """Build a proof bundle for transport-only symbolic paths."""
+    graph_admission_proof = scalar_graph_refusal_proof_bundle(result)
+    if graph_admission_proof is not None:
+        return graph_admission_proof
+
     proof_status = (
         "identified" if result.status is TransportabilityStatus.IDENTIFIED else "oracle_needed"
     )
@@ -233,6 +242,41 @@ def _proof_bundle_from_transport_result(result: TransportabilityResult) -> Proof
             "final_confidence": result.final_confidence,
         },
     )
+
+
+def _scalar_graph_refusal_payload(
+    *,
+    selection_diagram: SelectionDiagram | None,
+    query_treatment: str,
+    query_outcome: str,
+    params: Mapping[str, Any],
+    solver_mode: str,
+    include_estimand_ast: bool = False,
+    privacy_context: TransportPrivacyContext | None = None,
+    admission_refusal: TransportabilityResult | None = None,
+) -> dict[str, Any] | None:
+    """Return a shared typed limitation before any scalar graph route."""
+    result = admission_refusal or scalar_graph_admission_refusal(
+        selection_diagram=selection_diagram,
+        treatment=query_treatment,
+        outcome=query_outcome,
+        solver_mode=solver_mode,
+        pag_identification_policy=params.get("pag_identification_policy"),
+        policy_present="pag_identification_policy" in params,
+        privacy_context=privacy_context,
+    )
+    if result is None:
+        return None
+
+    proof_bundle = scalar_graph_refusal_proof_bundle(result)
+    assert proof_bundle is not None
+    payload: dict[str, Any] = {
+        "transport_result": result.model_dump(mode="json"),
+        "proof_bundle": proof_bundle.model_dump(mode="json"),
+    }
+    if include_estimand_ast:
+        payload["estimand_ast"] = None
+    return payload
 
 
 def _symbolic_from_frontdoor(
@@ -358,9 +402,37 @@ class SymbolicIdentify:
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
         query_treatment = str(state["query_treatment"])
         query_outcome = str(state["query_outcome"])
+        privacy_context = None
+        selection_diagram, malformed_graph_refusal = validate_scalar_graph_selection_diagram(
+            state["selection_diagram"],
+            treatment=query_treatment,
+            outcome=query_outcome,
+            solver_mode="symbolic_identify",
+        )
+        if malformed_graph_refusal is not None:
+            payload = _scalar_graph_refusal_payload(
+                selection_diagram=selection_diagram,
+                query_treatment=query_treatment,
+                query_outcome=query_outcome,
+                params=params,
+                solver_mode="symbolic_identify",
+                admission_refusal=malformed_graph_refusal,
+            )
+            assert payload is not None
+            return payload
+        assert selection_diagram is not None
+        graph_admission_payload = _scalar_graph_refusal_payload(
+            selection_diagram=selection_diagram,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            params=params,
+            solver_mode="symbolic_identify",
+        )
+        if graph_admission_payload is not None:
+            return graph_admission_payload
+
         require_symbolic = bool(params.get("require_symbolic_backend", False))
         symbolic_backend = normalize_symbolic_backend_mode(params.get("symbolic_backend"))
         selected_backend, backend_order, unavailable_reasons = _resolve_symbolic_backend_locally(
@@ -448,7 +520,10 @@ class SymbolicIdentify:
             "transport_result": result.model_dump(mode="json"),
             "proof_bundle": proof_bundle.model_dump(mode="json"),
         }
-        if result.status is not TransportabilityStatus.IDENTIFIED:
+        if (
+            result.status is not TransportabilityStatus.IDENTIFIED
+            and scalar_graph_refusal_proof_bundle(result) is None
+        ):
             negative_certificate = negative_certificate_from_transport_result(
                 result=result,
                 treatment=query_treatment,
@@ -653,13 +728,46 @@ class SymbolicIdentifyV2:
         )
         from polisyos.ir.analytics.causal_graph import GraphType
 
-        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
         query_treatment = str(state["query_treatment"])
         query_outcome = str(state["query_outcome"])
         use_native = bool(params.get("use_native_id", True))
         oracle = str(params.get("oracle_backend", "none"))
+        privacy_context = _resolve_transport_privacy_context(state, params)
+        selection_diagram, malformed_graph_refusal = validate_scalar_graph_selection_diagram(
+            state["selection_diagram"],
+            treatment=query_treatment,
+            outcome=query_outcome,
+            solver_mode="symbolic_identify_v2",
+            privacy_context=privacy_context,
+        )
+        if malformed_graph_refusal is not None:
+            payload = _scalar_graph_refusal_payload(
+                selection_diagram=selection_diagram,
+                query_treatment=query_treatment,
+                query_outcome=query_outcome,
+                params=params,
+                solver_mode="symbolic_identify_v2",
+                include_estimand_ast=True,
+                privacy_context=privacy_context,
+                admission_refusal=malformed_graph_refusal,
+            )
+            assert payload is not None
+            return payload
+        assert selection_diagram is not None
 
         graph = selection_diagram.base_graph
+        graph_admission_payload = _scalar_graph_refusal_payload(
+            selection_diagram=selection_diagram,
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
+            params=params,
+            solver_mode="symbolic_identify_v2",
+            include_estimand_ast=True,
+            privacy_context=privacy_context,
+        )
+        if graph_admission_payload is not None:
+            return graph_admission_payload
+
         can_use_native = use_native and graph.graph_type in {GraphType.DAG, GraphType.PAG}
 
         if can_use_native:
@@ -770,7 +878,10 @@ class SymbolicIdentifyV2:
             "estimand_ast": None,
             "proof_bundle": proof_bundle.model_dump(mode="json"),
         }
-        if result.status is not TransportabilityStatus.IDENTIFIED:
+        if (
+            result.status is not TransportabilityStatus.IDENTIFIED
+            and scalar_graph_refusal_proof_bundle(result) is None
+        ):
             negative_certificate = negative_certificate_from_transport_result(
                 result=result,
                 treatment=query_treatment,

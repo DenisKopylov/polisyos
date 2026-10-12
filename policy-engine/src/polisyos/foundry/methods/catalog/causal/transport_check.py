@@ -47,7 +47,12 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
 )
 
-from .transport_engine import solve_transportability
+from .transport_engine import (
+    scalar_graph_admission_refusal,
+    scalar_graph_refusal_proof_bundle,
+    solve_transportability,
+    validate_scalar_graph_selection_diagram,
+)
 
 
 class EliminationResult(BaseModel):
@@ -121,25 +126,68 @@ class CheckTransportability:
         tags=frozenset({"causal", "transportability"}),
         when_to_use="Check whether causal effect P*(Y|do(X)) is transportable from source to target context; simplified fallback path",
         when_not_to_use="Symbolic identification required (use SymbolicIdentify); query is purely observational with no context shift",
-        output_interpretation="TransportabilityResult: IDENTIFIED = effect is transportable. UNSUPPORTED = cannot transport without additional target-context data. Blocking S-nodes indicate what is needed.",
+        output_interpretation=(
+            "TransportabilityResult: IDENTIFIED = effect is transportable. UNSUPPORTED = "
+            "the claim is not currently admissible; blocking S-nodes identify target inputs, "
+            "while unsupported_reason distinguishes missing data from unestablished graph semantics."
+        ),
     )
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
-        selection_diagram = SelectionDiagram.model_validate(state["selection_diagram"])
+        query_treatment = str(state["query_treatment"])
+        query_outcome = str(state["query_outcome"])
+        privacy_context = _resolve_transport_privacy_context(state, params)
+        selection_diagram, malformed_graph_refusal = validate_scalar_graph_selection_diagram(
+            state["selection_diagram"],
+            treatment=query_treatment,
+            outcome=query_outcome,
+            solver_mode="simplified",
+            privacy_context=privacy_context,
+        )
+        if malformed_graph_refusal is not None:
+            proof_bundle = scalar_graph_refusal_proof_bundle(malformed_graph_refusal)
+            assert proof_bundle is not None
+            return {
+                "transport_result": malformed_graph_refusal.model_dump(mode="json"),
+                "proof_bundle": proof_bundle.model_dump(mode="json"),
+            }
+        assert selection_diagram is not None
+        graph_admission_refusal = scalar_graph_admission_refusal(
+            selection_diagram=selection_diagram,
+            treatment=query_treatment,
+            outcome=query_outcome,
+            solver_mode="simplified",
+            pag_identification_policy=params.get("pag_identification_policy"),
+            policy_present="pag_identification_policy" in params,
+            privacy_context=privacy_context,
+        )
+        if graph_admission_refusal is not None:
+            proof_bundle = scalar_graph_refusal_proof_bundle(graph_admission_refusal)
+            assert proof_bundle is not None
+            return {
+                "transport_result": graph_admission_refusal.model_dump(mode="json"),
+                "proof_bundle": proof_bundle.model_dump(mode="json"),
+            }
+
         result = solve_transportability(
             selection_diagram=selection_diagram,
-            query_treatment=str(state["query_treatment"]),
-            query_outcome=str(state["query_outcome"]),
+            query_treatment=query_treatment,
+            query_outcome=query_outcome,
             solver_mode="simplified",
             allow_degraded_transport=True,
             pag_identification_policy=params.get("pag_identification_policy"),
             pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
             pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
             pag_seed=int(params.get("pag_seed", 0) or 0),
-            privacy_context=_resolve_transport_privacy_context(state, params),
+            privacy_context=privacy_context,
         )
         payload: dict[str, Any] = {"transport_result": result.model_dump(mode="json")}
+        refusal_proof = scalar_graph_refusal_proof_bundle(result)
+        if refusal_proof is not None:
+            payload["proof_bundle"] = refusal_proof.model_dump(mode="json")
+            return payload
+
         if result.status is TransportabilityStatus.IDENTIFIED:
             payload["proof_bundle"] = ProofBundle(
                 proof_status="identified",

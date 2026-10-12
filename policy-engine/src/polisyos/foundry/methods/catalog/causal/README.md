@@ -22,6 +22,24 @@ broader `polisyos.foundry.methods` facade.
 - **Estimation families** - DiD, RDD, synthetic control, SCM, AIPW, TMLE and related estimators.
 - **Discovery and identification** - constraint discovery, DAGMA, query validation and graph reconciliation.
 - **Transportability** - transport checks, symbolic identification and parameter transfer helpers.
+  The registered `CheckTransportability`, `SymbolicIdentify`, and `SymbolicIdentifyV2` scalar
+  routes share a canonical graph-admission guard before sampling, front-door, fallback, native-ID,
+  formula, or proof emission. The guard revalidates raw/model-copy profiles and reuses the existing
+  static ADMG validator and directed topological check. It admits a validated static DAG or ADMG
+  profile, refuses unresolved/unsupported endpoints, lags, cycles, malformed profiles, and graph
+  types outside that scalar contract with `unsupported` plus `proof_status="oracle_needed"`.
+  Exact live IR model classes are checked from canonical stored structural fields; graph, edge,
+  and selection-diagram subclasses are typed-refused before dispatch so an overridden serializer
+  cannot substitute a benign graph for the graph the algorithm would consume. Successful admission
+  recursively rebuilds a detached `SelectionDiagram` from exact declared Pydantic fields, and the
+  admission guard plus all registered consumers and the direct solver use that same snapshot.
+  Caller-owned graph/diagram mutation after admission therefore cannot change the admitted input;
+  noncanonical field containers (including `model_copy` values that override iteration or
+  truthiness) are typed-refused rather than passed through to a consumer.
+  PAG/CPDAG completion semantics remain unselected; a sampled candidate fraction is not treated as
+  extension-set coverage or probability. Privacy post-processing cannot upgrade a limitation, and
+  refusal does not prove non-identification. A compiler-injected effective PAG policy value records
+  `origin:not_established`; direct pure-step omission and a present null remain distinct.
 - **Strategic response** - `strategic.py` now models solve/bundle/summary flows for response design.
 - **Policy learning** - `policy_learning.py` and adjacent estimators support downstream decisioning.
 - **Measurement error** - `measurement_error.py` and adapter layers expand noisy-observation handling.
@@ -279,3 +297,31 @@ runtime default provides RBC or finite-sample coverage.
 - Last updated: 2026-05-06
 - Files: 98 Python files
 - Exports: 164
+
+### Native causal value output slots
+
+The registered DiD and synthetic-control methods declare their existing
+`CausalEffectReport` result slot through `SlotSpec.for_output_contract`. This
+connects the real method result to the shared typed output-contract registry; a
+callable method label or an empty result does not satisfy it. The N8 candidate
+producer persists the exact selected profile, explicit run intent, runner input,
+and report in CAS before the fresh value consumer resolves the run basis.
+
+A typed interval still has `gate_eligible=False`. The bounded synthetic owner
+assignment used by the producer tests is a candidate fixture only. The default
+owner gateway does not derive treatment assignment from an intervention or
+method result and remains blocked when that owner input is absent. Neither real
+DiD/SCM execution nor the new slot declaration establishes identification,
+external owner authority, calibration, or production currentness.
+
+
+
+The fresh N8 run-basis v2 reader compares exact selected-profile input multisets
+and requires a post-run execution receipt. The receipt records the submitted request parameter object as intent and the
+NumpyRunner result's seed, backend, and fingerprint, then binds the exact
+persisted report bytes. This catches a reissued seed request and a reissued
+parameter when the report directly exposes that value. The methods do not expose
+every resolved/used parameter, so full parameter-use reconciliation remains
+`not_established`; request intent is not treated as method evidence.
+The whole source-to-result relation stays candidate-only and fails closed when
+any selected manifest profile or receipt link is unresolved.

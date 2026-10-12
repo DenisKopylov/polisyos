@@ -2,14 +2,26 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any
+from collections.abc import Iterable, Mapping
+from enum import Enum
+from types import UnionType
+from typing import Any, Literal, Union, get_args, get_origin
 
 import numpy as np
+from pydantic import BaseModel, ValidationError
 
+from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_capabilities import (
     CausalBackendId,
     CausalCapabilityContract,
+)
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    _FrozenDict,
+    _FrozenList,
 )
 from polisyos.ir.analytics.partial_identification import compute_manski_bounds
 from polisyos.ir.analytics.privacy_transportability import (
@@ -31,6 +43,16 @@ from .capabilities import build_causal_capability_contract
 from .full_transport_bridge import normalize_transport_formula
 from .transport_bounds import transport_bounds
 
+_NON_ADJUDICATIVE_TRANSPORT_REFUSALS = frozenset(
+    {
+        "partial_graph_completion_semantics_not_established",
+        "pag_identification_policy_invalid",
+        "unsupported_static_admg_profile",
+        "causal_graph_profile_invalid",
+        "causal_graph_type_not_supported",
+    }
+)
+
 _VALID_SOLVER_MODES: frozenset[str] = frozenset(
     {"auto", "simplified", "symbolic", "symbolic_y0", "symbolic_r", "full_auto"}
 )
@@ -51,8 +73,32 @@ def solve_transportability(
     privacy_context: TransportPrivacyContext | None = None,
 ) -> TransportabilityResult:
     """Solve transportability helper."""
-    contract = capability_contract or build_causal_capability_contract()
     mode = _normalize_solver_mode(solver_mode)
+    selection_diagram, malformed_graph_refusal = validate_scalar_graph_selection_diagram(
+        selection_diagram,
+        treatment=query_treatment,
+        outcome=query_outcome,
+        solver_mode=mode,
+        privacy_context=privacy_context,
+    )
+    if malformed_graph_refusal is not None:
+        return malformed_graph_refusal
+    assert selection_diagram is not None
+
+    # Direct solver callers receive the same detached, typed snapshot as registered
+    # dispatchers. The graph gate and every downstream backend consume this object.
+    graph_admission_refusal = scalar_graph_admission_refusal(
+        selection_diagram=selection_diagram,
+        treatment=query_treatment,
+        outcome=query_outcome,
+        solver_mode=mode,
+        pag_identification_policy=pag_identification_policy,
+        privacy_context=privacy_context,
+    )
+    if graph_admission_refusal is not None:
+        return graph_admission_refusal
+
+    contract = capability_contract or build_causal_capability_contract()
     trace = [
         f"solver_mode:{mode}",
         f"capability_fingerprint:{contract.dependency_fingerprint}",
@@ -166,7 +212,502 @@ def _finalize_transport_result(
     *,
     privacy_context: TransportPrivacyContext | None,
 ) -> TransportabilityResult:
-    return apply_transport_privacy_context(result, privacy_context)
+    finalized = apply_transport_privacy_context(result, privacy_context)
+    if result.unsupported_reason not in _NON_ADJUDICATIVE_TRANSPORT_REFUSALS:
+        return finalized
+
+    # Privacy projections may narrow a supported transport result, but cannot
+    # turn an graph-admission limitation into an identified region.
+    return finalized.model_copy(
+        update={
+            "status": TransportabilityStatus.UNSUPPORTED,
+            "transport_mode": TransportMode.NONE,
+            "transport_formula": None,
+            "identified_region": None,
+            "base_confidence": result.base_confidence,
+            "context_distance_penalty": result.context_distance_penalty,
+            "data_availability_penalty": result.data_availability_penalty,
+            "final_confidence": result.final_confidence,
+            "pag_identification_policy": result.pag_identification_policy,
+            "id_confidence_under_pag": result.id_confidence_under_pag,
+            "pag_dag_sample_size": result.pag_dag_sample_size,
+            "pag_transportable_count": result.pag_transportable_count,
+            "unsupported_reason": result.unsupported_reason,
+        }
+    )
+
+
+def _is_valid_pag_policy(raw: PAGIdentificationPolicy | str | None) -> bool:
+    """Return whether a supplied PAG policy is a recognized typed value."""
+    if raw is None:
+        return True
+    value = raw.value if isinstance(raw, PAGIdentificationPolicy) else raw
+    if not isinstance(value, str):
+        return False
+    try:
+        PAGIdentificationPolicy(value)
+    except ValueError:
+        return False
+    return True
+
+
+def _graph_admission_refusal_result(
+    *,
+    selection_diagram: SelectionDiagram | None,
+    treatment: str,
+    outcome: str,
+    reason: str,
+    trace: list[str],
+) -> TransportabilityResult:
+    """Return a typed limitation without claiming identification or non-identification."""
+    warning_by_reason = {
+        "pag_identification_policy_invalid": (
+            "The supplied PAG identification policy is invalid; no default policy was applied."
+        ),
+        "partial_graph_completion_semantics_not_established": (
+            "Transportability for PAG/CPDAG input is not established until completion semantics "
+            "are selected and validated."
+        ),
+        "unsupported_static_admg_profile": (
+            "The graph does not meet the existing resolved static ADMG profile; no scalar "
+            "identification claim was emitted."
+        ),
+        "causal_graph_profile_invalid": (
+            "The supplied graph does not satisfy canonical graph-profile validation; no scalar "
+            "identification claim was emitted."
+        ),
+        "causal_graph_type_not_supported": (
+            "This graph type is not admitted by the scalar transport and identification methods."
+        ),
+    }
+    return TransportabilityResult(
+        query=f"P*({outcome}|do({treatment}))",
+        status=TransportabilityStatus.UNSUPPORTED,
+        transport_mode=TransportMode.NONE,
+        base_confidence=0.0,
+        context_distance_penalty=0.0,
+        data_availability_penalty=0.0,
+        final_confidence=0.0,
+        algorithm_version="trso_v2_scalar_graph_admission_refusal",
+        identification_engine="scalar_graph_admission_refusal",
+        identification_trace=trace,
+        unsupported_reason=reason,
+        warnings=[warning_by_reason[reason]],
+        source_context_id=(
+            selection_diagram.source_context.context_id
+            if selection_diagram is not None
+            else "not_established:noncanonical_selection_diagram"
+        ),
+        target_context_id=(
+            selection_diagram.target_context.context_id
+            if selection_diagram is not None
+            else "not_established:noncanonical_selection_diagram"
+        ),
+    )
+
+
+def validate_scalar_graph_selection_diagram(
+    raw_diagram: Any,
+    *,
+    treatment: str,
+    outcome: str,
+    solver_mode: str,
+    privacy_context: TransportPrivacyContext | None = None,
+) -> tuple[SelectionDiagram | None, TransportabilityResult | None]:
+    """Parse a selection diagram and type-refuse malformed graph profiles.
+
+    Graphs that fail canonical IR validation cannot enter an algorithm merely
+    because they were supplied as a mapping instead of a preconstructed model.
+    Other malformed selection-diagram fields retain their ordinary validation
+    error; this adapter only projects the rejected graph into the existing typed
+    scalar-admission limitation.
+    """
+    if isinstance(raw_diagram, SelectionDiagram) and type(raw_diagram) is not SelectionDiagram:
+        trace = [
+            f"solver_mode:{solver_mode}",
+            "graph_type:noncanonical_selection_diagram_object",
+            "graph_profile:causal_graph_profile_invalid",
+            "graph_admission_gate:refused:causal_graph_profile_invalid",
+        ]
+        result = _graph_admission_refusal_result(
+            selection_diagram=None,
+            treatment=treatment,
+            outcome=outcome,
+            reason="causal_graph_profile_invalid",
+            trace=trace,
+        )
+        return None, _finalize_transport_result(result, privacy_context=privacy_context)
+
+    try:
+        parsed_diagram = SelectionDiagram.model_validate(raw_diagram)
+        admitted_diagram = _snapshot_typed_model(parsed_diagram, SelectionDiagram)
+        return admitted_diagram, None
+    except _NoncanonicalSelectionSnapshotError:
+        trace = [
+            f"solver_mode:{solver_mode}",
+            "graph_type:not_established:noncanonical_selection_diagram_fields",
+            "graph_profile:causal_graph_profile_invalid",
+            "graph_admission_gate:refused:causal_graph_profile_invalid",
+        ]
+        result = _graph_admission_refusal_result(
+            selection_diagram=None,
+            treatment=treatment,
+            outcome=outcome,
+            reason="causal_graph_profile_invalid",
+            trace=trace,
+        )
+        return None, _finalize_transport_result(result, privacy_context=privacy_context)
+    except (ValidationError, TypeError, ValueError) as validation_error:
+        if not isinstance(raw_diagram, Mapping) or "base_graph" not in raw_diagram:
+            raise
+
+        # Validate the non-graph selection-diagram fields independently. The
+        # placeholder is never consumed by an algorithm; it only supplies the
+        # contexts needed for the typed, non-adjudicative refusal projection.
+        sanitized = dict(raw_diagram)
+        sanitized["base_graph"] = {
+            "graph_type": GraphType.DAG.value,
+            "nodes": ["__scalar_graph_admission__"],
+            "edges": [],
+        }
+        try:
+            diagram = SelectionDiagram.model_validate(sanitized)
+        except (ValidationError, TypeError, ValueError):
+            raise validation_error from None
+
+        raw_graph = raw_diagram.get("base_graph")
+        raw_graph_type = (
+            raw_graph.get("graph_type")
+            if isinstance(raw_graph, Mapping)
+            else getattr(raw_graph, "graph_type", None)
+        )
+        graph_type_label = (
+            raw_graph_type.value if isinstance(raw_graph_type, GraphType) else str(raw_graph_type)
+        )
+        trace = [
+            f"solver_mode:{solver_mode}",
+            f"graph_type:{graph_type_label}",
+            "graph_profile:causal_graph_profile_invalid",
+            "graph_admission_gate:refused:causal_graph_profile_invalid",
+        ]
+        result = _graph_admission_refusal_result(
+            selection_diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            reason="causal_graph_profile_invalid",
+            trace=trace,
+        )
+        return diagram, _finalize_transport_result(result, privacy_context=privacy_context)
+
+
+class _NoncanonicalSelectionSnapshotError(ValueError):
+    """Mark a live input that cannot be copied as its declared IR value."""
+
+
+def _snapshot_untyped_value(value: Any) -> Any:
+    """Copy JSON-like values without invoking custom container or serializer methods."""
+    if value is None or type(value) in (str, bool, int, float, bytes):
+        return value
+    if isinstance(value, Enum):
+        return value
+    if type(value) in (list, _FrozenList):
+        return [_snapshot_untyped_value(item) for item in list.__iter__(value)]
+    if type(value) in (dict, _FrozenDict):
+        return {
+            _snapshot_untyped_value(key): _snapshot_untyped_value(item)
+            for key, item in dict.items(value)
+        }
+    if type(value) is tuple:
+        return tuple(_snapshot_untyped_value(item) for item in tuple.__iter__(value))
+    if type(value) is frozenset:
+        return frozenset(_snapshot_untyped_value(item) for item in value)
+    raise _NoncanonicalSelectionSnapshotError(
+        f"unsupported untyped IR value: {type(value).__module__}.{type(value).__qualname__}"
+    )
+
+
+def _snapshot_typed_value(value: Any, annotation: Any) -> Any:
+    """Copy one typed field through the declared schema, not caller overrides."""
+    if annotation is Any:
+        return _snapshot_untyped_value(value)
+
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+    if origin is Literal:
+        if any(type(value) is type(choice) and value == choice for choice in args):
+            return value
+        raise _NoncanonicalSelectionSnapshotError("value is outside its declared Literal")
+    if origin in (Union, UnionType):
+        for candidate in args:
+            try:
+                return _snapshot_typed_value(value, candidate)
+            except _NoncanonicalSelectionSnapshotError:
+                continue
+        raise _NoncanonicalSelectionSnapshotError("value is outside its declared union")
+    if origin is list:
+        if type(value) not in (list, _FrozenList):
+            raise _NoncanonicalSelectionSnapshotError("noncanonical list field")
+        item_type = args[0] if args else Any
+        return [_snapshot_typed_value(item, item_type) for item in list.__iter__(value)]
+    if origin is tuple:
+        if type(value) is not tuple:
+            raise _NoncanonicalSelectionSnapshotError("noncanonical tuple field")
+        if len(args) == 2 and args[1] is Ellipsis:
+            return tuple(_snapshot_typed_value(item, args[0]) for item in tuple.__iter__(value))
+        if len(value) != len(args):
+            raise _NoncanonicalSelectionSnapshotError("tuple field arity differs from its schema")
+        return tuple(
+            _snapshot_typed_value(item, item_type)
+            for item, item_type in zip(tuple.__iter__(value), args, strict=True)
+        )
+    if origin is dict:
+        if type(value) not in (dict, _FrozenDict):
+            raise _NoncanonicalSelectionSnapshotError("noncanonical mapping field")
+        key_type, value_type = args if len(args) == 2 else (Any, Any)
+        return {
+            _snapshot_typed_value(key, key_type): _snapshot_typed_value(item, value_type)
+            for key, item in dict.items(value)
+        }
+    if origin in (set, frozenset):
+        if type(value) not in (set, frozenset):
+            raise _NoncanonicalSelectionSnapshotError("noncanonical set field")
+        item_type = args[0] if args else Any
+        return origin(_snapshot_typed_value(item, item_type) for item in value)
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return _snapshot_typed_model(value, annotation)
+    if isinstance(annotation, type) and issubclass(annotation, Enum):
+        if type(value) is not annotation:
+            raise _NoncanonicalSelectionSnapshotError("noncanonical enum field")
+        return value
+    if annotation is type(None):
+        if value is not None:
+            raise _NoncanonicalSelectionSnapshotError("non-null value for None field")
+        return None
+    if isinstance(annotation, type) and type(value) is annotation:
+        return value
+    raise _NoncanonicalSelectionSnapshotError(
+        f"unsupported or noncanonical field for {annotation!r}"
+    )
+
+
+def _snapshot_typed_model(instance: Any, model_type: type[Any]) -> Any:
+    """Rebuild a model from declared fields without calling instance serializers."""
+    if type(instance) is not model_type:
+        raise _NoncanonicalSelectionSnapshotError("noncanonical live model class")
+    try:
+        stored_fields = object.__getattribute__(instance, "__dict__")
+    except AttributeError as exc:
+        raise _NoncanonicalSelectionSnapshotError("model has no canonical field storage") from exc
+    if type(stored_fields) is not dict:
+        raise _NoncanonicalSelectionSnapshotError("model field storage is not a plain dictionary")
+
+    snapshot: dict[str, Any] = {}
+    for field_name, field in model_type.model_fields.items():
+        if field_name not in stored_fields:
+            raise _NoncanonicalSelectionSnapshotError(f"missing stored model field: {field_name}")
+        snapshot[field_name] = _snapshot_typed_value(stored_fields[field_name], field.annotation)
+    try:
+        return model_type.model_validate(snapshot)
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise _NoncanonicalSelectionSnapshotError("canonical model reconstruction failed") from exc
+
+
+def _model_field_snapshot(instance: object, model_type: type[Any]) -> dict[str, Any] | None:
+    """Copy canonical Pydantic field storage without invoking instance serializers."""
+    if type(instance) is not model_type:
+        return None
+    try:
+        stored_fields = object.__getattribute__(instance, "__dict__")
+    except AttributeError:
+        return None
+    if type(stored_fields) is not dict:
+        return None
+
+    snapshot: dict[str, Any] = {}
+    for field_name in model_type.model_fields:
+        if field_name == "metadata":
+            # Metadata is not part of the graph profile consumed by the static owner.
+            continue
+        if field_name not in stored_fields:
+            continue
+        value = stored_fields[field_name]
+        if isinstance(value, list):
+            if type(value) not in (list, _FrozenList):
+                return None
+            value = list(list.__iter__(value))
+        elif isinstance(value, dict):
+            if type(value) not in (dict, _FrozenDict):
+                return None
+            value = dict(dict.items(value))
+        snapshot[field_name] = value
+    return snapshot
+
+
+def _canonical_scalar_graph_refusal(graph: Any) -> tuple[str | None, str]:
+    """Admit exact live IR values from their stored fields, never their serializers."""
+    if type(graph) is not CausalGraphModel:
+        return "causal_graph_profile_invalid", "noncanonical_graph_object"
+
+    graph_fields = _model_field_snapshot(graph, CausalGraphModel)
+    if graph_fields is None:
+        return "causal_graph_profile_invalid", "noncanonical_graph_object"
+
+    graph_type = graph_fields.get("graph_type")
+    if type(graph_type) is not GraphType:
+        return "causal_graph_profile_invalid", "noncanonical_graph_type"
+    graph_type_label = graph_type.value
+
+    nodes = graph_fields.get("nodes")
+    edges = graph_fields.get("edges")
+    if not isinstance(nodes, list) or not isinstance(edges, list):
+        return "causal_graph_profile_invalid", graph_type_label
+    if any(type(node) is not str for node in nodes):
+        return "causal_graph_profile_invalid", graph_type_label
+
+    edge_snapshots: list[dict[str, Any]] = []
+    for edge in edges:
+        edge_fields = _model_field_snapshot(edge, CausalEdge)
+        if edge_fields is None:
+            return "causal_graph_profile_invalid", graph_type_label
+        mark_src = edge_fields.get("mark_src")
+        mark_dst = edge_fields.get("mark_dst")
+        src = edge_fields.get("src")
+        dst = edge_fields.get("dst")
+        lag = edge_fields.get("lag")
+        if (
+            type(src) is not str
+            or type(dst) is not str
+            or type(mark_src) is not EdgeMark
+            or type(mark_dst) is not EdgeMark
+            or (lag is not None and type(lag) is not int)
+        ):
+            return "causal_graph_profile_invalid", graph_type_label
+        edge_snapshots.append(edge_fields)
+
+    graph_fields["nodes"] = nodes
+    graph_fields["edges"] = edge_snapshots
+    try:
+        canonical_graph = CausalGraphModel.model_validate(graph_fields)
+    except (AttributeError, TypeError, ValueError):
+        return "causal_graph_profile_invalid", graph_type_label
+
+    graph_type = canonical_graph.graph_type
+    graph_type_label = graph_type.value
+    if graph_type in {GraphType.PAG, GraphType.CPDAG}:
+        return "partial_graph_completion_semantics_not_established", graph_type_label
+    if graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        return "causal_graph_type_not_supported", graph_type_label
+
+    # Keep the scalar boundary on the canonical native static endpoint profile.
+    # This admits the three resolved directed/bidirected mark pairs and rejects
+    # every unresolved or temporal pair through the same owner used by static ID.
+    from .admg_ops import (
+        UnsupportedStaticADMGProfileError,
+        _validate_static_admg,
+        topological_order,
+    )
+
+    try:
+        _validate_static_admg(canonical_graph)
+    except UnsupportedStaticADMGProfileError:
+        return "unsupported_static_admg_profile", graph_type_label
+    try:
+        topological_order(canonical_graph)
+    except (AttributeError, TypeError, ValueError):
+        return "causal_graph_profile_invalid", graph_type_label
+    return None, graph_type_label
+
+
+def scalar_graph_admission_refusal(
+    *,
+    selection_diagram: SelectionDiagram,
+    treatment: str,
+    outcome: str,
+    solver_mode: str,
+    pag_identification_policy: PAGIdentificationPolicy | str | None,
+    policy_present: bool | None = None,
+    privacy_context: TransportPrivacyContext | None = None,
+) -> TransportabilityResult | None:
+    """Refuse scalar claims unless the complete canonical graph profile is admitted.
+
+    ``policy_present`` preserves the distinction between an absent optional value
+    and a supplied null at mapping-based Foundry boundaries. Direct solver calls
+    retain their existing optional-``None`` contract by inferring presence from a
+    non-null value.
+    """
+    if type(selection_diagram) is not SelectionDiagram:
+        reason, graph_type_label = (
+            "causal_graph_profile_invalid",
+            "noncanonical_selection_diagram_object",
+        )
+        refusal_diagram: SelectionDiagram | None = None
+    else:
+        diagram_fields = object.__getattribute__(selection_diagram, "__dict__")
+        graph = diagram_fields.get("base_graph")
+        reason, graph_type_label = _canonical_scalar_graph_refusal(graph)
+        refusal_diagram = selection_diagram
+    if reason is None:
+        return None
+
+    supplied = pag_identification_policy is not None if policy_present is None else policy_present
+    invalid_policy = (
+        reason == "partial_graph_completion_semantics_not_established"
+        and supplied
+        and (
+            pag_identification_policy is None or not _is_valid_pag_policy(pag_identification_policy)
+        )
+    )
+    if invalid_policy:
+        reason = "pag_identification_policy_invalid"
+
+    trace = [
+        f"solver_mode:{solver_mode}",
+        f"graph_type:{graph_type_label}",
+        f"graph_profile:{reason}",
+    ]
+    if reason == "partial_graph_completion_semantics_not_established":
+        if not supplied:
+            trace.append("pag_policy_input:absent")
+        else:
+            effective_policy = (
+                pag_identification_policy.value
+                if isinstance(pag_identification_policy, PAGIdentificationPolicy)
+                else pag_identification_policy
+            )
+            trace.append(f"pag_policy_effective:{effective_policy};origin:not_established")
+    elif reason == "pag_identification_policy_invalid":
+        trace.append("pag_policy_input:invalid_present_value")
+    trace.append(f"graph_admission_gate:refused:{reason}")
+
+    result = _graph_admission_refusal_result(
+        selection_diagram=refusal_diagram,
+        treatment=treatment,
+        outcome=outcome,
+        reason=reason,
+        trace=trace,
+    )
+    return _finalize_transport_result(result, privacy_context=privacy_context)
+
+
+def scalar_graph_refusal_proof_bundle(result: TransportabilityResult) -> ProofBundle | None:
+    """Build the non-adjudicative proof projection for a graph-admission refusal."""
+    if result.unsupported_reason not in _NON_ADJUDICATIVE_TRANSPORT_REFUSALS:
+        return None
+    return ProofBundle(
+        proof_status="oracle_needed",
+        proof_stratum="A1_extended",
+        theorem_family=str(result.algorithm_version or "transportability"),
+        completeness_regime="sound_incomplete",
+        implementation_coverage="scalar_graph_admission_gate",
+        query_ref=str(result.query or ""),
+        proof_trace=list(result.identification_trace),
+        assumptions=[],
+        metadata={
+            "status": result.status.value,
+            "transport_mode": result.transport_mode.value,
+            "reason": result.unsupported_reason,
+        },
+    )
 
 
 def _should_use_probabilistic_pag_path(

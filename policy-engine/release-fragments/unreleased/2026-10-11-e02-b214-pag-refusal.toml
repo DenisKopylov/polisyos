@@ -1,0 +1,15 @@
+id = "2026-10-11-e02-b214-pag-refusal"
+title = "Admit complete scalar graph profiles before causal transport claims"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "The three registered causal transport consumers and direct solver share graph admission over one recursively rebuilt, detached selection-diagram snapshot before sampling, front-door heuristics, fallback, or native-ID dispatch; unresolved, malformed, cyclic, lagged, unsupported profiles, noncanonical live model subclasses, and noncanonical field containers return typed limitations."
+compatibility = "Method signatures, registry identities, result fields, and Foundry compile/execute exports are unchanged. Canonical mapping and exact IR model inputs remain supported; graph, edge, and selection-diagram subclasses are typed-refused instead of being inspected through overridable serializers. Successful admission snapshots exact declared fields and passes that same detached diagram to the guard and consumers, including the direct solver. Validated static DAG and resolved static ADMG paths remain admitted. The effective PAG policy value is recorded without asserting whether the compiler default or an explicit caller value supplied it."
+change_class = "internal"
+surface_classification = "internal: registered causal method behavior; public-surface inventory review remains false"
+migration = "Consumers of the registered causal transport methods should inspect transport_result.unsupported_reason and proof_bundle.proof_status. PAG sample-fraction and unsupported graph-profile outputs are no longer emitted as identified scalar transport claims."
+api = "No method parameter or import export is added. Mapping-based direct pure_step calls distinguish an absent policy key from a present null value; the compiled method receives the effective parameter value but has no caller-origin binding. Live inputs must use exact canonical IR model classes and schema-compatible built-in/frozen field containers; mapping inputs are parsed through the canonical IR validators and then snapshotted from declared fields."
+limitations = "PAG/CPDAG completion semantics remain unresolved; this limitation does not select valid-completion, invariance, set-valued, or probability semantics. The decision packet preserves those G choices. It does not establish graph truth, non-identification, empirical calibration, external causal law, or publication authority. Subclasses and noncanonical live field containers are refused; hostile same-process monkeypatching of the canonical admission implementation remains outside the input contract."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_transport_check.py", "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py", "src/polisyos/foundry/methods/catalog/causal/transport_engine.py", "src/polisyos/foundry/methods/catalog/causal/transport_check.py", "src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

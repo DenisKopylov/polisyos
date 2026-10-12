@@ -21,7 +21,7 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.ir.analytics.causal import ProofBundle
+from polisyos.ir.analytics.causal import proof_bundle_from_transportability_result
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -47,6 +47,7 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
 )
 
+from .full_transport_bridge import Y0_SURROGATE_DATA_PROFILE_ABSENT
 from .transport_engine import (
     scalar_graph_admission_refusal,
     scalar_graph_refusal_proof_bundle,
@@ -73,7 +74,7 @@ class EliminationResult(BaseModel):
     tags={"causal", "transportability"},
 )
 class CheckTransportability:
-    """Legacy simplified transportability shim delegated through the canonical engine."""
+    """Registered transportability route with a simplified legacy default."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
 
@@ -100,6 +101,11 @@ class CheckTransportability:
             }
         ),
         parameters=(
+            ParameterSpec(name="transport_solver_mode", default="simplified"),
+            ParameterSpec(
+                name="surrogate_data_profile",
+                default=Y0_SURROGATE_DATA_PROFILE_ABSENT,
+            ),
             ParameterSpec(name="pag_identification_policy", default="probabilistic"),
             ParameterSpec(name="pag_max_dag_samples", default=100),
             ParameterSpec(name="pag_threshold", default=0.5),
@@ -116,20 +122,28 @@ class CheckTransportability:
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description=(
-            "Legacy simplified transportability fallback delegated through "
-            "the canonical transport engine."
+            "Transportability check delegated through the canonical engine; defaults to "
+            "simplified legacy behavior and accepts an explicit locked Y0 mode."
         ),
         assumptions={
             "algorithm_version": "trso_v2",
             "fallback": "explicit simplified_legacy path only",
         },
         tags=frozenset({"causal", "transportability"}),
-        when_to_use="Check whether causal effect P*(Y|do(X)) is transportable from source to target context; simplified fallback path",
-        when_not_to_use="Symbolic identification required (use SymbolicIdentify); query is purely observational with no context shift",
+        when_to_use=(
+            "Check whether causal effect P*(Y|do(X)) is transportable from source to target; "
+            "the registered default remains simplified legacy behavior."
+        ),
+        when_not_to_use=(
+            "A dedicated symbolic proof/estimand surface is required (use SymbolicIdentify); "
+            "a Y0 result marked requires_expert_review remains a candidate for protected reuse."
+        ),
         output_interpretation=(
-            "TransportabilityResult: IDENTIFIED = effect is transportable. UNSUPPORTED = "
-            "the claim is not currently admissible; blocking S-nodes identify target inputs, "
-            "while unsupported_reason distinguishes missing data from unestablished graph semantics."
+            "TransportabilityResult: IDENTIFIED records a method result, while "
+            "requires_expert_review keeps a Y0 result out of protected reuse until its "
+            "review requirements are resolved. UNSUPPORTED records a typed limitation, not "
+            "a non-identification certificate; unsupported_reason distinguishes profile, API, "
+            "and graph-admission limitations."
         ),
     )
 
@@ -137,12 +151,16 @@ class CheckTransportability:
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
         query_treatment = str(state["query_treatment"])
         query_outcome = str(state["query_outcome"])
+        solver_mode = str(params.get("transport_solver_mode", "simplified"))
+        surrogate_data_profile = params.get(
+            "surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT
+        )
         privacy_context = _resolve_transport_privacy_context(state, params)
         selection_diagram, malformed_graph_refusal = validate_scalar_graph_selection_diagram(
             state["selection_diagram"],
             treatment=query_treatment,
             outcome=query_outcome,
-            solver_mode="simplified",
+            solver_mode=solver_mode,
             privacy_context=privacy_context,
         )
         if malformed_graph_refusal is not None:
@@ -157,7 +175,7 @@ class CheckTransportability:
             selection_diagram=selection_diagram,
             treatment=query_treatment,
             outcome=query_outcome,
-            solver_mode="simplified",
+            solver_mode=solver_mode,
             pag_identification_policy=params.get("pag_identification_policy"),
             policy_present="pag_identification_policy" in params,
             privacy_context=privacy_context,
@@ -174,13 +192,14 @@ class CheckTransportability:
             selection_diagram=selection_diagram,
             query_treatment=query_treatment,
             query_outcome=query_outcome,
-            solver_mode="simplified",
-            allow_degraded_transport=True,
+            solver_mode=solver_mode,
+            allow_degraded_transport=solver_mode not in {"symbolic_y0", "full_auto"},
             pag_identification_policy=params.get("pag_identification_policy"),
             pag_max_dag_samples=int(params.get("pag_max_dag_samples", 100) or 100),
             pag_threshold=float(params.get("pag_threshold", 0.5) or 0.5),
             pag_seed=int(params.get("pag_seed", 0) or 0),
             privacy_context=privacy_context,
+            surrogate_data_profile=surrogate_data_profile,
         )
         payload: dict[str, Any] = {"transport_result": result.model_dump(mode="json")}
         refusal_proof = scalar_graph_refusal_proof_bundle(result)
@@ -189,19 +208,14 @@ class CheckTransportability:
             return payload
 
         if result.status is TransportabilityStatus.IDENTIFIED:
-            payload["proof_bundle"] = ProofBundle(
-                proof_status="identified",
-                proof_stratum="A1_extended",
-                theorem_family=str(result.algorithm_version or "transportability"),
-                completeness_regime="complete",
-                implementation_coverage="transportability_solver",
-                query_ref=str(result.query or ""),
-                proof_trace=list(result.identification_trace),
-                assumptions=[],
-                metadata={
-                    "status": result.status.value,
-                    "transport_mode": result.transport_mode.value,
-                },
+            payload["proof_bundle"] = proof_bundle_from_transportability_result(
+                result
+            ).model_dump(mode="json")
+            return payload
+
+        if result.status is TransportabilityStatus.UNSUPPORTED:
+            payload["proof_bundle"] = proof_bundle_from_transportability_result(
+                result
             ).model_dump(mode="json")
             return payload
 
@@ -210,21 +224,10 @@ class CheckTransportability:
             treatment=str(state["query_treatment"]),
             outcome=str(state["query_outcome"]),
         )
-        payload["proof_bundle"] = ProofBundle(
-            proof_status="non_identified",
-            proof_stratum="A1_extended",
-            theorem_family=str(result.algorithm_version or "transportability"),
-            completeness_regime="complete",
-            implementation_coverage="transportability_solver",
-            query_ref=str(result.query or ""),
+        payload["proof_bundle"] = proof_bundle_from_transportability_result(
+            result,
             negative_certificate_summary=negative_certificate.to_summary(),
-            proof_trace=list(result.identification_trace),
-            assumptions=[],
-            metadata={
-                "status": result.status.value,
-                "transport_mode": result.transport_mode.value,
-                "blocking_type": negative_certificate.blocking_type.value,
-            },
+            blocking_type=negative_certificate.blocking_type.value,
         ).model_dump(mode="json")
         payload["negative_certificate"] = negative_certificate.model_dump(mode="json")
         if negative_certificate.bounds_bundle is not None:

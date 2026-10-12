@@ -17,7 +17,6 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.registry.refs import CrossGraphEvidenceProfileRef
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,
@@ -182,7 +181,6 @@ class CrossGraphEvidencePass(ValidatorPass):
                 TransportStatus.BOUNDED_NON_IDENTIFIED,
             } or (
                 assessment.transport_status is TransportStatus.IDENTIFIED
-                and assessment.transport_mode is TransportMode.TRANSPORT_FORMULA
                 and assessment.requires_expert_review
             ):
                 issues.append(

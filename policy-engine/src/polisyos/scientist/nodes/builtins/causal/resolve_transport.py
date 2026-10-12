@@ -24,6 +24,9 @@ from polisyos.data_forge.read_api.catalog import (
 from polisyos.foundry.methods.catalog.causal.capabilities import (
     build_causal_capability_contract,
 )
+from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+)
 from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentCertificate,
@@ -176,6 +179,7 @@ _SPEC = NodeSpec(
         "params.pag_threshold",
         "params.pag_seed",
         "params.transport_solver_mode",
+        "params.surrogate_data_profile",
         "params.allow_degraded_transport",
         "params.privacy_context",
         "params.dp_utility_manifest",
@@ -399,6 +403,7 @@ class TransportabilityResolutionLoop:
         pag_threshold: float = 0.5,
         pag_seed: int | None = None,
         solver_mode: str = "auto",
+        surrogate_data_profile: object = Y0_SURROGATE_DATA_PROFILE_ABSENT,
         allow_degraded_transport: bool = False,
         capability_contract: CausalCapabilityContract | None = None,
         privacy_context: TransportPrivacyContext | None = None,
@@ -467,6 +472,7 @@ class TransportabilityResolutionLoop:
                     pag_max_dag_samples=pag_max_dag_samples,
                     pag_threshold=pag_threshold,
                     pag_seed=pag_seed if pag_seed is not None else 0,
+                    surrogate_data_profile=surrogate_data_profile,
                     privacy_context=None,
                 )
                 tr_result = TransportabilityResult.model_validate(tr_payload["transport_result"])
@@ -475,8 +481,13 @@ class TransportabilityResolutionLoop:
                 data_gaps: list[DataGap] = []
                 proxy_penalties: dict[str, float] = {}
                 proxy_validity: dict[str, dict[str, Any]] = {}
-                requires_expert_review = bool(legal_mapping_review_reasons)
+                requires_expert_review = bool(legal_mapping_review_reasons) or bool(
+                    tr_result.requires_expert_review
+                )
                 expert_review_reasons = list(legal_mapping_review_reasons)
+                for reason in tr_result.expert_review_reasons:
+                    if reason not in expert_review_reasons:
+                        expert_review_reasons.append(reason)
                 adjacency = _build_adjacency(causal_graph)
 
                 formula = tr_result.transport_formula
@@ -607,6 +618,7 @@ def _run_transport_solver(
     pag_max_dag_samples: int,
     pag_threshold: float,
     pag_seed: int,
+    surrogate_data_profile: object,
     privacy_context: TransportPrivacyContext | None,
 ) -> dict[str, Any]:
     result = solve_transportability(
@@ -620,6 +632,7 @@ def _run_transport_solver(
         pag_max_dag_samples=pag_max_dag_samples,
         pag_threshold=pag_threshold,
         pag_seed=pag_seed,
+        surrogate_data_profile=surrogate_data_profile,
         privacy_context=privacy_context,
     )
     return {"transport_result": result.model_dump(mode="json")}
@@ -847,6 +860,7 @@ class RunTransportabilityNode:
         pag_threshold = resolved_inputs.pag_threshold
         pag_seed = resolved_inputs.pag_seed
         transport_solver_mode = resolved_inputs.solver_mode
+        surrogate_data_profile = resolved_inputs.surrogate_data_profile
         allow_degraded_transport = resolved_inputs.allow_degraded_transport
         normalization_warnings = resolved_inputs.normalization_warnings
         capability_contract, capability_ref = _resolve_or_build_capability_contract(ctx, state)
@@ -892,6 +906,7 @@ class RunTransportabilityNode:
                 pag_threshold=pag_threshold,
                 pag_seed=pag_seed,
                 solver_mode=transport_solver_mode,
+                surrogate_data_profile=surrogate_data_profile,
                 allow_degraded_transport=allow_degraded_transport,
                 capability_contract=capability_contract,
                 privacy_context=privacy_context,

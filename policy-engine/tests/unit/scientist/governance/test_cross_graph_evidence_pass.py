@@ -104,6 +104,29 @@ class TestCrossGraphEvidencePass:
         assert issues[0].code == "CROSS_GRAPH_PROFILE_MISSING"
         assert issues[0].severity is IssueSeverity.BLOCKER
 
+    def test_identified_y0_candidate_requires_review_even_in_direct_mode(
+        self, pass_context_factory, strict_profile
+    ):
+        profile = _make_profile(
+            needs=[
+                _make_assessment(
+                    transport_status=TransportStatus.IDENTIFIED,
+                    transport_mode=TransportMode.DIRECT,
+                    requires_expert_review=True,
+                )
+            ]
+        )
+        ctx = pass_context_factory(
+            state={"cross_graph_evidence_profile": profile},
+            profile=strict_profile,
+        )
+
+        issues = CrossGraphEvidencePass().validate(ctx)
+
+        assert len(issues) == 1
+        assert issues[0].code == "CROSS_GRAPH_TRANSPORT_REVIEW_REQUIRED"
+        assert issues[0].severity is IssueSeverity.WARNING
+
     def test_no_profile_expected_mvp_warning(self, pass_context_factory, mvp_profile):
         ctx = pass_context_factory(
             state={"cross_graph_evidence_expected": True},

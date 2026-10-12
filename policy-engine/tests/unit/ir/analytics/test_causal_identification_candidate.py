@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import pickle
+from dataclasses import replace
 
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.components.consensus import EstimandSpec
 from polisyos.ir import CausalEffectReport as PublicCausalEffectReport
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -18,6 +20,8 @@ from polisyos.ir.analytics.causal import (
 )
 from polisyos.ir.analytics.uncertainty import (
     IntervalSemantics,
+    NativeValueEstimandBinding,
+    ValueUncertaintyProjectionKind,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
@@ -71,16 +75,105 @@ def test_all_report_families_preserve_success_statistics_as_nongating_candidates
     )
 
 
+def test_causal_report_projects_only_its_bound_native_interval_as_non_gating() -> None:
+    report = _report(CausalMethod.DIFFERENCE_IN_DIFFERENCES).model_copy(update={"estimand": "ATT"})
+    estimand = EstimandSpec(
+        query_id="causal-report-value-projection",
+        estimand_id="ATT",
+        outcome="avg_income",
+        treatment_or_exposure="fixture.treated_after_period_4",
+        population="fixture treated unit",
+        time_horizon="periods_4_to_7",
+        unit="synthetic_index",
+        target_role="estimate",
+    )
+    binding = NativeValueEstimandBinding.from_estimand(
+        estimand=estimand,
+        native_contract_id=CausalEffectReport.contract_id,
+        producer_method_fqn="causal.inference.did.standard@1.0.0",
+        projection_input_content_hash="sha256:" + "c" * 64,
+    )
+
+    projected = report.to_value_uncertainty(
+        estimand=estimand,
+        projection_binding=binding,
+    )
+
+    assert (
+        CausalEffectReport.output_contract_declaration.value_uncertainty_projection_kind
+        is ValueUncertaintyProjectionKind.CAUSAL
+    )
+    assert projected is not None
+    assert projected.point_estimate == report.point_estimate
+    assert projected.confidence_interval == report.confidence_interval
+    assert projected.is_heuristic_ci is False
+    assert projected.gate_eligible is False
+    assert projected.metadata["value_estimand_binding_content_hash"] == binding.content_hash
+    assert projected.metadata["value_estimand_binding_producer_method_fqn"] == (
+        binding.producer_method_fqn
+    )
+    assert projected.metadata["value_estimand_unit"] == estimand.unit
+
+    wrong_estimand = replace(estimand, estimand_id="ATE")
+    wrong_binding = NativeValueEstimandBinding.from_estimand(
+        estimand=wrong_estimand,
+        native_contract_id="ir.causal_effect_report.wrong.v1",
+        producer_method_fqn=binding.producer_method_fqn,
+        projection_input_content_hash="sha256:" + "d" * 64,
+    )
+    assert (
+        report.to_value_uncertainty(
+            estimand=wrong_estimand,
+            projection_binding=wrong_binding,
+        )
+        is None
+    )
+    assert (
+        report.to_value_uncertainty(
+            estimand=estimand,
+            projection_binding=wrong_binding,
+        )
+        is None
+    )
+    assert (
+        report.model_copy(update={"confidence_interval": None}).to_value_uncertainty(
+            estimand=estimand,
+            projection_binding=binding,
+        )
+        is None
+    )
+
+
 def test_canonical_class_pickle_and_fresh_cas_reader_preserve_candidate_semantics(tmp_path) -> None:
     assert PublicCausalEffectReport is CausalEffectReport
     assert pickle.loads(pickle.dumps(CausalEffectReport)) is CausalEffectReport  # noqa: S301 - own class bytes
     report = _report(CausalMethod.DOWHY_BACKDOOR, "bayesian_posterior")
     writer = FileSystemCAS(tmp_path)
     ref = persist_causal_effect_report(_ensure_ir_artifact_store(writer), report)
+    assert ref.manifest_profile_sha256 is None
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        persist_causal_effect_report(
+            _ensure_ir_artifact_store(writer),
+            report,
+            return_selected_profile=None,  # type: ignore[arg-type]
+        )
     reader = FileSystemCAS(tmp_path)
     reopened = load_causal_effect_report(_ensure_ir_artifact_store(reader), ref)
     assert type(reopened) is CausalEffectReport
     assert reopened.model_dump(mode="json") == report.model_dump(mode="json")
+
+    profiled_root = tmp_path / "profiled"
+    profiled_ref = persist_causal_effect_report(
+        _ensure_ir_artifact_store(FileSystemCAS(profiled_root)),
+        report,
+        return_selected_profile=True,
+    )
+    assert profiled_ref.manifest_profile_sha256 is not None
+    profiled_reopened = load_causal_effect_report(
+        _ensure_ir_artifact_store(FileSystemCAS(profiled_root)),
+        profiled_ref,
+    )
+    assert profiled_reopened.model_dump(mode="json") == report.model_dump(mode="json")
     envelope = reopened.to_uncertainty_envelope()
     assert envelope is not None
     envelope_ref = persist_uncertainty_envelope(_ensure_ir_artifact_store(writer), envelope)

@@ -7,13 +7,13 @@ from enum import Enum
 from types import UnionType
 from typing import Any, Literal, Union, get_args, get_origin
 
-import numpy as np
 from pydantic import BaseModel, ValidationError
 
 from polisyos.ir.analytics.causal import ProofBundle
 from polisyos.ir.analytics.causal_capabilities import (
     CausalBackendId,
     CausalCapabilityContract,
+    CausalIdentificationFamily,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -23,7 +23,6 @@ from polisyos.ir.analytics.causal_graph import (
     _FrozenDict,
     _FrozenList,
 )
-from polisyos.ir.analytics.partial_identification import compute_manski_bounds
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     apply_transport_privacy_context,
@@ -40,7 +39,10 @@ from polisyos.ir.analytics.transportability import (
 )
 
 from .capabilities import build_causal_capability_contract
-from .full_transport_bridge import normalize_transport_formula
+from .full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+    normalize_transport_formula,
+)
 from .transport_bounds import transport_bounds
 
 _NON_ADJUDICATIVE_TRANSPORT_REFUSALS = frozenset(
@@ -71,6 +73,7 @@ def solve_transportability(
     pag_seed: int = 0,
     capability_contract: CausalCapabilityContract | None = None,
     privacy_context: TransportPrivacyContext | None = None,
+    surrogate_data_profile: object = Y0_SURROGATE_DATA_PROFILE_ABSENT,
 ) -> TransportabilityResult:
     """Solve transportability helper."""
     mode = _normalize_solver_mode(solver_mode)
@@ -104,9 +107,13 @@ def solve_transportability(
         f"capability_fingerprint:{contract.dependency_fingerprint}",
         f"allow_degraded_transport:{str(bool(allow_degraded_transport)).lower()}",
     ]
-    if not selection_diagram.s_nodes and _should_use_probabilistic_pag_path(
+    if (
+        mode not in {"symbolic_y0", "full_auto"}
+        and not selection_diagram.s_nodes
+        and _should_use_probabilistic_pag_path(
         selection_diagram=selection_diagram,
         pag_identification_policy=pag_identification_policy,
+        )
     ):
         pag_result = _run_simplified_legacy(
             diagram=selection_diagram,
@@ -123,7 +130,11 @@ def solve_transportability(
                 pag_result,
                 privacy_context=privacy_context,
             )
-    if not selection_diagram.s_nodes:
+    if not selection_diagram.s_nodes and mode not in {
+        "symbolic_y0",
+        "symbolic_r",
+        "full_auto",
+    }:
         return _finalize_transport_result(
             _direct_result(
                 diagram=selection_diagram,
@@ -173,12 +184,37 @@ def solve_transportability(
                 f"backend_unavailable:{backend_id.value}:{backend.disabled_reason if backend else 'missing'}"
             )
             continue
+        required_family = (
+            CausalIdentificationFamily.TRSO
+            if selection_diagram.s_nodes
+            else CausalIdentificationFamily.DIRECT
+        )
+        if required_family not in backend.supported_families:
+            from .symbolic_identify import _unsupported_symbolic_result
+
+            limitation = _unsupported_symbolic_result(
+                diagram=selection_diagram,
+                treatment=query_treatment,
+                outcome=query_outcome,
+                trace=[*trace, f"backend_selected:{backend_id.value}"],
+                backend_name=backend_id.value,
+                reason=f"backend_family_not_supported:{backend_id.value}:{required_family.value}",
+                metadata={
+                    "backend_requested": backend_id.value,
+                    "backend_call_attempted": False,
+                    "backend_call_established": False,
+                    "required_family": required_family.value,
+                    "gate_predicates": {"backend_family_support": "recomputed"},
+                },
+            )
+            return _finalize_transport_result(limitation, privacy_context=privacy_context)
         result = _run_symbolic_backend(
             backend_id=backend_id,
             diagram=selection_diagram,
             treatment=query_treatment,
             outcome=query_outcome,
             trace=trace,
+            surrogate_data_profile=surrogate_data_profile,
         )
         if result is not None:
             return _finalize_transport_result(
@@ -196,9 +232,14 @@ def solve_transportability(
             data_availability_penalty=0.0,
             final_confidence=0.0,
             algorithm_version="trso_v2",
-            identification_engine="bounds_only",
+            identification_engine="none",
             identification_trace=trace + ["transport_engine:unsupported"],
             unsupported_reason="transport_engine_exhausted_backends",
+            metadata={
+                "backend_call_attempted": False,
+                "backend_call_established": False,
+                "gate_predicates": {"backend_operation_result": "not_established"},
+            },
             warnings=["All configured transport backends were exhausted without identification."],
             source_context_id=selection_diagram.source_context.context_id,
             target_context_id=selection_diagram.target_context.context_id,
@@ -887,92 +928,47 @@ def _run_symbolic_backend(
     treatment: str,
     outcome: str,
     trace: list[str],
+    surrogate_data_profile: object = Y0_SURROGATE_DATA_PROFILE_ABSENT,
 ) -> TransportabilityResult | None:
     base_trace = [*trace, f"symbolic_backend_selected:{backend_id.value}"]
-    # Attempt formal TR identification via id_engine (with do-calculus post-pass)
-    tr_result = _try_tr_via_id_engine(
+    from .symbolic_identify import (
+        _run_y0_trso,
+        _unsupported_symbolic_result,
+        _y0_direct_result,
+    )
+
+    if backend_id is CausalBackendId.Y0 and not diagram.s_nodes:
+        result, _proof = _y0_direct_result(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            trace=base_trace + ["family:direct", "operation:y0.identify_outcomes"],
+        )
+        return result
+    if backend_id is CausalBackendId.Y0:
+        result, _proof = _run_y0_trso(
+            diagram=diagram,
+            treatment=treatment,
+            outcome=outcome,
+            raw_profile=surrogate_data_profile,
+            trace=base_trace + ["family:trso", "operation:y0.identify_target_outcomes"],
+        )
+        return result
+
+    return _unsupported_symbolic_result(
         diagram=diagram,
         treatment=treatment,
         outcome=outcome,
-        backend_id=backend_id,
-        trace=trace,
+        trace=base_trace,
+        backend_name=backend_id.value,
+        reason=f"backend_execution_adapter_not_implemented:{backend_id.value}",
+        metadata={
+            "backend_requested": backend_id.value,
+            "backend_call_attempted": False,
+            "backend_call_established": False,
+            "gate_predicates": {"backend_operation_result": "not_established"},
+        },
     )
-    if tr_result is not None:
-        return tr_result
-
-    if not diagram.s_nodes:
-        return _direct_result(
-            diagram=diagram,
-            treatment=treatment,
-            outcome=outcome,
-            engine=backend_id.value,
-            trace=base_trace + ["family:direct"],
-        )
-
-    mediator = _frontdoor_mediator(
-        graph_nodes=diagram.base_graph.nodes,
-        directed_edges=_directed_edges(diagram.base_graph),
-        treatment=treatment,
-        outcome=outcome,
-    )
-    if mediator is not None:
-        return _identified_formula_result(
-            diagram=diagram,
-            treatment=treatment,
-            outcome=outcome,
-            engine=backend_id.value,
-            formula=_frontdoor_formula(treatment=treatment, outcome=outcome, mediator=mediator),
-            trace=base_trace + [f"family:frontdoor:{mediator}"],
-        )
-
-    adjustment_vars = _rule2_adjustment_candidates(
-        graph_nodes=diagram.base_graph.nodes,
-        s_node_roles={item.target_variable: item.role for item in diagram.s_nodes},
-        treatment=treatment,
-        outcome=outcome,
-    )
-    if adjustment_vars:
-        return _identified_formula_result(
-            diagram=diagram,
-            treatment=treatment,
-            outcome=outcome,
-            engine=backend_id.value,
-            formula=_rule2_formula(
-                treatment=treatment,
-                outcome=outcome,
-                adjustment_vars=adjustment_vars,
-            ),
-            trace=base_trace + [f"family:do_calculus_rule2:{','.join(adjustment_vars)}"],
-        )
-
-    component_vars = _c_component_candidates(diagram.s_nodes)
-    if component_vars:
-        return _partial_formula_result(
-            diagram=diagram,
-            treatment=treatment,
-            outcome=outcome,
-            engine=backend_id.value,
-            formula=_c_component_formula(
-                treatment=treatment,
-                outcome=outcome,
-                component_vars=component_vars,
-            ),
-            identified_region={"identified_components": component_vars},
-            trace=base_trace + [f"family:c_component_factorization:{','.join(component_vars)}"],
-        )
-
-    if any(node.role is SNodeRole.INSTRUMENT for node in diagram.s_nodes):
-        return _partial_formula_result(
-            diagram=diagram,
-            treatment=treatment,
-            outcome=outcome,
-            engine=backend_id.value,
-            formula=_rule3_formula(treatment=treatment, outcome=outcome, s_nodes=diagram.s_nodes),
-            identified_region={"rule": "do_calculus_rule3"},
-            trace=base_trace + ["family:do_calculus_rule3"],
-        )
-
-    return None
 
 
 def _run_bounds_only(
@@ -984,11 +980,28 @@ def _run_bounds_only(
 ) -> TransportabilityResult:
     try:
         partial = transport_bounds(selection_diagram=diagram)
-    except Exception:
-        partial = compute_manski_bounds(
-            outcome_conditioned=np.array([0.4, 0.6]),
-            treatment_probs=np.array([0.5, 0.5]),
-            outcome_support=(0.0, 1.0),
+    except Exception as exc:
+        return TransportabilityResult(
+            query=f"P*({outcome}|do({treatment}))",
+            status=TransportabilityStatus.UNSUPPORTED,
+            transport_mode=TransportMode.NONE,
+            base_confidence=0.0,
+            context_distance_penalty=0.0,
+            data_availability_penalty=0.0,
+            final_confidence=0.0,
+            algorithm_version="trso_v2_bounds",
+            identification_engine="bounds_only",
+            identification_trace=[*trace, "transport_bounds:call_failed"],
+            unsupported_reason=f"transport_bounds_api_error:{type(exc).__name__}",
+            warnings=["The transport-bounds operation failed; no bound was established."],
+            metadata={
+                "backend_call_attempted": True,
+                "backend_call_established": False,
+                "backend_error_type": type(exc).__name__,
+                "gate_predicates": {"backend_operation_result": "not_established"},
+            },
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
         )
     return TransportabilityResult(
         query=f"P*({outcome}|do({treatment}))",

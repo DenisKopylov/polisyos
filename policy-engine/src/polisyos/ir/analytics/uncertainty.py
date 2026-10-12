@@ -94,6 +94,7 @@ class ValueUncertaintyProjectionKind(str, Enum):
 
     POSTERIOR = "posterior"
     ECONOMETRIC = "econometric"
+    CAUSAL = "causal"
     FORECASTING = "forecasting"
     DISTRIBUTIONAL = "distributional"
     PARTIAL_IDENTIFICATION = "partial_identification"

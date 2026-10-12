@@ -530,6 +530,10 @@ def _score_transportability(
         reasons.append(f"transportability:{result.status.value}")
         warnings.extend(result.warnings)
         if result.status is TransportabilityStatus.IDENTIFIED:
+            if result.requires_expert_review:
+                reasons.append("transportability_requires_expert_review")
+                warnings.extend(result.expert_review_reasons)
+                return 0.5, result.status.value, reasons, warnings
             return 1.0, result.status.value, reasons, warnings
         if result.status in {
             TransportabilityStatus.PARTIALLY_IDENTIFIED,

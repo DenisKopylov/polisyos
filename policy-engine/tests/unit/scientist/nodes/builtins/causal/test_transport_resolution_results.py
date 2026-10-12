@@ -340,6 +340,7 @@ def test_legal_projection_and_fresh_cas_preserve_result_alignment(
     assert result.source_context_id == "UA-2020"
     assert result.target_context_id == "UA-2024"
     assert result.requires_expert_review is True
+    assert "source_data_authority_not_established" in result.expert_review_reasons
     assert any(
         "mechanism_target_not_present_in_current_graph" in reason
         for reason in result.expert_review_reasons
@@ -384,6 +385,8 @@ def test_resolution_loop_carries_unresolved_legal_mapping_into_review_state(
         transport_mode=TransportMode.DIRECT,
         base_confidence=0.9,
         final_confidence=0.9,
+        requires_expert_review=True,
+        expert_review_reasons=["source_data_authority_not_established"],
     )
 
     monkeypatch.setattr(
@@ -395,10 +398,16 @@ def test_resolution_loop_carries_unresolved_legal_mapping_into_review_state(
             legal_dag_mappings=[mapping],
         ),
     )
+    observed_solver_inputs: dict[str, object] = {}
+
+    def _fake_transport_solver(**kwargs):
+        observed_solver_inputs.update(kwargs)
+        return {"transport_result": base_result.model_dump(mode="json")}
+
     monkeypatch.setattr(
         transport_module,
         "_run_transport_solver",
-        lambda **_kwargs: {"transport_result": base_result.model_dump(mode="json")},
+        _fake_transport_solver,
     )
 
     source = ContextProfile(context_id="source")
@@ -414,10 +423,15 @@ def test_resolution_loop_carries_unresolved_legal_mapping_into_review_state(
         causal_graph=_graph(),
         query_treatment="policy",
         query_outcome="income",
+        surrogate_data_profile={"schema_version": "caller-profile"},
     )
 
+    assert observed_solver_inputs["surrogate_data_profile"] == {
+        "schema_version": "caller-profile"
+    }
     assert result.legal_s_nodes == []
     assert result.requires_expert_review is True
+    assert "source_data_authority_not_established" in result.expert_review_reasons
     assert any(
         "mechanism_target_not_present_in_current_graph" in reason
         for reason in result.expert_review_reasons

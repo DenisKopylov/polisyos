@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib.metadata import version
+
 import pytest
 
 from polisyos.foundry.methods.catalog.causal import symbolic_identify as symbolic_module
@@ -66,6 +68,15 @@ def _diagram_frontdoor_like() -> SelectionDiagram:
     )
 
 
+def _y0_surrogate_data_profile() -> dict[str, object]:
+    return {
+        "schema_version": "policyos.y0.surrogate-data-profile.v1",
+        "populations": [
+            {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
+        ],
+    }
+
+
 def _diagram_partial_frontdoor(graph_type: GraphType = GraphType.PAG) -> SelectionDiagram:
     diagram = _diagram_frontdoor_like()
     if graph_type is GraphType.PAG:
@@ -124,7 +135,74 @@ def test_symbolic_graph_conversion_roundtrip_shape() -> None:
     assert ("M", "Y") in payload["directed_edges"]
 
 
+@pytest.mark.parametrize(
+    ("method", "params"),
+    [
+        (SymbolicIdentify, {"symbolic_backend": "y0"}),
+        (SymbolicIdentifyV2, {"use_native_id": True, "symbolic_backend": "y0"}),
+    ],
+)
+def test_symbolic_identify_uses_actual_y0_direct_id(method, params, monkeypatch) -> None:
+    pytest.importorskip("y0")
+    monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
+
+    diagram = _diagram_frontdoor_like().model_copy(update={"s_nodes": []})
+    raw = method.pure_step(
+        state={
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params=params,
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.identification_engine == "y0"
+    assert result.metadata["backend_id"] == "y0"
+    assert result.metadata["backend_version"] == version("y0")
+    assert result.metadata["backend_operation"] == "identify_outcomes"
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["backend_result"] == "expression_returned"
+    assert result.metadata["source_data_exists"] == "not_established"
+    assert result.metadata["source_data_currentness"] == "not_established"
+    assert result.metadata["source_data_authority"] == "not_established"
+    assert result.requires_expert_review is True
+    assert result.transport_formula is not None
+    assert raw["proof_bundle"]["proof_status"] == "identified"
+    assert raw["proof_bundle"]["proof_stratum"] == "A2_oracle_backed"
+    assert raw["proof_bundle"]["completeness_regime"] == "sound_incomplete"
+    assert raw["proof_bundle"]["metadata"]["transport_review_grade"] == "review_required"
+    assert raw["proof_bundle"]["metadata"]["operation_scope"]["family"] == "direct"
+
+
+def test_native_id_mathematical_result_stays_identified_without_verified_origin() -> None:
+    diagram = _diagram_frontdoor_like().model_copy(update={"s_nodes": []})
+    raw = SymbolicIdentifyV2.pure_step(
+        state={
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params={"use_native_id": True, "oracle_backend": "none"},
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+    proof = ProofBundle.model_validate(raw["proof_bundle"])
+
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.identification_engine == "native_id"
+    assert proof.proof_status == "identified"
+    assert proof.estimand_ast == result.estimand_ast
+    assert proof.theorem_family == result.algorithm_version
+    assert proof.proof_stratum == "A1_extended"
+    assert proof.completeness_regime == "sound_incomplete"
+    assert proof.metadata["proof_scope"] == "conditional_graph_mathematics"
+    assert proof.metadata["transport_review_grade"] == "unknown"
+
+
 def test_symbolic_identify_handles_frontdoor_like_case(monkeypatch) -> None:
+    pytest.importorskip("y0")
     monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
 
     diagram = _diagram_frontdoor_like()
@@ -134,16 +212,34 @@ def test_symbolic_identify_handles_frontdoor_like_case(monkeypatch) -> None:
             "query_treatment": "X",
             "query_outcome": "Y",
         },
-        params={},
+        params={
+            "symbolic_backend": "y0",
+            "surrogate_data_profile": _y0_surrogate_data_profile(),
+        },
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
-    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.status is TransportabilityStatus.UNSUPPORTED
     assert result.identification_engine == "y0"
-    assert result.transport_formula is not None
-    assert result.transport_formula.adjustment_type == "frontdoor_symbolic"
-    assert "P*(M|X)" in result.transport_formula.target_quantities
-    assert raw["proof_bundle"]["proof_status"] == "identified"
+    assert result.metadata["backend_id"] == "y0"
+    assert result.metadata["backend_version"] == version("y0")
+    assert result.unsupported_reason == "y0_trso_population_indexed_ast_unavailable"
+    assert result.transport_formula is None
+    assert result.estimand_ast is None
+    assert result.metadata["backend_operation"] == "identify_target_outcomes"
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["backend_result"] == "expression_returned"
+    assert result.metadata["profile_origin"] == "consumer_asserted"
+    assert result.metadata["source_data_exists"] == "not_established"
+    assert result.metadata["source_data_authority"] == "not_established"
+    assert result.metadata["candidate_formula_latex"]
+    assert result.metadata["candidate_expression_y0"]
+    assert result.metadata["typed_expression_ast"] == "not_representable_population_indexed_ast"
+    assert result.requires_expert_review is True
+    assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert raw["proof_bundle"]["metadata"]["surrogate_profile_sha256"]
+    assert "negative_certificate" not in raw
 
 
 def test_symbolic_identify_reports_unavailable_backend(monkeypatch) -> None:
@@ -166,14 +262,14 @@ def test_symbolic_identify_reports_unavailable_backend(monkeypatch) -> None:
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
     assert result.status is TransportabilityStatus.UNSUPPORTED
-    assert result.identification_engine == "y0"
+    assert result.identification_engine == "none"
     assert result.unsupported_reason == "y0_unavailable;rpy2_unavailable"
-    assert any("symbolic_backend_unavailable" in step for step in result.identification_trace)
-    assert raw["negative_certificate"]["blocking_type"] == "missing_distribution"
+    assert any("symbolic_backend_limited" in step for step in result.identification_trace)
     assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in raw
 
 
-def test_symbolic_identify_supports_r_backend_mode(monkeypatch) -> None:
+def test_symbolic_identify_does_not_treat_r_availability_as_execution(monkeypatch) -> None:
     monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (False, "y0_unavailable"))
     monkeypatch.setattr(symbolic_module, "_r_backend_available", lambda: (True, None))
 
@@ -188,9 +284,11 @@ def test_symbolic_identify_supports_r_backend_mode(monkeypatch) -> None:
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
 
-    assert result.status is TransportabilityStatus.IDENTIFIED
-    assert result.identification_engine == "r_causaleffect"
-    assert any("symbolic_backend_selected:r" in step for step in result.identification_trace)
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.identification_engine == "none"
+    assert result.unsupported_reason == "symbolic_backend_execution_unavailable"
+    assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in raw
 
 
 def test_symbolic_identify_full_auto_fallback_order(monkeypatch) -> None:
@@ -312,13 +410,16 @@ def test_symbolic_partial_graph_refusal_gate_removal_control(monkeypatch) -> Non
     _assert_symbolic_partial_graph_refusal(actual)
 
     monkeypatch.setattr(symbolic_module, "scalar_graph_admission_refusal", lambda **_: None)
-    without_gate = SymbolicIdentify.pure_step(state, {"symbolic_backend": "y0"})
+    without_gate = SymbolicIdentify.pure_step(
+        state,
+        {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
+    )
     removed_result = TransportabilityResult.model_validate(without_gate["transport_result"])
-    assert removed_result.status is TransportabilityStatus.IDENTIFIED
-    assert removed_result.transport_formula is not None
-    assert removed_result.transport_formula.adjustment_type == "frontdoor_symbolic"
-    with pytest.raises(AssertionError):
-        _assert_symbolic_partial_graph_refusal(without_gate)
+    assert removed_result.status is TransportabilityStatus.UNSUPPORTED
+    assert removed_result.transport_formula is None
+    assert removed_result.unsupported_reason == "y0_trso_api_error:UnsupportedStaticADMGProfileError"
+    assert without_gate["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in without_gate
 
 
 def test_registered_method_dispatch_default_keeps_request_origin_unknown(monkeypatch) -> None:
@@ -440,7 +541,10 @@ def test_symbolic_admg_profile_gate_removal_restores_frontdoor_claim(monkeypatch
         "query_outcome": "Y",
     }
 
-    admitted = SymbolicIdentify.pure_step(state, {"symbolic_backend": "y0"})
+    admitted = SymbolicIdentify.pure_step(
+        state,
+        {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
+    )
     _assert_symbolic_partial_graph_refusal(admitted, reason="unsupported_static_admg_profile")
 
     original_gate = symbolic_module.scalar_graph_admission_refusal
@@ -454,16 +558,14 @@ def test_symbolic_admg_profile_gate_removal_restores_frontdoor_claim(monkeypatch
     monkeypatch.setattr(symbolic_module, "scalar_graph_admission_refusal", graph_tag_only_gate)
     without_profile_predicate = SymbolicIdentify.pure_step(
         state,
-        {"symbolic_backend": "y0"},
+        {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
     )
     result = TransportabilityResult.model_validate(without_profile_predicate["transport_result"])
-    assert result.status is TransportabilityStatus.IDENTIFIED
-    assert result.unsupported_reason is None
-    with pytest.raises(AssertionError):
-        _assert_symbolic_partial_graph_refusal(
-            without_profile_predicate,
-            reason="unsupported_static_admg_profile",
-        )
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == "y0_trso_api_error:UnsupportedStaticADMGProfileError"
+    assert result.transport_formula is None
+    assert without_profile_predicate["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in without_profile_predicate
 
 
 def test_symbolic_serialized_graph_type_alias_matches_typed_profile() -> None:
@@ -492,7 +594,7 @@ def test_symbolic_serialized_graph_type_alias_matches_typed_profile() -> None:
                 "query_treatment": "X",
                 "query_outcome": "Y",
             },
-            {"symbolic_backend": "y0"},
+            {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
         )
 
     typed_output = run(diagram)
@@ -500,19 +602,140 @@ def test_symbolic_serialized_graph_type_alias_matches_typed_profile() -> None:
     python_output = run(python_profile)
     normalized_output = run(normalized_diagram)
 
-    # The alias representation must not change the admitted profile or any
-    # result/proof field. Backend availability remains explicit in the shared
-    # output trace instead of being replaced by a fixture-specific ID claim.
+    # The alias representation must not change the admitted graph, declared
+    # source profile, actual Y0 expression, or proof binding.
     assert typed_output == json_output == python_output == normalized_output
+
+
+@pytest.mark.parametrize(
+    ("supplied", "profile", "reason", "state_name"),
+    [
+        (False, None, "y0_surrogate_data_profile_absent", "absent"),
+        (True, None, "y0_surrogate_data_profile_null", "null"),
+        (True, {"schema_version": "wrong", "populations": []}, "y0_surrogate_data_profile_invalid", "invalid"),
+    ],
+)
+def test_trso_profile_input_failures_are_distinct_typed_limitations(
+    supplied: bool, profile: object, reason: str, state_name: str, monkeypatch
+) -> None:
+    pytest.importorskip("y0")
+    monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
+    params: dict[str, object] = {"symbolic_backend": "y0"}
+    if supplied:
+        params["surrogate_data_profile"] = profile
+    raw = SymbolicIdentify.pure_step(
+        {
+            "selection_diagram": _diagram_frontdoor_like().model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params,
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+    proof = ProofBundle.model_validate(raw["proof_bundle"])
+
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == reason
+    assert result.metadata["profile_input_state"] == state_name
+    assert result.metadata["backend_call_established"] is False
+    assert proof.proof_status == "oracle_needed"
+    assert "negative_certificate" not in raw
+
+
+def test_trso_call_result_is_consumed_and_api_none_does_not_become_nonidentification(
+    monkeypatch,
+) -> None:
+    pytest.importorskip("y0")
+    import y0.algorithm.transport as y0_transport
+
+    monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
+    call_count = 0
+
+    def removed_operation(**kwargs):
+        nonlocal call_count
+        call_count += 1
+        return None
+
+    monkeypatch.setattr(y0_transport, "identify_target_outcomes", removed_operation)
+    raw = SymbolicIdentify.pure_step(
+        {
+            "selection_diagram": _diagram_frontdoor_like().model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        {
+            "symbolic_backend": "y0",
+            "surrogate_data_profile": _y0_surrogate_data_profile(),
+        },
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+
+    assert call_count == 1
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == "y0_trso_returned_no_expression"
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["backend_result"] == "none_returned"
+    assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in raw
+
+
+def test_registered_v2_accepts_profile_and_keeps_unrepresentable_y0_candidate(monkeypatch) -> None:
+    pytest.importorskip("y0")
+    from polisyos.foundry.methods.compiler import CompilationCache, MethodCompiler
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
+    registry = MethodRegistry._create_fresh()
+    registry.register(SymbolicIdentifyV2)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache(max_size=2))
+    compiled = compiler.compile(SymbolicIdentifyV2.signature.fqn, params={}, jit=False)
+    state = {
+        "selection_diagram": _diagram_frontdoor_like().model_dump(mode="json"),
+        "query_treatment": "X",
+        "query_outcome": "Y",
+    }
+    absent = compiled(state, {"use_native_id": False, "oracle_backend": "y0"})
+    absent_result = TransportabilityResult.model_validate(absent["transport_result"])
+    assert absent_result.unsupported_reason == "y0_surrogate_data_profile_absent"
+    output = compiled(
+        state,
+        {
+            "use_native_id": False,
+            "oracle_backend": "y0",
+            "surrogate_data_profile": _y0_surrogate_data_profile(),
+        },
+    )
+    result = TransportabilityResult.model_validate(output["transport_result"])
+    proof = ProofBundle.model_validate(output["proof_bundle"])
+
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.identification_engine == "y0"
+    assert result.metadata["backend_id"] == "y0"
+    assert result.metadata["backend_version"] == version("y0")
+    assert result.metadata["backend_operation"] == "identify_target_outcomes"
+    assert result.unsupported_reason == "y0_trso_population_indexed_ast_unavailable"
+    assert result.transport_formula is None
+    assert result.metadata["candidate_formula_latex"]
+    assert output["estimand_ast"] is None
+    assert proof.proof_status == "oracle_needed"
+    assert proof.metadata["surrogate_profile_sha256"] == result.metadata["surrogate_profile_sha256"]
 
 
 _GRAPH_ADMISSION_ROUTES = [
     ("check", CheckTransportability, {}),
-    ("symbolic-v1-y0", SymbolicIdentify, {"symbolic_backend": "y0"}),
+    (
+        "symbolic-v1-y0",
+        SymbolicIdentify,
+        {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
+    ),
     (
         "symbolic-v2-fallback-y0",
         SymbolicIdentifyV2,
-        {"use_native_id": False, "symbolic_backend": "y0"},
+        {
+            "use_native_id": False,
+            "symbolic_backend": "y0",
+            "surrogate_data_profile": _y0_surrogate_data_profile(),
+        },
     ),
     ("symbolic-v2-native", SymbolicIdentifyV2, {"use_native_id": True}),
 ]
@@ -663,8 +886,8 @@ def test_noncanonical_model_copy_aliases_fail_closed_but_json_aliases_normalize(
     )
 
 
-@pytest.mark.parametrize(("route", "method", "params"), _GRAPH_ADMISSION_ROUTES)
-def test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identification(
+@pytest.mark.parametrize(("route", "method", "params"), _GRAPH_ADMISSION_ROUTES[1:])
+def test_remove_endpoint_predicate_keeps_markers_but_y0_still_refuses_unsupported_graph(
     monkeypatch,
     route: str,
     method,
@@ -691,9 +914,8 @@ def test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identifica
         reason="unsupported_static_admg_profile",
     )
 
-    # Remove the endpoint/profile predicate while retaining the generic gate,
-    # typed reason set, and proof projection. The route must identify again, so
-    # this control exercises the property rather than its marker names.
+    # Remove the graph endpoint predicate while retaining the typed response
+    # markers. The real Y0 producer must still refuse this unsupported graph.
     monkeypatch.setattr(
         transport_engine_module,
         "_canonical_scalar_graph_refusal",
@@ -701,13 +923,14 @@ def test_remove_endpoint_profile_predicate_keeps_markers_but_restores_identifica
     )
     without_predicate = method.pure_step(state, params)
     result = TransportabilityResult.model_validate(without_predicate["transport_result"])
-    assert result.status is TransportabilityStatus.IDENTIFIED
-    assert result.unsupported_reason is None
-    with pytest.raises(AssertionError):
-        _assert_symbolic_partial_graph_refusal(
-            without_predicate,
-            reason="unsupported_static_admg_profile",
-        )
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.transport_formula is None
+    assert result.unsupported_reason in {
+        "y0_trso_api_error:UnsupportedStaticADMGProfileError",
+        "y0_surrogate_data_profile_absent",
+    }
+    assert without_predicate["proof_bundle"]["proof_status"] == "oracle_needed"
+    assert "negative_certificate" not in without_predicate
 
 
 @pytest.mark.parametrize(("route", "method", "params"), _GRAPH_ADMISSION_ROUTES)
@@ -1111,8 +1334,18 @@ def test_noncanonical_live_containers_cannot_change_admitted_diagram(
     ("route", "params"),
     [
         ("check", {}),
-        ("symbolic-v1", {}),
-        ("symbolic-v2-fallback", {"use_native_id": False, "symbolic_backend": "y0"}),
+        (
+            "symbolic-v1",
+            {"symbolic_backend": "y0", "surrogate_data_profile": _y0_surrogate_data_profile()},
+        ),
+        (
+            "symbolic-v2-fallback",
+            {
+                "use_native_id": False,
+                "symbolic_backend": "y0",
+                "surrogate_data_profile": _y0_surrogate_data_profile(),
+            },
+        ),
         ("symbolic-v2-native", {"use_native_id": True}),
     ],
 )

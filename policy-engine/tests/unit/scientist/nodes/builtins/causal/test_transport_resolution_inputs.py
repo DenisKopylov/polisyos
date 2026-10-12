@@ -20,6 +20,9 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+)
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import (
     InvalidTransportInput,
@@ -36,6 +39,7 @@ from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import
     _resolve_query_outcome,
     _resolve_query_treatment,
     _resolve_transport_solver_mode,
+    _resolve_transport_execution_inputs,
     _resolve_treatment_value,
     build_skg_query,
 )
@@ -438,3 +442,29 @@ def test_dataset_and_skg_adapters_read_existing_sources_and_degrade_for_missing_
     omitted_skg = build_skg_query(None, None)
     assert not isinstance(omitted_skg, SKGQuery)
     assert omitted_skg.query_claims(cause="policy", effect="income") == []
+
+
+def test_surrogate_profile_intake_preserves_absent_null_and_malformed_values() -> None:
+    report = _causal_report()
+    graph = _causal_graph()
+    raw_profile = {"schema_version": "wrong", "populations": "malformed"}
+
+    absent = _resolve_transport_execution_inputs(
+        ExperimentState(run_id="profile-absent", params={}), report, graph
+    )
+    explicit_null = _resolve_transport_execution_inputs(
+        ExperimentState(run_id="profile-null", params={"surrogate_data_profile": None}),
+        report,
+        graph,
+    )
+    malformed = _resolve_transport_execution_inputs(
+        ExperimentState(
+            run_id="profile-malformed", params={"surrogate_data_profile": raw_profile}
+        ),
+        report,
+        graph,
+    )
+
+    assert absent.surrogate_data_profile is Y0_SURROGATE_DATA_PROFILE_ABSENT
+    assert explicit_null.surrogate_data_profile is None
+    assert malformed.surrogate_data_profile == raw_profile

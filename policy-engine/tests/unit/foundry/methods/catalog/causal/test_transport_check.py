@@ -61,6 +61,46 @@ def test_transport_check_direct_when_no_s_nodes() -> None:
     assert result.identification_engine == "simplified_legacy"
 
 
+def test_transport_check_real_y0_keeps_math_result_and_scoped_review_in_proof() -> None:
+    pytest.importorskip("y0")
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    context = ContextProfile(context_id="source", income_level=IncomeLevel.HIGH)
+    diagram = build_selection_diagram(context, context.model_copy(deep=True), graph)
+
+    payload = CheckTransportability.pure_step(
+        {
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        {"transport_solver_mode": "symbolic_y0"},
+    )
+    result = TransportabilityResult.model_validate(payload["transport_result"])
+    proof = ProofBundle.model_validate(payload["proof_bundle"])
+
+    assert result.status is TransportabilityStatus.IDENTIFIED
+    assert result.identification_engine == "y0"
+    assert result.metadata["backend_operation"] == "identify_outcomes"
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["operation_scope"]["family"] == "direct"
+    assert result.metadata["operation_scope"]["capability_family_supported"] is True
+    assert result.metadata["gate_predicates"]["backend_family_support"] == "recomputed"
+    assert result.metadata["gate_predicates"]["query_input_scope"] == "recomputed"
+    assert result.metadata["source_data_authority"] == "not_established"
+    assert proof.proof_status == "identified"
+    assert proof.proof_stratum == "A2_oracle_backed"
+    assert proof.completeness_regime == "sound_incomplete"
+    assert proof.metadata["transport_review_grade"] == "review_required"
+    assert proof.metadata["proof_scope"] == "conditional_graph_mathematics"
+    assert proof.metadata["backend_operation"] == "identify_outcomes"
+    assert "negative_certificate" not in payload
+
+
 def test_transport_check_transportable_uses_conditional_target_quantity_for_mediator() -> None:
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,

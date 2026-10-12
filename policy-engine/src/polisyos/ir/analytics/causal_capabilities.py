@@ -24,6 +24,7 @@ class CausalIdentificationFamily(str, Enum):
     """Causal identification family public type."""
 
     DIRECT = "direct"
+    TRSO = "trso"
     FRONTDOOR = "frontdoor"
     DO_CALCULUS_RULE2 = "do_calculus_rule2"
     DO_CALCULUS_RULE3 = "do_calculus_rule3"

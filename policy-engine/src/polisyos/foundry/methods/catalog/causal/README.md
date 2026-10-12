@@ -40,6 +40,27 @@ broader `polisyos.foundry.methods` facade.
   extension-set coverage or probability. Privacy post-processing cannot upgrade a limitation, and
   refusal does not prove non-identification. A compiler-injected effective PAG policy value records
   `origin:not_established`; direct pure-step omission and a present null remain distinct.
+### Locked Y0 ID and TRSO adapter
+
+`SymbolicIdentify`, `SymbolicIdentifyV2`, the shared transport solver, and the registered `CheckTransportability` route call the locked Y0 0.2.11 algorithm APIs when Y0 is selected. Direct queries consume the expression returned by `identify_outcomes`; transport queries with selection nodes call `identify_target_outcomes` only when the caller supplies `surrogate_data_profile`. The registered `RunTransportabilityNode` carries that same caller input through its resolution loop. Local front-door, do-calculus, and c-component heuristics no longer emit results carrying Y0 or R backend identities.
+
+The optional profile is a strict request input, not an evidence artifact. Its shape is:
+
+```json
+{
+  "schema_version": "policyos.y0.surrogate-data-profile.v1",
+  "populations": [
+    {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
+  ]
+}
+```
+
+Each population declares observed outcomes and interventions for one source population. The bridge checks names against the admitted graph and preserves the exact Y0 expression, operation, package version, profile digest, and candidate source/target quantities. The admitted profile and its nested collections are immutable snapshots. It does not infer a profile from selection nodes. Missing, explicit-null, malformed, and graph-incompatible profiles remain distinct typed limitations; Y0 returning no expression or raising an error is also a limitation, never a non-identification certificate.
+
+The existing `EstimandAST` cannot represent population-indexed Y0 leaves. A returned TRSO expression therefore remains an exact candidate in result metadata with `status=unsupported` and `proof_status=oracle_needed`; it is not promoted into a `TransportFormula` or an identified proof. The profile does not establish that data exist, are current, or are authoritative. A direct Y0 expression can be `identified` as a mathematical candidate under the admitted graph, but carries `requires_expert_review` because data custody is unestablished. The transportability required-pass blocks both direct CAS references and external report paths for such candidates, while the cross-graph pass warns and discovery utility scoring reduces its ranking. These signals do not establish authority or publishability.
+
+Capability output reports only executable Y0 `direct` and `trso` families when their API paths are available. Import/API presence does not imply support for front-door, do-calculus, or c-component families. A bounds result is emitted only when the bounds operation returns; an exception is an `unsupported` limitation and cannot fabricate bounds or a negative-identification certificate. The R `causaleffect` execution adapter remains unimplemented.
+
 - **Strategic response** - `strategic.py` now models solve/bundle/summary flows for response design.
 - **Policy learning** - `policy_learning.py` and adjacent estimators support downstream decisioning.
 - **Measurement error** - `measurement_error.py` and adapter layers expand noisy-observation handling.
@@ -325,3 +346,8 @@ every resolved/used parameter, so full parameter-use reconciliation remains
 `not_established`; request intent is not treated as method evidence.
 The whole source-to-result relation stays candidate-only and fails closed when
 any selected manifest profile or receipt link is unresolved.
+
+
+## Y0 proof pairing and review grade
+
+The registered `CheckTransportability`, `SymbolicIdentify`, and `SymbolicIdentifyV2` result/proof pairs use the shared ProofBundle projection. An actual scoped direct Y0 expression remains `identified` as conditional graph mathematics; its A2/sound-incomplete bundle and computed `review_required` grade preserve that source-data existence, currentness, and authority remain unestablished. Other identified results remain mathematical candidates, but their grade is `unknown` until a source-resolved, content-bound, verifier-provenance basis is available. Native and simplified backend labels alone cannot clear the protected pass. The projector preserves an available theorem/AST while marking the bundle sound-incomplete; the strict pass blocks both `review_required` and `unknown`. This is a review boundary, not a data, legal, publication, or institutional authority claim. The accepted meaning of A1 completeness remains open in the G decision packet.

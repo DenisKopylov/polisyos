@@ -75,6 +75,7 @@ def test_transport_public_api_keeps_its_canonical_module_identity():
         "pag_threshold",
         "pag_seed",
         "solver_mode",
+        "surrogate_data_profile",
         "allow_degraded_transport",
         "capability_contract",
         "privacy_context",

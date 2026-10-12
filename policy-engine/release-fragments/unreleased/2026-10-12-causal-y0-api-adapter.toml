@@ -1,0 +1,65 @@
+id = "2026-10-12-causal-y0-api-adapter"
+title = "Call locked Y0 ID and TRSO APIs through typed causal results"
+type = "changed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Selected Y0 direct-ID and transport routes call the locked algorithm APIs; TRSO requires an explicit strict source-population profile, and protected consumers retain review-required limits. Backend errors and profile limitations do not produce non-identification certificates."
+evidence = [
+  "src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+  "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+  "src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+  "src/polisyos/foundry/methods/catalog/causal/capabilities.py",
+  "src/polisyos/foundry/methods/catalog/snapshot.py",
+  "src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+  "src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+  "src/polisyos/scientist/nodes/builtins/causal/transport_resolution_inputs.py",
+  "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+  "src/polisyos/scientist/methods/discovery/utility_judge.py",
+  "src/polisyos/ir/analytics/causal_capabilities.py",
+  "src/polisyos/ir/analytics/README.md",
+  "tests/unit/foundry/methods/catalog/causal/test_full_transport_bridge.py",
+  "tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+  "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+  "tests/unit/foundry/methods/catalog/causal/test_transport_engine_y0_dispatch.py",
+  "tests/unit/foundry/methods/test_catalog_snapshot.py",
+  "tests/unit/scientist/governance/test_transportability_required_pass.py",
+  "tests/unit/scientist/governance/test_cross_graph_evidence_pass.py",
+  "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+  "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_results.py",
+  "tests/unit/scientist/discovery/test_utility_judge.py",
+]
+change_class = "python-public-api"
+surface_classification = "public additive causal-family enum value and registered experimental method parameters; no artifact structure or schema-version change"
+compatibility = "Y0 direct-ID and TRSO routes consume actual Y0 operation results; shared transport dispatch no longer labels local formulas as Y0 or R output. TRSO population-indexed expressions remain an unsupported typed candidate with an oracle-needed proof because the existing EstimandAST cannot preserve them. Review-required Y0 direct candidates are blocked by protected transport consumers. Native ID/TR routes remain unchanged; the capability contract adds the TRSO enum value without changing its structure or schema version."
+migration = "Y0 TRSO callers must provide schema_version=policyos.y0.surrogate-data-profile.v1 and one or more population_id/outcomes/interventions rows. This is caller-declared request context only; it does not establish data existence, currentness, authority, or a valid empirical transport claim."
+limitations = "The existing EstimandAST cannot preserve population-indexed Y0 probability leaves, so the exact Y0 expression and source/target quantity candidates remain in result metadata with unsupported status and an oracle-needed proof. Caller profile declarations do not establish data existence, currentness, or authority. API unavailability, API errors, null results, and bounds-operation errors are limitations, never non-identification witnesses. Capability families name only executable Y0 direct-ID and TRSO operations; front-door, do-calculus, and c-component families are not advertised, and R causaleffect execution remains unimplemented. Protected consumer paths block or warn on review-required candidates; they do not confer authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-identification-family-trso"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "CausalIdentificationFamily enum in the typed causal capability contract"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "TRSO names the executable Y0 identify_target_outcomes operation; it does not grant authority or establish evidence eligibility. Public surface and schema references must be regenerated from the frozen source."
+generated_client_compatibility = "regenerate additive enum clients if maintained"
+migration_docs = ["src/polisyos/ir/analytics/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "surrogate-data-profile-parameter"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public causal-family enum and registered experimental causal transport method signature"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "The optional Y0 surrogate_data_profile preserves omitted, null, and malformed input distinctly and is required for Y0 TRSO with selection nodes."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []

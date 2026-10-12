@@ -1,0 +1,17 @@
+id = "2026-10-12-y0-report-intake-whole-pass-r6"
+title = "Admit all transportability pass inputs through one validated boundary"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The transportability governance pass resolves and revalidates report, result, profile, and explicit-requirement inputs together; supplied invalid or unresolved inputs remain visible, strict unknown/partial premises block, and explicit transport requirements cannot silently pass without an admitted disposition."
+evidence = ["src/polisyos/scientist/governance/passes/transportability_required_pass.py", "tests/unit/scientist/governance/test_transportability_required_pass.py"]
+compatibility = "Existing state keys and persisted IR schemas remain unchanged. Malformed present inputs now produce issues; direct/profile CAS aliases are content-reconciled; strict partial and bounds-only profile outcomes block; an explicit requirement without evidence blocks."
+change_class = "internal"
+surface_classification = "internal: existing Scientist governance pass; no HTTP, generated-client, or exported API change."
+migration = "No persisted artifact migration is introduced. CAS report nullable-default origin remains unrecoverable and is treated as missing transport evidence."
+api = "Existing report, result, profile, and reference contracts are reused. The existing transport proof-review grade remains the identified-result admission rule."
+limitations = "This candidate does not establish source authenticity, graph truth, data existence/currentness/authority, empirical grounding, publication eligibility, or institutional authority. Runtime tests remain unrun pending the root CPU/import lease; G semantics remain open."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/governance/passes/README.md"]
+runbook_docs = []

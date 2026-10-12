@@ -41,6 +41,16 @@ Package facade `polisyos.ir.analytics` намеренно уже, чем пол�
 | `polisyos.ir.analytics.StrategicSCM`, `StrategicResponseBundle`, `MeanFieldEquilibriumCertificate`     | Нужен strategic-response / performative-analysis surface, включая MFG certificates     | [`strategic.py`](./strategic.py)                             |
 | `polisyos.ir.analytics.DoWhyGraphBridge`, `EconMLDesignBridge`                                         | Нужны interoperability bridges в external causal toolchains                            | [`ecosystem_bridges.py`](./ecosystem_bridges.py)             |
 
+`polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily.TRSO` names the executable
+Y0 `identify_target_outcomes` operation. It is a capability label, not a result or authority
+claim. Caller-supplied population profiles remain request context; population-indexed expressions
+that the existing `EstimandAST` cannot preserve remain typed limitations. It adds an allowed enum
+value to the capability contract without changing artifact structure or schema versions.
+
+## Causal report CAS persistence
+
+`persist_causal_effect_report` preserves historical default-reference behavior when `return_selected_profile` is omitted or `False`; the default view is profileless, while a write differing from that view may return its selected profile. Pass `True` when a downstream join must bind the exact profile selected by the report write; the typed helper returns that same-write CAS result and does not infer a profile from a later read. A non-boolean value is rejected, and stores without selected-profile write support fail closed. This option changes the reference returned to the caller, not the causal-report payload or schema.
+
 ## Structural model schema compatibility
 
 `StructuralCausalModelSpec` defaults to schema 1.1, matching the selected GCM
@@ -169,3 +179,28 @@ uv run pytest tests/unit/ir/test_interoperability_bridges.py -q
 ## Last updated
 
 `2026-04-20`
+
+## Candidate causal value projection
+
+`CausalEffectReport` declares the existing Foundry output-contract shape and
+provides `to_value_uncertainty()` for a typed `NativeValueEstimandBinding`. The
+projection preserves a successful method's native point estimate and statistical
+confidence interval as a non-gating causal interval. It returns no interval for a
+refused report, heuristic CI, or binding that does not match the report's typed
+method output. The projection is not a causal-identification, calibration, owner,
+or production-currentness finding. Its JSON schema is unchanged because the
+contract declaration and projector are class-level/runtime behavior, not report
+fields.
+
+
+
+The runtime's B31 candidate path keeps invocation lineage outside the public
+CausalEffectReport ABI: an N8 run-basis v2 joins the selected request, a
+producer-captured execution receipt, and exact report bytes. The receipt does
+not grant causal identification, owner authority, calibration, or production
+currentness; the report schema and public exports remain unchanged.
+
+
+## Transport proof purpose and review grade
+
+`proof_bundle_from_transportability_result()` is the shared result-to-proof projection. It preserves the typed transport status and carries a `TransportabilityProofReviewGrade`. A scoped Y0 direct operation remains an identified mathematical candidate with unresolved source-data predicates and `review_required`; every other result is `unknown` until a source-resolved, content-bound, verifier-provenance basis is available. Native and simplified backend labels alone do not produce `NO_ADDITIONAL_REVIEW` or clear the protected pass. The projection keeps an identified theorem/AST visible but marks the candidate `sound_incomplete`; it does not establish data authority. The ProofBundle schema remains unchanged while the typed purpose and migration semantics are considered in the open G decision packet.

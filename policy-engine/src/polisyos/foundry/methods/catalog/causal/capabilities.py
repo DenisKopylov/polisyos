@@ -17,7 +17,7 @@ from polisyos.ir.analytics.causal_capabilities import (
 
 from .full_transport_bridge import probe_backend_availability
 
-_FULL_FAMILIES: tuple[CausalIdentificationFamily, ...] = (
+_UNSUPPORTED_FAMILIES: tuple[CausalIdentificationFamily, ...] = (
     CausalIdentificationFamily.FRONTDOOR,
     CausalIdentificationFamily.DO_CALCULUS_RULE2,
     CausalIdentificationFamily.DO_CALCULUS_RULE3,
@@ -35,15 +35,23 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
             backend_id=CausalBackendId.Y0,
             available=y0_ok,
             disabled_reason=None if y0_ok else y0_reason,
-            supported_families=list(_FULL_FAMILIES if y0_ok else ()),
-            notes=["symbolic_backend:y0"],
+            supported_families=(
+                [CausalIdentificationFamily.DIRECT, CausalIdentificationFamily.TRSO]
+                if y0_ok
+                else []
+            ),
+            notes=[
+                "operation_api_available:y0_direct_id_and_trso",
+                "direct_id and trso operations; trso requires explicit population profile",
+                "availability does not establish per-query identification or evidence authority",
+            ],
         ),
         CausalBackendCapability(
             backend_id=CausalBackendId.R_CAUSALEFFECT,
             available=r_ok,
             disabled_reason=None if r_ok else r_reason,
-            supported_families=list(_FULL_FAMILIES if r_ok else ()),
-            notes=["symbolic_backend:r_causaleffect"],
+            supported_families=[],
+            notes=["r_causaleffect_execution_adapter_not_implemented"],
         ),
         CausalBackendCapability(
             backend_id=CausalBackendId.BOUNDS_ONLY,
@@ -61,15 +69,13 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
 
     supported_families = {
         CausalIdentificationFamily.DIRECT,
+        CausalIdentificationFamily.TRSO,
         CausalIdentificationFamily.BOUNDS_MANSKI,
     }
     disabled_families: dict[str, str] = {}
     symbolic_reason = _symbolic_disabled_reason(y0_ok, y0_reason, r_ok, r_reason)
-    if y0_ok or r_ok:
-        supported_families.update(_FULL_FAMILIES)
-    else:
-        for family in _FULL_FAMILIES:
-            disabled_families[family.value] = symbolic_reason
+    for family in _UNSUPPORTED_FAMILIES:
+        disabled_families[family.value] = "symbolic_family_execution_not_established"
 
     payload = {
         "python": platform.python_version(),
@@ -84,7 +90,8 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
             "y0": {"available": y0_ok, "reason": y0_reason},
             "r_causaleffect": {"available": r_ok, "reason": r_reason},
         },
-        "degradation_policy": "full_then_bounds_explicit_simplified",
+        "degradation_policy": "direct_id_then_bounds_explicit_simplified",
+        "family_claim_policy": "per_family_execution_evidence_required",
     }
     fingerprint = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode(
@@ -93,7 +100,10 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
     ).hexdigest()
 
     notes = [
-        "full_backend_order:y0,r_causaleffect,bounds_only",
+        "backend_availability_is_not_family_support",
+        "y0_direct_id_operation_available_when_api_probe_passes",
+        "y0_trso_requires_explicit_consumer_profile; source-data authority not established",
+        "r_causaleffect_execution_adapter_not_implemented",
         "simplified_legacy_requires_explicit_opt_in",
     ]
     if symbolic_reason:
@@ -103,7 +113,6 @@ def build_causal_capability_contract() -> CausalCapabilityContract:
         dependency_fingerprint=fingerprint,
         full_backend_order=[
             CausalBackendId.Y0,
-            CausalBackendId.R_CAUSALEFFECT,
             CausalBackendId.BOUNDS_ONLY,
         ],
         degradation_policy="full_then_bounds_explicit_simplified",
@@ -123,7 +132,7 @@ def project_capability_features(contract: CausalCapabilityContract) -> list[dict
                 "key": f"causal_backend_{backend.backend_id.value}",
                 "label": f"Causal backend: {backend.backend_id.value}",
                 "description": (
-                    "Resolved causal backend availability for transport/do-calculus runs."
+                    "Backend import/API probe outcome; not per-query identification or evidence authority."
                 ),
                 "category": "causal",
                 "enabled": backend.available,
@@ -137,7 +146,7 @@ def project_capability_features(contract: CausalCapabilityContract) -> list[dict
             {
                 "key": f"causal_family_{family.value}",
                 "label": f"Causal family: {family.value}",
-                "description": "Resolved runtime support for an identification family.",
+                "description": "Identification-family support backed by an established executable family path.",
                 "category": "causal",
                 "enabled": enabled,
                 "stage": "active",
@@ -162,12 +171,8 @@ def _symbolic_disabled_reason(
     r_ok: bool,
     r_reason: str | None,
 ) -> str:
-    reasons: list[str] = []
-    if not y0_ok and y0_reason:
-        reasons.append(y0_reason)
-    if not r_ok and r_reason:
-        reasons.append(r_reason)
-    return ";".join(reasons) or "symbolic_backend_unavailable"
+    del y0_ok, y0_reason, r_ok, r_reason
+    return "symbolic_family_execution_not_established"
 
 
 __all__ = [

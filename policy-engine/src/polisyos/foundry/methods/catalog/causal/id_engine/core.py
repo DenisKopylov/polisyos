@@ -1187,6 +1187,7 @@ def id_with_oracle_fallback(
     oracle: Literal["dosearch", "y0", "none"] = "none",
     dataset_ref: str | None = None,
     domain: DistributionDomain = DistributionDomain.SOURCE,
+    force_y0: bool = False,
 ) -> IdentificationResult:
     """Run native ID algorithm; fall back to oracle backend if ORACLE_NEEDED.
 
@@ -1203,6 +1204,29 @@ def id_with_oracle_fallback(
         dataset_ref=dataset_ref,
         domain=domain,
     )
+
+    if force_y0 and oracle == "y0":
+        # A selected Y0 backend must execute Y0 even when native ID has an answer.
+        # A native hedge remains a valid stronger refusal and is never overwritten.
+        if result.status is IdentificationStatus.HEDGE_FOUND:
+            return result
+        y0_input = IdentificationResult(
+            status=IdentificationStatus.ORACLE_NEEDED,
+            estimand_ast=None,
+            hedge_certificate=None,
+            trace=[*result.trace, "oracle_y0:explicit_backend_requested"],
+            required_distributions=[],
+            algorithm_version="y0",
+            query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
+        )
+        return _oracle_y0(
+            treatment=treatment,
+            outcome=outcome,
+            graph=graph,
+            native_result=y0_input,
+            dataset_ref=dataset_ref,
+            domain=domain,
+        )
 
     if result.status is IdentificationStatus.IDENTIFIED:
         return result
@@ -1882,6 +1906,102 @@ def _step6_formula(
 # ---------------------------------------------------------------------------
 
 
+def _y0_expression_to_node(
+    expression: Any,
+    *,
+    dataset_ref: str | None,
+    domain: DistributionDomain,
+) -> Any:
+    """Convert the supported Y0 ID expression grammar into the existing typed AST."""
+    from y0.dsl import Fraction, PopulationProbability, Probability, Product, Sum, Variable
+
+    if isinstance(expression, Sum):
+        return SumNode(
+            summation_vars=tuple(sorted(variable.name for variable in expression.ranges)),
+            operand=_y0_expression_to_node(
+                expression.expression,
+                dataset_ref=dataset_ref,
+                domain=domain,
+            ),
+        )
+    if isinstance(expression, Product):
+        return ProductNode(
+            factors=tuple(
+                _y0_expression_to_node(
+                    factor,
+                    dataset_ref=dataset_ref,
+                    domain=domain,
+                )
+                for factor in expression.expressions
+            ),
+        )
+    if isinstance(expression, Fraction):
+        return RatioNode(
+            numerator=_y0_expression_to_node(
+                expression.numerator,
+                dataset_ref=dataset_ref,
+                domain=domain,
+            ),
+            denominator=_y0_expression_to_node(
+                expression.denominator,
+                dataset_ref=dataset_ref,
+                domain=domain,
+            ),
+        )
+    if isinstance(expression, PopulationProbability):
+        raise TypeError("y0_population_probability_not_supported_by_direct_id_ast")
+    if isinstance(expression, Probability):
+        distribution = expression.distribution
+        variables = (*distribution.children, *distribution.parents)
+        if any(type(variable) is not Variable for variable in variables):
+            raise TypeError("y0_nonstandard_variable_not_supported_by_direct_id_ast")
+        return DistributionRef(
+            domain=domain,
+            variables=tuple(variable.name for variable in distribution.children),
+            conditioning=tuple(variable.name for variable in distribution.parents),
+            dataset_ref=dataset_ref,
+        )
+    raise TypeError(f"y0_expression_type_not_supported:{type(expression).__name__}")
+
+
+def _y0_oracle_needed(
+    native_result: IdentificationResult,
+    *,
+    reason: str,
+    version: str | None,
+    backend_call_attempted: bool = False,
+    backend_call_established: bool = False,
+    backend_result: str = "not_returned",
+) -> IdentificationResult:
+    return dataclasses.replace(
+        native_result,
+        status=IdentificationStatus.ORACLE_NEEDED,
+        estimand_ast=None,
+        hedge_certificate=None,
+        trace=[*native_result.trace, f"oracle_y0:limited:{reason}"],
+        required_distributions=[],
+        algorithm_version=f"y0_{version}" if version else "y0_api_unavailable",
+        metadata={
+            "backend_id": "y0",
+            "backend_version": version,
+            "backend_operation": "identify_outcomes",
+            "backend_call_attempted": backend_call_attempted,
+            "backend_call_established": backend_call_established,
+            "backend_result": backend_result,
+            "result_status_origin": "actual_backend_result_not_identified",
+            "limitation_reason": reason,
+            "gate_predicates": {
+                "backend_operation_result": (
+                    "recomputed" if backend_call_established else "not_established"
+                ),
+                "source_data_exists": "not_established",
+                "source_data_currentness": "not_established",
+                "source_data_authority": "not_established",
+            },
+        },
+    )
+
+
 def _oracle_y0(
     *,
     treatment: frozenset[str],
@@ -1891,70 +2011,139 @@ def _oracle_y0(
     dataset_ref: str | None,
     domain: DistributionDomain,
 ) -> IdentificationResult:
-    """Attempt identification via the Y0 Python package."""
+    """Run Y0's locked direct-ID API and preserve its returned expression in typed IR."""
+    version: str | None = None
+    backend_call_attempted = False
+    backend_call_established = False
     try:
-        import y0  # type: ignore[import-not-found]
-    except ImportError:
-        return dataclasses.replace(
-            native_result,
-            trace=[*native_result.trace, "oracle_y0: y0 not installed, skipping"],
-        )
+        from importlib.metadata import version as package_version
 
-    try:
-        from y0.algorithm.identify import identify  # type: ignore[import-not-found]
+        from y0.algorithm.identify import identify_outcomes  # type: ignore[import-not-found]
         from y0.dsl import Variable  # type: ignore[import-not-found]
-        from y0.graph import NxMixedGraph  # type: ignore[import-not-found]
 
-        nx_graph = graph.to_networkx()
-        mixed = NxMixedGraph.from_mixed_edges(
-            directed=[
-                (e.src, e.dst)
-                for e in graph.edges
-                if e.mark_src is EdgeMark.TAIL and e.mark_dst is EdgeMark.ARROW
-            ],
-            undirected=[
-                (e.src, e.dst)
-                for e in graph.edges
-                if e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW
-            ],
+        from polisyos.foundry.methods.catalog.causal.full_transport_bridge import build_y0_graph
+
+        version = package_version("y0")
+        mixed = build_y0_graph(graph)
+        y_vars = {Variable(name) for name in sorted(outcome)}
+        x_vars = {Variable(name) for name in sorted(treatment)}
+        backend_call_attempted = True
+        expression = identify_outcomes(
+            graph=mixed,
+            treatments=x_vars,
+            outcomes=y_vars,
         )
-        y_vars = [Variable(v) for v in sorted(outcome)]
-        x_vars = [Variable(v) for v in sorted(treatment)]
-        expr = identify(mixed, y_vars, x_vars)
-        if expr is not None:
-            # Build a simple DistributionRef leaf as placeholder
-            leaf = DistributionRef(
-                domain=domain,
-                variables=tuple(sorted(outcome)),
-                intervention_set=tuple(sorted(treatment)),
+        backend_call_established = True
+        if expression is None:
+            return _y0_oracle_needed(
+                native_result,
+                reason="identify_outcomes_returned_none",
+                version=version,
+                backend_call_attempted=backend_call_attempted,
+                backend_call_established=True,
+                backend_result="none_returned",
+            )
+        try:
+            root = _y0_expression_to_node(
+                expression,
                 dataset_ref=dataset_ref,
+                domain=domain,
             )
-            ast = EstimandAST(
-                query_str=f"P({sorted(outcome)}|do({sorted(treatment)}))",
-                root=leaf,
-                treatment=next(iter(sorted(treatment)))
-                if len(treatment) == 1
-                else str(sorted(treatment)),
-                outcome=next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome)),
-                all_variables=tuple(sorted(treatment | outcome)),
-                identification_method="y0_oracle",
+        except (TypeError, ValueError) as exc:
+            return _y0_oracle_needed(
+                native_result,
+                reason=f"returned_expression_not_representable:{type(exc).__name__}",
+                version=version,
+                backend_call_attempted=backend_call_attempted,
+                backend_call_established=True,
+                backend_result="expression_not_representable",
             )
-            return IdentificationResult(
-                status=IdentificationStatus.IDENTIFIED,
-                estimand_ast=ast,
-                hedge_certificate=None,
-                trace=[*native_result.trace, "oracle_y0: IDENTIFIED"],
-                required_distributions=[leaf],
+        variables = {
+            name
+            for distribution in _collect_y0_distribution_refs(root)
+            for name in (
+                *distribution.variables,
+                *distribution.conditioning,
+                *distribution.intervention_set,
             )
-        return dataclasses.replace(
-            native_result,
-            trace=[*native_result.trace, "oracle_y0: not identified"],
+        }
+        query_str = f"P({','.join(sorted(outcome))}|do({','.join(sorted(treatment))}))"
+        ast = EstimandAST(
+            query_str=query_str,
+            root=root,
+            treatment=next(iter(sorted(treatment)))
+            if len(treatment) == 1
+            else str(sorted(treatment)),
+            outcome=next(iter(sorted(outcome))) if len(outcome) == 1 else str(sorted(outcome)),
+            all_variables=tuple(sorted(variables | set(treatment) | set(outcome))),
+            identification_method="y0_oracle",
+        )
+        expression_latex = expression.to_latex()
+        return IdentificationResult(
+            status=IdentificationStatus.IDENTIFIED,
+            estimand_ast=ast,
+            hedge_certificate=None,
+            trace=[
+                *native_result.trace,
+                "oracle_y0:api_called:identify_outcomes",
+                f"oracle_y0:version:{version}",
+                f"oracle_y0:expression_latex:{expression_latex}",
+            ],
+            required_distributions=ast.collect_distribution_refs(),
+            algorithm_version=f"y0_{version}",
+            proof_steps=[],
+            query_str=query_str,
+            metadata={
+                "backend_id": "y0",
+                "backend_version": version,
+                "backend_operation": "identify_outcomes",
+                "backend_call_attempted": True,
+                "backend_call_established": True,
+                "backend_result": "expression_returned",
+                "backend_expression_latex": expression_latex,
+                "backend_expression_y0": expression.to_y0(),
+                "profile_origin": "not_applicable_direct_id",
+                "source_data_exists": "not_established",
+                "source_data_currentness": "not_established",
+                "source_data_authority": "not_established",
+                "gate_predicates": {
+                    "graph_input": "recomputed",
+                    "backend_operation_result": "recomputed",
+                    "source_data_exists": "not_established",
+                    "source_data_currentness": "not_established",
+                    "source_data_authority": "not_established",
+                },
+            },
         )
     except Exception as exc:
-        return dataclasses.replace(
+        return _y0_oracle_needed(
             native_result,
-            trace=[*native_result.trace, f"oracle_y0 error: {exc}"],
+            reason=f"api_error:{type(exc).__name__}",
+            version=version,
+            backend_call_attempted=backend_call_attempted,
+            backend_call_established=backend_call_established,
+            backend_result="not_returned",
         )
+
+
+def _collect_y0_distribution_refs(root: Any) -> list[DistributionRef]:
+    """Walk the PolicyOS AST produced from Y0's direct-ID expression."""
+    if isinstance(root, DistributionRef):
+        return [root]
+    if isinstance(root, SumNode):
+        return _collect_y0_distribution_refs(root.operand)
+    if isinstance(root, ProductNode):
+        return [
+            reference
+            for factor in root.factors
+            for reference in _collect_y0_distribution_refs(factor)
+        ]
+    if isinstance(root, RatioNode):
+        return [
+            *_collect_y0_distribution_refs(root.numerator),
+            *_collect_y0_distribution_refs(root.denominator),
+        ]
+    raise TypeError(f"unsupported_policyos_y0_ast_node:{type(root).__name__}")
 
 
 def _oracle_dosearch(

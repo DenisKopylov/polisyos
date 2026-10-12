@@ -226,3 +226,75 @@ def test_idc_algorithm_ratio_characterization_snapshot() -> None:
         "idc_algorithm: Y=['Y'], X=['X'], Z=['Z']",
         "idc_algorithm: IDENTIFIED via ratio",
     ]
+
+
+def test_y0_oracle_runs_locked_direct_id_and_preserves_the_returned_expression() -> None:
+    pytest.importorskip("y0")
+    graph = _dag([("X", "M"), ("M", "Y")])
+    result = _id_engine.id_with_oracle_fallback(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        oracle="y0",
+        force_y0=True,
+    )
+
+    assert result.status is IdentificationStatus.IDENTIFIED
+    assert result.estimand_ast is not None
+    assert result.algorithm_version.startswith("y0_")
+    assert result.metadata["backend_id"] == "y0"
+    assert result.metadata["backend_operation"] == "identify_outcomes"
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["backend_result"] == "expression_returned"
+    assert result.metadata["backend_expression_latex"]
+    assert result.estimand_ast.identification_method == "y0_oracle"
+    assert "P(Y" in result.metadata["backend_expression_latex"]
+    assert result.metadata["backend_expression_y0"]
+    assert "oracle_y0:api_called:identify_outcomes" in result.trace
+
+
+def test_y0_api_failure_is_oracle_needed_not_a_negative_identification_witness(monkeypatch) -> None:
+    pytest.importorskip("y0")
+    identify_module = importlib.import_module("y0.algorithm.identify")
+
+    def raise_runtime_error(**_: object) -> None:
+        raise RuntimeError("controlled api failure")
+
+    monkeypatch.setattr(identify_module, "identify_outcomes", raise_runtime_error)
+    result = _id_engine.id_with_oracle_fallback(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=_dag([("X", "Y")]),
+        oracle="y0",
+        force_y0=True,
+    )
+
+    assert result.status is IdentificationStatus.ORACLE_NEEDED
+    assert result.hedge_certificate is None
+    assert result.estimand_ast is None
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is False
+    assert result.metadata["backend_result"] == "not_returned"
+    assert result.metadata["limitation_reason"] == "api_error:RuntimeError"
+
+
+def test_y0_api_none_is_oracle_needed_not_a_negative_identification_witness(monkeypatch) -> None:
+    pytest.importorskip("y0")
+    identify_module = importlib.import_module("y0.algorithm.identify")
+    monkeypatch.setattr(identify_module, "identify_outcomes", lambda **_: None)
+    result = _id_engine.id_with_oracle_fallback(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=_dag([("X", "Y")]),
+        oracle="y0",
+        force_y0=True,
+    )
+
+    assert result.status is IdentificationStatus.ORACLE_NEEDED
+    assert result.hedge_certificate is None
+    assert result.estimand_ast is None
+    assert result.metadata["backend_call_attempted"] is True
+    assert result.metadata["backend_call_established"] is True
+    assert result.metadata["backend_result"] == "none_returned"
+    assert result.metadata["limitation_reason"] == "identify_outcomes_returned_none"

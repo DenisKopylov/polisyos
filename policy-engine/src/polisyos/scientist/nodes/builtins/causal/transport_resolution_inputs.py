@@ -24,6 +24,9 @@ from polisyos.data_forge.read_api.catalog import DatasetRegistry, PStarZResult
 from polisyos.foundry.methods.catalog.causal.capabilities import (
     build_causal_capability_contract,
 )
+from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+)
 from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
@@ -411,6 +414,7 @@ class _TransportExecutionInputs:
     pag_threshold: float
     pag_seed: int
     solver_mode: str
+    surrogate_data_profile: object
     allow_degraded_transport: bool
     privacy_context: TransportPrivacyContext | None
     normalization_warnings: tuple[str, ...]
@@ -457,6 +461,9 @@ def _resolve_transport_execution_inputs(
         ),
         pag_seed=_resolve_pag_seed(state, graph),
         solver_mode=_resolve_transport_solver_mode(state),
+        surrogate_data_profile=state.params.get(
+            "surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT
+        ),
         allow_degraded_transport=_resolve_allow_degraded_transport(state),
         privacy_context=privacy_context,
         normalization_warnings=tuple(normalization_warnings),

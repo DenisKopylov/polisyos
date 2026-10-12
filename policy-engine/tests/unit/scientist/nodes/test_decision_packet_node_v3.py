@@ -2452,6 +2452,12 @@ def test_build_decision_packet_includes_transportability_summary(tmp_path) -> No
     assert summary["unsupported_cases_count"] == 1
     assert summary["identification_engine"] == "y0"
     assert summary["unsupported_reason"] is None
+    assert summary["proof_review_grade"] == "unknown"
+    assert summary["proof_purpose"] == "conditional_graph_mathematics"
+    assert summary["proof_status"] == "identified"
+    assert summary["proof_stratum"] == "A1_extended"
+    assert summary["proof_completeness"] == "sound_incomplete"
+    assert summary["source_data_authority"] == "not_established"
 
 
 def test_build_decision_packet_includes_ensemble_summary(tmp_path) -> None:

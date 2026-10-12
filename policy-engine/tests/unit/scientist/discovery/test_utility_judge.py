@@ -591,3 +591,39 @@ def test_runtime_auditable_hypothesis_missing_algebraic_stamp_degrades_to_warnin
 
     assert report.scores[0].algebraic_severity == "warning"
     assert report.scores[0].discovery_consistency_score == pytest.approx(0.65, rel=1e-6)
+
+
+def test_transport_candidate_requiring_review_is_not_scored_as_fully_transportable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    hypothesis = _hypothesis(
+        hypothesis_id="review_candidate",
+        graph=_dag_graph(),
+        method=DiscoveryMethod.DAGMA,
+        algorithm_family=DiscoveryAlgorithmFamily.SCORE_BASED,
+    )
+    diagram = SelectionDiagram(
+        base_graph=hypothesis.graph,
+        source_context=ContextProfile(context_id="DE"),
+        target_context=ContextProfile(context_id="UA"),
+    )
+    candidate = TransportabilityResult(
+        status=TransportabilityStatus.IDENTIFIED,
+        transport_mode=TransportMode.DIRECT,
+        identification_engine="y0",
+        requires_expert_review=True,
+        expert_review_reasons=["source_data_authority_not_established"],
+    )
+    monkeypatch.setattr(utility_module, "solve_transportability", lambda **_kwargs: candidate)
+
+    score, status, reasons, warnings = utility_module._score_transportability(
+        hypothesis,
+        _query(),
+        selection_diagram=diagram,
+        s_nodes=[],
+    )
+
+    assert score < 1.0
+    assert status == "identified"
+    assert "transportability_requires_expert_review" in reasons
+    assert warnings

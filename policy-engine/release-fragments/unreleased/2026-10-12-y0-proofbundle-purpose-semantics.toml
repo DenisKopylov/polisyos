@@ -1,0 +1,28 @@
+id = "2026-10-12-y0-proofbundle-purpose-semantics"
+title = "Preserve scoped Y0 review grade across proof and transport consumers"
+type = "changed"
+component = "causal-governance"
+owner = "team-foundry"
+summary = "The registered transport and symbolic identification routes share a result-to-ProofBundle projection. Scoped direct Y0 mathematics remains identified with unresolved data scope review-required; all other unverified producer origins remain identified candidates with an unknown grade and fail closed in protected consumers."
+evidence = [
+  "src/polisyos/ir/analytics/causal.py",
+  "src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+  "src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+  "src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+  "src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+  "src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+  "tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+  "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+  "tests/unit/scientist/governance/test_transportability_required_pass.py",
+  "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+  "tests/integration/scientist/test_y0_transportability_proof_boundary.py",
+]
+change_class = "python-public-api"
+surface_classification = "public review-grade helper and additive decision-packet projection fields; ProofBundle and TransportabilityResult schema versions unchanged"
+compatibility = "Native and simplified results no longer pass the protected transportability pass from an identification_engine label alone. Their identified status and available conditional theorem/AST remain visible as sound-incomplete candidates with unknown proof-origin grade until a source-resolved, content-bound, verifier-provenance basis is available. Scoped direct Y0 results remain identified and review-required. No data, legal, publication, or institutional authority is added."
+migration = "Consumers that display the causal transportability summary may read the additive proof_review_grade, proof_purpose, proof_status, proof_stratum, proof_completeness, backend operation, and gate-predicate fields. The owner must inventory native/simplified consumers affected by fail-closed behavior and decide whether an existing proof verifier can be reused or a versioned typed-purpose/provenance contract is needed. The accepted A1/A2 interpretation remains subject to the open G decision."
+limitations = "The proof grade is not a source-data authority verifier. Direct Y0 source-data existence/currentness/authority remain not_established; its candidate carries review_required and protected reuse remains blocked. Native/simplified result origin remains unknown until a verifier basis is implemented. CrossGraphEvidenceProfile remains a separate warning candidate without the scoped TransportabilityResult proof basis. Public surface/generated inventory review is pending canonical regeneration."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []

@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+import re
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -24,13 +25,21 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     LocalIndependenceAttachment,
 )
 from polisyos.ir.analytics.survey_quality import SurveyQualityCertificate
-from polisyos.ir.analytics.transportability import TransportabilityResult
+from polisyos.ir.analytics.transportability import (
+    TransportabilityResult,
+    TransportabilityStatus,
+    TransportMode,
+)
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -209,6 +218,258 @@ class ProofBundle(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class TransportabilityProofReviewGrade(str, Enum):
+    """Review disposition for a transport result before protected reuse.
+
+    ``NO_ADDITIONAL_REVIEW`` requires an independently verified proof basis;
+    this result-only classifier does not currently have one. A backend label is
+    not proof provenance. Y0 results remain review required while source-data
+    predicates are unresolved. ``UNKNOWN`` means the producer or its operation
+    scope could not be validated and must fail closed.
+    """
+
+    NOT_APPLICABLE = "not_applicable"
+    NO_ADDITIONAL_REVIEW = "no_additional_review"
+    REVIEW_REQUIRED = "review_required"
+    UNKNOWN = "unknown"
+
+
+def transportability_proof_review_grade(
+    result: TransportabilityResult,
+) -> TransportabilityProofReviewGrade:
+    """Recompute the transport-result review grade from its scoped producer data.
+
+    A caller-provided review Boolean can only raise the grade. Backend labels
+    cannot lower an unknown grade or establish verifier provenance. This
+    function never grants data, legal, publication, or institutional authority.
+    """
+    if result.requires_expert_review or result.expert_review_reasons:
+        return TransportabilityProofReviewGrade.REVIEW_REQUIRED
+
+    metadata = result.metadata if isinstance(result.metadata, dict) else {}
+    ast = result.estimand_ast if isinstance(result.estimand_ast, dict) else {}
+    operation = metadata.get("backend_operation")
+    y0_signals = (
+        result.identification_engine == "y0"
+        or metadata.get("backend_id") == "y0"
+        or operation in {"identify_outcomes", "identify_target_outcomes"}
+        or str(result.algorithm_version).startswith("y0_")
+        or ast.get("identification_method") == "y0_oracle"
+        or isinstance(metadata.get("operation_scope"), dict)
+    )
+    if result.status is not TransportabilityStatus.IDENTIFIED:
+        return (
+            TransportabilityProofReviewGrade.UNKNOWN
+            if y0_signals
+            else TransportabilityProofReviewGrade.NOT_APPLICABLE
+        )
+    if y0_signals:
+        if _is_scoped_y0_direct_result(result, metadata, ast):
+            # The real mathematical operation is scoped, but the source-data
+            # predicates remain unresolved, so the result cannot clear review.
+            return TransportabilityProofReviewGrade.REVIEW_REQUIRED
+        return TransportabilityProofReviewGrade.UNKNOWN
+
+    # The result object has no source-bound native proof basis or verifier
+    # receipt. Treating its engine string as a trusted origin would let an
+    # external report self-assert its way past the protected pass.
+    return TransportabilityProofReviewGrade.UNKNOWN
+
+
+def _is_scoped_y0_direct_result(
+    result: TransportabilityResult,
+    metadata: dict[str, Any],
+    ast: dict[str, Any],
+) -> bool:
+    """Check the direct Y0 operation, typed query, graph scope, and gate inputs."""
+    query_match = re.fullmatch(r"P\*\(([^|()]+)\|do\(([^()]+)\)\)", result.query)
+    if query_match is None:
+        return False
+    outcome, treatment = (part.strip() for part in query_match.groups())
+    operation_scope = metadata.get("operation_scope")
+    if not isinstance(operation_scope, dict):
+        return False
+    gate_predicates = metadata.get("gate_predicates")
+    if not isinstance(gate_predicates, dict):
+        return False
+    graph_digest = operation_scope.get("graph_sha256")
+    capability_digest = operation_scope.get("capability_fingerprint")
+    if not isinstance(graph_digest, str) or re.fullmatch(r"[0-9a-f]{64}", graph_digest) is None:
+        return False
+    if (
+        not isinstance(capability_digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", capability_digest) is None
+    ):
+        return False
+    if (
+        result.status is not TransportabilityStatus.IDENTIFIED
+        or result.transport_mode not in {TransportMode.DIRECT, TransportMode.TRANSPORT_FORMULA}
+        or result.identification_engine != "y0"
+        or metadata.get("backend_id") != "y0"
+        or metadata.get("backend_operation") != "identify_outcomes"
+        or metadata.get("backend_call_attempted") is not True
+        or metadata.get("backend_call_established") is not True
+        or metadata.get("backend_result") != "expression_returned"
+        or not isinstance(metadata.get("backend_version"), str)
+        or not metadata.get("backend_version")
+        or not str(result.algorithm_version).startswith("y0_")
+        or operation_scope.get("schema_version") != "policyos.transport.operation-scope.v1"
+        or operation_scope.get("family") != "direct"
+        or operation_scope.get("operation") != "identify_outcomes"
+        or operation_scope.get("query") != result.query
+        or operation_scope.get("treatment") != treatment
+        or operation_scope.get("outcome") != outcome
+        or operation_scope.get("capability_family_supported") is not True
+        or ast.get("identification_method") != "y0_oracle"
+        or ast.get("treatment") != treatment
+        or ast.get("outcome") != outcome
+        or gate_predicates.get("backend_family_support") != "recomputed"
+        or gate_predicates.get("backend_operation_result") != "recomputed"
+        or gate_predicates.get("query_input_scope") != "recomputed"
+        or gate_predicates.get("source_data_exists") != "not_established"
+        or gate_predicates.get("source_data_currentness") != "not_established"
+        or gate_predicates.get("source_data_authority") != "not_established"
+        or metadata.get("source_data_exists") != "not_established"
+        or metadata.get("source_data_currentness") != "not_established"
+        or metadata.get("source_data_authority") != "not_established"
+    ):
+        return False
+    graph_gate = gate_predicates.get("graph_input") or gate_predicates.get("graph_admission")
+    if graph_gate != "recomputed":
+        return False
+    expected_trace = f"y0_operation_scope_sha256:{graph_digest}"
+    return expected_trace in result.identification_trace
+
+
+def proof_bundle_from_transportability_result(
+    result: TransportabilityResult,
+    *,
+    existing_bundle: ProofBundle | None = None,
+    negative_certificate_summary: str | None = None,
+    blocking_type: str | None = None,
+) -> ProofBundle:
+    """Project one typed transport result into its paired causal proof bundle.
+
+    The mathematical status and available theorem/AST are preserved. An
+    independently scoped Y0 result is A2/sound-incomplete and review-required;
+    an unverified result remains A1/sound-incomplete with an unknown grade.
+    Backend labels alone never establish a protected proof origin.
+    """
+    grade = transportability_proof_review_grade(result)
+    limited_scope = grade in {
+        TransportabilityProofReviewGrade.REVIEW_REQUIRED,
+        TransportabilityProofReviewGrade.UNKNOWN,
+    }
+    if existing_bundle is not None and not limited_scope:
+        return existing_bundle
+
+    if result.status is TransportabilityStatus.IDENTIFIED:
+        proof_status: Literal["identified", "non_identified", "oracle_needed"] = "identified"
+    elif negative_certificate_summary is not None:
+        proof_status = "non_identified"
+    else:
+        proof_status = "oracle_needed"
+
+    metadata = dict(result.metadata)
+    metadata.update(
+        {
+            "status": result.status.value,
+            "transport_mode": result.transport_mode.value,
+            "transport_review_grade": grade.value,
+            "proof_scope": (
+                "conditional_graph_mathematics"
+                if result.status is TransportabilityStatus.IDENTIFIED
+                else "not_established"
+            ),
+            "requires_expert_review": result.requires_expert_review,
+            "expert_review_reasons": list(result.expert_review_reasons),
+        }
+    )
+    if result.unsupported_reason:
+        metadata["limitation_reason"] = result.unsupported_reason
+    if blocking_type:
+        metadata["blocking_type"] = blocking_type
+    if grade in {
+        TransportabilityProofReviewGrade.REVIEW_REQUIRED,
+        TransportabilityProofReviewGrade.UNKNOWN,
+    }:
+        for predicate in ("source_data_exists", "source_data_currentness", "source_data_authority"):
+            metadata.setdefault(predicate, "not_established")
+    assumptions = list(result.warnings)
+    if grade is TransportabilityProofReviewGrade.REVIEW_REQUIRED and not assumptions:
+        assumptions.append("Source-data authority is unresolved; this is a mathematical candidate only.")
+    elif grade is TransportabilityProofReviewGrade.UNKNOWN:
+        assumptions.append("Producer scope is unknown; protected authority is not established.")
+
+    scoped_y0_operation = _is_scoped_y0_direct_result(
+        result,
+        result.metadata if isinstance(result.metadata, dict) else {},
+        result.estimand_ast if isinstance(result.estimand_ast, dict) else {},
+    )
+    if scoped_y0_operation:
+        theorem_family = "y0.identify_outcomes"
+        implementation_coverage = "y0_direct_id_adapter"
+    elif limited_scope:
+        # Preserve the conditional mathematical theorem name when present, but
+        # do not use it as an authority or producer-verification signal.
+        theorem_family = (
+            result.algorithm_version
+            or (existing_bundle.theorem_family if existing_bundle is not None else "")
+            or "transportability_candidate_scope_unknown"
+        )
+        implementation_coverage = "transportability_producer_unverified"
+    else:
+        theorem_family = result.identification_engine or result.algorithm_version or "transportability"
+        implementation_coverage = "transportability_result_projection"
+
+    proof_bundle = ProofBundle(
+        proof_status=proof_status,
+        proof_stratum="A2_oracle_backed" if scoped_y0_operation else "A1_extended",
+        theorem_family=theorem_family,
+        completeness_regime=(
+            "sound_incomplete"
+            if limited_scope
+            or (
+                result.status is not TransportabilityStatus.IDENTIFIED
+                and negative_certificate_summary is None
+            )
+            else "complete"
+        ),
+        implementation_coverage=implementation_coverage,
+        query_ref=result.query or None,
+        estimand_ast=result.estimand_ast if isinstance(result.estimand_ast, dict) else None,
+        negative_certificate_summary=negative_certificate_summary,
+        proof_trace=list(result.identification_trace),
+        assumptions=assumptions,
+        metadata=metadata,
+    )
+    if existing_bundle is None:
+        return proof_bundle
+
+    existing = existing_bundle.model_dump(mode="python")
+    projected = proof_bundle.model_dump(mode="python")
+    for field in (
+        "proof_status",
+        "proof_stratum",
+        "theorem_family",
+        "completeness_regime",
+        "implementation_coverage",
+        "query_ref",
+        "estimand_ast",
+        "negative_certificate_summary",
+    ):
+        if projected.get(field) is not None:
+            existing[field] = projected[field]
+    existing["proof_trace"] = list(
+        dict.fromkeys([*existing.get("proof_trace", []), *projected["proof_trace"]])
+    )
+    existing["assumptions"] = list(
+        dict.fromkeys([*existing.get("assumptions", []), *projected["assumptions"]])
+    )
+    existing["metadata"] = {**existing.get("metadata", {}), **projected["metadata"]}
+    return ProofBundle.model_validate(existing)
+
+
 class CausalEffectReport(BaseModel):
     """Canonical causal effect artifact emitted by Foundry methods.
 
@@ -220,6 +481,13 @@ class CausalEffectReport(BaseModel):
     verify the current source, graph, estimand, and target binding.
     """
 
+    contract_id: ClassVar[str] = "ir.causal_effect_report.v1"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.CAUSAL,
+        )
+    )
     model_config = ConfigDict(extra="forbid")
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -356,6 +624,53 @@ class CausalEffectReport(BaseModel):
             },
         )
 
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
+        """Project the report's native statistical interval for one bound estimand.
+
+        A successful numerical report remains non-gating until a separate causal
+        identification owner verifies its source, graph, and target bindings.
+        """
+
+        if not isinstance(projection_binding, NativeValueEstimandBinding):
+            raise TypeError("causal_report_value_projection_binding_untyped")
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        estimand_unit = str(getattr(estimand, "unit", "") or "")
+        if (
+            self.status is not EstimationStatus.SUCCESS
+            or self.point_estimate is None
+            or self.confidence_interval is None
+            or self.confidence_level is None
+            or not estimand_id.strip()
+            or not estimand_unit.strip()
+            or self.estimand != estimand_id
+            or projection_binding.native_contract_id != self.contract_id
+            or projection_binding.authority_scope != "contract_only_nonproduction"
+            or projection_binding.production_value_eligible
+            or not projection_binding.matches(estimand)
+        ):
+            return None
+        envelope = self.to_uncertainty_envelope()
+        if envelope is None or envelope.is_heuristic_ci:
+            return None
+        metadata = dict(envelope.metadata)
+        metadata.update(
+            {
+                "value_estimand_binding_content_hash": projection_binding.content_hash,
+                "value_estimand_binding_native_contract_id": self.contract_id,
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
+                "value_estimand_id": estimand_id,
+                "value_estimand_unit": estimand_unit,
+            }
+        )
+        return envelope.model_copy(update={"gate_eligible": False, "metadata": metadata})
+
 
 def persist_causal_effect_report(
     store: ArtifactStore,
@@ -364,8 +679,21 @@ def persist_causal_effect_report(
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_effect_report",
     schema_version: str = "1.0",
+    return_selected_profile: bool = False,
 ) -> CausalEffectReportRef:
-    """Persist a causal effect report as a typed JSON artifact reference."""
+    """Persist a causal report, optionally returning the profile selected by this write.
+
+    Args:
+        store: Artifact store used for the CAS write.
+        report: Typed causal report to persist.
+        inputs: Optional upstream lineage references.
+        schema_name: Artifact schema name.
+        schema_version: Artifact schema version.
+        return_selected_profile: Whether to return the profile selected by this exact write.
+
+    Returns:
+        A typed report reference preserving historical default-reference behavior.
+    """
     ref = put_json_artifact(
         store,
         report.model_dump(mode="json"),
@@ -374,6 +702,7 @@ def persist_causal_effect_report(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return CausalEffectReportRef.model_validate(ref)
 
@@ -1851,6 +2180,7 @@ __all__ = [
     "ProofBundle",
     "RefutationResult",
     "RefutationTestType",
+    "TransportabilityProofReviewGrade",
     "TransportabilityResult",
     "build_data_readiness_report",
     "build_dynamic_proof_bundle",
@@ -1865,4 +2195,6 @@ __all__ = [
     "proof_bundle_from_negative_certificate",
     "proof_bundle_from_proximal_certificate",
     "proof_bundle_from_proximal_mediation_certificate",
+    "proof_bundle_from_transportability_result",
+    "transportability_proof_review_grade",
 ]

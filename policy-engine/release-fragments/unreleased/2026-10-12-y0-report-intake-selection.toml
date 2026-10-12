@@ -1,0 +1,17 @@
+id = "2026-10-12-y0-report-intake-selection"
+title = "Reconcile transportability report and result inputs"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The transportability governance pass resolves present report-list, compatibility-alias, and CAS-reference inputs together, deduplicates identical report content, reports conflicting or malformed sources, and grades canonical, legacy, and direct-CAS transport results through the existing typed proof-review path."
+evidence = ["src/polisyos/scientist/governance/passes/transportability_required_pass.py", "tests/unit/scientist/governance/test_transportability_required_pass.py"]
+compatibility = "State keys and persisted IR schemas are unchanged. Empty lists no longer shadow another supplied report source; conflicting sources now produce an issue. Existing profile-dependent severity remains in force, with strict mode blocking unresolved or conflicting inputs."
+change_class = "internal"
+surface_classification = "internal: existing Scientist governance pass; no HTTP, generated-client, or exported API change."
+migration = "No persisted artifact migration is required for source reconciliation. CAS report serialization still does not preserve whether a nullable transport_result default was omitted or explicitly null; those CAS values remain missing transport evidence pending a separate schema/write-contract decision."
+api = "Existing CausalEffectReport and reference inputs are validated through the current model and CAS loaders. The existing transportability proof-review grade remains the consumer admission rule; no new public DTO or authority claim is introduced."
+limitations = "This change does not establish graph truth, source-data existence/currentness/authority, empirical grounding, publishability, or institutional authority. Unknown/review-required transport results remain blocked in STRICT mode. G semantics remain open."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/governance/passes/README.md"]
+runbook_docs = []

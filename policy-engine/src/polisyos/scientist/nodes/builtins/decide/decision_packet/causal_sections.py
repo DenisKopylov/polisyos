@@ -9,6 +9,10 @@ from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics import CausalEffectReport
+from polisyos.ir.analytics.causal import (
+    proof_bundle_from_transportability_result,
+    transportability_proof_review_grade,
+)
 from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
@@ -346,6 +350,8 @@ def _build_transportability_summary(
     transport = report.transport_result
     if transport is None:
         return None
+    proof_bundle = proof_bundle_from_transportability_result(transport)
+    proof_metadata = proof_bundle.metadata
     gap_vars = [gap.required_variable for gap in transport.data_gaps]
     return {
         "status": transport.status.value,
@@ -375,4 +381,16 @@ def _build_transportability_summary(
         "requires_expert_review": transport.requires_expert_review,
         "expert_review_reasons": list(transport.expert_review_reasons),
         "warnings": list(transport.warnings),
+        "proof_review_grade": transportability_proof_review_grade(transport).value,
+        "proof_purpose": proof_metadata.get("proof_scope"),
+        "proof_status": proof_bundle.proof_status,
+        "proof_stratum": proof_bundle.proof_stratum,
+        "proof_completeness": proof_bundle.completeness_regime,
+        "backend_id": proof_metadata.get("backend_id"),
+        "backend_operation": proof_metadata.get("backend_operation"),
+        "backend_version": proof_metadata.get("backend_version"),
+        "gate_predicates": proof_metadata.get("gate_predicates", {}),
+        "source_data_exists": proof_metadata.get("source_data_exists"),
+        "source_data_currentness": proof_metadata.get("source_data_currentness"),
+        "source_data_authority": proof_metadata.get("source_data_authority"),
     }

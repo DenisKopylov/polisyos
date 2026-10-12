@@ -1032,3 +1032,62 @@ def test_method_capability_matrix_exports_truthfulness_and_semantics() -> None:
     assert row["implementation_depth_tier"] == "production_method"
     assert row["effect_semantics"]["method_kind"] == "pure"
     assert row["dependency_semantics"]["hard_requires"] == []
+
+
+def test_symbolic_method_catalog_requires_its_actual_y0_trso_family() -> None:
+    from polisyos.ir.analytics.causal_capabilities import (
+        CausalBackendCapability,
+        CausalBackendId,
+        CausalCapabilityContract,
+        CausalIdentificationFamily,
+    )
+
+    ensure_all_methods_registered()
+    contract = CausalCapabilityContract(
+        dependency_fingerprint="controlled-y0-catalog",
+        full_backend_order=[CausalBackendId.Y0],
+        degradation_policy="explicit_only",
+        backends=[
+            CausalBackendCapability(
+                backend_id=CausalBackendId.Y0,
+                available=True,
+                supported_families=[
+                    CausalIdentificationFamily.DIRECT,
+                    CausalIdentificationFamily.TRSO,
+                ],
+            )
+        ],
+        supported_families=[CausalIdentificationFamily.DIRECT, CausalIdentificationFamily.TRSO],
+        disabled_families={
+            family.value: "symbolic_family_execution_not_established"
+            for family in (
+                CausalIdentificationFamily.FRONTDOOR,
+                CausalIdentificationFamily.DO_CALCULUS_RULE2,
+                CausalIdentificationFamily.DO_CALCULUS_RULE3,
+                CausalIdentificationFamily.C_COMPONENT_FACTORIZATION,
+            )
+        },
+        notes=[],
+    )
+    snapshot = build_method_catalog_snapshot(
+        run_id="R_y0_trso_catalog", capability_contract=contract
+    )
+    symbolic = next(
+        entry for entry in snapshot.entries
+        if "causal.transport.symbolic_identify@" in entry.fqn
+    )
+
+    assert symbolic.causal_capability_requirements == [
+        CausalIdentificationFamily.DIRECT.value,
+        CausalIdentificationFamily.TRSO.value,
+    ]
+    assert symbolic.causal_available is True
+    assert not any(
+        family in symbolic.causal_capability_requirements
+        for family in (
+            CausalIdentificationFamily.FRONTDOOR.value,
+            CausalIdentificationFamily.DO_CALCULUS_RULE2.value,
+            CausalIdentificationFamily.DO_CALCULUS_RULE3.value,
+            CausalIdentificationFamily.C_COMPONENT_FACTORIZATION.value,
+        )
+    )

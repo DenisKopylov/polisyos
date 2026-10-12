@@ -1233,17 +1233,12 @@ def _jsonable(value: Any) -> Any:
 def _causal_requirements_for_method(fqn: str) -> list[CausalIdentificationFamily]:
     normalized = str(fqn).strip().lower()
     if "causal.transport.symbolic_identify@" in normalized:
-        return [
-            CausalIdentificationFamily.FRONTDOOR,
-            CausalIdentificationFamily.DO_CALCULUS_RULE2,
-            CausalIdentificationFamily.DO_CALCULUS_RULE3,
-            CausalIdentificationFamily.C_COMPONENT_FACTORIZATION,
-        ]
+        return [CausalIdentificationFamily.DIRECT, CausalIdentificationFamily.TRSO]
     if (
         "causal.transport.check_transportability@" in normalized
         or "causal.parameter_transfer@" in normalized
     ):
-        return [CausalIdentificationFamily.DIRECT]
+        return [CausalIdentificationFamily.DIRECT, CausalIdentificationFamily.TRSO]
     return []
 
 

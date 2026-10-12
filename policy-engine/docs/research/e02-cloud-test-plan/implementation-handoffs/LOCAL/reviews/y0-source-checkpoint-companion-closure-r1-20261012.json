@@ -1,0 +1,633 @@
+{
+  "P39_P40": {
+    "P39": "Keep the single semantic test outside the 40-path source mechanism count and name it explicitly as a mandatory verification companion for a complete implementation checkpoint.",
+    "P40": "No second code escape class was found. The missing test is a verification boundary, not a justification for a one-path runtime source patch or for adding unrelated C05 WIP."
+  },
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "da83487be5a77029029baca740565227c88d92db",
+    "index_empty": true,
+    "tree": "61f59cc11291f88b79090e322ed229109cadd370"
+  },
+  "bounded_static_import_inventory": {
+    "AST_parse": "all passed",
+    "baseline_contract_dependencies": [
+      {
+        "current_bytes": 49633,
+        "current_sha256": "ff0f5dcedf8e48243f406d98ea1647c34f480f8d83271784243a4cdddc1a5b2a",
+        "head_bytes": 49633,
+        "head_sha256": "ff0f5dcedf8e48243f406d98ea1647c34f480f8d83271784243a4cdddc1a5b2a",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 21014,
+        "current_sha256": "db761a0d4b6aa6e1c6599ded3a518905d31e6031a5a47062cfe29ac88fd6a253",
+        "head_bytes": 21014,
+        "head_sha256": "db761a0d4b6aa6e1c6599ded3a518905d31e6031a5a47062cfe29ac88fd6a253",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/types.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 30244,
+        "current_sha256": "9fcb650b31d2638489f9a4536e430587700326081e4311f17f44e38e741ce4bb",
+        "head_bytes": 30244,
+        "head_sha256": "9fcb650b31d2638489f9a4536e430587700326081e4311f17f44e38e741ce4bb",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/registry.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 15754,
+        "current_sha256": "83a870f5f5e031f5598f6b2cc6ab5ef3cb3c5b9266246093d1a9fe1c3b9d5148",
+        "head_bytes": 15754,
+        "head_sha256": "83a870f5f5e031f5598f6b2cc6ab5ef3cb3c5b9266246093d1a9fe1c3b9d5148",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 3803,
+        "current_sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+        "head_bytes": 3803,
+        "head_sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 36637,
+        "current_sha256": "35c77a586d3add88e0c3cba824d6de74bff6ba1053ed6c032fd92f79cb20c7c7",
+        "head_bytes": 36637,
+        "head_sha256": "35c77a586d3add88e0c3cba824d6de74bff6ba1053ed6c032fd92f79cb20c7c7",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/transportability.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 13623,
+        "current_sha256": "1a66534e53d5dfd9aee2ad3a08df42042910522e0f30fad8db550fd276cbfe11",
+        "head_bytes": 13623,
+        "head_sha256": "1a66534e53d5dfd9aee2ad3a08df42042910522e0f30fad8db550fd276cbfe11",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 8001,
+        "current_sha256": "e504d9e1f177b6269c79a495c6de70f1f9c4b0de780103318dcdefbae0e7170a",
+        "head_bytes": 8001,
+        "head_sha256": "e504d9e1f177b6269c79a495c6de70f1f9c4b0de780103318dcdefbae0e7170a",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 48530,
+        "current_sha256": "bb8d3b119de813f469f4332fbf7ffceabded6c56a4453439e33f3e19f977224b",
+        "head_bytes": 48530,
+        "head_sha256": "bb8d3b119de813f469f4332fbf7ffceabded6c56a4453439e33f3e19f977224b",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 39829,
+        "current_sha256": "6c8a226bd4852642f3ac6ed2cf68017e723aa600b0d596b88388c1e56bd7acfb",
+        "head_bytes": 39829,
+        "head_sha256": "6c8a226bd4852642f3ac6ed2cf68017e723aa600b0d596b88388c1e56bd7acfb",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "same_as_head": true
+      },
+      {
+        "current_bytes": 1152,
+        "current_sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "head_bytes": 1152,
+        "head_sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "same_as_head": true
+      }
+    ],
+    "changed_imported_files_outside_40_path_set": [
+      {
+        "module_names": [
+          "polisyos.data_forge.read_api.academic"
+        ],
+        "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py"
+      },
+      {
+        "module_names": [
+          "polisyos.data_forge.read_api.catalog"
+        ],
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py"
+      }
+    ],
+    "facade_mapping_evidence": [
+      {
+        "current_delta": "Adds only PreparedSKGCredalSourceRows to _EXPORTS; that name is unused by all selected Python inputs.",
+        "current_sha256": "9b4a40a101e21d00b35b5d32b42a1343e2d38207cfaf5bd99db2016d4e64e02e",
+        "head_sha256": "4b4e993f857f0459405fad795accfec1e2630117e37764c5e9b668a3a0f20a87",
+        "imported_names": [
+          "SKGQuery",
+          "PreparedSKGRead"
+        ],
+        "mapping_matches_head": true,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py"
+      },
+      {
+        "current_delta": "Relevant _EXPORTS mappings are unchanged; diff is formatting plus a private _current_catalog_publish_receipt helper not exported or called by selected files.",
+        "current_sha256": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9",
+        "head_sha256": "28b3d9b91c1bdd0422b2539f6ddc6778de722edd9247e1637974a5155c594d21",
+        "imported_names": [
+          "DatasetRegistry",
+          "PStarZResult",
+          "compose_confidence_harmonic",
+          "resolve_proxy",
+          "validate_proxy"
+        ],
+        "mapping_matches_head": true,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py"
+      }
+    ],
+    "python_interpreter": "3.14.0",
+    "scope_limit": "This is a complete direct-import scan of the 30 selected Python inputs, not a claim that the project-wide runtime import graph or every dynamic/transitive dependency has been proven. The 40 modified source inputs contain no dynamic import/exec/eval or direct file-read/config loader expression in the bounded lexical screen. No module was imported or executed.",
+    "selected_production_source_python_files": 16,
+    "selected_python_inputs_parsed": 30,
+    "selected_test_python_files": 14,
+    "transitive_source_provider_observations": [
+      {
+        "current_sha256": "ab4170d0bb655da26bf8559b6007bba370ab93b4add67b35f540757745c3892f",
+        "head_sha256": "c42767cf64b031839e9f531e17c3c166c7fcef98574aed2b43f9c007162ce848",
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+        "reason": "Current provider adds PreparedSKGCredalSourceRows/read_credal_source_rows; selected callers use existing SKGQuery.prepare_read and PreparedSKGRead.matches_path/source_generation_matches/close. Those existing AST definitions match HEAD; no selected input references the new method. Its new iter_causal_claim_results_v2 import resolves to an unchanged HEAD function in store.py.",
+        "status": "modified but not a required delta"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py",
+        "reason": "Tests the independent credal-source-rows addition; not imported by selected code and not required to load existing prepared-read APIs.",
+        "status": "modified outside capsule"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "reason": "ExecutionContext.prepared_skg_read is already declared at line 120; no current provider-context companion delta.",
+        "same_as_head": true,
+        "sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f"
+      }
+    ]
+  },
+  "contract_and_status_checks": {
+    "artifact_write_profile_kwarg": "ArtifactStore.put_json and put_json_artifact in HEAD already accept return_selected_profile; helper checks strict bool, rejects unsupported stores, and requires a returned manifest_profile_sha256.",
+    "prepared_source_context": "ExecutionContext.prepared_skg_read is already present in unchanged HEAD; selected callers only use existing prepared-read API.",
+    "selected_causal_value_contract": "causal.py references ValueUncertaintyProjectionKind.CAUSAL; the only enum companion is uncertainty.py and it is included as path 40.",
+    "transport_review_status": "TransportabilityResult/status/transport-mode contracts are in unchanged HEAD; selected causal.py keeps unknown/review_required and source-data predicates not_established rather than treating backend labels as authority.",
+    "y0_input_presence": "Selected resolution source uses Y0_SURROGATE_DATA_PROFILE_ABSENT so omitted, explicit null, and supplied values remain distinguishable; selected bridge/engine files own the parser and call contract."
+  },
+  "date": "2026-10-12",
+  "disposition": {
+    "40_path_runtime_source_closure": "GO",
+    "complete_implementation_checkpoint": "NEEDS_ONE_TEST_COMPANION",
+    "formal_acceptance": false,
+    "minimal_additional_test_path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+    "reason": "The selected 40 paths close the changed runtime-source imports. The missing test is the only focused semantic assertion for the new CausalEffectReport CAUSAL value projection and its exact selected-profile persistence behavior.",
+    "release_surface_reason": "Selected release fragments leave public_surface_inventory_reviewed=false; this is release-review/generated-output work, not a missing runtime import dependency.",
+    "release_surface_review": "PENDING",
+    "runtime_verified": false
+  },
+  "excluded_unconsumed_WIP": [
+    {
+      "exclude_reason": "Only its new PreparedSKGCredalSourceRows key is unused; existing selected names remain available at the frozen baseline mapping.",
+      "hash": "9b4a40a101e21d00b35b5d32b42a1343e2d38207cfaf5bd99db2016d4e64e02e",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py"
+    },
+    {
+      "exclude_reason": "Selected facade names retain frozen baseline mappings. Formatting and the non-exported publish-receipt helper are not required by selected callers.",
+      "hash": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py"
+    },
+    {
+      "exclude_reason": "New credal-source row API is an independent additive delta. Existing selected APIs match HEAD; do not pull the new API or unrelated source rows into the source capsule.",
+      "hash": "ab4170d0bb655da26bf8559b6007bba370ab93b4add67b35f540757745c3892f",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py"
+    },
+    {
+      "exclude_reason": "Unchanged HEAD provider already defines iter_causal_claim_results_v2, so no hidden companion is missing.",
+      "hash": "ff0f5dcedf8e48243f406d98ea1647c34f480f8d83271784243a4cdddc1a5b2a",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py"
+    },
+    {
+      "exclude_reason": "Unchanged HEAD context already contains prepared_skg_read; no current dirty producer-context dependency.",
+      "hash": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py"
+    }
+  ],
+  "missing_verification_companion": {
+    "current_bytes": 7246,
+    "current_sha256": "8ec92e0d541ebd295eb94390703bd589b5c80c449992b9caae17d2a940a45652",
+    "head_bytes": 3756,
+    "head_sha256": "d65d78ff8e137261e67594dc05c2875e0e0e778c82abea3b05fcddbd86f5e224",
+    "mode": "0644",
+    "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+    "reason": "Adds direct negative/semantic assertions for CausalEffectReport.to_value_uncertainty binding/CAUSAL output, non-gating status, wrong-estimand refusal, missing interval refusal, strict return_selected_profile type, and profile-bound readback. The 14 selected test files do not contain these specific assertions.",
+    "same_as_head": false,
+    "test_executed": false
+  },
+  "public_surface_and_generated_outputs": {
+    "analytics_facade": "Curated facade docs direct advanced/module-specific APIs to defining submodules; new causal helpers are module-level exports, not additions to ANALYTICS_FACADE_EXPORTS.",
+    "ir_api_and_root_facade": "CausalEffectReport mapping is present in HEAD/current ir.api and ir.__init__; neither facade changed in this capsule.",
+    "release_review": "2026-10-12-causal-y0-api-adapter.toml and 2026-10-12-y0-proofbundle-purpose-semantics.toml set public_surface_inventory_reviewed=false. Keep public-surface inventory/reference regeneration or owner review pending before release; do not treat this source checkpoint as release approval.",
+    "schema_or_HTTP": "No selected HTTP/OpenAPI schema file or generated client is part of the Y0 source dependency closure; no model schema-version change is claimed.",
+    "supported_entrypoints": "The public-surface contract lists polisyos.ir, polisyos.ir.analytics, and polisyos.ir.api; polisyos.ir.analytics.causal is not a separately declared supported entrypoint."
+  },
+  "review_scope": "Read-only source dependency and checkpoint-companion audit against the frozen R242 composition; no product-source/index/history mutation and no runtime or pytest execution.",
+  "schema": "policyos.y0-source-checkpoint-companion-closure-review.v1",
+  "selection": {
+    "added_mandatory_source_companion": {
+      "bytes": 105176,
+      "mode": "0644",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "reason": "causal.py declares ValueUncertaintyProjectionKind.CAUSAL",
+      "role": "mandatory enum companion",
+      "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+    },
+    "composition_declared_paths": 39,
+    "composition_declares_actual_head": "da83487be5a77029029baca740565227c88d92db",
+    "composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r2-r6-whole-composed-root-r242-20261012/composition.json",
+    "composition_postimage_sha256_matches": 39,
+    "composition_sha256": "da6c0d30441f06305226caea5264c61eb24ef0eb11c3e4510cca729fbbc373c5",
+    "paths": [
+      {
+        "bytes": 6863,
+        "declared_match": true,
+        "declared_sha256": "fd12ee1ae9f68a6a87c45c91e90f1888eecb48b7fcd3a2295b19e97880c01dd3",
+        "mode": "0644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-proofbundle-purpose-semantics-2026-10-12.md",
+        "role": "R242 composition path",
+        "sha256": "fd12ee1ae9f68a6a87c45c91e90f1888eecb48b7fcd3a2295b19e97880c01dd3"
+      },
+      {
+        "bytes": 7054,
+        "declared_match": true,
+        "declared_sha256": "efc3c6a27fa8becd4bf98aeaaef61ee7e08be443f1e922b4b7ce8114836992ee",
+        "mode": "0644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-report-intake-selection-r6-2026-10-12.md",
+        "role": "R242 composition path",
+        "sha256": "efc3c6a27fa8becd4bf98aeaaef61ee7e08be443f1e922b4b7ce8114836992ee"
+      },
+      {
+        "bytes": 8503,
+        "declared_match": true,
+        "declared_sha256": "99ac47b67e30a381a877bf902afa5a59706dd9a42c0cac306c129892bdaa2625",
+        "mode": "0644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-report-intake-selection-semantics-2026-10-12.md",
+        "role": "R242 composition path",
+        "sha256": "99ac47b67e30a381a877bf902afa5a59706dd9a42c0cac306c129892bdaa2625"
+      },
+      {
+        "bytes": 5300,
+        "declared_match": true,
+        "declared_sha256": "2eb61b14e3748addd2f6e2325fed6876f9ac0ed79a975a3c2c0c4962f2c8e02b",
+        "mode": "0644",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+        "role": "R242 composition path",
+        "sha256": "2eb61b14e3748addd2f6e2325fed6876f9ac0ed79a975a3c2c0c4962f2c8e02b"
+      },
+      {
+        "bytes": 3259,
+        "declared_match": true,
+        "declared_sha256": "7c39eb6fd097b75ff8930d4c17cdf6c45332e80cbc53ba87087cff0a1acfb431",
+        "mode": "0644",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-proofbundle-purpose-semantics.toml",
+        "role": "R242 composition path",
+        "sha256": "7c39eb6fd097b75ff8930d4c17cdf6c45332e80cbc53ba87087cff0a1acfb431"
+      },
+      {
+        "bytes": 2112,
+        "declared_match": true,
+        "declared_sha256": "f24ac2d452315fd95e2b31b4d5f4f902e50beb2ec8c6da2252fbfbf6a06d547e",
+        "mode": "0644",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-report-intake-selection.toml",
+        "role": "R242 composition path",
+        "sha256": "f24ac2d452315fd95e2b31b4d5f4f902e50beb2ec8c6da2252fbfbf6a06d547e"
+      },
+      {
+        "bytes": 1909,
+        "declared_match": true,
+        "declared_sha256": "17cd3f7188d6bd702395ff995a064d379f8b296beb65661e53f1e79187b6fa0b",
+        "mode": "0644",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-report-intake-whole-pass-r6.toml",
+        "role": "R242 composition path",
+        "sha256": "17cd3f7188d6bd702395ff995a064d379f8b296beb65661e53f1e79187b6fa0b"
+      },
+      {
+        "bytes": 24057,
+        "declared_match": true,
+        "declared_sha256": "e5549983f870c85273220bcfd0cddc8129a5de932e91b6b8513e3623b3598fb7",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "role": "R242 composition path",
+        "sha256": "e5549983f870c85273220bcfd0cddc8129a5de932e91b6b8513e3623b3598fb7"
+      },
+      {
+        "bytes": 6540,
+        "declared_match": true,
+        "declared_sha256": "a54da90b72bf5914c15cefd45da17fd3f20355d604d6dae7be137fd3f083c4bc",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/capabilities.py",
+        "role": "R242 composition path",
+        "sha256": "a54da90b72bf5914c15cefd45da17fd3f20355d604d6dae7be137fd3f083c4bc"
+      },
+      {
+        "bytes": 11028,
+        "declared_match": true,
+        "declared_sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+        "role": "R242 composition path",
+        "sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+      },
+      {
+        "bytes": 82945,
+        "declared_match": true,
+        "declared_sha256": "6649c8a4a6f712cd5a32bccc734969ca4b13cbcb6b5d47e6411527f86b34e411",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "role": "R242 composition path",
+        "sha256": "6649c8a4a6f712cd5a32bccc734969ca4b13cbcb6b5d47e6411527f86b34e411"
+      },
+      {
+        "bytes": 54553,
+        "declared_match": true,
+        "declared_sha256": "805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+        "role": "R242 composition path",
+        "sha256": "805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df"
+      },
+      {
+        "bytes": 34686,
+        "declared_match": true,
+        "declared_sha256": "303531940bfe3bd1feb4be56eb277b686fa9eb0f55f3752d980b93849eda4be0",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+        "role": "R242 composition path",
+        "sha256": "303531940bfe3bd1feb4be56eb277b686fa9eb0f55f3752d980b93849eda4be0"
+      },
+      {
+        "bytes": 52295,
+        "declared_match": true,
+        "declared_sha256": "bfff62f0800526b6c10538303102b4731af1aa2d0ab211ee362bd052d2c079bf",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+        "role": "R242 composition path",
+        "sha256": "bfff62f0800526b6c10538303102b4731af1aa2d0ab211ee362bd052d2c079bf"
+      },
+      {
+        "bytes": 58233,
+        "declared_match": true,
+        "declared_sha256": "9d00bf4cdbc26b2b72e417558e6be00c01bb41b7ae809954ac2cd313eba1a223",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py",
+        "role": "R242 composition path",
+        "sha256": "9d00bf4cdbc26b2b72e417558e6be00c01bb41b7ae809954ac2cd313eba1a223"
+      },
+      {
+        "bytes": 15337,
+        "declared_match": true,
+        "declared_sha256": "3e291c2eb44d9fb1ec079ad081d568d7930278943c97b98ce341973a40d06d90",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+        "role": "R242 composition path",
+        "sha256": "3e291c2eb44d9fb1ec079ad081d568d7930278943c97b98ce341973a40d06d90"
+      },
+      {
+        "bytes": 91077,
+        "declared_match": true,
+        "declared_sha256": "95d2e15e73efcfca6916c61a354b5db762e98da750800309af7092bbccd575d4",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "role": "R242 composition path",
+        "sha256": "95d2e15e73efcfca6916c61a354b5db762e98da750800309af7092bbccd575d4"
+      },
+      {
+        "bytes": 3526,
+        "declared_match": true,
+        "declared_sha256": "a45a9fc24efaadbfdbdef6f3104f5b31acd0e0e14e806f82a9fdf61eed1ed741",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_capabilities.py",
+        "role": "R242 composition path",
+        "sha256": "a45a9fc24efaadbfdbdef6f3104f5b31acd0e0e14e806f82a9fdf61eed1ed741"
+      },
+      {
+        "bytes": 4760,
+        "declared_match": true,
+        "declared_sha256": "6dcbb6245982d88548155efb004037d88a1e4aefc24ce85e5fd829e89dab651e",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/README.md",
+        "role": "R242 composition path",
+        "sha256": "6dcbb6245982d88548155efb004037d88a1e4aefc24ce85e5fd829e89dab651e"
+      },
+      {
+        "bytes": 11335,
+        "declared_match": true,
+        "declared_sha256": "3c736c0c0860c4f78ba10c928873a68ddacdb3d736aa72840287658456225b41",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+        "role": "R242 composition path",
+        "sha256": "3c736c0c0860c4f78ba10c928873a68ddacdb3d736aa72840287658456225b41"
+      },
+      {
+        "bytes": 40337,
+        "declared_match": true,
+        "declared_sha256": "3b842bb323a8421ea8011db4904e368a6928e484955de727785bc91c0d00352e",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+        "role": "R242 composition path",
+        "sha256": "3b842bb323a8421ea8011db4904e368a6928e484955de727785bc91c0d00352e"
+      },
+      {
+        "bytes": 25635,
+        "declared_match": true,
+        "declared_sha256": "56ab5f335804e90082393ae428995e6af6b486791f20fd06aadda9e760ff3af2",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py",
+        "role": "R242 composition path",
+        "sha256": "56ab5f335804e90082393ae428995e6af6b486791f20fd06aadda9e760ff3af2"
+      },
+      {
+        "bytes": 44070,
+        "declared_match": true,
+        "declared_sha256": "4891e191feb967af4c7080bbc61dd6eb2151a0ed5267e8e6c569b89a5414ab04",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+        "role": "R242 composition path",
+        "sha256": "4891e191feb967af4c7080bbc61dd6eb2151a0ed5267e8e6c569b89a5414ab04"
+      },
+      {
+        "bytes": 22127,
+        "declared_match": true,
+        "declared_sha256": "d18572845b5f09ddf38a20b65b038add090f0ca1a96ceac7dda7904186bb7375",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/transport_resolution_inputs.py",
+        "role": "R242 composition path",
+        "sha256": "d18572845b5f09ddf38a20b65b038add090f0ca1a96ceac7dda7904186bb7375"
+      },
+      {
+        "bytes": 17938,
+        "declared_match": true,
+        "declared_sha256": "f6c32805c5f3f57497fd030cfdd1ab7d1077be2213ea864dae2fb4e3255d9c53",
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+        "role": "R242 composition path",
+        "sha256": "f6c32805c5f3f57497fd030cfdd1ab7d1077be2213ea864dae2fb4e3255d9c53"
+      },
+      {
+        "bytes": 7332,
+        "declared_match": true,
+        "declared_sha256": "620acb2a8df813df57323a64a4528cedecddf3b0bbaaf378db144e2fb575a9ac",
+        "mode": "0644",
+        "path": "policy-engine/tests/integration/scientist/test_y0_transportability_proof_boundary.py",
+        "role": "R242 composition path",
+        "sha256": "620acb2a8df813df57323a64a4528cedecddf3b0bbaaf378db144e2fb575a9ac"
+      },
+      {
+        "bytes": 5713,
+        "declared_match": true,
+        "declared_sha256": "ee99ddbf9e20d87cb3c66518f333cfaf6ff4fc9fa240cedcb118c949baa0c1a0",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_full_transport_bridge.py",
+        "role": "R242 composition path",
+        "sha256": "ee99ddbf9e20d87cb3c66518f333cfaf6ff4fc9fa240cedcb118c949baa0c1a0"
+      },
+      {
+        "bytes": 11436,
+        "declared_match": true,
+        "declared_sha256": "5194d02771891123a12e22f7f4fcb3c77ef6de94bae227d9a2422631353db3bc",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+        "role": "R242 composition path",
+        "sha256": "5194d02771891123a12e22f7f4fcb3c77ef6de94bae227d9a2422631353db3bc"
+      },
+      {
+        "bytes": 54169,
+        "declared_match": true,
+        "declared_sha256": "b0b052c64dafe13bf8d1923773a6286a93b5432ec64cbcc2c5dba5ed6cb01494",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+        "role": "R242 composition path",
+        "sha256": "b0b052c64dafe13bf8d1923773a6286a93b5432ec64cbcc2c5dba5ed6cb01494"
+      },
+      {
+        "bytes": 23535,
+        "declared_match": true,
+        "declared_sha256": "85f112040796295de3d1eaa967684fa0befbc0d2a57e6f63df48a42a9f5e8d0c",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+        "role": "R242 composition path",
+        "sha256": "85f112040796295de3d1eaa967684fa0befbc0d2a57e6f63df48a42a9f5e8d0c"
+      },
+      {
+        "bytes": 8523,
+        "declared_match": true,
+        "declared_sha256": "326737c1c094e56e69c478330a4bced76578467893a8da0353f728c4cb09e63b",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_engine_y0_dispatch.py",
+        "role": "R242 composition path",
+        "sha256": "326737c1c094e56e69c478330a4bced76578467893a8da0353f728c4cb09e63b"
+      },
+      {
+        "bytes": 42026,
+        "declared_match": true,
+        "declared_sha256": "d3b0ada7b5f29f0891b9f51393e18834be21b97421f351b010047bb80e073c62",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/foundry/methods/test_catalog_snapshot.py",
+        "role": "R242 composition path",
+        "sha256": "d3b0ada7b5f29f0891b9f51393e18834be21b97421f351b010047bb80e073c62"
+      },
+      {
+        "bytes": 21533,
+        "declared_match": true,
+        "declared_sha256": "142aea505c85c4c74fc62b6a21156a8c729f00e642ca5a0a7534ad7433e25988",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/discovery/test_utility_judge.py",
+        "role": "R242 composition path",
+        "sha256": "142aea505c85c4c74fc62b6a21156a8c729f00e642ca5a0a7534ad7433e25988"
+      },
+      {
+        "bytes": 9724,
+        "declared_match": true,
+        "declared_sha256": "f97cd82e91cd6c5f9487b3dc28eeec55b4550ede902a82fa97c3266947f14427",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/governance/test_cross_graph_evidence_pass.py",
+        "role": "R242 composition path",
+        "sha256": "f97cd82e91cd6c5f9487b3dc28eeec55b4550ede902a82fa97c3266947f14427"
+      },
+      {
+        "bytes": 36658,
+        "declared_match": true,
+        "declared_sha256": "1c21cd9a1f02804f7788f04ff3e5f277e3bd3acd7ab9c59cb800ed782c748f41",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/governance/test_transportability_required_pass.py",
+        "role": "R242 composition path",
+        "sha256": "1c21cd9a1f02804f7788f04ff3e5f277e3bd3acd7ab9c59cb800ed782c748f41"
+      },
+      {
+        "bytes": 7869,
+        "declared_match": true,
+        "declared_sha256": "a903d2e27ca910f4439c2c43a3e93132b3ab955fc699fe41c9e315d62bcc2934",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+        "role": "R242 composition path",
+        "sha256": "a903d2e27ca910f4439c2c43a3e93132b3ab955fc699fe41c9e315d62bcc2934"
+      },
+      {
+        "bytes": 18941,
+        "declared_match": true,
+        "declared_sha256": "6ab136e2e98afd6e566a3a7127fcb9c8ac0fef236e039ad49892e0acadfaf3a3",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+        "role": "R242 composition path",
+        "sha256": "6ab136e2e98afd6e566a3a7127fcb9c8ac0fef236e039ad49892e0acadfaf3a3"
+      },
+      {
+        "bytes": 17094,
+        "declared_match": true,
+        "declared_sha256": "f70011b33d58c034a3cb532cd7544788de37f7b686928f9129faec9c2782ec9f",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_results.py",
+        "role": "R242 composition path",
+        "sha256": "f70011b33d58c034a3cb532cd7544788de37f7b686928f9129faec9c2782ec9f"
+      },
+      {
+        "bytes": 123206,
+        "declared_match": true,
+        "declared_sha256": "84b5176c71a899553ce74bc958912ab5fd391ce907d62ce3492a3ea3c2a1ee66",
+        "mode": "0644",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "role": "R242 composition path",
+        "sha256": "84b5176c71a899553ce74bc958912ab5fd391ce907d62ce3492a3ea3c2a1ee66"
+      },
+      {
+        "bytes": 105176,
+        "mode": "0644",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "reason": "causal.py declares ValueUncertaintyProjectionKind.CAUSAL",
+        "role": "mandatory enum companion",
+        "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+      }
+    ],
+    "total_runtime_source_checkpoint_paths": 40
+  },
+  "title": "Y0 R2–R6 source checkpoint companion-closure review",
+  "verification_run": {
+    "build_or_environment_copy": false,
+    "product_source_index_or_history_write": false,
+    "pytest_or_runtime_execution": false,
+    "read_only_git_and_hash_checks": true,
+    "reason_runtime_held": "The task was a source-closure audit under the root-owned compute hold; source availability is not a runtime-green receipt.",
+    "stdlib_ast_parse_and_import_inventory": true
+  }
+}

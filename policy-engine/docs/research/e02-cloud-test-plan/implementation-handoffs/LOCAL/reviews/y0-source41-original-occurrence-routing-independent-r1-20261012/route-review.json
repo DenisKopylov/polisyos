@@ -1,0 +1,570 @@
+{
+  "occurrence_routes": [
+    {
+      "canonical_occurrence_count_for_finding": 1,
+      "finding_id": "B31",
+      "identity": {
+        "criterion_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+        "finding_id": "B31",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/156/criterion_refs/0"
+      },
+      "inventory_row": {
+        "owner_explicit_property_field_present": true,
+        "prior_owner_candidate_evaluation": "UNRUN",
+        "prior_owner_formal_G_status": "not_adjudicated",
+        "qualification": "The inventory candidate state predates the a4aa source commit; field presence and route references are not current verification or authority.",
+        "review_bucket": 2,
+        "row_index": 38,
+        "row_sha256_canonical_json": "c69d85274bd84e823158da96aa183d4e4717d44ca3283b7ae02342dcfb7c7af5",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-criterion-complement-inventory-r1-20261012/criterion-complement-inventory.json",
+        "source_sha256": "aea2dcd60abf7974d2d2e6990df8359b268cba935ee062ecefbdf97a9b813e85"
+      },
+      "original_criterion_source_span": {
+        "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/156/criterion_refs/0",
+        "criterion_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          593,
+          606
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "prior_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket2-independent-r1-20261012/32-row-independent-review.json",
+        "qualification": "Independent row review is a pre-a4aa criterion interpretation; it is retained as proposal input, not current candidate acceptance.",
+        "sha256": "66dac818822ea9509657f797b40171069eb4cdd1474247b21b0f279dde930193"
+      },
+      "proposal": {
+        "P40_prior_review": "NEW_CLASS: producer uncertainty envelope to subject/unit value consumer; this classification is not a closure.",
+        "disposition": "limited_source_candidate; original_whole_property_not_established; formal_G_not_adjudicated",
+        "next_falsifier": "Run the real producer, persist a typed envelope/report ref bound to exact subject and unit, then recompute in the fresh A consumer; prove wrong subject/unit and content tamper refuse or change the output. Do not promote the producer-only method to a completed S3 chain.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "role": "typed native interval projection and binding",
+            "sha256": "95d2e15e73efcfca6916c61a354b5db762e98da750800309af7092bbccd575d4"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "role": "CAUSAL projection kind",
+            "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+            "role": "native interval-preserving, non-gating projection control",
+            "sha256": "8ec92e0d541ebd295eb94390703bd589b5c80c449992b9caae17d2a940a45652"
+          }
+        ],
+        "source_relation": "LIMITED candidate: causal.py adds a typed CausalEffectReport.to_value_uncertainty path that requires NativeValueEstimandBinding and a matching estimand, returns the report interval unchanged, rejects heuristic CI, and marks the result gate_eligible=false. Its new test asserts these producer-side properties. It does not supply a persisted typed uncertainty reference plus a fresh consumer that rebinds subject/unit and rejects wrong-unit, wrong-subject, and tampering; the original whole criterion remains unestablished.",
+        "whole_criterion": "Preserve native statistical uncertainty separately from identification bounds; the source criterion rejects interval compression/arbitrary width and requires subject/estimand/unit-consistent meaning."
+      },
+      "task_routes": [
+        {
+          "task_id": "S3",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+          "title": "B31 producer-owned persisted subject join"
+        },
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ]
+    },
+    {
+      "canonical_occurrence_count_for_finding": 1,
+      "finding_id": "B33",
+      "identity": {
+        "criterion_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+        "finding_id": "B33",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/158/criterion_refs/0"
+      },
+      "inventory_row": {
+        "owner_explicit_property_field_present": true,
+        "prior_owner_candidate_evaluation": "UNRUN",
+        "prior_owner_formal_G_status": "not_adjudicated",
+        "qualification": "The inventory candidate state predates the a4aa source commit; field presence and route references are not current verification or authority.",
+        "review_bucket": 0,
+        "row_index": 39,
+        "row_sha256_canonical_json": "bdb626f664e02ddbad51e7cb3906bde7bd1cee6231ea5b573a6b0cfc92c9132e",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-criterion-complement-inventory-r1-20261012/criterion-complement-inventory.json",
+        "source_sha256": "aea2dcd60abf7974d2d2e6990df8359b268cba935ee062ecefbdf97a9b813e85"
+      },
+      "original_criterion_source_span": {
+        "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/158/criterion_refs/0",
+        "criterion_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          621,
+          634
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "prior_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-complement-bucket0-independent-r1-20261012/review.json",
+        "qualification": "Independent row review is a pre-a4aa criterion interpretation; it is retained as proposal input, not current candidate acceptance.",
+        "sha256": "a96c8c44df23d60b5c66ed5ea17b381615f0a7e2b839aa04e57f3d7dcaeac126"
+      },
+      "proposal": {
+        "P40_prior_review": "NO_NEW_ESCAPE_IN_THIS_REVIEW; candidate remained UNRUN and formal closure was empty.",
+        "disposition": "held_not_established; formal_G_not_adjudicated",
+        "next_falsifier": "Supply two named models with identical variable names and marginals but different graph edges; compare the candidate diagrams/certificates and confirm missing graph structure remains a limitation.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+            "role": "Y0 graph adapter from supplied CausalGraphModel",
+            "sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+            "role": "solver dispatch over supplied SelectionDiagram",
+            "sha256": "bfff62f0800526b6c10538303102b4731af1aa2d0ab211ee362bd052d2c079bf"
+          }
+        ],
+        "source_relation": "Y0 path reuses a supplied CausalGraphModel and canonical edge extractors, while the transport engine receives a SelectionDiagram. This source checkpoint does not bind the graph to a named justified model or prove graph truth/authority, and it has no two-graph discriminator for equal variables/marginals with different edges.",
+        "whole_criterion": "A transport selection graph must come from a named justified causal model or identification plan; equal variable names/marginals with different causal edges must not receive the same certificate by template alone."
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ]
+    },
+    {
+      "canonical_occurrence_count_for_finding": 1,
+      "finding_id": "B161",
+      "identity": {
+        "criterion_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+        "finding_id": "B161",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/77/criterion_refs/0"
+      },
+      "inventory_row": {
+        "owner_explicit_property_field_present": false,
+        "prior_owner_candidate_evaluation": "UNRUN",
+        "prior_owner_formal_G_status": "not_adjudicated",
+        "qualification": "The inventory candidate state predates the a4aa source commit; field presence and route references are not current verification or authority.",
+        "review_bucket": 2,
+        "row_index": 53,
+        "row_sha256_canonical_json": "7d6c497eb99446e3abefcae443aa4a3362b6d1cb1c0e38b6d07c2fe1f4050ea8",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/checks/full-occurrence-property-gap-inventory.json",
+        "source_sha256": "f5e6d444fba5b0137b12daed281bbadd4d60fea339d572213136d68c68f1d946"
+      },
+      "original_criterion_source_span": {
+        "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/77/criterion_refs/0",
+        "criterion_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          4165,
+          4176
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "prior_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket2-independent-r1-20261012/independent-bucket2-review.json",
+        "qualification": "Independent row review is a pre-a4aa criterion interpretation; it is retained as proposal input, not current candidate acceptance.",
+        "sha256": "2402e5a81c0c8b5df98623b43e8867f00df113ad334995fa3e7247fb0700305b"
+      },
+      "proposal": {
+        "P40_prior_review": "SAME_CLASS_DEEPER was assigned to review-evidence/currentness, not to the original B161 criterion itself.",
+        "disposition": "open_not_addressed_by_this_source_slice; formal_G_not_adjudicated",
+        "next_falsifier": "Use a content-bound same-subject/value/input/rule/time pair plus a foreign-subject/value/input/rule/time control; prove only the authorized refinement supersedes while independent risk and historical evidence remain preserved.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "role": "one CAUSAL enum member; no history/refinement change",
+            "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+          }
+        ],
+        "source_relation": "Y0 adds a CAUSAL uncertainty projection kind but does not change the historical merge/refinement relation or bind same-subject/value/input/rule/time estimate provenance.",
+        "whole_criterion": "A later estimate may refine an earlier unknown only for the same authorized risk subject, value, input, rule, and time; independent risks and historical uncertainty remain distinct."
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ]
+    },
+    {
+      "canonical_occurrence_count_for_finding": 1,
+      "finding_id": "B214",
+      "identity": {
+        "criterion_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "finding_id": "B214",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/135/criterion_refs/0"
+      },
+      "inventory_row": {
+        "owner_explicit_property_field_present": false,
+        "prior_owner_candidate_evaluation": "UNRUN",
+        "prior_owner_formal_G_status": "not_adjudicated",
+        "qualification": "The inventory candidate state predates the a4aa source commit; field presence and route references are not current verification or authority.",
+        "review_bucket": 1,
+        "row_index": 106,
+        "row_sha256_canonical_json": "5b592bdbb8f39852ca318e2f14e0b9b0d72f0374d2139589bfc35a57460de143",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/checks/full-occurrence-property-gap-inventory.json",
+        "source_sha256": "f5e6d444fba5b0137b12daed281bbadd4d60fea339d572213136d68c68f1d946"
+      },
+      "original_criterion_source_span": {
+        "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/135/criterion_refs/0",
+        "criterion_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          5218,
+          5229
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "prior_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket1-independent-r1-20261012/bucket1-independent-review.json",
+        "qualification": "Independent row review is a pre-a4aa criterion interpretation; it is retained as proposal input, not current candidate acceptance.",
+        "sha256": "acbe9d3db1d0a8fe45c78f5688f695c0996c65d22cb788d1b401baad64405d4c"
+      },
+      "proposal": {
+        "P40_prior_review": "NEW_CLASS for the original B214 projection defect; do not conflate with Y0 producer/protected-pass source work.",
+        "disposition": "open_not_addressed_by_this_source_slice; formal_G_not_adjudicated",
+        "next_falsifier": "On the exact current graph projection path, exercise a native PAG with arrow-at-source/tail-at-destination and a fully undirected CPDAG triangle; verify endpoint direction is preserved and no cyclic result is relabeled DAG, then exercise a supported partial route and fresh persisted limitation.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+            "role": "Y0 graph adapter; not the graph-projection repair",
+            "sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+            "role": "Y0 identification implementation; no B214 criterion-specific receipt",
+            "sha256": "6649c8a4a6f712cd5a32bccc734969ca4b13cbcb6b5d47e6411527f86b34e411"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+            "role": "Y0 candidate path; no PAG projection criterion receipt",
+            "sha256": "805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df"
+          }
+        ],
+        "source_relation": "The Y0 adapter builds a mixed graph from canonical directed/bidirected extractors, but the 41-path readback does not include the original graph-projection implementation and the committed receipts contain no B214 reversed-edge or cyclic-triangle falsifier. Y0 source presence is not evidence that the PAG/CPDAG defect is fixed.",
+        "whole_criterion": "Normalize a known reversed PAG endpoint without reversing its meaning, and never label a cyclic CPDAG projection as DAG; partial/query-specific routes need a fresh persisted limitation."
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ]
+    },
+    {
+      "canonical_occurrence_count_for_finding": 1,
+      "finding_id": "B213",
+      "identity": {
+        "criterion_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "finding_id": "B213",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/134/criterion_refs/0"
+      },
+      "inventory_row": {
+        "owner_explicit_property_field_present": false,
+        "prior_owner_candidate_evaluation": "UNRUN",
+        "prior_owner_formal_G_status": "not_adjudicated",
+        "qualification": "The inventory candidate state predates the a4aa source commit; field presence and route references are not current verification or authority.",
+        "review_bucket": 0,
+        "row_index": 105,
+        "row_sha256_canonical_json": "2633268703837c8ad47598856f89d71d83bdcc16f5a1d15b18e83085b3446833",
+        "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/checks/full-occurrence-property-gap-inventory.json",
+        "source_sha256": "f5e6d444fba5b0137b12daed281bbadd4d60fea339d572213136d68c68f1d946"
+      },
+      "original_criterion_source_span": {
+        "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/134/criterion_refs/0",
+        "criterion_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "lines_1_based_inclusive": [
+          5206,
+          5217
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+      },
+      "prior_independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/q0-original-criterion-bucket0-independent-r1-20261012/independent-bucket0-review.json",
+        "qualification": "Independent row review is a pre-a4aa criterion interpretation; it is retained as proposal input, not current candidate acceptance.",
+        "sha256": "4e6b6ff56f6c24e7192939844d4124fb74a9e2c8cbe652a06c4a607a716254fc"
+      },
+      "proposal": {
+        "P40_prior_review": "SAME_CLASS_DEEPER pertains to source/currentness evidence; original criterion remains unrun.",
+        "disposition": "open_no_Y0_source_overlap; formal_G_not_adjudicated",
+        "next_falsifier": "Trace a requested non-default estimand through the DoWhy constructor/identify/estimate call and reject a backend-default mismatch.",
+        "source_evidence": [],
+        "source_relation": "Excluded from the Y0 source route: the 41-path source checkpoint does not include the DoWhyIdentifyEstimate adapter and no actual identify_effect/estimate_effect argument trace was run.",
+        "whole_criterion": "The requested DoWhy estimand_type must reach the actual identify/estimate operation, not remain a report-only label."
+      },
+      "task_routes": [
+        {
+          "task_id": "Q0",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0",
+          "title": "Original criterion evaluation and closure proposals for G"
+        }
+      ]
+    }
+  ],
+  "original_denominator_and_routing": {
+    "canonical_coverage": {
+      "complement_inventory": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-criterion-complement-inventory-r1-20261012/criterion-complement-inventory.json",
+        "rows": 96,
+        "sha256": "aea2dcd60abf7974d2d2e6990df8359b268cba935ee062ecefbdf97a9b813e85"
+      },
+      "denominator": {
+        "bundles": 127,
+        "canonical_source_block_occurrences": 291,
+        "findings": 282
+      },
+      "exact_counter_match_to_gap_plus_complement": true,
+      "gap_inventory": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-emitter-fixture-fix-20261012/checks/full-occurrence-property-gap-inventory.json",
+        "rows": 195,
+        "sha256": "f5e6d444fba5b0137b12daed281bbadd4d60fea339d572213136d68c68f1d946"
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "historical_ledger_and_formal_boundary": {
+      "historical_counts_from_original_coverage": {
+        "closed": 9,
+        "held": 12,
+        "open": 1,
+        "partial": 260
+      },
+      "historical_reconciliation": {
+        "B198": [
+          {
+            "closure_now": "not_adjudicated",
+            "coverage_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/117",
+            "criterion_refs": 1,
+            "ledger_status_historical": "closed"
+          }
+        ],
+        "formal_closure_ids": [],
+        "historical_ledger_status_counts": {
+          "closed": 9,
+          "held": 12,
+          "open": 1,
+          "partial": 260
+        },
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-six-independent-reviews-identity-reconciliation-r152-20261012/reconciliation.json",
+        "sha256": "2159cf9492b938e7d0a75b3af21a5ed4812b70c74d7a217a4159b8eb51ab0fcb",
+        "source_checkpoint": {
+          "candidate_freeze": false,
+          "head": "512ad7fede6fdc40e86066630fd63df5b2c11161",
+          "tree": "887ba4d0e59a604f71409a45bedd0189ca684999"
+        }
+      },
+      "qualification": "Historical status is preserved, not promoted to current closure. B198 remains historically closed/Appendix-C closed-bounded but closure_now is not_adjudicated; formal closure_ids remain empty."
+    },
+    "repeated_canonical_occurrences": {
+      "collapsed": false,
+      "excess_over_one_per_id": 9,
+      "finding_id_count": 8,
+      "items": [
+        {
+          "finding_id": "LA-015",
+          "occurrences": [
+            {
+              "criterion_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+              "finding_id": "LA-015",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/239/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+              "finding_id": "LA-015",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/239/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-016",
+          "occurrences": [
+            {
+              "criterion_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "finding_id": "LA-016",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/240/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+              "finding_id": "LA-016",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/240/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-023",
+          "occurrences": [
+            {
+              "criterion_sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+              "finding_id": "LA-023",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/247/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+              "finding_id": "LA-023",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/247/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-031",
+          "occurrences": [
+            {
+              "criterion_sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d",
+              "finding_id": "LA-031",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/255/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d",
+              "finding_id": "LA-031",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/255/criterion_refs/1"
+            },
+            {
+              "criterion_sha256": "aa39395987e7dc84917cc0256cbb835dc9d8d8248eff24583209aeac3e6cb82d",
+              "finding_id": "LA-031",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/255/criterion_refs/2"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-038",
+          "occurrences": [
+            {
+              "criterion_sha256": "461280b039d63fccfc0f8d8ea59afe77a45c24f3137e4872e0f4a3fc9d18fd47",
+              "finding_id": "LA-038",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/262/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "461280b039d63fccfc0f8d8ea59afe77a45c24f3137e4872e0f4a3fc9d18fd47",
+              "finding_id": "LA-038",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/262/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-039",
+          "occurrences": [
+            {
+              "criterion_sha256": "d4a3493dd5ebe389a5d7afc403d188aa1114ef79556ac0bba4a89b2e7d37d858",
+              "finding_id": "LA-039",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/263/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "d4a3493dd5ebe389a5d7afc403d188aa1114ef79556ac0bba4a89b2e7d37d858",
+              "finding_id": "LA-039",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/263/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-046",
+          "occurrences": [
+            {
+              "criterion_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+              "finding_id": "LA-046",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/270/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+              "finding_id": "LA-046",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/270/criterion_refs/1"
+            }
+          ]
+        },
+        {
+          "finding_id": "LA-051",
+          "occurrences": [
+            {
+              "criterion_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+              "finding_id": "LA-051",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/275/criterion_refs/0"
+            },
+            {
+              "criterion_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+              "finding_id": "LA-051",
+              "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/275/criterion_refs/1"
+            }
+          ]
+        }
+      ],
+      "occurrence_count": 17
+    },
+    "task_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    "task_inventory_denominator": {
+      "bundles": 127,
+      "criterion_occurrences": 291,
+      "findings": 282
+    },
+    "task_routes": {
+      "Q0_direct_task_unique_finding_ids": 206,
+      "Q0_is_not_the_full_282_finding_owner_set": true,
+      "all_282_routes_present": true,
+      "expanded_occurrence_route_refs": 331,
+      "note": "The q0-* review artifacts analyze the full denominator; task ownership comes from TASKS.json. Y0 is not a task ID. In particular, B31 routes to S3 and S1; B214 routes to S1.",
+      "route_assignments": 319,
+      "task_count": 26
+    }
+  },
+  "overall_disposition": {
+    "G_acceptance": "not_adjudicated",
+    "P40": "No source-path result is promoted to a whole-criterion closure. Keep B31, B33, B161, and B214 as separate original properties; do not use the Y0 label as a substitute ID or collapse their routes.",
+    "authority_and_external_predicates": "graph truth, assumptions, current data, source authenticity, and institutional authority remain not_established unless separately resolved and content-bound",
+    "bounded_original_candidate": [
+      "B31"
+    ],
+    "formal_closure_ids": [],
+    "held_or_open_original_occurrences": [
+      "B33",
+      "B161",
+      "B214",
+      "B213"
+    ],
+    "source_checkpoint": "read_back_and_bound"
+  },
+  "review_kind": "read_only_source_to_original_criterion_mapping",
+  "schema": "policyos.e02.y0_source41_original_occurrence_route_review.v1",
+  "source_checkpoint": {
+    "actual_head": "a4aa6541676c2ab19b2a348116643eecac64da58",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "a4aa6541676c2ab19b2a348116643eecac64da58",
+    "changed_path_count": 41,
+    "parent": "da83487be5a77029029baca740565227c88d92db",
+    "qualification": "This is a source-availability commit. It is not runtime-green, a per-occurrence result, or G acceptance.",
+    "readback_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-complete-source-checkpoint-r283-20261012/readback.json",
+      "sha256": "65dc65e2032d434fe76cc745628424a519cb7adb48ce4137c710ea5e7d55a576"
+    },
+    "tree": "ec61fe28f073534d3958dc3aa9af8cd2dcc522de"
+  },
+  "source_run_evidence_qualification": {
+    "R253": {
+      "reported_result": "165 passed",
+      "scope": "full composed working-tree WIP; not an isolated 41-path replay and not a per-original-criterion closure receipt"
+    },
+    "R281": {
+      "reported_result": "39 IR companion tests passed",
+      "scope": "bounded IR companion; supports the new typed native interval projection but not S3 persistence/fresh-consumer closure",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/stdout.txt",
+      "stdout_sha256": "bc10e09608aec51f514494dfed66b049fea5d0cdc16601a3994a84510999ae8d"
+    },
+    "R282": {
+      "outer_stdout_sha256": "e78443a0815914963d4270e3dfae90a5b0d5761a9d4311ea34f96f34209f1790",
+      "reported_result": "40 admission-property assertion reds plus one passing control when the shared intake is removed",
+      "scope": "shared admission removal property only; not graph truth, external data/currentness/authority, or original criterion acceptance"
+    },
+    "native_hooks": "Node native hook was SKIP; no Python/native green receipt is claimed.",
+    "source_binding": "The exact 41-path candidate source tree is committed/read back at a4aa6541676c2ab19b2a348116643eecac64da58. The run counts remain scoped to their recorded compositions and properties."
+  },
+  "title": "Y0 source41 original occurrence routing"
+}

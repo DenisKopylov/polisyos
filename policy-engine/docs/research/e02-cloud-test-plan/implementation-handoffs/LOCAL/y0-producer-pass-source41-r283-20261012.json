@@ -1,0 +1,650 @@
+{
+  "schema": "e02.local.implementation_handoff.v1",
+  "slice": "Y0 producer and shared pass admission source41",
+  "role": "author proposal; independent G acceptance/publication/adjudication required",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": "da83487be5a77029029baca740565227c88d92db",
+  "candidate": "a4aa6541676c2ab19b2a348116643eecac64da58",
+  "tree": "ec61fe28f073534d3958dc3aa9af8cd2dcc522de",
+  "parents": [
+    "da83487be5a77029029baca740565227c88d92db"
+  ],
+  "source_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-complete-source-checkpoint-r283-20261012/readback.json",
+    "sha256": "65dc65e2032d434fe76cc745628424a519cb7adb48ce4137c710ea5e7d55a576",
+    "availability": "local candidate checkout; raw outputs are ignored and retained"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-proofbundle-purpose-semantics-2026-10-12.md",
+      "base_sha256": null,
+      "candidate_sha256": "fd12ee1ae9f68a6a87c45c91e90f1888eecb48b7fcd3a2295b19e97880c01dd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-report-intake-selection-r6-2026-10-12.md",
+      "base_sha256": null,
+      "candidate_sha256": "efc3c6a27fa8becd4bf98aeaaef61ee7e08be443f1e922b4b7ce8114836992ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/y0-report-intake-selection-semantics-2026-10-12.md",
+      "base_sha256": null,
+      "candidate_sha256": "99ac47b67e30a381a877bf902afa5a59706dd9a42c0cac306c129892bdaa2625"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+      "base_sha256": null,
+      "candidate_sha256": "2eb61b14e3748addd2f6e2325fed6876f9ac0ed79a975a3c2c0c4962f2c8e02b"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-proofbundle-purpose-semantics.toml",
+      "base_sha256": null,
+      "candidate_sha256": "7c39eb6fd097b75ff8930d4c17cdf6c45332e80cbc53ba87087cff0a1acfb431"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-report-intake-selection.toml",
+      "base_sha256": null,
+      "candidate_sha256": "f24ac2d452315fd95e2b31b4d5f4f902e50beb2ec8c6da2252fbfbf6a06d547e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-y0-report-intake-whole-pass-r6.toml",
+      "base_sha256": null,
+      "candidate_sha256": "17cd3f7188d6bd702395ff995a064d379f8b296beb65661e53f1e79187b6fa0b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "base_sha256": "e43ba97f9b6341cc9732663401d4b521bb00883a27c037d9f30e38cbae2860bd",
+      "candidate_sha256": "e5549983f870c85273220bcfd0cddc8129a5de932e91b6b8513e3623b3598fb7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/capabilities.py",
+      "base_sha256": "152df14107f1142421bd928981e6c1ad344a3dc4f238deed56d791b16999ca6f",
+      "candidate_sha256": "a54da90b72bf5914c15cefd45da17fd3f20355d604d6dae7be137fd3f083c4bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+      "base_sha256": "27ccdd86f5d7968a0335d7e3bd8f175832fc3e108024810ae1276078f169e299",
+      "candidate_sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+      "base_sha256": "14d1513d463f11fe23e7ce0e7c2aefb31d74c74fc4e2ad853ff568d47a7922e6",
+      "candidate_sha256": "6649c8a4a6f712cd5a32bccc734969ca4b13cbcb6b5d47e6411527f86b34e411"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+      "base_sha256": "01c8870f44b4013318e28ab17c0b8fe6230ceccbed03ee88e2eda2b16d13beb1",
+      "candidate_sha256": "805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+      "base_sha256": "7e31b3f2c97ae1a72f1a7663f2831ccb7d99defdf6a5912dc94ce92d70d70218",
+      "candidate_sha256": "303531940bfe3bd1feb4be56eb277b686fa9eb0f55f3752d980b93849eda4be0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+      "base_sha256": "b4175a682aaa72959fa4e2675d8997d2159b74be9a768483201593fc51268129",
+      "candidate_sha256": "bfff62f0800526b6c10538303102b4731af1aa2d0ab211ee362bd052d2c079bf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/snapshot.py",
+      "base_sha256": "1a3b0d9a1e88a391f87d779419a563280f80cbefa22ef08b3f7786d0ef07ee31",
+      "candidate_sha256": "9d00bf4cdbc26b2b72e417558e6be00c01bb41b7ae809954ac2cd313eba1a223"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "base_sha256": "bbe6174c8f1bbaafa07d812ebff84d0bc3bb77db630502bd81be76f06b8d9b1c",
+      "candidate_sha256": "3e291c2eb44d9fb1ec079ad081d568d7930278943c97b98ce341973a40d06d90"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "base_sha256": "9e53ebd1332a7e6e50113e3818d21a00b212fbc64fef9fe952aba55b180907fe",
+      "candidate_sha256": "95d2e15e73efcfca6916c61a354b5db762e98da750800309af7092bbccd575d4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_capabilities.py",
+      "base_sha256": "f2307e8b0cc7ed73bfb53b630ded1fc5975541bff7485af9c44bff402de17a68",
+      "candidate_sha256": "a45a9fc24efaadbfdbdef6f3104f5b31acd0e0e14e806f82a9fdf61eed1ed741"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/README.md",
+      "base_sha256": "a86d5b6c50552ec607cf75ae273a4b854f5d0bc25ddee497c4a75f23a8ac6d29",
+      "candidate_sha256": "6dcbb6245982d88548155efb004037d88a1e4aefc24ce85e5fd829e89dab651e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/cross_graph_evidence_pass.py",
+      "base_sha256": "57d91e8b65190f6ee0c5abc386a5fae56b5cf57374be1e2e58abf2219f7b2ab9",
+      "candidate_sha256": "3c736c0c0860c4f78ba10c928873a68ddacdb3d736aa72840287658456225b41"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/passes/transportability_required_pass.py",
+      "base_sha256": "b93fa9b997b067a4dcfefbe8addcd98bc10fa93cabef74bdd36cdbfe0a8989f8",
+      "candidate_sha256": "3b842bb323a8421ea8011db4904e368a6928e484955de727785bc91c0d00352e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py",
+      "base_sha256": "18820e9f12eb97c42b2771323d8277c5cbbeb0faf995f47573fb9518338f4b32",
+      "candidate_sha256": "56ab5f335804e90082393ae428995e6af6b486791f20fd06aadda9e760ff3af2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "base_sha256": "98774c9191239663b64e81dadba4a5a216c86128c2982639af6b335862235675",
+      "candidate_sha256": "4891e191feb967af4c7080bbc61dd6eb2151a0ed5267e8e6c569b89a5414ab04"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/transport_resolution_inputs.py",
+      "base_sha256": "975bab5ade62f4344b7f16f8e32c814c7d87998974a3d34e6cadde728f2ec409",
+      "candidate_sha256": "d18572845b5f09ddf38a20b65b038add090f0ca1a96ceac7dda7904186bb7375"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+      "base_sha256": "e98372928c1f8e0e56d170473ca4d9df36222fb54f8354e8f2f789200a16453d",
+      "candidate_sha256": "f6c32805c5f3f57497fd030cfdd1ab7d1077be2213ea864dae2fb4e3255d9c53"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_y0_transportability_proof_boundary.py",
+      "base_sha256": null,
+      "candidate_sha256": "620acb2a8df813df57323a64a4528cedecddf3b0bbaaf378db144e2fb575a9ac"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_full_transport_bridge.py",
+      "base_sha256": "9a7d30348cefa974aed6cbcbf449fee4568614c8bdea2b5225558258f544d7c9",
+      "candidate_sha256": "ee99ddbf9e20d87cb3c66518f333cfaf6ff4fc9fa240cedcb118c949baa0c1a0"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_id_engine_characterization.py",
+      "base_sha256": "c492a09cf18c2f64a7e839b1726329b43f27bba601c13b97b90e1b30effec8e3",
+      "candidate_sha256": "5194d02771891123a12e22f7f4fcb3c77ef6de94bae227d9a2422631353db3bc"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+      "base_sha256": "13666857c1cc6347744520dfcaa28e6ba26b41111848b92a71fc25b07db76269",
+      "candidate_sha256": "b0b052c64dafe13bf8d1923773a6286a93b5432ec64cbcc2c5dba5ed6cb01494"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+      "base_sha256": "3b3f5cdb435329b15dee1f2ff3dae31f19c263f57ae455e0a049305fcc0924fc",
+      "candidate_sha256": "85f112040796295de3d1eaa967684fa0befbc0d2a57e6f63df48a42a9f5e8d0c"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_engine_y0_dispatch.py",
+      "base_sha256": null,
+      "candidate_sha256": "326737c1c094e56e69c478330a4bced76578467893a8da0353f728c4cb09e63b"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_catalog_snapshot.py",
+      "base_sha256": "181181080f17d312a1ee4015b86ed3f8f188313d2e8d56eabd81600b94bfddd5",
+      "candidate_sha256": "d3b0ada7b5f29f0891b9f51393e18834be21b97421f351b010047bb80e073c62"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/discovery/test_utility_judge.py",
+      "base_sha256": "0923586b9427fc265fad38590ef828072679f28dad96482fb8f8de6a0a6936f0",
+      "candidate_sha256": "142aea505c85c4c74fc62b6a21156a8c729f00e642ca5a0a7534ad7433e25988"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_cross_graph_evidence_pass.py",
+      "base_sha256": "70366c858b1a2d5b172b5c9612047fed356a9c18e1d6b36540c18e653bf7ee12",
+      "candidate_sha256": "f97cd82e91cd6c5f9487b3dc28eeec55b4550ede902a82fa97c3266947f14427"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_transportability_required_pass.py",
+      "base_sha256": "fa7b1823d059ddbd7770d1f49dab715b067db50a6974d8c6f1325446b814b380",
+      "candidate_sha256": "1c21cd9a1f02804f7788f04ff3e5f277e3bd3acd7ab9c59cb800ed782c748f41"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+      "base_sha256": "4454789c6ed1515bfda699e3febe0b477c6a26ca983b957d977779c4326d4b4f",
+      "candidate_sha256": "a903d2e27ca910f4439c2c43a3e93132b3ab955fc699fe41c9e315d62bcc2934"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+      "base_sha256": "63e19d8ac2d4fc4bc8190d92b77aeee816947e1a97d12bbc310d7278f2dab7ec",
+      "candidate_sha256": "6ab136e2e98afd6e566a3a7127fcb9c8ac0fef236e039ad49892e0acadfaf3a3"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_results.py",
+      "base_sha256": "6c3d3001e3f62969b0ba7c559cbb3d6ad7ef2dc904907b2dde725f7b61d1c95c",
+      "candidate_sha256": "f70011b33d58c034a3cb532cd7544788de37f7b686928f9129faec9c2782ec9f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "base_sha256": "2a0dc58fc9c2b0780045e4498c4e6734b68c580c5861876d39bbb70eb0a9f612",
+      "candidate_sha256": "84b5176c71a899553ce74bc958912ab5fd391ce907d62ce3492a3ea3c2a1ee66"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "base_sha256": "a550ae6d9523930c3b03cbc1a722f6eb50bcbc7739b1c1d046319ca1b8ab0526",
+      "candidate_sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+      "base_sha256": "d65d78ff8e137261e67594dc05c2875e0e0e778c82abea3b05fcddbd86f5e224",
+      "candidate_sha256": "8ec92e0d541ebd295eb94390703bd589b5c80c449992b9caae17d2a940a45652"
+    }
+  ],
+  "source_boundary": "39 composed runtime/test/doc paths plus mandatory CAUSAL enum and IR test; C05 and other root WIP remain outside this source checkpoint.",
+  "selected_input_profile_backend": {
+    "input": "controlled graph/report/proof/CAS fixtures only; no production payload opened by this slice",
+    "python": "local project Python 3.14.3",
+    "backend": "selected existing native/Y0 controlled producer paths; actual argv and environment in source captures",
+    "authority": "candidate_only; no graph truth, causal assumptions, source currentness, calibration or institutional authority inferred"
+  },
+  "real_chain": [
+    "supplied controlled graph/query -> actual selected causal producer -> typed candidate report/proof",
+    "content-bound report/proof CAS refs -> shared transportability pass evidence resolver",
+    "profile/report reconciliation -> pass issue/status -> decision packet/discovery consumer",
+    "native uncertainty projection preserves report interval and remains gate_eligible=false"
+  ],
+  "source_bound_checks": [
+    {
+      "role": "composed Y0 producer/bridge controlled fixtures; 165 PASS",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-actual-producer-proof-cas-r253-20261012/command.json",
+        "sha256": "833ad3def41e1b6b6851d6ddaa6be071477f9ec1d07ebdef15870f4fc3f4a1e6",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=240.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_engine_y0_dispatch.py",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check.py",
+        "tests/unit/foundry/methods/catalog/causal/test_full_transport_bridge.py",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+        "tests/integration/scientist/test_y0_transportability_proof_boundary.py",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-actual-producer-proof-cas-r253-20261012/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-actual-producer-proof-cas-r253-20261012/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "source_capture_head": "da83487be5a77029029baca740565227c88d92db",
+      "selected_environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 10.011739042005502,
+      "source_input_count": 6188,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-actual-producer-proof-cas-r253-20261012/stdout.txt",
+        "sha256": "83971c1ac7a380896814deb4ab6098dff2523bc6b91e6369c215b81aa50dd314",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-actual-producer-proof-cas-r253-20261012/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "source_qualification": "Captured complete then-current WIP/config frame; not an isolated replay of only this 41-path Git tree."
+    },
+    {
+      "role": "IR CAUSAL non-gating/native interval companion; 39 PASS",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/command.json",
+        "sha256": "ba4c77f6fedeec8a9e1a5aa23aa3c94d6e7595a06c6a09c5000f87b2097b1135",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=90.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--maxfail=1",
+        "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "source_capture_head": "da83487be5a77029029baca740565227c88d92db",
+      "selected_environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "POLISYOS_RUN_INTEGRATION": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 4.119671707972884,
+      "source_input_count": 6189,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/stdout.txt",
+        "sha256": "bc10e09608aec51f514494dfed66b049fea5d0cdc16601a3994a84510999ae8d",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-causal-projection-companion-r281-20261012/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "source_qualification": "Captured complete then-current WIP/config frame; not an isolated replay of only this 41-path Git tree."
+    },
+    {
+      "role": "shared admission removal; 40 qualified assertion failures and 1 passing control",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/command.json",
+        "sha256": "b9d0e323fc0e1ad828275599f590fbd61175461adff557b6ca01de795b9adedf",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-whole-pass-admission-author-r6-20261012/r6_admission_removal_probe_r4.py",
+        "--execute",
+        "--source-capture-command",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/command.json",
+        "--output-dir",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "source_capture_head": "da83487be5a77029029baca740565227c88d92db",
+      "selected_environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "OPENBLAS_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_MAX_THREADS": "1"
+      },
+      "exit_code": 0,
+      "wall_seconds": 4.383583375019953,
+      "source_input_count": 6194,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/stdout.txt",
+        "sha256": "e78443a0815914963d4270e3dfae90a5b0d5761a9d4311ea34f96f34209f1790",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      "source_qualification": "Captured complete then-current WIP/config frame; not an isolated replay of only this 41-path Git tree."
+    }
+  ],
+  "adversarial_removal_controls": {
+    "property": "Removing the shared intake while retaining source/markers must break selected semantic rejection tests.",
+    "observed": "40 call AssertionError failures at source-derived post-validate assertions; 1 passing explicit-false control; each invokes removed owner exactly once; all setup/teardown pass; actual resolver restored; 6194 captured paths unchanged.",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/pytest-command.json",
+        "sha256": "d7a954b48ac1a52586f1c48be40566a6152d6f76c6abad4d7e2f654a821d73c3",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/pytest.stdout.txt",
+        "sha256": "0084f93edac4bdfb9ee5528ceb7b8b90ac22e3f744bc784d3fe475afa4e39a1a",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/junit.xml",
+        "sha256": "f8ca94c020b09baec6908bc20540ee41040e9cd4b24dd6f3c0faaa4fcf6cc944",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/r4-plugin-receipt.json",
+        "sha256": "0dfa9bdd4a6cb054018bf18c75b7d567eb3021721112fff19a2f4ff780cb341f",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/y0-r6-admission-removal-capture-r282-20261012/r4-pytest/summary.json",
+        "sha256": "105c866b72e6d55f588924ec264e6bf7a936a64c8a8d09abd232f1c91536cb42",
+        "availability": "local candidate checkout; raw outputs are ignored and retained"
+      }
+    ]
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/y0-source-checkpoint-companion-closure-r1-20261012.json",
+      "sha256": "4271b6c6d737d8e138c2dd5c87c305545dffd4aeacf5ade9a4620d5129ae5782",
+      "availability": "local candidate checkout; raw outputs are ignored and retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/y0-source41-original-occurrence-routing-independent-r1-20261012/route-review.json",
+      "sha256": "449672f05537b4047df316e57a8298d708e952dcfb93666e5cfc2ef822ab38bc",
+      "availability": "local candidate checkout; raw outputs are ignored and retained"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/y0-r6-admission-removal-independent-review-r4-20261012.json",
+      "sha256": "ecbdd15027388ee38e2ee1ac6522c3d7be0664c4dafd089a69dfc5b790778560",
+      "availability": "local candidate checkout; raw outputs are ignored and retained"
+    }
+  ],
+  "consumer_surface": {
+    "runtime": "pass/decision packet/discovery and non-gating uncertainty projection",
+    "API_release": "not accepted; selected release fragments retain public_surface_inventory_reviewed=false",
+    "installed_browser": "UNRUN for final composed candidate"
+  },
+  "gate_status": {
+    "focused_runtime": "PASS within named captured boundaries",
+    "removal": "PASS expected red; inner pytest exit 1 intentionally",
+    "native_repo_22_rows": "UNRUN on this final slice; no native-green claim",
+    "source_commit_hooks": "frontend hook tasks SKIP; no Python native gate receipt",
+    "canonical_regeneration_and_drift": "UNRUN final composition",
+    "installed_wheel_rebuilt_sdist": "UNRUN final composition",
+    "authentic_graph_input_authority": "not_established"
+  },
+  "limitations": [
+    "The 165/39/probe outputs bind complete WIP/config frames at da834, not an isolated installed source41 consumer.",
+    "B31 whole subject/unit/persisted-ref/fresh consumer property is not established by producer projection.",
+    "B33 graph/model authority and its two-graph discriminator remain unestablished.",
+    "B161 refinement/history property is outside this source change.",
+    "B214 partial-graph projection defect remains open and is assigned an internal repair; all-completions identification is not claimed.",
+    "B213 DoWhy adapter is excluded from this slice, not from the E02 task.",
+    "P41 inherited-red is not established here; no debt is waived or exception expiry renewed."
+  ],
+  "finding_proposals": [
+    {
+      "finding_id": "B31",
+      "identity": {
+        "criterion_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+        "finding_id": "B31",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/156/criterion_refs/0"
+      },
+      "task_routes": [
+        {
+          "task_id": "S3",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S3",
+          "title": "B31 producer-owned persisted subject join"
+        },
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ],
+      "proposal": {
+        "P40_prior_review": "NEW_CLASS: producer uncertainty envelope to subject/unit value consumer; this classification is not a closure.",
+        "disposition": "limited_source_candidate; original_whole_property_not_established; formal_G_not_adjudicated",
+        "next_falsifier": "Run the real producer, persist a typed envelope/report ref bound to exact subject and unit, then recompute in the fresh A consumer; prove wrong subject/unit and content tamper refuse or change the output. Do not promote the producer-only method to a completed S3 chain.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+            "role": "typed native interval projection and binding",
+            "sha256": "95d2e15e73efcfca6916c61a354b5db762e98da750800309af7092bbccd575d4"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "role": "CAUSAL projection kind",
+            "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+          },
+          {
+            "path": "policy-engine/tests/unit/ir/analytics/test_causal_identification_candidate.py",
+            "role": "native interval-preserving, non-gating projection control",
+            "sha256": "8ec92e0d541ebd295eb94390703bd589b5c80c449992b9caae17d2a940a45652"
+          }
+        ],
+        "source_relation": "LIMITED candidate: causal.py adds a typed CausalEffectReport.to_value_uncertainty path that requires NativeValueEstimandBinding and a matching estimand, returns the report interval unchanged, rejects heuristic CI, and marks the result gate_eligible=false. Its new test asserts these producer-side properties. It does not supply a persisted typed uncertainty reference plus a fresh consumer that rebinds subject/unit and rejects wrong-unit, wrong-subject, and tampering; the original whole criterion remains unestablished.",
+        "whole_criterion": "Preserve native statistical uncertainty separately from identification bounds; the source criterion rejects interval compression/arbitrary width and requires subject/estimand/unit-consistent meaning."
+      }
+    },
+    {
+      "finding_id": "B33",
+      "identity": {
+        "criterion_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+        "finding_id": "B33",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/158/criterion_refs/0"
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ],
+      "proposal": {
+        "P40_prior_review": "NO_NEW_ESCAPE_IN_THIS_REVIEW; candidate remained UNRUN and formal closure was empty.",
+        "disposition": "held_not_established; formal_G_not_adjudicated",
+        "next_falsifier": "Supply two named models with identical variable names and marginals but different graph edges; compare the candidate diagrams/certificates and confirm missing graph structure remains a limitation.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+            "role": "Y0 graph adapter from supplied CausalGraphModel",
+            "sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+            "role": "solver dispatch over supplied SelectionDiagram",
+            "sha256": "bfff62f0800526b6c10538303102b4731af1aa2d0ab211ee362bd052d2c079bf"
+          }
+        ],
+        "source_relation": "Y0 path reuses a supplied CausalGraphModel and canonical edge extractors, while the transport engine receives a SelectionDiagram. This source checkpoint does not bind the graph to a named justified model or prove graph truth/authority, and it has no two-graph discriminator for equal variables/marginals with different edges.",
+        "whole_criterion": "A transport selection graph must come from a named justified causal model or identification plan; equal variable names/marginals with different causal edges must not receive the same certificate by template alone."
+      }
+    },
+    {
+      "finding_id": "B161",
+      "identity": {
+        "criterion_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+        "finding_id": "B161",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/77/criterion_refs/0"
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ],
+      "proposal": {
+        "P40_prior_review": "SAME_CLASS_DEEPER was assigned to review-evidence/currentness, not to the original B161 criterion itself.",
+        "disposition": "open_not_addressed_by_this_source_slice; formal_G_not_adjudicated",
+        "next_falsifier": "Use a content-bound same-subject/value/input/rule/time pair plus a foreign-subject/value/input/rule/time control; prove only the authorized refinement supersedes while independent risk and historical evidence remain preserved.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+            "role": "one CAUSAL enum member; no history/refinement change",
+            "sha256": "254e50c027eb172fa4ff080e418a907301607187bab2e146e86dae844ed3538e"
+          }
+        ],
+        "source_relation": "Y0 adds a CAUSAL uncertainty projection kind but does not change the historical merge/refinement relation or bind same-subject/value/input/rule/time estimate provenance.",
+        "whole_criterion": "A later estimate may refine an earlier unknown only for the same authorized risk subject, value, input, rule, and time; independent risks and historical uncertainty remain distinct."
+      }
+    },
+    {
+      "finding_id": "B214",
+      "identity": {
+        "criterion_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+        "finding_id": "B214",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/135/criterion_refs/0"
+      },
+      "task_routes": [
+        {
+          "task_id": "S1",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/S1",
+          "title": "Subject/refinement/query-specific partial graph decisions"
+        }
+      ],
+      "proposal": {
+        "P40_prior_review": "NEW_CLASS for the original B214 projection defect; do not conflate with Y0 producer/protected-pass source work.",
+        "disposition": "open_not_addressed_by_this_source_slice; formal_G_not_adjudicated",
+        "next_falsifier": "On the exact current graph projection path, exercise a native PAG with arrow-at-source/tail-at-destination and a fully undirected CPDAG triangle; verify endpoint direction is preserved and no cyclic result is relabeled DAG, then exercise a supported partial route and fresh persisted limitation.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/full_transport_bridge.py",
+            "role": "Y0 graph adapter; not the graph-projection repair",
+            "sha256": "5987944aeccf063be2a9f1f4cfc11b63c2e0241267a14f87d4b940a65eb5103c"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+            "role": "Y0 identification implementation; no B214 criterion-specific receipt",
+            "sha256": "6649c8a4a6f712cd5a32bccc734969ca4b13cbcb6b5d47e6411527f86b34e411"
+          },
+          {
+            "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/symbolic_identify.py",
+            "role": "Y0 candidate path; no PAG projection criterion receipt",
+            "sha256": "805f7aa62415d5404e7fa1161efd4c18389203b08f3b4e5345dd285469cfa7df"
+          }
+        ],
+        "source_relation": "The Y0 adapter builds a mixed graph from canonical directed/bidirected extractors, but the 41-path readback does not include the original graph-projection implementation and the committed receipts contain no B214 reversed-edge or cyclic-triangle falsifier. Y0 source presence is not evidence that the PAG/CPDAG defect is fixed.",
+        "whole_criterion": "Normalize a known reversed PAG endpoint without reversing its meaning, and never label a cyclic CPDAG projection as DAG; partial/query-specific routes need a fresh persisted limitation."
+      }
+    },
+    {
+      "finding_id": "B213",
+      "identity": {
+        "criterion_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "finding_id": "B213",
+        "occurrence_pointer": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/134/criterion_refs/0"
+      },
+      "task_routes": [
+        {
+          "task_id": "Q0",
+          "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q0",
+          "title": "Original criterion evaluation and closure proposals for G"
+        }
+      ],
+      "proposal": {
+        "P40_prior_review": "SAME_CLASS_DEEPER pertains to source/currentness evidence; original criterion remains unrun.",
+        "disposition": "open_no_Y0_source_overlap; formal_G_not_adjudicated",
+        "next_falsifier": "Trace a requested non-default estimand through the DoWhy constructor/identify/estimate call and reject a backend-default mismatch.",
+        "source_evidence": [],
+        "source_relation": "Excluded from the Y0 source route: the 41-path source checkpoint does not include the DoWhyIdentifyEstimate adapter and no actual identify_effect/estimate_effect argument trace was run.",
+        "whole_criterion": "The requested DoWhy estimand_type must reach the actual identify/estimate operation, not remain a report-only label."
+      }
+    }
+  ],
+  "historical_boundary": {
+    "preserved": "Historical ledger/decisions, including B198 and all repeated canonical occurrence identities, remain unchanged.",
+    "routing_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/y0-source41-original-occurrence-routing-independent-r1-20261012/route-review.json",
+      "sha256": "449672f05537b4047df316e57a8298d708e952dcfb93666e5cfc2ef822ab38bc",
+      "availability": "local candidate checkout; raw outputs are ignored and retained"
+    }
+  },
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "formal_G_adjudication": "not_adjudicated",
+  "next_check": "Finish blocking composition repairs; select immutable input/backend/profile freeze; regenerate/check/corrupt-field controls; one full composed/native/installed/browser/authentic wave; G independently accepts source and findings."
+}

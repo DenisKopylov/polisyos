@@ -1,0 +1,107 @@
+{
+  "title": "Y0 R6 admission-removal probe R4 — independent delta review",
+  "schema_version": 1,
+  "disposition": "GO_BOUNDED_FOR_ONE_PARENT_CAPTURED_EXECUTION",
+  "formal_closure_ids": [],
+  "p40_classification": "SAME_CLASS_DEEPER",
+  "p38_property": "For each selected node call-phase failure, exception class identity must come from the live pytest CallInfo, not the rendered longrepr message.",
+  "inputs": {
+    "head": "da83487be5a77029029baca740565227c88d92db",
+    "tree": "61f59cc11291f88b79090e322ed229109cadd370",
+    "r4_driver_sha256": "3ae4a3a1e98a4452c31dbbda2eb3d95667dc085acd945a34a7e0c127aa9493e7",
+    "r4_source_inputs_sha256": "bd3aa78c88a7f550a790efa156a7215e3cab31198b89d7f3ea8cbdbc1ba83275",
+    "r4_manifest_sha256": "30eb62170816b01e4591e84fc350f1d8fc250401a9ddfbcc611a3f1931e81596",
+    "r4_runbook_sha256": "6a9e11fbe2a39a7f91689d8f25cc3f4d5ec49856729349e9055851f75312df47",
+    "r4_lifecycle_checker_sha256": "8df26dd5b1f1c0f5ec59f7efe7b1452a37385e99bf1a4591b4950d98a69ba494",
+    "r4_lifecycle_output_sha256": "5aa357c5b52d7291e9849b1205cf6e6be683894596338740ef049398746aef74",
+    "r4_static_plan_sha256": "1194316fbe96b9c42ed0f6ac4243ed5b64e7ea3707d4757cfe6702be10792642",
+    "r3_driver_sha256": "07559de15825ab358c53605b965f2f4c7e87bb3f4c62ae1df36fa9dd5b88a1ed",
+    "r3_review_sha256": "a2dfce59f022d8386f338e0ea69a65c14f337f2bc730eeb3e2e8ebfe364bbdc7",
+    "r277_plugin_receipt_sha256": "39fd488eafbd20ef332ba9fb1d84262d3daed24ba2eeb7a7e2c3fe7b67bb1fbc",
+    "r277_junit_sha256": "d8f974b34c117a6cb8f410685ec1ca1dd181f26318927011fbe3b13ba3308d03",
+    "r277_outer_capture_sha256": "b1dcfeec9a67b9f73d9e4c57405a4ba180ffb8ad4da72a69c9019b6e2b8e9820",
+    "pass_sha256": "3b842bb323a8421ea8011db4904e368a6928e484955de727785bc91c0d00352e",
+    "selected_test_sha256": "1c21cd9a1f02804f7788f04ff3e5f277e3bd3acd7ab9c59cb800ed782c748f41"
+  },
+  "r277_actual_observation": {
+    "selected_nodes": 41,
+    "failed_call_phases": 40,
+    "passed_call_phases": 1,
+    "passed_setup_phases": 41,
+    "passed_teardown_phases": 41,
+    "shared_owner_calls_per_node": 1,
+    "resolver_restored": true,
+    "source_identity_preserved": true,
+    "captured_python_path_count": 6194,
+    "r3_qualifying_red_nodes": 0,
+    "r3_parser_sample": "assert 0 == 1",
+    "interpretation": "R3 classifier proxy failure; R277 did not establish absence of the removal signal"
+  },
+  "reviewed_mechanism": {
+    "live_capture_hook": "pytest_runtest_makereport(item, call) reads call.excinfo.type",
+    "capture_is_keyed_by": ["nodeid", "phase"],
+    "hook_returns_non_none": false,
+    "classifier_uses_live_capture_provenance": true,
+    "classifier_requires_valid_exception_class": true,
+    "classifier_uses_assertion_subclass_relationship": true,
+    "classifier_requires_ast_post_validate_line": true,
+    "classifier_requires_one_shared_owner_call": true,
+    "classifier_requires_complete_phase_outcomes": true,
+    "control_requires_owner_call_and_all_passed_phases": true
+  },
+  "pytest_hook_boundary": {
+    "hookspec_firstresult": true,
+    "runner_calls_makereport_before_logreport": true,
+    "observer_returns_none_then_core_report_producer_continues": true,
+    "plugin_autoload_disabled": true,
+    "py_test_plugins_env_empty": true,
+    "active_project_conftest_and_explicit_plugins_have_no_competing_makereport": true,
+    "basis_paths": [
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/hookspec.py:791",
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py:244",
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:306",
+      "policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py:93",
+      "policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py:450"
+    ],
+    "source_sha256": {
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/hookspec.py": "bb1c4432b56a49fe4fe327308fb4c454e7df55666d1708548cdd392c5102ffc1",
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/runner.py": "8d784b2b3e23b05f4c4edd3f5263eb11964e86b6e16d2c814c5fcb2125dc4ea4",
+      "policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py": "ff967dc8cbd4baeaa10b2e370f638ead045306b13926b06d06eb778c3f81e1ea",
+      "policy-engine/.venv/lib/python3.14/site-packages/pluggy/_callers.py": "804665946692615b2c676526a4d7e6602d1b755821da361b0057982afb913236",
+      "policy-engine/.venv/lib/python3.14/site-packages/pluggy/_hooks.py": "13a7f79d8708e9d6c4b8ed069b2eb5a3380653fe7dfdeebd902d3c6b4e8406ea"
+    },
+    "r277_python_executable": "policy-engine/.venv/bin/python"
+  },
+  "static_discriminator": {
+    "status": "PASS in retained author receipt; not rerun by reviewer",
+    "pytest_or_product_imports": false,
+    "actual_pytest_execution": false,
+    "two_renderings_of_assertionerror_both_qualify": true,
+    "assertion_subclass_qualifies": true,
+    "forged_assertionerror_text_on_valueerror_rejected": true,
+    "invalid_type_rejected": true,
+    "prevalidation_line_rejected": true,
+    "owner_absence_rejected": true,
+    "missing_call_capture_rejected": true,
+    "setup_only_failure_rejected": true,
+    "explicit_false_control_passes": true
+  },
+  "source_capture": {
+    "roots": ["src", "tests", "tools"],
+    "config_count": 5,
+    "helper_and_input_count": 5,
+    "path_count_plan_time_only": 6194,
+    "runtime_path_count_cutoff": false,
+    "r242_changed_paths_verified": 39,
+    "additional_bounded_inputs_verified": 9
+  },
+  "nonblocking_record_note": "R4 runbook writes R40 where P40 is intended; manifest p40_bucket is correct.",
+  "runtime_outcome": "not_established; one fresh parent-owned captured R4 run remains required",
+  "runtime_tests_run_by_reviewer": false,
+  "limitations": [
+    "The lifecycle discriminator exercises AST-extracted hooks with explicit stubs, not actual pytest dispatch or product source.",
+    "The parent must inspect the fresh full outer capture and every per-node phase receipt.",
+    "The source capture records selected environment overrides, not all inherited environment variables.",
+    "Passing this bounded falsifier would not establish Y0 identification, producer/CAS integration, graph truth, evidence authority/currentness, proof truth, publication eligibility, or institutional authority."
+  ]
+}

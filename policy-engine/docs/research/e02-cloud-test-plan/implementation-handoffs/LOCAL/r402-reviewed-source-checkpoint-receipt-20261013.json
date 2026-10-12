@@ -1,0 +1,347 @@
+{
+  "schema": "polisyos.e02.local_author_source_handoff.v1",
+  "slice": "r402-reviewed-source-preservation-20261013",
+  "authority": "author proposal only; independent code acceptance, integration publication and formal finding adjudication remain G",
+  "slice_base": "9dd15d1c1bc89d189a5c53c47e816ce48ab5b352",
+  "slice_base_tree": "1955e110ad48276702acbcc061761268d3e41d50",
+  "candidate": "42090696637ba7e11a7771ba634422570b69eff9",
+  "candidate_tree": "05243f1e2c06d619824aac4438555434ed4c93d2",
+  "candidate_parents": [
+    "9dd15d1c1bc89d189a5c53c47e816ce48ab5b352"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "publication": "local candidate commit only; own-topic push withheld until actual full dashboard typecheck passes",
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "full_footprint": {
+    "code_paths": [
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+      "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/contracts.py",
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+      "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "policy-engine/src/polisyos/fabric/retrieval/service.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/constraint_discovery.py",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+      "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/job_scope_admission.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/workspace_loop_transition.py",
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/src/polisyos/runtime/quality/authority.py",
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/discovery/README.md",
+      "policy-engine/src/polisyos/scientist/methods/discovery/priors.py",
+      "policy-engine/src/polisyos/scientist/methods/discovery/schema.py",
+      "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py"
+    ],
+    "test_paths": [
+      "policy-engine/tests/_helpers/measurement_execution_binding.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_engine_y0_dispatch.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/survey/test_demographic_consistency.py",
+      "policy-engine/tests/unit/ir/test_transportability_contract.py",
+      "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+      "policy-engine/tests/unit/runtime/http/test_workspace_loop_transition.py",
+      "policy-engine/tests/unit/runtime/quality/test_authority.py",
+      "policy-engine/tests/unit/runtime/quality/test_catalog_source_selection.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "policy-engine/tests/unit/runtime/quality/test_workspace_loop.py",
+      "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "policy-engine/tests/unit/scientist/discovery/test_priors.py",
+      "policy-engine/tests/unit/scientist/discovery/test_schema.py",
+      "policy-engine/tests/unit/scientist/discovery/test_utility_judge.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py"
+    ],
+    "configuration_documentation_release_tooling_companions": [
+      "policy-engine/architecture/gates/repository_sota.toml",
+      "policy-engine/docs/reference/ir/analytics.md",
+      "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/v5-configured-search-gp-plateau-oracle-r13-20261012.md",
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-v5-search-methodjob-cas.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-c05-measurement-root-admission-scope.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-v5-configured-search-gp-fit-basis.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-repository-sota-registry-dispatch.toml",
+      "policy-engine/schemas/runtime_quality/evidence_authority_envelope_v1.schema.json",
+      "policy-engine/tools/devx/workspace/README.md",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py"
+    ],
+    "complete_postimages_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-preservation-checkpoint-r402-20261013/source-footprint-before-commit.json",
+      "sha256": "9222841ccb3e29da289619f8f10d6ea75f4329f7f738e314f5e1338d801b5421",
+      "bytes": 20571,
+      "availability": "local retained; raw is ignored"
+    },
+    "branch_readback_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-preservation-checkpoint-r402-20261013/branch-readback.json",
+      "sha256": "64b030a9d2fb5e36bebc1fff43c1a0101cd671f3bf8a49795366928095d5c798",
+      "bytes": 16081,
+      "availability": "local retained; raw is ignored"
+    },
+    "path_count": 81
+  },
+  "complete_source_binding": {
+    "R398_input_denominator": 6202,
+    "committed_candidate_matches": 6200,
+    "committed_mismatches": 0,
+    "two_uncommitted_harness_inputs_declared": true,
+    "complete_input_branch_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-preservation-checkpoint-r402-20261013/r398-complete-input-branch-readback.json",
+      "sha256": "409cc862bea91c93556a06dd01814aad8c826567457e42fadeee6a7942d1a8d3",
+      "bytes": 778,
+      "availability": "local retained; raw is ignored"
+    },
+    "harness": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02_progress_failure_r395_20261013.py",
+        "sha256": "fb518a18c00c5941d98d1c783531bd9efac8ff8711a825b96096b5d1f27189a9",
+        "bytes": 1490,
+        "availability": "local retained; raw is ignored"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5_single_thread_pytest_r315_20261012.py",
+        "sha256": "01c495d29c9dc230faa7fe2b495d9d0dc76c8761cd030148f439af41a6a2dcbc",
+        "bytes": 789,
+        "availability": "local retained; raw is ignored"
+      }
+    ]
+  },
+  "source_bound_deciding_command": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-c",
+      "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=480.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--maxfail=1",
+      "-p",
+      "v5_single_thread_pytest_r315_20261012",
+      "-p",
+      "e02_progress_failure_r395_20261013",
+      "-o",
+      "faulthandler_timeout=120",
+      "--maxfail=0",
+      "--durations=10",
+      "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+      "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+      "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+      "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+      "tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py",
+      "tests/unit/foundry/methods/catalog/causal/test_pag_completion.py",
+      "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+      "tests/unit/ir/test_causal_discovery_contract.py",
+      "tests/unit/ir/test_causal_graph_cache_rows.py",
+      "tests/unit/ir/test_transportability_contract.py",
+      "tests/unit/remediation/test_grf_03.py",
+      "tests/unit/scientist/discovery/test_active.py",
+      "tests/unit/scientist/discovery/test_schema.py",
+      "tests/unit/scientist/discovery/test_stability.py",
+      "tests/unit/scientist/discovery/test_utility_judge.py",
+      "tests/unit/scientist/mirror_contracts/test_latent_producers.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_run_discovery_blueprint_runtime.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/compute/test_runner_polyglot.py",
+      "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
+      "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/junit.xml"
+    ],
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.:docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "SCIENTIST_TORCH_DEVICE": "cpu",
+      "POLISYOS_RUN_NATIVE_GP_HEAVY": "1",
+      "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+      "E02_PROGRESS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/progress.jsonl"
+    },
+    "source_before_after_equal": true,
+    "source_snapshot_command_and_output_hashes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/command.json",
+      "sha256": "74be8ada5922519da9071c143b3df84f684ed7a849c645e510a79d8f154417a1",
+      "bytes": 2698271,
+      "availability": "local retained; raw is ignored"
+    },
+    "full_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/stdout.txt",
+      "sha256": "049c6c032a6564e7d84faf45fcde50aeb98d4e18b7f8031cecac5a5001f8da80",
+      "bytes": 272878,
+      "availability": "local retained; raw is ignored"
+    },
+    "full_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "availability": "local retained; raw is ignored"
+    },
+    "complete_per_node_deciding_outputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/progress.jsonl",
+      "sha256": "f3c41cbd89ab25cf6e2a5ad57369df52666550811d7fcf841cca7ccf6d1cfec2",
+      "bytes": 2724842,
+      "availability": "local retained; raw is ignored"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/junit.xml",
+      "sha256": "1377cfe2c00854c0871d2ce465365d203cc6ef84aa702de3f3ce98370a043fa5",
+      "bytes": 610700,
+      "availability": "local retained; raw is ignored"
+    },
+    "module_outcomes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b214-b61-v5-sota-actual-composed-wave-r398-20261013/module-outcomes.json",
+      "sha256": "8417c0da5ef45f902de04b093637409aca0a7a5a1c83fda6492e7069768fe539",
+      "bytes": 7156,
+      "availability": "local retained; raw is ignored"
+    },
+    "exit_code": 1,
+    "wall_seconds": 71.6563706669258,
+    "result": {
+      "total": 1692,
+      "pass": 1650,
+      "fail": 35,
+      "error": 7,
+      "skip": 0
+    }
+  },
+  "selected_profile_input_backend": {
+    "backend": "native CPU Torch/BoTorch/GPyTorch and existing source producers; exact numerical settings in command environment",
+    "input": "controlled source-bound synthetic inputs and existing canonical fixtures; not production workload/calibration",
+    "profile": "separately graded canonical graph/profile readers and actual configured Search/GP receiver; no blanket backend claim"
+  },
+  "real_chain": {
+    "V5": "configured Search work packets -> real MethodJob receiver/native producer -> persisted MethodResults/history -> exact earlier-three result refs -> fitted GP -> acquired fourth evaluation -> Search/funnel consumer",
+    "V5_focused_result": "all four selected consumer modules: 60 PASS, 0 FAIL/ERROR/SKIP",
+    "C05": "selected material-scope suppliers, lease/admission/lifecycle and fresh receipt readers present in source; complete later composed runtime verification remains required",
+    "B214": "canonical writer/intake/profile/receiver companions present, immutable bounded intake and negative controls included; R398 actual consumer failures are retained",
+    "B61": "journaled state/source/branch/CAS contracts present; actual R398 three state/Blueprint failures are retained"
+  },
+  "adversarial_removal_controls": {
+    "status": "negative controls exercised where recorded in complete per-node outputs; full marker-preserving native removal waves remain pending",
+    "controls": [
+      "V5 inactive clipping plateau versus actual active clipping effect; exact persisted fit basis and distinct result refs",
+      "B214 actual selected graph bytes/profile corruption and canonical writer/reader refusal controls",
+      "B61 source immutability, nested COW and canonical journal replay mutation controls",
+      "SOTA required registry identity/command/route omission and invalid dispatch tests; actual native child execution remains separate"
+    ]
+  },
+  "consumer_surfaces": [
+    "actual Search/MethodJob/GP history/funnel consumers",
+    "canonical graph/profile readers and symbolic identification consumers",
+    "experiment-state branch, Blueprint and executor cache consumers",
+    "C05 material basis/admission/readback consumers",
+    "native SOTA registry and governed dispatch tests"
+  ],
+  "independent_review_pointers": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b61-r10-independent-review-20261013.md (later R408 followup, not retroactive R402 acceptance)",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b214-r12b-nested-path-correctness-independent-review-r342-20261013.md (later R408 followup, not retroactive R402 acceptance)"
+  ],
+  "proposal_fields": [
+    {
+      "id": "B108",
+      "task": "V5",
+      "outcome": "limited_proposal",
+      "evidence_boundary": "configured native Search/GP/MethodJob/history consumer chain passed 60 selected cases on exact R402 bytes; original whole criterion and qualifying inputs require independent assessment",
+      "next_check": "full original occurrence criterion, source/input/backend freeze, authentic selected consumer and installed package replay by G"
+    },
+    {
+      "id": "B157",
+      "task": "V5",
+      "outcome": "limited_proposal",
+      "evidence_boundary": "same exact V5 chain; independent calibration/currentness and universal policy semantics are not established by synthetic runtime output",
+      "next_check": "original whole-property dependencies and applicable profile/input admissions; independent G adjudication"
+    },
+    {
+      "id": "B61",
+      "outcome": "open_proposal",
+      "evidence_boundary": "R398 state/Blueprint failures preserved; later R408 R10 still fails equality in R409 and virtual R11 is being prepared",
+      "next_check": "generic typed-value equality/COW invariant, actual state/idempotency/Blueprint/importers and mutation-removal controls"
+    },
+    {
+      "id": "B214",
+      "outcome": "open_proposal",
+      "evidence_boundary": "R398 graph/scope/canonical consumer failures preserved; subsequent R408 fixes need their separate source-bound verification and performance/library rows",
+      "next_check": "actual current composition consumers, profile conformance, PC/GES availability and measured performance boundary"
+    }
+  ],
+  "limitations": [
+    "This is an append-only author source checkpoint and its receipt; it is not G acceptance, global closeout or native-green evidence.",
+    "Complete R398 wave contains 35 FAIL and 7 ERROR. Later R409 partial wave and R407 dashboard failures are separate source-bound receipts.",
+    "Native commit hook frontend SKIPs do not prove Python/native capability.",
+    "Completed same-ID restart semantics remain a G decision; ordinary incomplete resume cannot silently answer it.",
+    "B161/S1 scientific/authority facts, authentic custody/currentness, production workload, legal/issuer inputs remain separately bounded.",
+    "Two tracked Q2 raw helpers are preserved outside this source footprint pending qualification.",
+    "Large deciding artifacts remain ignored raw with path@sha; no tracked copies of source or redundant generated views."
+  ],
+  "subsequent_source_frames": [
+    {
+      "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r408-20261013.json",
+      "sha256": "9e2c5d1e526ef928f535f5603187f59bedcea97f927609f0b4fe01633fb66fef",
+      "qualification": "later WIP source; does not retroactively alter R402/R398 evidence"
+    }
+  ],
+  "remaining_verification": [
+    "final composed source/input/backend freeze and all independent reviews",
+    "canonical regeneration/checks and corrupt-field drift controls",
+    "native SOTA actual row-by-row and named issuer dispositions for remaining exceptions",
+    "actual installed wheel/rebuilt-sdist/archive-wheel resource and consumer chains",
+    "Linux UKOPS and remaining full original per-occurrence criteria",
+    "full 282-ID/291-occurrence proposal report preserving historical closures and B198"
+  ]
+}

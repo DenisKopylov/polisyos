@@ -15,7 +15,7 @@ import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import content_hash
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -109,9 +109,17 @@ class GatedPublicationCAS(FileSystemCAS):
         self.published: ArtifactRef | None = None
         self.corrupt_destination = corrupt_destination
 
-    def put_bytes(self, data, opts):
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         if opts.kind != "scientist.node_cache_entry":
-            return super().put_bytes(data, opts)
+            return super().put_bytes(
+                data, opts, return_selected_profile=return_selected_profile
+            )
         self.entered.set()
         if self.corrupt_destination:
             blob, _manifest = self._paths(ArtifactID.from_sha256_hex(content_hash(data)))
@@ -119,12 +127,16 @@ class GatedPublicationCAS(FileSystemCAS):
             blob.parent.mkdir(parents=True, exist_ok=True)
             blob.write_bytes(b"corrupt existing cache destination")
             try:
-                return super().put_bytes(data, opts)
+                return super().put_bytes(
+                    data, opts, return_selected_profile=return_selected_profile
+                )
             finally:
                 blob.unlink(missing_ok=True)
         if not self.release.wait(3):
             raise RuntimeError("physical publication watchdog exhausted")
-        self.published = super().put_bytes(data, opts)
+        self.published = super().put_bytes(
+            data, opts, return_selected_profile=return_selected_profile
+        )
         return self.published
 
 

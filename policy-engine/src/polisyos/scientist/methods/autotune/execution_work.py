@@ -16,13 +16,24 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
 
 from .models import SearchMethodRunProfile
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+
+
+_METHOD_REQUEST_CANON_SPEC = CanonSpec(
+    forbid_floats=False,
+    forbid_nan_inf=True,
+)
+
+
+def _fingerprint_method_request_material(value: Any) -> str:
+    """Fingerprint finite MethodJob request material without changing integer bytes."""
+    return fingerprint(value, canon_spec=_METHOD_REQUEST_CANON_SPEC)
 
 
 class MethodInputValueFingerprint(BaseModel):
@@ -177,7 +188,7 @@ def persist_method_job_execution_work_packet(
             ),
             inputs=[input_ref_from_artifact_ref(ref, role=role) for role, ref in inputs],
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
     )
 
 

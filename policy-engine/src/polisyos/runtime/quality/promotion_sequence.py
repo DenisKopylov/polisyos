@@ -16,7 +16,7 @@ import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from weakref import WeakKeyDictionary
 
 from pydantic import (
@@ -34,6 +34,9 @@ from polisyos.core import canon as core_canon
 from polisyos.core import contracts as core_contracts
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.fabric.retrieval.providers import RetrievalProviders  # noqa: TC001
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
 
 # The former TC001-suppressed posture DTOs remain eager for Pydantic runtime resolution.
 from polisyos.pdc import (
@@ -766,6 +769,7 @@ class N9PromotionEvidenceBridgeRepository:
         measurement_providers: RetrievalProviders | None = None,
         promotion_safety_source_trust: PromotionSafetySourceTrust | None = None,
         signature_verifier: core_artifacts.SignatureVerifyingArtifactStore | None = None,
+        execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
         self._store = store
         self._promotion_safety = PromotionSafetyOwner(
@@ -775,6 +779,7 @@ class N9PromotionEvidenceBridgeRepository:
         )
         self._measurement_catalog = measurement_catalog
         self._measurement_providers = measurement_providers
+        self._execution_scope_binding = execution_scope_binding
         self._verifier_provenance_ref = store.put_bytes(
             _PROMOTION_EVIDENCE_VERIFIER_BYTES,
             core_artifacts.ArtifactWriteOptions(
@@ -1343,6 +1348,7 @@ class N9PromotionEvidenceBridgeRepository:
             source_artifact_id=source_artifact_id,
             catalog=self._measurement_catalog,
             providers=self._measurement_providers,
+            execution_scope_binding=self._execution_scope_binding,
         )
 
     def _resolve_measurement_source(
@@ -3756,6 +3762,7 @@ class CanonicalN9PromotionPort:
         repo_root: Path | None = None,
         measurement_catalog: catalog_api.DatasetCatalogGraph | None = None,
         measurement_providers: RetrievalProviders | None = None,
+        execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
         source = (
             promotion_runtime.promotion_evidence_source if promotion_runtime is not None else None
@@ -3791,6 +3798,7 @@ class CanonicalN9PromotionPort:
             raise ValueError("epoch_n9_evidence_resolver_owner_mismatch")
         self._measurement_catalog = measurement_catalog
         self._measurement_providers = measurement_providers
+        self._execution_scope_binding = execution_scope_binding
         self._context_provider = context_provider
         self._promotion_runtime = promotion_runtime
         self._promotion_evidence_resolver = (
@@ -3800,6 +3808,7 @@ class CanonicalN9PromotionPort:
                 signature_verifier=promotion_runtime.signature_verifier,
                 measurement_catalog=measurement_catalog,
                 measurement_providers=measurement_providers,
+                execution_scope_binding=execution_scope_binding,
             )
             if promotion_runtime is not None
             else None
@@ -3957,6 +3966,7 @@ class CanonicalN9PromotionPort:
             measurement_providers=self._measurement_providers,
             promotion_runtime=self._promotion_runtime,
             epoch_n9_evidence_resolver=self._epoch_n9_evidence_resolver,
+            execution_scope_binding=self._execution_scope_binding,
             repo_root=self._repo_root,
             confidence_ledger_session=confidence_ledger_session,
         )
@@ -4016,6 +4026,7 @@ def _run_n9_promotion_port_batch(
     context_provider: PromotionContextProvider | None,
     promotion_runtime: PromotionRuntime | None,
     epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     repo_root: Path | None,
     confidence_ledger_session: ConfidenceLedgerSession,
 ) -> PromotionPortObservation:
@@ -4032,6 +4043,7 @@ def _run_n9_promotion_port_batch(
             signature_verifier=promotion_runtime.signature_verifier,
             measurement_catalog=measurement_catalog,
             measurement_providers=measurement_providers,
+            execution_scope_binding=execution_scope_binding,
         )
         if promotion_runtime is not None
         else None

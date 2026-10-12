@@ -10,13 +10,13 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     GraphProjectionDisposition,
     graph_for_analysis,
 )
+from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, StructuralCausalModelSpecRef
 
 

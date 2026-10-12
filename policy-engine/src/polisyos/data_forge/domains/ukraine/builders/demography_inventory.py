@@ -5,13 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.data_forge.domains.ukraine.builders.common import StageBuildResult
 from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
     InventoryBuildRequest,
     produce_candidate_inventory,
 )
-
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.data_forge.domains.ukraine.builders.common import StageBuildResult
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
 
 if TYPE_CHECKING:

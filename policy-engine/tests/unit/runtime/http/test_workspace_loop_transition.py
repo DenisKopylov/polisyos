@@ -454,24 +454,38 @@ def test_workspace_loop_input_reader_rejects_selected_ref_from_wrong_cell_even_w
         service._resolved_input_artifact_payloads(state_payload)  # noqa: SLF001
 
 
-def test_workspace_loop_authority_payload_refuses_missing_active_tenant(
+def test_workspace_loop_unknown_scope_persists_candidate_without_tenant_or_authority(
     tmp_path: Path,
 ) -> None:
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.core.security import TenantContextNotSetError
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
 
-    store = FileSystemCAS(tmp_path / "cas")
-    loop = workspace_loop_module.WorkspaceLoop(artifact_store=store)
-    payload = {"fixture_id": "missing-scope"}
+    binding = measurement_execution_binding(tmp_path, scope_established=False)
+    assert binding.status == "not_established"
+    assert binding.authority_eligible is False
+    store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    loop = workspace_loop_module.WorkspaceLoop(
+        artifact_store=store,
+        execution_scope_binding=binding,
+    )
+    payload = {"fixture_id": "unknown-scope-candidate"}
     expected_artifact_id = workspace_loop_module.gy_content_hash(payload)
+    ambient_tenant = "tenant-ambient-must-not-bind"
+    before = store.ownership_evidence(tenant_id=ambient_tenant)["tenant_artifact_count"]
 
-    with clear_tenant_context(), pytest.raises(TenantContextNotSetError):
-        loop._persist_loop_payload(  # noqa: SLF001
+    with tenant_scope(None, tenant_id=ambient_tenant):
+        persisted_ref = loop._persist_loop_payload(  # noqa: SLF001
             payload,
-            kind="test.workspace_loop_scope_refusal",
+            kind="test.workspace_loop_unknown_scope_candidate",
         )
+    after = store.ownership_evidence(tenant_id=ambient_tenant)["tenant_artifact_count"]
 
-    assert not store.has(expected_artifact_id)
+    assert after == before
+    assert persisted_ref == expected_artifact_id
+    assert store.has(expected_artifact_id)
+    manifest = store.get_manifest(expected_artifact_id)
+    assert manifest.tenant_context is None
+    assert manifest.authority is None
 
 
 def test_workflow_request_defaults_to_workspace_loop_transition(
@@ -490,10 +504,17 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
             "active_cell": get_current_cell_id(),
             "store_tenant": getattr(store, "_tenant_id", None),
             "store_cell": getattr(store, "_cell_id", None),
+            "component": getattr(getattr(opts, "producer", None), "component", None),
             "writer_tenant": authority_fields.get("tenant_id"),
             "writer_cell": authority_fields.get("cell_id"),
+            "writer_run_id": authority_fields.get("run_id"),
+            "writer_job_id": authority_fields.get("job_id"),
+            "requested_profile": authority_fields.get("requested_execution_profile"),
+            "effective_profile": authority_fields.get("effective_execution_profile"),
             "closure_tenant": authority_fields.get("same_input_closure", {}).get("tenant_id"),
             "closure_cell": authority_fields.get("same_input_closure", {}).get("cell_id"),
+            "closure_run_id": authority_fields.get("same_input_closure", {}).get("run_id"),
+            "closure_job_id": authority_fields.get("same_input_closure", {}).get("job_id"),
         }
         try:
             result = original_write_authority_artifact(store, payload, opts, **authority_fields)
@@ -501,6 +522,7 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
             diagnostic["error"] = f"{type(exc).__name__}: {exc}"
             writer_diagnostics.append(diagnostic)
             raise
+        diagnostic["artifact_id"] = str(result.cas_ref.artifact_id)
         writer_diagnostics.append(diagnostic)
         return result
 
@@ -524,6 +546,28 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
     assert response.progress["search_exit_contract_ref"].startswith("sha256:")
     assert response.progress["production_loop_run_proof_ref"].startswith("sha256:")
     assert response.approval_projection.eligible is False
+
+    measurement_writes = [
+        item for item in writer_diagnostics
+        if (
+            item["component"]
+            == "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+        )
+    ]
+    assert len(measurement_writes) == 1
+    measurement_write = measurement_writes[0]
+    tenant_id = runtime_api_env["tenant_a"]
+    cell_id = runtime_api_env["cell_a"]
+    assert measurement_write["writer_tenant"] == tenant_id
+    assert measurement_write["writer_cell"] == cell_id
+    assert measurement_write["writer_run_id"] == launch.run_id
+    assert measurement_write["writer_job_id"] == launch.job_id
+    assert measurement_write["requested_profile"] is None
+    assert measurement_write["effective_profile"] == launch.effective_execution_profile
+    assert measurement_write["closure_tenant"] == tenant_id
+    assert measurement_write["closure_cell"] == cell_id
+    assert measurement_write["closure_run_id"] == launch.run_id
+    assert measurement_write["closure_job_id"] == launch.job_id
 
     proof = WorkspaceLoopRunProof.model_validate(response.progress["production_loop_run_proof"])
     assert proof.job_id == launch.job_id
@@ -549,8 +593,6 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
     exit_payload = response.progress["search_exit_contract"]
     assert isinstance(exit_payload, dict)
     workspace_contract_ref = exit_payload["workspace_contract_ref"]
-    tenant_id = runtime_api_env["tenant_a"]
-    cell_id = runtime_api_env["cell_a"]
     store = service._artifact_store  # noqa: SLF001
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         workspace_manifest = store.get_manifest(workspace_contract_ref)
@@ -561,6 +603,14 @@ def test_workflow_request_defaults_to_workspace_loop_transition(
         assert workspace_manifest.same_input_closure.tenant_id == tenant_id
         assert workspace_manifest.same_input_closure.cell_id == cell_id
         assert workspace_manifest.authority is not None
+        measurement_manifest = store.get_manifest(measurement_write["artifact_id"])
+        assert measurement_manifest.tenant_context is not None
+        assert measurement_manifest.tenant_context.tenant_id == tenant_id
+        assert measurement_manifest.tenant_context.cell_id == cell_id
+        assert measurement_manifest.same_input_closure is not None
+        assert measurement_manifest.same_input_closure.run_id == launch.run_id
+        assert measurement_manifest.same_input_closure.job_id == launch.job_id
+        assert measurement_manifest.authority is not None
 
         authority_envelope = json.loads(
             store.get_bytes(workspace_manifest.authority.authority_envelope_ref)
@@ -2069,6 +2119,7 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         original_load = service._load_payload_ref
         original_require_binding = service._require_nl_job_execution_intent_binding
         binding_results: list[dict[str, object]] = []
+        measurement_scope_bindings: list[tuple[object, object]] = []
         read_events: list[str] = []
 
         def capture_job_artifact_read(ref: str, *, kind: str):
@@ -2097,12 +2148,41 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
             "_require_nl_job_execution_intent_binding",
             capture_execution_binding,
         )
+        from polisyos.runtime.quality import data_forge_binding
+
+        original_measurement_binding = data_forge_binding.bind_measurement_root_execution_scope
+
+        def capture_measurement_binding(**kwargs):
+            binding = original_measurement_binding(**kwargs)
+            measurement_scope_bindings.append((kwargs, binding))
+            return binding
+
+        monkeypatch.setattr(
+            data_forge_binding,
+            "bind_measurement_root_execution_scope",
+            capture_measurement_binding,
+        )
+
+        candidate_core_manifests: list[tuple[dict[str, object], object]] = []
+        original_publish_generation_run = service._publish_generation_run
+
+        def capture_candidate_core_manifest(**kwargs):
+            ref = original_publish_generation_run(**kwargs)
+            candidate_core_manifests.append((kwargs, ref))
+            return ref
+
+        protected_publication_calls: list[object] = []
+
+        def reject_protected_publication(*args, **kwargs):
+            protected_publication_calls.append((args, kwargs))
+            pytest.fail("candidate-only N4 entered protected natural-language publication")
 
         def reject_downstream(*_args, **_kwargs):
             pytest.fail("candidate-only N4 entered a downstream authority stage")
 
         monkeypatch.setattr(service, "resolve_generation_value_choices", reject_downstream)
-        monkeypatch.setattr(service, "_publish_generation_run", reject_downstream)
+        monkeypatch.setattr(service, "_publish_generation_run", capture_candidate_core_manifest)
+        monkeypatch.setattr(service, "_publish_control_nl_job", reject_protected_publication)
         monkeypatch.setattr(
             generation_cycle_service,
             "build_default_recursive_generation_cycle_controller",
@@ -2143,7 +2223,54 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         assert completed.progress["s8_status"] == "not_run"
         assert "compiled_recursive_generation_cycle_ref" not in completed.progress
         assert completed.progress.get("normative_disposition_ref") is None
-        assert completed.progress.get("manifest_ref") is None
+        assert len(candidate_core_manifests) == 1
+        candidate_kwargs, candidate_core_manifest_ref = candidate_core_manifests[0]
+        assert candidate_kwargs.get("proposal_ref") is not None
+        assert candidate_kwargs.get("compiled_run_ref") is None
+        assert candidate_kwargs.get("normative_disposition_ref") is None
+        assert (
+            completed.progress.get("manifest_ref")
+            == str(candidate_core_manifest_ref.artifact_id)
+        )
+        assert protected_publication_calls == []
+        with tenant_scope(None, tenant_id=admitted_tenant, cell_id=cell_id):
+            candidate_core_artifact_manifest = service._artifact_store.get_manifest(
+                candidate_core_manifest_ref
+            )
+        assert candidate_core_artifact_manifest.authority is None
+        assert completed.progress.get("authority_envelope_ref") is None
+        assert completed.progress.get("attestation_ref") is None
+
+        assert measurement_scope_bindings
+        admission_args, measurement_binding = measurement_scope_bindings[0]
+        admitted = admission_args["admission"]
+        assert admission_args["job"] is admitted.job
+        assert admission_args["execution_scope"] is admitted.scope
+        assert measurement_binding.admission is admitted
+        assert measurement_binding.authority_eligible is True
+        assert admitted.job.job_id == job_id
+        assert admitted.job.run_id == str(job.run_id)
+        assert admitted.scope.tenant_id == admitted_tenant
+        assert admitted.scope.cell_id == cell_id
+        from polisyos.runtime.quality.data_forge_binding import (
+            FabricMeasurementRootBindingError,
+            bind_measurement_root_execution_scope,
+        )
+
+        with pytest.raises(FabricMeasurementRootBindingError, match="admission_mismatch"):
+            bind_measurement_root_execution_scope(
+                admission=admitted,
+                job=admitted.job,
+                execution_scope=replace(admitted.scope, tenant_id=runtime_api_env["tenant_a"]),
+            )
+
+        stale_admission = replace(admitted, attempt=admitted.attempt + 1)
+        with pytest.raises(FabricMeasurementRootBindingError, match="admission_mismatch"):
+            bind_measurement_root_execution_scope(
+                admission=stale_admission,
+                job=admitted.job,
+                execution_scope=admitted.scope,
+            )
 
         assert binding_results
         intent_binding = binding_results[0]

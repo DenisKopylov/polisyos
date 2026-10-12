@@ -1589,7 +1589,7 @@ class RetrievalService:
                     and source_currentness == "current"
                 ):
                     warnings.append(
-                        f"catalog_profile_not_admitted:{str(row.get('profile_id') or 'unknown')}:{plan_reason}"
+                        f"catalog_profile_not_admitted:{row.get('profile_id') or 'unknown'!s}:{plan_reason}"
                     )
                 if not self._has_explicit_scope(need):
                     selectable_rows.append(row)

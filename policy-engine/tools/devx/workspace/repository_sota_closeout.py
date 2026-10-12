@@ -7,10 +7,11 @@ import argparse
 import datetime as dt
 import hashlib
 import re
+import shlex
 import subprocess
 import sys
 import tomllib
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -157,6 +158,74 @@ class Finding:
         return f"[{self.gate}] {self.message}{suffix}"
 
 
+@dataclass(frozen=True)
+class RequiredGateContract:
+    """Pin one established gate's command and executable coverage routes."""
+
+    command: str
+    coverage: tuple[str, ...]
+    skip_command: str | None = None
+
+
+# This independent baseline prevents deleting a TOML row from shrinking the
+# closeout denominator. Additional well-formed rows remain generically routed.
+_REQUIRED_GATE_CONTRACTS: dict[str, RequiredGateContract] = {
+    "topology-loose-files": RequiredGateContract(
+        "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q",
+        ("subprocess",),
+    ),
+    "import-linter": RequiredGateContract(
+        "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+        ("subprocess",),
+    ),
+    "public-surface": RequiredGateContract(
+        "uv run polisyos-tools architecture guardrails check",
+        ("subprocess",),
+    ),
+    "generated-drift": RequiredGateContract(
+        "uv run polisyos-tools architecture guardrails check --all-generated-checks",
+        ("subprocess",),
+        "uv run polisyos-tools architecture guardrails check --skip-generated-checks",
+    ),
+    "docs-freshness": RequiredGateContract(
+        "uv run polisyos-tools validation check-docs-accuracy --repo-root .",
+        ("preflight:docs-freshness-contract", "conditional:docs-freshness-runtime"),
+    ),
+    "public-polish": RequiredGateContract(
+        "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q",
+        ("subprocess",),
+    ),
+    "shim-audit": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:migration-shim-contract",),
+    ),
+    "complexity-exceptions": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:complexity-exception-contract",),
+    ),
+    "security-baselines": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:ops-modes",),
+    ),
+    "dependency-baselines": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:ops-modes",),
+    ),
+    "sbom-baseline": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:ops-modes",),
+    ),
+    "commit-policy": RequiredGateContract(
+        "uv run polisyos-tools workspace repository-sota-closeout --contract-only",
+        ("preflight:ops-modes",),
+    ),
+    "command-registry": RequiredGateContract(
+        "uv run polisyos-tools docs --output docs/reference/tools.md --check",
+        ("subprocess",),
+    ),
+}
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the fail-closed Repository SOTA Phase 5 closeout gate."
@@ -190,20 +259,14 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     findings: list[Finding] = []
+    preflight_findings: list[Finding] = []
 
-    findings.extend(_check_gate_registry())
-    findings.extend(_check_final_topology_contract())
-    findings.extend(_check_ops_modes())
-    findings.extend(_check_docs_freshness_contract())
-    findings.extend(_check_time_bounded_import_exceptions())
-    findings.extend(_check_complexity_exceptions())
-    findings.extend(_check_migration_shims())
-    findings.extend(_check_phase65_exception_cleanup())
-    findings.extend(_check_wiring())
-    findings.extend(_check_closeout_docs())
-    findings.extend(_check_public_polish_contract())
+    for _check_id, check in _preflight_checks():
+        preflight_findings.extend(check())
+    findings.extend(preflight_findings)
 
-    if not args.contract_only:
+    registry_valid = not any(finding.gate == "gate-registry" for finding in preflight_findings)
+    if not args.contract_only and registry_valid:
         findings.extend(_run_fail_closed_subprocess_gates(args))
 
     payload = {
@@ -296,10 +359,34 @@ def _check_future_date_field(
         findings.append(Finding(gate, f"{subject} expired", date_value.isoformat()))
 
 
+def _gate_registry_rows(data: dict[str, Any] | None = None) -> list[object]:
+    registry = data if data is not None else _read_toml("architecture/gates/repository_sota.toml")
+    if not isinstance(registry, dict):
+        return []
+    rows = registry.get("gate")
+    return rows if isinstance(rows, list) else []
+
+
+def _parse_gate_command(value: object) -> list[str] | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        command = shlex.split(value)
+    except ValueError:
+        return None
+    return command or None
+
+
 def _check_gate_registry() -> list[Finding]:
     findings: list[Finding] = []
-    data = _read_toml("architecture/gates/repository_sota.toml")
+    loaded = _read_toml("architecture/gates/repository_sota.toml")
+    if not isinstance(loaded, dict):
+        findings.append(Finding("gate-registry", "registry document must be a table"))
+        loaded = {}
+    data = loaded
     header = data.get("repository_sota_gates", {})
+    if not isinstance(header, dict):
+        header = {}
     if header.get("status") != "fail_closed":
         findings.append(
             Finding(
@@ -308,66 +395,169 @@ def _check_gate_registry() -> list[Finding]:
                 str(header.get("status")),
             )
         )
-    closeout_report = str(header.get("closeout_report", "")).strip()
-    if not closeout_report or not _resolve(closeout_report).exists():
+    closeout_report = header.get("closeout_report")
+    if not isinstance(closeout_report, str) or not closeout_report.strip():
+        findings.append(Finding("gate-registry", "closeout report is missing"))
+    elif not _resolve(closeout_report).exists():
         findings.append(Finding("gate-registry", "closeout report is missing", closeout_report))
 
-    expected = {
-        "topology-loose-files",
-        "import-linter",
-        "public-surface",
-        "generated-drift",
-        "docs-freshness",
-        "public-polish",
-        "shim-audit",
-        "complexity-exceptions",
-        "security-baselines",
-        "dependency-baselines",
-        "sbom-baseline",
-        "commit-policy",
-        "command-registry",
-    }
-    gates = {str(item.get("id", "")): item for item in data.get("gate", [])}
-    missing = sorted(expected - set(gates))
-    if missing:
-        findings.append(Finding("gate-registry", "missing required gates", ", ".join(missing)))
+    raw_rows = data.get("gate")
+    if not isinstance(raw_rows, list):
+        findings.append(Finding("gate-registry", "gate registry `gate` field must be a list"))
+        rows: list[object] = []
+    else:
+        rows = _gate_registry_rows(data)
+        if not rows:
+            findings.append(Finding("gate-registry", "no gate rows are registered"))
+    known_preflights = {check_id for check_id, _check in _preflight_checks()}
+    known_conditionals = set(_conditional_gate_handlers())
+    seen_ids: dict[str, int] = {}
+    conditional_owners: dict[str, str] = {}
+    for index, item in enumerate(rows, start=1):
+        if not isinstance(item, dict):
+            findings.append(Finding("gate-registry", "gate row must be a table", f"gate[{index}]"))
+            continue
+        gate_id = item.get("id")
+        if not isinstance(gate_id, str) or not gate_id.strip():
+            gate_id = f"gate[{index}]"
+            findings.append(Finding("gate-registry", "gate row missing string `id`", gate_id))
+        else:
+            original_gate_id = gate_id
+            gate_id = gate_id.strip()
+            if original_gate_id != gate_id:
+                findings.append(
+                    Finding(
+                        "gate-registry",
+                        "gate id has surrounding whitespace",
+                        repr(original_gate_id),
+                    )
+                )
+            if gate_id in seen_ids:
+                findings.append(
+                    Finding(
+                        "gate-registry",
+                        "duplicate gate id",
+                        f"{gate_id}: rows {seen_ids[gate_id]} and {index}",
+                    )
+                )
+            else:
+                seen_ids[gate_id] = index
 
-    expected_commands = {
-        "generated-drift": (
-            "uv run polisyos-tools architecture guardrails check --all-generated-checks"
-        ),
-        "docs-freshness": (
-            "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
-        ),
-        "public-polish": (
-            "uv run pytest tests/repo_quality/architecture/test_repository_public_polish.py -q"
-        ),
-    }
-    for gate_id, gate in gates.items():
-        if gate.get("mode") != "fail_closed":
+        if item.get("mode") != "fail_closed":
             findings.append(Finding("gate-registry", f"{gate_id} is not fail_closed"))
         for field in ("owner", "command", "evidence"):
-            value = str(gate.get(field, "")).strip()
-            if not value:
-                findings.append(Finding("gate-registry", f"{gate_id} missing `{field}`"))
-        expected_command = expected_commands.get(gate_id)
-        observed_command = str(gate.get("command", "")).strip()
-        if expected_command is not None and observed_command != expected_command:
+            value = item.get(field)
+            if not isinstance(value, str) or not value.strip():
+                findings.append(Finding("gate-registry", f"{gate_id} missing string `{field}`"))
+        required = _REQUIRED_GATE_CONTRACTS.get(gate_id)
+        if required is not None:
+            if item.get("command") != required.command:
+                findings.append(
+                    Finding(
+                        "gate-registry",
+                        f"{gate_id} required command mismatch",
+                        str(item.get("command")),
+                    )
+                )
+            if item.get("coverage") != list(required.coverage):
+                findings.append(
+                    Finding(
+                        "gate-registry",
+                        f"{gate_id} required coverage routes mismatch",
+                        repr(item.get("coverage")),
+                    )
+                )
+            if item.get("skip_command") != required.skip_command:
+                findings.append(
+                    Finding(
+                        "gate-registry",
+                        f"{gate_id} required skip command mismatch",
+                        str(item.get("skip_command")),
+                    )
+                )
+        if _parse_gate_command(item.get("command")) is None:
+            findings.append(
+                Finding("gate-registry", f"{gate_id} command is not a valid argument string")
+            )
+        if gate_id != "generated-drift" and "skip_command" in item:
             findings.append(
                 Finding(
                     "gate-registry",
-                    f"{gate_id} command is not the fail-closed closeout command",
-                    observed_command,
+                    f"{gate_id} skip_command is only permitted for generated-drift",
                 )
             )
-        evidence = str(gate.get("evidence", "")).strip()
-        if evidence and not _resolve(evidence).exists():
-            findings.append(Finding("gate-registry", f"{gate_id} evidence path missing", evidence))
-        exceptions = str(gate.get("exceptions", "")).strip()
-        if exceptions and not _resolve(exceptions).exists():
+        if "skip_command" in item and _parse_gate_command(item.get("skip_command")) is None:
             findings.append(
-                Finding("gate-registry", f"{gate_id} exception path missing", exceptions)
+                Finding("gate-registry", f"{gate_id} skip_command is not a valid argument string")
             )
+
+        evidence = item.get("evidence")
+        if isinstance(evidence, str) and evidence.strip() and not _resolve(evidence).exists():
+            findings.append(Finding("gate-registry", f"{gate_id} evidence path missing", evidence))
+        exceptions = item.get("exceptions")
+        if exceptions is not None:
+            if not isinstance(exceptions, str) or not exceptions.strip():
+                findings.append(Finding("gate-registry", f"{gate_id} exceptions must be a path"))
+            elif not _resolve(exceptions).exists():
+                findings.append(
+                    Finding("gate-registry", f"{gate_id} exception path missing", exceptions)
+                )
+
+        coverage = item.get("coverage")
+        if not isinstance(coverage, list) or not coverage:
+            findings.append(Finding("gate-registry", f"{gate_id} must declare coverage routes"))
+            continue
+        seen_routes: set[str] = set()
+        for route in coverage:
+            if not isinstance(route, str) or not route.strip():
+                findings.append(Finding("gate-registry", f"{gate_id} has malformed coverage route"))
+                continue
+            if route in seen_routes:
+                findings.append(
+                    Finding("gate-registry", f"{gate_id} duplicates coverage route", route)
+                )
+                continue
+            seen_routes.add(route)
+            if route == "subprocess":
+                continue
+            kind, separator, target = route.partition(":")
+            if not separator or not target:
+                findings.append(
+                    Finding("gate-registry", f"{gate_id} has unknown coverage route", route)
+                )
+            elif kind == "preflight":
+                if target == "gate-registry" or target not in known_preflights:
+                    findings.append(
+                        Finding(
+                            "gate-registry", f"{gate_id} preflight route is not executable", target
+                        )
+                    )
+            elif kind == "conditional":
+                if target not in known_conditionals:
+                    findings.append(
+                        Finding(
+                            "gate-registry", f"{gate_id} conditional route has no handler", target
+                        )
+                    )
+                elif target in conditional_owners and conditional_owners[target] != gate_id:
+                    findings.append(
+                        Finding(
+                            "gate-registry",
+                            "conditional route is owned by multiple gate rows",
+                            f"{target}: {conditional_owners[target]}, {gate_id}",
+                        )
+                    )
+                else:
+                    conditional_owners[target] = gate_id
+            else:
+                findings.append(
+                    Finding("gate-registry", f"{gate_id} has unknown coverage route", route)
+                )
+
+    for gate_id in _REQUIRED_GATE_CONTRACTS:
+        if gate_id not in seen_ids:
+            findings.append(Finding("gate-registry", "missing required gate", gate_id))
+
     return findings
 
 
@@ -1327,60 +1517,38 @@ def _check_public_polish_contract() -> list[Finding]:
     return findings
 
 
-def _generated_guardrail_command(*, skip_generated_checks: bool) -> list[str]:
-    command = [
-        "uv",
-        "run",
-        "polisyos-tools",
-        "architecture",
-        "guardrails",
-        "check",
-    ]
-    command.append("--skip-generated-checks" if skip_generated_checks else "--all-generated-checks")
-    return command
+def _registered_subprocess_gates(*, skip_generated_checks: bool) -> list[tuple[str, list[str]]]:
+    commands: list[tuple[str, list[str]]] = []
+    for item in _gate_registry_rows():
+        if not isinstance(item, dict):
+            continue
+        coverage = item.get("coverage")
+        if not isinstance(coverage, list) or "subprocess" not in coverage:
+            continue
+        gate_id = item.get("id")
+        if not isinstance(gate_id, str) or not gate_id.strip():
+            continue
+        command_text = item.get("command")
+        skip_command = item.get("skip_command")
+        if skip_generated_checks and gate_id == "generated-drift":
+            required = _REQUIRED_GATE_CONTRACTS.get(gate_id)
+            if required is not None and skip_command == required.skip_command:
+                command_text = skip_command
+        command = _parse_gate_command(command_text)
+        if command is not None:
+            commands.append((gate_id, command))
+    return commands
 
 
-def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]:
-    findings: list[Finding] = []
-    receipt_dir = getattr(args, "subprocess_receipt_dir", None)
-    guardrail_command = _generated_guardrail_command(
-        skip_generated_checks=args.skip_generated_checks
-    )
-
-    commands = [
-        ("generated-drift", guardrail_command),
+def _supporting_subprocess_gates() -> list[tuple[str, list[str]]]:
+    return [
         (
-            "import-linter",
-            [
-                "uv",
-                "run",
-                "python",
-                "tools/quality/lint/lint_imports.py",
-                "--policy",
-                "architecture/imports/policy.toml",
-                "--exceptions",
-                "architecture/imports/exceptions.toml",
-            ],
-        ),
-        (
-            "command-registry",
-            [
-                "uv",
-                "run",
-                "polisyos-tools",
-                "docs",
-                "--output",
-                "docs/reference/tools.md",
-                "--check",
-            ],
-        ),
-        (
-            "public-polish",
+            "repository-sota-registry-contract",
             [
                 "uv",
                 "run",
                 "pytest",
-                "tests/repo_quality/architecture/test_repository_public_polish.py",
+                "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
                 "-q",
             ],
         ),
@@ -1466,22 +1634,11 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
         ),
         (
             "extension-examples",
-            [
-                "uv",
-                "run",
-                "python",
-                "tools/quality/validation/check_extension_examples.py",
-            ],
+            ["uv", "run", "python", "tools/quality/validation/check_extension_examples.py"],
         ),
         (
             "adr-thematic-index",
-            [
-                "uv",
-                "run",
-                "python",
-                "tools/quality/validation/generate_adr_index.py",
-                "--check",
-            ],
+            ["uv", "run", "python", "tools/quality/validation/generate_adr_index.py", "--check"],
         ),
         (
             "validator-module-size",
@@ -1499,13 +1656,7 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
         ),
         (
             "schema-purity",
-            [
-                "uv",
-                "run",
-                "python",
-                "-c",
-                SCHEMA_PURITY_SNIPPET.strip(),
-            ],
+            ["uv", "run", "python", "-c", SCHEMA_PURITY_SNIPPET.strip()],
         ),
         (
             "operability-release",
@@ -1546,6 +1697,51 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
             ],
         ),
     ]
+
+
+def _conditional_gate_handlers() -> dict[str, Callable[..., list[Finding]]]:
+    return {"docs-freshness-runtime": _run_docs_freshness_gate}
+
+
+def _run_conditional_registered_gates(*, receipt_dir: Path | None) -> list[Finding]:
+    findings: list[Finding] = []
+    handlers = _conditional_gate_handlers()
+    for item in _gate_registry_rows():
+        if not isinstance(item, dict):
+            continue
+        coverage = item.get("coverage")
+        if not isinstance(coverage, list):
+            continue
+        for route in coverage:
+            if not isinstance(route, str) or not route.startswith("conditional:"):
+                continue
+            handler = handlers.get(route.partition(":")[2])
+            if handler is not None:
+                findings.extend(handler(gate=item, receipt_dir=receipt_dir))
+    return findings
+
+
+def _preflight_checks() -> tuple[tuple[str, Callable[[], list[Finding]]], ...]:
+    return (
+        ("gate-registry", _check_gate_registry),
+        ("final-topology-contract", _check_final_topology_contract),
+        ("ops-modes", _check_ops_modes),
+        ("docs-freshness-contract", _check_docs_freshness_contract),
+        ("time-bounded-import-exceptions", _check_time_bounded_import_exceptions),
+        ("complexity-exception-contract", _check_complexity_exceptions),
+        ("migration-shim-contract", _check_migration_shims),
+        ("phase65-exception-cleanup", _check_phase65_exception_cleanup),
+        ("wiring", _check_wiring),
+        ("closeout-docs", _check_closeout_docs),
+        ("public-polish-contract", _check_public_polish_contract),
+    )
+
+
+def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]:
+    findings: list[Finding] = []
+    receipt_dir = getattr(args, "subprocess_receipt_dir", None)
+    commands = _registered_subprocess_gates(skip_generated_checks=args.skip_generated_checks)
+    commands.extend(_supporting_subprocess_gates())
     for gate, command in commands:
         completed = _run_subprocess_with_receipt(
             gate,
@@ -1555,7 +1751,7 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
         if completed.returncode != 0:
             findings.append(Finding(gate, "subprocess gate failed", _compact_output(completed)))
 
-    findings.extend(_run_docs_freshness_gate(receipt_dir=receipt_dir))
+    findings.extend(_run_conditional_registered_gates(receipt_dir=receipt_dir))
     return findings
 
 
@@ -1649,7 +1845,18 @@ def _compact_output(completed: subprocess.CompletedProcess[str], *, limit: int =
     return output[:limit] + "\n...[truncated]..."
 
 
-def _run_docs_freshness_gate(*, receipt_dir: Path | None = None) -> list[Finding]:
+def _run_docs_freshness_gate(
+    *, gate: dict[str, Any] | None = None, receipt_dir: Path | None = None
+) -> list[Finding]:
+    if gate is None:
+        matching = [
+            item
+            for item in _gate_registry_rows()
+            if isinstance(item, dict) and item.get("id") == "docs-freshness"
+        ]
+        if len(matching) != 1:
+            return [Finding("docs-freshness", "registry row is missing or ambiguous")]
+        gate = matching[0]
     baseline = _read_toml("architecture/exceptions/docs_freshness.toml")[
         "docs_freshness_exceptions"
     ]
@@ -1659,15 +1866,9 @@ def _run_docs_freshness_gate(*, receipt_dir: Path | None = None) -> list[Finding
     if expected_count > 0 and findings:
         return findings
 
-    command = [
-        "uv",
-        "run",
-        "polisyos-tools",
-        "validation",
-        "check-docs-accuracy",
-        "--repo-root",
-        ".",
-    ]
+    command = _parse_gate_command(gate.get("command"))
+    if command is None:
+        return [*findings, Finding("docs-freshness", "registered command is malformed")]
     completed = _run_subprocess_with_receipt(
         "docs-freshness",
         command,

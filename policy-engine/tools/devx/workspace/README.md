@@ -53,7 +53,14 @@ admission rules. A zero-violation baseline admits no exception and still runs
 the actual docs checker; nonzero exit or an invalid/nonzero deciding count
 fails. Positive debt remains bound to the named owner, current expiry, exact
 count, and legacy normalized-output digest. Complete raw stdout and stderr are
-retained separately when a subprocess receipt directory is selected.
+retained separately when a subprocess receipt directory is selected. The
+runner pins an independent 13-gate baseline of IDs, commands, and coverage
+route kinds, so deleting or rerouting an established row fails the contract.
+It also dispatches every valid additional subprocess row from the registry;
+other rows must resolve to an executed preflight or conditional handler. The
+phase-5 registry contract suite runs as a native supporting child, so its row
+removal and substitution controls participate in the closeout. The runner
+rejects duplicate IDs, malformed routes, and unresolved handlers.
 
 Команды ниже smoke-tested на `2026-04-17`, если явно не помечены как
 `conceptual`.
@@ -121,7 +128,9 @@ retained separately when a subprocess receipt directory is selected.
   child’s exact stdout/stderr bytes retained with its command, exit code, and
   byte hashes. Gate summaries decode those bytes as UTF-8 with backslash escapes
   for invalid sequences and normalize newlines. Omitting the option keeps the
-  existing text-mode capture and concise failure output.
+  existing text-mode capture and concise failure output. Only the pinned
+  `generated-drift` row may declare and use `skip_command`; an invalid registry
+  fails before the closeout starts any child gates.
 
 - `ci-parity` по умолчанию включает docs accuracy, strict MkDocs build и
   semantic docstring checks, если не указан `--skip-docs`.
@@ -129,7 +138,7 @@ retained separately when a subprocess receipt directory is selected.
 - Remote acceptance path разделяет rsynced worktree, clean checkout и artifact
   root, чтобы closeout на Linux был воспроизводимым.
 
-- Last updated: 2026-05-03
+- Last updated: 2026-10-12
 
 ## Worktree admission
 

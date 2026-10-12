@@ -849,8 +849,18 @@ class ControlJobScopeAdmissionMixin:
         payload: dict[str, Any],
         execution_scope: ControlJobExecutionScope,
         capability_manifest_ref: str,
+        admission: ControlJobExecutionAdmission,
     ) -> None:
         """Run, scope-limit, and complete one admitted workflow job."""
+        from polisyos.runtime.quality.data_forge_binding import (
+            bind_measurement_root_execution_scope,
+        )
+
+        execution_scope_binding = bind_measurement_root_execution_scope(
+            admission=admission,
+            job=job,
+            execution_scope=execution_scope,
+        )
         state_payload = self._hydrate_state_payload(
             payload["state_payload"],
             job=job,
@@ -881,6 +891,9 @@ class ControlJobScopeAdmissionMixin:
             job=job,
             endpoint="/api/v1/control/runs",
             execution_scope_status=execution_scope.status,
+            admission=admission,
+            execution_scope=execution_scope,
+            execution_scope_binding=execution_scope_binding,
             http_request_id=str(
                 (payload.get("_telemetry") or {}).get("request_id") or f"control-job:{job.job_id}"
             ),

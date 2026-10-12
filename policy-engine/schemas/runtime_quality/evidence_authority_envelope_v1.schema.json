@@ -461,9 +461,16 @@
       "title": "Redaction Policy Ref"
     },
     "requested_execution_profile": {
-      "minLength": 1,
-      "title": "Requested Execution Profile",
-      "type": "string"
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Requested Execution Profile"
     },
     "run_id": {
       "minLength": 1,

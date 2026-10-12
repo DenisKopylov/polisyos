@@ -84,6 +84,15 @@ class ControlNLJobExecutionMixin:
         trusted_source_context = context.trusted_source_context
         producer_run_binding_scope = context.producer_run_binding_scope
 
+        from polisyos.runtime.quality.data_forge_binding import (
+            bind_measurement_root_execution_scope,
+        )
+
+        measurement_root_execution_binding = bind_measurement_root_execution_scope(
+            admission=context.admission,
+            job=context.job,
+            execution_scope=context.execution_scope,
+        )
         with producer_run_binding_scope:
             compiled = async_tools.run_coro_sync(
                 self.compile_and_run_recursive_generation_cycle(
@@ -137,6 +146,7 @@ class ControlNLJobExecutionMixin:
                         else None
                     ),
                     trusted_source_context=trusted_source_context,
+                    measurement_root_execution_binding=measurement_root_execution_binding,
                 ),
                 timeout_seconds=max(120.0, 120.0 * max_cycles),
             )

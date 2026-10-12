@@ -1839,7 +1839,10 @@ def _candidate_simulation_projection(
                             or profile_binding.historical_binding_status != "resolved"
                             or compiled.n4_child_profile_status != "resolved"
                             or profile_binding.profile_config_ref != child_row.profile_config_ref
-                            or profile_binding.profile_selection_ref != child_row.profile_selection_ref
+                            or (
+                                profile_binding.profile_selection_ref
+                                != child_row.profile_selection_ref
+                            )
                             or profile_binding.context_job_ref != child_row.context_job_ref
                             or profile_binding.root_n4_source_ref != child_row.n4_source_ref
                         ):
@@ -1874,7 +1877,9 @@ def _candidate_simulation_projection(
                                 ):
                                     matches.append(parent_atom)
                             if len(matches) != 1:
-                                scope_failure = "parent_joint_atom_child_source_binding_not_established"
+                                scope_failure = (
+                                    "parent_joint_atom_child_source_binding_not_established"
+                                )
                                 break
                             parent_atom = matches[0]
                             unmatched_parent_atoms.remove(parent_atom)
@@ -2163,7 +2168,9 @@ def _parent_joint_candidate_selection_projection(
     candidate_selection_fields: dict[str, Any] = {
         "n8_candidate_joint_selection_status": "resolved",
         "n8_candidate_joint_selection_content_hash": selection.content_hash,
-        "n8_candidate_parent_atom_ids": tuple(member.source_atom_id for member in selection.members),
+        "n8_candidate_parent_atom_ids": tuple(
+            member.source_atom_id for member in selection.members
+        ),
         "n8_candidate_parent_atom_content_hashes": tuple(
             member.source_atom_content_hash for member in selection.members
         ),

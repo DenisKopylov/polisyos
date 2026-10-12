@@ -410,6 +410,28 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
         return value
     if annotation is Any or annotation in (list, dict, tuple, set, frozenset):
         return _snapshot_untyped_graph_hypothesis_value(value)
+    if (
+        isinstance(annotation, type)
+        and issubclass(annotation, BaseModel)
+        and getattr(annotation, "__pydantic_root_model__", False)
+    ):
+        root_field = annotation.model_fields.get("root")
+        if root_field is None:
+            raise ValueError(f"root model {annotation.__name__} has no declared root field")
+        if isinstance(value, BaseModel):
+            if type(value) is not annotation:
+                raise ValueError(
+                    f"graph hypothesis root model requires exact {annotation.__name__} runtime type"
+                )
+            root_fields = _canonical_model_field_snapshot(value, annotation)
+            if set(root_fields) != {"root"}:
+                raise ValueError(f"root model {annotation.__name__} has invalid stored fields")
+            root_value = _snapshot_graph_hypothesis_value(
+                root_fields["root"], root_field.annotation
+            )
+        else:
+            root_value = _snapshot_graph_hypothesis_value(value, root_field.annotation)
+        return annotation.model_validate(root_value, strict=True)
     if isinstance(annotation, type) and issubclass(annotation, BaseModel):
         if isinstance(value, BaseModel):
             if not isinstance(value, annotation):

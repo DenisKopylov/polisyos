@@ -19,9 +19,14 @@ from polisyos.pdc import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactManifest, ArtifactRef
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
     from polisyos.runtime.quality.workspace.loop import WorkspaceSearchExitContract
 
-    from ..control_plane_store import ControlJobRecord
+    from ..control_plane_store import (
+        ControlJobExecutionAdmission,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
 
 
 class _WorkflowExecutionNonAuthorityError(RuntimeError):
@@ -69,6 +74,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         endpoint: str,
         http_request_id: str,
         execution_scope_status: Literal["established", "not_established"],
+        admission: ControlJobExecutionAdmission,
+        execution_scope: ControlJobExecutionScope,
+        execution_scope_binding: MeasurementRootExecutionBinding,
     ) -> dict[str, Any]:
         if self._execute_workflow_is_overridden():
             result = self._execute_workflow(state_payload, checkpoint_policy)
@@ -120,6 +128,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             endpoint=endpoint,
             http_request_id=http_request_id,
             execution_scope_status=execution_scope_status,
+            admission=admission,
+            execution_scope=execution_scope,
+            execution_scope_binding=execution_scope_binding,
         )
 
     def _execute_workflow(
@@ -149,6 +160,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         endpoint: str,
         http_request_id: str,
         execution_scope_status: Literal["established", "not_established"],
+        admission: ControlJobExecutionAdmission,
+        execution_scope: ControlJobExecutionScope,
+        execution_scope_binding: MeasurementRootExecutionBinding,
     ) -> dict[str, Any]:
         from polisyos.runtime.quality.authority import (
             ProductionLoopRunProof,
@@ -213,12 +227,17 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             if request_ref is not None:
                 contract = self._run_workspace_production_case(
                     job=job,
+                    execution_scope_binding=execution_scope_binding,
                     request_ref=request_ref,
                     input_artifacts=input_artifacts,
                     fixture_id=fixture_id,
                 )
             else:
-                contract = self._run_workspace_loop_fixture(job=job, fixture_id=fixture_id)
+                contract = self._run_workspace_loop_fixture(
+                    job=job,
+                    fixture_id=fixture_id,
+                    execution_scope_binding=execution_scope_binding,
+                )
         except _WorkflowExecutionNonAuthorityError as exc:
             progress = self._attach_failed_workspace_loop_proof(
                 dict(exc.progress),
@@ -606,6 +625,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         self,
         *,
         job: ControlJobRecord,
+        execution_scope_binding: MeasurementRootExecutionBinding,
         request_ref: object,
         input_artifacts: list[str],
         fixture_id: str,
@@ -630,6 +650,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             return WorkspaceLoop(
                 catalog_graph=self._registry_providers.gy_catalog_graph,
                 artifact_store=self._artifact_store,
+                execution_scope_binding=execution_scope_binding,
             ).run_production_case(request_ref=request_ref, fixture_id=fixture_id)
         except Exception as exc:
             progress = self._workflow_failure_progress(
@@ -648,6 +669,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         *,
         job: ControlJobRecord,
         fixture_id: str,
+        execution_scope_binding: MeasurementRootExecutionBinding,
     ) -> WorkspaceSearchExitContract:
         from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
 
@@ -655,6 +677,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             return WorkspaceLoop(
                 catalog_graph=getattr(self._registry_providers, "gy_catalog_graph", None),
                 artifact_store=self._artifact_store,
+                execution_scope_binding=execution_scope_binding,
             ).run_control_plane_fixture(fixture_id)
         except Exception as exc:
             progress = self._workflow_failure_progress(

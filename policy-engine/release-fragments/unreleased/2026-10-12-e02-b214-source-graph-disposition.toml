@@ -4,7 +4,7 @@ type = "fixed"
 component = "ir"
 owner = "team-ir"
 summary = "Discovery reports, hypotheses, fitted SCMs, and scalar ID consumers retain typed source-graph boundaries; full-field graph snapshots are detached before analysis, current GraphHypothesis writes recursively revalidate the complete declared nested model tree before CAS, and PAG/CPDAG scalar identification remains a typed limitation until completion semantics are adjudicated."
-compatibility = "CausalDiscoveryReport advances to schema 1.1 and StructuralCausalModelSpec to 1.2 with additive graph-disposition fields; TransportabilityResult adds source-profile identity fields under schema 2.1. GraphHypothesis current writes are exactly schema 1.1, recursively reconstruct all declared nested model fields from actual storage, and bind payload and CAS manifest versions; only exact historical schema-1.0 payloads without a projection disposition use the typed legacy adapter. Valid DAG projection preserves graph content but returns a detached canonical snapshot rather than the caller's object. Historical receipts are replayed only against the canonical profile projector, otherwise their candidate projection stays typed unsupported."
+compatibility = "CausalDiscoveryReport advances to schema 1.1 and StructuralCausalModelSpec to 1.2 with additive graph-disposition fields; TransportabilityResult adds source-profile identity fields under schema 2.1. GraphHypothesis current writes are exactly schema 1.1, recursively reconstruct all declared nested model fields from actual storage, and bind payload and CAS manifest versions; only exact historical schema-1.0 payloads without a projection disposition use the typed legacy adapter. DownstreamUtilityReport and GraphPriorBundle current writers bind schema 1.2; exact historical 1.1 artifacts are read as routing-only with explicit unknown, ranking-only scope and are rejected by current source-proof replay. Valid DAG projection preserves graph content but returns a detached canonical snapshot rather than the caller's object. Historical receipts are replayed only against the canonical profile projector, otherwise their candidate projection stays typed unsupported."
 change_class = "persisted-artifact-format"
 surface_classification = "public_stable: versioned polisyos.ir.analytics artifacts; internal graph-admission implementation"
 migration = "Readers preserve historical source graphs and fail closed when a prior resolved graph cannot be reproduced from the complete source payload. Only unversioned input mappings and manifest-bound schema-1.0 GraphHypothesis payloads without the disposition use the historical adapter; the latter are upgraded only by exact profile recomputation and remain typed unsupported when unresolved. Current GraphHypothesis writes require payload and manifest schema 1.1 to match, and mismatches or missing current versions are rejected before analysis. Schema-1.1 payloads must include the disposition. Regenerate and review the IR schema snapshots and public-surface inventory before release."
@@ -55,4 +55,43 @@ deprecation_window = "not_applicable"
 release_note = "Direct scalar ID and TR entry points consume detached snapshots of the complete graph and typed selection diagram; PAG/CPDAG source tags remain a typed limitation until completion semantics are adjudicated. Static ID refuses cyclic ADMGs and M-graphs without full-law inputs; TR requires each S-node target in the base graph, and the validated dynamic-reduction, sigma/cyclic, temporal, and full-law routes retain their separate owners."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["docs/reference/ir/analytics.md", "src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b214-shared-static-cache-and-candidate-audit-boundary"
+change_class = "behavioral-refusal-boundary"
+impact = "typed fail-closed graph admission and diagnostic eligibility"
+surface = "static causal graph consumers and discovery audit reports"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Cached static graph consumers validate complete canonical graph content before cache lookup and use SHA-256 content-keyed least-recently-used caches capped at 128 adjacency entries and 128 component entries; cache values do not retain caller graph objects. Constraint-family fields, persisted references, or preview rows derive candidate-only scope without warning-prefix or block-ID markers. Current DownstreamUtilityReport and GraphPriorBundle schema 1.2 carry unknown assumptions and ranking-only scope through emitted needs. Exact historical 1.1 artifacts remain routing-only and cannot enter source-proof replay. The separate protected-promotion gate is unchanged; this does not decide partial-graph CI completion semantics, establish source completeness, or confer causal authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b214-candidate-graph-diagnostic-scope"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "DownstreamUtilityReport and GraphPriorBundle schema 1.2; HypothesisUtilityScore and HypothesisIdentificationEvidence"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Current DownstreamUtilityReport 1.2 scorecards derive unknown assumption status and ranking-only falsification scope from typed constraint-family evidence, persisted constraint references, or hydrated previews, and GraphPriorBundle 1.2 carries that status through per-hypothesis evidence into emitted cross-graph needs. Exact historical 1.1 utility and prior artifacts remain labeled 1.1 and are read as routing-only with unknown scope. Neither path authorizes publication or protected promotion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ir/analytics.md", "docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b214-downstream-utility-report-version-handshake"
+change_class = "persisted-artifact-format"
+impact = "Current schema 1.2 handshake with bounded historical schema 1.1 reads"
+surface = "scientist DownstreamUtilityReport CAS artifacts and source-identification consumer"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Current DownstreamUtilityReport and GraphPriorBundle writes bind payload and manifest to schema 1.2, and source-identification evidence requires both matching 1.2 artifacts before replay. Exact profile-bound historical 1.1 scorecards and priors remain labeled 1.1 and are adapted only to routing with unknown assumptions and ranking-only scope; unknown/future versions and manifest mismatches fail closed. No HTTP/client DTO shape changes are made. Generated schema and public inventory review remain root-owned and pending."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ir/analytics.md", "docs/reference/scientist/causal-graph-intake.md"]
 runbook_docs = []

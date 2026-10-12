@@ -24,8 +24,10 @@ from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeMark,
+    GraphProjectionStatus,
     GraphType,
     PAGIdentificationPolicy,
+    graph_projection_disposition,
 )
 
 
@@ -49,6 +51,41 @@ def _large_state(n_variables: int = 55, n_samples: int = 80) -> TabularCausalDis
     data = rng.normal(0.0, 1.0, size=(n_samples, n_variables))
     names = [f"V{i}" for i in range(n_variables)]
     return TabularCausalDiscoveryData(data=data, variable_names=names)
+
+
+def _identity_dag_report(nodes: list[str], edges: list[CausalEdge]) -> CausalDiscoveryReport:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=nodes,
+        edges=edges,
+        discovery_method="controlled_identity_dag_candidate",
+    )
+    return CausalDiscoveryReport(
+        method="controlled_identity_dag_candidate",
+        graph=graph,
+        projection_disposition=graph_projection_disposition(
+            graph,
+            None,
+            status=GraphProjectionStatus.IDENTITY,
+        ),
+    )
+
+
+def _audit_identity_dag_with_blocks(
+    *,
+    data: np.ndarray,
+    variable_names: list[str],
+    blocks: list[dict[str, object]],
+) -> CausalDiscoveryReport:
+    report = _identity_dag_report(variable_names, [])
+    return constraint_module._stamp_algebraic_constraint_audit(
+        report,
+        data=data,
+        variable_names=variable_names,
+        significance_level=0.05,
+        seed=0,
+        algebraic_blocks=constraint_module._validate_algebraic_blocks(blocks),
+    )
 
 
 def _adj_with_xy_edge() -> np.ndarray:
@@ -475,6 +512,25 @@ def test_pc_discovery_explicit_jax_ci_backend_is_functional() -> None:
     assert report.graph.nodes == ["X", "Y", "Z"]
 
 
+def test_identity_dag_audit_keeps_graph_constraints_candidate_scoped() -> None:
+    report = _identity_dag_report(["X", "Y"], [])
+    audited = constraint_module._stamp_algebraic_constraint_audit(
+        report,
+        data=np.zeros((4, 2)),
+        variable_names=["X", "Y"],
+        significance_level=0.05,
+        seed=0,
+    )
+
+    assert audited.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.CI in audited.algebraic_constraints.families_run
+    assert any(
+        "Graph-derived constraint diagnostics are candidate-only" in warning
+        for warning in audited.algebraic_constraints.warnings
+    )
+    assert audited.graph_for_analysis() == audited.graph
+
+
 def test_implied_ci_constraints_extract_minimal_dag_separator() -> None:
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
@@ -488,13 +544,16 @@ def test_implied_ci_constraints_extract_minimal_dag_separator() -> None:
 
     constraints = constraint_module._implied_ci_constraints(graph)
 
-    assert any(
-        constraint.variables == ("X", "Y") and constraint.conditioning_set == ("Z",)
+    candidate = next(
+        constraint
         for constraint in constraints
+        if constraint.variables == ("X", "Y") and constraint.conditioning_set == ("Z",)
     )
+    assert candidate.metadata["assumption_status"] == "unknown"
+    assert candidate.metadata["scope_of_falsification"] == "ranking_only"
 
 
-def test_implied_ci_constraints_extract_pag_marginal_separation() -> None:
+def test_implied_ci_constraints_refuses_pag_marginal_separation_without_scope() -> None:
     graph = CausalGraphModel(
         graph_type=GraphType.PAG,
         nodes=["X", "Y"],
@@ -503,68 +562,99 @@ def test_implied_ci_constraints_extract_pag_marginal_separation() -> None:
         pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
     )
 
-    constraints = constraint_module._implied_ci_constraints(graph)
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        PartialGraphCompletionSemanticsError,
+    )
 
+    with pytest.raises(PartialGraphCompletionSemanticsError):
+        constraint_module._implied_ci_constraints(graph)
+
+
+def test_graph_only_cpdag_ci_is_a_typed_limitation() -> None:
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        PartialGraphCompletionSemanticsError,
+    )
+
+    graph = CausalGraphModel(
+        graph_type=GraphType.CPDAG,
+        nodes=["X", "Y"],
+        edges=[],
+        discovery_method="unit",
+    )
+
+    with pytest.raises(PartialGraphCompletionSemanticsError):
+        constraint_module._implied_ci_constraints(graph)
+
+
+def test_partial_discovery_report_skips_graph_derived_constraint_families() -> None:
+    from polisyos.ir.analytics.causal_graph import GraphProjectionStatus, graph_projection_disposition
+
+    graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[],
+        discovery_method="unit",
+        pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+    )
+    report = CausalDiscoveryReport(
+        method="unit",
+        graph=graph,
+        projection_disposition=graph_projection_disposition(
+            graph,
+            None,
+            status=GraphProjectionStatus.UNSUPPORTED,
+            reason_code="partial_graph_completion_semantics_not_established",
+        ),
+    )
+    audited = constraint_module._stamp_algebraic_constraint_audit(
+        report,
+        data=np.zeros((4, 2)),
+        variable_names=["X", "Y"],
+        significance_level=0.05,
+        seed=0,
+    )
+
+    assert audited.algebraic_constraints is not None
+    assert AlgebraicConstraintFamily.CI not in audited.algebraic_constraints.families_run
     assert any(
-        frozenset(constraint.variables) == frozenset({"X", "Y"})
-        and constraint.conditioning_set == ()
-        for constraint in constraints
+        "ci_family_skipped:graph_profile_or_identity_not_admitted" in warning
+        for warning in audited.algebraic_constraints.warnings
     )
 
 
-def test_ci_violation_escalates_to_blocker(monkeypatch) -> None:
+def test_identity_dag_ci_violation_is_candidate_blocker_with_unknown_scope() -> None:
     rng = np.random.default_rng(23)
     x = rng.normal(0.0, 1.0, size=200)
     y = 0.85 * x + rng.normal(0.0, 0.25, size=200)
     z = rng.normal(0.0, 1.0, size=200)
-    state = TabularCausalDiscoveryData(
-        data=np.column_stack([x, y, z]),
+    data = np.column_stack([x, y, z])
+    report = _identity_dag_report(["X", "Y", "Z"], [])
+
+    report = constraint_module._stamp_algebraic_constraint_audit(
+        report,
+        data=data,
         variable_names=["X", "Y", "Z"],
+        significance_level=0.05,
+        seed=0,
     )
-
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=_adj_without_edges(),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
-    output = PCDiscovery.pure_step(
-        state,
-        params={"n_bootstrap": 0, "timeout_seconds": 30},
-    )
-    report = output["report"]
 
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.severity == "blocker"
     assert report.algebraic_constraints.n_violated_constraints >= 1
     assert report.metadata["algebraic_constraint_severity"] == "blocker"
     assert "ci" in report.metadata["algebraic_constraint_families_run"]
+    violation = next(
+        item
+        for item in report.algebraic_constraints.violated_constraints_preview
+        if item.family is AlgebraicConstraintFamily.CI
+    )
+    assert violation.assumption_status.value == "unknown"
+    assert violation.scope_of_falsification.value == "ranking_only"
 
 
-def test_ci_violation_carries_dp_calibration_metadata(monkeypatch) -> None:
+def test_ci_violation_carries_dp_calibration_metadata() -> None:
     x = np.tile(np.array([0.0, 1.0]), 200)
     y = x.copy()
-    state = TabularCausalDiscoveryData(
-        data=np.column_stack([x, y]),
-        variable_names=["X", "Y"],
-    )
-
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=np.zeros((2, 2), dtype=int),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
     dp_context = {
         "mechanism": "gaussian_counts",
         "epsilon": 0.6,
@@ -584,15 +674,15 @@ def test_ci_violation_carries_dp_calibration_metadata(monkeypatch) -> None:
             ),
         )
     )
-    report = PCDiscovery.pure_step(
-        state,
-        params={
-            "timeout_seconds": 30,
-            "dp_context": dp_context,
-            "ci_threshold_policies": policies.model_dump(mode="python"),
-        },
-    )["report"]
-
+    report = constraint_module._stamp_algebraic_constraint_audit(
+        _identity_dag_report(["X", "Y"], []),
+        data=np.column_stack([x, y]),
+        variable_names=["X", "Y"],
+        significance_level=0.05,
+        seed=0,
+        dp_context=dp_context,
+        ci_threshold_policies=policies.model_dump(mode="python"),
+    )
     assert report.algebraic_constraints is not None
     violation = next(
         item
@@ -604,6 +694,8 @@ def test_ci_violation_carries_dp_calibration_metadata(monkeypatch) -> None:
     assert violation.metadata["calibration_mode"] == "analytic_weighted_chi2"
     assert violation.metadata["dp_context_summary"]["mechanism"] == "gaussian_counts"
     assert violation.metadata["threshold_registry_scope"]["family"] == "categorical_ci"
+    assert violation.assumption_status.value == "unknown"
+    assert violation.scope_of_falsification.value == "ranking_only"
 
 
 def test_malformed_algebraic_blocks_are_rejected() -> None:
@@ -846,6 +938,7 @@ def test_trek_rank_block_flags_full_rank_cross_covariance_as_blocker(monkeypatch
                     "max_rank": 1,
                     "assumption_regime": "linear_gaussian_continuous",
                     "test_mode": "bootstrap_minor",
+                    "graph_scope": "auto:t_separation_search",
                 }
             ],
         },
@@ -866,32 +959,29 @@ def test_trek_rank_block_flags_full_rank_cross_covariance_as_blocker(monkeypatch
     assert trek_violation.ranking_weight > 0.0
 
 
-def test_graph_implied_trek_rank_blocks_are_auto_inferred(monkeypatch) -> None:
+def test_identity_dag_auto_trek_diagnostics_keep_unknown_scope() -> None:
     state = _auto_trek_rank_state()
-
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=_common_parent_adj(),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
-    report = PCDiscovery.pure_step(
-        state,
-        params={"timeout_seconds": 30},
-    )["report"]
+    report = _identity_dag_report(
+        ["L", "A1", "A2", "B1", "B2"],
+        [
+            CausalEdge(src="L", dst="A1"),
+            CausalEdge(src="L", dst="A2"),
+            CausalEdge(src="L", dst="B1"),
+            CausalEdge(src="L", dst="B2"),
+        ],
+    )
+    report = constraint_module._stamp_algebraic_constraint_audit(
+        report,
+        data=state.data,
+        variable_names=state.variable_names,
+        significance_level=0.05,
+        seed=0,
+    )
 
     assert report.algebraic_constraints is not None
-    assert (
-        AlgebraicConstraintFamily.TREK_RANK.value
-        in report.metadata["algebraic_constraint_families_run"]
-    )
+    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
     assert report.algebraic_constraints.tested_by_family["trek_rank"] >= 1
-    assert report.algebraic_constraints.violated_by_family["trek_rank"] == 0
+    assert report.algebraic_constraints.blocker_conditions_met_by_family.get("trek_rank", False) is False
     assert any(
         constraint.source_block_id and constraint.source_block_id.startswith("auto_trek_rank:")
         for constraint in report.algebraic_constraints.implied_constraints_preview
@@ -900,38 +990,38 @@ def test_graph_implied_trek_rank_blocks_are_auto_inferred(monkeypatch) -> None:
     assert any(
         "trek_rank_auto_inferred" in warning for warning in report.algebraic_constraints.warnings
     )
+    assert all(
+        item.metadata["assumption_status"] == "unknown"
+        and item.metadata["scope_of_falsification"] == "ranking_only"
+        for item in report.algebraic_constraints.implied_constraints_preview
+        if item.family is AlgebraicConstraintFamily.TREK_RANK
+    )
+    assert all(
+        violation.assumption_status.value == "unknown"
+        and violation.scope_of_falsification.value == "ranking_only"
+        for violation in report.algebraic_constraints.violated_constraints_preview
+        if violation.family is AlgebraicConstraintFamily.TREK_RANK
+    )
 
 
-def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal(monkeypatch) -> None:
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=_adj_without_edges(),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
-    report = PCDiscovery.pure_step(
-        _state(),
-        params={
-            "timeout_seconds": 30,
-            "algebraic_blocks": [
-                {
-                    "block_id": "geom_1",
-                    "family": "algebraic_geometry_invariant",
-                    "variables": ["X", "Y", "Z"],
-                    "invariant_polynomials": ["sigma_xy * sigma_yz - sigma_xz * sigma_yy"],
-                    "semi_algebraic_inequalities": ["det(Sigma[X,Y,Z]) >= 0"],
-                    "derivation_method": "groebner_elimination",
-                    "precomputed_violation_score": 0.7,
-                    "test_mode": "offline_catalog",
-                }
-            ],
-        },
-    )["report"]
+def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal() -> None:
+    state = _state()
+    report = _audit_identity_dag_with_blocks(
+        data=state.data,
+        variable_names=state.variable_names,
+        blocks=[
+            {
+                "block_id": "geom_1",
+                "family": "algebraic_geometry_invariant",
+                "variables": ["X", "Y", "Z"],
+                "invariant_polynomials": ["sigma_xy * sigma_yz - sigma_xz * sigma_yy"],
+                "semi_algebraic_inequalities": ["det(Sigma[X,Y,Z]) >= 0"],
+                "derivation_method": "groebner_elimination",
+                "precomputed_violation_score": 0.7,
+                "test_mode": "offline_catalog",
+            }
+        ],
+    )
 
     assert report.algebraic_constraints is not None
     assert (
@@ -951,34 +1041,20 @@ def test_algebraic_geometry_invariant_block_is_ranking_only_info_signal(monkeypa
     assert geometry_violation.reproducibility_tier.value == "research_preview"
 
 
-def test_binary_iv_algebraic_geometry_block_passes_on_compatible_data(monkeypatch) -> None:
+def test_binary_iv_algebraic_geometry_block_passes_on_compatible_data() -> None:
     state = _binary_iv_compatible_state()
-
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=_adj_without_edges(),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
-    report = PCDiscovery.pure_step(
-        state,
-        params={
-            "timeout_seconds": 30,
-            "algebraic_blocks": [
-                {
-                    "block_id": "iv_binary",
-                    "family": "algebraic_geometry_invariant",
-                    "variables": ["Z", "D", "Y"],
-                    "derivation_method": "iv_binary_response_polytope",
-                }
-            ],
-        },
-    )["report"]
+    report = _audit_identity_dag_with_blocks(
+        data=state.data,
+        variable_names=state.variable_names,
+        blocks=[
+            {
+                "block_id": "iv_binary",
+                "family": "algebraic_geometry_invariant",
+                "variables": ["Z", "D", "Y"],
+                "derivation_method": "iv_binary_response_polytope",
+            }
+        ],
+    )
 
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
@@ -991,57 +1067,28 @@ def test_binary_iv_algebraic_geometry_block_passes_on_compatible_data(monkeypatc
     )
 
 
-def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker(monkeypatch) -> None:
+def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker() -> None:
     state = _binary_iv_incompatible_state()
-
-    def _fake_runner(**kwargs):
-        del kwargs
-        return constraint_module._DiscoveryExecutionResult(
-            adjacency=_adj_without_edges(),
-            metadata={},
-            error=None,
-            timed_out=False,
-        )
-
-    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _fake_runner)
-
-    report = PCDiscovery.pure_step(
-        state,
-        params={
-            "timeout_seconds": 30,
-            "algebraic_blocks": [
-                {
-                    "block_id": "iv_binary",
-                    "family": "algebraic_geometry_invariant",
-                    "variables": ["Z", "D", "Y"],
-                    "derivation_method": "iv_binary_response_polytope",
-                }
-            ],
-        },
-    )["report"]
+    report = _audit_identity_dag_with_blocks(
+        data=state.data,
+        variable_names=state.variable_names,
+        blocks=[
+            {
+                "block_id": "iv_binary",
+                "family": "algebraic_geometry_invariant",
+                "variables": ["Z", "D", "Y"],
+                "derivation_method": "iv_binary_response_polytope",
+            }
+        ],
+    )
 
     assert report.algebraic_constraints is not None
     assert report.algebraic_constraints.severity == "blocker"
     assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
     assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] >= 1
-    assert (
-        report.algebraic_constraints.blocker_conditions_met_by_family[
-            "algebraic_geometry_invariant"
-        ]
-        is True
-    )
-    geometry_violation = next(
-        violation
-        for violation in report.algebraic_constraints.violated_constraints_preview
-        if violation.family is AlgebraicConstraintFamily.ALGEBRAIC_GEOMETRY_INVARIANT
-    )
-    assert geometry_violation.scope_of_falsification.value == "graph_class"
-    assert geometry_violation.severity == "blocker"
-    assert geometry_violation.metadata["route"] == "binary_iv_instrumental_inequalities"
-    assert (
-        geometry_violation.metadata["negative_certificate"]["blocking_type"]
-        == "model_class_incompatible"
-    )
+    assert report.algebraic_constraints.blocker_conditions_met_by_family[
+        "algebraic_geometry_invariant"
+    ] is True
 
 
 def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None:

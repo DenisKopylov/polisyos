@@ -4,6 +4,7 @@ import datetime as dt
 import hashlib
 import json
 import re
+import shlex
 import subprocess
 import sys
 import tomllib
@@ -14,6 +15,46 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = REPO_ROOT.parent
+
+_REQUIRED_GATE_IDS = frozenset(
+    {
+        "topology-loose-files",
+        "import-linter",
+        "public-surface",
+        "generated-drift",
+        "docs-freshness",
+        "public-polish",
+        "shim-audit",
+        "complexity-exceptions",
+        "security-baselines",
+        "dependency-baselines",
+        "sbom-baseline",
+        "commit-policy",
+        "command-registry",
+    }
+)
+_REQUIRED_SUBPROCESS_GATE_IDS = frozenset(
+    {
+        "topology-loose-files",
+        "import-linter",
+        "public-surface",
+        "generated-drift",
+        "public-polish",
+        "command-registry",
+    }
+)
+_REQUIRED_PREFLIGHT_GATE_IDS = frozenset(
+    {
+        "docs-freshness",
+        "shim-audit",
+        "complexity-exceptions",
+        "security-baselines",
+        "dependency-baselines",
+        "sbom-baseline",
+        "commit-policy",
+    }
+)
+_REQUIRED_CONDITIONAL_GATE_IDS = frozenset({"docs-freshness"})
 
 
 def test_phase5_repository_sota_closeout_command_is_registered() -> None:
@@ -29,30 +70,20 @@ def test_phase5_repository_sota_closeout_command_is_registered() -> None:
 def test_phase5_gate_registry_is_fail_closed_and_evidence_backed() -> None:
     contract = _read_toml("architecture/gates/repository_sota.toml")
     header = contract["repository_sota_gates"]
-    gates = {gate["id"]: gate for gate in contract["gate"]}
+    gate_rows = contract["gate"]
+    gate_ids = [gate["id"] for gate in gate_rows]
+    assert len(gate_ids) == len(set(gate_ids))
+    gates = {gate["id"]: gate for gate in gate_rows}
 
     assert header["status"] == "fail_closed"
     assert _contract_path_exists(header["closeout_report"])
     assert header["gate_command"] == "uv run polisyos-tools workspace repository-sota-closeout"
 
-    assert {
-        "topology-loose-files",
-        "import-linter",
-        "public-surface",
-        "generated-drift",
-        "docs-freshness",
-        "public-polish",
-        "shim-audit",
-        "complexity-exceptions",
-        "security-baselines",
-        "dependency-baselines",
-        "sbom-baseline",
-        "commit-policy",
-        "command-registry",
-    } <= set(gates)
+    assert set(gates) >= _REQUIRED_GATE_IDS
 
     for gate in gates.values():
         assert gate["mode"] == "fail_closed", gate["id"]
+        assert isinstance(gate["coverage"], list) and gate["coverage"], gate["id"]
         assert gate["owner"], gate["id"]
         assert gate["command"], gate["id"]
         assert _contract_path_exists(gate["evidence"]), gate["id"]
@@ -62,31 +93,374 @@ def test_phase5_gate_registry_is_fail_closed_and_evidence_backed() -> None:
         gates["generated-drift"]["command"]
         == "uv run polisyos-tools architecture guardrails check --all-generated-checks"
     )
-    assert (
-        gates["docs-freshness"]["command"]
-        == "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
+    assert gates["topology-loose-files"]["command"] == (
+        "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py -q"
+    )
+    assert gates["public-surface"]["command"] == (
+        "uv run polisyos-tools architecture guardrails check"
+    )
+    assert gates["docs-freshness"]["command"] == (
+        "uv run polisyos-tools validation check-docs-accuracy --repo-root ."
+    )
+    assert gates["generated-drift"]["skip_command"] == (
+        "uv run polisyos-tools architecture guardrails check --skip-generated-checks"
     )
 
 
-def test_phase5_closeout_generated_gate_uses_explicit_full_or_skip_mode() -> None:
+def test_phase5_registered_routes_resolve_and_dispatch_every_subprocess_row() -> None:
     from tools.devx.workspace import repository_sota_closeout
 
-    full = repository_sota_closeout._generated_guardrail_command(skip_generated_checks=False)
-    light = repository_sota_closeout._generated_guardrail_command(skip_generated_checks=True)
+    contract = _read_toml("architecture/gates/repository_sota.toml")
+    gate_rows = contract["gate"]
+    registry_ids = {gate["id"] for gate in gate_rows}
+    registry_subprocess_ids = {gate["id"] for gate in gate_rows if "subprocess" in gate["coverage"]}
+    registry_preflight_ids = {
+        gate["id"]
+        for gate in gate_rows
+        if any(route.startswith("preflight:") for route in gate["coverage"])
+    }
+    registry_conditional_ids = {
+        gate["id"]
+        for gate in gate_rows
+        if any(route.startswith("conditional:") for route in gate["coverage"])
+    }
+    full_ids = {
+        gate_id
+        for gate_id, _command in repository_sota_closeout._registered_subprocess_gates(
+            skip_generated_checks=False
+        )
+    }
+    skip_ids = {
+        gate_id
+        for gate_id, _command in repository_sota_closeout._registered_subprocess_gates(
+            skip_generated_checks=True
+        )
+    }
 
-    assert full[-1] == "--all-generated-checks"
-    assert light[-1] == "--skip-generated-checks"
-    assert (
-        full[:-1]
-        == light[:-1]
-        == [
-            "uv",
-            "run",
-            "polisyos-tools",
-            "architecture",
-            "guardrails",
-            "check",
+    assert registry_ids >= _REQUIRED_GATE_IDS
+    assert registry_subprocess_ids >= _REQUIRED_SUBPROCESS_GATE_IDS
+    assert registry_preflight_ids >= _REQUIRED_PREFLIGHT_GATE_IDS
+    assert registry_conditional_ids >= _REQUIRED_CONDITIONAL_GATE_IDS
+    assert repository_sota_closeout._check_gate_registry() == []
+    assert full_ids == registry_subprocess_ids
+    assert skip_ids == registry_subprocess_ids
+    full = dict(repository_sota_closeout._registered_subprocess_gates(skip_generated_checks=False))
+    light = dict(repository_sota_closeout._registered_subprocess_gates(skip_generated_checks=True))
+    assert full["generated-drift"][-1] == "--all-generated-checks"
+    assert light["generated-drift"][-1] == "--skip-generated-checks"
+
+
+@pytest.mark.parametrize("gate_id", sorted(_REQUIRED_GATE_IDS))
+def test_phase5_contract_entrypoint_rejects_deleted_required_gate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, gate_id: str
+) -> None:
+    from copy import deepcopy
+
+    contract = deepcopy(_read_toml("architecture/gates/repository_sota.toml"))
+    contract["gate"] = [row for row in contract["gate"] if row["id"] != gate_id]
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, contract)
+
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert any(
+        finding["gate"] == "gate-registry"
+        and finding["message"] == "missing required gate"
+        and finding["detail"] == gate_id
+        for finding in payload["findings"]
+    )
+
+
+@pytest.mark.parametrize("gate_id", sorted(_REQUIRED_GATE_IDS))
+def test_phase5_contract_entrypoint_rejects_wrong_required_command(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, gate_id: str
+) -> None:
+    from copy import deepcopy
+
+    contract = deepcopy(_read_toml("architecture/gates/repository_sota.toml"))
+    row = next(row for row in contract["gate"] if row["id"] == gate_id)
+    row["command"] = f"uv run polisyos-tools unrelated-gate {gate_id}"
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, contract)
+
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert any(
+        finding["gate"] == "gate-registry"
+        and finding["message"] == f"{gate_id} required command mismatch"
+        for finding in payload["findings"]
+    )
+
+
+@pytest.mark.parametrize("gate_id", sorted(_REQUIRED_GATE_IDS))
+def test_phase5_contract_entrypoint_rejects_wrong_required_coverage_kind(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, gate_id: str
+) -> None:
+    from copy import deepcopy
+
+    contract = deepcopy(_read_toml("architecture/gates/repository_sota.toml"))
+    row = next(row for row in contract["gate"] if row["id"] == gate_id)
+    row["coverage"] = (
+        ["preflight:ops-modes"] if gate_id in _REQUIRED_SUBPROCESS_GATE_IDS else ["subprocess"]
+    )
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, contract)
+
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert any(
+        finding["gate"] == "gate-registry"
+        and finding["message"] == f"{gate_id} required coverage routes mismatch"
+        for finding in payload["findings"]
+    )
+
+
+def test_phase5_contract_entrypoint_rejects_non_table_registry(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, [])
+
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert any(
+        finding["gate"] == "gate-registry"
+        and finding["message"] == "registry document must be a table"
+        for finding in payload["findings"]
+    )
+
+
+def _run_gate_registry_contract(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, contract: Any
+) -> tuple[int, dict[str, Any]]:
+    from tools.devx.workspace import repository_sota_closeout
+
+    original_read_toml = repository_sota_closeout._read_toml
+    original_preflights = repository_sota_closeout._preflight_checks
+
+    def read_toml(path: str) -> Any:
+        if path == "architecture/gates/repository_sota.toml":
+            return contract
+        return original_read_toml(path)
+
+    def contract_preflights() -> tuple[tuple[str, Any], ...]:
+        return tuple(
+            (
+                check_id,
+                check if check_id == "gate-registry" else (lambda: []),
+            )
+            for check_id, check in original_preflights()
+        )
+
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", read_toml)
+    monkeypatch.setattr(repository_sota_closeout, "_preflight_checks", contract_preflights)
+    output = tmp_path / "registry-closeout.json"
+    exit_code = repository_sota_closeout.main(["--contract-only", "--output-json", str(output)])
+    return exit_code, json.loads(output.read_text(encoding="utf-8"))
+
+
+@pytest.mark.parametrize("skip_generated_checks", [False, True])
+def test_phase5_only_pinned_generated_gate_may_declare_a_skip_command(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, skip_generated_checks: bool
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    contract = _read_toml("architecture/gates/repository_sota.toml")
+    gate_rows = contract["gate"]
+    required_rows = {gate["id"]: gate for gate in gate_rows}
+    assert set(required_rows) >= _REQUIRED_GATE_IDS
+
+    for gate_id, gate in required_rows.items():
+        if gate_id != "generated-drift":
+            gate["skip_command"] = "python -c pass"
+
+    additional_command = (
+        "uv run pytest tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py -q"
+    )
+    additional = {
+        "id": "additional-behavior",
+        "mode": "fail_closed",
+        "owner": "test",
+        "command": additional_command,
+        "evidence": "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "coverage": ["subprocess"],
+        "skip_command": "python -c pass",
+    }
+    malformed_additional = {
+        **additional,
+        "id": "additional-malformed-skip",
+        "skip_command": ["python", "-c", "pass"],
+    }
+    gate_rows.extend([additional, malformed_additional])
+
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, contract)
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    rows_by_id = {gate["id"]: gate for gate in gate_rows}
+    assert set(rows_by_id) >= _REQUIRED_GATE_IDS | {
+        "additional-behavior",
+        "additional-malformed-skip",
+    }
+    policy_findings = [
+        finding
+        for finding in payload["findings"]
+        if finding["message"].endswith("skip_command is only permitted for generated-drift")
+    ]
+    expected_rejected_ids = (set(_REQUIRED_GATE_IDS) - {"generated-drift"}) | {
+        "additional-behavior",
+        "additional-malformed-skip",
+    }
+    assert {finding["message"].split(" skip_command ", 1)[0] for finding in policy_findings} == (
+        expected_rejected_ids
+    )
+    assert len(policy_findings) == len(expected_rejected_ids)
+    assert any(
+        finding["message"]
+        == "additional-malformed-skip skip_command is not a valid argument string"
+        for finding in payload["findings"]
+    )
+
+    dispatched = dict(
+        repository_sota_closeout._registered_subprocess_gates(
+            skip_generated_checks=skip_generated_checks
+        )
+    )
+    assert dispatched["additional-behavior"] == shlex.split(additional_command)
+    assert dispatched["additional-malformed-skip"] == shlex.split(additional_command)
+    for gate_id in _REQUIRED_SUBPROCESS_GATE_IDS - {"generated-drift"}:
+        assert dispatched[gate_id] == shlex.split(rows_by_id[gate_id]["command"])
+    expected_generated_command = (
+        "uv run polisyos-tools architecture guardrails check --skip-generated-checks"
+        if skip_generated_checks
+        else "uv run polisyos-tools architecture guardrails check --all-generated-checks"
+    )
+    assert dispatched["generated-drift"] == shlex.split(expected_generated_command)
+
+
+@pytest.mark.parametrize("skip_generated_checks", [False, True])
+def test_phase5_invalid_registry_prevents_child_execution(
+    monkeypatch: pytest.MonkeyPatch, skip_generated_checks: bool
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    contract = _read_toml("architecture/gates/repository_sota.toml")
+    contract["gate"].append(
+        {
+            "id": "additional-behavior",
+            "mode": "fail_closed",
+            "owner": "test",
+            "command": (
+                "uv run pytest tests/repo_quality/architecture/"
+                "test_repository_sota_phase5_closeout.py -q"
+            ),
+            "evidence": "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+            "coverage": ["subprocess"],
+            "skip_command": "python -c pass",
+        }
+    )
+    original_read_toml = repository_sota_closeout._read_toml
+    original_preflights = repository_sota_closeout._preflight_checks
+
+    def read_toml(path: str) -> Any:
+        if path == "architecture/gates/repository_sota.toml":
+            return contract
+        return original_read_toml(path)
+
+    def registry_preflights() -> tuple[tuple[str, Any], ...]:
+        return tuple(
+            (check_id, check if check_id == "gate-registry" else (lambda: []))
+            for check_id, check in original_preflights()
+        )
+
+    subprocess_started = False
+
+    def unexpected_subprocess_run(_args: Any) -> list[Any]:
+        nonlocal subprocess_started
+        subprocess_started = True
+        return []
+
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", read_toml)
+    monkeypatch.setattr(repository_sota_closeout, "_preflight_checks", registry_preflights)
+    monkeypatch.setattr(
+        repository_sota_closeout, "_run_fail_closed_subprocess_gates", unexpected_subprocess_run
+    )
+    argv = ["--skip-generated-checks"] if skip_generated_checks else []
+
+    assert repository_sota_closeout.main(argv) == 1
+    assert not subprocess_started
+
+
+def test_phase5_registry_dispatched_child_preserves_failure_and_diagnostics(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    command = shlex.join(
+        [
+            sys.executable,
+            "-c",
+            "import sys; print('child-stdout'); print('child-stderr', file=sys.stderr); raise SystemExit(23)",
         ]
+    )
+    registry = {
+        "gate": [
+            {
+                "id": "newly-registered-behavior",
+                "mode": "fail_closed",
+                "owner": "test",
+                "command": command,
+                "evidence": "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+                "coverage": ["subprocess"],
+            }
+        ]
+    }
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", lambda _path: registry)
+    monkeypatch.setattr(repository_sota_closeout, "_supporting_subprocess_gates", lambda: [])
+    monkeypatch.setattr(repository_sota_closeout, "_conditional_gate_handlers", lambda: {})
+    args = repository_sota_closeout._build_parser().parse_args([])
+
+    findings = repository_sota_closeout._run_fail_closed_subprocess_gates(args)
+
+    assert len(findings) == 1
+    assert findings[0].gate == "newly-registered-behavior"
+    assert findings[0].message == "subprocess gate failed"
+    assert "child-stdout" in findings[0].detail
+    assert "child-stderr" in findings[0].detail
+
+
+def test_phase5_registry_rejects_duplicate_and_malformed_rows_without_defaults(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from copy import deepcopy
+
+    from tools.devx.workspace import repository_sota_closeout
+
+    contract = _read_toml("architecture/gates/repository_sota.toml")
+    malformed = deepcopy(contract["gate"][0])
+    malformed["command"] = []
+    duplicate = deepcopy(contract["gate"][0])
+    contract["gate"][0]["command"] = []
+    duplicate["command"] = []
+    contract["gate"].extend([malformed, duplicate])
+    original_read_toml = repository_sota_closeout._read_toml
+
+    def read_toml(path: str) -> dict[str, Any]:
+        if path == "architecture/gates/repository_sota.toml":
+            return contract
+        return original_read_toml(path)
+
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", read_toml)
+    exit_code, payload = _run_gate_registry_contract(monkeypatch, tmp_path, contract)
+    findings = payload["findings"]
+
+    assert exit_code == 1
+    assert payload["status"] == "failed"
+    assert any(finding["message"] == "duplicate gate id" for finding in findings)
+    assert any(
+        finding["message"] == "topology-loose-files command is not a valid argument string"
+        for finding in findings
+    )
+    assert all(
+        gate_id != "topology-loose-files"
+        for gate_id, _command in repository_sota_closeout._registered_subprocess_gates(
+            skip_generated_checks=False
+        )
     )
 
 
@@ -434,9 +808,12 @@ def _stub_docs_freshness_subprocess(
 ) -> list[tuple[str, list[str]]]:
     from tools.devx.workspace import repository_sota_closeout
 
-    def read_toml(path: str) -> dict[str, object]:
-        assert path == "architecture/exceptions/docs_freshness.toml"
-        return {"docs_freshness_exceptions": baseline}
+    original_read_toml = repository_sota_closeout._read_toml
+
+    def read_toml(path: str) -> dict[str, Any]:
+        if path == "architecture/exceptions/docs_freshness.toml":
+            return {"docs_freshness_exceptions": baseline}
+        return original_read_toml(path)
 
     calls: list[tuple[str, list[str]]] = []
 

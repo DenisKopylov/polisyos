@@ -391,3 +391,20 @@ target to name a base-graph variable, and pass that same detached object to the
 identifier. Raw endpoint/orientation inspection stays descriptive; it does not
 authorize a scalar proof. This does not estimate completion probabilities,
 establish graph truth, or close B214.
+
+### Shared static-cache intake and candidate diagnostics
+
+Every cached scalar adjacency read canonicalizes the complete live graph, refuses unadmitted graph tags and validates endpoint marks, lag, and metadata before lookup, including empty-query and no-op consumers. Reuse is keyed by the SHA-256 digest of the complete strictly revalidated canonical graph content, so an equivalent fresh graph can hit the same entry and any changed field produces a different key. The adjacency and c-component caches are separate least-recently-used maps, each capped at 128 entries; their values retain a detached canonical graph or component tuple, never the caller object. Cache capacity is an entry-count bound, not a byte-size claim. Resolved DAG and static ADMG operations remain available, while cyclic sigma and M-graph full-law work keep their existing dedicated owners.
+
+A content-bound identity DAG may produce graph-derived CI and automatic
+trek-rank diagnostics for candidate ranking. Their assumptions remain typed
+unknown and their falsification scope remains ranking_only through the
+DownstreamUtilityReport scorecard; the scorecard records that source
+completeness, population, temporal scope, selection, and the distribution
+Markov assumption are unknown. Automatic trek-rank diagnostics cannot become
+blockers from a graph-declared assumption regime alone. These candidate
+signals do not pass the separate protected-promotion gate. PAG/CPDAG sources,
+projected DAGs, and other non-identity graph profiles remain skipped with a
+typed limitation; explicit algebraic blocks remain independently auditable.
+Partial-graph CI stays held for the G decision, with no completion probability
+or causal authority inferred.

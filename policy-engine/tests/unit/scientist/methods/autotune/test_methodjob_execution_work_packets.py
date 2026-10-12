@@ -15,7 +15,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog.causal import advanced_designs
@@ -45,6 +45,7 @@ from polisyos.scientist.methods.autotune.bayesian_generator import (
     SearchSpace,
 )
 from polisyos.scientist.methods.autotune.execution_work import (
+    _fingerprint_method_request_material,
     fingerprint_method_input_value,
 )
 from polisyos.scientist.methods.autotune.models import SearchGPFitBasis
@@ -73,6 +74,22 @@ class _NonDiagnosticCausalCandidate(MutationArtifact):
 class _NativeSearchDiagnosticCandidate(_DiagnosticCausalCandidate):
     loop_id: Literal["b157_diagnostic"] = "b157_diagnostic"
     search_coordinate: float = 0.5
+
+
+def test_method_request_fingerprint_accepts_only_finite_floats_and_preserves_int_bytes() -> None:
+    integer_request = {"count": 3, "seed": 17}
+    assert _fingerprint_method_request_material(integer_request) == fingerprint(
+        integer_request
+    )
+    assert _fingerprint_method_request_material({"clip": 0.4}) != (
+        _fingerprint_method_request_material({"clip": 0.41})
+    )
+    assert _fingerprint_method_request_material({"clip": 0.4, "count": 3}) == (
+        _fingerprint_method_request_material({"count": 3, "clip": 0.4})
+    )
+    for non_finite in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match="NaN/Inf forbidden"):
+            _fingerprint_method_request_material({"clip": non_finite})
 
 
 class _MethodJobVectorIndex:
@@ -800,6 +817,13 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
     assert evaluation.execution_work_packet_status == "rejected"
     assert evaluation.promotable is False
     assert evaluation.status == "source_work_packet_rejected"
+    expected_note = {
+        "missing_packet": "test_removed_packet_ref",
+        "capture_omitted": "method_work_capture_not_enabled",
+        "capture_disabled": "method_work_capture_not_enabled",
+    }.get(failure_mode)
+    if expected_note is not None:
+        assert evaluation.execution_work_packet_note == expected_note
     assert "ate" not in stage_b["simulation_results"]
     assert stage_b["feedback"]["promotion_decision"]["promoted"] is False
 
@@ -875,6 +899,8 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
     fresh_reader = FileSystemCAS(tmp_path / "cas")
     observed_ate_values: list[float] = []
     observed_clipping_values: list[float] = []
+    observed_clipping_fractions: list[float] = []
+    observed_method_result_refs: list[ArtifactRef] = []
     observed_evaluation_refs: list[ArtifactRef] = []
     for item in source_result.history:
         stage_b = item.stage_b_result
@@ -924,8 +950,36 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         result_body = method_output.get("result")
         assert isinstance(result_body, dict)
         assert result_body["nuisance_config"]["propensity_clipping"] == selected_clipping
+        diagnostics = result_body.get("nuisance_diagnostics")
+        assert isinstance(diagnostics, dict)
+        clipping_fraction = diagnostics.get("clipping_fraction")
+        assert isinstance(clipping_fraction, (int, float))
+        assert not isinstance(clipping_fraction, bool)
+        assert np.isfinite(clipping_fraction)
+        assert 0.0 <= clipping_fraction <= 1.0
+        propensity_summary = diagnostics.get("propensity_summary")
+        assert isinstance(propensity_summary, dict)
+        propensity_min = propensity_summary.get("min")
+        propensity_max = propensity_summary.get("max")
+        assert isinstance(propensity_min, (int, float))
+        assert isinstance(propensity_max, (int, float))
+        assert not isinstance(propensity_min, bool)
+        assert not isinstance(propensity_max, bool)
+        assert np.isfinite(propensity_min)
+        assert np.isfinite(propensity_max)
+        assert 0.0 <= propensity_min <= propensity_max <= 1.0
+        touches_clip_boundary = bool(
+            np.isclose(propensity_min, selected_clipping)
+            or np.isclose(propensity_max, 1.0 - selected_clipping)
+        )
+        assert (clipping_fraction > 0.0) == touches_clip_boundary
+        if clipping_fraction == 0.0:
+            assert propensity_min > selected_clipping
+            assert propensity_max < 1.0 - selected_clipping
         observed_ate_values.append(evaluation.selection_metrics["ate"])
         observed_clipping_values.append(selected_clipping)
+        observed_clipping_fractions.append(float(clipping_fraction))
+        observed_method_result_refs.append(packet.method_result_ref)
         observed_evaluation_refs.append(evaluation_ref)
         assert evaluation.promotable is False
     assert len(observed_evaluation_refs) == 4
@@ -936,8 +990,40 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         }
     ) == 4
     assert all(np.isfinite(value) for value in observed_ate_values)
-    assert len(set(observed_ate_values)) == 4
-    assert len(set(observed_clipping_values)) > 1
+    assert len(set(observed_clipping_values)) == 4
+    assert len(observed_method_result_refs) == 4
+    assert len(
+        {
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in observed_method_result_refs
+        }
+    ) == 4
+
+    unclipped_ate_values = [
+        ate
+        for ate, fraction in zip(
+            observed_ate_values, observed_clipping_fractions, strict=True
+        )
+        if fraction == 0.0
+    ]
+    clipped_ate_values = [
+        ate
+        for ate, fraction in zip(
+            observed_ate_values, observed_clipping_fractions, strict=True
+        )
+        if fraction > 0.0
+    ]
+    assert len(unclipped_ate_values) >= 2
+    plateau_ate = unclipped_ate_values[0]
+    assert all(
+        np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12)
+        for value in unclipped_ate_values[1:]
+    )
+    assert clipped_ate_values
+    assert any(
+        not np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12)
+        for value in clipped_ate_values
+    )
     assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
         "bayesian_acquisition"
     )

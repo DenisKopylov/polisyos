@@ -528,11 +528,14 @@ def _measurement(
         N9PromotionEvidenceBridgeRepository,
         _run_canonical_promotion_sequence_for_verification,
     )
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
 
+    execution_scope_binding = measurement_execution_binding(ledger_root.parent)
     store = FileSystemCAS(service._executor._cas_root)
     graph = service._dataset_catalog
     repository = N9PromotionEvidenceBridgeRepository(
         store=store,
+        execution_scope_binding=execution_scope_binding,
         measurement_catalog=graph,
         measurement_providers=providers,
     )
@@ -570,7 +573,10 @@ def _measurement(
             ),
             design_problem=design_problem,
         )
-        envelope = MeasurementRootProducer(artifact_store=store).produce_from_fabric_fetch(
+        envelope = MeasurementRootProducer(
+            artifact_store=store,
+            execution_scope_binding=execution_scope_binding,
+        ).produce_from_fabric_fetch(
             fetch_receipt_ref=execution.fetch_receipt_ref,
             catalog=graph,
             providers=providers,

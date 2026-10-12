@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, TypeVar
 
 import pytest
 
@@ -37,8 +38,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.compile.api import compile as compile_foundry
-from polisyos.foundry.data_plane import build_input_bindings, load_input_bindings
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.data_plane import build_input_bindings, load_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.analytics.uncertainty import (
@@ -87,6 +88,50 @@ from polisyos.scientist.policy_design.schema import (
 )
 
 _SOURCE_KIND = "scientist.search.source_bound_risk_observation"
+
+
+_ArtifactRefT = TypeVar("_ArtifactRefT", bound=ArtifactRef)
+
+
+def _producer_ref_payload(value: object) -> Mapping[str, Any]:
+    """Read one producer's complete ref DTO without falling back to its ID."""
+    if isinstance(value, Mapping):
+        payload = value
+    else:
+        model_dump = getattr(value, "model_dump", None)
+        if not callable(model_dump):
+            raise TypeError("artifact producer returned no typed ref DTO")
+        payload = model_dump(mode="python")
+    if not isinstance(payload, Mapping):
+        raise TypeError("artifact producer ref DTO is not a mapping")
+    return payload
+
+
+def _producer_output_ref(
+    value: object,
+    ref_type: type[_ArtifactRefT],
+    *,
+    expected_kind: str,
+) -> _ArtifactRefT:
+    """Validate a producer DTO before projecting its known domain ref type."""
+    ref = ArtifactRef.model_validate(_producer_ref_payload(value))
+    if ref.kind != expected_kind or ref.media_type != "application/json":
+        raise ValueError("artifact producer ref type differs from its output role")
+    typed_ref = ref_type.model_validate(ref.model_dump(mode="python"))
+    if (
+        typed_ref.artifact_id != ref.artifact_id
+        or typed_ref.kind != ref.kind
+        or typed_ref.media_type != ref.media_type
+        or typed_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
+    ):
+        raise ValueError("domain ref projection changed producer identity or selected profile")
+    return typed_ref
+
+
+def _get_json_artifact(store: FileSystemCAS, value: object) -> Any:
+    """Read a producer ref through the existing Core-to-IR selector bridge."""
+    ref = ArtifactRef.model_validate(_producer_ref_payload(value))
+    return get_json_artifact(ensure_ir_artifact_store(store), ref)
 
 
 def _input_edge(ref: ArtifactRef, *, role: str) -> InputRef:
@@ -210,7 +255,9 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
     base_snapshot_ref = put_state_snapshot(store, state=base_state, step=0)
-    state_snapshot_ref = StateSnapshotRef(artifact_id=base_snapshot_ref.artifact_id)
+    state_snapshot_ref = _producer_output_ref(
+        base_snapshot_ref, StateSnapshotRef, expected_kind="foundry.state_snapshot"
+    )
 
     input_envelope_ref = persist_uncertainty_envelope(
         ensure_ir_artifact_store(store),
@@ -247,8 +294,8 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
         ),
         return_selected_profile=True,
     )
-    data_snapshot_ref = DataSnapshotRef.model_validate(
-        raw_data_snapshot_ref.model_dump(mode="python")
+    data_snapshot_ref = _producer_output_ref(
+        raw_data_snapshot_ref, DataSnapshotRef, expected_kind="fabric.data_snapshot"
     )
 
     trinity_bundle = _trinity_bundle(
@@ -295,12 +342,14 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
     graph_edge = next(
         artifact for artifact in compile_result.derived_refs if artifact.role == "program_graph"
     )
-    program_graph_ref = ProgramGraphRef.model_validate(graph_edge.ref.model_dump(mode="python"))
-    exec_plan_ref = ExecPlanRef.model_validate(
-        compile_result.exec_plan_ref.model_dump(mode="python")
+    program_graph_ref = _producer_output_ref(
+        graph_edge.ref, ProgramGraphRef, expected_kind="foundry.program_graph"
     )
-    program_graph = ProgramGraph.model_validate(get_json_artifact(store, program_graph_ref))
-    exec_plan = ExecPlan.model_validate(get_json_artifact(store, exec_plan_ref))
+    exec_plan_ref = _producer_output_ref(
+        compile_result.exec_plan_ref, ExecPlanRef, expected_kind="foundry.exec_plan"
+    )
+    program_graph = ProgramGraph.model_validate(_get_json_artifact(store, program_graph_ref))
+    exec_plan = ExecPlan.model_validate(_get_json_artifact(store, exec_plan_ref))
     assert program_graph.ir_ref.artifact_id == raw_trinity_bundle_ref.artifact_id
     assert exec_plan.program_ref.artifact_id == program_graph_ref.artifact_id
 
@@ -309,9 +358,21 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
         data_snapshot_ref=data_snapshot_ref,
         registry_bundle_ref=registry_bundle_ref,
     )
-    input_bindings_ref = binding_build.input_bindings_ref
-    input_binding_report_ref = binding_build.input_binding_report_ref
-    bound_state_snapshot_ref = binding_build.bound_state_snapshot_ref
+    input_bindings_ref = _producer_output_ref(
+        binding_build.input_bindings_ref,
+        FoundryInputBindingsRef,
+        expected_kind="foundry.input_bindings",
+    )
+    input_binding_report_ref = _producer_output_ref(
+        binding_build.input_binding_report_ref,
+        FoundryInputBindingReportRef,
+        expected_kind="foundry.input_binding_report",
+    )
+    bound_state_snapshot_ref = _producer_output_ref(
+        binding_build.bound_state_snapshot_ref,
+        StateSnapshotRef,
+        expected_kind="foundry.state_snapshot",
+    )
     execution = execute_foundry(
         store,
         ExecuteRequest(
@@ -322,14 +383,18 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
     )
     assert execution.ok, execution.notes
     assert execution.simulation_result_ref is not None
-    simulation_result_ref = SimulationResultRef.model_validate(
-        execution.simulation_result_ref.model_dump(mode="python")
+    simulation_result_ref = _producer_output_ref(
+        execution.simulation_result_ref,
+        SimulationResultRef,
+        expected_kind="foundry.simulation_result",
     )
     simulation_result = SimulationResult.model_validate(
-        get_json_artifact(store, simulation_result_ref)
+        _get_json_artifact(store, simulation_result_ref)
     )
-    metrics_ref = MetricsRef.model_validate(simulation_result.metrics_ref.model_dump(mode="python"))
-    metrics = Metrics.model_validate(get_json_artifact(store, metrics_ref))
+    metrics_ref = _producer_output_ref(
+        simulation_result.metrics_ref, MetricsRef, expected_kind="foundry.metrics"
+    )
+    metrics = Metrics.model_validate(_get_json_artifact(store, metrics_ref))
     assert metrics.values["applied_nodes"] == 1
 
     return _FoundrySource(
@@ -342,7 +407,9 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
         state_snapshot_ref=state_snapshot_ref,
         bound_state_snapshot_ref=bound_state_snapshot_ref,
         input_envelope_ref=input_envelope_ref,
-        trinity_bundle_ref=ArtifactRef.model_validate(raw_trinity_bundle_ref.model_dump(mode="python")),
+        trinity_bundle_ref=_producer_output_ref(
+            raw_trinity_bundle_ref, ArtifactRef, expected_kind="ir.trinity_bundle"
+        ),
         program_graph_ref=program_graph_ref,
         exec_plan_ref=exec_plan_ref,
         input_bindings_ref=input_bindings_ref,
@@ -390,21 +457,21 @@ def _assert_actual_source_lineage(
 ) -> None:
     store = source.store
     candidate = load_policy_candidate_schema(store, source.candidate_ref)
-    trinity = TrinityBundle.model_validate(get_json_artifact(store, source.trinity_bundle_ref))
+    trinity = TrinityBundle.model_validate(_get_json_artifact(store, source.trinity_bundle_ref))
     candidate_snapshot = DataSnapshot.model_validate(
-        get_json_artifact(store, source.candidate_data_snapshot_ref)
+        _get_json_artifact(store, source.candidate_data_snapshot_ref)
     )
     execution_snapshot = DataSnapshot.model_validate(
-        get_json_artifact(store, source.data_snapshot_ref)
+        _get_json_artifact(store, source.data_snapshot_ref)
     )
     bindings = load_input_bindings(store, source.input_bindings_ref)
-    binding_report = get_json_artifact(store, source.input_binding_report_ref)
-    exec_plan = ExecPlan.model_validate(get_json_artifact(store, source.exec_plan_ref))
+    binding_report = _get_json_artifact(store, source.input_binding_report_ref)
+    exec_plan = ExecPlan.model_validate(_get_json_artifact(store, source.exec_plan_ref))
     program_graph = ProgramGraph.model_validate(
-        get_json_artifact(store, source.program_graph_ref)
+        _get_json_artifact(store, source.program_graph_ref)
     )
     simulation_result = SimulationResult.model_validate(
-        get_json_artifact(store, source.simulation_result_ref)
+        _get_json_artifact(store, source.simulation_result_ref)
     )
 
     assert candidate.candidate_id == "candidate_b161"
@@ -521,7 +588,9 @@ def _build_foreign_execution(source: _FoundrySource) -> _FoundrySource:
     store = source.store
     foreign_state = GlobalState.empty(n_agents=3, n_firms=1)
     raw_state_ref = put_state_snapshot(store, state=foreign_state, step=0)
-    foreign_state_ref = StateSnapshotRef.model_validate(raw_state_ref.model_dump(mode="python"))
+    foreign_state_ref = _producer_output_ref(
+        raw_state_ref, StateSnapshotRef, expected_kind="foundry.state_snapshot"
+    )
     raw_data_ref = store.put_json(
         DataSnapshot(
             data_ref=foreign_state_ref,
@@ -539,8 +608,8 @@ def _build_foreign_execution(source: _FoundrySource) -> _FoundrySource:
         ),
         return_selected_profile=True,
     )
-    foreign_data_snapshot_ref = DataSnapshotRef.model_validate(
-        raw_data_ref.model_dump(mode="python")
+    foreign_data_snapshot_ref = _producer_output_ref(
+        raw_data_ref, DataSnapshotRef, expected_kind="fabric.data_snapshot"
     )
     binding_build = build_input_bindings(
         store,
@@ -557,12 +626,16 @@ def _build_foreign_execution(source: _FoundrySource) -> _FoundrySource:
     )
     assert execution.ok, execution.notes
     assert execution.simulation_result_ref is not None
-    result_ref = SimulationResultRef.model_validate(
-        execution.simulation_result_ref.model_dump(mode="python")
+    result_ref = _producer_output_ref(
+        execution.simulation_result_ref,
+        SimulationResultRef,
+        expected_kind="foundry.simulation_result",
     )
-    result = SimulationResult.model_validate(get_json_artifact(store, result_ref))
-    metrics_ref = MetricsRef.model_validate(result.metrics_ref.model_dump(mode="python"))
-    metrics = Metrics.model_validate(get_json_artifact(store, metrics_ref))
+    result = SimulationResult.model_validate(_get_json_artifact(store, result_ref))
+    metrics_ref = _producer_output_ref(
+        result.metrics_ref, MetricsRef, expected_kind="foundry.metrics"
+    )
+    metrics = Metrics.model_validate(_get_json_artifact(store, metrics_ref))
     assert metrics.values["applied_nodes"] == 1
     return replace(
         source,
@@ -598,7 +671,7 @@ def _source_fixture(
         params={
             "welfare_config": {
                 "weights": {"applied_nodes": 1.0},
-                "policy_ref": source.candidate_ref,
+                "policy_ref": source.candidate_ref.model_dump(mode="json"),
             },
             "propagation_config": {
                 "preferred_method": preferred_method,
@@ -678,7 +751,7 @@ def _assert_real_mixed_nested_monte_carlo_source(
 
     welfare_manifest = store.get_manifest(welfare_ref)
     method_ref = ArtifactRef.model_validate(bundle.method_config_ref.model_dump(mode="python"))
-    method_config = get_json_artifact(store, method_ref)
+    method_config = _get_json_artifact(store, method_ref)
     assert method_config["preferred_method"] == "monte_carlo"
     method_edge = next(edge for edge in welfare_manifest.inputs if edge.role == "method_config")
     assert method_edge.artifact_id == method_ref.artifact_id
@@ -694,7 +767,7 @@ def _assert_real_mixed_nested_monte_carlo_source(
     report_manifest = store.get_manifest(report_ref)
     assert report_manifest.artifact_schema is not None
     assert report_manifest.artifact_schema.name == "polisyos.foundry.WelfarePropagationReport"
-    report = get_json_artifact(store, report_ref)
+    report = _get_json_artifact(store, report_ref)
     assert report["methods"] == ["monte_carlo"]
     assert report["valid_draw_count"] == 100
 
@@ -858,7 +931,7 @@ def test_real_delta_producer_is_withheld_even_with_monte_carlo_sample_shape(
     delta_method_ref = ArtifactRef.model_validate(
         delta_bundle.method_config_ref.model_dump(mode="python")
     )
-    delta_config = get_json_artifact(store, delta_method_ref)
+    delta_config = _get_json_artifact(store, delta_method_ref)
     assert delta_config["preferred_method"] == "delta"
     delta_report_edge = next(
         edge for edge in delta_manifest.inputs if edge.role == "propagation_report"
@@ -872,7 +945,7 @@ def test_real_delta_producer_is_withheld_even_with_monte_carlo_sample_shape(
     delta_report_manifest = store.get_manifest(delta_report_ref)
     assert delta_report_manifest.artifact_schema is not None
     assert delta_report_manifest.artifact_schema.name == "polisyos.foundry.WelfarePropagationReport"
-    delta_report = get_json_artifact(store, delta_report_ref)
+    delta_report = _get_json_artifact(store, delta_report_ref)
     assert delta_report["methods"] == ["delta"]
 
     mc_sample_edge = next(edge for edge in mc_manifest.inputs if edge.role == "sample_bundle")
@@ -966,7 +1039,7 @@ def test_selected_method_profile_must_match_the_welfare_source_edge(source_bundl
     method_ref = ArtifactRef.model_validate(bundle.method_config_ref.model_dump(mode="python"))
     method_manifest = store.get_manifest(method_ref)
     alternate_method_ref = store.put_json(
-        get_json_artifact(store, method_ref),
+        _get_json_artifact(store, method_ref),
         PutOptions(
             kind=method_ref.kind,
             media_type=method_ref.media_type,
@@ -1018,7 +1091,7 @@ def test_removed_draw_provenance_cannot_emit_candidate_observation_with_markers_
         manifest_profile_sha256=report_edge.manifest_profile_sha256,
     )
     report_manifest = store.get_manifest(report_ref)
-    report_payload = get_json_artifact(store, report_ref)
+    report_payload = _get_json_artifact(store, report_ref)
     assert isinstance(report_payload, dict)
     tampered_report = dict(report_payload)
     tampered_report.pop("draw_outcome_provenance", None)

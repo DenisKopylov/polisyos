@@ -13,6 +13,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    StrictStr,
     ValidationError,
     field_validator,
     model_validator,
@@ -704,7 +705,7 @@ class EvidenceAuthorityEnvelope(BaseModel):
     trace_id: str = Field(min_length=1)
     span_id: str = Field(min_length=1)
     parent_span_id: str | None = None
-    requested_execution_profile: str = Field(min_length=1)
+    requested_execution_profile: StrictStr | None = Field(..., min_length=1)
     effective_execution_profile: str = Field(min_length=1)
     phase: str = Field(min_length=1)
     state_before: str | None = None
@@ -743,7 +744,6 @@ class EvidenceAuthorityEnvelope(BaseModel):
         "job_id",
         "trace_id",
         "span_id",
-        "requested_execution_profile",
         "effective_execution_profile",
         "phase",
         "generated_at",
@@ -753,6 +753,14 @@ class EvidenceAuthorityEnvelope(BaseModel):
     @classmethod
     def _strip_required_text(cls, value: str) -> str:
         return _non_empty(value)
+
+    @field_validator("requested_execution_profile")
+    @classmethod
+    def _preserve_requested_profile_absence(
+        cls, value: StrictStr | None
+    ) -> StrictStr | None:
+        """Preserve an admitted omitted request profile without inventing a value."""
+        return None if value is None else _non_empty(value)
 
     @field_validator(
         "cas_ref",
@@ -2021,8 +2029,9 @@ def _optional_text(value: str | None) -> str | None:
 
 
 def _is_serious_profile(envelope: EvidenceAuthorityEnvelope) -> bool:
+    requested = envelope.requested_execution_profile
     return (
-        envelope.requested_execution_profile.casefold() in SERIOUS_EXECUTION_PROFILES
+        (requested is not None and requested.casefold() in SERIOUS_EXECUTION_PROFILES)
         or envelope.effective_execution_profile.casefold() in SERIOUS_EXECUTION_PROFILES
     )
 

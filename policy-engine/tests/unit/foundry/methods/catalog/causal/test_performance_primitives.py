@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gc
 import time
+import weakref
 
 import pytest
 
@@ -61,34 +62,84 @@ def _multilayer_graph(n_nodes: int, n_edges: int) -> CausalGraphModel:
 def _reset_caches() -> None:
     admg_ops._ADJ_CACHE.clear()
     admg_ops._CC_CACHE.clear()
-    admg_ops._GRAPH_REFS.clear()
+
+
+def _cache_probe_graph(index: int) -> CausalGraphModel:
+    return CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+        metadata={"cache-probe-index": index},
+    )
 
 
 def test_cached_adjacency_reuse() -> None:
     _reset_caches()
     graph = _ba_like_graph(80, 3)
-    key = id(graph)
+    key = admg_ops._graph_content_cache_key(admg_ops.canonical_scalar_query_graph(graph))
     admg_ops.ancestors(graph, frozenset({"V79"}))
     first = admg_ops._ADJ_CACHE[key]
     admg_ops.ancestors(graph, frozenset({"V79"}))
     second = admg_ops._ADJ_CACHE[key]
     assert first is second
+    equivalent = _ba_like_graph(80, 3)
+    assert admg_ops._get_cached_adjacency(equivalent) is first
 
 
-def test_cached_adjacency_eviction() -> None:
+def test_cached_adjacency_and_components_are_content_lru_bounded() -> None:
     _reset_caches()
-    graph = _ba_like_graph(40, 2)
-    key = id(graph)
-    admg_ops.ancestors(graph, frozenset({"V39"}))
-    admg_ops.c_components(graph)
-    assert key in admg_ops._ADJ_CACHE
-    assert key in admg_ops._CC_CACHE
+    capacity = admg_ops._STATIC_GRAPH_CACHE_CAPACITY
+    graphs = [_cache_probe_graph(index) for index in range(capacity + 2)]
+    source_refs = [weakref.ref(graph) for graph in graphs]
+    keys = [
+        admg_ops._graph_content_cache_key(admg_ops.canonical_scalar_query_graph(graph))
+        for graph in graphs
+    ]
+
+    for graph in graphs:
+        admg_ops._get_cached_adjacency(graph)
+        admg_ops.c_components(graph)
     del graph
+
+    assert len(graphs) > capacity
+    assert all(reference() is not None for reference in source_refs)
+    assert len(admg_ops._ADJ_CACHE) == capacity
+    assert len(admg_ops._CC_CACHE) == capacity
+    assert keys[0] not in admg_ops._ADJ_CACHE and keys[0] not in admg_ops._CC_CACHE
+    assert keys[1] not in admg_ops._ADJ_CACHE and keys[1] not in admg_ops._CC_CACHE
+    assert keys[2] in admg_ops._ADJ_CACHE and keys[2] in admg_ops._CC_CACHE
+
+    most_recent_graph = graphs[2]
+    most_recent_adjacency = admg_ops._ADJ_CACHE[keys[2]]
+    most_recent_components = admg_ops._CC_CACHE[keys[2]]
+    assert admg_ops._get_cached_adjacency(most_recent_graph) is most_recent_adjacency
+    assert tuple(admg_ops.c_components(most_recent_graph)) == most_recent_components
+
+    extra = _cache_probe_graph(capacity + 2)
+    extra_key = admg_ops._graph_content_cache_key(admg_ops.canonical_scalar_query_graph(extra))
+    admg_ops._get_cached_adjacency(extra)
+    admg_ops.c_components(extra)
+    assert len(admg_ops._ADJ_CACHE) == capacity
+    assert len(admg_ops._CC_CACHE) == capacity
+    assert keys[2] in admg_ops._ADJ_CACHE and keys[2] in admg_ops._CC_CACHE
+    assert keys[3] not in admg_ops._ADJ_CACHE and keys[3] not in admg_ops._CC_CACHE
+    assert extra_key in admg_ops._ADJ_CACHE and extra_key in admg_ops._CC_CACHE
+
+    duplicate = _cache_probe_graph(capacity + 2)
+    assert admg_ops._get_cached_adjacency(duplicate) is admg_ops._ADJ_CACHE[extra_key]
+    assert tuple(admg_ops.c_components(duplicate)) == admg_ops._CC_CACHE[extra_key]
+    assert len(admg_ops._ADJ_CACHE) == capacity
+    assert len(admg_ops._CC_CACHE) == capacity
+
+    retained_key = keys[-1]
+    retained_source = graphs[-1]
+    retained_ref = weakref.ref(retained_source)
+    del retained_source
+    del graphs[-1]
     gc.collect()
-    gc.collect()
-    assert key not in admg_ops._ADJ_CACHE
-    assert key not in admg_ops._CC_CACHE
-    assert key not in admg_ops._GRAPH_REFS
+    assert retained_ref() is None
+    assert retained_key in admg_ops._ADJ_CACHE
+    assert retained_key in admg_ops._CC_CACHE
 
 
 @pytest.mark.parametrize(
@@ -161,7 +212,8 @@ def test_c_components_memoized() -> None:
     first = admg_ops.c_components(graph)
     second = admg_ops.c_components(graph)
     assert first == second
-    assert tuple(second) == admg_ops._CC_CACHE[id(graph)]
+    key = admg_ops._graph_content_cache_key(admg_ops.canonical_scalar_query_graph(graph))
+    assert tuple(second) == admg_ops._CC_CACHE[key]
 
 
 def test_model_construct_preserves_semantics() -> None:

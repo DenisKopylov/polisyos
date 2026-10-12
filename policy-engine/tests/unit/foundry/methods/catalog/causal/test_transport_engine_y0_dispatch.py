@@ -4,7 +4,11 @@ import pytest
 
 from polisyos.foundry.methods.catalog.causal import (
     symbolic_identify as symbolic_module,
+)
+from polisyos.foundry.methods.catalog.causal import (
     transport_check as check_module,
+)
+from polisyos.foundry.methods.catalog.causal import (
     transport_engine as engine_module,
 )
 from polisyos.foundry.methods.catalog.causal.symbolic_identify import SymbolicIdentify

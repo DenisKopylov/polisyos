@@ -10,7 +10,6 @@ from polisyos.foundry.methods.catalog.survey.demographic_consistency import (
 )
 
 
-
 def _method_or_skip(registry, fqn):
     return registry.get(fqn)
 

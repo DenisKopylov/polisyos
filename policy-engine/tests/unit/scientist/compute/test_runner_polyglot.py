@@ -11,7 +11,7 @@ import pytest
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods import (
     ComplexityClass,
@@ -28,6 +28,7 @@ from polisyos.foundry.methods import (
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.compute.runner import run_job
+from polisyos.scientist.methods.autotune import execution_work
 
 
 @pytest.fixture(autouse=True)
@@ -46,7 +47,10 @@ class _MethodJobIncrement:
         output_slots=frozenset(
             {SlotSpec("values", SlotType.VECTOR, Unit("dimensionless", "array"))}
         ),
-        parameters=(ParameterSpec(name="delta", default=1.0),),
+        parameters=(
+            ParameterSpec(name="delta", default=1.0),
+            ParameterSpec(name="capture_execution_work", default=False),
+        ),
         fidelity=FidelityLevel.LOW,
         complexity=ComplexityClass.O_1,
         backend=ComputeBackend.NUMPY,
@@ -132,6 +136,124 @@ def test_run_job_method_flow(tmp_path):
         "governance_admissibility",
         "method_validity",
     ]
+
+
+@pytest.mark.parametrize(
+    ("use_finite_request_profile", "expected_binding_status"),
+    [
+        pytest.param(True, "recomputed", id="finite-request-profile"),
+        pytest.param(False, "not_established", id="strict-default-mutation"),
+    ],
+)
+def test_run_job_method_flow_records_finite_float_dispatch_and_adapter(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    use_finite_request_profile: bool,
+    expected_binding_status: str,
+) -> None:
+    registry = MethodRegistry.get_instance()
+    registry.register(_MethodJobIncrement, override=True)
+    if not use_finite_request_profile:
+        # Simulate restoring the strict default at the production call site while
+        # leaving the helper/profile marker present. Actual dispatch must go unbound.
+        monkeypatch.setattr(execution_work, "_fingerprint_method_request_material", fingerprint)
+
+    cas = FileSystemCAS(tmp_path)
+    input_ref = cas.put_json(
+        [1, 2],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+    method_params = {"delta": 2.5, "capture_execution_work": True}
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params=method_params,
+    )
+
+    result = run_job(spec, cas_root=tmp_path)
+
+    assert not result.issues
+    assert result.method_result_ref is not None
+    assert result.method_evidence_ref is not None
+    assert np.allclose(np.asarray(result.final_state["values"]), np.array([3.5, 4.5]))
+    evidence = from_canonical_bytes(cas.get_bytes(result.method_evidence_ref.artifact_id))
+    assert evidence["method_dispatch_binding_status"] == expected_binding_status
+    if use_finite_request_profile:
+        dispatch = evidence["method_dispatch_binding"]
+        assert dispatch["method_params_fingerprint"] == fingerprint(
+            method_params,
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        )
+    else:
+        assert "method_dispatch_binding" not in evidence
+
+    adapter_warning = next(
+        item for item in result.warnings if item.startswith("legacy_method_adapter_ref:")
+    )
+    adapter_id = adapter_warning.split(":", 1)[1]
+    adapter = from_canonical_bytes(cas.get_bytes(adapter_id))
+    assert adapter["method_params"] == method_params
+
+
+@pytest.mark.parametrize(
+    "non_finite",
+    [
+        pytest.param(float("nan"), id="nan"),
+        pytest.param(float("inf"), id="positive-infinity"),
+        pytest.param(float("-inf"), id="negative-infinity"),
+    ],
+)
+def test_run_job_nonfinite_method_params_leave_dispatch_unbound(
+    tmp_path,
+    non_finite: float,
+) -> None:
+    registry = MethodRegistry.get_instance()
+    registry.register(_MethodJobIncrement, override=True)
+
+    cas = FileSystemCAS(tmp_path)
+    # Empty vector keeps the fixture output finite while the supplied request still
+    # crosses the actual JobSpec, dispatch observer, and adapter persistence path.
+    input_ref = cas.put_json(
+        [],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+    method_params = {"delta": non_finite, "capture_execution_work": True}
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params=method_params,
+    )
+
+    result = run_job(spec, cas_root=tmp_path)
+
+    if result.method_evidence_ref is None:
+        assert result.issues
+        assert any(
+            issue["loc"] == ["method_runner"] and issue["error_type"] == "runtime"
+            for issue in result.issues
+        )
+        assert result.method_result_ref is None
+        return
+
+    evidence = from_canonical_bytes(cas.get_bytes(result.method_evidence_ref.artifact_id))
+    assert evidence["method_dispatch_binding_status"] == "not_established"
+    assert "method_dispatch_binding" not in evidence
+    assert result.method_result_ref is not None
+    adapter_failures = [
+        warning for warning in result.warnings if warning.startswith("legacy_method_adapter_failed:")
+    ]
+    assert len(adapter_failures) == 1
+    assert "NaN/Inf forbidden" in adapter_failures[0]
 
 
 def test_method_job_results_follow_ambient_tenant_ownership(tmp_path) -> None:

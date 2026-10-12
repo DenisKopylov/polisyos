@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -11,6 +11,10 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
 from polisyos.ir.analytics import ClaimVocabularyAxisStatus
+from polisyos.ir.analytics.causal_discovery import (
+    AlgebraicAssumptionStatus,
+    AlgebraicFalsificationScope,
+)
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
@@ -25,6 +29,33 @@ from polisyos.scientist.methods.search.artifact_minimality import (
 )
 
 GRAPH_PRIOR_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphPriorBundle"
+GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION = "1.2"
+_GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION = "1.1"
+_GRAPH_PRIOR_BUNDLE_V1_1_FIELDS = frozenset(
+    {
+        "schema_version",
+        "artifact_functions",
+        "high_confidence_edges",
+        "disputed_edges",
+        "forbidden_edges",
+        "required_edges",
+        "equivalence_class_summary",
+        "downstream_utility_scores",
+        "hypothesis_identification",
+        "warnings",
+        "metadata",
+    }
+)
+_HYPOTHESIS_IDENTIFICATION_V1_1_FIELDS = frozenset(
+    {
+        "identification_status",
+        "identifiability_score",
+        "limitations",
+        "reasons",
+        "warnings",
+        "blocking_certificates",
+    }
+)
 PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.PriorKnowledgeBundle"
 
 
@@ -56,6 +87,8 @@ class HypothesisIdentificationEvidence(BaseModel):
     reasons: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     blocking_certificates: list[str] = Field(default_factory=list)
+    graph_derived_assumption_status: AlgebraicAssumptionStatus | None = None
+    graph_derived_scope_of_falsification: AlgebraicFalsificationScope | None = None
 
 
 class DisputedEdge(BaseModel):
@@ -106,7 +139,7 @@ class GraphPriorBundle(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(default="1.1", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.1", "1.2"] = GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
             ArtifactFunction.ROUTING,
@@ -130,6 +163,28 @@ class GraphPriorBundle(ArtifactMinimalityMixin):
         for edge in self.required_edges:
             if not edge.provenance_refs:
                 raise ValueError(f"required_edge '{edge.edge_key}' must carry provenance_refs")
+        for evidence in self.hypothesis_identification.values():
+            status = evidence.graph_derived_assumption_status
+            scope = evidence.graph_derived_scope_of_falsification
+            if (status is None) != (scope is None):
+                raise ValueError("graph-derived assumption status and scope must be paired")
+            if self.schema_version == GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION and (
+                status is not None
+                and (
+                    status is not AlgebraicAssumptionStatus.UNKNOWN
+                    or scope is not AlgebraicFalsificationScope.RANKING_ONLY
+                )
+            ):
+                raise ValueError("current graph priors carry graph diagnostics as ranking-only")
+            if self.schema_version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION and (
+                status is not AlgebraicAssumptionStatus.UNKNOWN
+                or scope is not AlgebraicFalsificationScope.RANKING_ONLY
+            ):
+                raise ValueError("historical graph priors require unknown ranking-only scope")
+        if self.schema_version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION and (
+            self.artifact_functions != {ArtifactFunction.ROUTING}
+        ):
+            raise ValueError("historical graph priors are routing-only")
         return self
 
 
@@ -242,6 +297,8 @@ class GraphPriorBuilder:
                 reasons=list(score.reasons),
                 warnings=list(score.warnings),
                 blocking_certificates=list(score.blocking_certificates),
+                graph_derived_assumption_status=score.graph_derived_assumption_status,
+                graph_derived_scope_of_falsification=score.graph_derived_scope_of_falsification,
             )
             for score in utility_report.scores
         }
@@ -273,14 +330,15 @@ def persist_graph_prior_bundle(
     inputs: list[InputRef] | None = None,
 ) -> GraphPriorBundleRef:
     """Persist the graph-prior bundle assembled before discovery execution begins."""
+    current_bundle = _revalidate_current_graph_prior_bundle(bundle)
     ref = store.put_json(
-        bundle,
+        current_bundle,
         PutOptions(
             kind="scientist.graph_prior_bundle",
             media_type="application/json",
             schema=SchemaInfo(
                 name=GRAPH_PRIOR_BUNDLE_SCHEMA_NAME,
-                version=bundle.schema_version,
+                version=GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION,
             ),
             inputs=list(inputs or []),
         ),
@@ -294,9 +352,147 @@ def load_graph_prior_bundle(
     store: FileSystemCAS,
     ref: GraphPriorBundleRef,
 ) -> GraphPriorBundle:
-    """Load graph prior bundle."""
+    """Load a manifest-bound current bundle or exact bounded historical input."""
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("graph prior bundle manifest profile is missing")
+    manifest = store.get_manifest(ref)
     payload = from_canonical_bytes(store.get_bytes(ref))
-    return GraphPriorBundle.model_validate(payload)
+    stored_version = _validate_graph_prior_artifact_binding(ref, manifest, payload)
+    if stored_version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION:
+        payload = _adapt_historical_v1_1_graph_prior_payload(payload)
+    bundle = GraphPriorBundle.model_validate(payload)
+    if bundle.schema_version != stored_version:
+        raise ValueError("graph prior bundle did not retain its manifest-bound version")
+    return bundle
+
+
+def _validate_graph_prior_artifact_binding(
+    ref: GraphPriorBundleRef,
+    manifest: Any,
+    payload: Any,
+) -> str:
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.kind != "scientist.graph_prior_bundle"
+        or manifest.media_type != ref.media_type
+        or manifest.media_type != "application/json"
+    ):
+        raise ValueError("graph prior bundle manifest identity mismatch")
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != GRAPH_PRIOR_BUNDLE_SCHEMA_NAME:
+        raise ValueError("graph prior bundle manifest schema is missing or invalid")
+    if type(payload) is not dict or payload.get("schema_version") != schema.version:
+        raise ValueError("graph prior bundle manifest/payload schema mismatch")
+    if schema.version == GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION:
+        _validate_current_v1_2_graph_prior_payload(payload)
+        return GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION
+    if schema.version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION:
+        _validate_legacy_v1_1_graph_prior_payload(payload)
+        return _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION
+    raise ValueError("unsupported graph prior bundle schema version")
+
+
+def _validate_legacy_v1_1_graph_prior_payload(payload: dict[str, Any]) -> None:
+    if set(payload) != _GRAPH_PRIOR_BUNDLE_V1_1_FIELDS:
+        raise ValueError("historical graph prior payload does not match exact v1.1 fields")
+    evidence_rows = payload.get("hypothesis_identification")
+    if type(evidence_rows) is not dict:
+        raise ValueError("historical graph prior evidence must be an object")
+    for evidence in evidence_rows.values():
+        if (
+            type(evidence) is not dict
+            or set(evidence) != _HYPOTHESIS_IDENTIFICATION_V1_1_FIELDS
+        ):
+            raise ValueError("historical graph prior evidence does not match exact v1.1 fields")
+
+
+def _validate_current_v1_2_graph_prior_payload(payload: dict[str, Any]) -> None:
+    evidence_rows = payload.get("hypothesis_identification")
+    if type(evidence_rows) is not dict:
+        raise ValueError("current graph prior evidence must be an object")
+    scope_fields = {
+        "graph_derived_assumption_status",
+        "graph_derived_scope_of_falsification",
+    }
+    for evidence in evidence_rows.values():
+        if type(evidence) is not dict or not scope_fields.issubset(evidence):
+            raise ValueError("current graph prior evidence is missing v1.2 scope fields")
+
+
+def _adapt_historical_v1_1_graph_prior_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    """Keep historical priors at v1.1 and explicitly limit them to routing."""
+    adapted = dict(payload)
+    adapted["artifact_functions"] = [ArtifactFunction.ROUTING.value]
+    evidence_rows: dict[str, dict[str, Any]] = {}
+    for hypothesis_id, raw_evidence in payload["hypothesis_identification"].items():
+        evidence = dict(raw_evidence)
+        evidence["graph_derived_assumption_status"] = AlgebraicAssumptionStatus.UNKNOWN.value
+        evidence["graph_derived_scope_of_falsification"] = (
+            AlgebraicFalsificationScope.RANKING_ONLY.value
+        )
+        evidence_rows[hypothesis_id] = evidence
+    adapted["hypothesis_identification"] = evidence_rows
+    return adapted
+
+
+def _stored_model_fields(value: Any, model_type: type[BaseModel]) -> dict[str, Any]:
+    if type(value) is not model_type:
+        raise ValueError(f"{model_type.__name__} requires its canonical model type")
+    stored = object.__getattribute__(value, "__dict__")
+    field_names = set(model_type.model_fields)
+    if type(stored) is not dict or set(stored) != field_names:
+        raise ValueError(f"{model_type.__name__} has undeclared or missing stored fields")
+    return {name: stored[name] for name in model_type.model_fields}
+
+
+def _strict_prior_edge_fields(edge: PriorEdge) -> dict[str, Any]:
+    return _stored_model_fields(edge, PriorEdge)
+
+
+def _strict_disputed_edge_fields(edge: DisputedEdge) -> dict[str, Any]:
+    fields = _stored_model_fields(edge, DisputedEdge)
+    candidates = fields["candidate_edges"]
+    if type(candidates) is not list:
+        raise ValueError("disputed candidate edges must be a canonical list")
+    fields["candidate_edges"] = [
+        _strict_prior_edge_fields(candidate) for candidate in candidates
+    ]
+    return fields
+
+
+def _revalidate_current_graph_prior_bundle(bundle: GraphPriorBundle) -> GraphPriorBundle:
+    """Rebuild declared nested fields from storage before current CAS mutation."""
+    fields = _stored_model_fields(bundle, GraphPriorBundle)
+    if fields["schema_version"] != GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION:
+        raise ValueError("graph prior writer requires schema version 1.2")
+    for field_name in (
+        "high_confidence_edges",
+        "forbidden_edges",
+        "required_edges",
+    ):
+        rows = fields[field_name]
+        if type(rows) is not list:
+            raise ValueError(f"{field_name} must be a canonical list")
+        fields[field_name] = [_strict_prior_edge_fields(edge) for edge in rows]
+    disputed = fields["disputed_edges"]
+    if type(disputed) is not list:
+        raise ValueError("disputed_edges must be a canonical list")
+    fields["disputed_edges"] = [_strict_disputed_edge_fields(edge) for edge in disputed]
+    evidence_rows = fields["hypothesis_identification"]
+    if type(evidence_rows) is not dict:
+        raise ValueError("hypothesis_identification must be a canonical mapping")
+    fields["hypothesis_identification"] = {
+        hypothesis_id: _stored_model_fields(
+            evidence,
+            HypothesisIdentificationEvidence,
+        )
+        for hypothesis_id, evidence in evidence_rows.items()
+    }
+    try:
+        return GraphPriorBundle.model_validate(fields, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("graph prior bundle failed current schema validation") from exc
 
 
 def persist_prior_knowledge_bundle(
@@ -430,6 +626,7 @@ def _upsert_prior_edge(edges: list[PriorEdge], edge: PriorEdge) -> list[PriorEdg
 
 __all__ = [
     "GRAPH_PRIOR_BUNDLE_SCHEMA_NAME",
+    "GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION",
     "PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME",
     "DisputedEdge",
     "GraphPriorBuilder",

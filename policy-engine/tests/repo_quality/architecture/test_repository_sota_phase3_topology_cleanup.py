@@ -3,8 +3,11 @@ from __future__ import annotations
 import fnmatch
 import os
 import subprocess
+import sys
 import tomllib
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WORKSPACE_ROOT = REPO_ROOT.parent
@@ -265,7 +268,9 @@ def test_phase3_tests_tree_uses_final_physical_taxonomy() -> None:
     assert FORBIDDEN_TEST_ROOTS.isdisjoint(entries)
     assert entries <= FINAL_TEST_ROOTS
 
-    for package in FORBIDDEN_TEST_ROOTS - {"demos", "docs"} - RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS:
+    for package in (
+        FORBIDDEN_TEST_ROOTS - {"demos", "docs"} - RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS
+    ):
         assert (REPO_ROOT / "tests" / "unit" / package).exists(), package
     for package in RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS:
         assert not (REPO_ROOT / "tests" / "unit" / package).exists(), package
@@ -314,6 +319,67 @@ def test_phase3_migration_shims_do_not_register_retired_clean_cut_sources() -> N
     assert not any(
         source in {f"tools/{name}" for name in FORBIDDEN_TOOL_DIRS} for source in sources
     )
+
+
+def test_phase2b_upload_path_property_rejects_wrong_workflow_destination(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    product_root = tmp_path / "policy-engine"
+    (product_root / "architecture").mkdir(parents=True)
+    (tmp_path / ".github" / "workflows").mkdir(parents=True)
+    (product_root / "architecture" / "topology.toml").write_text(
+        """[topology]
+status = "final"
+
+[[path]]
+path = "_build"
+scope = "repo_root"
+commit_policy = "ignored"
+category = "build_output"
+
+[[path]]
+path = "_cache"
+scope = "repo_root"
+commit_policy = "ignored"
+category = "cache"
+
+[[path]]
+path = ".polisyos"
+scope = "repo_root"
+commit_policy = "ignored"
+category = "runtime_state"
+
+[[path]]
+path = ".venv"
+scope = "repo_root"
+commit_policy = "ignored"
+category = "legacy_local_env"
+""",
+        encoding="utf-8",
+    )
+    (tmp_path / ".github" / "workflows" / "release.yml").write_text(
+        """steps:
+  - run: uv build --out-dir _build/dist --clear
+""",
+        encoding="utf-8",
+    )
+    # Keep the upload action and path field valid; only the destination is wrong.
+    # Removing the destination assertion must make this negative test fail.
+    docs_pages = tmp_path / ".github" / "workflows" / "docs-pages.yml"
+    docs_pages.write_text(
+        """steps:
+  - uses: actions/upload-pages-artifact
+    with:
+      path: wrong/site
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sys.modules[__name__], "REPO_ROOT", product_root)
+    monkeypatch.setattr(sys.modules[__name__], "WORKSPACE_ROOT", tmp_path)
+    monkeypatch.setattr(sys.modules[__name__], "_git_ignores", lambda _path: True)
+
+    with pytest.raises(AssertionError):
+        test_phase2b_build_and_cache_umbrellas_are_canonical()
 
 
 def _topology_paths(topology: dict[str, object], *, scope: str) -> set[str]:

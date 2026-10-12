@@ -5,11 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Concatenate
 
 import duckdb
 import numpy as np
@@ -47,6 +46,7 @@ from polisyos.data_forge.read_api.catalog import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterator
     from pathlib import Path
 
 logger = get_logger(__name__)
@@ -146,11 +146,21 @@ _ACTIVE_CATALOG_READS: ContextVar[frozenset[int]] = ContextVar(
 )
 
 
-def _guarded_catalog_read(method: Callable[..., Any]) -> Callable[..., Any]:
+def _guarded_catalog_read[**CatalogReadParameters, CatalogReadResult](
+    method: Callable[
+        Concatenate[DatasetCatalogStore, CatalogReadParameters], CatalogReadResult
+    ],
+) -> Callable[
+    Concatenate[DatasetCatalogStore, CatalogReadParameters], CatalogReadResult
+]:
     """Guard one logical read, reusing the check across nested store calls."""
 
     @wraps(method)
-    def wrapped(self: DatasetCatalogStore, *args: object, **kwargs: object) -> Any:
+    def wrapped(
+        self: DatasetCatalogStore,
+        *args: CatalogReadParameters.args,
+        **kwargs: CatalogReadParameters.kwargs,
+    ) -> CatalogReadResult:
         with self.read_session():
             return method(self, *args, **kwargs)
 

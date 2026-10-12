@@ -28,7 +28,9 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal._graph_projection import pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_id_graph,
     ancestors,
+    canonical_causal_graph_snapshot,
     extract_bidirected_edges,
     extract_directed_edges,
 )
@@ -98,6 +100,11 @@ _CATEGORICAL_UNIQUE_THRESHOLD = 12
 _AUTO_TREK_MAX_GRAPH_NODES = 10
 _AUTO_TREK_MAX_ANCESTOR_UNIVERSE = 7
 _AUTO_TREK_MAX_INFERRED_BLOCKS = 12
+_GRAPH_DERIVED_CANDIDATE_LIMITATION = (
+    "Graph-derived constraint diagnostics are candidate-only: source completeness, "
+    "population, temporal scope, selection, and the distribution Markov assumption "
+    "are unknown."
+)
 
 
 @dataclass(frozen=True)
@@ -691,27 +698,14 @@ def _implied_ci_constraints(
     *,
     max_conditioning_set_size: int = _ALGEBRAIC_MAX_CONDITIONING_SET_SIZE,
 ) -> list[ImpliedConstraintSpec]:
-    from polisyos.foundry.methods.catalog.causal.admg_ops import (
-        d_separation,
-        m_separation,
-    )
-    from polisyos.foundry.methods.catalog.causal.pag_completion import cpdag_to_pag
+    from polisyos.foundry.methods.catalog.causal.admg_ops import d_separation, m_separation
 
-    if graph.graph_type is GraphType.DAG:
-        query_graph = graph
-        separation = d_separation
-    elif graph.graph_type is GraphType.CPDAG:
-        query_graph = cpdag_to_pag(graph)
-        separation = m_separation
-    elif graph.graph_type is GraphType.PAG:
-        query_graph = graph
-        separation = m_separation
-    else:
-        return []
-
-    adjacent_pairs = {
-        _pair_key(edge.src, edge.dst) for edge in graph.edges if edge.lag in (None, 0)
-    }
+    # Partial graph tags do not bind source completeness, population, temporal
+    # scope, or selection context. Graph-derived constraints require the existing
+    # fully specified static DAG/acyclic-ADMG profile.
+    query_graph = _validate_static_id_graph(graph)
+    separation = d_separation if query_graph.graph_type is GraphType.DAG else m_separation
+    adjacent_pairs = {_pair_key(edge.src, edge.dst) for edge in query_graph.edges}
     constraints: list[ImpliedConstraintSpec] = []
     for left_idx, left in enumerate(query_graph.nodes):
         for right in query_graph.nodes[left_idx + 1 :]:
@@ -719,10 +713,7 @@ def _implied_ci_constraints(
                 continue
             candidates = [node for node in query_graph.nodes if node not in {left, right}]
             minimal_sets: list[tuple[str, ...]] = []
-            for size in range(
-                0,
-                min(max_conditioning_set_size, len(candidates)) + 1,
-            ):
+            for size in range(min(max_conditioning_set_size, len(candidates)) + 1):
                 separated_sets: list[tuple[str, ...]] = []
                 for conditioning in combinations(candidates, size):
                     conditioning_set = tuple(sorted(conditioning))
@@ -744,6 +735,16 @@ def _implied_ci_constraints(
                         statement=_format_ci_statement(left, right, conditioning_set),
                         variables=(left, right),
                         conditioning_set=conditioning_set,
+                        metadata={
+                            "diagnostic_basis": "canonical_static_graph_separation",
+                            "assumption_status": AlgebraicAssumptionStatus.UNKNOWN.value,
+                            "scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY.value,
+                            "source_completeness": "unknown",
+                            "population_scope": "unknown",
+                            "temporal_scope": "unknown",
+                            "selection_scope": "unknown",
+                            "markov_assumption": "unknown",
+                        },
                     )
                 )
     return constraints
@@ -1108,12 +1109,10 @@ def _infer_graph_implied_trek_rank_blocks(
     variable_names: list[str],
     explicit_blocks: list[AlgebraicBlockSpec],
 ) -> tuple[list[AlgebraicBlockSpec], list[str]]:
+    from polisyos.foundry.methods.catalog.causal.admg_ops import _validate_static_id_graph
+
+    graph = _validate_static_id_graph(graph)
     warnings: list[str] = []
-    if any(
-        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE for edge in graph.edges
-    ):
-        warnings.append("trek_rank_auto_skipped:graph_has_uncertain_circle_endpoints")
-        return [], warnings
     observed_nodes = sorted(node for node in graph.nodes if node in set(variable_names))
     if len(observed_nodes) > _AUTO_TREK_MAX_GRAPH_NODES:
         warnings.append(
@@ -1308,13 +1307,27 @@ def _evaluate_ci_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=adjusted_p,
                     severity=severity,
+                    assumption_status=AlgebraicAssumptionStatus.UNKNOWN,
                     null_distribution=null_distribution,
                     calibration_mode=calibration_mode,
-                    scope_of_falsification=AlgebraicFalsificationScope.GRAPH_CLASS,
+                    scope_of_falsification=AlgebraicFalsificationScope.RANKING_ONLY,
                     ranking_weight=_severity_ranking_weight(severity),
                     reproducibility_tier=reproducibility_tier,
-                    warnings=list(entry.get("warnings", [])),
-                    metadata=metadata,
+                    warnings=[
+                        *list(entry.get("warnings", [])),
+                        _GRAPH_DERIVED_CANDIDATE_LIMITATION,
+                    ],
+                    metadata={
+                        **metadata,
+                        "diagnostic_basis": "canonical_static_graph_separation",
+                        "assumption_status": AlgebraicAssumptionStatus.UNKNOWN.value,
+                        "scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY.value,
+                        "source_completeness": "unknown",
+                        "population_scope": "unknown",
+                        "temporal_scope": "unknown",
+                        "selection_scope": "unknown",
+                        "markov_assumption": "unknown",
+                    },
                 )
             )
 
@@ -1630,6 +1643,7 @@ def _evaluate_overcomplete_family(
 def _evaluate_trek_rank_family(
     *,
     blocks: list[AlgebraicBlockSpec],
+    graph_derived_blocks: tuple[AlgebraicBlockSpec, ...] = (),
     data: np.ndarray,
     variable_names: list[str],
     alpha: float,
@@ -1696,6 +1710,7 @@ def _evaluate_trek_rank_family(
             )
             effective_mode = AlgebraicTestMode.BOOTSTRAP_RANK
 
+        graph_derived = any(block is inferred for inferred in graph_derived_blocks)
         spec = ImpliedConstraintSpec(
             constraint_id=f"trek_rank:{block.block_id}:rank<={block.max_rank}",
             family=AlgebraicConstraintFamily.TREK_RANK,
@@ -1723,6 +1738,19 @@ def _evaluate_trek_rank_family(
                 ),
                 "test_mode_used": effective_mode.value,
                 "max_residual_energy": threshold,
+                **(
+                    {
+                        "assumption_status": AlgebraicAssumptionStatus.UNKNOWN.value,
+                        "scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY.value,
+                        "source_completeness": "unknown",
+                        "population_scope": "unknown",
+                        "temporal_scope": "unknown",
+                        "selection_scope": "unknown",
+                        "markov_assumption": "unknown",
+                    }
+                    if graph_derived
+                    else {}
+                ),
             },
         )
         implied_constraints.append(spec)
@@ -1797,7 +1825,8 @@ def _evaluate_trek_rank_family(
             continuous_only=continuous_only,
         )
         blocker_eligible = (
-            block.assumption_regime is AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
+            not graph_derived
+            and block.assumption_regime is AlgebraicAssumptionRegime.LINEAR_GAUSSIAN_CONTINUOUS
             and regularity_status is AlgebraicRegularityStatus.REGULAR
             and effective_mode
             in {
@@ -1817,6 +1846,7 @@ def _evaluate_trek_rank_family(
                 "assumption_status": assumption_status,
                 "regularity_status": regularity_status,
                 "blocker_eligible": blocker_eligible,
+                "graph_derived": graph_derived,
                 "metadata": {
                     **metadata,
                     "condition_number": condition_number,
@@ -1844,10 +1874,15 @@ def _evaluate_trek_rank_family(
     for entry, adjusted_p in zip(raw_results, adjusted_values, strict=False):
         if entry["raw_reject"] and adjusted_p < alpha:
             severity = str(entry["severity"])
+            graph_derived = bool(entry["graph_derived"])
             scope = (
-                AlgebraicFalsificationScope.GRAPH_CLASS
-                if severity == "blocker"
-                else AlgebraicFalsificationScope.RANKING_ONLY
+                AlgebraicFalsificationScope.RANKING_ONLY
+                if graph_derived
+                else (
+                    AlgebraicFalsificationScope.GRAPH_CLASS
+                    if severity == "blocker"
+                    else AlgebraicFalsificationScope.RANKING_ONLY
+                )
             )
             violations.append(
                 ConstraintEvaluationResult(
@@ -1858,14 +1893,34 @@ def _evaluate_trek_rank_family(
                     p_value=float(entry["p_value"]),
                     adjusted_p_value=float(adjusted_p),
                     severity=severity,
-                    assumption_status=entry["assumption_status"],
+                    assumption_status=(
+                        AlgebraicAssumptionStatus.UNKNOWN
+                        if graph_derived
+                        else entry["assumption_status"]
+                    ),
                     regularity_status=entry["regularity_status"],
                     null_distribution=AlgebraicNullDistribution.BOOTSTRAP,
                     calibration_mode=AlgebraicCalibrationMode.BOOTSTRAP,
                     scope_of_falsification=scope,
                     ranking_weight=_severity_ranking_weight(severity),
                     reproducibility_tier=(AlgebraicReproducibilityTier.STOCHASTIC_BOOTSTRAP),
-                    metadata=dict(entry["metadata"]),
+                    warnings=[_GRAPH_DERIVED_CANDIDATE_LIMITATION] if graph_derived else [],
+                    metadata={
+                        **dict(entry["metadata"]),
+                        **(
+                            {
+                                "assumption_status": AlgebraicAssumptionStatus.UNKNOWN.value,
+                                "scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY.value,
+                                "source_completeness": "unknown",
+                                "population_scope": "unknown",
+                                "temporal_scope": "unknown",
+                                "selection_scope": "unknown",
+                                "markov_assumption": "unknown",
+                            }
+                            if graph_derived
+                            else {}
+                        ),
+                    },
                 )
             )
 
@@ -2168,6 +2223,45 @@ def _build_algebraic_metadata_summary(
     }
 
 
+def _rebind_discovery_graph_receipt(
+    report: CausalDiscoveryReport,
+    graph: CausalGraphModel,
+) -> CausalDiscoveryReport:
+    """Rebind graph identity after candidate metadata changes its content hash."""
+    disposition = report.projection_disposition
+    resolved_graph: CausalGraphModel | None = None
+    reason_code: str | None = None
+    status = disposition.status
+    if status is GraphProjectionStatus.IDENTITY:
+        if graph.graph_type is GraphType.DAG:
+            status = GraphProjectionStatus.IDENTITY
+        else:
+            status = GraphProjectionStatus.UNSUPPORTED
+            reason_code = "algebraic_metadata_changed_identity_profile"
+            resolved_graph = report.resolved_graph
+    elif status is GraphProjectionStatus.PROJECTED:
+        try:
+            resolved_graph, _ = pag_to_dag_projection(graph)
+        except (TypeError, ValueError):
+            status = GraphProjectionStatus.UNSUPPORTED
+            reason_code = "algebraic_metadata_projection_recompute_failed"
+            resolved_graph = report.resolved_graph
+    elif status is GraphProjectionStatus.UNAVAILABLE:
+        reason_code = disposition.reason_code
+    else:
+        status = GraphProjectionStatus.UNSUPPORTED
+        reason_code = disposition.reason_code or "source_projection_not_established"
+        resolved_graph = report.resolved_graph
+    if status in {GraphProjectionStatus.UNAVAILABLE, GraphProjectionStatus.UNSUPPORTED}:
+        reason_code = reason_code or "source_projection_not_established"
+    rebound = graph_projection_disposition(
+        graph, resolved_graph, status=status, reason_code=reason_code
+    )
+    fields = report.model_dump(mode="python")
+    fields.update(graph=graph, resolved_graph=resolved_graph, projection_disposition=rebound)
+    return CausalDiscoveryReport.model_validate(fields)
+
+
 def _stamp_algebraic_constraint_audit(
     report: CausalDiscoveryReport,
     *,
@@ -2181,11 +2275,25 @@ def _stamp_algebraic_constraint_audit(
     ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
 ) -> CausalDiscoveryReport:
-    graph = _inject_algebraic_blocks_metadata(
-        report.graph,
-        algebraic_blocks=list(algebraic_blocks or ()),
+    graph = canonical_causal_graph_snapshot(
+        _inject_algebraic_blocks_metadata(
+            report.graph,
+            algebraic_blocks=list(algebraic_blocks or ()),
+        )
     )
-    updated_report = report.model_copy(update={"graph": graph})
+    updated_report = _rebind_discovery_graph_receipt(report, graph)
+    # Use only the selected canonical identity DAG for candidate diagnostics. A
+    # graph receipt does not establish source completeness, population, temporal
+    # scope, selection, or the distribution Markov assumption; those remain typed
+    # unknowns on emitted candidate constraints and the ranking surface.
+    analysis_graph: CausalGraphModel | None = None
+    if (
+        updated_report.projection_disposition.status is GraphProjectionStatus.IDENTITY
+        and graph.graph_type is GraphType.DAG
+    ):
+        selected_graph = updated_report.graph_for_analysis()
+        if selected_graph is not None:
+            analysis_graph = canonical_causal_graph_snapshot(selected_graph)
 
     algebraic_report: AlgebraicConstraintReport
     degraded = degraded_reason
@@ -2193,9 +2301,14 @@ def _stamp_algebraic_constraint_audit(
         degraded = "algebraic_audit_degraded:discovery_fallback"
 
     if degraded is not None:
+        degraded_warnings = [degraded]
+        if analysis_graph is None:
+            degraded_warnings.append(
+                "ci_family_skipped:degraded_or_nonidentity_graph_source"
+            )
         algebraic_report = AlgebraicConstraintReport(
             severity="warning",
-            warnings=[degraded],
+            warnings=degraded_warnings,
         )
     else:
         try:
@@ -2205,6 +2318,7 @@ def _stamp_algebraic_constraint_audit(
                 variable_names=variable_names,
                 significance_level=significance_level,
                 seed=seed,
+                graph_for_constraints=analysis_graph,
                 dp_context=dp_context,
                 ci_threshold_policies=ci_threshold_policies,
                 readiness_target=readiness_target,
@@ -2242,6 +2356,7 @@ def _run_algebraic_constraint_audit(
     variable_names: list[str],
     significance_level: float,
     seed: int,
+    graph_for_constraints: CausalGraphModel | None = None,
     dp_context: Mapping[str, Any] | None = None,
     ci_threshold_policies: Mapping[str, Any] | None = None,
     readiness_target: str = "diagnostic",
@@ -2254,33 +2369,52 @@ def _run_algebraic_constraint_audit(
     violated_by_family: dict[str, int] = {}
     blocker_conditions_met_by_family: dict[str, bool] = {}
 
-    ci_result = _evaluate_ci_family(
-        graph=graph,
-        data=data,
-        variable_names=variable_names,
-        alpha=significance_level,
-        dp_context=dp_context,
-        ci_threshold_policies=ci_threshold_policies,
-        readiness_target=readiness_target,
-    )
-    families_run.append(AlgebraicConstraintFamily.CI)
-    implied_constraints.extend(ci_result["implied_constraints"])
-    violations.extend(ci_result["violations"])
-    warnings.extend(ci_result["warnings"])
-    tested_by_family[AlgebraicConstraintFamily.CI.value] = int(ci_result["tested_count"])
-    violated_by_family[AlgebraicConstraintFamily.CI.value] = len(ci_result["violations"])
-    blocker_conditions_met_by_family[AlgebraicConstraintFamily.CI.value] = any(
-        violation.severity == "blocker" for violation in ci_result["violations"]
-    )
+    if graph_for_constraints is None:
+        warnings.append("ci_family_skipped:graph_profile_or_identity_not_admitted")
+        warnings.append("trek_rank_auto_skipped:graph_profile_or_identity_not_admitted")
+    else:
+        try:
+            graph_for_constraints = _validate_static_id_graph(graph_for_constraints)
+        except (TypeError, ValueError) as exc:
+            warnings.append(
+                "ci_family_skipped:graph_profile_not_admitted:"
+                f"{type(exc).__name__}"
+            )
+            graph_for_constraints = None
+        if graph_for_constraints is not None:
+            warnings.append(_GRAPH_DERIVED_CANDIDATE_LIMITATION)
+
+    if graph_for_constraints is not None:
+        ci_result = _evaluate_ci_family(
+            graph=graph_for_constraints,
+            data=data,
+            variable_names=variable_names,
+            alpha=significance_level,
+            dp_context=dp_context,
+            ci_threshold_policies=ci_threshold_policies,
+            readiness_target=readiness_target,
+        )
+        families_run.append(AlgebraicConstraintFamily.CI)
+        implied_constraints.extend(ci_result["implied_constraints"])
+        violations.extend(ci_result["violations"])
+        warnings.extend(ci_result["warnings"])
+        tested_by_family[AlgebraicConstraintFamily.CI.value] = int(ci_result["tested_count"])
+        violated_by_family[AlgebraicConstraintFamily.CI.value] = len(ci_result["violations"])
+        blocker_conditions_met_by_family[AlgebraicConstraintFamily.CI.value] = any(
+            violation.severity == "blocker" for violation in ci_result["violations"]
+        )
 
     raw_blocks = graph.metadata.get("algebraic_blocks")
     algebraic_blocks = _validate_algebraic_blocks(raw_blocks)
-    auto_trek_rank_blocks, auto_trek_warnings = _infer_graph_implied_trek_rank_blocks(
-        graph=graph,
-        variable_names=variable_names,
-        explicit_blocks=algebraic_blocks,
-    )
-    warnings.extend(auto_trek_warnings)
+    if graph_for_constraints is None:
+        auto_trek_rank_blocks = []
+    else:
+        auto_trek_rank_blocks, auto_trek_warnings = _infer_graph_implied_trek_rank_blocks(
+            graph=graph_for_constraints,
+            variable_names=variable_names,
+            explicit_blocks=algebraic_blocks,
+        )
+        warnings.extend(auto_trek_warnings)
     tetrad_blocks = [
         block for block in algebraic_blocks if block.family is AlgebraicConstraintFamily.TETRAD
     ]
@@ -2338,6 +2472,7 @@ def _run_algebraic_constraint_audit(
     if trek_rank_blocks:
         trek_rank_result = _evaluate_trek_rank_family(
             blocks=trek_rank_blocks,
+            graph_derived_blocks=tuple(auto_trek_rank_blocks),
             data=data,
             variable_names=variable_names,
             alpha=significance_level,

@@ -28,7 +28,10 @@ import polisyos.core as core
 from polisyos.pdc import SubstrateLayer, gy_content_hash
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.data_forge_binding import ResolvedMeasurementRootEvidence
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootExecutionBinding,
+        ResolvedMeasurementRootEvidence,
+    )
 
 ArtifactID = core.artifacts.ArtifactID
 ArtifactRef = core.artifacts.ArtifactRef
@@ -102,6 +105,10 @@ class _SubstrateRegistryStore(Protocol):
         self, artifact_id: ArtifactID | ArtifactRef
     ) -> core.artifacts.ArtifactManifest:
         """Load the manifest needed for lineage verification."""
+        ...
+
+    def verify(self, artifact_id: object) -> core.artifacts.VerificationReport:
+        """Verify one selected artifact and manifest before persistence."""
         ...
 
 
@@ -360,22 +367,22 @@ def require_active_catalog_source(source: CatalogServingSourcePaths | None) -> N
         raise SubstrateRegistryError("catalog_source_context_mismatch")
 
 
-async def run_catalog_source_awaitable(
+async def run_catalog_source_awaitable[CatalogAwaitableResult](
     source: CatalogServingSourcePaths,
-    awaitable: Awaitable[Any],
-) -> Any:
+    awaitable: Awaitable[CatalogAwaitableResult],
+) -> CatalogAwaitableResult:
     """Await one complete run while its immutable catalog source is context-bound."""
 
     with catalog_serving_source_scope(source):
         return await awaitable
 
 
-def run_catalog_source_call(
+def run_catalog_source_call[**CatalogCallParameters, CatalogCallResult](
     source: CatalogServingSourcePaths | None,
-    call: Callable[..., Any],
-    *args: Any,
-    **kwargs: Any,
-) -> Any:
+    call: Callable[CatalogCallParameters, CatalogCallResult],
+    *args: CatalogCallParameters.args,
+    **kwargs: CatalogCallParameters.kwargs,
+) -> CatalogCallResult:
     """Call one complete synchronous run with the same request-local source binding."""
 
     with catalog_serving_source_scope(source):
@@ -1209,6 +1216,7 @@ def persist_measurement_root_substrate_registry(
     l5_authority: L5CatalogAuthority,
     evidence: ResolvedMeasurementRootEvidence,
     baseline_registry_ref: ArtifactRef | None = None,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> MeasurementRootRegistryAdmission:
     """Admit one owner registration from replay-verified root evidence.
 
@@ -1227,7 +1235,11 @@ def persist_measurement_root_substrate_registry(
     if not isinstance(evidence, ResolvedMeasurementRootEvidence):
         raise SubstrateRegistryError("substrate_registry_measurement_root_evidence_invalid")
     try:
-        _validate_resolved_measurement_root_evidence(evidence)
+        _validate_resolved_measurement_root_evidence(
+            evidence,
+            store=store,
+            execution_scope_binding=execution_scope_binding,
+        )
     except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
         raise SubstrateRegistryError(
             "substrate_registry_measurement_root_evidence_invalid"

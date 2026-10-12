@@ -44,12 +44,33 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import DataSnapshotRef
     from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
     from polisyos.runtime.quality.substrate_registry import (
         L5CatalogAuthority,
         MeasurementRootRegistryAdmission,
         SubstrateRegistration,
         SubstrateRegistry,
     )
+
+
+class _MeasurementRootEvidenceStore(Protocol):
+    """CAS reads needed to revalidate a selected MeasurementRoot authority identity."""
+
+    def get_bytes(self, artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef) -> bytes:
+        """Read the selected payload bytes."""
+        ...
+
+    def get_manifest(
+        self, artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef
+    ) -> artifacts.ArtifactManifest:
+        """Read the selected payload manifest."""
+        ...
+
+    def verify(
+        self, artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef
+    ) -> artifacts.VerificationReport:
+        """Verify selected payload and manifest integrity."""
+        ...
 
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = "policyos.runtime.data_forge_snapshot_binding.v1"
@@ -390,11 +411,171 @@ class FabricMeasurementRootPayload(BaseModel):
         return self
 
 
+@dataclass(frozen=True, slots=True)
+class MeasurementRootExecutionBinding:
+    """Carry one exact immutable control-job admission into measurement custody."""
+
+    admission: ControlJobExecutionAdmission
+    status: Literal["established", "not_established"]
+    limitation_code: str | None = None
+
+    @property
+    def authority_eligible(self) -> bool:
+        """Return whether the admitted job and scope bind all emitted identities."""
+        return self.status == "established" and self.limitation_code is None
+
+
+def bind_measurement_root_execution_scope(
+    *,
+    admission: object,
+    job: object,
+    execution_scope: object,
+) -> MeasurementRootExecutionBinding:
+    """Bind the exact store-read admission; never infer scope from caller data or artifacts."""
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmission,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
+
+    if (
+        type(admission) is not ControlJobExecutionAdmission
+        or type(job) is not ControlJobRecord
+        or type(execution_scope) is not ControlJobExecutionScope
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_execution_admission_invalid")
+    if (
+        admission.job is not job
+        or admission.scope is not execution_scope
+        or admission.attempt != job.attempt
+        or admission.job.attempt != admission.attempt
+    ):
+        raise FabricMeasurementRootBindingError("measurement_root_execution_admission_mismatch")
+    if execution_scope.status not in {"established", "not_established"}:
+        raise FabricMeasurementRootBindingError("measurement_root_execution_scope_invalid")
+    if execution_scope.status == "not_established":
+        limitation = "control_job_execution_scope_not_established"
+    elif (
+        not isinstance(execution_scope.tenant_id, str)
+        or not execution_scope.tenant_id.strip()
+        or not isinstance(execution_scope.cell_id, str)
+        or not execution_scope.cell_id.strip()
+        or not isinstance(execution_scope.actor_subject, str)
+        or not execution_scope.actor_subject.strip()
+        or execution_scope.actor_authenticated is not True
+        or not isinstance(execution_scope.actor_roles, tuple)
+        or any(
+            not isinstance(role, str) or not role.strip()
+            for role in execution_scope.actor_roles
+        )
+        or tuple(sorted(set(execution_scope.actor_roles))) != execution_scope.actor_roles
+        or not isinstance(job.job_id, str)
+        or not job.job_id.strip()
+        or not isinstance(job.run_id, str)
+        or not job.run_id.strip()
+        or not isinstance(job.effective_execution_profile, str)
+        or not job.effective_execution_profile.strip()
+        or (
+            job.requested_execution_profile is not None
+            and (
+                not isinstance(job.requested_execution_profile, str)
+                or not job.requested_execution_profile.strip()
+            )
+        )
+    ):
+        limitation = "control_job_measurement_binding_incomplete"
+    else:
+        limitation = None
+    return MeasurementRootExecutionBinding(
+        admission=admission,
+        status=execution_scope.status,
+        limitation_code=limitation,
+    )
+
+
+def _require_measurement_root_execution_binding(
+    binding: MeasurementRootExecutionBinding | None,
+) -> MeasurementRootExecutionBinding:
+    """Reconcile the binding's status from its exact captured admission."""
+    if type(binding) is not MeasurementRootExecutionBinding:
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_execution_scope_not_established"
+        )
+    try:
+        admission = binding.admission
+        derived = bind_measurement_root_execution_scope(
+            admission=admission,
+            job=admission.job,
+            execution_scope=admission.scope,
+        )
+    except FabricMeasurementRootBindingError:
+        raise
+    except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_execution_scope_not_established"
+        ) from exc
+    if (
+        not derived.authority_eligible
+        or binding.status != derived.status
+        or binding.limitation_code != derived.limitation_code
+    ):
+        raise FabricMeasurementRootBindingError(
+            "measurement_root_execution_scope_not_established"
+        )
+    return binding
+
+def _measurement_root_scope_obligation(
+    binding: MeasurementRootExecutionBinding | None,
+) -> list[str]:
+    if type(binding) is MeasurementRootExecutionBinding and binding.authority_eligible:
+        return []
+    code = binding.limitation_code if type(binding) is MeasurementRootExecutionBinding else None
+    return [code or "control_job_execution_scope_not_established"]
+
+
+def _measurement_root_put_options(
+    *, fabric_fetch_ref: artifacts.ArtifactRef | None
+) -> artifacts.PutOptions:
+    schema_name = (
+        FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
+        if fabric_fetch_ref is not None
+        else WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION
+    )
+    schema_epoch = "v2" if fabric_fetch_ref is not None else "v1"
+    inputs = (
+        [artifacts.InputRef(artifact_id=fabric_fetch_ref.artifact_id, role="fabric_fetch")]
+        if fabric_fetch_ref is not None
+        else []
+    )
+    return artifacts.PutOptions(
+        kind="policyos.gy.measurement_root_payload",
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=schema_name, version=schema_epoch),
+        producer=artifacts.ProducerInfo(
+            component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+            version="2.0.0" if fabric_fetch_ref is not None else "1.0.0",
+        ),
+        inputs=inputs,
+        canon=artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False)),
+    )
+
+
 class MeasurementRootProducer:
     """Produce CAS-backed BaseDataset artifacts from DatasetCatalogGraph bindings."""
 
-    def __init__(self, *, artifact_store: artifacts.FileSystemCAS | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        artifact_store: artifacts.FileSystemCAS | None = None,
+        execution_scope_binding: MeasurementRootExecutionBinding | None = None,
+    ) -> None:
+        if (
+            execution_scope_binding is not None
+            and type(execution_scope_binding) is not MeasurementRootExecutionBinding
+        ):
+            raise TypeError("measurement_root_execution_binding_invalid")
         self._artifact_store = artifact_store
+        self._execution_scope_binding = execution_scope_binding
 
     def produce_from_catalog(
         self,
@@ -403,6 +584,7 @@ class MeasurementRootProducer:
     ) -> ArtifactEnvelope:
         """Resolve a pinned construct through DatasetCatalogGraph and persist its root."""
 
+        binding = self._execution_scope_binding
         search_response = _search_catalog_with_status(
             catalog_graph,
             manifest.construct_scope_query,
@@ -498,7 +680,7 @@ class MeasurementRootProducer:
             "data_requirement_spec": data_requirement_spec.model_dump(mode="json"),
             "source_contract_requirement": source_contract_requirement,
         }
-        payload_ref = self._persist_payload(payload)
+        payload_ref = self._persist_payload(payload, execution_scope_binding=binding)
         artifact_slug = _gy_slug(manifest.fixture_id)
         producer_root = ArtifactRef.from_payload(
             artifact_id=f"measurement-root-{artifact_slug}",
@@ -538,7 +720,7 @@ class MeasurementRootProducer:
             },
             input_artifacts=[],
             producer_roots=[producer_root],
-            obligations=[],
+            obligations=_measurement_root_scope_obligation(binding),
             verification={"latest_applicability_result": source_contract_gate.result_id},
         )
 
@@ -555,6 +737,9 @@ class MeasurementRootProducer:
 
         if self._artifact_store is None:
             raise FabricMeasurementRootBindingError("measurement_root_store_not_established")
+        execution_scope_binding = _require_measurement_root_execution_binding(
+            self._execution_scope_binding
+        )
         if not isinstance(design_problem, DesignProblem) or not isinstance(
             source_requirement, DataRequirementSpec
         ):
@@ -583,8 +768,13 @@ class MeasurementRootProducer:
             payload.model_dump(mode="json"),
             fabric_fetch_ref=resolved.fetch_receipt_ref,
             source_checked_at=resolved.checked_at,
+            execution_scope_binding=execution_scope_binding,
         )
-        return _fabric_measurement_envelope(payload, payload_ref)
+        return _fabric_measurement_envelope(
+            payload,
+            payload_ref,
+            execution_scope_binding=execution_scope_binding,
+        )
 
     def _persist_payload(
         self,
@@ -592,6 +782,7 @@ class MeasurementRootProducer:
         *,
         fabric_fetch_ref: artifacts.ArtifactRef | None = None,
         source_checked_at: datetime | None = None,
+        execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> str:
         if self._artifact_store is None:
             return gy_content_hash(payload)
@@ -607,12 +798,27 @@ class MeasurementRootProducer:
                 "Measurement-root payload blocked by secret/PII scan: "
                 + ",".join(scan.finding_kinds)
             )
+        if (
+            type(execution_scope_binding) is not MeasurementRootExecutionBinding
+            or not execution_scope_binding.authority_eligible
+        ):
+            from polisyos.core.security.tenant_context import clear_tenant_context
+
+            with clear_tenant_context():
+                candidate_ref = self._artifact_store.put_json(
+                    payload,
+                    _measurement_root_put_options(fabric_fetch_ref=fabric_fetch_ref),
+                    canon.CanonSpec(forbid_floats=False),
+                )
+            return str(candidate_ref.artifact_id)
+
         from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 
         opts, identity = _measurement_root_authority_configuration(
             payload,
             fabric_fetch_ref=fabric_fetch_ref,
             source_checked_at=source_checked_at,
+            execution_scope_binding=execution_scope_binding,
         )
         result = write_authority_artifact(
             self._artifact_store,
@@ -629,9 +835,16 @@ def _measurement_root_authority_configuration(
     *,
     fabric_fetch_ref: artifacts.ArtifactRef | None,
     source_checked_at: datetime | None,
+    execution_scope_binding: MeasurementRootExecutionBinding,
 ) -> tuple[artifacts.PutOptions, dict[str, Any]]:
     """Build one identity for the existing writer and strict current reader."""
 
+    execution_scope_binding = _require_measurement_root_execution_binding(
+        execution_scope_binding
+    )
+    admission = execution_scope_binding.admission
+    job = admission.job
+    scope = admission.scope
     schema_name = (
         FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
         if fabric_fetch_ref is not None
@@ -639,59 +852,44 @@ def _measurement_root_authority_configuration(
     )
     schema_epoch = "v2" if fabric_fetch_ref is not None else "v1"
     source_refs = (str(fabric_fetch_ref.artifact_id),) if fabric_fetch_ref is not None else ()
-    inputs = (
-        [artifacts.InputRef(artifact_id=fabric_fetch_ref.artifact_id, role="fabric_fetch")]
-        if fabric_fetch_ref is not None
-        else []
-    )
     generated_at = (
         (source_checked_at or _utc_now()).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     )
-    fixture_id = (
-        str(payload["design_problem"]["design_problem_id"])
-        if fabric_fetch_ref is not None
-        else str(payload.get("fixture_id") or "measurement-root")
-    )
-    profile = "gy_fabric_measurement" if fabric_fetch_ref is not None else "gy_slice0"
-    manifest_canon = artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=False))
-    opts = artifacts.PutOptions(
-        kind="policyos.gy.measurement_root_payload",
-        media_type="application/json",
-        schema=artifacts.SchemaInfo(name=schema_name, version=schema_epoch),
-        producer=artifacts.ProducerInfo(
-            component="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
-            version="2.0.0" if fabric_fetch_ref is not None else "1.0.0",
-        ),
-        inputs=inputs,
-        canon=manifest_canon,
+    opts = _measurement_root_put_options(fabric_fetch_ref=fabric_fetch_ref)
+    digest = gy_content_hash(payload).split(":")[-1]
+    closure_id = (
+        f"control-job:{job.job_id}:attempt:{admission.attempt}:"
+        f"measurement-root:{digest[:16]}"
     )
     identity = {
-        "evidence_id": f"gy-measurement-root-{gy_content_hash(payload).split(':')[-1][:16]}",
+        "evidence_id": f"gy-measurement-root-{digest[:16]}",
         "evidence_class": "authority_bearing",
         "authority_role": "producer_authority",
         "provenance_kind": "runtime_emitted",
         "owner": "team-runtime-quality",
         "reader_contract": schema_name,
         "reader_contract_version": schema_epoch,
-        "tenant_id": "policyos-system",
-        "cell_id": None,
-        "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
-        "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
-        "trace_id": "trace-gy-measurement-root",
-        "span_id": "span-gy-measurement-root",
+        "tenant_id": scope.tenant_id,
+        "cell_id": scope.cell_id,
+        "run_id": job.run_id,
+        "job_id": job.job_id,
+        "trace_id": f"trace-control-job-{job.job_id}-attempt-{admission.attempt}",
+        "span_id": f"span-measurement-root-{digest[:16]}",
         "parent_span_id": None,
-        "requested_execution_profile": profile,
-        "effective_execution_profile": profile,
+        "requested_execution_profile": (
+            job.requested_execution_profile
+        ),
+        "effective_execution_profile": job.effective_execution_profile,
         "phase": "GY-D1" if fabric_fetch_ref is not None else "GY-F2",
         "generated_at": generated_at,
         "as_of_time": generated_at,
         "same_input_closure": {
-            "closure_id": f"gy-measurement-root-{_gy_slug(fixture_id)}",
+            "closure_id": closure_id,
             "status": "closed",
-            "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
-            "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
-            "tenant_id": "policyos-system",
-            "cell_id": None,
+            "run_id": job.run_id,
+            "job_id": job.job_id,
+            "tenant_id": scope.tenant_id,
+            "cell_id": scope.cell_id,
             "evidence_input_refs": source_refs,
         },
         "input_refs": list(source_refs),
@@ -877,6 +1075,8 @@ def _fabric_measurement_payload(
 def _fabric_measurement_envelope(
     payload: FabricMeasurementRootPayload,
     payload_ref: str,
+    *,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> ArtifactEnvelope:
     digest = payload_ref.split(":", 1)[1]
     values = payload.model_dump(mode="json")
@@ -919,6 +1119,7 @@ def _fabric_measurement_envelope(
         },
         input_artifacts=[source],
         producer_roots=[root],
+        obligations=_measurement_root_scope_obligation(execution_scope_binding),
     )
 
 
@@ -928,8 +1129,12 @@ def resolve_fabric_measurement_root(
     source_artifact_id: str,
     catalog: read_api.catalog.DatasetCatalogGraph,
     providers: RetrievalProviders | None = None,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> ArtifactEnvelope:
-    """Resolve full source custody and recompute a current measurement envelope."""
+    """Resolve full source custody against an independent admitted job scope."""
+    execution_scope_binding = _require_measurement_root_execution_binding(
+        execution_scope_binding
+    )
 
     from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
 
@@ -961,12 +1166,20 @@ def resolve_fabric_measurement_root(
         or manifest.env is not None
         or manifest.governance is not None
         or manifest.tenant_context is None
-        or manifest.tenant_context.tenant_id != "policyos-system"
-        or manifest.tenant_context.cell_id is not None
+        or (
+            manifest.tenant_context.tenant_id
+            != execution_scope_binding.admission.scope.tenant_id
+        )
+        or (
+            manifest.tenant_context.cell_id
+            != execution_scope_binding.admission.scope.cell_id
+        )
         or closure is None
         or closure.status != "closed"
-        or closure.tenant_id != "policyos-system"
-        or closure.cell_id is not None
+        or closure.run_id != execution_scope_binding.admission.job.run_id
+        or closure.job_id != execution_scope_binding.admission.job.job_id
+        or closure.tenant_id != execution_scope_binding.admission.scope.tenant_id
+        or closure.cell_id != execution_scope_binding.admission.scope.cell_id
         or closure.evidence_input_refs != (str(payload.fetch_receipt_ref.artifact_id),)
         or authority is None
         or authority.payload_sha256 != artifact_id.hex
@@ -997,6 +1210,7 @@ def resolve_fabric_measurement_root(
         payload.model_dump(mode="json"),
         fabric_fetch_ref=payload.fetch_receipt_ref,
         source_checked_at=payload.source_agreement_checked_at,
+        execution_scope_binding=execution_scope_binding,
     )
     identity["same_input_closure"] = SameInputClosure.model_validate(identity["same_input_closure"])
     identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
@@ -1038,7 +1252,11 @@ def resolve_fabric_measurement_root(
     )
     if payload != expected:
         raise FabricMeasurementRootBindingError("measurement_root_fabric_projection_mismatch")
-    return _fabric_measurement_envelope(payload, source_artifact_id)
+    return _fabric_measurement_envelope(
+        payload,
+        source_artifact_id,
+        execution_scope_binding=execution_scope_binding,
+    )
 
 
 @dataclass(frozen=True)
@@ -1083,12 +1301,15 @@ def _measurement_root_evidence_fingerprint(
 
 def _validate_resolved_measurement_root_evidence(
     evidence: ResolvedMeasurementRootEvidence,
+    *,
+    store: _MeasurementRootEvidenceStore,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> None:
-    """Recheck the immutable projection before registry persistence.
+    """Recheck evidence against persisted root bytes and admitted execution scope.
 
-    The resolver supplies the fingerprint.  This second check prevents a
-    caller from retaining that typed object while replacing any projection or
-    lineage ref with a merely well-shaped or foreign ref.
+    The resolver owns source replay. This fresh persistence check does not replay
+    providers; it re-reads the root bytes and authority manifest, then verifies
+    the selected envelope, attestation, and event against the same admission.
     """
 
     if not isinstance(evidence, ResolvedMeasurementRootEvidence):
@@ -1104,10 +1325,12 @@ def _validate_resolved_measurement_root_evidence(
         or not evidence.envelope.payload_ref.startswith("sha256:")
     ):
         raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid")
+    binding = _require_measurement_root_execution_binding(execution_scope_binding)
     try:
         expected_envelope = _fabric_measurement_envelope(
             evidence.payload,
             evidence.envelope.payload_ref,
+            execution_scope_binding=binding,
         )
         expected_payload_id = artifacts.ArtifactID(evidence.envelope.payload_ref)
         expected_payload_ref = artifacts.ArtifactRef(
@@ -1115,15 +1338,73 @@ def _validate_resolved_measurement_root_evidence(
             kind="policyos.gy.measurement_root_payload",
             media_type="application/json",
         )
-    except (TypeError, ValueError, RuntimeError) as exc:
+        if evidence.measurement_root_ref != expected_payload_ref:
+            raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
+        verification = store.verify(expected_payload_ref)
+        if not verification.ok:
+            raise ValueError(verification.error or "measurement-root artifact verification failed")
+        stored_payload = FabricMeasurementRootPayload.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(expected_payload_ref))
+        )
+        if stored_payload != evidence.payload:
+            raise ValueError("measurement-root persisted payload differs from resolved evidence")
+        manifest = store.get_manifest(expected_payload_ref)
+        if manifest.authority is None:
+            raise ValueError("measurement-root authority manifest is missing")
+        opts, identity = _measurement_root_authority_configuration(
+            evidence.payload.model_dump(mode="json"),
+            fabric_fetch_ref=evidence.fetch_receipt_ref,
+            source_checked_at=evidence.payload.source_agreement_checked_at,
+            execution_scope_binding=binding,
+        )
+        from polisyos.runtime.http.services.control.artifacts import (
+            AuthorityArtifactIdentityContext,
+            verify_runtime_authority_artifact_identity,
+        )
+        from polisyos.runtime.quality.authority import (
+            EvidenceAuthorityEnvelope,
+            GovernanceMetadata,
+            SameInputClosure,
+        )
+
+        authority_envelope_ref = artifacts.resolve_authority_envelope_ref(
+            store, manifest.authority
+        )
+        authority_verification = store.verify(authority_envelope_ref)
+        if not authority_verification.ok:
+            raise ValueError("measurement-root authority envelope integrity invalid")
+        emitted_authority = EvidenceAuthorityEnvelope.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(authority_envelope_ref))
+        )
+        identity["same_input_closure"] = SameInputClosure.model_validate(
+            identity["same_input_closure"]
+        )
+        identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
+        identity["input_refs"] = tuple(identity["input_refs"])
+        expected_context = AuthorityArtifactIdentityContext(
+            **identity,
+            manifest_inputs=tuple(opts.inputs or ()),
+            manifest_governance=opts.governance,
+            manifest_canon=opts.canon,
+            attestation_ref=emitted_authority.attestation_ref,
+        )
+        verify_runtime_authority_artifact_identity(
+            store,
+            artifact_id=expected_payload_ref,
+            opts=opts,
+            expected_context=expected_context,
+        )
+        expected_fetch_ref = evidence.payload.fetch_receipt_ref
+        expected_catalog_ref = evidence.payload.catalog_binding_ref
+    except FabricMeasurementRootBindingError:
+        raise
+    except (AttributeError, KeyError, OSError, TypeError, ValueError, RuntimeError) as exc:
         raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid") from exc
     if expected_envelope.model_dump(mode="json") != evidence.envelope.model_dump(mode="json"):
         raise FabricMeasurementRootBindingError("measurement_root_evidence_projection_mismatch")
-    if evidence.measurement_root_ref != expected_payload_ref:
-        raise FabricMeasurementRootBindingError("measurement_root_payload_ref_mismatch")
-    if evidence.fetch_receipt_ref != evidence.payload.fetch_receipt_ref:
+    if evidence.fetch_receipt_ref != expected_fetch_ref:
         raise FabricMeasurementRootBindingError("measurement_root_fetch_ref_mismatch")
-    if evidence.catalog_binding_ref != evidence.payload.catalog_binding_ref:
+    if evidence.catalog_binding_ref != expected_catalog_ref:
         raise FabricMeasurementRootBindingError("measurement_root_catalog_ref_mismatch")
     expected_fingerprint = _measurement_root_evidence_fingerprint(
         envelope=evidence.envelope,
@@ -1180,6 +1461,7 @@ def persist_measurement_root_data_snapshot(
     *,
     store: artifacts.FileSystemCAS,
     evidence: ResolvedMeasurementRootEvidence,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> DataSnapshotRef:
     """Persist a Fabric DataSnapshot from replay-verified measurement evidence.
 
@@ -1189,7 +1471,11 @@ def persist_measurement_root_data_snapshot(
     replays the source again.
     """
 
-    _validate_resolved_measurement_root_evidence(evidence)
+    _validate_resolved_measurement_root_evidence(
+        evidence,
+        store=store,
+        execution_scope_binding=execution_scope_binding,
+    )
 
     from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt
@@ -1322,6 +1608,7 @@ def resolve_measurement_root_evidence(
     measurement_root: ArtifactEnvelope,
     catalog: read_api.catalog.DatasetCatalogGraph,
     providers: RetrievalProviders | None = None,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> ResolvedMeasurementRootEvidence:
     """Replay a supplied root and expose only its content-bound custody refs.
 
@@ -1330,6 +1617,9 @@ def resolve_measurement_root_evidence(
     Fabric fetch, payload, and catalog owners have revalidated the chain.
     """
 
+    execution_scope_binding = _require_measurement_root_execution_binding(
+        execution_scope_binding
+    )
     if not isinstance(measurement_root, ArtifactEnvelope):
         raise FabricMeasurementRootBindingError("measurement_root_envelope_invalid")
     if (
@@ -1362,6 +1652,7 @@ def resolve_measurement_root_evidence(
             source_artifact_id=measurement_root.payload_ref,
             catalog=catalog,
             providers=providers,
+            execution_scope_binding=execution_scope_binding,
         )
     except FabricMeasurementRootBindingError:
         raise
@@ -1371,7 +1662,11 @@ def resolve_measurement_root_evidence(
     # The canonical producer emits a BaseDataset envelope whose
     # ``producer_roots`` carries the MeasurementRoot.  Compare the complete
     # canonical projection, including that root, before accepting custody.
-    expected_envelope = _fabric_measurement_envelope(payload, measurement_root.payload_ref)
+    expected_envelope = _fabric_measurement_envelope(
+        payload,
+        measurement_root.payload_ref,
+        execution_scope_binding=execution_scope_binding,
+    )
     if expected_envelope.model_dump(mode="json") != measurement_root.model_dump(mode="json"):
         raise FabricMeasurementRootBindingError("measurement_root_envelope_projection_mismatch")
     if measurement_root.producer_roots != expected_envelope.producer_roots:
@@ -1418,6 +1713,7 @@ def admit_measurement_root_to_substrate_registry(
     l5_authority: L5CatalogAuthority,
     baseline_registry_ref: artifacts.ArtifactRef | None = None,
     providers: RetrievalProviders | None = None,
+    execution_scope_binding: MeasurementRootExecutionBinding | None = None,
 ) -> MeasurementRootRegistryAdmission:
     """Replay a root, then admit one independent owner registration.
 
@@ -1430,6 +1726,7 @@ def admit_measurement_root_to_substrate_registry(
         measurement_root=measurement_root,
         catalog=catalog,
         providers=providers,
+        execution_scope_binding=execution_scope_binding,
     )
     from polisyos.runtime.quality.substrate_registry import (
         persist_measurement_root_substrate_registry,
@@ -1442,6 +1739,7 @@ def admit_measurement_root_to_substrate_registry(
         l5_authority=l5_authority,
         evidence=evidence,
         baseline_registry_ref=baseline_registry_ref,
+        execution_scope_binding=execution_scope_binding,
     )
 
 

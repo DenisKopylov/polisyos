@@ -378,19 +378,33 @@ Current journal version 1.2 requires every mutation field to be present in both
 the in-memory and persisted operation. Legacy 1.0 and 1.1 keep their existing
 narrow primitive replay rule. Unsupported or malformed operations remain cache
 misses; proof, run/key, source, scope, and currentness checks are unchanged.
-Journaled state models also retain value equality with their original typed
-model: wrapper and source must have the same original type and recursively equal
-complete field values, with booleans distinct from integers. Mutation tracking
-stays attached to the wrapper. Non-empty private or extra model state remains
-refused at admission. The candidate newly refuses original models that define
-custom `__eq__` or `__ne__` hooks through the ordinary-hook admission check;
-the pre-candidate hook check did not reject those methods. This is a bounded
-input-compatibility change: callers that relied on journaling such models must
-migrate to a model whose ordinary equality reflects the full admitted fields,
-or keep those values outside journaled state branches. The existing typed
+Journaled state models compare through the same original model class, the
+same model_fields_set, and recursively equal values for every field in that
+original schema. This candidate intentionally makes field presence part of the
+wrapper equality contract, so an omitted default differs from explicitly
+supplying that value; booleans also remain distinct from integers. RootModel
+values compare through their typed root. Copy-on-write and wrapper installation
+preserve model_fields_set as representation-only operations; an actual producer
+field assignment is what marks a field present. This is stricter than the
+original models' value-only equality and is a bounded compatibility change.
+
+The cache persists typed operation records and canonicalizes them for replay
+validation; it does not use this wrapper equality to validate an entry. The
+ArtifactRef manifest_profile_sha256 field excludes None from its wire form, so
+the explicit-None model_fields_set bit is not restored after CAS readback. The
+cache test binds that normalization and verifies the value and repeated entry
+read remain valid; this candidate does not claim field-set provenance survives
+that existing wire projection. No cache schema or replay-version change is
+proposed. Non-empty private or extra model state remains refused at admission. The
+candidate newly refuses original models that define custom `__eq__` or
+`__ne__` hooks through the ordinary-hook admission check; the pre-candidate
+check did not reject those methods. This is a bounded input-compatibility
+change: callers that relied on journaling such models must migrate to a
+model whose ordinary equality reflects the full admitted fields, or keep
+those values outside journaled state branches. The existing typed
 `TypeError` admission refusal applies; no cache schema or journal-version
-migration is involved. These internal behaviors do not establish source
-authenticity or scientific output validity.
+migration is involved. These internal behaviors do not
+establish source authenticity or scientific output validity.
 
 ## Last Updated
 

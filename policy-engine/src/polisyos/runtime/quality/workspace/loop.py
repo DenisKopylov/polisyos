@@ -34,7 +34,6 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security import (
-    TenantContextNotSetError,
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
@@ -90,6 +89,7 @@ from polisyos.runtime.quality.authority import ProductionLoopRunProof
 from polisyos.runtime.quality.data_forge_binding import (
     CatalogGraphProtocol,
     MeasurementRootBindingError,
+    MeasurementRootExecutionBinding,
     MeasurementRootProducer,
     _search_catalog_with_status,
     build_default_workspace_catalog_graph,
@@ -1542,7 +1542,14 @@ class WorkspaceLoop:
         staged_foundry_inputs: StagedFoundryInputBinding | None = None,
         eval_safety_execution_context: EvaluationExecutionContext | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
+        execution_scope_binding: MeasurementRootExecutionBinding | None = None,
     ) -> None:
+        if (
+            execution_scope_binding is not None
+            and type(execution_scope_binding) is not MeasurementRootExecutionBinding
+        ):
+            raise TypeError("measurement_root_execution_binding_invalid")
+        self._execution_scope_binding = execution_scope_binding
         self._staged_foundry_inputs = staged_foundry_inputs
         self._eval_safety_execution_context = eval_safety_execution_context
         self._eval_safety_verifier = eval_safety_verifier
@@ -3128,7 +3135,10 @@ class WorkspaceLoop:
     ) -> dict[str, ArtifactEnvelope]:
         measurement_admitted = terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
         if manifest.expected_catalog_binding_refs and measurement_admitted:
-            producer = MeasurementRootProducer(artifact_store=self._artifact_store)
+            producer = MeasurementRootProducer(
+                artifact_store=self._artifact_store,
+                execution_scope_binding=self._execution_scope_binding,
+            )
             dataset_envelope = producer.produce_from_catalog(
                 manifest=manifest,
                 catalog_graph=self._catalog_graph,
@@ -3279,12 +3289,7 @@ class WorkspaceLoop:
     def _persist_loop_payload(self, payload: dict[str, Any], *, kind: str) -> str:
         if self._artifact_store is None:
             return gy_content_hash(payload)
-        tenant_id = get_current_tenant_id_or_none()
-        if tenant_id is None:
-            raise TenantContextNotSetError(
-                "Workspace loop authority artifact writes require an active tenant scope."
-            )
-        cell_id = get_current_cell_id()
+        binding = self._execution_scope_binding
         scan = scan_secret_and_pii(
             payload,
             scope="DAG bundles",
@@ -3296,6 +3301,29 @@ class WorkspaceLoop:
             raise ValueError(
                 "GY loop payload blocked by secret/PII scan: " + ",".join(scan.finding_kinds)
             )
+        if binding is None or not binding.authority_eligible:
+            from polisyos.core.security.tenant_context import clear_tenant_context
+
+            with clear_tenant_context():
+                candidate_ref = self._artifact_store.put_json(
+                    payload,
+                    PutOptions(
+                        kind=kind,
+                        media_type="application/json",
+                        schema=SchemaInfo(name=WORKSPACE_LOOP_SCHEMA_VERSION, version="v1"),
+                        producer=ProducerInfo(
+                            component="polisyos.runtime.quality.WorkspaceLoop",
+                            version="1.0.0",
+                        ),
+                    ),
+                    CanonSpec(forbid_floats=False),
+                )
+            return str(candidate_ref.artifact_id)
+        admission = binding.admission
+        scope = admission.scope
+        job = admission.job
+        tenant_id = scope.tenant_id
+        cell_id = scope.cell_id
         from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 
         result = write_authority_artifact(
@@ -3319,21 +3347,26 @@ class WorkspaceLoop:
             reader_contract_version="v1",
             tenant_id=tenant_id,
             cell_id=cell_id,
-            run_id=f"run-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
-            job_id=f"job-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
-            trace_id=f"trace-gy-loop-{kind}",
-            span_id=f"span-gy-loop-{kind}",
+            run_id=job.run_id,
+            job_id=job.job_id,
+            trace_id=f"trace-gy-loop-{kind}-attempt-{admission.attempt}",
+            span_id=f"span-gy-loop-{kind}-attempt-{admission.attempt}",
             parent_span_id=None,
-            requested_execution_profile="gy_slice0",
-            effective_execution_profile="gy_slice0",
+            requested_execution_profile=(
+                job.requested_execution_profile
+            ),
+            effective_execution_profile=job.effective_execution_profile,
             phase="GY-F2",
             generated_at=_utc_timestamp(),
             as_of_time=_utc_timestamp(),
             same_input_closure={
-                "closure_id": f"gy-loop-{payload.get('fixture_id') or kind!s}",
+                "closure_id": (
+                    f"control-job:{job.job_id}:attempt:{admission.attempt}:"
+                    f"workspace:{gy_content_hash(payload)[:16]}"
+                ),
                 "status": "closed",
-                "run_id": f"run-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
-                "job_id": f"job-gy-loop-{payload.get('fixture_id') or 'payload'!s}",
+                "run_id": job.run_id,
+                "job_id": job.job_id,
                 "tenant_id": tenant_id,
                 "cell_id": cell_id,
                 "evidence_input_refs": (),

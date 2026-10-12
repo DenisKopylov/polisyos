@@ -1,0 +1,40 @@
+id = "2026-10-12-e02-c05-measurement-root-admission-scope"
+title = "Bind workspace measurement roots to admitted job scope"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Workspace measurement-root production and fresh N7/N9 reads bind to the immutable control-job admission; unknown scope remains candidate-only."
+evidence = [
+  "tests/unit/runtime/http/test_workspace_loop_transition.py",
+  "tests/unit/runtime/quality/test_workspace_loop.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "tests/unit/runtime/quality/test_authority.py",
+  "src/polisyos/runtime/quality/data_forge_binding.py",
+  "src/polisyos/runtime/http/services/control/artifacts.py",
+  "src/polisyos/runtime/quality/authority.py",
+  "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json",
+]
+compatibility = "Existing v1 authority envelopes with a non-null requested_execution_profile remain readable with unchanged values. The field remains required and now permits explicit null; omitted keys and malformed present values refuse. New workflow writes preserve requested null separately from the source-established effective profile."
+change_class = "Runtime producer and fresh-reader scope binding with additive nullable request-intent field"
+surface_classification = "public_stable: runtime_quality authority envelope schema"
+migration = "No existing CAS bytes are rewritten. Consumers of the v1 JSON schema should refresh generated DTOs for the nullable requested field; historical non-null payloads retain their exact schema version and identity. The new null value is emitted only from a typed workflow request whose admitted creation event records omission."
+api = "MeasurementRootExecutionBinding is threaded from the exact ControlJobExecutionAdmission through MeasurementRootProducer and N7/N9 readers. Established writers use admitted tenant/cell/job/run plus effective profile; unestablished scope emits only a generic unclaimed candidate and no authority envelope/event."
+limitations = "This change does not establish upstream shared/system source neutrality, cross-tenant permission, a new issuer, or a G-level owner selection. Protected readers require a fresh independently captured binding; unknown scope is not assigned a concrete fallback. Native overlay verification remains separate from the R359 source-bound checkpoint."
+generated_client_compatibility = "schema_refresh_required"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "c05-requested-profile-explicit-null"
+change_class = "schema-nullability"
+impact = "additive"
+surface = "runtime_quality.evidence_authority_envelope.v1"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The required requested_execution_profile may explicitly be null when the admitted WorkflowRunRequest omitted it; effective_execution_profile remains source-established and separate."
+generated_client_compatibility = "schema_refresh_required"
+migration_docs = []
+runbook_docs = []

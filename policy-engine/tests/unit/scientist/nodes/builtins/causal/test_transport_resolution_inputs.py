@@ -10,6 +10,9 @@ import pytest
 
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import DatasetRegistry
+from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+)
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -20,9 +23,6 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.scientist.nodes.builtins import errors as node_errors
-from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
-    Y0_SURROGATE_DATA_PROFILE_ABSENT,
-)
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import (
     InvalidTransportInput,
@@ -38,8 +38,8 @@ from polisyos.scientist.nodes.builtins.causal.transport_resolution_inputs import
     _resolve_pag_threshold,
     _resolve_query_outcome,
     _resolve_query_treatment,
-    _resolve_transport_solver_mode,
     _resolve_transport_execution_inputs,
+    _resolve_transport_solver_mode,
     _resolve_treatment_value,
     build_skg_query,
 )

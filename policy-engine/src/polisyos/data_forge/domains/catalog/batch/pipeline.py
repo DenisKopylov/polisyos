@@ -20,8 +20,8 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
     write_json,
 )
 from polisyos.data_forge.domains.catalog.batch.config import (
-    _profile_input_coverage_currentness,
     _producer_config_snapshot,
+    _profile_input_coverage_currentness,
 )
 from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.io.hashing import sha256_file

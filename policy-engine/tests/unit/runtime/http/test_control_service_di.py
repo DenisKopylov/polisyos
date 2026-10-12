@@ -4988,7 +4988,7 @@ def test_parent_n8_dto_consumes_complete_atom_source_bindings(
         "n8_authority_blockers": ("joint_interaction_rule_not_established",),
         "n8_joint_request_content_hash": gy_content_hash(request.model_dump(mode="json")),
         "n8_joint_world_model_record_ref": request.world_model_record_ref,
-        "n8_joint_outcome_units": {outcome: "synthetic_score" for outcome in result.selected_outcomes},
+        "n8_joint_outcome_units": dict.fromkeys(result.selected_outcomes, "synthetic_score"),
         "n8_joint_parent_atom_ids": tuple(
             atom.atom_id for atom in request.intervention_atoms
         ),

@@ -695,8 +695,16 @@ def _hypothesis_identification_projection(
             else dict(evidence)
         )
         records.append({"hypothesis_id": hypothesis_id, **payload})
+        graph_scope_status = payload.get("graph_derived_assumption_status")
+        graph_scope = payload.get("graph_derived_scope_of_falsification")
+        has_graph_diagnostic_scope = graph_scope_status is not None or graph_scope is not None
+        if has_graph_diagnostic_scope and (
+            graph_scope_status != "unknown" or graph_scope != "ranking_only"
+        ):
+            limited = True
         if (
-            payload.get("verification_status") != "recomputed"
+            has_graph_diagnostic_scope
+            or payload.get("verification_status") != "recomputed"
             or payload.get("identification_status") != "identified"
             or payload.get("identifiability_score", 0.0) < 1.0
             or payload.get("limitations")
@@ -767,6 +775,7 @@ def _resolve_source_identification_rows(
     )
     from polisyos.scientist.methods.discovery.priors import (
         GRAPH_PRIOR_BUNDLE_SCHEMA_NAME,
+        GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION,
         GraphPriorBuilder,
     )
     from polisyos.scientist.methods.discovery.schema import (
@@ -780,7 +789,9 @@ def _resolve_source_identification_rows(
     )
     from polisyos.scientist.methods.discovery.utility_judge import (
         DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+        DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
         IDENTIFICATION_SOURCE_ALGORITHM_VERSION,
+        graph_derived_candidate_scope,
         identify_hypothesis_identification_status,
         load_downstream_utility_report,
     )
@@ -793,7 +804,7 @@ def _resolve_source_identification_rows(
         graph_prior_manifest,
         role="graph_prior_bundle",
         name=GRAPH_PRIOR_BUNDLE_SCHEMA_NAME,
-        version="1.1",
+        version=GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION,
     )
     if (
         graph_prior_manifest.artifact_schema is None
@@ -839,10 +850,10 @@ def _resolve_source_identification_rows(
         utility_report_manifest,
         role="downstream_utility_report",
         name=DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
-        version="1.1",
+        version=DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
     )
     utility_report = load_downstream_utility_report(store, utility_report_ref)
-    if utility_report.schema_version != "1.1":
+    if utility_report.schema_version != DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION:
         raise _IdentificationSourceBindingFailure("utility_report_schema_not_source_bound")
     if (
         utility_report.metadata.get("identification_source_algorithm_version")
@@ -990,6 +1001,16 @@ def _resolve_source_identification_rows(
         raw_graph_sha256 = _graph_basis_sha256(hypothesis.graph)
         report_graph = hypothesis.graph_for_analysis() or hypothesis.graph
         report_graph_sha256 = _graph_basis_sha256(report_graph)
+        expected_graph_derived_status, expected_graph_derived_scope = (
+            graph_derived_candidate_scope(hypothesis)
+        )
+        if (
+            score.graph_derived_assumption_status != expected_graph_derived_status
+            or score.graph_derived_scope_of_falsification != expected_graph_derived_scope
+        ):
+            raise _IdentificationSourceBindingFailure(
+                "utility_report_graph_diagnostic_scope_mismatch"
+            )
         source_projection = projection
         source_graph_mismatch = (
             hypothesis_id in supported_hypothesis_ids
@@ -1010,6 +1031,10 @@ def _resolve_source_identification_rows(
             or snapshot.reasons != score.reasons
             or snapshot.warnings != score.warnings
             or snapshot.blocking_certificates != score.blocking_certificates
+            or snapshot.graph_derived_assumption_status
+            != score.graph_derived_assumption_status
+            or snapshot.graph_derived_scope_of_falsification
+            != score.graph_derived_scope_of_falsification
         ):
             raise _IdentificationSourceBindingFailure("graph_prior_snapshot_mismatch")
 
@@ -1036,6 +1061,16 @@ def _resolve_source_identification_rows(
             "reasons": source_reasons,
             "warnings": source_warnings,
             "blocking_certificates": source_blocking,
+            "graph_derived_assumption_status": (
+                None
+                if expected_graph_derived_status is None
+                else expected_graph_derived_status.value
+            ),
+            "graph_derived_scope_of_falsification": (
+                None
+                if expected_graph_derived_scope is None
+                else expected_graph_derived_scope.value
+            ),
             "reported_identification_status": projection.identification_status,
             "verification_status": "not_established" if source_graph_mismatch else "recomputed",
             "verification_reason": (

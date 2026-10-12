@@ -2199,12 +2199,21 @@ class RunCandidateSimulationN8ChildSourceBinding(BaseModel):
     @model_validator(mode="after")
     def _verify_child_source_refs(self) -> RunCandidateSimulationN8ChildSourceBinding:
         expected = (
-            (self.n4_source_ref, {"runtime.generation_source_handoff", "runtime.quality.n4_candidate_scenario_source"}),
+            (
+                self.n4_source_ref,
+                {
+                    "runtime.generation_source_handoff",
+                    "runtime.quality.n4_candidate_scenario_source",
+                },
+            ),
             (self.context_job_ref, {"runtime.quality.cycle_substrate_context_job"}),
             (self.n5_input_ref, {"runtime.quality.candidate_simulation_n5_input"}),
             (self.n5_result_ref, {"polisyos.runtime.joint_simulation_result"}),
         )
-        if any(ref.kind not in kinds or ref.media_type != "application/json" for ref, kinds in expected):
+        if any(
+            ref.kind not in kinds or ref.media_type != "application/json"
+            for ref, kinds in expected
+        ):
             raise ValueError("run_n8_joint_child_source_ref_invalid")
         return self
 

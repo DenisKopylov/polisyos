@@ -674,6 +674,7 @@ class MethodJobBenchmarkEvaluator:
         """Persist and fresh-read an explicitly diagnostic source-bound work packet."""
         from .execution_work import (
             MethodJobExecutionWorkPacket,
+            _fingerprint_method_request_material,
             persist_method_job_execution_work_packet,
         )
 
@@ -719,6 +720,13 @@ class MethodJobBenchmarkEvaluator:
             return None, "rejected", "method_result_sample_binding_invalid"
 
         try:
+            method_profile_fingerprint = _fingerprint_method_request_material(
+                job_spec.model_dump(mode="json", exclude_none=True)
+            )
+        except (OverflowError, TypeError, ValueError):
+            return None, "rejected", "method_work_packet_request_profile_unfingerprintable"
+
+        try:
             packet = MethodJobExecutionWorkPacket(
                 run_id=run_id,
                 evaluation_id=evaluation_id,
@@ -742,9 +750,7 @@ class MethodJobBenchmarkEvaluator:
                 data_slot_bindings=dict(self._data_snapshot_bindings),
                 search_method_run_profile=search_method_run_profile,
                 search_parameter_values=dict(search_parameter_values),
-                method_profile_fingerprint=fingerprint(
-                    job_spec.model_dump(mode="json", exclude_none=True)
-                ),
+                method_profile_fingerprint=method_profile_fingerprint,
                 actual_sample_count=sample_count,
                 bootstrap_execution=work,
             )
@@ -791,6 +797,7 @@ def read_method_job_execution_work_packet(
     from .execution_work import (
         MethodDispatchBinding,
         MethodJobExecutionWorkPacket,
+        _fingerprint_method_request_material,
         fingerprint_method_input_value,
     )
 
@@ -914,10 +921,15 @@ def read_method_job_execution_work_packet(
         },
         seed=packet.method_seed,
     )
+    try:
+        observed_method_profile_fingerprint = _fingerprint_method_request_material(
+            job_spec.model_dump(mode="json", exclude_none=True)
+        )
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise ValueError("method_work_packet_request_profile_unfingerprintable") from exc
     if (
         JobKey.from_spec(job_spec).value != packet.method_job_key
-        or fingerprint(job_spec.model_dump(mode="json", exclude_none=True))
-        != packet.method_profile_fingerprint
+        or observed_method_profile_fingerprint != packet.method_profile_fingerprint
     ):
         raise ValueError("method_work_packet_job_profile_mismatch")
 
@@ -972,12 +984,17 @@ def read_method_job_execution_work_packet(
     expected_dispatch_input_schemas = {
         name: manifest.artifact_schema for name, manifest in selected_input_manifests.items()
     }
+    try:
+        expected_method_params_fingerprint = _fingerprint_method_request_material(
+            packet.configured_method_params
+        )
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise ValueError("method_work_packet_dispatch_params_unfingerprintable") from exc
     if (
         dispatch_binding.method_fqn != packet.method_fqn
         or dispatch_binding.method_version != packet.method_version
         or dispatch_binding.method_seed != packet.method_seed
-        or dispatch_binding.method_params_fingerprint
-        != fingerprint(packet.configured_method_params)
+        or dispatch_binding.method_params_fingerprint != expected_method_params_fingerprint
         or dispatch_binding.input_refs != expected_dispatch_input_refs
         or dispatch_binding.input_schemas != expected_dispatch_input_schemas
         or {
@@ -1029,7 +1046,7 @@ def _search_work_packet_admission_failure(
         evaluation.execution_work_packet_status != "available"
         or evaluation.execution_work_packet_ref is None
     ):
-        return "search_work_packet_not_available"
+        return evaluation.execution_work_packet_note or "search_work_packet_not_available"
     if (
         evaluation.candidate_ref != candidate_ref
         or evaluation.loop_id != policy.loop_id

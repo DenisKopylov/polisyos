@@ -390,6 +390,18 @@ Boundary notes:
 
 Workspace ownership:
 
+- `MeasurementRootExecutionBinding` carries the exact immutable `ControlJobExecutionAdmission`
+  into the workspace measurement producer and N7/N9 fresh readers. Established
+  tenant/cell/job/run and effective profile come from the admitted source record; an
+  explicitly absent requested profile remains `null`, not the selected effective profile.
+  N7/N9, DataSnapshot, and substrate-registry fresh readers receive the same binding and
+  re-read the selected MeasurementRoot bytes and authority identity before consuming it.
+  Missing or unknown admitted scope may persist only an unclaimed candidate with a typed
+  `not_established` limitation and no authority envelope/event. This binds a request-owned
+  derived measurement artifact; it does not establish that upstream shared/system source
+  material is neutral or authorized for cross-tenant use. Legacy non-null v1 envelopes
+  remain readable; the required requested-profile field admits explicit null, while a
+  missing key or malformed value refuses.
 - `polisyos.pdc._impl.gy_waist` owns the Ring-1/Ring-2 GY contracts. It must
   remain engine-free and must not import runtime, Scientist, Foundry, or HTTP
   modules.

@@ -3,7 +3,7 @@ title = "Recompute configured Search GP fit basis before warm-start admission"
 type = "changed"
 component = "scientist"
 owner = "team-scientist"
-summary = "Configured native-GP Search binds selected candidate dimensions to current dynamic MethodJob parameters and carries the typed binding through the fitted CAS basis and fresh receiver. The synthetic DR witness checks a real parameter-dependent metric while remaining candidate-only."
+summary = "Configured native-GP Search binds selected dimensions through real MethodJobs and fresh CAS reads. The R388 synthetic DR witness shows equal outputs when clipping is inactive and a changed output when clipping reaches propensity support; all four measured evaluations remain candidate-only."
 evidence = [
   "src/polisyos/scientist/methods/search/strategies/bayesian.py",
   "src/polisyos/scientist/methods/autotune/models.py",
@@ -20,7 +20,7 @@ change_class = "python-public-api; persisted-artifact-format"
 surface_classification = "public_experimental: additive configured Search-to-MethodJob parameter binding; no new exported symbols or DTOs"
 migration = "No historical CAS objects are rewritten. Older profile-only evaluations remain available as ordinary measurements; a fresh native-GP warm-start receiver requires the new selected fit-basis artifact and exact MethodJob observation refs."
 api = "SearchLoopRunner resolves each declared SearchSpace field to a dynamic parameter in the current registered MethodSignature, records the exact bounds and ABI digest, and uses the persisted candidate value in the actual MethodJob. The configured generator writes a candidate-only SearchGPFitBasis; its fresh receiver validates the request, selected parameter values, full CAS lineage, and canonical GP refit before using profile-bearing rows."
-limitations = "The R8 source and tests are frozen as an unapplied proposal; no test or native GP/DR execution ran in this author lane. The controlled nonlinear/noisy DR fixture is synthetic and checks only that a declared numeric method parameter reaches the real producer, persisted request/work packet, and fresh reader with differing measured outputs. It establishes no causal truth, identification, calibration, fiscal-source rule, historical issuer custody, or external source authority. B108 remains limited and B157 remains held for the default policy funnel and native L3/L4 economics."
+limitations = "The R388 focused wave executed the native configured Search/DR path; it reported 104 passed, 13 failed, and 7 errors across 124 cases, and this target test stopped at its over-strong assertion that four distinct inputs must yield four unique ATEs. R13 replaces that test oracle with the observed support/clipping relation; the R13 candidate has not yet been rerun. The fixture is synthetic and its outputs remain non-promotable; it establishes no causal truth, identification, calibration, fiscal-source rule, historical issuer custody, or external source authority. B108 remains limited, and B157 remains held for the default policy funnel and the separate native L3/L4 economics."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/scientist/methods/autotune/README.md"]

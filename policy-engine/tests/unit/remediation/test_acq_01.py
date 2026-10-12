@@ -678,7 +678,13 @@ def _real_acq01_route(
             update={"source_requirement_refs": (source_requirement.requirement_id,)}
         )
         store = owner.store
-        measurement_root = MeasurementRootProducer(artifact_store=store).produce_from_fabric_fetch(
+        from tests._helpers.measurement_execution_binding import measurement_execution_binding
+
+        execution_scope_binding = measurement_execution_binding(tmp_path)
+        measurement_root = MeasurementRootProducer(
+            artifact_store=store,
+            execution_scope_binding=execution_scope_binding,
+        ).produce_from_fabric_fetch(
             fetch_receipt_ref=preview.fetch_receipt_ref,
             catalog=owner.graph,
             providers=owner.providers,
@@ -690,10 +696,12 @@ def _real_acq01_route(
             measurement_root=measurement_root,
             catalog=owner.graph,
             providers=owner.providers,
+            execution_scope_binding=execution_scope_binding,
         )
         data_snapshot_ref = persist_measurement_root_data_snapshot(
             store=store,
             evidence=evidence,
+            execution_scope_binding=execution_scope_binding,
         )
         snapshot_id = str(evidence.payload.payload_ref.artifact_id)
 
@@ -728,6 +736,7 @@ def _real_acq01_route(
             l5_authority=l5_authority,
             evidence=evidence,
             baseline_registry_ref=baseline_registry_ref,
+            execution_scope_binding=execution_scope_binding,
         )
         # N7's accepted world write creates the runtime registry projection
         # that the receipt hashes.  Persist that exact projection while
@@ -1649,9 +1658,11 @@ async def test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo(
             altered_payload = evidence.payload.model_copy(
                 update={"source_requirement": altered_source}
             )
+            execution_scope_binding = kwargs["execution_scope_binding"]
             altered_envelope = _fabric_measurement_envelope(
                 altered_payload,
                 evidence.envelope.payload_ref,
+                execution_scope_binding=execution_scope_binding,
             )
             altered_fingerprint = _measurement_root_evidence_fingerprint(
                 envelope=altered_envelope,
@@ -1667,7 +1678,11 @@ async def test_n7_acq01_reentry_does_not_dispatch_gateway_source_echo(
                     "evidence_fingerprint": altered_fingerprint,
                 }
             )
-            _validate_resolved_measurement_root_evidence(altered)
+            _validate_resolved_measurement_root_evidence(
+                altered,
+                store=kwargs["store"],
+                execution_scope_binding=execution_scope_binding,
+            )
             return altered
 
         gateway.resolve_measurement_root_evidence = altered_resolver
@@ -1694,6 +1709,9 @@ def test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement(
     )
 
     case = _real_acq01_inputs(tmp_path, problem_id="acq_01_source_requirement_drift")
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+
+    execution_scope_binding = measurement_execution_binding(tmp_path)
     with _real_acq01_route(
         tmp_path,
         case.problem,
@@ -1710,7 +1728,10 @@ def test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement(
             FabricMeasurementRootBindingError,
             match="measurement_root_source_requirement_mismatch",
         ):
-            MeasurementRootProducer(artifact_store=route.store).produce_from_fabric_fetch(
+            MeasurementRootProducer(
+                artifact_store=route.store,
+                execution_scope_binding=execution_scope_binding,
+            ).produce_from_fabric_fetch(
                 fetch_receipt_ref=route.evidence.payload.fetch_receipt_ref,
                 catalog=route.catalog,
                 providers=route.providers,

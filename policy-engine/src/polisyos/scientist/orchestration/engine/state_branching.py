@@ -502,11 +502,11 @@ def _ensure_isolated_container(
     target_child = _get_child(target_parent, part)
     if target_child is source_child:
         cloned = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
-        _set_child(target_parent, part, cloned)
+        _set_representation_child(target_parent, part, cloned)
         target_child = cloned
     elif target_child is _MISSING:
         target_child = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
-        _set_child(target_parent, part, target_child)
+        _set_representation_child(target_parent, part, target_child)
 
     if len(parts) > 1 and _is_branchable_container(target_child):
         _ensure_isolated_container(
@@ -530,15 +530,14 @@ def _get_child(container: Any, key: str) -> Any:
     return _MISSING
 
 
-def _set_child(container: Any, key: str, value: Any) -> None:
+def _set_representation_child(container: Any, key: str, value: Any) -> None:
     if isinstance(container, BaseModel):
-        # Only internal path isolation/tracking calls this helper. The model
-        # shell was already admitted and cloned; its producer setter would
-        # mistake representation installation for a broader external write.
+        # This helper installs only a copy-on-write or tracking representation.
+        # Preserve the admitted field-presence set; producer assignment uses the
+        # tracked model setter, which alone marks a declared field as supplied.
         if key not in type(container).model_fields:
             raise TypeError(f"Unknown isolated model field {key!r}")
         container.__dict__[key] = value
-        container.__pydantic_fields_set__.add(key)
         return
     if isinstance(container, dict):
         dict.__setitem__(container, key, value)
@@ -760,14 +759,14 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
 
 def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
     if len(parts) == 1:
-        _set_child(root, parts[0], value)
+        _set_representation_child(root, parts[0], value)
         if isinstance(root, BaseModel):
             _bind_mutation_root(value, root, parts[0], parts)
         return
     parent = _get_path(root, parts[:-1])
     if parent is _MISSING:
         return
-    _set_child(parent, parts[-1], value)
+    _set_representation_child(parent, parts[-1], value)
     if isinstance(parent, BaseModel):
         _bind_mutation_root(value, parent, parts[-1], parts)
 
@@ -1142,6 +1141,10 @@ class _TrackedModelMixin(BaseModel):
             return False
         return _tracked_model_values_equal(self, other)
 
+    def __ne__(self, other: object) -> bool:
+        """Keep inequality as the inverse of journal-aware model equality."""
+        return not self.__eq__(other)
+
     __slots__ = (
         "_mutation_detached",
         "_mutation_journal",
@@ -1378,6 +1381,19 @@ def _tracked_model_values_equal(
     left_ancestors = left_ancestors | {left_identity}
     right_ancestors = right_ancestors | {right_identity}
 
+    field_names = tuple(left_original.model_fields)
+    field_name_set = set(field_names)
+    left_fields_set = object.__getattribute__(left, "__pydantic_fields_set__")
+    right_fields_set = object.__getattribute__(right, "__pydantic_fields_set__")
+    if (
+        type(left_fields_set) is not set
+        or type(right_fields_set) is not set
+        or left_fields_set != right_fields_set
+        or not left_fields_set.issubset(field_name_set)
+        or not right_fields_set.issubset(field_name_set)
+    ):
+        return False
+
     for name in ("__pydantic_extra__", "__pydantic_private__"):
         left_state = object.__getattribute__(left, name)
         right_state = object.__getattribute__(right, name)
@@ -1392,19 +1408,26 @@ def _tracked_model_values_equal(
         ):
             return False
 
-    left_members = dict(_model_members(left))
-    right_members = dict(_model_members(right))
-    if left_members.keys() != right_members.keys():
-        return False
-    return all(
-        _tracked_values_equal(
-            left_members[name],
-            right_members[name],
+    # RootModel's value is its typed root, not a mapping of model fields.
+    # Compare the root recursively while preserving the usual typed distinctions.
+    if RootModel in type.__getattribute__(left_original, "__mro__"):
+        return _tracked_values_equal(
+            object.__getattribute__(left, "root"),
+            object.__getattribute__(right, "root"),
             depth=depth + 1,
             left_ancestors=left_ancestors,
             right_ancestors=right_ancestors,
         )
-        for name in left_members
+
+    return all(
+        _tracked_values_equal(
+            object.__getattribute__(left, name),
+            object.__getattribute__(right, name),
+            depth=depth + 1,
+            left_ancestors=left_ancestors,
+            right_ancestors=right_ancestors,
+        )
+        for name in field_names
     )
 
 

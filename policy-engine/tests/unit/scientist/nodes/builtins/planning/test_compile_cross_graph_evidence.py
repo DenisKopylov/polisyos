@@ -706,14 +706,21 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
         item for item in root_manifest.inputs if item.role == "downstream_utility_report"
     )
     assert report_input.manifest_profile_sha256 is not None
-    report_manifest = fresh_store.get_manifest(
-        DownstreamUtilityReportRef.model_validate(
-            {
-                "artifact_id": str(report_input.artifact_id),
-                "manifest_profile_sha256": report_input.manifest_profile_sha256,
-            }
-        )
+    report_ref = DownstreamUtilityReportRef.model_validate(
+        {
+            "artifact_id": str(report_input.artifact_id),
+            "manifest_profile_sha256": report_input.manifest_profile_sha256,
+        }
     )
+    report_manifest = fresh_store.get_manifest(report_ref)
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
+    )
+
+    utility_payload = from_canonical_bytes(fresh_store.get_bytes(report_ref))
+    assert report_manifest.artifact_schema.version == DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
+    assert utility_payload["schema_version"] == DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
     assert all(
         item.manifest_profile_sha256 is not None
         for item in report_manifest.inputs
@@ -730,7 +737,7 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
     assert all(row["verification_status"] == "recomputed" for row in rows.values())
     assert all(row["source_basis"]["same_basis"] is True for row in rows.values())
     assert all(
-        "resolved_graph_used_for_identifiability" in row["warnings"]
+        "content_bound_graph_projection_used_for_identifiability" in row["warnings"]
         for row in rows.values()
     )
     assert all(
@@ -1391,3 +1398,212 @@ def test_partial_graph_projection_receipt_recomputes_source_profile_before_admis
             projection_disposition=receipt,
             compute_footprint=ComputeFootprint(),
         )
+
+
+def test_source_identification_consumer_requires_current_utility_schema_version():
+    from types import SimpleNamespace
+
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+        DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
+    )
+    from polisyos.scientist.nodes.builtins.planning.compile_cross_graph_evidence import (
+        _IdentificationSourceBindingFailure,
+        _require_source_view,
+    )
+
+    reference = SimpleNamespace(
+        artifact_id="artifact-1",
+        kind="scientist.downstream_utility_report",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + ("0" * 64),
+    )
+    legacy_manifest = SimpleNamespace(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        artifact_schema=SchemaInfo(
+            name=DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+            version="1.1",
+        ),
+    )
+
+    with pytest.raises(_IdentificationSourceBindingFailure, match="source_artifact_schema_mismatch"):
+        _require_source_view(
+            reference,
+            legacy_manifest,
+            role="downstream_utility_report",
+            name=DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+            version=DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION,
+        )
+
+
+
+def test_graph_derived_ci_scope_survives_prior_cas_and_need_projection(
+    execution_context,
+    minimal_state,
+    cas_store,
+):
+    """A real CI family remains ranking-only through persisted prior intake."""
+    from dataclasses import replace
+
+    from polisyos.ir.analytics.causal_discovery import (
+        AlgebraicAssumptionStatus,
+        AlgebraicConstraintFamily,
+        AlgebraicConstraintReport,
+        AlgebraicFalsificationScope,
+        ConstraintEvaluationResult,
+    )
+    from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
+    from polisyos.scientist.methods.discovery.output import (
+        DiscoveryArtifactBuilder,
+        DiscoveryArtifactBuildInput,
+        load_discovery_artifact_bundle,
+    )
+    from polisyos.scientist.methods.discovery.priors import (
+        GraphPriorBuilder,
+        PriorKnowledgeBundle,
+        load_graph_prior_bundle,
+    )
+    from polisyos.scientist.methods.discovery.schema import ComputeFootprint
+    from polisyos.scientist.methods.discovery.workers import DiscoveryWorkerBundle
+
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="X",
+        treatment_value=1.0,
+        outcome_variable="Y",
+    )
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+                evidence_refs=["fixture:identified-dag-edge"],
+            )
+        ],
+        discovery_method="pc",
+    )
+    constraint_report = AlgebraicConstraintReport(
+        severity="blocker",
+        n_violated_constraints=1,
+        violated_constraints_preview=[
+            ConstraintEvaluationResult(
+                constraint_id="ci:X_independent_Y",
+                family=AlgebraicConstraintFamily.CI,
+                status="violated",
+                severity="blocker",
+            )
+        ],
+    )
+    hypothesis = GraphHypothesis(
+        hypothesis_id="identified-with-ci-diagnostic",
+        algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+        method=DiscoveryMethod.PC,
+        graph=graph,
+        edge_confidence={"X->Y": 1.0},
+        algebraic_constraints=constraint_report,
+        compute_footprint=ComputeFootprint(),
+    )
+    stability = BootstrapStabilityReport(
+        bootstrap_mode=BootstrapMode.ROW,
+        config=BootstrapStabilityConfig(n_resamples=3),
+        summaries=[
+            HypothesisStabilitySummary(
+                hypothesis_id=hypothesis.hypothesis_id,
+                edge_selection_frequency={"X->Y": 1.0},
+                mean_edge_stability=1.0,
+                completed_resamples=3,
+            )
+        ],
+    )
+    utility_report = DownstreamUtilityJudge().evaluate(
+        UtilityJudgeInput(hypotheses=[hypothesis], stability_report=stability, causal_query=query)
+    )
+    score = utility_report.scores[0]
+    assert score.identification_status == "identified"
+    assert score.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert score.graph_derived_scope_of_falsification is AlgebraicFalsificationScope.RANKING_ONLY
+
+    matrix = EvidenceWeightedAggregator().aggregate([hypothesis], stability, utility_report)
+    graph_prior = GraphPriorBuilder().build(matrix, utility_report)
+    prior_evidence = graph_prior.hypothesis_identification[hypothesis.hypothesis_id]
+    assert prior_evidence.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert prior_evidence.graph_derived_scope_of_falsification is (
+        AlgebraicFalsificationScope.RANKING_ONLY
+    )
+
+    artifact_ref = DiscoveryArtifactBuilder().build(
+        cas_store,
+        DiscoveryArtifactBuildInput(
+            run_id="run-identified-ci-scope",
+            task_id="task-identified-ci-scope",
+            variable_names=["X", "Y"],
+            causal_query=query,
+            hypotheses=[hypothesis],
+            edge_confidence_matrix=matrix,
+            bootstrap_stability_report=stability,
+            downstream_utility_report=utility_report,
+            graph_prior_bundle=graph_prior,
+            prior_knowledge_bundle=PriorKnowledgeBundle(),
+            worker_bundle=DiscoveryWorkerBundle(),
+        ),
+    )
+    fresh_store = FileSystemCAS(cas_store.root)
+    artifact_bundle = load_discovery_artifact_bundle(fresh_store, artifact_ref)
+    utility_manifest = fresh_store.get_manifest(artifact_bundle.downstream_utility_report_ref)
+    graph_prior_manifest = fresh_store.get_manifest(artifact_bundle.graph_prior_bundle_ref)
+    assert utility_manifest.artifact_schema.version == "1.2"
+    assert graph_prior_manifest.artifact_schema.version == "1.2"
+    fresh_prior = load_graph_prior_bundle(fresh_store, artifact_bundle.graph_prior_bundle_ref)
+    fresh_evidence = fresh_prior.hypothesis_identification[hypothesis.hypothesis_id]
+    assert fresh_evidence.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert fresh_evidence.graph_derived_scope_of_falsification is (
+        AlgebraicFalsificationScope.RANKING_ONLY
+    )
+
+    state = minimal_state.model_copy(
+        update={
+            "inputs": {
+                **minimal_state.inputs,
+                INPUT_GRAPH_PRIOR_BUNDLE_REF: artifact_bundle.graph_prior_bundle_ref,
+            },
+            "params": {"cross_graph_evidence_config": {"enabled": True}},
+        }
+    )
+    outcome = CompileCrossGraphEvidenceNode().execute(
+        replace(execution_context, store=fresh_store),
+        state,
+    )
+    profile_ref = outcome.state.artifacts_index[ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF]
+    profile = load_cross_graph_evidence_profile(
+        _ensure_ir_artifact_store(FileSystemCAS(cas_store.root)),
+        profile_ref,
+    )
+    candidate_needs = [
+        need
+        for need in profile.needs
+        if need.need.source_path == "scientist.discovery.graph_prior_bundle"
+    ]
+    assert candidate_needs
+    assert all(need.evidence_status is EvidenceStatus.INSUFFICIENT for need in candidate_needs)
+    assert all(need.requires_expert_review for need in candidate_needs)
+    assert all("discovery_limited" in need.need.labels for need in candidate_needs)
+    assert all(
+        any(
+            diagnostic.code == "cross_graph.discovery_prior.identification_limited"
+            and any(
+                row["hypothesis_id"] == hypothesis.hypothesis_id
+                and row["identification_status"] == "identified"
+                and row["graph_derived_assumption_status"] == "unknown"
+                and row["graph_derived_scope_of_falsification"] == "ranking_only"
+                for row in diagnostic.details["hypothesis_identification"]
+            )
+            for diagnostic in need.diagnostics
+        )
+        for need in candidate_needs
+    )

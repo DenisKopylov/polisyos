@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime  # Pydantic resolves at runtime
-from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
@@ -61,7 +61,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable, Sequence
     from pathlib import Path
 
     from polisyos.core.contracts import CatalogRunProfile
@@ -74,6 +74,7 @@ if TYPE_CHECKING:
         CycleSubstrateContext,
         VerifiedNLJobScope,
     )
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
     from polisyos.runtime.quality.design_generation import (
         DesignGenerationOrganRun,
         GenerationUnderAResult,
@@ -1591,6 +1592,7 @@ async def compile_and_run_recursive_generation_cycle(
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
     promotion_runtime: PromotionRuntime | None = None,
+    measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
     repo_root: Path | None = None,
 ) -> (
     CompiledRecursiveGenerationCycleRun
@@ -2348,6 +2350,14 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_catalog_source_mismatch",
                 "The recursive controller must retain the exact resolved Catalog source.",
             )
+        if (
+            getattr(controller, "_measurement_root_execution_binding", None)
+            is not measurement_root_execution_binding
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_controller_measurement_scope_binding_mismatch",
+                "The controller must retain the exact immutable control-job admission binding.",
+            )
         resolved_controller = controller
     else:
         resolved_controller = build_default_recursive_generation_cycle_controller(
@@ -2357,6 +2367,7 @@ async def compile_and_run_recursive_generation_cycle(
             catalog_serving_source=catalog_serving_source,
             promotion_runtime=promotion_runtime,
             eval_safety_verifier=eval_safety_verifier,
+            measurement_root_execution_binding=measurement_root_execution_binding,
         )
 
     # The internal candidate-child route takes complete immutable actual N4
@@ -2573,10 +2584,10 @@ async def compile_and_run_recursive_generation_cycle(
             raise DesignProblemAuthorityError(
                 "joint_interaction_candidate_parent_source_or_profile_not_established"
             )
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
         from polisyos.runtime.quality.design_generation import (
             derive_n4_candidate_child_problems,
         )
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
 
         parent_children = derive_n4_candidate_child_problems(
             problem,

@@ -2944,18 +2944,22 @@ def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(tmp_path
 
 @pytest.fixture
 def fabric_measurement_owner(tmp_path: Path):
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
     from tests.unit.fabric.test_retrieval_fetch_custody import build_worldbank_fetch_owner
 
     with build_worldbank_fetch_owner(tmp_path) as owner:
         owner.problem = _d1_worldbank_problem(owner)
+        owner.measurement_execution_binding = measurement_execution_binding(tmp_path)
         yield owner
 
 
 @pytest.fixture
 def controlled_measurement_owner(tmp_path: Path):
+    from tests._helpers.measurement_execution_binding import measurement_execution_binding
     from tests.unit.fabric.test_retrieval_fetch_custody import build_real_fetch_owner
 
     with build_real_fetch_owner(tmp_path) as owner:
+        owner.measurement_execution_binding = measurement_execution_binding(tmp_path)
         yield owner
 
 
@@ -3070,7 +3074,10 @@ def _fabric_measurement_envelope(owner, *, include_requirement=True):
         if include_requirement
         else None
     )
-    return MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+    return MeasurementRootProducer(
+        artifact_store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
+    ).produce_from_fabric_fetch(
         fetch_receipt_ref=executed.fetch_receipt_ref,
         catalog=owner.graph,
         providers=owner.providers,
@@ -3195,6 +3202,7 @@ def _assert_invalid_recorded_observations_refused(owner, condition):
     )
     repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
         store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
@@ -3253,6 +3261,7 @@ def test_n9_measurement_recomputes_full_authority_identity(
     )
     repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
         store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
@@ -3303,7 +3312,10 @@ def test_measurement_verification_time_cannot_claim_invalid_custody(
             binding_owner.FabricMeasurementRootPayload.model_validate(values)
         return
     future = binding_owner.FabricMeasurementRootPayload.model_validate(values)
-    source_id = MeasurementRootProducer(artifact_store=owner.store)._persist_payload(
+    source_id = MeasurementRootProducer(
+        artifact_store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
+    )._persist_payload(
         future.model_dump(mode="json"),
         fabric_fetch_ref=future.fetch_receipt_ref,
         source_checked_at=future.source_agreement_checked_at,
@@ -3314,6 +3326,7 @@ def test_measurement_verification_time_cannot_claim_invalid_custody(
             source_artifact_id=source_id,
             catalog=owner.graph,
             providers=owner.providers,
+            execution_scope_binding=owner.measurement_execution_binding,
         )
 
 
@@ -3334,7 +3347,10 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
     # Cross the existing second-resolution authority timestamp boundary while
     # retaining the exact original fetch receipt, source bytes, and problem.
     sleep(1.01)
-    second = MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+    second = MeasurementRootProducer(
+        artifact_store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
+    ).produce_from_fabric_fetch(
         fetch_receipt_ref=first_payload.fetch_receipt_ref,
         catalog=owner.graph,
         providers=owner.providers,
@@ -3358,6 +3374,7 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
                 source_artifact_id=envelope.payload_ref,
                 catalog=owner.graph,
                 providers=owner.providers,
+                execution_scope_binding=owner.measurement_execution_binding,
             )
             == envelope
         )
@@ -3495,6 +3512,7 @@ def test_n9_measurement_rechecks_source_requirement_and_problem(fabric_measureme
     )
     repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
         store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
@@ -3518,7 +3536,10 @@ def test_n9_measurement_rechecks_source_requirement_and_problem(fabric_measureme
         fabricated = payload.source_requirement.model_dump(mode="json")
         fabricated["metadata"]["gy_source_contract"]["facet_values"]["license"] = "invented-license"
         with pytest.raises(ValueError, match="measurement_root_source_requirement_mismatch"):
-            MeasurementRootProducer(artifact_store=owner.store).produce_from_fabric_fetch(
+            MeasurementRootProducer(
+                artifact_store=owner.store,
+                execution_scope_binding=owner.measurement_execution_binding,
+            ).produce_from_fabric_fetch(
                 fetch_receipt_ref=payload.fetch_receipt_ref,
                 catalog=owner.graph,
                 providers=owner.providers,
@@ -3538,6 +3559,7 @@ def test_n9_replays_current_measurement_source_at_admission(fabric_measurement_o
     )
     repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
         store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
@@ -3554,6 +3576,7 @@ def test_n9_replays_current_measurement_source_at_admission(fabric_measurement_o
     if mutation == "catalog_removed":
         repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
             store=owner.store,
+            execution_scope_binding=owner.measurement_execution_binding,
             measurement_providers=owner.providers,
         )
     elif mutation == "source_changed":
@@ -3620,6 +3643,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
 
     assert evidence.envelope == envelope
@@ -3639,6 +3663,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
             measurement_root=root_only,
             catalog=owner.graph,
             providers=owner.providers,
+            execution_scope_binding=owner.measurement_execution_binding,
         )
 
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
@@ -3651,6 +3676,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
         l5_authority=l5,
         evidence=evidence,
         baseline_registry_ref=baseline_ref,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     assert (
         load_substrate_registry(
@@ -3679,6 +3705,7 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
 
     def _replay_forbidden(*_args: object, **_kwargs: object) -> None:
@@ -3711,7 +3738,15 @@ def test_measurement_root_data_snapshot_projects_replayed_payload(
     persist = getattr(binding_owner, "persist_measurement_root_data_snapshot", None)
     assert callable(persist), "the ACQ-01 snapshot persistence owner is not implemented"
 
-    snapshot_ref = persist(store=owner.store, evidence=evidence)
+    snapshot_ref = persist(
+
+        store=owner.store,
+
+        evidence=evidence,
+
+        execution_scope_binding=owner.measurement_execution_binding,
+
+    )
 
     assert isinstance(snapshot_ref, DataSnapshotRef)
     assert snapshot_ref.manifest_profile_sha256 is not None
@@ -3757,6 +3792,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     rebound_payload_ref = "sha256:" + "4" * 64
     forged = replace(
@@ -3764,6 +3800,7 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
         envelope=binding_owner._fabric_measurement_envelope(
             evidence.payload,
             rebound_payload_ref,
+            execution_scope_binding=owner.measurement_execution_binding,
         ),
         measurement_root_ref=core_artifacts.ArtifactRef(
             artifact_id=core_artifacts.ArtifactID(rebound_payload_ref),
@@ -3795,7 +3832,11 @@ def test_measurement_root_data_snapshot_rejects_forged_evidence_without_cas_writ
     monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
 
     with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
-        persist(store=owner.store, evidence=forged)
+        persist(
+            store=owner.store,
+            evidence=forged,
+            execution_scope_binding=owner.measurement_execution_binding,
+        )
 
     assert cas_writes == []
 
@@ -3823,6 +3864,7 @@ def test_measurement_root_data_snapshot_rejects_payload_ref_rebind_before_cas_wr
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     result_ref = _assert_fetch_payload_custody_contract(owner, evidence)
     rebound_payload = evidence.payload.model_copy(
@@ -3836,6 +3878,7 @@ def test_measurement_root_data_snapshot_rejects_payload_ref_rebind_before_cas_wr
     rebound_envelope = binding_owner._fabric_measurement_envelope(
         rebound_payload,
         rebound_payload_id,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     rebound_measurement_root_ref = core_artifacts.ArtifactRef(
         artifact_id=rebound_payload_ref.artifact_id,
@@ -3886,7 +3929,11 @@ def test_measurement_root_data_snapshot_rejects_payload_ref_rebind_before_cas_wr
     monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
 
     with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
-        persist(store=owner.store, evidence=forged)
+        persist(
+            store=owner.store,
+            evidence=forged,
+            execution_scope_binding=owner.measurement_execution_binding,
+        )
 
     assert cas_writes == []
     cas_after = {
@@ -3914,6 +3961,7 @@ def test_measurement_root_data_snapshot_rejects_missing_or_corrupt_payload_custo
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     result_ref = _assert_fetch_payload_custody_contract(owner, evidence)
     payload_blob, payload_manifest = owner.store._paths(result_ref.artifact_id)
@@ -3947,7 +3995,11 @@ def test_measurement_root_data_snapshot_rejects_missing_or_corrupt_payload_custo
     monkeypatch.setattr(owner.store, "put_json", _put_json_spy)
 
     with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
-        persist(store=owner.store, evidence=evidence)
+        persist(
+            store=owner.store,
+            evidence=evidence,
+            execution_scope_binding=owner.measurement_execution_binding,
+        )
 
     assert cas_writes == []
     cas_after = {
@@ -3983,6 +4035,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
         measurement_root=envelope,
         catalog=owner.graph,
         providers=owner.providers,
+        execution_scope_binding=owner.measurement_execution_binding,
     )
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     baseline_ref = persist_substrate_registry(owner.store, baseline)
@@ -4005,6 +4058,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
         rebound_envelope = binding_owner._fabric_measurement_envelope(
             evidence.payload,
             rebound_payload_ref,
+            execution_scope_binding=owner.measurement_execution_binding,
         )
         forged = replace(
             evidence,
@@ -4068,6 +4122,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
             l5_authority=l5,
             evidence=forged,
             baseline_registry_ref=baseline_ref,
+            execution_scope_binding=owner.measurement_execution_binding,
         )
     cas_after = {path: path.read_bytes() for path in owner.store.root.rglob("*.manifest.json")}
     assert cas_after == cas_before
@@ -4082,6 +4137,7 @@ def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_own
     )
     repository = promotion_sequence_module.N9PromotionEvidenceBridgeRepository(
         store=owner.store,
+        execution_scope_binding=owner.measurement_execution_binding,
         measurement_catalog=owner.graph,
         measurement_providers=owner.providers,
     )
@@ -7030,3 +7086,164 @@ def _run_effect_case(
 
 def _hash(seed: str) -> str:
     return "sha256:" + seed * 64
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing",
+        "tenant",
+        "cell",
+        "job",
+        "run",
+        "attempt",
+        "requested_profile",
+        "effective_profile",
+    ],
+)
+def test_n9_measurement_fresh_reader_rejects_missing_or_foreign_admitted_scope(
+    fabric_measurement_owner,
+    mutation: str,
+) -> None:
+    from dataclasses import replace
+
+    from polisyos.runtime.quality.data_forge_binding import (
+        bind_measurement_root_execution_scope,
+    )
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    admission = owner.measurement_execution_binding.admission
+    if mutation == "missing":
+        foreign_binding = None
+    elif mutation == "tenant":
+        foreign_scope = replace(
+            admission.scope, tenant_id="tenant-foreign-measurement-test"
+        )
+        foreign_admission = replace(admission, scope=foreign_scope)
+        foreign_job = admission.job
+    elif mutation == "cell":
+        foreign_scope = replace(admission.scope, cell_id="cell-foreign-measurement-test")
+        foreign_admission = replace(admission, scope=foreign_scope)
+        foreign_job = admission.job
+    else:
+        if mutation == "job":
+            foreign_job = replace(admission.job, job_id=admission.job.job_id + "-foreign")
+        elif mutation == "run":
+            foreign_job = replace(admission.job, run_id=admission.job.run_id + "-foreign")
+        elif mutation == "attempt":
+            foreign_job = replace(admission.job, attempt=admission.job.attempt + 1)
+        elif mutation == "requested_profile":
+            foreign_job = replace(admission.job, requested_execution_profile="governed")
+        else:
+            foreign_job = replace(admission.job, effective_execution_profile="governed")
+        foreign_scope = admission.scope
+        foreign_admission = replace(
+            admission, job=foreign_job, attempt=foreign_job.attempt
+        )
+    if mutation != "missing":
+        foreign_binding = bind_measurement_root_execution_scope(
+            admission=foreign_admission,
+            job=foreign_job,
+            execution_scope=foreign_scope,
+        )
+    with pytest.raises(FabricMeasurementRootBindingError):
+        resolve_measurement_root_evidence(
+            store=owner.store,
+            measurement_root=envelope,
+            catalog=owner.graph,
+            providers=owner.providers,
+            execution_scope_binding=foreign_binding,
+        )
+
+@pytest.mark.parametrize("sink", ["data_snapshot", "substrate_registry"])
+@pytest.mark.parametrize("binding_source", ["missing", "foreign"])
+def test_measurement_root_persistence_rechecks_admitted_scope_before_cas_write(
+    fabric_measurement_owner,
+    sink: str,
+    binding_source: str,
+) -> None:
+    """Downstream persistence rejects missing or foreign scope before any CAS write."""
+
+    from dataclasses import replace as dataclass_replace
+
+    from polisyos.runtime.quality import data_forge_binding as binding_owner
+    from polisyos.runtime.quality.data_forge_binding import (
+        bind_measurement_root_execution_scope,
+        resolve_measurement_root_evidence,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateRegistryError,
+        build_substrate_registry_from_existing_catalogs,
+        default_substrate_catalog_paths,
+        load_l5_catalog_authority,
+        persist_measurement_root_substrate_registry,
+        persist_substrate_registry,
+    )
+
+    owner = fabric_measurement_owner
+    envelope = _fabric_measurement_envelope(owner)
+    admitted = owner.measurement_execution_binding
+    evidence = resolve_measurement_root_evidence(
+        store=owner.store,
+        measurement_root=envelope,
+        catalog=owner.graph,
+        providers=owner.providers,
+        execution_scope_binding=admitted,
+    )
+    if binding_source == "missing":
+        selected_binding = None
+    else:
+        admission = admitted.admission
+        foreign_scope = dataclass_replace(
+            admission.scope,
+            tenant_id="tenant-foreign-measurement-persistence-test",
+        )
+        foreign_admission = dataclass_replace(admission, scope=foreign_scope)
+        selected_binding = bind_measurement_root_execution_scope(
+            admission=foreign_admission,
+            job=admission.job,
+            execution_scope=foreign_scope,
+        )
+
+    baseline = None
+    baseline_ref = None
+    l5 = None
+    registration = None
+    if sink == "substrate_registry":
+        baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+        baseline_ref = persist_substrate_registry(owner.store, baseline)
+        l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+        registration = _future_substrate_registration(l5)
+
+    cas_before = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    if sink == "data_snapshot":
+        with pytest.raises(binding_owner.FabricMeasurementRootBindingError):
+            binding_owner.persist_measurement_root_data_snapshot(
+                store=owner.store,
+                evidence=evidence,
+                execution_scope_binding=selected_binding,
+            )
+    else:
+        assert baseline is not None and baseline_ref is not None
+        assert l5 is not None and registration is not None
+        with pytest.raises(SubstrateRegistryError):
+            persist_measurement_root_substrate_registry(
+                owner.store,
+                baseline_registry=baseline,
+                registration=registration,
+                l5_authority=l5,
+                evidence=evidence,
+                baseline_registry_ref=baseline_ref,
+                execution_scope_binding=selected_binding,
+            )
+    cas_after = {
+        path.relative_to(owner.store.root): path.read_bytes()
+        for path in owner.store.root.rglob("*")
+        if path.is_file()
+    }
+    assert cas_after == cas_before

@@ -279,9 +279,9 @@ class MethodBackend:
         def dispatch_with_observation() -> Any:
             nonlocal dispatch_binding, dispatch_binding_status
             if method_params.get("capture_execution_work") is True:
-                from polisyos.core.canon import fingerprint
                 from polisyos.scientist.methods.autotune.execution_work import (
                     MethodDispatchBinding,
+                    _fingerprint_method_request_material,
                     fingerprint_method_input_value,
                 )
 
@@ -293,7 +293,9 @@ class MethodBackend:
                         method_fqn=signature.fqn,
                         method_version=signature.version,
                         method_seed=seed,
-                        method_params_fingerprint=fingerprint(dict(method_params)),
+                        method_params_fingerprint=_fingerprint_method_request_material(
+                            dict(method_params)
+                        ),
                         input_refs=dict(input_refs or {}),
                         input_schemas={
                             name: store.get_manifest(ref).artifact_schema
@@ -922,6 +924,7 @@ def _materialize_method_adapter(
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scientist.UnifiedDagAdapter", version="0.1.0"),
             ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
         )
         return [f"legacy_method_adapter_ref:{ref.artifact_id}"]
     except _RUNNER_DEGRADED_ERRORS as exc:

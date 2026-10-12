@@ -7,6 +7,7 @@ gate_command = "uv run polisyos-tools workspace repository-sota-closeout"
 
 [[gate]]
 id = "topology-loose-files"
+coverage = ["subprocess"]
 area = "topology"
 owner = "team-architecture"
 mode = "fail_closed"
@@ -15,6 +16,7 @@ evidence = "tests/repo_quality/architecture/test_repository_sota_phase3_topology
 
 [[gate]]
 id = "import-linter"
+coverage = ["subprocess"]
 area = "imports"
 owner = "team-architecture"
 mode = "fail_closed"
@@ -24,6 +26,7 @@ exceptions = "architecture/imports/exceptions.toml"
 
 [[gate]]
 id = "public-surface"
+coverage = ["subprocess"]
 area = "public_surface"
 owner = "team-architecture"
 mode = "fail_closed"
@@ -33,23 +36,27 @@ exceptions = "architecture/exceptions/guardrails.toml"
 
 [[gate]]
 id = "generated-drift"
+coverage = ["subprocess"]
 area = "generated_artifacts"
 owner = "team-architecture"
 mode = "fail_closed"
 command = "uv run polisyos-tools architecture guardrails check --all-generated-checks"
+skip_command = "uv run polisyos-tools architecture guardrails check --skip-generated-checks"
 evidence = "architecture/generated_artifacts.toml"
 
 [[gate]]
 id = "docs-freshness"
+coverage = ["preflight:docs-freshness-contract", "conditional:docs-freshness-runtime"]
 area = "docs"
 owner = "team-docs"
 mode = "fail_closed"
-command = "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
+command = "uv run polisyos-tools validation check-docs-accuracy --repo-root ."
 evidence = "architecture/exceptions/docs_freshness.toml"
 exceptions = "architecture/exceptions/docs_freshness.toml"
 
 [[gate]]
 id = "public-polish"
+coverage = ["subprocess"]
 area = "docs"
 owner = "team-docs"
 mode = "fail_closed"
@@ -58,6 +65,7 @@ evidence = "tests/repo_quality/architecture/test_repository_public_polish.py"
 
 [[gate]]
 id = "shim-audit"
+coverage = ["preflight:migration-shim-contract"]
 area = "migration_shims"
 owner = "team-architecture"
 mode = "fail_closed"
@@ -66,6 +74,7 @@ evidence = "architecture/shims.toml"
 
 [[gate]]
 id = "complexity-exceptions"
+coverage = ["preflight:complexity-exception-contract"]
 area = "complexity"
 owner = "team-architecture"
 mode = "fail_closed"
@@ -74,6 +83,7 @@ evidence = "architecture/exceptions/complexity.toml"
 
 [[gate]]
 id = "security-baselines"
+coverage = ["preflight:ops-modes"]
 area = "security"
 owner = "team-security"
 mode = "fail_closed"
@@ -82,6 +92,7 @@ evidence = "ops/security/secrets-baseline.toml"
 
 [[gate]]
 id = "dependency-baselines"
+coverage = ["preflight:ops-modes"]
 area = "dependencies"
 owner = "team-security"
 mode = "fail_closed"
@@ -90,6 +101,7 @@ evidence = "ops/security/osv-scanner.toml"
 
 [[gate]]
 id = "sbom-baseline"
+coverage = ["preflight:ops-modes"]
 area = "sbom"
 owner = "team-security"
 mode = "fail_closed"
@@ -98,6 +110,7 @@ evidence = "ops/security/sbom.toml"
 
 [[gate]]
 id = "commit-policy"
+coverage = ["preflight:ops-modes"]
 area = "release"
 owner = "team-release"
 mode = "fail_closed"
@@ -106,6 +119,7 @@ evidence = "ops/release/commit-policy.toml"
 
 [[gate]]
 id = "command-registry"
+coverage = ["subprocess"]
 area = "tools"
 owner = "team-devx"
 mode = "fail_closed"

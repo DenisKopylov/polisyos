@@ -324,6 +324,16 @@ def _graph_admission_refusal_result(
             "This graph type is not admitted by the scalar transport and identification methods."
         ),
     }
+    lagged_count = (
+        _lagged_edge_count(selection_diagram.base_graph)
+        if selection_diagram is not None
+        else 0
+    )
+    temporal_penalty = (
+        min(0.3, float(selection_diagram.context_distance) * 0.2)
+        if selection_diagram is not None and lagged_count > 0
+        else 0.0
+    )
     return TransportabilityResult(
         query=f"P*({outcome}|do({treatment}))",
         status=TransportabilityStatus.UNSUPPORTED,
@@ -347,6 +357,9 @@ def _graph_admission_refusal_result(
             if selection_diagram is not None
             else None
         ),
+        assumes_time_stationarity=lagged_count > 0,
+        lagged_edge_count=lagged_count,
+        temporal_distance_penalty=temporal_penalty,
         source_context_id=(
             source_context_id
             if source_context_id is not None

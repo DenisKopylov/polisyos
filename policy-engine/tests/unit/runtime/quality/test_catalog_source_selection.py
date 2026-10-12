@@ -5,6 +5,7 @@ from typing import Any, cast
 
 import duckdb
 import pytest
+
 from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
 from polisyos.runtime.quality.substrate_registry import (
     CatalogServingSourceSelection,
@@ -232,10 +233,10 @@ def test_default_value_port_constructs_with_selected_source_without_evaluation_c
     # and the real default value-port constructor must bind the source safely.
     with catalog_serving_source_scope(source):
         controller = GenerationCycleController(
-            generation_port=cast(Any, object()),
-            grounding_port=cast(Any, object()),
-            simulation_port=cast(Any, object()),
-            promotion_port=cast(Any, object()),
+            generation_port=cast("Any", object()),
+            grounding_port=cast("Any", object()),
+            simulation_port=cast("Any", object()),
+            promotion_port=cast("Any", object()),
             authority_scope="contract_testing",
             repo_root=tmp_path,
             catalog_serving_source=source,
@@ -248,7 +249,7 @@ def test_default_value_port_constructs_with_selected_source_without_evaluation_c
     # The wrapper creates FoundryValuePort after N5 supplies the evaluation context.
     # Reconstruct its exact deferred constructor handoff without evaluating a candidate.
     value_port = FoundryValuePort(
-        evaluation_context=cast(Any, object()),
+        evaluation_context=cast("Any", object()),
         eval_safety_verifier=default_port.eval_safety_verifier,
         owner_gateway=default_port.owner_gateway,
         data_trust=default_port.data_trust,

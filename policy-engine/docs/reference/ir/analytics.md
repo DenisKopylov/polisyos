@@ -313,3 +313,25 @@ typed selection diagram and its S-node set together with the graph snapshot, the
 consumes that returned object. Structural endpoint inspection remains separate;
 valid resolved DAG/ADMG queries and their existing native cyclic, sigma, temporal,
 and full-law owners are not redefined here.
+
+### Graph-derived discovery diagnostics
+
+A discovery audit derives CI and automatic trek-rank candidate diagnostics only
+from its content-bound identity DAG snapshot. Each violated graph-derived
+constraint carries assumption_status=unknown and
+scope_of_falsification=ranking_only; automatic trek-rank diagnostics do not
+become blockers from a graph-declared assumption regime alone. The persisted
+DownstreamUtilityReport schema 1.2 carries those typed values on each
+HypothesisUtilityScore, and GraphPriorBundle schema 1.2 carries them through
+per-hypothesis evidence to cross-graph needs. Both writers bind payload and
+manifest versions, and source-identification replay requires matching 1.2
+artifacts before recomputing support. Exact manifest-bound schema-1.1 utility
+and prior artifacts remain labeled 1.1 and are adapted only to routing with
+unknown assumptions and ranking-only scope; they cannot enter current
+source-proof replay. Unknown and future versions, or manifest/payload
+mismatches, fail closed. Source completeness, population,
+temporal scope, selection, and the distribution Markov assumption remain
+unknown, so this signal is limited to candidate ranking and is not accepted by
+the separate protected-promotion gate. PAG/CPDAG and other non-identity profiles
+retain a typed skipped-family limitation. Partial-graph CI completion semantics
+remain held for the G decision.

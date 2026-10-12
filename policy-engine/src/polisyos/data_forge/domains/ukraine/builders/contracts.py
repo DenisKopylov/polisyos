@@ -43,7 +43,10 @@ class StageBuildResult:
                 raise TypeError("StageBuildResult.inputs entries must be ArtifactRecord values")
             if not isinstance(record.path, str) or not record.path.strip():
                 raise ValueError("StageBuildResult input path must be non-empty")
-            if not isinstance(record.sha256, str) or _re.fullmatch(r"[0-9a-f]{64}", record.sha256) is None:
+            if (
+                not isinstance(record.sha256, str)
+                or _re.fullmatch(r"[0-9a-f]{64}", record.sha256) is None
+            ):
                 raise ValueError("StageBuildResult inputs must carry a verified SHA-256")
             if type(record.size_bytes) is not int or record.size_bytes < 0:
                 raise ValueError("StageBuildResult input size must be a non-negative integer")

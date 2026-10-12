@@ -92,7 +92,7 @@ class AuthorityArtifactIdentityContext:
     trace_id: str
     span_id: str
     parent_span_id: str | None
-    requested_execution_profile: str
+    requested_execution_profile: str | None
     effective_execution_profile: str
     phase: str
     generated_at: str
@@ -188,7 +188,7 @@ def write_authority_artifact(
     trace_id: str,
     span_id: str,
     parent_span_id: str | None,
-    requested_execution_profile: str,
+    requested_execution_profile: str | None,
     effective_execution_profile: str,
     phase: str,
     generated_at: str,
@@ -214,6 +214,11 @@ def write_authority_artifact(
 ) -> AuthorityArtifactWriteResult:
     """Write a runtime authority artifact plus linked envelope/event records to CAS."""
 
+    if requested_execution_profile is not None and (
+        not isinstance(requested_execution_profile, str)
+        or not requested_execution_profile.strip()
+    ):
+        raise ValueError("authority identity field 'requested_execution_profile' is invalid")
     if canon_spec is None:
         canon_spec = CanonSpec()
     elif not isinstance(canon_spec, CanonSpec):
@@ -996,6 +1001,16 @@ def _identity_context_from_fields(
             raise ValueError(f"authority identity field {name!r} is required")
         return value
 
+    def requested_profile() -> str | None:
+        if "requested_execution_profile" not in values:
+            raise ValueError("authority identity field 'requested_execution_profile' is required")
+        value = values["requested_execution_profile"]
+        if value is None:
+            return None
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("authority identity field 'requested_execution_profile' is invalid")
+        return value.strip()
+
     return AuthorityArtifactIdentityContext(
         evidence_id=required("evidence_id"),
         evidence_class=required("evidence_class"),
@@ -1011,7 +1026,7 @@ def _identity_context_from_fields(
         trace_id=required("trace_id"),
         span_id=required("span_id"),
         parent_span_id=values.get("parent_span_id"),
-        requested_execution_profile=required("requested_execution_profile"),
+        requested_execution_profile=requested_profile(),
         effective_execution_profile=required("effective_execution_profile"),
         phase=required("phase"),
         generated_at=required("generated_at"),

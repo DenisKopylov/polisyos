@@ -6,7 +6,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
@@ -209,6 +214,50 @@ def test_compute_idempotency_key_available_for_all_builtin_nodes(tmp_path) -> No
     for node in nodes:
         key = compute_idempotency_key(node.spec, state, {})
         assert len(key) == 64
+
+
+def test_node_cache_replays_artifact_ref_and_keeps_excluded_null_presence_bounded(
+    tmp_path,
+) -> None:
+    run_id = "R_cache_artifact_ref_null_presence"
+    reference = ArtifactRef(
+        artifact_id=f"sha256:{'d' * 64}",
+        kind="scientist.discovery_artifact_bundle",
+        media_type="application/json",
+        manifest_profile_sha256=None,
+    )
+    assert "manifest_profile_sha256" in reference.model_fields_set
+
+    branch = branch_state(
+        ExperimentState(run_id=run_id),
+        write_paths=("artifacts_index",),
+    )
+    branch.state.artifacts_index["reference"] = reference
+    assert branch.journal.operations[-1].value_kind == "artifact_ref"
+
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id=run_id)
+    key = "d" * 64
+    entry_ref = cache.put(
+        key,
+        node_id="scientist.node_test@1.0.0",
+        outcome=NodeOutcome(status="ok", state=branch.state),
+    )
+    payload = from_canonical_bytes(store.get_bytes(entry_ref.artifact_id))
+    serialized_ref = payload["state_mutations"][0]["value"]
+    assert "manifest_profile_sha256" not in serialized_ref
+
+    restored = cache.get(key)
+    assert restored is not None
+    restored_ref = restored.state.artifacts_index["reference"]
+    assert isinstance(restored_ref, ArtifactRef)
+    assert restored_ref.manifest_profile_sha256 is None
+    # ArtifactRef excludes a None profile from its wire form, so its transient
+    # model_fields_set provenance is deliberately not represented after CAS load.
+    assert "manifest_profile_sha256" not in restored_ref.model_fields_set
+    # The cache validates the canonical journal record; this normalized ref is
+    # still a hit on a subsequent full entry read.
+    assert cache.get(key) is not None
 
 
 def test_node_result_cache_roundtrip(tmp_path) -> None:

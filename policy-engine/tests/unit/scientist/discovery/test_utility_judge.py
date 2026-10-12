@@ -1,6 +1,8 @@
+import numpy as np
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.foundry.methods.catalog.causal import constraint_discovery as constraint_module
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.causal_engine.identification import (
     CausalEngineIdentificationMixin,
@@ -14,11 +16,19 @@ from polisyos.ir.analytics.causal import (
     CausalMethod,
     EstimationStatus,
 )
+from polisyos.ir.analytics.causal_discovery import (
+    CausalDiscoveryReport,
+    AlgebraicAssumptionStatus,
+    AlgebraicConstraintFamily,
+    AlgebraicFalsificationScope,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeMark,
+    GraphProjectionStatus,
     GraphType,
+    graph_projection_disposition,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.context import ContextProfile
@@ -37,6 +47,7 @@ from polisyos.scientist.methods.discovery.schema import (
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
+    graph_hypothesis_from_report,
 )
 from polisyos.scientist.methods.discovery.stability import (
     BootstrapMode,
@@ -185,6 +196,11 @@ def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_
 
     writer = FileSystemCAS(tmp_path / "utility-report")
     ref = persist_downstream_utility_report(writer, report)
+    manifest = writer.get_manifest(ref)
+    payload = utility_module.from_canonical_bytes(writer.get_bytes(ref))
+    assert manifest.artifact_schema.name == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME
+    assert manifest.artifact_schema.version == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
+    assert payload["schema_version"] == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
     fresh_report = load_downstream_utility_report(
         FileSystemCAS(tmp_path / "utility-report"),
         ref,
@@ -406,6 +422,97 @@ def test_missing_optional_inputs_are_renormalized_in_composite_score() -> None:
     assert report.scores[0].estimation_quality_score is None
     assert report.scores[0].discovery_consistency_score == pytest.approx(1.0, rel=1e-6)
     assert report.scores[0].composite_score == pytest.approx(0.8333333333, rel=1e-6)
+
+
+
+
+def test_graph_derived_assumptions_remain_typed_through_candidate_shortlist(
+    tmp_path,
+) -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[],
+        discovery_method="pc",
+    )
+    discovery_report = CausalDiscoveryReport(
+        method="pc",
+        graph=graph,
+        projection_disposition=graph_projection_disposition(
+            graph,
+            None,
+            status=GraphProjectionStatus.IDENTITY,
+            reason_code="source_graph_is_identity_dag",
+        ),
+    )
+    rng = np.random.default_rng(23)
+    x = rng.normal(size=200)
+    data = np.column_stack([x, 0.85 * x + rng.normal(scale=0.25, size=200)])
+    audited_report = constraint_module._stamp_algebraic_constraint_audit(
+        discovery_report,
+        data=data,
+        variable_names=["X", "Y"],
+        significance_level=0.05,
+        seed=0,
+    )
+    assert audited_report.algebraic_constraints is not None
+    # Keep the actual CI violation while deleting family/warning labels that
+    # must not be the condition which carries its candidate-only scope.
+    unmarked_constraints = audited_report.algebraic_constraints.model_copy(
+        update={
+            "families_run": [],
+            "tested_by_family": {},
+            "violated_by_family": {},
+            "warnings": [],
+        }
+    )
+    audited_report = audited_report.model_copy(
+        update={"algebraic_constraints": unmarked_constraints}
+    )
+    violation = next(
+        item
+        for item in audited_report.algebraic_constraints.violated_constraints_preview
+        if item.family is AlgebraicConstraintFamily.CI
+    )
+    assert violation.assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert violation.scope_of_falsification is AlgebraicFalsificationScope.RANKING_ONLY
+    assert audited_report.algebraic_constraints.families_run == []
+    assert audited_report.algebraic_constraints.warnings == []
+
+    candidate = graph_hypothesis_from_report(
+        audited_report,
+        hypothesis_id="candidate",
+    )
+    stability = _stability_report(
+        HypothesisStabilitySummary(
+            hypothesis_id="candidate",
+            mean_edge_stability=0.6,
+            completed_resamples=5,
+        )
+    )
+    report = DownstreamUtilityJudge().evaluate(
+        UtilityJudgeInput(
+            hypotheses=[candidate],
+            stability_report=stability,
+            causal_query=_query(),
+        )
+    )
+
+    score = report.scores[0]
+    assert report.schema_version == "1.2"
+    assert score.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert score.graph_derived_scope_of_falsification is AlgebraicFalsificationScope.RANKING_ONLY
+    assert any("candidate-ranking-only" in warning for warning in score.warnings)
+
+    writer = FileSystemCAS(tmp_path / "candidate-only-utility")
+    ref = persist_downstream_utility_report(writer, report)
+    reopened = load_downstream_utility_report(
+        FileSystemCAS(tmp_path / "candidate-only-utility"),
+        ref,
+    )
+    reopened_score = reopened.scores[0]
+    assert reopened_score.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert reopened_score.graph_derived_scope_of_falsification is AlgebraicFalsificationScope.RANKING_ONLY
 
 
 def test_algebraic_blocker_is_excluded_from_shortlist_when_clean_candidate_exists() -> None:
@@ -634,3 +741,133 @@ def test_transport_candidate_requiring_review_is_not_scored_as_fully_transportab
     assert status == "identified"
     assert "transportability_requires_expert_review" in reasons
     assert warnings
+
+
+def _put_raw_downstream_utility_report(store, payload, *, manifest_version, schema_name=None):
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.scientist import DownstreamUtilityReportRef
+    from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
+
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind="scientist.downstream_utility_report",
+            media_type="application/json",
+            schema=(
+                SchemaInfo(
+                    name=schema_name or utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME,
+                    version=manifest_version,
+                )
+                if manifest_version is not None
+                else None
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    typed_ref = DownstreamUtilityReportRef.model_validate(ref.model_dump(mode="json"))
+    return profile_bound_written_ref(store, typed_ref)
+
+
+def test_exact_historical_11_scorecard_loads_as_unknown_ranking_only(tmp_path) -> None:
+    from polisyos.scientist.methods.search.artifact_minimality import ArtifactFunction
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DownstreamUtilityReport,
+        HypothesisUtilityScore,
+    )
+
+    current = DownstreamUtilityReport(
+        scores=[
+            HypothesisUtilityScore(
+                hypothesis_id="historical",
+                identification_status="identified",
+                identifiability_score=1.0,
+                stability_score=0.75,
+                composite_score=0.8,
+                rank=1,
+            )
+        ]
+    )
+    payload = current.model_dump(mode="json")
+    payload["schema_version"] = "1.1"
+    for score in payload["scores"]:
+        score.pop("graph_derived_assumption_status")
+        score.pop("graph_derived_scope_of_falsification")
+    store = FileSystemCAS(tmp_path / "legacy-utility-report")
+    ref = _put_raw_downstream_utility_report(store, payload, manifest_version="1.1")
+
+    fresh = load_downstream_utility_report(FileSystemCAS(store.root), ref)
+
+    assert fresh.schema_version == "1.1"
+    assert fresh.artifact_functions == {ArtifactFunction.ROUTING}
+    assert fresh.scores[0].graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
+    assert (
+        fresh.scores[0].graph_derived_scope_of_falsification
+        is AlgebraicFalsificationScope.RANKING_ONLY
+    )
+
+
+@pytest.mark.parametrize(
+    ("manifest_version", "payload_version", "include_scope_fields", "schema_name"),
+    [
+        ("1.1", "1.2", True, None),
+        ("1.1", "1.1", True, None),
+        ("1.2", "1.1", False, None),
+        ("1.3", "1.3", True, None),
+        ("1.2", "1.2", False, None),
+        ("1.1", "1.1", False, "wrong.downstream.utility.schema"),
+    ],
+)
+def test_downstream_utility_loader_rejects_unbound_or_incomplete_schema(
+    tmp_path, manifest_version, payload_version, include_scope_fields, schema_name
+) -> None:
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DownstreamUtilityReport,
+        HypothesisUtilityScore,
+    )
+
+    report = DownstreamUtilityReport(
+        scores=[
+            HypothesisUtilityScore(
+                hypothesis_id="current",
+                identification_status="identified",
+                identifiability_score=1.0,
+                stability_score=1.0,
+                composite_score=1.0,
+            )
+        ]
+    )
+    payload = report.model_dump(mode="json")
+    payload["schema_version"] = payload_version
+    if not include_scope_fields:
+        for score in payload["scores"]:
+            score.pop("graph_derived_assumption_status", None)
+            score.pop("graph_derived_scope_of_falsification", None)
+    store = FileSystemCAS(tmp_path / f"utility-{manifest_version}-{payload_version}")
+    ref = _put_raw_downstream_utility_report(
+        store,
+        payload,
+        manifest_version=manifest_version,
+        schema_name=schema_name,
+    )
+
+    with pytest.raises(ValueError, match="schema|version|fields"):
+        load_downstream_utility_report(FileSystemCAS(store.root), ref)
+
+
+def test_downstream_utility_writer_rejects_forged_historical_version_before_cas_write(
+    tmp_path,
+) -> None:
+    from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+
+    report = DownstreamUtilityReport()
+    forged = report.model_copy(update={"schema_version": "1.1"})
+    store = FileSystemCAS(tmp_path / "writer-rejects-legacy")
+    before = sorted(path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file())
+
+    with pytest.raises(ValueError, match="schema version"):
+        persist_downstream_utility_report(store, forged)
+
+    after = sorted(path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file())
+    assert after == before

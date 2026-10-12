@@ -411,7 +411,7 @@ def test_golden_non_transportable_then_manski_e2e() -> None:
 
 
 def test_golden_time_stationarity_warning() -> None:
-    """Lagged edges set assumes_time_stationarity=True."""
+    """A typed temporal refusal preserves its stationarity diagnostics."""
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=["X", "Y"],
@@ -456,6 +456,7 @@ def test_golden_time_stationarity_warning() -> None:
         params={},
     )
     tr = TransportabilityResult.model_validate(raw["transport_result"])
+    assert tr.status is TransportabilityStatus.UNSUPPORTED
     assert tr.assumes_time_stationarity is True
     assert tr.lagged_edge_count == 1
     assert tr.temporal_distance_penalty > 0.0

@@ -117,6 +117,7 @@ from polisyos.runtime.quality.confidence_ledger import (
     N6DeploymentCurrentnessObservation,
     observe_n6_deployment_currentness,
 )
+from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
 from polisyos.runtime.quality.design_problem import (
     DesignProblem,
     _QualifiedOutcomeOfInterestV3,
@@ -306,6 +307,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
         "n7_cycle_substrate_context_mismatch",
         "n7_requirement_gap_invalid",
         "n7_runtime_store_not_supplied",
+        "n7_execution_scope_not_established",
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
     }
@@ -6607,6 +6609,7 @@ class GenerationCycleController:
         catalog_serving_source: CatalogServingSourcePaths | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None,
@@ -6632,6 +6635,12 @@ class GenerationCycleController:
         elif authority_scope == "production" and artifact_store is not None:
             raise ValueError("generation_cycle_artifact_store_must_be_runtime_owned")
         self._artifact_store = artifact_store
+        if (
+            measurement_root_execution_binding is not None
+            and type(measurement_root_execution_binding) is not MeasurementRootExecutionBinding
+        ):
+            raise TypeError("measurement_root_execution_binding_invalid")
+        self._measurement_root_execution_binding = measurement_root_execution_binding
         if generation_port is None and model_id is None:
             generation_port = _UnavailableGenerationPort()
         self._generation_port = generation_port or N4GenerationPort(
@@ -6698,6 +6707,7 @@ class GenerationCycleController:
                 ),
                 measurement_catalog=source.measurement_catalog if source is not None else None,
                 measurement_providers=source.measurement_providers if source is not None else None,
+                execution_scope_binding=measurement_root_execution_binding,
             )
         self._promotion_port = promotion_port
         self._promotion_runtime = promotion_runtime
@@ -7864,6 +7874,11 @@ class GenerationCycleController:
     ) -> AcquisitionReceipt | None:
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             return None
+        if (
+            self._measurement_root_execution_binding is None
+            or not self._measurement_root_execution_binding.authority_eligible
+        ):
+            raise GenerationCycleError("n7_execution_scope_not_established")
         acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
         if not isinstance(acquisition_request, Mapping):
             return None
@@ -8241,6 +8256,9 @@ class GenerationCycleController:
         )
 
         try:
+            execution_scope_binding = self._measurement_root_execution_binding
+            if execution_scope_binding is None or not execution_scope_binding.authority_eligible:
+                raise ValueError("measurement_root_execution_scope_not_established")
             if (
                 measurement_root.ref.artifact_type != "BaseDataset"
                 or measurement_root.ref.schema_ref != FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION
@@ -8275,6 +8293,7 @@ class GenerationCycleController:
             expected_envelope = _fabric_measurement_envelope(
                 payload,
                 str(measurement_payload_ref.artifact_id),
+                execution_scope_binding=execution_scope_binding,
             )
             if expected_envelope.model_dump(mode="json") != measurement_root.model_dump(
                 mode="json"
@@ -8317,12 +8336,20 @@ class GenerationCycleController:
                 or measurement_manifest.env is not None
                 or measurement_manifest.governance is not None
                 or measurement_manifest.tenant_context is None
-                or measurement_manifest.tenant_context.tenant_id != "policyos-system"
-                or measurement_manifest.tenant_context.cell_id is not None
+                or (
+                    measurement_manifest.tenant_context.tenant_id
+                    != execution_scope_binding.admission.scope.tenant_id
+                )
+                or (
+                    measurement_manifest.tenant_context.cell_id
+                    != execution_scope_binding.admission.scope.cell_id
+                )
                 or closure is None
                 or closure.status != "closed"
-                or closure.tenant_id != "policyos-system"
-                or closure.cell_id is not None
+                or closure.run_id != execution_scope_binding.admission.job.run_id
+                or closure.job_id != execution_scope_binding.admission.job.job_id
+                or closure.tenant_id != execution_scope_binding.admission.scope.tenant_id
+                or closure.cell_id != execution_scope_binding.admission.scope.cell_id
                 or closure.evidence_input_refs != (str(payload.fetch_receipt_ref.artifact_id),)
                 or authority is None
                 or authority.payload_sha256 != measurement_payload_ref.artifact_id.hex
@@ -8354,6 +8381,7 @@ class GenerationCycleController:
                 payload.model_dump(mode="json"),
                 fabric_fetch_ref=payload.fetch_receipt_ref,
                 source_checked_at=payload.source_agreement_checked_at,
+                execution_scope_binding=execution_scope_binding,
             )
             identity["same_input_closure"] = SameInputClosure.model_validate(
                 identity["same_input_closure"]
@@ -8494,10 +8522,15 @@ class GenerationCycleController:
                 measurement_root=measurement_root,
                 catalog=catalog,
                 providers=providers,
+                execution_scope_binding=execution_scope_binding,
             )
             if resolved_evidence is None:
                 raise ValueError("canonical measurement root resolver returned no evidence")
-            _validate_resolved_measurement_root_evidence(resolved_evidence)
+            _validate_resolved_measurement_root_evidence(
+                resolved_evidence,
+                store=store,
+                execution_scope_binding=execution_scope_binding,
+            )
             if (
                 resolved_evidence.envelope.model_dump(mode="json")
                 != measurement_root.model_dump(mode="json")

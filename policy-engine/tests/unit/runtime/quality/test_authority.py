@@ -828,3 +828,29 @@ def test_json_schema_snapshot_matches_model_schema() -> None:
     saved_schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
     assert saved_schema == authority_envelope_json_schema()
+
+
+def test_requested_profile_null_is_explicit_and_malformed_or_missing_refuses() -> None:
+    payload = _valid_payload()
+    payload["requested_execution_profile"] = None
+    envelope = EvidenceAuthorityEnvelope.model_validate(payload)
+
+    assert envelope.requested_execution_profile is None
+    assert envelope.effective_execution_profile == "production"
+    schema = authority_envelope_json_schema()
+    assert "requested_execution_profile" in schema["required"]
+    assert schema["properties"]["requested_execution_profile"]["anyOf"] == [
+        {"minLength": 1, "type": "string"},
+        {"type": "null"},
+    ]
+
+    absent = _valid_payload()
+    del absent["requested_execution_profile"]
+    with pytest.raises(ValidationError):
+        EvidenceAuthorityEnvelope.model_validate(absent)
+
+    for malformed in ("", 7, {}):
+        invalid = _valid_payload()
+        invalid["requested_execution_profile"] = malformed
+        with pytest.raises(ValidationError):
+            EvidenceAuthorityEnvelope.model_validate(invalid)

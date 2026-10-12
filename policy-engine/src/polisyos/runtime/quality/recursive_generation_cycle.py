@@ -84,6 +84,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -1568,7 +1569,10 @@ class ParentJointCandidateSelectionV1(_StrictModel):
                 for member in self.members
             )
             or len({member.source_candidate_id for member in self.members}) != len(self.members)
-            or len({member.source_atom_content_hash for member in self.members}) != len(self.members)
+            or len(
+                {member.source_atom_content_hash for member in self.members}
+            )
+            != len(self.members)
         ):
             raise ValueError("recursive_parent_joint_candidate_member_denominator_invalid")
         payload = self.model_dump(mode="json", exclude={"content_hash"})
@@ -1702,7 +1706,10 @@ class RecursiveCycleNode(_StrictModel):
                 or tuple(request.selected_outcomes) != tuple(result.selected_outcomes)
                 or request.horizon.model_dump(mode="json")
                 != result.horizon.model_dump(mode="json")
-                or any(atom.problem_frame_ref != self.design_problem_ref for atom in request.intervention_atoms)
+                or any(
+                    atom.problem_frame_ref != self.design_problem_ref
+                    for atom in request.intervention_atoms
+                )
                 or (graph is None and self.joint_candidate_selection is None)
                 or (
                     graph is not None
@@ -2852,6 +2859,7 @@ def build_default_recursive_generation_cycle_controller(
     model_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
+    measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router from one container-owned promotion runtime."""
 
@@ -2860,6 +2868,7 @@ def build_default_recursive_generation_cycle_controller(
         model_id=model_id,
         catalog_run_profile=catalog_run_profile,
         catalog_serving_source=catalog_serving_source,
+        measurement_root_execution_binding=measurement_root_execution_binding,
         promotion_runtime=promotion_runtime,
         eval_safety_verifier=eval_safety_verifier,
     )
@@ -2875,6 +2884,7 @@ class RecursiveGenerationCycleController:
         model_id: str | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
         catalog_serving_source: CatalogServingSourcePaths | None = None,
+        measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
@@ -2899,6 +2909,7 @@ class RecursiveGenerationCycleController:
         self._leaf_model_id = model_id
         self._catalog_run_profile = catalog_run_profile
         self._catalog_serving_source = catalog_serving_source
+        self._measurement_root_execution_binding = measurement_root_execution_binding
         self._promotion_runtime = promotion_runtime
         self._artifact_store = artifact_store
         self._eval_safety_verifier = eval_safety_verifier
@@ -3444,6 +3455,7 @@ class RecursiveGenerationCycleController:
                         model_id=self._leaf_model_id,
                         catalog_run_profile=self._catalog_run_profile,
                         catalog_serving_source=self._catalog_serving_source,
+                        measurement_root_execution_binding=self._measurement_root_execution_binding,
                         cycle_substrate_context=context,
                         candidate_simulation_handoff=(
                             candidate_simulation_handoffs_by_node or {}

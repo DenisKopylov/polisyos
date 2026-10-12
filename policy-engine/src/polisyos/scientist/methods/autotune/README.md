@@ -76,7 +76,15 @@ source-manifest lineage retains selected manifest profiles. Unbound diagnostic
 packets remain schema 1.2; parameter-bound packets use schema 1.3 and carry the
 selected Search MethodJob profile and candidate values. The reader admits 1.2 only
 with no Search parameter binding fields. Prior 1.1 diagnostic packets lack the
-dispatch binding and remain inadmissible to this stricter reader.
+dispatch binding and remain inadmissible to this stricter reader. Finite method request
+parameters use a dedicated canonical fingerprint profile across dispatch, packet
+persistence, and fresh admission; integer-only requests retain the default canonical
+bytes, while NaN and infinities remain refused. The profile records configuration identity
+and does not upgrade the request or its outputs beyond candidate-grade evidence. A
+real `run_job` CAS fixture verifies the produced dispatch binding and adapter payload;
+a strict-default mutation leaves the finite request without dispatch provenance, and
+NaN/Inf requests remain unbound or fail with a typed runtime issue. These checks cover
+request serialization only and do not establish method validity or authority.
 
 The default policy-runtime L3/L4 backend still does not execute that causal
 MethodJob or a scientific draw loop. Its invocation packet remains separate
@@ -86,10 +94,26 @@ the same bound source, but patches the nuisance and tau fit layers. An
 env-gated native witness is prepared: it runs direct L4 (80 draws) and L3→L4
 (40 then 80 draws) through the real estimator, MethodJob, and CAS path, then
 compares the same-source full-L4 result/config/profile and fresh-read counts.
-That native fit remains unrun pending the serialized numerical slot. B157
-therefore remains held for the default policy-runtime consumer and native-fit
+That direct-L3/L4 native fit remains unrun pending its own confirmation. B157
+therefore remains held for the default policy-runtime consumer and native-L3/L4
 confirmation. No count is inferred from requested configuration or from the
 fixed CI proxy.
+
+A separate configured-native-GP Search × DR MethodJob witness ran through the
+real SearchLoopRunner, MethodJob, CAS, and fresh-reader path. Its fixed synthetic
+40-row fixture emitted four distinct selected clipping values, evaluations,
+MethodResult refs, and work-packet refs; each evaluation used 40 actual bootstrap
+draws and remained non-promotable. The persisted DR diagnostics show why its
+ATEs form a plateau: three thresholds (.0280024, .159418, and .260552) leave
+observed propensity support [.375, .4375] untouched and all return ATE
+.9659262, while threshold .450824 clips all propensities and returns .9580069.
+The companion test checks the actual clipping fraction against the persisted
+propensity support, requires the unclipped plateau, and requires active
+clipping to change the measured output; it does not require every distinct
+request to produce a unique metric. The fourth row is a real Bayesian
+acquisition whose persisted fit basis records the exact previous three
+evaluation refs. This is a candidate-grade synthetic execution witness, not a
+causal-validity, calibration, authority, or promotion claim.
 
 This runtime path does not establish B108 fiscal source law. It requires an
 exact metric name and, when configured, an exact unit; owner-declared aliases,

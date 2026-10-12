@@ -1,9 +1,9 @@
 from typing import Any, cast, get_args
 
-import polisyos.scientist.methods.discovery.schema as discovery_schema
 import pytest
 from pydantic import BaseModel, ValidationError
 
+import polisyos.scientist.methods.discovery.schema as discovery_schema
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -46,12 +46,12 @@ from polisyos.scientist.methods.discovery.schema import (
     DiscoveryAlgorithmFamily,
     DiscoveryMethod,
     GraphHypothesis,
+    _revalidate_current_graph_hypothesis,
     edge_key_for_edge,
     graph_hypothesis_from_report,
     infer_algorithm_family,
     load_graph_hypothesis,
     persist_graph_hypothesis,
-    _revalidate_current_graph_hypothesis,
 )
 
 
@@ -156,7 +156,7 @@ def _nested_model_types(annotation: object, seen: set[type[BaseModel]] | None = 
     except TypeError:
         is_model_type = False
     if is_model_type:
-        model_type = cast(type[BaseModel], annotation)
+        model_type = cast("type[BaseModel]", annotation)
         if model_type in found:
             return found
         found.add(model_type)
@@ -174,27 +174,27 @@ def _nested_model_paths(value: object, path: tuple[object, ...] = ()) -> list[tu
         fields = object.__getattribute__(value, "__dict__")
         for name in type(value).model_fields:
             if name in fields:
-                found.extend(_nested_model_paths(fields[name], path + (("field", name),)))
+                found.extend(_nested_model_paths(fields[name], (*path, ("field", name))))
         return found
     if isinstance(value, dict):
         found = []
         for key, item in dict.items(value):
-            found.extend(_nested_model_paths(item, path + (("key", key),)))
+            found.extend(_nested_model_paths(item, (*path, ("key", key))))
         return found
     if isinstance(value, list):
         found = []
         for index, item in enumerate(list.__iter__(value)):
-            found.extend(_nested_model_paths(item, path + (("index", index),)))
+            found.extend(_nested_model_paths(item, (*path, ("index", index))))
         return found
     if isinstance(value, tuple):
         found = []
         for index, item in enumerate(value):
-            found.extend(_nested_model_paths(item, path + (("index", index),)))
+            found.extend(_nested_model_paths(item, (*path, ("index", index))))
         return found
     if isinstance(value, (set, frozenset)):
         found = []
         for index, item in enumerate(value):
-            found.extend(_nested_model_paths(item, path + (("index", index),)))
+            found.extend(_nested_model_paths(item, (*path, ("index", index))))
         return found
     return []
 
@@ -213,29 +213,29 @@ def _nested_model_field_targets(
             if name in fields:
                 targets.extend(
                     _nested_model_field_targets(
-                        fields[name], path + (("field", name),)
+                        fields[name], (*path, ("field", name))
                     )
                 )
         return targets
     if isinstance(value, dict):
         targets = []
         for key, item in dict.items(value):
-            targets.extend(_nested_model_field_targets(item, path + (("key", key),)))
+            targets.extend(_nested_model_field_targets(item, (*path, ("key", key))))
         return targets
     if isinstance(value, list):
         targets = []
         for index, item in enumerate(list.__iter__(value)):
-            targets.extend(_nested_model_field_targets(item, path + (("index", index),)))
+            targets.extend(_nested_model_field_targets(item, (*path, ("index", index))))
         return targets
     if isinstance(value, tuple):
         targets = []
         for index, item in enumerate(value):
-            targets.extend(_nested_model_field_targets(item, path + (("index", index),)))
+            targets.extend(_nested_model_field_targets(item, (*path, ("index", index))))
         return targets
     if isinstance(value, (set, frozenset)):
         targets = []
         for index, item in enumerate(value):
-            targets.extend(_nested_model_field_targets(item, path + (("index", index),)))
+            targets.extend(_nested_model_field_targets(item, (*path, ("index", index))))
         return targets
     return []
 

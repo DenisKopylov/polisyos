@@ -8,7 +8,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import pytest
-from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, RootModel, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -546,85 +546,284 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         items: list[str]
         untouched: dict[str, list[str]]
 
-    class CustomEqualityModel(BaseModel):
-        value: str
+    class AnyRootValue(RootModel[Any]):
+        pass
 
+    class AlternateAnyRootValue(RootModel[Any]):
+        pass
+
+    class PayloadArtifactRef(ArtifactRef):
+        payload: Any
+
+    class CustomEqualityModel(PayloadArtifactRef):
         def __eq__(self, other: object) -> bool:
             return isinstance(other, CustomEqualityModel)
 
-    class PrivateStateModel(BaseModel):
-        value: str
+    class CustomInequalityModel(PayloadArtifactRef):
+        def __ne__(self, other: object) -> bool:
+            return False
+
+    class PrivateStateModel(PayloadArtifactRef):
         _private_value: str = PrivateAttr(default="private")
 
-    class ExtraStateModel(BaseModel):
+    class ExtraStateModel(PayloadArtifactRef):
         model_config = ConfigDict(extra="allow")
-        value: str
 
-    reference = ArtifactRef(
+    reference = PayloadArtifactRef(
         artifact_id=f"sha256:{'a' * 64}",
         kind="scientist.discovery_artifact_bundle",
         media_type="application/json",
+        payload={
+            "flag": True,
+            "nested": _BranchNestedModel(items=["x"], untouched={"k": ["v"]}),
+            "root": AnyRootValue(root={"flag": True, "values": [None, False, 1, "x"]}),
+        },
     )
-    nested = _BranchNestedModel(items=["x"], untouched={"k": ["v"]})
-    holder = _AnyHolderModel(payload={"flag": True, "nested": nested})
     source = ExperimentState(
         run_id="R_journaled_model_value_equality",
-        params={"reference": reference, "nested": nested, "holder": holder},
+        artifacts_index={"reference": reference},
     )
-    left = branch_state(source, write_paths=("params",))
-    right = branch_state(source, write_paths=("params",))
-    tracked_reference = left.state.params["reference"]
-    tracked_nested = left.state.params["nested"]
-    tracked_holder = left.state.params["holder"]
+    left = branch_state(source, write_paths=("artifacts_index",))
+    right = branch_state(source, write_paths=("artifacts_index",))
+    tracked_reference = left.state.artifacts_index["reference"]
+    tracked_nested = tracked_reference.payload["nested"]
+    tracked_root = tracked_reference.payload["root"]
 
-    assert isinstance(tracked_reference, ArtifactRef)
+    assert isinstance(reference, PayloadArtifactRef)
+    assert isinstance(tracked_reference, PayloadArtifactRef)
     assert tracked_reference == reference
     assert reference == tracked_reference
-    assert tracked_reference == right.state.params["reference"]
-    assert tracked_reference != ArtifactRef(
+    assert tracked_reference.model_fields_set == reference.model_fields_set
+    assert tracked_reference == right.state.artifacts_index["reference"]
+    explicitly_null_profile = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        manifest_profile_sha256=None,
+        payload=reference.payload,
+    )
+    assert "manifest_profile_sha256" not in reference.model_fields_set
+    assert "manifest_profile_sha256" in explicitly_null_profile.model_fields_set
+    assert tracked_reference != explicitly_null_profile
+    assert explicitly_null_profile != tracked_reference
+    assert tracked_reference != PayloadArtifactRef(
         artifact_id=reference.artifact_id,
         kind=reference.kind,
         media_type=reference.media_type,
         manifest_profile_sha256=f"sha256:{'b' * 64}",
+        payload=reference.payload,
     )
-    assert tracked_nested == nested
-    assert nested == tracked_nested
-    assert tracked_holder != _AnyHolderModel(payload={"flag": 1, "nested": nested})
-    assert tracked_holder != _AnyHolderModel(
+    assert tracked_nested == reference.payload["nested"]
+    assert reference.payload["nested"] == tracked_nested
+    alternate_nested = AlternateNestedModel(items=["x"], untouched={"k": ["v"]})
+    assert tracked_nested != alternate_nested
+    assert alternate_nested != tracked_nested
+
+    # RootModel wrappers compare their typed root recursively and symmetrically.
+    assert tracked_root == reference.payload["root"]
+    assert reference.payload["root"] == tracked_root
+    assert tracked_reference.artifact_id == reference.artifact_id
+    assert reference.artifact_id == tracked_reference.artifact_id
+    alternate_type = AlternateAnyRootValue(root={"flag": True, "values": [None, False, 1, "x"]})
+    assert tracked_root != alternate_type
+    assert alternate_type != tracked_root
+    different_bool_value = AnyRootValue(root={"flag": 1, "values": [None, False, 1, "x"]})
+    assert tracked_root != different_bool_value
+    assert different_bool_value != tracked_root
+    changed_payload = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
         payload={
-            "flag": True,
-            "nested": AlternateNestedModel(items=["x"], untouched={"k": ["v"]}),
-        }
+            "flag": 1,
+            "nested": reference.payload["nested"],
+            "root": reference.payload["root"],
+        },
     )
+    assert tracked_reference != changed_payload
+    assert changed_payload != tracked_reference
+
+    # Drive every field declared by the actual public ArtifactRef-derived schema.
+    complete_reference = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        manifest_profile_sha256=f"sha256:{'c' * 64}",
+        payload=reference.payload,
+    )
+    complete_state = ExperimentState(
+        run_id="R_complete_declared_model_fields",
+        artifacts_index={"reference": complete_reference},
+    )
+    complete_tracked = branch_state(
+        complete_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["reference"]
+    changed_payload_value = dict(reference.payload)
+    changed_payload_value["flag"] = 1
+    changed_values = {
+        "artifact_id": IRArtifactID(f"sha256:{'d' * 64}"),
+        "kind": "scientist.other_bundle",
+        "media_type": "application/x-policyos-other",
+        "manifest_profile_sha256": f"sha256:{'e' * 64}",
+        "payload": changed_payload_value,
+    }
+    assert set(changed_values) == set(PayloadArtifactRef.model_fields)
+    for field_name, changed_value in changed_values.items():
+        candidate = complete_reference.model_copy(update={field_name: changed_value})
+        assert candidate.model_fields_set == complete_reference.model_fields_set
+        assert complete_tracked != candidate
+        assert candidate != complete_tracked
+
+    # Exercise the generic root-value path over scalar and recursive containers.
+    for ordinal, root_value in enumerate((None, False, 1, "text", [False, 1], {"flag": True})):
+        candidate = PayloadArtifactRef(
+            artifact_id=reference.artifact_id,
+            kind=reference.kind,
+            media_type=reference.media_type,
+            payload=AnyRootValue(root=root_value),
+        )
+        candidate_state = ExperimentState(
+            run_id=f"R_root_model_value_{ordinal}",
+            artifacts_index={"candidate": candidate},
+        )
+        candidate_branch = branch_state(candidate_state, write_paths=("artifacts_index",))
+        tracked_candidate = candidate_branch.state.artifacts_index["candidate"]
+        assert tracked_candidate.payload == candidate.payload
+        assert candidate.payload == tracked_candidate.payload
 
     tracked_reference.kind = "scientist.other_bundle"
-    assert left.journal.operations[-1].path == ("params", "reference", "kind")
+    assert left.journal.operations[-1].path == ("artifacts_index", "reference", "kind")
     assert reference.kind == "scientist.discovery_artifact_bundle"
 
-    with pytest.raises(TypeError, match="ordinary BaseModel mutation/copy hooks"):
-        branch_state(
-            ExperimentState(
-                run_id="R_custom_equality_model_refusal",
-                params={"candidate": CustomEqualityModel(value="x")},
-            ),
-            write_paths=("params",),
+    def candidate_state(candidate: ArtifactRef, run_id: str) -> ExperimentState:
+        return ExperimentState(run_id=run_id, artifacts_index={"candidate": candidate})
+
+    invalid_refs = (
+        CustomEqualityModel(
+            artifact_id=reference.artifact_id,
+            kind=reference.kind,
+            media_type=reference.media_type,
+            payload=None,
+        ),
+        CustomInequalityModel(
+            artifact_id=reference.artifact_id,
+            kind=reference.kind,
+            media_type=reference.media_type,
+            payload=None,
+        ),
+        PrivateStateModel(
+            artifact_id=reference.artifact_id,
+            kind=reference.kind,
+            media_type=reference.media_type,
+            payload=None,
+        ),
+        ExtraStateModel(
+            artifact_id=reference.artifact_id,
+            kind=reference.kind,
+            media_type=reference.media_type,
+            payload=None,
+            unexpected="y",
+        ),
+    )
+    for ordinal, candidate in enumerate(invalid_refs):
+        if isinstance(candidate, (PrivateStateModel, ExtraStateModel)):
+            match = "private or extra model runtime state"
+        else:
+            match = "ordinary BaseModel mutation/copy hooks"
+        with pytest.raises(TypeError, match=match):
+            branch_state(
+                candidate_state(candidate, f"R_model_equality_refusal_{ordinal}"),
+                write_paths=("artifacts_index",),
+            )
+
+def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> None:
+    class PresenceModel(BaseModel):
+        model_config = ConfigDict(populate_by_name=True)
+
+        items: list[int] = Field(default_factory=lambda: [1], alias="wireItems")
+        mapping: dict[str, list[int]] = Field(
+            default_factory=lambda: {"selected": [2]}
         )
-    with pytest.raises(TypeError, match="private or extra model runtime state"):
-        branch_state(
-            ExperimentState(
-                run_id="R_private_equality_model_refusal",
-                params={"candidate": PrivateStateModel(value="x")},
-            ),
-            write_paths=("params",),
+        optional_label: str | None = Field(default=None, alias="wireLabel")
+
+    class PresenceRoot(RootModel[dict[str, PresenceModel]]):
+        pass
+
+    class PayloadArtifactRef(ArtifactRef):
+        payload: Any
+
+    records = (
+        PresenceModel(),
+        PresenceModel.model_validate({"wireItems": [1]}),
+    )
+    for ordinal, record in enumerate(records):
+        original_fields_set = set(record.model_fields_set)
+        if ordinal == 0:
+            assert original_fields_set == set()
+        else:
+            # Alias input is normalized to the declared Python field name.
+            assert original_fields_set == {"items"}
+
+        root_value = PresenceRoot(root={"first": record})
+        reference = PayloadArtifactRef(
+            artifact_id=f"sha256:{'f' * 64}",
+            kind="scientist.presence_probe",
+            media_type="application/json",
+            payload=root_value,
         )
-    with pytest.raises(TypeError, match="private or extra model runtime state"):
-        branch_state(
-            ExperimentState(
-                run_id="R_extra_equality_model_refusal",
-                params={"candidate": ExtraStateModel(value="x", unexpected="y")},
-            ),
-            write_paths=("params",),
+        state = ExperimentState(
+            run_id=f"R_cow_field_presence_{ordinal}",
+            artifacts_index={"reference": reference},
         )
+        prefix = "artifacts_index.reference"
+        branch = branch_state(
+            state,
+            write_paths=(
+                f"{prefix}.payload.root.first.items.0",
+                f"{prefix}.payload.root.first.mapping.selected.0",
+                f"{prefix}.payload.root.first.optional_label",
+            ),
+        )
+        tracked_reference = branch.state.artifacts_index["reference"]
+        tracked_root = tracked_reference.payload
+        tracked_record = tracked_root.root["first"]
+
+        # Deep COW crosses an ArtifactRef, typed RootModel, mapping, model and
+        # default-factory list/dict. Installing those copies is not a producer write.
+        assert isinstance(tracked_root, PresenceRoot)
+        assert tracked_record.model_fields_set == original_fields_set
+        assert tracked_record == record
+        assert record == tracked_record
+        assert tracked_record.items is not record.items
+        assert tracked_record.mapping is not record.mapping
+        assert tracked_record.mapping["selected"] is not record.mapping["selected"]
+        assert branch.journal.operations == []
+
+        # Reads through the tracking wrappers retain both field presence and an empty journal.
+        _ = tracked_record.items[0]
+        _ = tracked_record.mapping["selected"][0]
+        _ = tracked_record.optional_label
+        assert tracked_record.model_fields_set == original_fields_set
+        assert branch.journal.operations == []
+
+        # A real typed assignment, including an explicit None, changes presence and journals.
+        tracked_record.optional_label = None
+        assert "optional_label" in tracked_record.model_fields_set
+        assert "optional_label" not in record.model_fields_set
+        assert "wireLabel" not in tracked_record.model_fields_set
+        assert tracked_record != record
+        assert record != tracked_record
+        assert branch.journal.operations[-1].path == (
+            "artifacts_index.reference.payload.root.first.optional_label"
+        )
+
+        tracked_record.items[0] = 9
+        tracked_record.mapping["selected"][0] = 8
+        assert record.items == [1]
+        assert record.mapping == {"selected": [2]}
+        assert tracked_record.items == [9]
+        assert tracked_record.mapping == {"selected": [8]}
+        assert len(branch.journal.operations) == 3
 
 
 def test_cache_mutation_canonical_payload_preserves_operation_semantics() -> None:

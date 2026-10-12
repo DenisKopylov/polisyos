@@ -4,7 +4,9 @@ These controls establish graph/rewriting properties, not an identified real-data
 effect or general completeness of ID/PAG/counterfactual identification.
 """
 
+import gc
 import sys
+import weakref
 from itertools import combinations, product
 
 import pytest
@@ -724,6 +726,20 @@ def test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_gr
     assert result.metadata["limitation_code"] == expected_reason
 
 
+def test_shared_cache_retains_the_exact_admitted_graph_snapshot():
+    graph = _graph(
+        [CausalEdge(src="X", dst="Y")],
+        nodes=("X", "Y"),
+        graph_type=GraphType.DAG,
+    )
+
+    cached = ops._get_cached_adjacency(graph)
+
+    assert cached.graph is not graph
+    assert cached.graph.model_dump(mode="json") == graph.model_dump(mode="json")
+    assert cached.directed_edges == frozenset({("X", "Y")})
+
+
 def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
     from polisyos.foundry.methods.catalog.causal.admg_ops import canonical_scalar_query_graph
 
@@ -765,7 +781,7 @@ def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
         cyclic_sigma, frozenset({"X"}), frozenset({"Y"}), frozenset()
     )
     sigma.apply_sigma_rule1(
-        _ref(conditions=("X",)), cyclic_sigma, frozenset({"X"})
+        _ref(conditions=("X",)), cyclic_sigma, frozenset({"X"}), frozenset({"X"})
     )
 
 
@@ -867,14 +883,20 @@ def test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification
         graph_type=GraphType.PAG,
     )
 
+    # The shared cache boundary refuses even a fully oriented PAG tag before
+    # endpoint-only extraction can return a scalar adjacency view.
+    with pytest.raises(ops.PartialGraphCompletionSemanticsError):
+        ops.extract_directed_edges(graph)
+
     # Keep canonical field rebuilding and endpoint validation, but remove both
     # graph-kind premises: the canonical query tag refusal and the shared
-    # static-ID profile allowlist. The live method call remains intact.
+    # static-ID profile allowlist. The live cache and method calls remain intact.
     monkeypatch.setattr(
         ops,
         "canonical_scalar_query_graph",
         ops.canonical_causal_graph_snapshot,
     )
+    assert ops.extract_directed_edges(graph) == frozenset({("X", "Y")})
     monkeypatch.setattr(core, "_validate_static_id_graph", ops._validate_static_admg)
     result = core.id_algorithm(
         treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
@@ -1167,3 +1189,101 @@ def test_direct_tr_refuses_s_node_targets_outside_base_graph():
                 outcome=frozenset({"Y"}),
                 selection_diagram=diagram,
             )
+
+
+def test_adjacency_cache_revalidates_full_content_before_reuse():
+    ops._ADJ_CACHE.clear()
+    ops._CC_CACHE.clear()
+    graph = _graph(
+        [CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("Y", "Z"),
+        graph_type=GraphType.ADMG,
+    )
+    first = ops._get_cached_adjacency(graph)
+    first_key = first.content_key
+    first_components = ops.c_components(graph)
+    _ = first.graph.kuzu_node_rows
+    _ = first.graph.kuzu_edge_rows
+    assert ops._get_cached_adjacency(graph) is first
+
+    equivalent = _graph(
+        [CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("Y", "Z"),
+        graph_type=GraphType.ADMG,
+    )
+    assert equivalent is not graph
+    assert ops._get_cached_adjacency(equivalent) is first
+    assert ops.c_components(equivalent) == first_components
+    assert ops._ADJ_CACHE[first_key] is first
+    assert ops._CC_CACHE[first_key] == tuple(first_components)
+
+    original_edges = graph.edges
+    cache_sizes = (len(ops._ADJ_CACHE), len(ops._CC_CACHE))
+    object.__setattr__(
+        graph,
+        "edges",
+        [CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.CIRCLE)],
+    )
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError):
+        ops._get_cached_adjacency(graph)
+    assert (len(ops._ADJ_CACHE), len(ops._CC_CACHE)) == cache_sizes
+    object.__setattr__(graph, "edges", [CausalEdge(src="Y", dst="Z", lag=1)])
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError, match="lag=1"):
+        ops._get_cached_adjacency(graph)
+    assert (len(ops._ADJ_CACHE), len(ops._CC_CACHE)) == cache_sizes
+    object.__setattr__(graph, "edges", original_edges)
+    assert ops._get_cached_adjacency(graph) is first
+
+    object.__setattr__(
+        graph,
+        "edges",
+        [CausalEdge(src="Y", dst="Z", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.TAIL)],
+    )
+    reversed_marks = ops._get_cached_adjacency(graph)
+    assert reversed_marks is not first
+    assert reversed_marks.content_key != first_key
+    object.__setattr__(graph, "edges", [CausalEdge(src="Y", dst="Z", lag=0)])
+    lagged_zero = ops._get_cached_adjacency(graph)
+    assert lagged_zero is not first
+    assert lagged_zero.content_key != reversed_marks.content_key
+    object.__setattr__(graph, "edges", original_edges)
+    assert ops._get_cached_adjacency(graph) is first
+
+    original_graph_type = graph.graph_type
+    object.__setattr__(graph, "graph_type", GraphType.DAG)
+    changed_kind = ops._get_cached_adjacency(graph)
+    assert changed_kind is not first
+    assert changed_kind.content_key != first_key
+    type_cache_sizes = (len(ops._ADJ_CACHE), len(ops._CC_CACHE))
+    object.__setattr__(graph, "graph_type", GraphType.PAG)
+    with pytest.raises(ops.PartialGraphCompletionSemanticsError):
+        ops._get_cached_adjacency(graph)
+    assert (len(ops._ADJ_CACHE), len(ops._CC_CACHE)) == type_cache_sizes
+    object.__setattr__(graph, "graph_type", original_graph_type)
+    assert ops._get_cached_adjacency(graph) is first
+
+    original_metadata = graph.metadata
+    object.__setattr__(graph, "metadata", {"cache-content-probe": "changed"})
+    changed = ops._get_cached_adjacency(graph)
+    assert changed is not first
+    assert changed.content_key != first_key
+    assert changed.content_key in ops._ADJ_CACHE
+    ops.c_components(graph)
+    assert changed.content_key in ops._CC_CACHE
+    object.__setattr__(graph, "metadata", original_metadata)
+    assert ops._get_cached_adjacency(graph) is first
+
+    unique = _graph(
+        [CausalEdge(src="A", dst="B", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("A", "B"),
+        graph_type=GraphType.DAG,
+    )
+    object.__setattr__(unique, "metadata", {"unique-cache-source": True})
+    unique_key = ops._get_cached_adjacency(unique).content_key
+    ops.c_components(unique)
+    source_ref = weakref.ref(unique)
+    del unique
+    gc.collect()
+    assert source_ref() is None
+    assert unique_key in ops._ADJ_CACHE
+    assert unique_key in ops._CC_CACHE

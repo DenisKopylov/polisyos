@@ -452,6 +452,7 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
     )
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
+    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
     from polisyos.runtime.quality.design_generation import GenerationUnderAResult
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
@@ -1843,6 +1844,7 @@ class ControlPlaneService(
         n4_recursive_source: GenerationUnderAResult | None = None,
         recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
         root_evaluation_context: EvaluationExecutionContext | None = None,
+        measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
     ) -> (
         CompiledRecursiveGenerationCycleRun
         | N4CandidateProposalExecution
@@ -1898,6 +1900,7 @@ class ControlPlaneService(
                 generation_source_repository=GenerationSourceRepository(self._artifact_store),
                 recursive_leaf_context_owner=recursive_leaf_context_owner,
                 root_evaluation_context=root_evaluation_context,
+                measurement_root_execution_binding=measurement_root_execution_binding,
                 eval_safety_verifier=self._evaluation_safety_admission_verifier,
                 promotion_runtime=self._promotion_runtime,
                 repo_root=self._repo_root,
@@ -3067,6 +3070,7 @@ class ControlPlaneService(
                         payload=payload,
                         execution_scope=execution_scope,
                         capability_manifest_ref=capability_manifest_ref,
+                        admission=admission,
                     )
                     return
                 if job.kind == "natural_language_run":

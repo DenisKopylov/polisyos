@@ -10465,3 +10465,34 @@ def test_n7_candidate_only_proposal_does_not_suppress_scope_fallback() -> None:
     assert resolutions is None or all(
         item.query.construct != "candidate_only_future_construct" for item in resolutions
     )
+
+
+def test_n7_measurement_reader_requires_admitted_scope_before_supplier_reads() -> None:
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        resolve_measurement_root_evidence,
+    )
+
+    supplier_reads: list[str] = []
+
+    class SupplierSpy:
+        def get_bytes(self, *_args, **_kwargs):
+            supplier_reads.append("get_bytes")
+            raise AssertionError("scope check must precede supplier reads")
+
+        def get_manifest(self, *_args, **_kwargs):
+            supplier_reads.append("get_manifest")
+            raise AssertionError("scope check must precede supplier reads")
+
+    with pytest.raises(
+        FabricMeasurementRootBindingError,
+        match="measurement_root_execution_scope_not_established",
+    ):
+        resolve_measurement_root_evidence(
+            store=SupplierSpy(),
+            measurement_root=object(),
+            catalog=object(),
+            providers=None,
+        )
+
+    assert supplier_reads == []

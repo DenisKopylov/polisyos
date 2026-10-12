@@ -1,0 +1,34 @@
+id = "2026-10-12-repository-sota-registry-dispatch"
+title = "Dispatch registered Repository SOTA gates from their fail-closed registry"
+type = "changed"
+component = "tooling"
+owner = "team-architecture"
+summary = "Repository SOTA closeout preserves an independent 13-gate baseline of IDs, commands, and coverage routes while dispatching additional registered subprocess rows from TOML. Only the pinned generated-drift row may use skip_command; an invalid registry stops before child execution. The topology cleanup suite now runs in the full closeout path."
+evidence = [
+  "architecture/gates/repository_sota.toml",
+  "tools/devx/workspace/repository_sota_closeout.py",
+  "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
+  "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+]
+compatibility = "The default closeout remains fail-closed and keeps existing support checks, current working directory, generated-drift skip behavior, and complete child diagnostics. Only the pinned generated-drift row may declare skip_command; any other declaration fails registry validation before child execution. The phase-5 registry contract suite is a native supporting child. Deleting or changing an established row command or coverage route fails contract validation; valid additional subprocess rows are scheduled generically."
+change_class = "internal"
+surface_classification = "internal: Repository SOTA gate execution"
+migration = "No caller migration is required. New registry rows declare subprocess, executed preflight, or conditional handler coverage; subprocess commands are read directly from the registry. Additional rows must not declare skip_command."
+limitations = "Registry tests prove the runtime scheduling contract, not that every native gate is green. Full closeout receipts, current exception issuer decisions, and package installed-consumer receipts remain separate evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/devx/workspace/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "repository-sota-registry-dispatch"
+change_class = "internal"
+impact = "additive"
+surface = "internal: Repository SOTA gate execution"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Repository SOTA closeout preserves every established required gate and executes all registered subprocess routes, including valid additions; only the pinned generated-drift row may use its existing skip command."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["tools/devx/workspace/README.md"]
+runbook_docs = []

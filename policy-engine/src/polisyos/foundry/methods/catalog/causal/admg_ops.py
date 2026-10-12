@@ -31,16 +31,15 @@ topological_order         – Kahn's algorithm (directed edges only)
 from __future__ import annotations
 
 import hashlib
-import weakref
-from collections import deque
-from typing import TYPE_CHECKING, Any
+from collections import OrderedDict, deque
+from typing import TYPE_CHECKING, Any, TypeVar
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
 
 
 # ---------------------------------------------------------------------------
-# Shared caches for immutable graph instances
+# Bounded content caches for canonical static graph profiles
 # ---------------------------------------------------------------------------
 
 class UnsupportedStaticADMGProfileError(ValueError):
@@ -72,11 +71,22 @@ class InvalidCausalGraphProfileError(UnsupportedStaticADMGProfileError):
 class CachedAdjacency:
     """Admit the resolved static profile and prepare its adjacency once."""
 
-    __slots__ = ("bi", "bidirected_edges", "circle_edges", "directed_edges", "fwd", "rev")
+    __slots__ = (
+        "bi",
+        "bidirected_edges",
+        "circle_edges",
+        "content_key",
+        "directed_edges",
+        "fwd",
+        "graph",
+        "rev",
+    )
 
-    def __init__(self, graph: CausalGraphModel) -> None:
+    def __init__(self, graph: CausalGraphModel, content_key: str) -> None:
         from polisyos.ir.analytics.causal_graph import EdgeMark
 
+        self.graph = graph
+        self.content_key = content_key
         fwd: dict[str, list[str]] = {n: [] for n in graph.nodes}
         rev: dict[str, list[str]] = {n: [] for n in graph.nodes}
         bi: dict[str, list[str]] = {n: [] for n in graph.nodes}
@@ -119,62 +129,86 @@ class CachedAdjacency:
         self.circle_edges = tuple(circle_edges)
 
 
-_ADJ_CACHE: dict[int, CachedAdjacency] = {}
-_CC_CACHE: dict[int, tuple[frozenset[str], ...]] = {}
-_GRAPH_REFS: dict[int, weakref.ReferenceType[Any]] = {}
-_CANONICAL_GRAPH_REFS: dict[int, weakref.ReferenceType[Any]] = {}
+_STATIC_GRAPH_CACHE_CAPACITY = 128
+_ADJ_CACHE: OrderedDict[str, CachedAdjacency] = OrderedDict()
+_CC_CACHE: OrderedDict[str, tuple[frozenset[str], ...]] = OrderedDict()
+_CacheValue = TypeVar("_CacheValue")
 
 
-def _purge_graph_cache(key: int) -> None:
-    _ADJ_CACHE.pop(key, None)
-    _CC_CACHE.pop(key, None)
-    _GRAPH_REFS.pop(key, None)
+def _evict_lru_entries(cache: OrderedDict[str, _CacheValue]) -> None:
+    """Keep each static graph cache within its declared entry capacity."""
+    while len(cache) > _STATIC_GRAPH_CACHE_CAPACITY:
+        cache.popitem(last=False)
 
 
-def _ensure_cache_ref(graph: CausalGraphModel) -> None:
-    key = id(graph)
-    if key in _GRAPH_REFS:
-        return
+def _graph_content_cache_key(graph: CausalGraphModel) -> str:
+    """Hash the complete, canonical graph profile used by static consumers."""
+    from polisyos.ir.analytics.causal_graph import graph_content_sha256
 
-    def _cleanup(_: weakref.ReferenceType[Any], k: int = key) -> None:
-        _purge_graph_cache(k)
+    try:
+        return graph_content_sha256(graph)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: graph fields lack a canonical content identity."
+        ) from exc
 
-    _GRAPH_REFS[key] = weakref.ref(graph, _cleanup)
+
+def _validate_static_adjacency_profile(graph: CausalGraphModel) -> None:
+    """Validate every edge profile before a content-cache lookup."""
+    from polisyos.ir.analytics.causal_graph import EdgeMark
+
+    for edge in graph.edges:
+        if edge.lag not in (None, 0):
+            raise UnsupportedStaticADMGProfileError(
+                "Unsupported static ADMG profile: "
+                f"edge {edge.src!r}–{edge.dst!r} has lag={edge.lag!r}; "
+                "resolve the temporal graph before static causal inference."
+            )
+        marks = (edge.mark_src, edge.mark_dst)
+        if marks not in {
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+            (EdgeMark.ARROW, EdgeMark.ARROW),
+        }:
+            raise UnsupportedStaticADMGProfileError(
+                "Unsupported static ADMG profile: "
+                f"edge {edge.src!r}–{edge.dst!r} has unresolved endpoints "
+                f"({edge.mark_src.value}, {edge.mark_dst.value}); "
+                "no equivalence-class separation or completion is assumed."
+            )
 
 
 def _get_cached_adjacency(graph: CausalGraphModel) -> CachedAdjacency:
-    key = id(graph)
+    # Rebuild and admit the complete caller graph before deriving or consulting
+    # a content key. No object identity, serializer override, or stale key can
+    # bypass the current graph kind, endpoint, lag, or metadata fields.
+    canonical = canonical_scalar_query_graph(graph)
+    _validate_static_adjacency_profile(canonical)
+    key = _graph_content_cache_key(canonical)
     cached = _ADJ_CACHE.get(key)
     if cached is not None:
+        if _graph_content_cache_key(cached.graph) != key:
+            raise InvalidCausalGraphProfileError(
+                "Unsupported static ADMG profile: canonical content digest collision."
+            )
+        _ADJ_CACHE.move_to_end(key)
         return cached
-    _ensure_cache_ref(graph)
-    adj = CachedAdjacency(graph)
-    _ADJ_CACHE[key] = adj
-    return adj
 
-
-def _remember_canonical_graph(graph: CausalGraphModel) -> None:
-    """Remember a validated immutable snapshot for recursive consumers."""
-    key = id(graph)
-    _CANONICAL_GRAPH_REFS[key] = weakref.ref(
-        graph, lambda _ref, cache_key=key: _CANONICAL_GRAPH_REFS.pop(cache_key, None)
-    )
+    adjacency = CachedAdjacency(canonical, key)
+    _ADJ_CACHE[key] = adjacency
+    _evict_lru_entries(_ADJ_CACHE)
+    return adjacency
 
 
 def canonical_causal_graph_snapshot(graph: CausalGraphModel) -> CausalGraphModel:
     """Rebuild the complete live graph from declared IR fields.
 
-    The detached result is the object downstream consumers must use. The small
-    weak identity cache avoids rebuilding an already admitted immutable snapshot
-    during recursive ID calls; ordinary caller-owned and ``model_copy`` values
-    are always revalidated before admission.
+    The detached result is the object downstream consumers must use. Every call
+    rebuilds from current stored fields; adjacency reuse happens only after the
+    complete current snapshot passes the static profile and content-key checks.
     """
     from polisyos.ir.analytics.causal_graph import CausalGraphModel, _canonical_causal_graph
 
-    if type(graph) is CausalGraphModel:
-        reference = _CANONICAL_GRAPH_REFS.get(id(graph))
-        if reference is not None and reference() is graph:
-            return graph
     try:
         canonical = _canonical_causal_graph(graph)
     except (TypeError, ValueError) as exc:
@@ -185,7 +219,6 @@ def canonical_causal_graph_snapshot(graph: CausalGraphModel) -> CausalGraphModel
         raise InvalidCausalGraphProfileError(
             "Unsupported static ADMG profile: canonical graph has a noncanonical runtime type."
         )
-    _remember_canonical_graph(canonical)
     return canonical
 
 
@@ -211,10 +244,8 @@ def canonical_scalar_query_graph(graph: CausalGraphModel) -> CausalGraphModel:
 
 
 def _validate_static_admg(graph: CausalGraphModel) -> CausalGraphModel:
-    """Admit a scalar query graph and return the exact snapshot it validated."""
-    canonical = canonical_scalar_query_graph(graph)
-    _get_cached_adjacency(canonical)
-    return canonical
+    """Admit a scalar query graph and return the exact cached snapshot."""
+    return _get_cached_adjacency(graph).graph
 
 
 def _validate_static_id_graph(graph: CausalGraphModel) -> CausalGraphModel:
@@ -534,13 +565,14 @@ def c_components(graph: CausalGraphModel) -> list[frozenset[str]]:
 
     Returns list of frozensets (one per component), sorted largest-first.
     """
-    graph = _validate_static_admg(graph)
-    key = id(graph)
+    cached_adjacency = _get_cached_adjacency(graph)
+    graph = cached_adjacency.graph
+    key = cached_adjacency.content_key
     cached_components = _CC_CACHE.get(key)
     if cached_components is not None:
+        _CC_CACHE.move_to_end(key)
         return list(cached_components)
 
-    _ensure_cache_ref(graph)
     bi_edges = extract_bidirected_edges(graph)
 
     # Union-Find with path compression
@@ -578,6 +610,7 @@ def c_components(graph: CausalGraphModel) -> list[frozenset[str]]:
 
     result = sorted([frozenset(s) for s in comp.values()], key=len, reverse=True)
     _CC_CACHE[key] = tuple(result)
+    _evict_lru_entries(_CC_CACHE)
     return result
 
 
@@ -643,6 +676,7 @@ def _m_separation_adjacency(
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
     cached = _get_cached_adjacency(graph)
+    graph = cached.graph
     adj: dict[str, list[tuple[str, Any, Any]]] = {n: [] for n in graph.nodes}
 
     for src, dst in cached.directed_edges:
@@ -916,11 +950,9 @@ def topological_order(graph: CausalGraphModel) -> list[str]:
 
 
 def _directed_adjacency(graph: CausalGraphModel) -> dict[str, list[str]]:
-    """Build forward adjacency dict for directed edges (src → [children])."""
-    adj: dict[str, list[str]] = {n: [] for n in graph.nodes}
-    for src, dst in extract_directed_edges(graph):
-        adj[src].append(dst)
-    return adj
+    """Build forward adjacency from the shared admitted graph snapshot."""
+    cached = _get_cached_adjacency(graph)
+    return {node: list(cached.fwd[node]) for node in cached.graph.nodes}
 
 
 def tarjan_scc(graph: CausalGraphModel) -> list[frozenset[str]]:
@@ -1230,14 +1262,12 @@ def s_reachable(
     frozenset[str]
         Subset of *target_vars* that are reachable from at least one S-node.
     """
-    # Build forward adjacency combining directed AND bidirected edges
-    fwd: dict[str, set[str]] = {n: set() for n in graph.nodes}
-    for src, dst in extract_directed_edges(graph):
-        fwd[src].add(dst)
-    for pair in extract_bidirected_edges(graph):
-        u, v = tuple(pair)
-        fwd[u].add(v)
-        fwd[v].add(u)
+    # Build forward adjacency from the exact shared admitted snapshot.
+    cached = _get_cached_adjacency(graph)
+    fwd: dict[str, set[str]] = {
+        node: set(cached.fwd[node]) | set(cached.bi[node])
+        for node in cached.graph.nodes
+    }
 
     visited: set[str] = set()
     queue: deque[str] = deque()

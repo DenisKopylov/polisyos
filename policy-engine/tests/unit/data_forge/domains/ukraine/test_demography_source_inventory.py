@@ -6,15 +6,15 @@ from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
+
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.data_forge.domains.ukraine.builders.contracts import StageBuildResult
 from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
     InventoryBuildRequest,
     SourceFact,
     SourceSemanticClaims,
 )
-from pydantic import ValidationError
-
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.data_forge.domains.ukraine.builders.contracts import StageBuildResult
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
     BuildRunManifest,

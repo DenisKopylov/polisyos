@@ -552,17 +552,7 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(
     from datetime import UTC, datetime
 
     from polisyos.core import artifacts as core_artifacts
-    from polisyos.core import canon
-    from polisyos.runtime.http.services.control.artifacts import (
-        AuthorityArtifactIdentityContext,
-        verify_runtime_authority_artifact_identity,
-    )
     from polisyos.runtime.quality import data_forge_binding
-    from polisyos.runtime.quality.authority import (
-        EvidenceAuthorityEnvelope,
-        GovernanceMetadata,
-        SameInputClosure,
-    )
 
     catalog = build_slice0_fixture_catalog_graph(tmp_path)
     store = FileSystemCAS(tmp_path / "cas")
@@ -586,7 +576,6 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(
     assert envelope.producer_operation["operation_id"] == "slice0.bind.catalog"
 
     payload = json.loads(store.get_bytes(envelope.payload_ref))
-    canonical_payload = canon.from_canonical_bytes(store.get_bytes(envelope.payload_ref))
     payload_manifest = store.get_manifest(envelope.payload_ref)
     assert payload_manifest.canon == core_artifacts.CanonInfo(forbid_floats=False)
     assert payload["data_requirement_spec"]["schema_version"] == "policyos.data_requirement_spec.v1"
@@ -620,37 +609,10 @@ def test_measurement_root_producer_resolves_catalog_and_persists_cas(
         "query_generation_context": {"state": "absent"},
     }
 
-    opts, identity = data_forge_binding._measurement_root_authority_configuration(
-        canonical_payload,
-        fabric_fetch_ref=None,
-        source_checked_at=None,
-    )
-    identity["same_input_closure"] = SameInputClosure.model_validate(identity["same_input_closure"])
-    identity["governance"] = GovernanceMetadata.model_validate(identity["governance"])
-    identity["input_refs"] = tuple(identity["input_refs"])
-    assert opts.canon == core_artifacts.CanonInfo(forbid_floats=False)
-    assert payload_manifest.authority is not None
-    envelope_ref = core_artifacts.resolve_authority_envelope_ref(
-        store,
-        payload_manifest.authority,
-    )
-    emitted = EvidenceAuthorityEnvelope.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(envelope_ref))
-    )
-    context = AuthorityArtifactIdentityContext(
-        **identity,
-        manifest_inputs=tuple(opts.inputs or ()),
-        manifest_governance=opts.governance,
-        manifest_canon=opts.canon,
-        attestation_ref=emitted.attestation_ref,
-    )
-    fresh = verify_runtime_authority_artifact_identity(
-        store,
-        artifact_id=payload_manifest.artifact_id,
-        opts=opts,
-        expected_context=context,
-    )
-    assert fresh.cas_ref.artifact_id == payload_manifest.artifact_id
+    assert payload_manifest.canon == core_artifacts.CanonInfo(forbid_floats=False)
+    assert payload_manifest.authority is None
+    assert payload_manifest.tenant_context is None
+    assert envelope.obligations == ["control_job_execution_scope_not_established"]
 
 
 def test_measurement_root_producer_rejects_fabricated_source_contract_before_cas(

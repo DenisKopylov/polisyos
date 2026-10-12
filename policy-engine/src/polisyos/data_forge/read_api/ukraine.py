@@ -685,13 +685,12 @@ def load_demography_candidate_artifacts(
     allowed_root: Path,
 ) -> UkraineDemographyArtifacts:
     """Load a candidate inventory stage through the verified-stage/CAS boundary."""
-    from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
-        SOURCE_INVENTORY_STAGE_ID,
-    )
-
     from polisyos.data_forge.domains.ukraine.demography import (
         InventorySourceRequest,
         load_demography_artifacts,
+    )
+    from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
+        SOURCE_INVENTORY_STAGE_ID,
     )
 
     receipt = load_verified_stage_artifacts(

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { expect, test } from "@playwright/test";
 
 import {
@@ -141,15 +143,26 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   );
   await waitForDashboardSurface(page, "evidence");
 
-  const launch = await page.evaluate(async (body) => {
-    const response = await fetch("/api/v1/control/runs/nl", {
-      method: "POST",
-      credentials: "include",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    return { payload: await response.json(), status: response.status };
-  }, requestBody);
+  const requestBodyJson = JSON.stringify(requestBody);
+  expect(requestBodyJson).toEqual(expect.any(String));
+  const launchKey =
+    "source-bound-e2e-v1-" +
+    createHash("sha256").update(requestBodyJson!).digest("hex");
+  const launch = await page.evaluate(
+    async ({ body, key }) => {
+      const response = await fetch("/api/v1/control/runs/nl", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+          "Idempotency-Key": key,
+        },
+        body,
+      });
+      return { payload: await response.json(), status: response.status };
+    },
+    { body: requestBodyJson!, key: launchKey },
+  );
   expect(launch.status).toBe(200);
   const launchPayload = asRecord(launch.payload);
   expect(launchPayload?.status).toBe("accepted");
@@ -275,40 +288,201 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   await expect(page.getByText(/catalog_run_profile_conflict/)).toBeVisible();
 
   const v6RunId = metadata.source_bound_v6_run_id;
+  const v6JobId = metadata.source_bound_v6_control_job_id;
+  const v6JobState = metadata.source_bound_v6_control_job_status;
   const v6FailureCode = metadata.source_bound_v6_failure_code;
+  const v6FailureMessage = metadata.source_bound_v6_failure_message;
+  const v6ResultRef = metadata.source_bound_v6_success_result_ref;
+  const v6ChildCount = Number(metadata.source_bound_v6_child_count);
+  const v6SourceProfileHash =
+    metadata.source_bound_v6_source_profile_content_hash;
+  const v6SelectedSkgSnapshotRef =
+    metadata.source_bound_v6_selected_skg_snapshot_ref;
+  const v6SelectedSkgSnapshotSha256 =
+    metadata.source_bound_v6_selected_skg_snapshot_sha256;
   expect(v6RunId).toBeTruthy();
-  expect(v6FailureCode).toBe("controlled_sibling_generation_failure");
+  expect(v6JobId).toBeTruthy();
+  expect(v6JobState).toBe("completed");
+  expect(v6FailureCode).toBe("v6_controlled_second_n4_child_failure");
+  expect(v6FailureMessage).toBeTruthy();
+  expect(v6ResultRef).toBeTruthy();
+  expect(v6SourceProfileHash).toMatch(/^sha256:[0-9a-f]{64}$/);
+  expect(v6SelectedSkgSnapshotRef).toBeTruthy();
+  expect(v6SelectedSkgSnapshotSha256).toMatch(/^[0-9a-f]{64}$/);
+  expect(metadata.source_bound_v6_missing_result_ref_error_code).toBe(
+    "joint_simulation_result_unavailable",
+  );
   const v6Response = await freshGet(
     page,
     `/api/v1/runs/${encodeURIComponent(v6RunId as string)}`,
   );
   expect(v6Response.status).toBe(200);
   const v6Projection = asRecord(
-    asRecord(asRecord(v6Response.payload)?.run)?.candidate_simulation,
+    asRecord(asRecord(v6Response.payload)?.run)?.generic_cycle_simulation,
   );
-  expect(v6Projection?.recursive_cycle_checkpoint).toMatchObject({
-    schema_version: "policyos.runtime.recursive_cycle_checkpoint.v2",
+  expect(v6Projection).toMatchObject({
+    artifact_status: "resolved",
+    authority_purpose: "cycle_input_candidate_only",
+    publication_authority: false,
+    currentness_status: "not_established",
+    child_profile_status: "resolved",
+  });
+  const childBindings = Array.isArray(v6Projection?.child_profile_bindings)
+    ? v6Projection.child_profile_bindings
+    : [];
+  expect(childBindings).toHaveLength(v6ChildCount);
+  expect(
+    childBindings.every(
+      (binding) => asRecord(binding)?.currentness_status === "not_established",
+    ),
+  ).toBe(true);
+
+  const observations = Array.isArray(v6Projection?.n5_observations)
+    ? v6Projection.n5_observations
+    : [];
+  const successfulObservation = observations
+    .map((observation) => asRecord(observation))
+    .find((observation) => observation?.status === "joint_simulated");
+  expect(successfulObservation).toBeTruthy();
+  expect(
+    asRecord(successfulObservation?.simulation_result_ref)?.artifact_id,
+  ).toBe(v6ResultRef);
+
+  const checkpoint = asRecord(v6Projection?.recursive_cycle_checkpoint);
+  expect(checkpoint).toMatchObject({
     status: "partial",
     publication_authority: false,
   });
-  const checkpoint = asRecord(v6Projection?.recursive_cycle_checkpoint);
+  expect(checkpoint?.budget_stop_node_ref).toBeNull();
   const failures = Array.isArray(checkpoint?.failed_branches)
     ? checkpoint.failed_branches
     : [];
-  expect(
-    failures.some((failure) => asRecord(failure)?.error_code === v6FailureCode),
-  ).toBe(true);
-  expect(v6Projection?.acquisition_history).toEqual([]);
-  expect(v6Projection?.acquisition_history_limitation_code).toBe(
-    "acquisition_n4_source_not_established",
-  );
+  const actualFailure = failures
+    .map((failure) => asRecord(failure))
+    .find((failure) => failure?.error_code === v6FailureCode);
+  expect(actualFailure?.error_message).toBe(v6FailureMessage);
 
   await page.goto(`/runs/${encodeURIComponent(v6RunId as string)}/overview`);
   await waitForDashboardSurface(page, "run-overview");
-  await expect(page.getByTestId("overview-candidate-simulation")).toBeVisible();
   await expect(
-    page.getByTestId("overview-acquisition-history-limitation"),
-  ).toHaveText("acquisition_n4_source_not_established");
+    page.getByTestId("overview-generic-cycle-simulation"),
+  ).toBeVisible();
+  await expect(
+    page.getByTestId("overview-generic-cycle-simulation-result-ref"),
+  ).toHaveText(v6ResultRef as string);
+  const visibleFailure = page.getByTestId(
+    "overview-generic-cycle-failed-branches",
+  );
+  await expect(visibleFailure).toContainText(v6FailureCode as string);
+  await expect(visibleFailure).toContainText(v6FailureMessage as string);
+
+  const v7RunId = metadata.source_bound_v7_run_id;
+  const v7JobId = metadata.source_bound_v7_control_job_id;
+  const v7JobState = metadata.source_bound_v7_control_job_status;
+  const v7BudgetStopRef = metadata.source_bound_v7_budget_stop_node_ref;
+  const v7ChildCount = Number(metadata.source_bound_v7_child_count);
+  expect(v7RunId).toBeTruthy();
+  expect(v7JobId).toBeTruthy();
+  expect(v7JobState).toBe("completed");
+  expect(v7BudgetStopRef).toBeTruthy();
+  expect(v7ChildCount).toBe(2);
+
+  const v7JobResponse = await freshGet(
+    page,
+    `/api/v1/control/jobs/${encodeURIComponent(v7JobId as string)}`,
+  );
+  expect(v7JobResponse.status).toBe(200);
+  const v7Job = asRecord(v7JobResponse.payload);
+  expect(v7Job).toMatchObject({ job_id: v7JobId, state: "completed" });
+  const v7JobProgress = asRecord(v7Job?.progress);
+  expect(v7JobProgress?.recursive_budget_resolution).toEqual({
+    requested_max_iterations: 1,
+    effective_max_iterations: 1,
+    recursive_budget: {
+      max_depth: 1,
+      max_nodes: 3,
+      min_cycles_per_leaf: 1,
+      max_cycles_per_leaf: 1,
+    },
+    clamp_reason: "none",
+    requested_candidate_children: 2,
+    effective_candidate_children: 2,
+    child_budget_profile: "n4-source-complete-child-set.v1",
+  });
+
+  const v7Response = await freshGet(
+    page,
+    "/api/v1/runs/" + encodeURIComponent(v7RunId as string),
+  );
+  expect(v7Response.status).toBe(200);
+  const v7Projection = asRecord(
+    asRecord(asRecord(v7Response.payload)?.run)?.generic_cycle_simulation,
+  );
+  expect(v7Projection).toMatchObject({
+    artifact_status: "resolved",
+    authority_purpose: "cycle_input_candidate_only",
+    publication_authority: false,
+    currentness_status: "not_established",
+    child_profile_status: "resolved",
+  });
+  const v7ChildBindings = Array.isArray(v7Projection?.child_profile_bindings)
+    ? v7Projection.child_profile_bindings
+        .map((binding) => asRecord(binding))
+        .filter((binding): binding is JsonRecord => binding !== null)
+    : [];
+  const v7ChildNodeRefs = v7ChildBindings
+    .map((binding) => binding.node_ref)
+    .filter((nodeRef): nodeRef is string => typeof nodeRef === "string")
+    .sort();
+  expect(v7ChildNodeRefs).toHaveLength(v7ChildCount);
+  expect(new Set(v7ChildNodeRefs).size).toBe(v7ChildCount);
+
+  const v7Checkpoint = asRecord(v7Projection?.recursive_cycle_checkpoint);
+  expect(v7Checkpoint).toMatchObject({
+    schema_version: "policyos.runtime.recursive_cycle_checkpoint.v1",
+    status: "partial",
+    publication_authority: false,
+    budget_stop_node_ref: v7BudgetStopRef,
+    root_n9_status: "not_run",
+    failed_branches: [],
+  });
+  const v7PendingFrontier = Array.isArray(v7Checkpoint?.pending_frontier)
+    ? v7Checkpoint.pending_frontier.filter(
+        (nodeRef): nodeRef is string => typeof nodeRef === "string",
+      )
+    : [];
+  const v7CompletedRefs = Array.isArray(v7Checkpoint?.completed_design_refs)
+    ? v7Checkpoint.completed_design_refs.filter(
+        (nodeRef): nodeRef is string => typeof nodeRef === "string",
+      )
+    : [];
+  expect(v7PendingFrontier).toHaveLength(1);
+  expect([...v7PendingFrontier].sort()).toEqual(
+    v7ChildNodeRefs.filter((nodeRef) => nodeRef !== v7BudgetStopRef).sort(),
+  );
+  expect(v7CompletedRefs).toContain(v7BudgetStopRef);
+  const v7LeafTerminalKinds = asRecord(v7Checkpoint?.leaf_terminal_kinds);
+  expect(v7LeafTerminalKinds?.[v7BudgetStopRef as string]).toBe(
+    "budget_exhausted",
+  );
+
+  await page.goto(
+    "/runs/" + encodeURIComponent(v7RunId as string) + "/overview",
+  );
+  await waitForDashboardSurface(page, "run-overview");
+  const visibleBudgetCheckpoint = page.getByTestId(
+    "overview-recursive-checkpoint",
+  );
+  await expect(visibleBudgetCheckpoint).toContainText(
+    "Root outcome remains pending.",
+  );
+  await expect(visibleBudgetCheckpoint).toContainText(
+    v7BudgetStopRef as string,
+  );
+  await expect(visibleBudgetCheckpoint).toContainText("budget_exhausted");
+  await expect(visibleBudgetCheckpoint).toContainText(
+    v7PendingFrontier[0] as string,
+  );
 });
 
 test("switches profile-qualified artifact views and refuses mismatched or absent profiles", async ({

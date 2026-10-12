@@ -76,6 +76,25 @@ describe("ChatContainer", () => {
     useClerkNlRunMock.mockReturnValue({
       isLoading: false,
       submit: vi.fn(),
+      recovery: {
+        data: {
+          record: {
+            scopeKey: "c".repeat(64),
+            scopeSha256: "c".repeat(64),
+            bodySha256: "d".repeat(64),
+            idempotencyKey: null,
+            attemptId: "a".repeat(32),
+            status: "settled",
+            runId: "run-recovered",
+            jobId: null,
+            producerEventIds: ["producer-cost-event"],
+            lastSequence: 2,
+            updatedAt: "2026-10-12T10:00:00Z",
+          },
+          attempt: null,
+        },
+        error: null,
+      },
     });
     useConversationContextMock.mockReturnValue({
       contextualSuggestions: ["Follow up on transport readiness"],
@@ -91,5 +110,12 @@ describe("ChatContainer", () => {
     expect(screen.getByText("shell.header.shellLite")).toBeInTheDocument();
     expect(screen.getByText("clerk.newAnalysis")).toBeInTheDocument();
     expect(screen.getByText("clerk.welcomeTitle")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("control-pre-admission-recovery"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("pre-admission-recovery-status"),
+    ).toHaveTextContent("settled");
+    expect(screen.getByText("producer-cost-event")).toBeInTheDocument();
   });
 });

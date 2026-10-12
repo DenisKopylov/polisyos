@@ -6,7 +6,13 @@ import pytest
 from polisyos.foundry.methods.catalog.causal import gcm_fit as gcm_fit_module
 from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit, _pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    UnsupportedGraphProjectionError,
+)
 from polisyos.ir.analytics.structural_causal_model import MechanismFamily, MechanismSource
 
 
@@ -76,6 +82,10 @@ def test_hybrid_scm_fit_assigns_all_mechanism_sources(monkeypatch) -> None:
     assert mechanisms["C"].literature_prior["B"]["mean"] == 0.8
     assert scm_spec.fit_method == "native_hybrid"
     assert scm_spec.fit_metrics["dowhy_available"] == 0.0
+    assert scm_spec.source_graph == graph
+    assert scm_spec.source_graph_ref is None
+    assert scm_spec.graph_projection is not None
+    assert scm_spec.graph_projection.status.value == "identity"
     assert result["warnings"]
 
 
@@ -117,7 +127,7 @@ def test_hybrid_scm_fit_marks_hybrid_fallback_for_invalid_prior(monkeypatch) -> 
     assert mechanism_y.family_params.get("hybrid_fallback") == "nonlinear_not_supported_phase10"
 
 
-def test_hybrid_scm_fit_pag_u_node_does_not_crash_and_sets_sensitivity(monkeypatch) -> None:
+def test_hybrid_scm_fit_refuses_unadmitted_pag_profile_before_fitting(monkeypatch) -> None:
     def _raise_import_error():
         raise ModuleNotFoundError("No module named 'dowhy'")
 
@@ -142,13 +152,61 @@ def test_hybrid_scm_fit_pag_u_node_does_not_crash_and_sets_sensitivity(monkeypat
         graph=graph,
     )
 
-    result = HybridSCMFit.pure_step(payload, params={"fit_backend": "native_hybrid", "latent_sensitivity_threshold": 0.3})
-    scm_spec = result["scm_spec"]
-    assert result["latent_vars"] == ["U_0"]
-    assert scm_spec.graph.graph_type is GraphType.DAG
+    source = graph.model_dump(mode="json")
+    with pytest.raises(UnsupportedGraphProjectionError) as caught:
+        HybridSCMFit.pure_step(
+            payload,
+            params={"fit_backend": "native_hybrid", "latent_sensitivity_threshold": 0.3},
+        )
 
-    latent_affected = [
-        item for item in scm_spec.mechanisms if item.sensitivity_to_latent is not None
-    ]
-    assert latent_affected
-    assert scm_spec.fit_metrics["unstable_due_to_latent"] == 1.0
+    assert caught.value.reason_code == "partial_graph_endpoint_profile_not_admitted"
+    assert graph.model_dump(mode="json") == source
+
+
+def test_native_hybrid_projection_preserves_source_and_refuses_unresolved_profile():
+    rows = np.asarray([[1.0, 2.0], [2.0, 4.0], [3.0, 6.0], [4.0, 8.0]])
+    directed_pag = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+    result = HybridSCMFit.pure_step(
+        SCMFitData(
+            data=rows,
+            column_names=["X", "Y"],
+            graph=directed_pag,
+            graph_ref="graph-ref",
+        ),
+        params={"fit_backend": "native_hybrid"},
+    )
+    spec = result["scm_spec"]
+    assert spec.source_graph == directed_pag
+    assert spec.source_graph_ref == "graph-ref"
+    assert spec.graph_projection is not None
+    assert spec.graph_projection.source_graph_sha256
+    assert spec.graph_projection.status.value == "projected"
+
+    unresolved = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+    with pytest.raises(ValueError, match="partial_graph_endpoint_profile_not_admitted"):
+        HybridSCMFit.pure_step(
+            SCMFitData(data=rows, column_names=["X", "Y"], graph=unresolved),
+            params={"fit_backend": "native_hybrid"},
+        )

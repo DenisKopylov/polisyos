@@ -31,10 +31,7 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import (
-    fingerprint_paths,
-    load_json,
-)
+from polisyos.data_forge.domains.catalog.batch.checkpoints import fingerprint_paths
 from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
     _ConnectorSessionCache,
     _ObservationCapabilityCache,
@@ -768,12 +765,19 @@ async def _ingest_catalog_observations_parallel(
     config: DatasetBatchConfig,
 ) -> CoreSourcesIngestStats:
     stats = CoreSourcesIngestStats()
+    __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
     if not plans:
         return stats
 
     cache = _ConnectorSessionCache()
     fetch_deduper = _ObservationFetchDeduper()
     checkpoint_state = _load_observation_checkpoint_state(config)
+    profile_input_currentness = str(
+        checkpoint_state.get("core_profile_input_currentness") or "legacy_unknown"
+    )
+    input_basis_identity = str(
+        checkpoint_state.get("core_profile_input_basis_identity") or "legacy_unknown"
+    )
     completed = checkpoint_state["completed"]
     failed = checkpoint_state["failed"]
     deferred = checkpoint_state["deferred"]
@@ -1361,7 +1365,14 @@ async def _ingest_catalog_observations_parallel(
     for shard in ordered_work_packages:
         if shard.phase not in selected_phases:
             continue
-        if _shard_completed(config, shard, completed=completed, failed=failed, deferred=deferred):
+        if _shard_completed(
+            config,
+            shard,
+            completed=completed,
+            failed=failed,
+            deferred=deferred,
+            profile_input_currentness=profile_input_currentness,
+        ):
             continue
         source = shard.plan.source
         policy = source_policies[source]
@@ -1677,6 +1688,7 @@ async def _ingest_catalog_observations_parallel(
                         async_fetch_leases=async_fetch_leases,
                         record_result=_record_fetch_metrics,
                         budget_wait_observer=_record_budget_block,
+                        input_basis_identity=input_basis_identity,
                     )
                     row_limit = (
                         _observation_payload_row_limit(shard.plan)
@@ -1893,7 +1905,16 @@ async def _ingest_catalog_observations_legacy(
 ) -> CoreSourcesIngestStats:
     stats = CoreSourcesIngestStats()
     cache = _ConnectorSessionCache()
-    checkpoint_payload = load_json(config.observation_ingest_checkpoint_path, default={})
+    __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
+    checkpoint_payload = __resolve_implementation_dependency(
+        "_load_observation_checkpoint_state", "validators"
+    )(config)
+    profile_input_currentness = str(
+        checkpoint_payload.get("core_profile_input_currentness") or "legacy_unknown"
+    )
+    input_basis_identity = str(
+        checkpoint_payload.get("core_profile_input_basis_identity") or "legacy_unknown"
+    )
     completed = (
         checkpoint_payload.get("completed", {}) if isinstance(checkpoint_payload, dict) else {}
     )
@@ -1920,7 +1941,12 @@ async def _ingest_catalog_observations_legacy(
             while shard_queue:
                 shard = shard_queue.popleft()
                 if _shard_completed(
-                    config, shard, completed=completed, failed=failed, deferred=deferred
+                    config,
+                    shard,
+                    completed=completed,
+                    failed=failed,
+                    deferred=deferred,
+                    profile_input_currentness=profile_input_currentness,
                 ):
                     continue
                 try:
@@ -1943,6 +1969,7 @@ async def _ingest_catalog_observations_legacy(
                         fetch_deduper=fetch_deduper,
                         budget_windows=budget_windows,
                         state_lock=state_lock,
+                        input_basis_identity=input_basis_identity,
                     )
                 except Exception as exc:
                     split_shards = _split_shard_for_retry(shard, exc)
@@ -2105,6 +2132,7 @@ async def _fetch_observation_rows_with_retries(
     async_fetch_leases: dict[str, Any] | None = None,
     record_result: _RecordResult | None = None,
     budget_wait_observer: _BudgetWaitObserver | None = None,
+    input_basis_identity: str | None = None,
 ) -> list[dict[str, Any]]:
     attempts = 0
     fetch_key = ObservationFetchKey(
@@ -2118,6 +2146,12 @@ async def _fetch_observation_rows_with_retries(
         ),
         start_year=shard.start_year,
         end_year=shard.end_year,
+        profile_id=str(shard.plan.profile_id or ""),
+        input_basis_identity=(
+            str(config.run_signature or "")
+            if input_basis_identity is None
+            else input_basis_identity
+        ),
     )
     while True:
         try:

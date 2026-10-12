@@ -4,7 +4,7 @@
 dynamics, population turnover, graph spillovers, distribution-aware metrics,
 and training-heavy policy simulation workflows.
 
-- Last updated: 2026-05-05
+- Last updated: 2026-10-12
 
 Truth-centric synthetic world generation now lives in
 `polisyos.foundry.agent_sim.world`. First-party behavior tests and examples use
@@ -16,6 +16,26 @@ Use `agent_sim` when a Foundry workflow needs endogenous agent behavior rather
 than only patch-first mechanism execution over the compile/execute state
 contract. This package owns the standalone ABM/RL state, executor variants,
 training helpers, and contract-aware wiring adapters.
+
+Classical Gini uses the finite, nonnegative values on active rows; inactive
+padding is excluded. The opt-in Economics training profile checks both active
+wealth and income at each projection boundary and carries a terminal refusal
+through the native training scan before optimizer or artifact output. The
+`TrainingConfig.gini_population_profile` selector is a source-defined enum;
+the legacy `track_active_wealth` flag remains wealth-only unless the selected
+profile is enabled. General signed-resource simulation remains available when
+that profile is not selected. Economics artifacts store the selected profile
+in schema 1.1; legacy profileless schema 1.0 artifacts remain readable. CAS
+writers encode finite floating training metrics as canonical Decimal values in
+a manifest-only copy before writing either object; runtime artifact values are
+unchanged. The writer validates every required and optional TrainingMetrics
+field before either write, while schema 1.0/1.1 readers preserve declared
+runtime types and normalize numeric float fields to Python floats. The
+legacy numeric-string read cast remains limited to training_steps. A
+schema-1.0 manifest with the entire metrics block absent keeps its historical
+placeholder defaults; those values are not evidence of observed training
+metrics. When a metrics block is present, required fields are strict, while
+optional fields may be absent or explicit nulls.
 
 ## Where to Start
 

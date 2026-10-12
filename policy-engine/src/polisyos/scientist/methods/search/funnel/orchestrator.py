@@ -40,7 +40,11 @@ from polisyos.scientist.methods.search.sentinels import (
 )
 from polisyos.scientist.methods.search.stages import CorrelationTracker
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
-from polisyos.scientist.methods.search.uncertainty import load_search_uncertainty_observation
+from polisyos.scientist.methods.search.uncertainty import (
+    load_search_uncertainty_observation,
+    load_source_bound_risk_observation,
+    persist_source_bound_risk_observation,
+)
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     PredictiveVOIScheduler,
@@ -313,6 +317,24 @@ class FunnelOrchestrator:
                 previous_ticket.is_terminal and previous_ticket.final_action in _CONTINUABLE_ACTIONS
             ):
                 ticket.continuation_reason = "effective_context_changed"
+        store = ticket.context.get("store")
+        candidate_ref = ticket.context.get("policy_candidate_ref")
+        welfare_ref = ticket.context.get("welfare_bundle_ref")
+        if (
+            store is not None
+            and isinstance(candidate_ref, ArtifactRef)
+            and isinstance(welfare_ref, ArtifactRef)
+        ):
+            try:
+                ticket.context["welfare_candidate_observation_ref"] = (
+                    persist_source_bound_risk_observation(
+                        store, candidate_ref=candidate_ref, welfare_bundle_ref=welfare_ref
+                    )
+                )
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                logger.info(
+                    "Candidate welfare observation withheld: %s", type(exc).__name__
+                )
         self._tickets[ticket.ticket_id] = ticket
         self._latest_ticket_by_candidate[candidate_hash] = ticket.ticket_id
         self._latest_ticket_by_context[continuation_key] = ticket.ticket_id
@@ -569,6 +591,25 @@ class FunnelOrchestrator:
                 if result is resolved_ticket.last_result:
                     outcome_stage_results[level] = final_result
                     break
+
+        welfare_observation_ref = resolved_ticket.context.get(
+            "welfare_candidate_observation_ref"
+        )
+        if (
+            store is not None
+            and isinstance(subject_ref, ArtifactRef)
+            and isinstance(welfare_observation_ref, ArtifactRef)
+        ):
+            try:
+                load_source_bound_risk_observation(
+                    store, welfare_observation_ref, subject_ref
+                )
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                logger.info(
+                    "Candidate welfare observation readback withheld: %s", type(exc).__name__
+                )
+            else:
+                audit_refs.append(welfare_observation_ref)
 
         aggregate_cost_usd, aggregate_cost_origin = _aggregate_funnel_cost(resolved_ticket.trace)
         return FunnelOutcome(

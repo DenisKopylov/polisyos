@@ -9,10 +9,17 @@ import numpy as np
 import pytest
 from pydantic import TypeAdapter
 
+import polisyos.foundry.calibration.calibrator as calibrator_module
 import polisyos.scientist.nodes.builtins.simulate.propagate_welfare as propagate_welfare_module
 import polisyos.scientist.nodes.builtins.simulate.welfare_draws as welfare_draws_module
 import polisyos.scientist.nodes.builtins.simulate.welfare_types as welfare_types_module
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts import (
+    input_ref_from_artifact_ref,
+    resolve_dependency_graph,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -1041,7 +1048,27 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
     )
     assert malformed_outcome.status == "fail"
     assert malformed_outcome.error is not None
-    assert malformed_outcome.error.code == "ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID"
+    assert malformed_outcome.error.code == "ERROR_WELFARE_GLOBAL_EVALUATION_FAILURE"
+    assert malformed_outcome.error.details["failure_scope"] == "global"
+    assert malformed_outcome.error.details["failure_stage"] == "sample_generation"
+    assert malformed_outcome.error.details["draw_index"] == 0
+    assert malformed_outcome.error.details["sampled_input_sha256"] is None
+    assert malformed_outcome.error.details["execution_attempt_count"] == 0
+    assert malformed_outcome.error.details["execution_attempts"] == []
+    assert malformed_outcome.error.details["attempted_draw_count"] == 1
+    assert malformed_outcome.error.details["simulation_attempt_count"] == 0
+    assert malformed_outcome.error.details["retry_attempt_count"] == 0
+    assert malformed_outcome.error.details["error_type"] == "_WelfareNodeFailure"
+    assert malformed_outcome.error.details["error_message"] == (
+        "Welfare input uncertainty does not declare a usable scale"
+    )
+    assert malformed_outcome.error.details["cause_type_chain"] == [
+        "_WelfareNodeFailure",
+        "ValueError",
+    ]
+    assert malformed_outcome.error.details["cause_chain_complete"] is True
+    assert malformed_outcome.error.details["cause_chain_cycle_detected"] is False
+    assert ARTIFACT_WELFARE_BUNDLE_REF not in malformed_outcome.state.artifacts_index
 
     mixed_run_id = "R_welfare_typed_scale_mixed_inputs"
     mixed_run = RunContext.start(
@@ -1078,6 +1105,8 @@ def _run_b197_tied_calibrator(
     store: FileSystemCAS,
     *,
     incomplete_projection: bool = False,
+    seed_competing_profile: bool = False,
+    caller_configs: list[CalibrationConfig] | None = None,
 ) -> tuple[ArtifactRef, CalibrationReport]:
     dummy_id = ArtifactID.from_sha256_hex("0" * 64)
     graph_ref = ArtifactRef(
@@ -1134,7 +1163,28 @@ def _run_b197_tied_calibrator(
         seed=0,
         hessian={"enabled": True, "damping": 1e-6},
     )
-    config_ref = put_calibration_config(store, config)
+    config_before_run = config.model_copy(deep=True)
+    if caller_configs is not None:
+        caller_configs.append(config)
+    if seed_competing_profile:
+        profile_control_ref = store.put_bytes(
+            b"b197 config manifest profile control",
+            PutOptions(
+                kind="test.calibration_config_profile_control",
+                media_type="application/octet-stream",
+            ),
+        )
+        seeded_config_ref = put_calibration_config(
+            store,
+            config,
+            inputs=[
+                input_ref_from_artifact_ref(
+                    profile_control_ref,
+                    role="test_profile_collision_control",
+                )
+            ],
+        )
+        assert seeded_config_ref.manifest_profile_sha256 is None
     inputs = CalibratorInputs(
         config=config,
         program_graph=graph,
@@ -1152,7 +1202,8 @@ def _run_b197_tied_calibrator(
         controls_seq=jnp.arange(1),
     )
 
-    report = Calibrator(inputs).run()
+    artifact_ids_before_run = {str(item) for item in store.iter_artifact_ids()}
+    report, report_ref = Calibrator(inputs).run_and_persist(store)
     assert report.uncertainties is not None
     if incomplete_projection:
         assert report.coordinate_projection is None
@@ -1171,16 +1222,36 @@ def _run_b197_tied_calibrator(
         rel=1e-4,
     )
 
-    report_ref = put_calibration_report(
-        store,
-        report,
-        inputs=[InputRef(artifact_id=str(config_ref.artifact_id), role="calibration_config")],
-    )
     report_manifest = store.get_manifest(report_ref)
     assert report_manifest.artifact_schema.version == "2.0"
-    assert any(item.role == "calibration_config" for item in report_manifest.inputs)
+    config_inputs = [item for item in report_manifest.inputs if item.role == "calibration_config"]
+    assert len(config_inputs) == 1
+    config_input = config_inputs[0]
+    if seed_competing_profile:
+        assert config_input.manifest_profile_sha256 is not None
+        selected_config_ref = ArtifactRef(
+            artifact_id=config_input.artifact_id,
+            kind="foundry.calibration_config",
+            media_type="application/json",
+            manifest_profile_sha256=config_input.manifest_profile_sha256,
+        )
+        selected_config_manifest = store.get_manifest(selected_config_ref)
+        default_config_manifest = store.get_manifest(config_input.artifact_id)
+        assert selected_config_manifest.inputs == []
+        assert default_config_manifest.inputs[0].role == "test_profile_collision_control"
+    else:
+        assert config_input.manifest_profile_sha256 is None
+    persisted_config_payload = from_canonical_bytes(
+        store.get_bytes(config_input.artifact_id)
+    )
+    assert CalibrationConfig.model_validate(persisted_config_payload) == config_before_run
+    if caller_configs is None:
+        assert config == config_before_run
+    new_artifact_ids = {str(item) for item in store.iter_artifact_ids()} - artifact_ids_before_run
+    assert new_artifact_ids <= {str(config_input.artifact_id), str(report_ref.artifact_id)}
     persisted_payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))
     persisted = CalibrationReport.model_validate(persisted_payload)
+    assert persisted == report
     assert persisted.schema_version == "2.0"
     if incomplete_projection:
         assert persisted.coordinate_projection is None
@@ -1194,6 +1265,122 @@ def _run_b197_tied_calibrator(
         assert persisted.coordinate_projection is not None
         assert persisted.coordinate_projection.field_order == ("A.rate", "B.rate")
     return report_ref, persisted
+
+
+def test_calibrator_preserves_selected_config_profile_through_fresh_consumers(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    registry_ref = build_default_registry_bundle(store).bundle_ref
+    caller_configs: list[CalibrationConfig] = []
+    run_configs: list[CalibrationConfig] = []
+    writer_configs: list[CalibrationConfig] = []
+    config_refs = []
+    run_calls = 0
+    original_run = Calibrator.run
+    original_put_config = calibrator_module.put_calibration_config
+
+    def mutate_caller_then_run(calibrator: Calibrator) -> CalibrationReport:
+        nonlocal run_calls
+        run_calls += 1
+        assert len(caller_configs) == 1
+        caller_configs[0].schema_version = "9.9"
+        run_configs.append(calibrator.inputs.config.model_copy(deep=True))
+        return original_run(calibrator)
+
+    def capture_config_write(store_arg, config_arg):
+        writer_configs.append(config_arg.model_copy(deep=True))
+        config_ref = original_put_config(store_arg, config_arg)
+        config_refs.append(config_ref)
+        return config_ref
+
+    monkeypatch.setattr(Calibrator, "run", mutate_caller_then_run)
+    monkeypatch.setattr(calibrator_module, "put_calibration_config", capture_config_write)
+    report_ref, report = _run_b197_tied_calibrator(
+        store,
+        seed_competing_profile=True,
+        caller_configs=caller_configs,
+    )
+
+    assert run_calls == 1
+    assert len(config_refs) == 1
+    assert caller_configs[0].schema_version == "9.9"
+    assert run_configs[0].schema_version == "0.1"
+    assert writer_configs[0] == run_configs[0]
+    config_ref = config_refs[0]
+    assert config_ref.manifest_profile_sha256 is not None
+    report_manifest = store.get_manifest(report_ref)
+    config_edges = [item for item in report_manifest.inputs if item.role == "calibration_config"]
+    assert len(config_edges) == 1
+    assert config_edges[0] == input_ref_from_artifact_ref(
+        config_ref,
+        role="calibration_config",
+    )
+    assert config_edges[0].artifact_id == config_ref.artifact_id
+    assert config_edges[0].manifest_profile_sha256 == config_ref.manifest_profile_sha256
+
+    selected_config_manifest = store.get_manifest(config_ref)
+    assert selected_config_manifest.inputs == []
+    persisted_config = CalibrationConfig.model_validate(
+        from_canonical_bytes(store.get_bytes(config_ref.artifact_id))
+    )
+    assert persisted_config == writer_configs[0]
+    exact_lineage = resolve_dependency_graph(store, report_ref)
+    assert exact_lineage.is_complete
+    selected_config_nodes = [
+        node
+        for node in exact_lineage.nodes.values()
+        if str(node.artifact_id) == str(config_ref.artifact_id)
+        and node.role == "calibration_config"
+    ]
+    assert len(selected_config_nodes) == 1
+    assert (
+        selected_config_nodes[0].manifest_profile_sha256
+        == config_ref.manifest_profile_sha256
+    )
+
+    sim_ref = _b197_simulation_result(store)
+    _, welfare_bundle = _run_b197_welfare(
+        store,
+        registry_ref,
+        sim_ref,
+        report_ref,
+        run_id="R_b197_selected_config_profile",
+        method="delta",
+        weights=[1.0, 1.0],
+    )
+    assert welfare_bundle.point_estimate == pytest.approx(2.0)
+
+    profileless_report_ref = put_calibration_report(
+        store,
+        report,
+        inputs=[
+            InputRef(
+                artifact_id=config_ref.artifact_id,
+                role="calibration_config",
+            )
+        ],
+    )
+    assert profileless_report_ref.artifact_id == report_ref.artifact_id
+    assert profileless_report_ref.manifest_profile_sha256 is not None
+    profileless_manifest = store.get_manifest(profileless_report_ref)
+    profileless_edge = next(
+        item for item in profileless_manifest.inputs if item.role == "calibration_config"
+    )
+    assert profileless_edge.artifact_id == config_ref.artifact_id
+    assert profileless_edge.role == "calibration_config"
+    assert profileless_edge.manifest_profile_sha256 is None
+    profileless_lineage = resolve_dependency_graph(store, profileless_report_ref)
+    assert not profileless_lineage.is_complete
+    refused_config_nodes = [
+        node
+        for node in profileless_lineage.nodes.values()
+        if str(node.artifact_id) == str(config_ref.artifact_id)
+        and node.role == "calibration_config"
+    ]
+    assert len(refused_config_nodes) == 1
+    assert refused_config_nodes[0].status.value == "missing_manifest"
 
 
 def test_unassigned_calibration_field_stays_typed_partial_at_welfare_boundary(tmp_path) -> None:
@@ -1675,7 +1862,9 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         calibration_distribution = calibration_envelope.distribution_payload
         assert isinstance(calibration_distribution, ParametricFitCarrier)
         calibration_std = float(calibration_distribution.parameters["std"])
-        expected_pairs = [("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0))]
+        expected_pairs = [
+            ("A.rate", "B.rate", 0.5 * calibration_std / math.sqrt(12.0), 1e-12)
+        ]
     else:
         normal = UncertaintyEnvelope(
             point_estimate=0.5,
@@ -1707,9 +1896,16 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
             ],
             parameter_order=["A.rate", "B.rate", "C.rate"],
         )
+        # The report-derived A.rate marginal is produced in JAX float32 and
+        # later projected as float64; its source precision bounds this tiny pair.
         expected_pairs = [
-            ("A.rate", "C.rate", -3.2698671302839551e-18),
-            ("B.rate", "C.rate", 0.5 * 0.1 / math.sqrt(12.0)),
+            (
+                "A.rate",
+                "C.rate",
+                -3.2698671302839551e-18,
+                float(np.finfo(np.float32).eps),
+            ),
+            ("B.rate", "C.rate", 0.5 * 0.1 / math.sqrt(12.0), 1e-12),
         ]
     sim_ref = _b197_simulation_result(store)
 
@@ -1746,14 +1942,15 @@ def test_welfare_withholds_mixed_marginal_pearson_covariance(
         for pair in resolution["nonzero_covariance_pairs"]
     }
     expected_pair_map = {
-        (left, right): covariance_value for left, right, covariance_value in expected_pairs
+        (left, right): (covariance_value, relative_tolerance)
+        for left, right, covariance_value, relative_tolerance in expected_pairs
     }
     assert set(observed_pairs) == set(expected_pair_map)
-    for pair, covariance_value in expected_pair_map.items():
+    for pair, (covariance_value, relative_tolerance) in expected_pair_map.items():
         assert observed_pairs[pair] == pytest.approx(
             covariance_value,
-            rel=1e-12,
-            abs=1e-30,
+            rel=relative_tolerance,
+            abs=0.0,
         )
     assert resolution["dependence_structure_ref"] == str(dependence_ref.artifact_id)
 
@@ -2815,8 +3012,14 @@ def test_welfare_uses_weighted_empirical_atoms_through_fresh_cas_consumer(
         weights=(9.0, 1.0),
     )
 
-    def build_empirical_simulation_fn(_ctx, *, context, available_envelopes):
-        del context
+    def build_empirical_simulation_fn(
+        _ctx,
+        *,
+        context,
+        available_envelopes,
+        ge_condition_number_threshold: float,
+    ):
+        del context, ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"C.rate"}
 
         def simulation_fn(**params: float) -> dict[str, float]:
@@ -2916,8 +3119,14 @@ def test_welfare_preserves_only_declared_shared_empirical_rows(
         ),
     }
 
-    def build_empirical_simulation_fn(_ctx, *, context, available_envelopes):
-        del context
+    def build_empirical_simulation_fn(
+        _ctx,
+        *,
+        context,
+        available_envelopes,
+        ge_condition_number_threshold: float,
+    ):
+        del context, ge_condition_number_threshold
         assert set(available_envelopes.envelopes) == {"A.rate", "B.rate"}
 
         def simulation_fn(**params: float) -> dict[str, float]:

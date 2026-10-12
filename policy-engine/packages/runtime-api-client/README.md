@@ -182,3 +182,6 @@ generated types by hand.
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
 Last updated: 2026-10-10
+
+The generated runs operation group also includes POST and GET for the run-bound predictive-calibration candidate diagnostic. Regenerate both client surfaces from the OpenAPI schema after changing its request or response contract; the client is transport only and carries no predictive or causal authority.
+

@@ -1822,7 +1822,11 @@ class NaturalLanguageRunMixin:
                 "llm_model_unconfigured",
                 "A configured LLM model is required for the production NL path.",
             )
-        result = self._execute_nl_pipeline_impl(
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        result = run_catalog_source_call(
+            getattr(self, "_catalog_serving_source", None),
+            self._execute_nl_pipeline_impl,
             run_id=run_id,
             nl_request=nl_request,
             context=context,
@@ -5389,15 +5393,12 @@ class NaturalLanguageRunMixin:
 
                 try:
                     from polisyos.data_forge.read_api import catalog as catalog_read_api
-                    from polisyos.runtime.quality.substrate_registry import (
-                        default_substrate_catalog_paths,
-                    )
 
-                    catalog_paths = default_substrate_catalog_paths(Path.cwd())
+                    source = self._catalog_serving_source
                     retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
-                        catalog_paths.l1_dcat_path,
-                        catalog_paths.l1_dcat_path.parent,
-                        overlay_path=catalog_read_api.default_acquisition_overlay_path(Path.cwd()),
+                        source.database_path,
+                        source.index_dir,
+                        overlay_path=source.overlay_path,
                     )
                     retrieval = RetrievalService(
                         curated_dir=curated_dir,

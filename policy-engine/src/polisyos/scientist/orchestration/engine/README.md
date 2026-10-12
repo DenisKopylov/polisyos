@@ -364,6 +364,34 @@ methods refuse bounded execution rather than claiming a thread is a killable
 worker. These profiles do not establish a generic timeout capability for all
 nodes or stores.
 
+## Canonical node-cache mutation comparison
+
+The synchronous and asynchronous executors share one cache reader. Before a
+cache hit is replayed, the current live journal and the persisted entry are
+compared as the complete ordered StateMutation sequence using the journal's
+canonical JSON codec. This makes typed ArtifactRef values compare with their
+CAS-loaded mapping form while retaining path, operation, operation group,
+field-presence, boolean/integer, and typed-float distinctions. Tuples and lists
+share JSON array semantics at this persistence boundary.
+
+Current journal version 1.2 requires every mutation field to be present in both
+the in-memory and persisted operation. Legacy 1.0 and 1.1 keep their existing
+narrow primitive replay rule. Unsupported or malformed operations remain cache
+misses; proof, run/key, source, scope, and currentness checks are unchanged.
+Journaled state models also retain value equality with their original typed
+model: wrapper and source must have the same original type and recursively equal
+complete field values, with booleans distinct from integers. Mutation tracking
+stays attached to the wrapper. Non-empty private or extra model state remains
+refused at admission. The candidate newly refuses original models that define
+custom `__eq__` or `__ne__` hooks through the ordinary-hook admission check;
+the pre-candidate hook check did not reject those methods. This is a bounded
+input-compatibility change: callers that relied on journaling such models must
+migrate to a model whose ordinary equality reflects the full admitted fields,
+or keep those values outside journaled state branches. The existing typed
+`TypeError` admission refusal applies; no cache schema or journal-version
+migration is involved. These internal behaviors do not establish source
+authenticity or scientific output validity.
+
 ## Last Updated
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-12

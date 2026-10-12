@@ -1,15 +1,365 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts._transfer_ops import ImportReport
+from polisyos.core.artifacts.graph import resolve_dependency_graph
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    InputRef,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import _cli_replay
+from polisyos.scientist.replay.deterministic import completeness_check
 from tools.ops_runners.runtime_cli import main
+
+
+def _build_replay_bundle(
+    store: FileSystemCAS,
+    bundle_path: Path,
+    *,
+    run_id: str,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+) -> tuple[ArtifactRef, set[str]]:
+    """Build a replay packet and export its real selected CAS dependency graph."""
+    tenant_context = (
+        ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+        if tenant_id is not None
+        else None
+    )
+    artifact_inputs = {
+        "registry_bundle_ref": ("core.registry_bundle", {"registry": {}, "run_id": run_id}),
+        "input_bindings_ref": ("foundry.input_bindings", {"bindings": [], "run_id": run_id}),
+        "state_snapshot_ref": ("foundry.state_snapshot", {"state": {}, "run_id": run_id}),
+        "exec_plan_ref": ("foundry.exec_plan", {"order": [], "run_id": run_id}),
+        "lowered_ir_ref": ("foundry.lowered_ir", {"nodes": [], "run_id": run_id}),
+    }
+    refs = {
+        role: store.put_json(
+            payload,
+            PutOptions(
+                kind=kind, media_type="application/json", tenant_context=tenant_context
+            ),
+        )
+        for role, (kind, payload) in artifact_inputs.items()
+    }
+    packet_ref = store.put_json(
+        {
+            "schema_version": "3.0",
+            "run_id": run_id,
+            "seed": 123,
+            "inputs": {
+                "registry_bundle_ref": str(refs["registry_bundle_ref"].artifact_id),
+                "input_bindings_ref": str(refs["input_bindings_ref"].artifact_id),
+                "state_snapshot_ref": str(refs["state_snapshot_ref"].artifact_id),
+            },
+            "artifacts": {
+                "exec_plan_ref": str(refs["exec_plan_ref"].artifact_id),
+                "lowered_ir_ref": str(refs["lowered_ir_ref"].artifact_id),
+            },
+        },
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            tenant_context=tenant_context,
+            inputs=[InputRef(artifact_id=ref.artifact_id, role=role) for role, ref in refs.items()],
+        ),
+    )
+    graph = resolve_dependency_graph(store, packet_ref.artifact_id)
+    expected_ids = {str(artifact_id) for artifact_id in graph.all_artifact_ids()}
+    export_report = store.export_subgraph(graph.all_artifact_ids(), bundle_path, compress=False)
+    assert export_report.exported_artifacts == len(expected_ids)
+    assert not export_report.missing_artifacts
+    return packet_ref, expected_ids
+
+
+def _run_existing_store_export(
+    *,
+    store: FileSystemCAS,
+    packet_id: ArtifactID,
+    report: ImportReport,
+    export_path: Path,
+    as_json: bool,
+) -> int:
+    """Exercise the actual replay consumer with a real report and existing CAS."""
+    return _cli_replay._cmd_replay_with_store(
+        args=SimpleNamespace(export=str(export_path), check_only=False, json=as_json),
+        store=store,
+        packet_ref=packet_id,
+        completeness_check=completeness_check,
+        VerificationConfig=None,
+        VerificationMode=None,
+        ReplayStrategy=None,
+        import_report=report,
+    )
+
+
+def _payload_ref_ids(payload: dict[str, object], field: str) -> set[str]:
+    report_payload = payload["bundle_import"]
+    assert isinstance(report_payload, dict)
+    refs = report_payload[field]
+    assert isinstance(refs, list)
+    return {str(ref["artifact_id"]) for ref in refs if isinstance(ref, dict)}
+
+
+def _persisted_snapshot(root: Path) -> dict[str, bytes]:
+    """Capture all persisted CAS members, claims, and owner generations."""
+    return {
+        str(path.relative_to(root)): path.read_bytes()
+        for path in root.rglob("*")
+        if path.is_file() and not path.name.endswith(".lock")
+    }
+
+
+@pytest.mark.parametrize("as_json", [True, False])
+def test_bundle_cli_exports_actual_import_report_and_selected_graph(
+    tmp_path: Path, capsys, as_json: bool
+) -> None:
+    """Bundle import, report production, CLI projection, and re-import use real CAS APIs."""
+    source = FileSystemCAS(tmp_path / "source")
+    packet_ref, expected_ids = _build_replay_bundle(
+        source, tmp_path / "bundle", run_id="B148_valid_export"
+    )
+    export_path = tmp_path / "cli-export.tar.gz"
+    argv = ["replay", str(packet_ref.artifact_id), "--bundle", str(tmp_path / "bundle"),
+            "--export", str(export_path)]
+    if as_json:
+        argv.append("--json")
+
+    exit_code = main(argv)
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    if as_json:
+        payload = json.loads(captured.out)
+        report_payload = payload["bundle_import"]
+        assert payload["exported_artifacts"] == len(expected_ids)
+        assert payload["missing_artifacts"] == []
+        assert payload["missing_manifests"] == []
+        assert report_payload["imported_artifacts"] == len(expected_ids)
+        assert report_payload["received_artifact_ids"] == sorted(expected_ids)
+        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert _payload_ref_ids(payload, "published_refs") == expected_ids
+        assert _payload_ref_ids(payload, "reused_refs") == set()
+        assert _payload_ref_ids(payload, "integrity_verified_refs") == set()
+        assert report_payload["integrity_verification_requested"] is False
+        assert report_payload["verification_failed"] == []
+        assert report_payload["disposition_basis"] == "durable_owner_manifest_stage_intent"
+    else:
+        assert f"exported={len(expected_ids)}" in captured.out
+        assert f"published_views={len(expected_ids)} reused_views=0" in captured.out
+        assert "integrity=not_requested:0" in captured.out
+        assert "verification_failed=0" in captured.out
+        assert "disposition_basis=durable_owner_manifest_stage_intent" in captured.out
+
+    readback = FileSystemCAS(tmp_path / "readback")
+    readback_report = readback.import_subgraph(export_path, verify_integrity=True)
+    assert set(readback_report.received_artifact_ids) == expected_ids
+    assert {str(item) for item in readback.iter_artifact_ids()} == expected_ids
+
+
+@pytest.mark.parametrize("as_json", [True, False])
+def test_replay_cli_consumes_real_noop_report_and_selected_input_refs(
+    tmp_path: Path, capsys, monkeypatch: pytest.MonkeyPatch, as_json: bool
+) -> None:
+    """The existing-store consumer renders an exact same-owner no-op report."""
+    context = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
+    source = FileSystemCAS(
+        tmp_path / "source", tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    packet_ref, expected_ids = _build_replay_bundle(
+        source, tmp_path / "bundle", run_id="B148_noop",
+        tenant_id=context.tenant_id, cell_id=context.cell_id,
+    )
+    assert all(
+        source.get_manifest(artifact_id).tenant_context == context
+        for artifact_id in source.iter_artifact_ids()
+    )
+    target = FileSystemCAS(
+        tmp_path / "target", tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    first_report = target.import_subgraph(tmp_path / "bundle", verify_integrity=True)
+    assert {str(ref.artifact_id) for ref in first_report.published_refs} == expected_ids
+    assert first_report.disposition_basis == "durable_owner_manifest_stage_intent"
+    assert all(
+        target.get_manifest(artifact_id).tenant_context == context
+        for artifact_id in target.iter_artifact_ids()
+    )
+    selected_input_ids = {
+        str(item.artifact_id) for item in target.get_manifest(packet_ref.artifact_id).inputs
+    }
+    assert selected_input_ids == expected_ids - {str(packet_ref.artifact_id)}
+
+    before_noop = _persisted_snapshot(target.root)
+    staged: list[Path] = []
+    make_stage = store_module.tempfile.mkdtemp
+
+    def observe_stage(*args: Any, **kwargs: Any) -> str:
+        result = make_stage(*args, **kwargs)
+        if str(kwargs.get("prefix", "")).startswith(".cas-import"):
+            staged.append(Path(result))
+        return result
+
+    monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
+    report = target.import_subgraph(tmp_path / "bundle", verify_integrity=True)
+    assert staged == [], "exact same-owner no-op must not create a private import stage"
+    assert _persisted_snapshot(target.root) == before_noop, (
+        "exact same-owner no-op changed persisted views, claims, or owner generation"
+    )
+    assert report.imported_files == 0
+    assert report.published_refs == ()
+    assert {str(ref.artifact_id) for ref in report.reused_refs} == expected_ids
+    assert {str(ref.artifact_id) for ref in report.integrity_verified_refs} == expected_ids
+    assert report.disposition_basis == "exact_owned_view_admission"
+    assert report.imported_artifacts == len(expected_ids)
+
+    export_path = tmp_path / "noop-reexport.tar.gz"
+    exit_code = _run_existing_store_export(
+        store=target, packet_id=packet_ref.artifact_id, report=report,
+        export_path=export_path, as_json=as_json,
+    )
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    if as_json:
+        payload = json.loads(captured.out)
+        report_payload = payload["bundle_import"]
+        assert payload["exported_artifacts"] == len(expected_ids)
+        assert report_payload["imported_artifacts"] == len(expected_ids)
+        assert report_payload["received_artifact_ids"] == sorted(expected_ids)
+        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert _payload_ref_ids(payload, "published_refs") == set()
+        assert _payload_ref_ids(payload, "reused_refs") == expected_ids
+        assert _payload_ref_ids(payload, "integrity_verified_refs") == expected_ids
+        assert report_payload["integrity_verification_requested"] is True
+        assert report_payload["disposition_basis"] == "exact_owned_view_admission"
+    else:
+        assert f"exported={len(expected_ids)}" in captured.out
+        assert "published_views=0" in captured.out
+        assert f"reused_views={len(expected_ids)}" in captured.out
+        assert f"integrity=requested:{len(expected_ids)}" in captured.out
+        assert "disposition_basis=exact_owned_view_admission" in captured.out
+
+    reopened = FileSystemCAS(
+        target.root, tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    assert {str(item) for item in reopened.iter_artifact_ids()} == expected_ids
+    readback = FileSystemCAS(
+        tmp_path / "noop-readback", tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    readback_report = readback.import_subgraph(export_path, verify_integrity=True)
+    assert set(readback_report.received_artifact_ids) == expected_ids
+
+@pytest.mark.parametrize("as_json", [True, False])
+def test_replay_cli_exports_prior_generation_after_real_import_refusal(
+    tmp_path: Path, capsys, monkeypatch: pytest.MonkeyPatch, as_json: bool
+) -> None:
+    """A corrupt replacement is refused while the prior bound owner view stays readable."""
+    context = ArtifactTenantContextInfo(tenant_id="tenant-a", cell_id="cell-a")
+    source = FileSystemCAS(
+        tmp_path / "source", tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    packet_ref, expected_ids = _build_replay_bundle(
+        source, tmp_path / "bundle", run_id="B148_prior_generation",
+        tenant_id=context.tenant_id, cell_id=context.cell_id,
+    )
+    target = FileSystemCAS(
+        tmp_path / "target", tenant_id=context.tenant_id, cell_id=context.cell_id
+    )
+    initial_report = target.import_subgraph(tmp_path / "bundle", verify_integrity=True)
+    assert {str(ref.artifact_id) for ref in initial_report.published_refs} == expected_ids
+    assert all(
+        target.get_manifest(artifact_id).tenant_context == context
+        for artifact_id in target.iter_artifact_ids()
+    )
+    prior_ids = {str(item) for item in target.iter_artifact_ids()}
+    prior_bytes = target.get_bytes(packet_ref.artifact_id)
+    prior_manifest = target.get_manifest(packet_ref.artifact_id)
+
+    damaged_bundle = tmp_path / "damaged-bundle"
+    shutil.copytree(tmp_path / "bundle", damaged_bundle)
+    inventory_path = damaged_bundle / "export_manifest.json"
+    inventory_before = inventory_path.read_bytes()
+    packet_hex = str(packet_ref.artifact_id).removeprefix("sha256:")
+    damaged_blob = (damaged_bundle / "artifacts" / "sha256" / packet_hex[:2]
+                    / packet_hex[2:4] / f"{packet_hex}.blob")
+    damaged_blob.write_bytes(b"corrupt bytes with the original inventory still present")
+    assert inventory_path.read_bytes() == inventory_before
+
+    before_refusal = _persisted_snapshot(target.root)
+    staged: list[Path] = []
+    make_stage = store_module.tempfile.mkdtemp
+
+    def observe_stage(*args: Any, **kwargs: Any) -> str:
+        result = make_stage(*args, **kwargs)
+        if str(kwargs.get("prefix", "")).startswith(".cas-import"):
+            staged.append(Path(result))
+        return result
+
+    monkeypatch.setattr(store_module.tempfile, "mkdtemp", observe_stage)
+    report = target.import_subgraph(damaged_bundle, verify_integrity=True)
+    assert staged == [], "integrity refusal must happen before private import staging"
+    assert _persisted_snapshot(target.root) == before_refusal, (
+        "refused replacement changed persisted views, claims, or owner generation"
+    )
+    assert report.imported_files == 0
+    assert report.disposition_basis == "received_members_rejected_before_admission"
+    assert report.received_artifact_ids == tuple(sorted(expected_ids))
+    assert report.imported_artifacts == len(expected_ids)
+    assert report.verification_failed == [str(packet_ref.artifact_id)]
+    assert report.published_refs == ()
+    assert report.reused_refs == ()
+    assert {str(item) for item in target.iter_artifact_ids()} == prior_ids
+    assert target.get_bytes(packet_ref.artifact_id) == prior_bytes
+    assert target.get_manifest(packet_ref.artifact_id) == prior_manifest
+
+    export_path = tmp_path / "prior-generation-export.tar.gz"
+    exit_code = _run_existing_store_export(
+        store=target, packet_id=packet_ref.artifact_id, report=report,
+        export_path=export_path, as_json=as_json,
+    )
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    if as_json:
+        payload = json.loads(captured.out)
+        report_payload = payload["bundle_import"]
+        assert payload["exported_artifacts"] == len(expected_ids)
+        assert payload["missing_artifacts"] == []
+        assert report_payload["imported_artifacts"] == len(expected_ids)
+        assert report_payload["received_artifact_ids"] == sorted(expected_ids)
+        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert report_payload["verification_failed"] == [str(packet_ref.artifact_id)]
+        assert _payload_ref_ids(payload, "published_refs") == set()
+        assert _payload_ref_ids(payload, "reused_refs") == set()
+        assert report_payload["disposition_basis"] == "received_members_rejected_before_admission"
+    else:
+        assert f"exported={len(expected_ids)}" in captured.out
+        assert "published_views=0 reused_views=0" in captured.out
+        assert "integrity=requested:0" in captured.out
+        assert "verification_failed=1" in captured.out
+        assert "disposition_basis=received_members_rejected_before_admission" in captured.out
+
+    readback = FileSystemCAS(
+        tmp_path / "prior-generation-readback",
+        tenant_id=context.tenant_id,
+        cell_id=context.cell_id,
+    )
+    readback_report = readback.import_subgraph(export_path, verify_integrity=True)
+    assert set(readback_report.received_artifact_ids) == expected_ids
+    assert {str(item) for item in readback.iter_artifact_ids()} == expected_ids
+
 
 
 def test_replay_export_json_reports_refused_bundle_import(tmp_path: Path, capsys) -> None:
@@ -71,7 +421,7 @@ def test_replay_export_json_reports_refused_bundle_import(tmp_path: Path, capsys
 def test_all_replay_import_surfaces_project_one_typed_report(
     tmp_path: Path, capsys, monkeypatch: pytest.MonkeyPatch, route: str, as_json: bool
 ) -> None:
-    """Every JSON and text route exposes disposition and verification fields."""
+    """Keep a projection-only route check; real CAS outcomes are covered separately."""
     report = ImportReport(
         imported_files=2,
         imported_artifacts=1,

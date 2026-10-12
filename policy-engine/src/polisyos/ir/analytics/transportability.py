@@ -26,10 +26,18 @@ from polisyos.ir.registry.refs import TransportabilityResultRef
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
+    from polisyos.ir.analytics.causal_graph import (
+        CausalGraphModel,
+        GraphType,
+        PAGIdentificationPolicy,
+    )
 else:
     from polisyos.data_forge.read_api.catalog import ProxyCandidate, PStarZResult
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, PAGIdentificationPolicy
+    from polisyos.ir.analytics.causal_graph import (
+        CausalGraphModel,
+        GraphType,
+        PAGIdentificationPolicy,
+    )
 
 CONTEXT_VARIABLE_SENSITIVITY: dict[str, list[str]] = {
     "institutional_quality": [
@@ -470,7 +478,7 @@ class TransportabilityResult(BaseModel):
     )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("2.1", pattern=r"^\d+\.\d+$")
     query: str = ""
 
     status: TransportabilityStatus = TransportabilityStatus.IDENTIFIED
@@ -506,6 +514,8 @@ class TransportabilityResult(BaseModel):
     required_target_data: list[str] = Field(default_factory=list)
 
     selection_diagram_ref: str = ""
+    source_graph_type: GraphType | None = None
+    source_graph_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     source_context_id: str = ""
     target_context_id: str = ""
 
@@ -585,6 +595,10 @@ class TransportabilityResult(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> TransportabilityResult:
+        if (self.source_graph_type is None) != (self.source_graph_sha256 is None):
+            raise ValueError(
+                "source graph type and content digest must be supplied together"
+            )
         if (
             self.pag_dag_sample_size is not None
             and self.pag_transportable_count is not None

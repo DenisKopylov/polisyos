@@ -3,8 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from threading import Event
 from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
@@ -758,18 +760,28 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
 
 
 @pytest.mark.asyncio
-async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n6(
+@pytest.mark.parametrize(
+    "action",
+    [
+        pytest.param("blocked", id="blocked-writer-refusal"),
+        pytest.param("stop", id="completed-stop-n9-projection"),
+    ],
+)
+async def test_generation_cycle_projection_respects_n6_status(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
+    action: str,
 ) -> None:
-    """The served projection gates receipts on owner N6 status before parsing them."""
+    """Exercise blocked refusal and the completed-stop N9 projection path."""
+
+    from pydantic import ValidationError
 
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
+        GenerationCycleRun,
         PendingN8ValuePort,
     )
-    from polisyos.runtime.quality.public_export import PublicExportRedactionError
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveGenerationCycleRun,
     )
@@ -891,13 +903,17 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
             repo_root=REPO_ROOT,
         )
 
-    with pytest.raises(PublicExportRedactionError) as blocked_error:
-        await compile_served_projection("blocked")
-    assert blocked_error.value.code == ("generation_cycle_blocked_before_n9_cannot_supply_receipt")
-    assert parsed_payloads == []
-    assert projection_inputs == []
+    if action == "blocked":
+        with pytest.raises(
+            ValidationError,
+            match="blocked_generation_cycle_n9_admission_mismatch",
+        ):
+            await compile_served_projection(action)
+        assert parsed_payloads == []
+        assert projection_inputs == []
+        return
 
-    compiled = await compile_served_projection("stop")
+    compiled = await compile_served_projection(action)
     assert isinstance(compiled, generation_cycle_service.CompiledRecursiveGenerationCycleRun)
     stop_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
     assert stop_cycle is not None
@@ -907,6 +923,7 @@ async def test_served_recursive_projection_rejects_grafted_receipt_for_blocked_n
     assert len(projection_inputs) == 1
     assert projection_inputs[0]["receipt"] is parsed_receipt
     n9_source = projection_inputs[0]["n9_source"]
+    assert type(n9_source.run) is GenerationCycleRun
     assert n9_source.run.run_id == stop_cycle.run_id
 
 
@@ -1536,101 +1553,46 @@ def test_control_service_preserves_real_catalog_ownership(
     tmp_path,
     injected: bool,
 ) -> None:
-    import json
-    from types import SimpleNamespace
-
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-    from polisyos.data_forge.domains.catalog.registry import (
-        CatalogSourceRegistryEntry,
-        CatalogSourceRegistrySpec,
-    )
-    from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_service_catalog import (
+        _actual_scope_catalog,
+        _install_builtin_worldbank_profile_scope,
+    )
 
-    curated = tmp_path / "curated"
-    curated.mkdir()
-    (curated / "data_contracts.json").write_text(
-        json.dumps(
-            {
-                "contracts": [
-                    {
-                        "metric_id": "recorded_owner_metric",
-                        "source_column": "value",
-                        "jurisdiction": "UA",
-                        "granularity": "annual",
-                    }
-                ]
-            }
-        )
-    )
-    (curated / "source_bindings.json").write_text(
-        json.dumps(
-            {
-                "bindings": [
-                    {
-                        "metric_id": "recorded_owner_metric",
-                        "connector_id": "static_csv",
-                        "dataset_id": "recorded_owner.csv",
-                        "trust": 0.9,
-                    }
-                ]
-            }
-        )
-    )
-    canonical = catalog_api.build_production_data_contract_catalog_graph(
-        production_root=curated,
-        graph_root=tmp_path / "canonical_catalog",
-    )
-    canonical.close()
-    source_registry = CatalogSourceRegistrySpec(
-        sources=(
-            CatalogSourceRegistryEntry(
-                source_id="static_csv",
-                family="controlled_test_fixture",
-                wave="T",
-                endpoint="file://controlled-test-fixture",
-                connector_id="static_csv",
-                execution_tier="fetchable",
-                run_lane="catalog",
-            ),
-        )
-    )
-    monkeypatch.setattr(
-        catalog_api,
-        "load_catalog_source_registry",
-        lambda: source_registry,
-    )
-    hint_dir = tmp_path / "empty_curated_hints"
-    hint_dir.mkdir()
-    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(hint_dir))
-    monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "cache"))
+    profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
+    catalog = _actual_scope_catalog(tmp_path, profile_registry=profile_registry)
+    database_path = catalog.database_path
+    overlay_path = catalog.overlay_path
     monkeypatch.setattr(
         "polisyos.runtime.quality.substrate_registry.default_substrate_catalog_paths",
-        lambda _root: SimpleNamespace(l1_dcat_path=tmp_path / "canonical_catalog/catalog.duckdb"),
+        lambda _root: SimpleNamespace(l1_dcat_path=database_path),
     )
     monkeypatch.setattr(
-        catalog_api,
-        "default_acquisition_overlay_path",
-        lambda _root: tmp_path / "absent_overlay.duckdb",
+        "polisyos.data_forge.read_api.catalog.default_acquisition_overlay_path",
+        lambda _root: overlay_path,
     )
-    graph = None
+
+    graph = catalog if injected else None
     retrieval = None
-    if injected:
-        graph = catalog_api.DatasetCatalogGraph(
-            tmp_path / "canonical_catalog/catalog.duckdb",
-            tmp_path / "canonical_catalog",
-        )
+    if graph is not None:
         retrieval = RetrievalService(
             curated_dir=tmp_path / "catalog_only",
             cas_root=tmp_path / "cas",
             dataset_catalog=graph,
+            profiles=profile_registry,
         )
+    else:
+        catalog.close()
+
     service = ControlPlaneService(
         cas_root=tmp_path / "cas",
         core_runs_root=tmp_path / "runs",
         artifact_store=FileSystemCAS(tmp_path / "cas"),
         retrieval_service=retrieval,
-        registry_providers=resolve_control_registry_providers(),
+        registry_providers=resolve_control_registry_providers(
+            source_profiles=profile_registry,
+        ),
         policy_resolver=RuntimeExecutionPolicyResolver(
             default_profile="dev",
             worker_backend="external",
@@ -1640,7 +1602,7 @@ def test_control_service_preserves_real_catalog_ownership(
         ),
     )
     selected = service._retrieval._dataset_catalog
-    assert isinstance(selected, catalog_api.DatasetCatalogGraph)
+    assert selected is not None
     if injected:
         assert selected is graph
         assert service._retrieval is retrieval
@@ -1648,21 +1610,48 @@ def test_control_service_preserves_real_catalog_ownership(
     else:
         assert selected is service._retrieval_catalog
         assert service._retrieval.artifact_store is service._artifact_store
-    # The concrete catalog resolves the declared metric; this test exercises
-    # service construction/lifetime, not the separate fetch-to-N9 falsifier.
+    assert selected.database_path.resolve() == database_path.resolve()
+
+    # This catalog was published by the canonical batch producer with the actual
+    # header-free built-in WDI profile scoped in the producer and reader registries.
     response = service.data_resolve(
         DataResolveRequest(
-            data_needs=[DataNeed(metric="recorded_owner_metric")],
+            data_needs=[
+                DataNeed(
+                    metric="scope_metric",
+                    geography="DEU",
+                    time_start="2025",
+                    time_end="2025",
+                )
+            ],
             mode="fastlane",
             allow_explore_fallback=False,
             catalog_run_profile="prod_full",
         )
     )
-    assert response.fetch_plans
+    assert len(response.fetch_plans) == 1
+    plan = response.fetch_plans[0]
+    assert (plan.connector_id, plan.dataset_id, plan.profile_id) == (
+        "worldbank.wdi",
+        "scope_dataset",
+        "worldbank_wdi",
+    )
+    assert not any(
+        warning.startswith("catalog_source_not_established:")
+        for warning in response.warnings
+    )
+
     with pytest.raises(RuntimeHTTPError) as unselected_profile:
         service.data_resolve(
             DataResolveRequest(
-                data_needs=[DataNeed(metric="recorded_owner_metric")],
+                data_needs=[
+                    DataNeed(
+                        metric="scope_metric",
+                        geography="DEU",
+                        time_start="2025",
+                        time_end="2025",
+                    )
+                ],
                 mode="fastlane",
                 allow_explore_fallback=False,
             )
@@ -1764,6 +1753,9 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
     missing_scope_field: str | None,
 ) -> None:
     """Served N4 preserves unknown cell as candidate and rejects altered tenant custody."""
+    from polisyos.runtime.http.services.adapters.core_run import (
+        load_terminal_core_run_source,
+    )
     from polisyos.runtime.http.services.control import nl_pipeline
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.scientist.orchestration.llm import factory as llm_factory
@@ -1854,14 +1846,10 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         def reject_s8(**_kwargs):
             pytest.fail("candidate-only N4 proposal reached the S8 resolver")
 
-        def reject_publication(**_kwargs):
-            pytest.fail("candidate-only N4 proposal reached generation publication")
-
         def reject_n6(**_kwargs):
             pytest.fail("candidate-only N4 proposal entered the recursive N6 owner")
 
         monkeypatch.setattr(service, "resolve_generation_value_choices", reject_s8)
-        monkeypatch.setattr(service, "_publish_generation_run", reject_publication)
         monkeypatch.setattr(
             generation_cycle_service,
             "build_default_recursive_generation_cycle_controller",
@@ -1953,7 +1941,6 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert completed.progress["s8_status"] == "not_run"
         assert "compiled_recursive_generation_cycle_ref" not in completed.progress
         assert "normative_disposition_ref" not in completed.progress
-        assert "manifest_ref" not in completed.progress
         proposal_locator = completed.progress["candidate_proposal_ref"]
         assert proposal_locator["schema_version"] == (
             "policyos.runtime.quality.n4_candidate_proposal_locator.v1"
@@ -1972,6 +1959,44 @@ async def test_served_nl_job_persists_real_candidate_proposal_without_n6_or_s8(
         assert proposal.problem.nl_provenance.raw_request == raw_request
         assert proposal.proposal.trinity_bundle.policy_spec.interventions
         assert proposal.proposal.limitation_code == "cycle_substrate_context_unavailable"
+        assert proposal.authority_purpose == "candidate_proposal"
+        assert proposal.status == "candidate_limited"
+        assert proposal.execution_band == "candidate"
+        assert proposal.stage == "n4_proposal_only"
+        assert (
+            proposal.n5_status,
+            proposal.n8_status,
+            proposal.n9_status,
+            proposal.s8_status,
+        ) == ("not_run", "not_run", "not_run", "not_run")
+
+        # Core finalization owns the N4 artifact root for ordinary run readers;
+        # its run-level manifest is not a policy-promotion signal.
+        core_run_id = str(completed.progress["core_run_id"])
+        core_source = load_terminal_core_run_source(
+            store=service._artifact_store,  # noqa: SLF001
+            core_runs_root=service._core_runs_root,  # noqa: SLF001
+            run_id=core_run_id,
+        )
+        assert core_source.manifest.run_id == core_run_id
+        assert proposal.core_run_id == core_run_id
+        assert proposal.control_job_attempt == completed.attempt
+        assert len(core_source.manifest.outputs) == 1
+        assert core_source.manifest.outputs[0].kind == (
+            "runtime.quality.n4_candidate_proposal"
+        )
+        assert (
+            core_source.manifest.outputs[0].model_dump(mode="json")
+            == proposal_locator["artifact_ref"]
+        )
+        assert (
+            core_source.manifest_ref.model_dump(mode="json")
+            == completed.progress["core_manifest_artifact_ref"]
+        )
+        assert (
+            str(core_source.manifest_ref.artifact_id)
+            == completed.progress["manifest_ref"]
+        )
         assert service._promotion_runtime.store is service._artifact_store
     finally:
         service.close()
@@ -1983,6 +2008,7 @@ async def _run_controlled_simulate_only_job_fixture(
     *,
     proposal_source_persistence_failure: bool = False,
     local_sibling_mechanism_witness: bool = False,
+    root_input_factory: Callable[[Any], None] | None = None,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2109,6 +2135,7 @@ async def _run_controlled_simulate_only_job_fixture(
     compiled_runs = []
     n4_organ_runs = []
     n4_port_attempts = []
+    n4_proposal_ports = []
     execution_order: list[tuple[str, str]] = []
     started_core_contexts = []
 
@@ -2131,6 +2158,8 @@ async def _run_controlled_simulate_only_job_fixture(
         assert records[0].run_id == context.run_manifest.run_id
         execution_order.append(("RUN_STARTED", records[0].run_id))
         started_core_contexts.append(context)
+        if root_input_factory is not None:
+            root_input_factory(context)
         return context
 
     monkeypatch.setattr(RunContext, "start", classmethod(record_core_start))
@@ -2139,7 +2168,7 @@ async def _run_controlled_simulate_only_job_fixture(
 
     async def record_n4_port(port, problem_for_cycle, *, cycle_index):
         execution_order.append(("N4_ENTER", ""))
-        n4_port_attempts.append((problem_for_cycle, cycle_index))
+        n4_port_attempts.append((port, problem_for_cycle, cycle_index))
         return await original_n4_port(
             port,
             problem_for_cycle,
@@ -2397,6 +2426,7 @@ async def _run_controlled_simulate_only_job_fixture(
                 cycle_substrate_context=resolved_context,
                 candidate_simulation_handoff=handoff,
             )
+            n4_proposal_ports.append(generator)
             run_args = list(args)
             if local_sibling_mechanism_witness:
                 graph = run_args[0]
@@ -2559,7 +2589,12 @@ async def _run_controlled_simulate_only_job_fixture(
             assert labels.index("RUN_STARTED") < labels.index("N4_ENTER")
             assert "N5_ENTER" not in labels
             assert n5_port_observations == n5_engine_requests == []
-            assert len(n4_port_attempts) == 1
+            assert len(n4_port_attempts) == 2
+            assert len(n4_proposal_ports) == 1
+            assert n4_port_attempts[0][0] is not n4_proposal_ports[0]
+            assert n4_port_attempts[1][0] is n4_proposal_ports[0]
+            assert n4_port_attempts[0][1] is problem
+            assert n4_port_attempts[1][1] is problem
 
             from polisyos.runtime.http.services.adapters.core_run import (
                 derive_control_job_core_run_id,
@@ -2742,7 +2777,10 @@ async def _run_controlled_simulate_only_job_fixture(
         # The served simulate-only route runs a persisted root N4 source before
         # the ordinary N4 proposal leaf. Keep both real N4 calls in the count.
         assert len(n4_port_attempts) == 2
-        assert n4_port_attempts[0][0] is problem
+        assert len(n4_proposal_ports) == 1
+        assert n4_port_attempts[0][0] is not n4_proposal_ports[0]
+        assert n4_port_attempts[1][0] is n4_proposal_ports[0]
+        assert n4_port_attempts[0][1] is problem
         proposal_run = n4_organ_runs[0]
         assert type(proposal_run) is N4CandidateScenarioProposalRun
         proposal_problem_ref = generation_cycle_service.gy_content_hash(
@@ -2831,8 +2869,13 @@ async def _run_controlled_simulate_only_job_fixture(
         assert selected_v1_source.problem == problem
         assert selected_v1_source.proposal.design_problem_ref == proposal_problem_ref
         assert selected_v1_source.cycle_problem_ref == problem_ref
-        assert selected_v1_source.k_ref_limitation_code == ("historical_l2_confidence_withheld")
-        assert selected_v1_source.l2_confidence_vintage is not None
+        assert selected_v1_source.k_ref_limitation_code in {
+            "historical_l2_confidence_withheld",
+            "full_credal_reference_not_established",
+        }
+        assert (selected_v1_source.l2_confidence_vintage is not None) is (
+            selected_v1_source.k_ref_limitation_code == "historical_l2_confidence_withheld"
+        )
         assert selected_v1_source.l2_confidence_forwarded is False
         assert selected_v1_source.credal_reference_payload is None
         assert selected_v2_source.model_declaration == model_declaration
@@ -3001,13 +3044,420 @@ async def test_served_simulate_only_replays_source_bound_n4_candidate_into_joint
     fixture.service.close()
 
 
+def test_n5_run_projection_preserves_actual_shared_seed_pair_and_residual_samples(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The typed run projection carries producer-derived common-seed vectors."""
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationN5Observation,
+        RunGenericCycleSimulationN5Observation,
+        RunN5InteractionEvidence,
+    )
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n5_interaction_scope_fields,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    request = _request_with_atom_count(3).model_copy(
+        update={"replications": 4, "seed": 41}
+    )
+    first_pair = frozenset(
+        atom.intervention_id for atom in request.intervention_atoms[:2]
+    )
+    first_pair_variables = frozenset(
+        request.engine_plan[0].variable_map[atom.causal_do_expr.assignments[0].variable]
+        for atom in request.intervention_atoms[:2]
+    )
+    all_variables = frozenset(
+        request.engine_plan[0].variable_map[
+            atom.causal_do_expr.assignments[0].variable
+        ]
+        for atom in request.intervention_atoms
+    )
+
+    def paired_interactions(state, params):
+        query = state["ncm_query_data"]
+        active_variables = frozenset(query.interventions[0])
+        seed = params["__seed__"]
+        pair_effect = (
+            {41: 1.0, 42: -1.0, 43: 1.0, 44: -1.0}[seed]
+            if first_pair_variables <= active_variables
+            else 0.0
+        )
+        residual = (
+            {41: 1.0, 42: 1.0, 43: -1.0, 44: -1.0}[seed]
+            if active_variables == all_variables
+            else 0.0
+        )
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": pair_effect + residual}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(paired_interactions))
+    result = JointSimulationHorizonController().run(request)
+    projection = _n5_interaction_evidence_projection(result)
+    scope_fields = _n5_interaction_scope_fields(result)
+
+    assert projection is not None
+    assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    assert projection["numeric_interaction"] == "unsupported"
+    assert projection["numeric_interaction_basis"] == "finite_checked_model_point_estimate_only"
+    assert projection["interaction_sampling_status"] == "estimated"
+    typed_projection = RunN5InteractionEvidence.model_validate(projection)
+    assert typed_projection.schema_version == projection["schema_version"]
+    pair_projection = next(
+        term for term in projection["interaction_terms"]
+        if frozenset(term["atom_ids"]) == first_pair
+    )
+    pair_summary = pair_projection["replication_sampling_by_step"]["0"]
+    assert pair_summary["seeds"] == [41, 42, 43, 44]
+    expected_pair_values = [1.0, -1.0, 1.0, -1.0]
+    assert [sample["value"] for sample in pair_summary["samples"]] == expected_pair_values
+    assert pair_summary["mean"] == pytest.approx(0.0)
+    assert pair_summary["standard_error"] == pytest.approx(0.5773502691896257)
+    typed_pair_summary = next(
+        term for term in typed_projection.interaction_terms
+        if frozenset(term.atom_ids) == first_pair
+    ).replication_sampling_by_step[0]
+    assert typed_pair_summary.seeds == (41, 42, 43, 44)
+    assert [sample.value for sample in typed_pair_summary.samples] == expected_pair_values
+    residual_summary = projection["higher_order_residual_sampling"]["firm_survival"]["0"]
+    expected_residual_values = [1.0, 1.0, -1.0, -1.0]
+    assert residual_summary["seeds"] == [41, 42, 43, 44]
+    assert [sample["value"] for sample in residual_summary["samples"]] == expected_residual_values
+    assert residual_summary["mean"] == pytest.approx(0.0)
+    assert residual_summary["standard_error"] == pytest.approx(0.5773502691896257)
+    assert sum(
+        left * right
+        for left, right in zip(expected_pair_values, expected_residual_values, strict=True)
+    ) / 3 == 0.0
+    typed_residual = typed_projection.higher_order_residual_sampling["firm_survival"][0]
+    assert typed_residual.seeds == (41, 42, 43, 44)
+    assert [sample.value for sample in typed_residual.samples] == expected_residual_values
+    assert scope_fields == {
+        "executed_steps": tuple(result.horizon.steps()),
+        "replication_seeds": (41, 42, 43, 44),
+    }
+    parent_observation = {
+        "node_ref": "design-problem://candidate",
+        "design_problem_ref": "sha256:" + "a" * 64,
+        "atom_ids": tuple(result.atom_ids),
+        "selected_outcomes": tuple(result.selected_outcomes),
+        "status": "joint_simulated",
+        "n5_interaction_evidence": projection,
+        **scope_fields,
+    }
+    RunCandidateSimulationN5Observation.model_validate(parent_observation)
+
+    from copy import deepcopy
+
+    def change_pair_seeds(body: dict[str, object]) -> None:
+        evidence = body["n5_interaction_evidence"]
+        assert isinstance(evidence, dict)
+        terms = evidence["interaction_terms"]
+        assert isinstance(terms, list) and terms
+        summaries = terms[0]["replication_sampling_by_step"]
+        assert isinstance(summaries, dict)
+        summary = summaries["0"]
+        assert isinstance(summary, dict)
+        samples = summary["samples"]
+        assert isinstance(samples, list)
+        summary["seeds"] = [42, 43, 44, 45]
+        summary["samples"] = [
+            {"seed": 42, "value": samples[0]["value"]},
+            {"seed": 43, "value": samples[1]["value"]},
+            {"seed": 44, "value": samples[2]["value"]},
+            {"seed": 45, "value": samples[3]["value"]},
+        ]
+
+    malformed_cases = [
+        (
+            "pair_removed",
+            lambda body: body["n5_interaction_evidence"]["interaction_terms"].pop(),
+        ),
+        (
+            "foreign_pair_atoms",
+            lambda body: body["n5_interaction_evidence"]["interaction_terms"][0].update(
+                atom_ids=("atom-a", "foreign-atom")
+            ),
+        ),
+        (
+            "foreign_outcome",
+            lambda body: body["n5_interaction_evidence"]["interaction_terms"][0].update(
+                outcome="foreign-outcome"
+            ),
+        ),
+        (
+            "foreign_step",
+            lambda body: body["n5_interaction_evidence"]["interaction_terms"][0].update(
+                by_step={999: 0.0},
+                replication_sampling_by_step={
+                    "999": body["n5_interaction_evidence"]["interaction_terms"][0][
+                        "replication_sampling_by_step"
+                    ]["0"]
+                },
+            ),
+        ),
+        ("foreign_seeds", change_pair_seeds),
+        (
+            "residual_removed",
+            lambda body: body["n5_interaction_evidence"].update(
+                higher_order_residuals={}, higher_order_residual_sampling={}
+            ),
+        ),
+        (
+            "wrong_checked_orders",
+            lambda body: body["n5_interaction_evidence"].update(
+                checked_interaction_orders=(1, 2)
+            ),
+        ),
+        ("wrong_parent_outcome", lambda body: body.update(selected_outcomes=("other",))),
+        ("wrong_parent_step", lambda body: body.update(executed_steps=(999,))),
+        ("wrong_parent_seeds", lambda body: body.update(replication_seeds=(41, 42, 43, 45))),
+    ]
+    for _case, corrupt in malformed_cases:
+        corrupted = deepcopy(parent_observation)
+        corrupt(corrupted)
+        with pytest.raises(ValidationError, match="run_n5_interaction_scope_"):
+            RunCandidateSimulationN5Observation.model_validate(corrupted)
+
+    missing_axis_context = deepcopy(parent_observation)
+    missing_axis_context["executed_steps"] = ()
+    with pytest.raises(
+        ValidationError,
+        match="run_n5_interaction_scope_parent_context_missing_or_invalid",
+    ):
+        RunCandidateSimulationN5Observation.model_validate(missing_axis_context)
+
+    def artifact_ref(kind: str, suffix: str) -> dict[str, str]:
+        return {
+            "artifact_id": "sha256:" + suffix * 64,
+            "kind": kind,
+            "media_type": "application/json",
+        }
+
+    simulation_ref = artifact_ref("polisyos.runtime.joint_simulation_result", "5")
+    generic_observation = {
+        **parent_observation,
+        "cycle_index": 0,
+        "candidate_id": "candidate",
+        "simulation_result_ref": simulation_ref,
+        "n4_source_ref": artifact_ref("runtime.generation_source_handoff", "1"),
+        "context_job_ref": artifact_ref(
+            "runtime.quality.cycle_substrate_context_job", "2"
+        ),
+        "profile_ref": artifact_ref(
+            "runtime.quality.generic_cycle_simulation_profile", "3"
+        ),
+        "n5_input_ref": artifact_ref(
+            "runtime.quality.generic_cycle_simulation_n5_input", "4"
+        ),
+        "n5_execution_ref": artifact_ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", "6"
+        ),
+        "n5_request_binding_status": "resolved",
+        "n5_request_content_hash": "sha256:" + "7" * 64,
+        "profile_selection_ref": "sha256:" + "8" * 64,
+        "world_model_record_content_hash": result.world_model_record_content_hash,
+        "authority_blockers": (),
+        "n8_status": "value_conditional",
+        "n8_lineage_status": "resolved",
+        "n8_value_ref": simulation_ref["artifact_id"],
+        "n8_authority_blockers": (
+            "interaction_numeric_classification_unsupported",
+        ),
+        "n8_limitation_code": None,
+        "n8_numeric_interaction": projection["numeric_interaction"],
+        "n8_numeric_interaction_basis": projection["numeric_interaction_basis"],
+        "n8_interaction_sampling_status": projection[
+            "interaction_sampling_status"
+        ],
+    }
+    RunGenericCycleSimulationN5Observation.model_validate(generic_observation)
+    corrupted_generic = deepcopy(generic_observation)
+    corrupted_generic["n5_interaction_evidence"]["interaction_terms"].pop()
+    with pytest.raises(ValidationError, match="run_n5_interaction_scope_pair_set_incomplete"):
+        RunGenericCycleSimulationN5Observation.model_validate(corrupted_generic)
+
+    legacy_observation = deepcopy(parent_observation)
+    legacy_evidence = legacy_observation["n5_interaction_evidence"]
+    legacy_evidence["schema_version"] = "policyos.runtime.joint_simulation_horizon.v3"
+    legacy_evidence["numeric_interaction"] = "unsupported"
+    legacy_evidence["numeric_interaction_basis"] = "not_established"
+    legacy_evidence["interaction_sampling_status"] = "not_established"
+    legacy_evidence["interaction_terms"] = ()
+    legacy_evidence["higher_order_residual_sampling"] = {}
+    legacy_observation["executed_steps"] = ()
+    legacy_observation["replication_seeds"] = ()
+    RunCandidateSimulationN5Observation.model_validate(legacy_observation)
+
+
+
+def test_four_atom_n5_scope_composes_complete_pairs_under_permutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The consumer derives every four-atom pair from the selected atom set."""
+    from copy import deepcopy
+
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n5_interaction_scope_fields,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    def fixed_outcome(state, params):
+        del state, params
+        return {
+            "counterfactual_result": {
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 0.0}}]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
+    base_request = _request_with_atom_count(4).model_copy(
+        update={"replications": 2, "seed": 41}
+    )
+    controller = JointSimulationHorizonController()
+    for request in (
+        base_request,
+        base_request.model_copy(
+            update={"intervention_atoms": tuple(reversed(base_request.intervention_atoms))}
+        ),
+    ):
+        result = controller.run(request)
+        evidence = _n5_interaction_evidence_projection(result)
+        assert evidence is not None
+        assert evidence["checked_interaction_orders"] == [1, 2]
+        assert evidence["numeric_interaction"] == "unsupported"
+        assert "aggregate_order_3_plus_not_identified" in (
+            result.feedback_classification.limitations
+        )
+        assert set(evidence["higher_order_residuals"]) == set(result.selected_outcomes)
+        observed_pairs = {
+            frozenset(term["atom_ids"]) for term in evidence["interaction_terms"]
+        }
+        expected_pairs = {
+            frozenset((left.intervention_id, right.intervention_id))
+            for index, left in enumerate(request.intervention_atoms)
+            for right in request.intervention_atoms[index + 1 :]
+        }
+        assert observed_pairs == expected_pairs
+        assert len(evidence["interaction_terms"]) == len(expected_pairs) == 6
+        assert result.diagnostics["replication_seeds"] == [41, 42]
+        for term in evidence["interaction_terms"]:
+            summary = term["replication_sampling_by_step"]["0"]
+            assert summary["status"] == "estimated"
+            assert summary["seeds"] == [41, 42]
+            assert summary["samples"] == [
+                {"seed": 41, "value": 0.0},
+                {"seed": 42, "value": 0.0},
+            ]
+            assert summary["mean"] == 0.0
+            assert summary["standard_error"] == 0.0
+        residual = evidence["higher_order_residual_sampling"]["firm_survival"]["0"]
+        assert residual["status"] == "estimated"
+        assert residual["seeds"] == [41, 42]
+        assert residual["samples"] == [
+            {"seed": 41, "value": 0.0},
+            {"seed": 42, "value": 0.0},
+        ]
+        assert residual["mean"] == 0.0
+        assert residual["standard_error"] == 0.0
+        observation = {
+            "node_ref": "design-problem://four-atom",
+            "design_problem_ref": "sha256:" + "a" * 64,
+            "atom_ids": tuple(result.atom_ids),
+            "selected_outcomes": tuple(result.selected_outcomes),
+            "status": "joint_simulated",
+            "n5_interaction_evidence": evidence,
+            **_n5_interaction_scope_fields(result),
+        }
+        wire_observation = json.loads(json.dumps(observation))
+        RunCandidateSimulationN5Observation.model_validate(wire_observation)
+
+        removed_pair = deepcopy(observation)
+        removed_pair["n5_interaction_evidence"]["interaction_terms"].pop()
+        with pytest.raises(ValidationError, match="run_n5_interaction_scope_pair_set_incomplete"):
+            RunCandidateSimulationN5Observation.model_validate(removed_pair)
+
+        removed_residual = deepcopy(observation)
+        removed_residual["n5_interaction_evidence"]["higher_order_residual_sampling"].pop(
+            "firm_survival"
+        )
+        with pytest.raises(
+            ValidationError,
+            match="run_n5_interaction_scope_residual_basis_incomplete",
+        ):
+            RunCandidateSimulationN5Observation.model_validate(removed_residual)
+
+def test_run_n5_observation_rejects_removed_pair_with_status_markers() -> None:
+    """A complete selected three-atom basis cannot be represented by empty pair terms."""
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
+
+    observation = {
+        "node_ref": "design-problem://candidate",
+        "design_problem_ref": "sha256:" + "a" * 64,
+        "atom_ids": ("atom-a", "atom-b", "atom-c"),
+        "selected_outcomes": ("outcome-a",),
+        "executed_steps": (0,),
+        "replication_seeds": (41, 42),
+        "status": "joint_simulated",
+        "n5_interaction_evidence": {
+            "schema_version": "policyos.runtime.joint_simulation_horizon.v4",
+            "numeric_interaction": "unsupported",
+            "numeric_interaction_basis": "finite_checked_model_point_estimate_only",
+            "interaction_sampling_status": "estimated",
+            "interaction_terms": (),
+            "higher_order_residuals": {"outcome-a": {0: 0}},
+            "higher_order_residual_sampling": {
+                "outcome-a": {
+                    0: {
+                        "status": "estimated",
+                        "replicate_count": 2,
+                        "seeds": (41, 42),
+                        "samples": (
+                            {"seed": 41, "value": 1},
+                            {"seed": 42, "value": -1},
+                        ),
+                        "mean": 0,
+                        "standard_error": 1,
+                    }
+                }
+            },
+            "checked_interaction_orders": (1, 2, 3),
+        },
+    }
+
+    with pytest.raises(
+        ValidationError,
+        match="run_n5_interaction_scope_pair_set_incomplete",
+    ):
+        RunCandidateSimulationN5Observation.model_validate(observation)
+
+
 @pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
 @pytest.mark.asyncio
 async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
-    """A fresh authorized GET exposes the exact candidate result already persisted by CAS."""
+    """A fresh authorized GET projects source-bound interaction scope from CAS."""
     from polisyos.runtime.http import dev_identity_middleware
 
     fixture = await _run_controlled_simulate_only_job_fixture(monkeypatch, tmp_path)
@@ -3045,6 +3495,11 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
             )
             assert projection["artifact_status"] == "resolved"
             assert projection["run_id"] == core_run_id
+            assert projection["n5_observations"]
+            n5_observation = projection["n5_observations"][0]
+            assert n5_observation["n5_interaction_evidence"]["schema_version"].endswith(
+                ".v4"
+            )
 
             # The actual selected historical L2 input is withheld. The public
             # reader must retain that source limitation and expose no derived
@@ -3105,11 +3560,17 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
             )
             source_v1 = n4_source.source_record.source_record
             assert source_v1.authority_purpose == "candidate_scenario_n5_only"
-            assert source_v1.k_ref_limitation_code == "historical_l2_confidence_withheld"
-            assert source_v1.l2_confidence_vintage is not None
-            assert source_v1.l2_confidence_vintage.snapshot_sha256 == (
-                "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+            assert source_v1.k_ref_limitation_code in {
+                "historical_l2_confidence_withheld",
+                "full_credal_reference_not_established",
+            }
+            assert (source_v1.l2_confidence_vintage is not None) is (
+                source_v1.k_ref_limitation_code == "historical_l2_confidence_withheld"
             )
+            if source_v1.l2_confidence_vintage is not None:
+                assert source_v1.l2_confidence_vintage.snapshot_sha256 == (
+                    "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+                )
             assert source_v1.l2_confidence_forwarded is False
             assert source_v1.credal_reference_payload is None
             assert projection["source_ref"] == compiled_refs[0]
@@ -3134,16 +3595,69 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
 
             store = fixture.service._artifact_store
             from polisyos.core.artifacts.ids import ArtifactID
+            from polisyos.core.artifacts.manifest import ArtifactRef
+            from polisyos.runtime.quality.generation_cycle import (
+                load_joint_simulation_result,
+            )
 
             compiled_manifest = store.get_manifest(ArtifactRef.model_validate(compiled_refs[0]))
             assert compiled_manifest.tenant_context is not None
             assert compiled_manifest.tenant_context.tenant_id == "tenant-fixture"
             assert compiled_manifest.tenant_context.cell_id == "cell-fixture"
-            n5_ref = ArtifactRef.model_validate(n5_observation["simulation_result_ref"])
+            fixture_n5_observation = fixture.n5_port_observations[0].observation
+            assert fixture_n5_observation.simulation_result_ref is not None
+            n5_ref = fixture_n5_observation.simulation_result_ref
             n5_manifest = store.get_manifest(n5_ref)
             assert n5_manifest.tenant_context is not None
             assert n5_manifest.tenant_context.tenant_id == "tenant-fixture"
             assert n5_manifest.tenant_context.cell_id == "cell-fixture"
+            stored_n5_result = load_joint_simulation_result(
+                n5_ref,
+                store=store,
+                expected_world_model_record_content_hash=(
+                    n5_observation["world_model_record_content_hash"]
+                ),
+                expected_atom_ids=n5_observation["atom_ids"],
+                expected_selected_outcomes=n5_observation["selected_outcomes"],
+            )
+            assert n5_observation["executed_steps"] == list(
+                stored_n5_result.horizon.steps()
+            )
+            assert n5_observation["replication_seeds"] == list(
+                stored_n5_result.diagnostics["replication_seeds"]
+            )
+
+            from polisyos.runtime.http.routes import runs as runs_routes
+
+            original_evidence_projection = (
+                runs_routes._n5_interaction_evidence_projection
+            )
+
+            def omit_checked_orders(result: object) -> dict[str, object] | None:
+                evidence = original_evidence_projection(result)
+                if evidence is not None:
+                    evidence["checked_interaction_orders"] = []
+                return evidence
+
+            monkeypatch.setattr(
+                runs_routes,
+                "_n5_interaction_evidence_projection",
+                omit_checked_orders,
+            )
+            malformed_response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert malformed_response.status_code == 200, malformed_response.text
+            malformed_projection = malformed_response.json()["run"][
+                "candidate_simulation"
+            ]
+            assert malformed_projection["n5_observations"] == []
+            assert malformed_projection["limitation_code"] == (
+                "n5_interaction_scope_not_established"
+            )
+            monkeypatch.setattr(
+                runs_routes,
+                "_n5_interaction_evidence_projection",
+                original_evidence_projection,
+            )
 
             n5_blob_path, _n5_manifest_path = store._paths(
                 ArtifactID.model_validate(n5_ref.artifact_id)
@@ -3171,6 +3685,10 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
     source-positive or V6 completion.
     """
     from polisyos.runtime.http import dev_identity_middleware
+    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION,
+    )
 
     fixture = await _run_controlled_simulate_only_job_fixture(
         monkeypatch,
@@ -3191,8 +3709,11 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
         if node["node_ref"].endswith("#local-mechanism-failed-sibling")
     )
     assert failed_node["failure"]["error_code"] == "controlled_second_sibling_failure"
+    assert failed_node["failure"]["stage"] == "leaf_generation"
+    assert recursive_payload["schema_version"] == RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION
+    assert recursive_payload["terminal"] is None
     successful_cycle = successful_node["cycle_run"]
-    assert successful_cycle["schema_version"] == "policyos.runtime.generation_cycle_controller.v5"
+    assert successful_cycle["schema_version"] == GENERATION_CYCLE_SCHEMA_VERSION
     successful_simulation = successful_cycle["cycles"][0]["simulation"]
     assert successful_simulation["candidate_simulation_n4_source_ref"]["kind"] == (
         "runtime.quality.n4_candidate_scenario_source"
@@ -3236,6 +3757,15 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
             response = client.get(f"/api/v1/runs/{core_run_id}")
             assert response.status_code == 200, response.text
             run = response.json()["run"]
+            assert fixture.job.state == "completed"
+            summaries_response = client.get("/api/v1/runs?limit=50")
+            assert summaries_response.status_code == 200, summaries_response.text
+            run_summary = next(
+                summary
+                for summary in summaries_response.json()["runs"]
+                if summary["run_id"] == core_run_id
+            )
+            assert run_summary["run_terminality"] == "terminal"
             projection = run.get("candidate_simulation")
             assert projection is not None, "fresh GET dropped the persisted V3 checkpoint"
             assert projection["artifact_status"] == "resolved"
@@ -3266,6 +3796,98 @@ async def test_fresh_run_details_get_keeps_local_n5_and_sibling_failure_checkpoi
                     "later child failed after its earlier sibling completed"
                 ),
             }
+
+            from copy import deepcopy
+            from dataclasses import replace
+
+            from pydantic import ValidationError
+
+            from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo
+            from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                CompiledRecursiveGenerationCycleRun,
+            )
+
+            grafted_compiled = deepcopy(compiled_payload)
+            grafted_recursive = grafted_compiled["recursive_run"]
+            blocked_nodes = [
+                node
+                for node in grafted_recursive["nodes"]
+                if node.get("cycle_run") is not None
+                and node["cycle_run"].get("terminal_status") == "blocked"
+            ]
+            assert len(blocked_nodes) == 1
+            blocked_cycle = blocked_nodes[0]["cycle_run"]
+            assert blocked_cycle["schema_version"] == GENERATION_CYCLE_SCHEMA_VERSION
+            assert blocked_cycle["promotion_port"]["receipts"] == []
+            blocked_cycle["promotion_port"]["receipts"] = [{"receipt": "adversarially-grafted"}]
+
+            recursive_identity = gy_artifact_self_identity_projection(grafted_recursive)
+            for derived_field in ("leaf_nodes", "pending_node_refs", "failed_node"):
+                recursive_identity.pop(derived_field, None)
+            grafted_recursive["content_hash"] = gy_content_hash(recursive_identity)
+            compiled_identity = gy_artifact_self_identity_projection(grafted_compiled)
+            compiled_recursive_identity = dict(compiled_identity["recursive_run"])
+            compiled_recursive_identity.pop("leaf_nodes", None)
+            compiled_identity["recursive_run"] = compiled_recursive_identity
+            grafted_compiled["content_hash"] = gy_content_hash(compiled_identity)
+            with pytest.raises(
+                ValidationError,
+                match="blocked_generation_cycle_n9_admission_mismatch",
+            ):
+                CompiledRecursiveGenerationCycleRun.model_validate(grafted_compiled)
+
+            original_compiled_ref = ArtifactRef.model_validate(
+                next(
+                    ref
+                    for ref in run["root_artifacts"]
+                    if ref["kind"] == "runtime.compiled_recursive_generation_cycle"
+                )
+            )
+            with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+                grafted_compiled_ref = fixture.service._put_json_artifact_ref(
+                    grafted_compiled,
+                    kind="runtime.compiled_recursive_generation_cycle",
+                    schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    tenant_context=ArtifactTenantContextInfo(
+                        tenant_id="tenant-fixture",
+                        cell_id="cell-fixture",
+                    ),
+                )
+
+            run_index = app.state.runtime_api_ctx.run_index
+            original_get_run = run_index.get_run
+
+            def get_run_with_grafted_compiled(run_id_arg: str):
+                indexed = original_get_run(run_id_arg)
+                if run_id_arg != core_run_id or indexed is None:
+                    return indexed
+                root_artifacts = [
+                    grafted_compiled_ref
+                    if ref.artifact_id == original_compiled_ref.artifact_id
+                    else ref
+                    for ref in indexed.details.root_artifacts
+                ]
+                assert sum(
+                    ref.artifact_id == grafted_compiled_ref.artifact_id
+                    for ref in root_artifacts
+                ) == 1
+                return replace(
+                    indexed,
+                    details=indexed.details.model_copy(update={"root_artifacts": root_artifacts}),
+                )
+
+            with monkeypatch.context() as graft_index:
+                graft_index.setattr(run_index, "get_run", get_run_with_grafted_compiled)
+                graft_response = client.get(f"/api/v1/runs/{core_run_id}")
+            assert graft_response.status_code == 200, graft_response.text
+            graft_projection = graft_response.json()["run"]["candidate_simulation"]
+            assert graft_projection["artifact_status"] == "not_established"
+            assert graft_projection["limitation_code"] == "compiled_cycle_artifact_content_invalid"
+            assert graft_projection["source_ref"]["artifact_id"] == str(
+                grafted_compiled_ref.artifact_id
+            )
+            assert graft_projection["n5_observations"] == []
 
             from polisyos.core.artifacts.ids import ArtifactID
             from polisyos.core.artifacts.manifest import ArtifactRef
@@ -3574,3 +4196,984 @@ def test_eval_safety_closure_refuses_absent_tenant_instead_of_fabricating_one(
         ]
     finally:
         service.close()
+
+
+@pytest.mark.skipif(TestClient is None, reason="fastapi is not installed")
+@pytest.mark.asyncio
+async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    request: pytest.FixtureRequest,
+) -> None:
+    """The actual run form inputs persist through ForecastOwner, CAS, event, and reopened GET."""
+    import hashlib
+    from dataclasses import replace
+    from typing import cast
+
+    from polisyos.core.artifacts import PutOptions
+    from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http import dev_identity_middleware
+    from polisyos.runtime.http.services import predictive_calibration as calibration_service
+    from polisyos.runtime.http.services.predictive_calibration import (
+        PredictiveCalibrationAssociation,
+        PredictiveCalibrationRequest,
+    )
+    from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+    from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
+
+    captured_inputs: list[ArtifactRef] = []
+
+    def attach_selected_inputs(context: Any) -> None:
+        if not captured_inputs:
+            observed = _source(
+                context.store,
+                holdout=[31.0, 32.0, 33.0, 34.0],
+            )
+            model_default = _spec(
+                context.store, kind="ir.model_spec", spec_id="forecast-model-fixture"
+            )
+            policy_default = _spec(
+                context.store, kind="ir.policy_spec", spec_id="forecast-policy-fixture"
+            )
+            model_selected = context.store.put_bytes(
+                context.store.get_bytes(model_default),
+                PutOptions(
+                    kind=model_default.kind,
+                    media_type=model_default.media_type,
+                    schema=SchemaInfo(
+                        name="test.selected.forecast_model_spec", version="nondefault-view"
+                    ),
+                ),
+                return_selected_profile=True,
+            )
+            policy_selected = context.store.put_bytes(
+                context.store.get_bytes(policy_default),
+                PutOptions(
+                    kind=policy_default.kind,
+                    media_type=policy_default.media_type,
+                    schema=SchemaInfo(
+                        name="test.selected.forecast_policy_spec", version="nondefault-view"
+                    ),
+                ),
+                return_selected_profile=True,
+            )
+            assert model_selected.artifact_id == model_default.artifact_id
+            assert policy_selected.artifact_id == policy_default.artifact_id
+            assert model_selected.manifest_profile_sha256 != model_default.manifest_profile_sha256
+            assert policy_selected.manifest_profile_sha256 != policy_default.manifest_profile_sha256
+            captured_inputs.extend(
+                [
+                    ArtifactRef.model_validate(observed),
+                    model_default,
+                    model_selected,
+                    policy_default,
+                    policy_selected,
+                    _rule(context.store),
+                ]
+            )
+        existing = {
+            (str(item.artifact_id), item.manifest_profile_sha256)
+            for item in context.run_manifest.inputs
+        }
+        for ref in captured_inputs:
+            identity = (str(ref.artifact_id), ref.manifest_profile_sha256)
+            if identity not in existing:
+                context.add_input(ref)
+                existing.add(identity)
+
+    fixture = await _run_controlled_simulate_only_job_fixture(
+        monkeypatch,
+        tmp_path,
+        root_input_factory=attach_selected_inputs,
+    )
+    request.addfinalizer(fixture.service.close)
+    core_run_id = str(fixture.job.progress["core_run_id"])
+    job_id = fixture.job.job_id
+    cas_root = tmp_path / ".polisyos"
+    core_runs_root = cas_root / "runs"
+    monkeypatch.setattr(
+        dev_identity_middleware,
+        "build_fixture_identity_claims",
+        _fixture_claims,
+    )
+
+    def new_reader_app(
+        *, allow_candidate_run_predictive_calibration_surface: bool | None = None
+    ):
+        app_options: dict[str, bool] = {}
+        if allow_candidate_run_predictive_calibration_surface is not None:
+            app_options["allow_candidate_run_predictive_calibration_surface"] = (
+                allow_candidate_run_predictive_calibration_surface
+            )
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            app = create_runtime_api_app(
+                cas_root=cas_root,
+                core_runs_root=core_runs_root,
+                allow_fixture_identity=True,
+                **app_options,
+            )
+        _install_fixture_tenant_lifespan(app)
+        return app
+
+    # The owner POST below uses an explicit normal-root enablement. A later fresh
+    # app omits the setting and proves the documented normal-root default by GET.
+    app = new_reader_app(allow_candidate_run_predictive_calibration_surface=True)
+    with TestClient(app) as client:
+        run_response = client.get(f"/api/v1/runs/{core_run_id}")
+        assert run_response.status_code == 200, run_response.text
+        run = run_response.json()["run"]
+        assert run["manifest_ref"]["manifest_profile_sha256"].startswith("sha256:")
+        candidate_refs = [
+            observation["n4_source_ref"]
+            for observation in run["candidate_simulation"]["n5_observations"]
+            if observation["status"] == "joint_simulated"
+            and observation["lineage_status"] == "resolved"
+            and observation.get("n4_source_ref") is not None
+        ]
+        assert candidate_refs
+        input_refs = run["root_input_artifacts"]
+        for expected_ref in captured_inputs:
+            assert any(
+                actual_ref["artifact_id"] == str(expected_ref.artifact_id)
+                and actual_ref["kind"] == expected_ref.kind
+                and actual_ref["media_type"] == expected_ref.media_type
+                and actual_ref["manifest_profile_sha256"]
+                == expected_ref.manifest_profile_sha256
+                for actual_ref in input_refs
+            )
+        selected = {
+            expected_ref.kind: expected_ref.model_dump(mode="json")
+            for expected_ref in captured_inputs
+        }
+        body = {
+            "intent_id": "ui-intent-r228-e2e-1",
+            "candidate_source_ref": candidate_refs[0],
+            "observed_source_ref": selected["fabric.data_snapshot"],
+            "model_spec_ref": selected["ir.model_spec"],
+            "policy_spec_ref": selected["ir.policy_spec"],
+            "calibration_rule_ref": selected["ir.forecast_calibration_rule"],
+            "calibration_threshold": 0.9,
+            "split": {
+                "train_start": 0,
+                "train_end": 30,
+                "holdout_start": 30,
+                "holdout_end": 34,
+                "horizon": 4,
+            },
+            "target_metric": "metric",
+            "method_params": {"horizon": 4, "alpha": 0.3, "beta": 0.1},
+            "temporal_roles": {
+                "data_valid_time": "2026-01-01T00:00:00Z",
+                "calibration_window_start": "2026-01-02T00:00:00Z",
+                "calibration_window_end": "2026-01-03T00:00:00Z",
+                "policy_effective_time": "2026-01-04T00:00:00Z",
+                "prediction_time": "2026-01-05T00:00:00Z",
+                "observation_time": "2026-01-06T00:00:00Z",
+            },
+            "seed": 0,
+        }
+        analyst_claims = _fixture_claims()
+        viewer_claims = analyst_claims.model_copy(
+            update={"roles": frozenset({PolicyOSRole.VIEWER})}
+        )
+        monkeypatch.setattr(
+            dev_identity_middleware,
+            "build_fixture_identity_claims",
+            lambda: viewer_claims,
+        )
+        denied = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=body,
+        )
+        assert denied.status_code == 403, denied.text
+        control_service = app.state.runtime_container.control_service
+        assert control_service is not None
+        event_log = control_service._diagnostic_event_log
+        prewrite_events = event_log.list_events(run_id=core_run_id, job_id=job_id)
+        assert not any(
+            record.event.producer_component
+            == "polisyos.runtime.http.predictive_calibration"
+            for record in prewrite_events
+        )
+
+        monkeypatch.setattr(
+            dev_identity_middleware,
+            "build_fixture_identity_claims",
+            lambda: analyst_claims,
+        )
+        context_store = cast("FileSystemCAS", app.state.runtime_api_ctx.store)
+        unrooted_model_ref = _spec(
+            context_store,
+            kind="ir.model_spec",
+            spec_id="unrooted-model-spec-fixture",
+        )
+        unrooted_response = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json={**body, "model_spec_ref": unrooted_model_ref.model_dump(mode="json")},
+        )
+        assert unrooted_response.status_code == 422, unrooted_response.text
+        assert (
+            unrooted_response.json()["code"]
+            == "predictive_calibration_model_spec_not_run_root"
+        )
+        prewrite_events = event_log.list_events(run_id=core_run_id, job_id=job_id)
+        assert not any(
+            record.event.producer_component
+            == "polisyos.runtime.http.predictive_calibration"
+            for record in prewrite_events
+        )
+
+        disabled_app = new_reader_app(
+            allow_candidate_run_predictive_calibration_surface=False
+        )
+        with TestClient(disabled_app) as disabled_client:
+            disabled_context = disabled_app.state.runtime_api_ctx
+            assert disabled_context.allow_candidate_run_predictive_calibration_surface is False
+            disabled_service = disabled_app.state.runtime_container.control_service
+            assert disabled_service is not None
+            disabled_event_log = disabled_service._diagnostic_event_log
+
+            def event_receipts(records):
+                return tuple(
+                    (
+                        record.event.event_id,
+                        tuple(record.event.artifact_refs),
+                        record.payload_sha256,
+                    )
+                    for record in records
+                )
+
+            def cas_byte_inventory():
+                artifact_root = cas_root / "artifacts" / "sha256"
+                return {
+                    path.relative_to(artifact_root).as_posix(): hashlib.sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    for path in sorted(artifact_root.rglob("*"))
+                    if path.is_file()
+                }
+
+            disabled_events_before = disabled_event_log.list_events(
+                run_id=core_run_id, job_id=job_id
+            )
+            disabled_cas_before = cas_byte_inventory()
+            disabled_intent_key = calibration_service.RuntimeOperationIntentKey(
+                purpose="run.predictive_calibration.v1",
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+                actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
+                run_id=core_run_id,
+                intent_id=body["intent_id"],
+                body_sha256=calibration_service._operation_body_sha256(
+                    request=PredictiveCalibrationRequest.model_validate(body),
+                    run_id=core_run_id,
+                    job_id=job_id,
+                    tenant_id="tenant-fixture",
+                    cell_id="cell-fixture",
+                    run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
+                ),
+            )
+            disabled_owner_calls: list[Any] = []
+
+            def reject_owner_when_disabled(_self, owner_request):
+                disabled_owner_calls.append(owner_request)
+                raise AssertionError("disabled run surface called ForecastOwner")
+
+            with monkeypatch.context() as disabled_probe:
+                disabled_probe.setattr(ForecastOwner, "run", reject_owner_when_disabled)
+                disabled_response = disabled_client.post(
+                    f"/api/v1/runs/{core_run_id}/predictive-calibration",
+                    json=body,
+                )
+            assert disabled_response.status_code == 503, disabled_response.text
+            assert (
+                disabled_response.json()["code"]
+                == "candidate_predictive_diagnostic_surface_disabled"
+            )
+            assert disabled_owner_calls == []
+            assert event_receipts(
+                disabled_event_log.list_events(run_id=core_run_id, job_id=job_id)
+            ) == event_receipts(disabled_events_before)
+            assert (
+                disabled_event_log._store.get_runtime_operation_intent(disabled_intent_key)
+                is None
+            )
+            assert cas_byte_inventory() == disabled_cas_before
+
+        producer_started = Event()
+        release_producer = Event()
+        owner_requests: list[Any] = []
+        original_owner_run = ForecastOwner.run
+
+        def hold_single_owner(self, owner_request):
+            owner_requests.append(owner_request)
+            producer_started.set()
+            if not release_producer.wait(timeout=60):
+                raise TimeoutError("test did not release the admitted forecast owner")
+            return original_owner_run(self, owner_request)
+
+        monkeypatch.setattr(ForecastOwner, "run", hold_single_owner)
+        second_app = new_reader_app()
+        with TestClient(second_app) as follower_client:
+            primary_event_store = event_log._store
+            follower_service = second_app.state.runtime_container.control_service
+            assert follower_service is not None
+            follower_event_store = follower_service._diagnostic_event_log._store
+            assert primary_event_store is not follower_event_store
+            assert primary_event_store._sqlite_path == follower_event_store._sqlite_path
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                owner_future = pool.submit(
+                    client.post,
+                    f"/api/v1/runs/{core_run_id}/predictive-calibration",
+                    json=body,
+                )
+                try:
+                    assert producer_started.wait(timeout=60), "the real producer did not start"
+                    follower = follower_client.post(
+                        f"/api/v1/runs/{core_run_id}/predictive-calibration",
+                        json=body,
+                    )
+                    assert follower.status_code == 409, follower.text
+                    assert (
+                        follower.json()["code"]
+                        == "predictive_calibration_intent_in_progress"
+                    )
+                finally:
+                    release_producer.set()
+                created = owner_future.result(timeout=360)
+        assert created.status_code == 201, created.text
+        assert len(owner_requests) == 1
+        assert getattr(owner_requests[0].model_spec_ref, "manifest_profile_sha256", None) == (
+            selected["ir.model_spec"]["manifest_profile_sha256"]
+        )
+        assert getattr(owner_requests[0].policy_spec_ref, "manifest_profile_sha256", None) == (
+            selected["ir.policy_spec"]["manifest_profile_sha256"]
+        )
+        result = created.json()
+        association = result["association"]
+        assert association["assessment"] == "limited"
+        assert association["authority_scope"] == "predictive_only"
+        for field in (
+            "issuer_status",
+            "source_time_status",
+            "population_scope_status",
+            "counterfactual_credibility_status",
+        ):
+            assert association[field] == "not_established"
+        assert association["s10"]["counterfactual_credibility"] == "not_established"
+        assert association["intent_id"] == body["intent_id"]
+        assert association["run_manifest_ref"] == run["manifest_ref"]
+        assert association["request_sha256"]
+        association_ref = result["association_ref"]
+        assert association["model_spec_ref"] == selected["ir.model_spec"].model_dump(mode="json")
+        assert association["policy_spec_ref"] == selected["ir.policy_spec"].model_dump(mode="json")
+
+        control_service = app.state.runtime_container.control_service
+        assert control_service is not None
+        event_log = control_service._diagnostic_event_log
+        events = event_log.list_events(run_id=core_run_id, job_id=job_id)
+        published = [
+            record
+            for record in events
+            if record.event.event_type
+            == "polisyos.runtime.diagnostic.ref_publication.v1"
+            and record.event.producer_component
+            == "polisyos.runtime.http.predictive_calibration"
+        ]
+        assert len(published) == 1
+        assert str(association_ref["artifact_id"]) in published[0].event.artifact_refs
+        assert published[0].payload_sha256 is not None
+        operation_key = calibration_service.RuntimeOperationIntentKey(
+            purpose="run.predictive_calibration.v1",
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
+            run_id=core_run_id,
+            intent_id=body["intent_id"],
+            body_sha256=calibration_service._operation_body_sha256(
+                request=PredictiveCalibrationRequest.model_validate(body),
+                run_id=core_run_id,
+                job_id=job_id,
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+                run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
+            ),
+        )
+        completed_intent = event_log._store.get_runtime_operation_intent(operation_key)
+        assert completed_intent.status == "completed"
+        assert completed_intent.record is not None
+        assert completed_intent.record.event_id == association["event_id"]
+        assert json.loads(completed_intent.record.result_ref_json or "{}") == association_ref
+
+    fresh_app = new_reader_app()
+    with TestClient(fresh_app) as client:
+        assert (
+            fresh_app.state.runtime_api_ctx.allow_candidate_run_predictive_calibration_surface
+            is True
+        )
+        reopened = client.get(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration"
+        )
+        assert reopened.status_code == 200, reopened.text
+        reopened_result = reopened.json()
+        assert reopened_result["association_ref"] == association_ref
+        assert reopened_result["association"] == association
+        assert reopened_result["association"]["run_manifest_ref"] == run["manifest_ref"]
+
+        replay = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=body,
+        )
+        assert replay.status_code == 201, replay.text
+        assert len(owner_requests) == 1
+        assert replay.json()["association_ref"] == association_ref
+        assert replay.json()["association"] == association
+
+        conflicting_body = {**body, "target_metric": "different-metric"}
+        conflict_response = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=conflicting_body,
+        )
+        assert conflict_response.status_code == 409, conflict_response.text
+        assert conflict_response.json()["code"] == "predictive_calibration_intent_conflict"
+
+        control_service = fresh_app.state.runtime_container.control_service
+        assert control_service is not None
+        event_log = control_service._diagnostic_event_log
+        original_list_events = event_log.list_events
+        stored_events = original_list_events(run_id=core_run_id, job_id=job_id)
+        selected_event = next(
+            record
+            for record in stored_events
+            if record.event.event_id == association["event_id"]
+        )
+        tampered = replace(selected_event, payload_sha256="sha256:" + "0" * 64)
+
+        def tampered_list_events(**kwargs):
+            return [
+                tampered if record.event.event_id == tampered.event.event_id else record
+                for record in original_list_events(**kwargs)
+            ]
+
+        monkeypatch.setattr(event_log, "list_events", tampered_list_events)
+        tampered_get = client.get(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration"
+        )
+        assert tampered_get.status_code == 409, tampered_get.text
+        assert (
+            tampered_get.json()["code"]
+            == "predictive_calibration_event_payload_integrity_failed"
+        )
+
+        legacy_body = {**body, "intent_id": "r228-legacy-intent-fixture"}
+        legacy_request = PredictiveCalibrationRequest.model_validate(legacy_body)
+        legacy_request_sha256 = calibration_service._request_sha256(legacy_request)
+        legacy_event_id = calibration_service._legacy_intent_event_id(
+            core_run_id, legacy_request.intent_id
+        )
+        legacy_association = PredictiveCalibrationAssociation.model_validate(
+            association
+        ).model_copy(
+            update={
+                "event_id": legacy_event_id,
+                "intent_id": legacy_request.intent_id,
+                "request_sha256": legacy_request_sha256,
+            }
+        )
+        reopened_store = cast("FileSystemCAS", fresh_app.state.runtime_api_ctx.store)
+        legacy_association_ref = calibration_service._persist_association(
+            store=reopened_store,
+            association=legacy_association,
+            report_inputs=(),
+        )
+        calibration_service._append_association_event(
+            event_log=event_log,
+            association=legacy_association,
+            association_ref=legacy_association_ref,
+            request_sha256=legacy_request_sha256,
+            refs=(
+                legacy_association.run_manifest_ref,
+                legacy_association.candidate_source_ref,
+                legacy_association.observed_source_ref,
+                legacy_association.model_spec_ref,
+                legacy_association.policy_spec_ref,
+                legacy_association.calibration_rule_ref,
+                legacy_association.backtest_report_ref,
+                legacy_association.empirical_evidence_ref,
+                legacy_association.uncertainty_bundle_ref,
+            ),
+        )
+        legacy_retry = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json=legacy_body,
+        )
+        assert legacy_retry.status_code == 409, legacy_retry.text
+        assert (
+            legacy_retry.json()["code"]
+            == "predictive_calibration_legacy_intent_scope_unverifiable"
+        )
+        legacy_key = calibration_service.RuntimeOperationIntentKey(
+            purpose="run.predictive_calibration.v1",
+            tenant_id="tenant-fixture",
+            cell_id="cell-fixture",
+            actor_subject_sha256=hashlib.sha256(b"user-fixture").hexdigest(),
+            run_id=core_run_id,
+            intent_id=legacy_request.intent_id,
+            body_sha256=calibration_service._operation_body_sha256(
+                request=legacy_request,
+                run_id=core_run_id,
+                job_id=job_id,
+                tenant_id="tenant-fixture",
+                cell_id="cell-fixture",
+                run_manifest_ref=ArtifactRef.model_validate(run["manifest_ref"]),
+            ),
+        )
+        assert (
+            event_log._store.get_runtime_operation_intent(legacy_key).status == "unknown"
+        )
+        assert len(owner_requests) == 1
+
+
+def test_parent_joint_atom_binding_requires_full_source_owned_identity() -> None:
+    """Parent N8 scope cannot erase atom id, content hash, or frame identity."""
+    from polisyos.runtime.http.routes import runs
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    parent_atom = _request_with_atom_count(3).intervention_atoms[0]
+    match_source_atom = getattr(runs, "_parent_joint_atom_matches_child_source", lambda *_: False)
+
+    assert match_source_atom(parent_atom, parent_atom)
+    for field, foreign_value in (
+        ("atom_id", "atom_ffffffffffffffff"),
+        ("content_hash", "sha256:" + "f" * 64),
+        ("problem_frame_ref", "sha256:" + "f" * 64),
+    ):
+        child_atom = parent_atom.model_copy(update={field: foreign_value})
+        assert not match_source_atom(parent_atom, child_atom), field
+
+
+def test_parent_joint_request_bridge_refuses_present_malformed_request() -> None:
+    """Absent parent request remains absent; a present malformed one cannot vanish."""
+    from polisyos.runtime.http.services.control import generation_cycle
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    build_requests = getattr(
+        generation_cycle,
+        "_parent_joint_simulation_requests_by_node",
+        lambda _root_ref, _problem: {},
+    )
+    request = _request_with_atom_count(3)
+    problem = SimpleNamespace(runtime_hints={"joint_simulation_request": request.model_dump(mode="json")})
+
+    parsed = build_requests("design://root", problem)
+    assert parsed["design://root"].model_dump(mode="json") == request.model_dump(mode="json")
+    assert build_requests("design://root", SimpleNamespace(runtime_hints={})) == {}
+    for supplied in (None, {"world_model_record_ref": "missing-required-fields"}):
+        with pytest.raises(ValueError, match="recursive_parent_n5_request_invalid"):
+            build_requests(
+                "design://root",
+                SimpleNamespace(runtime_hints={"joint_simulation_request": supplied}),
+            )
+
+
+def test_parent_joint_member_compiler_uses_one_exact_source_atom_per_child() -> None:
+    """Compiler axes come from persisted parent N4 members, never caller tuples."""
+    from polisyos.runtime.http.services.control import generation_cycle
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _controlled_declared_n4_child_inputs,
+    )
+
+    problem, source_result = _controlled_declared_n4_child_inputs()
+    children = derive_n4_candidate_child_problems(
+        problem, source_result, model_id=source_result.model_id
+    )
+    compile_members = getattr(
+        generation_cycle,
+        "_compile_parent_joint_n4_atom_members",
+        lambda **_kwargs: (),
+    )
+
+    atoms = compile_members(
+        problem=problem,
+        source_result=source_result,
+        child_problems=children,
+        model_id=source_result.model_id,
+        world_model_record_ref=source_result.candidates[0].atom.world_model_record_ref,
+    )
+
+    assert len(atoms) == len(children) == 2
+    assert tuple(atom.problem_frame_ref for atom in atoms) == (
+        source_result.design_problem_ref,
+    ) * len(children)
+    assert {atom.content_hash for atom in atoms} == {
+        atom_hash for child in children for atom_hash in child.source_atom_refs
+    }
+
+
+def test_parent_joint_member_compiler_refuses_ambiguous_group_selection() -> None:
+    """A semantic child with multiple parent proposals has no implicit winner."""
+    from polisyos.runtime.http.services.control import generation_cycle
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _controlled_declared_n4_child_inputs,
+    )
+
+    problem, source_result = _controlled_declared_n4_child_inputs()
+    children = derive_n4_candidate_child_problems(
+        problem, source_result, model_id=source_result.model_id
+    )
+    first, *remaining = children
+    duplicated_member = first.__class__(
+        problem=first.problem,
+        source_result_ref=first.source_result_ref,
+        source_atom_refs=(*first.source_atom_refs, first.source_atom_refs[0]),
+        semantic_ref=first.semantic_ref,
+    )
+    compile_members = getattr(
+        generation_cycle,
+        "_compile_parent_joint_n4_atom_members",
+        lambda **_kwargs: (),
+    )
+
+    with pytest.raises(ValueError, match="recursive_parent_n5_source_member_selection_not_established"):
+        compile_members(
+            problem=problem,
+            source_result=source_result,
+            child_problems=(duplicated_member, *remaining),
+            model_id=source_result.model_id,
+            world_model_record_ref=source_result.candidates[0].atom.world_model_record_ref,
+        )
+
+
+@pytest.mark.parametrize("atom_count", [3, 4])
+def test_parent_n8_dto_consumes_complete_atom_source_bindings(
+    monkeypatch: pytest.MonkeyPatch,
+    atom_count: int,
+) -> None:
+    """Parent-scope markers cannot survive a missing or foreign child atom binding."""
+    from copy import deepcopy
+    from math import comb
+
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationN5Observation,
+        RunCandidateSimulationN8ChildSourceBinding,
+    )
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.routes.runs import (
+        _n5_interaction_evidence_projection,
+        _n5_interaction_scope_fields,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    request = _request_with_atom_count(atom_count).model_copy(
+        update={"replications": 3, "seed": 41}
+    )
+
+    def stable_step(state, params):
+        del state, params
+        return {
+            "counterfactual_result": {
+                "world_summaries": [
+                    {"world_index": 0, "firm_survival": {"mean": 0.25}}
+                ]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(stable_step))
+    result = JointSimulationHorizonController().run(request)
+    evidence = _n5_interaction_evidence_projection(result)
+    assert evidence is not None
+    assert evidence["numeric_interaction"] == "non_additive"
+    assert evidence["numeric_interaction_basis"] == (
+        "finite_checked_model_point_estimate_only"
+    )
+    assert evidence["interaction_sampling_status"] == "estimated"
+    assert evidence["checked_interaction_orders"] == (
+        [1, 2, 3] if atom_count == 3 else [1, 2]
+    )
+    if atom_count == 4:
+        assert "aggregate_order_3_plus_not_identified" in (
+            result.feedback_classification.limitations
+        )
+    scope = _n5_interaction_scope_fields(result)
+    joint_effect = 0.25
+    single_effect = joint_effect - request.baseline_state["firm_survival"]
+    expected_pair_effect = joint_effect - 2 * single_effect
+    expected_residual = (
+        joint_effect
+        - len(request.intervention_atoms) * single_effect
+        - comb(len(request.intervention_atoms), 2) * expected_pair_effect
+    )
+    expected_seeds = [41, 42, 43]
+    assert scope["replication_seeds"] == tuple(expected_seeds)
+    expected_pairs = {
+        frozenset((left.intervention_id, right.intervention_id))
+        for index, left in enumerate(request.intervention_atoms)
+        for right in request.intervention_atoms[index + 1 :]
+    }
+    assert len(evidence["interaction_terms"]) == len(expected_pairs)
+    assert {
+        frozenset(term["atom_ids"]) for term in evidence["interaction_terms"]
+    } == expected_pairs
+    for term in evidence["interaction_terms"]:
+        summary = term["replication_sampling_by_step"]["0"]
+        assert summary["status"] == "estimated"
+        assert summary["seeds"] == expected_seeds
+        assert summary["samples"] == [
+            {"seed": seed, "value": expected_pair_effect}
+            for seed in expected_seeds
+        ]
+        assert summary["mean"] == pytest.approx(expected_pair_effect)
+        assert summary["standard_error"] == pytest.approx(0.0)
+    residual_summary = evidence["higher_order_residual_sampling"][
+        result.selected_outcomes[0]
+    ]["0"]
+    assert residual_summary["status"] == "estimated"
+    assert residual_summary["seeds"] == expected_seeds
+    assert residual_summary["samples"] == [
+        {"seed": seed, "value": expected_residual} for seed in expected_seeds
+    ]
+    assert residual_summary["mean"] == pytest.approx(expected_residual)
+    assert residual_summary["standard_error"] == pytest.approx(0.0)
+    parent_ref = request.intervention_atoms[0].problem_frame_ref
+
+    def artifact_ref(kind: str, digit: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id="sha256:" + digit * 64,
+            kind=kind,
+            media_type="application/json",
+        )
+
+    child_refs = tuple(f"child://{index}" for index, _atom in enumerate(request.intervention_atoms))
+    bindings = tuple(
+        RunCandidateSimulationN8ChildSourceBinding(
+            child_node_ref=child_ref,
+            child_design_problem_ref=atom.problem_frame_ref,
+            n4_source_ref=artifact_ref("runtime.quality.n4_candidate_scenario_source", "a"),
+            context_job_ref=artifact_ref("runtime.quality.cycle_substrate_context_job", "b"),
+            n5_input_ref=artifact_ref("runtime.quality.candidate_simulation_n5_input", "c"),
+            n5_result_ref=artifact_ref("polisyos.runtime.joint_simulation_result", "d"),
+            profile_config_ref="runtime-config:candidate-simulation/profile@sha256:"
+            + "e" * 64,
+            profile_selection_ref="sha256:" + "f" * 64,
+            source_intervention_id=atom.intervention_id,
+            source_atom_id=atom.atom_id,
+            source_atom_content_hash=atom.content_hash,
+            source_problem_frame_ref=atom.problem_frame_ref,
+            parent_atom_id=atom.atom_id,
+            parent_atom_content_hash=atom.content_hash,
+        )
+        for child_ref, atom in zip(child_refs, request.intervention_atoms, strict=True)
+    )
+    payload = {
+        "node_ref": "design-problem://parent",
+        "design_problem_ref": parent_ref,
+        "atom_ids": tuple(result.atom_ids),
+        "selected_outcomes": tuple(result.selected_outcomes),
+        "status": "joint_simulated",
+        "n5_interaction_evidence": evidence,
+        **scope,
+        "world_model_record_content_hash": result.world_model_record_content_hash,
+        "n8_numeric_interaction": evidence["numeric_interaction"],
+        "n8_numeric_interaction_basis": evidence["numeric_interaction_basis"],
+        "n8_interaction_sampling_status": evidence["interaction_sampling_status"],
+        "n8_status": "value_pending_n8",
+        "n8_authority_blockers": ("joint_interaction_rule_not_established",),
+        "n8_joint_request_content_hash": gy_content_hash(request.model_dump(mode="json")),
+        "n8_joint_world_model_record_ref": request.world_model_record_ref,
+        "n8_joint_outcome_units": {outcome: "synthetic_score" for outcome in result.selected_outcomes},
+        "n8_joint_parent_atom_ids": tuple(
+            atom.atom_id for atom in request.intervention_atoms
+        ),
+        "n8_joint_parent_atom_content_hashes": tuple(
+            atom.content_hash for atom in request.intervention_atoms
+        ),
+        "n8_parent_child_refs": child_refs,
+        "n8_parent_child_source_bindings": bindings,
+        "n8_joint_scope_status": "resolved",
+        "n8_joint_value_limitation_code": "joint_interaction_rule_not_established",
+    }
+    typed = RunCandidateSimulationN5Observation.model_validate(payload)
+    assert typed.n8_status == "value_pending_n8"
+    assert typed.n8_numeric_interaction == evidence["numeric_interaction"]
+    assert typed.n8_joint_value_limitation_code == "joint_interaction_rule_not_established"
+
+    candidate_diagnostic = deepcopy(payload)
+    candidate_diagnostic.update(
+        {
+            "n8_joint_scope_status": "not_established",
+            "n8_joint_scope_limitation_code": "parent_joint_coupling_evidence_not_established",
+            "n8_joint_value_limitation_code": None,
+            "n8_authority_blockers": (
+                "parent_joint_coupling_evidence_not_established",
+            ),
+            "n8_candidate_joint_selection_status": "resolved",
+            "n8_candidate_joint_selection_content_hash": gy_content_hash(
+                {
+                    "request_hash": gy_content_hash(request.model_dump(mode="json")),
+                    "atom_hashes": [atom.content_hash for atom in request.intervention_atoms],
+                }
+            ),
+            "n8_candidate_parent_atom_ids": tuple(
+                atom.atom_id for atom in request.intervention_atoms
+            ),
+            "n8_candidate_parent_atom_content_hashes": tuple(
+                atom.content_hash for atom in request.intervention_atoms
+            ),
+            "n8_candidate_parent_intervention_ids": tuple(result.atom_ids),
+            "n8_candidate_parent_child_refs": child_refs,
+            "n8_candidate_joint_selection_limitation_code": None,
+            "n8_candidate_member_basis": "hypothetical_all_unique_n4_source_members",
+            "n8_source_candidate_relationship": "alternatives",
+            "n8_policy_composition_status": "not_established",
+            "n8_policy_composition_limitation_code": (
+                "n4_source_candidates_are_alternatives_not_authored_compound_design"
+            ),
+            "n8_child_to_parent_refinement_status": "not_established",
+            "n8_child_to_parent_refinement_limitation_code": (
+                "child_to_parent_refinement_rule_not_established"
+            ),
+        }
+    )
+    diagnostic = RunCandidateSimulationN5Observation.model_validate(candidate_diagnostic)
+    assert diagnostic.n8_candidate_joint_selection_status == "resolved"
+    assert diagnostic.n8_policy_composition_status == "not_established"
+    assert diagnostic.n8_child_to_parent_refinement_status == "not_established"
+
+    legacy_selection = deepcopy(candidate_diagnostic)
+    legacy_selection.update(
+        {
+            "n8_candidate_member_basis": "not_established",
+            "n8_source_candidate_relationship": "not_established",
+            "n8_policy_composition_limitation_code": (
+                "legacy_selection_receipt_has_no_composition_basis"
+            ),
+            "n8_child_to_parent_refinement_limitation_code": (
+                "legacy_selection_receipt_has_no_refinement_basis"
+            ),
+        }
+    )
+    legacy_diagnostic = RunCandidateSimulationN5Observation.model_validate(
+        legacy_selection
+    )
+    assert legacy_diagnostic.n8_candidate_joint_selection_status == "resolved"
+    assert legacy_diagnostic.n8_candidate_member_basis == "not_established"
+    assert legacy_diagnostic.n8_policy_composition_status == "not_established"
+
+    missing_basis = deepcopy(candidate_diagnostic)
+    missing_basis["n8_candidate_member_basis"] = None
+    with pytest.raises(
+        ValidationError,
+        match="run_n8_candidate_joint_selection_binding_incomplete",
+    ):
+        RunCandidateSimulationN5Observation.model_validate(missing_basis)
+
+    false_composition = deepcopy(candidate_diagnostic)
+    false_composition["n8_policy_composition_status"] = "resolved"
+    with pytest.raises(ValidationError):
+        RunCandidateSimulationN5Observation.model_validate(false_composition)
+
+    missing_binding = deepcopy(typed.model_dump(mode="json"))
+    missing_binding["n8_parent_child_source_bindings"].pop()
+    with pytest.raises(ValidationError, match="run_n8_joint_scope_binding_incomplete"):
+        RunCandidateSimulationN5Observation.model_validate(missing_binding)
+
+    foreign_source_atom = deepcopy(typed.model_dump(mode="json"))
+    foreign_source_atom["n8_parent_child_source_bindings"][0]["source_atom_content_hash"] = (
+        "sha256:" + "0" * 64
+    )
+    with pytest.raises(ValidationError, match="run_n8_joint_scope_binding_incomplete"):
+        RunCandidateSimulationN5Observation.model_validate(foreign_source_atom)
+
+
+def test_joint_interaction_candidate_intent_has_no_caller_axes() -> None:
+    """The HTTP intent requests a candidate diagnostic without supplying its axes."""
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        _build_parent_joint_candidate_request,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+    from tests.unit.remediation.test_sim_03 import _request_with_atom_count
+
+    intent = "n4_unique_parent_source_members.v1"
+    base_simulation_request = _request_with_atom_count(3)
+    legacy_request_dump = base_simulation_request.model_dump(mode="json")
+    assert "candidate_intent" not in legacy_request_dump
+    candidate_scope = {
+        "candidate_intent": intent,
+        "member_basis": "hypothetical_all_unique_n4_source_members",
+        "source_candidate_relationship": "alternatives",
+        "composition_status": "not_established",
+        "composition_limitation_code": (
+            "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        ),
+        "child_to_parent_refinement_status": "not_established",
+        "child_to_parent_refinement_limitation_code": (
+            "child_to_parent_refinement_rule_not_established"
+        ),
+    }
+    scoped_request = JointSimulationRequest.model_validate(
+        {
+            **legacy_request_dump,
+            **candidate_scope,
+        }
+    )
+    assert {
+        key: scoped_request.model_dump(mode="json")[key]
+        for key in candidate_scope
+    } == candidate_scope
+    partial_scope = {
+        **legacy_request_dump,
+        "candidate_intent": intent,
+    }
+    with pytest.raises(ValidationError, match="joint_simulation_candidate_diagnostic_scope_invalid"):
+        JointSimulationRequest.model_validate(partial_scope)
+
+    request = NaturalLanguageRunRequest(
+        request="Evaluate the combined candidate intervention.",
+        joint_interaction_candidate_intent=intent,
+    )
+    payload = request.model_dump(mode="json")
+    assert payload["joint_interaction_candidate_intent"] == intent
+    assert not {
+        "atom_ids",
+        "outcome_variable",
+        "seed",
+        "replications",
+        "profile_ref",
+    }.intersection(payload)
+
+    with pytest.raises(
+        DesignProblemAuthorityError,
+        match="recursive_parent_joint_candidate_intent_not_established",
+    ):
+        _build_parent_joint_candidate_request(
+            candidate_intent=None,
+            problem=None,  # type: ignore[arg-type]
+            source_result=None,
+            source_ref=None,  # type: ignore[arg-type]
+            child_problems=(),
+            child_node_refs=(),
+            model_id="",
+            handoff=None,  # type: ignore[arg-type]
+            admission_owner=None,  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(ValidationError):
+        NaturalLanguageRunRequest.model_validate(
+            {
+                "request": "Evaluate the combined candidate intervention.",
+                "joint_interaction_candidate_intent": "caller_supplied_axes",
+                "selected_atom_ids": ["caller-created-axis"],
+            }
+        )

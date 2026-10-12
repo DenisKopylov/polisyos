@@ -13,10 +13,22 @@ from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, CausalDiscoveryReportRef
 
 if TYPE_CHECKING:
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.causal_graph import (
+        CausalGraphModel,
+        GraphProjectionDisposition,
+        _allows_legacy_graph_projection_adaptation,
+        graph_for_analysis,
+        legacy_graph_projection_disposition,
+    )
     from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 else:
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir.analytics.causal_graph import (
+        CausalGraphModel,
+        GraphProjectionDisposition,
+        _allows_legacy_graph_projection_adaptation,
+        graph_for_analysis,
+        legacy_graph_projection_disposition,
+    )
     from polisyos.ir.analytics.invariance import RegimeShiftIdentificationCertificate
 
 _ALGEBRAIC_IMPLIED_CONSTRAINTS_KIND = "ir.algebraic_implied_constraints"
@@ -902,10 +914,11 @@ class CausalDiscoveryReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
     method: str
     graph: CausalGraphModel
     resolved_graph: CausalGraphModel | None = None
+    projection_disposition: GraphProjectionDisposition
     bootstrap_stability: dict[str, float] = Field(default_factory=dict)
     n_bootstrap: int = Field(default=0, ge=0)
     significance_level: float = Field(default=0.05, ge=0.0, le=1.0)
@@ -914,6 +927,47 @@ class CausalDiscoveryReport(BaseModel):
     algebraic_constraints: AlgebraicConstraintReport | None = None
     latent_discovery: LatentDiscoveryBundle | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _adapt_historical_graph_projection(cls, value: Any) -> Any:
+        if not isinstance(value, Mapping) or "projection_disposition" in value:
+            return value
+        if (
+            "graph" not in value
+            or not _allows_legacy_graph_projection_adaptation(value)
+        ):
+            return value
+        data = dict(value)
+        source_graph = CausalGraphModel.model_validate(data["graph"])
+        resolved_value = data.get("resolved_graph")
+        resolved_graph = (
+            CausalGraphModel.model_validate(resolved_value)
+            if resolved_value is not None
+            else None
+        )
+        data["projection_disposition"] = legacy_graph_projection_disposition(
+            source_graph,
+            resolved_graph,
+        )
+        if data.get("schema_version") in (None, "1.0"):
+            data["schema_version"] = "1.1"
+        return data
+
+    @model_validator(mode="after")
+    def _validate_graph_projection(self) -> CausalDiscoveryReport:
+        if self.projection_disposition is None:
+            raise ValueError(
+                "causal discovery reports require a typed graph disposition"
+            )
+        graph_for_analysis(self.graph, self.resolved_graph, self.projection_disposition)
+        return self
+
+    def graph_for_analysis(self) -> CausalGraphModel | None:
+        """Return only a content-bound DAG accepted by this report's disposition."""
+        return graph_for_analysis(
+            self.graph, self.resolved_graph, self.projection_disposition
+        )
 
 
 class DataType(str, Enum):
@@ -986,9 +1040,12 @@ def persist_causal_discovery_report(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.causal_discovery_report",
-    schema_version: str = "1.0",
+    schema_version: str | None = None,
 ) -> CausalDiscoveryReportRef:
     """Persist a discovery report and materialize large constraint payloads when needed."""
+    resolved_schema_version = schema_version or report.schema_version
+    if resolved_schema_version != report.schema_version:
+        raise ValueError("report payload and CAS schema versions must match")
     persisted_report = _materialize_algebraic_constraint_payloads(
         store,
         report,
@@ -999,7 +1056,7 @@ def persist_causal_discovery_report(
         persisted_report.model_dump(mode="json"),
         kind="ir.causal_discovery_report",
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=resolved_schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )

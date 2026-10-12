@@ -10,9 +10,14 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 _CACHED_METADATA = ComponentMetadata(
@@ -326,6 +331,30 @@ def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:
     assert result_b.report.status == "ok"
     assert TopLevelRefNode.calls == 1
     assert result_b.state.preflight_report_ref == _TOP_LEVEL_REF
+
+
+def test_cache_rejects_boolean_integer_alias_in_live_mutation_journal(tmp_path) -> None:
+    """A valid CAS entry must miss when its live ordered journal differs by JSON type."""
+    run_id = "R_cache_mutation_type_guard"
+    state = ExperimentState(run_id=run_id, params={"seed": 7})
+    branch = branch_state(state, write_paths=_CACHED_SPEC.state_writes)
+    branch.state.params["cached_counter"] = True
+    outcome = NodeOutcome(status="ok", state=branch.state)
+    cache = NodeResultCache(FileSystemCAS(tmp_path), run_id=run_id)
+    key = compute_idempotency_key(spec=_CACHED_SPEC, state=state)
+
+    cache.put(
+        key,
+        node_id=str(_CACHED_SPEC.metadata.component_id),
+        outcome=outcome,
+    )
+    journal = cache._mutation_journals[key]
+    assert journal.operations[0].value is True
+    # This adversarial live-record mutation exposes Python's True == 1 alias.
+    object.__setattr__(journal.operations[0], "value", 1)
+
+    assert cache.get(key) is None
+    assert not cache.has(key)
 
 
 # Production mutation caught: an incompatible cached list target must evict

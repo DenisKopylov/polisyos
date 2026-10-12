@@ -13,7 +13,7 @@ from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.error import HTTPError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -152,6 +152,14 @@ class ProviderPreflightReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     status: str
+    producer_completion_observation: Literal["not_started", "complete", "unavailable"] = Field(
+        default="unavailable",
+        description=(
+            "Source-owned provider-completion state. not_started is emitted only "
+            "before the completion request begins; complete requires its durable "
+            "producer event; unavailable leaves settlement unresolved."
+        ),
+    )
     provider: str
     base_url: str
     models: list[str] = Field(default_factory=list)
@@ -967,6 +975,7 @@ async def run_provider_preflight(
             provider=resolved_provider,
             base_url=resolved_base_url,
             models=[],
+            producer_completion_observation="not_started",
             checked_at=checked_at,
             retryable=False,
             failure=failure,
@@ -984,6 +993,7 @@ async def run_provider_preflight(
                     details={"reason": "POLISYOS_LLM_SIMULATION_MODE is enabled"},
                 )
             ],
+            producer_completion_observation="not_started",
             checked_at=checked_at,
         )
 
@@ -1005,6 +1015,7 @@ async def run_provider_preflight(
             provider=resolved_provider,
             base_url=resolved_base_url,
             models=requested_models,
+            producer_completion_observation="not_started",
             checked_at=checked_at,
             retryable=False,
             failure=failure,
@@ -1085,6 +1096,7 @@ async def run_provider_preflight(
             provider=resolved_provider,
             base_url=resolved_base_url,
             models=requested_models,
+            producer_completion_observation="not_started",
             checked_at=checked_at,
             retryable=False,
             failure=failure,
@@ -1249,6 +1261,7 @@ async def run_provider_preflight(
             checks=checks,
             pricing=pricing,
             capabilities=capabilities,
+            producer_completion_observation="not_started",
             checked_at=checked_at,
             retryable=bool(failure_payload.get("retryable")),
             failure=failure_payload,
@@ -1286,6 +1299,7 @@ async def run_provider_preflight(
             checks=checks,
             pricing=pricing,
             capabilities=capabilities,
+            producer_completion_observation="not_started",
             checked_at=checked_at,
             retryable=False,
             failure=failure,
@@ -1331,6 +1345,7 @@ async def run_provider_preflight(
         if accounting_enabled
         else nullcontext()
     )
+    producer_completion_observation: Literal["not_started", "complete", "unavailable"] = "unavailable"
     try:
         started = time.perf_counter()
         with producer_scope:
@@ -1372,6 +1387,7 @@ async def run_provider_preflight(
         )
         if accounting_enabled and producer_event_reference is not None:
             details["producer_event"] = producer_event_reference
+            producer_completion_observation = "complete"
         if accounting_enabled and producer_event_reference is None:
             message = (
                 "Provider preflight completion has no exact durable producer settlement; "
@@ -1451,6 +1467,7 @@ async def run_provider_preflight(
                     message=message,
                     checks=checks,
                 )
+            producer_completion_observation = "complete"
             failure_details["producer_event"] = producer_event_reference
         checks.append(
             ProviderPreflightCheck(
@@ -1471,6 +1488,7 @@ async def run_provider_preflight(
             checked_at=checked_at,
             retryable=retryable,
             failure=failure,
+            producer_completion_observation=producer_completion_observation,
             api_key_env=resolved_env,
             api_key_fingerprint=api_key_fingerprint,
         )
@@ -1488,6 +1506,7 @@ async def run_provider_preflight(
         pricing=pricing,
         capabilities=capabilities,
         checked_at=checked_at,
+        producer_completion_observation=producer_completion_observation,
         api_key_env=resolved_env,
         api_key_fingerprint=api_key_fingerprint,
     )

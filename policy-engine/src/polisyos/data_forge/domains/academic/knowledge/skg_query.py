@@ -9,7 +9,7 @@ from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
-from typing import Any, Literal, cast
+from typing import Any, Literal, NamedTuple, cast
 
 import duckdb
 import numpy as np
@@ -38,11 +38,15 @@ from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     confidence_layer_vintage,
     require_forwardable_confidence,
 )
-from polisyos.data_forge.domains.academic.knowledge.store import ScholarKnowledgeStore
+from polisyos.data_forge.domains.academic.knowledge.store import (
+    ScholarKnowledgeStore,
+    iter_causal_claim_results_v2,
+)
 from polisyos.data_forge.domains.academic.knowledge.types import (
     BoundaryConditionResult,
     CausalClaimResult,
     CausalClaimResultV1,
+    CausalClaimResultV2,
     ClaimVocabularySourceRowBinding,
     ParameterEstimateResult,
     ParameterPrior,
@@ -234,6 +238,108 @@ class PreparedSKGReadReceipt(BaseModel):
     source_snapshot_authenticity: Literal["not_established"] = "not_established"
 
 
+class _CredalVariableRow(NamedTuple):
+    canonical_name: str | None
+    approved_canonical_name: str | None
+    is_approved_canonical: bool | None
+    resolution_method: str | None
+    resolution_confidence: float | None
+    mention_count: int | None
+    parent_name: str | None
+    approved_parent_name: str | None
+
+
+class _CredalSynonymRow(NamedTuple):
+    synonym: str | None
+    canonical_name: str | None
+    method: str | None
+    confidence: float | None
+    approved: bool | None
+
+
+class _CredalCausalEdgeRow(NamedTuple):
+    edge_id: str | None
+    src: str | None
+    dst: str | None
+    direction: str | None
+    n_articles: int | None
+    evidence_strength: str | None
+    confidence: float | None
+    candidate_layer: str | None
+    quality_signals_json: str | None
+
+
+class _CredalFamilyEdgeRow(NamedTuple):
+    family_edge_id: str | None
+    src_family: str | None
+    dst_family: str | None
+    direction: str | None
+    n_articles: int | None
+    n_claims: int | None
+    evidence_strength: str | None
+    confidence: float | None
+    direction_histogram_json: str | None
+    design_tier_histogram_json: str | None
+    candidate_layer: str | None
+    quality_signals_json: str | None
+
+
+class _CredalModerationRow(NamedTuple):
+    moderation_id: str | None
+    base_cause: str | None
+    base_effect: str | None
+    moderator: str | None
+    base_claim_id: str | None
+    direction_of_mod: str | None
+    interaction_coeff: float | None
+    interaction_pvalue: float | None
+    evidence_count: int | None
+    confidence: float | None
+    match_quality: str | None
+    alignment_source: str | None
+    source_refs: str | None
+    skg_version: int | None
+
+
+class _CredalContestedEdgeRow(NamedTuple):
+    contested_edge_id: str | None
+    src_family: str | None
+    dst_family: str | None
+    dominant_direction: str | None
+    resolution_status: str | None
+    runtime_support: str | None
+    confidence: float | None
+    positive_weight: float | None
+    negative_weight: float | None
+    mixed_weight: float | None
+    direction_histogram_json: str | None
+    quality_signals_json: str | None
+    claim_refs: str | None
+
+
+@dataclass(frozen=True)
+class PreparedSKGCredalSourceRows:
+    """Fixed, typed row projections read from one prepared SKG source transaction.
+
+    The tuple fields are a closed table set for K_ref derivation. This value
+    carries no query handle or mutation capability; synthetic ancestry is
+    included only when the bound raw-claims table has that column.
+    """
+
+    source_snapshot_ref: str
+    source_snapshot_sha256: str
+    version_id: int
+    variables: tuple[_CredalVariableRow, ...]
+    variable_synonyms: tuple[_CredalSynonymRow, ...]
+    causal_edges: tuple[_CredalCausalEdgeRow, ...]
+    family_edges: tuple[_CredalFamilyEdgeRow, ...]
+    moderation_edges: tuple[_CredalModerationRow, ...]
+    contested_edges: tuple[_CredalContestedEdgeRow, ...]
+    causal_claim_results: tuple[CausalClaimResultV2, ...]
+    synthetic_column_present: bool
+    synthetic_values: tuple[bool | None, ...]
+
+
 class SKGQuery:
     """Read-only query API for SKG tables in academic DuckDB."""
 
@@ -295,10 +401,7 @@ class SKGQuery:
         source_identity_before_hash = _source_file_identity(resolved_path)
         source_sha256 = _file_sha256(resolved_path)
         source_identity_after_hash = _source_file_identity(resolved_path)
-        if (
-            source_identity_after_hash != source_identity_before_hash
-            or wal_path.exists()
-        ):
+        if source_identity_after_hash != source_identity_before_hash or wal_path.exists():
             raise ValueError("skg_prepared_read_source_changed_during_binding")
         connection: duckdb.DuckDBPyConnection | None = None
         try:
@@ -307,9 +410,7 @@ class SKGQuery:
             connection.execute("SELECT current_database()").fetchone()
             prepared_at = datetime.now(UTC)
             source_file_identity = _source_file_identity(resolved_path)
-            if (
-                source_file_identity != source_identity_after_hash or wal_path.exists()
-            ):
+            if source_file_identity != source_identity_after_hash or wal_path.exists():
                 raise ValueError("skg_prepared_read_source_changed_during_binding")
             confidence_vintage = _confidence_layer_vintage_for_sha256(source_sha256)
 
@@ -1088,15 +1189,19 @@ class SKGQuery:
             return None
         placeholders = ", ".join(["?"] * len(linked_edge_refs))
         try:
-            row = self._confidence_connection().execute(
-                f"""
+            row = (
+                self._confidence_connection()
+                .execute(
+                    f"""
                 SELECT AVG(transport_confidence)
                 FROM ac_skg_transport_scores
                 WHERE target_context_id = ?
                   AND edge_id IN ({placeholders})
                 """,
-                [clean_context_id, *linked_edge_refs],
-            ).fetchone()
+                    [clean_context_id, *linked_edge_refs],
+                )
+                .fetchone()
+            )
         except duckdb.Error:
             return None
         value = self._safe_float(row[0] if row else None)
@@ -1124,8 +1229,10 @@ class SKGQuery:
             if self._column_exists("ac_skg_transport_scores", "base_confidence")
             else "transport_confidence"
         )
-        rows = self._confidence_connection().execute(
-            f"""
+        rows = (
+            self._confidence_connection()
+            .execute(
+                f"""
             SELECT edge_id, target_context_id, transport_confidence, match_mode,
                    matched_moderators_json, generic_penalty, context_match_reward
                    , {base_confidence_sql} AS base_confidence
@@ -1134,8 +1241,10 @@ class SKGQuery:
               AND edge_id IN ({placeholders})
             ORDER BY transport_confidence DESC, edge_id ASC
             """,
-            [clean_context_id, *clean_edge_ids],
-        ).fetchall()
+                [clean_context_id, *clean_edge_ids],
+            )
+            .fetchall()
+        )
         results: list[EdgeTransportRecord] = []
         for row in rows:
             matched = self._parse_json_list(row[4])
@@ -1359,16 +1468,20 @@ class SKGQuery:
     ) -> list[EdgeSupportRecord]:
         if not self._table_exists("ac_skg_edges"):
             return []
-        rows = self._confidence_connection().execute(
-            """
+        rows = (
+            self._confidence_connection()
+            .execute(
+                """
             SELECT edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, confidence
             FROM ac_skg_edges
             WHERE src = ? AND dst = ? AND confidence >= ?
             ORDER BY confidence DESC, edge_id ASC
             LIMIT ?
             """,
-            [cause, effect, float(min_confidence), int(limit)],
-        ).fetchall()
+                [cause, effect, float(min_confidence), int(limit)],
+            )
+            .fetchall()
+        )
         out: list[EdgeSupportRecord] = []
         for row in rows:
             article_refs = tuple(self._parse_json_list(row[5]))
@@ -1384,7 +1497,9 @@ class SKGQuery:
                     evidence_strength_status=self._decoded_evidence_strength_status(row[6]),
                     article_refs=article_refs,
                     source_layer="exact",
-                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_edges", str(row[0])),),
+                    source_bindings=(
+                        self._store.source_row_binding_for_edge("ac_skg_edges", str(row[0])),
+                    ),
                 )
             )
         return out
@@ -1400,8 +1515,10 @@ class SKGQuery:
         if not self._table_exists("ac_skg_contested_edges"):
             return []
         has_weighted_columns = self._column_exists("ac_skg_contested_edges", "positive_weight")
-        rows = self._confidence_connection().execute(
-            f"""
+        rows = (
+            self._confidence_connection()
+            .execute(
+                f"""
             SELECT contested_edge_id, src_family, dst_family, n_articles, n_claims,
                    article_refs, claim_refs, dominant_direction, resolution_status,
                    runtime_support, evidence_strength, confidence,
@@ -1412,8 +1529,10 @@ class SKGQuery:
             ORDER BY confidence DESC, contested_edge_id ASC
             LIMIT ?
             """,
-            [cause, effect, float(min_confidence), int(limit)],
-        ).fetchall()
+                [cause, effect, float(min_confidence), int(limit)],
+            )
+            .fetchall()
+        )
         out: list[EdgeSupportRecord] = []
         for row in rows:
             article_refs = tuple(self._parse_json_list(row[5]))
@@ -1447,7 +1566,11 @@ class SKGQuery:
                     strongest_dissent_strength=str(row[16] or ""),
                     strongest_dissent_year=int(row[17]) if row[17] is not None else None,
                     resolution_status=resolution_status,
-                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_contested_edges", str(row[0])),),
+                    source_bindings=(
+                        self._store.source_row_binding_for_edge(
+                            "ac_skg_contested_edges", str(row[0])
+                        ),
+                    ),
                 )
             )
         return out
@@ -1462,8 +1585,10 @@ class SKGQuery:
     ) -> list[EdgeSupportRecord]:
         if not self._table_exists("ac_skg_family_edges"):
             return []
-        rows = self._confidence_connection().execute(
-            """
+        rows = (
+            self._confidence_connection()
+            .execute(
+                """
             SELECT family_edge_id, src_family, dst_family, direction, n_articles, n_claims,
                    article_refs, claim_refs, evidence_strength, confidence, quality_signals_json
             FROM ac_skg_family_edges
@@ -1471,8 +1596,10 @@ class SKGQuery:
             ORDER BY confidence DESC, family_edge_id ASC
             LIMIT ?
             """,
-            [cause, effect, float(min_confidence), int(limit)],
-        ).fetchall()
+                [cause, effect, float(min_confidence), int(limit)],
+            )
+            .fetchall()
+        )
         out: list[EdgeSupportRecord] = []
         for row in rows:
             article_refs = tuple(self._parse_json_list(row[6]))
@@ -1503,7 +1630,9 @@ class SKGQuery:
                     resolution_status="moderated"
                     if bool(quality_signals.get("moderated_conflict"))
                     else "",
-                    source_bindings=(self._store.source_row_binding_for_edge("ac_skg_family_edges", str(row[0])),),
+                    source_bindings=(
+                        self._store.source_row_binding_for_edge("ac_skg_family_edges", str(row[0])),
+                    ),
                 )
             )
         return out
@@ -1908,9 +2037,7 @@ class SKGQuery:
         if not present:
             return None
         best = present[0]
-        best_score = EVIDENCE_WEIGHTS.get(
-            best, EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
-        )
+        best_score = EVIDENCE_WEIGHTS.get(best, EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value])
         for value in present[1:]:
             score = EVIDENCE_WEIGHTS.get(
                 str(value), EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value]
@@ -2212,7 +2339,9 @@ class SKGQuery:
                 "period_start": "" if estimate.period_start is None else str(estimate.period_start),
                 "period_end": "" if estimate.period_end is None else str(estimate.period_end),
                 "lowering_status": "parameter_estimate_ci_interval",
-                "design_tier": "" if design_evidence["tier"] is None else str(design_evidence["tier"]),
+                "design_tier": ""
+                if design_evidence["tier"] is None
+                else str(design_evidence["tier"]),
             },
             data_trust=self._data_trust_from_score(
                 trust_score,
@@ -2517,14 +2646,12 @@ class SKGQuery:
             if self._column_exists("ac_skg_contested_edges", "edge_id")
             else "contested_edge_id"
         )
-        src_column = (
-            "src" if self._column_exists("ac_skg_contested_edges", "src") else "src_family"
-        )
-        dst_column = (
-            "dst" if self._column_exists("ac_skg_contested_edges", "dst") else "dst_family"
-        )
-        row = self._confidence_connection().execute(
-            f"""
+        src_column = "src" if self._column_exists("ac_skg_contested_edges", "src") else "src_family"
+        dst_column = "dst" if self._column_exists("ac_skg_contested_edges", "dst") else "dst_family"
+        row = (
+            self._confidence_connection()
+            .execute(
+                f"""
             SELECT {id_column}, {src_column}, {dst_column},
                    positive_weight, negative_weight, mixed_weight,
                    confidence, evidence_strength, claim_refs
@@ -2532,8 +2659,10 @@ class SKGQuery:
             WHERE {id_column} = ?
             LIMIT 1
             """,
-            [contested_edge_id],
-        ).fetchone()
+                [contested_edge_id],
+            )
+            .fetchone()
+        )
         if row is None:
             raise ValueError(f"l2_contested_edge_unresolved:{contested_edge_id}")
         confidence = self._bounded_unit_interval(float(row[6] or 0.0))
@@ -2721,9 +2850,7 @@ class SKGQuery:
                     blockers=transport_blockers,
                     transport_ref=transport_ref,
                     transport_confidence=(
-                        None
-                        if transport_record is None
-                        else transport_record.transport_confidence
+                        None if transport_record is None else transport_record.transport_confidence
                     ),
                 )
             return GroundedCausalPriorResolution(
@@ -2740,7 +2867,9 @@ class SKGQuery:
                 validation_status="failed_closed",
                 blockers=("skg_prior_resolution_empty",),
             )
-        relevance, best, transport_record = max(scored, key=lambda item: (item[0], item[1].confidence))
+        relevance, best, transport_record = max(
+            scored, key=lambda item: (item[0], item[1].confidence)
+        )
         if relevance < min_relevance:
             return GroundedCausalPriorResolution(
                 status="blocked",
@@ -2897,18 +3026,22 @@ class SKGQuery:
             extra_select += ", candidate_layer"
         if has_quality_json:
             extra_select += ", quality_signals_json"
-        rows = self._confidence_connection().execute(
-            (
-                "SELECT edge_id, src, dst, direction, n_articles, article_refs, "
-                "evidence_strength, confidence, scope_conditions "
-                f"{extra_select} "
-                "FROM ac_skg_edges "
-                f"WHERE {' AND '.join(filters)} "
-                "ORDER BY confidence DESC, edge_id ASC "
-                "LIMIT ?"
-            ),
-            params,
-        ).fetchall()
+        rows = (
+            self._confidence_connection()
+            .execute(
+                (
+                    "SELECT edge_id, src, dst, direction, n_articles, article_refs, "
+                    "evidence_strength, confidence, scope_conditions "
+                    f"{extra_select} "
+                    "FROM ac_skg_edges "
+                    f"WHERE {' AND '.join(filters)} "
+                    "ORDER BY confidence DESC, edge_id ASC "
+                    "LIMIT ?"
+                ),
+                params,
+            )
+            .fetchall()
+        )
         result: list[dict[str, object]] = []
         for row in rows:
             article_refs = self._parse_json_list(row[5])
@@ -2961,17 +3094,21 @@ class SKGQuery:
             filters.append("(src_family ILIKE ? OR dst_family ILIKE ?)")
             params.extend([pattern, pattern])
         params.append(int(limit))
-        rows = self._confidence_connection().execute(
-            (
-                "SELECT family_edge_id, src_family, dst_family, direction, n_articles, article_refs, "
-                "evidence_strength, confidence, quality_signals_json "
-                "FROM ac_skg_family_edges "
-                f"WHERE {' AND '.join(filters)} "
-                "ORDER BY confidence DESC, family_edge_id ASC "
-                "LIMIT ?"
-            ),
-            params,
-        ).fetchall()
+        rows = (
+            self._confidence_connection()
+            .execute(
+                (
+                    "SELECT family_edge_id, src_family, dst_family, direction, n_articles, article_refs, "
+                    "evidence_strength, confidence, quality_signals_json "
+                    "FROM ac_skg_family_edges "
+                    f"WHERE {' AND '.join(filters)} "
+                    "ORDER BY confidence DESC, family_edge_id ASC "
+                    "LIMIT ?"
+                ),
+                params,
+            )
+            .fetchall()
+        )
         result: list[dict[str, object]] = []
         for row in rows:
             evidence_strength, evidence_strength_status = decode_edge_evidence_strength(row[6])
@@ -3068,6 +3205,143 @@ class PreparedSKGRead:
         """Check that a consumer asks the prepared reader for its bound source path."""
         return Path(path).resolve() == self.db_path
 
+    def read_credal_source_rows(self) -> PreparedSKGCredalSourceRows:
+        """Read the fixed K_ref source tables through this transaction's guarded reader.
+
+        The method deliberately exposes no SQL argument or connection handle.
+        All table reads use the same prepared, read-only connection as the
+        source digest and selected version, and historical confidence snapshots
+        are rejected by the existing confidence intake guard.
+        """
+        if self._closed:
+            raise RuntimeError("prepared_skg_read_closed")
+        if not self.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+
+        connection = self.query._confidence_connection()
+        version_row = connection.execute(
+            "SELECT MAX(version_id) FROM main.ac_skg_versions"
+        ).fetchone()
+        if version_row is None or version_row[0] is None:
+            raise ValueError("prepared_skg_read_version_missing")
+        version_id = int(version_row[0])
+        expected_ref = f"duckdb://{self.db_path}#v{version_id}"
+        if self.source_snapshot_ref != expected_ref:
+            raise ValueError("prepared_skg_read_version_changed_during_read")
+
+        variables = tuple(
+            _CredalVariableRow(*row)
+            for row in connection.execute(
+                """
+                SELECT canonical_name, approved_canonical_name, is_approved_canonical,
+                       resolution_method, resolution_confidence, mention_count,
+                       parent_name, approved_parent_name
+                FROM main.ac_skg_variables
+                ORDER BY canonical_name
+                """
+            ).fetchall()
+        )
+        variable_synonyms = tuple(
+            _CredalSynonymRow(*row)
+            for row in connection.execute(
+                """
+                SELECT synonym, canonical_name, method, confidence, approved
+                FROM main.ac_skg_variable_synonyms
+                ORDER BY synonym, canonical_name
+                """
+            ).fetchall()
+        )
+        causal_edges = tuple(
+            _CredalCausalEdgeRow(*row)
+            for row in connection.execute(
+                """
+                SELECT edge_id, src, dst, direction, n_articles, evidence_strength,
+                       confidence, candidate_layer, quality_signals_json
+                FROM main.ac_skg_edges
+                ORDER BY edge_id
+                """
+            ).fetchall()
+        )
+        family_edges = tuple(
+            _CredalFamilyEdgeRow(*row)
+            for row in connection.execute(
+                """
+                SELECT family_edge_id, src_family, dst_family, direction, n_articles,
+                       n_claims, evidence_strength, confidence, direction_histogram_json,
+                       design_tier_histogram_json, candidate_layer, quality_signals_json
+                FROM main.ac_skg_family_edges
+                ORDER BY family_edge_id
+                """
+            ).fetchall()
+        )
+        moderation_edges = tuple(
+            _CredalModerationRow(*row)
+            for row in connection.execute(
+                """
+                SELECT moderation_id, base_cause, base_effect, moderator, base_claim_id,
+                       direction_of_mod, interaction_coeff, interaction_pvalue,
+                       evidence_count, confidence, match_quality, alignment_source,
+                       source_refs, skg_version
+                FROM main.ac_skg_moderation_edges
+                ORDER BY moderation_id
+                """
+            ).fetchall()
+        )
+        contested_edges = tuple(
+            _CredalContestedEdgeRow(*row)
+            for row in connection.execute(
+                """
+                SELECT contested_edge_id, src_family, dst_family, dominant_direction,
+                       resolution_status, runtime_support, confidence, positive_weight,
+                       negative_weight, mixed_weight, direction_histogram_json,
+                       quality_signals_json, claim_refs
+                FROM main.ac_skg_contested_edges
+                ORDER BY contested_edge_id
+                """
+            ).fetchall()
+        )
+        causal_claim_results = tuple(
+            iter_causal_claim_results_v2(cast("duckdb.DuckDBPyConnection", connection))
+        )
+        synthetic_column_present = (
+            connection.execute(
+                """
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = 'main'
+                  AND table_name = 'ac_causal_claims_raw'
+                  AND column_name = 'synthetic'
+                """
+            ).fetchone()
+            is not None
+        )
+        synthetic_values = (
+            tuple(
+                row[0]
+                for row in connection.execute(
+                    "SELECT synthetic FROM main.ac_causal_claims_raw ORDER BY synthetic"
+                ).fetchall()
+            )
+            if synthetic_column_present
+            else ()
+        )
+        if not self.source_generation_matches():
+            raise ValueError("prepared_skg_read_source_changed_during_read")
+        return PreparedSKGCredalSourceRows(
+            source_snapshot_ref=self.source_snapshot_ref,
+            source_snapshot_sha256=self.source_snapshot_sha256,
+            version_id=version_id,
+            variables=variables,
+            variable_synonyms=variable_synonyms,
+            causal_edges=causal_edges,
+            family_edges=family_edges,
+            moderation_edges=moderation_edges,
+            contested_edges=contested_edges,
+            causal_claim_results=causal_claim_results,
+            synthetic_column_present=synthetic_column_present,
+            synthetic_values=synthetic_values,
+        )
+
     def close(self) -> None:
         """End the source transaction and close the owned read-only connection once."""
         if self._closed:
@@ -3082,5 +3356,6 @@ __all__ = [
     "GroundedCausalPriorResolution",
     "LiteraturePriorResult",
     "ParameterCandidate",
+    "PreparedSKGCredalSourceRows",
     "SKGQuery",
 ]

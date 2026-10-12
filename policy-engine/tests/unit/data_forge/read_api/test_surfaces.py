@@ -23,6 +23,9 @@ from polisyos.core.contracts.control import (
     CatalogRunProfile as CanonicalCoreCatalogRunProfile,
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_query import (
+    PreparedSKGCredalSourceRows as CanonicalPreparedSKGCredalSourceRows,
+)
+from polisyos.data_forge.domains.academic.knowledge.skg_query import (
     PreparedSKGRead as CanonicalPreparedSKGRead,
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_query import (
@@ -88,6 +91,7 @@ def test_existing_facade_exports_preserve_canonical_object_identity() -> None:
     )
     assert catalog.CatalogAcquisitionOverlay is CanonicalCatalogAcquisitionOverlay
 
+
 def test_read_api_surface_registry_resolves_public_modules() -> None:
     assert set(available_surfaces()) >= {"academic", "catalog", "legal", "ukraine"}
 
@@ -105,6 +109,7 @@ def test_read_api_surface_registry_rejects_unknown_surface() -> None:
 def test_runtime_contract_exports_keep_canonical_object_identity() -> None:
     assert academic.PreparedSKGRead is CanonicalPreparedSKGRead
     assert academic.PreparedSKGReadReceipt is CanonicalPreparedSKGReadReceipt
+    assert academic.PreparedSKGCredalSourceRows is CanonicalPreparedSKGCredalSourceRows
     assert catalog.CatalogRunProfile is CatalogRunProfile
     assert catalog.CatalogSourceRegistryEntry is CatalogSourceRegistryEntry
     assert catalog.CatalogSourceRegistrySpec is CatalogSourceRegistrySpec

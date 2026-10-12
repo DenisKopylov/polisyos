@@ -93,6 +93,7 @@ class RuntimeApiContext:
     lineage_max_nodes: int
     allow_unscoped_artifacts: bool = False
     allow_candidate_predictive_diagnostic_surface: bool = False
+    allow_candidate_run_predictive_calibration_surface: bool = True
     signature_verifier: SignatureVerifyingArtifactStore | None = None
 
 
@@ -104,6 +105,7 @@ def build_runtime_api_context(
     lineage_max_depth: int = 64,
     lineage_max_nodes: int = 2000,
     allow_unscoped_artifacts: bool = False,
+    allow_candidate_run_predictive_calibration_surface: bool = True,
     artifact_redaction_hooks: dict[str, Any] | None = None,
     metrics: MetricsRegistry | None = None,
     tracer: PolicyOSTracer | None = None,
@@ -194,6 +196,9 @@ def build_runtime_api_context(
         lineage_max_depth=lineage_max_depth,
         lineage_max_nodes=lineage_max_nodes,
         allow_unscoped_artifacts=allow_unscoped_artifacts,
+        allow_candidate_run_predictive_calibration_surface=(
+            allow_candidate_run_predictive_calibration_surface
+        ),
         signature_verifier=signature_verifier,
     )
 

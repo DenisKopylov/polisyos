@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import equinox as eqx
 import jax
@@ -13,7 +13,12 @@ import optax
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic, compute_log_prob, sample_actions
-from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact, store_policy_artifact
+from polisyos.foundry.agent_sim.artifact import (
+    AgentPolicyArtifact,
+    TrainingProfileDescriptor,
+    store_policy_artifact,
+)
+from polisyos.foundry.agent_sim.distributions import GiniPopulationProfile
 from polisyos.foundry.agent_sim.executor import PureExecutor
 from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
@@ -26,9 +31,24 @@ from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFin
 
 @dataclass(frozen=True)
 class TrainingConfig(TrainingConfigBase):
-    """Extend the base training config with logging controls for iterative runs."""
+    """Add iterative-run logging and an optional source-defined Gini profile."""
 
     log_interval: int = 10
+    gini_population_profile: GiniPopulationProfile | None = None
+
+    def __post_init__(self) -> None:
+        """Require any selected trajectory profile to use the source enum."""
+        if (
+            self.gini_population_profile is not None
+            and type(self.gini_population_profile) is not GiniPopulationProfile
+        ):
+            raise TypeError("gini_population_profile must be a source-defined profile")
+
+
+def _require_unprofiled_training_config(config: TrainingConfig) -> None:
+    """Keep the legacy non-guarded trainer from silently ignoring a profile."""
+    if config.gini_population_profile is not None:
+        raise ValueError("selected Gini profiles require train_actor_critic_jit")
 
 
 def train_actor_critic(
@@ -40,6 +60,7 @@ def train_actor_critic(
     make_executor: Callable[[ActorCritic], PureExecutor] | None = None,
 ) -> ActorCritic:
     """Iteratively train an actor-critic policy against executor rollouts."""
+    _require_unprofiled_training_config(config)
     if executor is None and make_executor is None:
         raise ValueError("Provide either executor or make_executor.")
 
@@ -117,6 +138,7 @@ def collect_trajectory(
     config: TrainingConfig,
 ) -> Trajectory:
     """Roll out one executor trajectory and capture PPO training tensors."""
+    _require_unprofiled_training_config(config)
     mech = _find_temporal_mechanism(executor)
     salt = executor.prng_config.get(mech.spec.name, 0)
 
@@ -209,22 +231,63 @@ def train_actor_critic_jit(
     *,
     make_executor: Callable[[ActorCritic], PureExecutor],
     rng_key: jax.Array | None = None,
+    track_active_wealth: bool = False,
 ) -> tuple[ActorCritic, dict]:
-    """
-    Fully JIT-compiled training loop for large-scale runs.
+    """Run native JIT training and optionally validate the selected active resources.
+
+    Without ``config.gini_population_profile``, ``track_active_wealth`` retains
+    its wealth-only behavior. The Economics profile also checks active income
+    and requires a typed bridge status on every transition. The first
+    unsupported transition is terminal before PPO; an Equinox native guard
+    that preempts a returned state raises ``_NativeExecutionValidationError``
+    with its original cause retained.
     """
     from polisyos.foundry.agent_sim.jit_training import (
         JITTrainingConfig,
+        _ActiveWealthTrajectoryValidation,
+        _ActiveWealthTrajectoryValidationError,
+        _require_exact_bool_selector,
         create_jit_trainer,
     )
 
-    jit_config = JITTrainingConfig(**config.common_kwargs())
+    track_active_wealth = _require_exact_bool_selector(
+        track_active_wealth, "track_active_wealth"
+    )
+    track_active_wealth = track_active_wealth or config.gini_population_profile is not None
+    jit_config = JITTrainingConfig(
+        **config.common_kwargs(),
+        track_active_wealth=track_active_wealth,
+        gini_population_profile=config.gini_population_profile,
+    )
 
     if rng_key is None:
         rng_key = jax.random.PRNGKey(0)
 
     trainer = create_jit_trainer(actor_critic, make_executor, initial_state, jit_config)
-    return trainer(rng_key)
+    trained_policy, metrics = trainer(rng_key)
+    if track_active_wealth:
+        validation = metrics.pop("active_wealth_validation", None)
+        if not isinstance(validation, _ActiveWealthTrajectoryValidation):
+            raise _ActiveWealthTrajectoryValidationError(
+                "training_active_wealth_validation_missing",
+                "The native trainer did not return typed active-wealth trajectory evidence.",
+            )
+        if (
+            not validation.initial_state_checked
+            or validation.episodes_checked != int(config.n_episodes)
+            or validation.transitions_checked
+            != int(config.n_episodes) * int(config.steps_per_episode)
+        ):
+            raise _ActiveWealthTrajectoryValidationError(
+                "training_active_wealth_validation_incomplete",
+                "The native trainer did not check the complete initial-state and rollout set.",
+            )
+        if not validation.active_wealth_supported:
+            raise _ActiveWealthTrajectoryValidationError(
+                "training_active_wealth_trajectory_unsupported",
+                "A selected active resource became negative or non-finite during native training.",
+            )
+    return trained_policy, metrics
 
 
 def train_actor_critic_with_artifact(
@@ -237,13 +300,24 @@ def train_actor_critic_with_artifact(
     tier: DeterminismTier = DeterminismTier.NONDETERMINISTIC,
     seed: int = 42,
     cas: FileSystemCAS | None = None,
+    track_active_wealth: bool = False,
 ) -> tuple[ActorCritic, dict, AgentPolicyArtifact]:
     """
     Train actor-critic and produce immutable artifact.
 
+    When ``track_active_wealth`` is enabled without a selected profile, the
+    legacy wealth-only monitor checks the complete initial-state and rollout
+    set. A selected Economics profile additionally checks income and requires
+    its typed status on every bridge transition before an artifact is produced.
+
     Returns:
         Tuple of (trained_policy, metrics_dict, artifact)
     """
+    from polisyos.foundry.agent_sim.jit_training import _require_exact_bool_selector
+
+    track_active_wealth = _require_exact_bool_selector(
+        track_active_wealth, "track_active_wealth"
+    )
     log = get_logger(__name__)
 
     fingerprint = EnvironmentFingerprint.capture(tier, seed)
@@ -257,6 +331,7 @@ def train_actor_critic_with_artifact(
         config,
         make_executor=make_executor,
         rng_key=rng_key,
+        track_active_wealth=track_active_wealth,
     )
 
     final_loss = metrics.get("final_loss", 0.0)
@@ -275,6 +350,12 @@ def train_actor_critic_with_artifact(
             "ppo_epochs": config.ppo_epochs,
         },
     )
+    if config.gini_population_profile is not None:
+        artifact = replace(
+            artifact,
+            schema_version="1.1",
+            training_profile=TrainingProfileDescriptor(),
+        )
 
     if cas is not None:
         weights_ref, manifest_ref = _store_artifact_in_cas(cas, artifact)

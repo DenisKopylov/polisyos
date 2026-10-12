@@ -27,6 +27,7 @@ class StageId(str, Enum):
     D3 = "d3"
     D4 = "d4"
     D5 = "d5"
+    DEMOGRAPHY_SOURCE_INVENTORY = "demography_source_inventory"
     FULL = "full"
     RELEASE = "release"
 
@@ -247,6 +248,7 @@ class PipelineConfig(BaseModel):
     retention: ArtifactRetentionPolicy = Field(default_factory=ArtifactRetentionPolicy)
     stages: dict[str, StageConfig]
     sources: dict[str, SourceConfig]
+    demography_inventory_request_path: Path | None = None
 
     @model_validator(mode="after")
     def validate_pipeline(self) -> PipelineConfig:
@@ -380,6 +382,16 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 "land_cadastre_skipped_source_manifest.json",
             ],
             resource_budget=ResourceBudget(max_workers=4, memory_gib=28.0, time_budget_s=21_600.0),
+        ),
+        StageId.DEMOGRAPHY_SOURCE_INVENTORY.value: StageConfig(
+            stage_id=StageId.DEMOGRAPHY_SOURCE_INVENTORY,
+            required_sources=[],
+            required_previous_stages=[],
+            output_artifacts=["inventory.json"],
+            notes=[
+                "Explicit candidate-only inventory stage; it is not part of build_full.",
+                "Requires a caller-supplied verified upstream-stage request.",
+            ],
         ),
         StageId.D4.value: StageConfig(
             stage_id=StageId.D4,

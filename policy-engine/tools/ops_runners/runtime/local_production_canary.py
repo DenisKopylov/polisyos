@@ -9,6 +9,7 @@ import json
 import os
 import sys
 import time
+import uuid
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -2538,7 +2539,11 @@ def main(argv: list[str] | None = None) -> int:
             app,
             bearer_token=bearer_token,
         ) as client:
-            launch_response = client.post("/api/v1/control/runs/nl", json=request_payload)
+            launch_response = client.post(
+                "/api/v1/control/runs/nl",
+                headers={"Idempotency-Key": uuid.uuid4().hex},
+                json=request_payload,
+            )
             launch_payload = _response_json(launch_response)
             _write_json(run_root / "launch_response.json", launch_payload)
             if launch_response.status_code >= 400:

@@ -2574,6 +2574,7 @@ def _owner_program_graph_n5_witness(
     tmp_path: Path,
     *,
     income_values: tuple[float, float],
+    replications: int = 1,
     problem_seed: DesignProblem | None = None,
     select_state_blob_view: bool = False,
     select_program_graph_view: bool = False,
@@ -2727,6 +2728,8 @@ def _owner_program_graph_n5_witness(
                 "joint_simulation_engine_plan": raw_plan,
                 "joint_simulation_variable_map": {"firm_survival": "agents.income"},
             }
+            if replications != 1:
+                runtime_hints["joint_simulation_replications"] = replications
             problem, seed_context, seed_candidate = _cyc01_owner_bound_n5_case(
                 runtime_hints=runtime_hints,
                 problem_seed=problem_seed,
@@ -3430,7 +3433,7 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
         assert (
             low.result.schema_version
             == high.result.schema_version
-            == ("policyos.runtime.joint_simulation_horizon.v2")
+            == ("policyos.runtime.joint_simulation_horizon.v4")
         )
         assert low.result.horizon == high.result.horizon
         assert low.result.selected_outcomes == high.result.selected_outcomes
@@ -3481,7 +3484,11 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
                     problem=witness.problem,
                     cycle_index=0,
                 )
-            assert value.status == "value_conditional"
+            assert value.status == "value_conditional", (
+                value.status,
+                value.reason,
+                value.authority_blockers,
+            )
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert persisted_limitation_codes.issubset(value.authority_blockers)
@@ -3504,6 +3511,170 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
     finally:
         low.store.close()
         high.store.close()
+
+
+def test_n5_fresh_reader_binds_canonical_json_state_types(tmp_path: Path) -> None:
+    """Fresh N5 readers bind complete JSON-ready state identity, including scalar types."""
+
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+    )
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as contract,
+    )
+
+    result = JointSimulationHorizonController().run(
+        _request().model_copy(update={"replications": 2})
+    )
+    payload = copy.deepcopy(result.content_bound_payload())
+    canon_spec = canon.CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    cas = FileSystemCAS(tmp_path / "typed-state-fresh-cas")
+
+    def _with_receipt(value: dict[str, Any]) -> dict[str, Any]:
+        value.pop("receipt", None)
+        value["receipt"] = build_content_bound_simulation_receipt(
+            engine_kind=result.receipt.engine_kind,
+            payload=value,
+            diagnostics=value["diagnostics"],
+        ).model_dump(mode="json")
+        return value
+
+    def _sample_point(
+        value: dict[str, Any],
+    ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        for trajectory in value["trajectories"]:
+            for point in trajectory["points"]:
+                summary = point.get("replication_sampling")
+                sidecar = point.get("engine_state", {}).get("replication_engine_states")
+                if (
+                    isinstance(summary, dict)
+                    and isinstance(sidecar, list)
+                    and len(sidecar) == 2
+                    and len(summary.get("samples", ())) == 2
+                    and "income_delta"
+                    in summary["samples"][0].get("engine_state", {}).get("intervention", {})
+                ):
+                    return point, summary["samples"][0]["engine_state"], sidecar[0]
+        raise AssertionError("actual NCM producer result lacks its intervention state sample")
+
+    def _persist_and_load(value: dict[str, Any]) -> JointSimulationResult:
+        ref = cas.put_json(
+            value,
+            PutOptions(
+                kind=generation_cycle_module.JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=generation_cycle_module.JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+                    version="4.0.0",
+                ),
+            ),
+            canon_spec=canon_spec,
+        )
+        return generation_cycle_module.load_joint_simulation_result(ref, store=cas)
+
+    try:
+        _, sample_state, sidecar_state = _sample_point(payload)
+        assert type(sample_state["intervention"]["income_delta"]) is float
+        assert type(sidecar_state["intervention"]["income_delta"]) is float
+        assert sample_state == sidecar_state
+        assert canon.to_canonical_bytes(sample_state, canon_spec) == canon.to_canonical_bytes(
+            sidecar_state, canon_spec
+        )
+        assert not contract._replication_sampling_issues(payload, expected_count=2)
+        original = _with_receipt(copy.deepcopy(payload))
+        JointSimulationResult.model_validate(original)
+        assert (
+            _persist_and_load(original).schema_version
+            == "policyos.runtime.joint_simulation_horizon.v4"
+        )
+
+        for replacement, python_equal, canonical_equal in (
+            (True, True, False),
+            (1, True, False),
+            (1.0, True, True),
+            ("1", False, False),
+        ):
+            altered = copy.deepcopy(payload)
+            _, altered_sample, altered_sidecar = _sample_point(altered)
+            altered_sample["intervention"]["income_delta"] = replacement
+            assert (altered_sample == altered_sidecar) is python_equal
+            assert (
+                canon.to_canonical_bytes(altered_sample, canon_spec)
+                == canon.to_canonical_bytes(altered_sidecar, canon_spec)
+            ) is canonical_equal
+            altered = _with_receipt(altered)
+            issues = contract._replication_sampling_issues(altered, expected_count=2)
+            if canonical_equal:
+                JointSimulationResult.model_validate(altered)
+                assert not issues
+                continue
+            with pytest.raises(ValueError, match="replication_engine_state_binding_mismatch"):
+                JointSimulationResult.model_validate(altered)
+            assert "replication_engine_state_binding_mismatch" in {
+                issue["code"] for issue in issues
+            }
+            if replacement is True:
+                with pytest.raises(generation_cycle_module.GenerationCycleError) as exc_info:
+                    _persist_and_load(altered)
+                assert exc_info.value.code == "joint_simulation_result_integrity_invalid"
+                assert "replication_engine_state_binding_mismatch" in str(exc_info.value.__cause__)
+
+        ordered = copy.deepcopy(payload)
+        for index, trajectory in enumerate(ordered["trajectories"]):
+            # The pairwise summary binds singleton and pairwise engine states;
+            # mutate the joint-only state here so this probe isolates JSON type
+            # and ordering instead of invalidating a derived interaction sample.
+            if trajectory["run_level"] != "joint":
+                continue
+            for point_index, ordered_point in enumerate(trajectory["points"]):
+                summary = ordered_point["replication_sampling"]
+                sidecar = ordered_point["engine_state"]["replication_engine_states"]
+                for state_index, sample in enumerate(summary["samples"]):
+                    marker = f"trajectory-{index}-point-{point_index}-draw-{state_index}"
+                    sample["engine_state"]["r7_order_control"] = marker
+                    sidecar[state_index]["r7_order_control"] = marker
+        ordered = _with_receipt(ordered)
+        JointSimulationResult.model_validate(ordered)
+        for trajectory in ordered["trajectories"]:
+            for ordered_point in trajectory["points"]:
+                ordered_point["engine_state"]["replication_engine_states"].reverse()
+        ordered = _with_receipt(ordered)
+        with pytest.raises(ValueError, match="replication_engine_state_binding_mismatch"):
+            JointSimulationResult.model_validate(ordered)
+        assert "replication_engine_state_binding_mismatch" in {
+            issue["code"]
+            for issue in contract._replication_sampling_issues(ordered, expected_count=2)
+        }
+
+        removed_sidecar = copy.deepcopy(payload)
+        removed_point = removed_sidecar["trajectories"][0]["points"][0]
+        removed_point["engine_state"]["replication_engine_states"].pop()
+        removed_sidecar = _with_receipt(removed_sidecar)
+        with pytest.raises(ValueError, match="replication_engine_state_denominator_mismatch"):
+            JointSimulationResult.model_validate(removed_sidecar)
+        assert "replication_engine_state_denominator_invalid" in {
+            issue["code"]
+            for issue in contract._replication_sampling_issues(removed_sidecar, expected_count=2)
+        }
+
+        malformed = copy.deepcopy(payload)
+        _, malformed_sample, _ = _sample_point(malformed)
+        malformed_sample["intervention"]["income_delta"] = float("nan")
+        with pytest.raises(ValueError, match="replication_sample_engine_state_not_canonical_json"):
+            JointSimulationResult.model_validate(malformed)
+        assert "replication_engine_state_not_canonical_json" in {
+            issue["code"]
+            for issue in contract._replication_sampling_issues(malformed, expected_count=2)
+        }
+    finally:
+        close = getattr(cas, "close", None)
+        if callable(close):
+            close()
 
 
 def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
@@ -3883,17 +4054,20 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
             assert cycle.value_port.evaluation_mode == "simulate_only"
             assert cycle.value_port.decision_grade == "low"
             value_blockers = cycle.value_port.authority_blockers
+            assert "standard_error_not_estimated" in value_blockers
+            assert "interaction_sampling_not_established" in value_blockers
+            assert "interaction_numeric_classification_unsupported" in value_blockers
+            assert cycle.value_port.numeric_interaction == "unsupported"
+            assert cycle.value_port.numeric_interaction_basis == "not_established"
+            assert cycle.value_port.interaction_sampling_status == "standard_error_not_estimated"
             assert "interaction_evidence_incomplete" not in value_blockers
             assert "simulation_only_k_sim_not_world_evidence" in (
                 cycle.value_port.authority_blockers
             )
-            assert (
-                simulation_evaluation_input_ref(
-                    cycle.simulation,
-                    artifact_store=store,
-                )
-                is not None
-            )
+            assert simulation_evaluation_input_ref(
+                cycle.simulation,
+                artifact_store=store,
+            ) is None
             persisted = load_joint_simulation_result(
                 cycle.simulation.simulation_result_ref,
                 store=store,
@@ -3909,6 +4083,14 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
         )
         assert persisted.selected_outcomes == ("firm_survival",)
         assert persisted.world_model_record_content_hash == context.world_model_record.content_hash
+        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        assert all(
+            point.replication_sampling is not None
+            and point.replication_sampling.status == "standard_error_not_estimated"
+            and point.replication_sampling.replicate_count == 1
+            for trajectory in persisted.trajectories
+            for point in trajectory.points
+        )
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
     finally:
         store.close()
@@ -3931,6 +4113,7 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
     hints = {
         "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
+        "joint_simulation_replications": 2,
     }
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
         ncm_ref,
@@ -4005,13 +4188,34 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             packet = persisted.promotion_ready_value_packet
             persisted_blockers = set(packet["authority_blockers"])
             assert "interaction_evidence_incomplete" in persisted_blockers
+            assert all(
+                point.replication_sampling is not None
+                and point.replication_sampling.status == "estimated"
+                and point.replication_sampling.replicate_count == 2
+                and len(set(point.replication_sampling.seeds)) == 2
+                and all(
+                    value is not None
+                    for value in (
+                        *point.replication_sampling.outcomes_standard_error.values(),
+                        *point.replication_sampling.effects_standard_error.values(),
+                    )
+                )
+                for trajectory in persisted.trajectories
+                for point in trajectory.points
+            )
 
             value = cycle.value_port
-            assert value.status == "value_conditional"
+            assert value.status == "value_conditional", (value.status, value.reason, value.authority_blockers)
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
             assert "interaction_evidence_incomplete" in value.authority_blockers
+            assert "interaction_sampling_not_established" in value.authority_blockers
+            assert "interaction_numeric_classification_unsupported" in value.authority_blockers
+            assert value.numeric_interaction == "unsupported"
+            assert value.numeric_interaction_basis == "not_established"
+            assert "standard_error_not_estimated" not in value.authority_blockers
+            assert "legacy_sampling_not_established" not in value.authority_blockers
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
             assert value.value_receipt is None
             assert value.method_selection_receipt is None
@@ -4161,9 +4365,13 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             assert "interaction_evidence_incomplete" in set(
                 persisted.promotion_ready_value_packet["authority_blockers"]
             )
+            assert "standard_error_not_estimated" in set(
+                persisted.promotion_ready_value_packet["authority_blockers"]
+            )
 
             value = cycle.value_port
             assert value.status == "value_conditional"
+            assert "standard_error_not_estimated" in value.authority_blockers
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert "interaction_evidence_incomplete" in value.authority_blockers
@@ -7714,6 +7922,23 @@ def test_phase5_value_port_configuration_preserves_manifest_omission() -> None:
         )
 
 
+def test_default_foundry_value_port_forwards_artifact_store_to_owner_gateway(
+    tmp_path: Path,
+) -> None:
+    """The default transport consumer receives the same CAS store as its port."""
+
+    from types import SimpleNamespace
+
+    store = FileSystemCAS(tmp_path / "foundry-value-port-selected-graph")
+    port = generation_cycle_module.FoundryValuePort(
+        evaluation_context=SimpleNamespace(),  # type: ignore[arg-type]
+        artifact_store=store,
+    )
+
+    assert isinstance(port._owner_gateway, RealValueOwnerGateway)
+    assert port._owner_gateway.artifact_store is store
+
+
 @_requires_owner_catalog
 def test_default_value_port_binds_the_actual_n5_context(
     monkeypatch: pytest.MonkeyPatch,
@@ -7868,6 +8093,82 @@ async def test_value_block_feeds_revision_before_promotion() -> None:
         "uncalibrated_forecast_minted_value"
     )
     assert run.fronts.decision.candidate_ids == ()
+
+
+def test_n7_compiler_preserves_a_valid_named_scope_profile_on_requirement_specs() -> None:
+    problem = _problem("n7_profile_request")
+    controller = GenerationCycleController(authority_scope="contract_testing")
+    profile = {
+        "profile_id": "future:ua:2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "required_constructs": ["firm_survival"],
+        "candidate_construct_proposals": ["future:construct"],
+    }
+
+    specs = controller._n7_data_requirement_specs(
+        problem,
+        acquisition_request={
+            "required_data_families": ["production_msme_panel"],
+            "scope_profile": profile,
+        },
+    )
+
+    assert len(specs) == 1
+    assert specs[0].required_data_families == ("production_msme_panel",)
+    assert specs[0].scope.jurisdiction == "UA"
+    assert specs[0].metadata["scope_profile"] == {
+        "profile_id": "future:ua:2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "required_constructs": ["firm_survival"],
+        "candidate_construct_proposals": ["future:construct"],
+    }
+
+
+def test_n7_with_no_requirement_families_keeps_the_existing_empty_noop() -> None:
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    assert (
+        controller._n7_data_requirement_specs(
+            _problem("n7_no_requirement_profile"),
+            acquisition_request={},
+        )
+        == ()
+    )
+
+
+@pytest.mark.asyncio
+async def test_malformed_n7_scope_profile_is_retained_as_typed_route_refusal() -> None:
+    problem = _problem("n7_profile_refusal").model_copy(
+        update={
+            "runtime_hints": {
+                **_problem("n7_profile_refusal").runtime_hints,
+                "n7_scope_profile": {"profile_id": "  "},
+            }
+        }
+    )
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        authority_scope="contract_testing",
+    )
+
+    run = await controller.run(
+        problem,
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report is None
+    assert cycle.counterexample.diagnostic.code == (
+        "n6.acquisition.n7_cycle_substrate_context_invalid"
+    )
 
 
 @pytest.mark.asyncio
@@ -9705,14 +10006,16 @@ def test_value_owner_projection_preserves_required_modality_and_other_hints(
             "unit_id": "single_unit",
             "period_id": period_id,
             "outcome_value": float(period_id),
+            "measurement_unit": "synthetic index",
             "source_row_content_hashes": ("sha256:" + "a" * 64,),
         }
         rows.append(
             generation_cycle_module.ValueOwnerRow(**row, row_content_hash=gy_content_hash(row))
         )
     payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "schema_version": "policyos.runtime.value_data_profile.v2",
         "outcome": "firm_survival",
+        "measurement_unit": "synthetic index",
         "rows": [row.model_dump(mode="json") for row in rows],
         "owner_row_count": 4,
         "unit_count": 1,
@@ -9890,3 +10193,275 @@ def test_n4_candidate_child_producer_deduplicates_names_and_refuses_foreign_subj
     altered = result.model_copy(update={"candidates": (candidate, *result.candidates[1:])})
     with pytest.raises(DesignGenerationError, match="n4_recursive_child_subject_mismatch"):
         derive_n4_candidate_child_problems(problem, altered, model_id=result.model_id)
+
+
+def test_n7_profile_only_requirement_reaches_persisted_acquisition_record(
+    tmp_path: Path,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+    )
+
+    problem = _problem("profile_only_n7_requirement")
+    world = AcquisitionWorldSnapshot(world_ref="world:profile-only-n7")
+    problem = problem.model_copy(
+        update={"runtime_hints": {"n7_world_snapshot": world.model_dump(mode="json")}}
+    )
+    controller = GenerationCycleController(
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    )
+    cycle = SimpleNamespace(
+        terminal_kind="acquisition_required",
+        cycle_index=1,
+        revision_request=SimpleNamespace(
+            strategy_payload={
+                "acquisition_request": {
+                    "scope_profile": {
+                        "profile_id": "profile:controlled-n7",
+                        "required_constructs": ["firm_survival", "scope_only_unique_probe"],
+                        "candidate_construct_proposals": ["candidate_only_future_construct"],
+                    }
+                }
+            }
+        ),
+    )
+
+    receipt = controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
+
+    assert receipt is not None
+    assert receipt.capability_requirement_resolutions is not None
+    resolution = next(
+        item
+        for item in receipt.capability_requirement_resolutions
+        if item.query.construct == "scope_only_unique_probe"
+    )
+    assert resolution.state == "not_established"
+    assert resolution.binding is None
+    assert tuple(item.query.construct for item in receipt.capability_requirement_resolutions) == (
+        "firm_survival",
+        "scope_only_unique_probe",
+    )
+    assert "candidate_only_future_construct" not in {
+        item.query.construct for item in receipt.capability_requirement_resolutions
+    }
+    assert all(
+        item.state == "not_established" for item in receipt.capability_requirement_resolutions
+    )
+    records_by_requirement = {
+        item.compiled_requirement_ref: item for item in receipt.planner_report.acquisition_records
+    }
+    for item in receipt.capability_requirement_resolutions:
+        record = records_by_requirement[item.query.requirement_id]
+        assert record.capability_requirement_resolutions == (item,)
+        assert "compiled_data_requirement_spec_missing" in record.missing_requirement_fields
+
+
+@pytest.mark.parametrize(
+    ("field_name", "construct"),
+    [
+        ("required_constructs", "direct_required_unique_probe"),
+        ("construct_refs", "direct_construct_ref_unique_probe"),
+    ],
+)
+def test_n7_direct_construct_alias_reaches_persisted_acquisition_record(
+    tmp_path: Path,
+    field_name: str,
+    construct: str,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+    )
+
+    problem = _problem(f"n7_{field_name}_direct_construct")
+    world = AcquisitionWorldSnapshot(world_ref=f"world:n7:{field_name}")
+    problem = problem.model_copy(
+        update={"runtime_hints": {"n7_world_snapshot": world.model_dump(mode="json")}}
+    )
+    controller = GenerationCycleController(
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    )
+    cycle = SimpleNamespace(
+        terminal_kind="acquisition_required",
+        cycle_index=1,
+        revision_request=SimpleNamespace(
+            strategy_payload={"acquisition_request": {field_name: [construct]}}
+        ),
+    )
+
+    receipt = controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
+
+    assert receipt is not None
+    assert receipt.capability_requirement_resolutions is not None
+    resolution = next(
+        item
+        for item in receipt.capability_requirement_resolutions
+        if item.query.construct == construct
+    )
+    assert resolution.state == "not_established"
+    assert resolution.binding is None
+    records_by_requirement = {
+        item.compiled_requirement_ref: item for item in receipt.planner_report.acquisition_records
+    }
+    assert records_by_requirement[
+        resolution.query.requirement_id
+    ].capability_requirement_resolutions == (resolution,)
+
+
+def test_n7_direct_and_profile_construct_union_reaches_persisted_receipt() -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+    )
+
+    problem = _problem("n7_direct_profile_construct_union")
+    world = AcquisitionWorldSnapshot(world_ref="world:n7:direct-profile-union")
+    problem = problem.model_copy(
+        update={"runtime_hints": {"n7_world_snapshot": world.model_dump(mode="json")}}
+    )
+    controller = GenerationCycleController(
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+        authority_scope="contract_testing",
+    )
+    cycle = SimpleNamespace(
+        terminal_kind="acquisition_required",
+        cycle_index=1,
+        revision_request=SimpleNamespace(
+            strategy_payload={
+                "acquisition_request": {
+                    "required_constructs": ["direct_required_unique_probe"],
+                    "construct_refs": ["direct_ref_unique_probe"],
+                    "scenario_profile": {
+                        "profile_id": "profile:n7-conjunctive",
+                        "required_constructs": ["profile_top_unique_probe"],
+                        "candidate_construct_proposals": ["profile_candidate_only"],
+                    },
+                    "context": {
+                        "scope_profile": {
+                            "profile_id": "profile:n7-conjunctive",
+                            "required_constructs": ["profile_context_unique_probe"],
+                        }
+                    },
+                    "candidate_construct_proposals": ["direct_candidate_only"],
+                }
+            }
+        ),
+    )
+
+    receipt = controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
+
+    assert receipt is not None
+    assert receipt.capability_requirement_resolutions is not None
+    queries = tuple(item.query.construct for item in receipt.capability_requirement_resolutions)
+    assert set(queries) == {
+        "direct_required_unique_probe",
+        "direct_ref_unique_probe",
+        "profile_top_unique_probe",
+        "profile_context_unique_probe",
+    }
+    assert "profile_candidate_only" not in queries
+    assert "direct_candidate_only" not in queries
+    records_by_requirement = {
+        item.compiled_requirement_ref: item for item in receipt.planner_report.acquisition_records
+    }
+    for resolution in receipt.capability_requirement_resolutions:
+        record = records_by_requirement[resolution.query.requirement_id]
+        assert record.capability_requirement_resolutions == (resolution,)
+        assert record.capability_requirement_resolutions[0].state == "not_established"
+
+
+@pytest.mark.parametrize(
+    ("field_name", "field_value"),
+    [
+        ("required_constructs", None),
+        ("construct_refs", None),
+        ("candidate_construct_proposals", None),
+        (
+            "scenario_profile",
+            {"profile_id": "profile:n7-null", "required_evidence_constructs": None},
+        ),
+        (
+            "context",
+            {
+                "scope_profile": {
+                    "profile_id": "profile:n7-null-context",
+                    "topic_proposals": None,
+                }
+            },
+        ),
+    ],
+)
+def test_n7_malformed_construct_alias_is_typed_refused(
+    field_name: str,
+    field_value: object,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+    problem = _problem("n7_malformed_direct_construct")
+    world = AcquisitionWorldSnapshot(world_ref="world:n7:null-alias")
+    problem = problem.model_copy(
+        update={"runtime_hints": {"n7_world_snapshot": world.model_dump(mode="json")}}
+    )
+    controller = GenerationCycleController(
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+        authority_scope="contract_testing",
+    )
+    cycle = SimpleNamespace(
+        terminal_kind="acquisition_required",
+        cycle_index=1,
+        selected_candidate_ref="candidate:n7:null-alias",
+        revision_request=SimpleNamespace(
+            strategy_payload={
+                "acquisition_request": {
+                    "required_data_families": ["production_msme_panel"],
+                    field_name: field_value,
+                }
+            }
+        ),
+    )
+
+    with pytest.raises(GenerationCycleError) as raised:
+        controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
+
+    assert raised.value.code == "n7_cycle_substrate_context_invalid"
+    assert "profile_constructs_wrong_type" in str(raised.value)
+
+
+def test_n7_candidate_only_proposal_does_not_suppress_scope_fallback() -> None:
+    problem = _problem("n7_candidate_only_proposal")
+    controller = GenerationCycleController(authority_scope="contract_testing")
+
+    specs, resolutions = controller._n7_data_requirement_basis(
+        problem,
+        acquisition_request={
+            "required_data_families": ["production_msme_panel"],
+            "candidate_construct_proposals": ["candidate_only_future_construct"],
+        },
+    )
+
+    assert specs
+    assert all(
+        spec.metadata["scope_profile"]["profile_id"]
+        == f"design-problem:{problem.design_problem_id}"
+        for spec in specs
+    )
+    assert resolutions is None or all(
+        item.query.construct != "candidate_only_future_construct" for item in resolutions
+    )

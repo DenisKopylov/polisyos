@@ -64,7 +64,7 @@ def make_confounded_graph(
     directed: list[tuple[str, str]],
     bidirected: list[tuple[str, str]],
     *,
-    graph_type: GraphType = GraphType.PAG,
+    graph_type: GraphType = GraphType.ADMG,
 ) -> CausalGraphModel:
     """Build a graph with directed and bidirected (confounding) edges.
 

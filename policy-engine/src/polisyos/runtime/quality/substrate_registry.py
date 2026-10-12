@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -293,6 +295,169 @@ class SubstrateCatalogPaths:
     l1_dcat_path: Path
     epoch_schema_regime_registry_path: Path | None = None
     epoch_schema_regime_scope_registry_path: Path | None = None
+
+
+class CatalogServingSourceSelection(_StrictModel):
+    """Immutable app configuration selecting a candidate catalog snapshot."""
+
+    snapshot_root: Path
+    catalog_run_profile: core.contracts.CatalogRunProfile
+
+    @field_validator("snapshot_root")
+    @classmethod
+    def _snapshot_root_must_be_absolute(cls, value: Path) -> Path:
+        if not value.is_absolute():
+            raise ValueError("catalog_source_snapshot_root_must_be_absolute")
+        return value
+
+
+@dataclass(frozen=True)
+class CatalogServingSourcePaths:
+    """Resolved per-app source context; no currentness follows from selecting a path."""
+
+    repo_root: Path
+    snapshot_root: Path
+    database_path: Path
+    index_dir: Path
+    overlay_path: Path
+    catalog_run_profile: core.contracts.CatalogRunProfile | None
+    selection_basis: Literal["legacy_default_candidate_only", "explicit_path_candidate_only"]
+    substrate_paths: SubstrateCatalogPaths
+
+
+_ACTIVE_CATALOG_SOURCE: ContextVar[CatalogServingSourcePaths | None] = ContextVar(
+    "polisyos_active_catalog_source",
+    default=None,
+)
+
+
+@contextmanager
+def catalog_serving_source_scope(source: CatalogServingSourcePaths | None) -> Iterator[None]:
+    """Bind one exact source through a complete sync or async candidate call chain."""
+
+    if source is None:
+        yield
+        return
+    if type(source) is not CatalogServingSourcePaths:
+        raise SubstrateRegistryError("catalog_source_context_invalid")
+    token = _ACTIVE_CATALOG_SOURCE.set(source)
+    try:
+        yield
+    finally:
+        _ACTIVE_CATALOG_SOURCE.reset(token)
+
+
+def current_catalog_serving_source() -> CatalogServingSourcePaths | None:
+    """Return the source bound to this request context, if any."""
+
+    return _ACTIVE_CATALOG_SOURCE.get()
+
+
+def require_active_catalog_source(source: CatalogServingSourcePaths | None) -> None:
+    """Require an owner to run inside the exact source context used to construct it."""
+
+    if source is not None and current_catalog_serving_source() is not source:
+        raise SubstrateRegistryError("catalog_source_context_mismatch")
+
+
+async def run_catalog_source_awaitable(
+    source: CatalogServingSourcePaths,
+    awaitable: Awaitable[Any],
+) -> Any:
+    """Await one complete run while its immutable catalog source is context-bound."""
+
+    with catalog_serving_source_scope(source):
+        return await awaitable
+
+
+def run_catalog_source_call(
+    source: CatalogServingSourcePaths | None,
+    call: Callable[..., Any],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    """Call one complete synchronous run with the same request-local source binding."""
+
+    with catalog_serving_source_scope(source):
+        return call(*args, **kwargs)
+
+
+def require_catalog_serving_graph_binding(graph: object, source: CatalogServingSourcePaths) -> None:
+    """Reject an injected graph that does not use the explicitly selected database."""
+
+    if source.selection_basis == "explicit_path_candidate_only":
+        observed = getattr(graph, "database_path", None)
+        if observed is None or Path(observed).resolve() != source.database_path:
+            raise SubstrateRegistryError("catalog_source_graph_binding_mismatch")
+
+
+def require_catalog_source_registry_binding(
+    repo_root: Path,
+    registry: SubstrateRegistry,
+    source: CatalogServingSourcePaths | None,
+) -> None:
+    """Reconcile a pre-bound registry against the source selected for this run."""
+
+    if source is None or source.selection_basis != "explicit_path_candidate_only":
+        return
+    selected = build_substrate_registry_from_existing_catalogs(repo_root)
+    if selected.content_hash != registry.content_hash:
+        raise SubstrateRegistryError("catalog_source_registry_binding_mismatch")
+
+
+def resolve_catalog_serving_source(
+    repo_root: Path,
+    *,
+    selection: CatalogServingSourceSelection | None,
+    requested_profile: core.contracts.CatalogRunProfile | None,
+) -> CatalogServingSourcePaths:
+    """Resolve one source at composition time; a selected path is candidate input only."""
+
+    from polisyos.data_forge.read_api.catalog import default_acquisition_overlay_path
+
+    root = Path(repo_root).resolve()
+    defaults = default_substrate_catalog_paths(root)
+    overlay = default_acquisition_overlay_path(root)
+    if selection is None:
+        return CatalogServingSourcePaths(
+            repo_root=root,
+            snapshot_root=root,
+            database_path=defaults.l1_dcat_path,
+            index_dir=defaults.l1_dcat_path.parent,
+            overlay_path=overlay,
+            catalog_run_profile=requested_profile,
+            selection_basis="legacy_default_candidate_only",
+            substrate_paths=defaults,
+        )
+    if type(selection) is not CatalogServingSourceSelection:
+        raise SubstrateRegistryError("catalog_source_selection_invalid")
+    if requested_profile is not None and requested_profile != selection.catalog_run_profile:
+        raise SubstrateRegistryError("catalog_source_selection_profile_mismatch")
+    try:
+        snapshot_root = selection.snapshot_root.resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise SubstrateRegistryError("catalog_source_snapshot_missing") from exc
+    if not snapshot_root.is_dir():
+        raise SubstrateRegistryError("catalog_source_snapshot_not_directory")
+    expected = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
+    try:
+        database_path = expected.resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise SubstrateRegistryError("catalog_source_database_missing") from exc
+    # Canonicalize a declared root symlink; reject a database member that redirects below it.
+    if database_path != expected or not database_path.is_file():
+        raise SubstrateRegistryError("catalog_source_database_path_unbound")
+    paths = replace(defaults, l1_dcat_path=database_path)
+    return CatalogServingSourcePaths(
+        repo_root=root,
+        snapshot_root=snapshot_root,
+        database_path=database_path,
+        index_dir=database_path.parent,
+        overlay_path=overlay,
+        catalog_run_profile=selection.catalog_run_profile,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=paths,
+    )
 
 
 @dataclass(frozen=True)
@@ -775,6 +940,11 @@ def default_substrate_catalog_paths(repo_root: Path) -> SubstrateCatalogPaths:
     """Return canonical S0 catalog paths under a repo root."""
 
     root = repo_root.resolve()
+    active_source = current_catalog_serving_source()
+    if active_source is not None:
+        if active_source.repo_root != root:
+            raise SubstrateRegistryError("catalog_source_repo_root_mismatch")
+        return active_source.substrate_paths
     l5_dir = root / DEFAULT_L5_REGISTRY_DIR
     return SubstrateCatalogPaths(
         production_root=root / DEFAULT_PRODUCTION_DATA_ROOT,

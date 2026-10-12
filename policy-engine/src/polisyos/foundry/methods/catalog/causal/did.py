@@ -68,7 +68,12 @@ def _normal_critical_value(confidence_level: float) -> float:
 def _did_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(name="report", slot_type=SlotType.SCALAR, unit=Unit("report", "json")),
+            SlotSpec.for_output_contract(
+                name="report",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("report", "json"),
+                output_contract=CausalEffectReport,
+            ),
             SlotSpec(name="envelope", slot_type=SlotType.SCALAR, unit=Unit("uncertainty", "json")),
             SlotSpec(
                 name="result",

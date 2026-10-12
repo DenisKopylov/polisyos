@@ -2,21 +2,29 @@
 
 from __future__ import annotations
 
-import importlib
 import hashlib
+import importlib
 import json
 import os
 import sqlite3
 import threading
 import uuid
 from collections.abc import Callable, Iterator, Mapping
-from contextvars import ContextVar
 from contextlib import contextmanager
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, ContextManager, Literal, cast, get_args
+from typing import TYPE_CHECKING, Any, ContextManager, Literal, cast, get_args
+
+from polisyos.runtime.http.services.run_operation_idempotency import (
+    RuntimeOperationIntentClaim,
+    RuntimeOperationIntentKey,
+    RuntimeOperationIntentRecord,
+    RuntimeOperationIntentSnapshot,
+    RuntimeOperationIntentStatus,
+)
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -30,7 +38,21 @@ from polisyos.core.contracts.control import (
     ExecutionProfile,
     OperatorDiagnostic,
 )
+from polisyos.core.contracts.control_admission_attempt import (
+    CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
+    NO_CALL_REASON_VALUES,
+    PRODUCER_CALL_STATE_VALUES,
+    validate_producer_call_observation,
+)
 from polisyos.core.contracts.runtime import ApiMeta
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.control_admission_attempt import (
+        ControlPreAdmissionAttemptStatus,
+        ProducerCallState,
+        NoCallReason,
+    )
+
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
     _operator_diagnostic_from_quality_payload,
@@ -125,6 +147,8 @@ _CONTROL_JOB_KINDS = frozenset(get_args(ControlJobKind))
 _CONTROL_JOB_STATES = frozenset({"pending", "running", "completed", "failed"})
 _EXECUTION_PROFILES = frozenset({"dev", "research", "governed", "production"})
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+# Backward-compatible name for consumers; the Literal contract above is canonical.
+CONTROL_PRE_ADMISSION_NO_CALL_FAILURE_CODES = NO_CALL_REASON_VALUES
 _CONTROL_EXECUTION_SCOPE_SCHEMA_VERSION = "polisyos.runtime.control_execution_scope.v1"
 _CONTROL_EXECUTION_SCOPE_KEYS = frozenset(
     {
@@ -483,25 +507,25 @@ def _completion_failure_message(progress: Mapping[str, Any]) -> str | None:
     status = _string_or_none(progress.get("status"))
     failure = progress.get("failure")
     if isinstance(failure, Mapping):
-        failure_code = _string_or_none(failure.get("code"))
+        reason_code = _string_or_none(failure.get("code"))
         failure_message = _string_or_none(failure.get("message"))
     else:
-        failure_code = None
+        reason_code = None
         failure_message = None
     if authority_path == "workflow_failure":
-        return failure_message or failure_code or "workflow failure cannot complete cleanly"
+        return failure_message or reason_code or "workflow failure cannot complete cleanly"
     if disposition and disposition.startswith("blocked_workflow_failure"):
-        return failure_message or failure_code or disposition
+        return failure_message or reason_code or disposition
     if progress_state == "failed" and authority_result in {"repair_required", "blocked"}:
-        return failure_message or failure_code or "failed progress cannot complete cleanly"
+        return failure_message or reason_code or "failed progress cannot complete cleanly"
     if runtime_state == "blocked" and authority_result in {"repair_required", "blocked"}:
-        return failure_message or failure_code or "blocked progress cannot complete cleanly"
+        return failure_message or reason_code or "blocked progress cannot complete cleanly"
     if status in {"fail", "failed", "error"} and authority_result in {
         None,
         "repair_required",
         "blocked",
     }:
-        return failure_message or failure_code or "failed workflow status cannot complete cleanly"
+        return failure_message or reason_code or "failed workflow status cannot complete cleanly"
     return None
 
 
@@ -1007,6 +1031,57 @@ class ControlWorkerLeaseRecord:
     lease_expires_at: datetime
     created_at: datetime
     updated_at: datetime
+
+
+@dataclass(frozen=True)
+class ControlPreAdmissionAttemptEventRecord:
+    """Represent one immutable pre-admission attempt observation."""
+
+    event_id: str
+    sequence: int
+    event_type: ControlPreAdmissionAttemptStatus
+    observed_at: datetime
+    producer_event_ids: tuple[str, ...]
+    producer_event_observation: ProducerCallState
+    producer_no_call_reason: NoCallReason | None
+    failure_code: str | None
+    job_id: str | None
+
+
+@dataclass(frozen=True)
+class ControlPreAdmissionAttemptRecord:
+    """Represent one immutable launch intent and its latest durable observation."""
+
+    attempt_id: str
+    intent_sha256: str
+    intent_binding: dict[str, Any]
+    producer_run_binding: dict[str, Any] | None
+    idempotency_key_sha256: str | None
+    request_id: str
+    run_id: str
+    candidate_job_id: str
+    job_id: str | None
+    tenant_id: str | None
+    cell_id: str | None
+    actor_subject: str | None
+    effective_execution_profile: str
+    status: ControlPreAdmissionAttemptStatus
+    producer_event_ids: tuple[str, ...]
+    producer_event_observation: ProducerCallState
+    producer_no_call_reason: NoCallReason | None
+    failure_code: str | None
+    created_at: datetime
+    updated_at: datetime
+    history: tuple[ControlPreAdmissionAttemptEventRecord, ...]
+    shared_owner: RuntimeOperationIntentRecord
+
+
+class ControlPreAdmissionIdempotencyConflictError(RuntimeError):
+    """Report reuse of one client key for a different immutable intent."""
+
+    def __init__(self, attempt_id: str) -> None:
+        self.attempt_id = attempt_id
+        super().__init__("control_pre_admission_idempotency_intent_conflict")
 
 
 @dataclass(frozen=True)
@@ -2760,6 +2835,743 @@ class ControlPlaneStore:
         if valid_until <= instant:
             raise ValueError("human-decision record validity must end after reservation")
 
+    def start_pre_admission_attempt(
+        self,
+        *,
+        attempt_id: str,
+        request_id: str,
+        run_id: str,
+        candidate_job_id: str,
+        effective_execution_profile: str,
+        intent_binding: Mapping[str, Any],
+        producer_run_binding: Mapping[str, Any] | None,
+        idempotency_key_sha256: str | None,
+    ) -> tuple[ControlPreAdmissionAttemptRecord, bool]:
+        """Claim the shared route-scoped intent before a billable provider preflight.
+
+        The R3 row is a typed read model and append-only observation stream. Its
+        idempotency authority is the shared runtime operation intent identity.
+        """
+        if len(attempt_id) != 32 or any(c not in "0123456789abcdef" for c in attempt_id):
+            raise ValueError("control_pre_admission_attempt_id_invalid")
+        if not all(
+            value and value == value.strip() for value in (request_id, run_id, candidate_job_id)
+        ):
+            raise ValueError("control_pre_admission_identity_not_established")
+        if idempotency_key_sha256 is None or len(idempotency_key_sha256) != 64 or any(
+            c not in "0123456789abcdef" for c in idempotency_key_sha256
+        ):
+            raise ValueError("control_pre_admission_idempotency_key_required")
+        normalized_intent = json.loads(
+            json.dumps(dict(intent_binding), sort_keys=True, separators=(",", ":"), allow_nan=False)
+        )
+        expected_intent_keys = {
+            "schema_version",
+            "request_content_sha256",
+            "tenant_id",
+            "cell_id",
+            "actor_subject",
+            "effective_execution_profile",
+            "authorization_permission",
+            "authorization_resource_sha256",
+        }
+        if (
+            set(normalized_intent) != expected_intent_keys
+            or normalized_intent.get("schema_version")
+            != "polisyos.runtime.control_pre_admission_intent.v1"
+        ):
+            raise ValueError("control_pre_admission_intent_schema_invalid")
+        if normalized_intent.get("effective_execution_profile") != effective_execution_profile:
+            raise ValueError("control_pre_admission_intent_profile_mismatch")
+        request_digest = normalized_intent.get("request_content_sha256")
+        resource_digest = normalized_intent.get("authorization_resource_sha256")
+        if (
+            not isinstance(request_digest, str)
+            or len(request_digest) != 71
+            or not request_digest.startswith("sha256:")
+            or any(character not in "0123456789abcdef" for character in request_digest[7:])
+            or normalized_intent.get("authorization_permission") != "runs.launch"
+            or not isinstance(resource_digest, str)
+            or len(resource_digest) != 71
+            or not resource_digest.startswith("sha256:")
+            or any(character not in "0123456789abcdef" for character in resource_digest[7:])
+        ):
+            raise ValueError("control_pre_admission_intent_authorization_basis_invalid")
+        tenant_id = normalized_intent.get("tenant_id")
+        cell_id = normalized_intent.get("cell_id")
+        actor_subject = normalized_intent.get("actor_subject")
+        scope_sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        if any(
+            not isinstance(value, str) or not value or value != value.strip()
+            or value.casefold() in scope_sentinels
+            for value in (tenant_id, cell_id, actor_subject)
+        ):
+            raise ValueError("control_pre_admission_scope_not_established")
+        expected_attempt = hashlib.sha256(
+            f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{idempotency_key_sha256}".encode()
+        ).hexdigest()[:32]
+        if attempt_id != expected_attempt:
+            raise ValueError("control_pre_admission_attempt_id_not_bound_to_scoped_key")
+        normalized_binding = (
+            json.loads(json.dumps(dict(producer_run_binding), sort_keys=True, separators=(",", ":"), allow_nan=False))
+            if producer_run_binding is not None else None
+        )
+        if normalized_binding is not None and (
+            set(normalized_binding)
+            != {"schema_version", "run_id", "tenant_id", "cell_id", "profile_id", "control_job_id"}
+            or normalized_binding.get("schema_version")
+            != "polisyos.scientist.budget_ledger.producer_run_binding.v1"
+            or normalized_binding.get("run_id") != run_id
+            or normalized_binding.get("control_job_id") != candidate_job_id
+            or normalized_binding.get("profile_id") != effective_execution_profile
+            or normalized_binding.get("tenant_id") != tenant_id
+            or normalized_binding.get("cell_id") != cell_id
+        ):
+            raise ValueError("control_pre_admission_producer_binding_mismatch")
+        canonical_intent = json.dumps(
+            normalized_intent, sort_keys=True, separators=(",", ":"), allow_nan=False
+        )
+        intent_sha256 = hashlib.sha256(canonical_intent.encode("utf-8")).hexdigest()
+        operation_key = RuntimeOperationIntentKey(
+            purpose="control.nl_pre_admission.v1",
+            tenant_id=str(tenant_id),
+            cell_id=str(cell_id),
+            actor_subject_sha256=hashlib.sha256(str(actor_subject).encode("utf-8")).hexdigest(),
+            run_id=run_id,
+            intent_id=attempt_id,
+            body_sha256=intent_sha256,
+            scope_kind="route",
+            scope_id="control.runs.nl",
+        )
+        now = _utc_now()
+        with self._job_transaction():
+            claim = self.begin_runtime_operation_intent(operation_key)
+            if claim.disposition == "body_conflict":
+                raise ControlPreAdmissionIdempotencyConflictError(claim.record.intent_id)
+            if claim.disposition != "owner":
+                record = self.get_pre_admission_attempt(claim.record.intent_id)
+                if record is None:
+                    raise RuntimeError("shared runtime intent has no typed pre-admission projection")
+                if record.intent_sha256 != intent_sha256:
+                    raise ControlPreAdmissionIdempotencyConflictError(record.attempt_id)
+                return record, False
+            if claim.owner_token is None:
+                raise RuntimeError("shared runtime operation owner credential is absent")
+            self._execute(
+                """
+                INSERT INTO control_pre_admission_attempts (
+                    attempt_id, intent_sha256, intent_binding_json,
+                    producer_run_binding_json, idempotency_key_sha256, owner_token,
+                    request_id, run_id, candidate_job_id, job_id, tenant_id,
+                    cell_id, actor_subject, effective_execution_profile, status,
+                    producer_event_ids_json, producer_event_observation,
+                    failure_code, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, 'started', '[]',
+                    'not_applicable', NULL, ?, ?)
+                """,
+                (
+                    attempt_id, intent_sha256, canonical_intent,
+                    json.dumps(normalized_binding, sort_keys=True, separators=(",", ":"))
+                    if normalized_binding is not None else None,
+                    idempotency_key_sha256, claim.owner_token, request_id, run_id,
+                    candidate_job_id, tenant_id, cell_id, actor_subject,
+                    effective_execution_profile, _iso(now), _iso(now),
+                ),
+            )
+            self._append_pre_admission_attempt_event(
+                attempt_id=attempt_id, sequence=1, event_type="started",
+                producer_event_ids=(), producer_event_observation="not_applicable",
+                producer_no_call_reason=None, failure_code=None, job_id=None, observed_at=now, run_id=run_id,
+            )
+            record = self.get_pre_admission_attempt(attempt_id)
+            if record is None:
+                raise RuntimeError("control_pre_admission_attempt_start_not_observed")
+            return record, True
+
+    def observe_pre_admission_attempt(
+        self,
+        *,
+        attempt_id: str,
+        event_type: ControlPreAdmissionAttemptStatus,
+        producer_event_ids: tuple[str, ...] = (),
+        producer_event_observation: ProducerCallState = "not_applicable",
+        producer_no_call_reason: NoCallReason | None = None,
+        failure_code: str | None = None,
+        job_id: str | None = None,
+    ) -> ControlPreAdmissionAttemptRecord:
+        """Append a typed observation and project it atomically to outbox/history."""
+        if event_type not in {"settled", "admitted", "refused", "cancelled", "failed"}:
+            raise ValueError("control_pre_admission_event_type_invalid")
+        if not isinstance(producer_event_ids, tuple) or any(
+            not isinstance(ref, str) or not ref or ref != ref.strip()
+            for ref in producer_event_ids
+        ):
+            raise ValueError("control_pre_admission_producer_event_ref_invalid")
+        if len(set(producer_event_ids)) != len(producer_event_ids):
+            raise ValueError("control_pre_admission_producer_event_ref_duplicate")
+        normalized_refs = tuple(sorted(producer_event_ids))
+        validate_producer_call_observation(
+            producer_event_observation, producer_no_call_reason
+        )
+        if producer_no_call_reason is not None and failure_code != producer_no_call_reason:
+            raise ValueError("control_pre_admission_no_call_reason_failure_code_mismatch")
+        if failure_code is not None and (
+            not failure_code
+            or len(failure_code) > 96
+            or any(
+                c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+                for c in failure_code
+            )
+        ):
+            raise ValueError("control_pre_admission_failure_code_invalid")
+        now = _utc_now()
+        with self._job_transaction():
+            suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            row = self._fetchone(
+                f"SELECT * FROM control_pre_admission_attempts WHERE attempt_id = ?{suffix}",
+                (attempt_id,),
+            )
+            if row is None:
+                raise KeyError(attempt_id)
+            current = str(row["status"])
+            raw_old_refs = row["producer_event_ids_json"]
+            if not isinstance(raw_old_refs, str) or not raw_old_refs:
+                raise RuntimeError("control_pre_admission_stored_producer_refs_missing")
+            old_refs_json = json.loads(raw_old_refs)
+            if not isinstance(old_refs_json, list):
+                raise RuntimeError("control_pre_admission_stored_producer_refs_invalid")
+            old_refs = tuple(old_refs_json)
+            if old_refs != tuple(sorted(set(old_refs))) or any(
+                not isinstance(ref, str) or not ref or ref != ref.strip() for ref in old_refs
+            ):
+                raise RuntimeError("control_pre_admission_stored_producer_refs_invalid")
+            all_refs = tuple(sorted(set(old_refs).union(normalized_refs)))
+            old_observation = row["producer_event_observation"]
+            old_reason = row["failure_code"] if old_observation == "no_call" else None
+            try:
+                validate_producer_call_observation(old_observation, old_reason)
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError("control_pre_admission_stored_observation_invalid") from exc
+            if producer_event_observation not in PRODUCER_CALL_STATE_VALUES:
+                raise ValueError("control_pre_admission_observation_invalid")
+            observation = (
+                "unavailable"
+                if "unavailable" in {old_observation, producer_event_observation}
+                else "complete"
+                if "complete" in {old_observation, producer_event_observation}
+                else "no_call"
+                if "no_call" in {old_observation, producer_event_observation}
+                else "not_applicable"
+            )
+            profile = str(row["effective_execution_profile"])
+            if producer_event_observation == "no_call" and (
+                event_type != "refused"
+                or current != "started"
+                or old_observation != "not_applicable"
+                or old_refs
+                or normalized_refs
+                or producer_no_call_reason not in NO_CALL_REASON_VALUES
+                or failure_code != producer_no_call_reason
+            ):
+                raise ValueError("control_pre_admission_no_call_basis_invalid")
+            allowed = {
+                "started": {"settled", "refused", "cancelled", "failed"},
+                "settled": {"admitted", "refused", "cancelled", "failed"},
+            }
+            if event_type == "admitted" and current == "started" and profile == "dev":
+                allowed["started"].add("admitted")
+            if event_type not in allowed.get(current, set()):
+                raise ValueError("control_pre_admission_transition_invalid")
+            if event_type == "settled" and (
+                profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                or producer_event_observation != "complete"
+                or not normalized_refs
+            ):
+                raise ValueError("control_pre_admission_settlement_evidence_incomplete")
+            if current == "started" and event_type in {"refused", "cancelled", "failed"}:
+                safe_no_call_refusal = event_type == "refused" and producer_event_observation == "no_call"
+                unresolved_provider_call = (
+                    event_type in {"cancelled", "failed"}
+                    and producer_event_observation == "unavailable"
+                )
+                if not safe_no_call_refusal and not unresolved_provider_call:
+                    raise ValueError("control_pre_admission_terminal_requires_settlement_or_no_call")
+            if event_type == "admitted":
+                if current == "started" and (
+                    profile != "dev"
+                    or old_observation != "not_applicable"
+                    or producer_event_observation != "not_applicable"
+                    or old_refs
+                    or normalized_refs
+                ):
+                    raise ValueError("control_pre_admission_direct_admission_unproven")
+                if current == "settled" and (
+                    profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                    or observation != "complete"
+                    or not all_refs
+                ):
+                    raise ValueError("control_pre_admission_admission_settlement_unproven")
+            sequence_row = self._fetchone(
+                """SELECT COALESCE(MAX(sequence_no), 0) + 1 AS next_sequence
+                   FROM control_pre_admission_attempt_events WHERE attempt_id = ?""",
+                (attempt_id,),
+            )
+            sequence = int(sequence_row["next_sequence"])
+            event_job_id = job_id or row["job_id"]
+            if event_type == "admitted" and (
+                not isinstance(event_job_id, str) or not event_job_id or event_job_id != event_job_id.strip()
+            ):
+                raise ValueError("control_pre_admission_admission_job_not_established")
+            if producer_event_observation == "complete" and not all_refs:
+                raise ValueError("control_pre_admission_complete_observation_without_events")
+            if producer_event_observation in {"not_applicable", "no_call"} and normalized_refs:
+                raise ValueError("control_pre_admission_non_call_observation_with_event_refs")
+            changed = self._execute(
+                """
+                UPDATE control_pre_admission_attempts
+                SET status = ?, producer_event_ids_json = ?,
+                    producer_event_observation = ?, failure_code = COALESCE(?, failure_code),
+                    job_id = COALESCE(?, job_id), updated_at = ?
+                WHERE attempt_id = ? AND status = ?
+                """,
+                (
+                    event_type,
+                    json.dumps(all_refs, separators=(",", ":")),
+                    observation,
+                    failure_code,
+                    job_id,
+                    _iso(now),
+                    attempt_id,
+                    current,
+                ),
+            )
+            if changed != 1:
+                raise ValueError("control_pre_admission_transition_conflict")
+            event_id = self._append_pre_admission_attempt_event(
+                attempt_id=attempt_id,
+                sequence=sequence,
+                event_type=event_type,
+                producer_event_ids=all_refs,
+                producer_event_observation=observation,
+                producer_no_call_reason=producer_no_call_reason,
+                failure_code=failure_code,
+                job_id=event_job_id,
+                observed_at=now,
+                run_id=str(row["run_id"]),
+            )
+            operation_key = self._pre_admission_operation_key(row)
+            owner_token = _string_or_none(row["owner_token"])
+            if owner_token is None:
+                raise RuntimeError("pre-admission projection lost its shared owner credential")
+            if event_type == "admitted":
+                self.complete_runtime_operation_intent_with_observation(
+                    key=operation_key, owner_token=owner_token,
+                    result_ref_json=json.dumps(
+                        {"attempt_id": attempt_id, "run_id": str(row["run_id"]), "job_id": event_job_id},
+                        sort_keys=True, separators=(",", ":"),
+                    ), event_id=event_id,
+                )
+                self._execute(
+                    "UPDATE control_pre_admission_attempts SET owner_token = NULL WHERE attempt_id = ?",
+                    (attempt_id,),
+                )
+            elif event_type == "refused":
+                transition = (
+                    self.require_runtime_operation_recovery
+                    if observation == "unavailable"
+                    else self.refuse_runtime_operation_intent
+                )
+                transition(
+                    key=operation_key,
+                    owner_token=owner_token,
+                    reason_code=failure_code or "control_pre_admission_refused",
+                )
+                self._execute(
+                    "UPDATE control_pre_admission_attempts SET owner_token = NULL WHERE attempt_id = ?",
+                    (attempt_id,),
+                )
+            elif event_type in {"cancelled", "failed"}:
+                self.require_runtime_operation_recovery(
+                    key=operation_key, owner_token=owner_token,
+                    reason_code=failure_code or f"control_pre_admission_{event_type}",
+                )
+                self._execute(
+                    "UPDATE control_pre_admission_attempts SET owner_token = NULL WHERE attempt_id = ?",
+                    (attempt_id,),
+                )
+            record = self.get_pre_admission_attempt(attempt_id)
+            if record is None:
+                raise RuntimeError("control_pre_admission_attempt_update_not_observed")
+            return record
+
+    def get_pre_admission_attempt_by_idempotency_key(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        actor_subject: str,
+        idempotency_key_sha256: str,
+    ) -> ControlPreAdmissionAttemptRecord | None:
+        """Resolve a route-scoped intent only within the complete authenticated scope."""
+        scope = (tenant_id, cell_id, actor_subject)
+        if any(not isinstance(value, str) or not value or value != value.strip() for value in scope):
+            raise ValueError("control_pre_admission_scope_not_established")
+        if len(idempotency_key_sha256) != 64 or any(
+            character not in "0123456789abcdef" for character in idempotency_key_sha256
+        ):
+            raise ValueError("control_pre_admission_idempotency_digest_invalid")
+        attempt_id = hashlib.sha256(
+            f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{idempotency_key_sha256}".encode()
+        ).hexdigest()[:32]
+        record = self.get_pre_admission_attempt(attempt_id)
+        if record is None:
+            return None
+        if (record.tenant_id, record.cell_id, record.actor_subject, record.idempotency_key_sha256) != (
+            tenant_id, cell_id, actor_subject, idempotency_key_sha256
+        ):
+            return None
+        return record
+
+    def get_pre_admission_attempt(
+        self,
+        attempt_id: str,
+    ) -> ControlPreAdmissionAttemptRecord | None:
+        """Return the exact durable pre-admission attempt and append-only history."""
+        row = self._fetchone(
+            "SELECT * FROM control_pre_admission_attempts WHERE attempt_id = ?",
+            (attempt_id,),
+        )
+        if row is None:
+            return None
+        events = self._fetchall(
+            """SELECT * FROM control_pre_admission_attempt_events
+               WHERE attempt_id = ? ORDER BY sequence_no""",
+            (attempt_id,),
+        )
+        operation_key = self._pre_admission_operation_key(row)
+        shared = self.get_runtime_operation_intent(operation_key)
+        if shared.record is None:
+            raise RuntimeError("typed pre-admission projection has no shared runtime intent")
+        owner = shared.record
+        persisted_observation = row["producer_event_observation"]
+        persisted_reason = row["failure_code"] if persisted_observation == "no_call" else None
+        try:
+            validate_producer_call_observation(persisted_observation, persisted_reason)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("pre-admission aggregate observation is invalid") from exc
+        expected_state = {
+            "started": "pending",
+            "settled": "pending",
+            "admitted": "completed",
+            "refused": (
+                "recovery_required"
+                if persisted_observation == "unavailable"
+                else "refused"
+            ),
+            "cancelled": "recovery_required",
+            "failed": "recovery_required",
+        }.get(str(row["status"]))
+        if expected_state != shared.status:
+            raise RuntimeError("typed pre-admission projection diverged from shared owner state")
+        owner_token = row["owner_token"]
+        if expected_state == "pending":
+            if not isinstance(owner_token, str) or not owner_token:
+                raise RuntimeError("pending pre-admission projection lost its shared owner token")
+        elif owner_token is not None:
+            raise RuntimeError("terminal pre-admission projection retained its shared owner token")
+        if (
+            owner.purpose != operation_key.purpose
+            or owner.scope_kind != "route"
+            or owner.scope_id != "control.runs.nl"
+            or owner.tenant_id != str(row["tenant_id"])
+            or owner.cell_id != str(row["cell_id"])
+            or owner.actor_subject_sha256 != operation_key.actor_subject_sha256
+            or owner.run_id != str(row["run_id"])
+            or owner.intent_id != str(row["attempt_id"])
+            or owner.body_sha256 != str(row["intent_sha256"])
+        ):
+            raise RuntimeError("typed pre-admission projection owner binding mismatch")
+        try:
+            key_digest = str(row["idempotency_key_sha256"])
+            if len(key_digest) != 64 or any(character not in "0123456789abcdef" for character in key_digest):
+                raise ValueError("pre-admission idempotency digest is malformed")
+            raw_intent_binding = row["intent_binding_json"]
+            if not isinstance(raw_intent_binding, str) or not raw_intent_binding:
+                raise ValueError("intent binding is missing")
+            intent_binding = json.loads(raw_intent_binding)
+            if not isinstance(intent_binding, dict):
+                raise ValueError("intent binding must be a JSON object")
+            canonical_intent = json.dumps(
+                intent_binding, sort_keys=True, separators=(",", ":"), allow_nan=False
+            )
+            content_sha256 = intent_binding.get("request_content_sha256")
+            expected_intent_keys = {
+                "schema_version",
+                "request_content_sha256",
+                "tenant_id",
+                "cell_id",
+                "actor_subject",
+                "effective_execution_profile",
+                "authorization_permission",
+                "authorization_resource_sha256",
+            }
+            permission = intent_binding.get("authorization_permission")
+            resource_sha256 = intent_binding.get("authorization_resource_sha256")
+            binding_is_exact = (
+                set(intent_binding) == expected_intent_keys
+                and permission == "runs.launch"
+                and isinstance(resource_sha256, str)
+                and len(resource_sha256) == 71
+                and resource_sha256.startswith("sha256:")
+                and all(character in "0123456789abcdef" for character in resource_sha256[7:])
+                and hashlib.sha256(canonical_intent.encode("utf-8")).hexdigest()
+                == str(row["intent_sha256"])
+                and intent_binding.get("schema_version")
+                == "polisyos.runtime.control_pre_admission_intent.v1"
+                and intent_binding.get("tenant_id") == str(row["tenant_id"])
+                and intent_binding.get("cell_id") == str(row["cell_id"])
+                and intent_binding.get("actor_subject") == str(row["actor_subject"])
+                and intent_binding.get("effective_execution_profile")
+                == str(row["effective_execution_profile"])
+                and isinstance(content_sha256, str)
+                and len(content_sha256) == 71
+                and content_sha256.startswith("sha256:")
+                and all(character in "0123456789abcdef" for character in content_sha256[7:])
+            )
+            expected_attempt_id = hashlib.sha256(
+                f"control.nl_pre_admission.v1\0control.runs.nl\0{row['tenant_id']}\0{row['cell_id']}\0{row['actor_subject']}\0{key_digest}".encode()
+            ).hexdigest()[:32]
+            if (
+                not binding_is_exact
+                or expected_attempt_id != str(row["attempt_id"])
+                or str(row["effective_execution_profile"]) not in _EXECUTION_PROFILES
+            ):
+                raise ValueError("pre-admission binding does not match its route owner")
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise RuntimeError("typed pre-admission request binding is malformed") from exc
+        record = self._row_to_pre_admission_attempt(row, events, owner)
+        self._validate_pre_admission_attempt_history(record)
+        return record
+
+    @staticmethod
+    def _validate_pre_admission_attempt_history(
+        record: ControlPreAdmissionAttemptRecord,
+    ) -> None:
+        """Reconcile every status/event projection before exposing recovery evidence."""
+        history = record.history
+        if not history or [event.sequence for event in history] != list(range(1, len(history) + 1)):
+            raise RuntimeError("pre-admission event history sequence is incomplete")
+        if len({event.event_id for event in history}) != len(history):
+            raise RuntimeError("pre-admission event history contains duplicate IDs")
+        status = ""
+        refs: set[str] = set()
+        saw_complete = False
+        saw_unavailable = False
+        saw_no_call = False
+        for index, event in enumerate(history):
+            if event.event_type not in {"started", "settled", "admitted", "refused", "cancelled", "failed"}:
+                raise RuntimeError("pre-admission event history has an unknown status")
+            try:
+                validate_producer_call_observation(
+                    event.producer_event_observation, event.producer_no_call_reason
+                )
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError("pre-admission event history has an unknown observation") from exc
+            event_refs = tuple(event.producer_event_ids)
+            if event_refs != tuple(sorted(set(event_refs))) or any(
+                not isinstance(ref, str) or not ref or ref != ref.strip() for ref in event_refs
+            ):
+                raise RuntimeError("pre-admission event history refs are malformed")
+            if event.producer_event_observation == "complete" and not event_refs:
+                raise RuntimeError("pre-admission complete observation has no event refs")
+            if event.producer_event_observation in {"not_applicable", "no_call"} and event_refs:
+                raise RuntimeError("pre-admission no-call observation has event refs")
+            if event.producer_event_observation == "no_call" and (
+                event.failure_code != event.producer_no_call_reason
+                or event.event_type != "refused"
+                or status != "started"
+                or saw_complete
+                or saw_unavailable
+                or saw_no_call
+                or event.failure_code not in CONTROL_PRE_ADMISSION_NO_CALL_FAILURE_CODES
+            ):
+                raise RuntimeError("pre-admission no-call event lacks a trusted pre-call refusal basis")
+            if event.job_id is not None and event.job_id != record.candidate_job_id:
+                raise RuntimeError("pre-admission event job does not match the immutable candidate")
+            if not refs.issubset(set(event_refs)):
+                raise RuntimeError("pre-admission event refs are not append-only")
+            refs.update(event_refs)
+            expected_observation = (
+                "unavailable"
+                if saw_unavailable or event.producer_event_observation == "unavailable"
+                else "complete"
+                if saw_complete or event.producer_event_observation == "complete"
+                else "no_call"
+                if saw_no_call or event.producer_event_observation == "no_call"
+                else "not_applicable"
+            )
+            if event.producer_event_observation != expected_observation:
+                raise RuntimeError("pre-admission event observation is not cumulative")
+            saw_complete = saw_complete or event.producer_event_observation == "complete"
+            saw_unavailable = saw_unavailable or event.producer_event_observation == "unavailable"
+            saw_no_call = saw_no_call or event.producer_event_observation == "no_call"
+            if index == 0:
+                if (
+                    event.event_type != "started"
+                    or event.producer_event_observation != "not_applicable"
+                    or event_refs
+                    or event.failure_code is not None
+                    or event.producer_no_call_reason is not None
+                    or event.job_id is not None
+                ):
+                    raise RuntimeError("pre-admission history does not begin with an empty start")
+            else:
+                allowed = {
+                    "started": {"settled", "refused", "cancelled", "failed"},
+                    "settled": {"admitted", "refused", "cancelled", "failed"},
+                }
+                if event.event_type == "admitted" and status == "started" and record.effective_execution_profile == "dev":
+                    allowed["started"].add("admitted")
+                if event.event_type not in allowed.get(status, set()):
+                    raise RuntimeError("pre-admission event history transition is invalid")
+                if event.event_type == "settled" and (
+                    record.effective_execution_profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                    or event.producer_event_observation != "complete"
+                    or not event_refs
+                ):
+                    raise RuntimeError("pre-admission settled event lacks complete refs")
+                if status == "started" and event.event_type in {"refused", "cancelled", "failed"}:
+                    safe_no_call_refusal = (
+                        event.event_type == "refused"
+                        and event.producer_event_observation == "no_call"
+                    )
+                    unresolved_provider_call = (
+                        event.event_type in {"cancelled", "failed"}
+                        and event.producer_event_observation == "unavailable"
+                    )
+                    if not safe_no_call_refusal and not unresolved_provider_call:
+                        raise RuntimeError(
+                            "pre-admission terminal event lacks settlement, no-call, or unresolved evidence"
+                        )
+                if event.event_type == "admitted":
+                    if event.job_id != record.candidate_job_id:
+                        raise RuntimeError("pre-admission admission lacks its exact created job")
+                    if status == "started" and (
+                        record.effective_execution_profile != "dev"
+                        or event.producer_event_observation != "not_applicable"
+                        or event_refs
+                    ):
+                        raise RuntimeError("pre-admission direct admission lacks a dev no-preflight basis")
+                    if status == "settled" and (
+                        record.effective_execution_profile not in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+                        or not saw_complete or not refs
+                    ):
+                        raise RuntimeError("pre-admission admission lacks settled producer evidence")
+            if event.event_type in {"refused", "cancelled", "failed"} and event.producer_event_observation == "complete" and not event_refs:
+                raise RuntimeError("pre-admission terminal event lacks its complete producer refs")
+            status = event.event_type
+        aggregate_observation = (
+            "unavailable"
+            if saw_unavailable
+            else "complete"
+            if saw_complete
+            else "no_call"
+            if saw_no_call
+            else "not_applicable"
+        )
+        if (
+            history[-1].event_type != record.status
+            or tuple(sorted(refs)) != record.producer_event_ids
+            or aggregate_observation != record.producer_event_observation
+            or history[-1].producer_no_call_reason != record.producer_no_call_reason
+            or (record.producer_event_observation == "no_call" and record.failure_code != record.producer_no_call_reason)
+            or history[-1].job_id != record.job_id
+            or (record.job_id is not None and record.job_id != record.candidate_job_id)
+        ):
+            raise RuntimeError("pre-admission attempt and append-only history diverged")
+        if record.status in {"refused", "cancelled", "failed"}:
+            expected_reason = history[-1].failure_code or f"control_pre_admission_{record.status}"
+            if record.shared_owner.reason_code != expected_reason:
+                raise RuntimeError("terminal shared owner reason is not joined to its status event")
+        if record.status == "admitted":
+            if record.shared_owner.event_id != history[-1].event_id:
+                raise RuntimeError("completed shared owner is not joined to the admitted event")
+            raw_result_ref = record.shared_owner.result_ref_json
+            if not isinstance(raw_result_ref, str) or not raw_result_ref:
+                raise RuntimeError("completed shared owner result is missing")
+            try:
+                result_ref = json.loads(raw_result_ref)
+            except json.JSONDecodeError as exc:
+                raise RuntimeError("completed shared owner result is malformed") from exc
+            if result_ref != {
+                "attempt_id": record.attempt_id,
+                "run_id": record.run_id,
+                "job_id": record.job_id,
+            }:
+                raise RuntimeError("completed shared owner result does not bind the admitted attempt")
+
+    @staticmethod
+    def _pre_admission_operation_key(row: Any) -> RuntimeOperationIntentKey:
+        """Reconstruct only the exact route scope stored with this typed projection."""
+        return RuntimeOperationIntentKey(
+            purpose="control.nl_pre_admission.v1",
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            actor_subject_sha256=hashlib.sha256(str(row["actor_subject"]).encode("utf-8")).hexdigest(),
+            run_id=str(row["run_id"]),
+            intent_id=str(row["attempt_id"]),
+            body_sha256=str(row["intent_sha256"]),
+            scope_kind="route",
+            scope_id="control.runs.nl",
+        )
+
+    def _append_pre_admission_attempt_event(
+        self,
+        *,
+        attempt_id: str,
+        sequence: int,
+        event_type: ControlPreAdmissionAttemptStatus,
+        producer_event_ids: tuple[str, ...],
+        producer_event_observation: ProducerCallState,
+        producer_no_call_reason: NoCallReason | None,
+        failure_code: str | None,
+        job_id: str | None,
+        observed_at: datetime,
+        run_id: str,
+    ) -> str:
+        event_id = uuid.uuid4().hex
+        event_payload = {
+            "attempt_id": attempt_id,
+            "event_id": event_id,
+            "sequence": sequence,
+            "event_type": event_type,
+            "producer_event_ids": list(producer_event_ids),
+            "producer_event_observation": producer_event_observation,
+            "producer_no_call_reason": producer_no_call_reason,
+            "failure_code": failure_code,
+            "job_id": job_id,
+        }
+        self._execute(
+            """INSERT INTO control_pre_admission_attempt_events (
+                   event_id, attempt_id, sequence_no, event_type, payload_json, created_at
+               ) VALUES (?, ?, ?, ?, ?, ?)""",
+            (
+                event_id,
+                attempt_id,
+                sequence,
+                event_type,
+                json.dumps(event_payload, sort_keys=True, separators=(",", ":")),
+                _iso(observed_at),
+            ),
+        )
+        self.enqueue_outbox_event(
+            topic="control.pre_admission_attempt.observed",
+            event_key=f"{attempt_id}:{sequence}",
+            run_id=run_id,
+            payload=event_payload,
+        )
+        return event_id
+
     def create_job(
         self,
         *,
@@ -2777,6 +3589,11 @@ class ControlPlaneStore:
         initial_state: Literal["pending", "failed"] = "pending",
         initial_error_message: str | None = None,
         initial_progress: dict[str, Any] | None = None,
+        pre_admission_attempt_id: str | None = None,
+        pre_admission_outcome: Literal["admitted", "refused"] | None = None,
+        pre_admission_producer_event_observation: ProducerCallState | None = None,
+        pre_admission_no_call_reason: NoCallReason | None = None,
+        pre_admission_failure_code: str | None = None,
     ) -> ControlJobRecord:
         """Insert a pending or terminally refused job and enqueue its creation event."""
         if initial_state not in {"pending", "failed"}:
@@ -2785,6 +3602,12 @@ class ControlPlaneStore:
             raise ValueError("control_job_initial_failure_missing")
         if initial_state == "pending" and initial_error_message is not None:
             raise ValueError("control_job_pending_has_initial_failure")
+        if (pre_admission_attempt_id is None) != (pre_admission_outcome is None):
+            raise ValueError("control_job_pre_admission_link_incomplete")
+        if pre_admission_attempt_id is not None and (
+            (initial_state == "pending") != (pre_admission_outcome == "admitted")
+        ):
+            raise ValueError("control_job_pre_admission_outcome_mismatch")
         created_at = _utc_now()
         progress: dict[str, Any] = append_evidence_spine_handoff(
             dict(initial_progress or {}),
@@ -2844,6 +3667,17 @@ class ControlPlaneStore:
                 event_type="job_created",
                 payload=created_event_payload,
             )
+            if pre_admission_attempt_id is not None and pre_admission_outcome is not None:
+                self.observe_pre_admission_attempt(
+                    attempt_id=pre_admission_attempt_id,
+                    event_type=pre_admission_outcome,
+                    producer_event_observation=(
+                        pre_admission_producer_event_observation or "not_applicable"
+                    ),
+                    producer_no_call_reason=pre_admission_no_call_reason,
+                    failure_code=pre_admission_failure_code,
+                    job_id=job_id,
+                )
         return record
 
     def get_job(self, job_id: str) -> ControlJobRecord | None:
@@ -4374,6 +5208,329 @@ class ControlPlaneStore:
             return None
         return self._row_to_outbox_record(row)
 
+    def begin_runtime_operation_intent(
+        self,
+        key: RuntimeOperationIntentKey,
+    ) -> RuntimeOperationIntentClaim:
+        """Atomically admit one owner for a purpose-scoped request intent."""
+
+        if type(key) is not RuntimeOperationIntentKey:
+            raise TypeError("key must be a RuntimeOperationIntentKey")
+        owner_token = uuid.uuid4().hex
+        now = _iso(_utc_now())
+        with self._job_transaction():
+            self._execute(
+                """
+                INSERT INTO runtime_operation_intents (
+                    purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id, run_id, intent_id,
+                    body_sha256, state, owner_token, result_ref_json, event_id,
+                    reason_code, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, NULL, NULL, NULL, ?, ?)
+                ON CONFLICT (
+                    purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id, intent_id
+                ) DO NOTHING
+                """,
+                (*key.scope_identity[:4], key.scope_kind, key.scope_id, key.run_id, key.intent_id, key.body_sha256, owner_token, now, now),
+            )
+            row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                + self._runtime_operation_intent_lock_suffix(),
+                key.scope_identity,
+            )
+        if row is None:
+            raise RuntimeError("runtime operation intent insert/readback did not resolve")
+        record = self._runtime_operation_intent_record(row)
+        if record.body_sha256 != key.body_sha256:
+            return RuntimeOperationIntentClaim("body_conflict", record)
+        if record.status == "pending" and str(row["owner_token"]) == owner_token:
+            return RuntimeOperationIntentClaim("owner", record, owner_token)
+        return RuntimeOperationIntentClaim(record.status, record)
+
+    def get_runtime_operation_intent(
+        self,
+        key: RuntimeOperationIntentKey,
+    ) -> RuntimeOperationIntentSnapshot:
+        """Read exact scoped intent state, returning unknown only for no row."""
+
+        if type(key) is not RuntimeOperationIntentKey:
+            raise TypeError("key must be a RuntimeOperationIntentKey")
+        row = self._fetchone(
+            self._runtime_operation_intent_select() + self._runtime_operation_intent_where(),
+            key.scope_identity,
+        )
+        if row is None:
+            return RuntimeOperationIntentSnapshot("unknown", None)
+        record = self._runtime_operation_intent_record(row)
+        return RuntimeOperationIntentSnapshot(record.status, record)
+
+    def complete_runtime_operation_intent(
+        self,
+        *,
+        key: RuntimeOperationIntentKey,
+        owner_token: str,
+        result_ref_json: str,
+        event_id: str,
+        publish: Callable[[], object],
+    ) -> RuntimeOperationIntentRecord:
+        """Commit the association event and completed intent in one store transaction.
+
+        The writer and completed owner record share this store transaction, so a
+        visible completed row always has the event that names its exact result.
+        """
+
+        if type(key) is not RuntimeOperationIntentKey:
+            raise TypeError("key must be a RuntimeOperationIntentKey")
+        if not isinstance(owner_token, str) or not owner_token:
+            raise ValueError("owner_token is required")
+        if not isinstance(result_ref_json, str) or not result_ref_json:
+            raise ValueError("result_ref_json is required")
+        if not isinstance(event_id, str) or not event_id:
+            raise ValueError("event_id is required")
+        with self._job_transaction():
+            row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                + self._runtime_operation_intent_lock_suffix(),
+                key.scope_identity,
+            )
+            if row is None:
+                raise RuntimeError("runtime operation intent is absent during completion")
+            record = self._runtime_operation_intent_record(row)
+            if record.body_sha256 != key.body_sha256:
+                raise RuntimeError("runtime operation request body changed during completion")
+            if record.status == "completed":
+                if (
+                    record.result_ref_json != result_ref_json
+                    or record.event_id != event_id
+                ):
+                    raise RuntimeError("completed runtime operation intent changed its result")
+                return record
+            if record.status != "pending" or str(row["owner_token"]) != owner_token:
+                raise RuntimeError("runtime operation intent is not owned by this producer")
+            published = publish()
+            published_event = getattr(getattr(published, "event", None), "event_id", None)
+            if published_event != event_id:
+                raise RuntimeError("published event does not match the operation intent")
+            updated = _iso(_utc_now())
+            count = self._execute(
+                """
+                UPDATE runtime_operation_intents
+                SET state = 'completed', owner_token = NULL, result_ref_json = ?, event_id = ?,
+                    reason_code = NULL, updated_at = ?
+                WHERE purpose = ? AND tenant_id = ? AND cell_id = ?
+                    AND actor_subject_sha256 = ? AND scope_kind = ? AND scope_id = ? AND intent_id = ?
+                    AND body_sha256 = ? AND owner_token = ? AND state = 'pending'
+                """,
+                (
+                    result_ref_json,
+                    event_id,
+                    updated,
+                    *key.scope_identity,
+                    key.body_sha256,
+                    owner_token,
+                ),
+            )
+            if count != 1:
+                raise RuntimeError("runtime operation intent completion lost its owner row")
+            final_row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where(),
+                key.scope_identity,
+            )
+            if final_row is None:
+                raise RuntimeError("completed runtime operation intent did not read back")
+            return self._runtime_operation_intent_record(final_row)
+
+    def complete_runtime_operation_intent_with_observation(
+        self,
+        *,
+        key: RuntimeOperationIntentKey,
+        owner_token: str,
+        result_ref_json: str,
+        event_id: str,
+    ) -> RuntimeOperationIntentRecord:
+        """Complete a shared owner after its domain event was inserted in this transaction."""
+
+        if type(key) is not RuntimeOperationIntentKey:
+            raise TypeError("key must be a RuntimeOperationIntentKey")
+        if not owner_token or not result_ref_json or not event_id:
+            raise ValueError("owner, result reference, and durable event are required")
+        with self._job_transaction():
+            row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                + self._runtime_operation_intent_lock_suffix(),
+                key.scope_identity,
+            )
+            if row is None:
+                raise RuntimeError("runtime operation intent is absent during observation completion")
+            record = self._runtime_operation_intent_record(row)
+            if record.body_sha256 != key.body_sha256:
+                raise RuntimeError("runtime operation request body changed during completion")
+            if record.status == "completed":
+                if record.result_ref_json != result_ref_json or record.event_id != event_id:
+                    raise RuntimeError("completed runtime operation intent changed its result")
+                return record
+            if record.status != "pending" or str(row["owner_token"]) != owner_token:
+                raise RuntimeError("runtime operation intent is not owned by this observer")
+            count = self._execute(
+                """
+                UPDATE runtime_operation_intents
+                SET state = 'completed', owner_token = NULL, result_ref_json = ?, event_id = ?,
+                    reason_code = NULL, updated_at = ?
+                WHERE purpose = ? AND tenant_id = ? AND cell_id = ?
+                    AND actor_subject_sha256 = ? AND scope_kind = ? AND scope_id = ? AND intent_id = ?
+                    AND body_sha256 = ? AND owner_token = ? AND state = 'pending'
+                """,
+                (result_ref_json, event_id, _iso(_utc_now()), *key.scope_identity, key.body_sha256, owner_token),
+            )
+            if count != 1:
+                raise RuntimeError("runtime operation intent completion lost its owner row")
+            final_row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where(),
+                key.scope_identity,
+            )
+            if final_row is None:
+                raise RuntimeError("completed runtime operation intent did not read back")
+            return self._runtime_operation_intent_record(final_row)
+
+    def refuse_runtime_operation_intent(
+        self,
+        *,
+        key: RuntimeOperationIntentKey,
+        owner_token: str,
+        reason_code: str,
+    ) -> RuntimeOperationIntentRecord:
+        """Record an owner refusal proven to precede all producer side effects."""
+
+        return self._transition_runtime_operation_intent(
+            key=key,
+            owner_token=owner_token,
+            target="refused",
+            reason_code=reason_code,
+        )
+
+    def require_runtime_operation_recovery(
+        self,
+        *,
+        key: RuntimeOperationIntentKey,
+        owner_token: str,
+        reason_code: str,
+    ) -> RuntimeOperationIntentRecord:
+        """Freeze an ambiguous partial attempt for reconciliation, never auto-replay."""
+
+        return self._transition_runtime_operation_intent(
+            key=key,
+            owner_token=owner_token,
+            target="recovery_required",
+            reason_code=reason_code,
+        )
+
+    def _transition_runtime_operation_intent(
+        self,
+        *,
+        key: RuntimeOperationIntentKey,
+        owner_token: str,
+        target: Literal["refused", "recovery_required"],
+        reason_code: str,
+    ) -> RuntimeOperationIntentRecord:
+        if type(key) is not RuntimeOperationIntentKey:
+            raise TypeError("key must be a RuntimeOperationIntentKey")
+        if not isinstance(owner_token, str) or not owner_token:
+            raise ValueError("owner_token is required")
+        if (
+            not isinstance(reason_code, str)
+            or not reason_code
+            or reason_code != reason_code.strip()
+            or len(reason_code) > 120
+        ):
+            raise ValueError("reason_code must be a bounded typed code")
+        with self._job_transaction():
+            row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where()
+                + self._runtime_operation_intent_lock_suffix(),
+                key.scope_identity,
+            )
+            if row is None:
+                raise RuntimeError("runtime operation intent is absent during transition")
+            record = self._runtime_operation_intent_record(row)
+            if record.body_sha256 != key.body_sha256:
+                raise RuntimeError("runtime operation request body changed during transition")
+            if record.status == target and record.reason_code == reason_code:
+                return record
+            if record.status != "pending" or str(row["owner_token"]) != owner_token:
+                raise RuntimeError("runtime operation intent transition is not owned")
+            count = self._execute(
+                """
+                UPDATE runtime_operation_intents
+                SET state = ?, owner_token = NULL, reason_code = ?, updated_at = ?
+                WHERE purpose = ? AND tenant_id = ? AND cell_id = ?
+                    AND actor_subject_sha256 = ? AND scope_kind = ? AND scope_id = ? AND intent_id = ?
+                    AND body_sha256 = ? AND owner_token = ? AND state = 'pending'
+                """,
+                (
+                    target,
+                    reason_code,
+                    _iso(_utc_now()),
+                    *key.scope_identity,
+                    key.body_sha256,
+                    owner_token,
+                ),
+            )
+            if count != 1:
+                raise RuntimeError("runtime operation intent transition lost its owner row")
+            final_row = self._fetchone(
+                self._runtime_operation_intent_select() + self._runtime_operation_intent_where(),
+                key.scope_identity,
+            )
+            if final_row is None:
+                raise RuntimeError("runtime operation intent did not read back after transition")
+            return self._runtime_operation_intent_record(final_row)
+
+    @staticmethod
+    def _runtime_operation_intent_select() -> str:
+        return (
+            "SELECT purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id, run_id, intent_id, "
+            "body_sha256, state, owner_token, result_ref_json, event_id, reason_code, "
+            "created_at, updated_at FROM runtime_operation_intents"
+        )
+
+    @staticmethod
+    def _runtime_operation_intent_where() -> str:
+        return (
+            " WHERE purpose = ? AND tenant_id = ? AND cell_id = ? "
+            "AND actor_subject_sha256 = ? AND scope_kind = ? AND scope_id = ? AND intent_id = ?"
+        )
+
+    def _runtime_operation_intent_lock_suffix(self) -> str:
+        return " FOR UPDATE" if self.backend == "postgres" else ""
+
+    @staticmethod
+    def _runtime_operation_intent_record(row: Any) -> RuntimeOperationIntentRecord:
+        state = str(row["state"])
+        if state not in {"pending", "completed", "refused", "recovery_required"}:
+            raise RuntimeError("runtime operation intent has an unknown persisted state")
+        return RuntimeOperationIntentRecord(
+            purpose=str(row["purpose"]),
+            tenant_id=str(row["tenant_id"]),
+            cell_id=str(row["cell_id"]),
+            actor_subject_sha256=str(row["actor_subject_sha256"]),
+            run_id=str(row["run_id"]),
+            intent_id=str(row["intent_id"]),
+            body_sha256=str(row["body_sha256"]),
+            status=cast(RuntimeOperationIntentStatus, state),
+            result_ref_json=(
+                str(row["result_ref_json"])
+                if row["result_ref_json"] is not None
+                else None
+            ),
+            event_id=str(row["event_id"]) if row["event_id"] is not None else None,
+            reason_code=(
+                str(row["reason_code"]) if row["reason_code"] is not None else None
+            ),
+            created_at=str(row["created_at"]),
+            updated_at=str(row["updated_at"]),
+            scope_kind=cast(Literal["run", "route"], str(row["scope_kind"])),
+            scope_id=str(row["scope_id"]),
+        )
+
     def append_diagnostic_event(
         self,
         *,
@@ -4575,6 +5732,224 @@ class ControlPlaneStore:
             artifact_ref=str(row["artifact_ref"]),
             manifest_hash=str(row["manifest_hash"]),
             updated_at=updated_at,
+        )
+
+    def _row_to_pre_admission_attempt(
+        self,
+        row: Any,
+        event_rows: list[Any],
+        shared_owner: RuntimeOperationIntentRecord,
+    ) -> ControlPreAdmissionAttemptRecord:
+        history: list[ControlPreAdmissionAttemptEventRecord] = []
+
+        def parse_bound_timestamp(value: Any) -> datetime:
+            if isinstance(value, datetime):
+                if value.tzinfo is None or value.utcoffset() is None:
+                    raise RuntimeError("pre-admission event timestamp is not timezone-bound")
+                return value.astimezone(timezone.utc)
+            if isinstance(value, str) and value:
+                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if parsed.tzinfo is None or parsed.utcoffset() is None:
+                    raise RuntimeError("pre-admission event timestamp is not timezone-bound")
+                return parsed.astimezone(timezone.utc)
+            raise RuntimeError("pre-admission event timestamp is missing")
+
+        attempt_id = row["attempt_id"]
+        if not isinstance(attempt_id, str) or not attempt_id:
+            raise RuntimeError("pre-admission attempt identity is missing")
+        for event_row in event_rows:
+            raw_payload = event_row["payload_json"]
+            if not isinstance(raw_payload, str) or not raw_payload:
+                raise RuntimeError("pre-admission event payload is missing")
+            payload = json.loads(raw_payload)
+            legacy_payload_keys = {
+                "attempt_id",
+                "event_id",
+                "sequence",
+                "event_type",
+                "producer_event_ids",
+                "producer_event_observation",
+                "failure_code",
+                "job_id",
+            }
+            canonical_payload_keys = legacy_payload_keys | {"producer_no_call_reason"}
+            if not isinstance(payload, dict) or frozenset(payload) not in {
+                frozenset(legacy_payload_keys), frozenset(canonical_payload_keys)
+            }:
+                raise RuntimeError("pre-admission event payload shape is malformed")
+            event_id = event_row["event_id"]
+            sequence = event_row["sequence_no"]
+            event_type = event_row["event_type"]
+            if (
+                not isinstance(event_id, str)
+                or not event_id
+                or type(sequence) is not int
+                or not isinstance(event_type, str)
+                or payload["attempt_id"] != attempt_id
+                or payload["event_id"] != event_id
+                or type(payload["sequence"]) is not int
+                or payload["sequence"] != sequence
+                or payload["event_type"] != event_type
+            ):
+                raise RuntimeError("pre-admission event payload identity diverged from its row")
+            refs = payload["producer_event_ids"]
+            observation = payload["producer_event_observation"]
+            failure_code = payload["failure_code"]
+            no_call_reason = payload.get("producer_no_call_reason")
+            job_id = payload["job_id"]
+            try:
+                validate_producer_call_observation(observation, no_call_reason)
+            except (TypeError, ValueError) as exc:
+                raise RuntimeError("pre-admission event call-state evidence is malformed") from exc
+            if no_call_reason is not None and failure_code != no_call_reason:
+                raise RuntimeError("pre-admission no-call reason diverges from its failure code")
+            if (
+                not isinstance(refs, list)
+                or any(not isinstance(ref, str) or not ref or ref != ref.strip() for ref in refs)
+                or refs != sorted(set(refs))
+                or observation not in PRODUCER_CALL_STATE_VALUES
+                or (
+                    failure_code is not None
+                    and (
+                        not isinstance(failure_code, str)
+                        or not failure_code
+                        or len(failure_code) > 96
+                        or any(
+                            character not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+                            for character in failure_code
+                        )
+                    )
+                )
+                or (
+                    job_id is not None
+                    and (not isinstance(job_id, str) or not job_id or job_id != job_id.strip())
+                )
+            ):
+                raise RuntimeError("pre-admission event payload evidence is malformed")
+            observed_at = parse_bound_timestamp(event_row["created_at"])
+            history.append(
+                ControlPreAdmissionAttemptEventRecord(
+                    event_id=event_id,
+                    sequence=int(sequence),
+                    event_type=event_type,
+                    observed_at=observed_at,
+                    producer_event_ids=tuple(refs),
+                    producer_event_observation=observation,
+                    producer_no_call_reason=no_call_reason,
+                    failure_code=failure_code,
+                    job_id=job_id,
+                )
+            )
+        raw_intent = row["intent_binding_json"]
+        if not isinstance(raw_intent, str) or not raw_intent:
+            raise RuntimeError("pre-admission request binding is missing")
+        intent = json.loads(raw_intent)
+        if not isinstance(intent, dict):
+            raise RuntimeError("pre-admission request binding is malformed")
+        producer_binding_json = row["producer_run_binding_json"]
+        if producer_binding_json is None:
+            producer_binding = None
+        elif isinstance(producer_binding_json, str) and producer_binding_json:
+            producer_binding = json.loads(producer_binding_json)
+            if (
+                not isinstance(producer_binding, dict)
+                or set(producer_binding)
+                != {"schema_version", "run_id", "tenant_id", "cell_id", "profile_id", "control_job_id"}
+                or producer_binding.get("schema_version")
+                != "polisyos.scientist.budget_ledger.producer_run_binding.v1"
+                or producer_binding.get("run_id") != row["run_id"]
+                or producer_binding.get("control_job_id") != row["candidate_job_id"]
+                or producer_binding.get("tenant_id") != row["tenant_id"]
+                or producer_binding.get("cell_id") != row["cell_id"]
+                or producer_binding.get("profile_id") != row["effective_execution_profile"]
+            ):
+                raise RuntimeError("pre-admission producer binding is malformed")
+        else:
+            raise RuntimeError("pre-admission producer binding is malformed")
+        raw_refs = row["producer_event_ids_json"]
+        if not isinstance(raw_refs, str) or not raw_refs:
+            raise RuntimeError("pre-admission aggregate producer refs are missing")
+        aggregate_refs = json.loads(raw_refs)
+        if (
+            not isinstance(aggregate_refs, list)
+            or any(not isinstance(ref, str) or not ref or ref != ref.strip() for ref in aggregate_refs)
+            or aggregate_refs != sorted(set(aggregate_refs))
+        ):
+            raise RuntimeError("pre-admission aggregate producer refs are malformed")
+        aggregate_observation = row["producer_event_observation"]
+        if aggregate_observation not in PRODUCER_CALL_STATE_VALUES:
+            raise RuntimeError("pre-admission aggregate observation is missing or malformed")
+        status = row["status"]
+        required_text = {
+            "intent_sha256": row["intent_sha256"],
+            "request_id": row["request_id"],
+            "run_id": row["run_id"],
+            "candidate_job_id": row["candidate_job_id"],
+            "tenant_id": row["tenant_id"],
+            "cell_id": row["cell_id"],
+            "actor_subject": row["actor_subject"],
+            "effective_execution_profile": row["effective_execution_profile"],
+        }
+        if any(
+            not isinstance(value, str) or not value or value != value.strip()
+            for value in required_text.values()
+        ) or not isinstance(status, str):
+            raise RuntimeError("pre-admission owner identity or status is missing")
+        if (
+            len(required_text["intent_sha256"]) != 64
+            or any(character not in "0123456789abcdef" for character in required_text["intent_sha256"])
+            or required_text["effective_execution_profile"] not in _EXECUTION_PROFILES
+        ):
+            raise RuntimeError("pre-admission owner identity is malformed")
+        row_job_id = row["job_id"]
+        if row_job_id is not None and (
+            not isinstance(row_job_id, str)
+            or not row_job_id
+            or row_job_id != row_job_id.strip()
+            or row_job_id != required_text["candidate_job_id"]
+        ):
+            raise RuntimeError("pre-admission job binding is malformed")
+        row_failure_code = row["failure_code"]
+        aggregate_no_call_reason = row_failure_code if aggregate_observation == "no_call" else None
+        try:
+            validate_producer_call_observation(aggregate_observation, aggregate_no_call_reason)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("pre-admission aggregate call-state evidence is malformed") from exc
+        if row_failure_code is not None and (
+            not isinstance(row_failure_code, str)
+            or not row_failure_code
+            or len(row_failure_code) > 96
+            or any(
+                character not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+                for character in row_failure_code
+            )
+        ):
+            raise RuntimeError("pre-admission failure code is malformed")
+        created_at = parse_bound_timestamp(row["created_at"])
+        updated_at = parse_bound_timestamp(row["updated_at"])
+        return ControlPreAdmissionAttemptRecord(
+            attempt_id=attempt_id,
+            intent_sha256=str(row["intent_sha256"]),
+            intent_binding=intent,
+            producer_run_binding=producer_binding,
+            idempotency_key_sha256=row["idempotency_key_sha256"],
+            request_id=str(row["request_id"]),
+            run_id=str(row["run_id"]),
+            candidate_job_id=str(row["candidate_job_id"]),
+            job_id=row["job_id"],
+            tenant_id=row["tenant_id"],
+            cell_id=row["cell_id"],
+            actor_subject=row["actor_subject"],
+            effective_execution_profile=str(row["effective_execution_profile"]),
+            status=status,
+            producer_event_ids=tuple(aggregate_refs),
+            producer_event_observation=aggregate_observation,
+            producer_no_call_reason=aggregate_no_call_reason,
+            failure_code=row["failure_code"],
+            created_at=created_at,
+            updated_at=updated_at,
+            history=tuple(history),
+            shared_owner=shared_owner,
         )
 
     def _row_to_outbox_record(self, row: Any) -> ControlOutboxRecord:
@@ -4816,6 +6191,24 @@ class ControlPlaneStore:
                         payload_json TEXT NOT NULL,
                         created_at TEXT NOT NULL
                     );
+                    CREATE TABLE IF NOT EXISTS control_pre_admission_attempts (
+                        attempt_id TEXT PRIMARY KEY, intent_sha256 TEXT NOT NULL,
+                        intent_binding_json TEXT NOT NULL, producer_run_binding_json TEXT,
+                        idempotency_key_sha256 TEXT, owner_token TEXT, request_id TEXT NOT NULL,
+                        run_id TEXT NOT NULL, candidate_job_id TEXT NOT NULL, job_id TEXT,
+                        tenant_id TEXT, cell_id TEXT, actor_subject TEXT,
+                        effective_execution_profile TEXT NOT NULL, status TEXT NOT NULL,
+                        producer_event_ids_json TEXT NOT NULL,
+                        producer_event_observation TEXT NOT NULL, failure_code TEXT,
+                        created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS control_pre_admission_attempt_events (
+                        event_id TEXT PRIMARY KEY, attempt_id TEXT NOT NULL,
+                        sequence_no INTEGER NOT NULL, event_type TEXT NOT NULL,
+                        payload_json TEXT NOT NULL, created_at TEXT NOT NULL,
+                        FOREIGN KEY(attempt_id) REFERENCES control_pre_admission_attempts(attempt_id),
+                        UNIQUE(attempt_id, sequence_no)
+                    );
                     CREATE TABLE IF NOT EXISTS control_job_progress (
                         job_id TEXT PRIMARY KEY,
                         progress_json TEXT NOT NULL,
@@ -4881,6 +6274,41 @@ class ControlPlaneStore:
                         payload_sha256 TEXT,
                         created_at TEXT NOT NULL
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_operation_intents (
+                        purpose TEXT NOT NULL,
+                        tenant_id TEXT NOT NULL,
+                        cell_id TEXT NOT NULL,
+                        actor_subject_sha256 TEXT NOT NULL,
+                        scope_kind TEXT NOT NULL DEFAULT 'run',
+                        scope_id TEXT NOT NULL DEFAULT '',
+                        run_id TEXT NOT NULL,
+                        intent_id TEXT NOT NULL,
+                        body_sha256 TEXT NOT NULL,
+                        state TEXT NOT NULL CHECK (
+                            state IN ('pending', 'completed', 'refused', 'recovery_required')
+                        ),
+                        owner_token TEXT,
+                        result_ref_json TEXT,
+                        event_id TEXT UNIQUE,
+                        reason_code TEXT,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        PRIMARY KEY (
+                            purpose, tenant_id, cell_id, actor_subject_sha256,
+                            scope_kind, scope_id, intent_id
+                        ),
+                        CHECK (
+                            (state IN ('pending', 'completed') AND reason_code IS NULL)
+                            OR (state IN ('refused', 'recovery_required') AND reason_code IS NOT NULL)
+                        ),
+                        CHECK (
+                            (state = 'completed' AND result_ref_json IS NOT NULL AND event_id IS NOT NULL)
+                            OR (state <> 'completed' AND result_ref_json IS NULL AND event_id IS NULL)
+                        ),
+                        CHECK ((state = 'pending') = (owner_token IS NOT NULL))
+                    );
+                    CREATE INDEX IF NOT EXISTS idx_runtime_operation_intents_run_state
+                        ON runtime_operation_intents(run_id, purpose, state);
                     CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
                         job_id TEXT PRIMARY KEY,
                         job_kind TEXT NOT NULL,
@@ -4941,6 +6369,8 @@ class ControlPlaneStore:
                     CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
                         ON control_outbox_events(topic, event_key)
                         WHERE event_key IS NOT NULL;
+                    CREATE INDEX IF NOT EXISTS idx_control_pre_admission_events_attempt_sequence
+                        ON control_pre_admission_attempt_events(attempt_id, sequence_no);
                     CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_event_id
                         ON control_diagnostic_events(event_id);
                     CREATE INDEX IF NOT EXISTS idx_control_diagnostic_events_run_job
@@ -4961,7 +6391,117 @@ class ControlPlaneStore:
                         WHERE state IN ('reserved', 'recovery_required', 'committed');
                     """
                 )
-                conn.commit()
+                conn.execute("BEGIN IMMEDIATE")
+                try:
+                    operation_columns = {
+                        str(row[1]) for row in conn.execute("PRAGMA table_info(runtime_operation_intents)")
+                    }
+                    if "scope_kind" not in operation_columns:
+                        conn.execute(
+                            "ALTER TABLE runtime_operation_intents ADD COLUMN scope_kind TEXT"
+                        )
+                    if "scope_id" not in operation_columns:
+                        conn.execute(
+                            "ALTER TABLE runtime_operation_intents ADD COLUMN scope_id TEXT"
+                        )
+                    conn.execute(
+                        "UPDATE runtime_operation_intents SET scope_kind = 'run', scope_id = run_id "
+                        "WHERE purpose = 'run.predictive_calibration.v1' "
+                        "AND scope_id IS NULL AND scope_kind IS NULL"
+                    )
+                    conn.execute(
+                        "UPDATE runtime_operation_intents SET scope_kind = 'route', scope_id = 'control.runs.nl' "
+                        "WHERE purpose = 'control.nl_pre_admission.v1' "
+                        "AND scope_id IS NULL AND scope_kind IS NULL"
+                    )
+                    invalid_scope = conn.execute(
+                        "SELECT COUNT(*) FROM runtime_operation_intents WHERE "
+                        "scope_id IS NULL OR scope_kind IS NULL OR scope_id = '' "
+                        "OR scope_kind NOT IN ('run', 'route') "
+                        "OR (scope_kind = 'run' AND scope_id <> run_id) "
+                        "OR (purpose = 'run.predictive_calibration.v1' AND scope_kind <> 'run') "
+                        "OR (purpose = 'control.nl_pre_admission.v1' AND "
+                        "(scope_kind <> 'route' OR scope_id <> 'control.runs.nl'))"
+                    ).fetchone()[0]
+                    if int(invalid_scope):
+                        raise RuntimeError("runtime_operation_scope_migration_has_unclassified_rows")
+                    attempt_columns = {
+                        str(row[1]) for row in conn.execute("PRAGMA table_info(control_pre_admission_attempts)")
+                    }
+                    if "owner_token" not in attempt_columns:
+                        conn.execute("ALTER TABLE control_pre_admission_attempts ADD COLUMN owner_token TEXT")
+                    conn.execute("DROP INDEX IF EXISTS idx_control_pre_admission_idempotency_scope")
+                    conn.execute("DROP INDEX IF EXISTS idx_runtime_operation_intents_scope_identity")
+                    operation_pk = tuple(
+                        str(row[1])
+                        for row in sorted(
+                            (row for row in conn.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                            key=lambda row: int(row[5]),
+                        )
+                    )
+                    expected_operation_pk = (
+                        "purpose", "tenant_id", "cell_id", "actor_subject_sha256",
+                        "scope_kind", "scope_id", "intent_id",
+                    )
+                    if operation_pk != expected_operation_pk:
+                        conn.execute(
+                            """CREATE TABLE runtime_operation_intents_scope_migrating (
+                                purpose TEXT NOT NULL,
+                                tenant_id TEXT NOT NULL,
+                                cell_id TEXT NOT NULL,
+                                actor_subject_sha256 TEXT NOT NULL,
+                                scope_kind TEXT NOT NULL,
+                                scope_id TEXT NOT NULL,
+                                run_id TEXT NOT NULL,
+                                intent_id TEXT NOT NULL,
+                                body_sha256 TEXT NOT NULL,
+                                state TEXT NOT NULL CHECK (
+                                    state IN ('pending', 'completed', 'refused', 'recovery_required')
+                                ),
+                                owner_token TEXT,
+                                result_ref_json TEXT,
+                                event_id TEXT UNIQUE,
+                                reason_code TEXT,
+                                created_at TEXT NOT NULL,
+                                updated_at TEXT NOT NULL,
+                                PRIMARY KEY (
+                                    purpose, tenant_id, cell_id, actor_subject_sha256,
+                                    scope_kind, scope_id, intent_id
+                                ),
+                                CHECK (
+                                    (state IN ('pending', 'completed') AND reason_code IS NULL)
+                                    OR (state IN ('refused', 'recovery_required') AND reason_code IS NOT NULL)
+                                ),
+                                CHECK (
+                                    (state = 'completed' AND result_ref_json IS NOT NULL AND event_id IS NOT NULL)
+                                    OR (state <> 'completed' AND result_ref_json IS NULL AND event_id IS NULL)
+                                ),
+                                CHECK ((state = 'pending') = (owner_token IS NOT NULL))
+                            )"""
+                        )
+                        conn.execute(
+                            """INSERT INTO runtime_operation_intents_scope_migrating (
+                                purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id,
+                                run_id, intent_id, body_sha256, state, owner_token, result_ref_json,
+                                event_id, reason_code, created_at, updated_at
+                            ) SELECT purpose, tenant_id, cell_id, actor_subject_sha256, scope_kind, scope_id,
+                                run_id, intent_id, body_sha256, state, owner_token, result_ref_json,
+                                event_id, reason_code, created_at, updated_at
+                              FROM runtime_operation_intents"""
+                        )
+                        conn.execute("DROP TABLE runtime_operation_intents")
+                        conn.execute(
+                            "ALTER TABLE runtime_operation_intents_scope_migrating "
+                            "RENAME TO runtime_operation_intents"
+                        )
+                    conn.execute(
+                        "CREATE INDEX IF NOT EXISTS idx_runtime_operation_intents_run_state "
+                        "ON runtime_operation_intents(run_id, purpose, state)"
+                    )
+                    conn.commit()
+                except BaseException:
+                    conn.rollback()
+                    raise
 
     def _ensure_postgres_schema(self) -> None:
         with self._postgres_cursor() as cur:
@@ -4997,6 +6537,32 @@ class ControlPlaneStore:
                     event_type TEXT NOT NULL,
                     payload_json TEXT NOT NULL,
                     created_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS control_pre_admission_attempts (
+                    attempt_id TEXT PRIMARY KEY, intent_sha256 TEXT NOT NULL,
+                    intent_binding_json TEXT NOT NULL, producer_run_binding_json TEXT,
+                    idempotency_key_sha256 TEXT, owner_token TEXT, request_id TEXT NOT NULL,
+                    run_id TEXT NOT NULL, candidate_job_id TEXT NOT NULL, job_id TEXT,
+                    tenant_id TEXT, cell_id TEXT, actor_subject TEXT,
+                    effective_execution_profile TEXT NOT NULL, status TEXT NOT NULL,
+                    producer_event_ids_json TEXT NOT NULL,
+                    producer_event_observation TEXT NOT NULL, failure_code TEXT,
+                    created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS control_pre_admission_attempt_events (
+                    event_id TEXT PRIMARY KEY, attempt_id TEXT NOT NULL,
+                    sequence_no INTEGER NOT NULL, event_type TEXT NOT NULL,
+                    payload_json TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL,
+                    FOREIGN KEY(attempt_id) REFERENCES control_pre_admission_attempts(attempt_id),
+                    UNIQUE(attempt_id, sequence_no)
                 )
                 """
             )
@@ -5087,6 +6653,43 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_operation_intents (
+                    purpose TEXT NOT NULL,
+                    tenant_id TEXT NOT NULL,
+                    cell_id TEXT NOT NULL,
+                    actor_subject_sha256 TEXT NOT NULL,
+                    scope_kind TEXT NOT NULL DEFAULT 'run',
+                    scope_id TEXT NOT NULL DEFAULT '',
+                    run_id TEXT NOT NULL,
+                    intent_id TEXT NOT NULL,
+                    body_sha256 TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK (
+                        state IN ('pending', 'completed', 'refused', 'recovery_required')
+                    ),
+                    owner_token TEXT,
+                    result_ref_json TEXT,
+                    event_id TEXT UNIQUE,
+                    reason_code TEXT,
+                    created_at TIMESTAMPTZ NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL,
+                    PRIMARY KEY (
+                        purpose, tenant_id, cell_id, actor_subject_sha256,
+                        scope_kind, scope_id, intent_id
+                    ),
+                    CHECK (
+                        (state IN ('pending', 'completed') AND reason_code IS NULL)
+                        OR (state IN ('refused', 'recovery_required') AND reason_code IS NOT NULL)
+                    ),
+                    CHECK (
+                        (state = 'completed' AND result_ref_json IS NOT NULL AND event_id IS NOT NULL)
+                        OR (state <> 'completed' AND result_ref_json IS NULL AND event_id IS NULL)
+                    ),
+                    CHECK ((state = 'pending') = (owner_token IS NOT NULL))
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS control_dead_letter_jobs (
                     job_id TEXT PRIMARY KEY,
                     job_kind TEXT NOT NULL,
@@ -5162,11 +6765,85 @@ class ControlPlaneStore:
                 ON control_outbox_events(state, created_at)
                 """
             )
+            cur.execute("ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_kind TEXT")
+            cur.execute("ALTER TABLE runtime_operation_intents ADD COLUMN IF NOT EXISTS scope_id TEXT")
+            cur.execute(
+                "UPDATE runtime_operation_intents SET scope_kind = 'run', scope_id = run_id "
+                "WHERE purpose = 'run.predictive_calibration.v1' "
+                "AND scope_id IS NULL AND scope_kind IS NULL"
+            )
+            cur.execute(
+                "UPDATE runtime_operation_intents SET scope_kind = 'route', scope_id = 'control.runs.nl' "
+                "WHERE purpose = 'control.nl_pre_admission.v1' "
+                "AND scope_id IS NULL AND scope_kind IS NULL"
+            )
+            cur.execute(
+                "SELECT COUNT(*) FROM runtime_operation_intents WHERE "
+                "scope_id IS NULL OR scope_kind IS NULL OR scope_id = '' "
+                "OR scope_kind NOT IN ('run', 'route') "
+                "OR (scope_kind = 'run' AND scope_id <> run_id) "
+                "OR (purpose = 'run.predictive_calibration.v1' AND scope_kind <> 'run') "
+                "OR (purpose = 'control.nl_pre_admission.v1' AND "
+                "(scope_kind <> 'route' OR scope_id <> 'control.runs.nl'))"
+            )
+            invalid_scope = cur.fetchone()[0]
+            if int(invalid_scope):
+                raise RuntimeError("runtime_operation_scope_migration_has_unclassified_rows")
+            cur.execute("ALTER TABLE runtime_operation_intents ALTER COLUMN scope_kind SET NOT NULL")
+            cur.execute("ALTER TABLE runtime_operation_intents ALTER COLUMN scope_id SET NOT NULL")
+            cur.execute(
+                """DO $runtime_operation_intent_scope_pkey$
+                DECLARE existing_pkey_name TEXT;
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1
+                        FROM pg_constraint AS constraint_row
+                        WHERE constraint_row.conrelid = 'runtime_operation_intents'::regclass
+                          AND constraint_row.contype = 'p'
+                          AND (
+                              SELECT array_agg(attribute_row.attname ORDER BY key_column.ordinality)
+                              FROM unnest(constraint_row.conkey) WITH ORDINALITY
+                                   AS key_column(attnum, ordinality)
+                              JOIN pg_attribute AS attribute_row
+                                ON attribute_row.attrelid = constraint_row.conrelid
+                               AND attribute_row.attnum = key_column.attnum
+                          ) = ARRAY[
+                              'purpose', 'tenant_id', 'cell_id', 'actor_subject_sha256',
+                              'scope_kind', 'scope_id', 'intent_id'
+                          ]::TEXT[]
+                    ) THEN
+                        FOR existing_pkey_name IN
+                            SELECT conname FROM pg_constraint
+                            WHERE conrelid = 'runtime_operation_intents'::regclass AND contype = 'p'
+                        LOOP
+                            EXECUTE format(
+                                'ALTER TABLE runtime_operation_intents DROP CONSTRAINT %I',
+                                existing_pkey_name
+                            );
+                        END LOOP;
+                        ALTER TABLE runtime_operation_intents
+                            ADD CONSTRAINT runtime_operation_intents_pkey PRIMARY KEY (
+                                purpose, tenant_id, cell_id, actor_subject_sha256,
+                                scope_kind, scope_id, intent_id
+                            );
+                    END IF;
+                END
+                $runtime_operation_intent_scope_pkey$"""
+            )
+            cur.execute("DROP INDEX IF EXISTS idx_runtime_operation_intents_scope_identity")
+            cur.execute("ALTER TABLE control_pre_admission_attempts ADD COLUMN IF NOT EXISTS owner_token TEXT")
+            cur.execute("DROP INDEX IF EXISTS idx_control_pre_admission_idempotency_scope")
             cur.execute(
                 """
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_control_outbox_topic_event_key
                 ON control_outbox_events(topic, event_key)
                 WHERE event_key IS NOT NULL
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_control_pre_admission_events_attempt_sequence
+                ON control_pre_admission_attempt_events(attempt_id, sequence_no)
                 """
             )
             cur.execute(
@@ -5479,6 +7156,9 @@ __all__ = [
     "ControlJobRecord",
     "ControlOutboxRecord",
     "ControlPlaneStore",
+    "ControlPreAdmissionAttemptEventRecord",
+    "ControlPreAdmissionAttemptRecord",
+    "ControlPreAdmissionIdempotencyConflictError",
     "ControlWorkerLeaseRecord",
     "ExecutionScopeStatus",
     "HumanDecisionRecoveryFence",

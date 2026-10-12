@@ -1,0 +1,29 @@
+id = "2026-10-12-e02-b26-joint-interaction-uncertainty"
+title = "Preserve paired uncertainty for joint interactions"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "New N5 v4 results derive every identified pairwise interaction and the aggregate higher-order residual from actual common-seed trajectories, preserve each seed vector and uncertainty summary in candidate readback, and do not report order two when a one-atom request has no pair scope. The explicit candidate intent now means a hypothetical all-unique-member diagnostic: N4 candidates remain alternatives, and the typed request plus v2 selection receipt bind this basis without claiming an N4-authored compound design. Fresh N8 readback binds the request hash and source/profile/child identities while composition and child-to-parent refinement remain not_established. Historical v1 receipts retain source-identity readability with explicit composition/refinement limitations; no intent performs no member union. Parent N8 remains not_established and value_pending_n8 without coupling evidence. Three-atom persistence/fresh-GET and generic three/four-atom permutation vectors are authored; runtime verification remains pending."
+evidence = [
+  "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/http/routes/runs.py",
+  "src/polisyos/core/contracts/runtime.py",
+  "apps/runtime-dashboard/src/api/validators.ts",
+  "tests/unit/remediation/test_sim_03.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/runtime/http/test_control_service_di.py",
+  "tests/_helpers/generic_n4_served_replay.py",
+  "tests/integration/runtime_quality/test_recursive_joint_interaction_served.py",
+]
+compatibility = "New N5 writes use joint-simulation schema v4 and CAS schema 4.0.0. Existing v1-v3 artifacts remain readable without rewriting; their interaction class and sampling basis stay not_established."
+change_class = "persisted-artifact-format"
+surface_classification = "Existing RunDetails N5 observation gains nested candidate-only interaction evidence fields and generated-client validation; no public policy claim or promotion authority is added. Generated surface inventory review remains pending root regeneration and scan."
+migration = "No history rewrite. Fresh v4 artifacts contain paired interaction summaries. Legacy v1-v3 responses retain their original epoch and expose not_established uncertainty; client types are regenerated from the canonical API contract after source freeze."
+api = "For each pair and identified aggregate residual, readback carries ordered common seeds, per-seed values, mean, standard error or standard_error_not_estimated, and the recomputed numeric-interaction basis/status. The typed parent N5 request and selection receipt record the explicit candidate intent, hypothetical member basis, source relationship=alternatives, and not_established composition/refinement; the receipt binds the complete request content hash. Fresh readback carries the same fields with the N4 result, complete source-member child refs, and exact parent atom IDs and hashes. The DTO and Zod consumer require policy composition and child-to-parent refinement to remain not_established, including explicit limitations for legacy v1 receipts. Fresh N8 readback re-resolves source, request, and every child input/profile; unresolved coupling or frame scope stays not_established and value_pending_n8."
+limitations = "The numeric result is a finite checked-model point estimate only. Nonzero paired sampling variation or an unestimated standard error prevents an additive classification; four-or-more-atom order-three-plus residual remains aggregate and does not identify individual orders. The all-member parent request is a hypothetical candidate diagnostic over N4 alternatives, not an N4-authored compound design. It preserves exact source-owned parent-frame atoms and does not infer child-to-parent refinement or coupling edges; historical v1 selection receipts do not attest that basis and project with explicit unknowns. The served three-atom persisted N5 to fresh GET discriminator remains unverified: its prior run stopped before parent N5 due to the controlled fixture's undeclared credit_guarantee lever; the fixture now uses the existing labor_market / agents_is_employed lever. Three/four-atom permutation and consumer readback tests are authored but not run under the current compute pause. No significance threshold, CI calibration, equivalence law, causal mechanism, universal additivity law, world evidence, authored compound composition, or promotion readiness is established. K_sim remains candidate-only."
+generated_client_compatibility = "Additive nested readback fields; old schema epochs remain accepted as not_established. Canonical generated types must be refreshed from the API contract after source freeze."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

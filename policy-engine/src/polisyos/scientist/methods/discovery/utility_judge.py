@@ -458,9 +458,18 @@ def _score_identifiability(
     warnings: list[str] = []
     reasons: list[str] = []
     blocking: list[str] = []
-    graph = hypothesis.resolved_graph or hypothesis.graph
+    graph = hypothesis.graph_for_analysis()
+    if graph is None:
+        reason = "identifiability:unsupported:graph_projection_unavailable"
+        return (
+            0.0,
+            "unsupported_graph_profile",
+            [reason],
+            ["partial_graph_source_retained"],
+            [reason],
+        )
     if hypothesis.resolved_graph is not None:
-        warnings.append("resolved_graph_used_for_identifiability")
+        warnings.append("content_bound_graph_projection_used_for_identifiability")
     elif getattr(hypothesis.graph.graph_type, "value", "") in {"pag", "cpdag"}:
         warnings.append("structural_uncertainty_limited_identifiability")
 
@@ -519,7 +528,15 @@ def _score_transportability(
 ) -> tuple[float, str, list[str], list[str]]:
     reasons: list[str] = []
     warnings: list[str] = []
-    graph = hypothesis.resolved_graph or hypothesis.graph
+    graph = hypothesis.graph_for_analysis()
+    if graph is None:
+        reason = "transportability:unsupported:graph_projection_unavailable"
+        return (
+            0.0,
+            "unsupported_graph_profile",
+            [reason],
+            ["partial_graph_source_retained"],
+        )
     if selection_diagram is not None:
         diagram = selection_diagram.model_copy(update={"base_graph": graph})
         result = solve_transportability(

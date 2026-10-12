@@ -43,6 +43,7 @@ from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
 from polisyos.ir.artifacts import InputRef, get_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.runtime.http.dependencies import get_runtime_api_context
 from polisyos.scientist.methods.backtesting.forecast_owner import (
     CalibrationRuleBinding,
@@ -145,8 +146,8 @@ def _request(
     *,
     report_id: str,
     manifest_inputs: tuple[InputRef, ...] = (),
-    model_spec_ref: str | None = None,
-    policy_spec_ref: str | None = None,
+    model_spec_ref: ArtifactRef | ArtifactRefModel | str | None = None,
+    policy_spec_ref: ArtifactRef | ArtifactRefModel | str | None = None,
     train_end: int = 30,
     horizon: int = 4,
 ) -> ForecastOwnerRequest:
@@ -233,7 +234,6 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     report_manifest = store.get_manifest_by_profile(
         result.backtest_report_ref.artifact_id, report_profile
     )
-    report_edges_by_role = {item.role: item for item in report_manifest.inputs}
     for role, (ref, _schema_name, _schema_version) in zip(
         ("training_slice", "method_artifact", "uncertainty_bundle", "calibration_diagnostics"),
         generated_refs,
@@ -357,6 +357,151 @@ def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(
     assert policy_edges == [
         (policy_id, "policy_spec", artifact_manifest_profile_sha256(policy_manifest))
     ]
+
+
+def test_real_ets_owner_preserves_same_id_selected_model_policy_profiles(
+    tmp_path: Path,
+) -> None:
+    """The owner resolves and persists the exact selected profiles, not current defaults."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    model_default = _spec(store, kind="ir.model_spec", spec_id="selected-model-profile")
+    policy_default = _spec(store, kind="ir.policy_spec", spec_id="selected-policy-profile")
+
+    model_selected = store.put_bytes(
+        store.get_bytes(model_default),
+        PutOptions(
+            kind=model_default.kind,
+            media_type=model_default.media_type,
+            schema=SchemaInfo(name="test.selected.model_spec", version="nondefault-view"),
+        ),
+        return_selected_profile=True,
+    )
+    policy_selected = store.put_bytes(
+        store.get_bytes(policy_default),
+        PutOptions(
+            kind=policy_default.kind,
+            media_type=policy_default.media_type,
+            schema=SchemaInfo(name="test.selected.policy_spec", version="nondefault-view"),
+        ),
+        return_selected_profile=True,
+    )
+    assert model_selected.artifact_id == model_default.artifact_id
+    assert policy_selected.artifact_id == policy_default.artifact_id
+    assert model_selected.manifest_profile_sha256 != model_default.manifest_profile_sha256
+    assert policy_selected.manifest_profile_sha256 != policy_default.manifest_profile_sha256
+    assert artifact_manifest_profile_sha256(store.get_manifest(model_default)) == (
+        model_default.manifest_profile_sha256
+    )
+    assert artifact_manifest_profile_sha256(store.get_manifest(policy_default)) == (
+        policy_default.manifest_profile_sha256
+    )
+
+    selected_model_ref = ArtifactRefModel.model_validate(model_selected.model_dump(mode="json"))
+    selected_policy_ref = ArtifactRefModel.model_validate(policy_selected.model_dump(mode="json"))
+    result = ForecastOwner(store).run(
+        _request(
+            source_ref,
+            rule_ref,
+            report_id="frc-owner-selected-profiles",
+            model_spec_ref=selected_model_ref,
+            policy_spec_ref=selected_policy_ref,
+        )
+    )
+
+    assert result.model_spec_ref == selected_model_ref
+    assert result.policy_spec_ref == selected_policy_ref
+    report_profile = result.backtest_report_ref.manifest_profile_sha256
+    assert report_profile is not None
+    report_manifest = store.get_manifest_by_profile(
+        result.backtest_report_ref.artifact_id,
+        report_profile,
+    )
+    exact_spec_edges = {
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in report_manifest.inputs
+        if item.role in {"model_spec", "policy_spec"}
+    }
+    assert exact_spec_edges == {
+        (str(selected_model_ref.artifact_id), "model_spec", selected_model_ref.manifest_profile_sha256),
+        (str(selected_policy_ref.artifact_id), "policy_spec", selected_policy_ref.manifest_profile_sha256),
+    }
+
+
+def test_real_ets_owner_merges_run_binding_edges_with_required_owner_edges(
+    tmp_path: Path,
+) -> None:
+    """Run/source edges supplement the full owner lineage instead of replacing it."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    source_ref = _source(store, holdout=[31.0, 32.0, 33.0, 34.0])
+    rule_ref = _rule(store)
+    model_ref = _spec(store, kind="ir.model_spec", spec_id="run-bound-model")
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="run-bound-policy")
+    run_manifest_ref = _put_json(
+        store,
+        {"schema_version": "1.0", "run_id": "run-frc-owner-edges"},
+        kind="runtime.core_run_manifest",
+    )
+    candidate_source_ref = _put_json(
+        store,
+        {"schema_version": "1.0", "run_id": "run-frc-owner-edges"},
+        kind="runtime.quality.candidate_scenario_source",
+    )
+    run_inputs = (
+        InputRef(
+            artifact_id=run_manifest_ref.artifact_id,
+            role="run_manifest",
+            manifest_profile_sha256=run_manifest_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=candidate_source_ref.artifact_id,
+            role="candidate_source",
+            manifest_profile_sha256=candidate_source_ref.manifest_profile_sha256,
+        ),
+    )
+
+    result = ForecastOwner(store).run(
+        _request(
+            source_ref,
+            rule_ref,
+            report_id="frc-owner-run-bound-edges",
+            model_spec_ref=str(model_ref.artifact_id),
+            policy_spec_ref=str(policy_ref.artifact_id),
+            manifest_inputs=run_inputs,
+        )
+    )
+
+    report_profile = result.backtest_report_ref.manifest_profile_sha256
+    assert report_profile is not None
+    manifest = store.get_manifest_by_profile(
+        result.backtest_report_ref.artifact_id,
+        report_profile,
+    )
+    edges = {
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in manifest.inputs
+    }
+    assert {
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in run_inputs
+    }.issubset(edges)
+    expected_owner_roles = {
+        "observed_source",
+        "observed_data",
+        "calibration_rule",
+        "training_slice",
+        "method_artifact",
+        "uncertainty_bundle",
+        "calibration_diagnostics",
+        "model_spec",
+        "policy_spec",
+    }
+    assert expected_owner_roles.issubset({item.role for item in manifest.inputs})
+    assert len(manifest.inputs) == len(expected_owner_roles) + len(run_inputs)
+    assert all(item.manifest_profile_sha256 is not None for item in manifest.inputs)
 
 
 def test_real_ets_owner_rejects_missing_model_policy_cas_binding_before_derived_writes(
@@ -518,16 +663,33 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                     url += f"?manifest_profile_sha256={ref.manifest_profile_sha256}"
                 return _runtime_api_request(env, client.get, url)
 
-            disabled = fetch_diagnostic(report_refs[0], selected_profile=False)
-            assert disabled.status_code == 409
-            assert disabled.json()["code"] == "predictive_coverage_diagnostic_not_admitted"
-
             runtime_context = app.state.runtime_api_ctx
+            default_disabled = fetch_diagnostic(report_refs[0], selected_profile=False)
+            assert default_disabled.status_code == 409
+            assert (
+                default_disabled.json()["code"]
+                == "predictive_coverage_diagnostic_not_admitted"
+            )
+
             app.dependency_overrides[get_runtime_api_context] = lambda: replace(
                 runtime_context,
                 allow_candidate_predictive_diagnostic_surface=True,
             )
             default_response = fetch_diagnostic(report_refs[0], selected_profile=False)
+            assert default_response.status_code == 200
+
+            app.dependency_overrides[get_runtime_api_context] = lambda: replace(
+                runtime_context,
+                allow_candidate_predictive_diagnostic_surface=False,
+            )
+            disabled = fetch_diagnostic(report_refs[0], selected_profile=False)
+            assert disabled.status_code == 409
+            assert disabled.json()["code"] == "predictive_coverage_diagnostic_not_admitted"
+
+            app.dependency_overrides[get_runtime_api_context] = lambda: replace(
+                runtime_context,
+                allow_candidate_predictive_diagnostic_surface=True,
+            )
             explicit_response = fetch_diagnostic(report_refs[1])
             assert default_response.status_code == 200
             assert explicit_response.status_code == 200
@@ -827,15 +989,55 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                 assert invalid_projection["reason_code"] == "malformed_report_shape"
                 assert invalid_projection["scenarios"] == []
 
-            blob_path, _manifest_path = store._paths(report_refs[0].artifact_id)
+            blob_path, default_manifest_path = store._paths(report_refs[0].artifact_id)
+            selected_manifest_path = store._manifest_path_for_ref(
+                report_refs[0].artifact_id,
+                report_refs[0].manifest_profile_sha256,
+            )
             original_blob = blob_path.read_bytes()
+            for selected_profile in (False, True):
+                try:
+                    blob_path.write_bytes(original_blob + b" ")
+                    integrity_response = fetch_diagnostic(
+                        report_refs[0],
+                        selected_profile=selected_profile,
+                    )
+                    assert integrity_response.status_code == 409
+                    assert integrity_response.json()["code"] == "artifact_integrity_failed"
+                finally:
+                    blob_path.write_bytes(original_blob)
+
+            unavailable_profile_bytes = selected_manifest_path.read_bytes()
             try:
-                blob_path.write_bytes(original_blob + b" ")
-                integrity_response = fetch_diagnostic(report_refs[0], selected_profile=False)
-                assert integrity_response.status_code == 409
-                assert integrity_response.json()["code"] == "artifact_integrity_failed"
+                selected_manifest_path.unlink()
+                for selected_profile in (False, True):
+                    unavailable_profile_response = fetch_diagnostic(
+                        report_refs[0],
+                        selected_profile=selected_profile,
+                    )
+                    assert unavailable_profile_response.status_code == 404
+                    assert (
+                        unavailable_profile_response.json()["code"]
+                        == "artifact_manifest_profile_not_found"
+                    )
             finally:
-                blob_path.write_bytes(original_blob)
+                selected_manifest_path.write_bytes(unavailable_profile_bytes)
+
+            missing_members = {blob_path, default_manifest_path, selected_manifest_path}
+            saved_members = {path: path.read_bytes() for path in missing_members}
+            try:
+                for path in missing_members:
+                    path.unlink()
+                for selected_profile in (False, True):
+                    absent_response = fetch_diagnostic(
+                        report_refs[0],
+                        selected_profile=selected_profile,
+                    )
+                    assert absent_response.status_code == 404
+                    assert absent_response.json()["code"] == "artifact_not_found"
+            finally:
+                for path, payload in saved_members.items():
+                    path.write_bytes(payload)
     finally:
         if original_context_override is None:
             app.dependency_overrides.pop(get_runtime_api_context, None)

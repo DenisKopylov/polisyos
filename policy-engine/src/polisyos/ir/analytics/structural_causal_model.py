@@ -5,19 +5,19 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    GraphProjectionDisposition,
+    graph_for_analysis,
+)
 from polisyos.ir.registry.refs import ArtifactRefModel, StructuralCausalModelSpecRef
-
-if TYPE_CHECKING:
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
-else:
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
 
 def _normalize_json_value(value: Any) -> Any:
@@ -182,8 +182,11 @@ class StructuralCausalModelSpec(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = "1.1"
+    schema_version: str = "1.2"
     graph: CausalGraphModel
+    source_graph: CausalGraphModel | None = None
+    source_graph_ref: str | None = Field(default=None, min_length=1)
+    graph_projection: GraphProjectionDisposition | None = None
     mechanisms: list[NodeMechanism] = Field(default_factory=list)
     fitted: bool = False
     fit_method: Literal["auto", "manual", "gcm", "hybrid", "native_hybrid"] | None = None
@@ -195,6 +198,29 @@ class StructuralCausalModelSpec(BaseModel):
 
     @model_validator(mode="after")
     def _validate_mechanisms_cover_graph(self) -> StructuralCausalModelSpec:
+        if (self.source_graph is None) != (self.graph_projection is None):
+            raise ValueError(
+                "source_graph and graph_projection must be supplied together"
+            )
+        if self.source_graph_ref is not None and self.source_graph is None:
+            raise ValueError(
+                "source_graph_ref requires the complete source_graph payload"
+            )
+        if self.source_graph is not None:
+            admitted = graph_for_analysis(
+                self.source_graph,
+                self.graph,
+                self.graph_projection,
+            )
+            if admitted is None:
+                raise ValueError(
+                    "SCM cannot be fitted from an unavailable source graph"
+                )
+        if self.schema_version == "1.2" and self.fit_method in {"gcm", "native_hybrid"}:
+            if self.source_graph is None or self.graph_projection is None:
+                raise ValueError(
+                    "SCM 1.2 fitted artifacts require their graph source disposition"
+                )
         mech_vars = {m.variable for m in self.mechanisms}
         graph_vars = set(self.graph.nodes)
 
@@ -268,7 +294,7 @@ class StructuralCausalModelSpec(BaseModel):
                 or len(carrier_groups) != 1
             ):
                 raise ValueError("Observed root carriers must share provenance and alignment")
-        if self.schema_version == "1.1" and self.fit_method == "gcm":
+        if self.schema_version in {"1.1", "1.2"} and self.fit_method == "gcm":
             if self.training_rows is None or self.fit_provenance is None:
                 raise ValueError(
                     "selected GCM fit requires training rows and observed worker provenance"
@@ -311,7 +337,10 @@ def persist_structural_causal_model_spec(
 ) -> StructuralCausalModelSpecRef:
     """Persist a structural causal model spec and return its typed artifact ref."""
     resolved_version = schema_version or scm_spec.schema_version
-    if resolved_version != scm_spec.schema_version or resolved_version not in {"1.0", "1.1"}:
+    if (
+        resolved_version != scm_spec.schema_version
+        or resolved_version not in {"1.0", "1.1", "1.2"}
+    ):
         raise ValueError("SCM payload and supported CAS schema versions must match")
     ref = put_json_artifact(
         store,
@@ -333,7 +362,7 @@ def load_structural_causal_model_spec(
     payload = get_json_artifact(store, ref)
     manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
-    if schema is None or schema.version not in {"1.0", "1.1"}:
+    if schema is None or schema.version not in {"1.0", "1.1", "1.2"}:
         raise ValueError("SCM artifact requires a supported CAS schema manifest")
     if payload.get("schema_version", "1.0") != schema.version:
         raise ValueError("SCM payload and CAS schema versions differ")

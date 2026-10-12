@@ -51,6 +51,7 @@ from polisyos.foundry.methods.catalog.causal._id_contracts import (
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     _validate_static_admg,
+    _validate_static_id_graph,
     ancestors,
     augment_with_s_nodes,
     c_components,
@@ -421,7 +422,7 @@ def _build_counterfactual_graph(
     graph: CausalGraphModel,
     normalized_query: _NormalizedCtfQuery,
 ) -> tuple[CausalGraphModel, dict[str, tuple[tuple[str, float], ...]]]:
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     nodes = list(graph.nodes)
     intervention_by_node: dict[str, tuple[tuple[str, float], ...]] = dict.fromkeys(graph.nodes, ())
     for world in normalized_query.worlds:
@@ -895,7 +896,7 @@ def id_star_algorithm(
     _trace: list[str] | None = None,
 ) -> IdentificationResult:
     """ID* counterfactual identification via G* reduction + Layer-2 subproblems."""
-    _validate_static_admg(graph)
+    graph = _validate_static_id_graph(graph)
     trace = list(_trace or [])
     normalized_query = _normalize_counterfactual_query(counterfactual_query)
     treatment_vars = frozenset(name for name, _ in normalized_query.target_intervention)
@@ -1136,7 +1137,7 @@ def idc_star_algorithm(
     _trace: list[str] | None = None,
 ) -> IdentificationResult:
     """IDC* with counterfactual Rule-2 promotion before the ratio reduction."""
-    _validate_static_admg(graph)
+    graph = _validate_static_id_graph(graph)
     trace = list(_trace or [])
     trace.append(f"[IDC* depth={_depth}] start")
 

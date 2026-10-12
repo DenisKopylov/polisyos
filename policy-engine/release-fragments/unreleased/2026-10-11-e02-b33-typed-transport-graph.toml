@@ -1,0 +1,17 @@
+id = "2026-10-11-e02-b33-typed-transport-graph"
+title = "Profile-bound candidate transport graph intake"
+type = "changed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "N8 selection diagrams can use an owner-selected, profile-pinned causal-graph CAS artifact and retain measured context differences as candidate-only S-nodes."
+evidence = ["src/polisyos/runtime/quality/cycle_substrate.py", "tests/unit/runtime/quality/test_cycle_substrate.py", "tests/unit/runtime/quality/test_generation_cycle.py"]
+compatibility = "A graph ref is additive and uses context-job V4; ref-free V1, V2, and V3 serializers remain byte-stable. V1-V3 reject a supplied graph ref rather than dropping it."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: runtime quality context-job CAS artifact and N8 value-owner bridge; no HTTP or generated-client surface"
+migration = "No existing CAS payload is rewritten. New ref-bearing candidate context jobs use V4; existing ref-free V1/V2/V3 records retain their version-dispatched readers."
+api = "No HTTP or generated-client surface changes. The internal cycle-substrate DTO accepts only a typed CausalGraphModelRef with a selected manifest profile."
+limitations = "Candidate-only. Exact manifest/profile, fixed kind/media/schema, graph bytes, query variables, and measured covariate nodes are checked before diagram construction. The selected graph is not independently established causal law, measured S-nodes do not establish causal roles, and no transport or promotion authority is granted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

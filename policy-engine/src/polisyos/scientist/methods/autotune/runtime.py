@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from math import isfinite
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 from uuid import uuid4
@@ -11,12 +11,16 @@ from uuid import uuid4
 from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
     ArtifactRef,
     InputRef,
+    ProducerInfo,
+    SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import fingerprint
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.controller import (
@@ -41,7 +45,11 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     PydanticMutationCodec,
+    SearchGPFitBasis,
+    SearchGPFitBound,
     SearchLoopSpec,
+    SearchMethodRunProfile,
+    _search_method_parameters_match_run_profile,
     default_store,
     load_json_artifact,
     load_model_artifact,
@@ -212,6 +220,7 @@ class MethodJobBenchmarkEvaluator:
         data_snapshot_bindings: Mapping[str, str] | None = None,
         method_version: str | None = None,
         method_params: Mapping[str, Any] | None = None,
+        search_parameter_bindings: Mapping[str, str] | None = None,
         split: BenchmarkSplit = BenchmarkSplit.SELECTION,
         seed: int = 0,
     ) -> None:
@@ -228,11 +237,27 @@ class MethodJobBenchmarkEvaluator:
             raise ValueError("MethodJob evaluation supports selection or holdout splits")
         if isinstance(seed, bool):
             raise TypeError("seed must be an integer")
+        resolved_method_params = dict(method_params or {})
+        resolved_search_bindings = dict(search_parameter_bindings or {})
+        if any(
+            not isinstance(search_name, str)
+            or not search_name.strip()
+            or not isinstance(method_name, str)
+            or not method_name.strip()
+            for search_name, method_name in resolved_search_bindings.items()
+        ):
+            raise TypeError("search_parameter_bindings must map non-empty names to non-empty names")
+        method_parameter_names = list(resolved_search_bindings.values())
+        if len(set(method_parameter_names)) != len(method_parameter_names):
+            raise ValueError("each dynamic MethodJob parameter can have one SearchSpace binding")
+        if set(method_parameter_names) & set(resolved_method_params):
+            raise ValueError("bound MethodJob parameters must not also appear in method_params")
         self._method_fqn = method_fqn
         self._method_version = method_version
         self._candidate_input_bindings = dict(candidate_input_bindings)
         self._data_snapshot_bindings = resolved_data_bindings
-        self._method_params = dict(method_params or {})
+        self._method_params = resolved_method_params
+        self._search_parameter_bindings = resolved_search_bindings
         self._split = split
         self._seed = int(seed)
 
@@ -342,6 +367,64 @@ class MethodJobBenchmarkEvaluator:
                 split=self._split,
                 status="method_seed_unavailable",
             )
+        search_method_run_profile = _search_method_run_profile_from_context(context)
+        configured_method_params = dict(self._method_params)
+        search_parameter_values: dict[str, Any] = {}
+        if self._search_parameter_bindings:
+            data_sample_count = _source_sample_count(
+                data_payload, self._data_snapshot_bindings
+            )
+            if not _search_method_run_profile_matches_evaluator(
+                profile=search_method_run_profile,
+                evaluator=self,
+                suite_ref=suite_ref,
+                policy=policy,
+                loop_id=loop_id,
+                method_seed=configured_seed,
+                data_snapshot_ref=data_snapshot_ref,
+                data_ref=data_ref,
+                data_sample_count=data_sample_count,
+            ):
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="search_parameter_basis_unavailable",
+                )
+            if search_method_run_profile is None:
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="search_parameter_basis_unavailable",
+                )
+            if any(name not in candidate for name in self._search_parameter_bindings):
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="search_parameter_binding_rejected",
+                )
+            search_parameter_values = {
+                name: candidate[name] for name in self._search_parameter_bindings
+            }
+            for search_name, method_name in self._search_parameter_bindings.items():
+                configured_method_params[method_name] = candidate[search_name]
+            if not _search_method_parameters_match_run_profile(
+                profile=search_method_run_profile,
+                candidate=candidate,
+                method_params=configured_method_params,
+            ):
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="search_parameter_binding_rejected",
+                )
         input_refs = {"candidate": candidate_ref, "benchmark_suite": suite_ref}
         if data_snapshot_ref is not None and data_ref is not None:
             input_refs.update({"data_snapshot": data_snapshot_ref, "data": data_ref})
@@ -349,10 +432,32 @@ class MethodJobBenchmarkEvaluator:
             job_kind="method",
             method_fqn=self._method_fqn,
             method_version=self._method_version,
-            method_params=self._method_params,
+            method_params=configured_method_params,
             input_refs=input_refs,
             seed=configured_seed,
         )
+        method_request_basis = {
+            "schema_version": "2" if search_method_run_profile is not None else "1",
+            "job_spec": spec.model_dump(mode="json", exclude_none=True),
+            "candidate_ref": candidate_ref.model_dump(mode="json"),
+            "suite_ref": suite_ref.model_dump(mode="json"),
+            "method_state_fingerprint": _search_source_fingerprint(method_state),
+            "candidate_input_bindings": dict(self._candidate_input_bindings),
+            "data_snapshot_bindings": dict(self._data_snapshot_bindings),
+            "primary_metric": policy.primary_metric,
+            "direction": policy.direction.value,
+            "split": self._split.value,
+            "unit": policy.unit,
+        }
+        if search_method_run_profile is not None:
+            method_request_basis.update(
+                {
+                    "search_method_run_profile": search_method_run_profile.model_dump(
+                        mode="json", exclude_none=True
+                    ),
+                    "search_parameter_values": search_parameter_values,
+                }
+            )
         job_result = run_job(
             spec,
             cas_root=cas_root,
@@ -370,6 +475,7 @@ class MethodJobBenchmarkEvaluator:
             "method_seed": configured_seed,
             "method_job_key": job_result.job_key.value,
             "method_input_bindings": dict(self._candidate_input_bindings),
+            "method_request_basis": method_request_basis,
         }
         if job_result.issues or job_result.method_result_ref is None:
             return self._empty_evaluation(
@@ -411,6 +517,8 @@ class MethodJobBenchmarkEvaluator:
                 method_job_key=job_result.job_key.value,
                 method_output=output,
                 context=context,
+                search_method_run_profile=search_method_run_profile,
+                search_parameter_values=search_parameter_values,
             )
         )
 
@@ -560,6 +668,8 @@ class MethodJobBenchmarkEvaluator:
         method_job_key: str,
         method_output: Mapping[str, Any],
         context: Mapping[str, Any],
+        search_method_run_profile: SearchMethodRunProfile | None,
+        search_parameter_values: Mapping[str, Any],
     ) -> tuple[ArtifactRef | None, str, str | None]:
         """Persist and fresh-read an explicitly diagnostic source-bound work packet."""
         from .execution_work import (
@@ -623,10 +733,15 @@ class MethodJobBenchmarkEvaluator:
                 method_fqn=self._method_fqn,
                 method_version=self._method_version,
                 method_seed=job_spec.seed,
-                configured_method_params=dict(self._method_params),
+                schema_version=(
+                    "1.3" if search_method_run_profile is not None else "1.2"
+                ),
+                configured_method_params=dict(job_spec.method_params),
                 effective_method_config=dict(effective_config),
                 candidate_slot_bindings=dict(self._candidate_input_bindings),
                 data_slot_bindings=dict(self._data_snapshot_bindings),
+                search_method_run_profile=search_method_run_profile,
+                search_parameter_values=dict(search_parameter_values),
                 method_profile_fingerprint=fingerprint(
                     job_spec.model_dump(mode="json", exclude_none=True)
                 ),
@@ -687,12 +802,14 @@ def read_method_job_execution_work_packet(
         or packet_manifest.artifact_schema is None
         or packet_manifest.artifact_schema.name
         != "polisyos.scientist.methods.autotune.MethodJobExecutionWorkPacket"
-        or packet_manifest.artifact_schema.version != "1.2"
+        or packet_manifest.artifact_schema.version not in {"1.2", "1.3"}
     ):
         raise ValueError("method_work_packet_manifest_mismatch")
     packet = load_model_artifact(store, ref, MethodJobExecutionWorkPacket)
     if not isinstance(packet, MethodJobExecutionWorkPacket):
         raise TypeError("method_work_packet_payload_unavailable")
+    if packet_manifest.artifact_schema.version != packet.schema_version:
+        raise ValueError("method_work_packet_manifest_mismatch")
 
     expected_packet_inputs = {
         role: input_ref_from_artifact_ref(source_ref, role=role)
@@ -715,6 +832,38 @@ def read_method_job_execution_work_packet(
     candidate = load_json_artifact(store, packet.candidate_ref)
     if not isinstance(candidate, Mapping) or candidate.get("candidate_status") != "diagnostic_only":
         raise ValueError("method_work_packet_candidate_status_mismatch")
+    if packet.schema_version == "1.3":
+        profile = packet.search_method_run_profile
+        if (
+            profile is None
+            or profile.loop_id != candidate.get("loop_id")
+            or profile.suite_ref != packet.benchmark_suite_ref
+            or profile.method_fqn != packet.method_fqn
+            or profile.method_version != packet.method_version
+            or profile.method_seed != packet.method_seed
+            or profile.data_snapshot_ref != packet.data_snapshot_ref
+            or profile.data_ref != packet.data_ref
+            or profile.data_sample_count != packet.actual_sample_count
+            or profile.candidate_input_bindings != packet.candidate_slot_bindings
+            or profile.data_snapshot_bindings != packet.data_slot_bindings
+        ):
+            raise ValueError("method_work_packet_search_profile_mismatch")
+        actual_search_values = {
+            name: candidate[name]
+            for name in profile.search_parameter_bindings
+            if name in candidate
+        }
+        if (
+            set(actual_search_values) != set(profile.search_parameter_bindings)
+            or actual_search_values != packet.search_parameter_values
+        ):
+            raise ValueError("method_work_packet_search_parameter_source_mismatch")
+        if not _search_method_parameters_match_run_profile(
+            profile=profile,
+            candidate=candidate,
+            method_params=packet.configured_method_params,
+        ):
+            raise ValueError("method_work_packet_search_parameter_binding_mismatch")
     snapshot_manifest = store.get_manifest(packet.data_snapshot_ref)
     snapshot = load_model_artifact(store, packet.data_snapshot_ref, DataSnapshot)
     if (
@@ -928,9 +1077,39 @@ def _search_work_packet_admission_failure(
                 work_packet.method_fqn != evaluator._method_fqn
                 or work_packet.method_version != evaluator._method_version
                 or work_packet.method_seed != expected_seed
-                or work_packet.configured_method_params != evaluator._method_params
                 or work_packet.candidate_slot_bindings != evaluator._candidate_input_bindings
                 or work_packet.data_slot_bindings != evaluator._data_snapshot_bindings
+            ):
+                return "search_work_packet_method_request_mismatch"
+            if evaluator._search_parameter_bindings:
+                candidate_payload = load_json_artifact(store, candidate_ref)
+                run_profile = _search_method_run_profile_from_context(context)
+                if (
+                    not isinstance(candidate_payload, Mapping)
+                    or run_profile is None
+                    or work_packet.search_method_run_profile != run_profile
+                    or not _search_method_run_profile_matches_evaluator(
+                        profile=run_profile,
+                        evaluator=evaluator,
+                        suite_ref=suite_ref,
+                        policy=policy,
+                        loop_id=policy.loop_id,
+                        method_seed=expected_seed,
+                        data_snapshot_ref=expected_snapshot_ref,
+                        data_ref=work_packet.data_ref,
+                        data_sample_count=work_packet.actual_sample_count,
+                    )
+                    or not _search_method_parameters_match_run_profile(
+                        profile=run_profile,
+                        candidate=candidate_payload,
+                        method_params=work_packet.configured_method_params,
+                    )
+                ):
+                    return "search_work_packet_method_request_mismatch"
+            elif (
+                work_packet.configured_method_params != evaluator._method_params
+                or work_packet.search_method_run_profile is not None
+                or work_packet.search_parameter_values
             ):
                 return "search_work_packet_method_request_mismatch"
 
@@ -974,6 +1153,1000 @@ def _search_work_packet_admission_failure(
     return None
 
 
+_SEARCH_SOURCE_RECEIPT_KEY = "search_source_profile_receipt"
+_SEARCH_SOURCE_CANON_SPEC = CanonSpec(forbid_floats=False, forbid_nan_inf=False)
+
+
+def _search_source_fingerprint(value: Any) -> str | None:
+    """Return a canonical fingerprint for candidate-grade MethodJob request values."""
+    try:
+        return fingerprint(value, canon_spec=_SEARCH_SOURCE_CANON_SPEC)
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _search_source_manifest_schema_matches(
+    manifest: object,
+    *,
+    name: str,
+    version: str | None = None,
+) -> bool:
+    """Match a typed Core manifest schema, returning false for absent or malformed metadata."""
+    if not isinstance(manifest, ArtifactManifest):
+        return False
+    schema = manifest.artifact_schema
+    return (
+        isinstance(schema, SchemaInfo)
+        and schema.name == name
+        and (version is None or schema.version == version)
+    )
+
+
+def _search_source_manifest_input_matches(
+    manifest: Any,
+    role: str,
+    ref: ArtifactRef,
+    *,
+    require_profile: bool = True,
+) -> bool:
+    return any(
+        item.role == role
+        and item.artifact_id == ref.artifact_id
+        and (
+            not require_profile
+            or item.manifest_profile_sha256 == ref.manifest_profile_sha256
+        )
+        for item in manifest.inputs
+    )
+
+
+def _search_method_run_profile_from_context(
+    context: Mapping[str, Any],
+) -> SearchMethodRunProfile | None:
+    """Parse the runner-owned Search → MethodJob basis without trusting caller shape."""
+    raw_profile = context.get("_search_method_run_profile")
+    if isinstance(raw_profile, SearchMethodRunProfile):
+        return raw_profile
+    if not isinstance(raw_profile, Mapping):
+        return None
+    try:
+        return SearchMethodRunProfile.model_validate(raw_profile)
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _search_method_run_profile_matches_evaluator(
+    *,
+    profile: SearchMethodRunProfile | None,
+    evaluator: MethodJobBenchmarkEvaluator,
+    suite_ref: ArtifactRef,
+    policy: PromotionPolicy,
+    loop_id: str,
+    method_seed: int,
+    data_snapshot_ref: ArtifactRef | None,
+    data_ref: ArtifactRef | None,
+    data_sample_count: int | None,
+) -> bool:
+    """Reconcile a run profile with the evaluator's fixed request and exact data basis."""
+    return (
+        profile is not None
+        and profile.schema_version == "2"
+        and profile.loop_id == loop_id
+        and profile.suite_ref == suite_ref
+        and profile.method_fqn == evaluator._method_fqn
+        and profile.method_version == evaluator._method_version
+        and profile.method_params_fingerprint
+        == _search_source_fingerprint(evaluator._method_params)
+        and profile.candidate_input_bindings == evaluator._candidate_input_bindings
+        and profile.data_snapshot_bindings == evaluator._data_snapshot_bindings
+        and profile.search_parameter_bindings == evaluator._search_parameter_bindings
+        and profile.data_snapshot_ref == data_snapshot_ref
+        and profile.data_ref == data_ref
+        and profile.data_sample_count == data_sample_count
+        and profile.method_seed == method_seed
+        and profile.primary_metric == policy.primary_metric
+        and profile.direction == policy.direction.value
+        and profile.split == evaluator._split.value
+        and profile.unit == policy.unit
+    )
+
+
+def _build_search_parameter_profile(
+    *,
+    evaluator: MethodJobBenchmarkEvaluator,
+    generator: Any,
+) -> tuple[list[SearchGPFitBound], str] | None:
+    """Resolve declared SearchSpace dimensions to dynamic parameters of the current ABI."""
+    bindings = evaluator._search_parameter_bindings
+    if not bindings:
+        return [], ""
+    search_space = getattr(generator, "_search_space", None)
+    raw_bounds = getattr(search_space, "bounds", None)
+    if not isinstance(raw_bounds, list) or not raw_bounds:
+        return None
+    bounds_by_name = {getattr(bound, "name", None): bound for bound in raw_bounds}
+    if len(bounds_by_name) != len(raw_bounds) or not set(bindings).issubset(bounds_by_name):
+        return None
+    if set(bindings.values()) & set(evaluator._method_params):
+        return None
+    try:
+        from polisyos.foundry.methods import MethodRegistry
+
+        signature = MethodRegistry.get_instance().get_signature(evaluator._method_fqn)
+        if (
+            signature is None
+            or signature.fqn != evaluator._method_fqn
+            or signature.version != evaluator._method_version
+        ):
+            return None
+        parameters = {parameter.name: parameter for parameter in signature.parameters}
+        profile_bounds: list[SearchGPFitBound] = []
+        for search_name, method_name in sorted(bindings.items()):
+            bound = bounds_by_name[search_name]
+            parameter = parameters.get(method_name)
+            dtype = getattr(getattr(bound, "dtype", None), "value", None)
+            lower = getattr(bound, "lower", None)
+            upper = getattr(bound, "upper", None)
+            if (
+                parameter is None
+                or parameter.is_static
+                or type(parameter.default) not in {int, float}
+                or type(lower) not in {int, float}
+                or type(upper) not in {int, float}
+                or not isfinite(float(lower))
+                or not isfinite(float(upper))
+                or lower >= upper
+                or getattr(bound, "categories", None) is not None
+            ):
+                return None
+            if type(parameter.default) is int:
+                if dtype != "integer" or not float(lower).is_integer() or not float(upper).is_integer():
+                    return None
+            elif dtype not in {"continuous", "log_continuous"}:
+                return None
+            declared_lower, declared_upper = parameter.bounds
+            if (
+                declared_lower is not None
+                and lower < declared_lower
+            ) or (
+                declared_upper is not None
+                and upper > declared_upper
+            ):
+                return None
+            profile_bounds.append(
+                SearchGPFitBound(
+                    name=search_name,
+                    lower=float(lower),
+                    upper=float(upper),
+                    dtype=dtype,
+                    log_scale=bool(getattr(bound, "log_scale", False)),
+                    categories=None,
+                )
+            )
+        return profile_bounds, signature.abi_digest()
+    except (AttributeError, TypeError, ValueError, OverflowError, ValidationError):
+        return None
+
+
+def _build_search_method_run_profile(
+    *,
+    store: FileSystemCAS,
+    generator: Any,
+    spec: SearchLoopSpec,
+    suite_ref: ArtifactRef,
+    context: Mapping[str, Any],
+) -> SearchMethodRunProfile | None:
+    """Resolve the exact method, data, objective, and search basis for one run."""
+    evaluator = spec.benchmark_evaluator
+    search_space = getattr(generator, "_search_space", None)
+    context_fingerprint = getattr(generator, "_search_run_context_fingerprint", None)
+    objective_fn = getattr(generator, "_objective_profile_fingerprint", None)
+    if (
+        type(evaluator) is not MethodJobBenchmarkEvaluator
+        or search_space is None
+        or not callable(objective_fn)
+        or not isinstance(context_fingerprint, str)
+        or not context_fingerprint
+    ):
+        return None
+    search_space_fingerprint = search_space._native.sobol_space_fingerprint()
+    objective_fingerprint = objective_fn()
+    method_seed = context.get("method_job_seed", evaluator._seed)
+    if (
+        isinstance(method_seed, bool)
+        or not isinstance(method_seed, int)
+        or objective_fingerprint is None
+    ):
+        return None
+    data_snapshot_ref: ArtifactRef | None = None
+    data_ref: ArtifactRef | None = None
+    data_sample_count: int | None = None
+    if evaluator._data_snapshot_bindings:
+        try:
+            data_snapshot_ref = ArtifactRef.model_validate(context.get("data_snapshot_ref"))
+            if data_snapshot_ref.manifest_profile_sha256 is None:
+                return None
+            snapshot_manifest = store.get_manifest(data_snapshot_ref)
+            snapshot = DataSnapshot.model_validate(from_canonical_bytes(store.get_bytes(data_snapshot_ref)))
+            data_ref = ArtifactRef.model_validate(snapshot.data_ref)
+            if data_ref.manifest_profile_sha256 is None:
+                return None
+            if (
+                snapshot_manifest.kind != "fabric.data_snapshot"
+                or not _search_source_manifest_input_matches(
+                    snapshot_manifest, "data_ref", data_ref, require_profile=True
+                )
+            ):
+                return None
+            data_payload = from_canonical_bytes(store.get_bytes(data_ref))
+            if not isinstance(data_payload, Mapping):
+                return None
+            data_sample_count = _source_sample_count(
+                data_payload, evaluator._data_snapshot_bindings
+            )
+            if data_sample_count is None:
+                return None
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
+            return None
+    method_params_fingerprint = _search_source_fingerprint(dict(evaluator._method_params))
+    if method_params_fingerprint is None:
+        return None
+    parameter_profile = _build_search_parameter_profile(
+        evaluator=evaluator, generator=generator
+    )
+    if parameter_profile is None:
+        return None
+    parameter_bounds, method_signature_abi_digest = parameter_profile
+    has_parameter_bindings = bool(evaluator._search_parameter_bindings)
+    try:
+        return SearchMethodRunProfile(
+            schema_version="2" if has_parameter_bindings else "1",
+            loop_id=spec.loop_id,
+            suite_ref=suite_ref,
+            method_fqn=evaluator._method_fqn,
+            method_version=evaluator._method_version,
+            method_params_fingerprint=method_params_fingerprint,
+            candidate_input_bindings=dict(evaluator._candidate_input_bindings),
+            data_snapshot_bindings=dict(evaluator._data_snapshot_bindings),
+            search_parameter_bindings=dict(evaluator._search_parameter_bindings),
+            search_parameter_bounds=parameter_bounds,
+            method_signature_abi_digest=(
+                method_signature_abi_digest if has_parameter_bindings else None
+            ),
+            data_snapshot_ref=data_snapshot_ref,
+            data_ref=data_ref,
+            data_sample_count=data_sample_count,
+            method_seed=method_seed,
+            primary_metric=spec.promotion_policy.primary_metric,
+            direction=spec.promotion_policy.direction.value,
+            split=evaluator._split.value,
+            unit=spec.promotion_policy.unit,
+            search_space_fingerprint=search_space_fingerprint,
+            context_fingerprint=context_fingerprint,
+            objective_fingerprint=objective_fingerprint,
+        )
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _persist_search_benchmark_evaluation(
+    store: FileSystemCAS,
+    evaluation: BenchmarkEvaluation,
+    *,
+    suite_ref: ArtifactRef,
+) -> ArtifactRef:
+    """Persist the evaluation with exact selected input profiles for fresh readers."""
+    inputs = [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")]
+    inputs.append(input_ref_from_artifact_ref(evaluation.candidate_ref, role="candidate"))
+    for role, ref in (
+        ("method_result", evaluation.method_result_ref),
+        ("method_evidence", evaluation.method_evidence_ref),
+        ("execution_work_packet", evaluation.execution_work_packet_ref),
+    ):
+        if ref is not None:
+            inputs.append(input_ref_from_artifact_ref(ref, role=role))
+    raw_fit_basis = evaluation.metadata.get("search_gp_fit_basis_ref")
+    if raw_fit_basis is not None:
+        fit_basis_ref = ArtifactRef.model_validate(raw_fit_basis)
+        inputs.append(input_ref_from_artifact_ref(fit_basis_ref, role="search_gp_fit_basis"))
+    return store.put_json(
+        evaluation,
+        ArtifactWriteOptions(
+            kind=f"scientist.autotune.{evaluation.loop_id}.evaluation",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+                version=evaluation.suite_version,
+            ),
+            producer=ProducerInfo(
+                component="polisyos.scientist.methods.autotune.benchmark_evaluator",
+                version="2.0",
+            ),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+
+def _verify_search_source_profile_receipt(
+    *,
+    store: Any,
+    evaluation_ref: Any,
+    expected_receipt: Any = None,
+    expected_profile: Any = None,
+    expected_params: Any = None,
+    expected_scalar: Any = None,
+    expected_proposal_id: Any = None,
+    expected_candidate_id: Any = None,
+    expected_provenance_ref: Any = None,
+    expected_method_run_profile: SearchMethodRunProfile | None = None,
+    require_warm_start_eligible: bool = False,
+    _skip_fit_recomputation: bool = False,
+) -> tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef] | None:
+    """Fresh-read the complete candidate-grade Search → MethodJob → CAS source chain."""
+    if not isinstance(store, FileSystemCAS):
+        return None
+    try:
+        exact_evaluation_ref = ArtifactRef.model_validate(evaluation_ref)
+        reader = FileSystemCAS(store.root)
+        evaluation_manifest = reader.get_manifest(exact_evaluation_ref)
+        if not _search_source_manifest_schema_matches(
+            evaluation_manifest,
+            name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+        ):
+            return None
+        raw_evaluation = from_canonical_bytes(reader.get_bytes(exact_evaluation_ref))
+        evaluation = BenchmarkEvaluation.model_validate(raw_evaluation)
+        receipt_value = evaluation.metadata.get(_SEARCH_SOURCE_RECEIPT_KEY)
+        if not isinstance(receipt_value, Mapping):
+            return None
+        receipt = dict(receipt_value)
+        claimed_receipt_sha = receipt.pop("receipt_sha256", None)
+        if claimed_receipt_sha != _search_source_fingerprint(receipt):
+            return None
+        receipt["receipt_sha256"] = claimed_receipt_sha
+        if (
+            receipt.get("schema_version") != "1"
+            or receipt.get("authority_purpose") != "candidate_search_history_profile"
+            or receipt.get("grade") != "candidate_only"
+        ):
+            return None
+        if expected_receipt is not None and dict(expected_receipt) != receipt:
+            return None
+        profile_payload = receipt.get("profile")
+        if not isinstance(profile_payload, Mapping):
+            return None
+        profile = BayesianSourceProfile.model_validate(profile_payload)
+        if (
+            _search_source_fingerprint(dict(profile_payload)) != receipt.get("profile_sha256")
+            or evaluation.search_source_profile != profile
+            or (
+                expected_profile is not None
+                and dict(expected_profile) != dict(profile_payload)
+            )
+            or (require_warm_start_eligible and not profile.warm_start_eligible)
+        ):
+            return None
+        if evaluation.metadata.get(_SEARCH_SOURCE_RECEIPT_KEY) != receipt:
+            return None
+        if evaluation.status != "measured_candidate":
+            return None
+        if evaluation.method_result_ref is None or evaluation.method_evidence_ref is None:
+            return None
+
+        proposal = receipt.get("proposal")
+        proposal_params = proposal.get("params") if isinstance(proposal, Mapping) else None
+        proposal_id = proposal.get("proposal_id") if isinstance(proposal, Mapping) else None
+        if (
+            not isinstance(proposal_params, Mapping)
+            or not isinstance(proposal_id, str)
+            or (expected_proposal_id is not None and expected_proposal_id != proposal_id)
+            or (
+                expected_params is not None
+                and _search_source_fingerprint(dict(expected_params))
+                != _search_source_fingerprint(dict(proposal_params))
+            )
+        ):
+            return None
+
+        candidate_ref = ArtifactRef.model_validate(receipt.get("candidate_ref"))
+        suite_ref = ArtifactRef.model_validate(receipt.get("suite_ref"))
+        method_result_ref = ArtifactRef.model_validate(receipt.get("method_result_ref"))
+        method_evidence_ref = ArtifactRef.model_validate(receipt.get("method_evidence_ref"))
+        if (
+            evaluation.candidate_ref != candidate_ref
+            or evaluation.method_result_ref != method_result_ref
+            or evaluation.method_evidence_ref != method_evidence_ref
+            or evaluation.method_job_key != receipt.get("method_job_key")
+            or (
+                expected_candidate_id is not None
+                and expected_candidate_id != str(candidate_ref.artifact_id)
+            )
+            or (
+                expected_provenance_ref is not None
+                and expected_provenance_ref != str(method_result_ref.artifact_id)
+            )
+        ):
+            return None
+        if expected_scalar is not None and (
+            not isinstance(expected_scalar, (int, float))
+            or isinstance(expected_scalar, bool)
+            or not isfinite(float(expected_scalar))
+            or float(expected_scalar) != float(receipt.get("scalar_score", float("nan")))
+        ):
+            return None
+
+        if evaluation_manifest.kind != f"scientist.autotune.{evaluation.loop_id}.evaluation":
+            return None
+        if not all(
+            _search_source_manifest_input_matches(
+                evaluation_manifest, role, ref, require_profile=False
+            )
+            for role, ref in (
+                ("candidate", candidate_ref),
+                ("benchmark_suite", suite_ref),
+                ("method_result", method_result_ref),
+                ("method_evidence", method_evidence_ref),
+            )
+        ):
+            return None
+
+        candidate_manifest = reader.get_manifest(candidate_ref)
+        candidate_payload = from_canonical_bytes(reader.get_bytes(candidate_ref))
+        if candidate_manifest.artifact_id != candidate_ref.artifact_id or not isinstance(
+            candidate_payload, Mapping
+        ):
+            return None
+        actual_proposal_params = {
+            str(name): candidate_payload[name]
+            for name in proposal_params
+            if isinstance(name, str) and name in candidate_payload
+        }
+        if (
+            set(actual_proposal_params) != set(proposal_params)
+            or _search_source_fingerprint(actual_proposal_params)
+            != _search_source_fingerprint(dict(proposal_params))
+            or candidate_payload.get("loop_id") != evaluation.loop_id
+        ):
+            return None
+        suite_manifest = reader.get_manifest(suite_ref)
+        suite_payload = from_canonical_bytes(reader.get_bytes(suite_ref))
+        suite = BenchmarkSuite.model_validate(suite_payload)
+        if suite_manifest.artifact_id != suite_ref.artifact_id or (
+            suite.suite_id != evaluation.suite_id
+            or suite.suite_version != evaluation.suite_version
+        ):
+            return None
+
+        basis = receipt.get("method_request_basis")
+        if not isinstance(basis, Mapping) or dict(basis) != evaluation.metadata.get(
+            "method_request_basis"
+        ):
+            return None
+        if (
+            basis.get("schema_version") not in {"1", "2"}
+            or basis.get("candidate_ref") != candidate_ref.model_dump(mode="json")
+            or basis.get("suite_ref") != suite_ref.model_dump(mode="json")
+            or basis.get("primary_metric") != receipt.get("metric")
+            or basis.get("direction") != receipt.get("direction")
+            or basis.get("split") != receipt.get("split")
+            or basis.get("unit") != receipt.get("unit")
+        ):
+            return None
+        job_spec = JobSpec.model_validate(basis.get("job_spec"))
+        if job_spec.job_kind != "method" or not job_spec.method_fqn:
+            return None
+        if JobKey.from_spec(job_spec).value != evaluation.method_job_key:
+            return None
+        if (
+            job_spec.input_refs.get("candidate") != candidate_ref
+            or job_spec.input_refs.get("benchmark_suite") != suite_ref
+        ):
+            return None
+
+        raw_run_profile = basis.get("search_method_run_profile")
+        if basis.get("schema_version") == "2":
+            if not isinstance(raw_run_profile, Mapping):
+                return None
+            request_run_profile = SearchMethodRunProfile.model_validate(raw_run_profile)
+            if (
+                request_run_profile.schema_version != "2"
+                or request_run_profile.loop_id != evaluation.loop_id
+                or request_run_profile.suite_ref != suite_ref
+                or request_run_profile.method_fqn != job_spec.method_fqn
+                or request_run_profile.method_version != job_spec.method_version
+                or request_run_profile.method_seed != job_spec.seed
+                or request_run_profile.primary_metric != basis.get("primary_metric")
+                or request_run_profile.direction != basis.get("direction")
+                or request_run_profile.split != basis.get("split")
+                or request_run_profile.unit != basis.get("unit")
+            ):
+                return None
+        elif raw_run_profile is not None or basis.get("search_parameter_values") is not None:
+            return None
+
+        candidate_bindings = basis.get("candidate_input_bindings")
+        data_bindings = basis.get("data_snapshot_bindings")
+        if not isinstance(candidate_bindings, Mapping) or not isinstance(data_bindings, Mapping):
+            return None
+        method_state: dict[str, Any] = {}
+        for slot_name, candidate_field in candidate_bindings.items():
+            if (
+                not isinstance(slot_name, str)
+                or not isinstance(candidate_field, str)
+                or candidate_field not in candidate_payload
+            ):
+                return None
+            method_state[slot_name] = candidate_payload[candidate_field]
+        data_snapshot_ref = job_spec.input_refs.get("data_snapshot")
+        data_ref = job_spec.input_refs.get("data")
+        data_payload: Mapping[str, Any] | None = None
+        if bool(data_bindings) != (data_snapshot_ref is not None and data_ref is not None):
+            return None
+        if data_bindings:
+            if data_snapshot_ref is None or data_ref is None:
+                return None
+            snapshot_manifest = reader.get_manifest(data_snapshot_ref)
+            snapshot = DataSnapshot.model_validate(
+                from_canonical_bytes(reader.get_bytes(data_snapshot_ref))
+            )
+            if (
+                snapshot_manifest.kind != "fabric.data_snapshot"
+                or snapshot.data_ref != data_ref
+                or not _search_source_manifest_input_matches(
+                    snapshot_manifest, "data_ref", data_ref
+                )
+            ):
+                return None
+            data_payload = from_canonical_bytes(reader.get_bytes(data_ref))
+            if not isinstance(data_payload, Mapping):
+                return None
+            for slot_name, data_field in data_bindings.items():
+                if (
+                    not isinstance(slot_name, str)
+                    or not isinstance(data_field, str)
+                    or data_field not in data_payload
+                ):
+                    return None
+                method_state[slot_name] = data_payload[data_field]
+        if _search_source_fingerprint(method_state) != basis.get("method_state_fingerprint"):
+            return None
+        if basis.get("schema_version") == "2":
+            assert isinstance(raw_run_profile, Mapping)
+            actual_search_values = {
+                name: candidate_payload[name]
+                for name in request_run_profile.search_parameter_bindings
+                if name in candidate_payload
+            }
+            if (
+                actual_search_values != basis.get("search_parameter_values")
+                or set(actual_search_values)
+                != set(request_run_profile.search_parameter_bindings)
+                or request_run_profile.candidate_input_bindings != dict(candidate_bindings)
+                or request_run_profile.data_snapshot_bindings != dict(data_bindings)
+                or request_run_profile.data_snapshot_ref != data_snapshot_ref
+                or request_run_profile.data_ref != data_ref
+                or request_run_profile.data_sample_count
+                != _source_sample_count(data_payload, data_bindings)
+                or not _search_method_parameters_match_run_profile(
+                    profile=request_run_profile,
+                    candidate=candidate_payload,
+                    method_params=job_spec.method_params,
+                )
+            ):
+                return None
+
+        result_manifest = reader.get_manifest(method_result_ref)
+        result_payload = from_canonical_bytes(reader.get_bytes(method_result_ref))
+        if (
+            not result_manifest.kind.startswith("scientist.method_result.")
+            or not _search_source_manifest_schema_matches(
+                result_manifest,
+                name="polisyos.scientist.MethodResult",
+            )
+            or not isinstance(result_payload, Mapping)
+        ):
+            return None
+        expected_result_inputs = {
+            f"input:{name}": ref for name, ref in job_spec.input_refs.items()
+        }
+        actual_result_inputs = {
+            item.role: item
+            for item in result_manifest.inputs
+            if item.role.startswith("input:")
+        }
+        if set(actual_result_inputs) != set(expected_result_inputs) or not all(
+            actual_result_inputs[role].artifact_id == ref.artifact_id
+            and actual_result_inputs[role].manifest_profile_sha256 == ref.manifest_profile_sha256
+            for role, ref in expected_result_inputs.items()
+        ):
+            return None
+
+        evidence_manifest = reader.get_manifest(method_evidence_ref)
+        evidence_payload = from_canonical_bytes(reader.get_bytes(method_evidence_ref))
+        if not isinstance(evidence_payload, Mapping):
+            return None
+        evidence_result_ref = ArtifactRef.model_validate(
+            evidence_payload.get("method_result_ref")
+        )
+        if (
+            evidence_manifest.kind != "scientist.method_evidence"
+            or not _search_source_manifest_schema_matches(
+                evidence_manifest,
+                name="polisyos.scientist.MethodExecutionEvidence",
+            )
+            or evidence_payload.get("authority_purpose") != "method_execution"
+            or evidence_payload.get("method_fqn") != job_spec.method_fqn
+            or "execution_reproducibility" not in evidence_payload.get("authoritative_for", [])
+            or not {"governance_admissibility", "method_validity"}.issubset(
+                set(evidence_payload.get("may_not_use_for", []))
+            )
+            or evidence_result_ref != method_result_ref
+            or evidence_payload.get("result_ref") != str(method_result_ref.artifact_id)
+            or not _search_source_manifest_input_matches(
+                evidence_manifest, "method_result", method_result_ref
+            )
+        ):
+            return None
+
+        metric = receipt.get("metric")
+        split = BenchmarkSplit(receipt.get("split"))
+        direction = MetricDirection(receipt.get("direction"))
+        if not isinstance(metric, str) or not metric:
+            return None
+        output = result_payload.get("result")
+        metric_source = output if isinstance(output, Mapping) else result_payload
+        raw_metric = metric_source.get(metric)
+        if isinstance(raw_metric, bool) or raw_metric is None:
+            return None
+        metric_value = float(raw_metric)
+        if not isfinite(metric_value):
+            return None
+        metric_units = metric_source.get("metric_units")
+        source_unit = metric_units.get(metric) if isinstance(metric_units, Mapping) else None
+        if receipt.get("unit") is not None and source_unit != receipt.get("unit"):
+            return None
+        if evaluation.metrics_for_split(split) != {metric: metric_value}:
+            return None
+        opposite_metrics = (
+            evaluation.holdout_metrics
+            if split is BenchmarkSplit.SELECTION
+            else evaluation.selection_metrics
+        )
+        if opposite_metrics:
+            return None
+        scalar = -metric_value if direction is MetricDirection.MAXIMIZE else metric_value
+        if scalar != float(receipt.get("scalar_score", float("nan"))):
+            return None
+        expected_objective = _search_source_fingerprint(
+            {
+                "primary_metric": metric,
+                "direction": direction.value,
+                "scalarization": "finite_scalar_score_minimize",
+            }
+        )
+        if profile.objective_fingerprint != expected_objective:
+            return None
+        if require_warm_start_eligible and (
+            profile.profile_kind != "configured_native_gp"
+            or profile.proposal_source != "bayesian_acquisition"
+            or expected_method_run_profile is None
+            or not _recompute_search_gp_fit_basis(
+                reader=reader,
+                evaluation_ref=exact_evaluation_ref,
+                evaluation_manifest=evaluation_manifest,
+                evaluation=evaluation,
+                receipt=receipt,
+                profile=profile,
+                expected_method_run_profile=expected_method_run_profile,
+            )
+        ):
+            return None
+        if not _skip_fit_recomputation and receipt.get("fit_basis_ref") is not None:
+            fit_basis_ref = ArtifactRef.model_validate(receipt["fit_basis_ref"])
+            if not _search_source_manifest_input_matches(
+                evaluation_manifest, "search_gp_fit_basis", fit_basis_ref, require_profile=True
+            ):
+                return None
+        return profile, receipt, candidate_ref
+    except (
+        KeyError,
+        OSError,
+        OverflowError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+        ValidationError,
+    ):
+        return None
+
+
+def _method_request_matches_search_run_profile(
+    *,
+    reader: FileSystemCAS,
+    evaluation: BenchmarkEvaluation,
+    receipt: Mapping[str, Any],
+    run_profile: SearchMethodRunProfile,
+) -> bool:
+    """Reconcile the persisted MethodJob request and full data quantity to a run profile."""
+    basis = receipt.get("method_request_basis")
+    if not isinstance(basis, Mapping):
+        return False
+    try:
+        job_spec = JobSpec.model_validate(basis.get("job_spec"))
+        candidate_ref = ArtifactRef.model_validate(receipt.get("candidate_ref"))
+        suite_ref = ArtifactRef.model_validate(receipt.get("suite_ref"))
+        candidate_payload = from_canonical_bytes(reader.get_bytes(candidate_ref))
+        if not isinstance(candidate_payload, Mapping):
+            return False
+        expected_search_values = {
+            name: candidate_payload[name]
+            for name in run_profile.search_parameter_bindings
+            if name in candidate_payload
+        }
+        if (
+            evaluation.loop_id != run_profile.loop_id
+            or suite_ref != run_profile.suite_ref
+            or job_spec.method_fqn != run_profile.method_fqn
+            or job_spec.method_version != run_profile.method_version
+            or job_spec.seed != run_profile.method_seed
+            or not _search_method_parameters_match_run_profile(
+                profile=run_profile,
+                candidate=candidate_payload,
+                method_params=job_spec.method_params,
+            )
+            or basis.get("schema_version")
+            != ("2" if run_profile.search_parameter_bindings else "1")
+            or (
+                bool(run_profile.search_parameter_bindings)
+                and (
+                    basis.get("search_method_run_profile")
+                    != run_profile.model_dump(mode="json", exclude_none=True)
+                    or basis.get("search_parameter_values") != expected_search_values
+                    or set(expected_search_values) != set(run_profile.search_parameter_bindings)
+                )
+            )
+            or basis.get("candidate_input_bindings") != run_profile.candidate_input_bindings
+            or basis.get("data_snapshot_bindings") != run_profile.data_snapshot_bindings
+            or basis.get("candidate_ref") != candidate_ref.model_dump(mode="json")
+            or basis.get("suite_ref") != suite_ref.model_dump(mode="json")
+            or basis.get("primary_metric") != run_profile.primary_metric
+            or basis.get("direction") != run_profile.direction
+            or basis.get("split") != run_profile.split
+            or basis.get("unit") != run_profile.unit
+            or job_spec.input_refs.get("candidate") != candidate_ref
+            or job_spec.input_refs.get("benchmark_suite") != suite_ref
+        ):
+            return False
+        data_snapshot_ref = job_spec.input_refs.get("data_snapshot")
+        data_ref = job_spec.input_refs.get("data")
+        if (
+            data_snapshot_ref != run_profile.data_snapshot_ref
+            or data_ref != run_profile.data_ref
+            or bool(run_profile.data_snapshot_bindings)
+            != (data_snapshot_ref is not None and data_ref is not None)
+        ):
+            return False
+        if data_snapshot_ref is None:
+            return run_profile.data_sample_count is None
+        snapshot_manifest = reader.get_manifest(data_snapshot_ref)
+        snapshot = DataSnapshot.model_validate(
+            from_canonical_bytes(reader.get_bytes(data_snapshot_ref))
+        )
+        if (
+            snapshot_manifest.kind != "fabric.data_snapshot"
+            or snapshot.data_ref != data_ref
+            or not _search_source_manifest_input_matches(
+                snapshot_manifest, "data_ref", data_ref, require_profile=True
+            )
+        ):
+            return False
+        data_payload = from_canonical_bytes(reader.get_bytes(data_ref))
+        if not isinstance(data_payload, Mapping):
+            return False
+        return _source_sample_count(data_payload, run_profile.data_snapshot_bindings) == (
+            run_profile.data_sample_count
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
+        return False
+
+
+def _recompute_search_gp_fit_basis(
+    *,
+    reader: FileSystemCAS,
+    evaluation_ref: ArtifactRef,
+    evaluation_manifest: ArtifactManifest,
+    evaluation: BenchmarkEvaluation,
+    receipt: Mapping[str, Any],
+    profile: BayesianSourceProfile,
+    expected_method_run_profile: SearchMethodRunProfile,
+) -> bool:
+    """Recompute the fitted native GP from exact CAS-backed MethodJob observations."""
+    try:
+        fit_basis_ref = ArtifactRef.model_validate(receipt.get("fit_basis_ref"))
+        if fit_basis_ref.manifest_profile_sha256 is None:
+            return False
+        if evaluation.metadata.get("search_gp_fit_basis_ref") != fit_basis_ref.model_dump(
+            mode="json"
+        ):
+            return False
+        if not _search_source_manifest_input_matches(
+            evaluation_manifest,
+            "search_gp_fit_basis",
+            fit_basis_ref,
+            require_profile=True,
+        ):
+            return False
+        fit_manifest = reader.get_manifest(fit_basis_ref)
+        if (
+            fit_manifest.kind != "scientist.autotune.search_gp_fit_basis"
+            or not _search_source_manifest_schema_matches(
+                fit_manifest,
+                name="polisyos.scientist.methods.autotune.SearchGPFitBasis",
+                version="1.0",
+            )
+        ):
+            return False
+        fit_basis = SearchGPFitBasis.model_validate(
+            from_canonical_bytes(reader.get_bytes(fit_basis_ref))
+        )
+        run_profile = fit_basis.run_profile
+        if (
+            run_profile != expected_method_run_profile
+            or fit_basis.profile != profile
+            or profile.context_fingerprint != run_profile.context_fingerprint
+            or profile.objective_fingerprint != run_profile.objective_fingerprint
+            or profile.search_space_fingerprint != run_profile.search_space_fingerprint
+            or not _method_request_matches_search_run_profile(
+                reader=reader,
+                evaluation=evaluation,
+                receipt=receipt,
+                run_profile=run_profile,
+            )
+        ):
+            return False
+        source_refs = fit_basis.training_evaluation_refs
+        manifest_inputs = [
+            (str(item.artifact_id), item.manifest_profile_sha256)
+            for item in fit_manifest.inputs
+            if item.role == "training_evaluation"
+        ]
+        expected_inputs = [
+            (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in source_refs
+        ]
+        if sorted(manifest_inputs) != sorted(expected_inputs):
+            return False
+
+        from polisyos.scientist.methods.search.objective import (
+            ObjectiveValue,
+            OptimizationDirection,
+        )
+        from polisyos.scientist.methods.search.strategies.bayesian import (
+            BayesianConfig,
+            BayesianOptimizer,
+        )
+        from polisyos.scientist.methods.search.strategies.space import SearchSpace
+        from polisyos.scientist.methods.search.strategies.types import (
+            AcquisitionType,
+            Evaluation,
+            EvaluationStatus,
+            ParameterBounds,
+            ParameterType,
+        )
+
+        native_space = SearchSpace(
+            bounds=[
+                ParameterBounds(
+                    name=item.name,
+                    lower=item.lower,
+                    upper=item.upper,
+                    dtype=ParameterType(item.dtype),
+                    log_scale=item.log_scale,
+                    categories=(tuple(item.categories) if item.categories is not None else None),
+                )
+                for item in fit_basis.bounds
+            ]
+        )
+        if native_space.sobol_space_fingerprint() != run_profile.search_space_fingerprint:
+            return False
+        fit_config = fit_basis.fit_config.model_dump()
+        fit_config["acquisition"] = AcquisitionType(fit_config["acquisition"])
+        optimizer = BayesianOptimizer(
+            native_space,
+            config=BayesianConfig(**fit_config),
+        )
+        if not optimizer.native_gp_ready or str(optimizer._device) != fit_basis.fit_backend:
+            return False
+        optimizer.set_search_run_profile(
+            context_fingerprint=run_profile.context_fingerprint,
+            objective_fingerprint=run_profile.objective_fingerprint,
+        )
+        training_evaluations: list[Evaluation] = []
+        for source_ref in source_refs:
+            verified = _verify_search_source_profile_receipt(
+                store=reader,
+                evaluation_ref=source_ref,
+                require_warm_start_eligible=False,
+                _skip_fit_recomputation=True,
+            )
+            if verified is None:
+                return False
+            _, source_receipt, source_candidate_ref = verified
+            source_evaluation_manifest = reader.get_manifest(source_ref)
+            source_evaluation = BenchmarkEvaluation.model_validate(
+                from_canonical_bytes(reader.get_bytes(source_ref))
+            )
+            if not _method_request_matches_search_run_profile(
+                reader=reader,
+                evaluation=source_evaluation,
+                receipt=source_receipt,
+                run_profile=run_profile,
+            ):
+                return False
+            proposal = source_receipt.get("proposal")
+            params = proposal.get("params") if isinstance(proposal, Mapping) else None
+            scalar = source_receipt.get("scalar_score")
+            if (
+                not isinstance(params, Mapping)
+                or isinstance(scalar, bool)
+                or not isinstance(scalar, (int, float))
+                or not isfinite(float(scalar))
+                or not _search_source_manifest_schema_matches(
+                    source_evaluation_manifest,
+                    name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+                )
+            ):
+                return False
+            training_evaluations.append(
+                Evaluation(
+                    candidate_id=str(source_candidate_ref.artifact_id),
+                    params=dict(params),
+                    params_normalized=tuple(native_space.normalize(dict(params))),
+                    objectives=[
+                        ObjectiveValue(
+                            name=run_profile.primary_metric,
+                            raw_value=float(scalar),
+                            direction=OptimizationDirection.MINIMIZE,
+                        )
+                    ],
+                    scalar_score=float(scalar),
+                    stage_a_passed=True,
+                    status=EvaluationStatus.SUCCESS,
+                    provenance_ref=str(source_receipt["method_result_ref"]["artifact_id"]),
+                    metadata={
+                        "search_source_evaluation_ref": source_ref.model_dump(mode="json")
+                    },
+                )
+            )
+        if len(training_evaluations) != fit_basis.training_observation_count:
+            return False
+        train_x, train_y = optimizer._prepare_training_data(training_evaluations)
+        optimizer._fit_full_gp(train_x, train_y)
+        if (
+            optimizer._fitted_model_state_fingerprint()
+            != fit_basis.fitted_model_state_fingerprint
+        ):
+            return False
+        optimizer._record_fitted_training_corpus(training_evaluations)
+        recomputed_profile = BayesianSourceProfile.model_validate(
+            asdict(
+                optimizer.effective_fit_profile(
+                    proposal_source=fit_basis.proposal_source,
+                    context_fingerprint=run_profile.context_fingerprint,
+                    objective_fingerprint=run_profile.objective_fingerprint,
+                )
+            )
+        )
+        return (
+            recomputed_profile == profile
+            and recomputed_profile.warm_start_eligible
+            and evaluation_ref.manifest_profile_sha256 is not None
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
+        return False
+
+
 class SearchLoopRunner:
     """Search loop runner public type."""
 
@@ -1009,6 +2182,30 @@ class SearchLoopRunner:
         set_search_run_context = getattr(generator, "set_search_run_context", None)
         if callable(set_search_run_context):
             set_search_run_context(search_context)
+        from .bayesian_generator import BayesianCandidateGenerator
+
+        method_run_profile: SearchMethodRunProfile | None = None
+        if type(generator) is BayesianCandidateGenerator:
+            BayesianCandidateGenerator._configure_source_store(generator, self._store)
+            method_run_profile = _build_search_method_run_profile(
+                store=self._store,
+                generator=generator,
+                spec=spec,
+                suite_ref=suite_ref,
+                context=search_context,
+            )
+            BayesianCandidateGenerator.set_search_method_run_profile(
+                generator, method_run_profile
+            )
+        if (
+            isinstance(spec.benchmark_evaluator, MethodJobBenchmarkEvaluator)
+            and spec.benchmark_evaluator._search_parameter_bindings
+        ):
+            runtime_context["_search_method_run_profile"] = (
+                method_run_profile.model_dump(mode="json", exclude_none=True)
+                if method_run_profile is not None
+                else None
+            )
         if warm_start_bridge is not None:
             if warm_start_fingerprint is None:
                 raise ValueError("warm_start_fingerprint is required with a warm-start bridge")
@@ -1038,6 +2235,7 @@ class SearchLoopRunner:
                 suite_ref=suite_ref,
                 candidate_payload=candidate,
                 context=ctx,
+                generator=generator,
             ),
         )
         initial_payload = (
@@ -1059,6 +2257,7 @@ class SearchLoopRunner:
         suite_ref: ArtifactRef,
         candidate_payload: dict[str, Any],
         context: dict[str, Any],
+        generator: Any,
     ) -> dict[str, Any]:
         codec = spec.mutation_codec
         if codec is None:
@@ -1092,23 +2291,113 @@ class SearchLoopRunner:
                 "evaluation_attempt_id": evaluation_attempt_id,
             },
         )
+        evaluation_metadata = dict(evaluation.metadata)
+        evaluation_metadata.pop(_SEARCH_SOURCE_RECEIPT_KEY, None)
+        evaluation = evaluation.model_copy(
+            update={"search_source_profile": None, "metadata": evaluation_metadata}
+        )
         source_profile: BayesianSourceProfile | None = None
-        if isinstance(generation_metadata, Mapping):
-            raw_profile = generation_metadata.get("warm_start_compatibility")
-            if isinstance(raw_profile, Mapping):
-                try:
-                    source_profile = BayesianSourceProfile.model_validate(raw_profile)
-                except ValidationError:
-                    source_profile = None
-        if source_profile is not None:
-            if evaluation.search_source_profile is None:
-                evaluation = evaluation.model_copy(update={"search_source_profile": source_profile})
-            elif evaluation.search_source_profile != source_profile:
+        proposal_receipt: dict[str, Any] | None = None
+        from .bayesian_generator import BayesianCandidateGenerator
+
+        if (
+            type(generator) is BayesianCandidateGenerator
+            and type(spec.benchmark_evaluator) is MethodJobBenchmarkEvaluator
+        ):
+            proposal_receipt = BayesianCandidateGenerator._consume_issued_source_profile(
+                generator, candidate_payload
+            )
+            if proposal_receipt is not None:
+                source_profile = proposal_receipt["profile"]
+        if (
+            source_profile is not None
+            and proposal_receipt is not None
+            and evaluation.status == "measured_candidate"
+            and evaluation.method_result_ref is not None
+            and evaluation.method_evidence_ref is not None
+            and evaluation.method_job_key is not None
+        ):
+            request_basis = evaluation.metadata.get("method_request_basis")
+            objective_fingerprint = _search_source_fingerprint(
+                {
+                    "primary_metric": spec.promotion_policy.primary_metric,
+                    "direction": spec.promotion_policy.direction.value,
+                    "scalarization": "finite_scalar_score_minimize",
+                }
+            )
+            method_evaluator = spec.benchmark_evaluator
+            metric_value = evaluation.primary_value(
+                split=method_evaluator._split,
+                metric=spec.promotion_policy.primary_metric,
+            )
+            if (
+                isinstance(request_basis, Mapping)
+                and request_basis.get("candidate_ref") == candidate_ref.model_dump(mode="json")
+                and request_basis.get("suite_ref") == suite_ref.model_dump(mode="json")
+                and source_profile.objective_fingerprint == objective_fingerprint
+                and metric_value is not None
+                and isfinite(metric_value)
+            ):
+                scalar_score = (
+                    -float(metric_value)
+                    if spec.promotion_policy.direction is MetricDirection.MAXIMIZE
+                    else float(metric_value)
+                )
+                receipt: dict[str, Any] = {
+                    "schema_version": "1",
+                    "authority_purpose": "candidate_search_history_profile",
+                    "grade": "candidate_only",
+                    "profile": source_profile.model_dump(mode="json", exclude_none=True),
+                    "profile_sha256": _search_source_fingerprint(
+                        source_profile.model_dump(mode="json", exclude_none=True)
+                    ),
+                    "proposal": {
+                        "proposal_id": proposal_receipt["proposal_id"],
+                        "params": proposal_receipt["params"],
+                    },
+                    "candidate_ref": candidate_ref.model_dump(mode="json"),
+                    "suite_ref": suite_ref.model_dump(mode="json"),
+                    "method_request_basis": dict(request_basis),
+                    "method_result_ref": evaluation.method_result_ref.model_dump(mode="json"),
+                    "method_evidence_ref": evaluation.method_evidence_ref.model_dump(mode="json"),
+                    "method_job_key": evaluation.method_job_key,
+                    "metric": spec.promotion_policy.primary_metric,
+                    "direction": spec.promotion_policy.direction.value,
+                    "split": method_evaluator._split.value,
+                    "unit": spec.promotion_policy.unit,
+                    "scalar_score": scalar_score,
+                }
+                fit_basis_ref = proposal_receipt.get("fit_basis_ref")
+                if source_profile.warm_start_eligible and isinstance(fit_basis_ref, ArtifactRef):
+                    receipt["fit_basis_ref"] = fit_basis_ref.model_dump(mode="json")
+                    evaluation_metadata = {
+                        **evaluation.metadata,
+                        _SEARCH_SOURCE_RECEIPT_KEY: receipt,
+                        "search_gp_fit_basis_ref": fit_basis_ref.model_dump(mode="json"),
+                    }
+                else:
+                    source_profile = source_profile.model_copy(
+                        update={"warm_start_eligible": False}
+                    )
+                    receipt["profile"] = source_profile.model_dump(
+                        mode="json", exclude_none=True
+                    )
+                    receipt["profile_sha256"] = _search_source_fingerprint(receipt["profile"])
+                    receipt.pop("fit_basis_ref", None)
+                    receipt["receipt_sha256"] = _search_source_fingerprint(
+                        {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+                    )
+                    evaluation_metadata = {
+                        **evaluation.metadata,
+                        _SEARCH_SOURCE_RECEIPT_KEY: receipt,
+                    }
+                if "receipt_sha256" not in receipt:
+                    receipt["receipt_sha256"] = _search_source_fingerprint(receipt)
+                    evaluation_metadata[_SEARCH_SOURCE_RECEIPT_KEY] = receipt
                 evaluation = evaluation.model_copy(
                     update={
-                        "search_source_profile": None,
-                        "promotable": False,
-                        "status": "source_profile_conflict",
+                        "search_source_profile": source_profile,
+                        "metadata": evaluation_metadata,
                     }
                 )
         benchmark_evaluator = spec.benchmark_evaluator
@@ -1196,10 +2485,17 @@ class SearchLoopRunner:
                     },
                 }
             )
-        evaluation_ref = persist_benchmark_evaluation(
+        if evaluation.status != "measured_candidate":
+            retained_metadata = dict(evaluation.metadata)
+            retained_metadata.pop(_SEARCH_SOURCE_RECEIPT_KEY, None)
+            retained_metadata.pop("search_gp_fit_basis_ref", None)
+            evaluation = evaluation.model_copy(
+                update={"search_source_profile": None, "metadata": retained_metadata}
+            )
+        evaluation_ref = _persist_search_benchmark_evaluation(
             self._store,
             evaluation,
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            suite_ref=suite_ref,
         )
         decision = self._registry.consider_promotion(
             spec.loop_id,
@@ -1232,6 +2528,7 @@ class SearchLoopRunner:
             },
             "metadata": {
                 "evaluation_id": str(evaluation_ref.artifact_id),
+                "evaluation_artifact_ref": evaluation_ref.model_dump(mode="json"),
                 "provenance_ref": str(provenance_ref.artifact_id),
                 "split": evaluation.resolved_runtime_split_type().value,
             },

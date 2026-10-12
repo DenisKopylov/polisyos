@@ -26,6 +26,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.data_requirement import CapabilityRequirementResolution
 from polisyos.pdc import (
     SearchTerminalKind,
     SearchTerminalState,
@@ -48,6 +49,7 @@ if TYPE_CHECKING:
         ProductionCG2CalibrationSource,
         SourceGroundingRequest,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
 
 _VERIFIED_SOURCE_EMISSIONS: dict[int, tuple[weakref.ReferenceType, bytes, object]] = {}
 _VERIFIED_RECEIPT_EMISSIONS: dict[int, tuple[weakref.ReferenceType, bytes, object]] = {}
@@ -523,6 +525,7 @@ class AcquisitionGap(BaseModel):
     compiled_requirement_ref: str | None = None
     requirement_schema_version: str | None = None
     missing_requirement_fields: tuple[str, ...] = Field(default=())
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     authority_level: AuthorityLevel
     mandatory_gate_state: MandatoryGateState = MandatoryGateState.NONE
     mandatory_gate_refs: tuple[str, ...] = Field(default=())
@@ -582,6 +585,7 @@ class AcquisitionRequirementGap(BaseModel):
     claim_ref: str = Field(min_length=1)
     scenario_requirement_refs: tuple[str, ...] = Field(default=())
     missing_requirement_fields: tuple[str, ...] = Field(default=())
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     authority_level: AuthorityLevel
     mandatory_gate_state: MandatoryGateState = MandatoryGateState.NONE
     mandatory_gate_refs: tuple[str, ...] = Field(default=())
@@ -772,6 +776,7 @@ class AcquisitionRequirementGap(BaseModel):
             compiled_requirement_ref=self.compiled_requirement_ref,
             requirement_schema_version=self.requirement_schema_version,
             missing_requirement_fields=self.missing_requirement_fields,
+            capability_requirement_resolutions=self.capability_requirement_resolutions,
             authority_level=self.authority_level,
             mandatory_gate_state=self.mandatory_gate_state,
             mandatory_gate_refs=self.mandatory_gate_refs,
@@ -835,6 +840,7 @@ class AcquisitionActionRecord(BaseModel):
     compiled_requirement_ref: str | None = None
     requirement_schema_version: str | None = None
     missing_requirement_fields: tuple[str, ...] = Field(default=())
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     authority_level: AuthorityLevel
     mandatory_gate_state: MandatoryGateState
     mandatory_gate_refs: tuple[str, ...] = Field(default=())
@@ -1215,6 +1221,7 @@ class AcquisitionReceipt(BaseModel):
     reentry_cycle_index: int = Field(ge=0)
     acquisition_request: dict[str, Any]
     compiled_requirement_specs: tuple[dict[str, Any], ...]
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     compiled_spec_count: int = Field(ge=0)
     planner_report: AcquisitionPlannerReport
     acquisition_family_scores: tuple[AcquisitionFamilyScore, ...]
@@ -1318,6 +1325,7 @@ class RealAcquisitionOwnerGateway:
         retrieval_service_factory: Callable[[Path, ArtifactStore | None, object], object]
         | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
+        catalog_serving_source: CatalogServingSourcePaths | None = None,
         captured_at: datetime | None = None,
         skg_source_snapshot: academic.SourceSnapshot | None = None,
     ) -> None:
@@ -1328,6 +1336,9 @@ class RealAcquisitionOwnerGateway:
         self._dataset_catalog_factory = dataset_catalog_factory
         self._retrieval_service_factory = retrieval_service_factory
         self._catalog_run_profile = _validated_catalog_run_profile(catalog_run_profile)
+        from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+        self._catalog_serving_source = catalog_serving_source or current_catalog_serving_source()
         self._captured_at = _utc(captured_at)
         self._skg_source_snapshot = skg_source_snapshot
         self._skg_calibration_source: ProductionCG2CalibrationSource | None = None
@@ -1366,8 +1377,10 @@ class RealAcquisitionOwnerGateway:
         from polisyos.fabric.retrieval.service import RetrievalService
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
+            require_active_catalog_source,
         )
 
+        require_active_catalog_source(self._catalog_serving_source)
         curated_dir = self._repo_root / "production_data"
         families = _required_families_for_spec(spec)
         if not families:
@@ -2097,6 +2110,10 @@ def run_acquisition_closed_loop(
     acquisition_request: Mapping[str, Any],
     data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
     world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
+    capability_requirement_resolutions: Sequence[
+        CapabilityRequirementResolution | Mapping[str, Any]
+    ]
+    | None = None,
     design_problem: DesignProblem | None = None,
     owner_gateway: AcquisitionOwnerGateway | None = None,
     network_counter: AcquisitionNetworkCallCounter | None = None,
@@ -2120,7 +2137,20 @@ def run_acquisition_closed_loop(
         else AcquisitionWorldSnapshot.model_validate(world_snapshot)
     )
     specs = tuple(_spec_payload(spec) for spec in data_requirement_specs)
-    gaps = requirement_gaps_from_compiled_specs(data_requirement_specs=data_requirement_specs)
+    resolution_rows = (
+        None
+        if capability_requirement_resolutions is None
+        else tuple(
+            resolution
+            if isinstance(resolution, CapabilityRequirementResolution)
+            else CapabilityRequirementResolution.model_validate(resolution)
+            for resolution in capability_requirement_resolutions
+        )
+    )
+    gaps = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=data_requirement_specs,
+        capability_requirement_resolutions=resolution_rows,
+    )
     planner_report = plan_requirement_gap_acquisition(
         run_id=run_id,
         requirement_gaps=gaps,
@@ -2230,6 +2260,7 @@ def run_acquisition_closed_loop(
         reentry_cycle_index=cycle_index,
         acquisition_request=request,
         compiled_requirement_specs=specs,
+        capability_requirement_resolutions=resolution_rows,
         compiled_spec_count=len(specs),
         planner_report=planner_report,
         acquisition_family_scores=_acquisition_family_scores(projection.affected_region),
@@ -3586,6 +3617,10 @@ def data_need_spec_payload(value: object) -> dict[str, Any]:
 def requirement_gaps_from_compiled_specs(
     *,
     data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]] = (),
+    capability_requirement_resolutions: Sequence[
+        CapabilityRequirementResolution | Mapping[str, Any]
+    ]
+    | None = None,
     legal_authority_requirement_specs: Sequence[BaseModel | Mapping[str, Any]] = (),
     method_validity_requirement_specs: Sequence[BaseModel | Mapping[str, Any]] = (),
     scholar_support_requirement_specs: Sequence[BaseModel | Mapping[str, Any]] = (),
@@ -3600,12 +3635,43 @@ def requirement_gaps_from_compiled_specs(
     """
 
     gaps: list[AcquisitionRequirementGap] = []
+    resolution_rows = (
+        ()
+        if capability_requirement_resolutions is None
+        else tuple(
+            resolution
+            if isinstance(resolution, CapabilityRequirementResolution)
+            else CapabilityRequirementResolution.model_validate(resolution)
+            for resolution in capability_requirement_resolutions
+        )
+    )
+    represented_resolutions: set[int] = set()
     for spec in data_requirement_specs:
         payload = _spec_payload(spec)
         if payload.get("schema_version") == "policyos.runtime.acquisition_requirement_gap.v1":
-            gaps.append(AcquisitionRequirementGap.model_validate(payload))
-        else:
-            gaps.append(_data_requirement_gap(payload))
+            gap = AcquisitionRequirementGap.model_validate(payload)
+            attached = gap.capability_requirement_resolutions or ()
+            represented_resolutions.update(
+                index for index, resolution in enumerate(resolution_rows) if resolution in attached
+            )
+            gaps.append(gap)
+            continue
+        gap = _data_requirement_gap(payload)
+        families = set(_text_tuple(payload.get("required_data_families")))
+        matched = tuple(
+            resolution
+            for resolution in resolution_rows
+            if resolution.query.source_family_alias in families
+        )
+        if matched:
+            gap = gap.model_copy(update={"capability_requirement_resolutions": matched})
+            represented_resolutions.update(
+                index for index, resolution in enumerate(resolution_rows) if resolution in matched
+            )
+        gaps.append(gap)
+    for index, resolution in enumerate(resolution_rows):
+        if index not in represented_resolutions:
+            gaps.append(_capability_requirement_resolution_gap(resolution, occurrence=index))
     for spec in legal_authority_requirement_specs:
         payload = _spec_payload(spec)
         if _bool(payload.get("out_of_scope")) or not _bool(payload.get("mandatory"), True):
@@ -3903,6 +3969,51 @@ def acquisition_gaps_from_capability_failure_modes(
             )
         )
     return tuple(gaps)
+
+
+def _capability_requirement_resolution_gap(
+    resolution: CapabilityRequirementResolution,
+    *,
+    occurrence: int,
+) -> AcquisitionRequirementGap:
+    """Route a required construct that lacks a compiled data-family projection."""
+
+    binding = resolution.binding
+    authority_level = (
+        _authority_level_from_capability_posture(binding.authority_level)
+        if binding is not None
+        else AuthorityLevel.RESEARCH
+    )
+    missing_fields = ["compiled_data_requirement_spec_missing"]
+    if binding is None:
+        missing_fields.append("capability_resolution_not_established")
+    elif binding.status.startswith("blocked_"):
+        missing_fields.append(f"capability_resolution:{binding.status}")
+    query = resolution.query
+    compiled_ref = query.requirement_id
+    gap_prefix = _requirement_gap_id(family=RequirementGapFamily.DATA, requirement_id=compiled_ref)
+    gap_id = f"{gap_prefix}:resolution:{occurrence}"
+    return AcquisitionRequirementGap(
+        requirement_gap_id=gap_id,
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=compiled_ref,
+        requirement_schema_version=resolution.schema_version,
+        gap_type=AcquisitionGapType.SCENARIO_SOURCE_FAMILY,
+        claim_ref=f"unbound-claim:{compiled_ref}",
+        scenario_requirement_refs=(compiled_ref, f"construct:{query.construct}"),
+        missing_requirement_fields=tuple(missing_fields),
+        capability_requirement_resolutions=(resolution,),
+        authority_level=authority_level,
+        mandatory_gate_state=MandatoryGateState.NON_OVERRIDABLE,
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        metadata={
+            "source": "data_requirement_capability_resolution",
+            "authority_purpose": "routing_only",
+            "scope_profile_id": resolution.scope_profile_id,
+            "resolution_state": resolution.state,
+        },
+    )
 
 
 def _data_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionRequirementGap:
@@ -4316,6 +4427,7 @@ def _plan_gap(
         compiled_requirement_ref=gap.compiled_requirement_ref,
         requirement_schema_version=gap.requirement_schema_version,
         missing_requirement_fields=gap.missing_requirement_fields,
+        capability_requirement_resolutions=gap.capability_requirement_resolutions,
         authority_level=gap.authority_level,
         mandatory_gate_state=gap.mandatory_gate_state,
         mandatory_gate_refs=gap.mandatory_gate_refs,

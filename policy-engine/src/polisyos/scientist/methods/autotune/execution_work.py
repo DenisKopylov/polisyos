@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from math import isfinite
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
@@ -17,6 +18,8 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
+
+from .models import SearchMethodRunProfile
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
@@ -76,7 +79,7 @@ class MethodJobExecutionWorkPacket(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.2"] = "1.2"
+    schema_version: Literal["1.2", "1.3"] = "1.2"
     authority_purpose: Literal["engineering_execution_observation"] = (
         "engineering_execution_observation"
     )
@@ -98,6 +101,8 @@ class MethodJobExecutionWorkPacket(BaseModel):
     effective_method_config: dict[str, Any]
     candidate_slot_bindings: dict[str, str] = Field(default_factory=dict)
     data_slot_bindings: dict[str, str]
+    search_method_run_profile: SearchMethodRunProfile | None = None
+    search_parameter_values: dict[str, Any] = Field(default_factory=dict)
     method_profile_fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
     actual_sample_count: int = Field(strict=True, ge=1)
     bootstrap_execution: BootstrapExecutionWork
@@ -112,6 +117,28 @@ class MethodJobExecutionWorkPacket(BaseModel):
             raise ValueError("candidate and DataSnapshot slot bindings must not overlap")
         if self.configured_method_params.get("capture_execution_work") is not True:
             raise ValueError("work capture must be explicitly enabled for the MethodJob")
+        if self.schema_version == "1.2":
+            if self.search_method_run_profile is not None or self.search_parameter_values:
+                raise ValueError("legacy work packets cannot carry Search parameter bindings")
+        else:
+            profile = self.search_method_run_profile
+            if (
+                profile is None
+                or profile.schema_version != "2"
+                or not profile.search_parameter_bindings
+                or set(self.search_parameter_values)
+                != set(profile.search_parameter_bindings)
+            ):
+                raise ValueError(
+                    "schema 1.3 work packets require a complete Search parameter profile"
+                )
+            if any(
+                isinstance(value, bool)
+                or type(value) not in {int, float}
+                or not isfinite(float(value))
+                for value in self.search_parameter_values.values()
+            ):
+                raise ValueError("Search parameter values must be finite strict numbers")
         effective_draws = self.effective_method_config.get("bootstrap_draws")
         if (
             isinstance(effective_draws, bool)
@@ -146,7 +173,7 @@ def persist_method_job_execution_work_packet(
             ),
             producer=ProducerInfo(
                 component="polisyos.scientist.methods.autotune.method_job_work_observer",
-                version="1.2",
+                version=packet.schema_version,
             ),
             inputs=[input_ref_from_artifact_ref(ref, role=role) for role, ref in inputs],
         ),

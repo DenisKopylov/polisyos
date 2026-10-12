@@ -4,7 +4,7 @@
 `polisyos.foundry.agent_sim`: it packages mechanisms, rewards, objectives,
 observations, and composite orchestration into reusable simulation domains.
 
-- Last updated: 2026-05-06
+- Last updated: 2026-10-12
 - Sunset status: compatibility surface. New Foundry method extensions must use
   `polisyos.foundry.extensions` and the `polisyos.foundry_methods` entry-point
   group; `polisyos.plugins` remains only for existing domain-simulation plugins.
@@ -15,6 +15,15 @@ Use plugins when you want to assemble higher-level domain simulations rather
 than operate directly on the low-level agent-sim runtime. This package owns the
 legacy domain-plugin contract, discovery/registration path, composite execution, and the
 `PolisySimulator` orchestration facade.
+
+The selected Economics training bridge admits finite, nonnegative active
+wealth and income because each `EconomicState` projection materializes both
+classical Gini values. It checks native-to-composite inputs and each
+mechanism-produced state before Gini aggregation, so a later producer cannot
+erase an invalid intermediate state. A failed predicate stops the training
+attempt before PPO, evaluation output, or CAS persistence; the descriptor
+stored with a selected Economics policy artifact records this profile and is
+not an authority or trajectory proof.
 
 Do not use this package to publish Foundry methods. Method authors should
 follow `src/polisyos/foundry/methods/AUTHORING.md` and the installable example

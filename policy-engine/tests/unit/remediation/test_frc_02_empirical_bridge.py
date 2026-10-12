@@ -211,3 +211,214 @@ def test_bridge_refuses_context_when_report_does_not_bind_temporal_roles(
     assert evidence.context_bound is False
     assert evidence.usable_for_calibration is False
     assert evidence.floor_passed is False
+
+
+def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
+    tmp_path: Path,
+) -> None:
+    """Supplemental refs compose without replacing owner edges or granting credibility."""
+
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    from polisyos.calibration.forecast_bridge import (
+        EmpiricalCalibrationContext,
+        EvidenceArtifactRef,
+        load_empirical_calibration_evidence,
+    )
+    from tests.unit.remediation.test_frc_02_owner import _spec
+    from tests.unit.remediation.test_frc_02_s10 import (
+        ESTIMAND,
+        METHOD_REF,
+        METHOD_VERSION,
+        RULE_VERSION_REF,
+        _method_result,
+        _persist_context_ref,
+        _produce_forecast_inputs,
+    )
+
+    store = FileSystemCAS(tmp_path / "owner-bridge-s10-cas")
+    rule_ref = _rule(store)
+    model_ref = _spec(store, kind="ir.model_spec", spec_id="owner-bridge-model")
+    policy_ref = _spec(store, kind="ir.policy_spec", spec_id="owner-bridge-policy")
+    report_id = "frc-owner-bridge-s10-consumer"
+    threshold = 0.01
+    model_id = str(model_ref.artifact_id)
+    policy_id = str(policy_ref.artifact_id)
+    binding = {
+        "report_id": report_id,
+        "model_spec_ref": model_id,
+        "policy_spec_ref": policy_id,
+        "estimand": ESTIMAND,
+        "method_ref": METHOD_REF,
+        "method_version": METHOD_VERSION,
+        "rule_version_ref": RULE_VERSION_REF,
+        "calibration_threshold": f"{threshold:.2f}",
+    }
+    context_specs = (
+        ("scope_binding", report_id, "report_id", None, binding),
+        (
+            "calibration_threshold",
+            "threshold://owner-composition/0.01",
+            "identity",
+            {"threshold": Decimal(f"{threshold:.2f}")},
+            None,
+        ),
+        ("observed_outcome", "observation://owner-composition/held-out/v1", "identity", None, None),
+        ("prediction", "prediction://owner-composition/held-out/v1", "identity", None, None),
+        (
+            "evaluation_design",
+            "evaluation://owner-composition/rolling-origin/v1",
+            "identity",
+            None,
+            None,
+        ),
+        (
+            "credible_evaluation",
+            "evaluation-evidence://owner-composition/v1",
+            "identity",
+            None,
+            None,
+        ),
+        ("source_lineage", "source://owner-composition/panel/v1", "identity", None, None),
+        ("method_lineage", "method-lineage://owner-composition/ets/v1", "identity", None, None),
+    )
+    context_refs: dict[str, dict[str, str]] = {}
+    for role, identity, identity_path, payload_fields, role_binding in context_specs:
+        context_refs[role] = _persist_context_ref(
+            store,
+            role=role,
+            report_id=report_id,
+            identity=identity,
+            identity_path=identity_path,
+            binding=role_binding,
+            payload_fields=payload_fields,
+        )
+    supplemental_inputs = tuple(
+        InputRef(
+            artifact_id=ref["artifact_id"],
+            role=role,
+            manifest_profile_sha256=ref["manifest_profile_sha256"],
+        )
+        for role, ref in context_refs.items()
+    )
+    request = _request(
+        _source(store, training=[float(value) for value in range(10, 20)], holdout=[20, 21, 22]),
+        rule_ref,
+        report_id=report_id,
+        model_spec_ref=model_id,
+        policy_spec_ref=policy_id,
+        manifest_inputs=supplemental_inputs,
+        train_end=10,
+        horizon=3,
+    )
+
+    owner_result = ForecastOwner(store).run(request)
+    report = load_backtest_report(
+        _ensure_ir_artifact_store(store), owner_result.backtest_report_ref
+    )
+    manifest = _ensure_ir_artifact_store(store).get_manifest(owner_result.backtest_report_ref)
+    manifest_payload = manifest.model_dump(mode="json")
+    report_edges = {
+        (
+            str(item["artifact_id"]),
+            str(item["role"]),
+            item.get("manifest_profile_sha256"),
+        )
+        for item in manifest_payload["inputs"]
+    }
+    assert {
+        "observed_source",
+        "observed_data",
+        "calibration_rule",
+        "training_slice",
+        "method_artifact",
+        "uncertainty_bundle",
+        "calibration_diagnostics",
+        "model_spec",
+        "policy_spec",
+    } <= {role for _artifact_id, role, _profile in report_edges}
+    assert {
+        (str(ref["artifact_id"]), role, ref["manifest_profile_sha256"])
+        for role, ref in context_refs.items()
+    } <= report_edges
+    assert all(profile is not None for _artifact_id, _role, profile in report_edges)
+
+    def typed_ref(role: str) -> EvidenceArtifactRef:
+        return EvidenceArtifactRef.model_validate(context_refs[role])
+
+    context = EmpiricalCalibrationContext(
+        model_spec_ref=model_id,
+        policy_spec_ref=policy_id,
+        estimand=ESTIMAND,
+        method_ref=METHOD_REF,
+        method_version=METHOD_VERSION,
+        rule_version_ref=RULE_VERSION_REF,
+        calibration_threshold=threshold,
+        scope_binding_ref=typed_ref("scope_binding"),
+        calibration_threshold_ref=typed_ref("calibration_threshold"),
+        observed_outcome_ref=typed_ref("observed_outcome"),
+        prediction_ref=typed_ref("prediction"),
+        evaluation_design_ref=typed_ref("evaluation_design"),
+        credible_evaluation_evidence_ref=typed_ref("credible_evaluation"),
+        source_lineage_refs=(typed_ref("source_lineage"),),
+        method_lineage_refs=(typed_ref("method_lineage"),),
+        data_valid_time=request.temporal_roles.data_valid_time,
+        calibration_window_start=request.temporal_roles.calibration_window_start,
+        calibration_window_end=request.temporal_roles.calibration_window_end,
+        policy_effective_time=request.temporal_roles.policy_effective_time,
+        prediction_time=request.temporal_roles.prediction_time,
+        observation_time=request.temporal_roles.observation_time,
+    )
+    evidence = produce_empirical_calibration_evidence(
+        store,
+        owner_result.backtest_report_ref,
+        context=context,
+    )
+    assert evidence.report_ref == owner_result.backtest_report_ref
+    assert evidence.context_bound is True
+    assert evidence.usable_for_calibration is True
+    assert evidence.failure_codes == ()
+    evidence_ref = persist_empirical_calibration_evidence(store, evidence)
+    reopened = load_empirical_calibration_evidence(store, evidence_ref)
+    assert reopened == evidence
+
+    # These references are test-authored caller inputs. The role name and
+    # same-report content binding do not establish an external issuer fact.
+    from polisyos.ir.artifacts import get_json_artifact
+
+    credible_payload = get_json_artifact(
+        _ensure_ir_artifact_store(store),
+        context_refs["credible_evaluation"]["artifact_id"],
+    )
+    assert "issuer" not in credible_payload
+    assert "signature" not in credible_payload
+
+    temporal_roles = SimpleNamespace(
+        **{
+            role: getattr(request.temporal_roles, role)
+            for role in (
+                "data_valid_time",
+                "calibration_window_start",
+                "calibration_window_end",
+                "policy_effective_time",
+                "prediction_time",
+                "observation_time",
+            )
+        }
+    )
+    method_result = _method_result(
+        evidence_ref=evidence_ref,
+        temporal_roles=temporal_roles,
+        report=report,
+        expected_rule_version_ref=RULE_VERSION_REF,
+    )
+    candidate_projection = _produce_forecast_inputs(
+        store=store,
+        evidence_ref=evidence_ref,
+        method_result=method_result,
+    )
+    record = candidate_projection["forecast_calibration_record"]
+    assert record is not None
+    assert record.calibration_status == "pass"
+    assert record.counterfactual_credibility == "not_established"

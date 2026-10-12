@@ -374,27 +374,11 @@ def test_apply_rules_no_change_on_fully_oriented() -> None:
 
 
 # ---------------------------------------------------------------------------
-# TestPAGIDPolicies (Task 2.3)
-# ---------------------------------------------------------------------------
+# Scalar identification admission for PAG/CPDAG remains unresolved.
 
 
 class TestPAGIDPolicies:
-    """Private PAG diagnostics never become formal static-ID proof steps."""
-
-    def _make_residual_circle_pag(self, policy):
-        """Build a shielded circle input that survives the R1–R3 pre-pass."""
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        return CausalGraphModel(
-            graph_type=GraphType.PAG,
-            nodes=["W", "X", "Y"],
-            edges=[
-                _make_edge("X", "Y", EdgeMark.CIRCLE, EdgeMark.ARROW),
-                _make_edge("W", "X", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("W", "Y", EdgeMark.TAIL, EdgeMark.ARROW),
-            ],
-            pag_identification_policy=policy or PAGIdentificationPolicy.CONSERVATIVE,
-        )
+    """Graph-kind tags remain load-bearing even when endpoints look resolved."""
 
     def _run_pag_id(self, graph: CausalGraphModel, treatment: str, outcome: str):
         from polisyos.foundry.methods.catalog.causal.id_engine import (
@@ -423,227 +407,73 @@ class TestPAGIDPolicies:
             available_vars=frozenset(graph.nodes),
         )
 
-    def _assert_static_result_equal(self, actual, expected):
-        assert actual.status is expected.status
-        assert actual.estimand_ast == expected.estimand_ast
-        assert actual.hedge_certificate == expected.hedge_certificate
-        assert actual.required_distributions == expected.required_distributions
-        assert actual.algorithm_version == expected.algorithm_version
-
-    def test_r1_private_route_surfaces_only_static_proof_steps(self):
-        """The real audit consumer receives static ID proof, not PAG policy claims."""
+    @pytest.mark.parametrize("graph_type", [GraphType.PAG, GraphType.CPDAG])
+    def test_resolved_endpoint_marks_do_not_authorize_partial_graph_id(self, graph_type):
+        """A typed partial profile cannot be relabeled by its endpoint pattern."""
         from polisyos.foundry.methods.catalog.causal.admg_ops import (
-            UnsupportedStaticADMGProfileError,
+            PartialGraphCompletionSemanticsError,
         )
-        from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-        from polisyos.foundry.methods.catalog.causal.id_engine import (
-            _internal_proof_step_to_ir,
-            id_algorithm,
-        )
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
 
-        pag = CausalGraphModel(
-            graph_type=GraphType.PAG,
-            nodes=["A", "B", "C", "X", "Y"],
-            edges=[
-                _make_edge("A", "B", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("B", "C", EdgeMark.CIRCLE, EdgeMark.ARROW),
-                _make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("X", "A", EdgeMark.TAIL, EdgeMark.ARROW),
-            ],
-            pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
-        )
-        result = self._run_pag_id(pag, "X", "Y")
-        oriented, _ = apply_pag_orientation_rules(pag)
-        expected = id_algorithm(
-            treatment=frozenset({"X"}),
-            outcome=frozenset({"Y"}),
-            graph=oriented.model_copy(update={"graph_type": GraphType.ADMG}),
-            available_vars=frozenset(oriented.nodes),
-        )
-        self._assert_static_result_equal(result, expected)
-        assert any("orientation pre-pass: resolved 1 CIRCLE endpoints" in line for line in result.trace)
-        assert any("resolved static ID status=identified" in line for line in result.trace)
-        assert all(not step.rule_name.startswith("PAG_") for step in result.proof_steps)
-
-        evidence = CausalEngine().audit(
-            result,
-            None,
-            run_id="pag-static-proof-surface",
-        )
-        mapped = tuple(_internal_proof_step_to_ir(step) for step in result.proof_steps)
-        assert evidence.proof_steps == mapped
-        assert evidence.proof_steps
-        for step in evidence.proof_steps:
-            proof_claim = " ".join(
-                (
-                    step.rule_name,
-                    step.description,
-                    step.rule_formal_name,
-                    step.applicable_theorem,
-                )
-            ).casefold()
-            assert not any(
-                marker in proof_claim
-                for marker in ("pag", "optimistic", "probabilistic", "commit", "confidence", "malinsky")
-            )
-
-        with pytest.raises(UnsupportedStaticADMGProfileError):
-            self._run_public_id(pag, "X", "Y")
-
-    def test_r1_private_route_requires_orientation_property(self, monkeypatch):
-        """Keeping PAG/proof markers while removing orientation makes admission fail."""
-        from polisyos.foundry.methods.catalog.causal import pag_completion as completion
-        from polisyos.foundry.methods.catalog.causal.admg_ops import (
-            UnsupportedStaticADMGProfileError,
-        )
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        pag = CausalGraphModel(
-            graph_type=GraphType.PAG,
-            nodes=["A", "B", "C", "X", "Y"],
-            edges=[
-                _make_edge("A", "B", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("B", "C", EdgeMark.CIRCLE, EdgeMark.ARROW),
-                _make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("X", "A", EdgeMark.TAIL, EdgeMark.ARROW),
-            ],
-            pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
-        )
-        with monkeypatch.context() as patch:
-            patch.setattr(completion, "apply_pag_orientation_rules", lambda graph: (graph, []))
-            with pytest.raises(UnsupportedStaticADMGProfileError):
-                self._run_pag_id(pag, "X", "Y")
-
-    def test_each_policy_refuses_residual_circles_before_static_id(self):
-        """No policy supplies a completion for endpoints left unresolved by R1–R3."""
-        from polisyos.foundry.methods.catalog.causal.admg_ops import (
-            UnsupportedStaticADMGProfileError,
-        )
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        for policy in (
-            PAGIdentificationPolicy.CONSERVATIVE,
-            PAGIdentificationPolicy.OPTIMISTIC,
-            PAGIdentificationPolicy.PROBABILISTIC,
-        ):
-            with pytest.raises(UnsupportedStaticADMGProfileError):
-                self._run_pag_id(self._make_residual_circle_pag(policy), "X", "Y")
-
-    def test_resolved_identified_pag_matches_static_admg_result(self):
-        """Resolved PAG orientation delegates to the standard ADMG identifier."""
-        from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        pag = CausalGraphModel(
-            graph_type=GraphType.PAG,
+        graph = CausalGraphModel(
+            graph_type=graph_type,
             nodes=["X", "Y"],
             edges=[_make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW)],
-            pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
         )
-        expected = self._run_public_id(pag.model_copy(update={"graph_type": GraphType.ADMG}), "X", "Y")
-        result = self._run_public_id(pag, "X", "Y")
-        assert result.status is expected.status is IdentificationStatus.IDENTIFIED
-        self._assert_static_result_equal(result, expected)
-        assert all(not step.rule_name.startswith("PAG_") for step in result.proof_steps)
+        with pytest.raises(PartialGraphCompletionSemanticsError):
+            self._run_public_id(graph, "X", "Y")
+        with pytest.raises(PartialGraphCompletionSemanticsError):
+            self._run_pag_id(graph, "X", "Y")
 
-    def test_resolved_bidirected_pag_matches_static_admg_for_each_policy(self):
-        """All declared policies share the same resolved-ADMG result and proof."""
-        from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    @pytest.mark.parametrize("policy", ["conservative", "optimistic", "probabilistic"])
+    def test_pag_policy_labels_do_not_authorize_completion(self, policy):
+        """A policy name cannot select an extension for a residual circle."""
+        from polisyos.foundry.methods.catalog.causal.admg_ops import (
+            PartialGraphCompletionSemanticsError,
+        )
         from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
 
-        for policy in (
-            PAGIdentificationPolicy.CONSERVATIVE,
-            PAGIdentificationPolicy.OPTIMISTIC,
-            PAGIdentificationPolicy.PROBABILISTIC,
-        ):
-            pag = CausalGraphModel(
-                graph_type=GraphType.PAG,
-                nodes=["X", "Y"],
-                edges=[_make_edge("X", "Y", EdgeMark.ARROW, EdgeMark.ARROW)],
-                pag_identification_policy=policy,
-                id_confidence_under_pag=0.8 if policy is PAGIdentificationPolicy.PROBABILISTIC else None,
-            )
-            expected = self._run_public_id(
-                pag.model_copy(update={"graph_type": GraphType.ADMG}), "X", "Y"
-            )
-            result = self._run_public_id(pag, "X", "Y")
-            assert result.status is expected.status is IdentificationStatus.IDENTIFIED
-            assert result.estimand_ast is not None
-            self._assert_static_result_equal(result, expected)
+        graph = CausalGraphModel(
+            graph_type=GraphType.PAG,
+            nodes=["X", "Y"],
+            edges=[_make_edge("X", "Y", EdgeMark.CIRCLE, EdgeMark.ARROW)],
+            pag_identification_policy=PAGIdentificationPolicy(policy),
+        )
+        with pytest.raises(PartialGraphCompletionSemanticsError):
+            self._run_public_id(graph, "X", "Y")
 
-            def proof_projection(steps):
-                return tuple(
-                    (
-                        step.rule_name,
-                        step.antecedent_vars,
-                        step.consequent_vars,
-                        step.applied_to_graph_state,
-                        step.graph_state_before,
-                    )
-                    for step in steps
-                )
+    def test_pag_orientation_rules_remain_structural_not_identification_authority(self):
+        """Orientation helpers may refine marks without changing the PAG tag."""
+        pag = _make_pag(
+            ["A", "B", "C"],
+            [
+                _make_edge("A", "B"),
+                _make_edge("B", "C", EdgeMark.CIRCLE, EdgeMark.TAIL),
+            ],
+        )
+        oriented, _warnings = apply_pag_orientation_rules(pag, max_iter=5)
+        assert oriented.graph_type is GraphType.PAG
+        assert oriented.graph_type is not GraphType.ADMG
 
-            assert proof_projection(result.proof_steps) == proof_projection(expected.proof_steps)
-            assert all(not step.rule_name.startswith("PAG_") for step in result.proof_steps)
+    def test_static_admg_controls_remain_identified_or_hedged(self):
+        """The native resolved ADMG owner retains its actual positive controls."""
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
+            IdentificationStatus,
+        )
 
-    def test_static_admg_bow_remains_a_genuine_hedge_control(self):
-        """The standard ADMG bow positive control still reports a hedge witness."""
-        from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+        directed = CausalGraphModel(
+            graph_type=GraphType.ADMG,
+            nodes=["X", "Y"],
+            edges=[_make_edge("X", "Y")],
+        )
+        identified = self._run_public_id(directed, "X", "Y")
+        assert identified.status is IdentificationStatus.IDENTIFIED
+        assert identified.estimand_ast is not None
 
         bow = CausalGraphModel(
             graph_type=GraphType.ADMG,
             nodes=["X", "Y"],
-            edges=[
-                _make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW),
-                _make_edge("X", "Y", EdgeMark.ARROW, EdgeMark.ARROW),
-            ],
+            edges=[_make_edge("X", "Y"), _make_edge("X", "Y", EdgeMark.ARROW, EdgeMark.ARROW)],
         )
-        result = self._run_public_id(bow, "X", "Y")
-        assert result.status is IdentificationStatus.HEDGE_FOUND
-        assert result.hedge_certificate is not None
-
-    def test_static_admg_directed_edge_remains_identified_control(self):
-        """The standard ADMG positive control still returns an estimand."""
-        from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
-
-        graph = CausalGraphModel(
-            graph_type=GraphType.ADMG,
-            nodes=["X", "Y"],
-            edges=[_make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW)],
-        )
-        result = self._run_public_id(graph, "X", "Y")
-        assert result.status is IdentificationStatus.IDENTIFIED
-        assert result.estimand_ast is not None
-
-    def test_optimistic_resolved_policy_is_trace_only(self):
-        """OPTIMISTIC cannot add a formal commitment when no endpoint is selected."""
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        pag = CausalGraphModel(
-            graph_type=GraphType.PAG,
-            nodes=["X", "Y"],
-            edges=[_make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW)],
-            pag_identification_policy=PAGIdentificationPolicy.OPTIMISTIC,
-        )
-        result = self._run_public_id(pag, "X", "Y")
-        assert any("OPTIMISTIC diagnostic" in line for line in result.trace)
-        assert all(not step.rule_name.startswith("PAG_") for step in result.proof_steps)
-
-    def test_probabilistic_confidence_is_trace_only(self):
-        """Supplied confidence is a diagnostic and cannot alter standard proof."""
-        from polisyos.ir.analytics.causal_graph import PAGIdentificationPolicy
-
-        pag = CausalGraphModel(
-            graph_type=GraphType.PAG,
-            nodes=["X", "Y"],
-            edges=[_make_edge("X", "Y", EdgeMark.TAIL, EdgeMark.ARROW)],
-            pag_identification_policy=PAGIdentificationPolicy.PROBABILISTIC,
-            id_confidence_under_pag=0.8,
-        )
-        static_admg = pag.model_copy(update={"graph_type": GraphType.ADMG})
-        expected = self._run_public_id(static_admg, "X", "Y")
-        result = self._run_public_id(pag, "X", "Y")
-        self._assert_static_result_equal(result, expected)
-        assert any("id_confidence_under_pag=0.800" in line for line in result.trace)
-        assert all(not step.rule_name.startswith("PAG_") for step in result.proof_steps)
+        hedged = self._run_public_id(bow, "X", "Y")
+        assert hedged.status is IdentificationStatus.HEDGE_FOUND
+        assert hedged.hedge_certificate is not None

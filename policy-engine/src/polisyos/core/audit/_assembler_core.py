@@ -22,7 +22,12 @@ from polisyos.core.artifacts.signing import (
     load_signer_from_config,
 )
 from polisyos.core.canon.canon_json import from_canonical_bytes
-from polisyos.core.run.context import recover_pending_run_finalize
+from polisyos.core.run.context import (
+    _trace_run_started_identity,
+    _trace_terminal_run_finalized_ref,
+    _validate_terminal_run_manifest_ref,
+    recover_pending_run_finalize,
+)
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.trace.record import TraceRecord
 
@@ -177,26 +182,54 @@ class AuditPackageAssembler:
         return _RunData(run_id=run_id, run_dir=run_dir, manifest=manifest, roots=roots)
 
     def _load_manifest_from_trace(self, run_dir: Path, run_id: str) -> RunManifest:
-        recover_pending_run_finalize(self._cas, run_dir)
+        try:
+            recovered_ref = recover_pending_run_finalize(self._cas, run_dir)
+        except ValueError as exc:
+            raise AuditAssemblyError("Core run finalize recovery is not established") from exc
         trace_path = run_dir / "trace.jsonl"
         if not trace_path.exists():
             raise RunNotFoundError(
                 f"Run manifest not found at {run_dir / 'manifest.json'} and trace missing"
             )
-        manifest_ref: ArtifactID | None = None
-        for line in trace_path.read_text("utf-8").splitlines():
+        owner = _trace_run_started_identity(trace_path)
+        if owner is None or owner.run_id != run_id:
+            raise AuditAssemblyError("Core run trace owner is not established")
+        manifest_ref = recovered_ref
+        if manifest_ref is None:
             try:
-                record = TraceRecord.model_validate_json(line)
-            except (TypeError, ValueError):
-                continue
-            if record.event == "RUN_FINALIZED":
-                for ref in record.refs.outputs:
-                    if ref.kind == "core.run_manifest":
-                        manifest_ref = ref.artifact_id
+                manifest_ref = _trace_terminal_run_finalized_ref(trace_path, owner=owner)
+            except ValueError as exc:
+                raise AuditAssemblyError("Core run terminal trace is not established") from exc
         if manifest_ref is None:
             raise RunNotFoundError(f"Could not resolve core.run_manifest for run {run_id}")
-        payload = self._cas.get_bytes(manifest_ref)
-        return RunManifest.model_validate(from_canonical_bytes(payload))
+        if (
+            manifest_ref.kind != "core.run_manifest"
+            or manifest_ref.media_type != "application/json"
+        ):
+            raise AuditAssemblyError("Core run terminal manifest reference metadata is invalid")
+        try:
+            payload = self._cas.get_bytes(manifest_ref)
+            manifest = RunManifest.model_validate(from_canonical_bytes(payload))
+        except (OSError, ValueError, TypeError) as exc:
+            raise AuditAssemblyError("Core run terminal manifest proof is unavailable") from exc
+        if (
+            manifest.run_id != run_id
+            or manifest.tenant_id != owner.tenant_id
+            or manifest.cell_id != owner.cell_id
+        ):
+            raise AuditAssemblyError("Core run terminal manifest owner does not match the run")
+        try:
+            _validate_terminal_run_manifest_ref(
+                self._cas,
+                run_manifest=manifest,
+                run_ref=manifest_ref,
+                require_selected_profile=False,
+            )
+        except ValueError as exc:
+            raise AuditAssemblyError(
+                "Core run terminal manifest profile is not established"
+            ) from exc
+        return manifest
 
     # ------------------------------------------------------------------
     # Artifact resolution

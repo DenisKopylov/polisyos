@@ -5735,8 +5735,8 @@
                 "path": "src/polisyos/berl/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1162,
-                "sha256": "5a11422a24c790eeba15bfd432435b360aa89e975fa3c0491e36c274c886c799"
+                "bytes": 1251,
+                "sha256": "07ec65de6b122f414ff8f09934befe42dbd9d378b50ee30092d14f9f413fd9bf"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -5761,6 +5761,7 @@
             "declared_export_candidates": [
               "EmpiricalBoundResult",
               "ExplanationBundle",
+              "ExplanationBundleStoreReadError",
               "ExplanationOrchestrator",
               "ExplanationRequest",
               "ExplanationValidationResult",

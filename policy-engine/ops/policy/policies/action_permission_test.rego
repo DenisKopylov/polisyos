@@ -3,9 +3,18 @@ package polisyos.authz.action_permission_test
 import data.polisyos.authz.action_permission
 import rego.v1
 
-runtime_action_input(permission, resource_class, authority, resource_tenant, grants) := {
+runtime_action_input(permission, resource_class, authority, resource_tenant, grants) := runtime_action_input_with_method(
+	permission,
+	resource_class,
+	authority,
+	resource_tenant,
+	grants,
+	"POST",
+)
+
+runtime_action_input_with_method(permission, resource_class, authority, resource_tenant, grants, method) := {
 	"request": {
-		"method": "POST",
+		"method": method,
 		"path": "/api/v1/runtime-mutation",
 	},
 	"identity": {
@@ -47,6 +56,80 @@ test_allows_exact_permission_resource_authority_contract if {
 		"tenant_collection",
 		"tenant-a",
 		["runs.launch"],
+	)
+}
+
+test_allows_candidate_predictive_calibration_write_for_run_owner if {
+	action_permission.allow with input as runtime_action_input(
+		"runs.feedback.evaluate",
+		"runtime.run.predictive_calibration",
+		"ownership_verified",
+		"tenant-a",
+		["runs.feedback.evaluate"],
+	)
+}
+
+test_allows_candidate_predictive_calibration_read_for_run_owner if {
+	action_permission.allow with input as runtime_action_input_with_method(
+		"runs.review",
+		"runtime.run.predictive_calibration",
+		"ownership_verified",
+		"tenant-a",
+		["runs.review"],
+		"GET",
+	)
+}
+
+
+test_denies_candidate_predictive_calibration_write_for_another_tenant if {
+	not action_permission.allow with input as runtime_action_input(
+		"runs.feedback.evaluate",
+		"runtime.run.predictive_calibration",
+		"ownership_verified",
+		"tenant-b",
+		["runs.feedback.evaluate"],
+	)
+}
+
+test_denies_candidate_predictive_calibration_read_for_another_tenant if {
+	not action_permission.allow with input as runtime_action_input_with_method(
+		"runs.review",
+		"runtime.run.predictive_calibration",
+		"ownership_verified",
+		"tenant-b",
+		["runs.review"],
+		"GET",
+	)
+}
+
+test_denies_candidate_predictive_calibration_write_without_run_ownership if {
+	not action_permission.allow with input as runtime_action_input(
+		"runs.feedback.evaluate",
+		"runtime.run.predictive_calibration",
+		"tenant_collection",
+		"tenant-a",
+		["runs.feedback.evaluate"],
+	)
+}
+
+test_denies_candidate_predictive_calibration_read_without_run_ownership if {
+	not action_permission.allow with input as runtime_action_input_with_method(
+		"runs.review",
+		"runtime.run.predictive_calibration",
+		"tenant_collection",
+		"tenant-a",
+		["runs.review"],
+		"GET",
+	)
+}
+
+test_denies_candidate_predictive_calibration_write_without_permission if {
+	not action_permission.allow with input as runtime_action_input(
+		"runs.feedback.evaluate",
+		"runtime.run.predictive_calibration",
+		"ownership_verified",
+		"tenant-a",
+		["runs.review"],
 	)
 }
 

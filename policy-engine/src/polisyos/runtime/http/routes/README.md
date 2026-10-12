@@ -48,3 +48,8 @@ translate requests to service calls, set authz context, and return contract-back
 - Completed human-decision exposure receipts are appended only by the dedicated
   exact-byte response path in the existing access-audit trail; generic artifact
   reads and generic audit appends cannot mint them.
+
+## Run-bound predictive-calibration routes
+
+The runs router exposes POST and GET predictive-calibration operations under exact owned-run bindings. POST reuses the existing RUNS_FEEDBACK_EVALUATE permission for an owner-bound candidate diagnostic write; GET uses RUNS_REVIEW for the same run ownership. Both permission/resource pairs are explicit Rego contracts and default deny remains in force. POST appends an immutable association ref only after the ForecastOwner, empirical bridge, and S10 paths complete. GET verifies the event payload hash, reopens the association and evidence, and recomputes S10. Neither endpoint promotes prediction evidence into causal credibility.
+

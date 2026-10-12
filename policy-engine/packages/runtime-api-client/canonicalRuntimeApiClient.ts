@@ -454,6 +454,15 @@ export type ControlOutboxEventInfo =
 export type ControlOutboxEventsResponse =
   RuntimeApiComponents["schemas"]["ControlOutboxEventsResponse"];
 
+export type ControlPreAdmissionAttemptEventInfo =
+  RuntimeApiComponents["schemas"]["ControlPreAdmissionAttemptEventInfo"];
+
+export type ControlPreAdmissionAttemptResponse =
+  RuntimeApiComponents["schemas"]["ControlPreAdmissionAttemptResponse"];
+
+export type ControlPreAdmissionOwnerBinding =
+  RuntimeApiComponents["schemas"]["ControlPreAdmissionOwnerBinding"];
+
 export type ControlProjectionSource =
   RuntimeApiComponents["schemas"]["ControlProjectionSource"];
 
@@ -525,6 +534,9 @@ export type DataResolveRequest =
 
 export type DataResolveResponse =
   RuntimeApiComponents["schemas"]["DataResolveResponse"];
+
+export type DataSnapshotRef =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef"];
 
 export type DataSourceBinding =
   RuntimeApiComponents["schemas"]["DataSourceBinding"];
@@ -837,6 +849,12 @@ export type FiveRightsCheck =
 
 export type FiveRightsRequirement =
   RuntimeApiComponents["schemas"]["FiveRightsRequirement"];
+
+export type ForecastMethodParams =
+  RuntimeApiComponents["schemas"]["ForecastMethodParams"];
+
+export type ForecastTemporalRoles =
+  RuntimeApiComponents["schemas"]["ForecastTemporalRoles"];
 
 export type ForkBRelationCensusPayload =
   RuntimeApiComponents["schemas"]["ForkBRelationCensusPayload"];
@@ -1210,6 +1228,18 @@ export type PositiveRegisterPredicate =
 export type PredictableScheduleProfile =
   RuntimeApiComponents["schemas"]["PredictableScheduleProfile"];
 
+export type PredictiveCalibrationAssociation =
+  RuntimeApiComponents["schemas"]["PredictiveCalibrationAssociation"];
+
+export type PredictiveCalibrationRequest =
+  RuntimeApiComponents["schemas"]["PredictiveCalibrationRequest"];
+
+export type PredictiveCalibrationResponse =
+  RuntimeApiComponents["schemas"]["PredictiveCalibrationResponse"];
+
+export type PredictiveCalibrationS10Summary =
+  RuntimeApiComponents["schemas"]["PredictiveCalibrationS10Summary"];
+
 export type PredictiveCoverageDiagnosticPreview =
   RuntimeApiComponents["schemas"]["PredictiveCoverageDiagnosticPreview"];
 
@@ -1349,14 +1379,26 @@ export type RunAuthorityProjection =
 export type RunBoundDesignRecordBinding =
   RuntimeApiComponents["schemas"]["RunBoundDesignRecordBinding"];
 
+export type RunCandidateSimulationAcquisitionContinuationProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionContinuationProjection"];
+
 export type RunCandidateSimulationAcquisitionHistoryEntry =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"];
 
 export type RunCandidateSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationChildProfileBinding"];
 
+export type RunCandidateSimulationContinuationFronts =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationContinuationFronts"];
+
+export type RunCandidateSimulationCurrentOccurrence =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationCurrentOccurrence"];
+
 export type RunCandidateSimulationN5Observation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN5Observation"];
+
+export type RunCandidateSimulationN8ChildSourceBinding =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationN8ChildSourceBinding"];
 
 export type RunCandidateSimulationProjection =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationProjection"];
@@ -1417,6 +1459,18 @@ export type RunLaunchResponse =
 
 export type RunLineageResponse =
   RuntimeApiComponents["schemas"]["RunLineageResponse"];
+
+export type RunN5InteractionEvidence =
+  RuntimeApiComponents["schemas"]["RunN5InteractionEvidence"];
+
+export type RunN5InteractionSample =
+  RuntimeApiComponents["schemas"]["RunN5InteractionSample"];
+
+export type RunN5InteractionSamplingSummary =
+  RuntimeApiComponents["schemas"]["RunN5InteractionSamplingSummary"];
+
+export type RunN5InteractionTerm =
+  RuntimeApiComponents["schemas"]["RunN5InteractionTerm"];
 
 export type RunNodeRecord = RuntimeApiComponents["schemas"]["RunNodeRecord"];
 
@@ -1649,6 +1703,9 @@ export type TimeFrequency = RuntimeApiComponents["schemas"]["TimeFrequency"];
 export type TimeSemantics = RuntimeApiComponents["schemas"]["TimeSemantics"];
 
 export type TraceSliceRef = RuntimeApiComponents["schemas"]["TraceSliceRef"];
+
+export type TrainHoldoutSplit =
+  RuntimeApiComponents["schemas"]["TrainHoldoutSplit"];
 
 export type TypedGap = RuntimeApiComponents["schemas"]["TypedGap"];
 
@@ -1988,6 +2045,36 @@ export class RuntimeApiClient {
     const path = `/api/v1/auth/me`;
     const query = undefined;
     return this.request<AuthMeResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getControlPreAdmissionAttemptByIdempotencyKey(params: {
+    "Idempotency-Key": string;
+  }): Promise<ControlPreAdmissionAttemptResponse> {
+    const path = `/api/v1/control/admission-attempts/by-idempotency-key`;
+    const query = undefined;
+    const requestHeaders = new Headers();
+    requestHeaders.set("Idempotency-Key", String(params["Idempotency-Key"]));
+    return this.request<ControlPreAdmissionAttemptResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      requestHeaders,
+    );
+  }
+
+  async getControlPreAdmissionAttemptStatus(params: {
+    attempt_id: string;
+  }): Promise<ControlPreAdmissionAttemptResponse> {
+    const path = `/api/v1/control/admission-attempts/${encodeURIComponent(String(params.attempt_id))}`;
+    const query = undefined;
+    return this.request<ControlPreAdmissionAttemptResponse>(
       "GET",
       path,
       query,
@@ -3338,6 +3425,20 @@ export class RuntimeApiClient {
       paper_projection_hash: params.paper_projection_hash,
     });
     return this.request<RunPaperPacket>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunPredictiveCalibration(params: {
+    run_id: string;
+  }): Promise<PredictiveCalibrationResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/predictive-calibration`;
+    const query = undefined;
+    return this.request<PredictiveCalibrationResponse>(
       "GET",
       path,
       query,

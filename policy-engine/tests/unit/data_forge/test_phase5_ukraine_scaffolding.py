@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import importlib
+import json
+import shutil
 import sys
 import tomllib
 from pathlib import Path
@@ -12,6 +15,7 @@ from polisyos.data_forge.read_api.ukraine import (
     UKRAINE_ASSET_GROUP,
     UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY,
     UKRAINE_DEMOGRAPHY_PRIORS_KEY,
+    UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY,
     UKRAINE_DEMOGRAPHY_TARGETS_KEY,
     UKRAINE_NORMALIZED_SOURCES_KEY,
     UKRAINE_RAW_SOURCES_KEY,
@@ -37,6 +41,47 @@ BASELINE_ROOT = FIXTURES_ROOT / "baseline"
 CANDIDATE_ROOT = FIXTURES_ROOT / "candidate"
 
 
+_SHADOW_CHECKSUM_SENTINEL_PATH = "normalized/demography_inputs.parquet"
+_SHADOW_CHECKSUM_SENTINELS: dict[str, tuple[bytes, str]] = {
+    "baseline": (
+        b"tiny ukraine normalized demography placeholder\n",
+        "0888d6ea41c00e5e3bd82d81e66171c5100e63a26a73c608aca5a0def3600571",
+    ),
+    "candidate": (
+        b"tiny ukraine normalized demography placeholder with partial donor data\n",
+        "3542cdc6da7de5f4254fc0c6600b07b167573cdd8c266a7a08f841f212654a20",
+    ),
+}
+
+
+def _materialize_shadow_checksum_bundle(source_root: Path, destination_root: Path) -> Path:
+    """Copy tracked metadata and add a checksum-only text sentinel, not Parquet data."""
+    shutil.copytree(source_root, destination_root, ignore=shutil.ignore_patterns("*.parquet"))
+    bundle_path = destination_root / "publish" / "bundle.json"
+    bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    artifacts = bundle.get("artifacts")
+    if not isinstance(artifacts, list) or len(artifacts) != 7:
+        raise AssertionError("Ukraine shadow fixture must retain its seven declared artifacts")
+
+    sentinel_bytes, expected_sha256 = _SHADOW_CHECKSUM_SENTINELS[source_root.name]
+    sentinel_entries = [
+        item
+        for item in artifacts
+        if isinstance(item, dict) and item.get("path") == _SHADOW_CHECKSUM_SENTINEL_PATH
+    ]
+    if (
+        len(sentinel_entries) != 1
+        or sentinel_entries[0].get("sha256") != expected_sha256
+        or hashlib.sha256(sentinel_bytes).hexdigest() != expected_sha256
+    ):
+        raise AssertionError("Ukraine checksum sentinel no longer matches its static manifest")
+
+    sentinel_path = destination_root / _SHADOW_CHECKSUM_SENTINEL_PATH
+    sentinel_path.parent.mkdir(parents=True, exist_ok=True)
+    sentinel_path.write_bytes(sentinel_bytes)
+    return destination_root
+
+
 def test_ukraine_asset_group_declares_freeze_safe_dependency_order() -> None:
     planned = plan_asset_specs(tuple(UKRAINE_ASSET_GROUP.assets.values()))
 
@@ -47,6 +92,7 @@ def test_ukraine_asset_group_declares_freeze_safe_dependency_order() -> None:
         UKRAINE_DEMOGRAPHY_TARGETS_KEY,
         UKRAINE_DEMOGRAPHY_PRIORS_KEY,
         UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY,
+        UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY,
         UKRAINE_STATIC_AGING_INPUTS_KEY,
         UKRAINE_READINESS_KEY,
     )
@@ -55,7 +101,9 @@ def test_ukraine_asset_group_declares_freeze_safe_dependency_order() -> None:
     )
 
 
-def test_ukraine_shadow_bundle_loads_without_legacy_or_lex_imports() -> None:
+def test_ukraine_shadow_bundle_loads_without_legacy_or_lex_imports(
+    tmp_path: Path,
+) -> None:
     before_ukraine = {name for name in sys.modules if name.startswith("polisyos.ukraine_data")}
     before_lex = {
         name
@@ -63,7 +111,8 @@ def test_ukraine_shadow_bundle_loads_without_legacy_or_lex_imports() -> None:
         if name.startswith(("polisyos.lex.batch", "polisyos.lex.corpus"))
     }
 
-    bundle = load_ukraine_shadow_bundle(BASELINE_ROOT)
+    bundle_root = _materialize_shadow_checksum_bundle(BASELINE_ROOT, tmp_path / "baseline")
+    bundle = load_ukraine_shadow_bundle(bundle_root)
 
     after_ukraine = {name for name in sys.modules if name.startswith("polisyos.ukraine_data")}
     after_lex = {
@@ -86,6 +135,30 @@ def test_ukraine_shadow_bundle_loads_without_legacy_or_lex_imports() -> None:
     assert source is not None
     assert source.records == 2
     assert bundle.warnings == ()
+
+
+def test_ukraine_shadow_checksum_reports_drift_and_missing_artifact(
+    tmp_path: Path,
+) -> None:
+    bundle_root = _materialize_shadow_checksum_bundle(BASELINE_ROOT, tmp_path / "baseline")
+    sentinel_path = bundle_root / _SHADOW_CHECKSUM_SENTINEL_PATH
+    sentinel_path.write_bytes(sentinel_path.read_bytes() + b"drift")
+
+    drifted = load_ukraine_shadow_bundle(bundle_root)
+    drifted_artifact = drifted.artifact_by_relative_path(_SHADOW_CHECKSUM_SENTINEL_PATH)
+    assert drifted_artifact is not None
+    assert drifted_artifact.exists is True
+    assert drifted_artifact.checksum_ok is False
+    assert "checksum mismatch: normalized/demography_inputs.parquet" in drifted.warnings
+
+    sentinel_path.unlink()
+    missing = load_ukraine_shadow_bundle(bundle_root)
+    missing_artifact = missing.artifact_by_relative_path(_SHADOW_CHECKSUM_SENTINEL_PATH)
+    assert missing_artifact is not None
+    assert missing_artifact.exists is False
+    assert missing_artifact.checksum_ok is False
+    assert "missing artifact: normalized/demography_inputs.parquet" in missing.warnings
+    assert "checksum mismatch: normalized/demography_inputs.parquet" in missing.warnings
 
 
 def test_ukraine_demography_read_api_builds_static_aging_state_from_fixture() -> None:
@@ -118,9 +191,20 @@ def test_ukraine_demography_inputs_load_as_separate_read_api_contracts() -> None
     assert donor_pool["donor_record_index"] == [101, 102]
 
 
-def test_ukraine_shadow_diff_reports_readiness_source_and_metric_changes() -> None:
-    baseline = load_ukraine_shadow_bundle(BASELINE_ROOT)
-    candidate = load_ukraine_shadow_bundle(CANDIDATE_ROOT)
+def test_ukraine_shadow_diff_reports_readiness_source_and_metric_changes(
+    tmp_path: Path,
+) -> None:
+    baseline_root = _materialize_shadow_checksum_bundle(BASELINE_ROOT, tmp_path / "baseline")
+    candidate_root = _materialize_shadow_checksum_bundle(CANDIDATE_ROOT, tmp_path / "candidate")
+    baseline = load_ukraine_shadow_bundle(baseline_root)
+    candidate = load_ukraine_shadow_bundle(candidate_root)
+
+    assert len(baseline.artifacts) == 7
+    assert len(candidate.artifacts) == 7
+    assert all(artifact.checksum_ok is True for artifact in baseline.artifacts)
+    assert all(artifact.checksum_ok is True for artifact in candidate.artifacts)
+    assert baseline.warnings == ()
+    assert candidate.warnings == ()
 
     diff = compare_ukraine_shadow_bundles(baseline, candidate)
 

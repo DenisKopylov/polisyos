@@ -6,7 +6,7 @@ import json
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.contracts.control import POLICY_AUTHORITY_PROFILES
 from polisyos.core.security import (
@@ -14,12 +14,18 @@ from polisyos.core.security import (
     SECURITY_REPORT_FILE,
     security_gates_from_report,
 )
-from polisyos.fabric.catalog.source_selection_audit import normalize_fabric_retrieval_trace
+from polisyos.fabric.catalog.source_selection_audit import (
+    normalize_fabric_retrieval_trace,
+)
 from polisyos.foundry.validation.method_quality import normalize_foundry_method_report
 from polisyos.lex.normpack.applicability_report import (
     normalize_normative_applicability_report,
 )
 from polisyos.lex.normpack.conflict_check import normalize_policy_conflict_check_report
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
+
 from polisyos.runtime.quality.acquisition_planner import (
     acquisition_planner_reports_from_quality_evidence,
     acquisition_planner_scorecard_gates,
@@ -246,8 +252,16 @@ QUALITY_REPORT_GATE_METADATA = {
         "fabric_materialization",
     ),
     "normative_evidence": ("normative_evidence_present", "lex", "lex"),
-    "fabric_retrieval_trace": ("fabric_retrieval_trace_present", "fabric", "fabric_retrieval"),
-    "foundry_method_report": ("foundry_method_evidence_present", "foundry", "foundry_methods"),
+    "fabric_retrieval_trace": (
+        "fabric_retrieval_trace_present",
+        "fabric",
+        "fabric_retrieval",
+    ),
+    "foundry_method_report": (
+        "foundry_method_evidence_present",
+        "foundry",
+        "foundry_methods",
+    ),
     "policy_grounding_matrix": (
         "policy_grounding_matrix_present",
         "policy_output",
@@ -292,7 +306,11 @@ QUALITY_REPORT_GATE_METADATA = {
         "ops",
         "runtime_diagnostics",
     ),
-    "privacy_compliance_report": ("privacy_compliance_report_present", "ops", "privacy_compliance"),
+    "privacy_compliance_report": (
+        "privacy_compliance_report_present",
+        "ops",
+        "privacy_compliance",
+    ),
     "continuous_governance_stale": (
         "continuous_governance_stale_report_present",
         "scientist",
@@ -501,7 +519,10 @@ def _gate(
         ("owner", owner),
         ("root_cause_class", root_cause_class),
         ("first_failing_artifact_ref", first_failing_artifact_ref),
-        ("producer_authority", dict(producer_authority) if producer_authority else None),
+        (
+            "producer_authority",
+            dict(producer_authority) if producer_authority else None,
+        ),
         ("authority_failure_code", authority_failure_code),
         ("domain_failure_code", domain_failure_code),
     ):
@@ -763,9 +784,7 @@ def _operator_triage_ledger(
             or "quality_failure"
         )
         owner = _clean_text(failure.get("owner")) or "team-runtime-quality"
-        root_cause_class = (
-            _clean_text(failure.get("root_cause_class")) or "unknown_provenance"
-        )
+        root_cause_class = _clean_text(failure.get("root_cause_class")) or "unknown_provenance"
         key = (owner, root_cause_class, artifact_ref)
         row = root_causes.setdefault(
             key,
@@ -818,8 +837,7 @@ def _append_unique(values: list[str], value: str | None) -> None:
 
 def _triage_id(owner: str, root_cause_class: str, artifact_ref: str) -> str:
     safe = (
-        f"{owner}:{root_cause_class}:{artifact_ref}"
-        .replace("://", ":")
+        f"{owner}:{root_cause_class}:{artifact_ref}".replace("://", ":")
         .replace("/", ":")
         .replace(" ", "_")
     )
@@ -2297,7 +2315,10 @@ def _diagnostic_event_gates(
         event_ref_values.update(event_refs)
         event_id = _clean_text(event.get("event_id"))
         if event_id is not None:
-            identity = (_sanitize_ref(event.get("payload_ref")), tuple(sorted(event_refs)))
+            identity = (
+                _sanitize_ref(event.get("payload_ref")),
+                tuple(sorted(event_refs)),
+            )
             previous_identity = event_identity.get(event_id)
             if previous_identity is not None and previous_identity != identity:
                 append_failure(
@@ -2610,8 +2631,7 @@ def _hypothesis_candidate_firewall_gates(
                     layer="candidate_firewall",
                     phase=surface,
                     message=str(
-                        issue.get("message")
-                        or "Candidate content cannot satisfy authority slots."
+                        issue.get("message") or "Candidate content cannot satisfy authority slots."
                     ),
                     evidence_ref=f"quality_evidence/{HYPOTHESIS_LEDGER_FILENAME}",
                     next_action=str(
@@ -2742,9 +2762,7 @@ def _scholar_academic_evidence_gates(
                 phase="scholar_academic_evidence",
                 message="Scholar emitted a literature-deficit blocker.",
                 evidence_ref=evidence_ref,
-                next_action=(
-                    "Resolve the literature deficit or keep downstream claims blocked."
-                ),
+                next_action=("Resolve the literature deficit or keep downstream claims blocked."),
             )
         ]
     return [
@@ -2969,8 +2987,7 @@ def _policy_design_self_fmea_gates(case: Mapping[str, Any]) -> list[dict[str, An
             _policy_design_wave29_gate(
                 code="policy_design_self_fmea_record_family_invalid",
                 message=(
-                    "Non-adversarial self-FMEA must belong to "
-                    "integrity_self_fmea_and_maturity.v1."
+                    "Non-adversarial self-FMEA must belong to integrity_self_fmea_and_maturity.v1."
                 ),
                 evidence_ref=_clean_text(record.get("evidence_ref") or record.get("cas_ref")),
                 missing_input="non_adversarial_self_fmea.record_family",
@@ -2991,15 +3008,11 @@ def _policy_design_self_fmea_gates(case: Mapping[str, Any]) -> list[dict[str, An
                 _policy_design_wave29_gate(
                     code="policy_design_self_fmea_identity_missing",
                     message="Non-adversarial self-FMEA must include case-bound identity.",
-                    evidence_ref=_clean_text(
-                        record.get("evidence_ref") or record.get("cas_ref")
-                    ),
+                    evidence_ref=_clean_text(record.get("evidence_ref") or record.get("cas_ref")),
                     missing_input=f"non_adversarial_self_fmea.{field}",
                 )
             )
-    if not _policy_design_runtime_artifact_ref(
-        record.get("evidence_ref") or record.get("cas_ref")
-    ):
+    if not _policy_design_runtime_artifact_ref(record.get("evidence_ref") or record.get("cas_ref")):
         gates.append(
             _policy_design_wave29_gate(
                 code="policy_design_self_fmea_runtime_evidence_missing",
@@ -3041,7 +3054,9 @@ def _policy_design_self_fmea_gates(case: Mapping[str, Any]) -> list[dict[str, An
     return gates
 
 
-def _policy_design_self_fmea_rows(record: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+def _policy_design_self_fmea_rows(
+    record: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], ...]:
     rows: list[Mapping[str, Any]] = []
     for key in ("failure_modes", "fmea_records", "records", "failure_mode_records"):
         value = record.get(key)
@@ -3103,9 +3118,7 @@ def _policy_design_self_fmea_row_gates(
                 code="policy_design_self_fmea_failure_mode_event_missing",
                 message=f"Self-FMEA failure mode {mode} must cite a runtime event.",
                 evidence_ref=row_ref,
-                missing_input=(
-                    f"non_adversarial_self_fmea.failure_modes.{mode}.runtime_event_ref"
-                ),
+                missing_input=(f"non_adversarial_self_fmea.failure_modes.{mode}.runtime_event_ref"),
             )
         )
     return gates
@@ -3143,8 +3156,7 @@ def _policy_design_partial_state_consistency_gates(
             _policy_design_wave29_gate(
                 code="policy_design_partial_state_record_family_invalid",
                 message=(
-                    "Partial-state consistency must belong to "
-                    "integrity_self_fmea_and_maturity.v1."
+                    "Partial-state consistency must belong to integrity_self_fmea_and_maturity.v1."
                 ),
                 evidence_ref=record_ref,
                 missing_input="partial_state_consistency.record_family",
@@ -3169,9 +3181,7 @@ def _policy_design_partial_state_consistency_gates(
                     missing_input=f"partial_state_consistency.{field}",
                 )
             )
-    if not _policy_design_runtime_artifact_ref(
-        record.get("evidence_ref") or record.get("cas_ref")
-    ):
+    if not _policy_design_runtime_artifact_ref(record.get("evidence_ref") or record.get("cas_ref")):
         gates.append(
             _policy_design_wave29_gate(
                 code="policy_design_partial_state_runtime_evidence_missing",
@@ -3221,8 +3231,7 @@ def _policy_design_partial_state_consistency_gates(
             _policy_design_wave29_gate(
                 code="policy_design_partial_state_authoritative_record_invalid",
                 message=(
-                    "Partial-state authoritative records must include a checked field "
-                    "and value."
+                    "Partial-state authoritative records must include a checked field and value."
                 ),
                 evidence_ref=_clean_text(row.get("evidence_ref") or record_ref),
                 missing_input="partial_state_consistency.authoritative_records.field",
@@ -3552,7 +3561,9 @@ def _policy_design_wave31_best_in_class_benchmarking_gate(
     )
 
 
-def _policy_design_concept_spine_from_case(case: Mapping[str, Any]) -> Mapping[str, Any] | None:
+def _policy_design_concept_spine_from_case(
+    case: Mapping[str, Any],
+) -> Mapping[str, Any] | None:
     spine = case.get("concept_spine")
     if isinstance(spine, Mapping):
         return spine
@@ -4105,7 +4116,10 @@ _WAVE21_PRODUCER_REF_SPECS = (
     ("data_forge", ("source_data_refs", "data_refs", "source_refs", "dataset_refs")),
     ("scholar", _WAVE21_SCHOLAR_REF_KEYS),
     ("foundry", ("method_refs", "uncertainty_refs", "foundry_uncertainty_refs")),
-    ("options_objectives", ("objective_tradeoff_refs", "objective_refs", "tradeoff_refs")),
+    (
+        "options_objectives",
+        ("objective_tradeoff_refs", "objective_refs", "tradeoff_refs"),
+    ),
 )
 _WAVE21_PROSE_BACKFILL_KEYS = (
     "support_summary",
@@ -4308,7 +4322,9 @@ def _policy_design_wave12_producer_evidence_gates(
     return gates
 
 
-def _policy_design_producer_rows(case: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+def _policy_design_producer_rows(
+    case: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], ...]:
     rows: list[Mapping[str, Any]] = []
     producer_evidence = case.get("producer_evidence") or case.get("producer_records")
     if isinstance(producer_evidence, list):
@@ -4422,7 +4438,14 @@ def _policy_design_text_values(value: object) -> tuple[str, ...]:
         return (text,) if text else ()
     if isinstance(value, Mapping):
         values: list[str] = []
-        for key in ("producer", "producer_ref", "evidence_id", "evidence_ref", "ref", "id"):
+        for key in (
+            "producer",
+            "producer_ref",
+            "evidence_id",
+            "evidence_ref",
+            "ref",
+            "id",
+        ):
             text = _clean_text(value.get(key))
             if text:
                 values.append(text)
@@ -4604,9 +4627,7 @@ def _policy_design_wave15_evidence_portfolio_design_gates(
             )
         else:
             matched_designs = tuple(
-                design
-                for design in designs
-                if claim_id in set(portfolio_design_claim_ids(design))
+                design for design in designs if claim_id in set(portfolio_design_claim_ids(design))
             )
 
         if not matched_designs:
@@ -4746,7 +4767,9 @@ def _policy_design_claim_portfolio_blocked_by_authority_profile(
     return False
 
 
-def _policy_design_case_effective_authority_profile(case: Mapping[str, Any]) -> str | None:
+def _policy_design_case_effective_authority_profile(
+    case: Mapping[str, Any],
+) -> str | None:
     authority_profile = case.get("authority_profile")
     if isinstance(authority_profile, Mapping):
         text = _clean_text(
@@ -4833,9 +4856,7 @@ def _policy_design_wave16_evidence_line_gates(
     if not lines:
         return []
     designs = _policy_design_portfolio_design_rows(case)
-    producer_execution_started_at = _policy_design_earliest_producer_execution_started_at(
-        case
-    )
+    producer_execution_started_at = _policy_design_earliest_producer_execution_started_at(case)
     gates: list[dict[str, Any]] = []
     for line in lines:
         try:
@@ -4849,13 +4870,9 @@ def _policy_design_wave16_evidence_line_gates(
                 _policy_design_wave16_evidence_line_gate(
                     code=exc.code,
                     message=str(exc),
-                    evidence_ref=_clean_text(
-                        line.get("evidence_ref") or line.get("cas_ref")
-                    ),
+                    evidence_ref=_clean_text(line.get("evidence_ref") or line.get("cas_ref")),
                     missing_input=exc.field or "evidence_lines",
-                    affected_claim=_clean_text(
-                        line.get("claim_id") or line.get("major_claim_id")
-                    ),
+                    affected_claim=_clean_text(line.get("claim_id") or line.get("major_claim_id")),
                 )
             )
     return gates
@@ -4926,9 +4943,7 @@ def _policy_design_wave17_independence_gates(
     gates: list[dict[str, Any]] = []
     lines = _policy_design_evidence_line_rows(case)
     designs = _policy_design_portfolio_design_rows(case)
-    producer_execution_started_at = _policy_design_earliest_producer_execution_started_at(
-        case
-    )
+    producer_execution_started_at = _policy_design_earliest_producer_execution_started_at(case)
     for map_row in _policy_design_independence_map_rows(case):
         try:
             validate_evidence_independence_map_record(
@@ -4942,9 +4957,7 @@ def _policy_design_wave17_independence_gates(
                 _policy_design_wave17_independence_gate(
                     code=exc.code,
                     message=str(exc),
-                    evidence_ref=_clean_text(
-                        map_row.get("evidence_ref") or map_row.get("cas_ref")
-                    ),
+                    evidence_ref=_clean_text(map_row.get("evidence_ref") or map_row.get("cas_ref")),
                     missing_input=exc.field or "independence_maps",
                     affected_claim=_clean_text(
                         map_row.get("claim_id") or map_row.get("major_claim_id")
@@ -4953,10 +4966,9 @@ def _policy_design_wave17_independence_gates(
             )
 
     for row, surface in _policy_design_raw_count_surfaces(case):
-        has_raw_count_without_effective_count = (
-            _policy_design_has_raw_evidence_count(row)
-            and not _policy_design_has_effective_count(row)
-        )
+        has_raw_count_without_effective_count = _policy_design_has_raw_evidence_count(
+            row
+        ) and not _policy_design_has_effective_count(row)
         if has_raw_count_without_effective_count:
             gates.append(
                 _policy_design_wave17_independence_gate(
@@ -5012,12 +5024,8 @@ def _policy_design_raw_count_surfaces(
     case: Mapping[str, Any],
 ) -> tuple[tuple[Mapping[str, Any], str], ...]:
     rows: list[tuple[Mapping[str, Any], str]] = [(case, "policy_design_case")]
-    rows.extend(
-        (row, "evidence_portfolios") for row in _policy_design_portfolio_design_rows(case)
-    )
-    rows.extend(
-        (row, "independence_maps") for row in _policy_design_independence_map_rows(case)
-    )
+    rows.extend((row, "evidence_portfolios") for row in _policy_design_portfolio_design_rows(case))
+    rows.extend((row, "independence_maps") for row in _policy_design_independence_map_rows(case))
     return tuple(rows)
 
 
@@ -5127,8 +5135,12 @@ def _policy_design_wave18_disconfirming_evidence_gates(
                 or claim_id == _clean_text(design.get("claim_id"))
             )
 
-        if matched_designs and not accepted_deficit and not any(
-            portfolio_design_has_disconfirming_lines(design) for design in matched_designs
+        if (
+            matched_designs
+            and not accepted_deficit
+            and not any(
+                portfolio_design_has_disconfirming_lines(design) for design in matched_designs
+            )
         ):
             gates.append(
                 _policy_design_wave18_disconfirming_gate(
@@ -5232,10 +5244,10 @@ def _policy_design_disconfirming_ledger_rows(
                 continue
             node_type = _clean_text(node.get("node_type"))
             node_family = _clean_text(node.get("node_family"))
-            if (
-                node_type in {"disconfirming_ledger", "disconfirming_evidence_ledger"}
-                or node_family in {"disconfirming_ledger", "disconfirming_evidence"}
-            ):
+            if node_type in {
+                "disconfirming_ledger",
+                "disconfirming_evidence_ledger",
+            } or node_family in {"disconfirming_ledger", "disconfirming_evidence"}:
                 rows.append(node)
     return tuple(rows)
 
@@ -5305,7 +5317,10 @@ def _policy_design_accepted_deficit_rows(
                 continue
             node_type = _clean_text(node.get("node_type"))
             node_family = _clean_text(node.get("node_family"))
-            if node_type == "deficit" or node_family in {"deficit", "assurance_deficit"}:
+            if node_type == "deficit" or node_family in {
+                "deficit",
+                "assurance_deficit",
+            }:
                 rows.append(node)
     return tuple(rows)
 
@@ -5378,9 +5393,7 @@ def _policy_design_wave18_multiverse_gates(
             )
         else:
             matched_designs = tuple(
-                design
-                for design in designs
-                if claim_id in set(portfolio_design_claim_ids(design))
+                design for design in designs if claim_id in set(portfolio_design_claim_ids(design))
             )
         if not matched_designs:
             continue
@@ -5448,9 +5461,7 @@ def _policy_design_wave18_multiverse_gates(
                     _policy_design_wave18_multiverse_gate(
                         code=exc.code,
                         message=str(exc),
-                        evidence_ref=_clean_text(
-                            row.get("evidence_ref") or row.get("cas_ref")
-                        ),
+                        evidence_ref=_clean_text(row.get("evidence_ref") or row.get("cas_ref")),
                         missing_input=exc.field or "multiverse_specification_curves",
                         affected_claim=claim_id,
                     )
@@ -5596,9 +5607,7 @@ def _policy_design_wave19_synthesis_gates(
             )
         else:
             matched_designs = tuple(
-                design
-                for design in designs
-                if claim_id in set(portfolio_design_claim_ids(design))
+                design for design in designs if claim_id in set(portfolio_design_claim_ids(design))
             )
         if not matched_designs:
             continue
@@ -5822,17 +5831,21 @@ def _policy_design_wave20_portfolio_readiness_gates(
                 portfolio_ids=matched_portfolio_ids,
             )
         )
-        if matched_designs and _policy_design_claim_is_single_line_closeout(
-            claim,
-            claim_id=claim_id,
-            portfolio_ids=matched_portfolio_ids,
-            evidence_lines=matched_lines,
-            independence_maps=independence_maps,
-            synthesis_reports=synthesis_reports,
-        ) and not _policy_design_single_line_deficit_accepted(
-            accepted_deficits,
-            claim_id=claim_id,
-            effective_authority_profile=authority_profile,
+        if (
+            matched_designs
+            and _policy_design_claim_is_single_line_closeout(
+                claim,
+                claim_id=claim_id,
+                portfolio_ids=matched_portfolio_ids,
+                evidence_lines=matched_lines,
+                independence_maps=independence_maps,
+                synthesis_reports=synthesis_reports,
+            )
+            and not _policy_design_single_line_deficit_accepted(
+                accepted_deficits,
+                claim_id=claim_id,
+                effective_authority_profile=authority_profile,
+            )
         ):
             gates.append(
                 _policy_design_wave20_portfolio_gate(
@@ -5928,17 +5941,11 @@ def _policy_design_claim_is_single_line_closeout(
     method_ids = {
         method_id
         for line in evidence_lines
-        if (
-            method_id := _clean_text(line.get("method_id") or line.get("method_ref"))
-        )
-        is not None
+        if (method_id := _clean_text(line.get("method_id") or line.get("method_ref"))) is not None
     }
     claim_data_refs = set(_policy_design_text_values(claim.get("data_refs")))
     claim_method_refs = set(_policy_design_text_values(claim.get("method_refs")))
-    return (
-        len(source_ids or claim_data_refs) <= 1
-        and len(method_ids or claim_method_refs) <= 1
-    )
+    return len(source_ids or claim_data_refs) <= 1 and len(method_ids or claim_method_refs) <= 1
 
 
 def _policy_design_effective_independent_count_for_claim(
@@ -6139,7 +6146,9 @@ def _policy_design_selection_exclusion_rows(
     return tuple(rows)
 
 
-def _policy_design_selection_excluded_line_ids(selection: Mapping[str, Any]) -> tuple[str, ...]:
+def _policy_design_selection_excluded_line_ids(
+    selection: Mapping[str, Any],
+) -> tuple[str, ...]:
     values: list[str] = []
     for key in (
         "excluded_line_ids",
@@ -6220,9 +6229,7 @@ def _policy_design_row_matches_claim_and_portfolio(
         return True
     row_portfolio_ids = set(_policy_design_text_values(row.get("portfolio_ids")))
     row_portfolio = _clean_text(
-        row.get("portfolio_id")
-        or row.get("portfolio_design_id")
-        or row.get("portfolio_ref")
+        row.get("portfolio_id") or row.get("portfolio_design_id") or row.get("portfolio_ref")
     )
     if row_portfolio:
         row_portfolio_ids.add(row_portfolio)
@@ -6440,15 +6447,16 @@ def _policy_design_claim_has_runtime_assurance_node(
     return False
 
 
-def _policy_design_claim_nodes(case: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+def _policy_design_claim_nodes(
+    case: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], ...]:
     nodes = case.get("nodes")
     if not isinstance(nodes, list):
         return ()
     return tuple(
         node
         for node in nodes
-        if isinstance(node, Mapping)
-        and _clean_text(node.get("node_type")) == "claim"
+        if isinstance(node, Mapping) and _clean_text(node.get("node_type")) == "claim"
     )
 
 
@@ -6543,6 +6551,7 @@ def _policy_design_wave22_claim_argument_gates(
     quality_evidence: dict[str, Any],
     *,
     canary_kind: str,
+    artifact_store: ArtifactStore | None = None,
 ) -> list[dict[str, Any]]:
     if not _serious_canary(canary_kind):
         return []
@@ -6557,6 +6566,7 @@ def _policy_design_wave22_claim_argument_gates(
         effective_authority_profile=(
             _policy_design_case_effective_authority_profile(case) or canary_kind
         ),
+        artifact_store=artifact_store,
     )
     return _policy_design_wave22_claim_argument_issue_gates(result)
 
@@ -6607,8 +6617,15 @@ def policy_design_case_claim_closeout_gates(
     case: Mapping[str, Any],
     *,
     canary_kind: str,
+    artifact_store: ArtifactStore | None = None,
 ) -> list[dict[str, Any]]:
-    """Evaluate Policy Design Case major-claim closeout gates for readiness."""
+    """Evaluate Policy Design Case major-claim closeout gates for readiness.
+
+    Args:
+        case: Policy Design Case evidence to evaluate.
+        canary_kind: Runtime execution profile that selects blocking behavior.
+        artifact_store: Optional Core CAS store for resolving selected BERL bundle refs.
+    """
 
     quality_evidence = {"policy_design_case": case}
     gates: list[dict[str, Any]] = []
@@ -6634,6 +6651,7 @@ def policy_design_case_claim_closeout_gates(
         _policy_design_wave22_claim_argument_gates(
             quality_evidence,
             canary_kind=canary_kind,
+            artifact_store=artifact_store,
         )
     )
     gates.extend(
@@ -6685,9 +6703,7 @@ def _policy_design_wave27_governance_legitimacy_gates(
                 "consultation objection response records before serious closeout."
             ),
             missing_input=str(issue.get("field") or ""),
-            affected_claim=(
-                str(issue.get("claim_id")) if issue.get("claim_id") else None
-            ),
+            affected_claim=(str(issue.get("claim_id")) if issue.get("claim_id") else None),
         )
         for issue in validation.get("issues", [])
         if isinstance(issue, Mapping)
@@ -6783,9 +6799,9 @@ def _policy_design_external_audit_blocked(case: Mapping[str, Any]) -> bool:
         if not (family in families or any(family_name in code for family_name in families)):
             continue
         evidence_ref = _clean_text(blocker.get("evidence_ref") or blocker.get("cas_ref"))
-        if _policy_design_runtime_artifact_ref(
-            evidence_ref
-        ) and _policy_design_runtime_event_ref(blocker.get("runtime_event_ref")):
+        if _policy_design_runtime_artifact_ref(evidence_ref) and _policy_design_runtime_event_ref(
+            blocker.get("runtime_event_ref")
+        ):
             return True
     return False
 
@@ -7000,9 +7016,9 @@ def _policy_design_external_client_surface_blocked(case: Mapping[str, Any]) -> b
         if not (family in families or any(family_name in code for family_name in families)):
             continue
         evidence_ref = _clean_text(blocker.get("evidence_ref") or blocker.get("cas_ref"))
-        if _policy_design_runtime_artifact_ref(
-            evidence_ref
-        ) and _policy_design_runtime_event_ref(blocker.get("runtime_event_ref")):
+        if _policy_design_runtime_artifact_ref(evidence_ref) and _policy_design_runtime_event_ref(
+            blocker.get("runtime_event_ref")
+        ):
             return True
     return False
 
@@ -7292,8 +7308,7 @@ def _policy_design_wave14_contract_surface_gates(
             _policy_design_wave14_producer_gate(
                 code=code,
                 message=(
-                    f"Final claims cannot consume {producer!r} producer evidence "
-                    f"without {label}."
+                    f"Final claims cannot consume {producer!r} producer evidence without {label}."
                 ),
                 producer=producer,
                 missing_input=f"producer_evidence.{producer}.{keys[0]}",
@@ -7385,9 +7400,7 @@ def _policy_design_contract_ref_values(value: object) -> tuple[str, ...]:
     elif isinstance(value, Mapping):
         for raw_key, child in value.items():
             key = str(raw_key)
-            if key in _WAVE14_CONTRACT_TEXT_KEYS or isinstance(
-                child, Mapping | list | tuple | set
-            ):
+            if key in _WAVE14_CONTRACT_TEXT_KEYS or isinstance(child, Mapping | list | tuple | set):
                 values.extend(_policy_design_contract_ref_values(child))
     elif isinstance(value, list | tuple | set):
         for item in value:
@@ -7510,9 +7523,7 @@ def _policy_design_producer_authority_gates(
         gates.append(
             _policy_design_producer_gate(
                 code="policy_design_producer_runtime_authority_missing",
-                message=(
-                    f"Wave 12 producer {producer!r} must cite a CAS/artifact evidence ref."
-                ),
+                message=(f"Wave 12 producer {producer!r} must cite a CAS/artifact evidence ref."),
                 producer=producer,
                 evidence_ref=evidence_ref or cas_ref,
                 missing_input="evidence_ref",
@@ -7547,8 +7558,7 @@ def _policy_design_producer_blocker_gates(
             _policy_design_producer_gate(
                 code="policy_design_producer_blocker_missing",
                 message=(
-                    f"Blocked Wave 12 producer {producer!r} must preserve typed blocker "
-                    "details."
+                    f"Blocked Wave 12 producer {producer!r} must preserve typed blocker details."
                 ),
                 producer=producer,
                 evidence_ref=_clean_text(row.get("evidence_ref") or row.get("cas_ref")),
@@ -7567,9 +7577,12 @@ def _policy_design_producer_blocker_gates(
             blocker.get("evidence_ref") or blocker.get("cas_ref") or row.get("evidence_ref")
         )
         runtime_event_ref = blocker.get("runtime_event_ref") or row.get("runtime_event_ref")
-        if code and message and _policy_design_runtime_artifact_ref(
-            evidence_ref
-        ) and _policy_design_runtime_event_ref(runtime_event_ref):
+        if (
+            code
+            and message
+            and _policy_design_runtime_artifact_ref(evidence_ref)
+            and _policy_design_runtime_event_ref(runtime_event_ref)
+        ):
             valid_blocker_seen = True
             gates.append(
                 _policy_design_producer_gate(
@@ -7673,16 +7686,22 @@ def _policy_design_options_record(case: Mapping[str, Any]) -> Mapping[str, Any] 
                 continue
             node_type = _clean_text(node.get("node_type"))
             node_family = _clean_text(node.get("node_family"))
-            if node_type in {
-                "options_objectives_tradeoffs",
-                "options_objectives_and_tradeoffs",
-                "option_objective_tradeoff",
-            } or node_family == "options_objectives_and_tradeoffs":
+            if (
+                node_type
+                in {
+                    "options_objectives_tradeoffs",
+                    "options_objectives_and_tradeoffs",
+                    "option_objective_tradeoff",
+                }
+                or node_family == "options_objectives_and_tradeoffs"
+            ):
                 return node
     return None
 
 
-def _policy_design_options_record_gates(record: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _policy_design_options_record_gates(
+    record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
     gates: list[dict[str, Any]] = []
     if _clean_text(record.get("status")) == "blocked":
         blockers = record.get("blockers")
@@ -7710,8 +7729,7 @@ def _policy_design_options_record_gates(record: Mapping[str, Any]) -> list[dict[
             _policy_design_options_gate(
                 code="policy_design_options_objectives_tradeoffs_blocked",
                 message=(
-                    "Options/objectives/tradeoffs record is blocked without typed blocker "
-                    "details."
+                    "Options/objectives/tradeoffs record is blocked without typed blocker details."
                 ),
             )
         )
@@ -7810,7 +7828,12 @@ def _policy_design_options_record_gates(record: Mapping[str, Any]) -> list[dict[
 
     source_ref_checks: tuple[tuple[set[str], str, str], ...] = (
         (
-            {"foundry_welfare_ref", "welfare_ref", "welfare_bundle_ref", "welfare_weights_ref"},
+            {
+                "foundry_welfare_ref",
+                "welfare_ref",
+                "welfare_bundle_ref",
+                "welfare_weights_ref",
+            },
             "policy_design_foundry_welfare_ref_missing",
             "Foundry/IR welfare refs must back welfare bounds and social weights.",
         ),
@@ -7862,7 +7885,11 @@ def _policy_design_options_has_runtime_authority(record: Mapping[str, Any]) -> b
 
 def _policy_design_options_field(record: Mapping[str, Any], field_name: str) -> object:
     if field_name == "baseline_option":
-        for alias in ("baseline_option", "no_action_option", "baseline_no_action_option"):
+        for alias in (
+            "baseline_option",
+            "no_action_option",
+            "baseline_no_action_option",
+        ):
             value = record.get(alias)
             if value is not None:
                 return value
@@ -7926,7 +7953,9 @@ def _policy_design_claim_has_objective_tradeoff_refs(claim: Mapping[str, Any]) -
     )
 
 
-def _policy_design_final_major_claims(case: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+def _policy_design_final_major_claims(
+    case: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], ...]:
     claims = case.get("final_major_claims") or case.get("major_claims") or ()
     if not isinstance(claims, list):
         return ()
@@ -8188,7 +8217,12 @@ def _hidden_benchmark_authority_gates(
 ) -> list[dict[str, Any]]:
     if not _serious_canary(canary_kind):
         return []
-    hidden_pack_kinds = {"hidden", "hidden_quarantined", "quarantined_hidden", "rotating"}
+    hidden_pack_kinds = {
+        "hidden",
+        "hidden_quarantined",
+        "quarantined_hidden",
+        "rotating",
+    }
     pass_statuses = {"pass", "passed", "ok", "success"}
     for path, payload in _iter_mapping_payloads(quality_evidence):
         pack_kind = (
@@ -9032,7 +9066,9 @@ def _lifecycle_report_contract_gate(
     }
 
 
-def _security_report_intake_gates(quality_evidence: dict[str, Any]) -> list[dict[str, Any]]:
+def _security_report_intake_gates(
+    quality_evidence: dict[str, Any],
+) -> list[dict[str, Any]]:
     """Fail closed on any persisted security-ref rejection, including malformed input."""
 
     intake = quality_evidence.get(SECURITY_REPORT_INTAKE_KEY)
@@ -9058,7 +9094,10 @@ def _security_report_intake_gates(quality_evidence: dict[str, Any]) -> list[dict
                     and isinstance(row.get("path"), str)
                     and any(
                         marker in row.get("path")
-                        for marker in (".runtime_quality_refs", ".runtime_quality_artifact_refs")
+                        for marker in (
+                            ".runtime_quality_refs",
+                            ".runtime_quality_artifact_refs",
+                        )
                     )
                 )
             )
@@ -9596,9 +9635,7 @@ def _scorecard_degradation_gate(gate: dict[str, Any] | None) -> dict[str, Any] |
 def _can_i_closeout_scorecard_gates(
     quality_evidence: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    record = quality_evidence.get("can_i_closeout") or quality_evidence.get(
-        "closeout_verdict"
-    )
+    record = quality_evidence.get("can_i_closeout") or quality_evidence.get("closeout_verdict")
     if not isinstance(record, Mapping):
         return []
     can_closeout = bool(record.get("can_closeout"))
@@ -9681,15 +9718,11 @@ def _quality_ref_rejection_state(
         )
         if isinstance(key, str) and key:
             rejected_keys.add(key)
-    unscoped = bool(
-        rejected_keys & {"runtime_quality_refs", "runtime_quality_artifact_refs"}
-    )
+    unscoped = bool(rejected_keys & {"runtime_quality_refs", "runtime_quality_artifact_refs"})
     return rejected_keys, unscoped
 
 
-def _quality_ref_key_rejected(
-    ref_key: str, rejected_keys: set[str], *, unscoped: bool
-) -> bool:
+def _quality_ref_key_rejected(ref_key: str, rejected_keys: set[str], *, unscoped: bool) -> bool:
     return ref_key in rejected_keys or (unscoped and ref_key.endswith("_ref"))
 
 
@@ -9716,13 +9749,9 @@ def _evidence_refs(
         run_payload=run_payload,
         quality_evidence=quality_evidence,
     )
-    rejected_ref_keys, has_unscoped_rejection = _quality_ref_rejection_state(
-        authority_refs
-    )
+    rejected_ref_keys, has_unscoped_rejection = _quality_ref_rejection_state(authority_refs)
     for ref_key in QUALITY_REPORT_RUNTIME_REFS.values():
-        if _quality_ref_key_rejected(
-            ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection
-        ):
+        if _quality_ref_key_rejected(ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection):
             continue
         ref_value = authority_refs.get(ref_key)
         if ref_value is not None:
@@ -9750,16 +9779,11 @@ def _evidence_refs(
         if security_ref is not None:
             refs[SECURITY_ASSURANCE_REPORT_REF_KEY] = security_ref
     if SECURITY_REPORT_INTAKE_KEY in quality_evidence:
-        refs[SECURITY_REPORT_INTAKE_KEY] = (
-            f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
-        )
+        refs[SECURITY_REPORT_INTAKE_KEY] = f"quality_evidence/{SECURITY_REPORT_INTAKE_FILE}"
     for key, filename in QUALITY_REPORT_FILES.items():
         ref_key = _quality_report_ref_key(key)
-        if (
-            key in quality_evidence
-            and not _quality_ref_key_rejected(
-                ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection
-            )
+        if key in quality_evidence and not _quality_ref_key_rejected(
+            ref_key, rejected_ref_keys, unscoped=has_unscoped_rejection
         ):
             refs[key] = f"quality_evidence/{filename}"
     if (
@@ -10082,8 +10106,23 @@ def build_quality_scorecard(
     quality_evidence: dict[str, Any],
     quality_scorecard_ref: str | None = None,
     quality_evidence_bundle_path: str | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> dict[str, Any]:
-    """Build a production-quality scorecard from runtime and domain evidence."""
+    """Build a production-quality scorecard from runtime and domain evidence.
+
+    Args:
+        canary_kind: Runtime execution profile that selects blocking behavior.
+        job_id: Optional job identity.
+        run_id: Runtime run identity.
+        execution_status: Observed execution outcome.
+        job_payload: Optional runtime job evidence.
+        run_payload: Optional runtime run evidence.
+        provider_preflight: Optional provider readiness evidence.
+        quality_evidence: Domain and runtime evidence to score.
+        quality_scorecard_ref: Optional persisted scorecard reference.
+        quality_evidence_bundle_path: Optional evidence bundle path.
+        artifact_store: Optional Core CAS store for resolving selected BERL bundle refs.
+    """
     generated_at = datetime.now(UTC).replace(microsecond=0)
     raw_quality_evidence = quality_evidence
     resolved_authority_refs = _runtime_authority_refs(
@@ -10091,12 +10130,9 @@ def build_quality_scorecard(
         run_payload=run_payload,
         quality_evidence=raw_quality_evidence,
     )
-    rejected_quality_ref_keys = {
-        rejection.key for rejection in resolved_authority_refs.rejections
-    }
+    rejected_quality_ref_keys = {rejection.key for rejection in resolved_authority_refs.rejections}
     has_unscoped_quality_ref_rejection = bool(
-        rejected_quality_ref_keys
-        & {"runtime_quality_refs", "runtime_quality_artifact_refs"}
+        rejected_quality_ref_keys & {"runtime_quality_refs", "runtime_quality_artifact_refs"}
     )
     quality_evidence = _admitted_quality_evidence_view(
         raw_quality_evidence,
@@ -10300,6 +10336,7 @@ def build_quality_scorecard(
         *_policy_design_wave22_claim_argument_gates(
             quality_evidence,
             canary_kind=canary_kind,
+            artifact_store=artifact_store,
         ),
         *_policy_design_wave25_research_deficit_promotion_gates(
             quality_evidence,

@@ -771,7 +771,7 @@ def _resolve_source_identification_rows(
     )
     from polisyos.scientist.methods.discovery.schema import (
         GRAPH_HYPOTHESIS_SCHEMA_NAME,
-        edge_key_for_edge,
+        GRAPH_HYPOTHESIS_SCHEMA_VERSION,
         load_graph_hypothesis,
     )
     from polisyos.scientist.methods.discovery.stability import (
@@ -921,7 +921,7 @@ def _resolve_source_identification_rows(
             hypothesis_manifest,
             role="graph_hypothesis",
             name=GRAPH_HYPOTHESIS_SCHEMA_NAME,
-            version="1.0",
+            version=GRAPH_HYPOTHESIS_SCHEMA_VERSION,
         )
         if hypothesis_manifest.created_at > utility_report_manifest.created_at:
             raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
@@ -988,7 +988,7 @@ def _resolve_source_identification_rows(
         # Recompute the same selected graph that DownstreamUtilityJudge used.
         # A raw/resolved basis difference remains unverified without a qualified translation proof.
         raw_graph_sha256 = _graph_basis_sha256(hypothesis.graph)
-        report_graph = hypothesis.resolved_graph or hypothesis.graph
+        report_graph = hypothesis.graph_for_analysis() or hypothesis.graph
         report_graph_sha256 = _graph_basis_sha256(report_graph)
         source_projection = projection
         source_graph_mismatch = (

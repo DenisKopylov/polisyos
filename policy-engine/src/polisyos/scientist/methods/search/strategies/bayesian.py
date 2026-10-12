@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, fingerprint
 
 # Imported lazily through _deps to keep module importable without optional stack.
@@ -75,6 +76,7 @@ _WARM_REJECTION_REASONS = {
     "incompatible context fingerprint",
     "incompatible objective fingerprint",
     "source profile is not fitted native GP",
+    "native GP profile lacks fresh fit-basis admission",
 }
 
 
@@ -96,6 +98,31 @@ class BayesianConfig:
     exploration_switch_threshold: float = 0.3
     refit_interval: int = 5
     warm_start_noise_factor: float = 0.1
+
+
+_WARM_START_ADMISSION_SEAL = object()
+
+
+@dataclass(frozen=True, slots=True)
+class _VerifiedWarmStartAdmission:
+    """Private handoff for evaluations freshly admitted by the Search CAS reader."""
+
+    seal: object
+    evaluation_ids: frozenset[int]
+
+    def allows(self, evaluation: Evaluation) -> bool:
+        """Return whether this exact in-memory row crossed the fresh verifier."""
+        return self.seal is _WARM_START_ADMISSION_SEAL and id(evaluation) in self.evaluation_ids
+
+
+def _issue_verified_warm_start_admission(
+    evaluations: list[Evaluation],
+) -> _VerifiedWarmStartAdmission:
+    """Create the private handoff after the shared Search source verifier succeeds."""
+    return _VerifiedWarmStartAdmission(
+        seal=_WARM_START_ADMISSION_SEAL,
+        evaluation_ids=frozenset(id(evaluation) for evaluation in evaluations),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,6 +178,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._warm_start_rejection_history_complete = True
         self._last_fitted_training_corpus_fingerprint: str | None = None
         self._last_fitted_training_observation_count: int | None = None
+        self._last_fitted_training_evaluation_refs: list[dict[str, Any]] | None = None
         self._fitted_train_X: Any = None
         self._fitted_train_y_bo: Any = None
         self._last_refit_iteration: int = -1
@@ -173,13 +201,25 @@ class BayesianOptimizer(BaseSearchStrategy):
         *,
         target_context_fingerprint: str | None = None,
         target_objective_fingerprint: str | None = None,
+        _source_admission: _VerifiedWarmStartAdmission | None = None,
     ) -> None:
-        """Pre-seed GP with historical evaluations from similar runs."""
+        """Pre-seed GP with historical evaluations admitted by its source boundary."""
         if (target_context_fingerprint is None) != (target_objective_fingerprint is None):
             raise ValueError("target context and objective fingerprints must be supplied together")
         accepted: list[Evaluation] = []
         rejected: list[str] = []
         for evaluation in evaluations:
+            profile = evaluation.metadata.get(_WARM_COMPATIBILITY_METADATA)
+            claims_configured_gp = isinstance(profile, Mapping) and (
+                profile.get("profile_kind") == "configured_native_gp"
+                or profile.get("warm_start_eligible") is True
+            )
+            if claims_configured_gp and (
+                _source_admission is None or not _source_admission.allows(evaluation)
+            ):
+                rejected.append("native GP profile lacks fresh fit-basis admission")
+                self._record_warm_start_rejection(evaluation, rejected[-1])
+                continue
             if not evaluation.is_valid:
                 rejected.append("invalid outcome")
                 self._record_warm_start_rejection(evaluation, rejected[-1])
@@ -323,6 +363,8 @@ class BayesianOptimizer(BaseSearchStrategy):
             and corpus_fingerprint
             and training_count is not None
             and training_count > 0
+            and self._last_fitted_training_evaluation_refs is not None
+            and len(self._last_fitted_training_evaluation_refs) == training_count
         )
         return BayesianFitProfile(
             profile_kind="configured_native_gp",
@@ -343,6 +385,127 @@ class BayesianOptimizer(BaseSearchStrategy):
             gp_model_fqn=model_fqn,
             warm_start_eligible=eligible,
         )
+
+    def _fitted_model_state_fingerprint(self) -> str | None:
+        """Fingerprint the complete fitted state, including structural constraint infinities."""
+        model = self._model
+        if model is None or not self._botorch_ready or self._torch is None:
+            return None
+        try:
+            from gpytorch.constraints import Interval
+
+            state = model.state_dict()
+            if not isinstance(state, Mapping) or not state:
+                return None
+            torch = self._torch
+            parameter_names = {name for name, _ in model.named_parameters()}
+            constraint_bound_entries: dict[str, tuple[Any, str, Any]] = {}
+            for module_name, module in model.named_modules():
+                if not isinstance(module, Interval):
+                    continue
+                buffers = dict(module.named_buffers(recurse=False))
+                parameters = {
+                    name for name, _ in module.named_parameters(recurse=False)
+                }
+                lower_bound = buffers.get("lower_bound")
+                upper_bound = buffers.get("upper_bound")
+                if (
+                    lower_bound is None
+                    or upper_bound is None
+                    or "lower_bound" in parameters
+                    or "upper_bound" in parameters
+                ):
+                    return None
+                lower_tensor = lower_bound.detach().cpu()
+                upper_tensor = upper_bound.detach().cpu()
+                if bool(torch.isnan(lower_tensor).any().item()) or bool(
+                    torch.isnan(upper_tensor).any().item()
+                ):
+                    return None
+                if not bool(torch.all(lower_tensor < upper_tensor).item()):
+                    return None
+                if bool(
+                    torch.logical_and(
+                        torch.isneginf(lower_tensor), torch.isposinf(upper_tensor)
+                    )
+                    .any()
+                    .item()
+                ):
+                    return None
+                for bound_name, bound in (
+                    ("lower_bound", lower_bound),
+                    ("upper_bound", upper_bound),
+                ):
+                    state_name = (
+                        f"{module_name}.{bound_name}" if module_name else bound_name
+                    )
+                    if state_name not in state:
+                        return None
+                    constraint_bound_entries[state_name] = (
+                        module,
+                        bound_name,
+                        bound,
+                    )
+
+            def encode_infinity_sentinels(value: Any) -> Any:
+                if isinstance(value, list):
+                    return [encode_infinity_sentinels(item) for item in value]
+                if isinstance(value, float) and math.isinf(value):
+                    return "+inf" if value > 0 else "-inf"
+                return value
+
+            state_values: dict[str, dict[str, Any]] = {}
+            for name, value in sorted(state.items()):
+                detach = getattr(value, "detach", None)
+                if not callable(detach):
+                    return None
+                tensor = detach().cpu()
+                finite = bool(torch.isfinite(tensor).all().item())
+                values = tensor.tolist()
+                entry: dict[str, Any] = {
+                    "dtype": str(tensor.dtype),
+                    "shape": list(tensor.shape),
+                    "values": values,
+                }
+                if not finite:
+                    constraint_entry = constraint_bound_entries.get(name)
+                    if (
+                        constraint_entry is None
+                        or name in parameter_names
+                        or bool(torch.isnan(tensor).any().item())
+                        or not bool(torch.isinf(tensor).any().item())
+                    ):
+                        return None
+                    module, bound_name, registered_buffer = constraint_entry
+                    registered_tensor = registered_buffer.detach().cpu()
+                    if (
+                        registered_tensor.dtype != tensor.dtype
+                        or tuple(registered_tensor.shape) != tuple(tensor.shape)
+                        or not bool(torch.equal(registered_tensor, tensor))
+                    ):
+                        return None
+                    if bound_name == "lower_bound" and bool(
+                        torch.isposinf(tensor).any().item()
+                    ):
+                        return None
+                    if bound_name == "upper_bound" and bool(
+                        torch.isneginf(tensor).any().item()
+                    ):
+                        return None
+                    entry["values"] = encode_infinity_sentinels(values)
+                    entry["constraint_owner_fqn"] = (
+                        f"{type(module).__module__}.{type(module).__qualname__}"
+                    )
+                    entry["constraint_member"] = bound_name
+                state_values[name] = entry
+            return _profile_fingerprint(
+                {
+                    "model_fqn": f"{type(model).__module__}.{type(model).__qualname__}",
+                    "state_dict": state_values,
+                }
+            )
+        except (AttributeError, ImportError, RuntimeError, TypeError, ValueError, OverflowError):
+            return None
 
     def _fitted_model_matches_recorded_basis(self) -> bool:
         """Confirm the active model still represents the recorded fitted basis."""
@@ -368,6 +531,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         """Fingerprint source rows and numeric training data actually used by the GP."""
         self._last_fitted_training_corpus_fingerprint = None
         self._last_fitted_training_observation_count = None
+        self._last_fitted_training_evaluation_refs = None
         if not self._fitted_model_matches_current_fit():
             return
         rows = [
@@ -414,6 +578,26 @@ class BayesianOptimizer(BaseSearchStrategy):
             expected_y, self._fitted_train_y_bo
         ):
             return
+        source_refs: list[dict[str, Any]] = []
+        seen_source_refs: set[tuple[str, str]] = set()
+        for evaluation in evaluations:
+            raw_ref = evaluation.metadata.get("search_source_evaluation_ref")
+            if not isinstance(raw_ref, Mapping):
+                return
+            try:
+                selected_ref = ArtifactRef.model_validate(raw_ref)
+            except (TypeError, ValueError):
+                return
+            selected_profile = selected_ref.manifest_profile_sha256
+            if selected_profile is None:
+                return
+            identity = (str(selected_ref.artifact_id), selected_profile)
+            if identity in seen_source_refs:
+                return
+            seen_source_refs.add(identity)
+            source_refs.append(selected_ref.model_dump(mode="json"))
+        if len(source_refs) != count:
+            return
         corpus_fingerprint = _profile_fingerprint(
             {
                 "observations": rows,
@@ -425,6 +609,7 @@ class BayesianOptimizer(BaseSearchStrategy):
             return
         self._last_fitted_training_corpus_fingerprint = corpus_fingerprint
         self._last_fitted_training_observation_count = count
+        self._last_fitted_training_evaluation_refs = source_refs
 
     def _fitted_model_matches_current_fit(self) -> bool:
         """Validate a model and fit matrices before binding training source rows."""
@@ -748,6 +933,7 @@ class BayesianOptimizer(BaseSearchStrategy):
         self._model = None
         self._train_X = self._train_y_bo = None
         self._fitted_train_X = self._fitted_train_y_bo = None
+        self._last_fitted_training_evaluation_refs = None
         self._last_refit_iteration, self._last_train_size = -1, 0
         if not self._botorch_ready:
             return

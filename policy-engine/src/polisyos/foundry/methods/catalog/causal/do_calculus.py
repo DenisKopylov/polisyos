@@ -97,7 +97,7 @@ def apply_rule1(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.conditioning)
     if not z:
         return None
@@ -153,7 +153,7 @@ def apply_rule2(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.intervention_set)
     if not z:
         return None
@@ -220,7 +220,7 @@ def apply_rule3(
     -------
     ``(new_ref, proof_step)`` if the rule fires, ``None`` otherwise.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     z = z_vars & frozenset(dist_ref.intervention_set)
     if not z:
         return None
@@ -425,7 +425,7 @@ def rewrite_estimand(
     list of all :class:`~polisyos.ir.analytics.evidence_bundle.ProofStep`
     objects produced (one per rule application).
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     all_steps: list[IRProofStep] = []
     current_root = ast.root
 

@@ -408,6 +408,7 @@ def _core_result_to_indexed(
         trace_ref=result.trace_ref,
         capability_manifest_ref=result.capability_manifest_ref,
         root_artifacts=list(result.root_artifacts),
+        root_input_artifacts=list(result.root_input_artifacts),
         has_workflow_report=result.workflow_report_ref is not None,
         workflow_report_ref=result.workflow_report_ref,
         warnings=list(result.warnings),

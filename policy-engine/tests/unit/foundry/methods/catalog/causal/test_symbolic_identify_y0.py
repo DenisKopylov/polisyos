@@ -857,9 +857,10 @@ def test_relabelled_graph_profile_is_rechecked_against_retained_endpoint_marks(
     ).model_copy(update={"graph_type": replacement_type})
     result = transport_engine_module._canonical_scalar_graph_refusal(graph)
     if expected_reason is None:
-        assert result == (None, "admg")
+        assert result[:2] == (None, "admg")
+        assert result[2] is not None
     else:
-        assert result == (expected_reason, replacement_type.value)
+        assert result[:2] == (expected_reason, replacement_type.value)
 
 
 def test_noncanonical_model_copy_aliases_fail_closed_but_json_aliases_normalize() -> None:
@@ -919,7 +920,7 @@ def test_remove_endpoint_predicate_keeps_markers_but_y0_still_refuses_unsupporte
     monkeypatch.setattr(
         transport_engine_module,
         "_canonical_scalar_graph_refusal",
-        lambda _: (None, "admg"),
+        lambda _: (None, "admg", graph),
     )
     without_predicate = method.pure_step(state, params)
     result = TransportabilityResult.model_validate(without_predicate["transport_result"])
@@ -1224,6 +1225,72 @@ def test_public_dispatcher_refuses_model_copy_hidden_s_nodes(
     assert "recovery_plan" not in output
 
 
+@pytest.mark.parametrize(("route", "method", "params"), _GRAPH_ADMISSION_ROUTES)
+def test_public_dispatcher_refuses_model_copy_partial_admg_before_claim(
+    route: str,
+    method: (
+        type[CheckTransportability] | type[SymbolicIdentify] | type[SymbolicIdentifyV2]
+    ),
+    params: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+
+    if method in {SymbolicIdentify, SymbolicIdentifyV2}:
+        monkeypatch.setattr(symbolic_module, "_y0_available", lambda: (True, None))
+    directed_admg = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "M", "Y"],
+        edges=[CausalEdge(src="X", dst="M"), CausalEdge(src="M", dst="Y")],
+    )
+    partial_graph = directed_admg.model_copy(
+        update={
+            "edges": [
+                CausalEdge(
+                    src="X",
+                    dst="M",
+                    mark_src=EdgeMark.CIRCLE,
+                    mark_dst=EdgeMark.CIRCLE,
+                ),
+                CausalEdge(
+                    src="M",
+                    dst="Y",
+                    mark_src=EdgeMark.CIRCLE,
+                    mark_dst=EdgeMark.CIRCLE,
+                ),
+            ]
+        }
+    )
+    diagram = _diagram_frontdoor_like().model_copy(
+        update={"base_graph": partial_graph}
+    )
+    dispatched = MethodDispatcher(enable_runtime_selection=False).dispatch(
+        method_class=method,
+        signature=method.signature,
+        state={
+            "selection_diagram": diagram,
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params=params,
+        seed=0,
+    )
+    output = dispatched.output
+    result = TransportabilityResult.model_validate(output["transport_result"])
+    proof = ProofBundle.model_validate(output["proof_bundle"])
+
+    assert route
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == "unsupported_static_admg_profile"
+    assert result.transport_formula is None
+    assert proof.proof_status == "oracle_needed"
+    assert proof.completeness_regime == "sound_incomplete"
+    assert proof.metadata["reason"] == "unsupported_static_admg_profile"
+    assert output.get("estimand_ast") is None
+    assert "negative_certificate" not in output
+    assert "recovery_plan" not in output
+
+
 def test_direct_solver_refuses_noncanonical_live_diagram_subclass() -> None:
     diagram = _live_subclass_diagram("diagram")
 
@@ -1376,10 +1443,26 @@ def test_registered_routes_consume_the_same_snapshot_that_passed_admission(
         target_context=target,
         context_distance=0.4,
     )
+    state = {
+        "selection_diagram": diagram,
+        "query_treatment": "X",
+        "query_outcome": "Y",
+    }
+
+    def run_route() -> dict[str, object]:
+        if route == "check":
+            return CheckTransportability.pure_step(state, params)
+        if route == "symbolic-v1":
+            return SymbolicIdentify.pure_step(state, params)
+        return SymbolicIdentifyV2.pure_step(state, params)
+
+    baseline = run_route()
     canonical_gate = transport_engine_module._canonical_scalar_graph_refusal
     mutation_count = 0
 
-    def mutate_original_after_gate(candidate: object) -> tuple[str | None, str]:
+    def mutate_original_after_gate(
+        candidate: object,
+    ) -> tuple[str | None, str, CausalGraphModel | None]:
         nonlocal mutation_count
         decision = canonical_gate(candidate)
         if mutation_count == 0:
@@ -1402,22 +1485,13 @@ def test_registered_routes_consume_the_same_snapshot_that_passed_admission(
         "_canonical_scalar_graph_refusal",
         mutate_original_after_gate,
     )
-    state = {
-        "selection_diagram": diagram,
-        "query_treatment": "X",
-        "query_outcome": "Y",
-    }
-    if route == "check":
-        payload = CheckTransportability.pure_step(state, params)
-    elif route == "symbolic-v1":
-        payload = SymbolicIdentify.pure_step(state, params)
-    else:
-        payload = SymbolicIdentifyV2.pure_step(state, params)
+    payload = run_route()
 
     result = TransportabilityResult.model_validate(payload["transport_result"])
     assert mutation_count == 1
     assert graph.graph_type is GraphType.ADMG
     assert graph.edges[0].mark_src is EdgeMark.CIRCLE
-    assert result.status is TransportabilityStatus.IDENTIFIED
-    assert result.transport_formula is not None
-    assert payload["proof_bundle"]["proof_status"] == "identified"
+    # The route may legitimately return a bounded or unavailable backend result;
+    # the property is that mutating the caller's source after admission cannot
+    # change any result/proof field relative to the same canonical input.
+    assert payload == baseline

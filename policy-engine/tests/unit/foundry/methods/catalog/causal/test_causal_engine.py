@@ -551,7 +551,7 @@ class TestCausalEngineIdentify:
 
     def test_identify_cyclic_graph_reduces_to_acyclic_backend_when_cycle_is_irrelevant(self):
         graph = CausalGraphModel(
-            graph_type=GraphType.PAG,
+            graph_type=GraphType.ADMG,
             nodes=["X", "Y", "A", "B", "C"],
             edges=[
                 CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
@@ -577,7 +577,7 @@ class TestCausalEngineIdentify:
 
     def test_identify_cyclic_distribution_query_requires_validated_reduction(self):
         graph = CausalGraphModel(
-            graph_type=GraphType.PAG,
+            graph_type=GraphType.ADMG,
             nodes=["tax_policy", "income", "A", "B", "C"],
             edges=[
                 CausalEdge(
@@ -613,7 +613,7 @@ class TestCausalEngineIdentify:
 
     def test_identify_cyclic_conditional_query_blocks_without_validated_reduction(self):
         graph = CausalGraphModel(
-            graph_type=GraphType.PAG,
+            graph_type=GraphType.ADMG,
             nodes=["X", "Y", "Z"],
             edges=[
                 CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),

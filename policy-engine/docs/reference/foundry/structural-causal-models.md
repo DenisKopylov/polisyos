@@ -18,7 +18,7 @@ DoWhy/EconML do not establish backend success.
 
 ## Persisted model and source custody
 
-Selected GCM outputs use `StructuralCausalModelSpec` schema 1.1. `SCMTrainingRows`
+Selected GCM outputs use `StructuralCausalModelSpec` schema 1.2. `SCMTrainingRows`
 retains the original complete fit input and source artifact reference, matrix,
 column order, row identities and content hashes. `SCMFitProvenance` retains the
 observed worker reply and the parent request/code/lock binding. Root carriers
@@ -88,3 +88,12 @@ interventions replace the treatment mechanism and cut its incoming causes;
 unrelated graph nodes and node ordering do not change logical random streams.
 These checks establish the declared finite synthetic model behavior, not causal
 identification or authority on real data.
+
+Schema 1.2 binds the fitted DAG to its complete source graph, source graph
+reference, and a content-hashed projection disposition. `native_hybrid` retains
+the source graph and reference when an admitted projection is available; it
+returns a typed unsupported result when endpoint semantics cannot be projected
+under the selected profile. Consumers verify the source and result hashes and
+recompute the projector before using the fitted graph. Historical 1.0/1.1
+artifacts remain readable under their recorded profile; they do not acquire a
+new source witness by label alone.

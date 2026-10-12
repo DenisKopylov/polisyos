@@ -18,7 +18,9 @@ from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeMark,
+    GraphProjectionStatus,
     GraphType,
+    graph_projection_disposition,
     persist_causal_graph_model,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
@@ -355,8 +357,8 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
         )
     )
     score = utility_report.scores[0]
-    assert score.identification_status == "oracle_needed"
-    assert "identifiability:unsupported_static_admg_profile" in score.reasons
+    assert score.identification_status == "unsupported_graph_profile"
+    assert "identifiability:unsupported:graph_projection_unavailable" in score.reasons
 
     matrix = EvidenceWeightedAggregator().aggregate([hypothesis], stability, utility_report)
     assert matrix.entries[0].supporting_hypothesis_ids == [hypothesis.hypothesis_id]
@@ -365,7 +367,7 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
     assert graph_prior.required_edges
     assert graph_prior.required_edges[0].supporting_hypothesis_ids == [hypothesis.hypothesis_id]
     assert any(
-        "unsupported_static_admg_profile" in limitation
+        "graph_projection_unavailable" in limitation
         for limitation in graph_prior.hypothesis_identification[
             hypothesis.hypothesis_id
         ].limitations
@@ -446,9 +448,9 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
 
     fresh_graph_prior = load_graph_prior_bundle(fresh_store, graph_prior_ref)
     identification = fresh_graph_prior.hypothesis_identification[hypothesis.hypothesis_id]
-    assert identification.identification_status == "oracle_needed"
+    assert identification.identification_status == "unsupported_graph_profile"
     assert any(
-        "unsupported_static_admg_profile" in limitation
+        "graph_projection_unavailable" in limitation
         for limitation in identification.limitations
     )
 
@@ -488,11 +490,11 @@ def test_pag_identification_limit_survives_discovery_cas_and_strict_gate(
             diagnostic.code == "cross_graph.discovery_prior.identification_limited"
             and any(
                 row["hypothesis_id"] == hypothesis.hypothesis_id
-                and row["identification_status"] == "oracle_needed"
+                and row["identification_status"] == "unsupported_graph_profile"
                 and row["verification_status"] == "recomputed"
                 and row["verification_reason"] == "source_projection_matches_current_algorithm"
                 and any(
-                    "unsupported_static_admg_profile" in limitation
+                    "graph_projection_unavailable" in limitation
                     for limitation in row["limitations"]
                 )
                 for row in diagnostic.details["hypothesis_identification"]
@@ -621,6 +623,11 @@ def test_actual_discovery_producer_source_chain_is_recomputed_by_fresh_consumer(
                 method=DiscoveryMethod.PC,
                 graph=graph,
                 resolved_graph=graph.model_copy(deep=True),
+                projection_disposition=graph_projection_disposition(
+                    graph,
+                    graph.model_copy(deep=True),
+                    status=GraphProjectionStatus.IDENTITY,
+                ),
                 compute_footprint=ComputeFootprint(),
             ),
             HypothesisStabilitySummary(
@@ -1023,8 +1030,6 @@ def test_compilation_uses_branch_state_for_declared_outputs(execution_context, m
         (GraphType.PAG, False, False, False, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "recomputed", "source_projection_matches_current_algorithm"),
         (GraphType.PAG, False, False, True, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "utility_report_source_projection_mismatch"),
         (GraphType.DAG, False, False, False, False, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "downstream_utility_report_input_missing_or_ambiguous"),
-        (GraphType.PAG, True, False, False, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "aggregation_report_graph_basis_mismatch"),
-        (GraphType.DAG, False, True, False, True, False, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "aggregation_report_graph_basis_mismatch"),
         (GraphType.DAG, False, False, False, True, True, False, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "graph_prior_manifest_profile_missing"),
         (GraphType.DAG, False, False, False, True, False, True, False, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "source_artifact_schema_mismatch"),
         (GraphType.DAG, False, False, False, True, False, False, True, False, False, False, EvidenceStatus.INSUFFICIENT, "not_established", "source_artifact_schema_mismatch"),
@@ -1115,25 +1120,57 @@ def test_identification_source_is_recomputed_before_prior_support(
             edges=resolved_edges,
             discovery_method="controlled_resolved_dag_fixture",
         )
+    source_graph = CausalGraphModel(
+        graph_type=graph_type,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=(
+                    EdgeMark.CIRCLE
+                    if graph_type is GraphType.PAG
+                    else EdgeMark.TAIL
+                ),
+                mark_dst=EdgeMark.ARROW,
+                evidence_refs=["fixture:source-bound-edge"],
+            )
+        ],
+        discovery_method="controlled_source_fixture",
+    )
+    if resolved_graph is not None:
+        with pytest.raises(
+            ValueError,
+            match="canonical projection|identity projection|partial orientation",
+        ):
+            GraphHypothesis(
+                hypothesis_id=hypothesis_id,
+                algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+                method=(
+                    DiscoveryMethod.FCI
+                    if graph_type is GraphType.PAG
+                    else DiscoveryMethod.PC
+                ),
+                graph=source_graph,
+                resolved_graph=resolved_graph,
+                projection_disposition=graph_projection_disposition(
+                    source_graph,
+                    resolved_graph,
+                    status=(
+                        GraphProjectionStatus.IDENTITY
+                        if graph_type is GraphType.DAG
+                        else GraphProjectionStatus.PROJECTED
+                    ),
+                ),
+                compute_footprint=ComputeFootprint(),
+            )
+        return
     source_hypothesis = GraphHypothesis(
         hypothesis_id=hypothesis_id,
         algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
         method=DiscoveryMethod.FCI if graph_type is GraphType.PAG else DiscoveryMethod.PC,
-        graph=CausalGraphModel(
-            graph_type=graph_type,
-            nodes=["X", "Y"],
-            edges=[
-                CausalEdge(
-                    src="X",
-                    dst="Y",
-                    mark_src=EdgeMark.CIRCLE if graph_type is GraphType.PAG else EdgeMark.TAIL,
-                    mark_dst=EdgeMark.ARROW,
-                    evidence_refs=["fixture:source-bound-edge"],
-                )
-            ],
-            discovery_method="controlled_source_fixture",
-        ),
-        resolved_graph=resolved_graph,
+        graph=source_graph,
+        resolved_graph=None,
         compute_footprint=ComputeFootprint(),
     )
     stability = BootstrapStabilityReport(
@@ -1165,7 +1202,7 @@ def test_identification_source_is_recomputed_before_prior_support(
     source_score = report.scores[0]
     if forge_report:
         assert graph_type is GraphType.PAG
-        assert source_score.identification_status == "oracle_needed"
+        assert source_score.identification_status == "unsupported_graph_profile"
         source_score = source_score.model_copy(
             update={
                 "identification_status": "identified",
@@ -1312,3 +1349,45 @@ def test_identification_source_is_recomputed_before_prior_support(
             assert row["source_refs"]["graph_prior_bundle"]["manifest_profile_sha256"] is None
     else:
         assert not diagnostics
+
+
+def test_partial_graph_projection_receipt_recomputes_source_profile_before_admission():
+    from polisyos.scientist.methods.discovery.schema import (
+        ComputeFootprint,
+        DiscoveryAlgorithmFamily,
+        DiscoveryMethod,
+        GraphHypothesis,
+    )
+
+    source = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+    forged = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    receipt = graph_projection_disposition(
+        source,
+        forged,
+        status=GraphProjectionStatus.PROJECTED,
+    )
+    with pytest.raises(ValueError, match="partial orientation|source profile"):
+        GraphHypothesis(
+            hypothesis_id="forged-partial-projection",
+            algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+            method=DiscoveryMethod.FCI,
+            graph=source,
+            resolved_graph=forged,
+            projection_disposition=receipt,
+            compute_footprint=ComputeFootprint(),
+        )

@@ -241,6 +241,15 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "WorkflowRunRequest",
         "require_production_approval_currentness_receipt",
     ),
+    ".control_admission_attempt": (
+        "ControlPreAdmissionAttemptEventInfo",
+        "ControlPreAdmissionAttemptResponse",
+        "ControlPreAdmissionOwnerBinding",
+        "ControlPreAdmissionAttemptStatus",
+        "ControlPreAdmissionEventObservation",
+        "NoCallReason",
+        "ProducerCallState",
+    ),
     ".distributional": (
         "CausalAssumptionCardRef",
         "DistributionalBoundsBundleRef",
@@ -933,6 +942,15 @@ if TYPE_CHECKING:
         WorkflowRunRequest,
         require_production_approval_currentness_receipt,
     )
+    from .control_admission_attempt import (
+        ControlPreAdmissionAttemptEventInfo,
+        ControlPreAdmissionAttemptResponse,
+        ControlPreAdmissionAttemptStatus,
+        ControlPreAdmissionEventObservation,
+        ControlPreAdmissionOwnerBinding,
+        NoCallReason,
+        ProducerCallState,
+    )
     from .decision_validity import (
         DecisionBasisSection,
         DecisionDependencyEvent,
@@ -1538,6 +1556,13 @@ __all__ = [
     "ContinuationBranchRef",
     "ControlFailureEnvelope",
     "ControlJobResponse",
+    "ControlPreAdmissionAttemptEventInfo",
+    "ControlPreAdmissionAttemptResponse",
+    "ControlPreAdmissionOwnerBinding",
+    "ControlPreAdmissionAttemptStatus",
+    "ControlPreAdmissionEventObservation",
+    "NoCallReason",
+    "ProducerCallState",
     "ControlOutboxEventInfo",
     "ControlOutboxEventsResponse",
     "ControlWorkerLeaseInfo",

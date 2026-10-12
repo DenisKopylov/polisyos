@@ -1,0 +1,58 @@
+id = "2026-10-12-e02-b214-source-graph-disposition"
+title = "Preserve graph source profiles through DAG-only discovery consumers"
+type = "fixed"
+component = "ir"
+owner = "team-ir"
+summary = "Discovery reports, hypotheses, fitted SCMs, and scalar ID consumers retain typed source-graph boundaries; full-field graph snapshots are detached before analysis, current GraphHypothesis writes recursively revalidate the complete declared nested model tree before CAS, and PAG/CPDAG scalar identification remains a typed limitation until completion semantics are adjudicated."
+compatibility = "CausalDiscoveryReport advances to schema 1.1 and StructuralCausalModelSpec to 1.2 with additive graph-disposition fields; TransportabilityResult adds source-profile identity fields under schema 2.1. GraphHypothesis current writes are exactly schema 1.1, recursively reconstruct all declared nested model fields from actual storage, and bind payload and CAS manifest versions; only exact historical schema-1.0 payloads without a projection disposition use the typed legacy adapter. Valid DAG projection preserves graph content but returns a detached canonical snapshot rather than the caller's object. Historical receipts are replayed only against the canonical profile projector, otherwise their candidate projection stays typed unsupported."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: versioned polisyos.ir.analytics artifacts; internal graph-admission implementation"
+migration = "Readers preserve historical source graphs and fail closed when a prior resolved graph cannot be reproduced from the complete source payload. Only unversioned input mappings and manifest-bound schema-1.0 GraphHypothesis payloads without the disposition use the historical adapter; the latter are upgraded only by exact profile recomputation and remain typed unsupported when unresolved. Current GraphHypothesis writes require payload and manifest schema 1.1 to match, and mismatches or missing current versions are rejected before analysis. Schema-1.1 payloads must include the disposition. Regenerate and review the IR schema snapshots and public-surface inventory before release."
+api = "The canonical causal-graph module exports GraphProjectionDisposition, GraphProjectionStatus, graph_for_analysis, graph_content_sha256, and project_graph_to_dag. Existing package facade exports, high-level method identities, and Foundry registration names are unchanged; no generated HTTP client contract changes."
+limitations = "This change does not establish graph truth, complete PAG/CPDAG identification semantics, completion-set probability, empirical calibration, or publication authority. Unknown or unresolved endpoint profiles remain unsupported. Runtime, generated-schema, and public-surface inventory verification are pending root-owned validation."
+evidence = [
+  "tests/unit/remediation/test_grf_03.py",
+  "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
+  "tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+  "tests/unit/ir/test_causal_discovery_contract.py",
+  "tests/unit/ir/test_transportability_contract.py",
+  "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+  "tests/unit/ir/test_causal_graph_cache_rows.py",
+  "tests/unit/scientist/discovery/test_schema.py",
+  "tests/unit/scientist/discovery/test_utility_judge.py",
+  "tests/unit/scientist/discovery/test_active.py",
+  "tests/unit/scientist/discovery/test_stability.py",
+  "tests/unit/scientist/mirror_contracts/test_latent_producers.py",
+  "tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+  "tests/unit/scientist/nodes/builtins/planning/test_run_discovery_blueprint_runtime.py",
+]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/ir/analytics.md", "docs/reference/foundry/structural-causal-models.md", "docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b214-source-graph-disposition-artifact-readers"
+change_class = "persisted-artifact-format"
+impact = "additive"
+surface = "public_stable: CausalDiscoveryReport 1.1, StructuralCausalModelSpec 1.2, and TransportabilityResult 2.1 JSON artifacts"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "New graph-disposition fields preserve source graph profile and projection status through the versioned artifacts; the GraphHypothesis writer recursively snapshots and strictly revalidates its complete declared nested-model tree before CAS, and its manifest and readers bind current schema 1.1, while exact historical schema-1.0 payloads remain limited to replay or a typed unsupported disposition."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ir/analytics.md", "docs/reference/foundry/structural-causal-models.md", "docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "b214-scalar-identification-graph-admission"
+change_class = "behavioral-refusal-boundary"
+impact = "fail-closed for partial-graph scalar identification"
+surface = "public CausalEngine and direct Foundry ID calls; internal canonical graph admission owner"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Direct scalar ID and TR entry points consume detached snapshots of the complete graph and typed selection diagram; PAG/CPDAG source tags remain a typed limitation until completion semantics are adjudicated. Static ID refuses cyclic ADMGs and M-graphs without full-law inputs; TR requires each S-node target in the base graph, and the validated dynamic-reduction, sigma/cyclic, temporal, and full-law routes retain their separate owners."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ir/analytics.md", "src/polisyos/foundry/methods/catalog/causal/README.md"]
+runbook_docs = []

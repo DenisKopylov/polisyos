@@ -715,6 +715,7 @@ class ControlJobDiagnosticsMixin:
         payload: dict[str, Any],
         policy: ResolvedExecutionPolicy,
         request_id: str | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
         execution_scope = self._execution_scope_for_policy(policy)
@@ -791,6 +792,12 @@ class ControlJobDiagnosticsMixin:
                         "execution_intent_binding": payload[_EXECUTION_INTENT_BINDING_KEY],
                     }
                     if initially_refused
+                    else None
+                ),
+                pre_admission_attempt_id=pre_admission_attempt_id,
+                pre_admission_outcome=(
+                    ("refused" if initially_refused else "admitted")
+                    if pre_admission_attempt_id is not None
                     else None
                 ),
             )

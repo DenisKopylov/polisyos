@@ -14,8 +14,9 @@ from polisyos.foundry.methods.catalog.causal import amn, ctf_calculus
 from polisyos.foundry.methods.catalog.causal import do_calculus as do
 from polisyos.foundry.methods.catalog.causal import sigma_calculus as sigma
 from polisyos.foundry.methods.catalog.causal._id_contracts import CtfQuery, IdentificationStatus
-from polisyos.foundry.methods.catalog.causal.id_engine import core, transport
+from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult, core, transport
 from polisyos.foundry.methods.catalog.causal.id_engine import counterfactual as ctf
+from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
 from polisyos.foundry.methods.catalog.causal.pag_completion import apply_pag_orientation_rules
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -33,7 +34,12 @@ from polisyos.ir.analytics.estimand import (
     RatioNode,
     StochasticPolicy,
 )
-from polisyos.ir.analytics.transportability import SelectionDiagram
+from polisyos.ir.analytics.mgraph import (
+    MissingnessKind,
+    build_mgraph,
+    extract_mgraph_metadata,
+)
+from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
 
 
 def _graph(edges=(), *, nodes=("Y", "Z", "C", "D", "T"), graph_type=GraphType.ADMG):
@@ -82,6 +88,18 @@ UNSUPPORTED = (
     ]
     + [pytest.param(_graph([CausalEdge(src="Y", dst="Y", lag=1)]), id="self-lag-1")]
 )
+
+def _selection_diagram_with_base_graph(graph: CausalGraphModel) -> SelectionDiagram:
+    """Pass an already-built graph through the diagram's live-field admission path."""
+    valid_base = _graph(nodes=list(graph.nodes), graph_type=GraphType.DAG)
+    diagram = SelectionDiagram(
+        base_graph=valid_base,
+        s_nodes=[],
+        source_context=ContextProfile(),
+        target_context=ContextProfile(),
+    )
+    return diagram.model_copy(update={"base_graph": graph})
+
 
 # The public inference entries/builders below are real direct calls, including
 # no-op requests that formerly escaped admission. Raw orientation is separate.
@@ -155,12 +173,7 @@ CONSUMERS = [
         lambda g: core.tr_algorithm(
             treatment=frozenset(),
             outcome=frozenset({"Y"}),
-            selection_diagram=SelectionDiagram(
-                base_graph=g,
-                s_nodes=[],
-                source_context=ContextProfile(),
-                target_context=ContextProfile(),
-            ),
+            selection_diagram=_selection_diagram_with_base_graph(g),
         ),
     ),
     ("id-star", lambda g: ctf.id_star_algorithm(CtfQuery("Y", (("Z", 1.0),)), g)),
@@ -268,10 +281,13 @@ def test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop(
     graph, name, consumer
 ):
     before = graph.model_dump_json()
-    with pytest.raises(
-        ops.UnsupportedStaticADMGProfileError,
-        match="Unsupported static ADMG profile: edge",
-    ):
+    if graph.graph_type in {GraphType.PAG, GraphType.CPDAG}:
+        expected_error = ops.PartialGraphCompletionSemanticsError
+        expected_message = "no admitted completion semantics"
+    else:
+        expected_error = ops.UnsupportedStaticADMGProfileError
+        expected_message = "Unsupported static ADMG profile: edge"
+    with pytest.raises(expected_error, match=expected_message):
         consumer(graph)
     assert graph.model_dump_json() == before
 
@@ -523,3 +539,631 @@ def test_native_disjoint_amn_crossworld_separation_matches_independent_oracle():
         assert not (x & y or x & conditioned or y & conditioned)
         assert _independent_latent_moral_separator(graph, x, y, conditioned) is expected
         assert amn.amn_d_separation(graph, metadata, x, y, conditioned) is expected
+
+# Direct scalar query entries must consult graph kind as well as endpoint marks.
+# Raw endpoint-inspection helpers intentionally stay outside this query gate.
+PARTIAL_GRAPH_CONSUMERS = [
+    (
+        "id",
+        lambda g: core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
+        ),
+    ),
+    (
+        "find-hedge",
+        lambda g: core.find_hedge(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
+        ),
+    ),
+    (
+        "find-thicket",
+        lambda g: core.find_thicket(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
+        ),
+    ),
+    (
+        "tr",
+        lambda g: core.tr_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            selection_diagram=_selection_diagram_with_base_graph(g),
+        ),
+    ),
+    (
+        "idc",
+        lambda g: core.idc_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            conditions=frozenset(),
+            graph=g,
+        ),
+    ),
+    (
+        "oracle-fallback",
+        lambda g: core.id_with_oracle_fallback(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=g,
+            oracle="y0",
+            force_y0=True,
+        ),
+    ),
+    (
+        "z-id",
+        lambda g: transport.z_id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            z_interventions=frozenset({"Z"}),
+            graph=g,
+        ),
+    ),
+    (
+        "mz-id",
+        lambda g: transport.mz_id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            source_domains=[],
+            graph=g,
+        ),
+    ),
+    (
+        "sid",
+        lambda g: transport.sid_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=g,
+            policy=StochasticPolicy(policy_type="soft"),
+        ),
+    ),
+    (
+        "conditional",
+        lambda g: transport.conditional_intervention_id(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            condition_vars=frozenset(),
+            graph=g,
+        ),
+    ),
+    (
+        "dynamic",
+        lambda g: transport.dynamic_intervention_id(
+            treatment_sequence=["X"], outcome="Y", time_points=[0], graph=g
+        ),
+    ),
+    (
+        "joint",
+        lambda g: transport.joint_id_algorithm(
+            treatments=frozenset({"X"}), outcomes=frozenset({"Y"}), graph=g
+        ),
+    ),
+    (
+        "multi-outcome",
+        lambda g: transport.multi_outcome_id(
+            treatment=frozenset({"X"}), outcomes=["Y"], graph=g
+        ),
+    ),
+    ("id-star", lambda g: ctf.id_star_algorithm(CtfQuery("Y", (("X", 1.0),)), g)),
+    ("idc-star", lambda g: ctf.idc_star_algorithm(CtfQuery("Y", (("X", 1.0),)), g)),
+    (
+        "proxy",
+        lambda g: identify_with_proxy(g, "X", "Y", {"Z": "Z_proxy"}),
+    ),
+    ("do-rewrite", lambda g: do.rewrite_estimand(_ast(), g, max_iterations=2)),
+    (
+        "sigma-rewrite",
+        lambda g: sigma.rewrite_estimand_with_selection(_ast(), g, frozenset(), 2),
+    ),
+    ("ctf-rewrite", lambda g: ctf_calculus.rewrite_ctf_estimand(_ast(), g, 2)),
+]
+
+
+@pytest.mark.parametrize("graph_type", [GraphType.PAG, GraphType.CPDAG])
+@pytest.mark.parametrize("left,right", list(product(EdgeMark, repeat=2)))
+def test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs(
+    graph_type, left, right
+):
+    # CPDAG rejects circles in the ordinary IR constructor; use the canonical
+    # constructor for admitted profiles and a copied malformed profile only to
+    # prove that strict admission rejects, rather than normalizes, bad IR.
+    edge = CausalEdge(src="X", dst="Y", mark_src=left, mark_dst=right)
+    try:
+        graph = _graph([edge], nodes=("X", "Y", "Z"), graph_type=graph_type)
+    except ValueError:
+        graph = CausalGraphModel.model_construct(
+            graph_type=graph_type, nodes=["X", "Y", "Z"], edges=[edge],
+            schema_version="1.0", discovery_method="", skg_version_id=None,
+            pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+            id_confidence_under_pag=None, metadata={},
+        )
+    if graph_type is GraphType.PAG:
+        for _name, consumer in PARTIAL_GRAPH_CONSUMERS:
+            with pytest.raises(
+                ops.PartialGraphCompletionSemanticsError,
+                match="no admitted completion semantics",
+            ):
+                consumer(graph)
+    else:
+        for _name, consumer in PARTIAL_GRAPH_CONSUMERS:
+            with pytest.raises(ops.UnsupportedStaticADMGProfileError):
+                consumer(graph)
+
+
+@pytest.mark.parametrize("graph_type", [GraphType.PAG, GraphType.CPDAG])
+@pytest.mark.parametrize("left,right", list(product(EdgeMark, repeat=2)))
+def test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_graph(
+    graph_type, left, right
+):
+    edge = CausalEdge(src="X", dst="Y", mark_src=left, mark_dst=right)
+    try:
+        graph = _graph([edge], nodes=("X", "Y"), graph_type=graph_type)
+    except ValueError:
+        graph = CausalGraphModel.model_construct(
+            graph_type=graph_type,
+            nodes=["X", "Y"],
+            edges=[edge],
+            schema_version="1.0",
+            discovery_method="",
+            skg_version_id=None,
+            pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+            id_confidence_under_pag=None,
+            metadata={},
+        )
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+
+    result = CausalEngine().identify("X", "Y", graph, oracle="y0")
+    assert isinstance(result, IdentificationResult)
+    assert result.status is IdentificationStatus.ORACLE_NEEDED
+    assert result.estimand_ast is None
+    assert result.hedge_certificate is None
+    expected_reason = (
+        "causal_graph_profile_invalid"
+        if graph_type is GraphType.CPDAG
+        and EdgeMark.CIRCLE in {left, right}
+        else "partial_graph_completion_semantics_not_established"
+    )
+    assert result.metadata["limitation_code"] == expected_reason
+
+
+def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
+    from polisyos.foundry.methods.catalog.causal.admg_ops import canonical_scalar_query_graph
+
+    dag = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=GraphType.DAG,
+    )
+    admg = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=GraphType.ADMG,
+    )
+    assert canonical_scalar_query_graph(dag).graph_type is GraphType.DAG
+    assert canonical_scalar_query_graph(admg).graph_type is GraphType.ADMG
+    admg_chain = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=GraphType.ADMG,
+    )
+    assert core.id_algorithm(
+        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=dag
+    ).status is IdentificationStatus.IDENTIFIED
+    assert core.id_algorithm(
+        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=admg_chain
+    ).status is IdentificationStatus.IDENTIFIED
+
+    cyclic_sigma = _graph(
+        [
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(src="Y", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+        ],
+        nodes=("X", "Y"),
+        graph_type=GraphType.ADMG,
+    )
+    # The shared graph-kind gate does not impose a DAG/topological restriction
+    # on the existing sigma/cyclic owner.
+    assert not ops.m_separation(
+        cyclic_sigma, frozenset({"X"}), frozenset({"Y"}), frozenset()
+    )
+    sigma.apply_sigma_rule1(
+        _ref(conditions=("X",)), cyclic_sigma, frozenset({"X"})
+    )
+
+
+
+@pytest.mark.parametrize("source_type", [GraphType.DAG, GraphType.ADMG])
+def test_model_copy_profile_mutations_are_rebuilt_before_scalar_use(source_type):
+    """Copy updates cannot forge graph-kind or endpoint admission."""
+    directed = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=source_type,
+    )
+    partial_tag = directed.model_copy(update={"graph_type": GraphType.PAG})
+    with pytest.raises(ops.PartialGraphCompletionSemanticsError):
+        core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=partial_tag
+        )
+
+    forged_endpoint = directed.model_copy(
+        update={
+            "edges": [
+                CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW)
+            ]
+        }
+    )
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError):
+        core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=forged_endpoint
+        )
+
+def test_scalar_snapshot_gate_uses_ir_fields_not_model_dump_override():
+    class ForgedDumpGraph(CausalGraphModel):
+        def model_dump(self, *args, **kwargs):
+            return {
+                "graph_type": "dag",
+                "nodes": ["X", "Y"],
+                "edges": [],
+            }
+
+    forged = ForgedDumpGraph(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+    )
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError):
+        core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=forged
+        )
+
+
+@pytest.mark.parametrize("graph_type", [GraphType.PAG, GraphType.CPDAG])
+def test_oracle_fallback_never_receives_partial_graph_without_completion_semantics(
+    graph_type, monkeypatch
+):
+    graph = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=graph_type,
+    )
+
+    def oracle_must_not_run(**_kwargs):
+        raise AssertionError("partial-graph admission must run before Y0")
+
+    monkeypatch.setattr(core, "_oracle_y0", oracle_must_not_run)
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError):
+        core.id_with_oracle_fallback(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=graph,
+            oracle="y0",
+            force_y0=True,
+        )
+
+
+def test_mgraph_query_dispatch_remains_outside_static_partial_graph_gate():
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.ir.analytics.mgraph import MissingnessKind, build_mgraph
+
+    graph = build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MCAR},
+    )
+    result = CausalEngine().identify("X", "Y", graph)
+    assert not (
+        isinstance(result, IdentificationResult)
+        and result.metadata.get("limitation_code")
+        == "partial_graph_completion_semantics_not_established"
+    )
+
+
+def test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification(
+    monkeypatch,
+):
+    """The failure is tied to the actual profile premise, not refusal markers."""
+    graph = _graph(
+        [CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
+        nodes=("X", "Y"),
+        graph_type=GraphType.PAG,
+    )
+
+    # Keep canonical field rebuilding and endpoint validation, but remove both
+    # graph-kind premises: the canonical query tag refusal and the shared
+    # static-ID profile allowlist. The live method call remains intact.
+    monkeypatch.setattr(
+        ops,
+        "canonical_scalar_query_graph",
+        ops.canonical_causal_graph_snapshot,
+    )
+    monkeypatch.setattr(core, "_validate_static_id_graph", ops._validate_static_admg)
+    result = core.id_algorithm(
+        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+    )
+    assert result.status is IdentificationStatus.IDENTIFIED
+    assert result.estimand_ast is not None
+
+
+class _HiddenFalseSNodes(list):
+    def __bool__(self) -> bool:
+        return False
+
+
+def test_direct_tr_consumes_canonical_selection_diagram_fields():
+    graph = _graph(
+        [CausalEdge(src="X", dst="M"), CausalEdge(src="M", dst="Y")],
+        nodes=("X", "M", "Y"),
+        graph_type=GraphType.DAG,
+    )
+    diagram = SelectionDiagram(
+        base_graph=graph,
+        s_nodes=[
+            SNode(
+                target_variable="M",
+                context_dimension="institutional_quality",
+                source_value=0.8,
+                target_value=0.4,
+                delta=0.4,
+                severity="medium",
+            )
+        ],
+        source_context=ContextProfile(context_id="source"),
+        target_context=ContextProfile(context_id="target"),
+    )
+    admitted = ops.canonical_scalar_selection_diagram(diagram)
+    assert len(admitted.s_nodes) == 1
+    assert admitted.s_nodes[0].target_variable == "M"
+    result = core.tr_algorithm(
+        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), selection_diagram=diagram
+    )
+    assert any("s_nodes=['M']" in line for line in result.trace)
+
+    hidden = diagram.model_copy(update={"s_nodes": _HiddenFalseSNodes(diagram.s_nodes)})
+    with pytest.raises(ops.InvalidCausalGraphProfileError):
+        core.tr_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), selection_diagram=hidden
+        )
+
+
+def _mnar_mgraph():
+    return build_mgraph(
+        substantive_vars=["X", "Y"],
+        directed_edges=[("X", "Y")],
+        missingness_map={"X": MissingnessKind.MNAR},
+    )
+
+
+def _cyclic_frontdoor_admg():
+    return _graph(
+        [
+            CausalEdge(src="X", dst="M"),
+            CausalEdge(src="M", dst="Y"),
+            CausalEdge(src="Y", dst="X"),
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.ARROW,
+                mark_dst=EdgeMark.ARROW,
+            ),
+        ],
+        nodes=("X", "M", "Y"),
+        graph_type=GraphType.ADMG,
+    )
+
+
+CYCLIC_ADMG_ID_CONSUMERS = [
+    (
+        "id",
+        lambda graph: core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+        ),
+    ),
+    (
+        "idc",
+        lambda graph: core.idc_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            conditions=frozenset({"M"}),
+            graph=graph,
+        ),
+    ),
+    (
+        "oracle-fallback",
+        lambda graph: core.id_with_oracle_fallback(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=graph,
+            oracle="none",
+        ),
+    ),
+    (
+        "find-hedge",
+        lambda graph: core.find_hedge(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+        ),
+    ),
+    (
+        "find-thicket",
+        lambda graph: core.find_thicket(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+        ),
+    ),
+    (
+        "tr",
+        lambda graph: core.tr_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            selection_diagram=SelectionDiagram(
+                base_graph=graph,
+                s_nodes=[],
+                source_context=ContextProfile(),
+                target_context=ContextProfile(),
+            ),
+        ),
+    ),
+    (
+        "z-id",
+        lambda graph: transport.z_id_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            z_interventions=frozenset({"M"}),
+            graph=graph,
+        ),
+    ),
+    (
+        "mz-id",
+        lambda graph: transport.mz_id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), source_domains=[], graph=graph
+        ),
+    ),
+    (
+        "sid",
+        lambda graph: transport.sid_algorithm(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            policy=StochasticPolicy(policy_type="soft"),
+            graph=graph,
+        ),
+    ),
+    (
+        "conditional-id",
+        lambda graph: transport.conditional_intervention_id(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            condition_vars=frozenset({"M"}),
+            graph=graph,
+        ),
+    ),
+    (
+        "dynamic-id",
+        lambda graph: transport.dynamic_intervention_id(
+            treatment_sequence=["X"], outcome="Y", time_points=[0], graph=graph
+        ),
+    ),
+    (
+        "joint-id",
+        lambda graph: transport.joint_id_algorithm(
+            treatments=frozenset({"X"}), outcomes=frozenset({"Y"}), graph=graph
+        ),
+    ),
+    (
+        "multi-outcome-id",
+        lambda graph: transport.multi_outcome_id(
+            treatment=frozenset({"X"}), outcomes=["Y"], graph=graph
+        ),
+    ),
+    ("id-star", lambda graph: ctf.id_star_algorithm(CtfQuery("Y", (("X", 1.0),)), graph)),
+    ("idc-star", lambda graph: ctf.idc_star_algorithm(CtfQuery("Y", (("X", 1.0),)), graph)),
+    (
+        "proxy-id",
+        lambda graph: identify_with_proxy(graph, "X", "Y", {"M": "M_proxy"}),
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "name,consumer", CYCLIC_ADMG_ID_CONSUMERS, ids=[name for name, _ in CYCLIC_ADMG_ID_CONSUMERS]
+)
+def test_static_id_consumers_refuse_cyclic_admg_before_shortcuts(name, consumer):
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError, match="directed cycle"):
+        consumer(_cyclic_frontdoor_admg())
+
+
+def test_cyclic_admg_refuses_before_selected_oracle_fallback(monkeypatch):
+    def oracle_must_not_run(**_kwargs):
+        raise AssertionError("cyclic ADMG must be refused before an oracle fallback")
+
+    monkeypatch.setattr(core, "_oracle_y0", oracle_must_not_run)
+    with pytest.raises(ops.UnsupportedStaticADMGProfileError, match="directed cycle"):
+        core.id_with_oracle_fallback(
+            treatment=frozenset({"X"}),
+            outcome=frozenset({"Y"}),
+            graph=_cyclic_frontdoor_admg(),
+            oracle="y0",
+            force_y0=True,
+        )
+
+
+@pytest.mark.parametrize(
+    "name,consumer",
+    CYCLIC_ADMG_ID_CONSUMERS,
+    ids=[name for name, _ in CYCLIC_ADMG_ID_CONSUMERS],
+)
+def test_static_id_consumers_refuse_mgraph_without_full_law_inputs(name, consumer):
+    with pytest.raises(
+        ops.UnsupportedStaticADMGProfileError,
+        match="full-law recovery inputs",
+    ):
+        consumer(_mnar_mgraph())
+
+
+def test_mnar_mgraph_routes_to_full_law_owner_not_scalar_id():
+    graph = _mnar_mgraph()
+    with pytest.raises(
+        ops.UnsupportedStaticADMGProfileError,
+        match="full-law recovery inputs",
+    ):
+        core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
+        )
+
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        full_law_identify,
+    )
+
+    full_law = full_law_identify(
+        treatment=frozenset({"X"}),
+        outcome=frozenset({"Y"}),
+        graph=graph,
+        mgraph_meta=extract_mgraph_metadata(graph),
+    )
+    assert full_law.status is IdentificationStatus.NOT_RECOVERABLE
+    assert full_law.estimand_ast is None
+
+
+def test_direct_tr_refuses_s_node_targets_outside_base_graph():
+    graph = _graph(
+        [CausalEdge(src="X", dst="Y")],
+        nodes=("X", "Y"),
+        graph_type=GraphType.DAG,
+    )
+    valid = SelectionDiagram(
+        base_graph=graph,
+        s_nodes=[
+            SNode(
+                target_variable="Y",
+                context_dimension="institutional_quality",
+                source_value=0.8,
+                target_value=0.4,
+                delta=0.4,
+                severity="medium",
+            )
+        ],
+        source_context=ContextProfile(context_id="source"),
+        target_context=ContextProfile(context_id="target"),
+    )
+    unknown_target = SNode(
+        target_variable="GHOST",
+        context_dimension="institutional_quality",
+        source_value=0.8,
+        target_value=0.4,
+        delta=0.4,
+        severity="medium",
+    )
+    malformed_diagrams = (
+        valid.model_copy(update={"s_nodes": [unknown_target]}),
+        SelectionDiagram(
+            base_graph=graph,
+            s_nodes=[unknown_target],
+            source_context=valid.source_context,
+            target_context=valid.target_context,
+        ),
+    )
+
+    for diagram in malformed_diagrams:
+        with pytest.raises(ops.InvalidCausalGraphProfileError, match="S-node target"):
+            core.tr_algorithm(
+                treatment=frozenset({"X"}),
+                outcome=frozenset({"Y"}),
+                selection_diagram=diagram,
+            )

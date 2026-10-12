@@ -67,8 +67,10 @@ from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     EdgeMark,
     EdgeSource,
+    GraphProjectionStatus,
     GraphType,
     PAGIdentificationPolicy,
+    graph_projection_disposition,
 )
 
 _VALID_CI_TESTS = frozenset({"fisherz", "chisq", "gsq", "kci"})
@@ -2876,7 +2878,7 @@ def _build_graph(
         variable_names=variable_names,
     )
     metadata = dict(extra_metadata) if extra_metadata else {}
-    if graph_type is GraphType.PAG:
+    if graph_type in {GraphType.PAG, GraphType.CPDAG}:
         graph = CausalGraphModel(
             graph_type=graph_type,
             nodes=list(variable_names),
@@ -2898,13 +2900,13 @@ def _build_graph(
                 update={
                     "metadata": {
                         **metadata,
-                        "resolved_graph_status": "blocked_unresolved_pag",
+                        "resolved_graph_status": "blocked_partial_graph_profile",
                         "resolved_graph_limitation": limitation,
                     }
                 }
             )
             conversion_warnings.append(
-                "resolved_graph_blocked: unresolved PAG orientation retained as PAG"
+                "resolved_graph_blocked: unsupported partial-graph source retained"
             )
             return graph, None, conversion_warnings
         return graph, resolved_graph, conversion_warnings
@@ -2940,7 +2942,7 @@ def _fallback_report(
             discovery_method=method_name,
             pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
         )
-        resolved_graph, _ = pag_to_dag_projection(graph)
+        resolved_graph = None
     else:
         graph = CausalGraphModel(
             graph_type=graph_type,
@@ -2949,10 +2951,17 @@ def _fallback_report(
             discovery_method=method_name,
         )
         resolved_graph = None
+    disposition = graph_projection_disposition(
+        graph,
+        None,
+        status=GraphProjectionStatus.UNAVAILABLE,
+        reason_code="discovery_fallback",
+    )
     return CausalDiscoveryReport(
         method=method_name,
         graph=graph,
         resolved_graph=resolved_graph,
+        projection_disposition=disposition,
         bootstrap_stability={},
         n_bootstrap=0,
         significance_level=significance_level,
@@ -3091,6 +3100,30 @@ def _run_constraint_discovery(
             graph,
             algebraic_blocks=algebraic_blocks,
         )
+        if resolved_graph is not None:
+            resolved_graph, _ = pag_to_dag_projection(graph)
+        if graph.graph_type is GraphType.DAG:
+            projection_disposition = graph_projection_disposition(
+                graph,
+                graph,
+                status=GraphProjectionStatus.IDENTITY,
+            )
+        elif resolved_graph is not None:
+            projection_disposition = graph_projection_disposition(
+                graph,
+                resolved_graph,
+                status=GraphProjectionStatus.PROJECTED,
+            )
+        else:
+            projection_disposition = graph_projection_disposition(
+                graph,
+                None,
+                status=GraphProjectionStatus.UNSUPPORTED,
+                reason_code=(
+                    graph.dag_projection_refusal_code()
+                    or "partial_graph_projection_unavailable"
+                ),
+            )
     except Exception as exc:
         warnings.append(
             f"{_method_name_for_algorithm(algorithm).upper()} graph conversion failed: {exc}"
@@ -3190,6 +3223,7 @@ def _run_constraint_discovery(
             method=_method_name_for_algorithm(algorithm),
             graph=graph,
             resolved_graph=resolved_graph,
+            projection_disposition=projection_disposition,
             bootstrap_stability=bootstrap_stability,
             n_bootstrap=completed_bootstrap,
             significance_level=significance_level,

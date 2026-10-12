@@ -30,6 +30,55 @@ def _fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Pat
     return facade, mapping
 
 
+@pytest.mark.parametrize("docstring", ["", '"""Legal facade."""\n'])
+def test_legal_future_annotations_is_passive_to_actual_facade_resolver(
+    docstring: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    facade.write_text(
+        docstring
+        + "from __future__ import annotations\n"
+        + "from .exports import PUBLIC_NAMES as names\n"
+        + "__all__ = sorted(names)\n",
+        encoding="utf-8",
+    )
+
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+
+    assert result.exports == ("Old",)
+    assert result.export_count == 1
+    assert result.export_resolution["complete"] is True
+
+
+def test_misordered_future_directive_keeps_facade_inventory_unresolved(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    facade.write_text(
+        "from .exports import PUBLIC_NAMES as names\n"
+        "from __future__ import annotations\n"
+        "__all__ = sorted(names)\n",
+        encoding="utf-8",
+    )
+
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+
+    assert result.export_count is None
+    assert result.known_export_count == 0
+    assert result.export_resolution["complete"] is False
+    assert "from __future__ import annotations" in result.export_resolution["reason"]
+
+
+def test_unknown_future_feature_is_rejected_by_python_parser() -> None:
+    with pytest.raises(SyntaxError, match=r"future feature .* is not defined"):
+        ast.parse(
+            "from __future__ import unsupported_policyos_future_feature\n__all__ = ['StaticName']\n"
+        )
+
+
 def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
     from polisyos.ir import analytics
     from polisyos.ir.analytics.causal_queries import CausalEstimatorInterval, CausalResultKind
@@ -419,7 +468,6 @@ def test_missing_syntactic_binding_does_not_bypass_effect_audit(source: str) -> 
         "ignored = [value for value in foreign]",
         "import foreign",
         "from foreign import value",
-        "from __future__ import annotations",
     ],
 )
 def test_import_time_profile_refuses_implicit_and_foreign_protocol_effects(effect: str) -> None:

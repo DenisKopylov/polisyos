@@ -1,0 +1,22 @@
+id = "2026-10-12-e02-b161-source-bound-risk-observation"
+title = "Surface source-bound welfare measurements as candidate-only funnel evidence"
+type = "changed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "The policy-runtime funnel can derive an audit-only observation from an existing persisted welfare Monte Carlo bundle, preserve selected source profiles, and freshly recompute execution attempts, draw counts, summaries, and the interval before exposing the observation through FunnelOutcome.audit_refs."
+evidence = [
+  "src/polisyos/scientist/methods/search/uncertainty.py",
+  "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+  "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+  "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+]
+compatibility = "Additive internal artifact kind; existing SearchUncertaintyObservation, UncertaintyEnvelope, FunnelOutcome, current uncertainty, and historical merge_max behavior are unchanged."
+change_class = "persisted-artifact-format"
+surface_classification = "Existing FunnelOutcome.audit_refs serialization and generic authorized artifact-content route carry the candidate-only artifact; no generated DTO or promotion surface is added."
+migration = "No history rewrite. Existing welfare bundles remain unchanged; the bridge only emits when an exact selected welfare bundle and its current candidate scope claim resolve."
+api = "The new strict SourceBoundRiskObservation stores raw welfare measure, nominal point, recomputed sampled mean/spread and credible interval, Monte Carlo method-profile ref, selected report/sample refs, source production time, and recomputed requested/attempted/successful/failed/unattempted/valid/simulation/retry counts. It fixes unit, valid-time, risk-interpretation, and refinement statuses to not_established, and scope relation to consumer_asserted. The consumer resolves exact CAS profile views, checks the original selected lineage refs, recomputes attempt identities, counts, sample-derived report summaries and quantiles, and only then exposes the artifact ref in audit_refs."
+limitations = "This does not identify a search-risk quantity or same-scope refinement law; bundle policy_ref equality is only a consumer-asserted candidate association. Welfare units and validity/currentness are absent, and manifest created_at is only source production time. No value is normalized to UncertaintyEnvelope, no history maximum is lowered, no independent risk is overwritten, and no causal-admissibility or publication authority is inferred. Only Monte Carlo welfare sources with coherent persisted samples/reports are supported; delta/analytical/robust, N5 K_sim, native causal uncertainty, and calibrated Hessian sources remain separate candidates. Pytest/runtime and public-surface inventory verification are UNRUN under the task hold."
+generated_client_compatibility = "No generated client shape changes; audit_refs remains the existing generic ArtifactRef list."
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+runbook_docs = []

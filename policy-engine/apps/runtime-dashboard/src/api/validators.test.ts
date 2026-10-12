@@ -8,6 +8,7 @@ import {
   lexSearchRequestSchema,
   lexSearchProfileResponseSchema,
   lexSearchResponseSchema,
+  predictiveCalibrationResponseSchema,
   quantityValueSchema,
   runAgentsSchema,
   runDetailsSchema,
@@ -18,6 +19,12 @@ import {
   acquisitionGrowthPayloadSchema,
   acquisitionRouteListResponseSchema,
 } from "@/features/runs/api/acquisitionRouteValidators";
+import {
+  predictiveCalibrationResponseFixture,
+  responseWithoutSelectedRunManifestProfile,
+  responseWithUnknownAssociationAuthority,
+  responseWithUnknownMetaAuthority,
+} from "@/test/fixtures/predictiveCalibrationResponse";
 import {
   availableHumanDecisionGate,
   humanDecisionDigest,
@@ -162,6 +169,190 @@ function runDetailsPayload(label: string) {
   };
 }
 
+function n5InteractionEvidenceFixture() {
+  const pairSummary = {
+    status: "estimated",
+    replicate_count: 2,
+    seeds: [41, 42],
+    samples: [
+      { seed: 41, value: 0 },
+      { seed: 42, value: 0 },
+    ],
+    mean: 0,
+    standard_error: 0,
+  };
+  const residualSummary = {
+    status: "estimated",
+    replicate_count: 2,
+    seeds: [41, 42],
+    samples: [
+      { seed: 41, value: 1 },
+      { seed: 42, value: -1 },
+    ],
+    mean: 0,
+    standard_error: 1,
+  };
+  return {
+    schema_version: "policyos.runtime.joint_simulation_horizon.v4",
+    numeric_interaction: "unsupported",
+    numeric_interaction_basis: "finite_checked_model_point_estimate_only",
+    interaction_sampling_status: "estimated",
+    interaction_terms: ["atom-a|atom-b", "atom-a|atom-c", "atom-b|atom-c"].map(
+      (pair) => ({
+        atom_ids: pair.split("|"),
+        outcome: "outcome-a",
+        by_step: { "0": 0 },
+        replication_sampling_by_step: { "0": pairSummary },
+      }),
+    ),
+    higher_order_residuals: { "outcome-a": { "0": 0 } },
+    higher_order_residual_sampling: {
+      "outcome-a": { "0": residualSummary },
+    },
+    checked_interaction_orders: [1, 2, 3],
+    authority_purpose: "candidate_checked_model_only",
+    publication_authority: false,
+  };
+}
+
+function parentJointCandidateSimulationProjection(runId: string) {
+  const artifactRef = (kind: string, digit: string) => ({
+    artifact_id: `sha256:${digit.repeat(64)}`,
+    kind,
+    media_type: "application/json",
+  });
+  const parentAtomIds = [
+    "atom_1111111111111111",
+    "atom_2222222222222222",
+    "atom_3333333333333333",
+  ];
+  const interactionAtomIds = ["atom-a", "atom-b", "atom-c"];
+  const atomHashes = ["4", "5", "6"].map(
+    (digit) => `sha256:${digit.repeat(64)}`,
+  );
+  const parentFrameRef = `sha256:${"d".repeat(64)}`;
+  const evidence = n5InteractionEvidenceFixture();
+  evidence.numeric_interaction = "additive";
+  const interactionPairs = [
+    ["atom-a", "atom-b"],
+    ["atom-a", "atom-c"],
+    ["atom-b", "atom-c"],
+  ];
+  evidence.interaction_terms = evidence.interaction_terms.map(
+    (term, index) => ({
+      ...term,
+      atom_ids: interactionPairs[index]!,
+    }),
+  );
+  const childRefs = ["child://a", "child://b", "child://c"];
+  return {
+    artifact_status: "resolved",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+    schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
+    run_id: runId,
+    source_ref: artifactRef("runtime.compiled_recursive_generation_cycle", "a"),
+    source_content_hash: `sha256:${"b".repeat(64)}`,
+    n5_observations: [
+      {
+        node_ref: "design-problem://parent",
+        design_problem_ref: parentFrameRef,
+        atom_ids: interactionAtomIds,
+        selected_outcomes: ["outcome-a"],
+        executed_steps: [0],
+        replication_seeds: [41, 42],
+        status: "joint_simulated",
+        simulation_ref: `sha256:${"7".repeat(64)}`,
+        simulation_result_ref: artifactRef(
+          "polisyos.runtime.joint_simulation_result",
+          "7",
+        ),
+        n4_source_ref: artifactRef(
+          "runtime.quality.n4_candidate_scenario_source",
+          "8",
+        ),
+        context_job_ref: artifactRef(
+          "runtime.quality.cycle_substrate_context_job",
+          "9",
+        ),
+        n5_input_ref: artifactRef(
+          "runtime.quality.candidate_simulation_n5_input",
+          "a",
+        ),
+        profile_config_ref: `runtime-config:candidate-simulation/fixture@${atomHashes[0]}`,
+        profile_selection_ref: `sha256:${"c".repeat(64)}`,
+        lineage_status: "resolved",
+        lineage_limitation_code: null,
+        currentness_status: "not_established",
+        world_model_record_content_hash: `sha256:${"e".repeat(64)}`,
+        k_world_ref_before: `sha256:${"e".repeat(64)}`,
+        k_world_ref_after: `sha256:${"e".repeat(64)}`,
+        authority_blockers: [],
+        n5_interaction_evidence: evidence,
+        n8_numeric_interaction: "additive",
+        n8_numeric_interaction_basis:
+          "finite_checked_model_point_estimate_only",
+        n8_interaction_sampling_status: "estimated",
+        n8_status: "value_pending_n8",
+        n8_authority_blockers: ["joint_interaction_rule_not_established"],
+        n8_joint_request_content_hash: `sha256:${"f".repeat(64)}`,
+        n8_joint_world_model_record_ref: "world_model_record_parent",
+        n8_joint_outcome_units: { "outcome-a": "synthetic_score" },
+        n8_joint_parent_atom_ids: parentAtomIds,
+        n8_joint_parent_atom_content_hashes: atomHashes,
+        n8_parent_child_refs: childRefs,
+        n8_parent_child_source_bindings: childRefs.map((childRef, index) => ({
+          child_node_ref: childRef,
+          child_design_problem_ref: parentFrameRef,
+          n4_source_ref: artifactRef(
+            "runtime.quality.n4_candidate_scenario_source",
+            "8",
+          ),
+          context_job_ref: artifactRef(
+            "runtime.quality.cycle_substrate_context_job",
+            "9",
+          ),
+          n5_input_ref: artifactRef(
+            "runtime.quality.candidate_simulation_n5_input",
+            "a",
+          ),
+          n5_result_ref: artifactRef(
+            "polisyos.runtime.joint_simulation_result",
+            "7",
+          ),
+          profile_config_ref: `runtime-config:candidate-simulation/fixture@${atomHashes[index]}`,
+          profile_selection_ref: `sha256:${"c".repeat(64)}`,
+          source_intervention_id: interactionAtomIds[index],
+          source_atom_id: parentAtomIds[index],
+          source_atom_content_hash: atomHashes[index],
+          source_problem_frame_ref: parentFrameRef,
+          parent_atom_id: parentAtomIds[index],
+          parent_atom_content_hash: atomHashes[index],
+        })),
+        n8_joint_scope_status: "resolved",
+        n8_joint_scope_limitation_code: null,
+        n8_joint_value_limitation_code:
+          "joint_interaction_rule_not_established",
+        n8_candidate_joint_selection_status: "resolved",
+        n8_candidate_joint_selection_content_hash: "sha256:" + "f".repeat(64),
+        n8_candidate_parent_atom_ids: parentAtomIds,
+        n8_candidate_parent_atom_content_hashes: atomHashes,
+        n8_candidate_parent_intervention_ids: interactionAtomIds,
+        n8_candidate_parent_child_refs: childRefs,
+        n8_candidate_joint_selection_limitation_code: null,
+        n8_candidate_member_basis: "hypothetical_all_unique_n4_source_members",
+        n8_source_candidate_relationship: "alternatives",
+        n8_policy_composition_status: "not_established",
+        n8_policy_composition_limitation_code:
+          "n4_source_candidates_are_alternatives_not_authored_compound_design",
+        n8_child_to_parent_refinement_status: "not_established",
+        n8_child_to_parent_refinement_limitation_code:
+          "child_to_parent_refinement_rule_not_established",
+      },
+    ],
+  };
+}
+
 function genericCycleSimulationProjection(runId: string) {
   const ref = (kind: string, suffix: string) => ({
     artifact_id: "sha256:" + suffix.repeat(64),
@@ -196,7 +387,10 @@ function genericCycleSimulationProjection(runId: string) {
         ? ref("polisyos.runtime.joint_simulation_result", "5")
         : null;
     return {
-      atom_ids: [`atom-${cycleIndex}`],
+      atom_ids:
+        status === "joint_simulated"
+          ? ["atom-a", "atom-b", "atom-c"]
+          : [`atom-${cycleIndex}`],
       authority_blockers: ["publication_not_admitted"],
       authority_purpose: "cycle_input_candidate_only",
       candidate_id: candidateId,
@@ -219,20 +413,39 @@ function genericCycleSimulationProjection(runId: string) {
         status === "joint_simulated" ? "resolved" : "not_established",
       n5_request_content_hash:
         status === "joint_simulated" ? "sha256:" + "4".repeat(64) : null,
-      n8_authority_blockers: ["n9_not_admitted"],
+      n8_authority_blockers:
+        status === "joint_simulated"
+          ? [
+              "n9_not_admitted",
+              "interaction_numeric_classification_unsupported",
+            ]
+          : ["n9_not_admitted"],
+      n5_interaction_evidence:
+        status === "joint_simulated" ? n5InteractionEvidenceFixture() : null,
+      n8_numeric_interaction:
+        status === "joint_simulated" ? "unsupported" : null,
+      n8_numeric_interaction_basis:
+        status === "joint_simulated"
+          ? "finite_checked_model_point_estimate_only"
+          : null,
+      n8_interaction_sampling_status:
+        status === "joint_simulated" ? "estimated" : null,
       n8_limitation_code:
         status === "joint_simulated"
           ? null
           : "generic_n5_request_binding_not_established",
       n8_lineage_status:
         status === "joint_simulated" ? "resolved" : "not_established",
-      n8_status: "value_conditional",
+      n8_status:
+        status === "joint_simulated" ? "value_conditional" : "value_pending_n8",
       n8_value_ref: resultRef?.artifact_id ?? null,
       node_ref: "design-problem://" + digest.repeat(64),
       profile_ref: profileRef,
       profile_selection_ref: "sha256:" + "e".repeat(64),
       publication_authority: false,
       selected_outcomes: status === "joint_simulated" ? ["outcome-a"] : [],
+      executed_steps: status === "joint_simulated" ? [0] : [],
+      replication_seeds: status === "joint_simulated" ? [41, 42] : [],
       simulation_result_ref: resultRef,
       status,
       world_model_record_content_hash: "sha256:" + "6".repeat(64),
@@ -448,7 +661,7 @@ describe("runtime API validators", () => {
           route_id: `sha256:${"d".repeat(64)}`,
           action_generation: 3,
           terminal_outcome: "reentry_completed",
-          old_candidate_id: "candidate-before",
+          old_candidate_id: "candidate-after",
           new_candidate_id: "candidate-after",
           new_candidate_source_ref: {
             artifact_id: `sha256:${"e".repeat(64)}`,
@@ -459,6 +672,65 @@ describe("runtime API validators", () => {
           currentness_status: "not_established",
           authority_purpose: "candidate_observation_only",
           publication_authority: false,
+          continuation: {
+            source_generation_run_content_hash: `sha256:${"1".repeat(64)}`,
+            continued_generation_run_content_hash: `sha256:${"2".repeat(64)}`,
+            source_cycle_index: 1,
+            continued_cycle_index: 2,
+            previous_n4_source_ref: {
+              artifact_id: `sha256:${"6".repeat(64)}`,
+              kind: "runtime.quality.n4_candidate_scenario_source",
+              media_type: "application/json",
+            },
+            previous_n5_input_ref: {
+              artifact_id: `sha256:${"7".repeat(64)}`,
+              kind: "runtime.quality.candidate_simulation_n5_input",
+              media_type: "application/json",
+            },
+            selected_n4_source_ref: {
+              artifact_id: `sha256:${"e".repeat(64)}`,
+              kind: "runtime.quality.n4_candidate_scenario_source",
+              media_type: "application/json",
+            },
+            selected_n5_input_ref: {
+              artifact_id: `sha256:${"8".repeat(64)}`,
+              kind: "runtime.quality.candidate_simulation_n5_input",
+              media_type: "application/json",
+            },
+            previous_profile_selection_ref: `sha256:${"9".repeat(64)}`,
+            previous_profile_content_hash: `sha256:${"d".repeat(64)}`,
+            selected_profile_selection_ref: `sha256:${"9".repeat(64)}`,
+            selected_profile_content_hash: `sha256:${"a".repeat(64)}`,
+            selected_target_world_slot: "government.balance",
+            previous_selected_target_baseline_hash: `sha256:${"b".repeat(64)}`,
+            selected_target_baseline_hash: `sha256:${"c".repeat(64)}`,
+            source_currentness_status: "not_established",
+            source_currentness_reason: "n6_census_issuer_not_appointed",
+            continuation_currentness_status: "not_established",
+            continuation_currentness_reason: "n6_census_issuer_not_appointed",
+            n9_status: "not_promoted",
+            n9_reason: "generation_cycle_n6_census_not_established",
+            n9_certified_candidate_ids: [],
+            current_candidate_occurrences: [
+              {
+                candidate_id: "candidate-after",
+                cycle_index: 2,
+                content_hash: `sha256:${"a".repeat(64)}`,
+                source_content_hash: null,
+                front: "research",
+                certified_by_n9: false,
+              },
+            ],
+            current_fronts: {
+              decision_candidate_ids: [],
+              research_candidate_ids: ["candidate-after"],
+              quarantine_candidate_ids: [],
+              portfolio_candidate_ids: [],
+            },
+            currentness_status: "not_established",
+            authority_purpose: "candidate_observation_only",
+            publication_authority: false,
+          },
         },
       ],
     };
@@ -476,6 +748,264 @@ describe("runtime API validators", () => {
       parsed.run.candidate_simulation?.acquisition_history?.[0]
         ?.currentness_status,
     ).toBe("not_established");
+
+    const targetNoOp = structuredClone(payload);
+    const targetNoOpRun = mutableRecord(targetNoOp.run);
+    const targetNoOpCandidate = mutableRecord(
+      targetNoOpRun.candidate_simulation,
+    );
+    const targetNoOpHistory =
+      targetNoOpCandidate.acquisition_history as unknown[];
+    const targetNoOpEntry = mutableRecord(targetNoOpHistory[0]);
+    const targetNoOpContinuation = mutableRecord(targetNoOpEntry.continuation);
+    targetNoOpContinuation.selected_target_baseline_hash =
+      targetNoOpContinuation.previous_selected_target_baseline_hash;
+    expect(() => runDetailsSchema.parse(targetNoOp)).toThrow(
+      "run_candidate_simulation_continuation_projection_invalid",
+    );
+
+    const wrongFront = structuredClone(payload);
+    const wrongFrontRun = mutableRecord(wrongFront.run);
+    const wrongFrontCandidate = mutableRecord(
+      wrongFrontRun.candidate_simulation,
+    );
+    const wrongFrontHistory =
+      wrongFrontCandidate.acquisition_history as unknown[];
+    const wrongFrontEntry = mutableRecord(wrongFrontHistory[0]);
+    const wrongFrontContinuation = mutableRecord(wrongFrontEntry.continuation);
+    const occurrences = mutableRecord(wrongFrontContinuation)
+      .current_candidate_occurrences as unknown[];
+    mutableRecord(occurrences[0]).front = "decision";
+    expect(() => runDetailsSchema.parse(wrongFront)).toThrow(
+      "run_candidate_simulation_continuation_projection_invalid",
+    );
+
+    const swappedSource = structuredClone(payload);
+    const swappedRun = mutableRecord(swappedSource.run);
+    const swappedCandidate = mutableRecord(swappedRun.candidate_simulation);
+    const swappedHistory = swappedCandidate.acquisition_history as unknown[];
+    const swappedEntry = mutableRecord(swappedHistory[0]);
+    const swappedContinuation = mutableRecord(swappedEntry.continuation);
+    const previousN5 = mutableRecord(
+      mutableRecord(swappedContinuation).previous_n5_input_ref,
+    );
+    const selectedN5 = mutableRecord(
+      mutableRecord(swappedContinuation).selected_n5_input_ref,
+    );
+    selectedN5.artifact_id = previousN5.artifact_id;
+    expect(() => runDetailsSchema.parse(swappedSource)).toThrow(
+      "candidate_acquisition_same_candidate_continuation_binding_invalid",
+    );
+  });
+
+  it("keeps an additive point estimate pending without the complete parent atom source basis", () => {
+    const payload = runDetailsPayload("projection only");
+    const run = mutableRecord(payload.run);
+    const projection =
+      parentJointCandidateSimulationProjection("run-parent-n8");
+    run.candidate_simulation = projection;
+
+    const parsed = runDetailsSchema.parse(payload);
+    expect(parsed.run.candidate_simulation?.n5_observations[0]).toMatchObject({
+      n8_numeric_interaction: "additive",
+      n8_status: "value_pending_n8",
+      n8_joint_value_limitation_code: "joint_interaction_rule_not_established",
+      n8_candidate_member_basis: "hypothetical_all_unique_n4_source_members",
+      n8_source_candidate_relationship: "alternatives",
+      n8_policy_composition_status: "not_established",
+      n8_child_to_parent_refinement_status: "not_established",
+    });
+    const parsedObservation =
+      parsed.run.candidate_simulation?.n5_observations[0];
+    expect(
+      parsedObservation?.n5_interaction_evidence?.interaction_terms.map(
+        (term) => term.atom_ids,
+      ),
+    ).toEqual([
+      ["atom-a", "atom-b"],
+      ["atom-a", "atom-c"],
+      ["atom-b", "atom-c"],
+    ]);
+    expect(
+      parsedObservation?.n5_interaction_evidence?.interaction_terms.map(
+        (term) => term.replication_sampling_by_step["0"],
+      ),
+    ).toEqual([
+      {
+        status: "estimated",
+        replicate_count: 2,
+        seeds: [41, 42],
+        samples: [
+          { seed: 41, value: 0 },
+          { seed: 42, value: 0 },
+        ],
+        mean: 0,
+        standard_error: 0,
+      },
+      {
+        status: "estimated",
+        replicate_count: 2,
+        seeds: [41, 42],
+        samples: [
+          { seed: 41, value: 0 },
+          { seed: 42, value: 0 },
+        ],
+        mean: 0,
+        standard_error: 0,
+      },
+      {
+        status: "estimated",
+        replicate_count: 2,
+        seeds: [41, 42],
+        samples: [
+          { seed: 41, value: 0 },
+          { seed: 42, value: 0 },
+        ],
+        mean: 0,
+        standard_error: 0,
+      },
+    ]);
+    expect(
+      parsedObservation?.n5_interaction_evidence
+        ?.higher_order_residual_sampling["outcome-a"]?.["0"],
+    ).toMatchObject({
+      status: "estimated",
+      seeds: [41, 42],
+      samples: [
+        { seed: 41, value: 1 },
+        { seed: 42, value: -1 },
+      ],
+      mean: 0,
+      standard_error: 1,
+    });
+
+    const legacySelection = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const legacyObservation = firstMutableRecord(
+      legacySelection.n5_observations,
+      "n5_observations",
+    );
+    legacyObservation.n8_candidate_member_basis = "not_established";
+    legacyObservation.n8_source_candidate_relationship = "not_established";
+    legacyObservation.n8_policy_composition_limitation_code =
+      "legacy_selection_receipt_has_no_composition_basis";
+    legacyObservation.n8_child_to_parent_refinement_limitation_code =
+      "legacy_selection_receipt_has_no_refinement_basis";
+    const legacyPayload = runDetailsPayload("projection only");
+    mutableRecord(legacyPayload.run).candidate_simulation = legacySelection;
+    expect(runDetailsSchema.safeParse(legacyPayload).success).toBe(true);
+
+    const removedCandidateBasis = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const removedCandidateObservation = firstMutableRecord(
+      removedCandidateBasis.n5_observations,
+      "n5_observations",
+    );
+    removedCandidateObservation.n8_candidate_member_basis = null;
+    const removedCandidatePayload = runDetailsPayload("projection only");
+    mutableRecord(removedCandidatePayload.run).candidate_simulation =
+      removedCandidateBasis;
+    expect(runDetailsSchema.safeParse(removedCandidatePayload).success).toBe(
+      false,
+    );
+
+    const falselyComposed = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const falselyComposedObservation = firstMutableRecord(
+      falselyComposed.n5_observations,
+      "n5_observations",
+    );
+    falselyComposedObservation.n8_policy_composition_status = "resolved";
+    const falselyComposedPayload = runDetailsPayload("projection only");
+    mutableRecord(falselyComposedPayload.run).candidate_simulation =
+      falselyComposed;
+    expect(runDetailsSchema.safeParse(falselyComposedPayload).success).toBe(
+      false,
+    );
+
+    const removedBinding = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const removedObservation = firstMutableRecord(
+      removedBinding.n5_observations,
+      "n5_observations",
+    );
+    const childBindings = removedObservation.n8_parent_child_source_bindings;
+    if (!Array.isArray(childBindings))
+      throw new TypeError("expected child source bindings");
+    removedObservation.n8_parent_child_source_bindings = childBindings.slice(1);
+    const removedPayload = runDetailsPayload("projection only");
+    mutableRecord(removedPayload.run).candidate_simulation = removedBinding;
+    expect(runDetailsSchema.safeParse(removedPayload).success).toBe(false);
+
+    const foreignFrame = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const foreignObservation = firstMutableRecord(
+      foreignFrame.n5_observations,
+      "n5_observations",
+    );
+    const foreignBindings = foreignObservation.n8_parent_child_source_bindings;
+    if (!Array.isArray(foreignBindings))
+      throw new TypeError("expected child source bindings");
+    mutableRecord(foreignBindings[0]).source_problem_frame_ref =
+      `sha256:${"0".repeat(64)}`;
+    const foreignPayload = runDetailsPayload("projection only");
+    mutableRecord(foreignPayload.run).candidate_simulation = foreignFrame;
+    expect(runDetailsSchema.safeParse(foreignPayload).success).toBe(false);
+
+    const mismatchedSelectedAxes = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const mismatchedObservation = firstMutableRecord(
+      mismatchedSelectedAxes.n5_observations,
+      "n5_observations",
+    );
+    mismatchedObservation.atom_ids = ["atom-0"];
+    const mismatchedPayload = runDetailsPayload("projection only");
+    mutableRecord(mismatchedPayload.run).candidate_simulation =
+      mismatchedSelectedAxes;
+    expect(runDetailsSchema.safeParse(mismatchedPayload).success).toBe(false);
+
+    const removedPair = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const removedPairObservation = firstMutableRecord(
+      removedPair.n5_observations,
+      "n5_observations",
+    );
+    const interactionEvidence = mutableRecord(
+      removedPairObservation.n5_interaction_evidence,
+    );
+    if (!Array.isArray(interactionEvidence.interaction_terms)) {
+      throw new TypeError("expected interaction terms");
+    }
+    interactionEvidence.interaction_terms =
+      interactionEvidence.interaction_terms.slice(1);
+    const removedPairPayload = runDetailsPayload("projection only");
+    mutableRecord(removedPairPayload.run).candidate_simulation = removedPair;
+    expect(runDetailsSchema.safeParse(removedPairPayload).success).toBe(false);
+
+    const removedResidual = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const removedResidualObservation = firstMutableRecord(
+      removedResidual.n5_observations,
+      "n5_observations",
+    );
+    const evidenceWithRemovedResidual = mutableRecord(
+      removedResidualObservation.n5_interaction_evidence,
+    );
+    evidenceWithRemovedResidual.higher_order_residual_sampling = {};
+    const removedResidualPayload = runDetailsPayload("projection only");
+    mutableRecord(removedResidualPayload.run).candidate_simulation =
+      removedResidual;
+    expect(runDetailsSchema.safeParse(removedResidualPayload).success).toBe(
+      false,
+    );
   });
 
   it("keeps an absent generic cycle field absent instead of synthesizing a projection", () => {
@@ -507,6 +1037,224 @@ describe("runtime API validators", () => {
       parsed.run.generic_cycle_simulation?.recursive_cycle_checkpoint
         ?.failed_branches,
     ).toHaveLength(1);
+  });
+
+  it("recomputes and preserves shared-seed interaction samples and fails closed on mismatches", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = genericCycleSimulationProjection("run-projection-mask");
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+    const parsed = runDetailsSchema.parse(payload);
+    const observation = parsed.run.generic_cycle_simulation?.n5_observations[0];
+    expect(
+      observation?.n5_interaction_evidence?.interaction_terms[0]
+        ?.replication_sampling_by_step["0"],
+    ).toMatchObject({
+      seeds: [41, 42],
+      samples: [
+        { seed: 41, value: 0 },
+        { seed: 42, value: 0 },
+      ],
+      mean: 0,
+      standard_error: 0,
+    });
+
+    const corrupted = mutableRecord(
+      genericCycleSimulationProjection("run-projection-mask")
+        .n5_observations[0],
+    );
+    const evidence = mutableRecord(corrupted.n5_interaction_evidence);
+    const term = firstMutableRecord(
+      evidence.interaction_terms,
+      "interaction_terms",
+    );
+    const samplingByStep = mutableRecord(term.replication_sampling_by_step);
+    const step = mutableRecord(samplingByStep["0"]);
+    step.samples = [
+      { seed: 41, value: 1 },
+      { seed: 42, value: -1 },
+    ];
+    const corruptedPayload = runDetailsPayload("projection only");
+    const corruptedProjection = mutableRecord(
+      genericCycleSimulationProjection("run-projection-mask"),
+    );
+    corruptedProjection.n5_observations = [corrupted];
+    mutableRecord(corruptedPayload.run).generic_cycle_simulation =
+      corruptedProjection;
+    expect(runDetailsSchema.safeParse(corruptedPayload).success).toBe(false);
+  });
+
+  it("retains legacy N5 uncertainty as a limitation without current-scope requirements", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = mutableRecord(
+      genericCycleSimulationProjection("run-projection-mask"),
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    const evidence = mutableRecord(observation.n5_interaction_evidence);
+    evidence.schema_version = "policyos.runtime.joint_simulation_horizon.v3";
+    evidence.numeric_interaction = "unsupported";
+    evidence.numeric_interaction_basis = "not_established";
+    evidence.interaction_sampling_status = "not_established";
+    evidence.interaction_terms = [];
+    evidence.higher_order_residuals = {};
+    evidence.higher_order_residual_sampling = {};
+    observation.n8_numeric_interaction = "unsupported";
+    observation.n8_numeric_interaction_basis = "not_established";
+    observation.n8_interaction_sampling_status = "not_established";
+    observation.n8_authority_blockers = [
+      ...((observation.n8_authority_blockers as string[]) ?? []),
+      "legacy_interaction_not_established",
+    ];
+    delete observation.executed_steps;
+    delete observation.replication_seeds;
+    projection.n5_observations = [observation];
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    const parsed = runDetailsSchema.parse(payload);
+
+    expect(
+      parsed.run.generic_cycle_simulation?.n5_observations[0]
+        ?.n5_interaction_evidence?.numeric_interaction,
+    ).toBe("unsupported");
+    expect(
+      parsed.run.generic_cycle_simulation?.n5_observations[0]
+        ?.n5_interaction_evidence?.interaction_sampling_status,
+    ).toBe("not_established");
+  });
+
+  it.each([
+    "remove_pair_keep_status_markers",
+    "foreign_pair_atoms",
+    "foreign_pair_outcome",
+    "foreign_pair_step",
+    "foreign_pair_seeds",
+    "checked_orders_not_bound_to_parent_atoms",
+    "remove_residual_keep_status_markers",
+    "foreign_residual_outcome",
+    "foreign_residual_step",
+    "parent_selected_atoms_mismatch",
+    "parent_selected_outcomes_mismatch",
+    "missing_parent_step_basis",
+    "missing_parent_seed_basis",
+  ])("rejects current N5 evidence outside its parent basis: %s", (control) => {
+    const payload = runDetailsPayload("projection only");
+    const projection = genericCycleSimulationProjection("run-projection-mask");
+    const observation = mutableRecord(projection.n5_observations[0]);
+    const evidence = mutableRecord(observation.n5_interaction_evidence);
+    const term = firstMutableRecord(
+      evidence.interaction_terms,
+      "interaction_terms",
+    );
+    if (control === "remove_pair_keep_status_markers") {
+      evidence.interaction_terms = (
+        evidence.interaction_terms as unknown[]
+      ).slice(1);
+    } else if (control === "foreign_pair_atoms") {
+      term.atom_ids = ["atom-a", "foreign-atom"];
+    } else if (control === "foreign_pair_outcome") {
+      term.outcome = "foreign-outcome";
+    } else if (control === "foreign_pair_step") {
+      term.by_step = { "1": 0 };
+      const summaries = mutableRecord(term.replication_sampling_by_step);
+      term.replication_sampling_by_step = {
+        "1": summaries["0"],
+      };
+    } else if (control === "foreign_pair_seeds") {
+      const summaries = mutableRecord(term.replication_sampling_by_step);
+      const summary = mutableRecord(summaries["0"]);
+      summary.seeds = [42, 43];
+      summary.samples = [
+        { seed: 42, value: 0 },
+        { seed: 43, value: 0 },
+      ];
+    } else if (control === "checked_orders_not_bound_to_parent_atoms") {
+      evidence.checked_interaction_orders = [1, 2];
+    } else if (control === "remove_residual_keep_status_markers") {
+      evidence.higher_order_residuals = {};
+      evidence.higher_order_residual_sampling = {};
+    } else if (control === "foreign_residual_outcome") {
+      const residualSampling = mutableRecord(
+        evidence.higher_order_residual_sampling,
+      );
+      evidence.higher_order_residuals = { "foreign-outcome": { "0": 0 } };
+      evidence.higher_order_residual_sampling = {
+        "foreign-outcome": residualSampling["outcome-a"],
+      };
+    } else if (control === "foreign_residual_step") {
+      const residualSampling = mutableRecord(
+        evidence.higher_order_residual_sampling,
+      );
+      const outcomeSampling = mutableRecord(residualSampling["outcome-a"]);
+      evidence.higher_order_residuals = { "outcome-a": { "1": 0 } };
+      evidence.higher_order_residual_sampling = {
+        "outcome-a": { "1": outcomeSampling["0"] },
+      };
+    } else if (control === "parent_selected_atoms_mismatch") {
+      observation.atom_ids = ["atom-a", "atom-b"];
+    } else if (control === "parent_selected_outcomes_mismatch") {
+      observation.selected_outcomes = ["other-outcome"];
+    } else if (control === "missing_parent_step_basis") {
+      delete observation.executed_steps;
+    } else if (control === "missing_parent_seed_basis") {
+      delete observation.replication_seeds;
+    }
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    const result = runDetailsSchema.safeParse(payload);
+
+    expect(result.success).toBe(false);
+    const issues = result.success ? [] : result.error.issues;
+    expect(issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.stringMatching(/^run_n5_interaction_scope_/),
+        }),
+      ]),
+    );
+  });
+
+  it("derives a complete four-atom pair basis under permutation", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = genericCycleSimulationProjection(
+      "four-atom-permutation",
+    );
+    const observation = mutableRecord(projection.n5_observations[0]);
+    const evidence = mutableRecord(observation.n5_interaction_evidence);
+    const template = firstMutableRecord(
+      evidence.interaction_terms,
+      "interaction_terms",
+    );
+    const atoms = ["atom-d", "atom-c", "atom-b", "atom-a"];
+    const pairs = atoms.flatMap((left, index) =>
+      atoms.slice(index + 1).map((right) => [left, right]),
+    );
+    observation.atom_ids = atoms;
+    evidence.interaction_terms = pairs.map((atom_ids) => ({
+      ...template,
+      atom_ids,
+    }));
+    evidence.checked_interaction_orders = [1, 2];
+    mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(true);
+
+    evidence.interaction_terms = (
+      evidence.interaction_terms as unknown[]
+    ).slice(1);
+    const missingPair = runDetailsSchema.safeParse(payload);
+    expect(missingPair.success).toBe(false);
+    const missingPairIssues = missingPair.success
+      ? []
+      : missingPair.error.issues;
+    expect(missingPairIssues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: "run_n5_interaction_scope_pair_set_incomplete",
+        }),
+      ]),
+    );
   });
 
   it("accepts the canonical budget-stopped v1 checkpoint shape", () => {
@@ -612,6 +1360,11 @@ describe("runtime API validators", () => {
     "n8_conditional_unresolved_without_limitation",
     "n8_conditional_unresolved_with_value_ref",
     "n8_nonconditional_with_resolved_lineage",
+    "n8_interaction_qualification_mismatch",
+    "n5_interaction_seed_mismatch",
+    "n5_interaction_se_mismatch",
+    "n5_interaction_summary_removed_with_additive_marker",
+    "n5_legacy_interaction_laundering",
     "projection_v2_without_credal_attempt",
     "projection_resolved_without_source_ref",
     "projection_resolved_without_source_hash",
@@ -778,6 +1531,41 @@ describe("runtime API validators", () => {
         "generic_n5_request_binding_not_established";
     } else if (control === "n8_nonconditional_with_resolved_lineage") {
       n5Observation().n8_status = "value_ready";
+    } else if (control === "n8_interaction_qualification_mismatch") {
+      n5Observation().n8_numeric_interaction = "additive";
+    } else if (
+      control === "n5_interaction_summary_removed_with_additive_marker"
+    ) {
+      const evidence = mutableRecord(n5Observation().n5_interaction_evidence);
+      const term = firstMutableRecord(
+        evidence.interaction_terms,
+        "interaction_terms",
+      );
+      delete term.replication_sampling_by_step;
+    } else if (control === "n5_interaction_seed_mismatch") {
+      const evidence = mutableRecord(n5Observation().n5_interaction_evidence);
+      const term = firstMutableRecord(
+        evidence.interaction_terms,
+        "interaction_terms",
+      );
+      const samplingByStep = mutableRecord(term.replication_sampling_by_step);
+      const step = mutableRecord(samplingByStep["0"]);
+      step.samples = [
+        { seed: 41, value: 0 },
+        { seed: 43, value: 0 },
+      ];
+    } else if (control === "n5_interaction_se_mismatch") {
+      const evidence = mutableRecord(n5Observation().n5_interaction_evidence);
+      const term = firstMutableRecord(
+        evidence.interaction_terms,
+        "interaction_terms",
+      );
+      const samplingByStep = mutableRecord(term.replication_sampling_by_step);
+      const step = mutableRecord(samplingByStep["0"]);
+      step.standard_error = 1;
+    } else if (control === "n5_legacy_interaction_laundering") {
+      const evidence = mutableRecord(n5Observation().n5_interaction_evidence);
+      evidence.schema_version = "policyos.runtime.joint_simulation_horizon.v3";
     } else if (control === "projection_v2_without_credal_attempt") {
       projection.schema_version =
         "policyos.runtime.run_generic_cycle_simulation_projection.v2";
@@ -855,7 +1643,24 @@ describe("runtime API validators", () => {
     const hasGenericIssue =
       !result.success &&
       result.error.issues.some((issue) => issue.message.startsWith("generic_"));
-    expect(scalarOnlyControls.has(control) || hasGenericIssue).toBe(true);
+    const interactionControls = new Set([
+      "n5_interaction_seed_mismatch",
+      "n5_interaction_se_mismatch",
+      "n5_interaction_summary_removed_with_additive_marker",
+      "n5_legacy_interaction_laundering",
+    ]);
+    const hasInteractionIssue =
+      !result.success &&
+      result.error.issues.some(
+        (issue) =>
+          issue.message.startsWith("run_n5_") ||
+          issue.path.includes("replication_sampling_by_step"),
+      );
+    expect(
+      scalarOnlyControls.has(control) ||
+        hasGenericIssue ||
+        (interactionControls.has(control) && hasInteractionIssue),
+    ).toBe(true);
   });
   it("preserves Legal search mode and refusal on a freshly parsed response", () => {
     const factResult = {
@@ -1782,3 +2587,39 @@ function canonicalQuantity() {
     unit: { code: "score", system: "unit" },
   };
 }
+
+describe("predictive calibration response custody", () => {
+  it("accepts a complete limited response with selected profiles and candidate-only status", () => {
+    const parsed = predictiveCalibrationResponseSchema.parse(
+      predictiveCalibrationResponseFixture,
+    );
+    expect(parsed.association.assessment).toBe("limited");
+    expect(parsed.association.authority_scope).toBe("predictive_only");
+    expect(parsed.association.observed_hit_rate).toBe(0.75);
+    expect(parsed.association.s10.calibration_status).toBe("limit");
+    expect(parsed.association.counterfactual_credibility_status).toBe(
+      "not_established",
+    );
+    expect(parsed.association.run_manifest_ref.manifest_profile_sha256).toMatch(
+      /^sha256:[0-9a-f]{64}$/,
+    );
+  });
+
+  it("rejects missing selected profile and authority-shaped unknown fields", () => {
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(
+        responseWithoutSelectedRunManifestProfile(),
+      ).success,
+    ).toBe(false);
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(
+        responseWithUnknownAssociationAuthority(),
+      ).success,
+    ).toBe(false);
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(
+        responseWithUnknownMetaAuthority(),
+      ).success,
+    ).toBe(false);
+  });
+});

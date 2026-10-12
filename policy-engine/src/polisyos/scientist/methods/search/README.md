@@ -85,7 +85,7 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-10-11
+- Last updated: 2026-10-12
 
 ## Configured uncertainty observation intake
 
@@ -122,3 +122,26 @@ Adversarial exports on the package facade remain available through lazy lookup. 
 `funnel/orchestrator.py` re-exports the same classes under their historical module path so existing
 imports and pickle resolution remain stable. The contracts use those concrete DTOs for their
 static service signatures instead of a reduced outcome view.
+
+
+## Candidate-only source-bound welfare observation (B161)
+
+The runtime may carry an existing `ir.welfare_bundle` ref into the funnel. At ticket
+submission, the funnel can derive a `scientist.search.source_bound_risk_observation`
+from the selected welfare bundle, its Monte Carlo method config, propagation report,
+and sample bundle. The writer preserves each selected manifest profile and source
+edge. The `FunnelOrchestrator` then reopens that artifact and recomputes execution
+attempts, draw counts, report summaries, and welfare interval from persisted samples before
+adding its ref to the existing `FunnelOutcome.audit_refs` surface.
+
+This artifact records a nominal welfare point separately from the mean and spread
+of sampled draws, preserving the source distinction between the point run and the
+Monte Carlo distribution. Its authority purpose is
+`candidate_only_audit_measurement`; its welfare-to-search scope relation is
+`consumer_asserted`; unit, valid time, risk interpretation, and permitted refinement
+remain `not_established`. The manifest creation time is production time, not validity
+time. It never populates `current_uncertainty`, replaces a historical maximum, or
+changes routing/promotion. Monte Carlo sources without a coherent complete or
+partial draw record are withheld; other welfare methods remain outside this bounded
+measurement adapter. The existing artifact content route and `audit_refs` projection
+are reused.

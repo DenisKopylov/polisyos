@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     UnsupportedStaticADMGProfileError,
+    canonical_scalar_query_graph,
 )
 
 from . import artifacts as _artifacts
@@ -2348,6 +2349,9 @@ class CausalEngineIdentificationMixin:
         cond = conditions or frozenset()
 
         try:
+            # Consume the complete canonical graph snapshot before any direct,
+            # cyclic, M-graph, proxy, or oracle branch can emit a claim.
+            graph = canonical_scalar_query_graph(graph)
             if mgraph_meta is None and graph.graph_type is GraphType.MGRAPH:
                 from polisyos.ir.analytics.mgraph import extract_mgraph_metadata
 

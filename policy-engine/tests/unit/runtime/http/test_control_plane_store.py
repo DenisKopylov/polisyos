@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import multiprocessing
 import sqlite3
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager, contextmanager
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
@@ -16,17 +17,35 @@ import polisyos.runtime.http.services.control_worker as control_worker_module
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.contracts.control import NaturalLanguageRunRequest
 from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resilience import guard_runtime_control_store
+from polisyos.runtime.http.resource_binding import (
+    BindingAuthority,
+    _canonical_json,
+    _digest_payload,
+)
+from polisyos.runtime.http.services.control.job_attempt_publication import (
+    _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+    _NL_REQUEST_SNAPSHOT_SCHEMA,
+    _nl_request_body_bytes,
+    _nl_request_snapshot_content_hash,
+)
 from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobExecutionAdmissionError,
     ControlJobLeaseLostError,
     ControlJobRecord,
     ControlPlaneStore,
+    ControlPreAdmissionIdempotencyConflictError,
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
+from polisyos.runtime.http.services.run_operation_idempotency import (
+    RuntimeOperationIntentKey,
+)
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerProducerRunBinding
 from tests._helpers.policy_design_case_projection import policy_design_case, sha
 
 if TYPE_CHECKING:
@@ -38,6 +57,57 @@ def _make_store(tmp_path) -> ControlPlaneStore:
         backend="sqlite",
         sqlite_path=tmp_path / "control-plane.sqlite3",
     )
+
+
+def _operation_intent_key(
+    *,
+    purpose: str = "run.predictive_calibration.v1",
+    tenant_id: str = "tenant-a",
+    cell_id: str = "cell-a",
+    actor: str = "analyst-a",
+    run_id: str = "run-a",
+    intent_id: str = "intent-a",
+    body: str = "body-a",
+) -> RuntimeOperationIntentKey:
+    """Build an exact scoped intent key from independent test axes."""
+
+    return RuntimeOperationIntentKey(
+        purpose=purpose,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        actor_subject_sha256=hashlib.sha256(actor.encode("utf-8")).hexdigest(),
+        run_id=run_id,
+        intent_id=intent_id,
+        body_sha256=hashlib.sha256(body.encode("utf-8")).hexdigest(),
+    )
+
+
+def _claim_runtime_operation_intent_in_process(
+    sqlite_path: str,
+    barrier: Any,
+    results: Any,
+    body_sha256: str,
+) -> None:
+    """Race an independent process against the same SQLite operation owner."""
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.run_operation_idempotency import (
+        RuntimeOperationIntentKey,
+    )
+
+    key = RuntimeOperationIntentKey(
+        purpose="run.predictive_calibration.v1",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        actor_subject_sha256=hashlib.sha256(b"analyst-a").hexdigest(),
+        run_id="run-process",
+        intent_id="same-process-intent",
+        body_sha256=body_sha256,
+    )
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    barrier.wait(timeout=20)
+    claim = store.begin_runtime_operation_intent(key)
+    results.put(claim.disposition)
 
 
 def _job_execution_scope() -> dict[str, object]:
@@ -83,6 +153,235 @@ def _human_decision_sink(
         ),
         reservation_store=store,
     )
+
+
+def test_runtime_operation_intent_scopes_body_and_profile_bound_result(tmp_path) -> None:
+    """One exact intent owns work; actor, purpose, run and body remain distinct."""
+
+    store = _make_store(tmp_path)
+    key = _operation_intent_key()
+    assert store.get_runtime_operation_intent(key).status == "unknown"
+
+    owner = store.begin_runtime_operation_intent(key)
+    assert owner.disposition == "owner"
+    assert owner.owner_token is not None
+    assert owner.record.status == "pending"
+    follower = store.begin_runtime_operation_intent(key)
+    assert follower.disposition == "pending"
+    assert follower.owner_token is None
+
+    changed_body = _operation_intent_key(body="same intent, different selected profile")
+    conflict = store.begin_runtime_operation_intent(changed_body)
+    assert conflict.disposition == "body_conflict"
+    assert conflict.record.status == "pending"
+
+    for distinct in (
+        _operation_intent_key(actor="analyst-b"),
+        _operation_intent_key(tenant_id="tenant-b"),
+        _operation_intent_key(cell_id="cell-b"),
+        _operation_intent_key(run_id="run-b"),
+        _operation_intent_key(intent_id="intent-b"),
+        _operation_intent_key(purpose="run.other_candidate.v1"),
+    ):
+        assert store.begin_runtime_operation_intent(distinct).disposition == "owner"
+
+    assert store.get_runtime_operation_intent(key).status == "pending"
+
+
+def test_runtime_operation_intent_completion_reopens_exact_profile_ref(tmp_path) -> None:
+    """Completion stores the selected ref profile and is idempotent after reopen."""
+
+    sqlite_path = tmp_path / "runtime-operation-intents.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    key = _operation_intent_key()
+    claim = store.begin_runtime_operation_intent(key)
+    assert claim.owner_token is not None
+    profile = "sha256:" + "a" * 64
+    association_ref = {
+        "artifact_id": "sha256:" + "b" * 64,
+        "kind": "runtime.predictive_calibration_association",
+        "media_type": "application/json",
+        "manifest_profile_sha256": profile,
+    }
+    result_ref_json = json.dumps(association_ref, sort_keys=True, separators=(",", ":"))
+    event_id = "evt_predictive_calibration_fixture"
+    published: list[str] = []
+
+    def publish():
+        published.append(event_id)
+        return type("Published", (), {"event": type("Event", (), {"event_id": event_id})()})()
+
+    completed = store.complete_runtime_operation_intent(
+        key=key,
+        owner_token=claim.owner_token,
+        result_ref_json=result_ref_json,
+        event_id=event_id,
+        publish=publish,
+    )
+    assert completed.status == "completed"
+    assert completed.result_ref_json == result_ref_json
+    assert completed.event_id == event_id
+
+    reopened_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    reopened = reopened_store.get_runtime_operation_intent(key)
+    assert reopened.status == "completed"
+    assert reopened.record is not None
+    assert json.loads(reopened.record.result_ref_json or "{}") == association_ref
+    assert reopened.record.event_id == event_id
+
+    replayed = reopened_store.complete_runtime_operation_intent(
+        key=key,
+        owner_token=claim.owner_token,
+        result_ref_json=result_ref_json,
+        event_id=event_id,
+        publish=publish,
+    )
+    assert replayed == completed
+    assert published == [event_id]
+
+
+def test_runtime_operation_intent_rolls_back_event_and_row_together(tmp_path) -> None:
+    """An event publication failure leaves no visible event or false completion."""
+
+    from polisyos.runtime.quality.diagnostic_events import (
+        DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        DiagnosticEvent,
+    )
+
+    store = _make_store(tmp_path)
+    key = _operation_intent_key(run_id="atomic-publication-run")
+    owner = store.begin_runtime_operation_intent(key)
+    assert owner.owner_token is not None
+    event_id = "evt_runtime_operation_atomic_failure"
+    event = DiagnosticEvent(
+        event_id=event_id,
+        event_source="polisyos.runtime",
+        event_type="polisyos.runtime.diagnostic.ref_publication.v1",
+        event_time=datetime.now(UTC).replace(microsecond=0),
+        event_subject="run/atomic-publication-run/job/job-fixture/phase/test",
+        schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        trace_id=event_id,
+        span_id="span_runtime_operation_atomic_failure",
+        parent_span_id=None,
+        run_id="atomic-publication-run",
+        job_id="job-fixture",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        producer_component="polisyos.runtime.test",
+        producer_version="test",
+        execution_profile="candidate",
+        phase="test_publication",
+        state_before=None,
+        state_after="candidate_diagnostic_persisted",
+        payload_ref=None,
+        artifact_refs=("sha256:" + "a" * 64,),
+        input_refs=(),
+        blocking_status=None,
+        redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
+        duplicate_of=None,
+        dedupe_key="runtime-operation-atomic-failure",
+        sampling_decision="always_record",
+        sampling_rate=1.0,
+    )
+
+    def publish_then_fail():
+        store.append_diagnostic_event(event=event)
+        raise RuntimeError("simulated failure after event insert")
+
+    with pytest.raises(RuntimeError, match="simulated failure"):
+        store.complete_runtime_operation_intent(
+            key=key,
+            owner_token=owner.owner_token,
+            result_ref_json=json.dumps(
+                {
+                    "artifact_id": "sha256:" + "b" * 64,
+                    "kind": "runtime.predictive_calibration_association",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": "sha256:" + "c" * 64,
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+            event_id=event_id,
+            publish=publish_then_fail,
+        )
+
+    assert store.get_runtime_operation_intent(key).status == "pending"
+    assert store.list_diagnostic_events(event_id=event_id, limit=10) == []
+
+
+def test_runtime_operation_intent_abandoned_pending_owner_does_not_take_over(tmp_path) -> None:
+    """A reopened store cannot infer that an abandoned pending owner did no work."""
+
+    sqlite_path = tmp_path / "abandoned-runtime-operation.sqlite3"
+    key = _operation_intent_key(run_id="abandoned-run")
+    owner_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    owner = owner_store.begin_runtime_operation_intent(key)
+    assert owner.disposition == "owner"
+
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    snapshot = reopened.get_runtime_operation_intent(key)
+    assert snapshot.status == "pending"
+    assert reopened.begin_runtime_operation_intent(key).disposition == "pending"
+
+
+def test_runtime_operation_intent_refusal_and_recovery_are_terminal(tmp_path) -> None:
+    """Known refusal and ambiguous side effects cannot be silently replayed."""
+
+    refused_key = _operation_intent_key(intent_id="refused")
+    refused_owner = _make_store(tmp_path).begin_runtime_operation_intent(refused_key)
+    assert refused_owner.owner_token is not None
+    refused_store = _make_store(tmp_path)
+    refused = refused_store.refuse_runtime_operation_intent(
+        key=refused_key,
+        owner_token=refused_owner.owner_token,
+        reason_code="predictive_calibration_preflight_refused",
+    )
+    assert refused.status == "refused"
+    assert (
+        refused_store.begin_runtime_operation_intent(refused_key).disposition == "refused"
+    )
+
+    recovery_key = _operation_intent_key(intent_id="recovery")
+    recovery_owner = _make_store(tmp_path).begin_runtime_operation_intent(recovery_key)
+    assert recovery_owner.owner_token is not None
+    recovery_store = _make_store(tmp_path)
+    recovery = recovery_store.require_runtime_operation_recovery(
+        key=recovery_key,
+        owner_token=recovery_owner.owner_token,
+        reason_code="predictive_calibration_owner_failed",
+    )
+    assert recovery.status == "recovery_required"
+    retry = recovery_store.begin_runtime_operation_intent(recovery_key)
+    assert retry.disposition == "recovery_required"
+    assert retry.owner_token is None
+
+
+def test_runtime_operation_intent_has_one_owner_across_two_processes(tmp_path) -> None:
+    """Two processes sharing SQLite cannot both become the predictive producer."""
+
+    sqlite_path = tmp_path / "cross-process-operation-intents.sqlite3"
+    _ = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    context = multiprocessing.get_context("spawn")
+    barrier = context.Barrier(2)
+    results = context.Queue()
+    body_sha256 = hashlib.sha256(b"same selected refs and request").hexdigest()
+    processes = [
+        context.Process(
+            target=_claim_runtime_operation_intent_in_process,
+            args=(str(sqlite_path), barrier, results, body_sha256),
+        )
+        for _ in range(2)
+    ]
+    for process in processes:
+        process.start()
+    dispositions = [results.get(timeout=30), results.get(timeout=30)]
+    for process in processes:
+        process.join(timeout=30)
+        assert process.exitcode == 0
+    assert sorted(dispositions) == ["owner", "pending"]
 
 
 def test_human_decision_concurrent_reservation_has_one_sqlite_winner(tmp_path) -> None:
@@ -2256,3 +2555,770 @@ def test_control_job_execution_admission_ignores_json_object_key_order(
         admission = store.current_execution_job_admission()
 
     assert admission.scope.status == "established"
+
+
+def test_runtime_operation_intent_route_scope_is_stable_across_candidate_run_ids(tmp_path) -> None:
+    """Route-scoped identity reuses one intent without fabricating a run binding."""
+    store = _make_store(tmp_path)
+    first_key = _operation_intent_key(
+        run_id="candidate-run-one", intent_id="route-attempt",
+    )
+    first_key = RuntimeOperationIntentKey(
+        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256, run_id=first_key.run_id,
+        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
+        scope_kind="route", scope_id="control.runs.nl",
+    )
+    owner = store.begin_runtime_operation_intent(first_key)
+    assert owner.disposition == "owner"
+    assert owner.record.run_id == "candidate-run-one"
+    assert owner.record.scope_kind == "route"
+    assert owner.record.scope_id == "control.runs.nl"
+
+    retry_key = RuntimeOperationIntentKey(
+        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256, run_id="candidate-run-two",
+        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
+        scope_kind="route", scope_id="control.runs.nl",
+    )
+    retry = store.begin_runtime_operation_intent(retry_key)
+    assert retry.disposition == "pending"
+    assert retry.record.run_id == "candidate-run-one"
+
+    independent_route = RuntimeOperationIntentKey(
+        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256, run_id=first_key.run_id,
+        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
+        scope_kind="route", scope_id="control.other-route",
+    )
+    assert store.begin_runtime_operation_intent(independent_route).disposition == "owner"
+
+
+def _create_legacy_runtime_operation_table(
+    path,
+    *,
+    include_unclassified: bool = False,
+    include_nl_route: bool = False,
+    duplicate_nl_route: bool = False,
+) -> str:
+    actor = hashlib.sha256(b"legacy-analyst").hexdigest()
+    body = hashlib.sha256(b"legacy-body").hexdigest()
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            """
+            CREATE TABLE runtime_operation_intents (
+                purpose TEXT NOT NULL, tenant_id TEXT NOT NULL, cell_id TEXT NOT NULL,
+                actor_subject_sha256 TEXT NOT NULL, run_id TEXT NOT NULL, intent_id TEXT NOT NULL,
+                body_sha256 TEXT NOT NULL, state TEXT NOT NULL, owner_token TEXT,
+                result_ref_json TEXT, event_id TEXT UNIQUE, reason_code TEXT,
+                created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+                PRIMARY KEY (purpose, tenant_id, cell_id, actor_subject_sha256, run_id, intent_id)
+            )
+            """
+        )
+        connection.execute(
+            """INSERT INTO runtime_operation_intents VALUES
+               ('run.predictive_calibration.v1','tenant-a','cell-a',?, 'legacy-run',
+                'legacy-intent', ?, 'pending', 'legacy-owner', NULL, NULL, NULL,
+                '2026-10-12T00:00:00+00:00','2026-10-12T00:00:00+00:00')""",
+            (actor, body),
+        )
+        if include_unclassified:
+            connection.execute(
+                """INSERT INTO runtime_operation_intents VALUES
+                   ('future.purpose.v1','tenant-a','cell-a',?, 'future-run',
+                    'future-intent', ?, 'pending', 'future-owner', NULL, NULL, NULL,
+                    '2026-10-12T00:00:00+00:00','2026-10-12T00:00:00+00:00')""",
+                (actor, body),
+            )
+        if include_nl_route or duplicate_nl_route:
+            connection.execute(
+                """INSERT INTO runtime_operation_intents VALUES
+                   ('control.nl_pre_admission.v1','tenant-a','cell-a',?, 'candidate-one',
+                    'legacy-route-intent', ?, 'pending', 'legacy-route-owner', NULL, NULL, NULL,
+                    '2026-10-12T00:00:00+00:00','2026-10-12T00:00:00+00:00')""",
+                (actor, body),
+            )
+        if duplicate_nl_route:
+            connection.execute(
+                """INSERT INTO runtime_operation_intents VALUES
+                   ('control.nl_pre_admission.v1','tenant-a','cell-a',?, 'candidate-two',
+                    'legacy-route-intent', ?, 'pending', 'duplicate-route-owner', NULL, NULL, NULL,
+                    '2026-10-12T00:00:01+00:00','2026-10-12T00:00:01+00:00')""",
+                (actor, body),
+            )
+    return actor
+
+
+def test_runtime_operation_intent_migration_backfills_only_legacy_forecast_rows_and_reopens(
+    tmp_path,
+) -> None:
+    sqlite_path = tmp_path / "legacy-forecast-intents.sqlite3"
+    actor = _create_legacy_runtime_operation_table(sqlite_path)
+    migrated = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    key = RuntimeOperationIntentKey(
+        purpose="run.predictive_calibration.v1",
+        tenant_id="tenant-a", cell_id="cell-a", actor_subject_sha256=actor,
+        run_id="legacy-run", intent_id="legacy-intent",
+        body_sha256=hashlib.sha256(b"legacy-body").hexdigest(),
+    )
+    snapshot = migrated.get_runtime_operation_intent(key)
+    assert snapshot.status == "pending"
+    assert snapshot.record is not None
+    assert snapshot.record.scope_kind == "run"
+    assert snapshot.record.scope_id == "legacy-run"
+
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    assert reopened.get_runtime_operation_intent(key) == snapshot
+    with sqlite3.connect(sqlite_path) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        assert {"scope_kind", "scope_id"}.issubset(columns)
+        primary_key = tuple(
+            str(row[1])
+            for row in sorted(
+                (row for row in connection.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                key=lambda row: int(row[5]),
+            )
+        )
+        assert primary_key == (
+            "purpose", "tenant_id", "cell_id", "actor_subject_sha256",
+            "scope_kind", "scope_id", "intent_id",
+        )
+        assert connection.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' "
+            "AND name = 'idx_runtime_operation_intents_scope_identity'"
+        ).fetchone()[0] == 0
+
+
+def test_runtime_operation_intent_migration_rekeys_known_route_and_preserves_run_provenance(
+    tmp_path,
+) -> None:
+    sqlite_path = tmp_path / "legacy-mixed-operation-intents.sqlite3"
+    actor = _create_legacy_runtime_operation_table(sqlite_path, include_nl_route=True)
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    route_key = RuntimeOperationIntentKey(
+        purpose="control.nl_pre_admission.v1",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        actor_subject_sha256=actor,
+        run_id="candidate-one",
+        intent_id="legacy-route-intent",
+        body_sha256=hashlib.sha256(b"legacy-body").hexdigest(),
+        scope_kind="route",
+        scope_id="control.runs.nl",
+    )
+    snapshot = store.get_runtime_operation_intent(route_key)
+    assert snapshot.status == "pending"
+    assert snapshot.record is not None
+    assert snapshot.record.run_id == "candidate-one"
+    assert snapshot.record.scope_kind == "route"
+    assert snapshot.record.scope_id == "control.runs.nl"
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    assert reopened.get_runtime_operation_intent(route_key) == snapshot
+    with sqlite3.connect(sqlite_path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM runtime_operation_intents"
+        ).fetchone()[0] == 2
+        primary_key = tuple(
+            str(row[1])
+            for row in sorted(
+                (row for row in connection.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                key=lambda row: int(row[5]),
+            )
+        )
+        assert primary_key[-3:] == ("scope_kind", "scope_id", "intent_id")
+
+
+def test_runtime_operation_intent_route_rekey_fails_closed_and_rolls_back_duplicates(
+    tmp_path,
+) -> None:
+    sqlite_path = tmp_path / "duplicate-route-operation-intents.sqlite3"
+    _create_legacy_runtime_operation_table(sqlite_path, duplicate_nl_route=True)
+    with pytest.raises(sqlite3.IntegrityError):
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    with sqlite3.connect(sqlite_path) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        assert "scope_kind" not in columns
+        assert "scope_id" not in columns
+        assert connection.execute(
+            "SELECT COUNT(*) FROM runtime_operation_intents "
+            "WHERE purpose = 'control.nl_pre_admission.v1'"
+        ).fetchone()[0] == 2
+
+
+def test_runtime_operation_intent_scope_migration_rolls_back_unclassified_rows(tmp_path) -> None:
+    sqlite_path = tmp_path / "unclassified-operation-scope.sqlite3"
+    _create_legacy_runtime_operation_table(sqlite_path, include_unclassified=True)
+    with pytest.raises(RuntimeError, match="unclassified_rows"):
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+
+    with sqlite3.connect(sqlite_path) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        assert "scope_kind" not in columns
+        assert "scope_id" not in columns
+        rows = connection.execute(
+            "SELECT purpose, run_id FROM runtime_operation_intents ORDER BY purpose"
+        ).fetchall()
+        assert rows == [
+            ("future.purpose.v1", "future-run"),
+            ("run.predictive_calibration.v1", "legacy-run"),
+        ]
+
+
+def test_pre_admission_profile_transitions_require_the_declared_producer_basis(tmp_path) -> None:
+    """Default dev can admit without a fabricated event; serious profiles need settled refs."""
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "pre-admission-states.sqlite3")
+
+    def start(profile: str, key: str) -> str:
+        tenant_id, cell_id, actor_subject = "tenant-state", "cell-state", "actor-state"
+        key_digest = hashlib.sha256(key.encode()).hexdigest()
+        attempt_id = hashlib.sha256(
+            f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+        ).hexdigest()[:32]
+        intent = {
+            "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+            "request_content_sha256": "sha256:" + "a" * 64,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "actor_subject": actor_subject,
+            "effective_execution_profile": profile,
+            "authorization_permission": "runs.launch",
+            "authorization_resource_sha256": "sha256:" + "e" * 64,
+        }
+        store.start_pre_admission_attempt(
+            attempt_id=attempt_id,
+            request_id=f"request-{key}",
+            run_id=f"run-{key}",
+            candidate_job_id=f"job-{key}",
+            effective_execution_profile=profile,
+            intent_binding=intent,
+            producer_run_binding=None,
+            idempotency_key_sha256=key_digest,
+        )
+        return attempt_id
+
+    dev_attempt = start("dev", "dev-key")
+    dev = store.observe_pre_admission_attempt(
+        attempt_id=dev_attempt,
+        event_type="admitted",
+        job_id="job-dev-key",
+    )
+    assert [event.event_type for event in dev.history] == ["started", "admitted"]
+    assert dev.producer_event_observation == "not_applicable"
+    assert dev.shared_owner.status == "completed"
+
+    direct_dev_attempt = start("dev", "dev-fabricated-events")
+    with pytest.raises(ValueError, match="control_pre_admission_direct_admission_unproven"):
+        store.observe_pre_admission_attempt(
+            attempt_id=direct_dev_attempt,
+            event_type="admitted",
+            job_id="job-dev-fabricated-events",
+            producer_event_ids=("invented-event",),
+            producer_event_observation="not_applicable",
+        )
+    assert store.get_pre_admission_attempt(direct_dev_attempt).status == "started"
+
+    no_call_attempt = start("research", "research-no-call-key")
+    no_call_refusal = store.observe_pre_admission_attempt(
+        attempt_id=no_call_attempt,
+        event_type="refused",
+        producer_event_observation="no_call",
+        producer_no_call_reason="provider_preflight_not_started",
+        failure_code="provider_preflight_not_started",
+    )
+    assert no_call_refusal.status == "refused"
+    assert no_call_refusal.producer_event_observation == "no_call"
+    assert no_call_refusal.producer_no_call_reason == "provider_preflight_not_started"
+    assert store.get_pre_admission_attempt(no_call_attempt).producer_no_call_reason == "provider_preflight_not_started"
+    assert store.get_pre_admission_attempt(no_call_attempt).history[-1].producer_no_call_reason == "provider_preflight_not_started"
+    assert no_call_refusal.shared_owner.status == "refused"
+    assert no_call_refusal.shared_owner.reason_code == "provider_preflight_not_started"
+
+
+    missing_reason_attempt = start("research", "research-missing-no-call-reason-key")
+    with pytest.raises(ValueError, match="no_call_reason_invalid"):
+        store.observe_pre_admission_attempt(
+            attempt_id=missing_reason_attempt,
+            event_type="refused",
+            producer_event_observation="no_call",
+            failure_code="provider_preflight_not_started",
+        )
+    assert store.get_pre_admission_attempt(missing_reason_attempt).status == "started"
+
+    mismatched_reason_attempt = start("research", "research-mismatch-no-call-reason-key")
+    with pytest.raises(ValueError, match="no_call_reason_failure_code_mismatch"):
+        store.observe_pre_admission_attempt(
+            attempt_id=mismatched_reason_attempt,
+            event_type="refused",
+            producer_event_observation="no_call",
+            producer_no_call_reason="producer_run_binding_not_established",
+            failure_code="provider_preflight_not_started",
+        )
+    assert store.get_pre_admission_attempt(mismatched_reason_attempt).status == "started"
+
+    binding_refusal_attempt = start("research", "research-binding-refusal-key")
+    binding_refusal = store.observe_pre_admission_attempt(
+        attempt_id=binding_refusal_attempt,
+        event_type="refused",
+        producer_event_observation="no_call",
+        producer_no_call_reason="producer_run_binding_not_established",
+        failure_code="producer_run_binding_not_established",
+    )
+    assert binding_refusal.shared_owner.reason_code == "producer_run_binding_not_established"
+
+    untrusted_no_call_attempt = start("research", "research-untrusted-no-call-key")
+    with pytest.raises(ValueError, match="no_call_reason_invalid"):
+        store.observe_pre_admission_attempt(
+            attempt_id=untrusted_no_call_attempt,
+            event_type="refused",
+            producer_event_observation="no_call",
+            producer_no_call_reason="preflight_failed",
+            failure_code="preflight_failed",
+        )
+    assert store.get_pre_admission_attempt(untrusted_no_call_attempt).status == "started"
+
+    unresolved_attempt = start("research", "research-unknown-ledger-key")
+    unresolved = store.observe_pre_admission_attempt(
+        attempt_id=unresolved_attempt,
+        event_type="failed",
+        producer_event_observation="unavailable",
+        failure_code="provider_preflight_settlement_unavailable",
+    )
+    assert unresolved.status == "failed"
+    assert unresolved.shared_owner.status == "recovery_required"
+    assert unresolved.producer_event_observation == "unavailable"
+
+    started_again = start("research", "research-false-no-call-key")
+    with pytest.raises(ValueError, match="no_call_basis_invalid"):
+        store.observe_pre_admission_attempt(
+            attempt_id=started_again,
+            event_type="failed",
+            producer_event_observation="no_call",
+            producer_no_call_reason="provider_preflight_not_started",
+            failure_code="provider_preflight_not_started",
+        )
+
+    research_attempt = start("research", "research-key")
+    with pytest.raises(ValueError, match="transition_invalid"):
+        store.observe_pre_admission_attempt(
+            attempt_id=research_attempt,
+            event_type="admitted",
+            job_id="job-research-key",
+        )
+    with pytest.raises(ValueError, match="terminal_requires_settlement"):
+        store.observe_pre_admission_attempt(
+            attempt_id=research_attempt,
+            event_type="failed",
+            producer_event_ids=("producer-event-research",),
+            producer_event_observation="complete",
+            failure_code="preflight_failed",
+        )
+    assert store.get_pre_admission_attempt(research_attempt).status == "started"
+    with pytest.raises(ValueError, match="settlement_evidence_incomplete"):
+        store.observe_pre_admission_attempt(
+            attempt_id=research_attempt,
+            event_type="settled",
+        )
+    settled = store.observe_pre_admission_attempt(
+        attempt_id=research_attempt,
+        event_type="settled",
+        producer_event_ids=("producer-event-research",),
+        producer_event_observation="complete",
+    )
+    assert settled.status == "settled"
+    admitted = store.observe_pre_admission_attempt(
+        attempt_id=research_attempt,
+        event_type="admitted",
+        job_id="job-research-key",
+    )
+    assert [event.event_type for event in admitted.history] == ["started", "settled", "admitted"]
+    assert admitted.producer_event_ids == ("producer-event-research",)
+    assert admitted.shared_owner.status == "completed"
+    with pytest.raises(ValueError, match="transition_invalid"):
+        store.observe_pre_admission_attempt(
+            attempt_id=research_attempt,
+            event_type="failed",
+            failure_code="late_failure",
+        )
+
+
+@pytest.mark.parametrize(
+    ("corruption", "expected_error"),
+    [
+        ("aggregate_refs_json_null", "aggregate producer refs are malformed"),
+        ("aggregate_observation_json_null", "pre-admission aggregate observation is invalid"),
+        ("aggregate_observation_unknown", "aggregate observation is invalid"),
+        ("intent_binding_json_null", "request binding is malformed"),
+        ("producer_binding_empty", "producer binding is malformed"),
+        ("owner_token_null", "lost its shared owner token"),
+        ("event_payload_empty", "event payload shape is malformed"),
+        ("event_payload_attempt_mismatch", "event payload identity diverged"),
+        ("event_payload_refs_null", "event payload evidence is malformed"),
+        ("event_payload_unexpected_no_call_reason", "event call-state evidence is malformed"),
+        ("event_payload_unknown_call_state", "event call-state evidence is malformed"),
+    ],
+)
+def test_pre_admission_recovery_rejects_malformed_persisted_evidence(
+    tmp_path, corruption: str, expected_error: str
+) -> None:
+    """Malformed persisted evidence is rejected by consumer readback, never defaulted."""
+    sqlite_path = tmp_path / f"pre-admission-corrupt-{corruption}.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    tenant_id, cell_id, actor_subject = "tenant-corrupt", "cell-corrupt", "actor-corrupt"
+    key_digest = hashlib.sha256(corruption.encode()).hexdigest()
+    attempt_id = hashlib.sha256(
+        f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+    ).hexdigest()[:32]
+    intent = {
+        "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+        "request_content_sha256": "sha256:" + "d" * 64,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "actor_subject": actor_subject,
+        "effective_execution_profile": "dev",
+        "authorization_permission": "runs.launch",
+        "authorization_resource_sha256": "sha256:" + "e" * 64,
+    }
+    store.start_pre_admission_attempt(
+        attempt_id=attempt_id,
+        request_id="request-corrupt",
+        run_id="run-corrupt",
+        candidate_job_id="job-corrupt",
+        effective_execution_profile="dev",
+        intent_binding=intent,
+        producer_run_binding=None,
+        idempotency_key_sha256=key_digest,
+    )
+    with sqlite3.connect(sqlite_path) as connection:
+        if corruption == "aggregate_observation_unknown":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET producer_event_observation = 'future_state' WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        elif corruption == "aggregate_refs_json_null":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET producer_event_ids_json = 'null' WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        elif corruption == "aggregate_observation_json_null":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET producer_event_observation = 'null' WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        elif corruption == "intent_binding_json_null":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET intent_binding_json = 'null' WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        elif corruption == "producer_binding_empty":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET producer_run_binding_json = '' WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        elif corruption == "owner_token_null":
+            connection.execute(
+                "UPDATE control_pre_admission_attempts SET owner_token = NULL WHERE attempt_id = ?",
+                (attempt_id,),
+            )
+        else:
+            row = connection.execute(
+                "SELECT payload_json FROM control_pre_admission_attempt_events WHERE attempt_id = ?",
+                (attempt_id,),
+            ).fetchone()
+            payload = json.loads(row[0])
+            if corruption == "event_payload_empty":
+                payload = {}
+            elif corruption == "event_payload_unexpected_no_call_reason":
+                payload["producer_no_call_reason"] = "provider_preflight_not_started"
+            elif corruption == "event_payload_unknown_call_state":
+                payload["producer_event_observation"] = "future_state"
+            elif corruption == "event_payload_attempt_mismatch":
+                payload["attempt_id"] = "f" * 32
+            else:
+                payload["producer_event_ids"] = None
+            connection.execute(
+                "UPDATE control_pre_admission_attempt_events SET payload_json = ? WHERE attempt_id = ?",
+                (json.dumps(payload, sort_keys=True, separators=(",", ":")), attempt_id),
+            )
+    if corruption == "aggregate_observation_json_null":
+        # JSON null is supplied malformed evidence, distinct from a SQL NULL/absence.
+        with sqlite3.connect(sqlite_path) as connection:
+            assert connection.execute(
+                "SELECT producer_event_observation FROM control_pre_admission_attempts WHERE attempt_id = ?",
+                (attempt_id,),
+            ).fetchone() == ("null",)
+    with pytest.raises(RuntimeError, match=expected_error) as readback_error:
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+    if corruption == "aggregate_observation_json_null":
+        assert isinstance(readback_error.value.__cause__, ValueError)
+        assert str(readback_error.value.__cause__) == "control_pre_admission_observation_invalid"
+
+
+@pytest.mark.parametrize(
+    ("invalid_field", "invalid_value"),
+    [("authorization_permission", "future.permission"), ("authorization_resource_sha256", None)],
+)
+def test_pre_admission_claim_refuses_malformed_authority_basis_before_owner_creation(
+    tmp_path, invalid_field: str, invalid_value: str | None
+) -> None:
+    """A malformed caller permission basis is not replaced with an absent/default claim."""
+    sqlite_path = tmp_path / f"pre-admission-auth-{invalid_field}.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    tenant_id, cell_id, actor_subject = "tenant-auth", "cell-auth", "actor-auth"
+    key_digest = hashlib.sha256(invalid_field.encode()).hexdigest()
+    attempt_id = hashlib.sha256(
+        f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+    ).hexdigest()[:32]
+    intent = {
+        "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+        "request_content_sha256": "sha256:" + "b" * 64,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "actor_subject": actor_subject,
+        "effective_execution_profile": "dev",
+        "authorization_permission": "runs.launch",
+        "authorization_resource_sha256": "sha256:" + "c" * 64,
+    }
+    intent[invalid_field] = invalid_value
+    with pytest.raises(ValueError, match="authorization_basis_invalid"):
+        store.start_pre_admission_attempt(
+            attempt_id=attempt_id,
+            request_id="request-auth",
+            run_id="run-auth",
+            candidate_job_id="job-auth",
+            effective_execution_profile="dev",
+            intent_binding=intent,
+            producer_run_binding=None,
+            idempotency_key_sha256=key_digest,
+        )
+    with sqlite3.connect(sqlite_path) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM runtime_operation_intents").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM control_pre_admission_attempts").fetchone()[0] == 0
+
+
+def test_pre_admission_recovery_requires_the_shared_owner_result_to_join_its_job(tmp_path) -> None:
+    """A completed status marker cannot stand in for its exact durable owner result."""
+    sqlite_path = tmp_path / "pre-admission-owner-result.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    tenant_id, cell_id, actor_subject = "tenant-result", "cell-result", "actor-result"
+    key_digest = hashlib.sha256(b"owner-result-key").hexdigest()
+    attempt_id = hashlib.sha256(
+        f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+    ).hexdigest()[:32]
+    intent = {
+        "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+        "request_content_sha256": "sha256:" + "f" * 64,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "actor_subject": actor_subject,
+        "effective_execution_profile": "dev",
+        "authorization_permission": "runs.launch",
+        "authorization_resource_sha256": "sha256:" + "e" * 64,
+    }
+    store.start_pre_admission_attempt(
+        attempt_id=attempt_id,
+        request_id="request-result",
+        run_id="run-result",
+        candidate_job_id="job-result",
+        effective_execution_profile="dev",
+        intent_binding=intent,
+        producer_run_binding=None,
+        idempotency_key_sha256=key_digest,
+    )
+    store.observe_pre_admission_attempt(
+        attempt_id=attempt_id,
+        event_type="admitted",
+        job_id="job-result",
+    )
+    with sqlite3.connect(sqlite_path) as connection:
+        connection.execute(
+            "UPDATE runtime_operation_intents SET result_ref_json = ? WHERE intent_id = ?",
+            (json.dumps({"attempt_id": attempt_id, "run_id": "run-result", "job_id": "other-job"}, sort_keys=True), attempt_id),
+        )
+    with pytest.raises(RuntimeError, match="does not bind the admitted attempt"):
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+
+
+def test_pre_admission_recovery_rejects_tampered_request_content_basis(tmp_path) -> None:
+    """A valid status marker cannot survive divergence from its immutable owner body."""
+    sqlite_path = tmp_path / "pre-admission-binding.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    tenant_id, cell_id, actor_subject = "tenant-bind", "cell-bind", "actor-bind"
+    key_digest = hashlib.sha256(b"bound-key").hexdigest()
+    attempt_id = hashlib.sha256(
+        f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+    ).hexdigest()[:32]
+    intent = {
+        "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+        "request_content_sha256": "sha256:" + "b" * 64,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "actor_subject": actor_subject,
+        "effective_execution_profile": "dev",
+        "authorization_permission": "runs.launch",
+        "authorization_resource_sha256": "sha256:" + "e" * 64,
+    }
+    store.start_pre_admission_attempt(
+        attempt_id=attempt_id,
+        request_id="request-bound",
+        run_id="run-bound",
+        candidate_job_id="job-bound",
+        effective_execution_profile="dev",
+        intent_binding=intent,
+        producer_run_binding=None,
+        idempotency_key_sha256=key_digest,
+    )
+    with sqlite3.connect(sqlite_path) as connection:
+        altered = {**intent, "request_content_sha256": "sha256:" + "c" * 64}
+        connection.execute(
+            "UPDATE control_pre_admission_attempts SET intent_binding_json = ? WHERE attempt_id = ?",
+            (json.dumps(altered, sort_keys=True, separators=(",", ":")), attempt_id),
+        )
+    with pytest.raises(RuntimeError, match="request binding is malformed"):
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+
+
+def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instances(tmp_path) -> None:
+    """The typed R3 projection and shared route claim survive reopen without a second key index."""
+    sqlite_path = tmp_path / "pre-admission-shared-owner.sqlite3"
+    first_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    second_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    tenant_id = "tenant-b"
+    cell_id = "cell-b"
+    actor_subject = "denis"
+    def producer_binding_for(*, run_id: str, control_job_id: str) -> dict[str, Any]:
+        """Build a canonical binding without asserting issuer or billing authority."""
+        return BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_id="research",
+            control_job_id=control_job_id,
+        ).model_dump(mode="json")
+
+    binding = producer_binding_for(run_id="route-run-first", control_job_id="route-job-first")
+
+    def intent_for(request_text: str) -> dict[str, str]:
+        """Build the route's canonical caller binding without asserting issuer authority."""
+        request = NaturalLanguageRunRequest(
+            request=request_text,
+            llm_models=["unit-test-model"],
+        )
+        request_body_bytes = _nl_request_body_bytes(request)
+        request_snapshot = {
+            "schema_version": _NL_REQUEST_SNAPSHOT_SCHEMA,
+            "digest_profile": _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE,
+            "request": request.model_dump(mode="json"),
+            "normalized_llm_models": ["unit-test-model"],
+        }
+        body_sha256 = "sha256:" + hashlib.sha256(request_body_bytes).hexdigest()
+        query_sha256 = "sha256:" + hashlib.sha256(b"").hexdigest()
+        resource_sha256 = _digest_payload(
+            {
+                "binding_version": "runtime.authorization.resource.v1",
+                "permission": RuntimePermission.RUNS_LAUNCH.value,
+                "resource_kind": "runtime.run_collection.nl",
+                "authority": BindingAuthority.TENANT_COLLECTION.value,
+                "tenant_id": tenant_id,
+                "body_sha256": body_sha256,
+                "query_sha256": query_sha256,
+                "selectors": (("tenant_id", _canonical_json(tenant_id)),),
+                "resolved_context_sha256": None,
+            }
+        )
+        return {
+            "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+            "request_content_sha256": _nl_request_snapshot_content_hash(request_snapshot),
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "actor_subject": actor_subject,
+            "effective_execution_profile": "research",
+            "authorization_permission": RuntimePermission.RUNS_LAUNCH.value,
+            "authorization_resource_sha256": resource_sha256,
+        }
+
+    # This is a deterministic store-contract fixture; it is not an external permission receipt.
+    intent = intent_for("shared route owner fixture")
+    key_digest = hashlib.sha256(b"shared-route-key").hexdigest()
+    attempt_id = hashlib.sha256(
+        f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
+    ).hexdigest()[:32]
+    first, created = first_store.start_pre_admission_attempt(
+        attempt_id=attempt_id, request_id="request-first", run_id=binding["run_id"],
+        candidate_job_id=binding["control_job_id"], effective_execution_profile="research",
+        intent_binding=intent, producer_run_binding=binding,
+        idempotency_key_sha256=key_digest,
+    )
+    assert created is True
+    assert first.status == "started"
+    operation_key = RuntimeOperationIntentKey(
+        purpose="control.nl_pre_admission.v1", tenant_id=tenant_id, cell_id=cell_id,
+        actor_subject_sha256=hashlib.sha256(actor_subject.encode()).hexdigest(),
+        run_id=binding["run_id"], intent_id=attempt_id,
+        body_sha256=hashlib.sha256(
+            json.dumps(intent, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest(),
+        scope_kind="route", scope_id="control.runs.nl",
+    )
+    shared = second_store.get_runtime_operation_intent(operation_key)
+    assert shared.status == "pending"
+    assert shared.record is not None and shared.record.run_id == binding["run_id"]
+
+    retry_binding = producer_binding_for(run_id="route-run-retry", control_job_id="route-job-retry")
+    replay, replay_created = second_store.start_pre_admission_attempt(
+        attempt_id=attempt_id, request_id="request-retry",
+        run_id=retry_binding["run_id"], candidate_job_id=retry_binding["control_job_id"],
+        effective_execution_profile="research", intent_binding=intent,
+        producer_run_binding=retry_binding, idempotency_key_sha256=key_digest,
+    )
+    assert replay_created is False
+    assert replay.attempt_id == first.attempt_id
+    assert replay.run_id == "route-run-first"
+
+    with pytest.raises(ControlPreAdmissionIdempotencyConflictError) as conflict:
+        first_store.start_pre_admission_attempt(
+            attempt_id=attempt_id, request_id="request-changed-body",
+            run_id="route-run-changed", candidate_job_id="route-job-changed",
+            effective_execution_profile="research",
+            intent_binding=intent_for("changed shared route owner fixture"),
+            producer_run_binding=producer_binding_for(
+                run_id="route-run-changed", control_job_id="route-job-changed"
+            ),
+            idempotency_key_sha256=key_digest,
+        )
+    assert conflict.value.attempt_id == attempt_id
+    assert first_store.get_runtime_operation_intent(operation_key).status == "pending"
+
+    with sqlite3.connect(sqlite_path) as connection:
+        primary_key = tuple(
+            str(row[1])
+            for row in sorted(
+                (
+                    row
+                    for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+                    if int(row[5])
+                ),
+                key=lambda row: int(row[5]),
+            )
+        )
+        assert primary_key == (
+            "purpose",
+            "tenant_id",
+            "cell_id",
+            "actor_subject_sha256",
+            "scope_kind",
+            "scope_id",
+            "intent_id",
+        )
+        indexes = {
+            str(row[0])
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'index'")
+        }
+        assert "idx_runtime_operation_intents_run_state" in indexes
+        assert "idx_runtime_operation_intents_scope_identity" not in indexes
+        assert "idx_control_pre_admission_idempotency_scope" not in indexes
+
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    fresh = reopened.get_pre_admission_attempt(attempt_id)
+    assert fresh is not None and fresh.status == "started"
+    assert reopened.get_runtime_operation_intent(operation_key).status == "pending"

@@ -210,9 +210,13 @@ class PolisySimulator:
         if self._state is None:
             self.initialize(seed)
 
-        adapter = self._training_adapter()
+        adapter = self._training_adapter(require_supported_active_wealth=True)
         if adapter is None:
-            assessment = EconomicsTrainingAdapter.assess(self._state, self._executor)
+            assessment = EconomicsTrainingAdapter.assess(
+                self._state,
+                self._executor,
+                require_supported_active_wealth=True,
+            )
             assert self._state is not None
             return TrainingResult(
                 trained_policy=None,
@@ -247,9 +251,7 @@ class PolisySimulator:
                     root=str(output_dir / "artifacts"),
                 )
             )
-            training_store = with_ambient_ownership_enforcement_if_supported(
-                local_store
-            )
+            training_store = with_ambient_ownership_enforcement_if_supported(local_store)
 
         obs_dim = adapter.observation_dim(training_config)
 
@@ -295,10 +297,18 @@ class PolisySimulator:
             artifact_refs=outcome.artifact_refs,
         )
 
-    def _training_adapter(self) -> EconomicsTrainingAdapter | None:
+    def _training_adapter(
+        self,
+        *,
+        require_supported_active_wealth: bool = False,
+    ) -> EconomicsTrainingAdapter | None:
         """Return the checked bridge for the current composite profile."""
 
-        return EconomicsTrainingAdapter.from_composite(self._state, self._executor)
+        return EconomicsTrainingAdapter.from_composite(
+            self._state,
+            self._executor,
+            require_supported_active_wealth=require_supported_active_wealth,
+        )
 
     def get_state(self) -> CompositeState:
         if self._state is None:

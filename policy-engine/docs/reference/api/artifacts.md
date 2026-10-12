@@ -44,6 +44,15 @@ Omitted profile selection is unqualified legacy access and makes no selected-pro
 bytes remain addressed by `artifact_id`, while the response metadata and cache identity retain the
 selected profile.
 
+For the eight single-artifact operations that use the shared manifest resolver (manifest, predictive
+diagnostic, content, lineage, schema, render, export, and download), route-specific conflicts or
+refusals use `application/problem+json` and reference the strict `RuntimeApiProblem` schema. Verified CAS corruption is one such `409 artifact_integrity_failed` outcome. The `code` field identifies the reason when an operation has multiple 409 conditions. A missing artifact is
+`404 artifact_not_found`. An unavailable selected profile is `404 artifact_manifest_profile_not_found`
+when the store can distinguish that state. The generic `ArtifactStore` contract cannot always
+distinguish an exact-only profile from the absence of a default view, so that case may still return
+`404 artifact_not_found`; both outcomes remain in the 404 family. `POST /api/v1/artifacts/batch`
+does not use this shared resolver and is outside the route-scoped 409 declaration.
+
 Bureaucratic render accepts the source profile in its strict request body, and export accepts it
 as a query parameter. A supplied selector is resolved exactly and may appear only once. The
 response identifies the source manifest kind, media type, and profile; a missing profile never
@@ -63,10 +72,14 @@ is required.
 | `GET`  | `/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic` | `PredictiveCoverageDiagnosticPreview` | Limited reader-materialized coverage projection; server gate disabled by default |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/lineage`  | `ArtifactLineageResponse`  | Profile-qualified rooted lineage graph               |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/schema`   | `ArtifactSchemaResponse`   | Schema metadata and schema ref                       |
+| `POST` | `/api/v1/artifacts/{packet_id}/render`     | `BureaucraticRenderResponse` | Rendered bureaucratic document                      |
+| `GET`  | `/api/v1/artifacts/{packet_id}/export`     | `BureaucraticExportResponse` | Rendered export representation                       |
 | `GET`  | `/api/v1/artifacts/{artifact_id}/download` | raw bytes                  | OpenAPI-described raw download                       |
 
-Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`,
-`422`, `500`.
+Committed OpenAPI status codes: `200`, `400`, `401`, `403`, `404`, `406`, `409`,
+`422`, `500`. The route-scoped `409` declaration uses the same
+`application/problem+json` media type and `RuntimeApiProblem` model as the runtime serializer. It
+applies to the eight resolver-backed operations above; batch is not included.
 
 Validation anchors:
 

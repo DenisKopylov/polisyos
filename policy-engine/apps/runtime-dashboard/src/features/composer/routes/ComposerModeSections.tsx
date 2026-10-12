@@ -45,6 +45,7 @@ import {
   Textarea,
 } from "@polisyos/atlas-ui";
 import { ApiErrorAlert } from "@/shared/ui";
+import { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/ControlPreAdmissionRecoveryNotice";
 import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,
@@ -1564,7 +1565,18 @@ export function NaturalLanguageComposerSection({
     mode: "onChange",
     resolver: zodResolver(naturalLanguageLaunchSchema),
   });
-  const launchNlMutation = useLaunchNlRun();
+  const launchRecoveryScope =
+    authz.status === "ready" &&
+    authz.user?.tenant_id &&
+    authz.user.cell_id &&
+    authz.user.user_id
+      ? {
+          tenantId: authz.user.tenant_id,
+          cellId: authz.user.cell_id,
+          userId: authz.user.user_id,
+        }
+      : null;
+  const launchNlMutation = useLaunchNlRun(launchRecoveryScope);
   const nlDraftKey = useMemo(
     () => buildComposerDraftKey("nl", fromRunId),
     [fromRunId],
@@ -1694,6 +1706,10 @@ export function NaturalLanguageComposerSection({
         />
 
         <DraftNotice activeDraft={activeDraft} onDiscard={discardDraft} />
+        <ControlPreAdmissionRecoveryNotice
+          data={launchNlMutation.recovery.data ?? null}
+          error={launchNlMutation.recovery.error}
+        />
 
         <form className="space-y-5" onSubmit={submit}>
           <AtlasFormSection

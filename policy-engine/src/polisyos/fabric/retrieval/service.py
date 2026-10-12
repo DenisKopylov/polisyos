@@ -32,7 +32,11 @@ from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
 
 from .executor import ExecutePlanResult, FetchExecutor
-from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, ExploreLaneLimits
+from .explore_lane import (
+    ExploreLaneDiscoverResult,
+    ExploreLaneDiscovery,
+    ExploreLaneLimits,
+)
 from .providers import RetrievalProviders, resolve_retrieval_providers
 
 if TYPE_CHECKING:
@@ -116,7 +120,7 @@ def _coerce_int(value: object, *, default: int = 0) -> int:
             return int(value)
         if isinstance(value, str):
             return int(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         pass
     return default
 
@@ -129,7 +133,7 @@ def _coerce_float(value: object, *, default: float = 0.0) -> float:
             return float(value)
         if isinstance(value, str):
             return float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         pass
     return default
 
@@ -188,7 +192,8 @@ def _scope_year_range(value: object) -> tuple[date, date] | None:
 def _catalog_selection_error(code: str, detail: str | None = None) -> RuntimeError:
     """Construct the canonical error through the existing lazy read API."""
     error_type = cast(
-        "Callable[[str, str | None], RuntimeError]", catalog_read_api.CatalogSelectionError
+        "Callable[[str, str | None], RuntimeError]",
+        catalog_read_api.CatalogSelectionError,
     )
     return error_type(code, detail)
 
@@ -232,7 +237,9 @@ class RetrievalService:
         self._explore = explore or ExploreLaneDiscovery(
             providers=resolved,
         )
-        if executor is not None and (cas_root is not None or artifact_store_config is not None):
+        if executor is not None and (
+            cas_root is not None or artifact_store_config is not None
+        ):
             raise ValueError("retrieval_service_executor_store_configuration_conflict")
         if (
             executor is not None
@@ -289,7 +296,9 @@ class RetrievalService:
             return None
         return self._catalog_registry().source_by_id(normalized)
 
-    def _selected_catalog_source_ids(self, run_profile: CatalogRunProfile | None) -> frozenset[str]:
+    def _selected_catalog_source_ids(
+        self, run_profile: CatalogRunProfile | None
+    ) -> frozenset[str]:
         if run_profile is None:
             raise _catalog_selection_error("catalog_run_profile_unresolved")
         with self._state_lock:
@@ -339,7 +348,10 @@ class RetrievalService:
         policy = self._source_policy(source_name)
         if need.time_start or need.time_end or policy is None:
             return need.time_start, need.time_end, policy
-        if policy.history_policy != "rolling_window" or policy.default_lookback_days is None:
+        if (
+            policy.history_policy != "rolling_window"
+            or policy.default_lookback_days is None
+        ):
             return None, None, policy
         date_end = datetime.now(UTC)
         date_start = date_end - timedelta(days=int(policy.default_lookback_days))
@@ -348,7 +360,9 @@ class RetrievalService:
     @staticmethod
     def _has_explicit_scope(need: DataNeed) -> bool:
         return (
-            need.geography is not None or need.time_start is not None or need.time_end is not None
+            need.geography is not None
+            or need.time_start is not None
+            or need.time_end is not None
         )
 
     def _catalog_scope_status(
@@ -391,7 +405,9 @@ class RetrievalService:
                     if country in normalized:
                         dimensions.append(("compatible", ""))
                     elif raw_countries and all(normalized) and not raw_regions:
-                        dimensions.append(("incompatible", "geography_outside_coverage"))
+                        dimensions.append(
+                            ("incompatible", "geography_outside_coverage")
+                        )
                     else:
                         dimensions.append(("unknown", "geography_coverage_unverified"))
 
@@ -402,7 +418,9 @@ class RetrievalService:
                 else None
             )
             requested_end = (
-                _scope_date(need.time_end, upper_bound=True) if need.time_end is not None else None
+                _scope_date(need.time_end, upper_bound=True)
+                if need.time_end is not None
+                else None
             )
             if (
                 (need.time_start is not None and requested_start is None)
@@ -454,7 +472,10 @@ class RetrievalService:
                 ):
                     if requested_start > coverage_end or requested_end < coverage_start:
                         dimensions.append(("incompatible", "time_outside_coverage"))
-                    elif requested_start >= coverage_start and requested_end <= coverage_end:
+                    elif (
+                        requested_start >= coverage_start
+                        and requested_end <= coverage_end
+                    ):
                         dimensions.append(("compatible", ""))
                     else:
                         dimensions.append(("unknown", "time_coverage_partial_overlap"))
@@ -474,10 +495,14 @@ class RetrievalService:
                     dimensions.append(("unknown", "time_coverage_unverified"))
 
         if any(status == "incompatible" for status, _ in dimensions):
-            reason = next(reason for status, reason in dimensions if status == "incompatible")
+            reason = next(
+                reason for status, reason in dimensions if status == "incompatible"
+            )
             return "incompatible", reason
         if any(status == "unknown" for status, _ in dimensions):
-            reason = next(reason for status, reason in dimensions if status == "unknown")
+            reason = next(
+                reason for status, reason in dimensions if status == "unknown"
+            )
             return "unknown", reason
         return "compatible", ""
 
@@ -498,7 +523,9 @@ class RetrievalService:
         refusals intentionally propagate to the retrieval caller.
         """
         catalog = self._dataset_catalog
-        population_reader = getattr(catalog, "reconciled_metric_binding_population", None)
+        population_reader = getattr(
+            catalog, "reconciled_metric_binding_population", None
+        )
         if not callable(population_reader):
             return None
 
@@ -510,9 +537,15 @@ class RetrievalService:
                 continue
             if str(getattr(binding, "connector_id", "") or "").strip() != connector_id:
                 continue
-            if str(getattr(binding, "request_dataset_id", "") or "").strip() != request_dataset_id:
+            if (
+                str(getattr(binding, "request_dataset_id", "") or "").strip()
+                != request_dataset_id
+            ):
                 continue
-            if _optional_text(getattr(binding, "profile_id", None)) != requested_profile:
+            if (
+                _optional_text(getattr(binding, "profile_id", None))
+                != requested_profile
+            ):
                 continue
 
             binding_source = str(getattr(binding, "source", "") or "").strip()
@@ -524,7 +557,9 @@ class RetrievalService:
                 run_profile=run_profile,
             ):
                 continue
-            catalog_dataset_id = str(getattr(binding, "catalog_dataset_id", "") or "").strip()
+            catalog_dataset_id = str(
+                getattr(binding, "catalog_dataset_id", "") or ""
+            ).strip()
             if catalog_dataset_id:
                 exact.add((catalog_dataset_id, binding_source))
 
@@ -581,7 +616,9 @@ class RetrievalService:
                     f"catalog_scope_unverified:{request_metric_id}:request_scope_unmatched"
                 )
                 return "unknown"
-            scoped_needs = [need for need in matching_needs if self._has_explicit_scope(need)]
+            scoped_needs = [
+                need for need in matching_needs if self._has_explicit_scope(need)
+            ]
             if not scoped_needs:
                 return "compatible"
 
@@ -715,7 +752,9 @@ class RetrievalService:
                 "retrieval.need_count": len(request.data_needs),
             },
         ):
-            fastlane_enabled = _flag("POLISYOS_RETRIEVAL_FASTLANE_ENABLED", default=True)
+            fastlane_enabled = _flag(
+                "POLISYOS_RETRIEVAL_FASTLANE_ENABLED", default=True
+            )
             explore_enabled = _flag("POLISYOS_RETRIEVAL_EXPLORE_ENABLED", default=True)
 
             unresolved: list[DataNeed] = list(request.data_needs)
@@ -737,7 +776,9 @@ class RetrievalService:
                 warnings.extend(fast.warnings)
                 resolved_metrics = {plan.metric_id for plan in fast_plans}
                 unresolved = [
-                    need for need in request.data_needs if need.metric not in resolved_metrics
+                    need
+                    for need in request.data_needs
+                    if need.metric not in resolved_metrics
                 ]
                 phase_metrics.append(
                     {
@@ -772,9 +813,13 @@ class RetrievalService:
                 warnings.extend(catalog_scope_warnings)
                 warnings.extend(scope_warnings)
                 fetch_plans.extend(scoped_catalog_plans)
-                candidates.extend(cast("list[MetricCandidate]", scoped_catalog_candidates))
+                candidates.extend(
+                    cast("list[MetricCandidate]", scoped_catalog_candidates)
+                )
                 resolved_metrics = {plan.metric_id for plan in fetch_plans}
-                unresolved = [need for need in unresolved if need.metric not in resolved_metrics]
+                unresolved = [
+                    need for need in unresolved if need.metric not in resolved_metrics
+                ]
                 phase_metrics.append(
                     {
                         "phase": "resolve_dataset_catalog",
@@ -783,12 +828,16 @@ class RetrievalService:
                         "candidates_total": len(scoped_catalog_candidates),
                         "candidates_selected": len(scoped_catalog_plans),
                         "docs_fetched": 0,
-                        "route_breakdown": self._route_breakdown(scoped_catalog_candidates),
+                        "route_breakdown": self._route_breakdown(
+                            scoped_catalog_candidates
+                        ),
                     }
                 )
 
             should_explore = request.mode == "explorelane" or (
-                request.mode == "hybrid" and request.allow_explore_fallback and bool(unresolved)
+                request.mode == "hybrid"
+                and request.allow_explore_fallback
+                and bool(unresolved)
             )
             if should_explore:
                 if not explore_enabled:
@@ -857,11 +906,15 @@ class RetrievalService:
                         {
                             "phase": "discover_explore_lane",
                             "lane": "explorelane",
-                            "duration_ms": int((time.perf_counter() - phase_start) * 1000),
+                            "duration_ms": int(
+                                (time.perf_counter() - phase_start) * 1000
+                            ),
                             "candidates_total": len(explore_candidates),
                             "candidates_selected": len(explore_plans),
                             "docs_fetched": discover_outcome.docs_fetched_total,
-                            "route_breakdown": self._route_breakdown(explore_candidates),
+                            "route_breakdown": self._route_breakdown(
+                                explore_candidates
+                            ),
                         }
                     )
 
@@ -930,7 +983,9 @@ class RetrievalService:
             FABRIC_TRACE_NAMES["retrieval_discover"],
             attributes={"retrieval.need_count": len(data_needs)},
         ):
-            result: ExploreLaneDiscoverResult = self._explore.discover(data_needs, limits=limits)
+            result: ExploreLaneDiscoverResult = self._explore.discover(
+                data_needs, limits=limits
+            )
         if getattr(self._metrics, "record_fabric_query", None):
             self._metrics.record_fabric_query(
                 operation="discover",
@@ -944,7 +999,9 @@ class RetrievalService:
             warnings=result.warnings,
         )
 
-    def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
+    def preview(
+        self, plan: FetchPlan, *, allow_fallback: bool = True
+    ) -> ExecutePlanResult:
         return self._executor.preview(plan, allow_fallback=allow_fallback)
 
     def execute_fetch_plans(
@@ -968,7 +1025,11 @@ class RetrievalService:
                     plan,
                     persist_payload=persist_payload,
                     allow_fallback=allow_fallback,
-                    **({"dataset_catalog": self._dataset_catalog} if persist_payload else {}),
+                    **(
+                        {"dataset_catalog": self._dataset_catalog}
+                        if persist_payload
+                        else {}
+                    ),
                 )
                 previews.append(outcome)
                 if outcome.fallback_used:
@@ -1037,11 +1098,14 @@ class RetrievalService:
         with self._state_lock:
             values = list(self._promotion_queue.values())
         values.sort(
-            key=lambda item: item.created_at or datetime.min.replace(tzinfo=UTC), reverse=True
+            key=lambda item: item.created_at or datetime.min.replace(tzinfo=UTC),
+            reverse=True,
         )
         return values
 
-    def approve_promotion(self, promotion_id: str, *, reason: str | None = None) -> bool:
+    def approve_promotion(
+        self, promotion_id: str, *, reason: str | None = None
+    ) -> bool:
         with self._state_lock:
             candidate = self._promotion_queue.get(promotion_id)
             if candidate is None:
@@ -1096,7 +1160,9 @@ class RetrievalService:
         for metric_id, rows in by_metric.items():
             if metric_id in existing_metric_ids:
                 continue
-            rows.sort(key=lambda item: (-item.confidence, item.connector_id, item.dataset_id))
+            rows.sort(
+                key=lambda item: (-item.confidence, item.connector_id, item.dataset_id)
+            )
             primary = rows[0]
             need = need_map.get(metric_id, DataNeed(metric=metric_id))
             fallbacks = [
@@ -1107,7 +1173,9 @@ class RetrievalService:
                     profile_id=item.profile_id,
                     filters={},
                     metadata={
-                        "resolution_route": item.metadata.get("resolution_route", item.source_lane),
+                        "resolution_route": item.metadata.get(
+                            "resolution_route", item.source_lane
+                        ),
                         "confidence": item.confidence,
                     },
                 )
@@ -1115,7 +1183,9 @@ class RetrievalService:
             ]
             plans.append(
                 FetchPlan(
-                    plan_id=_stable_id("plan", metric_id, primary.connector_id, primary.dataset_id),
+                    plan_id=_stable_id(
+                        "plan", metric_id, primary.connector_id, primary.dataset_id
+                    ),
                     metric_id=metric_id,
                     connector_id=primary.connector_id,
                     dataset_id=primary.dataset_id,
@@ -1130,7 +1200,9 @@ class RetrievalService:
                     metadata={
                         "discovered": True,
                         "confidence": primary.confidence,
-                        "resolution_route": primary.metadata.get("resolution_route", "explorelane"),
+                        "resolution_route": primary.metadata.get(
+                            "resolution_route", "explorelane"
+                        ),
                     },
                 )
             )
@@ -1154,7 +1226,9 @@ class RetrievalService:
                     "profile_id": candidate.profile_id,
                     "updated_at": now_iso,
                 }
-            self._trim_ordered_dict_locked(self._local_index_docs, self._max_local_index_docs)
+            self._trim_ordered_dict_locked(
+                self._local_index_docs, self._max_local_index_docs
+            )
             self._docs_added_last_run = added
             self._recompute_index_size_locked()
             self._last_updated = datetime.now(UTC)
@@ -1166,7 +1240,9 @@ class RetrievalService:
             return 0
         if plan.source_lane != "explorelane":
             return 0
-        promotion_id = _stable_id("promo", plan.metric_id, plan.connector_id, plan.dataset_id)
+        promotion_id = _stable_id(
+            "promo", plan.metric_id, plan.connector_id, plan.dataset_id
+        )
         with self._state_lock:
             if promotion_id in self._promotion_queue:
                 return 0
@@ -1219,20 +1295,92 @@ class RetrievalService:
 
     def _recompute_index_size_locked(self) -> None:
         self._index_size_bytes = len(
-            json.dumps(dict(self._local_index_docs), ensure_ascii=True, sort_keys=True).encode(
-                "utf-8"
-            )
+            json.dumps(
+                dict(self._local_index_docs), ensure_ascii=True, sort_keys=True
+            ).encode("utf-8")
         )
 
     @staticmethod
-    def _trim_ordered_dict_locked(mapping: OrderedDict[str, Any], max_items: int) -> None:
+    def _trim_ordered_dict_locked(
+        mapping: OrderedDict[str, Any], max_items: int
+    ) -> None:
         while len(mapping) > max_items:
             mapping.popitem(last=False)
 
     def _store_promotion_candidate_locked(self, candidate: PromotionCandidate) -> None:
         self._promotion_queue.pop(candidate.promotion_id, None)
         self._promotion_queue[candidate.promotion_id] = candidate
-        self._trim_ordered_dict_locked(self._promotion_queue, self._max_promotion_candidates)
+        self._trim_ordered_dict_locked(
+            self._promotion_queue, self._max_promotion_candidates
+        )
+
+    def _catalog_publish_admission(
+        self, catalog: object, run_profile: CatalogRunProfile | None
+    ) -> tuple[str, str, dict[str, object] | None]:
+        """Join recomputed local publish currentness to the exact open DB session."""
+        if run_profile is None:
+            return "not_established", "catalog_run_profile_unresolved", None
+        path = getattr(catalog, "database_path", None)
+        identity_reader = getattr(catalog, "source_content_identities", None)
+        if not isinstance(path, Path) or not callable(identity_reader):
+            return "not_established", "catalog_open_session_identity_unavailable", None
+        try:
+            baseline, _overlay_path, overlay = identity_reader()
+            if overlay is not None:
+                return (
+                    "not_established",
+                    "catalog_overlay_not_bound_by_publish_receipt",
+                    None,
+                )
+            resolver = cast(
+                "Callable[..., dict[str, object]]",
+                catalog_read_api._current_catalog_publish_receipt,
+            )
+            receipt = resolver(path, run_profile=run_profile)
+        except Exception as exc:
+            if str(getattr(exc, "code", "")).startswith("catalog_read_session_"):
+                raise
+            return "not_established", "catalog_publish_receipt_unavailable", None
+        state = str(receipt.get("state") or "not_established")
+        if state != "current":
+            return state, str(receipt.get("reason") or "receipt_not_current"), None
+        expected = {
+            "source_path": baseline.source_path,
+            "content_sha256": baseline.content_sha256,
+            "byte_size": baseline.byte_size,
+        }
+        if receipt.get("database_identity") != expected:
+            return "stale", "publish_database_identity_differs_from_open_session", None
+        profile_coverage = receipt.get("profile_input_coverage")
+        if receipt.get(
+            "profile_input_coverage_state"
+        ) != "established" or not isinstance(profile_coverage, dict):
+            return "not_established", "catalog_profile_input_coverage_unknown", None
+        return "current", "publish_receipt_matches_open_session", profile_coverage
+
+    def _catalog_profile_plan_admission(
+        self, profile_id: str | None, profile_coverage: object
+    ) -> tuple[bool, str]:
+        """Admit only rows whose producer-time excluded-input scope is established."""
+        if not profile_id:
+            return False, "catalog_profile_id_unresolved"
+        from polisyos.data_forge.domains.catalog.batch.config import (
+            _profile_input_coverage_currentness,
+        )
+
+        coverage_state, profiles = _profile_input_coverage_currentness(
+            profile_coverage,
+            missing=profile_coverage is None,
+        )
+        if coverage_state == "legacy_unknown":
+            return False, "catalog_profile_input_coverage_unknown"
+        if coverage_state == "malformed" or profiles is None:
+            return False, "catalog_profile_input_coverage_malformed"
+        if coverage_state != "established":
+            return False, "catalog_profile_inputs_not_established"
+        if profile_id not in profiles:
+            return False, "catalog_profile_input_coverage_unmatched"
+        return True, "catalog_profile_inputs_covered"
 
     def _resolve_via_catalog(
         self,
@@ -1241,7 +1389,43 @@ class RetrievalService:
         run_profile: CatalogRunProfile | None = None,
         warnings: list[str] | None = None,
     ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
-        """Try to resolve data needs via DatasetCatalogGraph."""
+        """Resolve through the catalog only after local receipt admission."""
+        catalog = self._dataset_catalog
+        if catalog is None:
+            return [], []
+        state, reason, profile_coverage = self._catalog_publish_admission(
+            catalog, run_profile
+        )
+        if state != "current" and warnings is not None:
+            warnings.append(f"catalog_source_{state}:{reason}")
+
+        def admit(row: dict[str, object]) -> tuple[bool, str]:
+            if state != "current":
+                return False, reason
+            return self._catalog_profile_plan_admission(
+                _optional_text(row.get("profile_id")), profile_coverage
+            )
+
+        return self._resolve_via_catalog_rows(
+            unresolved,
+            run_profile=run_profile,
+            warnings=warnings,
+            source_currentness=state,
+            source_reason=reason,
+            plan_admission=admit,
+        )
+
+    def _resolve_via_catalog_rows(
+        self,
+        unresolved: list[DataNeed],
+        *,
+        run_profile: CatalogRunProfile | None = None,
+        warnings: list[str] | None = None,
+        source_currentness: str = "not_established",
+        source_reason: str = "logic_only_mapper",
+        plan_admission: Callable[[dict[str, object]], tuple[bool, str]],
+    ) -> tuple[list[FetchPlan], list[MetricCandidate]]:
+        """Map catalog rows; the caller supplies its plan-admission predicate."""
         plans: list[FetchPlan] = []
         candidates: list[MetricCandidate] = []
         catalog = self._dataset_catalog
@@ -1255,16 +1439,26 @@ class RetrievalService:
             if binding_fn is not None:
                 try:
                     bindings = binding_fn(need.metric, top_k=3)
-                except Exception:
+                except Exception as exc:
+                    if str(getattr(exc, "code", "")).startswith(
+                        "catalog_read_session_"
+                    ):
+                        raise
                     logger.debug(
-                        "Catalog binding lookup failed for metric %s", need.metric, exc_info=True
+                        "Catalog binding lookup failed for metric %s",
+                        need.metric,
+                        exc_info=True,
                     )
                     bindings = []
                 for binding in bindings:
-                    execution_tier = str(getattr(binding, "execution_tier", "catalog") or "catalog")
+                    execution_tier = str(
+                        getattr(binding, "execution_tier", "catalog") or "catalog"
+                    )
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
-                    connector_id = str(getattr(binding, "connector_id", "") or "").strip()
+                    connector_id = str(
+                        getattr(binding, "connector_id", "") or ""
+                    ).strip()
                     request_dataset_id = str(
                         getattr(binding, "request_dataset_id", "") or ""
                     ).strip()
@@ -1282,14 +1476,20 @@ class RetrievalService:
                             "catalog_dataset_id": str(
                                 getattr(binding, "catalog_dataset_id", "") or ""
                             ),
-                            "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
+                            "distribution_id": str(
+                                getattr(binding, "distribution_id", "") or ""
+                            ),
                             "connector_id": connector_id,
-                            "profile_id": _optional_text(getattr(binding, "profile_id", None)),
+                            "profile_id": _optional_text(
+                                getattr(binding, "profile_id", None)
+                            ),
                             "request_dataset_id": request_dataset_id,
                             "default_filters": _coerce_filter_map(
                                 getattr(binding, "default_filters", {}) or {}
                             ),
-                            "confidence": _coerce_float(getattr(binding, "confidence", 0.0) or 0.0),
+                            "confidence": _coerce_float(
+                                getattr(binding, "confidence", 0.0) or 0.0
+                            ),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
                             "execution_tier": execution_tier,
                             "source": source_name,
@@ -1303,16 +1503,30 @@ class RetrievalService:
                     continue
                 try:
                     results = find_fn(need.metric, top_k=3)
-                except Exception:
-                    logger.debug("Catalog lookup failed for metric %s", need.metric, exc_info=True)
+                except Exception as exc:
+                    if str(getattr(exc, "code", "")).startswith(
+                        "catalog_read_session_"
+                    ):
+                        raise
+                    logger.debug(
+                        "Catalog lookup failed for metric %s",
+                        need.metric,
+                        exc_info=True,
+                    )
                     continue
                 for result in results:
-                    execution_tier = str(getattr(result, "execution_tier", "catalog") or "catalog")
+                    execution_tier = str(
+                        getattr(result, "execution_tier", "catalog") or "catalog"
+                    )
                     if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
                         continue
                     try:
                         target = resolve_target_fn(result.id)
-                    except Exception:
+                    except Exception as exc:
+                        if str(getattr(exc, "code", "")).startswith(
+                            "catalog_read_session_"
+                        ):
+                            raise
                         logger.debug(
                             "Catalog fetch target resolution failed for %s",
                             result.id,
@@ -1340,8 +1554,12 @@ class RetrievalService:
                             "connector_id": target.connector_id,
                             "profile_id": _optional_text(target.profile_id),
                             "request_dataset_id": target.request_dataset_id,
-                            "default_filters": _coerce_filter_map(target.default_filters),
-                            "confidence": max(0.05, _coerce_float(result.similarity) * 0.8),
+                            "default_filters": _coerce_filter_map(
+                                target.default_filters
+                            ),
+                            "confidence": max(
+                                0.05, _coerce_float(result.similarity) * 0.8
+                            ),
                             "catalog_title": result.title,
                             "execution_tier": execution_tier,
                             "source": source_name,
@@ -1362,6 +1580,17 @@ class RetrievalService:
 
             selectable_rows: list[dict[str, object]] = []
             for row in deduped_rows:
+                plan_allowed, plan_reason = plan_admission(row)
+                row["_plan_admitted"] = plan_allowed
+                row["_plan_admission_reason"] = plan_reason
+                if (
+                    not plan_allowed
+                    and warnings is not None
+                    and source_currentness == "current"
+                ):
+                    warnings.append(
+                        f"catalog_profile_not_admitted:{str(row.get('profile_id') or 'unknown')}:{plan_reason}"
+                    )
                 if not self._has_explicit_scope(need):
                     selectable_rows.append(row)
                     continue
@@ -1392,7 +1621,9 @@ class RetrievalService:
                         )
                 elif status == "unknown":
                     if warnings is not None:
-                        warnings.append(f"catalog_scope_unverified:{need.metric}:{reason}")
+                        warnings.append(
+                            f"catalog_scope_unverified:{need.metric}:{reason}"
+                        )
                     selectable_rows.append(row)
                 else:
                     selectable_rows.append(row)
@@ -1431,11 +1662,17 @@ class RetrievalService:
                         "catalog_title": row["catalog_title"],
                         "execution_tier": row["execution_tier"],
                         "resolution_route": "catalog",
+                        "source_currentness": source_currentness,
+                        "source_currentness_reason": source_reason,
+                        "plan_admission_reason": row.get("_plan_admission_reason", ""),
                     },
                 )
                 candidates.append(candidate)
 
-            if not selectable_rows:
+            plan_rows = [
+                row for row in selectable_rows if row.get("_plan_admitted") is True
+            ]
+            if not plan_rows:
                 continue
             fallbacks = [
                 FetchPlanFallback(
@@ -1450,9 +1687,9 @@ class RetrievalService:
                         "distribution_id": row["distribution_id"],
                     },
                 )
-                for row in selectable_rows[1:3]
+                for row in plan_rows[1:3]
             ]
-            primary = selectable_rows[0]
+            primary = plan_rows[0]
             date_start, date_end, policy = self._catalog_date_window(
                 source_name=str(primary.get("source") or ""),
                 need=need,
@@ -1484,7 +1721,9 @@ class RetrievalService:
                         "execution_tier": primary["execution_tier"],
                         "source": primary.get("source", ""),
                         "history_policy": policy.history_policy if policy else "",
-                        "default_lookback_days": policy.default_lookback_days if policy else None,
+                        "default_lookback_days": policy.default_lookback_days
+                        if policy
+                        else None,
                         "manual_backfill_allowed": bool(policy.allow_manual_backfill)
                         if policy
                         else False,

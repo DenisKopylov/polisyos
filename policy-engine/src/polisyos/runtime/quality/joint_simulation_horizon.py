@@ -9,6 +9,7 @@ implement a parallel simulator beside Foundry engines.
 from __future__ import annotations
 
 import itertools
+import math
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from typing import Any, Literal, Protocol
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
 
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
@@ -42,9 +44,26 @@ from polisyos.runtime.quality.world_model_record import (
     resolve_intervention_atom_world_binding,
 )
 
-JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
+JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
 JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION = (
     "policyos.runtime.joint_simulation_horizon.v2"
+)
+JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION = (
+    "policyos.runtime.joint_simulation_horizon.v3"
+)
+JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION = (
+    "policyos.runtime.joint_simulation_horizon.v4"
+)
+JOINT_SIMULATION_HORIZON_SCHEMA_VERSION = (
+    JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+)
+_JOINT_SIMULATION_HORIZON_SCHEMA_VERSIONS = frozenset(
+    {
+        JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+    }
 )
 WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS = (
     "exec_plan_provenance_not_established",
@@ -134,6 +153,23 @@ class _StrictModel(BaseModel):
     """Strict immutable base model for N5 public artifacts."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
+
+
+_REPLICATION_ENGINE_STATE_CANON_SPEC = CanonSpec(
+    forbid_floats=False,
+    forbid_nan_inf=True,
+)
+
+
+def _replication_engine_state_canonical_bytes(value: object) -> bytes:
+    """Encode one engine state without Python's cross-type equality coercions."""
+
+    if not isinstance(value, Mapping) or any(not isinstance(key, str) for key in value):
+        raise ValueError("replication_engine_state_not_canonical_json")
+    try:
+        return to_canonical_bytes(value, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("replication_engine_state_not_canonical_json") from exc
 
 
 class _MethodSignatureLike(Protocol):
@@ -239,6 +275,32 @@ class JointSimulationRequest(_StrictModel):
     seed: int = 0
     replications: int = Field(default=1, ge=1)
     world_credal_state_before: dict[str, Any] = Field(default_factory=dict)
+    candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    member_basis: Literal["hypothetical_all_unique_n4_source_members"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    source_candidate_relationship: Literal["alternatives"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    composition_status: Literal["not_established"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    composition_limitation_code: Literal[
+        "n4_source_candidates_are_alternatives_not_authored_compound_design"
+    ] | None = Field(default=None, exclude_if=lambda value: value is None)
+    child_to_parent_refinement_status: Literal["not_established"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    child_to_parent_refinement_limitation_code: Literal[
+        "child_to_parent_refinement_rule_not_established"
+    ] | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @field_validator("intervention_atoms")
     @classmethod
@@ -249,6 +311,35 @@ class JointSimulationRequest(_StrictModel):
         if not value:
             raise ValueError("intervention_atoms_missing")
         return value
+
+    @model_validator(mode="after")
+    def _candidate_diagnostic_scope_is_complete(self) -> JointSimulationRequest:
+        fields = (
+            self.candidate_intent,
+            self.member_basis,
+            self.source_candidate_relationship,
+            self.composition_status,
+            self.composition_limitation_code,
+            self.child_to_parent_refinement_status,
+            self.child_to_parent_refinement_limitation_code,
+        )
+        if not any(value is not None for value in fields):
+            return self
+        if (
+            any(value is None for value in fields)
+            or self.candidate_intent != "n4_unique_parent_source_members.v1"
+            or self.member_basis != "hypothetical_all_unique_n4_source_members"
+            or self.source_candidate_relationship != "alternatives"
+            or self.composition_status != "not_established"
+            or self.composition_limitation_code
+            != "n4_source_candidates_are_alternatives_not_authored_compound_design"
+            or self.child_to_parent_refinement_status != "not_established"
+            or self.child_to_parent_refinement_limitation_code
+            != "child_to_parent_refinement_rule_not_established"
+            or self.coupling_graph is not None
+        ):
+            raise ValueError("joint_simulation_candidate_diagnostic_scope_invalid")
+        return self
 
 
 class EngineDecision(_StrictModel):
@@ -266,12 +357,258 @@ class EngineDecision(_StrictModel):
     eligibility_source: str = "method_registry"
 
 
+class ReplicationSample(_StrictModel):
+    """One seed-bound selected-engine point before replication aggregation."""
+
+    seed: int
+    engine_state: dict[str, Any]
+    outcomes: dict[str, float]
+    effects: dict[str, float]
+
+    @field_validator("seed", mode="before")
+    @classmethod
+    def _strict_seed(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("replication_sample_seed_invalid")
+        return value
+
+    @field_validator("engine_state", mode="before")
+    @classmethod
+    def _engine_state_mapping(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            raise ValueError("replication_sample_engine_state_invalid")
+        try:
+            _replication_engine_state_canonical_bytes(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("replication_sample_engine_state_not_canonical_json") from exc
+        return value
+
+    @field_validator("outcomes", "effects", mode="before")
+    @classmethod
+    def _finite_real_samples(cls, value: object) -> object:
+        if not isinstance(value, Mapping) or not value:
+            raise ValueError("replication_sample_mapping_missing")
+        for key, item in value.items():
+            if not isinstance(key, str) or not key.strip():
+                raise ValueError("replication_sample_key_invalid")
+            if isinstance(item, bool) or not isinstance(item, int | float):
+                raise ValueError("replication_sample_value_not_real")
+            if not math.isfinite(float(item)):
+                raise ValueError("replication_sample_value_non_finite")
+        return value
+
+
+class ReplicationSamplingSummary(_StrictModel):
+    """Recomputable selected-model Monte Carlo sampling summary for one point."""
+
+    status: Literal["estimated", "standard_error_not_estimated"]
+    replicate_count: int = Field(ge=1)
+    seeds: tuple[int, ...] = Field(min_length=1)
+    samples: tuple[ReplicationSample, ...] = Field(min_length=1)
+    outcomes_standard_error: dict[str, float | None]
+    effects_standard_error: dict[str, float | None]
+
+    @field_validator("replicate_count", mode="before")
+    @classmethod
+    def _strict_replicate_count(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ValueError("replication_count_invalid")
+        return value
+
+    @field_validator("seeds", mode="before")
+    @classmethod
+    def _strict_distinct_seed_values(cls, value: object) -> object:
+        if not isinstance(value, list | tuple) or not value:
+            raise ValueError("replication_seeds_missing")
+        if any(isinstance(seed, bool) or not isinstance(seed, int) for seed in value):
+            raise ValueError("replication_seed_not_integer")
+        if len(set(value)) != len(value):
+            raise ValueError("replication_seed_duplicate")
+        return value
+
+    @field_validator("outcomes_standard_error", "effects_standard_error", mode="before")
+    @classmethod
+    def _finite_nonnegative_standard_errors(cls, value: object) -> object:
+        if not isinstance(value, Mapping) or not value:
+            raise ValueError("replication_standard_error_mapping_missing")
+        for key, item in value.items():
+            if not isinstance(key, str) or not key.strip():
+                raise ValueError("replication_standard_error_key_invalid")
+            if item is None:
+                continue
+            if isinstance(item, bool) or not isinstance(item, int | float):
+                raise ValueError("replication_standard_error_not_real")
+            if not math.isfinite(float(item)) or float(item) < 0.0:
+                raise ValueError("replication_standard_error_invalid")
+        return value
+
+    @model_validator(mode="after")
+    def _recompute_sampling_error(self) -> ReplicationSamplingSummary:
+        if self.replicate_count != len(self.seeds) or len(self.samples) != self.replicate_count:
+            raise ValueError("replication_summary_denominator_mismatch")
+        if len(set(self.seeds)) != len(self.seeds):
+            raise ValueError("replication_seed_duplicate")
+        if tuple(sample.seed for sample in self.samples) != self.seeds:
+            raise ValueError("replication_sample_seed_binding_mismatch")
+        outcome_keys = set(self.samples[0].outcomes)
+        effect_keys = set(self.samples[0].effects)
+        if any(
+            set(sample.outcomes) != outcome_keys or set(sample.effects) != effect_keys
+            for sample in self.samples[1:]
+        ):
+            raise ValueError("replication_sample_key_mismatch")
+        if set(self.outcomes_standard_error) != outcome_keys:
+            raise ValueError("replication_outcome_error_key_mismatch")
+        if set(self.effects_standard_error) != effect_keys:
+            raise ValueError("replication_effect_error_key_mismatch")
+        expected_status = (
+            "standard_error_not_estimated" if self.replicate_count == 1 else "estimated"
+        )
+        if self.status != expected_status:
+            raise ValueError("replication_sampling_status_mismatch")
+        for sample_map, errors in (
+            ("outcomes", self.outcomes_standard_error),
+            ("effects", self.effects_standard_error),
+        ):
+            for key, reported in errors.items():
+                values = [float(getattr(sample, sample_map)[key]) for sample in self.samples]
+                expected = _sample_standard_error(values)
+                if expected is None:
+                    if reported is not None:
+                        raise ValueError("replication_single_draw_error_must_be_unestimated")
+                elif reported is None or not math.isclose(
+                    float(reported), expected, rel_tol=1e-12, abs_tol=1e-12
+                ):
+                    raise ValueError("replication_standard_error_recomputation_mismatch")
+        return self
+
+
+def _sample_standard_error(values: Sequence[float]) -> float | None:
+    """Return the sample standard error, or None when one draw cannot estimate it."""
+
+    if len(values) < 2:
+        return None
+    return float(np.std(np.asarray(values, dtype=float), ddof=1) / math.sqrt(len(values)))
+
+
+def _validate_trajectory_sampling(trajectory: SimulationTrajectory) -> None:
+    """Reconcile every point's typed summary with the complete replicate set."""
+
+    diagnostics = trajectory.diagnostics
+    requested = diagnostics.get("requested_replications")
+    actual = diagnostics.get("actual_replications")
+    seeds = diagnostics.get("replication_seeds")
+    if (
+        isinstance(requested, bool)
+        or not isinstance(requested, int)
+        or isinstance(actual, bool)
+        or not isinstance(actual, int)
+        or not isinstance(seeds, list | tuple)
+        or requested < 1
+        or requested != actual
+        or actual != len(seeds)
+        or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds)
+        or len(set(seeds)) != len(seeds)
+    ):
+        raise ValueError("replication_diagnostics_denominator_invalid")
+    for point in trajectory.points:
+        summary = point.replication_sampling
+        if summary is None:
+            raise ValueError("replication_sampling_summary_missing")
+        if summary.replicate_count != actual or summary.seeds != tuple(seeds):
+            raise ValueError("replication_summary_diagnostics_mismatch")
+        sidecar_count = point.engine_state.get("replication_count")
+        sidecar_seeds = point.engine_state.get("replication_seeds")
+        sidecar_states = point.engine_state.get("replication_engine_states")
+        if (
+            isinstance(sidecar_count, bool)
+            or not isinstance(sidecar_count, int)
+            or sidecar_count != actual
+            or not isinstance(sidecar_seeds, list | tuple)
+            or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in sidecar_seeds)
+            or tuple(sidecar_seeds) != tuple(seeds)
+            or not isinstance(sidecar_states, list)
+            or len(sidecar_states) != actual
+            or any(not isinstance(state, Mapping) for state in sidecar_states)
+        ):
+            raise ValueError("replication_engine_state_denominator_mismatch")
+        try:
+            sidecar_state_bytes = tuple(
+                _replication_engine_state_canonical_bytes(state) for state in sidecar_states
+            )
+            sample_state_bytes = tuple(
+                _replication_engine_state_canonical_bytes(sample.engine_state)
+                for sample in summary.samples
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("replication_engine_state_not_canonical_json") from exc
+        if sidecar_state_bytes != sample_state_bytes:
+            raise ValueError("replication_engine_state_binding_mismatch")
+        sample_outcome_keys = set(summary.samples[0].outcomes)
+        sample_effect_keys = set(summary.samples[0].effects)
+        if sample_outcome_keys != set(point.outcomes) or sample_effect_keys != set(point.effect):
+            raise ValueError("replication_summary_output_keys_mismatch")
+        for metric, aggregated in (("outcomes", point.outcomes), ("effects", point.effect)):
+            for key, reported in aggregated.items():
+                observed = [float(getattr(sample, metric)[key]) for sample in summary.samples]
+                mean = float(np.mean(np.asarray(observed, dtype=float)))
+                if not math.isfinite(float(reported)) or not math.isclose(
+                    float(reported), mean, rel_tol=1e-12, abs_tol=1e-12
+                ):
+                    raise ValueError("replication_mean_recomputation_mismatch")
+
+
+def _replication_summary_for_points(
+    replicated_points: Sequence[TrajectoryPoint], seeds: Sequence[int]
+) -> ReplicationSamplingSummary:
+    """Build a recomputable summary from complete, same-shaped engine outputs."""
+
+    if not replicated_points or len(replicated_points) != len(seeds):
+        raise JointSimulationControllerError("simulation_replication_denominator_mismatch")
+    if len(set(seeds)) != len(seeds):
+        raise JointSimulationControllerError("simulation_replication_seed_duplicate")
+    outcome_keys = set(replicated_points[0].outcomes)
+    effect_keys = set(replicated_points[0].effect)
+    for point in replicated_points:
+        if set(point.outcomes) != outcome_keys or set(point.effect) != effect_keys:
+            raise JointSimulationControllerError("simulation_replication_output_key_mismatch")
+        for values in (point.outcomes, point.effect):
+            if any(not math.isfinite(float(value)) for value in values.values()):
+                raise JointSimulationControllerError("simulation_replication_output_non_finite")
+    samples = tuple(
+        ReplicationSample(
+            seed=seed,
+            engine_state=dict(_json_ready(point.engine_state)),
+            outcomes={key: float(point.outcomes[key]) for key in point.outcomes},
+            effects={key: float(point.effect[key]) for key in point.effect},
+        )
+        for point, seed in zip(replicated_points, seeds, strict=True)
+    )
+    return ReplicationSamplingSummary(
+        status="standard_error_not_estimated" if len(samples) == 1 else "estimated",
+        replicate_count=len(samples),
+        seeds=tuple(seeds),
+        samples=samples,
+        outcomes_standard_error={
+            key: _sample_standard_error([float(sample.outcomes[key]) for sample in samples])
+            for key in outcome_keys
+        },
+        effects_standard_error={
+            key: _sample_standard_error([float(sample.effects[key]) for sample in samples])
+            for key in effect_keys
+        },
+    )
+
+
 class TrajectoryPoint(_StrictModel):
     """One horizon point emitted by a real engine run."""
 
     step: int
     outcomes: dict[str, float]
     effect: dict[str, float]
+    replication_sampling: ReplicationSamplingSummary | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     engine_state: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -301,57 +638,13 @@ def _higher_order_residuals(
     request: JointSimulationRequest,
     coverage: _InteractionCoverage,
 ) -> dict[str, dict[int, float]]:
-    """Return joint residuals after individual and pairwise effects.
+    """Return joint residuals after individual and pairwise effects."""
 
-    Pairwise zero is not a proof of global additivity.  For a joint run with
-    three or more atoms, this residual keeps the higher-order component visible
-    without enumerating any additional powerset of interventions.
-    """
-
-    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
-    if len(atom_ids) < 3:
-        return {}
-    scope_index = coverage.by_scope
-    if coverage.issues:
-        return {}
-    individual = {atom_id: scope_index.get(("individual", (atom_id,))) for atom_id in atom_ids}
-    pairwise = {
-        tuple(pair): scope_index.get(("pairwise", tuple(pair)))
-        for pair in itertools.combinations(atom_ids, 2)
-    }
-    joint = scope_index.get(("joint", atom_ids))
-    if joint is None or any(item is None for item in (*individual.values(), *pairwise.values())):
-        return {}
-    residuals: dict[str, dict[int, float]] = {}
-    for outcome in request.selected_outcomes:
-        by_step: dict[int, float] = {}
-        joint_points = {point.step: point for point in joint.points}
-        individual_points = {
-            atom_id: {point.step: point for point in trajectory.points}
-            for atom_id, trajectory in individual.items()
-            if trajectory is not None
-        }
-        pairwise_points = {
-            pair: {point.step: point for point in trajectory.points}
-            for pair, trajectory in pairwise.items()
-            if trajectory is not None
-        }
-        for step in coverage.expected_steps:
-            pair_interaction_sum = 0.0
-            individual_sum = sum(
-                individual_points[atom_id][step].effect[outcome] for atom_id in atom_ids
-            )
-            for pair in pairwise:
-                pair_effect = pairwise_points[pair][step].effect[outcome]
-                pair_interaction_sum += pair_effect - sum(
-                    individual_points[atom_id][step].effect[outcome] for atom_id in pair
-                )
-            by_step[step] = float(
-                joint_points[step].effect[outcome] - individual_sum - pair_interaction_sum
-            )
-        residuals[outcome] = by_step
-    return residuals
-
+    return _higher_order_residuals_from_fields(
+        atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+        selected_outcomes=request.selected_outcomes,
+        coverage=coverage,
+    )
 
 def _checked_interaction_orders(
     request: JointSimulationRequest,
@@ -366,8 +659,9 @@ def _checked_interaction_orders(
     )
     if complete_individuals:
         checked.append(1)
-    complete_pairs = all(
-        ("pairwise", tuple(pair)) in complete_scopes for pair in itertools.combinations(atom_ids, 2)
+    pairs = tuple(itertools.combinations(atom_ids, 2))
+    complete_pairs = bool(pairs) and all(
+        ("pairwise", tuple(pair)) in complete_scopes for pair in pairs
     )
     if complete_individuals and complete_pairs:
         checked.append(2)
@@ -388,10 +682,28 @@ def _interaction_coverage(
     """Index valid requested scopes and report incomplete horizons separately."""
 
     atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
-    expected_steps = request.horizon.steps()
+    return _interaction_coverage_for_fields(
+        atom_ids=atom_ids,
+        selected_outcomes=request.selected_outcomes,
+        expected_steps=request.horizon.steps(),
+        trajectories=trajectories,
+    )
+
+
+def _interaction_coverage_for_fields(
+    *,
+    atom_ids: Sequence[str],
+    selected_outcomes: Sequence[str],
+    expected_steps: Sequence[int],
+    trajectories: Sequence[SimulationTrajectory],
+) -> _InteractionCoverage:
+    """Recompute requested scope coverage from typed trajectory objects."""
+
+    normalized_atoms = tuple(atom_ids)
+    steps = tuple(expected_steps)
     expected = {
-        (level, tuple(atom.intervention_id for atom in subset))
-        for level, subset in _atom_subsets(request.intervention_atoms)
+        (level, tuple(atom_id for atom_id in subset))
+        for level, subset in _atom_subsets_from_ids(normalized_atoms)
     }
     observed: dict[tuple[str, tuple[str, ...]], list[SimulationTrajectory]] = {}
     for trajectory in trajectories:
@@ -399,7 +711,7 @@ def _interaction_coverage(
         observed.setdefault(key, []).append(trajectory)
 
     issues: list[str] = []
-    if len(set(atom_ids)) != len(atom_ids):
+    if len(set(normalized_atoms)) != len(normalized_atoms):
         issues.append("requested_atom_ids_not_unique")
     index: dict[tuple[str, tuple[str, ...]], SimulationTrajectory] = {}
     complete_scopes: set[tuple[str, tuple[str, ...]]] = set()
@@ -417,10 +729,10 @@ def _interaction_coverage(
         if len(point_steps) != len(set(point_steps)):
             issues.append("horizon_incomplete:" + key[0] + ":" + ",".join(key[1]))
             continue
-        horizon_complete = set(point_steps) == set(expected_steps)
+        horizon_complete = set(point_steps) == set(steps)
         valid_points = True
         for point in trajectory.points:
-            for outcome in request.selected_outcomes:
+            for outcome in selected_outcomes:
                 if outcome not in point.outcomes or outcome not in point.effect:
                     valid_points = False
                     break
@@ -449,9 +761,21 @@ def _interaction_coverage(
         by_scope=index,
         complete_scopes=frozenset(complete_scopes),
         issues=tuple(sorted(issues)),
-        expected_steps=tuple(expected_steps),
+        expected_steps=steps,
     )
 
+
+def _atom_subsets_from_ids(
+    atom_ids: Sequence[str],
+) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    """Return exactly the individual, pairwise, and all-joint scopes for the request."""
+
+    normalized = tuple(atom_ids)
+    return tuple(
+        [("individual", (atom_id,)) for atom_id in normalized]
+        + [("pairwise", pair) for pair in itertools.combinations(normalized, 2)]
+        + [("joint", normalized)]
+    )
 
 def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
     """Derive one deterministic, distinct seed for every requested replicate."""
@@ -513,10 +837,14 @@ def _aggregate_replicated_trajectory(
     if not trajectories:
         raise JointSimulationControllerError("simulation_replications_missing")
     first = trajectories[0]
+    if len(trajectories) != len(seeds) or len(set(seeds)) != len(seeds):
+        raise JointSimulationControllerError("simulation_replication_denominator_mismatch")
     if any(
-        trajectory.atom_ids != first.atom_ids
+        trajectory.run_level != first.run_level
+        or trajectory.atom_ids != first.atom_ids
         or trajectory.engine_kind != first.engine_kind
         or trajectory.method_fqn != first.method_fqn
+        or trajectory.objective_ref != first.objective_ref
         or len(trajectory.points) != len(first.points)
         for trajectory in trajectories[1:]
     ):
@@ -527,6 +855,19 @@ def _aggregate_replicated_trajectory(
         replicated_points = [trajectory.points[point_index] for trajectory in trajectories]
         if any(point.step != first_point.step for point in replicated_points):
             raise JointSimulationControllerError("simulation_replication_step_mismatch")
+        if any(
+            set(point.outcomes) != set(first_point.outcomes)
+            or set(point.effect) != set(first_point.effect)
+            for point in replicated_points[1:]
+        ):
+            raise JointSimulationControllerError("simulation_replication_output_key_mismatch")
+        for point in replicated_points:
+            if any(
+                not math.isfinite(float(value))
+                for values in (point.outcomes, point.effect)
+                for value in values.values()
+            ):
+                raise JointSimulationControllerError("simulation_replication_output_non_finite")
         outcomes = {
             outcome: float(np.mean([point.outcomes[outcome] for point in replicated_points]))
             for outcome in first_point.outcomes
@@ -535,11 +876,13 @@ def _aggregate_replicated_trajectory(
             outcome: float(np.mean([point.effect[outcome] for point in replicated_points]))
             for outcome in first_point.effect
         }
+        sampling = _replication_summary_for_points(replicated_points, seeds)
         points.append(
             TrajectoryPoint(
                 step=first_point.step,
                 outcomes=outcomes,
                 effect=effects,
+                replication_sampling=sampling,
                 engine_state={
                     **dict(_json_ready(first_point.engine_state)),
                     "replication_count": len(replicated_points),
@@ -601,20 +944,42 @@ def _run_cached_replicates(
 
 
 class InteractionTerm(_StrictModel):
-    """Real interaction term computed from actual trajectories."""
+    """Real paired interaction term computed from actual shared-seed trajectories."""
 
     atom_ids: tuple[str, str]
     outcome: str
     by_step: dict[int, float]
+    replication_sampling_by_step: dict[int, ReplicationSamplingSummary] = Field(
+        default_factory=dict
+    )
     formula: Literal["joint_effect_minus_sum_individual_effects"] = (
         "joint_effect_minus_sum_individual_effects"
     )
+
+    @model_validator(mode="after")
+    def _recompute_paired_interaction_means(self) -> InteractionTerm:
+        if set(self.replication_sampling_by_step) - set(self.by_step):
+            raise ValueError("interaction_sampling_step_not_in_mean_map")
+        for step, summary in self.replication_sampling_by_step.items():
+            if set(summary.effects_standard_error) != {"derived_effect"}:
+                raise ValueError("interaction_sampling_effect_key_invalid")
+            values = [sample.effects["derived_effect"] for sample in summary.samples]
+            mean = float(np.mean(np.asarray(values, dtype=float)))
+            if not math.isclose(mean, self.by_step[step], rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError("interaction_mean_recomputation_mismatch")
+        return self
 
 
 class FeedbackClassification(_StrictModel):
     """Feedback/shared-resource posture from S5 plus numeric interaction evidence."""
 
     numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"]
+    numeric_interaction_basis: Literal[
+        "finite_checked_model_point_estimate_only", "not_established"
+    ] = "not_established"
+    interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ] = "not_established"
     higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
     checked_interaction_orders: tuple[int, ...] = ()
     coupling_classes: tuple[BoundaryCouplingKind, ...] = ()
@@ -636,6 +1001,8 @@ class SimulationProofReceipt(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.joint_simulation_horizon.v1",
         "policyos.runtime.joint_simulation_horizon.v2",
+        "policyos.runtime.joint_simulation_horizon.v3",
+        "policyos.runtime.joint_simulation_horizon.v4",
     ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     receipt_id: str = Field(..., pattern=r"^joint_sim_receipt_[a-f0-9]{16}$")
     engine_kind: str = Field(..., min_length=1)
@@ -684,6 +1051,8 @@ class JointSimulationResult(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.joint_simulation_horizon.v1",
         "policyos.runtime.joint_simulation_horizon.v2",
+        "policyos.runtime.joint_simulation_horizon.v3",
+        "policyos.runtime.joint_simulation_horizon.v4",
     ] = JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
     world_model_record_ref: str
     world_model_record_content_hash: str
@@ -697,6 +1066,9 @@ class JointSimulationResult(_StrictModel):
     interaction_terms: tuple[InteractionTerm, ...]
     feedback_classification: FeedbackClassification
     higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
+    higher_order_residual_sampling: dict[
+        str, dict[int, ReplicationSamplingSummary]
+    ] = Field(default_factory=dict)
     uncertainty_kind: Literal["K_sim"] = "K_sim"
     world_credal_state_before: dict[str, Any] = Field(default_factory=dict)
     world_credal_state_after: dict[str, Any] = Field(default_factory=dict)
@@ -715,11 +1087,99 @@ class JointSimulationResult(_StrictModel):
     def _versioned_state_consumption(self) -> JointSimulationResult:
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
-        if self.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION:
+        if self.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
             if "state_consumption" in self.model_fields_set:
                 raise ValueError("joint_simulation_v1_cannot_claim_state_consumption")
-        elif self.state_consumption is None:
-            raise ValueError("joint_simulation_v2_state_consumption_missing")
+        elif self.schema_version == JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION:
+            if self.state_consumption is None:
+                raise ValueError("joint_simulation_v2_state_consumption_missing")
+        elif self.schema_version in {
+            JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+            JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+        }:
+            requested = self.diagnostics.get("requested_replications")
+            seeds = self.diagnostics.get("replication_seeds")
+            if (
+                isinstance(requested, bool)
+                or not isinstance(requested, int)
+                or requested < 1
+                or not isinstance(seeds, list | tuple)
+                or len(seeds) != requested
+                or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds)
+                or len(set(seeds)) != len(seeds)
+            ):
+                raise ValueError("replication_request_diagnostics_invalid")
+            for trajectory in self.trajectories:
+                _validate_trajectory_sampling(trajectory)
+                if (
+                    trajectory.diagnostics.get("requested_replications") != requested
+                    or trajectory.diagnostics.get("actual_replications") != requested
+                    or trajectory.diagnostics.get("replication_seeds") != list(seeds)
+                ):
+                    raise ValueError("replication_trajectory_request_mismatch")
+            if self.schema_version == (
+                JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+            ):
+                (
+                    expected_terms,
+                    expected_residual_means,
+                    expected_residual_sampling,
+                    sampling_issues,
+                    evidence_issues,
+                ) = _recompute_result_interaction_sampling(self)
+                if [term.model_dump(mode="json") for term in self.interaction_terms] != [
+                    term.model_dump(mode="json") for term in expected_terms
+                ]:
+                    raise ValueError("interaction_sampling_source_recomputation_mismatch")
+                if self.higher_order_residuals != expected_residual_means:
+                    raise ValueError("higher_order_residual_mean_recomputation_mismatch")
+                if self.higher_order_residual_sampling != expected_residual_sampling:
+                    raise ValueError("higher_order_sampling_source_recomputation_mismatch")
+                if self.feedback_classification.higher_order_residuals != expected_residual_means:
+                    raise ValueError("feedback_higher_order_residual_binding_mismatch")
+                if (
+                    tuple(self.diagnostics.get("interaction_sampling_issues", ()))
+                    != sampling_issues
+                ):
+                    raise ValueError("interaction_sampling_issue_recomputation_mismatch")
+                if (
+                    tuple(self.diagnostics.get("interaction_evidence_issues", ()))
+                    != evidence_issues
+                ):
+                    raise ValueError("interaction_evidence_issue_recomputation_mismatch")
+                expected_status = _interaction_sampling_status(
+                    expected_terms,
+                    expected_residual_sampling,
+                    (*sampling_issues, *evidence_issues),
+                    no_interactions_applicable=len(self.atom_ids) < 2,
+                )
+                if self.feedback_classification.interaction_sampling_status != expected_status:
+                    raise ValueError("interaction_sampling_status_recomputation_mismatch")
+                if self.feedback_classification.numeric_interaction_basis != (
+                    "finite_checked_model_point_estimate_only"
+                    if expected_status == "estimated"
+                    else "not_established"
+                ):
+                    raise ValueError("interaction_point_estimate_basis_mismatch")
+                expected_numeric = _numeric_interaction_classification(
+                    interaction_terms=expected_terms,
+                    higher_order_residuals=expected_residual_means,
+                    higher_order_residual_sampling=expected_residual_sampling,
+                    sampling_status=expected_status,
+                    sampling_issues=(*sampling_issues, *evidence_issues),
+                    interaction_evidence_issues=evidence_issues,
+                    aggregate_order_three_plus=len(self.atom_ids) >= 4,
+                    interaction_required=len(self.atom_ids) >= 2,
+                )
+                if self.feedback_classification.numeric_interaction != expected_numeric:
+                    raise ValueError("numeric_interaction_classification_recomputation_mismatch")
+                expected_basis = (
+                    "finite_checked_model_point_estimate_only"
+                    if expected_status == "estimated"
+                    else "not_established"
+                )
+                if self.feedback_classification.numeric_interaction_basis != expected_basis:
+                    raise ValueError("interaction_point_estimate_basis_mismatch")
         return self
 
     def content_bound_payload(self) -> dict[str, Any]:
@@ -774,10 +1234,7 @@ def build_content_bound_simulation_receipt(
 
     payload_dict = _json_ready(payload)
     schema_version = payload_dict.get("schema_version", JOINT_SIMULATION_HORIZON_SCHEMA_VERSION)
-    if schema_version not in {
-        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
-        JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
-    }:
+    if schema_version not in _JOINT_SIMULATION_HORIZON_SCHEMA_VERSIONS:
         raise ProofReceiptError("receipt_schema_version_unsupported")
     diagnostics_dict = _json_ready(diagnostics)
     trajectory_hash = gy_content_hash(
@@ -833,8 +1290,12 @@ def bind_world_state_consumption(
 ) -> JointSimulationResult:
     """Content-bind the state actually installed into the candidate N5 plan."""
 
-    if result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION:
-        raise ProofReceiptError("state_consumption_requires_v1_engine_result")
+    if result.schema_version not in {
+        JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+    }:
+        raise ProofReceiptError("state_consumption_requires_unbound_engine_result")
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
     if result.world_model_record_content_hash != consumption.world_model_record_content_hash:
         raise ProofReceiptError("state_consumption_world_mismatch")
@@ -847,7 +1308,10 @@ def bind_world_state_consumption(
     ):
         raise ProofReceiptError("state_consumption_program_run_missing")
     payload = deepcopy(result.content_bound_payload())
-    payload["schema_version"] = JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
+    if result.schema_version == JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION:
+        payload["schema_version"] = JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
+    elif result.schema_version == JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION:
+        payload["schema_version"] = JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION
     payload["state_consumption"] = consumption.model_dump(mode="json", exclude_none=True)
     packet = dict(payload["promotion_ready_value_packet"])
     packet["authority_blockers"] = list(
@@ -987,8 +1451,12 @@ class JointSimulationHorizonController:
         marginal_effects: dict[str, dict[int, dict[str, float]]] = {}
         interaction_terms: tuple[InteractionTerm, ...] = ()
         higher_order_residuals: dict[str, dict[int, float]] = {}
+        higher_order_residual_sampling: dict[
+            str, dict[int, ReplicationSamplingSummary]
+        ] = {}
         checked_interaction_orders: tuple[int, ...] = ()
         interaction_evidence_issues: tuple[str, ...] = ()
+        interaction_sampling_issues: tuple[str, ...] = ()
         diagnostics: dict[str, Any] = {
             "world_model_record_id": request.world_model_record.world_model_record_id,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -1055,11 +1523,34 @@ class JointSimulationHorizonController:
                 trajectories,
             )
             interaction_evidence_issues = coverage.issues
-            interaction_terms = tuple(_interaction_terms(request, coverage))
-            higher_order_residuals = _higher_order_residuals(
-                request,
-                coverage,
+            pair_sampling_issues: list[str] = []
+            replication_seeds = _replication_seeds(request)
+            interaction_terms = tuple(
+                _interaction_terms(
+                    request,
+                    coverage,
+                    replication_seeds=replication_seeds,
+                    sampling_issues=pair_sampling_issues,
+                )
             )
+            higher_order_residuals = _higher_order_residuals(request, coverage)
+            higher_order_residual_sampling, residual_sampling_issues = (
+                _higher_order_residual_sampling(
+                    request,
+                    coverage,
+                    replication_seeds=replication_seeds,
+                )
+            )
+            interaction_sampling_issues = tuple(
+                sorted(
+                    set(
+                        pair_sampling_issues
+                        + list(residual_sampling_issues)
+                        + (["interaction_evidence_incomplete"] if coverage.issues else [])
+                    )
+                )
+            )
+            diagnostics["interaction_sampling_issues"] = list(interaction_sampling_issues)
             checked_interaction_orders = _checked_interaction_orders(
                 request,
                 coverage,
@@ -1068,8 +1559,13 @@ class JointSimulationHorizonController:
             diagnostics["interaction_evidence_issues"] = list(interaction_evidence_issues)
             if self._settings.fabricate_interaction_terms:
                 interaction_terms = _contract_testing_fabricated_interactions(interaction_terms)
-        elif decision.decision == "selected":
-            interaction_evidence_issues = ("trajectories_missing",)
+        else:
+            empty_coverage = _interaction_coverage(request, trajectories)
+            interaction_evidence_issues = empty_coverage.issues
+            interaction_sampling_issues = (
+                ("interaction_evidence_incomplete",) if empty_coverage.issues else ()
+            )
+            diagnostics["interaction_sampling_issues"] = list(interaction_sampling_issues)
             diagnostics["interaction_evidence_issues"] = list(interaction_evidence_issues)
 
         feedback = _feedback_classification(
@@ -1082,10 +1578,36 @@ class JointSimulationHorizonController:
             decision_blockers=tuple(blocker for item in decisions for blocker in item.blockers),
             interaction_evidence_issues=interaction_evidence_issues,
             aggregate_order_three_plus=len(request.intervention_atoms) >= 4,
+            higher_order_residual_sampling=higher_order_residual_sampling,
+            interaction_sampling_status=_interaction_sampling_status(
+                interaction_terms,
+                higher_order_residual_sampling,
+                (*interaction_sampling_issues, *interaction_evidence_issues),
+                no_interactions_applicable=len(request.intervention_atoms) < 2,
+            ),
+            interaction_sampling_issues=interaction_sampling_issues,
         )
         authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
         if interaction_evidence_issues:
             authority_blockers.append("interaction_evidence_incomplete")
+        point_sampling_statuses = {
+            point.replication_sampling.status
+            for trajectory in trajectories
+            for point in trajectory.points
+            if point.replication_sampling is not None
+        }
+        if "standard_error_not_estimated" in point_sampling_statuses:
+            authority_blockers.append("standard_error_not_estimated")
+        if feedback.interaction_sampling_status == "not_established":
+            authority_blockers.append("interaction_sampling_not_established")
+        elif feedback.interaction_sampling_status == "standard_error_not_estimated":
+            if "standard_error_not_estimated" not in authority_blockers:
+                authority_blockers.append("standard_error_not_estimated")
+            authority_blockers.append("interaction_sampling_not_established")
+        if _sampling_variation_observed(interaction_terms, higher_order_residual_sampling):
+            authority_blockers.append("interaction_sampling_variation_observed")
+        if feedback.numeric_interaction == "unsupported":
+            authority_blockers.append("interaction_numeric_classification_unsupported")
         value_packet = {
             "world_model_record_ref": request.world_model_record_ref,
             "world_model_record_content_hash": request.world_model_record.content_hash,
@@ -1115,6 +1637,7 @@ class JointSimulationHorizonController:
             "marginal_effects": _json_ready(marginal_effects),
             "interaction_terms": [item.model_dump(mode="json") for item in interaction_terms],
             "higher_order_residuals": _json_ready(higher_order_residuals),
+            "higher_order_residual_sampling": _json_ready(higher_order_residual_sampling),
             "feedback_classification": feedback.model_dump(mode="json"),
             "uncertainty_kind": "K_sim",
             "world_credal_state_before": _json_ready(request.world_credal_state_before),
@@ -2849,14 +3372,100 @@ def _effect_for_outcome(
     return float(value) - _baseline_value(request, outcome)
 
 
+_DERIVED_INTERACTION_SAMPLE_KEY = "derived_effect"
+
+
+def _scope_samples_by_seed(point: TrajectoryPoint) -> dict[int, ReplicationSample] | None:
+    summary = point.replication_sampling
+    if summary is None:
+        return None
+    return {sample.seed: sample for sample in summary.samples}
+
+
+def _paired_replication_summary(
+    *,
+    sample_maps: Mapping[str, Mapping[int, ReplicationSample] | None],
+    expected_seeds: Sequence[int],
+    outcome: str,
+    base_scope: str,
+    value_for_seed: Callable[[Mapping[str, ReplicationSample]], float],
+) -> ReplicationSamplingSummary | None:
+    """Summarize a derived effect only when every selected scope shares all seeds."""
+
+    seeds = tuple(expected_seeds)
+    if not seeds or base_scope not in sample_maps:
+        return None
+    if any(
+        samples is None or set(samples) != set(seeds)
+        for samples in sample_maps.values()
+    ):
+        return None
+    typed_maps = {scope: samples for scope, samples in sample_maps.items() if samples is not None}
+    derived_samples: list[ReplicationSample] = []
+    for seed in seeds:
+        source_samples = {scope: samples[seed] for scope, samples in typed_maps.items()}
+        if any(outcome not in sample.outcomes for sample in source_samples.values()):
+            return None
+        value = float(value_for_seed(source_samples))
+        if not math.isfinite(value):
+            return None
+        base_sample = source_samples[base_scope]
+        derived_samples.append(
+            ReplicationSample(
+                seed=seed,
+                engine_state={
+                    "source_scope_engine_states": {
+                        scope: sample.engine_state for scope, sample in source_samples.items()
+                    }
+                },
+                outcomes={outcome: float(base_sample.outcomes[outcome])},
+                effects={_DERIVED_INTERACTION_SAMPLE_KEY: value},
+            )
+        )
+    values = [sample.effects[_DERIVED_INTERACTION_SAMPLE_KEY] for sample in derived_samples]
+    outcome_values = [sample.outcomes[outcome] for sample in derived_samples]
+    standard_error = _sample_standard_error(values)
+    outcome_standard_error = _sample_standard_error(outcome_values)
+    return ReplicationSamplingSummary(
+        status="standard_error_not_estimated" if len(seeds) == 1 else "estimated",
+        replicate_count=len(seeds),
+        seeds=seeds,
+        samples=tuple(derived_samples),
+        outcomes_standard_error={outcome: outcome_standard_error},
+        effects_standard_error={_DERIVED_INTERACTION_SAMPLE_KEY: standard_error},
+    )
+
+
 def _interaction_terms(
     request: JointSimulationRequest,
     coverage: _InteractionCoverage,
+    *,
+    replication_seeds: Sequence[int] | None = None,
+    sampling_issues: list[str] | None = None,
 ) -> list[InteractionTerm]:
-    atom_ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+    """Build pairwise means and recomputable shared-seed effect samples."""
+
+    return _interaction_terms_from_fields(
+        atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+        selected_outcomes=request.selected_outcomes,
+        coverage=coverage,
+        replication_seeds=replication_seeds,
+        sampling_issues=sampling_issues,
+    )
+
+
+def _interaction_terms_from_fields(
+    *,
+    atom_ids: Sequence[str],
+    selected_outcomes: Sequence[str],
+    coverage: _InteractionCoverage,
+    replication_seeds: Sequence[int] | None,
+    sampling_issues: list[str] | None = None,
+) -> list[InteractionTerm]:
+    normalized_atoms = tuple(atom_ids)
     scope_index = coverage.by_scope
     terms: list[InteractionTerm] = []
-    for pair in itertools.combinations(atom_ids, 2):
+    for pair in itertools.combinations(normalized_atoms, 2):
         trajectory = scope_index.get(("pairwise", tuple(pair)))
         left = scope_index.get(("individual", (pair[0],)))
         right = scope_index.get(("individual", (pair[1],)))
@@ -2865,8 +3474,9 @@ def _interaction_terms(
         left_by_step = {point.step: point for point in left.points}
         right_by_step = {point.step: point for point in right.points}
         pair_by_step = {point.step: point for point in trajectory.points}
-        for outcome in request.selected_outcomes:
+        for outcome in selected_outcomes:
             by_step: dict[int, float] = {}
+            sampling_by_step: dict[int, ReplicationSamplingSummary] = {}
             for step in coverage.expected_steps:
                 if (
                     step not in pair_by_step
@@ -2874,21 +3484,341 @@ def _interaction_terms(
                     or step not in right_by_step
                 ):
                     continue
-                by_step[step] = (
+                by_step[step] = float(
                     pair_by_step[step].effect[outcome]
                     - left_by_step[step].effect[outcome]
                     - right_by_step[step].effect[outcome]
                 )
-            if not by_step:
-                continue
-            terms.append(
-                InteractionTerm(
-                    atom_ids=pair,
-                    outcome=outcome,
-                    by_step=by_step,
+                if replication_seeds is not None:
+                    sample_maps = {
+                        "pairwise": _scope_samples_by_seed(pair_by_step[step]),
+                        "individual_left": _scope_samples_by_seed(left_by_step[step]),
+                        "individual_right": _scope_samples_by_seed(right_by_step[step]),
+                    }
+                    summary = _paired_replication_summary(
+                        sample_maps=sample_maps,
+                        expected_seeds=replication_seeds,
+                        outcome=outcome,
+                        base_scope="pairwise",
+                        value_for_seed=lambda samples, selected_outcome=outcome: (
+                            samples["pairwise"].effects[selected_outcome]
+                            - samples["individual_left"].effects[selected_outcome]
+                            - samples["individual_right"].effects[selected_outcome]
+                        ),
+                    )
+                    if summary is not None:
+                        sampling_by_step[step] = summary
+                    elif sampling_issues is not None:
+                        sampling_issues.append(
+                            f"pairwise_sampling_not_established:{outcome}:{step}:"
+                            + ",".join(pair)
+                        )
+            if by_step:
+                terms.append(
+                    InteractionTerm(
+                        atom_ids=pair,
+                        outcome=outcome,
+                        by_step=by_step,
+                        replication_sampling_by_step=sampling_by_step,
+                    )
                 )
-            )
     return terms
+
+
+def _higher_order_residuals_from_fields(
+    *,
+    atom_ids: Sequence[str],
+    selected_outcomes: Sequence[str],
+    coverage: _InteractionCoverage,
+) -> dict[str, dict[int, float]]:
+    """Compute aggregate order-three-plus residual means from selected scopes."""
+
+    normalized_atoms = tuple(atom_ids)
+    if len(normalized_atoms) < 3 or coverage.issues:
+        return {}
+    individual = {
+        atom_id: coverage.by_scope.get(("individual", (atom_id,)))
+        for atom_id in normalized_atoms
+    }
+    pairs = tuple(itertools.combinations(normalized_atoms, 2))
+    pairwise = {pair: coverage.by_scope.get(("pairwise", pair)) for pair in pairs}
+    joint = coverage.by_scope.get(("joint", normalized_atoms))
+    if joint is None or any(item is None for item in (*individual.values(), *pairwise.values())):
+        return {}
+    joint_points = {point.step: point for point in joint.points}
+    individual_points = {
+        atom_id: {point.step: point for point in trajectory.points}
+        for atom_id, trajectory in individual.items()
+        if trajectory is not None
+    }
+    pairwise_points = {
+        pair: {point.step: point for point in trajectory.points}
+        for pair, trajectory in pairwise.items()
+        if trajectory is not None
+    }
+    residuals: dict[str, dict[int, float]] = {}
+    for outcome in selected_outcomes:
+        by_step: dict[int, float] = {}
+        for step in coverage.expected_steps:
+            individual_sum = sum(
+                individual_points[atom_id][step].effect[outcome] for atom_id in normalized_atoms
+            )
+            pair_interaction_sum = sum(
+                pairwise_points[pair][step].effect[outcome]
+                - sum(individual_points[atom_id][step].effect[outcome] for atom_id in pair)
+                for pair in pairs
+            )
+            by_step[step] = float(
+                joint_points[step].effect[outcome] - individual_sum - pair_interaction_sum
+            )
+        residuals[outcome] = by_step
+    return residuals
+
+
+def _higher_order_residual_sampling(
+    request: JointSimulationRequest,
+    coverage: _InteractionCoverage,
+    *,
+    replication_seeds: Sequence[int],
+) -> tuple[dict[str, dict[int, ReplicationSamplingSummary]], tuple[str, ...]]:
+    """Pair every selected higher-order residual by actual common replicate seed."""
+
+    return _higher_order_residual_sampling_from_fields(
+        atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+        selected_outcomes=request.selected_outcomes,
+        coverage=coverage,
+        replication_seeds=replication_seeds,
+    )
+
+
+def _higher_order_residual_sampling_from_fields(
+    *,
+    atom_ids: Sequence[str],
+    selected_outcomes: Sequence[str],
+    coverage: _InteractionCoverage,
+    replication_seeds: Sequence[int],
+) -> tuple[dict[str, dict[int, ReplicationSamplingSummary]], tuple[str, ...]]:
+    """Recompute aggregate order-three-plus replicate vectors from common seeds."""
+
+    normalized_atoms = tuple(atom_ids)
+    if len(normalized_atoms) < 3:
+        return {}, ()
+    if coverage.issues:
+        return {}, ("interaction_evidence_incomplete",)
+    individual = {
+        atom_id: coverage.by_scope.get(("individual", (atom_id,)))
+        for atom_id in normalized_atoms
+    }
+    pairs = tuple(itertools.combinations(normalized_atoms, 2))
+    pairwise = {pair: coverage.by_scope.get(("pairwise", pair)) for pair in pairs}
+    joint = coverage.by_scope.get(("joint", normalized_atoms))
+    if joint is None or any(item is None for item in (*individual.values(), *pairwise.values())):
+        return {}, ("interaction_evidence_incomplete",)
+    joint_points = {point.step: point for point in joint.points}
+    individual_points = {
+        atom_id: {point.step: point for point in trajectory.points}
+        for atom_id, trajectory in individual.items()
+        if trajectory is not None
+    }
+    pairwise_points = {
+        pair: {point.step: point for point in trajectory.points}
+        for pair, trajectory in pairwise.items()
+        if trajectory is not None
+    }
+    output: dict[str, dict[int, ReplicationSamplingSummary]] = {}
+    issues: list[str] = []
+    for outcome in selected_outcomes:
+        by_step: dict[int, ReplicationSamplingSummary] = {}
+        for step in coverage.expected_steps:
+            scopes: dict[str, dict[int, ReplicationSample] | None] = {
+                "joint": _scope_samples_by_seed(joint_points[step])
+            }
+            for atom_id in normalized_atoms:
+                scopes[f"individual:{atom_id}"] = _scope_samples_by_seed(
+                    individual_points[atom_id][step]
+                )
+            for pair in pairs:
+                scopes[f"pairwise:{pair[0]},{pair[1]}"] = _scope_samples_by_seed(
+                    pairwise_points[pair][step]
+                )
+
+            def residual_for_seed(
+                samples: Mapping[str, ReplicationSample],
+                selected_outcome: str = outcome,
+            ) -> float:
+                individual_sum = sum(
+                    samples[f"individual:{atom_id}"].effects[selected_outcome]
+                    for atom_id in normalized_atoms
+                )
+                pair_interaction_sum = sum(
+                    samples[f"pairwise:{pair[0]},{pair[1]}"].effects[selected_outcome]
+                    - samples[f"individual:{pair[0]}"].effects[selected_outcome]
+                    - samples[f"individual:{pair[1]}"].effects[selected_outcome]
+                    for pair in pairs
+                )
+                return float(
+                    samples["joint"].effects[selected_outcome]
+                    - individual_sum
+                    - pair_interaction_sum
+                )
+
+            summary = _paired_replication_summary(
+                sample_maps=scopes,
+                expected_seeds=replication_seeds,
+                outcome=outcome,
+                base_scope="joint",
+                value_for_seed=residual_for_seed,
+            )
+            if summary is None:
+                issues.append(f"higher_order_sampling_not_established:{outcome}:{step}")
+            else:
+                by_step[step] = summary
+        if by_step:
+            output[outcome] = by_step
+    return output, tuple(sorted(set(issues)))
+
+def _interaction_sampling_status(
+    interaction_terms: (
+        Mapping[tuple[tuple[str, ...], str], Mapping[int, ReplicationSamplingSummary]]
+        | Sequence[InteractionTerm]
+    ),
+    residual_sampling: Mapping[str, Mapping[int, ReplicationSamplingSummary]],
+    sampling_issues: Sequence[str],
+    *,
+    no_interactions_applicable: bool = False,
+) -> Literal["estimated", "standard_error_not_estimated", "not_established"]:
+    summaries: list[ReplicationSamplingSummary] = []
+    if isinstance(interaction_terms, Mapping):
+        summaries.extend(
+            summary
+            for by_step in interaction_terms.values()
+            for summary in by_step.values()
+        )
+    else:
+        summaries.extend(
+            summary
+            for term in interaction_terms
+            for summary in term.replication_sampling_by_step.values()
+        )
+    summaries.extend(
+        summary for by_step in residual_sampling.values() for summary in by_step.values()
+    )
+    if sampling_issues:
+        return "not_established"
+    if not summaries:
+        return "estimated" if no_interactions_applicable else "not_established"
+    if any(
+        summary.status == "standard_error_not_estimated"
+        or any(value is None for value in summary.effects_standard_error.values())
+        for summary in summaries
+    ):
+        return "standard_error_not_estimated"
+    return "estimated"
+
+
+def _sampling_variation_observed(
+    interaction_terms: Sequence[InteractionTerm],
+    residual_sampling: Mapping[str, Mapping[int, ReplicationSamplingSummary]],
+) -> bool:
+    summaries = [
+        summary
+        for term in interaction_terms
+        for summary in term.replication_sampling_by_step.values()
+    ] + [summary for by_step in residual_sampling.values() for summary in by_step.values()]
+    return any(
+        value is not None and float(value) > 0.0
+        for summary in summaries
+        for value in summary.effects_standard_error.values()
+    )
+
+
+def _recompute_result_interaction_sampling(
+    result: JointSimulationResult,
+) -> tuple[
+    tuple[InteractionTerm, ...],
+    dict[str, dict[int, float]],
+    dict[str, dict[int, ReplicationSamplingSummary]],
+    tuple[str, ...],
+    tuple[str, ...],
+]:
+    """Recompute pair and residual draws from the persisted trajectory objects."""
+
+    coverage = _interaction_coverage_for_fields(
+        atom_ids=result.atom_ids,
+        selected_outcomes=result.selected_outcomes,
+        expected_steps=result.horizon.steps(),
+        trajectories=result.trajectories,
+    )
+    seeds = tuple(int(seed) for seed in result.diagnostics.get("replication_seeds", ()))
+    sampling_issues: list[str] = []
+    expected_terms = tuple(
+        _interaction_terms_from_fields(
+            atom_ids=result.atom_ids,
+            selected_outcomes=result.selected_outcomes,
+            coverage=coverage,
+            replication_seeds=seeds,
+            sampling_issues=sampling_issues,
+        )
+    )
+    expected_residuals = _higher_order_residuals_from_fields(
+        atom_ids=result.atom_ids,
+        selected_outcomes=result.selected_outcomes,
+        coverage=coverage,
+    )
+    expected_residual_sampling: dict[str, dict[int, ReplicationSamplingSummary]] = {}
+    if len(result.atom_ids) >= 3 and not coverage.issues:
+        # Reconstructing the request is unnecessary: this generic helper consumes only the
+        # declared atom/outcome/scope set and the common seed denominator.
+        expected_residual_sampling, residual_issues = _higher_order_residual_sampling_from_fields(
+            atom_ids=result.atom_ids,
+            selected_outcomes=result.selected_outcomes,
+            coverage=coverage,
+            replication_seeds=seeds,
+        )
+        sampling_issues.extend(residual_issues)
+    if coverage.issues:
+        sampling_issues.append("interaction_evidence_incomplete")
+    return (
+        expected_terms,
+        expected_residuals,
+        expected_residual_sampling,
+        tuple(sorted(set(sampling_issues))),
+        coverage.issues,
+    )
+
+def _numeric_interaction_classification(
+    *,
+    interaction_terms: Sequence[InteractionTerm],
+    higher_order_residuals: Mapping[str, Mapping[int, float]],
+    higher_order_residual_sampling: Mapping[
+        str, Mapping[int, ReplicationSamplingSummary]
+    ],
+    sampling_status: Literal["estimated", "standard_error_not_estimated", "not_established"],
+    sampling_issues: Sequence[str],
+    interaction_evidence_issues: Sequence[str],
+    aggregate_order_three_plus: bool,
+    interaction_required: bool = True,
+) -> Literal["none", "additive", "non_additive", "unsupported"]:
+    """Classify only a finite selected-model estimate with complete paired uncertainty."""
+
+    if not interaction_required and sampling_status == "estimated" and not sampling_issues:
+        return "none"
+    if sampling_status != "estimated" or sampling_issues or _sampling_variation_observed(
+        interaction_terms, higher_order_residual_sampling
+    ):
+        return "unsupported"
+    any_nonzero = any(
+        abs(value) > 1e-12 for term in interaction_terms for value in term.by_step.values()
+    ) or any(
+        abs(value) > 1e-12
+        for by_step in higher_order_residuals.values()
+        for value in by_step.values()
+    )
+    if any_nonzero:
+        return "non_additive"
+    if interaction_evidence_issues or aggregate_order_three_plus:
+        return "unsupported"
+    return "additive"
 
 
 def _feedback_classification(
@@ -2902,6 +3832,13 @@ def _feedback_classification(
     decision_blockers: Sequence[str] = (),
     interaction_evidence_issues: Sequence[str] = (),
     aggregate_order_three_plus: bool = False,
+    higher_order_residual_sampling: Mapping[
+        str, Mapping[int, ReplicationSamplingSummary]
+    ] = {},
+    interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ] = "not_established",
+    interaction_sampling_issues: Sequence[str] = (),
 ) -> FeedbackClassification:
     classification = coupling_support.classification
     coupling_verdict = None
@@ -2921,6 +3858,14 @@ def _feedback_classification(
         if coupling_support.general_equilibrium:
             limitations.append("general_equilibrium_limitation")
         limitations.extend(coupling_support.blockers)
+    sampling_issues = tuple(
+        sorted(set(interaction_sampling_issues) | set(interaction_evidence_issues))
+    )
+    basis: Literal["finite_checked_model_point_estimate_only", "not_established"] = (
+        "finite_checked_model_point_estimate_only"
+        if interaction_sampling_status == "estimated" and not sampling_issues
+        else "not_established"
+    )
     if unsupported:
         refusal_limitations = tuple(
             dict.fromkeys(
@@ -2932,6 +3877,8 @@ def _feedback_classification(
         )
         return FeedbackClassification(
             numeric_interaction="unsupported",
+            numeric_interaction_basis="not_established",
+            interaction_sampling_status=interaction_sampling_status,
             higher_order_residuals={
                 str(outcome): {int(step): float(value) for step, value in by_step.items()}
                 for outcome, by_step in higher_order_residuals.items()
@@ -2949,28 +3896,29 @@ def _feedback_classification(
             general_equilibrium=coupling_support.general_equilibrium,
             limitations=("eligible_joint_engine_missing", *refusal_limitations),
         )
-    any_nonzero = any(
-        abs(value) > 1e-12 for term in interaction_terms for value in term.by_step.values()
-    ) or any(
-        abs(value) > 1e-12
-        for by_step in higher_order_residuals.values()
-        for value in by_step.values()
+    numeric_interaction = _numeric_interaction_classification(
+        interaction_terms=interaction_terms,
+        higher_order_residuals=higher_order_residuals,
+        higher_order_residual_sampling=higher_order_residual_sampling,
+        sampling_status=interaction_sampling_status,
+        sampling_issues=sampling_issues,
+        interaction_evidence_issues=interaction_evidence_issues,
+        aggregate_order_three_plus=aggregate_order_three_plus,
+        interaction_required=len(request.intervention_atoms) >= 2,
     )
-    if any_nonzero:
-        numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] = (
-            "non_additive"
-        )
-    elif interaction_evidence_issues or aggregate_order_three_plus:
-        numeric_interaction = "unsupported"
-    else:
-        numeric_interaction = "additive"
     evidence_limitations: list[str] = []
     if interaction_evidence_issues:
         evidence_limitations.append("interaction_evidence_incomplete")
+    if interaction_sampling_issues or interaction_sampling_status != "estimated":
+        evidence_limitations.append("interaction_sampling_not_established")
+    if _sampling_variation_observed(interaction_terms, higher_order_residual_sampling):
+        evidence_limitations.append("interaction_sampling_variation_observed")
     if aggregate_order_three_plus:
         evidence_limitations.append("aggregate_order_3_plus_not_identified")
     return FeedbackClassification(
         numeric_interaction=numeric_interaction,
+        numeric_interaction_basis=basis,
+        interaction_sampling_status=interaction_sampling_status,
         higher_order_residuals={
             str(outcome): {int(step): float(value) for step, value in by_step.items()}
             for outcome, by_step in higher_order_residuals.items()
@@ -2988,7 +3936,6 @@ def _feedback_classification(
         general_equilibrium=coupling_support.general_equilibrium,
         limitations=tuple(dict.fromkeys((*limitations, *evidence_limitations))),
     )
-
 
 def _contract_testing_fabricated_interactions(
     interaction_terms: Sequence[InteractionTerm],
@@ -3050,6 +3997,11 @@ def _json_ready(value: object) -> Any:  # noqa: ANN401
 
 
 __all__ = [
+    "JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION",
+    "JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION",
+    "JOINT_SIMULATION_HORIZON_SCHEMA_VERSION",
+    "JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION",
+    "JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION",
     "EngineDecision",
     "EnginePlan",
     "FeedbackClassification",
@@ -3061,6 +4013,8 @@ __all__ = [
     "JointSimulationRequest",
     "JointSimulationResult",
     "ProofReceiptError",
+    "ReplicationSample",
+    "ReplicationSamplingSummary",
     "SimulationProofReceipt",
     "SimulationTrajectory",
     "TrajectoryPoint",

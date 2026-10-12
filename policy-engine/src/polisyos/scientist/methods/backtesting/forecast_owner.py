@@ -206,8 +206,8 @@ class ForecastOwnerRequest(BaseModel):
     estimand: Literal["predictive_interval_coverage"] = PREDICTIVE_INTERVAL_COVERAGE
     calibration_rule: CalibrationRuleBinding
     temporal_roles: ForecastTemporalRoles
-    model_spec_ref: ArtifactID | None = None
-    policy_spec_ref: ArtifactID | None = None
+    model_spec_ref: ArtifactRefModel | ArtifactID | None = None
+    policy_spec_ref: ArtifactRefModel | ArtifactID | None = None
     manifest_inputs: tuple[InputRef, ...] = ()
     seed: int = 0
 
@@ -222,7 +222,8 @@ class ForecastOwnerRequest(BaseModel):
         if (
             self.model_spec_ref is not None
             and self.policy_spec_ref is not None
-            and self.model_spec_ref == self.policy_spec_ref
+            and str(getattr(self.model_spec_ref, "artifact_id", self.model_spec_ref))
+            == str(getattr(self.policy_spec_ref, "artifact_id", self.policy_spec_ref))
         ):
             raise ValueError("model/policy specification refs must be distinct artifacts")
         if self.method_params.horizon != self.split.horizon:
@@ -382,16 +383,35 @@ def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> InputRef:
 
 def _resolve_spec_ref(
     store: ArtifactStore,
-    artifact_id: ArtifactID,
+    reference: ArtifactRefModel | ArtifactID,
     *,
     role: Literal["model", "policy"],
     expected_kind: str,
 ) -> ArtifactRefModel:
-    """Resolve one model/policy ID to its exact canonical CAS manifest profile."""
+    """Resolve one model/policy reference without downgrading a selected profile.
 
-    resolved_id = ArtifactID.model_validate(str(artifact_id))
+    An ``ArtifactID`` retains the legacy default-manifest behavior for direct
+    owner callers. A full ``ArtifactRefModel`` must resolve through its exact
+    profile and match its kind and media type before the owner reads bytes.
+    """
+
+    selected_input = (
+        reference
+        if isinstance(reference, ArtifactRefModel)
+        else None
+    )
+    resolved_id = ArtifactID.model_validate(
+        str(selected_input.artifact_id if selected_input is not None else reference)
+    )
+    ir_store = _ensure_ir_artifact_store(store)
     try:
-        manifest = store.get_manifest(resolved_id)
+        if selected_input is None:
+            manifest = store.get_manifest(resolved_id)
+        else:
+            profile = selected_input.manifest_profile_sha256
+            if profile is None:
+                raise ValueError(f"{role} specification selected profile is missing")
+            manifest = _manifest_for_profile(ir_store, resolved_id, profile)
     except FileNotFoundError as exc:
         raise ValueError(f"{role} specification CAS binding is missing") from exc
     if str(manifest.artifact_id) != str(resolved_id):
@@ -414,12 +434,11 @@ def _resolve_spec_ref(
         manifest_profile_sha256=profile,
     )
     try:
-        if (
-            _manifest_for_profile(_ensure_ir_artifact_store(store), resolved_id, profile)
-            != manifest
-        ):
+        if _manifest_for_profile(ir_store, resolved_id, profile) != manifest:
             raise ValueError("selected specification manifest changed during resolution")
-        _ensure_ir_artifact_store(store).get_bytes(selected_ref)
+        if selected_input is not None and selected_ref != selected_input:
+            raise ValueError(f"{role} specification selected reference does not match CAS")
+        ir_store.get_bytes(selected_ref)
     except FileNotFoundError as exc:
         raise ValueError(f"{role} specification CAS bytes are missing") from exc
     return selected_ref
@@ -428,29 +447,34 @@ def _resolve_spec_ref(
 def _resolve_model_policy_pair(
     store: ArtifactStore,
     *,
-    model_spec_id: ArtifactID | None,
-    policy_spec_id: ArtifactID | None,
+    model_spec_ref: ArtifactRefModel | ArtifactID | None,
+    policy_spec_ref: ArtifactRefModel | ArtifactID | None,
 ) -> tuple[ArtifactRefModel | None, ArtifactRefModel | None]:
     """Resolve a complete, distinct model/policy pair before derived writes."""
 
-    if (model_spec_id is None) != (policy_spec_id is None):
+    if (model_spec_ref is None) != (policy_spec_ref is None):
         raise ValueError("model/policy specification refs must be supplied as a complete pair")
-    if model_spec_id is None and policy_spec_id is None:
+    if model_spec_ref is None and policy_spec_ref is None:
         return None, None
-    if model_spec_id == policy_spec_id:
+    if (
+        model_spec_ref is not None
+        and policy_spec_ref is not None
+        and str(getattr(model_spec_ref, "artifact_id", model_spec_ref))
+        == str(getattr(policy_spec_ref, "artifact_id", policy_spec_ref))
+    ):
         raise ValueError("model/policy specification refs must be distinct artifacts")
-    if model_spec_id is None or policy_spec_id is None:
+    if model_spec_ref is None or policy_spec_ref is None:
         raise ValueError("model/policy specification refs must be supplied as a complete pair")
     return (
         _resolve_spec_ref(
             store,
-            model_spec_id,
+            model_spec_ref,
             role="model",
             expected_kind=MODEL_SPEC_KIND,
         ),
         _resolve_spec_ref(
             store,
-            policy_spec_id,
+            policy_spec_ref,
             role="policy",
             expected_kind=POLICY_SPEC_KIND,
         ),
@@ -580,8 +604,8 @@ class ForecastOwner:
 
         model_spec_ref, policy_spec_ref = _resolve_model_policy_pair(
             self._store,
-            model_spec_id=request.model_spec_ref,
-            policy_spec_id=request.policy_spec_ref,
+            model_spec_ref=request.model_spec_ref,
+            policy_spec_ref=request.policy_spec_ref,
         )
 
         observed_source_ref, snapshot_payload = _resolve_json(
@@ -888,14 +912,19 @@ class ForecastOwner:
         resolved_manifest_inputs = [
             _resolve_input_ref(self._store, item) for item in request.manifest_inputs
         ]
-        report_inputs = resolved_manifest_inputs if resolved_manifest_inputs else required_inputs
-        required_edges = {
-            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-            for item in required_inputs
-        }
+        report_inputs = list(required_inputs)
         declared_edges = {
             (str(item.artifact_id), item.role, item.manifest_profile_sha256)
             for item in report_inputs
+        }
+        for item in resolved_manifest_inputs:
+            edge = (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            if edge not in declared_edges:
+                report_inputs.append(item)
+                declared_edges.add(edge)
+        required_edges = {
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in required_inputs
         }
         if not required_edges.issubset(declared_edges):
             missing = sorted(required_edges - declared_edges)

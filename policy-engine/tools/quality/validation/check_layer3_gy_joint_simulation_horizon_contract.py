@@ -21,6 +21,7 @@ import ast
 import copy
 import hashlib
 import json
+import math
 import os
 import subprocess
 import sys
@@ -35,6 +36,7 @@ import jax.numpy as jnp
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     LoweredIR,
@@ -91,6 +93,14 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     JointSimulationRequest,
     ProofReceiptError,
+    ReplicationSamplingSummary,
+    SimulationTrajectory,
+    _higher_order_residual_sampling_from_fields,
+    _higher_order_residuals_from_fields,
+    _interaction_coverage_for_fields,
+    _interaction_sampling_status,
+    _interaction_terms_from_fields,
+    _numeric_interaction_classification,
     verify_simulation_receipt,
 )
 from polisyos.runtime.quality.world_model_record import (
@@ -108,10 +118,8 @@ from polisyos.runtime.quality.world_model_record import (
 )
 from tools.lib.timing import run_timed_entrypoint
 
-OUTPUT_PATH = (
-    "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
-)
-SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v1"
+OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v2"
 ABM_STUB_SOURCE_FLIP_MUTATION_ID = "source_flip_abm_production_stub_restored"
 
 
@@ -121,14 +129,411 @@ def declared_outputs() -> list[str]:
     return [OUTPUT_PATH]
 
 
+def _replication_sampling_projection(result: Any) -> dict[str, Any]:
+    """Expose source trajectories and every derived interaction summary for recomputation."""
+
+    return _result_gate(result, tuple(result.atom_ids))
+
+
+_REPLICATION_ENGINE_STATE_CANON_SPEC = CanonSpec(
+    forbid_floats=False,
+    forbid_nan_inf=True,
+)
+
+
+def _replication_engine_state_bytes(value: Any) -> bytes:
+    """Encode JSON-ready engine state without Python cross-type equality."""
+
+    if not isinstance(value, Mapping) or any(not isinstance(key, str) for key in value):
+        raise ValueError("replication_engine_state_not_canonical_json")
+    return to_canonical_bytes(value, _REPLICATION_ENGINE_STATE_CANON_SPEC)
+
+
+def _replication_sampling_issues(
+    projection: Mapping[str, Any], *, expected_count: int | None
+) -> list[dict[str, Any]]:
+    """Recompute means and standard errors from the complete persisted draw values."""
+
+    issues: list[dict[str, Any]] = []
+    if projection.get("schema_version") != "policyos.runtime.joint_simulation_horizon.v4":
+        return [{"code": "replication_schema_version_not_v4"}]
+    producer_diagnostics = projection.get("diagnostics")
+    if not isinstance(producer_diagnostics, Mapping):
+        return [{"code": "replication_result_diagnostics_missing"}]
+    producer_count = producer_diagnostics.get("requested_replications")
+    producer_seeds = producer_diagnostics.get("replication_seeds")
+    if (
+        isinstance(producer_count, bool)
+        or not isinstance(producer_count, int)
+        or producer_count < 1
+        or not isinstance(producer_seeds, list)
+        or len(producer_seeds) != producer_count
+        or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in producer_seeds)
+        or len(set(producer_seeds)) != len(producer_seeds)
+        or (expected_count is not None and producer_count != expected_count)
+    ):
+        return [{"code": "replication_request_diagnostics_invalid"}]
+    trajectories = projection.get("trajectories")
+    if not isinstance(trajectories, list) or not trajectories:
+        return [{"code": "replication_trajectories_missing"}]
+    for trajectory in trajectories:
+        if not isinstance(trajectory, dict):
+            issues.append({"code": "replication_trajectory_invalid"})
+            continue
+        diagnostics = trajectory.get("diagnostics")
+        if not isinstance(diagnostics, dict):
+            issues.append({"code": "replication_diagnostics_missing"})
+            continue
+        requested = diagnostics.get("requested_replications")
+        actual = diagnostics.get("actual_replications")
+        seeds = diagnostics.get("replication_seeds")
+        if (
+            isinstance(requested, bool)
+            or not isinstance(requested, int)
+            or isinstance(actual, bool)
+            or not isinstance(actual, int)
+            or not isinstance(seeds, list)
+            or requested < 1
+            or requested != actual
+            or actual != len(seeds)
+            or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds)
+            or len(set(seeds)) != len(seeds)
+            or (expected_count is not None and actual != expected_count)
+            or requested != producer_count
+            or seeds != producer_seeds
+        ):
+            issues.append({"code": "replication_diagnostics_denominator_invalid"})
+            continue
+        points = trajectory.get("points")
+        if not isinstance(points, list) or not points:
+            issues.append({"code": "replication_points_missing"})
+            continue
+        for point in points:
+            if not isinstance(point, dict):
+                issues.append({"code": "replication_point_invalid"})
+                continue
+            summary = point.get("replication_sampling")
+            if not isinstance(summary, dict):
+                issues.append({"code": "replication_sampling_summary_missing"})
+                continue
+            summary_count = summary.get("replicate_count")
+            summary_seeds = summary.get("seeds")
+            samples = summary.get("samples")
+            if (
+                isinstance(summary_count, bool)
+                or not isinstance(summary_count, int)
+                or summary_count != actual
+                or not isinstance(summary_seeds, list)
+                or any(
+                    isinstance(seed, bool) or not isinstance(seed, int) for seed in summary_seeds
+                )
+                or len(set(summary_seeds)) != len(summary_seeds)
+                or summary_seeds != seeds
+                or not isinstance(samples, list)
+                or len(samples) != actual
+            ):
+                issues.append({"code": "replication_summary_denominator_mismatch"})
+                continue
+            outcome_maps = [
+                sample.get("outcomes") for sample in samples if isinstance(sample, dict)
+            ]
+            effect_maps = [sample.get("effects") for sample in samples if isinstance(sample, dict)]
+            sample_seeds = [sample.get("seed") for sample in samples if isinstance(sample, dict)]
+            sample_states = [
+                sample.get("engine_state") for sample in samples if isinstance(sample, dict)
+            ]
+            point_engine_state = point.get("engine_state")
+            sidecar_states = (
+                point_engine_state.get("replication_engine_states")
+                if isinstance(point_engine_state, dict)
+                else None
+            )
+            if (
+                len(outcome_maps) != actual
+                or len(effect_maps) != actual
+                or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in sample_seeds)
+                or sample_seeds != seeds
+                or len(sample_states) != actual
+                or any(not isinstance(state, dict) for state in sample_states)
+            ):
+                issues.append({"code": "replication_samples_invalid"})
+                continue
+            if any(
+                not isinstance(metric_map, dict) for metric_map in (*outcome_maps, *effect_maps)
+            ):
+                issues.append({"code": "replication_sample_metric_mapping_invalid"})
+                continue
+            sidecar_count = (
+                point_engine_state.get("replication_count")
+                if isinstance(point_engine_state, dict)
+                else None
+            )
+            sidecar_seeds = (
+                point_engine_state.get("replication_seeds")
+                if isinstance(point_engine_state, dict)
+                else None
+            )
+            if (
+                not isinstance(point_engine_state, dict)
+                or isinstance(sidecar_count, bool)
+                or not isinstance(sidecar_count, int)
+                or sidecar_count != actual
+                or not isinstance(sidecar_seeds, list)
+                or any(
+                    isinstance(seed, bool) or not isinstance(seed, int) for seed in sidecar_seeds
+                )
+                or len(set(sidecar_seeds)) != len(sidecar_seeds)
+                or sidecar_seeds != seeds
+                or not isinstance(sidecar_states, list)
+                or len(sidecar_states) != actual
+                or any(not isinstance(state, dict) for state in sidecar_states)
+            ):
+                issues.append({"code": "replication_engine_state_denominator_invalid"})
+                continue
+            try:
+                sidecar_state_bytes = tuple(
+                    _replication_engine_state_bytes(state) for state in sidecar_states
+                )
+                sample_state_bytes = tuple(
+                    _replication_engine_state_bytes(state) for state in sample_states
+                )
+            except (TypeError, ValueError):
+                issues.append({"code": "replication_engine_state_not_canonical_json"})
+                continue
+            if sidecar_state_bytes != sample_state_bytes:
+                issues.append({"code": "replication_engine_state_binding_mismatch"})
+            outcomes = point.get("outcomes")
+            effects = point.get("effect")
+            outcome_errors = summary.get("outcomes_standard_error")
+            effect_errors = summary.get("effects_standard_error")
+            if not all(
+                isinstance(item, dict)
+                for item in (outcomes, effects, outcome_errors, effect_errors)
+            ):
+                issues.append({"code": "replication_metric_mapping_invalid"})
+                continue
+            if (
+                any(set(item) != set(outcomes) for item in outcome_maps)
+                or any(set(item) != set(effects) for item in effect_maps)
+                or set(outcome_errors) != set(outcomes)
+                or set(effect_errors) != set(effects)
+            ):
+                issues.append({"code": "replication_metric_keys_mismatch"})
+                continue
+            status = "standard_error_not_estimated" if actual == 1 else "estimated"
+            if summary.get("status") != status:
+                issues.append({"code": "replication_sampling_status_mismatch"})
+            for observed_maps, means, errors in (
+                (outcome_maps, outcomes, outcome_errors),
+                (effect_maps, effects, effect_errors),
+            ):
+                for key, mean_value in means.items():
+                    observed = [sample[key] for sample in observed_maps]
+                    if (
+                        any(
+                            isinstance(value, bool)
+                            or not isinstance(value, int | float)
+                            or not math.isfinite(float(value))
+                            for value in observed
+                        )
+                        or isinstance(mean_value, bool)
+                        or not isinstance(mean_value, int | float)
+                    ):
+                        issues.append({"code": "replication_sample_value_invalid"})
+                        continue
+                    recomputed_mean = sum(float(value) for value in observed) / actual
+                    if not math.isfinite(float(mean_value)) or not math.isclose(
+                        float(mean_value), recomputed_mean, rel_tol=1e-12, abs_tol=1e-12
+                    ):
+                        issues.append({"code": "replication_mean_recomputation_mismatch"})
+                    error = errors[key]
+                    if actual == 1:
+                        if error is not None:
+                            issues.append(
+                                {"code": "replication_single_draw_error_must_be_unestimated"}
+                            )
+                        continue
+                    if (
+                        isinstance(error, bool)
+                        or not isinstance(error, int | float)
+                        or not math.isfinite(float(error))
+                    ):
+                        issues.append({"code": "replication_standard_error_invalid"})
+                        continue
+                    sample_mean = recomputed_mean
+                    squared = sum((float(value) - sample_mean) ** 2 for value in observed)
+                    recomputed_error = math.sqrt(squared / (actual - 1) / actual)
+                    if not math.isclose(
+                        float(error), recomputed_error, rel_tol=1e-12, abs_tol=1e-12
+                    ):
+                        issues.append({"code": "replication_standard_error_recomputation_mismatch"})
+    return issues
+
+
+def _interaction_sampling_issues(gate: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Recompute every pair and aggregate residual sample from common-seed trajectories."""
+
+    issues: list[dict[str, Any]] = []
+    if gate.get("schema_version") != "policyos.runtime.joint_simulation_horizon.v4":
+        return [{"code": "interaction_sampling_schema_version_not_v4"}]
+    diagnostics = gate.get("diagnostics")
+    atom_ids = gate.get("atom_ids")
+    selected_outcomes = gate.get("selected_outcomes")
+    expected_steps = gate.get("expected_horizon_steps")
+    raw_trajectories = gate.get("trajectories")
+    if (
+        not isinstance(diagnostics, Mapping)
+        or not isinstance(atom_ids, list)
+        or not isinstance(selected_outcomes, list)
+        or not isinstance(expected_steps, list)
+        or not isinstance(raw_trajectories, list)
+    ):
+        return [{"code": "interaction_sampling_source_missing"}]
+    seeds = diagnostics.get("replication_seeds")
+    if not isinstance(seeds, list) or any(
+        isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds
+    ):
+        return [{"code": "interaction_sampling_seed_denominator_invalid"}]
+    try:
+        trajectories = tuple(SimulationTrajectory.model_validate(item) for item in raw_trajectories)
+        coverage = _interaction_coverage_for_fields(
+            atom_ids=atom_ids,
+            selected_outcomes=selected_outcomes,
+            expected_steps=expected_steps,
+            trajectories=trajectories,
+        )
+        pair_issues: list[str] = []
+        expected_terms = tuple(
+            _interaction_terms_from_fields(
+                atom_ids=atom_ids,
+                selected_outcomes=selected_outcomes,
+                coverage=coverage,
+                replication_seeds=seeds,
+                sampling_issues=pair_issues,
+            )
+        )
+        expected_residuals = _higher_order_residuals_from_fields(
+            atom_ids=atom_ids,
+            selected_outcomes=selected_outcomes,
+            coverage=coverage,
+        )
+        expected_residual_sampling: dict[str, dict[int, ReplicationSamplingSummary]] = {}
+        residual_issues: tuple[str, ...] = ()
+        if len(atom_ids) >= 3 and not coverage.issues:
+            expected_residual_sampling, residual_issues = (
+                _higher_order_residual_sampling_from_fields(
+                    atom_ids=atom_ids,
+                    selected_outcomes=selected_outcomes,
+                    coverage=coverage,
+                    replication_seeds=seeds,
+                )
+            )
+        sampling_issues = tuple(
+            sorted(
+                set(
+                    pair_issues
+                    + list(residual_issues)
+                    + (["interaction_evidence_incomplete"] if coverage.issues else [])
+                )
+            )
+        )
+        status = _interaction_sampling_status(
+            expected_terms,
+            expected_residual_sampling,
+            (*sampling_issues, *coverage.issues),
+            no_interactions_applicable=len(atom_ids) < 2,
+        )
+        numeric = _numeric_interaction_classification(
+            interaction_terms=expected_terms,
+            higher_order_residuals=expected_residuals,
+            higher_order_residual_sampling=expected_residual_sampling,
+            sampling_status=status,
+            sampling_issues=(*sampling_issues, *coverage.issues),
+            interaction_evidence_issues=coverage.issues,
+            aggregate_order_three_plus=len(atom_ids) >= 4,
+            interaction_required=len(atom_ids) >= 2,
+        )
+    except (TypeError, ValueError, KeyError) as exc:
+        return [{"code": "interaction_sampling_source_recomputation_failed", "detail": str(exc)}]
+    reported_terms = gate.get("interaction_terms")
+    if not isinstance(reported_terms, list):
+        issues.append({"code": "interaction_sampling_terms_missing"})
+    elif [
+        {
+            **term.model_dump(mode="json"),
+            "by_step": {str(step): value for step, value in term.by_step.items()},
+            "replication_sampling_by_step": {
+                str(step): summary.model_dump(mode="json")
+                for step, summary in term.replication_sampling_by_step.items()
+            },
+        }
+        for term in expected_terms
+    ] != reported_terms:
+        issues.append({"code": "interaction_sampling_terms_source_mismatch"})
+    expected_residual_json = {
+        outcome: {str(step): value for step, value in by_step.items()}
+        for outcome, by_step in expected_residuals.items()
+    }
+    expected_residual_sampling_json = {
+        outcome: {
+            str(step): summary.model_dump(mode="json")
+            for step, summary in by_step.items()
+        }
+        for outcome, by_step in expected_residual_sampling.items()
+    }
+    if gate.get("higher_order_residuals") != expected_residual_json:
+        issues.append({"code": "higher_order_residual_mean_source_mismatch"})
+    if gate.get("higher_order_residual_sampling") != expected_residual_sampling_json:
+        issues.append({"code": "higher_order_residual_sampling_source_mismatch"})
+    feedback = gate.get("feedback_classification")
+    if not isinstance(feedback, Mapping):
+        issues.append({"code": "interaction_feedback_classification_missing"})
+    else:
+        basis = (
+            "finite_checked_model_point_estimate_only"
+            if status == "estimated" and not sampling_issues and not coverage.issues
+            else "not_established"
+        )
+        if feedback.get("interaction_sampling_status") != status:
+            issues.append({"code": "interaction_sampling_status_source_mismatch"})
+        if feedback.get("numeric_interaction_basis") != basis:
+            issues.append({"code": "interaction_point_estimate_basis_source_mismatch"})
+        if feedback.get("numeric_interaction") != numeric:
+            issues.append({"code": "numeric_interaction_classification_source_mismatch"})
+    if gate.get("interaction_sampling_issues") != list(sampling_issues):
+        issues.append({"code": "interaction_sampling_issues_source_mismatch"})
+    if gate.get("interaction_evidence_issues") != list(coverage.issues):
+        issues.append({"code": "interaction_evidence_issues_source_mismatch"})
+    return issues
+
+
+def _validate_replication_uncertainty_gate(gate: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Require an actual one-draw limitation and a real estimated multi-draw result."""
+
+    issues: list[dict[str, Any]] = []
+    for label, expected_count in (("one_draw", 1), ("two_draw", 2)):
+        projection = gate.get(label)
+        if not isinstance(projection, Mapping):
+            issues.append({"code": f"replication_{label}_missing"})
+            continue
+        issues.extend(_replication_sampling_issues(projection, expected_count=expected_count))
+        issues.extend(_interaction_sampling_issues(projection))
+    return issues
+
+
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Recompute the N5 contract by exercising the live controller."""
 
     controller = JointSimulationHorizonController()
     static_result = controller.run(_request())
     dynamic_result = controller.run(_dynamic_request())
+    two_draw_result = controller.run(
+        _dynamic_request().model_copy(update={"replications": 2, "seed": 1})
+    )
     none_result = controller.run(_declared_request(_request(), "none"))
-    time_unrolled_result = controller.run(_declared_request(_dynamic_request(), "time_unrolled_SCM"))
+    time_unrolled_result = controller.run(
+        _declared_request(_dynamic_request(), "time_unrolled_SCM")
+    )
     with tempfile.TemporaryDirectory(prefix="gy-n5-program-graph-") as tmp_dir:
         program_graph_result = controller.run(_program_graph_request(Path(tmp_dir)))
     coupling_blocked = controller.run(
@@ -140,9 +545,9 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         _request().model_copy(
             update={
                 "engine_plan": (
-                    _request().engine_plan[0].model_copy(
-                        update={"declared_equilibrium_semantics": "game_model"}
-                    ),
+                    _request()
+                    .engine_plan[0]
+                    .model_copy(update={"declared_equilibrium_semantics": "game_model"}),
                 )
             }
         )
@@ -162,12 +567,28 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
             "src/polisyos/ir/analytics/phase4_dynamics.py",
         ],
         "pattern_pass": {
-            "relevant_ids": ["P01", "P02", "P05", "P17", "P28", "P29", "P31", "P32", "P33"],
+            "relevant_ids": [
+                "P01",
+                "P02",
+                "P04",
+                "P05",
+                "P08",
+                "P14",
+                "P17",
+                "P28",
+                "P29",
+                "P31",
+                "P32",
+                "P33",
+                "P37",
+                "P38",
+                "P40",
+            ],
             "target_correct_pattern": (
                 "real engine run plus content-bound K_sim receipt; no K_world shrinkage"
             ),
             "missing_capability_labels": [],
-            "acceptance_signal": "controller_run_and_mutation_red",
+            "acceptance_signal": "controller_run_and_sampling_recompute_and_removal_red",
         },
         "positive_gate": {
             "status": "pass",
@@ -176,6 +597,10 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
                 dynamic_result,
                 ("capacity_inflow", "demand_inflow"),
             ),
+            "replication_uncertainty_gate": {
+                "one_draw": _replication_sampling_projection(dynamic_result),
+                "two_draw": _replication_sampling_projection(two_draw_result),
+            },
             "none_semantics": _result_gate(none_result, ("income_subsidy", "balance_grant")),
             "time_unrolled_scm": _result_gate(
                 time_unrolled_result,
@@ -185,9 +610,7 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
                 program_graph_result,
                 ("income_subsidy", "balance_grant"),
             ),
-            "registry_output_shape_gate": _registry_output_shape_gate(
-                queue_output_shape_gate
-            ),
+            "registry_output_shape_gate": _registry_output_shape_gate(queue_output_shape_gate),
             "coupling_gate": _coupling_gate_result(coupling_blocked, coupled_supported),
             "equilibrium_resolution_gate": _equilibrium_resolution_gate(unbacked_semantics),
             "abm_stub_strangle": _abm_stub_strangle_probe(repo_root),
@@ -260,6 +683,11 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 require_evolving_state=True,
             )
         )
+    sampling_gate = positive.get("replication_uncertainty_gate")
+    if not isinstance(sampling_gate, dict):
+        issues.append({"code": "replication_uncertainty_gate_missing"})
+    else:
+        issues.extend(_validate_replication_uncertainty_gate(sampling_gate))
     if not isinstance(none_gate, dict):
         issues.append({"code": "none_semantics_gate_missing"})
     else:
@@ -391,9 +819,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
 def _run_abm_stub_source_flip(repo_root: Path) -> dict[str, Any]:
     """Reconnect coupled production to the fenced stub and require causal RED."""
 
-    source_path = (
-        repo_root / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
-    )
+    source_path = repo_root / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
     original = source_path.read_bytes()
     original_hash = hashlib.sha256(original).hexdigest()
     text = original.decode("utf-8")
@@ -558,9 +984,7 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
         }
     )
 
-    feedback_request = _request().model_copy(
-        update={"coupling_graph": _coupling_graph("feedback")}
-    )
+    feedback_request = _request().model_copy(update={"coupling_graph": _coupling_graph("feedback")})
     production_feedback = JointSimulationHorizonController().run(feedback_request)
     bypass_feedback = JointSimulationHorizonController.for_contract_testing(
         disable_coupling_gate=True
@@ -577,8 +1001,10 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
         }
     )
 
-    unbacked_plan = _request().engine_plan[0].model_copy(
-        update={"declared_equilibrium_semantics": "game_model"}
+    unbacked_plan = (
+        _request()
+        .engine_plan[0]
+        .model_copy(update={"declared_equilibrium_semantics": "game_model"})
     )
     unbacked_request = _request().model_copy(update={"engine_plan": (unbacked_plan,)})
     production_unbacked = JointSimulationHorizonController().run(unbacked_request)
@@ -659,22 +1085,38 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
         }
     )
 
-    fabricated_result = JointSimulationHorizonController.for_contract_testing(
-        fabricate_interaction_terms=True
-    ).run(_dynamic_request())
-    fabricated = copy.deepcopy(dict(live_payload))
-    fabricated["positive_gate"]["dynamic_horizon"] = _result_gate(
-        fabricated_result,
-        ("capacity_inflow", "demand_inflow"),
-    )
-    fabricated_report = _validate_payload_core(fabricated)
+    try:
+        JointSimulationHorizonController.for_contract_testing(
+            fabricate_interaction_terms=True
+        ).run(_dynamic_request())
+    except ValueError:
+        fabricated_rejected_at_producer = True
+        fabricated_report = []
+    else:
+        fabricated_rejected_at_producer = False
+        fabricated_report = [{"code": "fabricated_interaction_term_detected"}]
     reports.append(
         {
             "mutation": "fabricated_interaction_term",
             "status": "red"
+            if fabricated_rejected_at_producer
+            or any(issue.get("code") == "fabricated_interaction_term_detected" for issue in fabricated_report)
+            else "green",
+        }
+    )
+
+    interaction_sample_removed = copy.deepcopy(dict(live_payload))
+    interaction_gate = interaction_sample_removed["positive_gate"]["dynamic_horizon"]
+    first_interaction = interaction_gate["interaction_terms"][0]
+    first_interaction["replication_sampling_by_step"] = {}
+    interaction_sampling_removed_issues = _validate_payload_core(interaction_sample_removed)
+    reports.append(
+        {
+            "mutation": "interaction_sample_property_removed_markers_retained",
+            "status": "red"
             if any(
-                issue.get("code") == "fabricated_interaction_term_detected"
-                for issue in fabricated_report
+                issue.get("code") == "interaction_sampling_terms_source_mismatch"
+                for issue in interaction_sampling_removed_issues
             )
             else "green",
         }
@@ -711,9 +1153,101 @@ def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict
         {
             "mutation": "dynamic_engine_state_does_not_advance",
             "status": "red"
+            if any(issue.get("code") == "dynamic_state_not_advanced" for issue in no_advance_issues)
+            else "green",
+        }
+    )
+
+    sampling_state_removed = copy.deepcopy(dict(live_payload))
+    dynamic_trajectories = sampling_state_removed["positive_gate"]["dynamic_horizon"][
+        "trajectories"
+    ]
+    for trajectory in dynamic_trajectories:
+        for point in trajectory.get("points", []):
+            point_state = point.get("engine_state")
+            if isinstance(point_state, dict):
+                point_state.pop("replication_engine_states", None)
+    sampling_state_removed_issues = _validate_payload_core(sampling_state_removed)
+    reports.append(
+        {
+            "mutation": "replication_state_property_removed_markers_retained",
+            "status": "red"
             if any(
-                issue.get("code") == "dynamic_state_not_advanced"
-                for issue in no_advance_issues
+                issue.get("code") == "replication_engine_state_denominator_invalid"
+                for issue in sampling_state_removed_issues
+            )
+            else "green",
+        }
+    )
+
+    sampling_boolean_tampered = copy.deepcopy(dict(live_payload))
+    sampling_gate = sampling_boolean_tampered["positive_gate"]["replication_uncertainty_gate"]
+    one_draw = sampling_gate["one_draw"]
+    for trajectory in one_draw["trajectories"]:
+        for point in trajectory["points"]:
+            point["replication_sampling"]["replicate_count"] = True
+    two_draw = sampling_gate["two_draw"]
+    for trajectory in two_draw["trajectories"]:
+        for point in trajectory["points"]:
+            summary = point["replication_sampling"]
+            summary["seeds"][0] = True
+            summary["samples"][0]["seed"] = True
+            point["engine_state"]["replication_seeds"][0] = True
+    sampling_boolean_issues = _validate_payload_core(sampling_boolean_tampered)
+    reports.append(
+        {
+            "mutation": "replication_boolean_is_not_an_integer",
+            "status": "red"
+            if any(
+                issue.get("code")
+                in {
+                    "replication_summary_denominator_mismatch",
+                    "replication_samples_invalid",
+                    "replication_engine_state_denominator_invalid",
+                }
+                for issue in sampling_boolean_issues
+            )
+            else "green",
+        }
+    )
+
+    sampling_sample_state_removed = copy.deepcopy(dict(live_payload))
+    dynamic_trajectories = sampling_sample_state_removed["positive_gate"]["dynamic_horizon"][
+        "trajectories"
+    ]
+    for trajectory in dynamic_trajectories:
+        for point in trajectory.get("points", []):
+            summary = point.get("replication_sampling")
+            if isinstance(summary, dict):
+                for sample in summary.get("samples", []):
+                    if isinstance(sample, dict):
+                        sample.pop("engine_state", None)
+    sampling_sample_state_removed_issues = _validate_payload_core(sampling_sample_state_removed)
+    reports.append(
+        {
+            "mutation": "replication_sample_state_property_removed_markers_retained",
+            "status": "red"
+            if any(
+                issue.get("code") == "replication_samples_invalid"
+                for issue in sampling_sample_state_removed_issues
+            )
+            else "green",
+        }
+    )
+
+    sampling_removed = copy.deepcopy(dict(live_payload))
+    dynamic_trajectories = sampling_removed["positive_gate"]["dynamic_horizon"]["trajectories"]
+    for trajectory in dynamic_trajectories:
+        for point in trajectory.get("points", []):
+            point.pop("replication_sampling", None)
+    sampling_removed_issues = _validate_payload_core(sampling_removed)
+    reports.append(
+        {
+            "mutation": "replication_property_removed_markers_retained",
+            "status": "red"
+            if any(
+                issue.get("code") == "replication_sampling_summary_missing"
+                for issue in sampling_removed_issues
             )
             else "green",
         }
@@ -729,18 +1263,14 @@ def _coupling_gate_result(blocked: Any, supported: Any) -> dict[str, Any]:
             "blockers": list(blocked.engine_decisions[0].blockers),
             "trajectory_count": len(blocked.trajectories),
             "interaction_count": len(blocked.interaction_terms),
-            "feedback_classification": blocked.feedback_classification.model_dump(
-                mode="json"
-            ),
+            "feedback_classification": blocked.feedback_classification.model_dump(mode="json"),
             "receipt": blocked.receipt.model_dump(mode="json"),
         },
         "supported_coupled_des_abm": {
             "decision": supported.engine_decisions[0].decision,
             "engine_kind": supported.engine_decisions[0].engine_kind,
             "trajectory_levels": sorted({item.run_level for item in supported.trajectories}),
-            "feedback_classification": supported.feedback_classification.model_dump(
-                mode="json"
-            ),
+            "feedback_classification": supported.feedback_classification.model_dump(mode="json"),
             "receipt": supported.receipt.model_dump(mode="json"),
         },
     }
@@ -812,9 +1342,7 @@ def _abm_stub_strangle_probe(repo_root: Path | None = None) -> dict[str, Any]:
 def _production_abm_stub_callers(repo_root: Path) -> list[str]:
     """Return every executable legacy-stub call under production simulation code."""
 
-    simulation_root = (
-        repo_root / "src/polisyos/foundry/methods/catalog/simulation"
-    )
+    simulation_root = repo_root / "src/polisyos/foundry/methods/catalog/simulation"
     callers: list[str] = []
     for path in sorted(simulation_root.rglob("*.py")):
         module = ast.parse(path.read_text(encoding="utf-8"))
@@ -831,15 +1359,18 @@ def _production_abm_stub_callers(repo_root: Path) -> list[str]:
 def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]:
     interaction_terms = [
         {
-            "atom_ids": list(interaction.atom_ids),
-            "outcome": interaction.outcome,
-            "by_step": {str(k): v for k, v in interaction.by_step.items()},
-            "formula": interaction.formula,
+            **interaction.model_dump(mode="json"),
+            "by_step": {str(step): value for step, value in interaction.by_step.items()},
+            "replication_sampling_by_step": {
+                str(step): summary.model_dump(mode="json")
+                for step, summary in interaction.replication_sampling_by_step.items()
+            },
         }
         for interaction in result.interaction_terms
     ]
     joint = result.trajectory_for("joint", joint_atom_ids)
     return {
+        "schema_version": result.schema_version,
         "world_model_record_ref": result.world_model_record_ref,
         "world_model_record_content_hash": result.world_model_record_content_hash,
         "engine_decisions": [item.model_dump(mode="json") for item in result.engine_decisions],
@@ -848,12 +1379,33 @@ def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]
         "trajectory_levels": sorted({item.run_level for item in result.trajectories}),
         "horizon_steps": [point.step for point in joint.points],
         "trajectories": [item.model_dump(mode="json") for item in result.trajectories],
+        "diagnostics": result.diagnostics,
         "receipt": result.receipt.model_dump(mode="json"),
         "receipt_payload_hash": result.receipt.payload_hash,
         "uncertainty_kind": result.uncertainty_kind,
         "world_credal_state_before": result.world_credal_state_before,
         "world_credal_state_after": result.world_credal_state_after,
         "interaction_terms": interaction_terms,
+        "higher_order_residuals": {
+            outcome: {str(step): value for step, value in by_step.items()}
+            for outcome, by_step in result.higher_order_residuals.items()
+        },
+        "higher_order_residual_sampling": {
+            outcome: {
+                str(step): summary.model_dump(mode="json")
+                for step, summary in by_step.items()
+            }
+            for outcome, by_step in result.higher_order_residual_sampling.items()
+        },
+        "feedback_classification": result.feedback_classification.model_dump(mode="json"),
+        "atom_ids": list(result.atom_ids),
+        "expected_horizon_steps": list(result.horizon.steps()),
+        "interaction_sampling_issues": list(
+            result.diagnostics.get("interaction_sampling_issues", ())
+        ),
+        "interaction_evidence_issues": list(
+            result.diagnostics.get("interaction_evidence_issues", ())
+        ),
         "joint_terminal_outcomes": joint.points[-1].outcomes,
     }
 
@@ -891,11 +1443,15 @@ def _validate_gate(
         objective = str(decisions[0].get("objective_ref"))
         if semantics.get(objective) != expected_semantics:
             issues.append({"code": "equilibrium_semantics_mismatch"})
+    issues.extend(_replication_sampling_issues(gate, expected_count=None))
+    issues.extend(_interaction_sampling_issues(gate))
     trajectories = gate.get("trajectories")
     if not isinstance(trajectories, list) or not trajectories:
         issues.append({"code": "trajectories_missing"})
         trajectories = []
-    levels = {trajectory.get("run_level") for trajectory in trajectories if isinstance(trajectory, dict)}
+    levels = {
+        trajectory.get("run_level") for trajectory in trajectories if isinstance(trajectory, dict)
+    }
     if levels != {"individual", "pairwise", "joint"}:
         issues.append({"code": "subset_lattice_missing"})
     horizon_steps = gate.get("horizon_steps")
@@ -1186,7 +1742,9 @@ def _intervention(*, intervention_id: str, rate: str = "0.20") -> InterventionSp
 
 def _bundle(intervention: InterventionSpec) -> TrinityBundle:
     return TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_ua_msme_credit",
             problem_frame_ref=_ref("a"),
@@ -1472,9 +2030,7 @@ def _declared_request(
     request: JointSimulationRequest,
     semantics: str,
 ) -> JointSimulationRequest:
-    plan = request.engine_plan[0].model_copy(
-        update={"declared_equilibrium_semantics": semantics}
-    )
+    plan = request.engine_plan[0].model_copy(update={"declared_equilibrium_semantics": semantics})
     return request.model_copy(update={"engine_plan": (plan,)})
 
 
@@ -1564,9 +2120,7 @@ def _program_graph_plan(tmp_path: Path) -> EnginePlan:
     )
     base_state = GlobalState.empty(n_agents=2, n_firms=1)
     base_state = base_state.replace(
-        agents=base_state.agents.replace(
-            income=jnp.asarray([1000.0, 2000.0], dtype=jnp.float32)
-        )
+        agents=base_state.agents.replace(income=jnp.asarray([1000.0, 2000.0], dtype=jnp.float32))
     )
     return EnginePlan(
         engine_kind="program_graph",

@@ -134,6 +134,7 @@ def _persist_context_ref(
         kind=kind,
         schema_name=schema_name,
         schema_version=schema_version,
+        return_selected_profile=True,
     )
     ref.update(
         {
@@ -319,7 +320,14 @@ def _persist_report(
     report_ref = persist_backtest_report(
         _ensure_ir_artifact_store(store),
         report,
-        inputs=[InputRef(artifact_id=ref["artifact_id"], role=role) for role, ref in refs.items()],
+        inputs=[
+            InputRef(
+                artifact_id=ref["artifact_id"],
+                role=role,
+                manifest_profile_sha256=ref["manifest_profile_sha256"],
+            )
+            for role, ref in refs.items()
+        ],
     )
     load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return store, report_ref, refs
@@ -582,7 +590,7 @@ def _assert_evidence_binding(
     assert manifest.media_type == source_ref.media_type
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == ("polisyos.calibration.empirical_calibration_evidence")
-    assert manifest.artifact_schema.version == "1.1"
+    assert manifest.artifact_schema.version == _bridge().EVIDENCE_SCHEMA_VERSION
     assert manifest.integrity.sha256 == evidence_ref.artifact_id.hex
     evidence_bytes = store.get_bytes(evidence_ref.artifact_id)
     assert hashlib.sha256(evidence_bytes).hexdigest() == evidence_ref.artifact_id.hex
@@ -682,6 +690,8 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
     limited_record = limited["forecast_calibration_record"]
     assert record is not None
     assert limited_record is not None
+    assert record.calibration_status == "pass"
+    assert record.counterfactual_credibility == "not_established"
     assert record.numerator == 2
     assert record.denominator == 2
     assert limited_record.numerator == 1

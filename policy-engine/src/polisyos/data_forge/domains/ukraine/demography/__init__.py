@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import json
+from dataclasses import replace
 from pathlib import Path
-from typing import Any, ClassVar, Literal, cast
+from typing import Any, ClassVar, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -17,15 +17,23 @@ from pydantic import (
     model_validator,
 )
 
+from .source_inventory import (
+    DemographyRoleProjection,
+    DemographySourceEvidence,
+    DemographySourceRequest,
+    HistoricalLayoutRequest,
+    InventorySourceRequest,
+    ResolvedDemographySource,
+    SourceResolutionRefusalError,
+    read_demography_role,
+    resolve_demography_source,
+)
+
 
 def _to_numpy(value: object, *, dtype: npt.DTypeLike = float) -> np.ndarray:
     if isinstance(value, np.ndarray):
         return value.astype(dtype, copy=False)
     return np.asarray(value, dtype=dtype)
-
-
-def _read_json(path: Path) -> dict[str, Any]:
-    return cast("dict[str, Any]", json.loads(path.read_text(encoding="utf-8")))
 
 
 _DemographyLayout = Literal["new", "legacy"]
@@ -49,16 +57,14 @@ def _layout_member_paths(
     layout: _DemographyLayout,
 ) -> dict[str, Path]:
     """Resolve every member path for one declared demographic layout."""
-    return {member: root / relative_path for member, relative_path in _LAYOUT_PATHS[layout].items()}
+    return {
+        member: root / relative_path
+        for member, relative_path in _LAYOUT_PATHS[layout].items()
+    }
 
 
 def _classify_member_entry(path: Path) -> Literal["absent", "file", "invalid"]:
-    """Distinguish a missing member from a present invalid filesystem entry.
-
-    A symlink to a regular file remains readable. Broken links, directories,
-    non-file entries, and inaccessible or malformed parent entries are invalid
-    supplied members rather than evidence that an optional member was omitted.
-    """
+    """Distinguish a missing member from a present invalid filesystem entry."""
     try:
         path.lstat()
     except (FileNotFoundError, NotADirectoryError):
@@ -83,16 +89,15 @@ def _select_demography_layout(
     requested_layout: _DemographyLayout | None,
     *,
     standalone_member: str | None = None,
-) -> tuple[_DemographyLayout, dict[str, Path]]:
-    """Select one complete layout before reading any demographic member.
-
-    Scalar compatibility readers may use an isolated single-member source only
-    without an explicit layout selection. Explicit selection requires a complete
-    targets-and-priors snapshot even when one scalar member exists.
-    """
-    layout_paths = {layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS}
+) -> tuple[_DemographyLayout | None, dict[str, Path]]:
+    """Select one complete layout; mixed, multiple, or malformed layouts refuse."""
+    layout_paths = {
+        layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS
+    }
     member_states = {
-        layout: {member: _classify_member_entry(path) for member, path in paths.items()}
+        layout: {
+            member: _classify_member_entry(path) for member, path in paths.items()
+        }
         for layout, paths in layout_paths.items()
     }
     invalid_members = tuple(
@@ -116,7 +121,6 @@ def _select_demography_layout(
         for layout, states in member_states.items()
         if all(states[member] == "file" for member in _REQUIRED_LAYOUT_MEMBERS)
     )
-
     if requested_layout is not None:
         if requested_layout not in _LAYOUT_PATHS:
             raise ValueError(f"unsupported demographic layout: {requested_layout}")
@@ -133,24 +137,28 @@ def _select_demography_layout(
             )
         other_layout = "legacy" if requested_layout == "new" else "new"
         other_members = tuple(
-            member for member, state in member_states[other_layout].items() if state != "absent"
+            member
+            for member, state in member_states[other_layout].items()
+            if state != "absent"
         )
         if other_members and not all(
-            member_states[other_layout][member] == "file" for member in _REQUIRED_LAYOUT_MEMBERS
+            member_states[other_layout][member] == "file"
+            for member in _REQUIRED_LAYOUT_MEMBERS
         ):
             raise ValueError(
                 "demographic layouts are mixed or incomplete; explicit selection "
                 f"cannot ignore {other_layout} members {other_members}"
             )
         return requested_layout, selected_paths
-
     if len(complete_layouts) > 1:
         raise ValueError("multiple complete demographic layouts are present; select one explicitly")
     if len(complete_layouts) == 1:
         selected_layout = complete_layouts[0]
         other_layout = "legacy" if selected_layout == "new" else "new"
         other_members = tuple(
-            member for member, state in member_states[other_layout].items() if state != "absent"
+            member
+            for member, state in member_states[other_layout].items()
+            if state != "absent"
         )
         if other_members:
             raise ValueError(
@@ -159,7 +167,6 @@ def _select_demography_layout(
                 f"members {other_members}"
             )
         return selected_layout, layout_paths[selected_layout]
-
     if standalone_member is not None and len(present_members) == 1:
         selected_layout, selected_member = present_members[0]
         if (
@@ -172,19 +179,30 @@ def _select_demography_layout(
             "demographic layout is incomplete; required targets and priors "
             f"were not found as one declared snapshot: {present_members}"
         )
+    if (
+        standalone_member == "donor"
+        and requested_layout is None
+        and root.is_dir()
+    ):
+        return None, {}
     raise FileNotFoundError(f"no complete demographic layout exists under {root}")
 
 
 class UkraineDemographyArtifacts(BaseModel):
-    """Reconciled demographic targets, priors, and donor pools for static aging."""
+    """Contract-v2 demographic inputs with required candidate/legacy source evidence.
 
-    contract_id: ClassVar[str] = "data_forge.ukraine.demography.artifacts.v1"
+    The ``source_evidence`` field is required; supported readers populate it from
+    the resolved source instead of defaulting or inferring it.
+    """
+
+    contract_id: ClassVar[str] = "data_forge.ukraine.demography.artifacts.v2"
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
     state_ids: list[str]
     target_state_totals: Any
     entrant_state_totals: Any
     transition_prior_matrix: Any
+    source_evidence: DemographySourceEvidence
     allowed_transition_mask: Any | None = None
     donor_weights: Any | None = None
     donor_state_index: Any | None = None
@@ -228,7 +246,6 @@ class UkraineDemographyArtifacts(BaseModel):
         n_states = len(self.state_ids)
         if n_states == 0:
             raise ValueError("state_ids must not be empty")
-
         target_state_totals = _to_numpy(self.target_state_totals, dtype=float)
         entrant_state_totals = _to_numpy(self.entrant_state_totals, dtype=float)
         transition_prior_matrix = _to_numpy(self.transition_prior_matrix, dtype=float)
@@ -242,12 +259,10 @@ class UkraineDemographyArtifacts(BaseModel):
             raise ValueError("state totals must be non-negative")
         if np.any(transition_prior_matrix < 0.0):
             raise ValueError("transition_prior_matrix must be non-negative")
-
         if self.allowed_transition_mask is not None:
             mask = np.asarray(self.allowed_transition_mask, dtype=bool)
             if mask.shape != transition_prior_matrix.shape:
                 raise ValueError("allowed_transition_mask must match transition_prior_matrix")
-
         if self.donor_weights is not None or self.donor_state_index is not None:
             if self.donor_weights is None or self.donor_state_index is None:
                 raise ValueError("donor_weights and donor_state_index must be provided together")
@@ -268,101 +283,159 @@ class UkraineDemographyArtifacts(BaseModel):
                     or donor_record_index.shape[0] != donor_weights.shape[0]
                 ):
                     raise ValueError("donor_record_index must align with donor_weights")
-
         return self
 
 
+def _resolve_reader_source(
+    root: str | Path | None,
+    layout: _DemographyLayout | None,
+    source: DemographySourceRequest | None,
+    *,
+    standalone_member: str | None = None,
+) -> ResolvedDemographySource:
+    """Resolve an inventory request or enter the bounded historical adapter."""
+    if source is not None:
+        if root is not None or layout is not None:
+            raise ValueError("provide either an inventory source or a historical filesystem root")
+        if isinstance(source, HistoricalLayoutRequest):
+            return resolve_demography_source(source, standalone_member=standalone_member)
+        return resolve_demography_source(source)
+    if root is None:
+        raise ValueError("provide an inventory source or a historical filesystem root")
+    if layout is not None and (
+        not isinstance(layout, str) or layout not in _LAYOUT_PATHS
+    ):
+        raise ValueError(f"unsupported demographic layout: {layout}")
+    return resolve_demography_source(
+        HistoricalLayoutRequest(kind="historical_layout", root=Path(root), layout=layout),
+        standalone_member=standalone_member,
+    )
+
+
 def load_reconciled_targets(
-    root: str | Path,
+    root: str | Path | None = None,
     *,
     layout: _DemographyLayout | None = None,
-) -> dict[str, Any]:
-    """Load targets from one complete layout or an isolated scalar source.
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load targets as a ``DemographyRoleProjection`` implementing ``Mapping``.
 
-    When both complete layouts exist, callers must select one with ``layout``.
-    A sole isolated targets file remains readable for historical scalar callers;
-    mixed and multi-member incomplete layouts are rejected.
+    The projection preserves mapping-style reads and exposes its source evidence.
     """
-    _selected_layout, paths = _select_demography_layout(
-        Path(root), layout, standalone_member="targets"
+    resolved = _resolve_reader_source(
+        root, layout, source, standalone_member="targets"
     )
-    return _read_json(paths["targets"])
+    return read_demography_role(resolved, "targets")
 
 
 def load_transition_priors(
-    root: str | Path,
+    root: str | Path | None = None,
     *,
     layout: _DemographyLayout | None = None,
-) -> dict[str, Any]:
-    """Load priors from one complete layout or an isolated scalar source.
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load priors as a ``DemographyRoleProjection`` implementing ``Mapping``.
 
-    When both complete layouts exist, callers must select one with ``layout``.
-    A sole isolated priors file remains readable for scalar callers; mixed and
-    multi-member incomplete layouts are rejected.
+    The projection preserves mapping-style reads and exposes its source evidence.
     """
-    _selected_layout, paths = _select_demography_layout(
-        Path(root), layout, standalone_member="priors"
+    resolved = _resolve_reader_source(
+        root, layout, source, standalone_member="priors"
     )
-    return _read_json(paths["priors"])
+    return read_demography_role(resolved, "priors")
 
 
 def load_donor_pool(
-    root: str | Path,
+    root: str | Path | None = None,
     *,
     layout: _DemographyLayout | None = None,
-) -> dict[str, Any]:
-    """Load the optional donor pool from one selected demographic layout.
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load donors as a ``DemographyRoleProjection`` implementing ``Mapping``.
 
-    With no layout selection and no demographic inputs, an absent donor is empty.
-    A selected complete layout may also omit its optional donor; an explicit layout
-    selection still requires that layout's targets and priors. A sole isolated donor
-    file remains readable, while mixed and multi-member incomplete layouts are rejected.
+    The projection preserves mapping-style reads and exposes its source evidence.
     """
-    root_path = Path(root)
-    try:
-        _selected_layout, paths = _select_demography_layout(
-            root_path, layout, standalone_member="donor"
-        )
-    except FileNotFoundError:
-        if layout is not None:
-            raise
-        return {}
-    donor_path = paths["donor"]
-    return _read_json(donor_path) if donor_path.is_file() else {}
+    resolved = _resolve_reader_source(
+        root, layout, source, standalone_member="donor"
+    )
+    return read_demography_role(resolved, "donor")
 
 
 def load_demography_artifacts(
-    root: str | Path,
+    root: str | Path | None = None,
     *,
     layout: _DemographyLayout | None = None,
+    source: DemographySourceRequest | None = None,
 ) -> UkraineDemographyArtifacts:
-    """Load and validate one declared Ukraine demographic layout.
-
-    Without ``layout``, exactly one complete new or legacy layout must be
-    present.  A caller may select a layout explicitly when both complete
-    snapshots are intentionally available; members are then read only from
-    that selected layout.
-    """
-    root_path = Path(root)
-    selected_layout, selected_paths = _select_demography_layout(root_path, layout)
-    targets = _read_json(selected_paths["targets"])
-    priors = _read_json(selected_paths["priors"])
-    donor = _read_json(selected_paths["donor"]) if selected_paths["donor"].is_file() else {}
-    payload = {
-        **targets,
-        **priors,
-        **donor,
-    }
-    payload.setdefault("entrant_state_totals", [0.0] * len(payload["state_ids"]))
-    payload.setdefault("metadata", {})
+    """Resolve one snapshot before projecting targets, priors, and donor inputs."""
+    resolved = _resolve_reader_source(root, layout, source)
+    targets = read_demography_role(resolved, "targets").payload
+    priors = read_demography_role(resolved, "priors").payload
+    donor = read_demography_role(resolved, "donor").payload
+    payload = {**targets, **priors, **donor}
+    legacy_entrant_omission = "entrant_state_totals" not in payload
+    if legacy_entrant_omission:
+        if resolved.status != "legacy_limited":
+            raise SourceResolutionRefusalError(
+                "entrant_measure_not_materialized",
+                "candidate inventory requires entrant_state_totals",
+            )
+        state_ids = payload.get("state_ids")
+        if (
+            not isinstance(state_ids, list)
+            or not state_ids
+            or any(not isinstance(state_id, str) or not state_id for state_id in state_ids)
+            or len(state_ids) != len(set(state_ids))
+        ):
+            raise SourceResolutionRefusalError(
+                "legacy_state_axis_not_materialized",
+                "historical entrant compatibility requires a complete ordered state axis",
+            )
+        payload["entrant_state_totals"] = [0.0] * len(state_ids)
+        note = (
+            "legacy compatibility projection: an omitted entrant_state_totals field is "
+            "represented as zeros for the historical reader shape; this is not a measured "
+            "zero and entrant-measure provenance remains not_established"
+        )
+        resolved = replace(
+            resolved,
+            evidence=resolved.evidence.model_copy(
+                update={
+                    "compatibility_notes": [
+                        *resolved.evidence.compatibility_notes,
+                        note,
+                    ]
+                }
+            ),
+        )
+    metadata = payload.get("metadata", {})
+    if not isinstance(metadata, dict):
+        raise SourceResolutionRefusalError(
+            "member_metadata_malformed", "demography metadata must be a JSON object"
+        )
     payload["metadata"] = {
-        **payload["metadata"],
-        "demography_layout": selected_layout,
+        **metadata,
+        "demography_source_status": resolved.status,
+        "demography_source_identity": resolved.source_identity,
+        "demography_source_evidence": resolved.evidence.model_dump(mode="json"),
     }
+    if legacy_entrant_omission:
+        payload["metadata"]["entrant_state_totals_compatibility"] = (
+            "historical_zero_projection_for_omitted_field"
+        )
+        payload["metadata"]["entrant_state_totals_measurement_status"] = "not_established"
+    if resolved.evidence.source_layout is not None:
+        payload["metadata"]["demography_layout"] = resolved.evidence.source_layout
+    payload["source_evidence"] = resolved.evidence
     return UkraineDemographyArtifacts.model_validate(payload)
 
 
 __all__ = [
+    "DemographyRoleProjection",
+    "DemographySourceEvidence",
+    "DemographySourceRequest",
+    "HistoricalLayoutRequest",
+    "InventorySourceRequest",
+    "SourceResolutionRefusalError",
     "UkraineDemographyArtifacts",
     "load_demography_artifacts",
     "load_donor_pool",

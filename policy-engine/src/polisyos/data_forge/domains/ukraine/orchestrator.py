@@ -360,6 +360,14 @@ class UkraineDataOrchestrator:
             builder = STAGE_BUILDERS[stage_id]
             self._log(f"building stage {stage_id.value}")
             result = builder(self.config)
+            result.validate_inputs()
+            builder_input_paths = [Path(item.path).resolve() for item in result.inputs]
+            if len(builder_input_paths) != len(set(builder_input_paths)):
+                raise ValueError("stage builder returned duplicate input paths")
+            existing_input_paths = {Path(item.path).resolve() for item in inputs}
+            if existing_input_paths.intersection(builder_input_paths):
+                raise ValueError("stage builder inputs collide with orchestrator source inputs")
+            inputs.extend(result.inputs)
             outputs = list(result.outputs.values())
             findings = list(result.findings)
             warnings_list.extend(result.warnings)

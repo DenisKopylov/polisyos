@@ -54,6 +54,7 @@ class CoreRunAdapterResult:
     experiment_state_ref: ArtifactRef | None
     decision_packet_ref: ArtifactRef | None
     trace_path: Path
+    root_input_artifacts: tuple[ArtifactRef, ...] = ()
     warnings: tuple[str, ...] = ()
     errors: tuple[dict[str, Any], ...] = ()
 
@@ -499,6 +500,7 @@ def load_core_run(
         manifest_ref=manifest_ref,
         trace_ref=manifest.trace_ref,
         root_artifacts=tuple(manifest.outputs),
+        root_input_artifacts=tuple(manifest.inputs),
         workflow_report_ref=workflow_report_ref,
         experiment_state_ref=experiment_state_ref,
         decision_packet_ref=decision_packet_ref,

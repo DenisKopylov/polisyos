@@ -19,21 +19,81 @@ Example:
 """
 
 import io
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
-from typing import Any, Generic, TypeVar
+from decimal import Decimal, InvalidOperation
+from math import isfinite
+from typing import Any, Generic, Literal, TypeVar, get_args, get_type_hints
 
 from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.foundry.agent_sim.distributions import GiniPopulationProfile
 from polisyos.foundry.runtime.fingerprint import (
     DeterminismTier,
     EnvironmentFingerprint,
 )
 
 P = TypeVar("P")
+
+
+@dataclass(frozen=True, slots=True)
+class TrainingProfileDescriptor:
+    """Describe the fixed source-defined Economics training profile in an artifact."""
+
+    profile: GiniPopulationProfile = GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
+    profile_version: Literal["1"] = "1"
+    domain: Literal["economics"] = "economics"
+    resource_fields: tuple[Literal["wealth", "income"], Literal["wealth", "income"]] = (
+        "wealth",
+        "income",
+    )
+    population: Literal["active"] = "active"
+    resource_domain: Literal["finite_nonnegative"] = "finite_nonnegative"
+    gini_variant: Literal["classical"] = "classical"
+    predicate_source: Literal[
+        "polisyos.foundry.agent_sim.distributions.active_gini_population_supported"
+    ] = "polisyos.foundry.agent_sim.distributions.active_gini_population_supported"
+
+    def __post_init__(self) -> None:
+        """Keep the persisted descriptor bound to the one supported profile."""
+        if (
+            self.profile is not GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
+            or self.profile_version != "1"
+            or self.domain != "economics"
+            or self.resource_fields != ("wealth", "income")
+            or self.population != "active"
+            or self.resource_domain != "finite_nonnegative"
+            or self.gini_variant != "classical"
+            or self.predicate_source
+            != "polisyos.foundry.agent_sim.distributions.active_gini_population_supported"
+        ):
+            raise ValueError("Unsupported Economics training profile descriptor")
+
+    def to_manifest_dict(self) -> dict[str, Any]:
+        """Return the fixed, versioned descriptor payload."""
+        return {
+            "profile_id": self.profile.value,
+            "profile_version": self.profile_version,
+            "domain": self.domain,
+            "resource_fields": list(self.resource_fields),
+            "population": self.population,
+            "resource_domain": self.resource_domain,
+            "gini_variant": self.gini_variant,
+            "predicate_source": self.predicate_source,
+        }
+
+    @classmethod
+    def from_manifest_dict(cls, value: object) -> TrainingProfileDescriptor:
+        """Parse only the exact known descriptor; never infer it from partial data."""
+        if type(value) is not dict:
+            raise ValueError("Invalid agent policy training profile descriptor")
+        expected = cls().to_manifest_dict()
+        if value != expected or set(value) != set(expected):
+            raise ValueError("Unsupported agent policy training profile descriptor")
+        return cls()
 
 
 @dataclass
@@ -56,6 +116,10 @@ class TrainingMetrics:
     learning_rate: float | None = None
     batch_size: int | None = None
     ppo_epochs: int | None = None
+
+
+class _NonFiniteTrainingMetricError(ValueError):
+    """A runtime training metric cannot be represented as finite canonical data."""
 
 
 @dataclass
@@ -111,6 +175,21 @@ class AgentPolicyArtifact(Generic[P]):
     serialization_format: str = "equinox_v1"
     created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     schema_version: str = "1.0"
+    training_profile: TrainingProfileDescriptor | None = None
+
+    def __post_init__(self) -> None:
+        """Require the descriptor to agree with the artifact schema version."""
+        if (
+            self.training_profile is not None
+            and type(self.training_profile) is not TrainingProfileDescriptor
+        ):
+            raise TypeError("training_profile must be a source-defined TrainingProfileDescriptor")
+        if self.schema_version == "1.0" and self.training_profile is not None:
+            raise ValueError("Schema 1.0 agent policy artifacts cannot carry a training profile")
+        if self.schema_version == "1.1" and self.training_profile is None:
+            raise ValueError("Schema 1.1 agent policy artifacts require a training profile")
+        if self.schema_version not in {"1.0", "1.1"}:
+            raise ValueError(f"Unsupported agent policy artifact schema: {self.schema_version}")
 
     @classmethod
     def from_trained_policy(
@@ -175,19 +254,56 @@ class AgentPolicyArtifact(Generic[P]):
         weights_bytes: bytes,
     ) -> AgentPolicyArtifact[P]:
         """Rebuild artifact from a stored manifest dict and weights bytes."""
-        metrics_data = manifest.get("metrics", {})
-        metrics = TrainingMetrics(
-            training_run_id=metrics_data.get("training_run_id", "unknown"),
-            training_steps=int(metrics_data.get("training_steps", 0)),
-            final_loss=float(metrics_data.get("final_loss", 0.0)),
-            best_loss=metrics_data.get("best_loss"),
-            total_episodes=metrics_data.get("total_episodes"),
-            wall_clock_seconds=metrics_data.get("wall_clock_seconds"),
-            gpu_hours=metrics_data.get("gpu_hours"),
-            learning_rate=metrics_data.get("learning_rate"),
-            batch_size=metrics_data.get("batch_size"),
-            ppo_epochs=metrics_data.get("ppo_epochs"),
-        )
+        schema_version = manifest.get("schema_version", "1.0")
+        has_training_profile = "training_profile" in manifest
+        if schema_version == "1.0":
+            if has_training_profile:
+                raise ValueError(
+                    "Schema 1.0 agent policy artifacts cannot carry a training profile"
+                )
+            training_profile = None
+        elif schema_version == "1.1":
+            if not has_training_profile:
+                raise ValueError("Schema 1.1 agent policy artifacts require a training profile")
+            training_profile = TrainingProfileDescriptor.from_manifest_dict(
+                manifest["training_profile"]
+            )
+        else:
+            raise ValueError(f"Unsupported agent policy artifact schema: {schema_version}")
+
+        if "metrics" not in manifest:
+            if schema_version != "1.0":
+                raise _InvalidTrainingMetricError(
+                    "Schema 1.1 agent policy artifacts require a metrics block."
+                )
+            # Preserve the historical profileless schema-1.0 read fallback.
+            # These compatibility placeholders do not attest observed metrics.
+            metrics_data: object = {
+                "training_run_id": "unknown",
+                "training_steps": 0,
+                "final_loss": 0.0,
+            }
+        else:
+            metrics_data = manifest["metrics"]
+        if not isinstance(metrics_data, dict):
+            raise _InvalidTrainingMetricError("Training metrics must be a mapping.")
+        metric_values: dict[str, object] = {}
+        for field_name, field_type, optional in _TRAINING_METRIC_FIELDS:
+            if field_name not in metrics_data:
+                if not optional:
+                    raise _InvalidTrainingMetricError(
+                        f"Required training metric {field_name!r} is missing."
+                    )
+                value = None
+            else:
+                value = metrics_data[field_name]
+            metric_values[field_name] = _runtime_training_metric(
+                value,
+                field_name,
+                field_type,
+                optional=optional,
+            )
+        metrics = TrainingMetrics(**metric_values)
 
         fp_data = manifest.get("fingerprint", {})
         tier_value = fp_data.get("determinism_tier", DeterminismTier.NONDETERMINISTIC.value)
@@ -236,7 +352,8 @@ class AgentPolicyArtifact(Generic[P]):
             fingerprint=fingerprint,
             io_spec=io_spec,
             created_at=manifest.get("created_at", datetime.now(UTC).isoformat()),
-            schema_version=manifest.get("schema_version", "1.0"),
+            schema_version=schema_version,
+            training_profile=training_profile,
         )
 
     def load_weights(self, model_skeleton: P) -> P:
@@ -314,7 +431,7 @@ class AgentPolicyArtifact(Generic[P]):
 
     def to_manifest_dict(self) -> dict[str, Any]:
         """Export artifact metadata as dict for CAS manifest storage."""
-        return {
+        manifest = {
             "schema_version": self.schema_version,
             "artifact_id": self.artifact_id,
             "policy_type": self.policy_type,
@@ -359,6 +476,138 @@ class AgentPolicyArtifact(Generic[P]):
                 "action_dim": self.io_spec.action_dim,
             },
         }
+        if self.training_profile is not None:
+            manifest["training_profile"] = self.training_profile.to_manifest_dict()
+        return manifest
+
+
+def _training_metric_field_contract() -> tuple[tuple[str, type, bool], ...]:
+    """Derive each metric's declared scalar type and optionality from TrainingMetrics."""
+
+    annotations = get_type_hints(TrainingMetrics)
+    supported_types = {str, int, float}
+    result: list[tuple[str, type, bool]] = []
+    for metric_field in fields(TrainingMetrics):
+        annotation = annotations[metric_field.name]
+        union_args = get_args(annotation)
+        optional = False
+        if annotation in supported_types:
+            field_type = annotation
+        elif len(union_args) == 2 and type(None) in union_args:
+            field_type = next(arg for arg in union_args if arg is not type(None))
+            optional = True
+            if field_type not in supported_types:
+                raise TypeError(
+                    f"Unsupported TrainingMetrics field annotation: {metric_field.name}"
+                )
+        else:
+            raise TypeError(f"Unsupported TrainingMetrics field annotation: {metric_field.name}")
+        result.append((metric_field.name, field_type, optional))
+    return tuple(result)
+
+
+_TRAINING_METRIC_FIELDS = _training_metric_field_contract()
+
+
+class _InvalidTrainingMetricError(TypeError):
+    """A metric violates its declared required/optional scalar field contract."""
+
+
+def _canonical_training_metric(
+    value: object,
+    field_name: str,
+    field_type: type,
+    *,
+    optional: bool,
+) -> Decimal | int | str | None:
+    """Validate one declared metric and encode float fields for canonical CAS."""
+
+    if value is None:
+        if optional:
+            return None
+        raise _InvalidTrainingMetricError(
+            f"Required training metric {field_name!r} cannot be null."
+        )
+    if field_type is str:
+        if not isinstance(value, str):
+            raise _InvalidTrainingMetricError(f"Training metric {field_name!r} must be a string.")
+        return value
+    if field_type is int:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise _InvalidTrainingMetricError(f"Training metric {field_name!r} must be an integer.")
+        return int(value)
+    if field_type is float:
+        if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+            raise _InvalidTrainingMetricError(
+                f"Training metric {field_name!r} must be a real numeric value."
+            )
+        try:
+            canonical_value = Decimal(str(value))
+        except (InvalidOperation, ValueError) as exc:
+            raise _InvalidTrainingMetricError(
+                f"Training metric {field_name!r} must be a real numeric value."
+            ) from exc
+        if not canonical_value.is_finite():
+            raise _NonFiniteTrainingMetricError(f"Training metric {field_name!r} must be finite.")
+        if not isfinite(float(canonical_value)):
+            raise _NonFiniteTrainingMetricError(
+                f"Training metric {field_name!r} must be finite as a runtime float."
+            )
+        return canonical_value
+    raise _InvalidTrainingMetricError(
+        f"Training metric {field_name!r} has an unsupported declared type."
+    )
+
+
+def _runtime_training_metric(
+    value: object,
+    field_name: str,
+    field_type: type,
+    *,
+    optional: bool,
+) -> float | int | str | None:
+    """Validate and restore a manifest scalar to the declared runtime type."""
+
+    if field_type is int and field_name == "training_steps" and isinstance(value, str):
+        # Preserve the pre-existing reader's int(...) compatibility for this field only.
+        try:
+            value = int(value)
+        except ValueError as exc:
+            raise _InvalidTrainingMetricError(
+                "Training metric 'training_steps' must be an integer."
+            ) from exc
+    canonical_value = _canonical_training_metric(
+        value,
+        field_name,
+        field_type,
+        optional=optional,
+    )
+    if field_type is float:
+        return None if canonical_value is None else float(canonical_value)
+    return canonical_value
+
+
+def _manifest_for_cas(artifact: AgentPolicyArtifact) -> dict[str, Any]:
+    """Create and validate a canonical-storage copy without changing runtime values."""
+
+    manifest = artifact.to_manifest_dict()
+    metrics = manifest["metrics"]
+    for field_name, field_type, optional in _TRAINING_METRIC_FIELDS:
+        if field_name not in metrics:
+            if not optional:
+                raise _InvalidTrainingMetricError(
+                    f"Required training metric {field_name!r} is missing."
+                )
+            value = None
+        else:
+            value = metrics[field_name]
+        metrics[field_name] = _canonical_training_metric(
+            value,
+            field_name,
+            field_type,
+            optional=optional,
+        )
+    return manifest
 
 
 def store_policy_artifact(
@@ -368,9 +617,14 @@ def store_policy_artifact(
     """
     Store policy weights and manifest in CAS.
 
+    Float metrics use canonical Decimal values in a manifest-only copy.
+    Every declared required/optional metric field is validated before either
+    CAS object is written, and runtime artifact values remain unchanged.
+
     Returns:
         Tuple of (weights_ref, manifest_ref)
     """
+    manifest = _manifest_for_cas(artifact)
     weights_ref = cas.put_bytes(
         artifact.weights_bytes,
         PutOptions(
@@ -379,11 +633,14 @@ def store_policy_artifact(
         ),
     )
     manifest_ref = cas.put_json(
-        artifact.to_manifest_dict(),
+        manifest,
         PutOptions(
             kind="foundry.agent_policy_manifest",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.foundry.AgentPolicyArtifact", version="1.0"),
+            schema=SchemaInfo(
+                name="polisyos.foundry.AgentPolicyArtifact",
+                version=artifact.schema_version,
+            ),
             inputs=[InputRef(artifact_id=weights_ref.artifact_id, role="weights")],
         ),
     )

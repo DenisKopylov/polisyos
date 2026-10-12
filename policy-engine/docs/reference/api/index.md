@@ -100,7 +100,8 @@ Validation anchors:
 | `Authorization: Bearer <token>`            | Deployment-dependent                              | Recommended for any non-local environment                             |
 | `Content-Type: application/json`           | For `POST` bodies                                 | All documented `POST` endpoints accept JSON                           |
 | `Accept: application/json`                 | Usually                                           | Live run streams use `text/event-stream`                              |
-| `X-Idempotency-Key: <key>`                 | Supported on side-effecting control `POST` routes | Reuse the same key only for the same logical mutation payload         |
+| `X-Idempotency-Key: <key>`                 | Middleware-supported mutation routes              | Reuse only for the same logical mutation payload                       |
+| `Idempotency-Key: <key>`                   | Required on `POST /api/v1/control/runs/nl`         | Route-owned launch attempt; reuse only for the same immutable intent   |
 | `X-Request-ID: <id>`                       | Optional                                          | Preserved into `meta.request_id` when supplied                        |
 | `X-API-Version: <major>`                   | Response                                          | Emitted on all `/api/v1/*` responses                                  |
 | `X-API-Compatibility-Window: <window>`     | Response                                          | Compatibility/deprecation window for the current path major           |
@@ -268,3 +269,5 @@ Detailed reference: [Artifacts](artifacts.md)
 - [Artifacts](artifacts.md)
 - [Versioning Policy](versioning.md)
 - [Migration Guide](migration-guide.md)
+
+Natural-language launch requires route-specific Idempotency-Key for every execution profile. It is not an alias for X-Idempotency-Key. See the control API and migration guide for retry and recovery behavior.

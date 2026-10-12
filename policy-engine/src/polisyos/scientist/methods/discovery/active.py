@@ -467,7 +467,7 @@ class ActiveDisambiguationPlanner:
         )
         if hypothesis is None:
             return None
-        graph = hypothesis.resolved_graph or hypothesis.graph
+        graph = hypothesis.graph_for_analysis()
         if graph is None:
             return None
         treatment = bundle.causal_query.treatment_variable

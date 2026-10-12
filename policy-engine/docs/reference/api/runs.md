@@ -2,7 +2,7 @@
 
 Related explanation: [Architecture](../../explanation/architecture.md).
 
-Freshness: 2026-10-11
+Freshness: 2026-10-12
 Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/dependencies.py`, and `schemas/runtime_api_v1.openapi.json`
 Validation:
@@ -30,6 +30,8 @@ The runs surface is the read-only operational view over runtime executions. Ever
 | `GET`  | `/api/v1/runs/{run_id}/evidence-context` | `RunEvidenceContextResponse` | Evidence bundle and context resolution                                 |
 | `GET`  | `/api/v1/runs/{run_id}/paper`            | `RunPaperPacket`             | Replay-pinned run paper and selected artifact refs                      |
 | `GET`  | `/api/v1/runs/{run_id}/workflow`         | `RunWorkflowResponse`        | Workflow/DAG view                                                      |
+| `POST` | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Run-bound candidate diagnostic; appends a selected CAS ref event |
+| `GET`  | `/api/v1/runs/{run_id}/predictive-calibration` | `PredictiveCalibrationResponse` | Reopens the latest appended diagnostic and recomputes S10 |
 | `GET`  | `/api/v1/runs/live`                      | `text/event-stream`          | Route-only, schema-hidden global live stream                           |
 | `GET`  | `/api/v1/runs/{run_id}/live`             | `text/event-stream`          | Route-only, schema-hidden per-run live stream                          |
 
@@ -382,3 +384,16 @@ trace producer in addition to the legacy ID lists. Temporal lineage filtering
 uses those refs, so same-ID sibling profiles are not interchangeable. Older
 profile-less run roots remain explicitly limited; the reader's current default
 view is not retroactive producer attestation.
+
+## Predictive calibration
+
+POST /api/v1/runs/{run_id}/predictive-calibration accepts an explicit `intent_id`, full selected refs for the resolved run candidate source and observed snapshot, plus model, policy, and calibration-rule refs, a contiguous train/holdout split, six distinct caller-declared temporal roles, a threshold, method parameters, and seed. The route reuses the existing `runs.feedback.evaluate` permission with ownership binding to the exact run; no role grant is added. The service resolves the completed control job and exact Core manifest, requires the candidate source in the run’s resolved candidate projection and the observed snapshot, model, policy, and calibration-rule refs as exact full-profile run roots, reopens each selected CAS profile, runs ForecastOwner, persists the empirical calibration bridge and limited S10 candidate projection, then appends a versioned association-ref event to the existing diagnostic event log. Earlier associations are not rewritten.
+
+GET /api/v1/runs/{run_id}/predictive-calibration uses `runs.review` with ownership binding to the exact run. It reads the latest association ref from the event log, verifies the payload hash, reopens the CAS association and evidence, verifies the current run binding, and recomputes S10 before returning it. No event yields 404; a mismatched event, selected profile, payload hash, or recomputed projection yields 409. POST returns 201 on success and 422 when selected inputs cannot be resolved or admitted. A purpose-scoped SQL intent row serializes identical authenticated-principal/run/intent requests across app instances sharing the database; the body digest binds the selected refs and run profile. Same-body completed retries resolve the stored exact association, changed bodies conflict, and pending/recovery states fail closed. Event publication and row completion share the database transaction. An abrupt process loss may leave a pending row for manual reconciliation; no automatic takeover or external exactly-once claim is made. Events created before principal scope was captured are not replayed under the new owner and return `predictive_calibration_legacy_intent_scope_unverifiable`. SQLite cross-instance/process checks are authored but UNRUN; PostgreSQL behavior remains unverified.
+
+The DTO remains limited and `predictive_only`; issuer, source-time currentness, population scope, and counterfactual credibility remain `not_established`. The association is not a causal effect, recommendation, promotion, or publication authorization. The normal runtime application/container root enables this candidate route by default; `allow_candidate_run_predictive_calibration_surface=False` disables both operations before producer execution. The setting does not add a permission and is separate from the artifact-preview diagnostic gate. Canonical OpenAPI/client regeneration and execution of the composed HTTP integration test remain pending.
+
+The response distinguishes observed holdout hit rate from nominal confidence metadata and preserves selected refs to the backtest report, empirical evidence, and forecasting uncertainty bundle. The dashboard opens the exact uncertainty-bundle profile in the artifact viewer so an operator can inspect forecast points and predictive intervals. Every result remains assessment=limited and authority_scope=predictive_only; issuer, source time, population scope, and counterfactual credibility remain not_established. A passing calibration floor does not establish causal credibility or publication authority.
+
+
+A served acquisition re-entry using receipt schema v3 appends a continued `GenerationCycleRun` and records its N6/N9 result in the run-details acquisition history. For same-candidate re-entry, the typed history binds the prior and selected N4/N5 refs, preserves the profile selection identity with separate prior/current profile content hashes, and requires the exact selected target baseline to change. Current occurrences and fronts are projected from the continued run. The history remains candidate-only and does not confer publication authority. Historical v1/v2 re-entry receipts remain readable without this projection.

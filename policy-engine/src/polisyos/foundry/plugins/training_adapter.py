@@ -15,31 +15,49 @@ loop here.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from decimal import Decimal
-from math import isfinite
 
 import equinox as eqx
 import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,
+    TrainingProfileDescriptor,
+    _NonFiniteTrainingMetricError,
     load_policy_artifact,
     store_policy_artifact,
 )
+from polisyos.foundry.agent_sim.distributions import (
+    _GINI_POPULATION_STATUS_METRIC,
+    GiniPopulationProfile,
+    _active_gini_population_schema_supported,
+    _GiniPopulationStatus,
+    active_gini_population_supported,
+)
 from polisyos.foundry.agent_sim.executor import PureExecutor
+from polisyos.foundry.agent_sim.jit_training import (
+    _ActiveWealthTrajectoryValidationError,
+    _NativeExecutionValidationError,
+    _require_exact_bool_selector,
+    _selected_profile_status_supported,
+)
 from polisyos.foundry.agent_sim.rewards import UtilityFunction
-from polisyos.foundry.agent_sim.state import GlobalState, compute_aggregates
+from polisyos.foundry.agent_sim.state import AgentState, GlobalState, compute_aggregates
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
+from polisyos.foundry.agent_sim.temporal_mechanisms import (
+    TemporalConsumptionMechanism,
+    _empty_temporal_consumption_metrics,
+)
 from polisyos.foundry.agent_sim.training import TrainingConfig, train_actor_critic_with_artifact
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.plugins.composite import (
     CompositeExecutor,
     CompositeState,
     CompositeStateConfig,
+    _tree_align_to_template,
 )
 from polisyos.foundry.plugins.core import DomainConfig
 from polisyos.foundry.plugins.economics.plugin import EconomicsPlugin
@@ -90,6 +108,40 @@ class AdapterTrainingOutcome:
     artifact_refs: tuple[ArtifactRef, ArtifactRef] | None
 
 
+def _training_gini_population_assessment(
+    active: jnp.ndarray,
+    wealth: jnp.ndarray,
+    income: jnp.ndarray,
+) -> BridgeAssessment | None:
+    """Refuse active resources outside the bridge's classical-Gini profile."""
+
+    if not bool(active_gini_population_supported(active, wealth, income)):
+        return BridgeAssessment(
+            "training_active_gini_profile_unsupported",
+            "The selected Economics bridge materializes classical wealth and income Gini and "
+            "admits only finite, nonnegative values on active rows. General signed-resource "
+            "simulation remains available outside this selected training profile.",
+        )
+    return None
+
+
+def _training_gini_profile_assessment(
+    state: EconomicState,
+) -> BridgeAssessment | None:
+    """Check the selected EconomicState's active Gini population."""
+
+    if type(state) is not EconomicState or type(state.agents) is not EconomicAgentState:
+        return BridgeAssessment(
+            "training_composite_profile_unsupported",
+            "The selected Gini profile requires canonical Economics state and agent types.",
+        )
+    return _training_gini_population_assessment(
+        state.agents.active,
+        state.agents.wealth,
+        state.agents.income,
+    )
+
+
 class _EconomicsTemporalConsumptionMechanism(TemporalConsumptionMechanism):
     """Run native policy consumption, then the real Economics transition.
 
@@ -124,31 +176,116 @@ class _EconomicsTemporalConsumptionMechanism(TemporalConsumptionMechanism):
         object.__setattr__(self, "_wage_growth_rate", float(wage_growth_rate))
 
     def apply(self, state, rng_key, fidelity: FidelityLevel):
-        before = _native_to_composite(
-            state,
-            config=self._bridge_config,
-            n_agents=self._n_agents,
-            max_agents=self._max_agents,
-            wage_growth_rate=self._wage_growth_rate,
-        )
-        policy_state, metrics = super().apply(state, rng_key, fidelity)
-        after_policy = _native_to_composite(
-            policy_state,
-            config=self._bridge_config,
-            n_agents=self._n_agents,
-            max_agents=self._max_agents,
-            wage_growth_rate=self._wage_growth_rate,
-        )
-
-        _, bridge_key = jax.random.split(rng_key)
-        after = self._bridge_executor.step(after_policy, bridge_key)
-        native_state = _composite_to_native(after, policy_state)
-        native_state = native_state.replace(
-            agents=native_state.agents.replace(
-                utility_adjustment=_economic_reward_correction(before, after, native_state)
+        def _status(supported: bool | jnp.ndarray) -> _GiniPopulationStatus:
+            return _GiniPopulationStatus(
+                profile=GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
+                supported=jnp.asarray(supported, dtype=jnp.bool_),
             )
+
+        def _empty_metrics() -> dict[str, jnp.ndarray | _GiniPopulationStatus]:
+            return {
+                **_empty_temporal_consumption_metrics(state),
+                _GINI_POPULATION_STATUS_METRIC: _status(False),
+            }
+
+        def _refuse(_operand):
+            return state, _empty_metrics()
+
+        def _execute_supported(_operand):
+            before = _native_to_composite(
+                state,
+                config=self._bridge_config,
+                n_agents=self._n_agents,
+                max_agents=self._max_agents,
+                wage_growth_rate=self._wage_growth_rate,
+            )
+            policy_state, policy_metrics = TemporalConsumptionMechanism.apply(
+                self,
+                state,
+                rng_key,
+                fidelity,
+            )
+            policy_supported = active_gini_population_supported(
+                policy_state.agents.active,
+                policy_state.agents.wealth,
+                policy_state.agents.income,
+            )
+
+            def _execute_policy_output(_inner_operand):
+                after_policy = _native_to_composite(
+                    policy_state,
+                    config=self._bridge_config,
+                    n_agents=self._n_agents,
+                    max_agents=self._max_agents,
+                    wage_growth_rate=self._wage_growth_rate,
+                )
+                _, bridge_key = jax.random.split(rng_key)
+                after = self._bridge_executor.step(after_policy, bridge_key)
+
+                def _accept(_final_operand):
+                    native_state = _composite_to_native(after, policy_state)
+                    native_state = native_state.replace(
+                        agents=native_state.agents.replace(
+                            utility_adjustment=_economic_reward_correction(
+                                before,
+                                after,
+                                native_state,
+                            )
+                        )
+                    )
+                    native_state = _tree_align_to_template(
+                        native_state,
+                        state,
+                        allow_float_dtype_change=True,
+                    )
+                    if native_state is None:
+                        raise TrainingBridgeError(
+                            "training_bridge_output_schema_unsupported",
+                            "The selected Economics bridge produced a native state outside "
+                            "the complete training carry shape and dtype schema.",
+                        )
+                    metrics = {
+                        **policy_metrics,
+                        _GINI_POPULATION_STATUS_METRIC: _status(True),
+                    }
+                    metrics = _tree_align_to_template(
+                        metrics,
+                        _empty_metrics(),
+                        allow_float_dtype_change=True,
+                    )
+                    if metrics is None:
+                        raise TrainingBridgeError(
+                            "training_bridge_output_schema_unsupported",
+                            "The selected Economics bridge produced metrics outside its "
+                            "complete canonical metric schema.",
+                        )
+                    return native_state, metrics
+
+                return jax.lax.cond(
+                    after.gini_profile_supported,
+                    _accept,
+                    _refuse,
+                    operand=None,
+                )
+
+            return jax.lax.cond(
+                policy_supported,
+                _execute_policy_output,
+                _refuse,
+                operand=None,
+            )
+
+        initial_supported = active_gini_population_supported(
+            state.agents.active,
+            state.agents.wealth,
+            state.agents.income,
         )
-        return native_state, metrics
+        return jax.lax.cond(
+            initial_supported,
+            _execute_supported,
+            _refuse,
+            operand=None,
+        )
 
 
 def _economic_reward_correction(
@@ -184,7 +321,21 @@ def _native_to_composite(
 ) -> CompositeState:
     """Project the complete native training state into EconomicState."""
 
+    if type(state) is not GlobalState or type(state.agents) is not AgentState:
+        raise TrainingBridgeError(
+            "training_native_state_schema_unsupported",
+            "The selected Economics bridge requires canonical native state and agent types.",
+        )
     native_agents = state.agents
+    if not _active_gini_population_schema_supported(
+        native_agents.active,
+        native_agents.wealth,
+        native_agents.income,
+    ):
+        raise TrainingBridgeError(
+            "training_native_state_schema_unsupported",
+            "The selected Economics bridge requires matching real-valued resource vectors.",
+        )
     # AgentState has no wage or hours_worked fields.  The bounded temporal
     # executor leaves savings_target and education_years untouched, so they
     # provide lossless per-agent transport slots for the Economics bridge.
@@ -296,6 +447,7 @@ class EconomicsTrainingAdapter:
         self.bridge_executor = CompositeExecutor(
             executor.execution_order,
             executor.registry,
+            gini_population_profile=GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
         )
 
     @classmethod
@@ -303,10 +455,20 @@ class EconomicsTrainingAdapter:
         cls,
         state: CompositeState | None,
         executor: CompositeExecutor | None,
+        *,
+        require_supported_active_wealth: bool = False,
     ) -> BridgeAssessment | None:
-        """Return a typed rejection reason, or ``None`` when profile is valid."""
+        """Return a typed rejection reason, or ``None`` when profile is valid.
 
-        if not isinstance(state, CompositeState) or not isinstance(executor, CompositeExecutor):
+        The legacy flag name preserves existing plugin call sites. When enabled,
+        it validates both active wealth and active income because this bridge's
+        selected projection materializes classical Gini for both resources.
+        """
+
+        _require_exact_bool_selector(
+            require_supported_active_wealth, "require_supported_active_wealth"
+        )
+        if type(state) is not CompositeState or type(executor) is not CompositeExecutor:
             return BridgeAssessment(
                 "training_execution_adapter_missing",
                 "Training requires the real CompositeState and CompositeExecutor.",
@@ -343,16 +505,24 @@ class EconomicsTrainingAdapter:
                 "training_composite_profile_unsupported",
                 "Unknown Economics mechanism configuration cannot be bridged.",
             )
-        if not isinstance(state.get_domain(ECONOMICS_DOMAIN), EconomicState):
+        economic_state = state.get_domain(ECONOMICS_DOMAIN)
+        if (
+            type(economic_state) is not EconomicState
+            or type(economic_state.agents) is not EconomicAgentState
+        ):
             return BridgeAssessment(
                 "training_composite_profile_unsupported",
-                "Only the built-in EconomicState has a checked projection.",
+                "Only canonical Economics state and agent types have a checked projection.",
             )
-        if not isinstance(executor.registry.get(ECONOMICS_DOMAIN), EconomicsPlugin):
+        if type(executor.registry.get(ECONOMICS_DOMAIN)) is not EconomicsPlugin:
             return BridgeAssessment(
                 "training_composite_profile_unsupported",
                 "Only the built-in EconomicsPlugin has a checked projection.",
             )
+        if require_supported_active_wealth:
+            gini_assessment = _training_gini_profile_assessment(state.get_domain(ECONOMICS_DOMAIN))
+            if gini_assessment is not None:
+                return gini_assessment
         return None
 
     @classmethod
@@ -360,10 +530,19 @@ class EconomicsTrainingAdapter:
         cls,
         state: CompositeState | None,
         executor: CompositeExecutor | None,
+        *,
+        require_supported_active_wealth: bool = False,
     ) -> EconomicsTrainingAdapter | None:
         """Build the adapter only after all profile predicates pass."""
 
-        if cls.assess(state, executor) is not None:
+        if (
+            cls.assess(
+                state,
+                executor,
+                require_supported_active_wealth=require_supported_active_wealth,
+            )
+            is not None
+        ):
             return None
         assert state is not None
         assert executor is not None
@@ -460,11 +639,40 @@ class EconomicsTrainingAdapter:
         """Run a deterministic evaluation/continuation using the trained actor."""
 
         source = state or self.state
+        if not bool(source.gini_profile_supported):
+            raise TrainingBridgeError(
+                "training_active_gini_trajectory_unsupported",
+                "The supplied composite state already carries a terminal Gini-profile refusal.",
+            )
+        initial_assessment = _training_gini_profile_assessment(source.get_domain(ECONOMICS_DOMAIN))
+        if initial_assessment is not None:
+            raise TrainingBridgeError(initial_assessment.code, initial_assessment.message)
+
         native_state = self.to_native_state(seed=seed, state=source)
         executor = self.make_executor(actor, config)
         states = [source]
         for _ in range(config.steps_per_episode if n_steps is None else int(n_steps)):
-            native_state, _ = executor.step(native_state, fidelity=config.fidelity)
+            native_state, step_metrics = executor.step(native_state, fidelity=config.fidelity)
+            profile_supported = _selected_profile_status_supported(
+                step_metrics,
+                GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
+            )
+            if not bool(profile_supported):
+                raise TrainingBridgeError(
+                    "training_active_gini_trajectory_unsupported",
+                    "A transition left the selected active-resource Gini profile before its "
+                    "next state could be projected.",
+                )
+            assessment = _training_gini_population_assessment(
+                native_state.agents.active,
+                native_state.agents.wealth,
+                native_state.agents.income,
+            )
+            if assessment is not None:
+                raise TrainingBridgeError(
+                    "training_active_gini_trajectory_unsupported",
+                    assessment.message,
+                )
             states.append(
                 _native_to_composite(
                     native_state,
@@ -486,11 +694,30 @@ class EconomicsTrainingAdapter:
     ) -> AdapterTrainingOutcome:
         """Run the existing native optimizer and persist/read back its artifact."""
 
+        gini_assessment = _training_gini_profile_assessment(self.state.get_domain(ECONOMICS_DOMAIN))
+        if not bool(self.state.gini_profile_supported):
+            gini_assessment = BridgeAssessment(
+                "training_active_gini_profile_unsupported",
+                "The supplied composite state already carries a terminal Gini-profile refusal.",
+            )
+        if gini_assessment is not None:
+            raise TrainingBridgeError(gini_assessment.code, gini_assessment.message)
+
         if config.utility_type != "crra":
             raise TrainingBridgeError(
                 "training_utility_profile_unsupported",
                 "The Economics reward bridge is admitted only for CRRA training.",
             )
+        selected_profile = GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
+        if (
+            config.gini_population_profile is not None
+            and config.gini_population_profile is not selected_profile
+        ):
+            raise TrainingBridgeError(
+                "training_composite_profile_unsupported",
+                "The Economics adapter only admits its source-defined active wealth and income profile.",
+            )
+        selected_config = replace(config, gini_population_profile=selected_profile)
         if config.n_episodes <= 0 or config.steps_per_episode <= 0 or config.ppo_epochs <= 0:
             raise TrainingBridgeError(
                 "training_update_not_observed",
@@ -498,15 +725,27 @@ class EconomicsTrainingAdapter:
             )
 
         initial_state = self.to_native_state(seed=seed)
-        trained_policy, metrics, artifact = train_actor_critic_with_artifact(
-            actor,
-            initial_state,
-            config,
-            make_executor=lambda current_actor: self.make_executor(current_actor, config),
-            run_id=f"plugins-{ECONOMICS_DOMAIN}-{seed}",
-            tier=DeterminismTier.STRICT_CPU,
-            seed=seed,
-        )
+        try:
+            trained_policy, metrics, artifact = train_actor_critic_with_artifact(
+                actor,
+                initial_state,
+                selected_config,
+                make_executor=lambda current_actor: self.make_executor(
+                    current_actor, selected_config
+                ),
+                run_id=f"plugins-{ECONOMICS_DOMAIN}-{seed}",
+                tier=DeterminismTier.STRICT_CPU,
+                seed=seed,
+                track_active_wealth=True,
+            )
+        except _ActiveWealthTrajectoryValidationError as exc:
+            raise TrainingBridgeError(exc.code, str(exc)) from exc
+        except _NativeExecutionValidationError as exc:
+            raise TrainingBridgeError(
+                exc.code,
+                "Native training stopped at an Equinox validation guard before a policy artifact "
+                "was produced; the native guard's predicate is not classified by this bridge.",
+            ) from exc
         parameter_delta = _parameter_delta(actor, trained_policy)
         action_delta = _action_delta(actor, trained_policy, initial_state, config)
         if not jnp.isfinite(parameter_delta) or float(parameter_delta) <= 0.0:
@@ -520,10 +759,42 @@ class EconomicsTrainingAdapter:
                 "Native policy update did not change the next action.",
             )
 
+        trained_policy = artifact.load_weights(actor)
+        try:
+            final_state, final_states = self.run(
+                trained_policy,
+                selected_config,
+                seed=seed,
+                n_steps=config.steps_per_episode,
+            )
+        except eqx.EquinoxRuntimeError as exc:
+            raise TrainingBridgeError(
+                "native_execution_validation_refused",
+                "Native evaluation stopped at an Equinox validation guard before artifact "
+                "persistence; the native guard's predicate is not classified by this bridge.",
+            ) from exc
+        self._require_supported_evaluation_trajectory(final_states, config)
+
+        profile_descriptor = TrainingProfileDescriptor()
+        if artifact.schema_version != "1.1" or artifact.training_profile != profile_descriptor:
+            raise TrainingBridgeError(
+                "training_artifact_profile_readback_mismatch",
+                "The native artifact producer did not retain the selected Economics profile.",
+            )
+
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
         if artifact_store is not None:
-            artifact_refs = store_policy_artifact(
-                artifact_store, _artifact_for_cas(artifact)
+            try:
+                artifact_refs = store_policy_artifact(artifact_store, artifact)
+            except _NonFiniteTrainingMetricError as exc:
+                raise TrainingBridgeError(
+                    "training_artifact_metric_nonfinite",
+                    "Training artifact metrics must be finite before canonical persistence.",
+                ) from exc
+            self._require_training_profile_readback(
+                artifact_store,
+                artifact_refs[1],
+                profile_descriptor,
             )
             trained_policy, _ = load_policy_artifact(
                 artifact_store,
@@ -533,15 +804,6 @@ class EconomicsTrainingAdapter:
                 seed,
                 strict=True,
             )
-        else:
-            trained_policy = artifact.load_weights(actor)
-
-        final_state, _ = self.run(
-            trained_policy,
-            config,
-            seed=seed,
-            n_steps=config.steps_per_episode,
-        )
         losses = [float(value) for value in jnp.asarray(metrics["loss_history"])]
         return AdapterTrainingOutcome(
             trained_policy=trained_policy,
@@ -551,44 +813,62 @@ class EconomicsTrainingAdapter:
             artifact_refs=artifact_refs,
         )
 
+    @staticmethod
+    def _require_supported_evaluation_trajectory(
+        states: list[CompositeState],
+        config: TrainingConfig,
+    ) -> None:
+        """Validate every state in the deterministic post-training replay."""
 
-def _artifact_for_cas(
-    artifact: AgentPolicyArtifact[ActorCritic],
-) -> AgentPolicyArtifact[ActorCritic]:
-    """Prepare artifact metrics for the strict canonical CAS profile.
+        expected_states = int(config.steps_per_episode) + 1
+        if len(states) != expected_states:
+            raise TrainingBridgeError(
+                "training_active_wealth_evaluation_incomplete",
+                "The deterministic post-training replay did not return every requested state.",
+            )
+        for state in states:
+            if not bool(state.gini_profile_supported):
+                raise TrainingBridgeError(
+                    "training_active_gini_trajectory_unsupported",
+                    "The selected Gini profile already carries a terminal refusal status.",
+                )
+            assessment = _training_gini_profile_assessment(state.get_domain(ECONOMICS_DOMAIN))
+            if assessment is not None:
+                raise TrainingBridgeError(
+                    "training_active_gini_trajectory_unsupported",
+                    assessment.message,
+                )
 
-    The native artifact producer records training metrics as runtime floats,
-    while the shared CAS profile represents persisted real numbers as
-    ``Decimal`` tagged values.  Keep the runtime artifact unchanged and use a
-    storage-only dataclass copy so readback still goes through the existing
-    ``store_policy_artifact`` contract.
-    """
-
-    metrics = artifact.metrics
-    return replace(
-        artifact,
-        metrics=replace(
-            metrics,
-            final_loss=_canonical_metric(metrics.final_loss),
-            best_loss=_canonical_metric(metrics.best_loss),
-            wall_clock_seconds=_canonical_metric(metrics.wall_clock_seconds),
-            gpu_hours=_canonical_metric(metrics.gpu_hours),
-            learning_rate=_canonical_metric(metrics.learning_rate),
-        ),
-    )
-
-
-def _canonical_metric(value: float | None) -> Decimal | None:
-    """Encode a finite runtime metric using the canonical Decimal form."""
-
-    if value is None:
-        return None
-    if not isfinite(value):
-        raise TrainingBridgeError(
-            "training_artifact_metric_nonfinite",
-            "Training artifact metrics must be finite before canonical persistence.",
-        )
-    return Decimal(str(value))
+    @staticmethod
+    def _require_training_profile_readback(
+        artifact_store: ArtifactStore,
+        manifest_ref: ArtifactRef,
+        profile_descriptor: TrainingProfileDescriptor,
+    ) -> None:
+        """Verify the selected descriptor survives the typed CAS write/read path."""
+        manifest = artifact_store.get_manifest(manifest_ref)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != "foundry.agent_policy_manifest"
+            or manifest.media_type != "application/json"
+            or schema is None
+            or schema.name != "polisyos.foundry.AgentPolicyArtifact"
+            or schema.version != "1.1"
+        ):
+            raise TrainingBridgeError(
+                "training_artifact_profile_readback_mismatch",
+                "The stored Economics policy manifest did not retain its selected profile schema.",
+            )
+        payload = from_canonical_bytes(artifact_store.get_bytes(manifest_ref))
+        if (
+            not isinstance(payload, dict)
+            or payload.get("schema_version") != "1.1"
+            or payload.get("training_profile") != profile_descriptor.to_manifest_dict()
+        ):
+            raise TrainingBridgeError(
+                "training_artifact_profile_readback_mismatch",
+                "The stored Economics policy payload did not retain its selected profile descriptor.",
+            )
 
 
 def _parameter_delta(before: ActorCritic, after: ActorCritic) -> jnp.ndarray:

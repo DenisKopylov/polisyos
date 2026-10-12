@@ -1286,7 +1286,7 @@ uv run polisyos-tools workspace release-build-cache-lifecycle cleanup --apply
 - Family id: `data-forge-migration-fixture-baselines`
 - Lifecycle: `generated_committed`
 - Source of truth: tests/_data/data_forge/** golden, shadow, replay, and differential fixture contracts
-- Generator: canonical generator declared in regenerate_commands
+- Generator: Manual paired baseline review; Ukraine shadow checksum sentinel is provisioned by _materialize_shadow_checksum_bundle in pytest tmp_path (metadata only, not Parquet output)
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
 - Commit policy: `committed`
@@ -1305,6 +1305,7 @@ Canonical regeneration commands:
 
 ```bash
 manual review: refresh paired baseline/candidate fixtures and run uv run pytest tests/unit/data_forge/test_phase1_shared_kernel_cutover.py tests/unit/data_forge/test_phase7_schema_quality_observability.py tests/unit/data_forge/test_repository_sota_phase1_foundation.py -q
+uv run pytest tests/unit/data_forge/test_phase5_ukraine_scaffolding.py -q
 ```
 
 ## `Data Forge artifact and manifest contract schemas`

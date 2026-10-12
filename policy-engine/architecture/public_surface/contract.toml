@@ -347,9 +347,10 @@ supported_entrypoints = [
   "polisyos.data_forge.read_api",
   "polisyos.data_forge.read_api.academic",
   "polisyos.data_forge.read_api.catalog",
+  "polisyos.data_forge.read_api.ukraine",
 ]
 major_subsystem = true
-notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface."
+notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface and includes the explicit Ukraine demographic reader facade."
 
 [[package]]
 module = "polisyos.berl"

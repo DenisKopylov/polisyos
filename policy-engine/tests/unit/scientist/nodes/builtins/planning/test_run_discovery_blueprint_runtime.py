@@ -6,14 +6,27 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphProjectionDisposition,
+    GraphProjectionStatus,
+    GraphType,
+    graph_content_sha256,
+)
 from polisyos.scientist.methods.discovery.portfolio import PortfolioRunnerConfig
-from polisyos.scientist.methods.discovery.schema import DiscoveryMethod
+from polisyos.scientist.methods.discovery.schema import (
+    DiscoveryAlgorithmFamily,
+    DiscoveryMethod,
+    GraphHypothesis,
+)
 from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime import (
     RunDiscoveryBlueprintRuntimeNode,
     _measure_seed_reproducibility,
     _resolve_causal_query,
     _resolve_s_nodes,
+    _resolve_selection_diagram,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
@@ -23,6 +36,41 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+
+
+def test_selection_diagram_resolution_does_not_fallback_to_unadmitted_graph():
+    graph = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+    hypothesis = GraphHypothesis(
+        hypothesis_id="partial-fci",
+        algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+        method=DiscoveryMethod.FCI,
+        graph=graph,
+        projection_disposition=GraphProjectionDisposition(
+            status=GraphProjectionStatus.UNSUPPORTED,
+            source_graph_type=graph.graph_type,
+            source_graph_sha256=graph_content_sha256(graph),
+            reason_code="partial_graph_completion_semantics_not_established",
+        ),
+    )
+
+    selection_diagram = _resolve_selection_diagram(
+        SimpleNamespace(params={}),
+        hypotheses=[hypothesis],
+    )
+
+    assert hypothesis.graph_for_analysis() is None
+    assert selection_diagram is None
 
 
 def test_resolve_causal_query_assertion_is_not_swallowed(
@@ -77,11 +125,17 @@ def test_measure_seed_reproducibility_assertion_is_not_swallowed(
     monkeypatch: pytest.MonkeyPatch,
 ):
     graph = CausalGraphModel(graph_type=GraphType.DAG, nodes=["X", "Y"], edges=[])
-    hypothesis = SimpleNamespace(
+    hypothesis = GraphHypothesis(
         hypothesis_id="h1",
+        algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
         method=DiscoveryMethod.PC,
         graph=graph,
         resolved_graph=None,
+        projection_disposition=GraphProjectionDisposition(
+            status=GraphProjectionStatus.IDENTITY,
+            source_graph_type=graph.graph_type,
+            source_graph_sha256=graph_content_sha256(graph),
+        ),
     )
 
     def _boom(*args, **kwargs):

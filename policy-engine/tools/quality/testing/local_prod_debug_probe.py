@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
 import json
 import math
 import os
@@ -48,14 +47,9 @@ from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     DiagnosticEvent,
 )
-from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 from polisyos.scientist.orchestration.llm.provider_quality import (
-    DefaultProductionModelChoice,
-    build_controlled_grounding_observation,
-    build_controlled_provider_model_comparison,
     controlled_grounding_task,
 )
-from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
 from tools.ops_runners.runtime.quality_scenarios import (
     DEFAULT_QUALITY_SCENARIO_ID,
     load_quality_scenario_contract,
@@ -634,7 +628,7 @@ def _verified_debug_probe_bearer(
 
 
 def run_provider_preflight_check(context: ProbeContext) -> dict[str, Any]:
-    """Run the explicit live-provider preflight check."""
+    """Refuse a live provider call unless a durable actor-scoped attempt owner exists."""
     api_key = context.runtime_env.get("POLISYOS_LLM_GATEWAY_API_KEY")
     if not context.allow_live_provider or not api_key:
         return _check_result(
@@ -643,37 +637,20 @@ def run_provider_preflight_check(context: ProbeContext) -> dict[str, Any]:
             code="live_provider_not_enabled",
             message="Provider preflight requires --allow-live-provider and an API key.",
         )
-    try:
-        report = asyncio.run(
-            run_provider_preflight(
-                models=[context.model],
-                base_url=context.runtime_env.get("POLISYOS_LLM_GATEWAY_BASE_URL"),
-                provider=context.runtime_env.get("POLISYOS_LLM_GATEWAY_PROVIDER"),
-                api_key=api_key,
-                api_key_env="POLISYOS_LLM_GATEWAY_API_KEY",
-                timeout_s=float(context.provider_timeout_s),
-                ttl_s=0,
-            )
-        )
-    except Exception as exc:
-        return _check_result(
-            "provider-preflight",
-            "fail",
-            code="provider_preflight_exception",
-            message=str(exc),
-        )
-    details = report.model_dump(mode="json", exclude_none=True)
-    status = "pass" if report.status == "ok" else "fail"
     return _check_result(
         "provider-preflight",
-        status,
-        code=(None if status == "pass" else "provider_preflight_failed"),
-        details=details,
+        "fail",
+        code="pre_admission_owner_unavailable",
+        message=(
+            "Live provider preflight is refused because this local probe has no "
+            "durable actor-scoped control attempt owner. Use the authenticated "
+            "runtime launch route or provision an owned local control store."
+        ),
+        details={"provider_call_started": False},
     )
 
-
 def run_provider_quality_controlled_check(context: ProbeContext) -> dict[str, Any]:
-    """Run bounded evidence-bound provider/model quality comparison."""
+    """Refuse direct provider samples without a durable actor-scoped cost owner."""
     api_key = context.runtime_env.get("POLISYOS_LLM_GATEWAY_API_KEY")
     task = controlled_grounding_task()
     if not context.allow_live_provider or not api_key:
@@ -690,152 +667,20 @@ def run_provider_quality_controlled_check(context: ProbeContext) -> dict[str, An
                 "candidate_models": [context.model, KIMI_MODEL],
             },
         )
-    try:
-        observations = asyncio.run(_run_controlled_grounding_live_samples(context))
-        candidates = _controlled_candidate_models(context.model)
-        default_choice = candidates[0]
-        comparison = build_controlled_provider_model_comparison(
-            observations,
-            candidate_models=candidates,
-            default_model_choice=default_choice,
-            generated_at=datetime.now(UTC),
-            hidden_answer_tokens={api_key},
-        )
-    except Exception as exc:
-        return _check_result(
-            "provider-quality-controlled",
-            "fail",
-            code="provider_quality_controlled_exception",
-            message=str(exc),
-            details={"controlled_task": task.model_dump(mode="json")},
-        )
-
-    comparison_payload = comparison.model_dump(mode="json", exclude_none=True)
-    comparison_path = context.output.parent / "local_prod_debug_provider_quality_controlled.json"
-    _write_json(comparison_path, comparison_payload)
-    context.artifacts["provider_quality_controlled_comparison"] = str(comparison_path)
-    context.artifacts["provider_quality_controlled_selected_model"] = context.model
-    action = str(comparison.default_model_gate.get("action") or "")
-    status = (
-        "pass" if comparison.summary.get("status") == "pass" and action == "approve" else "fail"
-    )
     return _check_result(
         "provider-quality-controlled",
-        status,
-        code=None if status == "pass" else "provider_quality_controlled_gate_failed",
+        "fail",
+        code="pre_admission_owner_unavailable",
+        message=(
+            "Direct controlled provider samples are refused because this local probe has "
+            "no durable actor-scoped control attempt owner."
+        ),
         details={
-            "comparison_path": str(comparison_path),
-            "selected_model": context.model,
-            "comparison": comparison_payload,
-            "next_live_lane": {
-                "lane_id": LIVE_RESEARCH_LANE_ID,
-                "selected_model": context.model,
-                "requires_allow_live_provider": True,
-            },
+            "controlled_task": task.model_dump(mode="json"),
+            "candidate_models": [context.model, KIMI_MODEL],
+            "provider_call_started": False,
         },
     )
-
-
-async def _run_controlled_grounding_live_samples(
-    context: ProbeContext,
-) -> list[Any]:
-    task = controlled_grounding_task()
-    api_key = context.runtime_env.get("POLISYOS_LLM_GATEWAY_API_KEY") or ""
-    base_url = context.runtime_env.get("POLISYOS_LLM_GATEWAY_BASE_URL") or (
-        "https://proxy.gonka.gg/v1"
-    )
-    provider = context.runtime_env.get("POLISYOS_LLM_GATEWAY_PROVIDER") or "gonka_proxy"
-    observations: list[Any] = []
-    for candidate in _controlled_candidate_models(context.model):
-        client = GatewayLLMClient(
-            base_url=base_url,
-            api_key=api_key,
-            model=candidate.model_id,
-            provider_hint=provider,
-            max_retries=0,
-            timeout_s=float(context.provider_timeout_s),
-        )
-        try:
-            for sample_index in range(3):
-                request_fingerprint = _controlled_request_fingerprint(
-                    model_id=candidate.model_id,
-                    sample_index=sample_index,
-                    task_refs=task.required_evidence_refs,
-                )
-                started = time.perf_counter()
-                try:
-                    response = await client.generate(
-                        system="Return compact JSON only. Do not include prose.",
-                        user=_controlled_grounding_prompt(sample_index=sample_index),
-                        response_format={"type": "json_object"},
-                        max_tokens=180,
-                        temperature=0.0,
-                    )
-                    latency_ms = (time.perf_counter() - started) * 1000
-                    parsed = _parse_json_object(getattr(response, "content", ""))
-                    observed_refs = {
-                        key: str(parsed.get(key) or "") for key in task.required_evidence_refs
-                    }
-                    raw_response = getattr(response, "raw", None)
-                    degraded_events = (
-                        raw_response.get("_gateway_degraded_events")
-                        if isinstance(raw_response, Mapping)
-                        else None
-                    )
-                    observations.append(
-                        build_controlled_grounding_observation(
-                            provider=provider,
-                            model_id=candidate.model_id,
-                            model_fingerprint=candidate.model_fingerprint,
-                            sample_index=sample_index,
-                            task=task,
-                            grounding_refs=observed_refs,
-                            schema_valid=bool(parsed),
-                            refusal_detected=_looks_like_refusal(getattr(response, "content", "")),
-                            degradation_behavior=(
-                                "fallback_plain_json"
-                                if isinstance(degraded_events, list) and degraded_events
-                                else None
-                            ),
-                            request_fingerprint=request_fingerprint,
-                            latency_ms=latency_ms,
-                            cost_usd=getattr(getattr(response, "usage", None), "cost_usd", None),
-                            raw_evidence={
-                                "request_id": getattr(response, "request_id", None),
-                                "request_fingerprint": request_fingerprint,
-                                "response_format_mode": (
-                                    "fallback_plain_json"
-                                    if isinstance(degraded_events, list) and degraded_events
-                                    else "json_object"
-                                ),
-                            },
-                        )
-                    )
-                except Exception as exc:
-                    observations.append(
-                        build_controlled_grounding_observation(
-                            provider=provider,
-                            model_id=candidate.model_id,
-                            model_fingerprint=candidate.model_fingerprint,
-                            sample_index=sample_index,
-                            task=task,
-                            grounding_refs={},
-                            schema_valid=False,
-                            refusal_detected=False,
-                            degradation_behavior="provider_exception",
-                            request_fingerprint=request_fingerprint,
-                            latency_ms=(time.perf_counter() - started) * 1000,
-                            cost_usd=None,
-                            raw_evidence={
-                                "request_fingerprint": request_fingerprint,
-                                "provider_error_code": exc.__class__.__name__,
-                            },
-                        )
-                    )
-        finally:
-            await client.aclose()
-    return observations
-
 
 def run_live_research_lane_check(context: ProbeContext) -> dict[str, Any]:
     """Run the one approved live research lane through the matrix wrapper."""
@@ -2082,91 +1927,6 @@ def _percentile(ordered: Sequence[float], percentile: float) -> float:
         return 0.0
     index = max(0, min(len(ordered) - 1, math.ceil((percentile / 100.0) * len(ordered)) - 1))
     return float(ordered[index])
-
-
-def _controlled_candidate_models(default_model: str) -> list[DefaultProductionModelChoice]:
-    provider = "gonka_proxy"
-    candidates = [
-        DefaultProductionModelChoice(
-            provider=provider,
-            model_id=default_model,
-            model_fingerprint=default_model,
-            usage="policy_drafting",
-        )
-    ]
-    if default_model != KIMI_MODEL:
-        candidates.append(
-            DefaultProductionModelChoice(
-                provider=provider,
-                model_id=KIMI_MODEL,
-                model_fingerprint=KIMI_MODEL,
-                usage="controlled_grounding_candidate",
-            )
-        )
-    return candidates
-
-
-def _controlled_grounding_prompt(*, sample_index: int) -> str:
-    task = controlled_grounding_task()
-    refs = task.required_evidence_refs
-    return (
-        "Controlled provider quality sample "
-        f"{sample_index}. Return exactly a JSON object with these fields and values: "
-        f"data_ref={refs['data_ref']}, norm_ref={refs['norm_ref']}, "
-        f"method_ref={refs['method_ref']}, claim_ref={refs['claim_ref']}, "
-        "decision=supported. Do not add legal or policy prose."
-    )
-
-
-def _controlled_request_fingerprint(
-    *,
-    model_id: str,
-    sample_index: int,
-    task_refs: Mapping[str, str],
-) -> str:
-    import hashlib
-
-    payload = json.dumps(
-        {
-            "model_id": model_id,
-            "sample_index": sample_index,
-            "task_refs": dict(sorted(task_refs.items())),
-        },
-        sort_keys=True,
-        separators=(",", ":"),
-    )
-    return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _parse_json_object(value: object) -> dict[str, Any]:
-    if not isinstance(value, str) or not value.strip():
-        return {}
-    try:
-        payload = json.loads(value)
-    except json.JSONDecodeError:
-        start = value.find("{")
-        end = value.rfind("}")
-        if start < 0 or end <= start:
-            return {}
-        try:
-            payload = json.loads(value[start : end + 1])
-        except json.JSONDecodeError:
-            return {}
-    return payload if isinstance(payload, dict) else {}
-
-
-def _looks_like_refusal(value: object) -> bool:
-    text = str(value or "").casefold()
-    return any(
-        marker in text
-        for marker in (
-            "i can't",
-            "i cannot",
-            "sorry",
-            "refuse",
-            "unable to",
-        )
-    )
 
 
 def _redact_dsn(value: str | None) -> str | None:

@@ -51,9 +51,11 @@ from polisyos.foundry.methods.catalog.causal._id_contracts import (
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     _validate_static_admg,
+    _validate_static_id_graph,
     ancestors,
     augment_with_s_nodes,
     c_components,
+    canonical_scalar_selection_diagram,
     descendants,
     do_operator,
     extract_bidirected_edges,
@@ -109,8 +111,7 @@ def _pag_id_algorithm(
     from polisyos.foundry.methods.catalog.causal.pag_completion import apply_pag_orientation_rules
     from polisyos.ir.analytics.causal_graph import EdgeMark, GraphType, PAGIdentificationPolicy
 
-    if graph.graph_type is not GraphType.PAG:
-        _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
 
     policy = graph.pag_identification_policy
     _trace.append(
@@ -137,7 +138,7 @@ def _pag_id_algorithm(
 
     # Static ID has no interpretation for unresolved PAG endpoints. This gate
     # precedes every policy path, so no policy can supply a completion choice.
-    _validate_static_admg(oriented_pag)
+    oriented_pag = _validate_static_admg(oriented_pag)
 
     if policy is PAGIdentificationPolicy.CONSERVATIVE:
         _trace.append(
@@ -428,7 +429,7 @@ def id_algorithm(
     ----------
     treatment:      X — intervention set (frozenset of variable names)
     outcome:        Y — target variables
-    graph:          causal graph G (DAG or PAG-as-ADMG; bidirected=ARROW/ARROW)
+    graph:          resolved DAG or acyclic ADMG (bidirected=ARROW/ARROW)
     available_vars: V — set of all observed variables (defaults to all graph nodes)
     dataset_ref:    tag for DistributionRef leaves (links to DataKnowledgeBase)
     domain:         DistributionDomain for leaf DistributionRef nodes
@@ -436,7 +437,7 @@ def id_algorithm(
 
     Returns IdentificationResult with status IDENTIFIED, HEDGE_FOUND, or ORACLE_NEEDED.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_id_graph(graph)
     if _trace is None:
         _trace = []
     if available_vars is None:
@@ -745,7 +746,7 @@ def idc_algorithm(
 
     This follows Shpitser & Pearl (2008) / Bareinboim & Pearl (2012).
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_id_graph(graph)
     trace: list[str] = [
         f"idc_algorithm: Y={sorted(outcome)}, X={sorted(treatment)}, Z={sorted(conditions)}"
     ]
@@ -922,6 +923,7 @@ def _s_trim_lemma(
         remaining_s_node_vars : S-node vars that must be kept
         pruned_s_node_vars    : S-node vars that were pruned
     """
+    graph = _validate_static_admg(graph)
     an_y = ancestors(graph, outcome)
     pruned: set[str] = set()
     remaining: set[str] = set()
@@ -988,6 +990,7 @@ def _z_transport_direct_pass(
     -------
     IdentificationResult with status=IDENTIFIED if the formula applies, else None.
     """
+    graph = _validate_static_admg(graph)
     if not z_interventions:
         return None
 
@@ -1104,8 +1107,8 @@ def tr_algorithm(
     ]
     _steps: list[ProofStep] = []
 
+    selection_diagram = canonical_scalar_selection_diagram(selection_diagram)
     graph = selection_diagram.base_graph
-    _validate_static_admg(graph)
 
     if not selection_diagram.s_nodes:
         trace.append("tr_algorithm: no S-nodes → direct ID on base graph")
@@ -1197,6 +1200,8 @@ def id_with_oracle_fallback(
     "y0"       – attempt identification via the Y0 Python package
     "dosearch" – attempt identification via dosearch R package (rpy2 required)
     """
+    # Freeze one admitted graph for native ID and any selected oracle fallback.
+    graph = _validate_static_id_graph(graph)
     result = id_algorithm(
         treatment=treatment,
         outcome=outcome,
@@ -1287,9 +1292,10 @@ def find_hedge(
     ----------
     treatment      : X — intervention set
     outcome        : Y — target variables
-    graph          : causal graph (DAG or ADMG with ARROW↔ARROW bidirected edges)
+    graph          : resolved DAG or acyclic ADMG with ARROW↔ARROW bidirected edges
     available_vars : observed variables V; defaults to all graph nodes
     """
+    graph = _validate_static_id_graph(graph)
     from polisyos.foundry.methods.catalog.causal.admg_ops import (
         ancestors,
         c_components,
@@ -1376,6 +1382,7 @@ def find_thicket(
     graph          : causal graph
     available_vars : observed variables V; defaults to all graph nodes
     """
+    graph = _validate_static_id_graph(graph)
     from polisyos.foundry.methods.catalog.causal.admg_ops import (
         ancestors,
         c_components,

@@ -39,7 +39,7 @@ def _build_sigma_graph(
     selection_vars: frozenset[str],
 ) -> tuple[CausalGraphModel, frozenset[str]]:
     """Build the selection-augmented graph G^σ and return S-node names."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     g_sigma = augment_with_s_nodes(graph, selection_vars)
     s_node_names = frozenset(f"S_{v}" for v in selection_vars)
     return g_sigma, s_node_names
@@ -52,7 +52,7 @@ def apply_sigma_rule1(
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """σ-R1: delete conditioned variables under selection."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     if not selection_vars:
         return None
     z = z_vars & frozenset(dist_ref.conditioning)
@@ -96,7 +96,7 @@ def apply_sigma_rule2(
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """σ-R2: move interventions to conditioning under selection."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     if not selection_vars:
         return None
     z = z_vars & frozenset(dist_ref.intervention_set)
@@ -152,7 +152,7 @@ def apply_sigma_rule3(
     selection_vars: frozenset[str],
 ) -> tuple[DistributionRef, IRProofStep] | None:
     """σ-R3: delete interventions under selection."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     if not selection_vars:
         return None
     z = z_vars & frozenset(dist_ref.intervention_set)
@@ -343,7 +343,7 @@ def rewrite_estimand_with_selection(
     ctf_postpass: CtfPostPass | None = None,
 ) -> tuple[EstimandAST, list[IRProofStep]]:
     """Apply do-calculus and σ-calculus exhaustively, then optional post-pass."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     all_steps: list[IRProofStep] = []
     current_root = ast.root
 

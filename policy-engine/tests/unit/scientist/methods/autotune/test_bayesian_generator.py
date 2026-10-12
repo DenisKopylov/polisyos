@@ -213,10 +213,10 @@ def test_source_profile_uses_canonical_effective_fit_profile() -> None:
         context={"year": 2030},
     )
 
-    assert profile.training_corpus_fingerprint == "corpus/actual-fit"
-    assert profile.warm_start_eligible is True
-    assert seen["context_fingerprint"] == generator._profile_fingerprint({"year": 2030})
-    assert seen["objective_fingerprint"] == generator._objective_profile_fingerprint()
+    assert profile.profile_kind == "configured_native_gp"
+    assert profile.training_corpus_fingerprint is None
+    assert profile.warm_start_eligible is False
+    assert seen == {}
 
 
 def test_search_iteration_history_preserves_origin_params_split_and_full_ids() -> None:

@@ -279,6 +279,245 @@ def test_compile_claim_ledger_requires_injected_resolver_when_configured() -> No
         )
 
 
+@pytest.mark.parametrize(
+    ("surface", "alias"),
+    [
+        ("top", "scenario_profile"),
+        ("top", "pilot_profile"),
+        ("top", "scope_profile"),
+        ("top", "profile"),
+        ("context", "scenario_profile"),
+        ("context", "pilot_profile"),
+        ("context", "scope_profile"),
+    ],
+)
+def test_scenario_profile_aliases_preserve_declared_unresolved_identity(
+    surface: str,
+    alias: str,
+) -> None:
+    profile = {"profile_ref": "future:ua:2026", "jurisdiction": "UA"}
+    scenario = {alias: profile} if surface == "top" else {"context": {alias: profile}}
+
+    parsed = compiler_module._scenario_scope_profile(scenario)
+
+    assert parsed is not None
+    assert parsed.profile_id == "future:ua:2026"
+    assert parsed.jurisdiction == "UA"
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        {"scenario_profile": {}},
+        {"scenario_profile": {"profile_id": "  "}},
+        {"scenario_profile": {"profile_id": 17}},
+        {"scenario_profile": "future:profile"},
+        {"scenario_profile": {"profile_id": "future:a", "id": "future:b"}},
+        {"scenario_profile": {"profile_id": "future:a", "time_window": []}},
+        {"scenario_profile": {"profile_id": "future:a", "scope": "UA"}},
+        {"context": {"scope_profile": None}},
+        {
+            "scenario_profile": {"profile_id": "future:a"},
+            "context": {"scope_profile": {"profile_id": "future:b"}},
+        },
+        {
+            "scenario_profile": {
+                "profile_id": "future:a",
+                "jurisdiction": "UA",
+                "scope": {"jurisdiction": "PL"},
+            }
+        },
+        {
+            "scenario_profile": {
+                "profile_id": "future:a",
+                "required_constructs": ["firm_survival"],
+                "declared_constructs": ["credit_program_enrollment"],
+            }
+        },
+    ],
+)
+def test_malformed_or_conflicting_supplied_profile_is_typed_refused(
+    scenario: dict[str, object],
+) -> None:
+    with pytest.raises(compiler_module.ScenarioScopeProfileInputError) as raised:
+        DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_scenario(
+            {
+                "scenario_id": "profile_case",
+                "request": "Create a credit support programme for MSMEs.",
+                "domain_hint": "Fiscal support",
+                **scenario,
+            }
+        )
+
+    assert raised.value.code == "scenario_scope_profile_invalid"
+    assert raised.value.reason_code
+    assert raised.value.field_path
+
+
+def test_named_unresolved_profile_binds_requirements_without_promoting_proposals() -> None:
+    resolver = _RecordingCapabilityResolver()
+    scenario = {
+        "scenario_id": "ukraine_msme_wartime_credit_support",
+        "request": (
+            "Create a concessional credit guarantee programme for displaced MSMEs in "
+            "northern regions in 2026, funded by budget appropriation and delivered "
+            "through partner banks to preserve employment."
+        ),
+        "domain_hint": "Fiscal support",
+        "context": {
+            "country": "Ukraine",
+            "policy_domain": "wartime_msme_support",
+            "query_outcome": "msme_survival_rate",
+            "query_treatment": "wartime_credit_support",
+            "target_population": "msme",
+        },
+        "expected_evidence_contract": {
+            "admissible_data_source_families": ["datasets"],
+        },
+        "scenario_profile": {
+            "profile_id": "future:ua:2026",
+            "jurisdiction": "UA",
+            "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+            "required_constructs": [
+                "firm_survival",
+                "credit_program_enrollment",
+                "scope_only_unique_probe",
+            ],
+            "candidate_construct_proposals": ["candidate_only_future_construct"],
+        },
+    }
+
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+
+    assert report.specs
+    queried_constructs = {query.construct for query in resolver.queries}
+    assert {
+        "firm_survival",
+        "credit_program_enrollment",
+        "scope_only_unique_probe",
+    } <= queried_constructs
+    assert "candidate_only_future_construct" not in queried_constructs
+    admitted_profile = compiler_module._scenario_scope_profile(scenario)
+    assert admitted_profile is not None
+    resolution_inputs = compiler_module._construct_resolution_inputs(
+        facets=(),
+        claims=(),
+        obligation_graph=None,
+        scenario_id=scenario["scenario_id"],
+        declared_constructs=admitted_profile.required_constructs,
+        candidate_construct_proposals=admitted_profile.candidate_construct_proposals,
+    )
+    assert resolution_inputs.required_constructs == (
+        "firm_survival",
+        "credit_program_enrollment",
+        "scope_only_unique_probe",
+    )
+    assert resolution_inputs.candidate_construct_proposals == ("candidate_only_future_construct",)
+    assert all(query.geography == "UA" for query in resolver.queries)
+    assert all(query.time_window.start == "2026-01-01" for query in resolver.queries)
+    assert all(query.time_window.end == "2026-12-31" for query in resolver.queries)
+    assert all(spec.scope.jurisdiction == "UA" for spec in report.specs)
+    assert all(
+        spec.metadata["scope_profile"]["profile_id"] == "future:ua:2026" for spec in report.specs
+    )
+    assert all(
+        spec.metadata["scope_profile"]["required_constructs"]
+        == ["firm_survival", "credit_program_enrollment", "scope_only_unique_probe"]
+        for spec in report.specs
+    )
+    assert all(
+        spec.metadata["scope_profile"]["candidate_construct_proposals"]
+        == ["candidate_only_future_construct"]
+        for spec in report.specs
+    )
+    assert "candidate_only_future_construct" in report.metadata["candidate_construct_proposals"]
+    assert report.capability_resolution_schema_version == (
+        "policyos.data_requirement.capability_requirement_resolution.v1"
+    )
+    resolutions = report.capability_requirement_resolutions
+    assert resolutions is not None
+    by_construct = {row.query.construct: row for row in resolutions}
+    assert set(by_construct) == queried_constructs
+    unique = by_construct["scope_only_unique_probe"]
+    assert unique.scope_profile_id == "future:ua:2026"
+    assert unique.state == "binding_returned"
+    assert unique.binding is not None
+    assert unique.binding.requirement_id == unique.query.requirement_id
+    assert unique.binding.construct_ref == "construct:scope_only_unique_probe"
+    assert unique.binding.status == "selected_derived"
+    assert unique.binding.capability_index_ref == "capability-index:recording"
+    tampered = unique.model_dump(mode="json")
+    tampered["binding"]["requirement_id"] = "data-requirement:other:construct"
+    from polisyos.data_requirement import CapabilityRequirementResolution
+
+    with pytest.raises(ValidationError, match="capability_resolution_requirement_id_mismatch"):
+        CapabilityRequirementResolution.model_validate(tampered)
+    assert "candidate_only_future_construct" not in by_construct
+    assert tuple(row.query for row in resolutions) == tuple(resolver.queries)
+    from polisyos.runtime.quality.acquisition_planner import requirement_gaps_from_compiled_specs
+
+    routed_gaps = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=report.specs,
+        capability_requirement_resolutions=resolutions,
+    )
+    for resolution in resolutions:
+        if resolution.query.source_family_alias:
+            assert any(
+                resolution in (gap.capability_requirement_resolutions or ())
+                for gap in routed_gaps
+                if resolution.query.source_family_alias in gap.scenario_requirement_refs
+            )
+    round_trip = type(report).model_validate(report.model_dump(mode="json"))
+    assert round_trip.capability_requirement_resolutions == resolutions
+    assert (
+        data_requirement_compilation_audit_surface(report)["capability_requirement_resolutions"]
+        == report.model_dump(mode="json")["capability_requirement_resolutions"]
+    )
+    blocked = by_construct["credit_program_enrollment"]
+    assert blocked.binding is not None
+    assert blocked.binding.status == "blocked_acquisition_required"
+    assert blocked.binding.blocked_reasons == ("acquisition_required",)
+    assert any(
+        blocked in (gap.capability_requirement_resolutions or ())
+        for gap in routed_gaps
+        if "credit_program_registry" in gap.scenario_requirement_refs
+    )
+
+
+def test_construct_resolution_inputs_merge_required_sources_without_promoting_proposals() -> None:
+    profile_required = ("profile_required", "shared_required")
+    resolution_inputs = compiler_module._construct_resolution_inputs(
+        facets=({"required_constructs": ["facet_required", "graph_required"]},),
+        claims=(
+            {
+                "claim_id": "claim:requirements",
+                "required_constructs": ["claim_required", "profile_required"],
+            },
+        ),
+        obligation_graph={
+            "blocking_frontier": [
+                {
+                    "metadata": {
+                        "required_evidence_constructs": ["graph_required", "shared_required"]
+                    }
+                }
+            ]
+        },
+        scenario_id="merged-requirements",
+        declared_constructs=profile_required,
+        candidate_construct_proposals=("proposal_only",),
+    )
+
+    assert resolution_inputs.required_constructs == (
+        "graph_required",
+        "shared_required",
+        "profile_required",
+        "facet_required",
+        "claim_required",
+    )
+    assert resolution_inputs.candidate_construct_proposals == ("proposal_only",)
+
+
 def test_opaque_scenario_id_is_not_semantic_input() -> None:
     claim = SimpleNamespace(text="", metadata={})
 
@@ -702,3 +941,391 @@ def test_obligation_basis_compiler_preserves_inputs_and_candidate_status() -> No
     assert admitted.obligation_graph.run_id == "runtime-constraint-stage"
     assert admitted.obligation_graph.generated_at == NOW
     assert admitted.obligation_graph.facets
+
+
+def test_legacy_scenario_fallback_preserves_scope_profile_declaration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def compile_without_facets(
+        _self: object,
+        *,
+        intent: PolicyGrammarIntent,
+        authority_profile: UniversalAuthorityProfile,
+        concept_spine_refs: PolicyGrammarConceptSpineRefs,
+    ) -> SimpleNamespace:
+        del intent, authority_profile, concept_spine_refs
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", compile_without_facets)
+    profile = {
+        "profile_id": "future:ua:2026",
+        "jurisdiction": "UA",
+        "time_window": {"start": "2026-01-01", "end": "2026-12-31"},
+        "required_constructs": ["firm_survival"],
+        "candidate_construct_proposals": ["candidate_only_future_construct"],
+    }
+
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "legacy_profile_case",
+            "text": "A neutral policy statement.",
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["health_panel"],
+            },
+            "scenario_profile": profile,
+        }
+    )
+
+    assert len(report.specs) == 1
+    assert report.specs[0].required_data_families == ("health_panel",)
+    assert report.specs[0].metadata["scope_profile"] == profile
+
+
+def test_profile_only_required_resolution_reaches_n7_gap_and_planner_record() -> None:
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+        plan_requirement_gap_acquisition,
+        requirement_gaps_from_compiled_specs,
+        run_acquisition_closed_loop,
+    )
+
+    scenario = {
+        "scenario_id": "profile_only_n7",
+        "request": "A neutral policy statement.",
+        "domain_hint": "general",
+        "expected_evidence_contract": {"admissible_data_source_families": []},
+        "scenario_profile": {
+            "profile_id": "profile:controlled-n7",
+            "required_constructs": ["scope_only_unique_probe"],
+            "candidate_construct_proposals": ["candidate_only_future_construct"],
+        },
+    }
+    report = DataRequirementCompiler(
+        capability_resolver=_RecordingCapabilityResolver()
+    ).compile_for_scenario(scenario)
+
+    assert report.capability_requirement_resolutions is not None
+    resolution = next(
+        item
+        for item in report.capability_requirement_resolutions
+        if item.query.construct == "scope_only_unique_probe"
+    )
+    gaps = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=report.specs,
+        capability_requirement_resolutions=report.capability_requirement_resolutions,
+    )
+    gap = next(
+        item
+        for item in gaps
+        if any(
+            row.query.requirement_id == resolution.query.requirement_id
+            for row in (item.capability_requirement_resolutions or ())
+        )
+    )
+    assert gap.scenario_requirement_refs == (
+        resolution.query.requirement_id,
+        "construct:scope_only_unique_probe",
+    )
+    assert "compiled_data_requirement_spec_missing" in gap.missing_requirement_fields
+    assert gap.capability_requirement_resolutions == (resolution,)
+
+    planner = plan_requirement_gap_acquisition(
+        run_id="profile-only-n7",
+        requirement_gaps=gaps,
+    )
+    record = next(
+        item
+        for item in planner.acquisition_records
+        if item.compiled_requirement_ref == resolution.query.requirement_id
+    )
+    assert record.capability_requirement_resolutions == (resolution,)
+    assert record.capability_requirement_resolutions[0].binding is not None
+    assert record.capability_requirement_resolutions[0].binding.status == "selected_derived"
+
+    receipt = run_acquisition_closed_loop(
+        run_id="profile-only-n7-receipt",
+        acquisition_request={"cycle_index": 1, "driver": "acquire_data:scope_only_unique_probe"},
+        data_requirement_specs=report.specs,
+        capability_requirement_resolutions=report.capability_requirement_resolutions,
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world:profile-only-n7"),
+        owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+    )
+    receipt_record = next(
+        item
+        for item in receipt.planner_report.acquisition_records
+        if item.compiled_requirement_ref == resolution.query.requirement_id
+    )
+    assert receipt.capability_requirement_resolutions == report.capability_requirement_resolutions
+    assert receipt_record.capability_requirement_resolutions == (resolution,)
+    assert receipt_record.capability_requirement_resolutions[0].query.construct == (
+        "scope_only_unique_probe"
+    )
+    restored = type(receipt).model_validate(receipt.model_dump(mode="json"))
+    assert restored.capability_requirement_resolutions == report.capability_requirement_resolutions
+    restored_record = next(
+        item
+        for item in restored.planner_report.acquisition_records
+        if item.compiled_requirement_ref == resolution.query.requirement_id
+    )
+    assert restored_record.capability_requirement_resolutions == (resolution,)
+
+
+def test_profile_only_requirement_without_resolver_is_typed_not_established() -> None:
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "unknown_profile_n7",
+            "request": "A neutral policy statement.",
+            "domain_hint": "general",
+            "expected_evidence_contract": {"admissible_data_source_families": []},
+            "scenario_profile": {
+                "profile_id": "profile:unknown-n7",
+                "required_constructs": ["firm_survival", "scope_only_unique_probe"],
+            },
+        }
+    )
+
+    assert report.capability_requirement_resolutions is not None
+    assert tuple(row.query.construct for row in report.capability_requirement_resolutions) == (
+        "firm_survival",
+        "scope_only_unique_probe",
+    )
+    assert all(
+        row.scope_profile_id == "profile:unknown-n7"
+        for row in report.capability_requirement_resolutions
+    )
+    assert all(row.state == "not_established" for row in report.capability_requirement_resolutions)
+    assert all(row.binding is None for row in report.capability_requirement_resolutions)
+    assert all(
+        row.reason_codes == ("capability_resolver_not_established",)
+        for row in report.capability_requirement_resolutions
+    )
+
+
+def test_direct_and_profile_construct_sources_join_conjunctively() -> None:
+    resolver = _RecordingCapabilityResolver()
+    profile = {
+        "profile_id": "profile:conjunctive-sources",
+        "jurisdiction": "UA",
+        "required_constructs": ["profile_top_unique_probe"],
+        "candidate_construct_proposals": ["profile_candidate_only"],
+    }
+    context_profile = {
+        "profile_id": "profile:conjunctive-sources",
+        "jurisdiction": "UA",
+        "required_constructs": ["profile_context_unique_probe"],
+        "candidate_construct_proposals": ["context_candidate_only"],
+    }
+    scenario = {
+        "scenario_id": "direct_and_profile_construct_sources",
+        "request": "A neutral policy statement.",
+        "domain_hint": "general",
+        "expected_evidence_contract": {"admissible_data_source_families": ["health_panel"]},
+        "scenario_profile": profile,
+        "context": {"scope_profile": context_profile},
+        "required_constructs": ["direct_required_unique_probe"],
+        "construct_refs": ["direct_ref_unique_probe"],
+        "candidate_construct_proposals": ["direct_candidate_only"],
+    }
+
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+
+    required = {
+        "profile_top_unique_probe",
+        "profile_context_unique_probe",
+        "direct_required_unique_probe",
+        "direct_ref_unique_probe",
+    }
+    queried = {query.construct for query in resolver.queries}
+    assert required <= queried
+    assert {"profile_candidate_only", "context_candidate_only", "direct_candidate_only"} <= set(
+        report.metadata["candidate_construct_proposals"]
+    )
+    assert not queried.intersection(
+        {"profile_candidate_only", "context_candidate_only", "direct_candidate_only"}
+    )
+    admitted = compiler_module._scenario_scope_profile(scenario)
+    assert admitted is not None
+    assert set(admitted.required_constructs) == required
+    assert set(admitted.candidate_construct_proposals) == {
+        "profile_candidate_only",
+        "context_candidate_only",
+        "direct_candidate_only",
+    }
+
+
+def test_malformed_direct_construct_source_is_typed_refused() -> None:
+    with pytest.raises(compiler_module.ScenarioScopeProfileInputError) as raised:
+        DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_scenario(
+            {
+                "scenario_id": "malformed_direct_construct_source",
+                "request": "A neutral policy statement.",
+                "domain_hint": "general",
+                "required_constructs": {"not": "a sequence"},
+            }
+        )
+
+    assert raised.value.code == "scenario_scope_profile_invalid"
+    assert raised.value.reason_code == "profile_constructs_wrong_type"
+    assert raised.value.field_path == "scenario.required_constructs"
+
+
+_PROFILE_SOURCE_PATHS = (
+    *compiler_module._SCENARIO_PROFILE_TOP_LEVEL_ALIASES,
+    *(f"context.{alias}" for alias in compiler_module._SCENARIO_PROFILE_CONTEXT_ALIASES),
+)
+_PROFILE_CONSTRUCT_ALIASES = tuple(
+    dict.fromkeys(
+        (
+            *compiler_module._SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES,
+            *compiler_module._SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES,
+        )
+    )
+)
+_NULL_CONSTRUCT_ALIAS_PATHS = (
+    *(
+        ("scenario", alias)
+        for alias in (
+            *compiler_module._SCENARIO_DIRECT_REQUIRED_CONSTRUCT_ALIASES,
+            *compiler_module._SCENARIO_DIRECT_CANDIDATE_CONSTRUCT_ALIASES,
+        )
+    ),
+    *tuple(
+        (profile_path, field_name)
+        for profile_path in _PROFILE_SOURCE_PATHS
+        for field_name in _PROFILE_CONSTRUCT_ALIASES
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    ("source_path", "field_name"),
+    _NULL_CONSTRUCT_ALIAS_PATHS,
+    ids=lambda value: str(value),
+)
+def test_present_null_construct_alias_is_typed_refused_across_all_sources(
+    source_path: str,
+    field_name: str,
+) -> None:
+    scenario: dict[str, object] = {
+        "scenario_id": "present_null_construct_alias",
+        "request": "A neutral policy statement.",
+        "domain_hint": "general",
+    }
+    if source_path == "scenario":
+        scenario[field_name] = None
+    else:
+        profile = {"profile_id": "profile:present-null", field_name: None}
+        if source_path.startswith("context."):
+            alias = source_path.removeprefix("context.")
+            scenario["context"] = {alias: profile}
+        else:
+            scenario[source_path] = profile
+
+    with pytest.raises(compiler_module.ScenarioScopeProfileInputError) as raised:
+        DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_scenario(scenario)
+
+    assert raised.value.code == "scenario_scope_profile_invalid"
+    assert raised.value.reason_code == "profile_constructs_wrong_type"
+    assert raised.value.field_path == f"{source_path}.{field_name}"
+
+
+@pytest.mark.parametrize(
+    ("source_path", "field_name", "malformed_value"),
+    [
+        ("scenario", "required_constructs", {"not": "a sequence"}),
+        ("scenario", "construct_refs", [None]),
+        ("scenario", "candidate_construct_proposals", [""]),
+        ("scenario_profile", "required_constructs", {"not": "a sequence"}),
+        ("context.scope_profile", "required_evidence_constructs", [None]),
+        ("profile", "topic_proposals", [""]),
+    ],
+)
+def test_wrong_type_or_invalid_construct_item_is_typed_refused(
+    source_path: str,
+    field_name: str,
+    malformed_value: object,
+) -> None:
+    scenario: dict[str, object] = {
+        "scenario_id": "malformed_construct_alias",
+        "request": "A neutral policy statement.",
+        "domain_hint": "general",
+    }
+    if source_path == "scenario":
+        scenario[field_name] = malformed_value
+    else:
+        profile = {"profile_id": "profile:malformed-alias", field_name: malformed_value}
+        if source_path.startswith("context."):
+            alias = source_path.removeprefix("context.")
+            scenario["context"] = {alias: profile}
+        else:
+            scenario[source_path] = profile
+
+    with pytest.raises(compiler_module.ScenarioScopeProfileInputError) as raised:
+        DataRequirementCompiler(capability_resolver=_fake_resolver()).compile_for_scenario(scenario)
+
+    assert raised.value.reason_code in {
+        "profile_constructs_wrong_type",
+        "profile_construct_invalid",
+    }
+
+
+def test_construct_alias_strings_and_empty_sequences_remain_valid() -> None:
+    parsed = compiler_module._scenario_scope_profile(
+        {
+            "required_constructs": "direct_single_construct",
+            "candidate_construct_proposals": "direct_candidate",
+            "scenario_profile": {
+                "profile_id": "profile:string-aliases",
+                "required_constructs": "profile_single_construct",
+                "candidate_construct_proposals": "profile_candidate",
+            },
+        }
+    )
+
+    assert parsed is not None
+    assert parsed.required_constructs == (
+        "profile_single_construct",
+        "direct_single_construct",
+    )
+    assert parsed.candidate_construct_proposals == (
+        "profile_candidate",
+        "direct_candidate",
+    )
+
+    empty_profile = compiler_module._scenario_scope_profile(
+        {
+            "scenario_profile": {
+                "profile_id": "profile:empty-aliases",
+                "required_constructs": [],
+                "candidate_construct_proposals": (),
+            }
+        }
+    )
+    assert empty_profile is not None
+    assert empty_profile.required_constructs == ()
+    assert empty_profile.candidate_construct_proposals == ()
+    assert (
+        compiler_module._scenario_scope_profile({"required_constructs": (), "construct_refs": ()})
+        is None
+    )
+
+
+def test_candidate_only_scenario_proposal_does_not_replace_semantic_requirements() -> None:
+    resolver = _RecordingCapabilityResolver()
+    scenario = {
+        "scenario_id": "candidate_only_does_not_suppress_requirements",
+        "request": (
+            "Create a concessional credit guarantee programme for displaced MSMEs in "
+            "northern regions in 2026, funded by budget appropriation and delivered "
+            "through partner banks to preserve employment."
+        ),
+        "domain_hint": "Fiscal support",
+        "candidate_construct_proposals": ["candidate_only_future_construct"],
+    }
+
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+
+    assert resolver.queries
+    assert "candidate_only_future_construct" not in {query.construct for query in resolver.queries}
+    assert "candidate_only_future_construct" in report.metadata["candidate_construct_proposals"]

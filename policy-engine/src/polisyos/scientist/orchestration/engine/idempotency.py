@@ -40,6 +40,7 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     StateMutationJournal,
+    canonical_state_mutation_operations,
     mutation_journal_for_state,
     mutation_journal_from_operations,
 )
@@ -583,8 +584,11 @@ class NodeResultCache:
         ):
             return False
         try:
-            mutation_journal_from_operations(entry.state_mutations)
-        except ValueError:
+            mutation_journal_from_operations(
+                entry.state_mutations,
+                require_complete=entry.state_mutations_version == STATE_MUTATIONS_VERSION,
+            )
+        except (TypeError, ValueError):
             return False
         proof = entry.journal_proof
         expected_producer = _cache_producer(output_aware=output_aware)
@@ -625,11 +629,19 @@ class NodeResultCache:
                     entry_ref,
                     deadline_monotonic=deadline_monotonic,
                 )
+                require_complete = entry.state_mutations_version == STATE_MUTATIONS_VERSION
                 if (
                     not proof_valid
                     or entry.idempotency_key != key
                     or entry.run_id != self._run_id
-                    or tuple(journal.operations) != entry.state_mutations
+                    or canonical_state_mutation_operations(
+                        journal.operations,
+                        require_complete=require_complete,
+                    )
+                    != canonical_state_mutation_operations(
+                        entry.state_mutations,
+                        require_complete=require_complete,
+                    )
                 ):
                     raise ValueError("cache_entry: replay_contract_mismatch")
                 object.__setattr__(outcome.state, "_polisyos_state_mutation_journal", journal)

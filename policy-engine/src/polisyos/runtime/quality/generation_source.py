@@ -667,6 +667,26 @@ class GenerationSourceHandoff(_StrictModel):
             and reference.component_versions.get("WMR") != context.world_model_record.content_hash
         ):
             raise ValueError("generation_source_reference_world_mismatch")
+        if reference is not None:
+            from polisyos.runtime.quality.credal_reference import (
+                credal_reference_l2_source_profile,
+            )
+
+            selected_l2_profile = credal_reference_l2_source_profile(reference)
+            if (
+                selected_l2_profile is not None
+                and context is not None
+                and (
+                    selected_l2_profile.world_model_record_content_hash
+                    != context.world_model_record.content_hash
+                    or selected_l2_profile.skg_causal_prior_ref
+                    != context.world_model_record.skg_causal_prior_ref
+                    or selected_l2_profile.authority_band != "candidate"
+                    or selected_l2_profile.source_snapshot_authenticity != "not_established"
+                    or selected_l2_profile.currentness_status != "not_established"
+                )
+            ):
+                raise ValueError("generation_source_selected_l2_profile_wmr_mismatch")
         candidates = self.generation_result.candidates
         candidate_ids = [candidate.candidate_id for candidate in candidates]
         source_ids = [source.candidate_id for source in self.candidate_sources]
@@ -761,9 +781,9 @@ class GenerationSourceHandoff(_StrictModel):
 class CandidateCredalSourceAttemptV1(_StrictModel):
     """A contract-testing record that N4 did not establish a candidate K_ref source."""
 
-    schema_version: Literal[
-        "policyos.runtime.quality.candidate_credal_source_attempt.v1"
-    ] = CREDAL_SOURCE_ATTEMPT_SCHEMA
+    schema_version: Literal["policyos.runtime.quality.candidate_credal_source_attempt.v1"] = (
+        CREDAL_SOURCE_ATTEMPT_SCHEMA
+    )
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     execution_scope: Literal["contract_testing"] = "contract_testing"
     status: Literal["not_established"] = "not_established"
@@ -830,8 +850,7 @@ def _require_unavailable_candidate_credal_source(
     if (
         source.execution_scope != "contract_testing"
         or source.synthetic is not True
-        or _canonical_model_content_hash(source.problem)
-        != _canonical_model_content_hash(problem)
+        or _canonical_model_content_hash(source.problem) != _canonical_model_content_hash(problem)
         or source.cycle_substrate_context is None
         or _canonical_model_content_hash(source.cycle_substrate_context)
         != _canonical_model_content_hash(context)
@@ -3997,9 +4016,7 @@ class GenerationSourceRepository:
             profile_selection_ref=profile_selection_ref,
             n4_child_profile_family_ref=n4_child_profile_family_ref,
         )
-        if _canonical_model_content_hash(readback) != (
-            _canonical_model_content_hash(record)
-        ):
+        if _canonical_model_content_hash(readback) != (_canonical_model_content_hash(record)):
             raise ValueError("candidate_credal_source_attempt_readback_mismatch")
         return ref
 
@@ -4033,9 +4050,7 @@ class GenerationSourceRepository:
         if f"sha256:{hashlib.sha256(body).hexdigest()}" != str(ref.artifact_id):
             raise ValueError("candidate_credal_source_attempt_cas_content_mismatch")
         try:
-            record = CandidateCredalSourceAttemptV1.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+            record = CandidateCredalSourceAttemptV1.model_validate(canon.from_canonical_bytes(body))
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_credal_source_attempt_payload_invalid") from exc
         source = self.load(

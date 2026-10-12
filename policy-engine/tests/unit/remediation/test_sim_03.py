@@ -7,6 +7,7 @@ fixture imports the native registry and numerical stack.
 
 from __future__ import annotations
 
+import itertools
 import os
 from typing import TYPE_CHECKING, Any
 
@@ -23,6 +24,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     SimulationTrajectory,
     TrajectoryPoint,
+    _aggregate_replicated_trajectory,
     _checked_interaction_orders,
     _higher_order_residuals,
     _interaction_coverage,
@@ -127,21 +129,15 @@ def _request_with_interaction_multiplier(
         parameters = dict(equation.equation_params)
         expression = parameters.get("noise_expression")
         if not isinstance(expression, str) or expression.count(old_term) != 1:
-            raise AssertionError(
-                "SIM-03 cross-term fixture no longer matches its source model"
-            )
+            raise AssertionError("SIM-03 cross-term fixture no longer matches its source model")
         parameters["noise_expression"] = expression.replace(old_term, new_term, 1)
-        updated_equations.append(
-            equation.model_copy(update={"equation_params": parameters})
-        )
+        updated_equations.append(equation.model_copy(update={"equation_params": parameters}))
         changed = True
     if not changed:
         raise AssertionError("SIM-03 fixture is missing its firm-survival equation")
     updated_spec = spec.model_copy(update={"structural_equations": updated_equations})
     updated_plan = plan.model_copy(update={"ncm_spec": updated_spec})
-    return request.model_copy(
-        update={"engine_plan": (updated_plan, *request.engine_plan[1:])}
-    )
+    return request.model_copy(update={"engine_plan": (updated_plan, *request.engine_plan[1:])})
 
 
 def test_summary_distance_requires_one_declared_metric_set() -> None:
@@ -194,6 +190,64 @@ def test_smm_all_incomparable_candidates_are_explicitly_blocked() -> None:
     assert result.best_loss == float("inf")
     assert result.comparison_status == "no_comparable"
     assert result.status == "blocked"
+
+
+def test_replicate_aggregator_retains_recomputable_sampling_error() -> None:
+    """B21: actual selected-engine draws bind mean, seeds and sample error."""
+
+    first = SimulationTrajectory(
+        run_level="joint",
+        atom_ids=("a", "b"),
+        engine_kind="method_registry_estimator",
+        method_fqn="tests.sim03",
+        objective_ref="objective://sim03",
+        points=(TrajectoryPoint(step=0, outcomes={"y": 1.0}, effect={"y": 0.5}),),
+    )
+    second = first.model_copy(
+        update={"points": (TrajectoryPoint(step=0, outcomes={"y": 3.0}, effect={"y": 1.5}),)}
+    )
+
+    aggregate = _aggregate_replicated_trajectory((first, second), (13, 14), "sha256:run")
+
+    point = aggregate.points[0]
+    summary = point.replication_sampling
+    assert summary is not None
+    assert summary.status == "estimated"
+    assert summary.replicate_count == 2
+    assert summary.seeds == (13, 14)
+    assert point.outcomes == {"y": 2.0}
+    assert point.effect == {"y": 1.0}
+    assert summary.outcomes_standard_error["y"] == pytest.approx(1.0)
+    assert summary.effects_standard_error["y"] == pytest.approx(0.5)
+    assert [sample.outcomes["y"] for sample in summary.samples] == [1.0, 3.0]
+
+
+def test_replicate_aggregator_refuses_incomplete_or_nonfinite_draw_sets() -> None:
+    """B21: malformed supplied members cannot shrink the requested denominator."""
+
+    first = SimulationTrajectory(
+        run_level="joint",
+        atom_ids=("a", "b"),
+        engine_kind="method_registry_estimator",
+        method_fqn="tests.sim03",
+        objective_ref="objective://sim03",
+        points=(TrajectoryPoint(step=0, outcomes={"y": 1.0}, effect={"y": 0.5}),),
+    )
+    mismatched = first.model_copy(
+        update={"points": (TrajectoryPoint(step=0, outcomes={"other": 2.0}, effect={"y": 1.0}),)}
+    )
+    with pytest.raises(JointSimulationControllerError) as mismatch:
+        _aggregate_replicated_trajectory((first, mismatched), (13, 14), "sha256:run")
+    assert mismatch.value.code == "simulation_replication_output_key_mismatch"
+
+    nonfinite = first.model_copy(
+        update={
+            "points": (TrajectoryPoint(step=0, outcomes={"y": float("nan")}, effect={"y": 0.5}),)
+        }
+    )
+    with pytest.raises(JointSimulationControllerError) as invalid:
+        _aggregate_replicated_trajectory((nonfinite,), (13,), "sha256:run")
+    assert invalid.value.code == "simulation_replication_output_non_finite"
 
 
 def test_single_paired_draw_has_unestimated_standard_error() -> None:
@@ -254,8 +308,37 @@ def test_joint_request_runs_each_requested_replication_with_distinct_seeds(
     joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
     assert joint.points[0].engine_state["replication_count"] == 2
     assert joint.points[0].engine_state["replication_seeds"] == [17, 18]
+    summary = joint.points[0].replication_sampling
+    assert summary is not None
+    assert summary.status == "estimated"
+    assert summary.replicate_count == 2
+    assert summary.seeds == (17, 18)
+    assert summary.samples[0].outcomes == summary.samples[1].outcomes
+    assert all(value == 0.0 for value in summary.outcomes_standard_error.values())
     assert result.diagnostics["requested_replications"] == 2
     assert result.diagnostics["replication_seeds"] == [17, 18]
+
+
+def test_n5_one_draw_is_not_reported_as_zero_sampling_error() -> None:
+    """B21: one selected-engine draw cannot establish a numeric standard error."""
+
+    result = JointSimulationHorizonController().run(_request())
+
+    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+    assert result.trajectories
+    assert all(
+        point.replication_sampling is not None
+        and point.replication_sampling.status == "standard_error_not_estimated"
+        and point.replication_sampling.replicate_count == 1
+        and all(
+            value is None for value in point.replication_sampling.outcomes_standard_error.values()
+        )
+        and all(
+            value is None for value in point.replication_sampling.effects_standard_error.values()
+        )
+        for trajectory in result.trajectories
+        for point in trajectory.points
+    )
 
 
 def test_ncm_evidence_none_and_explicit_empty_are_distinct(
@@ -271,9 +354,7 @@ def test_ncm_evidence_none_and_explicit_empty_are_distinct(
         observed.append(dict(query.evidence))
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": 1.0}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 1.0}}]
             }
         }
 
@@ -315,9 +396,9 @@ def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
     )
 
     def joint_ref(result: Any) -> str:
-        return result.trajectory_for(
-            "joint", ("income_subsidy", "balance_grant")
-        ).diagnostics["physical_run_ref"]
+        return result.trajectory_for("joint", ("income_subsidy", "balance_grant")).diagnostics[
+            "physical_run_ref"
+        ]
 
     refs = {
         joint_ref(implicit_baseline),
@@ -335,9 +416,7 @@ def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
     original = NCMEngineMethod.pure_step
     observed_seeds: list[int] = []
 
-    def counted(
-        state: Mapping[str, object], params: Mapping[str, object]
-    ) -> dict[str, Any]:
+    def counted(state: Mapping[str, object], params: Mapping[str, object]) -> dict[str, Any]:
         observed_seeds.append(int(params["__seed__"]))
         return original(state, params)
 
@@ -350,25 +429,16 @@ def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
         )
 
         original_hash = joint_simulation.gy_content_hash
-        removed_fields = (
-            {"seed", "replication_seeds"} if removal_probe == "seed" else {"plan"}
-        )
+        removed_fields = {"seed", "replication_seeds"} if removal_probe == "seed" else {"plan"}
 
         def hash_without_selected_input(payload: object) -> str:
-            if (
-                isinstance(payload, dict)
-                and frozenset(payload) == _PHYSICAL_RUN_IDENTITY_FIELDS
-            ):
+            if isinstance(payload, dict) and frozenset(payload) == _PHYSICAL_RUN_IDENTITY_FIELDS:
                 payload = {
-                    key: value
-                    for key, value in payload.items()
-                    if key not in removed_fields
+                    key: value for key, value in payload.items() if key not in removed_fields
                 }
             return original_hash(payload)
 
-        monkeypatch.setattr(
-            joint_simulation, "gy_content_hash", hash_without_selected_input
-        )
+        monkeypatch.setattr(joint_simulation, "gy_content_hash", hash_without_selected_input)
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
     request = _request().model_copy(update={"seed": 17})
@@ -387,10 +457,7 @@ def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
     for result in results:
         pairwise = result.trajectory_for("pairwise", pair)
         joint = result.trajectory_for("joint", pair)
-        assert (
-            pairwise.diagnostics["physical_run_ref"]
-            == joint.diagnostics["physical_run_ref"]
-        )  # noqa: S101
+        assert pairwise.diagnostics["physical_run_ref"] == joint.diagnostics["physical_run_ref"]  # noqa: S101
         assert pairwise.diagnostics["physical_run_reused"] is False  # noqa: S101
         assert joint.diagnostics["physical_run_reused"] is True  # noqa: S101
         assert pairwise.points == joint.points  # noqa: S101
@@ -456,21 +523,26 @@ def test_three_atom_controller_reports_real_higher_order_residual_and_order(
         value = 1.0 if query.interventions == [expected_joint] else 0.0
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": value}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": value}}]
             }
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(triple_only))
     request = _request_with_atom_count(3)
-    request = request.model_copy(update={"baseline_state": {"firm_survival": 0.0}})
+    request = request.model_copy(
+        update={"baseline_state": {"firm_survival": 0.0}, "replications": 2, "seed": 41}
+    )
 
     result = JointSimulationHorizonController().run(request)
 
-    assert len(observed_interventions) == 7
-    assert observed_interventions.count(expected_joint) == 1
+    assert len(observed_interventions) == 14
+    assert observed_interventions.count(expected_joint) == 2
     assert result.higher_order_residuals == {"firm_survival": {0: 1.0}}
+    residual = result.higher_order_residual_sampling["firm_survival"][0]
+    assert residual.seeds == (41, 42)
+    assert [sample.effects["derived_effect"] for sample in residual.samples] == [1.0, 1.0]
+    assert residual.effects_standard_error["derived_effect"] == pytest.approx(0.0)
+    assert result.feedback_classification.interaction_sampling_status == "estimated"
     assert result.feedback_classification.numeric_interaction == "non_additive"
     assert result.feedback_classification.checked_interaction_orders == (1, 2, 3)
     assert result.diagnostics["checked_interaction_orders"] == [1, 2, 3]
@@ -497,12 +569,133 @@ def test_complete_additive_three_atom_basis_remains_additive(
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(additive_outcome))
 
-    result = JointSimulationHorizonController().run(_request_with_atom_count(3))
+    request = _request_with_atom_count(3).model_copy(update={"replications": 2, "seed": 41})
+    result = JointSimulationHorizonController().run(request)
 
+    assert result.feedback_classification.interaction_sampling_status == "estimated"
+    assert result.feedback_classification.numeric_interaction_basis == (
+        "finite_checked_model_point_estimate_only"
+    )
     assert result.feedback_classification.numeric_interaction == "additive"
     assert result.feedback_classification.checked_interaction_orders == (1, 2, 3)
     assert result.higher_order_residuals == {"firm_survival": {0: 0.0}}
     assert "interaction_evidence_incomplete" not in result.feedback_classification.limitations
+
+
+def test_shared_seed_residual_cancellation_is_unsupported_despite_zero_mean(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Paired +1/-1 joint residuals do not become additive after averaging."""
+
+    expected_joint = {
+        "income_delta": 1.0,
+        "balance_delta": 1.0,
+        "labor_count_delta": 1.0,
+    }
+
+    def cancelling_joint(state: Any, params: Any) -> dict[str, Any]:
+        query = state["ncm_query_data"]
+        seed = params["__seed__"]
+        value = (1.0 if seed == 41 else -1.0) if query.interventions == [expected_joint] else 0.0
+        return {
+            "counterfactual_result": {
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": value}}]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(cancelling_joint))
+    request = _request_with_atom_count(3).model_copy(
+        update={"replications": 2, "seed": 41}
+    )
+    result = JointSimulationHorizonController().run(request)
+
+    assert result.higher_order_residuals == {"firm_survival": {0: 0.0}}
+    summary = result.higher_order_residual_sampling["firm_survival"][0]
+    assert summary.seeds == (41, 42)
+    assert [sample.effects["derived_effect"] for sample in summary.samples] == [1.0, -1.0]
+    assert summary.effects_standard_error["derived_effect"] == pytest.approx(1.0)
+    assert result.feedback_classification.interaction_sampling_status == "estimated"
+    assert result.feedback_classification.numeric_interaction == "unsupported"
+    assert result.feedback_classification.numeric_interaction_basis == (
+        "finite_checked_model_point_estimate_only"
+    )
+    assert "interaction_numeric_classification_unsupported" in (
+        result.promotion_ready_value_packet["authority_blockers"]
+    )
+
+
+@pytest.mark.parametrize("atom_count", [3, 4])
+def test_all_pair_and_higher_order_sample_vectors_are_seed_paired_and_order_invariant(
+    atom_count: int,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every identified scope uses common seeds and atom order cannot change vectors."""
+
+    request = _request_with_atom_count(atom_count).model_copy(
+        update={"replications": 2, "seed": 41}
+    )
+    engine_variable_by_atom = {
+        atom.intervention_id: request.engine_plan[0].variable_map[
+            atom.causal_do_expr.assignments[0].variable
+        ]
+        for atom in request.intervention_atoms
+    }
+    atom_ids = tuple(engine_variable_by_atom)
+    varying_pair = frozenset(atom_ids[:2])
+    varying_variables = frozenset(
+        engine_variable_by_atom[atom_id] for atom_id in varying_pair
+    )
+    all_variables = frozenset(engine_variable_by_atom.values())
+
+    def paired_interactions(state: Any, params: Any) -> dict[str, Any]:
+        query = state["ncm_query_data"]
+        seed = params["__seed__"]
+        active_variables = frozenset(query.interventions[0])
+        pair_value = (1.0 if seed == 41 else -1.0) if varying_variables <= active_variables else 0.0
+        higher_order_value = (
+            (2.0 if seed == 41 else -2.0) if active_variables == all_variables else 0.0
+        )
+        value = pair_value + higher_order_value
+        return {
+            "counterfactual_result": {
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": value}}]
+            }
+        }
+
+    monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(paired_interactions))
+    controller = JointSimulationHorizonController()
+    original = controller.run(request)
+    permuted = controller.run(
+        request.model_copy(update={"intervention_atoms": tuple(reversed(request.intervention_atoms))})
+    )
+
+    expected_pair_vectors = {
+        frozenset(pair): ([1.0, -1.0] if frozenset(pair) == varying_pair else [0.0, 0.0])
+        for pair in itertools.combinations(atom_ids, 2)
+    }
+
+    def pair_vectors(result: Any) -> dict[frozenset[str], list[float]]:
+        return {
+            frozenset(term.atom_ids): [
+                sample.effects["derived_effect"]
+                for sample in term.replication_sampling_by_step[0].samples
+            ]
+            for term in result.interaction_terms
+        }
+
+    assert pair_vectors(original) == expected_pair_vectors
+    assert pair_vectors(permuted) == expected_pair_vectors
+    for result in (original, permuted):
+        residual = result.higher_order_residual_sampling["firm_survival"][0]
+        assert residual.seeds == (41, 42)
+        assert [sample.effects["derived_effect"] for sample in residual.samples] == [2.0, -2.0]
+        assert residual.effects_standard_error["derived_effect"] == pytest.approx(2.0)
+        assert result.feedback_classification.interaction_sampling_status == "estimated"
+        assert result.feedback_classification.numeric_interaction == "unsupported"
+        if atom_count == 4:
+            assert "aggregate_order_3_plus_not_identified" in (
+                result.feedback_classification.limitations
+            )
 
 
 def test_missing_pair_basis_is_unsupported_not_false_additivity(
@@ -514,9 +707,7 @@ def test_missing_pair_basis_is_unsupported_not_false_additivity(
         del state, params
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 0.0}}]
             }
         }
 
@@ -563,9 +754,7 @@ def test_selected_outcome_and_engine_horizon_are_part_of_the_basis(
         del state, params
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 0.0}}]
             }
         }
 
@@ -595,6 +784,11 @@ def test_selected_outcome_and_engine_horizon_are_part_of_the_basis(
         lambda: {**runners, "ncm_parallel_worlds": corrupt_joint_point},
     )
 
+    if mutation == "selected_outcome":
+        with pytest.raises(ValueError, match="replication_summary_output_keys_mismatch"):
+            controller.run(request)
+        return
+
     result = controller.run(request)
 
     assert result.feedback_classification.numeric_interaction == "unsupported"
@@ -616,19 +810,13 @@ def test_static_ncm_multi_step_horizon_is_limited_not_additive(
         calls.append(None)
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 0.0}}]
             }
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
     request = _request_with_atom_count(2)
-    request = request.model_copy(
-        update={
-            "horizon": request.horizon.model_copy(update={"end": 3})
-        }
-    )
+    request = request.model_copy(update={"horizon": request.horizon.model_copy(update={"end": 3})})
 
     result = JointSimulationHorizonController().run(request)
 
@@ -642,10 +830,7 @@ def test_static_ncm_multi_step_horizon_is_limited_not_additive(
         for trajectory in result.trajectories
     )
     assert result.feedback_classification.numeric_interaction == "unsupported"
-    assert (
-        "interaction_evidence_incomplete"
-        in result.feedback_classification.limitations
-    )
+    assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
     assert (
         "interaction_evidence_incomplete"
         in result.promotion_ready_value_packet["authority_blockers"]
@@ -668,19 +853,18 @@ def test_static_ncm_single_step_horizon_remains_additive(
         del state, params
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": 0.0}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": 0.0}}]
             }
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fixed_outcome))
-    request = _request_with_atom_count(2)
+    request = _request_with_atom_count(2).model_copy(update={"replications": 2})
 
     result = JointSimulationHorizonController().run(request)
 
     assert request.horizon.steps() == (0,)
     assert result.engine_decisions[0].decision == "selected"
+    assert result.feedback_classification.interaction_sampling_status == "estimated"
     assert result.feedback_classification.numeric_interaction == "additive"
     assert result.feedback_classification.checked_interaction_orders == (1, 2)
     assert (
@@ -705,9 +889,7 @@ def test_four_atom_cancellation_is_bounded_aggregate_not_additive(
         )
         return {
             "counterfactual_result": {
-                "world_summaries": [
-                    {"world_index": 0, "firm_survival": {"mean": value}}
-                ]
+                "world_summaries": [{"world_index": 0, "firm_survival": {"mean": value}}]
             }
         }
 
@@ -869,3 +1051,31 @@ def test_checked_interaction_orders_include_pairwise_two_atom_run() -> None:
 
     coverage = _interaction_coverage(request, trajectories)
     assert _checked_interaction_orders(request, coverage) == (1, 2)
+
+
+def test_checked_interaction_orders_do_not_invent_pairwise_order_for_one_atom() -> None:
+    """B26 R3: an empty pair-combination set is not pairwise evidence."""
+
+    two_atom_request = _request_with_atom_count(2)
+    request = two_atom_request.model_copy(
+        update={
+            "intervention_atoms": two_atom_request.intervention_atoms[:1],
+            "selected_outcomes": ("y",),
+            "baseline_state": {"y": 0.0},
+        }
+    )
+    atom = request.intervention_atoms[0].intervention_id
+    trajectories = [
+        SimulationTrajectory(
+            run_level="individual",
+            atom_ids=(atom,),
+            engine_kind="method_registry_estimator",
+            method_fqn="tests.sim03",
+            objective_ref="objective://sim03",
+            points=(TrajectoryPoint(step=0, outcomes={"y": 0.0}, effect={"y": 0.0}),),
+        )
+    ]
+
+    coverage = _interaction_coverage(request, trajectories)
+
+    assert _checked_interaction_orders(request, coverage) == (1,)

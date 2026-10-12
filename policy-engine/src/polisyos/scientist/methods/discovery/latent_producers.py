@@ -22,7 +22,7 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentIdentifiabilityStatus,
     LatentTrustLevel,
 )
-from polisyos.ir.analytics.causal_graph import CausalGraphModel
+from polisyos.ir.analytics.causal_graph import CausalGraphModel, graph_content_sha256
 from polisyos.scientist.methods.causal.latent_separation import (
     SEPARATION_DIAGNOSTIC_INPUTS_KEY,
     LatentSeparationDiagnosticInputs,
@@ -44,8 +44,19 @@ def produce_latent_discovery_bundle(
 ) -> LatentDiscoveryBundle | None:
     """Produce or enrich a research-only latent bundle from discovery report evidence."""
 
-    working_graph = graph or report.resolved_graph or report.graph
+    admitted_graph = report.graph_for_analysis()
+    if graph is not None:
+        if (
+            admitted_graph is None
+            or graph_content_sha256(graph) != graph_content_sha256(admitted_graph)
+        ):
+            raise ValueError(
+                "latent producer graph input differs from the admitted report graph"
+            )
+    working_graph = admitted_graph
     bundle = report.latent_discovery
+    if working_graph is None:
+        return bundle
     report_metadata = dict(report.metadata)
 
     cardinality_payload = _resolve_cardinality_payload(report_metadata, bundle)

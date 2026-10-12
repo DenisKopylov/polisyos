@@ -74,3 +74,46 @@ these checks do not implement time-unrolled identification or PAG completion.
 These are synthetic structural/content-custody properties. They do not establish
 empirical discovery correctness, identification assumptions, human approval,
 policy readiness, or real-data causal authority.
+
+## Graph source and DAG-only admission
+
+Discovery reports and Scientist hypotheses retain the complete source graph,
+including its `GraphType`, endpoint marks, and a typed `GraphProjectionDisposition`.
+A DAG-only consumer uses a declared DAG directly or accepts a resolved DAG only
+when the receipt binds the complete source and resolved graph payloads and the
+canonical profile projector recreates that exact result. Unsupported and
+unavailable sources stay attached to the report and do not become actionable
+DAGs. Historical reports without a receipt receive a typed fail-closed receipt;
+a historical resolved graph is admitted only after exact replay. Explicit null
+or malformed receipts are rejected, not treated as legacy absence. The
+historical adapter runs only for an unversioned input mapping or explicit schema
+1.0 with the disposition field absent; the existing projector recomputes the
+candidate and unresolved partial graphs remain typed unsupported. Persisted
+GraphHypothesis artifacts bind the schema version in the CAS manifest to the
+payload before defaulting or migration. Current writes are exactly schema 1.1;
+a version-1.0 artifact is readable only when both its manifest and payload say
+1.0 and the historical disposition field is absent. A 1.0 manifest/payload
+mismatch, a complete 1.0 shape, a missing current payload version, or an
+unsupported version is refused before analysis. The legacy adapter produces a
+current typed candidate/refusal; it never turns an unresolved PAG or CPDAG into
+an identified DAG. A current schema 1.1 payload with the required receipt
+omitted is invalid. Before a current write, the producer reconstructs every
+declared nested Pydantic model from its actual field storage, recursively
+snapshots standard containers, rejects undeclared model storage, and strictly
+revalidates the complete GraphHypothesis tree. It writes that rebuilt object, so
+a nested model-copy or model-construct value cannot pass the writer and then
+fail the reader's ordinary schema validation. This path does not trust nested
+`model_dump` output. Shared analysis and projection entrypoints reconstruct the
+full model-field snapshot (including nested edges and disposition) before
+choosing identity or projection; only class-declared cached-property entries
+are omitted from the content hash. Consumers receive that detached canonical
+snapshot rather than the caller-owned object that was checked.
+
+The current projection profile preserves only source graphs whose existing
+endpoint representation fully determines one supported DAG conversion. Directed
+PAG/CPDAG edges retain their known direction, reverse-stored arrows normalize by
+swapping endpoints, and static ADMG bidirected edges use explicit latent parents.
+Circle endpoints, undirected CPDAG edges, M-graphs, lagged projections, and
+unknown endpoint profiles remain unsupported. This is a source-integrity gate;
+it does not select valid-completion, invariance, or probability semantics for
+PAG/CPDAG identification and does not establish graph truth.

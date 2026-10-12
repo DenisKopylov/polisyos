@@ -5,6 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { useDiscoverDataSources } from "@/api/hooks/useDiscoverDataSources";
 import { useIngestData } from "@/api/hooks/useIngestData";
 import { useLaunchNlRun } from "@/api/hooks/useLaunchNlRun";
+import {
+  fetchControlPreAdmissionAttemptByIdempotencyKey,
+  useControlPreAdmissionAttemptStatus,
+} from "@/api/hooks/useControlPreAdmissionAttemptStatus";
 import { useLaunchRun } from "@/api/hooks/useLaunchRun";
 import { useLexSearch } from "@/api/hooks/useLexSearch";
 import { useLexTrigger } from "@/api/hooks/useLexTrigger";
@@ -14,14 +18,53 @@ import {
   type DataResolveRequest,
 } from "@/api/hooks/useResolveDataNeeds";
 import { queryKeys } from "@/api/queryKeys";
+import { controlPreAdmissionRecoveryRepository } from "@/api/controlPreAdmissionRecovery";
+
+vi.mock("@/api/controlPreAdmissionRecovery", () => {
+  const records = new Map<string, { idempotencyKey: string }>();
+  let nextKey = 0;
+  return {
+    controlPreAdmissionRecoveryRepository: {
+      claim: vi.fn(
+        async (_scope: unknown, request: unknown, requestedKey?: string) => {
+          const intent = JSON.stringify(request);
+          const existing = records.get(intent);
+          if (existing) return existing;
+          const record = {
+            idempotencyKey: requestedKey ?? `test-launch-key-${++nextKey}`,
+          };
+          records.set(intent, record);
+          return record;
+        },
+      ),
+      rememberAttemptId: vi.fn(async () => undefined),
+      releaseKnownNoAttempt: vi.fn(async () => true),
+    },
+  };
+});
+vi.mock("@/api/hooks/useControlPreAdmissionRecovery", () => ({
+  useControlPreAdmissionRecovery: () => ({ data: null, error: null }),
+}));
+
+import { runtimeApiClient } from "@/api/client";
 import { useCreateHumanDecision } from "@/features/runs/api/useHumanDecisions";
 import { createQueryHookHarness } from "@/test/queryHook";
 import {
+  mockRuntimeGetSuccess,
   mockRuntimePostFailure,
   mockRuntimePostSuccess,
 } from "@/test/runtimeApi";
 
 const runListKey = queryKeys.runs({ limit: 24 });
+const recoveryScope = {
+  tenantId: "tenant-test",
+  cellId: "cell-test",
+  userId: "actor-test",
+};
+
+function useLaunchNlRunForRecoveryScope() {
+  return useLaunchNlRun(recoveryScope);
+}
 
 function createMeta() {
   return {
@@ -144,6 +187,203 @@ describe("mutation hooks", () => {
     });
   });
 
+  it("passes a stable caller idempotency key and returns the server attempt ID", async () => {
+    const responseBody = {
+      effective_execution_profile: "research",
+      job_id: "job-pre-admission",
+      message: "accepted",
+      meta: createMeta(),
+      run_id: "run-pre-admission",
+      status: "accepted",
+    };
+    const postSpy = vi.spyOn(runtimeApiClient, "POST").mockResolvedValue({
+      data: responseBody,
+      error: undefined,
+      response: new Response(JSON.stringify(responseBody), {
+        headers: {
+          "Content-Type": "application/json",
+          "X-Control-Admission-Attempt-ID": "a".repeat(32),
+        },
+        status: 200,
+      }),
+    } as never);
+    const { wrapper } = createQueryHookHarness();
+    const view = renderHook(() => useLaunchNlRun(recoveryScope), { wrapper });
+
+    let result: Awaited<ReturnType<typeof view.result.current.mutateAsync>>;
+    await act(async () => {
+      result = await view.result.current.mutateAsync({
+        nl_request: "Run a bounded policy simulation",
+        idempotencyKey: "stable-launch-key",
+      } as never);
+    });
+
+    expect(result!.pre_admission_attempt_id).toBe("a".repeat(32));
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/control/runs/nl", {
+      body: { nl_request: "Run a bounded policy simulation" },
+      headers: { "Idempotency-Key": "stable-launch-key" },
+    });
+  });
+
+  it("reuses a generated exact-intent key after an ambiguous request failure", async () => {
+    const responseBody = {
+      effective_execution_profile: "research",
+      job_id: "job-pre-admission-retry",
+      message: "accepted",
+      meta: createMeta(),
+      run_id: "run-pre-admission-retry",
+      status: "accepted",
+    };
+    const postSpy = vi
+      .spyOn(runtimeApiClient, "POST")
+      .mockRejectedValueOnce(new TypeError("connection reset after dispatch"))
+      .mockResolvedValueOnce({
+        data: responseBody,
+        error: undefined,
+        response: new Response(JSON.stringify(responseBody), {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Control-Admission-Attempt-ID": "d".repeat(32),
+          },
+          status: 200,
+        }),
+      } as never);
+    const { wrapper } = createQueryHookHarness();
+    const view = renderHook(() => useLaunchNlRun(recoveryScope), { wrapper });
+    const input = {
+      nl_request: "Recover this exact natural-language launch",
+    } as never;
+
+    await act(async () => {
+      await expect(view.result.current.mutateAsync(input)).rejects.toThrow(
+        "connection reset after dispatch",
+      );
+    });
+    let result: Awaited<ReturnType<typeof view.result.current.mutateAsync>>;
+    await act(async () => {
+      result = await view.result.current.mutateAsync(input);
+    });
+
+    const firstHeaders = postSpy.mock.calls[0]?.[1]?.headers;
+    const secondHeaders = postSpy.mock.calls[1]?.[1]?.headers;
+    expect(firstHeaders).toHaveProperty("Idempotency-Key");
+    expect(firstHeaders).toEqual(secondHeaders);
+    expect(result!.pre_admission_attempt_id).toBe("d".repeat(32));
+  });
+
+  it("releases a launch key only for the explicit no-attempt response", async () => {
+    const postSpy = vi.spyOn(runtimeApiClient, "POST").mockResolvedValue({
+      data: undefined,
+      error: { detail: "invalid profile" },
+      response: new Response(JSON.stringify({ detail: "invalid profile" }), {
+        headers: { "X-Control-Pre-Admission-Outcome": "not_created" },
+        status: 422,
+      }),
+    } as never);
+    const { wrapper } = createQueryHookHarness();
+    const view = renderHook(() => useLaunchNlRun(recoveryScope), { wrapper });
+    const body = { nl_request: "Correct this invalid launch" };
+
+    await act(async () => {
+      await expect(
+        view.result.current.mutateAsync({
+          ...body,
+          idempotencyKey: "stable-no-attempt-key",
+        } as never),
+      ).rejects.toThrow();
+    });
+
+    expect(postSpy).toHaveBeenCalledTimes(1);
+    expect(
+      controlPreAdmissionRecoveryRepository.releaseKnownNoAttempt,
+    ).toHaveBeenCalledWith(recoveryScope, body, "stable-no-attempt-key");
+  });
+
+  it("fetches fresh actor-scoped pre-admission history by its opaque ID", async () => {
+    const attempt = {
+      attempt_id: "b".repeat(32),
+      created_at: "2026-10-12T10:00:00Z",
+      effective_execution_profile: "research",
+      failure_code: null,
+      history: [
+        {
+          event_id: "event-started",
+          event_type: "started",
+          failure_code: null,
+          job_id: null,
+          observed_at: "2026-10-12T10:00:00Z",
+          producer_event_ids: [],
+          producer_event_observation: "not_applicable",
+          producer_no_call_reason: null,
+          sequence: 1,
+        },
+      ],
+      intent_sha256: "c".repeat(64),
+      job_id: null,
+      meta: createMeta(),
+      producer_event_ids: [],
+      producer_event_observation: "not_applicable",
+      producer_no_call_reason: null,
+      run_id: "run-history",
+      status: "started",
+      updated_at: "2026-10-12T10:00:00Z",
+    };
+    const getSpy = mockRuntimeGetSuccess(attempt);
+    const { wrapper } = createQueryHookHarness();
+    const view = renderHook(
+      () => useControlPreAdmissionAttemptStatus("b".repeat(32)),
+      { wrapper },
+    );
+
+    await waitFor(() =>
+      expect(view.result.current.data?.status).toBe("started"),
+    );
+    expect(getSpy).toHaveBeenCalledWith(
+      "/api/v1/control/admission-attempts/{attempt_id}",
+      { params: { path: { attempt_id: "b".repeat(32) } } },
+    );
+  });
+
+  it("looks up current attempt history by the opaque request key header", async () => {
+    const attempt = {
+      attempt_id: "e".repeat(32),
+      created_at: "2026-10-12T10:00:00Z",
+      effective_execution_profile: "research",
+      failure_code: null,
+      history: [
+        {
+          event_id: "event-settled",
+          event_type: "settled",
+          failure_code: null,
+          job_id: null,
+          observed_at: "2026-10-12T10:00:00Z",
+          producer_event_ids: ["producer-event-a"],
+          producer_event_observation: "complete",
+          producer_no_call_reason: null,
+          sequence: 2,
+        },
+      ],
+      intent_sha256: "f".repeat(64),
+      job_id: null,
+      meta: createMeta(),
+      producer_event_ids: ["producer-event-a"],
+      producer_event_observation: "complete",
+      producer_no_call_reason: null,
+      run_id: "run-key-history",
+      status: "settled",
+      updated_at: "2026-10-12T10:00:00Z",
+    };
+    const getSpy = mockRuntimeGetSuccess(attempt);
+
+    await expect(
+      fetchControlPreAdmissionAttemptByIdempotencyKey("opaque-key-r215"),
+    ).resolves.toMatchObject({ attempt_id: "e".repeat(32), status: "settled" });
+    expect(getSpy).toHaveBeenCalledWith(
+      "/api/v1/control/admission-attempts/by-idempotency-key",
+      { headers: { "Idempotency-Key": "opaque-key-r215" } },
+    );
+  });
+
   it("launch hooks never insert accepted or rejected interaction state into run caches", async () => {
     const scenarios = [
       {
@@ -159,7 +399,7 @@ describe("mutation hooks", () => {
         },
       },
       {
-        hook: useLaunchNlRun,
+        hook: useLaunchNlRunForRecoveryScope,
         input: { nl_request: "Run a sensitivity analysis" },
         response: {
           effective_execution_profile: "dev",
@@ -205,7 +445,7 @@ describe("mutation hooks", () => {
     const initialRuns = createRunsCache();
     queryClient.setQueryData(runListKey, initialRuns);
 
-    const view = renderHook(() => useLaunchNlRun(), { wrapper });
+    const view = renderHook(() => useLaunchNlRun(recoveryScope), { wrapper });
 
     await act(async () => {
       await expect(

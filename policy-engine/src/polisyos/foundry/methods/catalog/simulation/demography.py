@@ -601,6 +601,16 @@ class StaticAgingSimulationEstimator:
                 "microsim_calibration_decision": calibration_gate.get("decision"),
             }
         )
+        source_evidence = state.get("demography_source_evidence")
+        if source_evidence is not None:
+            if not isinstance(source_evidence, Mapping):
+                raise TypeError("demography_source_evidence must be a mapping")
+            from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
+                DemographySourceEvidence,
+            )
+
+            evidence = DemographySourceEvidence.model_validate(source_evidence)
+            diagnostics["demography_source_evidence"] = evidence.model_dump(mode="json")
         if donor_weights is not None and entrant_weights.shape[0] > 0:
             diagnostics["donor_positive_share"] = float(
                 np.mean((entrant_weights > 0.0).astype(float))

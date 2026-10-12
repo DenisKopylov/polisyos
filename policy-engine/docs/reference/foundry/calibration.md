@@ -46,6 +46,7 @@ imports succeed.
 | API                               | Role                                                                                   |
 | --------------------------------- | -------------------------------------------------------------------------------------- |
 | `Calibrator`                      | JAX-backed optimization loop when calibration extras import successfully.              |
+| `Calibrator.run_and_persist(store)` | Persists one run with its exact config artifact edge and returns the report ref.      |
 | `CalibratorInputs`                | Bundles graph, exec plan, registries, targets, and optional measurement bundle inputs. |
 | `CalibrationReport`               | Persisted fit result with metrics, history, and fit quality.                           |
 | `MeasurementAwareTarget`          | Observation-aware target contract.                                                     |
@@ -54,6 +55,14 @@ imports succeed.
 | `AuxLossComponent`                | Protocol for auxiliary loss terms.                                                     |
 | `InterferenceLossComponent`       | Spillover-aware auxiliary penalty.                                                     |
 | `calibration.uncertainty_adapter` | Converts fit diagnostics into governance-ready uncertainty envelopes.                  |
+
+`Calibrator.run_and_persist(store)` executes one copied configuration snapshot, persists
+that config, and writes the v2 report with a manifest input edge preserving the exact
+selected config view, including a non-default manifest profile. Pass the returned `report_ref` as `calibration_report_ref` to the existing
+welfare workflow when a fresh welfare consumer should use it. This is an explicit
+library-produced handoff, not an automatic calibration workflow stage. The config edge
+binds internal run configuration only; it does not authenticate observed data or
+establish a source/noise law. Hessian envelopes remain heuristic and gate-ineligible.
 
 ## Failure Expectations
 
@@ -75,7 +84,7 @@ imports succeed.
 ## Minimal Fit Loop
 
 ```python
-report = Calibrator(
+report, calibration_report_ref = Calibrator(
     CalibratorInputs(
         config=config,
         program_graph=program_graph,
@@ -88,7 +97,7 @@ report = Calibrator(
         parameter_loader=load_params,
         measurement_bundle=measurement_bundle,
     )
-).run()
+).run_and_persist(store)
 ```
 
 ## Evidence Links

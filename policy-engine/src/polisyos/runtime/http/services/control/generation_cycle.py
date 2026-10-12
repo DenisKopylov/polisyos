@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime  # Pydantic resolves at runtime
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
@@ -84,11 +85,13 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
@@ -104,6 +107,8 @@ COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION = (
 COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v4"
 )
+
+
 COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v5"
 )
@@ -1188,6 +1193,361 @@ class N4CandidateScenarioProposalOnlyExecution:
     limitation_code: str
 
 
+def _parent_joint_simulation_requests_by_node(
+    root_ref: str,
+    root_problem: DesignProblem,
+) -> dict[str, JointSimulationRequest]:
+    """Read only an explicitly supplied, typed root N5 request candidate."""
+
+    if "joint_simulation_request" not in root_problem.runtime_hints:
+        return {}
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+
+    try:
+        request = JointSimulationRequest.model_validate(
+            root_problem.runtime_hints["joint_simulation_request"]
+        )
+    except (TypeError, ValueError) as exc:
+        raise DesignProblemAuthorityError(
+            "recursive_parent_n5_request_invalid",
+            str(exc),
+        ) from exc
+    return {root_ref: request}
+
+
+def _compile_parent_joint_n4_atom_members(
+    *,
+    problem: DesignProblem,
+    source_result: object,
+    child_problems: Sequence[object],
+    model_id: str,
+    world_model_record_ref: str,
+) -> tuple[object, ...]:
+    """Select parent-frame atoms only from the exact N4 source groups.
+
+    This compiler does not choose among multiple proposals in one semantic
+    child group. A source group contributes a parent N5 member only when it has
+    exactly one producer-owned atom; downstream child-frame refinement remains
+    a separate, unresolved scope question.
+    """
+
+    from polisyos.runtime.quality.design_generation import (
+        GenerationUnderAResult,
+        N4CandidateChildProblem,
+        ShadowGeneratedCandidate,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+    )
+
+    if type(problem) is not DesignProblem or type(source_result) is not GenerationUnderAResult:
+        raise DesignProblemAuthorityError("recursive_parent_n5_source_untyped")
+    normalized_problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
+    normalized_source = GenerationUnderAResult.model_validate(
+        source_result.model_dump(mode="python")
+    )
+    problem_ref = gy_content_hash(normalized_problem.model_dump(mode="json"))
+    source_ref = gy_content_hash(normalized_source.model_dump(mode="json"))
+    if (
+        normalized_source.design_problem_ref != problem_ref
+        or normalized_source.model_id != model_id
+        or normalized_source.status != "generated"
+        or not normalized_source.candidates
+    ):
+        raise DesignProblemAuthorityError("recursive_parent_n5_source_binding_not_established")
+    if len(child_problems) < 2 or any(
+        type(child) is not N4CandidateChildProblem for child in child_problems
+    ):
+        raise DesignProblemAuthorityError("recursive_parent_n5_child_denominator_not_established")
+
+    candidates_by_hash: dict[str, list[ShadowGeneratedCandidate]] = {}
+    for candidate in normalized_source.candidates:
+        if type(candidate) is not ShadowGeneratedCandidate:
+            raise DesignProblemAuthorityError("recursive_parent_n5_source_candidate_untyped")
+        candidates_by_hash.setdefault(candidate.atom.content_hash, []).append(candidate)
+    if any(len(rows) != 1 for rows in candidates_by_hash.values()):
+        raise DesignProblemAuthorityError("recursive_parent_n5_source_candidate_duplicate")
+
+    selected: list[InterventionAtomBinding] = []
+    selected_hashes: set[str] = set()
+    outcome = normalized_problem.outcome_of_interest.target_variable
+    for child in child_problems:
+        child_source = child.problem.runtime_hints.get("n4_candidate_child_source")
+        if (
+            child.source_result_ref != source_ref
+            or not isinstance(child_source, Mapping)
+            or child_source.get("parent_design_problem_ref") != problem_ref
+            or child_source.get("source_result_ref") != source_ref
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_parent_n5_child_source_binding_not_established"
+            )
+        atom_refs = tuple(child.source_atom_refs)
+        if len(atom_refs) != 1 or len(set(atom_refs)) != 1:
+            raise DesignProblemAuthorityError(
+                "recursive_parent_n5_source_member_selection_not_established"
+            )
+        source_atom_ref = atom_refs[0]
+        source_candidates = candidates_by_hash.get(source_atom_ref, ())
+        if len(source_candidates) != 1:
+            raise DesignProblemAuthorityError(
+                "recursive_parent_n5_source_member_not_established"
+            )
+        candidate = source_candidates[0]
+        atom = candidate.atom
+        estimand = atom.intended_downstream_estimand
+        if (
+            candidate.provenance.model_id != model_id
+            or candidate.provenance.content_hash != atom.content_hash
+            or type(atom) is not InterventionAtomBinding
+            or atom.status != "candidate_unverified"
+            or atom.problem_frame_ref != problem_ref
+            or atom.world_model_record_ref != world_model_record_ref
+            or estimand.outcome_variables != (outcome,)
+            or estimand.target_population != normalized_problem.jurisdiction_time.region
+            or (
+                estimand.metric_id is not None
+                and estimand.metric_id != normalized_problem.outcome_of_interest.metric_id
+            )
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_parent_n5_source_atom_binding_not_established"
+            )
+        if atom.content_hash in selected_hashes:
+            raise DesignProblemAuthorityError("recursive_parent_n5_source_member_duplicate")
+        selected_hashes.add(atom.content_hash)
+        selected.append(atom)
+
+    if selected_hashes != set(candidates_by_hash):
+        raise DesignProblemAuthorityError(
+            "recursive_parent_n5_source_member_denominator_mismatch"
+        )
+    return tuple(selected)
+
+
+def _build_parent_joint_candidate_request(
+    *,
+    candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None,
+    problem: DesignProblem,
+    source_result: object,
+    source_ref: ArtifactRef,
+    child_problems: Sequence[object],
+    child_node_refs: Sequence[str],
+    model_id: str,
+    handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+) -> tuple[object, object]:
+    """Build an explicitly requested all-member hypothetical N5 diagnostic.
+
+    The profile supplies every simulation axis. The selected atoms and child
+    denominator are re-derived from the source artifact; this function accepts
+    no caller- or model-authored request axes. The result is not an N4-authored
+    compound design: source candidates remain alternatives, and composition
+    and child-to-parent refinement stay not established.
+    """
+
+    if candidate_intent != "n4_unique_parent_source_members.v1":
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_intent_not_established"
+        )
+
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        EnginePlan,
+        JointSimulationRequest,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ParentJointCandidateSelectionV2,
+        ParentJointCandidateSourceMember,
+    )
+
+    if (
+        type(source_result) is not GenerationUnderAResult
+        or type(source_ref) is not ArtifactRef
+        or type(handoff) is not GenericCycleSimulationContextHandoffV1
+        or type(admission_owner) is not GenericCycleSimulationAdmissionOwner
+        or handoff.profile.profile_selection_kind != "problem"
+    ):
+        raise DesignProblemAuthorityError("recursive_parent_joint_candidate_owner_untyped")
+    parent_ref = cycle_job_design_problem_ref(problem)
+    raw_parent_ref = gy_content_hash(problem.model_dump(mode="json"))
+    world_record = handoff.profile.context_inputs.world_model_record
+    if (
+        source_result.design_problem_ref != raw_parent_ref
+        or parent_ref != raw_parent_ref
+        or handoff.context.design_problem_ref != parent_ref
+        or len(child_problems) != len(child_node_refs)
+        or len(child_problems) < 2
+    ):
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_parent_frame_not_established"
+        )
+
+    atoms = _compile_parent_joint_n4_atom_members(
+        problem=problem,
+        source_result=source_result,
+        child_problems=child_problems,
+        model_id=model_id,
+        world_model_record_ref=world_record.world_model_record_id,
+    )
+    candidates_by_hash = {
+        candidate.atom.content_hash: candidate
+        for candidate in source_result.candidates
+    }
+    members = []
+    for child, child_node_ref, atom in zip(
+        child_problems,
+        child_node_refs,
+        atoms,
+        strict=True,
+    ):
+        source_candidates = [
+            candidate
+            for candidate in source_result.candidates
+            if candidate.atom.content_hash in child.source_atom_refs
+        ]
+        if (
+            len(source_candidates) != 1
+            or source_candidates[0].atom != atom
+            or child.source_atom_refs != (atom.content_hash,)
+            or atom.problem_frame_ref != parent_ref
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_parent_joint_candidate_source_member_not_established"
+            )
+        candidate = source_candidates[0]
+        members.append(
+            ParentJointCandidateSourceMember(
+                child_node_ref=child_node_ref,
+                child_design_problem_ref=cycle_job_design_problem_ref(child.problem),
+                semantic_ref=child.semantic_ref,
+                source_candidate_id=candidate.candidate_id,
+                source_candidate_content_hash=gy_content_hash(
+                    candidate.model_dump(mode="json")
+                ),
+                source_atom_id=atom.atom_id,
+                source_atom_content_hash=atom.content_hash,
+                parent_problem_frame_ref=atom.problem_frame_ref,
+            )
+        )
+    if set(candidates_by_hash) != {atom.content_hash for atom in atoms}:
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_source_denominator_mismatch"
+        )
+
+    outcome = problem.outcome_of_interest.target_variable
+    profile = handoff.profile
+    if (
+        profile.n5.resource != "ncm_parallel_worlds"
+        or outcome not in profile.n5.baseline_state
+        or profile.context_inputs.world_model_record.content_hash != world_record.content_hash
+    ):
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_profile_axes_not_established"
+        )
+    port = JointSimulationPort(
+        cycle_substrate_context=handoff.context,
+        artifact_store=admission_owner.store,
+    )
+    request = JointSimulationRequest(
+        world_model_record_ref=world_record.world_model_record_id,
+        world_model_record=world_record,
+        intervention_atoms=atoms,
+        selected_outcomes=(outcome,),
+        horizon=profile.n5.horizon,
+        engine_plan=(
+            EnginePlan(
+                engine_kind=profile.n5.resource,
+                objective_ref=f"objective://{outcome}",
+                eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
+                ncm_spec=port._resolve_joint_simulation_ncm(
+                    problem=problem,
+                    world_record=world_record,
+                ),
+                variable_map=JointSimulationPort._joint_simulation_variable_map(
+                    atoms=atoms,
+                    outcome=outcome,
+                    raw_hint=None,
+                ),
+            ),
+        ),
+        baseline_state=dict(profile.n5.baseline_state),
+        comparator_refs=profile.n5.comparator_refs,
+        budget_ref=profile.n5.budget_ref,
+        seed=profile.n5.seed,
+        replications=profile.n5.replications,
+        candidate_intent=candidate_intent,
+        member_basis="hypothetical_all_unique_n4_source_members",
+        source_candidate_relationship="alternatives",
+        composition_status="not_established",
+        composition_limitation_code=(
+            "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        ),
+        child_to_parent_refinement_status="not_established",
+        child_to_parent_refinement_limitation_code=(
+            "child_to_parent_refinement_rule_not_established"
+        ),
+    )
+    if request.coupling_graph is not None:
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_cannot_supply_coupling_graph"
+        )
+
+    selection_fields = {
+        "candidate_intent": candidate_intent,
+        "selection_rule": "hypothetical_all_unique_n4_source_members.v2",
+        "member_basis": "hypothetical_all_unique_n4_source_members",
+        "source_candidate_relationship": "alternatives",
+        "composition_status": "not_established",
+        "composition_limitation_code": (
+            "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        ),
+        "child_to_parent_refinement_status": "not_established",
+        "child_to_parent_refinement_limitation_code": (
+            "child_to_parent_refinement_rule_not_established"
+        ),
+        "joint_simulation_request_content_hash": gy_content_hash(
+            request.model_dump(mode="json")
+        ),
+        "parent_design_problem_ref": parent_ref,
+        "n4_source_ref": source_ref,
+        "n4_source_result_content_hash": gy_content_hash(
+            source_result.model_dump(mode="json")
+        ),
+        "context_job_ref": handoff.context_job_ref,
+        "profile_ref": handoff.profile_ref,
+        "profile_selection_ref": profile.profile_selection_ref,
+        "world_model_record_ref": world_record.world_model_record_id,
+        "world_model_record_content_hash": world_record.content_hash,
+        "outcome_variable": outcome,
+        "child_node_refs": tuple(child_node_refs),
+        "members": tuple(members),
+    }
+    provisional = ParentJointCandidateSelectionV2.model_construct(
+        **selection_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    selection_payload = provisional.model_dump(mode="json", exclude={"content_hash"})
+    selection = ParentJointCandidateSelectionV2.model_validate(
+        {
+            **selection_payload,
+            "content_hash": gy_content_hash(selection_payload),
+        }
+    )
+    if (
+        tuple(member.source_atom_id for member in selection.members)
+        != tuple(atom.intervention_id for atom in request.intervention_atoms)
+        or tuple(member.source_atom_content_hash for member in selection.members)
+        != tuple(atom.content_hash for atom in request.intervention_atoms)
+    ):
+        raise DesignProblemAuthorityError(
+            "recursive_parent_joint_candidate_request_member_mismatch"
+        )
+    return selection, request
+
+
 async def compile_and_run_recursive_generation_cycle(
     *,
     raw_request: str,
@@ -1195,6 +1555,10 @@ async def compile_and_run_recursive_generation_cycle(
     model_name: str,
     trusted_source_context: Mapping[str, object | None] | None = None,
     execution_intent: ExecutionIntent | None = None,
+    joint_interaction_candidate_intent: Literal[
+        "n4_unique_parent_source_members.v1"
+    ]
+    | None = None,
     n4_proposal_only: bool = False,
     producer_run_id: str | None = None,
     producer_settlement_store: BudgetMiddleware | None = None,
@@ -1225,6 +1589,7 @@ async def compile_and_run_recursive_generation_cycle(
     recursive_leaf_context_owner: RecursiveLeafContextOwner | None = None,
     target_world_scope_profile_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
+    catalog_serving_source: CatalogServingSourcePaths | None = None,
     promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
 ) -> (
@@ -1312,6 +1677,16 @@ async def compile_and_run_recursive_generation_cycle(
             "Candidate-only execution cannot carry an attempted EvalSafety context.",
         )
     intent_band = execution_intent_band_for_mode(execution_intent)
+    if joint_interaction_candidate_intent is not None and (
+        joint_interaction_candidate_intent != "n4_unique_parent_source_members.v1"
+        or execution_intent != "simulate_only"
+        or generic_cycle_simulation_handoff_resolver is None
+        or n4_proposal_only
+    ):
+        raise DesignProblemAuthorityError(
+            "joint_interaction_candidate_intent_scope_mismatch",
+            "The compound interaction diagnostic requires the simulate_only generic-profile route.",
+        )
     if n4_proposal_only and (
         execution_intent != "simulate_only"
         or controller is not None
@@ -1968,12 +2343,18 @@ async def compile_and_run_recursive_generation_cycle(
                 "recursive_controller_catalog_run_profile_mismatch",
                 "The recursive controller must retain the selected Catalog run profile.",
             )
+        if getattr(controller, "_catalog_serving_source", None) is not catalog_serving_source:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_catalog_source_mismatch",
+                "The recursive controller must retain the exact resolved Catalog source.",
+            )
         resolved_controller = controller
     else:
         resolved_controller = build_default_recursive_generation_cycle_controller(
             repo_root=repo_root,
             model_id=model_name,
             catalog_run_profile=catalog_run_profile,
+            catalog_serving_source=catalog_serving_source,
             promotion_runtime=promotion_runtime,
             eval_safety_verifier=eval_safety_verifier,
         )
@@ -2158,6 +2539,79 @@ async def compile_and_run_recursive_generation_cycle(
         parent_child_edges=tuple((root_ref, child_ref) for child_ref in problems_by_node or ()),
         rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
     )
+    parent_joint_requests = _parent_joint_simulation_requests_by_node(root_ref, problem)
+    parent_joint_candidate_selections: dict[str, object] = {}
+    parent_joint_candidate_currentness: dict[str, object] = {}
+    if joint_interaction_candidate_intent is not None:
+        if any(
+            key in problem.runtime_hints
+            for key in (
+                "joint_simulation_request",
+                "joint_simulation_horizon",
+                "joint_simulation_engine_plan",
+                "joint_simulation_variable_map",
+                "joint_simulation_baseline_state",
+                "joint_simulation_comparator_refs",
+                "joint_simulation_seed",
+                "joint_simulation_replications",
+                "joint_simulation_world_credal_state_before",
+            )
+        ):
+            raise DesignProblemAuthorityError(
+                "joint_interaction_candidate_caller_axes_forbidden"
+            )
+        if (
+            generic_cycle_simulation_handoff is None
+            or generic_cycle_simulation_admission_owner is None
+            or n4_recursive_source is None
+            or n4_recursive_source_ref is None
+            or generic_n4_child_profile_status != "resolved"
+            or n4_child_profile_set_ref is None
+            or generation_source_repository is None
+            or generic_cycle_simulation_currentness_resolver is None
+        ):
+            raise DesignProblemAuthorityError(
+                "joint_interaction_candidate_parent_source_or_profile_not_established"
+            )
+        from polisyos.runtime.quality.design_generation import (
+            derive_n4_candidate_child_problems,
+        )
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        parent_children = derive_n4_candidate_child_problems(
+            problem,
+            n4_recursive_source,
+            model_id=model_name,
+        )
+        expected_child_node_refs = tuple(
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            for child in parent_children
+        )
+        if (
+            tuple(problems_by_node or ()) != expected_child_node_refs
+            or len(parent_children) != len(expected_child_node_refs)
+            or n4_recursive_source.status != "generated"
+        ):
+            raise DesignProblemAuthorityError(
+                "joint_interaction_candidate_child_denominator_not_established"
+            )
+        selection, request = _build_parent_joint_candidate_request(
+            candidate_intent=joint_interaction_candidate_intent,
+            problem=problem,
+            source_result=n4_recursive_source,
+            source_ref=n4_recursive_source_ref,
+            child_problems=parent_children,
+            child_node_refs=expected_child_node_refs,
+            model_id=model_name,
+            handoff=generic_cycle_simulation_handoff,
+            admission_owner=generic_cycle_simulation_admission_owner,
+        )
+        parent_joint_requests = {root_ref: request}
+        parent_joint_candidate_selections = {root_ref: selection}
+        parent_joint_candidate_currentness = {
+            root_ref: generic_cycle_simulation_currentness_resolver
+        }
     from polisyos.runtime.quality.generation_cycle import (
         _N4CandidateScenarioProposalOnlyError,
     )
@@ -2168,6 +2622,9 @@ async def compile_and_run_recursive_generation_cycle(
             problems_by_node={root_ref: problem, **(problems_by_node or {})},
             budget_state=budget_state,
             recursive_budget=recursive_budget,
+            joint_simulation_requests_by_node=parent_joint_requests,
+            joint_candidate_selections_by_node=parent_joint_candidate_selections,
+            joint_candidate_currentness_resolvers_by_node=parent_joint_candidate_currentness,
             cycle_substrate_contexts_by_node=contexts_by_node
             or (
                 {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None

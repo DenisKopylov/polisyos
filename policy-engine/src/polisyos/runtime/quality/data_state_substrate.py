@@ -312,6 +312,9 @@ def l1_dcat_variable_availability(
     if not variable:
         raise DataStateSubstrateError("l1_variable_empty")
     dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
+    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+    catalog_source = current_catalog_serving_source()
     if not dcat_path.exists():
         raise DataStateSubstrateError("l1_dcat_missing", dcat_path.as_posix())
 
@@ -358,8 +361,13 @@ def l1_dcat_variable_availability(
         metric_binding_count=metric_binding_count,
         observation_count=observation_count,
         coverage_ref=(
-            f"repo://production_data/datasets_full_phase3full_20260327_183054/"
-            f"dataset_catalog.duckdb#variable/{variable}"
+            f"catalog_source://{dcat_path.as_posix()}#variable/{variable}"
+            if catalog_source is not None
+            and catalog_source.selection_basis == "explicit_path_candidate_only"
+            else (
+                f"repo://production_data/datasets_full_phase3full_20260327_183054/"
+                f"dataset_catalog.duckdb#variable/{variable}"
+            )
         ),
     )
 

@@ -9,6 +9,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
+    ControlPreAdmissionAttemptResponse,
 )
 from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
@@ -84,15 +85,16 @@ from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter, Depends, Query, Request, Response
+    from fastapi import APIRouter, Depends, Header, Query, Request, Response
 
     from polisyos.runtime.http.services.control import ControlPlaneService
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Depends, Query, Request, Response
+        from fastapi import APIRouter, Depends, Header, Query, Request, Response
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
         Depends = cast("Any", None)
+        Header = cast("Any", None)
         Query = cast("Any", None)
         Request = cast("Any", object)
         Response = cast("Any", object)
@@ -381,10 +383,66 @@ def evaluate_run_feedback(
     operation_id="launch_nl_run",
     summary="Launch a natural-language run via agent circuit",
     dependencies=[Depends(_LAUNCH_NL_RUN_AUTHZ)],
+    responses={
+        "default": {
+            "headers": {
+                "X-Control-Pre-Admission-Outcome": {
+                    "description": (
+                        "On a returned 4xx, not_created means no attempt was persisted "
+                        "by this request."
+                    ),
+                    "schema": {"type": "string", "enum": ["not_created"]},
+                }
+            }
+        },
+        200: {
+            "headers": {
+                "X-Control-Admission-Attempt-ID": {
+                    "description": (
+                        "Opaque durable attempt ID for the launch attempt, including "
+                        "a terminal refusal."
+                    ),
+                    "schema": {"type": "string"},
+                }
+            }
+        },
+        409: {
+            "headers": {
+                "X-Control-Admission-Attempt-ID": {
+                    "description": "Existing attempt bound to the supplied idempotency key.",
+                    "schema": {"type": "string"},
+                }
+            }
+        },
+        422: {
+            "headers": {
+                "X-Control-Admission-Attempt-ID": {
+                    "description": "Durable attempt ID when a started attempt is refused.",
+                    "schema": {"type": "string"},
+                },
+                "X-Control-Pre-Admission-Outcome": {
+                    "description": (
+                        "not_created only when this request returned 4xx before an "
+                        "attempt was persisted."
+                    ),
+                    "schema": {"type": "string", "enum": ["not_created"]},
+                },
+            }
+        },
+    },
 )
 async def launch_nl_run(
     body: NaturalLanguageRunRequest,
     request: Request,
+    response: Response,
+    idempotency_key: str = Header(
+        ...,
+        alias="Idempotency-Key",
+        description=(
+            "Required for every natural-language launch; reuse only for the exact same "
+            "immutable request intent."
+        ),
+    ),
 ) -> RunLaunchResponse:
     set_authz_resource(
         request,
@@ -403,14 +461,24 @@ async def launch_nl_run(
             "The natural-language launch must consume its exact route authorization proof",
             code="nl_route_authorization_proof_not_established",
         )
-    return await control.launch_nl_run(
+
+    def _bind_attempt_id(attempt_id: str) -> None:
+        request.state.control_pre_admission_attempt_id = attempt_id
+
+    result = await control.launch_nl_run(
         body,
         request_id=request_id,
         principal=_get_principal(request),
         authorization_proof=bound_permission,
         authorization_request_body=await request.body(),
         authorization_query_bytes=bytes(request.scope.get("query_string", b"")),
+        idempotency_key=idempotency_key,
+        on_pre_admission_attempt=_bind_attempt_id,
     )
+    attempt_id = getattr(request.state, "control_pre_admission_attempt_id", None)
+    if attempt_id is not None:
+        response.headers["X-Control-Admission-Attempt-ID"] = attempt_id
+    return result
 
 
 @router.post(
@@ -507,6 +575,55 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.get_job_status(job_id, request_id=request_id)
+
+    @router.get(
+        "/admission-attempts/by-idempotency-key",
+        response_model=ControlPreAdmissionAttemptResponse,
+        operation_id="get_control_pre_admission_attempt_by_idempotency_key",
+        summary="Recover a durable attempt using the authenticated actor's idempotency key",
+    )
+    def get_control_pre_admission_attempt_by_idempotency_key(
+        request: Request,
+        response: Response,
+        idempotency_key: str = Header(alias="Idempotency-Key"),
+    ) -> ControlPreAdmissionAttemptResponse:
+        # Declare the static path before /{attempt_id}; never put the opaque key in a URL.
+        response.headers["Cache-Control"] = "no-store"
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.pre_admission_attempt_status",
+        )
+        control = _get_control_service(request)
+        return control.get_pre_admission_attempt_status_by_idempotency_key(
+            idempotency_key,
+            request_id=ensure_request_id(request),
+            principal=_get_principal(request),
+        )
+
+    @router.get(
+        "/admission-attempts/{attempt_id}",
+        response_model=ControlPreAdmissionAttemptResponse,
+        operation_id="get_control_pre_admission_attempt_status",
+        summary="Get actor-scoped durable pre-admission attempt history",
+    )
+    def get_control_pre_admission_attempt_status(
+        attempt_id: str,
+        request: Request,
+        response: Response,
+    ) -> ControlPreAdmissionAttemptResponse:
+        response.headers["Cache-Control"] = "no-store"
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.pre_admission_attempt_status",
+        )
+        control = _get_control_service(request)
+        return control.get_pre_admission_attempt_status(
+            attempt_id,
+            request_id=ensure_request_id(request),
+            principal=_get_principal(request),
+        )
 
     @router.get(
         "/workers",

@@ -243,9 +243,7 @@ def _non_simulation_execution_context(
             ),
         ),
         eval_safety_certificate_ref=_execution_ref("eval-safety-certificate", _hash("d")),
-        eval_safety_revision_head_ref=_execution_ref(
-            "eval-safety-revision", _hash("e")
-        ),
+        eval_safety_revision_head_ref=_execution_ref("eval-safety-revision", _hash("e")),
     )
 
 
@@ -678,9 +676,7 @@ def test_n8_first_vertical_resolves_world_identity_before_value() -> None:
         problem=lane["problem"],
         cycle_index=0,
     )
-    assert observation.authority_blockers == (
-        "acquire_data:value_panel_data_missing",
-    )
+    assert observation.authority_blockers == ("acquire_data:value_panel_data_missing",)
     assert observation.acquisition_requirement is not None
 
 
@@ -715,9 +711,7 @@ def test_n8_refuses_context_candidate_with_unresolved_world_slot() -> None:
     atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
     atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
     candidate = lane["candidate"].model_copy(update={"atom": atom})
-    simulation = _simulation(
-        lane["world_model_record"], candidate_id=candidate.candidate_id
-    )
+    simulation = _simulation(lane["world_model_record"], candidate_id=candidate.candidate_id)
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
@@ -753,9 +747,7 @@ def test_n8_resolves_bound_world_before_routing_owner_data_gap() -> None:
     atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
     atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
     candidate = lane["candidate"].model_copy(update={"atom": atom})
-    simulation = _simulation(
-        lane["world_model_record"], candidate_id=candidate.candidate_id
-    )
+    simulation = _simulation(lane["world_model_record"], candidate_id=candidate.candidate_id)
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
@@ -786,9 +778,7 @@ def test_n8_first_vertical_real_cycle_routes_owner_data_gap_through_n7() -> None
     owner_candidate = value_contract._canonical_first_vertical_lane()["candidate"]
 
     assert cycle.selected_candidate_ref == owner_candidate.candidate_id
-    assert cycle.value_port.authority_blockers == (
-        "acquire_data:value_panel_data_missing",
-    )
+    assert cycle.value_port.authority_blockers == ("acquire_data:value_panel_data_missing",)
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.acquisition_receipt is None
     assert cycle.acquisition_routing_report is not None
@@ -829,10 +819,13 @@ def test_n8_v2_frozen_payload_records_only_dependency_authority_nonreceipt() -> 
             refusal["failure"]["failure_code"]
             == "owner_enforced_runtime_subtree_cutoff_not_established"
         )
-    assert value_contract.validate_payload_result(
-        payload,
-        expected_source_freeze=source_freeze,
-    ).governing_issues == ()
+    assert (
+        value_contract.validate_payload_result(
+            payload,
+            expected_source_freeze=source_freeze,
+        ).governing_issues
+        == ()
+    )
 
 
 def _catalog_provenance_comparison_fixture() -> dict[str, Any]:
@@ -979,9 +972,7 @@ def test_n8_catalog_provenance_records_editable_identity_as_quarantined() -> Non
 
 def _frozen_value_contract_payload() -> dict[str, Any]:
     return json.loads(
-        (value_contract._repo_root() / value_contract.OUTPUT_PATH).read_text(
-            encoding="utf-8"
-        )
+        (value_contract._repo_root() / value_contract.OUTPUT_PATH).read_text(encoding="utf-8")
     )
 
 
@@ -997,9 +988,7 @@ def test_frozen_v1_contract_blocks_live_default_v2_and_keeps_ambient_drift_visib
     assert "catalog_builtin_discovery_manifest_mismatch" in governing_codes
     assert "catalog_provenance_schema_version_mismatch" in governing_codes
     assert {issue["code"] for issue in value_contract.validate_payload(payload)} == governing_codes
-    assert {
-        finding["code"] for finding in result.ambient_findings
-    } == {
+    assert {finding["code"] for finding in result.ambient_findings} == {
         "catalog_ambient_discovery_manifest_mismatch",
         "catalog_entry_point_distribution_manifest_mismatch",
         "catalog_ambient_unbound_input_manifest_mismatch",
@@ -1033,9 +1022,9 @@ def test_n8_validation_result_keeps_governed_catalog_drift_named_and_decisive() 
 
     assert "catalog_builtin_discovery_manifest_mismatch" in governing_codes
     assert "catalog_builtin_discovery_manifest_mismatch" not in ambient_codes
-    assert {
-        issue["code"] for issue in value_contract.validate_payload(payload)
-    } >= {"catalog_builtin_discovery_manifest_mismatch"}
+    assert {issue["code"] for issue in value_contract.validate_payload(payload)} >= {
+        "catalog_builtin_discovery_manifest_mismatch"
+    }
 
 
 def test_n8_validation_result_fails_closed_when_ambient_admission_is_missing() -> None:
@@ -1087,10 +1076,7 @@ def test_n8_full_check_and_rederive_compare_the_governed_projection(
             "section": "catalog_dependency_authority",
         },
     )
-    assert {
-        (finding["code"], finding.get("predicate"))
-        for finding in result.ambient_findings
-    } == {
+    assert {(finding["code"], finding.get("predicate")) for finding in result.ambient_findings} == {
         ("catalog_ambient_discovery_manifest_mismatch", None),
         ("catalog_entry_point_distribution_manifest_mismatch", None),
         ("catalog_ambient_unbound_input_manifest_mismatch", None),
@@ -1107,10 +1093,13 @@ def test_n8_full_check_and_rederive_compare_the_governed_projection(
         "run_rederive_audit_result",
         lambda _root, *, expected_source_freeze: result,
     )
-    assert value_contract.run_rederive_audit(
-        root,
-        expected_source_freeze=source_freeze,
-    ) == result.governing_issues
+    assert (
+        value_contract.run_rederive_audit(
+            root,
+            expected_source_freeze=source_freeze,
+        )
+        == result.governing_issues
+    )
 
 
 def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
@@ -1320,9 +1309,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
         second_bound,
         first_bound,
     )
-    bound_governing_codes = {
-        issue["code"] for issue in bound_result.governing_issues
-    }
+    bound_governing_codes = {issue["code"] for issue in bound_result.governing_issues}
     assert bound_governing_codes == set()
     assert "catalog_entry_point_distribution_manifest_mismatch" in {
         finding["code"] for finding in bound_result.ambient_findings
@@ -1344,9 +1331,7 @@ def test_default_foundry_loader_roundtrips_through_valuegate_and_reissuer(
         live_denominators, live_ambient_manifest = evidence_cache()
         expected = copy.deepcopy(live_denominators["catalog_provenance"])
         target = BUILTIN_LOADER[0]
-        assert expected["schema_version"] == (
-            "policyos.method_catalog_provenance_manifest.v2"
-        )
+        assert expected["schema_version"] == ("policyos.method_catalog_provenance_manifest.v2")
         assert expected["governed_discovery"]["declared_builtin_loaders"] == [
             {"name": target, "target": target, "group": ENTRY_POINT_GROUP}
         ]
@@ -1376,9 +1361,7 @@ def test_default_foundry_loader_roundtrips_through_valuegate_and_reissuer(
 
         missing_declaration = copy.deepcopy(expected)
         missing_declaration["governed_discovery"].pop("declared_builtin_loaders")
-        missing_declaration["provenance_id"] = method_catalog_provenance_id(
-            missing_declaration
-        )
+        missing_declaration["provenance_id"] = method_catalog_provenance_id(missing_declaration)
         missing_result = value_contract._catalog_provenance_validation_result(
             missing_declaration,
             expected,
@@ -1409,8 +1392,9 @@ def test_default_foundry_loader_roundtrips_through_valuegate_and_reissuer(
         candidate_path = tmp_path / "catalog-provenance-v2-candidate.json"
         value_contract._write_json(candidate_path, reissued)
         persisted = value_contract._load_json(candidate_path)
-        assert persisted["denominators"]["catalog_provenance"] == (
-            live_denominators["catalog_provenance"]
+        assert (
+            persisted["denominators"]["catalog_provenance"]
+            == (live_denominators["catalog_provenance"])
         )
         assert persisted["source_flip_mutation_harness"]["mutation_ids"] == list(
             value_contract.SOURCE_FLIP_MUTATION_IDS
@@ -1437,9 +1421,7 @@ def test_n8_catalog_provenance_reports_changed_content_bound_distribution_identi
     expected_entry["direct_url_sha256"] = _hash("bound-wheel-a")
     expected["provenance_id"] = method_catalog_provenance_id(expected)
     recorded = copy.deepcopy(expected)
-    recorded["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] = _hash(
-        "bound-wheel-b"
-    )
+    recorded["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] = _hash("bound-wheel-b")
     recorded["provenance_id"] = method_catalog_provenance_id(recorded)
 
     result = value_contract._catalog_provenance_validation_result(recorded, expected)
@@ -1467,9 +1449,7 @@ def test_n8_catalog_provenance_reissue_changes_only_the_member_and_witness() -> 
     }
     recorded_provenance = {
         "ambient_discovery": {
-            "manifest_id": _component_discovery_manifest_id(
-                historical_manifest_content
-            ),
+            "manifest_id": _component_discovery_manifest_id(historical_manifest_content),
             "entry_points": [frozen_entry],
         },
         "provenance_id": "method_catalog_provenance_recorded",
@@ -1477,12 +1457,10 @@ def test_n8_catalog_provenance_reissue_changes_only_the_member_and_witness() -> 
     live_manifest_content = copy.deepcopy(historical_manifest_content)
     live_manifest_content["entry_points"][0]["direct_url_sha256"] = None
     live_provenance = copy.deepcopy(recorded_provenance)
-    live_provenance["ambient_discovery"]["manifest_id"] = (
-        _component_discovery_manifest_id(live_manifest_content)
+    live_provenance["ambient_discovery"]["manifest_id"] = _component_discovery_manifest_id(
+        live_manifest_content
     )
-    live_provenance["ambient_discovery"]["entry_points"][0][
-        "direct_url_sha256"
-    ] = None
+    live_provenance["ambient_discovery"]["entry_points"][0]["direct_url_sha256"] = None
     live_provenance["provenance_id"] = method_catalog_provenance_id(live_provenance)
     historical_mutation_ids = [
         mutation_id
@@ -1608,9 +1586,7 @@ def test_n8_catalog_provenance_reissue_refuses_unproven_manifest_id() -> None:
     }
     recorded = {
         "ambient_discovery": {
-            "manifest_id": _component_discovery_manifest_id(
-                historical_manifest_content
-            ),
+            "manifest_id": _component_discovery_manifest_id(historical_manifest_content),
             "entry_points": [frozen_entry],
         },
         "provenance_id": "recorded",
@@ -1685,15 +1661,17 @@ def test_n8_catalog_provenance_check_uses_the_frozen_payload(
         value_contract,
         "validate_payload_result",
         lambda payload, *, expected_source_freeze: (
-            observed.append(payload)
-            or value_contract.ValueGateValidationResult((), ())
+            observed.append(payload) or value_contract.ValueGateValidationResult((), ())
         ),
     )
 
-    assert value_contract.check_catalog_provenance(
-        tmp_path,
-        expected_source_freeze=_source_freeze(),
-    ) == ()
+    assert (
+        value_contract.check_catalog_provenance(
+            tmp_path,
+            expected_source_freeze=_source_freeze(),
+        )
+        == ()
+    )
     assert observed == [{"frozen": True}]
 
 
@@ -1702,9 +1680,7 @@ def test_n8_catalog_provenance_reports_environment_without_masking_count_drift(
 ) -> None:
     expected_denominators = value_contract._candidate_catalog_denominators()
     recorded_denominators = copy.deepcopy(expected_denominators)
-    entry_points = recorded_denominators["catalog_provenance"]["ambient_discovery"][
-        "entry_points"
-    ]
+    entry_points = recorded_denominators["catalog_provenance"]["ambient_discovery"]["entry_points"]
     if entry_points:
         entry_points[0]["distribution_name"] = "different-environment"
     else:
@@ -1725,9 +1701,7 @@ def test_n8_catalog_provenance_reports_environment_without_masking_count_drift(
     from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
 
     recorded_provenance = recorded_denominators["catalog_provenance"]
-    recorded_provenance["provenance_id"] = method_catalog_provenance_id(
-        recorded_provenance
-    )
+    recorded_provenance["provenance_id"] = method_catalog_provenance_id(recorded_provenance)
     monkeypatch.setattr(
         value_contract,
         "_candidate_catalog_denominators_cached",
@@ -1809,16 +1783,12 @@ def test_n8_catalog_predicate_bindings_cover_every_denominator_field() -> None:
     denominators = value_contract._candidate_catalog_denominators()
     provenance = denominators["catalog_provenance"]
     bindings = provenance["predicate_bindings"]
-    predicate_names = {
-        row["predicate"] for row in provenance["predicate_provenance"]
-    }
+    predicate_names = {row["predicate"] for row in provenance["predicate_provenance"]}
 
     assert set(bindings) == set(denominators) - {"catalog_provenance"}
     assert all(references for references in bindings.values())
     assert all(
-        reference in predicate_names
-        for references in bindings.values()
-        for reference in references
+        reference in predicate_names for references in bindings.values() for reference in references
     )
     corrupt = copy.deepcopy(provenance)
     corrupt["predicate_bindings"].pop("registered_method_count")
@@ -1860,9 +1830,7 @@ def test_n8_transport_component_proofs_are_live_and_data_derived() -> None:
 
     first = proofs["first_vertical"]
     assert first["outcome_kind"] == "typed_refusal"
-    assert first["typed_refusal"]["code"] == (
-        "acquire_data:transport_context_unresolved"
-    )
+    assert first["typed_refusal"]["code"] == ("acquire_data:transport_context_unresolved")
     assert first["transport_covariates"] == []
     assert first["selection_diagram_content_hash"] is None
     assert first["transport_receipt"] is None
@@ -1877,9 +1845,7 @@ def test_n8_transport_component_proofs_are_live_and_data_derived() -> None:
         assert receipt["transport_status"]
         assert receipt["transport_mode"]
         assert receipt["identification_engine"]
-        assert proof["transport_result_content_hash"] == value_contract.gy_content_hash(
-            receipt
-        )
+        assert proof["transport_result_content_hash"] == value_contract.gy_content_hash(receipt)
 
     water = proofs["unseen_pack_shape"]
     assert water["domain"] == "water_quality"
@@ -1901,11 +1867,7 @@ def test_n8_transport_component_validator_rejects_static_or_malformed_receipts()
     malformed = copy.deepcopy(proofs)
     malformed["education"]["transport_receipt"]["transport_status"] = ""
     malformed["education"]["proof_content_hash"] = value_contract.gy_content_hash(
-        {
-            key: value
-            for key, value in malformed["education"].items()
-            if key != "proof_content_hash"
-        }
+        {key: value for key, value in malformed["education"].items() if key != "proof_content_hash"}
     )
     static = malformed["unseen_pack_shape"]
     static["outcome_kind"] = "behavioral_probe_in_focused_test"
@@ -1914,8 +1876,7 @@ def test_n8_transport_component_validator_rejects_static_or_malformed_receipts()
     )
 
     codes = {
-        issue["code"]
-        for issue in value_contract._validate_transport_component_proofs(malformed)
+        issue["code"] for issue in value_contract._validate_transport_component_proofs(malformed)
     }
 
     assert "transport_component_receipt_invalid" in codes
@@ -2170,6 +2131,7 @@ def _controlled_avg_income_owner_profile() -> ValueDataProfile:
                 "unit_id": f"unit_{unit_index}",
                 "period_id": period_id,
                 "outcome_value": float(period_id + unit_index),
+                "measurement_unit": "synthetic index",
                 "source_row_content_hashes": (_hash("a"),),
             }
             rows.append(
@@ -2180,8 +2142,9 @@ def _controlled_avg_income_owner_profile() -> ValueDataProfile:
             )
     rows_payload = [row.model_dump(mode="json") for row in rows]
     profile_payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "schema_version": "policyos.runtime.value_data_profile.v2",
         "outcome": "avg_income",
+        "measurement_unit": "synthetic index",
         "rows": rows_payload,
         "owner_row_count": len(rows_payload),
         "unit_count": 3,
@@ -2311,9 +2274,7 @@ def test_education_selection_diagram_uses_only_pack_covariates() -> None:
     }
     assert "state_capacity" not in diagram.base_graph.nodes
     assert "institutional_quality" not in diagram.base_graph.nodes
-    assert {
-        (node.source_ref, node.target_ref) for node in diagram.s_nodes
-    } == {
+    assert {(node.source_ref, node.target_ref) for node in diagram.s_nodes} == {
         (
             row.source_row_content_hash,
             row.target_row_content_hash,
@@ -2349,9 +2310,7 @@ def test_third_pack_transport_vocabulary_flows_without_engine_change() -> None:
         cycle_substrate_context=context,
     )
 
-    assert {node.target_variable for node in diagram.s_nodes} == {
-        "watershed_slope"
-    }
+    assert {node.target_variable for node in diagram.s_nodes} == {"watershed_slope"}
     assert diagram.s_nodes[0].source_value == 0.15
     assert diagram.s_nodes[0].target_value == 0.63
 
@@ -2384,9 +2343,7 @@ def test_unseen_transport_receipt_uses_real_solver_contract() -> None:
 def test_missing_measured_transport_context_blocks_without_defaults() -> None:
     """Absent measured context is an acquisition gap, never governance defaults."""
 
-    problem = _problem("missing_transport_context").model_copy(
-        update={"domain": "unseen_domain"}
-    )
+    problem = _problem("missing_transport_context").model_copy(update={"domain": "unseen_domain"})
     context = _pack_shaped_transport_context(problem=problem, covariates=())
     gateway = RealValueOwnerGateway(
         repo_root=Path.cwd(),
@@ -2406,9 +2363,7 @@ def test_missing_measured_transport_context_blocks_without_defaults() -> None:
 def test_transport_context_for_another_problem_is_not_authority() -> None:
     """A valid context shape cannot cross its DesignProblem content binding."""
 
-    problem = _problem("bound_transport_problem").model_copy(
-        update={"domain": "water_quality"}
-    )
+    problem = _problem("bound_transport_problem").model_copy(update={"domain": "water_quality"})
     context = _pack_shaped_transport_context(
         problem=problem,
         covariates=(("watershed_slope", 0.15, 0.63),),
@@ -2559,9 +2514,7 @@ def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_w
     assert problem.runtime_hints == {}
     candidate = lane["candidate"]
     context = lane["cycle_substrate_context"]
-    simulation = _simulation(
-        context.world_model_record, candidate_id=candidate.candidate_id
-    )
+    simulation = _simulation(context.world_model_record, candidate_id=candidate.candidate_id)
 
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
@@ -2583,9 +2536,7 @@ def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_w
     assert simulation.world_model_record.content_hash == context.world_model_record.content_hash
     assert observation.status == "value_blocked"
     assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
-    assert observation.authority_blockers == (
-        "acquire_data:value_panel_data_missing",
-    )
+    assert observation.authority_blockers == ("acquire_data:value_panel_data_missing",)
     assert observation.selected_method_fqn is None
     assert observation.method_selection_receipt is None
     assert observation.value_data_profile_content_hash is None
@@ -2638,8 +2589,10 @@ def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
     )
 
     assert forged.status == canonical.status == "value_blocked"
-    assert forged.authority_blockers == canonical.authority_blockers == (
-        "acquire_data:value_owner_unit_binding_ambiguous",
+    assert (
+        forged.authority_blockers
+        == canonical.authority_blockers
+        == ("acquire_data:value_owner_unit_binding_ambiguous",)
     )
     assert forged.value_receipt is canonical.value_receipt is None
     assert forged.acquisition_requirement is None
@@ -2729,8 +2682,10 @@ def test_candidate_treatment_assignment_is_not_owner_world_knowledge(
     forged = observe(candidate)
 
     assert canonical.status == forged.status == "value_blocked"
-    assert canonical.authority_blockers == forged.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
+    assert (
+        canonical.authority_blockers
+        == forged.authority_blockers
+        == ("treatment_assignment_not_owner_derived",)
     )
     assert canonical.value_data_profile_content_hash == profile.content_hash
     assert forged.value_data_profile_content_hash == profile.content_hash
@@ -2792,9 +2747,7 @@ def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
         cycle_index=0,
     )
 
-    assert observation.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
-    )
+    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert observation.acquisition_requirement is not None
     assert observation.value_receipt is None
 
@@ -2830,14 +2783,22 @@ def test_value_data_profile_rejects_panel_label_without_longitudinal_units() -> 
             outcome="synthetic_outcome",
             unit_id=f"unit_{index}",
             period_id=2020 + index,
-            source_rows=((float(index), f"dataset_{index}", f"observation_{index}"),),
+            source_rows=(
+                (
+                    float(index),
+                    f"dataset_{index}",
+                    f"observation_{index}",
+                    "synthetic index",
+                ),
+            ),
         )
         for index in range(4)
     )
     rows_payload = tuple(row.model_dump(mode="json") for row in rows)
     payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "schema_version": "policyos.runtime.value_data_profile.v2",
         "outcome": "synthetic_outcome",
+        "measurement_unit": "synthetic index",
         "rows": rows_payload,
         "owner_row_count": len(rows),
         "unit_count": 4,
@@ -2872,6 +2833,7 @@ def test_value_owner_shape_uses_canonical_four_period_panel_floor(
                     float(unit_index + period_index),
                     f"dataset_{unit_index}",
                     f"observation_{unit_index}_{period_index}",
+                    "synthetic index",
                 ),
             ),
         )
@@ -2933,13 +2895,9 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.status == "value_blocked"
     assert observation.selected_method_fqn is not None
     assert observation.value_receipt is None
-    assert observation.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
-    )
+    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert isinstance(observation.method_selection_receipt, MethodSelectionReceipt)
-    assert observation.method_selection_receipt.selection_authority == (
-        "foundry_registry_advisor"
-    )
+    assert observation.method_selection_receipt.selection_authority == ("foundry_registry_advisor")
     assert len(observation.method_selection_receipt.denominator) > 1
     assert observation.acquisition_requirement is not None
     assert observation.acquisition_requirement.metadata["requirement"]["operator"] == "any_of"
@@ -3067,9 +3025,7 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
         accepted_contexts.append(expected_selection_context_hash)
         return verify_context(receipt, expected_selection_context_hash)
 
-    monkeypatch.setattr(
-        MethodSelectionReceipt, "verify_selection_context", capture_context
-    )
+    monkeypatch.setattr(MethodSelectionReceipt, "verify_selection_context", capture_context)
     simulation = _simulation(world, candidate_id=candidate.candidate_id)
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
@@ -3087,15 +3043,11 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
         "source_update_time_not_established",
     )
     assert observation.method_selection_receipt is not None
-    assert observation.method_selection_receipt.selection_authority == (
-        "foundry_registry_advisor"
-    )
+    assert observation.method_selection_receipt.selection_authority == ("foundry_registry_advisor")
     assert observation.selected_method_fqn == (
         observation.method_selection_receipt.selected_method_fqn
     )
-    assert accepted_contexts == [
-        observation.method_selection_receipt.selection_context_hash
-    ]
+    assert accepted_contexts == [observation.method_selection_receipt.selection_context_hash]
 
 
 def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
@@ -3129,9 +3081,7 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
 
     candidate = _avg_income_candidate()
-    simulation = _simulation(
-        _world_record(), candidate_id="candidate_avg_income_real"
-    )
+    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -3147,9 +3097,7 @@ def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     )
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == (
-        "value_method_selection_context_hash_mismatch",
-    )
+    assert observation.authority_blockers == ("value_method_selection_context_hash_mismatch",)
     assert observation.acquisition_requirement is None
 
 
@@ -3196,9 +3144,7 @@ def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> N
     )
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
-    )
+    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert observation.acquisition_requirement is not None
     assert observation.value_receipt is None
 
@@ -3223,9 +3169,7 @@ def test_value_port_rejects_unowned_method_selection_receipt(
 
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
-    simulation = _simulation(
-        _world_record(), candidate_id="candidate_avg_income_real"
-    )
+    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -3241,9 +3185,7 @@ def test_value_port_rejects_unowned_method_selection_receipt(
     )
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == (
-        "value_method_selection_authority_unresolved",
-    )
+    assert observation.authority_blockers == ("value_method_selection_authority_unresolved",)
     assert observation.value_receipt is None
 
 
@@ -3313,14 +3255,10 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
     assert observation.value_receipt is None
     assert observation.selected_method_fqn is not None
     assert observation.method_selection_receipt is not None
-    assert observation.method_selection_receipt.selection_authority == (
-        "foundry_registry_advisor"
-    )
+    assert observation.method_selection_receipt.selection_authority == ("foundry_registry_advisor")
     assert observation.method_selection_receipt.ranked_alternatives
     selected_alternative = next(
-        row
-        for row in observation.method_selection_receipt.ranked_alternatives
-        if row.selected
+        row for row in observation.method_selection_receipt.ranked_alternatives if row.selected
     )
     assert "panel" not in selected_alternative.data_modalities
     assert observation.acquisition_requirement is None
@@ -3332,9 +3270,7 @@ def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
 ) -> None:
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
-    simulation = _simulation(
-        _world_record(), candidate_id="candidate_avg_income_real"
-    )
+    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
     canonical = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -3352,10 +3288,8 @@ def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
     if mutation == "blocker":
         payload["authority_blockers"] = ("unrelated_value_blocker",)
     else:
-        payload["acquisition_requirement"] = (
-            value_input_world_knowledge_requirement_gap(
-                claim_ref="value-claim:another-candidate"
-            )
+        payload["acquisition_requirement"] = value_input_world_knowledge_requirement_gap(
+            claim_ref="value-claim:another-candidate"
         )
 
     with pytest.raises(ValueError, match="value_acquisition_requirement_not_canonical"):
@@ -3396,9 +3330,7 @@ def test_missing_candidate_treatment_binding_blocks_without_fallback() -> None:
 
     assert observation.status == "value_blocked"
     assert observation.value_receipt is None
-    assert observation.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
-    )
+    assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert "owner-derived treatment assignment" in observation.reason
 
 
@@ -3431,9 +3363,9 @@ def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
     evidence = _s10_calibration_evidence_from_report(bad_report)
     assert evidence["calibration_status"] == "limit"
     assert evidence["floor_passed"] is False
-    assert evidence["false_clear_counts"][
-        "uncalibrated_observable_promotion_false_clear_count"
-    ] == 1
+    assert (
+        evidence["false_clear_counts"]["uncalibrated_observable_promotion_false_clear_count"] == 1
+    )
 
     policy_context_ref = f"policy-context://{world.world_model_record_id}"
     inputs = _build_s10_forecast_inputs(
@@ -3453,9 +3385,7 @@ def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
 
     assert receipt.status == "blocked"
     assert receipt.issue_codes == ("uncalibrated_forecast_minted_value",)
-    assert receipt.false_clear_counts[
-        "uncalibrated_observable_promotion_false_clear_count"
-    ] == 1
+    assert receipt.false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] == 1
 
 
 def test_partial_value_outer_set_width_tracks_real_did_interval() -> None:
@@ -3539,12 +3469,11 @@ def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
     assert observation.acquisition_requirement.metadata["source"] == (
         "l1_dcat_variable_availability"
     )
-    assert observation.acquisition_requirement.metadata["availability"][
-        "variable_id"
-    ] == "firm_survival"
-    assert observation.acquisition_requirement.metadata["availability"][
-        "observation_count"
-    ] == 0
+    assert (
+        observation.acquisition_requirement.metadata["availability"]["variable_id"]
+        == "firm_survival"
+    )
+    assert observation.acquisition_requirement.metadata["availability"]["observation_count"] == 0
     assert "substrate owner" in str(observation.reason)
     assert "dataset_catalog.duckdb#variable/firm_survival" in str(observation.reason)
     assert "value_method_state_missing" not in observation.authority_blockers
@@ -3578,12 +3507,8 @@ def test_value_port_reuses_cached_world_model_record() -> None:
         )
     )
 
-    first_record, first_status, first_error = port._world_record_from_simulation(
-        simulation
-    )
-    second_record, second_status, second_error = port._world_record_from_simulation(
-        simulation
-    )
+    first_record, first_status, first_error = port._world_record_from_simulation(simulation)
+    second_record, second_status, second_error = port._world_record_from_simulation(simulation)
 
     assert first_record is world
     assert second_record is first_record
@@ -3613,8 +3538,7 @@ def test_value_receipt_exposes_each_decisive_consistency_predicate() -> None:
     predicates = receipt.decisive_consistency_predicates()
 
     assert [
-        predicate.model_dump(mode="json", exclude={"content_hash"})
-        for predicate in predicates
+        predicate.model_dump(mode="json", exclude={"content_hash"}) for predicate in predicates
     ] == [
         {
             "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
@@ -3971,9 +3895,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
             cycle_index=0,
         )
         assert laundering.status == "value_blocked"
-        assert laundering.authority_blockers == (
-            "eval_safety_simulation_provenance_mismatch",
-        )
+        assert laundering.authority_blockers == ("eval_safety_simulation_provenance_mismatch",)
         assert laundering_gateway.calls == 0
 
     wrong_input_gateway = GatewaySpy()
@@ -4006,9 +3928,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         cycle_index=0,
     )
     assert wrong_input.status == "value_blocked"
-    assert wrong_input.authority_blockers == (
-        "eval_safety_simulation_provenance_mismatch",
-    )
+    assert wrong_input.authority_blockers == ("eval_safety_simulation_provenance_mismatch",)
     assert wrong_input_gateway.calls == 0
 
     simulation_gateway = GatewaySpy()
@@ -4029,13 +3949,9 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         cycle_index=0,
     )
     assert missing.authority_blockers == ("eval_safety_verifier_unresolved",)
-    assert blocked.authority_blockers == (
-        "polisyos.eval_safety.certificate_stale@1.0.0",
-    )
+    assert blocked.authority_blockers == ("polisyos.eval_safety.certificate_stale@1.0.0",)
     assert blocked_again.authority_blockers == blocked.authority_blockers
-    assert wrong.authority_blockers == (
-        "eval_safety_execution_context_binding_mismatch",
-    )
+    assert wrong.authority_blockers == ("eval_safety_execution_context_binding_mismatch",)
     assert forged.status == "value_blocked"
     assert forged.authority_blockers == ("eval_safety_consumer_admission_blocked",)
     assert missing_gateway.calls == blocked_gateway.calls == wrong_gateway.calls == 0
@@ -4043,9 +3959,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
     assert blocking_verifier.calls == 2
     assert blocking_verifier.challenges[0] != blocking_verifier.challenges[1]
     assert explicit_simulation.status == "value_blocked"
-    assert explicit_simulation.authority_blockers == (
-        "eval_safety_simulation_provenance_mismatch",
-    )
+    assert explicit_simulation.authority_blockers == ("eval_safety_simulation_provenance_mismatch",)
     assert simulation_gateway.calls == 0
     valid_simulation_gateway = GatewaySpy()
     valid_simulation = FoundryValuePort(
@@ -4058,9 +3972,7 @@ def test_non_simulation_blocks_before_value_gateway() -> None:
         cycle_index=0,
     )
     assert valid_simulation.status == "value_blocked"
-    assert valid_simulation.authority_blockers == (
-        "value_owner_data_profile_invalid",
-    )
+    assert valid_simulation.authority_blockers == ("value_owner_data_profile_invalid",)
     assert valid_simulation_gateway.calls == 1
 
 
@@ -4147,9 +4059,7 @@ def test_foundry_binds_actual_world_model_record_before_verifier_or_owner(
     )
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == (
-        "eval_safety_world_model_record_binding_mismatch",
-    )
+    assert observation.authority_blockers == ("eval_safety_world_model_record_binding_mismatch",)
     assert verifier.calls == 0
     assert gateway.calls == 0
 
@@ -4211,9 +4121,7 @@ def test_foundry_blocks_same_input_cross_problem_context_before_verifier_or_owne
     )
 
     assert observation.status == "value_blocked"
-    assert observation.authority_blockers == (
-        "eval_safety_design_problem_binding_mismatch",
-    )
+    assert observation.authority_blockers == ("eval_safety_design_problem_binding_mismatch",)
     assert verifier.calls == 0
     assert gateway.calls == 0
 
@@ -4248,9 +4156,7 @@ def test_candidate_problem_selection_uses_registry_denominator() -> None:
 
 def _n8_dependency_source_freeze() -> str:
     resolver = getattr(value_contract, "dependency_discriminant_source_freeze", None)
-    assert callable(resolver), (
-        "missing behavior: N8 must derive the complete Foundry source freeze"
-    )
+    assert callable(resolver), "missing behavior: N8 must derive the complete Foundry source freeze"
     return resolver(value_contract._repo_root())
 
 
@@ -4401,9 +4307,7 @@ def _research_torch_diagnostic(companion: object) -> object:
         distributions=tuple(
             dependency_profile_module.InstalledDistributionObservation(
                 name=row.name,
-                version=(
-                    "incompatible-version" if row.name == "torch" else row.version
-                ),
+                version=("incompatible-version" if row.name == "torch" else row.version),
             )
             for row in profile.resolved_distributions
         ),
@@ -4459,9 +4363,7 @@ def test_n8_dependency_discriminant_companion_binds_owner_source_and_exact_n8_by
         "policy_promotion",
     ]
     assert payload["profile_discriminant"]["resolved_distributions"]
-    assert payload["artifact_content_hash"] == _independent_n8_dependency_companion_hash(
-        payload
-    )
+    assert payload["artifact_content_hash"] == _independent_n8_dependency_companion_hash(payload)
     assert not {
         "diagnostic",
         "interpreter_path",
@@ -4482,30 +4384,36 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     source_freeze = _n8_dependency_source_freeze()
     candidate = tmp_path / "n8-dependency-discriminant.json"
 
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 0
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
     write_report = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert write_report["status"] == "pass"
     candidate_bytes = candidate.read_bytes()
 
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     overwrite_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert overwrite_refused["status"] == "fail"
     assert candidate.read_bytes() == candidate_bytes
@@ -4514,16 +4422,19 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     symlink_target.write_bytes(b"candidate-target-sentinel")
     symlink_candidate = tmp_path / "n8-dependency-discriminant-symlink.json"
     symlink_candidate.symlink_to(symlink_target)
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(symlink_candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(symlink_candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     symlink_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert symlink_refused["status"] == "fail"
     assert symlink_candidate.is_symlink()
@@ -4534,64 +4445,75 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     symlink_parent = tmp_path / "n8-symlink-parent"
     symlink_parent.symlink_to(symlink_parent_target, target_is_directory=True)
     symlink_nested_candidate = symlink_parent / "nested-candidate.json"
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(symlink_nested_candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(symlink_nested_candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     symlink_parent_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert symlink_parent_refused["status"] == "fail"
     assert not (symlink_parent_target / "nested-candidate.json").exists()
 
-    assert value_contract.main(
-        [
-            "--check-dependency-discriminant",
-            str(candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 0
+    assert (
+        value_contract.main(
+            [
+                "--check-dependency-discriminant",
+                str(candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
     check_report = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert check_report["status"] == "pass"
     assert candidate.read_bytes() == candidate_bytes
 
-    assert value_contract.main(
-        [
-            "--check-dependency-discriminant",
-            str(candidate),
-            "--expected-source-freeze",
-            "0" * 40,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--check-dependency-discriminant",
+                str(candidate),
+                "--expected-source-freeze",
+                "0" * 40,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     wrong_freeze = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert wrong_freeze["status"] == "fail"
     assert wrong_freeze["governing_issues"] == list(_legacy_n8_governing_issues())
     assert candidate.read_bytes() == candidate_bytes
 
     in_repo_candidate = (
-        value_contract._repo_root()
-        / f".n8-dependency-discriminant-{tmp_path.name}.json"
+        value_contract._repo_root() / f".n8-dependency-discriminant-{tmp_path.name}.json"
     )
     assert not in_repo_candidate.exists()
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(in_repo_candidate),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(in_repo_candidate),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     in_repo_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert in_repo_refused["status"] == "fail"
     assert not in_repo_candidate.exists()
@@ -4629,9 +4551,7 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     assert not whole_repo_created
 
     aliased_target = (
-        git_toplevel
-        / ".github"
-        / f"n8-dependency-discriminant-aliased-{tmp_path.name}.json"
+        git_toplevel / ".github" / f"n8-dependency-discriminant-aliased-{tmp_path.name}.json"
     )
     aliased_candidate = (
         git_toplevel.parent.parent
@@ -4664,48 +4584,55 @@ def test_n8_dependency_discriminant_write_and_check_modes_are_explicit_and_read_
     assert aliased_refused["status"] == "fail"
     assert not aliased_created
 
-    governed = (
-        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
-    )
+    governed = value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
     governed_before = governed.read_bytes()
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(governed),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(governed),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert refused["status"] == "fail"
     assert governed.read_bytes() == governed_before
 
-    assert value_contract.main(
-        [
-            "--write-dependency-discriminant",
-            str(governed),
-            "--write",
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 0
+    assert (
+        value_contract.main(
+            [
+                "--write-dependency-discriminant",
+                str(governed),
+                "--write",
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
     governed_written = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert governed_written["status"] == "pass"
     assert governed.read_bytes() == governed_before
 
-    assert value_contract.main(
-        [
-            "--write",
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 1
+    assert (
+        value_contract.main(
+            [
+                "--write",
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 1
+    )
     legacy_refused = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert legacy_refused["status"] == "not_established"
     assert governed.read_bytes() == governed_before
@@ -4733,9 +4660,7 @@ def test_n8_dependency_discriminant_case_alias_inside_repository_is_refused(
         / "candidate.json"
     )
     aliased_target = (
-        aliased_toplevel
-        / root.relative_to(git_toplevel)
-        / canonical_target.relative_to(root)
+        aliased_toplevel / root.relative_to(git_toplevel) / canonical_target.relative_to(root)
     )
     assert aliased_target != canonical_target
     assert os.path.samefile(
@@ -5217,9 +5142,7 @@ def test_n8_dependency_discriminant_real_legacy_call_uses_appointed_git_environm
         / "catalog"
         / "dependency_authority.py"
     )
-    replacement_source.write_bytes(
-        replacement_source.read_bytes() + b"\n# hostile replacement\n"
-    )
+    replacement_source.write_bytes(replacement_source.read_bytes() + b"\n# hostile replacement\n")
     _run_git_test_command(
         alternate,
         "add",
@@ -5245,11 +5168,14 @@ def test_n8_dependency_discriminant_real_legacy_call_uses_appointed_git_environm
     ).stdout.strip()
     _run_git_test_command(alternate, "update-ref", "HEAD", original_head)
     _run_git_test_command(alternate, "replace", original_head, replacement_head)
-    assert b"hostile replacement" in _run_git_test_command(
-        alternate,
-        "show",
-        f"{original_head}:{replacement_source.relative_to(alternate).as_posix()}",
-    ).stdout
+    assert (
+        b"hostile replacement"
+        in _run_git_test_command(
+            alternate,
+            "show",
+            f"{original_head}:{replacement_source.relative_to(alternate).as_posix()}",
+        ).stdout
+    )
 
     real_check_result = value_contract.check_result
     observed_git_environments: list[dict[str, str]] = []
@@ -5328,9 +5254,9 @@ def test_n8_dependency_discriminant_governing_exception_escapes_and_restores_env
         expected_source_freeze: str | None = None,
     ) -> object:
         del expected_source_freeze
-        assert {
-            key: value for key, value in os.environ.items() if key.startswith("GIT_")
-        } == {key: value for key, value in expected.items() if key.startswith("GIT_")}
+        assert {key: value for key, value in os.environ.items() if key.startswith("GIT_")} == {
+            key: value for key, value in expected.items() if key.startswith("GIT_")
+        }
         raise exception_type("governing replay failed")
 
     monkeypatch.setattr(value_contract, "check_result", explode)
@@ -5338,9 +5264,7 @@ def test_n8_dependency_discriminant_governing_exception_escapes_and_restores_env
     with pytest.raises(exception_type, match="governing replay failed"):
         value_contract._legacy_value_gate_result(
             appointment,
-            source_freeze=value_contract._dependency_discriminant_source_freeze(
-                appointment
-            ),
+            source_freeze=value_contract._dependency_discriminant_source_freeze(appointment),
         )
     assert dict(os.environ) == before
 
@@ -5464,23 +5388,24 @@ def test_n8_dependency_discriminant_cached_governing_result_cannot_be_poisoned(
     inner_wire["denominators"]["catalog_dependency_authority"]["cache_poison"] = {
         "nested": ["transport"]
     }
-    assert canonical_json_bytes(
-        json.loads(
-            value_contract._catalog_denominator_evidence_cached(
-                source_freeze,
-                appointment.product_root,
-                authority_state_token,
+    assert (
+        canonical_json_bytes(
+            json.loads(
+                value_contract._catalog_denominator_evidence_cached(
+                    source_freeze,
+                    appointment.product_root,
+                    authority_state_token,
+                )
             )
         )
-    ) == inner_transport_baseline
+        == inner_transport_baseline
+    )
     inner_first = value_contract._catalog_denominator_evidence(
         source_freeze,
         appointment.product_root,
     )
     inner_baseline = canonical_json_bytes(inner_first)
-    inner_first[0]["catalog_dependency_authority"]["cache_poison"] = {
-        "nested": ["inner"]
-    }
+    inner_first[0]["catalog_dependency_authority"]["cache_poison"] = {"nested": ["inner"]}
     inner_second = value_contract._catalog_denominator_evidence(
         source_freeze,
         appointment.product_root,
@@ -5508,9 +5433,7 @@ def test_n8_dependency_discriminant_cached_governing_result_cannot_be_poisoned(
     oracle_first = _legacy_n8_governing_issues()
     oracle_first[0]["cache_poison"] = {"nested": ["oracle"]}
     oracle_second = _legacy_n8_governing_issues()
-    governed = (
-        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
-    )
+    governed = value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
     governed_before = governed.read_bytes()
     exit_code = value_contract.main(
         [
@@ -5573,9 +5496,7 @@ def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
         finding.get("code") == "dependency_environment_diagnostic_failed"
         for finding in admitted_result.ambient_findings
     )
-    research_codes = {
-        finding.get("code") for finding in research_result.ambient_findings
-    }
+    research_codes = {finding.get("code") for finding in research_result.ambient_findings}
     assert "dependency_environment_diagnostic_failed" not in research_codes
     assert "dependency_environment_diagnostic_not_reconciled" in research_codes
     warning = next(
@@ -5588,8 +5509,9 @@ def test_n8_dependency_discriminant_research_warning_is_ambient_non_decisive(
     assert warning["unaccepted_diagnostic_claim"]["first_case"]["coordinate"] == (
         "distribution:torch:version"
     )
-    assert warning["unaccepted_diagnostic_claim"]["ordered_cases"][0] == (
-        warning["unaccepted_diagnostic_claim"]["first_case"]
+    assert (
+        warning["unaccepted_diagnostic_claim"]["ordered_cases"][0]
+        == (warning["unaccepted_diagnostic_claim"]["first_case"])
     )
     assert warning["current_diagnostic"]["status"] == "pass"
 
@@ -5737,20 +5659,21 @@ def test_n8_dependency_discriminant_observer_failure_is_ambient_nonreceipt(
         for finding in direct.ambient_findings
     )
 
-    governed = (
-        value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
-    )
+    governed = value_contract._repo_root() / value_contract.DEPENDENCY_DISCRIMINANT_OUTPUT_PATH
     governed_before = governed.read_bytes()
-    assert value_contract.main(
-        [
-            "--check-dependency-discriminant",
-            str(governed),
-            "--expected-source-freeze",
-            source_freeze,
-            "--output-format",
-            "json",
-        ]
-    ) == 0
+    assert (
+        value_contract.main(
+            [
+                "--check-dependency-discriminant",
+                str(governed),
+                "--expected-source-freeze",
+                source_freeze,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
     report = json.loads(capsys.readouterr().out.splitlines()[-1])
     assert report["status"] == "pass"
     assert report["content_ref"] == companion.content_ref
@@ -5773,9 +5696,7 @@ def test_n8_dependency_discriminant_supplied_protocol_failure_is_ambient_nonrece
         _build_n8_dependency_companion(),
     )
 
-    class ExplodingDiagnostic(
-        dependency_profile_module.DependencyEnvironmentDiagnosticPass
-    ):
+    class ExplodingDiagnostic(dependency_profile_module.DependencyEnvironmentDiagnosticPass):
         def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
             del args, kwargs
             raise exception_type("supplied diagnostic transport unavailable")
@@ -5814,9 +5735,7 @@ def test_n8_dependency_discriminant_supplied_protocol_base_exception_escapes() -
         _build_n8_dependency_companion(),
     )
 
-    class InterruptingDiagnostic(
-        dependency_profile_module.DependencyEnvironmentDiagnosticPass
-    ):
+    class InterruptingDiagnostic(dependency_profile_module.DependencyEnvironmentDiagnosticPass):
         def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
             del args, kwargs
             raise KeyboardInterrupt("process-control interrupt")
@@ -5877,12 +5796,15 @@ def test_n8_dependency_discriminant_rejects_unappointed_isomorphic_git_checkout(
         f"{canonical_root.name}/{path.as_posix()}" in tracked_paths
         for path in value_contract._foundry_dependency_source_paths()
     )
-    assert subprocess.run(
-        ["git", "cat-file", "-e", f"{_n8_dependency_source_freeze()}^{{commit}}"],
-        cwd=alternate_toplevel,
-        check=False,
-        capture_output=True,
-    ).returncode == 0
+    assert (
+        subprocess.run(
+            ["git", "cat-file", "-e", f"{_n8_dependency_source_freeze()}^{{commit}}"],
+            cwd=alternate_toplevel,
+            check=False,
+            capture_output=True,
+        ).returncode
+        == 0
+    )
 
     with pytest.raises(ValueError, match="not the appointed product root"):
         value_contract.dependency_discriminant_source_freeze(alternate_root)
@@ -5917,9 +5839,9 @@ def test_n8_dependency_discriminant_corruption_is_diagnostic_nonreceipt(
         payload["profile_discriminant"]["root_distribution"] = "forged-root"
         _rebind_corrupt_dependency_discriminant(payload)
     elif case_id == "selected_distribution":
-        payload["profile_discriminant"]["resolved_distributions"][0][
-            "selected_artifact"
-        ]["value"] = "sha256:" + "0" * 64
+        payload["profile_discriminant"]["resolved_distributions"][0]["selected_artifact"][
+            "value"
+        ] = "sha256:" + "0" * 64
         _rebind_corrupt_dependency_discriminant(payload)
     elif case_id == "source_freeze":
         payload["source_freeze"] = "0" * 40
@@ -5978,9 +5900,7 @@ def test_n8_dependency_discriminant_forged_pass_with_mismatching_rows_is_nonrece
             predicate_class="recomputed",
         )
         if forgery_kind == "model_copy":
-            forged = valid_pass.model_copy(
-                update={"ordered_cases": (failed.first_case,)}
-            )
+            forged = valid_pass.model_copy(update={"ordered_cases": (failed.first_case,)})
         else:
             forged = valid_pass.__class__.model_construct(
                 status="pass",
@@ -6012,10 +5932,7 @@ def test_n8_dependency_discriminant_model_bypass_is_revalidated(
     if bypass_kind == "model_copy":
         bypassed = companion.model_copy(update={"decision_role": "governing"})
     else:
-        values = {
-            name: getattr(companion, name)
-            for name in companion.__class__.model_fields
-        }
+        values = {name: getattr(companion, name) for name in companion.__class__.model_fields}
         values["decision_role"] = "governing"
         bypassed = companion.__class__.model_construct(**values)
 

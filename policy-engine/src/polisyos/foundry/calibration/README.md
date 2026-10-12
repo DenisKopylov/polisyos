@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-08-28
+- Last updated: 2026-10-12
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -39,6 +39,7 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 | Entrypoint                     | Description                                                                               |
 | ------------------------------ | ----------------------------------------------------------------------------------------- |
 | `Calibrator`                   | JAX-backed optimization loop when calibration extras are importable.                      |
+| `Calibrator.run_and_persist(store)` | Runs a config snapshot once and persists its typed report with that exact config edge. |
 | `CalibratorInputs`             | Bundles graph, exec plan, targets, registries, and optional measurement bundle inputs.    |
 | `CalibrationReport`            | Persisted fit result with metrics, history, and fit quality.                              |
 | `MeasurementAwareTarget`       | Observation-aware target contract.                                                        |
@@ -46,6 +47,21 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 | `compute_effective_weight()`   | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |
 | `diagnose_identifiability()`   | Produces parameter-level identifiability diagnostics.                                     |
 | `envelopes_from_calibration()` | Converts calibration outputs into uncertainty-envelope artifacts.                         |
+
+## Persisting a calibration run for a fresh consumer
+
+`Calibrator.run_and_persist(store)` snapshots the exact `CalibrationConfig`, runs that
+snapshot once, writes the config artifact, then writes the typed v2 `CalibrationReport`
+with an edge built from the complete selected config ref, including a non-default
+manifest profile. It returns `(report, report_ref)`; a caller can
+place that exact ref under `ExperimentState.inputs["calibration_report_ref"]` for the
+registered `PropagateWelfareNode` to reload from CAS. The existing node records the
+report ref in its fresh welfare output lineage.
+
+This is an internal configuration-to-report binding. It does not bind external
+observation authenticity or establish a conditional/noise law, and Hessian-derived
+envelopes remain heuristic and gate-ineligible. Calibration execution is still an
+explicit library call; the default workflow does not schedule a calibration run.
 
 ## Source-bound posterior candidate
 

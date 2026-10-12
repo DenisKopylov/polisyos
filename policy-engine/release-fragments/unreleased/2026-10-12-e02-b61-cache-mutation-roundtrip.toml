@@ -1,0 +1,24 @@
+id = "2026-10-12-e02-b61-cache-mutation-roundtrip"
+title = "Compare complete node-cache mutations through canonical journal semantics"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-policyos-runtime"
+summary = "The shared node cache compares complete journal mutations canonically, and tracked state models retain exact-type full-field equality with original typed values."
+compatibility = "Cache schema, journal version, replay epoch, idempotency-key, proof, custody, source, scope, and currentness gates remain. Models with custom __eq__ or __ne__ hooks are newly refused at mutation-journal admission; private and extra model state remain outside the admitted profile. Current journal 1.2 entries require complete mutation fields; legacy 1.0 and 1.1 retain the existing narrow primitive replay path."
+change_class = "internal-behavioral-correctness"
+surface_classification = "Internal NodeResultCache replay behavior; no new public facade, generated client, API, dashboard, or authority surface."
+migration = "No history rewrite or cache schema migration. Callers using custom equality hooks must supply an ordinary supported model, or retain an explicit unsupported-profile refusal; no equality behavior is silently discarded. Malformed, incomplete current-version, or semantically different operations remain cache misses and are re-executed under the existing executor policy."
+api = "Cache replay compares ordered canonical StateMutation operation bytes, including path, operation, value, group, and field presence. Typed ArtifactRef values survive CAS serialization. Journaled models retain full-field value equality with their exact original type; booleans remain distinct from integers, and custom equality/private/extra model state is refused at admission."
+limitations = "This repairs cache mutation agreement only. It does not prove a source is authentic, current, or causally used, and it does not expand legacy journal replay. Candidate static checks only; root-owned runtime, importer, and full B61 verification are pending."
+evidence = [
+  "src/polisyos/scientist/orchestration/engine/state_branching.py",
+  "src/polisyos/scientist/orchestration/engine/idempotency.py",
+  "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+  "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+  "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+  "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

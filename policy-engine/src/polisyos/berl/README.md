@@ -1,6 +1,6 @@
 # polisyos.berl
 
-- Last updated: 2026-10-10
+- Last updated: 2026-10-11
 
 Bounded Explanation Reliability Layer package for explanation bundles,
 validation thresholds, empirical reliability bounds, and local infidelity
@@ -19,6 +19,7 @@ warrant-reliability validation, which revalidate explanation-reliability evidenc
 - `ExplanationBundle`
 - `ExplanationOrchestrator`
 - `ExplanationRequest`
+- `ExplanationBundleStoreReadError`
 - `persist_explanation_bundle`
 - `load_explanation_bundle`
 - `validate_explanation_bundle`
@@ -37,33 +38,34 @@ BERL does not currently admit a verified observed-feature conditional law or sam
 conditional producer must bind its law, source population, feature order, and version before this
 adapter can make a conditional claim.
 
-Persisted bundle consumers run the same profile gate before Phase-5 or warrant-reliability
-admission. Phase-5 accepts the full typed `ExplanationBundleRef`: a present manifest-profile digest
-selects that exact CAS view, while an omitted digest selects the immutable default manifest view.
-The BERL reader verifies the selected manifest's kind, media, schema, canonical profile, and payload
-before Phase-5 admits it, and report lineage retains the selector when one is present. A default
-view whose manifest does not satisfy the BERL contract is refused; profile omission does not
-reselect a different non-default view or attest that a previously supplied non-default selector
-was preserved. Manifest inputs may differ between same-kind/schema views; the current BERL
-reader does not use them as an independent source-context check, so callers who need a non-default
-manifest lineage must preserve its profile digest. The warrant-reliability validator remains an
-inline bundle consumer. A
-`conditional_observational` bundle is diagnostic-only until a verified law resolver exists; profile
-strings, method assumptions, and artifact references are declarations, not law verification.
-Unknown or malformed primary and
-`alternatives_tested` profiles, malformed method-level profiles, and method-level profiles that
-disagree with the bundle are refused. The supported `marginal` and `marginal_interventional`
-profiles remain available under the current empirical-replacement contract.
+Persisted bundle consumers use one fixed kind/media/schema contract and preserve the full selected
+manifest profile. `persist_explanation_bundle` opts into the store's producer-side
+`return_selected_profile` result and refuses a profileless write result; it never reconstructs the
+selector from a later default-manifest read. Phase-5 and Runtime warrant-reliability both reload the
+exact typed `ExplanationBundleRef`, validate the selected manifest and whole persisted bundle, and
+retain the selector in their outputs. When a supported backend throws an unexpected read error, the
+loader raises `ExplanationBundleStoreReadError`; Runtime emits a stable failed gate saying object
+absence is not established. It does not treat provider errors as absence or use an embedded inline
+bundle to rescue the selected ref. This bounded error boundary does not establish production store
+availability or live currentness.
+
+A `conditional_observational` bundle is diagnostic-only until a verified law resolver exists;
+profile strings, method assumptions, and artifact references are declarations, not law verification.
+Unknown or malformed primary and `alternatives_tested` profiles, malformed method-level profiles,
+and method-level profiles that disagree with the bundle are refused. The supported `marginal` and
+`marginal_interventional` profiles remain available under the current empirical-replacement
+contract.
 
 ## CAS Persistence and Reader Contract
 
 `persist_explanation_bundle` writes an `ExplanationBundle` through the IR CAS boundary and returns an `ExplanationBundleRef` with the exact selected manifest view. It uses the existing generated schema identifier and `EXPLANATION_BUNDLE_SCHEMA_VERSION`, and fixes the artifact kind to `scientist.explanation_bundle` with `application/json` media. `load_explanation_bundle` requires that typed ref, resolves its selected manifest, checks kind, media, schema name, schema version, and required wire fields, then validates the bundle. It does not infer a feature law from refs or bundle declarations.
 
 `ExplanationOrchestrator.explain` remains an in-memory producer; it does not automatically persist.
-The repository currently has no production call site connecting that method to CAS. The integration
-test demonstrates the producer → CAS → fresh reader path, then passes the full selected ref through
-the real Phase-5 preflight, which independently reloads and validates it. It also passes the
-validated bundle mapping to the existing inline Runtime warrant-reliability validator; Runtime
-does not resolve the ref itself. Automatic producer wiring remains
-`implemented_but_not_orchestrated`. Conditional-law evidence remains `producer_missing`; a
-self-declared artifact ref does not admit a conditional profile.
+The controlled integration witness demonstrates producer → same-write selected-profile CAS ref →
+fresh Phase-5 and Runtime readers. Historical valid profileless default refs remain readable when
+the default manifest satisfies the fixed BERL contract; newly persisted refs always preserve the
+profile selected by their own write. A full source AST census found no in-repository caller of the
+public `build_quality_scorecard` function beyond its facade re-export, so higher-level scorecard
+wiring remains `implemented_but_not_orchestrated`; this witness is not a production caller or
+currentness assertion. Conditional-law evidence remains `producer_missing`; a self-declared artifact
+ref does not admit a conditional profile.

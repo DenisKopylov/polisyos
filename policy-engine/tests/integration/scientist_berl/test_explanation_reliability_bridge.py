@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
+from copy import deepcopy
 from datetime import UTC, datetime
+from math import sqrt
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, cast
 
@@ -198,7 +201,12 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         build_berl_warrant_reliability_record,
         evaluate_warrant_berl_reliability,
     )
-    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_EXPLANATION_BUNDLE_REF
+    from polisyos.runtime.quality.scorecard import (
+        policy_design_case_claim_closeout_gates,
+    )
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_EXPLANATION_BUNDLE_REF,
+    )
 
     store_root = tmp_path / feature_dependence_policy
     producer = ExplanationOrchestrator()
@@ -213,6 +221,8 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         feature_names=("x1", "x2"),
         methods=(method_id,),
         feature_dependence_policy=feature_dependence_policy,
+        model_hash="sha256:berl-fixture-model",
+        feature_schema_version="berl-fixture-schema-v1",
         background_rows=(
             {"x1": 0.0, "x2": 0.0},
             {"x1": 1.0, "x2": 0.0},
@@ -288,8 +298,23 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         explanation_bundle_ref=ref.model_dump_json(),
         validation_thresholds={"max_p95_infidelity_upper_bound": 0.05},
         explanation_bundle=loaded.model_dump(mode="json"),
+        expected_explanation_subject={
+            "prediction_id": request.prediction_id,
+            "model_hash": request.model_hash,
+            "feature_schema_version": request.feature_schema_version,
+        },
     )
-    record["explanation_bundle"] = loaded.model_dump(mode="json")
+    # The embedded object is deliberately the opposite profile; both consumers must
+    # resolve the same selected CAS ref rather than trusting this candidate copy.
+    inline_candidate = loaded.model_dump(mode="json")
+    inline_profile = (
+        "marginal_interventional"
+        if feature_dependence_policy == "conditional_observational"
+        else "conditional_observational"
+    )
+    inline_candidate["assumptions"]["feature_dependence_policy"]["primary"] = inline_profile
+    inline_candidate["methods"][0]["assumptions"]["feature_removal"] = inline_profile
+    record["explanation_bundle"] = inline_candidate
     runtime_result = evaluate_warrant_berl_reliability(
         {"warrant_reliability_records": [record]},
         {
@@ -298,17 +323,40 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
             "berl_reliability_refs": [record["reliability_id"]],
         },
         claim_id="claim-1",
+        artifact_store=FileSystemCAS(store_root),
     )
+    runtime_case = {
+        "final_major_claims": [
+            {"claim_id": "claim-1", "major": True, "warrant_refs": ["warrant-1"]}
+        ],
+        "warrants": [
+            {
+                "warrant_id": "warrant-1",
+                "claim_id": "claim-1",
+                "warrant_text": "The persisted explanation supports the scoped claim.",
+                "assumptions": ["The declared feature profile is in scope."],
+                "applicability_limits": ["Only the resolved model and schema are covered."],
+                "requires_explanation_reliability": True,
+                "berl_reliability_refs": [record["reliability_id"]],
+            }
+        ],
+        "warrant_reliability_records": [record],
+    }
+    runtime_scorecard_gates = policy_design_case_claim_closeout_gates(
+        runtime_case,
+        canary_kind="production",
+        artifact_store=FileSystemCAS(store_root),
+    )
+    runtime_scorecard_codes = {str(gate.get("code")) for gate in runtime_scorecard_gates}
 
     assert loaded.bundle_id == produced.bundle_id
-    if preexisting_view:
-        assert ref.manifest_profile_sha256 is not None
-        assert producer_store.get_manifest(ref.artifact_id).artifact_schema.version == "0.9.0"
-        assert "manifest_profile_sha256" in record["explanation_bundle_ref"]
-    else:
-        assert ref.manifest_profile_sha256 is None
-        assert producer_store.get_manifest(ref.artifact_id).artifact_schema.version == "1.0.0"
-        assert "manifest_profile_sha256" not in record["explanation_bundle_ref"]
+    assert ref.manifest_profile_sha256 is not None
+    assert "manifest_profile_sha256" in record["explanation_bundle_ref"]
+    expected_default_schema = "0.9.0" if preexisting_view else "1.0.0"
+    assert (
+        producer_store.get_manifest(ref.artifact_id).artifact_schema.version
+        == expected_default_schema
+    )
     assert str(explanation_lineage.artifact_id) == str(ref.artifact_id)
     assert explanation_lineage.manifest_profile_sha256 == ref.manifest_profile_sha256
     if feature_dependence_policy == "marginal_interventional":
@@ -320,7 +368,18 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         assert phase5_explanation.status == "pass", phase5_explanation.blockers
         assert phase5_result.validation_report.verdict == "pass"
         assert state_ref_explanation.status == "pass"
-        assert runtime_result.issues == ()
+        assert any(
+            issue.code == "policy_design_warrant_berl_subject_context_not_established"
+            for issue in runtime_result.issues
+        )
+        assert runtime_result.records[0]["threshold_decision"]["status"] == "fail"
+        assert (
+            runtime_result.records[0]["candidate_diagnostics"]["threshold_decision"]["status"]
+            == "pass"
+        )
+        assert (
+            "policy_design_warrant_berl_subject_context_not_established" in runtime_scorecard_codes
+        )
     else:
         method = loaded.methods[0]
         assert method.scope == "diagnostic"
@@ -337,6 +396,10 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         )
         assert any(
             "conditional_feature_law_unverified" in issue.message for issue in runtime_result.issues
+        )
+        assert any(
+            "conditional_feature_law_unverified" in str(gate.get("message"))
+            for gate in runtime_scorecard_gates
         )
 
     profileless_result = run_phase5_artifact_preflight(
@@ -377,3 +440,211 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         ]
     )
     assert wrong_profile_result.validation_report.verdict == "blocked"
+
+    wrong_subject_record = deepcopy(record)
+    wrong_subject_record["expected_explanation_subject"] = {
+        **record["expected_explanation_subject"],
+        "prediction_id": "a-different-prediction",
+    }
+    wrong_subject_result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [wrong_subject_record]},
+        {
+            "claim_id": "claim-1",
+            "warrant_id": "warrant-1",
+            "berl_reliability_refs": [wrong_subject_record["reliability_id"]],
+        },
+        claim_id="claim-1",
+        artifact_store=FileSystemCAS(store_root),
+    )
+    assert any(
+        issue.code == "policy_design_warrant_berl_bundle_subject_mismatch"
+        for issue in wrong_subject_result.issues
+    )
+
+    malformed_ref_record = deepcopy(record)
+    malformed_ref_record["explanation_bundle_ref"] = "{not-json"
+    malformed_ref_result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [malformed_ref_record]},
+        {
+            "claim_id": "claim-1",
+            "warrant_id": "warrant-1",
+            "berl_reliability_refs": [malformed_ref_record["reliability_id"]],
+        },
+        claim_id="claim-1",
+        artifact_store=FileSystemCAS(store_root),
+    )
+    assert any(
+        issue.code == "policy_design_warrant_berl_bundle_ref_invalid"
+        for issue in malformed_ref_result.issues
+    )
+    assert malformed_ref_result.records[0]["threshold_decision"]["status"] == "fail"
+
+    wrong_selected_profile = ref.model_dump(mode="json")
+    wrong_selected_profile["manifest_profile_sha256"] = "sha256:" + "0" * 64
+    wrong_profile_record = deepcopy(record)
+    wrong_profile_record["explanation_bundle_ref"] = json.dumps(wrong_selected_profile)
+    wrong_profile_runtime_result = evaluate_warrant_berl_reliability(
+        {"warrant_reliability_records": [wrong_profile_record]},
+        {
+            "claim_id": "claim-1",
+            "warrant_id": "warrant-1",
+            "berl_reliability_refs": [wrong_profile_record["reliability_id"]],
+        },
+        claim_id="claim-1",
+        artifact_store=FileSystemCAS(store_root),
+    )
+    assert any(
+        issue.code == "policy_design_warrant_berl_bundle_unresolved"
+        for issue in wrong_profile_runtime_result.issues
+    )
+
+
+def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_control_distinct(
+    tmp_path,
+) -> None:
+    from polisyos.berl import (
+        ExplanationOrchestrator,
+        ExplanationRequest,
+        persist_explanation_bundle,
+    )
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.explanation_reliability import (
+        build_berl_warrant_reliability_record,
+        evaluate_warrant_berl_reliability,
+    )
+    from polisyos.runtime.quality.scorecard import (
+        policy_design_case_claim_closeout_gates,
+    )
+
+    orthogonal = 1.0 / sqrt(3.0)
+    background = (
+        {"x1": -1.0, "x2": -0.8 + 0.6 * orthogonal},
+        {"x1": 0.0, "x2": -1.2 * orthogonal},
+        {"x1": 1.0, "x2": 0.8 + 0.6 * orthogonal},
+    )
+    x_values = [row["x1"] for row in background]
+    y_values = [row["x2"] for row in background]
+    x_mean = sum(x_values) / len(x_values)
+    y_mean = sum(y_values) / len(y_values)
+    covariance = sum((x - x_mean) * (y - y_mean) for x, y in zip(x_values, y_values, strict=True))
+    x_norm = sum((x - x_mean) ** 2 for x in x_values)
+    y_norm = sum((y - y_mean) ** 2 for y in y_values)
+    assert covariance / sqrt(x_norm * y_norm) == pytest.approx(0.8)
+
+    def model(row: dict[str, float]) -> float:
+        return row["x1"]
+
+    store = FileSystemCAS(tmp_path)
+    producer = ExplanationOrchestrator()
+    cases = (
+        ("marginal_interventional", "kernel_shap_marginal"),
+        ("conditional_observational", "kernel_shap_conditional"),
+    )
+    for profile, method_id in cases:
+        request = ExplanationRequest(
+            prediction_id=f"prediction-{profile}",
+            row_id="row-rho-08",
+            x={"x1": 1.0, "x2": 1.0},
+            feature_names=("x1", "x2"),
+            methods=(method_id,),
+            feature_dependence_policy=profile,
+            model_id="rho-08-linear-model",
+            model_hash="sha256:rho-08-model",
+            feature_schema_version="rho-08-feature-schema-v1",
+            background_rows=background,
+            n_eval_perturbations=64,
+            residual_cap=0.1,
+            random_seed=7,
+        )
+        bundle = producer.explain(model, request)
+        ref = persist_explanation_bundle(store, bundle)
+        subject = {
+            "prediction_id": request.prediction_id,
+            "model_hash": request.model_hash,
+            "feature_schema_version": request.feature_schema_version,
+        }
+        record = build_berl_warrant_reliability_record(
+            reliability_id=f"berl-rho08-{profile}",
+            claim_id="claim-rho08",
+            warrant_id="warrant-rho08",
+            explanation_bundle_ref=ref.model_dump_json(),
+            validation_thresholds={"max_p95_infidelity_upper_bound": 0.05},
+            explanation_bundle=bundle.model_dump(mode="json"),
+            expected_explanation_subject=subject,
+        )
+        case = {"warrant_reliability_records": [record]}
+        warrant = {
+            "claim_id": "claim-rho08",
+            "warrant_id": "warrant-rho08",
+            "berl_reliability_refs": [record["reliability_id"]],
+        }
+        runtime = evaluate_warrant_berl_reliability(
+            case,
+            warrant,
+            claim_id="claim-rho08",
+            artifact_store=FileSystemCAS(tmp_path),
+        )
+        scorecard_case = {
+            "final_major_claims": [
+                {
+                    "claim_id": "claim-rho08",
+                    "major": True,
+                    "warrant_refs": ["warrant-rho08"],
+                }
+            ],
+            "warrants": [
+                {
+                    **warrant,
+                    "warrant_text": "A source-bound BERL bundle supports this claim.",
+                    "assumptions": ["The named feature profile applies."],
+                    "applicability_limits": ["The named model and schema apply."],
+                    "requires_explanation_reliability": True,
+                }
+            ],
+            "warrant_reliability_records": [record],
+        }
+        gates = policy_design_case_claim_closeout_gates(
+            scorecard_case,
+            canary_kind="production",
+            artifact_store=FileSystemCAS(tmp_path),
+        )
+        phase5 = run_phase5_artifact_preflight(
+            cast("ExecutionContext", SimpleNamespace(store=FileSystemCAS(tmp_path))),
+            ExperimentState(run_id=f"phase5-rho08-{profile}"),
+            Phase5ArtifactPreflightInput(
+                artifact_ref=ref,
+                artifact_kind="scientist.explanation_bundle",
+                analyst_facing=False,
+            ),
+        )
+        phase5_explanation = next(
+            component
+            for component in phase5.validation_report.phase5_components
+            if component.name == "explanation"
+        )
+        if profile == "marginal_interventional":
+            values = {item.feature: item.value for item in bundle.methods[0].attributions}
+            assert values == pytest.approx({"x1": 1.0, "x2": 0.0})
+            assert any(
+                issue.code == "policy_design_warrant_berl_subject_context_not_established"
+                for issue in runtime.issues
+            )
+            assert runtime.records[0]["threshold_decision"]["status"] == "fail"
+            assert (
+                runtime.records[0]["candidate_diagnostics"]["threshold_decision"]["status"]
+                == "pass"
+            )
+            assert "policy_design_warrant_berl_subject_context_not_established" in {
+                str(gate.get("code")) for gate in gates
+            }
+            assert phase5_explanation.status == "pass"
+        else:
+            assert bundle.methods[0].scope == "diagnostic"
+            assert bundle.methods[0].attributions == []
+            assert any(
+                "conditional_feature_law_unverified" in issue.message for issue in runtime.issues
+            )
+            assert any(
+                "conditional_feature_law_unverified" in str(gate.get("message")) for gate in gates
+            )
+            assert phase5_explanation.status == "blocked"

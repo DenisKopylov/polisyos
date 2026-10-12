@@ -7,7 +7,12 @@ from typing import Any, Literal
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -42,6 +47,7 @@ from polisyos.scientist.methods.autotune.bayesian_generator import (
 from polisyos.scientist.methods.autotune.execution_work import (
     fingerprint_method_input_value,
 )
+from polisyos.scientist.methods.autotune.models import SearchGPFitBasis
 from polisyos.scientist.methods.autotune.runtime import (
     MethodJobBenchmarkEvaluator,
     PydanticMutationCodec,
@@ -65,6 +71,7 @@ class _NonDiagnosticCausalCandidate(MutationArtifact):
 
 
 class _NativeSearchDiagnosticCandidate(_DiagnosticCausalCandidate):
+    loop_id: Literal["b157_diagnostic"] = "b157_diagnostic"
     search_coordinate: float = 0.5
 
 
@@ -112,6 +119,7 @@ def _persist_source_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactR
             schema=SchemaInfo(name="tests.MethodDataset", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     snapshot_ref = store.put_json(
         DataSnapshot(data_ref=data_ref),
@@ -119,9 +127,10 @@ def _persist_source_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactR
             kind="fabric.data_snapshot",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
-            inputs=[InputRef(artifact_id=data_ref.artifact_id, role="data_ref")],
+            inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     suite_ref = persist_benchmark_suite(
         store,
@@ -133,6 +142,63 @@ def _persist_source_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactR
         inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
     )
     return candidate_ref, suite_ref, snapshot_ref
+
+
+def _persist_parameter_search_source_inputs(
+    store: FileSystemCAS,
+) -> tuple[ArtifactRef, ArtifactRef]:
+    """Persist a fixed-seed nonlinear synthetic source for parameter-effect search."""
+    n = 40
+    x_axis = np.linspace(-2.25, 2.25, n)
+    x = x_axis.reshape(-1, 1)
+    rng = np.random.default_rng(20261012)
+    treatment_probability = 1.0 / (1.0 + np.exp(-1.8 * x_axis))
+    treatment = (rng.random(n) < treatment_probability).astype(float)
+    noise = rng.normal(0.0, 0.2, n)
+    outcome = (
+        0.7 * np.sin(1.6 * x_axis)
+        + 0.08 * np.square(x_axis)
+        + treatment * (0.2 + 0.45 * np.tanh(x_axis))
+        + noise
+    )
+    data_ref = store.put_json(
+        {
+            "X": x.tolist(),
+            "X_alternative": (x + 0.25).tolist(),
+            "treatment": treatment.tolist(),
+            "outcome": outcome.tolist(),
+        },
+        ArtifactWriteOptions(
+            kind="scientist.method_dataset",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.MethodDataset", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=data_ref),
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(suite_id="b157_parameter_search_source_bound", kind="method_job"),
+    )
+    return suite_ref, snapshot_ref
+
+
+def _selected_evaluation_ref(stage_b: dict[str, Any]) -> ArtifactRef:
+    """Read the runtime's full selected evaluation ref, never its legacy bare-ID projection."""
+    ref = ArtifactRef.model_validate(stage_b["metadata"]["evaluation_artifact_ref"])
+    assert ref.manifest_profile_sha256 is not None
+    return ref
 
 
 def _patch_lightweight_nuisance_layers(monkeypatch: pytest.MonkeyPatch, n: int) -> None:
@@ -310,6 +376,9 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     chained_l4_packet = read_method_job_execution_work_packet(
         fresh_reader, chained_l4.execution_work_packet_ref
     )
+    assert direct_packet.schema_version == "1.2"
+    assert l3_packet.schema_version == "1.2"
+    assert chained_l4_packet.schema_version == "1.2"
     direct_evidence = load_json_artifact(fresh_reader, direct_packet.method_evidence_ref)
     assert isinstance(direct_evidence, dict)
     dispatch_binding = MethodDispatchBinding.model_validate(
@@ -602,7 +671,7 @@ def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
     assert stage_b is not None
     evaluation = load_model_artifact(
         FileSystemCAS(tmp_path / "cas"),
-        stage_b["simulation_results"]["evaluation_ref"],
+        _selected_evaluation_ref(stage_b),
         BenchmarkEvaluation,
     )
     assert isinstance(evaluation, BenchmarkEvaluation)
@@ -724,7 +793,7 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
     assert stage_b is not None
     evaluation = load_model_artifact(
         FileSystemCAS(tmp_path / "cas"),
-        stage_b["simulation_results"]["evaluation_ref"],
+        _selected_evaluation_ref(stage_b),
         BenchmarkEvaluation,
     )
     assert isinstance(evaluation, BenchmarkEvaluation)
@@ -742,7 +811,7 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
 def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path) -> None:
     MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
     store = FileSystemCAS(tmp_path / "cas")
-    _, suite_ref, snapshot_ref = _persist_source_inputs(store)
+    suite_ref, snapshot_ref = _persist_parameter_search_source_inputs(store)
     context = {
         "data_snapshot_ref": snapshot_ref.model_dump(mode="json"),
         "policy_context": {"case": "b157_source_bound_diagnostic"},
@@ -762,6 +831,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
                     "treatment": "treatment",
                     "outcome": "outcome",
                 },
+                search_parameter_bindings={"search_coordinate": "propensity_clipping"},
                 method_params={
                     "capture_execution_work": True,
                     "bootstrap_draws": 40,
@@ -783,7 +853,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         )
 
     generator = BayesianCandidateGenerator(
-        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.0, "upper": 1.0}]),
+        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.01, "upper": 0.49}]),
         primary_metric="ate",
         direction=MetricDirection.MAXIMIZE,
         compare_split=BenchmarkSplit.SELECTION,
@@ -798,17 +868,21 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         _spec(generator),
         suite_ref=suite_ref,
         context=context,
-        max_iterations=3,
+        max_iterations=4,
     )
-    assert len(source_result.history) == 3
+    assert len(source_result.history) == 4
 
     fresh_reader = FileSystemCAS(tmp_path / "cas")
+    observed_ate_values: list[float] = []
+    observed_clipping_values: list[float] = []
+    observed_evaluation_refs: list[ArtifactRef] = []
     for item in source_result.history:
         stage_b = item.stage_b_result
         assert stage_b is not None
+        evaluation_ref = _selected_evaluation_ref(stage_b)
         evaluation = load_model_artifact(
             fresh_reader,
-            stage_b["simulation_results"]["evaluation_ref"],
+            evaluation_ref,
             BenchmarkEvaluation,
         )
         assert isinstance(evaluation, BenchmarkEvaluation)
@@ -819,15 +893,62 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         packet = read_method_job_execution_work_packet(
             fresh_reader, evaluation.execution_work_packet_ref
         )
+        candidate = item.candidate
+        selected_clipping = candidate["search_coordinate"]
+        assert packet.schema_version == "1.3"
+        assert packet.search_method_run_profile is not None
+        assert packet.search_method_run_profile.search_parameter_bindings == {
+            "search_coordinate": "propensity_clipping"
+        }
+        assert packet.search_parameter_values == {"search_coordinate": selected_clipping}
+        assert packet.configured_method_params["propensity_clipping"] == selected_clipping
+        if not observed_clipping_values:
+            detached_packet = packet.model_copy(
+                update={
+                    "search_parameter_values": {
+                        "search_coordinate": selected_clipping + 0.1
+                    }
+                }
+            )
+            detached_ref = persist_method_job_execution_work_packet(
+                fresh_reader, detached_packet
+            )
+            with pytest.raises(
+                ValueError, match="method_work_packet_search_parameter_source_mismatch"
+            ):
+                read_method_job_execution_work_packet(fresh_reader, detached_ref)
         assert packet.actual_sample_count == 40
         assert _work(packet).completed_draw_count == 40
+        method_output = load_json_artifact(fresh_reader, packet.method_result_ref)
+        assert isinstance(method_output, dict)
+        result_body = method_output.get("result")
+        assert isinstance(result_body, dict)
+        assert result_body["nuisance_config"]["propensity_clipping"] == selected_clipping
+        observed_ate_values.append(evaluation.selection_metrics["ate"])
+        observed_clipping_values.append(selected_clipping)
+        observed_evaluation_refs.append(evaluation_ref)
         assert evaluation.promotable is False
+    assert len(observed_evaluation_refs) == 4
+    assert len(
+        {
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in observed_evaluation_refs
+        }
+    ) == 4
+    assert all(np.isfinite(value) for value in observed_ate_values)
+    assert len(set(observed_ate_values)) == 4
+    assert len(set(observed_clipping_values)) > 1
+    assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
+        "bayesian_acquisition"
+    )
 
     last_stage_b = source_result.history[-1].stage_b_result
     assert last_stage_b is not None
+    last_evaluation_ref = _selected_evaluation_ref(last_stage_b)
+    assert last_evaluation_ref == observed_evaluation_refs[-1]
     source_evaluation = load_model_artifact(
         fresh_reader,
-        last_stage_b["simulation_results"]["evaluation_ref"],
+        last_evaluation_ref,
         BenchmarkEvaluation,
     )
     assert isinstance(source_evaluation, BenchmarkEvaluation)
@@ -837,17 +958,35 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
     assert profile.proposal_source == "bayesian_acquisition"
     assert profile.gp_model_fqn == "botorch.models.gp_regression.SingleTaskGP"
     assert profile.warm_start_eligible is True
-    assert profile.training_observation_count is not None
-    assert profile.training_observation_count >= 2
+    assert profile.training_observation_count == 3
+    source_fit_basis_ref = ArtifactRef.model_validate(
+        source_evaluation.metadata["search_gp_fit_basis_ref"]
+    )
+    assert source_fit_basis_ref.manifest_profile_sha256 is not None
+    source_fit_basis = load_model_artifact(
+        fresh_reader, source_fit_basis_ref, SearchGPFitBasis
+    )
+    assert isinstance(source_fit_basis, SearchGPFitBasis)
+    assert source_fit_basis.run_profile.data_snapshot_ref == snapshot_ref
+    assert source_fit_basis.run_profile.data_ref is not None
+    assert source_fit_basis.run_profile.data_sample_count == 40
+    assert source_fit_basis.run_profile.schema_version == "2"
+    assert source_fit_basis.run_profile.search_parameter_bindings == {
+        "search_coordinate": "propensity_clipping"
+    }
+    assert source_fit_basis.run_profile.method_signature_abi_digest
+    assert source_fit_basis.training_observation_count == 3
+    assert source_fit_basis.training_evaluation_refs == observed_evaluation_refs[:3]
+    assert len(source_fit_basis.training_evaluation_refs) == 3
 
     source_evaluations = generator._history_to_evaluations(source_result.history)
-    assert len(source_evaluations) == 3
+    assert len(source_evaluations) == 4
     assert all(evaluation.is_valid for evaluation in source_evaluations)
     source_fingerprint = RunFingerprint(
         run_id="b157-native-source-run",
         space_hash=generator._search_space._native.sobol_space_fingerprint(),
         objective_names=["ate"],
-        bounds={"search_coordinate": {"lower": 0.0, "upper": 1.0}},
+        bounds={"search_coordinate": {"lower": 0.01, "upper": 0.49}},
         split=BenchmarkSplit.SELECTION.value,
         units={},
         origin="b157-native-methodjob-test",
@@ -863,7 +1002,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
     assert bridge.load_warm_start(target_fingerprint)
 
     target_generator = BayesianCandidateGenerator(
-        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.0, "upper": 1.0}]),
+        SearchSpace(bounds=[{"name": "search_coordinate", "lower": 0.01, "upper": 0.49}]),
         primary_metric="ate",
         direction=MetricDirection.MAXIMIZE,
         compare_split=BenchmarkSplit.SELECTION,
@@ -887,7 +1026,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
     assert target_stage_b is not None
     target_evaluation = load_model_artifact(
         FileSystemCAS(tmp_path / "cas"),
-        target_stage_b["simulation_results"]["evaluation_ref"],
+        _selected_evaluation_ref(target_stage_b),
         BenchmarkEvaluation,
     )
     assert isinstance(target_evaluation, BenchmarkEvaluation)
@@ -896,8 +1035,13 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
     target_packet = read_method_job_execution_work_packet(
         FileSystemCAS(tmp_path / "cas"), target_evaluation.execution_work_packet_ref
     )
+    assert target_packet.schema_version == "1.3"
     assert target_packet.actual_sample_count == 40
     assert _work(target_packet).completed_draw_count == 40
+    assert (
+        target_packet.configured_method_params["propensity_clipping"]
+        == target_packet.search_parameter_values["search_coordinate"]
+    )
     assert target_evaluation.search_source_profile is not None
     assert target_evaluation.search_source_profile.profile_kind == "configured_native_gp"
     assert "ate" in target_stage_b["simulation_results"]

@@ -5,6 +5,11 @@ import math
 import numpy as np
 import pytest
 
+from polisyos.foundry.methods.catalog.survey.demographic_consistency import (
+    _relative_interior_support,
+)
+
+
 
 def _method_or_skip(registry, fqn):
     return registry.get(fqn)
@@ -112,6 +117,164 @@ class TestDemographicConsistencyEstimator:
 
         with pytest.raises(ValueError, match="did not converge"):
             method.pure_step(state, {"tolerance": 1e-10, "max_iterations": 25})
+
+    def test_exact_reconciled_triangular_boundary_fixture_converges(
+        self, isolated_registry
+    ) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "survey.demography.demographic_consistency@1.0.0",
+        )
+        state = {
+            "base_weights": np.array([1.0, 2.0], dtype=float),
+            "candidate_record_index": np.array([0, 0, 1], dtype=int),
+            "candidate_state_index": np.array([0, 1, 1], dtype=int),
+            "prior_flows": np.array([0.8, 0.2, 1.0], dtype=float),
+            "target_state_totals": np.array([10.0, 20.0], dtype=float),
+        }
+        result = method.pure_step(
+            state, {"max_iterations": 250, "tolerance": 1e-8}
+        )["result"]
+
+        assert np.allclose(result.calibrated_flows, np.array([1.0, 0.0, 2.0]))
+        assert np.allclose(result.achieved_row_totals, np.array([1.0, 2.0]))
+        assert np.allclose(result.achieved_state_totals, np.array([1.0, 2.0]))
+        assert result.diagnostics["mass_reconciliation_applied"] is True
+        assert result.diagnostics["converged"] is True
+        assert result.diagnostics["structural_zero_violations"] == 0
+
+    def test_balances_fractional_boundary_support_and_label_permutation(
+        self, isolated_registry
+    ) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "survey.demography.demographic_consistency@1.0.0",
+        )
+        state = {
+            "base_weights": np.array([0.5, 1.25], dtype=float),
+            "candidate_record_index": np.array([0, 0, 1], dtype=int),
+            "candidate_state_index": np.array([0, 1, 1], dtype=int),
+            "prior_flows": np.array([0.3, 0.2, 1.25], dtype=float),
+            "target_state_totals": np.array([0.5, 1.25], dtype=float),
+        }
+        original_prior = state["prior_flows"].copy()
+        params = {"max_iterations": 4, "tolerance": 1e-10}
+        result = method.pure_step(state, params)["result"]
+
+        assert np.allclose(result.calibrated_flows, np.array([0.5, 0.0, 1.25]))
+        assert np.allclose(result.achieved_row_totals, state["base_weights"])
+        assert np.allclose(result.achieved_state_totals, state["target_state_totals"])
+        assert result.diagnostics["converged"] is True
+        assert result.diagnostics["structural_zero_violations"] == 0
+        assert np.array_equal(state["prior_flows"], original_prior)
+
+        permuted = {
+            "base_weights": np.array([1.25, 0.5], dtype=float),
+            "candidate_record_index": np.array([1, 0, 1], dtype=int),
+            "candidate_state_index": np.array([0, 0, 1], dtype=int),
+            "prior_flows": np.array([0.2, 1.25, 0.3], dtype=float),
+            "target_state_totals": np.array([1.25, 0.5], dtype=float),
+        }
+        permuted_result = method.pure_step(permuted, params)["result"]
+        actual_by_pair = dict(
+            zip(
+                zip(
+                    permuted_result.candidate_record_index,
+                    permuted_result.candidate_state_index,
+                    strict=True,
+                ),
+                permuted_result.calibrated_flows,
+                strict=True,
+            )
+        )
+        expected_by_pair = {(0, 0): 0.5, (0, 1): 0.0, (1, 1): 1.25}
+        for pair, expected in expected_by_pair.items():
+            permuted_pair = (1 - pair[0], 1 - pair[1])
+            assert math.isclose(actual_by_pair[permuted_pair], expected, abs_tol=1e-10)
+
+    def test_keeps_edges_that_can_carry_mass_on_an_alternating_cycle(
+        self, isolated_registry
+    ) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "survey.demography.demographic_consistency@1.0.0",
+        )
+        state = {
+            "base_weights": np.array([1.0, 1.0], dtype=float),
+            "candidate_record_index": np.array([0, 0, 1, 1], dtype=int),
+            "candidate_state_index": np.array([0, 1, 0, 1], dtype=int),
+            "prior_flows": np.array([0.8, 0.2, 0.1, 0.9], dtype=float),
+            "target_state_totals": np.array([1.0, 1.0], dtype=float),
+        }
+        result = method.pure_step(
+            state, {"max_iterations": 100, "tolerance": 1e-10}
+        )["result"]
+
+        assert np.all(result.calibrated_flows > 0.0)
+        assert np.allclose(result.achieved_row_totals, state["base_weights"])
+        assert np.allclose(result.achieved_state_totals, state["target_state_totals"])
+        assert result.diagnostics["converged"] is True
+
+    def test_hall_infeasible_sparse_margins_still_refuse(self, isolated_registry) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "survey.demography.demographic_consistency@1.0.0",
+        )
+        state = {
+            "base_weights": np.array([1.0, 1.0, 1.0], dtype=float),
+            "candidate_record_index": np.array([0, 1, 2], dtype=int),
+            "candidate_state_index": np.array([0, 0, 1], dtype=int),
+            "prior_flows": np.array([1.0, 1.0, 1.0], dtype=float),
+            "target_state_totals": np.array([1.5, 1.5], dtype=float),
+        }
+
+        with pytest.raises(ValueError, match="did not converge"):
+            method.pure_step(
+                state,
+                {"max_iterations": 25, "tolerance": 1e-10, "require_convergence": True},
+            )
+
+    def test_zero_survivor_population_remains_a_valid_boundary(self, isolated_registry) -> None:
+        method = _method_or_skip(
+            isolated_registry,
+            "survey.demography.demographic_consistency@1.0.0",
+        )
+        state = {
+            "base_weights": np.array([1.0, 2.0], dtype=float),
+            "exit_weights": np.array([1.0, 2.0], dtype=float),
+            "candidate_record_index": np.array([0, 0, 1], dtype=int),
+            "candidate_state_index": np.array([0, 1, 1], dtype=int),
+            "prior_flows": np.array([0.8, 0.2, 1.0], dtype=float),
+            "target_state_totals": np.array([0.0, 0.0], dtype=float),
+        }
+
+        result = method.pure_step(
+            state, {"max_iterations": 4, "tolerance": 1e-8}
+        )["result"]
+
+        assert np.array_equal(result.calibrated_flows, np.zeros(3))
+        assert np.array_equal(result.record_survivor_weights, np.zeros(2))
+        assert np.array_equal(result.achieved_state_totals, np.zeros(2))
+        assert np.array_equal(result.exit_weights, state["exit_weights"])
+        assert result.diagnostics["converged"] is True
+        assert result.diagnostics["structural_zero_violations"] == 0
+
+    def test_one_ulp_mass_gap_keeps_the_support_proof_conservative(self) -> None:
+        requested_tolerance = 1e-8
+        adjacent_total = math.nextafter(1.0, math.inf)
+        assert 0.0 < adjacent_total - 1.0 < requested_tolerance
+
+        support_proof = _relative_interior_support(
+            np.array([1.0]),
+            np.array([adjacent_total]),
+            np.array([0], dtype=int),
+            np.array([0], dtype=int),
+            np.array([1.0]),
+        )
+
+        # The estimator's requested tolerance may accept this tiny discrepancy,
+        # but it is not an exact transportation witness for pruning support.
+        assert support_proof is None
 
     def test_soft_constraints_improve_non_core_margin_fit(self, isolated_registry) -> None:
         method = _method_or_skip(

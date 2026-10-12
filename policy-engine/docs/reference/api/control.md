@@ -28,10 +28,37 @@ All `POST /api/v1/control/*` mutations pass through
 `MutationProtectionMiddleware` before the route handler.
 
 - Per-tenant write rate limits return `429 rate_limit_exceeded`.
-- Reused `X-Idempotency-Key` values replay the original successful response
-  only when tenant, method, path, and request hash match.
-
-- Reusing a key for a different payload returns `409 idempotency_key_reused`.
+- `X-Idempotency-Key` is the optional middleware replay key on routes that
+  document that mechanism; replay is scoped by tenant, method, path, and request hash.
+  Reusing it for changed payload returns `409 idempotency_key_reused`.
+- `POST /api/v1/control/runs/nl` bypasses the generic X-key response cache so a
+  cached reply cannot precede validation by its route-owned attempt contract. The
+  middleware still rate-limits and audits requests reaching its audit path; the
+  supplied X-key and body hash remain auditable. Route-owner retries remain subject
+  to the per-tenant write quota.
+  Every execution profile requires `Idempotency-Key`; the server binds it to
+  the verified actor, tenant, cell, route purpose, and normalized request intent
+  before provider preflight or job admission. Recovery returns the exact shared
+  owner binding and complete append-only history. Research/governed/production
+  admission and complete-evidence terminal outcomes require a prior complete
+  settlement. A pre-completion refusal can be resolved only by the typed
+  producer-attested `no_call` observation and its exact typed
+  `producer_no_call_reason` (`producer_run_binding_not_established` or
+  `provider_preflight_not_started`), joined to the source-owned failure code in
+  both append-only history and the aggregate response. An empty ledger read is
+  unavailable, not proof of no call. Dev admission records a direct
+  started-to-admitted transition with `not_applicable` producer evidence and does
+  not claim a settlement event. Reuse a key only for the same intent.
+  `X-Idempotency-Key` does not substitute for this required header.
+- After an ambiguous reply, reuse the same key only with the same request and query
+  `GET /api/v1/control/admission-attempts/by-idempotency-key` under the same
+  authenticated principal. A no-store `404` remains unresolved; it does not
+  prove that no attempt or provider work exists. The dashboard retains the same
+  key when a terminal status has an unavailable producer observation, and clears
+  it only after the owner binding, caller scope, complete status history, and
+  profile-specific producer basis agree. A missing or mismatched producer-call
+  state/reason pair keeps the key unresolved. Malformed or missing persisted evidence
+  fails closed and is never interpreted as an empty observation.
 - Concurrent reuse while the first request is still pending returns
   `409 idempotency_request_in_progress`.
 
@@ -60,6 +87,8 @@ Validation anchors:
 | `POST` | `/api/v1/control/runs/{run_id}/feedback/evaluate` | None                        | `FeedbackActionResponse` |
 | `POST` | `/api/v1/control/runs/{run_id}/reissue`           | None                        | `FeedbackActionResponse` |
 | `GET`  | `/api/v1/control/jobs/{job_id}`                   | None                        | `ControlJobResponse`     |
+| `GET`  | `/api/v1/control/admission-attempts/{attempt_id}` | None | `ControlPreAdmissionAttemptResponse` |
+| `GET`  | `/api/v1/control/admission-attempts/by-idempotency-key` | Idempotency-Key header | `ControlPreAdmissionAttemptResponse` |
 
 ### Data Discovery, Resolution, And Ingestion
 
@@ -148,6 +177,9 @@ http POST :8000/api/v1/control/runs \
 
 Launch an agent-circuit run from a natural-language request.
 
+- Required header: `Idempotency-Key`; generate one stable key per immutable
+  request intent and reuse it only for an exact-intent retry. Set
+  `IDEMPOTENCY_KEY` to that opaque key in the examples below.
 - Request body: `NaturalLanguageRunRequest`
   - Required: `request`
   - Optional: `context`, `data_source`, `domain_hint`, `execution_profile`, `expected_outputs`, `governance_constraints`, `llm_model`, `llm_models`, `max_iterations`
@@ -157,6 +189,7 @@ Launch an agent-circuit run from a natural-language request.
 curl -X POST "http://localhost:8000/api/v1/control/runs/nl" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
+  -H "Idempotency-Key: $IDEMPOTENCY_KEY" \
   -d '{
     "request": "Estimate the welfare effect of a temporary wage subsidy for urban households.",
     "data_source": {
@@ -170,6 +203,7 @@ curl -X POST "http://localhost:8000/api/v1/control/runs/nl" \
 ```bash
 http POST :8000/api/v1/control/runs/nl \
   "Authorization:Bearer $TOKEN" \
+  "Idempotency-Key:$IDEMPOTENCY_KEY" \
   request="Estimate the welfare effect of a temporary wage subsidy for urban households." \
   data_source:='{"data_snapshot_ref":"sha256:1111111111111111111111111111111111111111111111111111111111111111"}' \
   execution_profile=research \

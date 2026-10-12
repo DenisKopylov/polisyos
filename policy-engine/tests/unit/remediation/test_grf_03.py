@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from itertools import product
+
 import pytest
 
 from polisyos.foundry.methods.catalog.causal._graph_projection import (
@@ -12,6 +14,8 @@ from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     EdgeMark,
     GraphType,
+    UnsupportedGraphProjectionError,
+    project_graph_to_dag,
 )
 
 
@@ -99,7 +103,120 @@ def test_static_dag_projection_remains_identity() -> None:
 
     projected, latent_vars = pag_to_dag_projection(graph)
 
-    assert projected is graph
+    assert projected == graph
+    assert projected is not graph
     assert latent_vars == []
     assert '"X" -> "Y";' in projected.to_dot()
     assert "lag=" not in projected.to_dot()
+
+
+
+def test_projection_refuses_subclass_serialization_mismatch() -> None:
+    class LyingGraph(CausalGraphModel):
+        def model_dump(self, *args, **kwargs):
+            del args, kwargs
+            return {
+                "graph_type": "dag",
+                "nodes": ["X", "Y"],
+                "edges": [
+                    {
+                        "src": "X",
+                        "dst": "Y",
+                        "mark_src": "tail",
+                        "mark_dst": "arrow",
+                    }
+                ],
+            }
+
+    graph = LyingGraph(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+    )
+    with pytest.raises(
+        UnsupportedGraphProjectionError, match="causal_graph_profile_invalid"
+    ):
+        pag_to_dag_projection(graph)
+
+
+def test_graph_projection_admission_covers_full_profile_endpoint_product() -> None:
+    accepted = {
+        GraphType.DAG: {(EdgeMark.TAIL, EdgeMark.ARROW)},
+        GraphType.PAG: {
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+        },
+        GraphType.CPDAG: {
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+        },
+        GraphType.ADMG: {
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+            (EdgeMark.ARROW, EdgeMark.ARROW),
+        },
+        GraphType.MGRAPH: set(),
+    }
+    checked = 0
+    copied_invalid_profiles = 0
+    for graph_type, marks, reverse_storage in product(
+        GraphType,
+        product(EdgeMark, repeat=2),
+        (False, True),
+    ):
+        src, dst = ("Y", "X") if reverse_storage else ("X", "Y")
+        graph = None
+        try:
+            graph = CausalGraphModel(
+                graph_type=graph_type,
+                nodes=["X", "Y"],
+                edges=[
+                    CausalEdge(
+                        src=src,
+                        dst=dst,
+                        mark_src=marks[0],
+                        mark_dst=marks[1],
+                    )
+                ],
+            )
+        except ValueError:
+            assert marks not in accepted[graph_type]
+        if graph is not None:
+            copied_invalid_profiles += 1
+            invalid_edge = CausalEdge(
+                src=src,
+                dst=dst,
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+            validator_bypassed_dag = graph.model_copy(
+                update={"graph_type": GraphType.DAG, "edges": [invalid_edge]}
+            )
+            with pytest.raises(UnsupportedGraphProjectionError):
+                project_graph_to_dag(validator_bypassed_dag)
+            with pytest.raises(UnsupportedGraphProjectionError):
+                pag_to_dag_projection(validator_bypassed_dag)
+
+            should_project = marks in accepted[graph_type]
+            if should_project:
+                projected, latent_vars = pag_to_dag_projection(graph)
+                assert projected.graph_type is GraphType.DAG
+                assert projected.nodes[:2] == ["X", "Y"]
+                is_admg_bidirected = (
+                    graph_type is GraphType.ADMG
+                    and marks == (EdgeMark.ARROW, EdgeMark.ARROW)
+                )
+                assert bool(latent_vars) is is_admg_bidirected
+            else:
+                with pytest.raises(ValueError):
+                    pag_to_dag_projection(graph)
+        checked += 1
+    assert checked == len(GraphType) * len(EdgeMark) ** 2 * 2
+    assert copied_invalid_profiles > 0

@@ -67,10 +67,16 @@ def test_declaration_keeps_non_emission_and_contradiction_separate(historical_db
     assert payload["confidence_reproducibility"] == "not_reproducible_under_current_rule"
     assert payload["layers"] == [
         {"table": "ac_skg_edges", "row_count": 7607, "current_rule_outcome": "zero_confidence"},
-        {"table": "ac_skg_family_edges", "row_count": 15945,
-         "current_rule_outcome": "zero_confidence"},
-        {"table": "ac_skg_contested_edges", "row_count": 723,
-         "current_rule_outcome": "not_emitted"},
+        {
+            "table": "ac_skg_family_edges",
+            "row_count": 15945,
+            "current_rule_outcome": "zero_confidence",
+        },
+        {
+            "table": "ac_skg_contested_edges",
+            "row_count": 723,
+            "current_rule_outcome": "not_emitted",
+        },
     ]
     assert payload["adjudication_contradicting_evidence_rows"] == 342
     assert payload["published_evidence_rows"] == 7868
@@ -88,12 +94,30 @@ def test_transport_and_store_summary_cannot_bypass_declaration(historical_db: Pa
             query._transport_confidence_for_edges(("e",), "ctx")
         with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
             query._store.project_edge_summary(
-                source_table="ac_skg_edges", source_identity="e",
-                cause="tax", effect="employment", direction="positive", evidence_strength="rct",
-                mechanism="exact_support", domain="", trust_score=0.83, work_title="one work",
+                source_table="ac_skg_edges",
+                source_identity="e",
+                cause="tax",
+                effect="employment",
+                direction="positive",
+                evidence_strength="rct",
+                mechanism="exact_support",
+                domain="",
+                trust_score=0.83,
+                work_title="one work",
             )
     finally:
         query.close()
+
+
+def test_prepared_credal_rows_cannot_bypass_historical_vintage(historical_db: Path) -> None:
+    prepared = SKGQuery.prepare_read(db_path=historical_db, index_dir=historical_db.parent)
+    try:
+        marker = prepared.query_execution_marker()
+        with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+            prepared.read_credal_source_rows()
+        assert prepared.query_fingerprints_since(marker) == ()
+    finally:
+        prepared.close()
 
 
 def test_unreadable_snapshot_is_ambiguous(tmp_path: Path) -> None:
@@ -102,7 +126,9 @@ def test_unreadable_snapshot_is_ambiguous(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("cached", [False, True])
-def test_historical_floor_cannot_control_bounds_even_when_cached(historical_db: Path, cached: bool) -> None:
+def test_historical_floor_cannot_control_bounds_even_when_cached(
+    historical_db: Path, cached: bool
+) -> None:
     query = SKGQuery(historical_db, historical_db.parent)
     try:
         if cached:
@@ -113,7 +139,9 @@ def test_historical_floor_cannot_control_bounds_even_when_cached(historical_db: 
         query.close()
 
 
-def test_rowwise_rewrite_is_an_explicit_unbound_residual(historical_db: Path, tmp_path: Path) -> None:
+def test_rowwise_rewrite_is_an_explicit_unbound_residual(
+    historical_db: Path, tmp_path: Path
+) -> None:
     """Falsify universal copy coverage without mistaking the residual for currentness."""
     rewritten = tmp_path / "rowwise.duckdb"
     with duckdb.connect(str(rewritten)) as con:
@@ -129,7 +157,9 @@ def test_rowwise_rewrite_is_an_explicit_unbound_residual(historical_db: Path, tm
 
 
 @pytest.mark.parametrize("layer", ["exact", "family", "contested", "hybrid"])
-def test_declared_snapshot_cannot_forward_support_confidence(historical_db: Path, layer: str) -> None:
+def test_declared_snapshot_cannot_forward_support_confidence(
+    historical_db: Path, layer: str
+) -> None:
     query = SKGQuery(historical_db, historical_db.parent)
     try:
         with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
@@ -149,8 +179,11 @@ def test_snapshot_copy_refuses_before_deleting_destination(historical_db: Path) 
         con.execute(f"ATTACH '{historical_db}' AS source (READ_ONLY)")
         with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
             best_snapshot._replace_table_contents(
-                con, target_table="ac_skg_edges", source_alias="source",
-                source_table="ac_skg_edges", version_id=None,
+                con,
+                target_table="ac_skg_edges",
+                source_alias="source",
+                source_table="ac_skg_edges",
+                version_id=None,
             )
         assert con.execute("SELECT edge_id, confidence FROM ac_skg_edges").fetchall() == [
             ("keep", 0.9)
@@ -158,7 +191,8 @@ def test_snapshot_copy_refuses_before_deleting_destination(historical_db: Path) 
 
 
 def test_removing_declaration_changes_forwarding_while_markers_stay(
-    historical_db: Path, monkeypatch: pytest.MonkeyPatch,
+    historical_db: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     query = SKGQuery(historical_db, historical_db.parent)
     try:
@@ -170,7 +204,8 @@ def test_removing_declaration_changes_forwarding_while_markers_stay(
         assert [(row["edge_id"], row["confidence"]) for row in rows] == [("e", 0.83)]
         with duckdb.connect(str(historical_db), read_only=True) as con:
             assert json.loads(con.execute("SELECT payload FROM metadata").fetchone()[0]) == {
-                "evidence_strength": "rct", "layer_vintage": "current",
+                "evidence_strength": "rct",
+                "layer_vintage": "current",
             }
     finally:
         query.close()

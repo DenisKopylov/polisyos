@@ -1,0 +1,40 @@
+id = "2026-10-12-e02-i1-c05-catalog-source-selection"
+title = "Bind candidate generation to one selected catalog source"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "An optional typed app setting selects a fixed-layout candidate L1 catalog source and carries that same source through recursive and NL generation consumers; omitted selection preserves the repository default."
+evidence = [
+  "src/polisyos/runtime/http/app.py",
+  "src/polisyos/runtime/http/container.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+  "src/polisyos/runtime/quality/substrate_registry.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "tests/unit/runtime/quality/test_catalog_source_selection.py",
+  "src/polisyos/runtime/http/README.md",
+  "docs/reference/api/migration-guide.md",
+]
+compatibility = "The new create_runtime_api_app catalog_source_selection option is optional and keyword-only. When omitted, the existing repository-default catalog input remains selected. A supplied selector/profile mismatch or missing/unbound database refuses composition; no HTTP request/response or OpenAPI fields change."
+change_class = "additive"
+surface_classification = "public Python app-factory configuration only; the HTTP endpoint and generated-client contract do not change."
+migration = "No persisted-data migration is required. Deployments that opt in pass a CatalogServingSourceSelection containing an absolute snapshot_root and CatalogRunProfile; the selected fixed-layout database is candidate input only."
+api = "create_runtime_api_app(catalog_source_selection=CatalogServingSourceSelection(snapshot_root=..., catalog_run_profile=...)) selects snapshot_root/datasets/graph/dataset_catalog.duckdb for candidate L1 consumers. When app catalog_run_profile is omitted, the selector profile is used; conflicting profiles and missing DB paths refuse. The same resolved source is bound through sync NL and async recursive generation and shared L1 consumers."
+limitations = "Path/profile resolution does not establish producer publication lineage, source content provenance, global profile coverage, freshness/currentness, external authority, or publication readiness. Legacy absence remains candidate-only; no production manifest, source profile registry, or historical artifact is rewritten."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/migration-guide.md", "src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-app-candidate-catalog-source"
+change_class = "python-configuration"
+impact = "compatible"
+surface = "optional keyword-only create_runtime_api_app configuration; no HTTP request/response or OpenAPI shape change"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Deployments may opt into a candidate snapshot-root catalog input. Omitting the setting preserves the existing repository-default source."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/api/migration-guide.md"]
+runbook_docs = []

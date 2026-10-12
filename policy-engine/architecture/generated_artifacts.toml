@@ -1371,7 +1371,7 @@ label = "Data Forge migration fixture baselines"
 owner = "team-data-forge"
 approval_owner = "team-architecture"
 lifecycle = "generated_committed"
-generator = "canonical generator declared in regenerate_commands"
+generator = "Manual paired baseline review; Ukraine shadow checksum sentinel is provisioned by _materialize_shadow_checksum_bundle in pytest tmp_path (metadata only, not Parquet output)"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "warn"
@@ -1383,6 +1383,7 @@ outputs = [
 ]
 regenerate_commands = [
   "manual review: refresh paired baseline/candidate fixtures and run uv run pytest tests/unit/data_forge/test_phase1_shared_kernel_cutover.py tests/unit/data_forge/test_phase7_schema_quality_observability.py tests/unit/data_forge/test_repository_sota_phase1_foundation.py -q",
+  "uv run pytest tests/unit/data_forge/test_phase5_ukraine_scaffolding.py -q",
 ]
 commit_policy = "committed"
 freshness_rule = "Refresh when Data Forge behavior-changing migrations intentionally update golden, replay, shadow, or differential baselines."

@@ -52,8 +52,15 @@ System notes:
 
 ## Code Style
 
-- Ruff is configured in `pyproject.toml` with `line-length = 100`, `target-version = "py314"`, and
-  the active rule sets `E`, `F`, `I`, `B`, `T20`, `N`.
+- Ruff's product-root entry point is generated `ruff.toml`, which extends `ruff.generated.toml`;
+  edit the fragments declared in `architecture/tooling/tool_config_split.toml`. From
+  `policy-engine/`, Ruff auto-discovers this product config. A caller from the Git root must
+  use `policy-engine/architecture/tooling/ruff/workspace_root.toml` so source roots and
+  path-based settings resolve under the product directory. `pyproject.toml` declares Ruff
+  as a lint dependency but contains no Ruff settings.
+- The shared policy uses `line-length = 100`, `target-version = "py314"`, and rule prefixes
+  `E`, `F`, `I`, `B`, `T20`, `N`, `UP`, `S`, `PT`, `SIM`, `RUF`, `ANN`, `C4`, and `TCH`;
+  package-specific per-file ignores come from the split fragments.
 
 - Public APIs must be fully type-annotated.
 - Public Pydantic DTOs and contracts should use `ConfigDict(extra="forbid")`; in IR this is often

@@ -3410,7 +3410,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
         assert admin_only_mutation == {"executed": False}
         execution_response = client.post(
             "/api/v1/control/runs/nl",
-            headers=headers,
+            headers={**(headers), "Idempotency-Key": "test-r216-6a7d738f585141519bd4ea73f25cab0d"},
             json={
                 "request": "Verify delegated execution-policy authority",
                 "policy_flags": {"allow_mock_fallback": True},

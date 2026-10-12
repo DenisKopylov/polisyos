@@ -5,7 +5,11 @@ from __future__ import annotations
 import json
 import os
 import secrets
-from dataclasses import dataclass
+import stat
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, cast
@@ -13,9 +17,11 @@ from typing import TYPE_CHECKING, Protocol, cast
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import fast_json_dumps
 
+from ..artifacts import ManifestLifecycle
 from ..artifacts._atomic_write import AtomicFileWriter
-from ..artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo, SchemaInfo
+from ..artifacts.manifest import ArtifactRef, CanonInfo, EnvInfo, InputRef, ProducerInfo, SchemaInfo
 from ..artifacts.write_contract import ArtifactWriteOptions
+from ..canon import CanonSpec, content_hash, to_canonical_bytes
 from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
 from ..trace.sink import JsonlTraceSink, TraceSink
@@ -29,6 +35,55 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 _FINALIZE_JOURNAL_SCHEMA_VERSION = "1.0"
 _FINALIZE_JOURNAL_NAME = ".finalize-journal.json"
+_FINALIZE_LOCK_NAME = ".finalize.lock"
+_RUN_FINALIZE_THREAD_LOCKS = tuple(threading.RLock() for _ in range(64))
+
+
+class _FinalizeRecoveryError(ValueError):
+    """A pending finalize journal cannot be reconciled from its durable facts."""
+
+
+@contextmanager
+def _run_finalize_lease(run_dir: Path) -> Iterator[None]:
+    """Serialize durable finalization and recovery for one run directory.
+
+    The lock file is permanent: unlinking it could let waiters lock different inodes.
+    """
+    try:
+        lock_dir = run_dir.resolve(strict=True)
+        import fcntl
+    except (ImportError, OSError) as exc:
+        raise _FinalizeRecoveryError("run_finalize_lock_unavailable") from exc
+    if not lock_dir.is_dir():
+        raise _FinalizeRecoveryError("run_finalize_lock_directory_invalid")
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    if not nofollow:
+        raise _FinalizeRecoveryError("run_finalize_lock_no_follow_unavailable")
+
+    # flock coordinates independent processes; local stripes also coordinate
+    # threads on platforms where flock ownership is process-scoped.
+    thread_gate = _RUN_FINALIZE_THREAD_LOCKS[hash(lock_dir) % len(_RUN_FINALIZE_THREAD_LOCKS)]
+    with thread_gate:
+        lock_path = lock_dir / _FINALIZE_LOCK_NAME
+        try:
+            AtomicFileWriter.write_once(lock_path, b"", durable_parent=True)
+            flags = os.O_CREAT | os.O_RDWR | nofollow | getattr(os, "O_CLOEXEC", 0)
+            descriptor = os.open(lock_path, flags, 0o600)
+        except OSError as exc:
+            raise _FinalizeRecoveryError("run_finalize_lock_unavailable") from exc
+        try:
+            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+                raise _FinalizeRecoveryError("run_finalize_lock_file_invalid")
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX)
+            except OSError as exc:
+                raise _FinalizeRecoveryError("run_finalize_lock_unavailable") from exc
+            try:
+                yield
+            finally:
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+        finally:
+            os.close(descriptor)
 
 
 @dataclass(frozen=True)
@@ -109,35 +164,120 @@ def _load_finalize_journal(run_dir: Path) -> RunManifest | None:
         return None
 
 
-def _trace_has_terminal_run_finalized_event(
+def _trace_terminal_run_finalized_ref(
     trace_path: Path,
     *,
     owner: _RunOwnerIdentity,
-    run_ref: ArtifactRef,
-) -> bool:
-    if not trace_path.exists():
-        return False
-    for line in trace_path.read_text(encoding="utf-8").splitlines():
+) -> ArtifactRef | None:
+    """Read one strict terminal fact, preserving the exact manifest selector."""
+    try:
+        lines = trace_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as exc:
+        raise _FinalizeRecoveryError("run_finalize_trace_unreadable") from exc
+
+    records: list[TraceRecord] = []
+    for line in lines:
         if not line.strip():
             continue
         try:
-            record = TraceRecord.model_validate_json(line)
-        except (TypeError, ValueError):
-            continue
-        manifest_outputs = [
-            output for output in record.refs.outputs if output.kind == run_ref.kind
-        ]
+            records.append(TraceRecord.model_validate_json(line))
+        except (TypeError, ValueError) as exc:
+            raise _FinalizeRecoveryError("run_finalize_trace_record_invalid") from exc
+    if not records:
+        raise _FinalizeRecoveryError("run_finalize_trace_empty")
+
+    starts = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_STARTED"
+    ]
+    if (
+        len(starts) != 1
+        or records[0] is not starts[0]
+        or starts[0].run_terminality is not RunTerminality.NON_TERMINAL
+    ):
+        raise _FinalizeRecoveryError("run_finalize_trace_owner_fact_invalid")
+    for record in records:
         if (
-            record.run_id == owner.run_id
-            and record.tenant_id == owner.tenant_id
-            and record.cell_id == owner.cell_id
-            and record.phase == "core"
-            and record.event == "RUN_FINALIZED"
-            and record.run_terminality is RunTerminality.TERMINAL
-            and manifest_outputs == [run_ref]
+            record.run_id != owner.run_id
+            or record.tenant_id != owner.tenant_id
+            or record.cell_id != owner.cell_id
         ):
-            return True
-    return False
+            raise _FinalizeRecoveryError("run_finalize_trace_owner_scope_mismatch")
+
+    finalized = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_FINALIZED"
+    ]
+    if not finalized:
+        if any(record.run_terminality is RunTerminality.TERMINAL for record in records):
+            raise _FinalizeRecoveryError("run_finalize_trace_terminal_fact_ambiguous")
+        return None
+    if len(finalized) != 1 or records[-1] is not finalized[0]:
+        raise _FinalizeRecoveryError("run_finalize_trace_duplicate_terminal_fact")
+    if any(record.run_terminality is RunTerminality.TERMINAL for record in records[:-1]):
+        raise _FinalizeRecoveryError("run_finalize_trace_intermediate_terminal_fact")
+
+    terminal = finalized[0]
+    if terminal.run_terminality is not RunTerminality.TERMINAL:
+        raise _FinalizeRecoveryError("run_finalize_trace_terminality_not_established")
+    manifest_outputs = [
+        output for output in terminal.refs.outputs if output.kind == "core.run_manifest"
+    ]
+    if (
+        len(manifest_outputs) != 1
+        or manifest_outputs[0].media_type != "application/json"
+    ):
+        raise _FinalizeRecoveryError("run_finalize_trace_manifest_ref_invalid")
+    return manifest_outputs[0]
+
+
+def _validate_terminal_run_manifest_ref(
+    store: ArtifactStore,
+    *,
+    run_manifest: RunManifest,
+    run_ref: ArtifactRef,
+    require_selected_profile: bool,
+) -> None:
+    """Bind an existing terminal ref to the exact journal payload and write contract."""
+    options = _run_manifest_write_options(run_manifest)
+    profile_options = replace(options, canon=CanonInfo.from_spec(CanonSpec()))
+    if (
+        run_ref.kind != options.kind
+        or run_ref.media_type != options.media_type
+        or (require_selected_profile and run_ref.manifest_profile_sha256 is None)
+    ):
+        raise _FinalizeRecoveryError("run_finalize_manifest_ref_contract_mismatch")
+
+    try:
+        verification = store.verify(run_ref)
+        if not verification.ok:
+            raise _FinalizeRecoveryError("run_finalize_manifest_cas_verification_failed")
+        artifact_manifest = store.get_manifest(run_ref)
+        expected_bytes = to_canonical_bytes(run_manifest, CanonSpec())
+        manifest_bytes = store.get_bytes(run_ref)
+    except _FinalizeRecoveryError:
+        raise
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise _FinalizeRecoveryError("run_finalize_manifest_proof_unavailable") from exc
+
+    if (
+        manifest_bytes != expected_bytes
+        or content_hash(manifest_bytes, prefix=True) != str(run_ref.artifact_id)
+        or content_hash(expected_bytes, prefix=True) != str(run_ref.artifact_id)
+    ):
+        raise _FinalizeRecoveryError("run_finalize_manifest_journal_binding_mismatch")
+    try:
+        ManifestLifecycle.validate_profile(
+            artifact_manifest,
+            data_size=len(manifest_bytes),
+            opts=profile_options,
+        )
+    except ValueError as exc:
+        raise _FinalizeRecoveryError(
+            "run_finalize_manifest_write_profile_mismatch"
+        ) from exc
 
 
 def _trace_run_started_identity(trace_path: Path) -> _RunOwnerIdentity | None:
@@ -184,6 +324,23 @@ def _record_recovered_run_manifest_owner(
         )
 
 
+def _finalize_request_matches(
+    run_manifest: RunManifest,
+    *,
+    status: str,
+    errors: list[dict[str, object]] | None,
+) -> bool:
+    """Return whether a retry repeats the already durable terminal request."""
+    if run_manifest.status != status:
+        return False
+    if not errors:
+        return True
+    return (
+        len(errors) <= len(run_manifest.errors)
+        and run_manifest.errors[-len(errors) :] == errors
+    )
+
+
 def _append_run_finalized_event(
     *,
     trace_path: Path,
@@ -204,56 +361,86 @@ def _append_run_finalized_event(
     )
 
 
-def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> ArtifactRef | None:
-    """Resume a crashed run-finalize sequence from the local journal if present."""
+def _recover_pending_run_finalize_locked(
+    store: ArtifactStore,
+    run_dir: Path,
+) -> ArtifactRef | None:
+    """Resume a journal while the caller holds this run's exclusive lease."""
+    journal_path = _finalize_journal_path(run_dir)
+    if not journal_path.exists():
+        return None
     run_manifest = _load_finalize_journal(run_dir)
     if run_manifest is None:
-        return None
+        raise _FinalizeRecoveryError("run_finalize_journal_not_established")
+
     trace_path = run_dir / "trace.jsonl"
-    trace_owner = _trace_run_started_identity(trace_path)
+    try:
+        trace_owner = _trace_run_started_identity(trace_path)
+    except (OSError, UnicodeError) as exc:
+        raise _FinalizeRecoveryError("run_finalize_trace_owner_unreadable") from exc
     if trace_owner is None:
-        logger.warning(
-            "Refusing finalize journal for run %s without a core RUN_STARTED owner event",
-            run_manifest.run_id,
-        )
-        return None
+        raise _FinalizeRecoveryError("run_finalize_trace_owner_not_established")
     journal_owner = _RunOwnerIdentity(
         run_id=run_manifest.run_id,
         tenant_id=run_manifest.tenant_id,
         cell_id=run_manifest.cell_id,
     )
     if journal_owner != trace_owner:
-        logger.warning(
-            "Refusing finalize journal for run %s/%s/%s in trace owned by %s/%s/%s",
-            run_manifest.run_id,
-            run_manifest.tenant_id,
-            run_manifest.cell_id,
-            trace_owner.run_id,
-            trace_owner.tenant_id,
-            trace_owner.cell_id,
+        raise _FinalizeRecoveryError("run_finalize_journal_owner_scope_mismatch")
+
+    # Inspect the append-only terminal fact before any CAS write. It owns the
+    # reference already emitted by the old or current writer; never replace it
+    # with a same-ID ref selected by a later write.
+    existing_ref = _trace_terminal_run_finalized_ref(trace_path, owner=trace_owner)
+    if existing_ref is not None:
+        _validate_terminal_run_manifest_ref(
+            store,
+            run_manifest=run_manifest,
+            run_ref=existing_ref,
+            require_selected_profile=False,
         )
-        return None
+        if existing_ref.manifest_profile_sha256 is None:
+            logger.warning(
+                "Retaining the verified profileless terminal ref for legacy run %s; "
+                "recovery does not establish a selected profile",
+                run_manifest.run_id,
+            )
+        _clear_finalize_journal(run_dir)
+        return existing_ref
+
     run_ref = store.put_json(
         run_manifest,
         _run_manifest_write_options(run_manifest),
+        return_selected_profile=True,
+    )
+    _validate_terminal_run_manifest_ref(
+        store,
+        run_manifest=run_manifest,
+        run_ref=run_ref,
+        require_selected_profile=True,
     )
     _record_recovered_run_manifest_owner(
         store,
         run_manifest=run_manifest,
         run_ref=run_ref,
     )
-    if not _trace_has_terminal_run_finalized_event(
-        trace_path,
-        owner=trace_owner,
+    _append_run_finalized_event(
+        trace_path=trace_path,
+        run_manifest=run_manifest,
         run_ref=run_ref,
-    ):
-        _append_run_finalized_event(
-            trace_path=trace_path,
-            run_manifest=run_manifest,
-            run_ref=run_ref,
-        )
+    )
     _clear_finalize_journal(run_dir)
     return run_ref
+
+
+def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> ArtifactRef | None:
+    """Resume a journal under the run-scoped cross-process finalization lease."""
+    journal_path = _finalize_journal_path(run_dir)
+    lock_path = run_dir / _FINALIZE_LOCK_NAME
+    if not journal_path.exists() and not lock_path.exists():
+        return None
+    with _run_finalize_lease(run_dir):
+        return _recover_pending_run_finalize_locked(store, run_dir)
 
 
 def new_run_id() -> str:
@@ -419,10 +606,62 @@ class RunContext:
         errors: list[dict[str, object]] | None = None,
     ) -> ArtifactRef:
         run_dir = self._trace_path.parent if self._trace_path is not None else None
+        if run_dir is None:
+            return self._finalize_locked(run_dir, status=status, errors=errors)
+        with _run_finalize_lease(run_dir):
+            return self._finalize_locked(run_dir, status=status, errors=errors)
+
+    def _finalize_locked(
+        self,
+        run_dir: Path | None,
+        *,
+        status: str,
+        errors: list[dict[str, object]] | None,
+    ) -> ArtifactRef:
+        """Perform finalization while holding the run's exclusive lease."""
         if run_dir is not None:
-            recovered_ref = recover_pending_run_finalize(self.store, run_dir)
+            journal_path = _finalize_journal_path(run_dir)
+            pending_manifest = (
+                _load_finalize_journal(run_dir) if journal_path.exists() else None
+            )
+            if pending_manifest is not None and not _finalize_request_matches(
+                pending_manifest,
+                status=status,
+                errors=errors,
+            ):
+                raise _FinalizeRecoveryError("run_finalize_pending_request_conflict")
+            recovered_ref = _recover_pending_run_finalize_locked(self.store, run_dir)
             if recovered_ref is not None:
                 return recovered_ref
+
+            if self._trace_path is not None and self._trace_path.exists():
+                expected_owner = _RunOwnerIdentity(
+                    run_id=self.run_manifest.run_id,
+                    tenant_id=self.run_manifest.tenant_id,
+                    cell_id=self.run_manifest.cell_id,
+                )
+                trace_owner = _trace_run_started_identity(self._trace_path)
+                if trace_owner != expected_owner:
+                    raise _FinalizeRecoveryError("run_finalize_trace_owner_not_established")
+                existing_ref = _trace_terminal_run_finalized_ref(
+                    self._trace_path,
+                    owner=trace_owner,
+                )
+                if existing_ref is not None:
+                    _validate_terminal_run_manifest_ref(
+                        self.store,
+                        run_manifest=self.run_manifest,
+                        run_ref=existing_ref,
+                        require_selected_profile=False,
+                    )
+                    if not _finalize_request_matches(
+                        self.run_manifest,
+                        status=status,
+                        errors=errors,
+                    ):
+                        raise _FinalizeRecoveryError("run_finalize_terminal_request_conflict")
+                    return existing_ref
+
         self.run_manifest.status = status
         if errors:
             self.run_manifest.errors.extend(errors)
@@ -445,6 +684,13 @@ class RunContext:
         run_ref = self.store.put_json(
             self.run_manifest,
             _run_manifest_write_options(self.run_manifest),
+            return_selected_profile=True,
+        )
+        _validate_terminal_run_manifest_ref(
+            self.store,
+            run_manifest=self.run_manifest,
+            run_ref=run_ref,
+            require_selected_profile=True,
         )
         self._record_ref_owner(run_ref, writer="RunContext.finalize.manifest")
         self._emit_record(

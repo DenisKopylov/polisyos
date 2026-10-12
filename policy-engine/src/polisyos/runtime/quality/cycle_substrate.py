@@ -33,6 +33,8 @@ from polisyos.core.security import (
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
+from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION, gy_content_hash
 from polisyos.runtime.quality.design_problem import (
     DESIGN_PROBLEM_V1_SCHEMA_VERSION,
@@ -73,6 +75,10 @@ CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA = (
     "policyos.runtime.cycle_substrate_context_job_artifact.v3"
 )
 CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION = "3.0"
+CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA = (
+    "policyos.runtime.cycle_substrate_context_job_artifact.v4"
+)
+CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION = "4.0"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _CONTEXT_JOB_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _REQUIRED_AUTHORITY_DENIALS = frozenset(
@@ -751,6 +757,19 @@ class TransportContextEvidence(_StrictModel):
     substrate_input_content_hash: str = Field(..., pattern=_HASH_PATTERN)
     context_binding_hash: str = Field(..., pattern=_HASH_PATTERN)
     covariates: tuple[TransportCovariateObservation, ...]
+    causal_graph_ref: CausalGraphModelRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+
+    @field_validator("causal_graph_ref")
+    @classmethod
+    def _selected_graph_has_profile(
+        cls, value: CausalGraphModelRef | None
+    ) -> CausalGraphModelRef | None:
+        if value is not None and value.manifest_profile_sha256 is None:
+            raise ValueError("transport_context_causal_graph_profile_missing")
+        return value
 
     @model_validator(mode="after")
     def _validate_context_denominator(self) -> TransportContextEvidence:
@@ -1041,6 +1060,11 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
         if self.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
         context = revalidate_cycle_substrate_context(self.context)
+        if (
+            context.transport_context is not None
+            and "causal_graph_ref" in context.transport_context.model_fields_set
+        ):
+            raise ValueError("cycle_substrate_context_job_v1_graph_ref_schema_unsupported")
         if context.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
         _validate_problem_world_match(self.problem, context)
@@ -1104,6 +1128,11 @@ class CycleSubstrateContextJobArtifactV2(_StrictModel):
         if self.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
         context = revalidate_cycle_substrate_context(self.context)
+        if (
+            context.transport_context is not None
+            and "causal_graph_ref" in context.transport_context.model_fields_set
+        ):
+            raise ValueError("cycle_substrate_context_job_v2_graph_ref_schema_unsupported")
         if context.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
         _validate_problem_world_match(self.problem, context)
@@ -1166,6 +1195,78 @@ class CycleSubstrateContextJobArtifactV3(_StrictModel):
         if self.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
         context = revalidate_cycle_substrate_context(self.context)
+        if (
+            context.transport_context is not None
+            and "causal_graph_ref" in context.transport_context.model_fields_set
+        ):
+            raise ValueError("cycle_substrate_context_job_v3_graph_ref_schema_unsupported")
+        if context.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
+        _validate_problem_world_match(self.problem, context)
+        expected_hash = cycle_substrate_context_job_content_hash(self)
+        if self.content_hash != expected_hash:
+            raise ValueError("cycle_substrate_context_job_content_hash_mismatch")
+        if context.authority_purpose != "cycle_input_candidate_only":
+            raise ValueError("cycle_substrate_context_job_authority_purpose_invalid")
+        if self.profile_admission_status != "not_established" or self.s8_status != "blocked":
+            raise ValueError("cycle_substrate_context_job_authority_limit_removed")
+        return self
+
+
+class CycleSubstrateContextJobArtifactV4(_StrictModel):
+    """Version 4 candidate handoff with a selected causal-graph CAS ref."""
+
+    schema_version: Literal[
+        "policyos.runtime.cycle_substrate_context_job_artifact.v4"
+    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
+    authority_purpose: Literal["cycle_input_candidate_only"] = (
+        "cycle_input_candidate_only"
+    )
+    status: Literal["candidate_limited"] = "candidate_limited"
+    profile_admission_status: Literal["not_established"] = "not_established"
+    s8_status: Literal["blocked"] = "blocked"
+    run_id: str = Field(..., min_length=1)
+    job_id: str = Field(..., min_length=1)
+    tenant_id: str = Field(..., min_length=1)
+    cell_id: str = Field(..., min_length=1)
+    design_problem_ref: str = Field(..., pattern=_HASH_PATTERN)
+    problem: DesignProblem
+    context: CycleSubstrateContext
+    limitation_codes: tuple[str, ...]
+    content_hash: str = Field(..., pattern=_HASH_PATTERN)
+
+    @field_validator("limitation_codes")
+    @classmethod
+    def _required_profile_limits(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("cycle_substrate_context_job_limitation_duplicate")
+        missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
+        if missing:
+            raise ValueError(
+                "cycle_substrate_context_job_limitation_missing:"
+                + ",".join(sorted(missing))
+            )
+        return value
+
+    @model_validator(mode="after")
+    def _validate_job_artifact(self) -> CycleSubstrateContextJobArtifactV4:
+        if type(self.problem) is not DesignProblem:
+            raise ValueError("cycle_substrate_context_job_v4_design_problem_owner_unregistered")
+        if self.problem.schema_version != DESIGN_PROBLEM_V3_SCHEMA_VERSION:
+            raise ValueError("cycle_substrate_context_job_v4_design_problem_schema_unsupported")
+        if self.context.world_model_record.schema_version != WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+            raise ValueError("cycle_substrate_context_job_v4_world_model_schema_unsupported")
+        if self.context.world_model_record.artifact_views is None:
+            raise ValueError("cycle_substrate_context_job_v4_world_model_views_missing")
+        transport = self.context.transport_context
+        if transport is None or transport.causal_graph_ref is None:
+            raise ValueError("cycle_substrate_context_job_v4_causal_graph_ref_missing")
+        if transport.causal_graph_ref.manifest_profile_sha256 is None:
+            raise ValueError("cycle_substrate_context_job_v4_causal_graph_profile_missing")
+        problem_ref = cycle_job_design_problem_ref(self.problem)
+        if self.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
+        context = revalidate_cycle_substrate_context(self.context)
         if context.design_problem_ref != problem_ref:
             raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
         _validate_problem_world_match(self.problem, context)
@@ -1183,6 +1284,7 @@ _CONTEXT_JOB_ARTIFACT_TYPES_BY_SCHEMA: dict[str, type[BaseModel]] = {
     CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA: CycleSubstrateContextJobArtifact,
     CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA: CycleSubstrateContextJobArtifactV2,
     CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA: CycleSubstrateContextJobArtifactV3,
+    CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA: CycleSubstrateContextJobArtifactV4,
 }
 
 
@@ -1308,6 +1410,55 @@ _CONTEXT_JOB_V3_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
 }
 _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES: frozenset[type[BaseModel]] = frozenset(
     {artifacts.ArtifactID}
+)
+
+# V4 snapshots the V3 WMRv2 field tree and adds only the typed graph selector.
+# V1/V2/V3 remain separate, unchanged serialization contracts.
+_CONTEXT_JOB_V4_SUPPORTED_MODEL_VERSIONS = dict(
+    _CONTEXT_JOB_V3_SUPPORTED_MODEL_VERSIONS
+)
+_CONTEXT_JOB_V4_MODEL_FIELDS = {
+    **_CONTEXT_JOB_V3_MODEL_FIELDS,
+    "polisyos.runtime.quality.cycle_substrate.TransportContextEvidence": (
+        *_CONTEXT_JOB_V3_MODEL_FIELDS[
+            "polisyos.runtime.quality.cycle_substrate.TransportContextEvidence"
+        ],
+        "causal_graph_ref",
+    ),
+}
+_CONTEXT_JOB_V4_EXACT_MODEL_FIELDS: dict[type[BaseModel], tuple[str, ...]] = {
+    **_CONTEXT_JOB_V3_EXACT_MODEL_FIELDS,
+    CycleSubstrateContextJobArtifactV4: (
+        "schema_version",
+        "authority_purpose",
+        "status",
+        "profile_admission_status",
+        "s8_status",
+        "run_id",
+        "job_id",
+        "tenant_id",
+        "cell_id",
+        "design_problem_ref",
+        "problem",
+        "context",
+        "limitation_codes",
+        "content_hash",
+    ),
+    CausalGraphModelRef: (
+        "artifact_id",
+        "kind",
+        "media_type",
+        "manifest_profile_sha256",
+    ),
+}
+_CONTEXT_JOB_V4_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
+    **_CONTEXT_JOB_V3_EXACT_MODEL_VERSIONS,
+    CycleSubstrateContextJobArtifactV4: frozenset(
+        {CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA}
+    ),
+}
+_CONTEXT_JOB_V4_ROOT_SCALAR_TYPES = _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES | frozenset(
+    {IRArtifactID}
 )
 
 
@@ -1570,10 +1721,60 @@ def _serialize_context_job_v3_value(value: object) -> object:
     return to_jsonable_python(value, by_alias=False)
 
 
+def _serialize_context_job_v4_value(value: object) -> object:
+    """Serialize V4's frozen WMRv2 tree with the selected graph ref."""
+
+    if type(value) in _CONTEXT_JOB_V4_ROOT_SCALAR_TYPES:
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(
+                cast("artifacts.ArtifactID", value).root
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v4_artifact_id_invalid", str(exc)
+            ) from exc
+        return str(artifact_id)
+    if isinstance(value, BaseModel):
+        model_name = f"{type(value).__module__}.{type(value).__qualname__}"
+        fields = _CONTEXT_JOB_V4_EXACT_MODEL_FIELDS.get(type(value))
+        if fields is None:
+            fields = _CONTEXT_JOB_V4_MODEL_FIELDS.get(model_name)
+        if fields is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v4_serializer_model_unregistered",
+                model_name,
+            )
+        supported_versions = _CONTEXT_JOB_V4_EXACT_MODEL_VERSIONS.get(type(value))
+        if supported_versions is None:
+            supported_versions = _CONTEXT_JOB_V4_SUPPORTED_MODEL_VERSIONS.get(model_name)
+        nested_version = getattr(value, "schema_version", None)
+        if supported_versions is not None and nested_version not in supported_versions:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v4_nested_schema_unsupported",
+                f"{model_name}: {nested_version}",
+            )
+        return {
+            field_name: _serialize_context_job_v4_value(getattr(value, field_name))
+            for field_name in fields
+        }
+    if isinstance(value, Mapping):
+        return {
+            str(key): _serialize_context_job_v4_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (tuple, list)):
+        return [_serialize_context_job_v4_value(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        serialized = [_serialize_context_job_v4_value(item) for item in value]
+        return sorted(serialized, key=repr)
+    return to_jsonable_python(value, by_alias=False)
+
+
 def _serialize_cycle_substrate_context_job_artifact(
     artifact: CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
+    | CycleSubstrateContextJobArtifactV4
     | Mapping[str, Any],
 ) -> dict[str, Any]:
     """Dispatch to the frozen byte serializer for the artifact's schema version."""
@@ -1599,6 +1800,14 @@ def _serialize_cycle_substrate_context_job_artifact(
         ]
         values = {name: artifact[name] for name in fields if name in artifact}
         return cast("dict[str, Any]", _serialize_context_job_v3_value(values))
+    if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA:
+        if isinstance(artifact, BaseModel):
+            return cast("dict[str, Any]", _serialize_context_job_v4_value(artifact))
+        fields = _CONTEXT_JOB_V4_EXACT_MODEL_FIELDS[
+            CycleSubstrateContextJobArtifactV4
+        ]
+        values = {name: artifact[name] for name in fields if name in artifact}
+        return cast("dict[str, Any]", _serialize_context_job_v4_value(values))
     if schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA:
         raise CycleSubstrateContextOwnerError(
             "cycle_substrate_context_job_schema_version_unsupported",
@@ -1830,6 +2039,7 @@ def parse_cycle_substrate_context_job_artifact(
     CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
+    | CycleSubstrateContextJobArtifactV4
 ):
     """Parse a persisted context-job payload using its exact outer schema."""
 
@@ -1856,6 +2066,7 @@ def cycle_substrate_context_job_content_hash(
     artifact: CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
+    | CycleSubstrateContextJobArtifactV4
     | Mapping[str, Any],
 ) -> str:
     """Hash the frozen, schema-dispatched job-context payload without its hash."""
@@ -1876,6 +2087,7 @@ def _build_cycle_substrate_context_job_artifact(
     CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
+    | CycleSubstrateContextJobArtifactV4
 ):
     """Build candidate handoff from the current persisted control-job record.
 
@@ -1907,7 +2119,24 @@ def _build_cycle_substrate_context_job_artifact(
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_v3_design_problem_required"
             )
-        schema_version = CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+        graph_ref = (
+            verified_context.transport_context.causal_graph_ref
+            if verified_context.transport_context is not None
+            else None
+        )
+        schema_version = (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
+            if graph_ref is not None
+            else CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
+        )
+    elif (
+        verified_context.transport_context is not None
+        and verified_context.transport_context.causal_graph_ref is not None
+    ):
+        raise CycleSubstrateContextOwnerError(
+            "cycle_substrate_context_job_v4_world_model_schema_unsupported",
+            str(wmr_schema_version),
+        )
     elif wmr_schema_version == "policyos.runtime.world_model_record.v1":
         schema_version = (
             CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
@@ -1937,6 +2166,8 @@ def _build_cycle_substrate_context_job_artifact(
     payload["content_hash"] = cycle_substrate_context_job_content_hash(payload)
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA:
         return CycleSubstrateContextJobArtifactV3.model_validate(payload)
+    if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA:
+        return CycleSubstrateContextJobArtifactV4.model_validate(payload)
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA:
         return CycleSubstrateContextJobArtifactV2.model_validate(payload)
     return CycleSubstrateContextJobArtifact.model_validate(payload)
@@ -1947,6 +2178,7 @@ def _context_job_write_options(
         CycleSubstrateContextJobArtifact
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
+        | CycleSubstrateContextJobArtifactV4
     ),
 ) -> artifacts.ArtifactWriteOptions:
     """Build the exact tenant and job manifest profile for this artifact."""
@@ -1962,6 +2194,7 @@ def _context_job_write_options(
         CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION,
         CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA_VERSION,
         CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION,
     }[schema_name]
     return artifacts.ArtifactWriteOptions(
         kind=CYCLE_SUBSTRATE_CONTEXT_JOB_KIND,
@@ -2070,6 +2303,7 @@ class CycleSubstrateContextArtifactOwner:
         CycleSubstrateContextJobArtifact
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
+        | CycleSubstrateContextJobArtifactV4
     ):
         """Verify a ref against the persisted job authorized by the active lease."""
 
@@ -2142,6 +2376,7 @@ class CycleSubstrateContextArtifactOwner:
         CycleSubstrateContextJobArtifact
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
+        | CycleSubstrateContextJobArtifactV4
     ):
         """Replay a persisted context-job artifact without requiring its old lease.
 
@@ -2815,6 +3050,7 @@ def _has_context_job_owner_profile(
         CycleSubstrateContextJobArtifact
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
+        | CycleSubstrateContextJobArtifactV4
     ),
 ) -> bool:
     """Require the full declared owner profile on the selected artifact view."""
@@ -3219,6 +3455,8 @@ __all__ = [
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
     "CandidateLeverEvidence",
     "CycleSubstrateContext",
@@ -3226,6 +3464,7 @@ __all__ = [
     "CycleSubstrateContextJobArtifact",
     "CycleSubstrateContextJobArtifactV2",
     "CycleSubstrateContextJobArtifactV3",
+    "CycleSubstrateContextJobArtifactV4",
     "CycleSubstrateContextOwnerError",
     "TransportContextEvidence",
     "TransportCovariateObservation",

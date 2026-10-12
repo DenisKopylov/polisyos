@@ -24,6 +24,22 @@ class ComputeMode(str, Enum):
     CACHED = "cached"
 
 
+class GiniPopulationProfile(Enum):
+    """Select a source-defined active-resource domain for a Gini-backed bridge."""
+
+    ECONOMICS_ACTIVE_WEALTH_INCOME_V1 = "economics_active_wealth_income_v1"
+
+
+class _GiniPopulationStatus(eqx.Module):
+    """Carry the recomputed selected-profile predicate across a native step."""
+
+    profile: GiniPopulationProfile = eqx.field(static=True)
+    supported: jnp.ndarray
+
+
+_GINI_POPULATION_STATUS_METRIC = "active_gini_population_status"
+
+
 @chex.dataclass(frozen=True)
 class DistributionConfig:
     """Control how often distribution statistics are refreshed during simulation."""
@@ -434,6 +450,56 @@ def compute_gini(
     return compute_gini_hard(values, active)
 
 
+def _active_gini_population_schema_supported(
+    active: jnp.ndarray,
+    *resources: jnp.ndarray,
+) -> bool:
+    """Check statically-known population and resource layouts before tracing Gini."""
+
+    try:
+        active = jnp.asarray(active)
+        resource_arrays = tuple(jnp.asarray(values) for values in resources)
+    except (TypeError, ValueError, OverflowError):
+        # Coercion is part of this static schema check. Unsupported leaves are
+        # denied before any dynamic predicate or Gini projection is traced.
+        return False
+    if not resource_arrays:
+        return False
+    if active.ndim != 1 or active.dtype != jnp.bool_:
+        return False
+
+    for values in resource_arrays:
+        if values.ndim != 1 or values.shape != active.shape:
+            return False
+        if not (
+            jnp.issubdtype(values.dtype, jnp.integer) or jnp.issubdtype(values.dtype, jnp.floating)
+        ):
+            return False
+    return True
+
+
+def active_gini_population_supported(
+    active: jnp.ndarray,
+    *resources: jnp.ndarray,
+) -> jnp.ndarray:
+    """Return whether each supplied resource vector is valid on active rows.
+
+    The classical-Gini domain is finite, nonnegative active values; inactive
+    padding is outside the population. Callers that project multiple resource
+    distributions pass every vector so they apply the same predicate as the
+    Gini owner.
+    """
+    if not _active_gini_population_schema_supported(active, *resources):
+        return jnp.asarray(False, dtype=jnp.bool_)
+    active = jnp.asarray(active)
+    resource_arrays = tuple(jnp.asarray(values) for values in resources)
+
+    invalid = jnp.asarray(False, dtype=jnp.bool_)
+    for values in resource_arrays:
+        invalid = invalid | jnp.any(active & ((values < 0.0) | ~jnp.isfinite(values)))
+    return ~invalid
+
+
 def _admit_gini_population(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
     """Refuse an unsupported classical-Gini population before publishing a scalar.
 
@@ -441,7 +507,7 @@ def _admit_gini_population(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndar
     Inactive padding is not part of the population. Equinox binds the runtime
     refusal to the returned array under eager execution, JIT, and scans.
     """
-    invalid = jnp.any(active & ((values < 0) | ~jnp.isfinite(values)))
+    invalid = ~active_gini_population_supported(active, values)
     participating = jnp.where(active, values, 0.0)
     return eqx.error_if(
         participating,

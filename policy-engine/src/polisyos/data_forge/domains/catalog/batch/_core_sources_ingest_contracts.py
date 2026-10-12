@@ -242,6 +242,8 @@ class ObservationFetchKey:
     countries_json: str
     start_year: int
     end_year: int
+    profile_id: str = ""
+    input_basis_identity: str = ""
 
 
 @dataclass(frozen=True)

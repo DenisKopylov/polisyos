@@ -118,7 +118,12 @@ def identify_with_proxy(
         IDENTIFIED (with :class:`ProxyAdjustmentNode` AST) when conditions hold;
         ORACLE_NEEDED otherwise.
     """
-    from polisyos.foundry.methods.catalog.causal.admg_ops import m_separation
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        _validate_static_id_graph,
+        m_separation,
+    )
+
+    graph = _validate_static_id_graph(graph)
     from polisyos.foundry.methods.catalog.causal.id_engine import (
         IdentificationResult,
         IdentificationStatus,

@@ -435,7 +435,30 @@ def _load_observation_checkpoint_state(config: DatasetBatchConfig) -> dict[str, 
         "negative_cache_version": max(1, int(negative_cache_version or 1)),
         "planner_signature": str(planner_signature or ""),
         "core_output_receipt": payload.get("core_output_receipt"),
+        "core_profile_input_basis_identity": str(
+            payload.get("core_profile_input_basis_identity") or "legacy_unknown"
+        ),
+        "core_profile_input_currentness": str(
+            payload.get("core_profile_input_currentness") or "legacy_unknown"
+        ),
+        "core_profile_input_coverage": (
+            payload.get("core_profile_input_coverage")
+            if isinstance(payload.get("core_profile_input_coverage"), dict)
+            else None
+        ),
     }
+
+
+def _runtime_profile_input_snapshot() -> tuple[str, dict[str, str] | None]:
+    """Resolve the complete non-secret profile-input coverage snapshot."""
+    try:
+        from polisyos.data_forge.domains.catalog.batch.config import (
+            _runtime_profile_input_currentness,
+        )
+
+        return _runtime_profile_input_currentness()
+    except Exception:
+        return "malformed", None
 
 
 def _build_core_output_receipt(
@@ -586,11 +609,22 @@ def _build_core_output_receipt(
     except (duckdb.Error, OSError, TypeError, ValueError, KeyError, IndexError):
         return None
 
+    profile_input_currentness = str(
+        checkpoint_state.get("core_profile_input_currentness") or "legacy_unknown"
+    )
+    profile_input_basis_identity = str(
+        checkpoint_state.get("core_profile_input_basis_identity") or "legacy_unknown"
+    )
+    profile_input_coverage = checkpoint_state.get("core_profile_input_coverage")
+    if not isinstance(profile_input_coverage, dict):
+        profile_input_coverage = None
     checkpoint_payload = {
-        "run_signature": config.run_signature,
+        "run_signature": profile_input_basis_identity,
         "selected_phases": list(selected_phases),
         "planned_work_packages": package_rows,
         "required_ledger": ledger_rows,
+        "core_profile_input_currentness": profile_input_currentness,
+        "core_profile_input_coverage": profile_input_coverage,
     }
     try:
         basis = build_generation_basis(
@@ -638,6 +672,9 @@ def _build_core_output_receipt(
         "schema": "policyos.catalog.core_ingest_output_receipt.v1",
         "basis": basis.to_dict(),
         "basis_digest": basis.basis_digest,
+        "profile_input_currentness": profile_input_currentness,
+        "profile_input_basis_identity": profile_input_basis_identity,
+        "profile_input_coverage": profile_input_coverage,
         "required_shards": len(package_rows),
         "completed_shards": len(successful_ids),
         "publishable_core_pending": int(core_pending),
@@ -660,12 +697,21 @@ class _CurrentCoreOutputReceiptState:
     checkpoint_state: dict[str, Any]
     core_stage_state: dict[str, Any]
     stage_metadata: dict[str, Any]
+    live_profile_input_currentness: str
+    live_profile_input_coverage: dict[str, str] | None
+    live_profile_input_basis_identity: str
 
     @property
     def is_current(self) -> bool:
         """Return whether the checkpoint and stage both bind current database bytes."""
         return bool(
             self.current_receipt is not None
+            and self.current_receipt.get("profile_input_currentness") == "established"
+            and self.live_profile_input_currentness == "established"
+            and self.current_receipt.get("profile_input_basis_identity")
+            == self.live_profile_input_basis_identity
+            and self.current_receipt.get("profile_input_coverage")
+            == self.live_profile_input_coverage
             and self.checkpoint_state.get("core_output_receipt") == self.current_receipt
             and self.stage_metadata.get("core_output_receipt") == self.current_receipt
         )
@@ -683,6 +729,8 @@ class _CurrentCoreOutputReceiptState:
                 self.current_receipt.get("basis_digest") if self.current_receipt else None
             ),
             "matches_checkpoint_and_stage": self.is_current,
+            "profile_input_currentness": self.live_profile_input_currentness,
+            "profile_input_basis_identity": self.live_profile_input_basis_identity,
         }
 
 
@@ -709,6 +757,7 @@ def _current_core_output_receipt_state(
         "warning",
         "running",
     }
+    live_profile_input_currentness, live_profile_input_coverage = _runtime_profile_input_snapshot()
     current_receipt: dict[str, Any] | None = None
     if expected:
         try:
@@ -733,6 +782,9 @@ def _current_core_output_receipt_state(
         checkpoint_state=checkpoint_state,
         core_stage_state=core_stage_state,
         stage_metadata=stage_metadata,
+        live_profile_input_currentness=live_profile_input_currentness,
+        live_profile_input_coverage=live_profile_input_coverage,
+        live_profile_input_basis_identity=str(config.run_signature or ""),
     )
 
 
@@ -779,11 +831,24 @@ def _encode_core_receipt_value(value: object) -> object | None:
 
 
 def _prepare_core_output_resume(config: DatasetBatchConfig) -> bool:
-    """Clear terminal shard claims unless their prior catalog outputs still match."""
-    reuse_allowed = config.resume and config.resume_mode != "off"
+    """Permit cache reuse only under an established, unchanged profile basis."""
+    live_state, live_coverage = _runtime_profile_input_snapshot()
+    live_basis_identity = str(config.run_signature or "")
+    reuse_allowed = config.resume and config.resume_mode != "off" and live_state == "established"
     checkpoint_state = _load_observation_checkpoint_state(config)
+    saved_state = str(checkpoint_state.get("core_profile_input_currentness") or "legacy_unknown")
+    saved_coverage = checkpoint_state.get("core_profile_input_coverage")
+    saved_basis_identity = str(
+        checkpoint_state.get("core_profile_input_basis_identity") or "legacy_unknown"
+    )
+    profile_snapshot_matches = (
+        live_state == "established"
+        and saved_state == "established"
+        and saved_coverage == live_coverage
+        and saved_basis_identity == live_basis_identity
+    )
     saved_receipt = checkpoint_state.get("core_output_receipt")
-    if reuse_allowed and saved_receipt is not None:
+    if reuse_allowed and profile_snapshot_matches and saved_receipt is not None:
         try:
             with duckdb.connect(str(config.db_path), read_only=True) as con:
                 current_receipt = _build_core_output_receipt(
@@ -796,6 +861,64 @@ def _prepare_core_output_resume(config: DatasetBatchConfig) -> bool:
         if current_receipt is not None and saved_receipt == current_receipt:
             return False
 
+    if not profile_snapshot_matches:
+        # When excluded private profile inputs cannot be equated, every persisted
+        # response/planner capability is stale-bound. Preserve only quota windows
+        # and writer metrics; existing database rows remain candidate data.
+        caches_present = any(
+            checkpoint_state.get(key)
+            for key in (
+                "completed",
+                "failed",
+                "deferred",
+                "unsupported_signatures",
+                "empty_signatures",
+                "inflight_leases",
+                "async_fetch_leases",
+                "capability_snapshots",
+                "capability_failures",
+                "support_sketches",
+                "work_packages",
+                "planner_signature",
+                "publishable_core_complete",
+                "core_output_receipt",
+            )
+        )
+        snapshot_changed = (
+            saved_state != live_state
+            or saved_coverage != live_coverage
+            or saved_basis_identity != live_basis_identity
+        )
+        _write_observation_checkpoint_state(
+            config,
+            completed={},
+            failed={},
+            deferred={},
+            unsupported_signatures={},
+            empty_signatures={},
+            inflight_leases={},
+            async_fetch_leases={},
+            capability_snapshots={},
+            capability_failures={},
+            source_budgets=checkpoint_state["source_budgets"],
+            writer_state=checkpoint_state["writer_state"],
+            support_sketches={},
+            work_packages={},
+            planner_phase="support_sketch",
+            publishable_core_complete=False,
+            negative_cache_version=checkpoint_state["negative_cache_version"],
+            planner_signature="",
+            core_output_receipt=None,
+            core_profile_input_basis_identity=live_basis_identity,
+            core_profile_input_currentness=live_state,
+            core_profile_input_coverage=live_coverage,
+            replace_core_profile_input_coverage=True,
+        )
+        return bool(caches_present or snapshot_changed)
+
+    # With established, identical inputs but no reusable output receipt, retain
+    # the existing independent capability/support cache policy while invalidating
+    # terminal shard claims and plan-derived state.
     work_packages = checkpoint_state["work_packages"]
     selected_ids = {
         str(shard_id) for shard_id, payload in work_packages.items() if isinstance(payload, dict)
@@ -830,6 +953,10 @@ def _prepare_core_output_resume(config: DatasetBatchConfig) -> bool:
         negative_cache_version=checkpoint_state["negative_cache_version"],
         planner_signature="",
         core_output_receipt=None,
+        core_profile_input_basis_identity=live_basis_identity,
+        core_profile_input_currentness=live_state,
+        core_profile_input_coverage=live_coverage,
+        replace_core_profile_input_coverage=True,
     )
     return changed
 
@@ -855,7 +982,25 @@ def _write_observation_checkpoint_state(
     negative_cache_version: int = 2,
     planner_signature: str = "",
     core_output_receipt: dict[str, Any] | None = None,
+    core_profile_input_basis_identity: str | None = None,
+    core_profile_input_currentness: str | None = None,
+    core_profile_input_coverage: dict[str, str] | None = None,
+    replace_core_profile_input_coverage: bool = False,
 ) -> None:
+    prior_payload = load_json(config.observation_ingest_checkpoint_path, default={})
+    if not isinstance(prior_payload, dict):
+        prior_payload = {}
+    if core_profile_input_basis_identity is None:
+        core_profile_input_basis_identity = str(
+            prior_payload.get("core_profile_input_basis_identity") or "legacy_unknown"
+        )
+    if core_profile_input_currentness is None:
+        core_profile_input_currentness = str(
+            prior_payload.get("core_profile_input_currentness") or "legacy_unknown"
+        )
+    if core_profile_input_coverage is None and not replace_core_profile_input_coverage:
+        saved_coverage = prior_payload.get("core_profile_input_coverage")
+        core_profile_input_coverage = saved_coverage if isinstance(saved_coverage, dict) else None
     write_json(
         config.observation_ingest_checkpoint_path,
         {
@@ -878,6 +1023,9 @@ def _write_observation_checkpoint_state(
             "negative_cache_version": max(1, int(negative_cache_version)),
             "planner_signature": planner_signature,
             "core_output_receipt": core_output_receipt,
+            "core_profile_input_basis_identity": core_profile_input_basis_identity,
+            "core_profile_input_currentness": core_profile_input_currentness,
+            "core_profile_input_coverage": core_profile_input_coverage,
         },
     )
 
@@ -1903,7 +2051,12 @@ def _shard_completed(
     completed: dict[str, Any],
     failed: dict[str, Any],
     deferred: dict[str, Any],
+    profile_input_currentness: str | None = None,
 ) -> bool:
+    if profile_input_currentness is None:
+        profile_input_currentness, _coverage = _runtime_profile_input_snapshot()
+    if profile_input_currentness != "established":
+        return False
     if not config.resume or config.resume_mode == "off":
         return False
     if shard.shard_id in completed:

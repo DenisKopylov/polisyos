@@ -2057,7 +2057,7 @@ async def test_public_nl_route_persists_n4_candidate_without_n6_s8_or_publicatio
         launch_response = client.post(
             "/api/v1/control/runs/nl",
             json=request_body,
-            headers=headers,
+            headers={**(headers), "Idempotency-Key": "test-r216-1716c0615c034fbcb901cd49da98fe3b"},
         )
         assert launch_response.status_code == 200, launch_response.text
         launch = launch_response.json()

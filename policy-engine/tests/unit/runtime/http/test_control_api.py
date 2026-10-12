@@ -1498,7 +1498,7 @@ class TestLaunchNlRun:
     def test_launch_nl_run_without_model_is_typed_refusal(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7b1f5dd274c646eb8399c8a3e4c6ea10"},
             json={
                 "request": "Analyze minimum wage impact on small businesses",
                 "domain_hint": "fiscal",
@@ -1512,7 +1512,7 @@ class TestLaunchNlRun:
     def test_launch_nl_run_with_llm_model(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-699bbbda47674e4da9b7986d59b6c7ed"},
             json={
                 "request": "Study healthcare policy effects",
                 "llm_model": "claude-sonnet-4-5-20250929",
@@ -1527,7 +1527,7 @@ class TestLaunchNlRun:
     def test_launch_nl_run_with_llm_models(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-e1ebfd9a50d6462fb2d6d25a126d805f"},
             json={
                 "request": "Compare multiple model variants on the same task",
                 "llm_models": ["gpt-5-mini", "claude-sonnet-4-5-20250929"],
@@ -1545,7 +1545,7 @@ class TestLaunchNlRun:
     def test_launch_nl_run_accepts_execution_plan_payload(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-0a2c7df77cc64143b51e1a4fecaf27aa"},
             json={
                 "request": "Plan-first NL cycle",
                 "llm_model": "simulated-qwen",
@@ -1577,7 +1577,7 @@ class TestLaunchNlRun:
     def test_launch_nl_run_invalid_parallel_models_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-20e864dbd3cc407e97353994cab351ef"},
             json={
                 "request": "Invalid max_parallel_models value",
                 "llm_models": ["gpt-5-mini", "claude-sonnet-4-5-20250929"],
@@ -1589,14 +1589,14 @@ class TestLaunchNlRun:
     def test_launch_nl_run_empty_request_returns_422(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-c20360dbce0b4389a786a947e0c61a31"},
             json={"request": ""},
         )
         assert resp.status_code == 422
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("preflight_status", ["failed", "unknown"])
-    async def test_launch_nl_run_research_non_ok_preflight_creates_short_failed_job(
+    @pytest.mark.parametrize("preflight_status", ["failed", "unknown", "complete_without_event"])
+    async def test_launch_nl_run_research_preflight_preserves_refusal_or_unresolved_owner(
         self,
         monkeypatch: pytest.MonkeyPatch,
         tmp_path,
@@ -1617,12 +1617,15 @@ class TestLaunchNlRun:
         monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
         execute_called = False
         preflight_inputs: dict[str, object] = {}
+        preflight_calls: list[dict[str, object]] = []
+        attempt_ids: list[str] = []
         settlement_store = BudgetMiddleware(
             BudgetState(),
             ledger=FileBudgetLedger(tmp_path / "preflight-ledger.json"),
         )
 
         async def _red_preflight(**kwargs):
+            preflight_calls.append(dict(kwargs))
             preflight_inputs.update(kwargs)
             assert kwargs["producer_settlement_store"] is settlement_store
             assert kwargs["require_producer_settlement"] is True
@@ -1630,8 +1633,15 @@ class TestLaunchNlRun:
                 kwargs["producer_budget_key"] == f"nl-run:{kwargs['producer_run_binding'].run_id}"
             )
             assert type(kwargs["producer_run_binding"]) is BudgetLedgerProducerRunBinding
+            reported_status = "failed" if preflight_status != "unknown" else "unknown"
+            completion_observation = {
+                "failed": "not_started",
+                "unknown": "unavailable",
+                "complete_without_event": "complete",
+            }[preflight_status]
             return ProviderPreflightReport(
-                status=preflight_status,
+                status=reported_status,
+                producer_completion_observation=completion_observation,
                 provider="gonka_proxy",
                 base_url="https://proxy.gonka.gg/v1",
                 models=["missing-model"],
@@ -1706,33 +1716,130 @@ class TestLaunchNlRun:
                 llm_models=["missing-model"],
                 policy_flags={"allow_mock_fallback": False},
             )
-            response = await service.launch_nl_run(
-                request,
-                request_id="req-red-preflight",
-                principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
-                authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
+            claims = _fixture_claims()
+            principal = RuntimePrincipal.from_user_claims(claims)
+            authorization_proof = bound_nl_authorization_proof(claims, request)
+            from polisyos.runtime.http.errors import RuntimeHTTPError
+
+            with pytest.raises(RuntimeHTTPError) as missing_key_error:
+                await service.launch_nl_run(
+                    request,
+                    request_id="req-preflight-no-idempotency-key",
+                    principal=principal,
+                    authorization_proof=authorization_proof,
+                    on_pre_admission_attempt=attempt_ids.append,
+                )
+            assert missing_key_error.value.code == (
+                "control_pre_admission_idempotency_key_required"
             )
-            record = service._control_store.get_job(response.job_id)
+            assert preflight_calls == []
+            if preflight_status == "failed":
+                response = await service.launch_nl_run(
+                    request,
+                    request_id="req-red-preflight",
+                    principal=principal,
+                    authorization_proof=authorization_proof,
+                    idempotency_key="stable-preflight-retry",
+                    on_pre_admission_attempt=attempt_ids.append,
+                )
+                replay_response = await service.launch_nl_run(
+                    request,
+                    request_id="req-red-preflight-retry",
+                    principal=principal,
+                    authorization_proof=authorization_proof,
+                    idempotency_key="stable-preflight-retry",
+                    on_pre_admission_attempt=attempt_ids.append,
+                )
+            else:
+                with pytest.raises(RuntimeHTTPError) as unresolved_first:
+                    await service.launch_nl_run(
+                        request,
+                        request_id="req-red-preflight",
+                        principal=principal,
+                        authorization_proof=authorization_proof,
+                        idempotency_key="stable-preflight-retry",
+                        on_pre_admission_attempt=attempt_ids.append,
+                    )
+                with pytest.raises(RuntimeHTTPError) as unresolved_retry:
+                    await service.launch_nl_run(
+                        request,
+                        request_id="req-red-preflight-retry",
+                        principal=principal,
+                        authorization_proof=authorization_proof,
+                        idempotency_key="stable-preflight-retry",
+                        on_pre_admission_attempt=attempt_ids.append,
+                    )
+                assert unresolved_first.value.code == "control_pre_admission_attempt_unresolved"
+                assert unresolved_retry.value.code == "control_pre_admission_attempt_unresolved"
+                response = None
+                replay_response = None
+            attempt_status = service.get_pre_admission_attempt_status(
+                attempt_ids[0], request_id="req-attempt-history", principal=principal
+            )
+            from polisyos.runtime.http.errors import RuntimeHTTPError
+
+            other_principal = RuntimePrincipal(
+                subject="other-actor",
+                authenticated=True,
+                tenant_id=principal.tenant_id,
+                cell_id=principal.cell_id,
+                roles=principal.roles,
+            )
+            with pytest.raises(RuntimeHTTPError):
+                service.get_pre_admission_attempt_status(
+                    attempt_ids[0],
+                    request_id="req-other-actor",
+                    principal=other_principal,
+                )
+            record = (
+                service._control_store.get_job(attempt_status.job_id)
+                if attempt_status.job_id is not None
+                else None
+            )
         finally:
             service.close()
 
-        assert response.status == "rejected"
+        assert attempt_ids == [attempt_ids[0], attempt_ids[0]]
+        assert len(preflight_calls) == 1
+        if preflight_status == "failed":
+            assert response is not None and replay_response is not None
+            assert response.status == "rejected"
+            assert replay_response.status == "rejected"
+            assert replay_response.job_id == response.job_id
+            assert attempt_status.status == "refused"
+            assert [event.event_type for event in attempt_status.history] == ["started", "refused"]
+            assert attempt_status.producer_event_ids == []
+            assert attempt_status.producer_event_observation == "no_call"
+            assert attempt_status.producer_no_call_reason == "provider_preflight_not_started"
+            assert attempt_status.history[-1].producer_no_call_reason == "provider_preflight_not_started"
+            assert attempt_status.failure_code == "provider_preflight_not_started"
+        else:
+            assert response is None and replay_response is None
+            assert attempt_status.status == "failed"
+            assert [event.event_type for event in attempt_status.history] == ["started", "failed"]
+            assert attempt_status.producer_event_ids == []
+            assert attempt_status.producer_event_observation == "unavailable"
+            assert attempt_status.failure_code == "provider_preflight_settlement_unavailable"
+            if preflight_status == "complete_without_event":
+                # A producer self-label without the exact durable event is unresolved.
+                assert preflight_calls[0]["producer_settlement_store"].list_producer_events_for_run_safe(
+                    preflight_calls[0]["producer_run_binding"]
+                ) == []
         assert execute_called is False
         binding = preflight_inputs["producer_run_binding"]
-        assert binding.run_id == response.run_id
-        assert binding.control_job_id == response.job_id
+        assert binding.run_id == attempt_status.run_id
+        assert binding.control_job_id == attempt_status.candidate_job_id
         assert binding.tenant_id == "tenant-fixture"
         assert binding.cell_id == "cell-fixture"
         assert binding.profile_id == "research"
-        assert record is not None
-        assert record.state == "failed"
-        assert record.progress["phase"] == "provider_preflight"
-        assert record.progress["failure"]["code"] == (
-            "llm_provider_preflight_settlement_unknown"
-            if preflight_status == "unknown"
-            else "llm_provider_preflight_failed"
-        )
-        assert record.to_response().failure is not None
+        if preflight_status == "failed":
+            assert record is not None
+            assert record.state == "failed"
+            assert record.progress["phase"] == "provider_preflight"
+            assert record.progress["failure"]["code"] == "llm_provider_preflight_failed"
+            assert record.to_response().failure is not None
+        else:
+            assert record is None
 
     def test_launch_nl_run_simulation_preflight_skipped_is_durable_refusal(
         self,
@@ -1794,6 +1901,7 @@ class TestLaunchNlRun:
             )
             == request_body
         )
+        headers["Idempotency-Key"] = "simulation-preflight-key"
         with client:
             response = client.post(
                 "/api/v1/control/runs/nl",
@@ -1802,15 +1910,42 @@ class TestLaunchNlRun:
             )
             assert response.status_code == 200, response.text
             launch = response.json()
+            attempt_id = response.headers.get("X-Control-Admission-Attempt-ID")
+            assert attempt_id is not None
+            attempt_response = client.get(
+                f"/api/v1/control/admission-attempts/{attempt_id}",
+                headers=headers,
+            )
             job_response = client.get(
                 f"/api/v1/control/jobs/{launch['job_id']}",
                 headers=headers,
             )
+            replay_response = client.post(
+                "/api/v1/control/runs/nl",
+                headers=headers,
+                json=request_body,
+            )
         assert launch["status"] == "rejected"
         assert launch["job_id"]
+        assert len(attempt_id) == 32
+        assert attempt_response.status_code == 200, attempt_response.text
+        attempt_history = attempt_response.json()
+        assert attempt_history["attempt_id"] == attempt_id
+        assert attempt_history["status"] == "refused"
+        assert [item["event_type"] for item in attempt_history["history"]] == [
+            "started", "refused"
+        ]
+        assert attempt_history["producer_event_observation"] == "no_call"
+        assert attempt_history["producer_no_call_reason"] == "provider_preflight_not_started"
+        assert attempt_history["history"][-1]["producer_event_observation"] == "no_call"
+        assert attempt_history["history"][-1]["producer_no_call_reason"] == "provider_preflight_not_started"
+        assert attempt_history["history"][-1]["failure_code"] == "provider_preflight_not_started"
+        assert replay_response.status_code == 200
+        assert replay_response.json()["job_id"] == launch["job_id"]
         assert len(observed_reports) == 1
         produced = observed_reports[0]
         assert produced.status == "skipped"
+        assert produced.producer_completion_observation == "not_started"
         assert produced.checks[0].status == "skipped"
         assert produced.checks[0].details["reason"] == ("POLISYOS_LLM_SIMULATION_MODE is enabled")
         assert provider_io_calls == []

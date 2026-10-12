@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+from urllib.parse import unquote
 
 from pydantic import TypeAdapter
 
@@ -470,6 +471,9 @@ _DEFAULT_PROBLEM_RESPONSES: dict[str, dict[str, str]] = {
     "422": {"code": "request_validation_failed", "description": "Request validation failed."},
     "500": {"code": "internal_error", "description": "Unexpected runtime API failure."},
 }
+
+_RUNTIME_PROBLEM_MEDIA_TYPE = "application/problem+json"
+_RUNTIME_PROBLEM_SCHEMA_REF = "#/components/schemas/RuntimeApiProblem"
 
 _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
     "get_artifact_manifest": {
@@ -1567,6 +1571,393 @@ def _normative_evidence_transport_examples() -> dict[str, Any]:
     }
 
 
+
+def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
+    """Build the limited no-interval example through the real artifact projector."""
+    from polisyos.core.artifacts import ArtifactID, ArtifactManifest, IntegrityInfo, SchemaInfo
+    from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
+    from polisyos.runtime.http.services.artifact_inspector import _predictive_coverage_preview
+
+    fixture_manifest = ArtifactManifest(
+        artifact_id=ArtifactID(_ARTIFACT_ID_SAMPLE),
+        kind="ir.backtest_report",
+        media_type="application/json",
+        byte_size=1,
+        schema=SchemaInfo(name="ir.backtest_report", version="1.0"),
+        integrity=IntegrityInfo(sha256="b" * 64),
+    )
+    fixture_payload = {
+        "schema_version": "1.0",
+        "metadata": {
+            "estimand": "predictive_interval_coverage",
+            "authority_scope": "predictive_only",
+            "bridge_status": "bridge_pending",
+        },
+        "degraded_reasons": ["trust_screening:predictive_only_bridge_pending"],
+        "degraded": True,
+        "trust_eligible": False,
+        "trust_score": None,
+        "n_scenarios": 1,
+        "scenarios": [
+            {
+                "scenario_id": "openapi-no-intervals",
+                "requested_count": 1,
+                "compared_count": 1,
+                "missing_count": 0,
+                "invalid_count": 0,
+                "interval_requested_count": 1,
+                "interval_available_count": 0,
+                "interval_evaluated_count": 0,
+                "interval_hit_count": 0,
+                "interval_hit_rate": None,
+                "coverage_probability": None,
+                "nominal_confidence_level": 0.9,
+                "interval_type": "prediction",
+                "outcome_comparisons": [
+                    {
+                        "metric_name": "outcome",
+                        "y_true": 1.0,
+                        "ci_lower": None,
+                        "ci_upper": None,
+                        "within_ci": None,
+                    }
+                ],
+            }
+        ],
+    }
+    projected = _predictive_coverage_preview(fixture_payload, fixture_manifest)
+    if projected is None:
+        raise ValueError("Controlled predictive diagnostic fixture was not admitted")
+    candidate = TypeAdapter(PredictiveCoverageDiagnosticPreview).validate_python(
+        projected.model_dump(mode="json"),
+        strict=True,
+    )
+    if (
+        candidate.measurement_status != "not_measured"
+        or candidate.reason_code != "no_evaluated_intervals"
+        or len(candidate.scenarios) != 1
+        or candidate.scenarios[0].interval_requested_count != 1
+        or candidate.scenarios[0].interval_evaluated_count != 0
+    ):
+        raise ValueError("Controlled predictive fixture no longer emits its intended branch")
+    return {
+        "limited_not_measured_candidate": {
+            "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+            "description": (
+                "Generated through the actual predictive-coverage projector from a controlled "
+                "in-memory report fixture. The artifact ID is illustrative; this is not a stored "
+                "source, production measurement, authority, issuer, publication, or currentness "
+                "claim."
+            ),
+            "value": candidate.model_dump(mode="json"),
+        }
+    }
+
+
+def _lex_search_profile_success_examples() -> dict[str, Any]:
+    """Build the typed no-selected-generation response example."""
+    from polisyos.runtime.http.services.control.lex_search_profile import (
+        LexSearchProfileRefusedResponse,
+        LexSearchProfileResponse,
+    )
+
+    candidate = TypeAdapter(LexSearchProfileResponse).validate_python(
+        {
+            "meta": {
+                "request_id": _REQUEST_ID_SAMPLE,
+                "generated_at": datetime(2026, 2, 11, 12, tzinfo=UTC),
+                "source_kinds": [],
+            },
+            "status": "refused",
+            "output_dir": "example-legal-output",
+            "refusal_code": "selected_generation_unavailable",
+        },
+        strict=True,
+    )
+    if not isinstance(candidate, LexSearchProfileRefusedResponse):
+        raise ValueError("Lex profile example changed response arm")
+    return {
+        "selected_generation_unavailable": {
+            "summary": "Typed refusal without a selected generation",
+            "description": (
+                "A refusal example only; it does not assert that an embedding generation "
+                "is available or current."
+            ),
+            "value": candidate.model_dump(mode="json"),
+        }
+    }
+
+_SUCCESS_SCHEMA_ANNOTATIONS = frozenset({"title", "description", "examples", "example"})
+_INVALID_SCHEMA_REFERENCE = object
+
+
+_URI_FRAGMENT_LITERAL_CHARACTERS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~!$&'()*+,;=:@/?"
+)
+_URI_FRAGMENT_HEX_DIGITS = frozenset("0123456789abcdefABCDEF")
+
+
+def _is_valid_uri_fragment(fragment: str) -> bool:
+    """Validate RFC 3986 fragment syntax: pchar, slash, or question mark."""
+    index = 0
+    while index < len(fragment):
+        character = fragment[index]
+        if character == "%":
+            if (
+                index + 2 >= len(fragment)
+                or fragment[index + 1] not in _URI_FRAGMENT_HEX_DIGITS
+                or fragment[index + 2] not in _URI_FRAGMENT_HEX_DIGITS
+            ):
+                return False
+            index += 3
+        elif character in _URI_FRAGMENT_LITERAL_CHARACTERS:
+            index += 1
+        else:
+            return False
+    return True
+
+
+def _json_schema_pointer_tokens(reference: str) -> tuple[str, ...] | None:
+    """Validate fragment syntax, then decode a local JSON Pointer."""
+    if not reference.startswith("#"):
+        return None
+    fragment = reference[1:]
+    if not _is_valid_uri_fragment(fragment):
+        return None
+    try:
+        decoded = unquote(fragment, errors="strict")
+    except UnicodeDecodeError:
+        return None
+    if not decoded:
+        return ()
+    if not decoded.startswith("/"):
+        return None
+    tokens: list[str] = []
+    for raw in decoded[1:].split("/"):
+        token: list[str] = []
+        index = 0
+        while index < len(raw):
+            if raw[index] != "~":
+                token.append(raw[index])
+                index += 1
+                continue
+            if index + 1 >= len(raw) or raw[index + 1] not in {"0", "1"}:
+                return None
+            token.append("~" if raw[index + 1] == "0" else "/")
+            index += 2
+        tokens.append("".join(token))
+    return tuple(tokens)
+
+
+def _resolve_json_schema_pointer(document: object, reference: str) -> object | None:
+    """Resolve a complete local JSON Pointer against its owning schema document."""
+    tokens = _json_schema_pointer_tokens(reference)
+    if tokens is None:
+        return None
+    target = document
+    for part in tokens:
+        if isinstance(target, dict) and part in target:
+            target = target[part]
+        elif (isinstance(target, list) and part and all("0" <= c <= "9" for c in part)
+              and (part == "0" or not part.startswith("0")) and int(part) < len(target)):
+            target = target[int(part)]
+        else:
+            return None
+    return target
+
+
+def _success_json_schema_reference_projection(
+    reference: str, *, document: object, active_refs: frozenset[tuple[str, ...]],
+    memo: dict[tuple[str, ...], object],
+) -> object:
+    """Resolve and project a local schema target; unsupported references fail closed."""
+    pointer = _json_schema_pointer_tokens(reference)
+    if pointer is None:
+        return _INVALID_SCHEMA_REFERENCE()
+    target = _resolve_json_schema_pointer(document, reference)
+    if target is None:
+        return _INVALID_SCHEMA_REFERENCE()
+    if pointer in active_refs:
+        return {"$recursive_ref": True}
+    if pointer not in memo:
+        memo[pointer] = _success_json_schema_projection(
+            target, document=document, active_refs=active_refs | {pointer}, memo=memo
+        )
+    return memo[pointer]
+
+
+def _success_schema_explicitly_allows_null_default(schema: object) -> bool:
+    """Recognize only supported schema shapes that explicitly admit null."""
+    if not isinstance(schema, dict):
+        return False
+    supported_keywords = {
+        "type",
+        "const",
+        "enum",
+        "anyOf",
+        "oneOf",
+        "default",
+        "title",
+        "description",
+        "examples",
+        "example",
+        "deprecated",
+        "readOnly",
+        "writeOnly",
+        "$comment",
+        "multipleOf",
+        "maximum",
+        "exclusiveMaximum",
+        "minimum",
+        "exclusiveMinimum",
+        "maxLength",
+        "minLength",
+        "pattern",
+        "format",
+        "contentEncoding",
+        "contentMediaType",
+        "contentSchema",
+        "maxItems",
+        "minItems",
+        "uniqueItems",
+        "prefixItems",
+        "items",
+        "contains",
+        "maxContains",
+        "minContains",
+        "maxProperties",
+        "minProperties",
+        "required",
+        "properties",
+        "patternProperties",
+        "additionalProperties",
+        "dependentRequired",
+        "dependentSchemas",
+        "propertyNames",
+        "unevaluatedItems",
+        "unevaluatedProperties",
+    }
+    if schema.keys() - supported_keywords:
+        return False
+    if "const" in schema and schema["const"] is not None:
+        return False
+    if "enum" in schema and (
+        not isinstance(schema["enum"], list) or None not in schema["enum"]
+    ):
+        return False
+
+    schema_type = schema.get("type")
+    positive_null = False
+    if "type" in schema:
+        if schema_type == "null":
+            positive_null = True
+        elif isinstance(schema_type, list):
+            if "null" not in schema_type:
+                return False
+            positive_null = True
+        elif isinstance(schema_type, str):
+            return False
+        else:
+            return False
+    if "const" in schema and schema["const"] is None:
+        positive_null = True
+    if "enum" in schema:
+        positive_null = True
+
+    if "anyOf" in schema:
+        any_of = schema["anyOf"]
+        if not isinstance(any_of, list) or not any(
+            _success_schema_explicitly_allows_null_default(branch) for branch in any_of
+        ):
+            return False
+        positive_null = True
+
+    if "oneOf" in schema:
+        one_of = schema["oneOf"]
+        direct_nullability = {"type", "const", "enum"}
+        if not isinstance(one_of, list) or any(
+            not isinstance(branch, dict)
+            or branch.keys() - supported_keywords
+            or not direct_nullability.intersection(branch)
+            or "anyOf" in branch
+            or "oneOf" in branch
+            for branch in one_of
+        ):
+            return False
+        if sum(
+            _success_schema_explicitly_allows_null_default(branch) for branch in one_of
+        ) != 1:
+            return False
+        positive_null = True
+
+    return positive_null
+
+
+def _success_json_schema_projection(
+    schema: object, *, document: object,
+    active_refs: frozenset[tuple[str, ...]] = frozenset(),
+    memo: dict[tuple[str, ...], object] | None = None,
+) -> object:
+    """Resolve the supported local ref graph and normalize validation-bearing keywords."""
+    if memo is None:
+        memo = {}
+    if isinstance(schema, list):
+        return [_success_json_schema_projection(item, document=document,
+                active_refs=active_refs, memo=memo) for item in schema]
+    if not isinstance(schema, dict):
+        return schema
+    if "$dynamicRef" in schema or "$recursiveRef" in schema:
+        return _INVALID_SCHEMA_REFERENCE()
+    if "$ref" in schema:
+        reference = schema["$ref"]
+        if not isinstance(reference, str):
+            return _INVALID_SCHEMA_REFERENCE()
+        resolved = _success_json_schema_reference_projection(
+            reference, document=document, active_refs=active_refs, memo=memo
+        )
+        siblings = {key: value for key, value in schema.items()
+                    if key not in {"$ref", "$defs"} and key not in _SUCCESS_SCHEMA_ANNOTATIONS}
+        if siblings:
+            return {"allOf": [resolved, _success_json_schema_projection(
+                siblings, document=document, active_refs=active_refs, memo=memo)]}
+        return resolved
+    projection: dict[str, object] = {}
+    for key, value in schema.items():
+        if (
+            key == "default"
+            and value is None
+            and _success_schema_explicitly_allows_null_default(schema)
+        ):
+            continue
+        if key == "$defs" or key in _SUCCESS_SCHEMA_ANNOTATIONS:
+            continue
+        if key == "$id" and isinstance(value, str) and value:
+            projection[key] = _INVALID_SCHEMA_REFERENCE()
+        elif key == "discriminator" and isinstance(value, dict):
+            discriminator: dict[str, object] = {}
+            for subkey, subvalue in value.items():
+                if subkey == "mapping":
+                    if not isinstance(subvalue, dict):
+                        discriminator[subkey] = _INVALID_SCHEMA_REFERENCE()
+                    else:
+                        discriminator[subkey] = {
+                            tag: {"$schema_target": _success_json_schema_reference_projection(
+                                target, document=document, active_refs=active_refs, memo=memo
+                            ) if isinstance(target, str) else _INVALID_SCHEMA_REFERENCE()}
+                            for tag, target in subvalue.items()
+                        }
+                else:
+                    discriminator[subkey] = _success_json_schema_projection(
+                        subvalue, document=document, active_refs=active_refs, memo=memo
+                    )
+            projection[key] = discriminator
+        else:
+            projection[key] = _success_json_schema_projection(
+                value, document=document, active_refs=active_refs, memo=memo
+            )
+    return projection
+
+
 _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
     str,
     dict[str, Any] | Callable[[], dict[str, Any]],
@@ -1584,7 +1975,30 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
             "value": _epoch_staleness_example(fixture_only=False),
         },
     },
+    "get_predictive_coverage_diagnostic": _predictive_coverage_diagnostic_success_examples,
+    "get_lex_search_profile": _lex_search_profile_success_examples,
 }
+
+
+@lru_cache(maxsize=1)
+def _success_example_response_models() -> dict[str, Any]:
+    """Return response DTOs that govern model-dispatched success examples."""
+    from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
+    from polisyos.runtime.http.services.control.lex_search_profile import LexSearchProfileResponse
+
+    return {
+        "get_predictive_coverage_diagnostic": PredictiveCoverageDiagnosticPreview,
+        "get_lex_search_profile": LexSearchProfileResponse,
+    }
+
+
+@lru_cache(maxsize=1)
+def _success_example_response_adapters() -> dict[str, TypeAdapter[Any]]:
+    """Return strict JSON validators for model-dispatched success examples."""
+    return {
+        operation_id: TypeAdapter(response_model)
+        for operation_id, response_model in _success_example_response_models().items()
+    }
 
 
 @lru_cache(maxsize=1)
@@ -4427,6 +4841,21 @@ def _first_success_response(
     return status_code, response
 
 
+def _schema_references_runtime_api_problem(schema: object) -> bool:
+    """Return whether a response schema directly uses the runtime problem model."""
+    if not isinstance(schema, dict):
+        return False
+    if schema.get("$ref") == _RUNTIME_PROBLEM_SCHEMA_REF:
+        return True
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        branches = schema.get(keyword)
+        if isinstance(branches, list) and any(
+            _schema_references_runtime_api_problem(branch) for branch in branches
+        ):
+            return True
+    return False
+
+
 def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
     """Augment runtime openapi helper."""
     mutated = deepcopy(schema)
@@ -4480,10 +4909,10 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
             content = response_payload.get("content")
             if not isinstance(content, dict):
                 continue
-            payload = content.setdefault("application/problem+json", {})
+            payload = content.setdefault(_RUNTIME_PROBLEM_MEDIA_TYPE, {})
             if not isinstance(payload, dict):
                 continue
-            payload.setdefault("schema", {"$ref": "#/components/schemas/RuntimeApiProblem"})
+            payload.setdefault("schema", {"$ref": _RUNTIME_PROBLEM_SCHEMA_REF})
             if "example" not in payload and not payload.get("examples"):
                 payload["examples"] = {
                     "default": {
@@ -4496,6 +4925,41 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
                         ),
                     }
                 }
+
+        for status_code, response_payload in responses.items():
+            if str(status_code) in _DEFAULT_PROBLEM_RESPONSES:
+                continue
+            if not isinstance(response_payload, dict):
+                continue
+            response_content = response_payload.get("content")
+            if not isinstance(response_content, dict):
+                continue
+            problem_payload = response_content.get(_RUNTIME_PROBLEM_MEDIA_TYPE)
+            if (
+                not isinstance(problem_payload, dict)
+                or problem_payload.get("schema") != {"$ref": _RUNTIME_PROBLEM_SCHEMA_REF}
+                or "example" in problem_payload
+                or problem_payload.get("examples")
+            ):
+                continue
+            try:
+                numeric_status = int(status_code)
+            except (TypeError, ValueError):
+                continue
+            code = "conflict" if numeric_status == 409 else "runtime_api_problem"
+            description = response_payload.get("description")
+            summary = description if isinstance(description, str) else "Runtime API problem."
+            problem_payload["examples"] = {
+                "default": {
+                    "summary": summary,
+                    "value": runtime_problem_example(
+                        status_code=numeric_status,
+                        code=code,
+                        path=path,
+                        request_id=_REQUEST_ID_SAMPLE,
+                    ),
+                }
+            }
 
         success_pair = _first_success_response(responses)
         if success_pair is None:
@@ -4545,79 +5009,216 @@ def install_runtime_openapi_contract(app: Any) -> None:
     app.openapi = _custom_openapi
 
 
+def _success_response_has_example(status_code: str, response: dict[str, Any]) -> bool:
+    """Require an inline example, a schema-declared binary body, or a no-body status."""
+    content = response.get("content")
+    if status_code in {"204", "205"} and not content:
+        return True
+    if not isinstance(content, dict):
+        return False
+    for media_type, payload in content.items():
+        if not isinstance(media_type, str) or not isinstance(payload, dict):
+            continue
+        if "example" in payload:
+            return True
+        examples = payload.get("examples")
+        if isinstance(examples, dict) and any(
+            isinstance(example, dict) and "value" in example for example in examples.values()
+        ):
+            return True
+        media_schema = payload.get("schema")
+        if (
+            media_type != "application/json"
+            and isinstance(media_schema, dict)
+            and media_schema.get("type") == "string"
+            and media_schema.get("format") == "binary"
+        ):
+            return True
+    return False
+
+
 def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
-    """Validate runtime openapi contract."""
+    """Validate runtime OpenAPI examples and typed problem responses."""
     violations: list[str] = []
+    success_example_adapters = _success_example_response_adapters()
+    components = schema.get("components")
+    component_schemas = components.get("schemas") if isinstance(components, dict) else None
+    expected_schema = RuntimeApiProblem.model_json_schema(
+        ref_template="#/components/schemas/{model}"
+    )
+    if not isinstance(component_schemas, dict) or component_schemas.get(
+        "RuntimeApiProblem"
+    ) != expected_schema:
+        violations.append(
+            "components.schemas.RuntimeApiProblem differs from the RuntimeApiProblem model"
+        )
     for path, method, operation in iter_openapi_operations(schema):
         responses = operation.get("responses")
         if not isinstance(responses, dict):
             violations.append(f"{method.upper()} {path}: missing responses object")
             continue
-
         success_pair = _first_success_response(responses)
         success = success_pair[1] if success_pair is not None else None
-        success_example_found = False
-        if isinstance(success, dict):
-            content = success.get("content")
-            if isinstance(content, dict):
-                json_content = content.get("application/json")
-                if isinstance(json_content, dict):
-                    success_example_found = bool(
-                        ("example" in json_content) or json_content.get("examples")
-                    )
-                    if not success_example_found:
-                        schema_obj = json_content.get("schema")
-                        if isinstance(schema_obj, dict) and not schema_obj and len(content) > 1:
-                            success_example_found = True
-                elif content:
-                    success_example_found = True
+        success_example_found = (
+            success_pair is not None
+            and isinstance(success, dict)
+            and _success_response_has_example(success_pair[0], success)
+        )
         if not success_example_found:
             violations.append(f"{method.upper()} {path}: missing 2xx success response example")
         operation_id = operation.get("operationId")
         if isinstance(operation_id, str):
-            required_links = _SUCCESS_LINKS_BY_OPERATION.get(operation_id, {})
-            if required_links:
-                links = success.get("links") if isinstance(success, dict) else None
-                if not isinstance(links, dict):
+            adapter = success_example_adapters.get(operation_id)
+            if adapter is not None and isinstance(success, dict) and success_pair is not None:
+                status_code, _success_response = success_pair
+                content = success.get("content")
+                json_payload = (
+                    content.get("application/json") if isinstance(content, dict) else None
+                )
+                if isinstance(json_payload, dict):
+                    actual_response_schema = json_payload.get("schema")
+                    expected_model_schema = adapter.json_schema()
+                    actual_projection = _success_json_schema_projection(
+                        actual_response_schema,
+                        document=schema,
+                    )
+                    expected_projection = _success_json_schema_projection(
+                        expected_model_schema,
+                        document=expected_model_schema,
+                    )
+                    if actual_projection != expected_projection:
+                        violations.append(
+                            f"{method.upper()} {path}: success response schema differs from "
+                            "registered response model"
+                        )
+                    model_examples: list[tuple[str, object]] = []
+                    if "example" in json_payload:
+                        model_examples.append(("example", json_payload["example"]))
+                    examples = json_payload.get("examples")
+                    if isinstance(examples, dict):
+                        model_examples.extend(
+                            (str(name), item["value"])
+                            for name, item in examples.items()
+                            if isinstance(item, dict) and "value" in item
+                        )
+                    for name, value in model_examples:
+                        try:
+                            encoded = json.dumps(value, ensure_ascii=False, allow_nan=False)
+                            adapter.validate_json(encoded, strict=True)
+                        except (TypeError, ValueError):
+                            violations.append(
+                                f"{method.upper()} {path}: {status_code} success example "
+                                f"{name} does not match registered response model"
+                            )
+            links = _SUCCESS_LINKS_BY_OPERATION.get(operation_id, {})
+            if links:
+                actual_links = success.get("links") if isinstance(success, dict) else None
+                if not isinstance(actual_links, dict):
                     violations.append(f"{method.upper()} {path}: missing success response links")
                 else:
-                    for link_name in required_links:
-                        if link_name not in links:
+                    for link_name in links:
+                        if link_name not in actual_links:
                             rendered = (
                                 f"{method.upper()} {path}: "
                                 f"missing success response link {link_name}"
                             )
                             violations.append(rendered)
-
-        for status_code in ("400", "401", "403", "404", "406", "422", "500"):
-            response = responses.get(status_code)
+        for status in _DEFAULT_PROBLEM_RESPONSES:
+            response = responses.get(status)
             if not isinstance(response, dict):
-                violations.append(f"{method.upper()} {path}: missing {status_code} response")
+                violations.append(f"{method.upper()} {path}: missing {status} response")
                 continue
             content = response.get("content")
             if not isinstance(content, dict):
+                violations.append(f"{method.upper()} {path}: {status} response missing content")
+                continue
+            payload = content.get(_RUNTIME_PROBLEM_MEDIA_TYPE)
+            if not isinstance(payload, dict):
                 violations.append(
-                    f"{method.upper()} {path}: {status_code} response missing content"
+                    f"{method.upper()} {path}: {status} response missing "
+                    f"{_RUNTIME_PROBLEM_MEDIA_TYPE}"
                 )
                 continue
-            problem_payload = content.get("application/problem+json")
-            if not isinstance(problem_payload, dict):
+            if payload.get("schema") != {"$ref": _RUNTIME_PROBLEM_SCHEMA_REF}:
                 violations.append(
-                    f"{method.upper()} {path}: {status_code} response "
-                    "missing application/problem+json"
+                    f"{method.upper()} {path}: {status} response must reference "
+                    "components.schemas.RuntimeApiProblem"
+                )
+            if "example" not in payload and not payload.get("examples"):
+                violations.append(
+                    f"{method.upper()} {path}: {status} response missing problem example"
+                )
+        for status, response in responses.items():
+            if not isinstance(response, dict):
+                continue
+            content = response.get("content")
+            if not isinstance(content, dict):
+                continue
+            has_media = _RUNTIME_PROBLEM_MEDIA_TYPE in content
+            ref_media = [
+                media for media, payload in content.items()
+                if isinstance(payload, dict)
+                and _schema_references_runtime_api_problem(payload.get("schema"))
+            ]
+            if not has_media and not ref_media:
+                continue
+            rendered_status = str(status)
+            if not has_media:
+                violations.append(
+                    f"{method.upper()} {path}: {rendered_status} RuntimeApiProblem "
+                    f"response must use {_RUNTIME_PROBLEM_MEDIA_TYPE}"
+                )
+            for media in ref_media:
+                if media != _RUNTIME_PROBLEM_MEDIA_TYPE:
+                    violations.append(
+                        f"{method.upper()} {path}: {rendered_status} RuntimeApiProblem "
+                        f"schema is advertised under {media}, not {_RUNTIME_PROBLEM_MEDIA_TYPE}"
+                    )
+            payload = content.get(_RUNTIME_PROBLEM_MEDIA_TYPE)
+            if not isinstance(payload, dict):
+                violations.append(
+                    f"{method.upper()} {path}: {rendered_status} response has no "
+                    f"{_RUNTIME_PROBLEM_MEDIA_TYPE} payload"
                 )
                 continue
-            if "schema" not in problem_payload:
+            if payload.get("schema") != {"$ref": _RUNTIME_PROBLEM_SCHEMA_REF}:
                 violations.append(
-                    f"{method.upper()} {path}: {status_code} response missing problem schema"
+                    f"{method.upper()} {path}: {rendered_status} response must directly "
+                    "reference components.schemas.RuntimeApiProblem"
                 )
-            if "example" not in problem_payload and not problem_payload.get("examples"):
+            values: list[tuple[str, object]] = []
+            if "example" in payload:
+                values.append(("example", payload["example"]))
+            examples = payload.get("examples")
+            if isinstance(examples, dict):
+                values.extend(
+                    (str(name), item["value"])
+                    for name, item in examples.items()
+                    if isinstance(item, dict) and "value" in item
+                )
+            if not values:
                 violations.append(
-                    f"{method.upper()} {path}: {status_code} response missing problem example"
+                    f"{method.upper()} {path}: {rendered_status} response missing "
+                    "an inline RuntimeApiProblem example"
                 )
-
+                continue
+            for name, value in values:
+                try:
+                    problem = RuntimeApiProblem.model_validate(value, strict=True)
+                except (TypeError, ValueError) as exc:
+                    violations.append(
+                        f"{method.upper()} {path}: {rendered_status} example {name} "
+                        f"is not a RuntimeApiProblem ({exc})"
+                    )
+                    continue
+                if rendered_status.isdigit():
+                    code = int(rendered_status)
+                    if problem.status != code or problem.status_code != code:
+                        violations.append(
+                            f"{method.upper()} {path}: {rendered_status} example {name} "
+                            "has mismatched problem status fields"
+                        )
     return violations
-
 
 __all__ = [
     "augment_runtime_openapi",

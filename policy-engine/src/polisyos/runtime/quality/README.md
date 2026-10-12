@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-12
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,20 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+BERL warrant-reliability accepts an optional Core CAS store and resolves the exact selected
+`ExplanationBundleRef` before admission. The BERL producer returns the manifest profile selected
+by that same write; Runtime checks the persisted kind, media type, schema, and full content, then
+retains validation and threshold results as candidate diagnostics. The repository has no typed
+claim/run subject resolver that independently binds prediction identity, model identity, and feature
+schema to the selected bundle. Matching record, warrant, and bundle strings are only candidate
+assertions; the serious BERL warrant gate therefore remains `not_established` and fails closed. A
+selected-store read failure also produces a stable failed diagnostic with object absence left
+unestablished; embedded bundle bytes cannot rescue the selected ref. The current repository has no
+production `build_quality_scorecard` caller, so this Runtime seam remains
+`implemented_but_not_orchestrated` beyond the controlled source-bound witness. The conditional
+observed-feature law remains `producer_missing`; no conditional attribution is admitted by
+declarations, test correlation, or CAS profile identity.
 
 N9 historical receipts are parsed with `parse_canonical_promotion_history_receipt`.
 Use the parsed receipt's `historical_projection()` when serializing its stored
@@ -29,6 +43,40 @@ closeout meaning.
 
 Boundary notes:
 
+- N5 interaction schema v4 preserves each pairwise interaction sample and the
+  aggregate higher-order residual vector by the exact shared replicate seeds,
+  with means and sample standard errors recomputed from the persisted trajectories.
+  N8 consumes and exposes the numeric classification, its finite checked-model
+  point-estimate basis, and the interaction sampling status. Any observed paired
+  variation or unavailable standard error makes the numeric classification
+  `unsupported`; v1-v3 results retain historical means but are `not_established`
+  for paired interaction uncertainty. These are selected-run K_sim diagnostics,
+  not a statistical significance rule, causal additivity law, or promotion basis.
+  The explicit `n4_unique_parent_source_members.v1` candidate intent reuses the
+  actual N4 source result and complete semantic child set to form one parent
+  N5 request. It requires exactly one content-bound parent-frame atom for each
+  child; it does not union alternatives or convert child frames. The request
+  and source-selection receipt are persisted with the recursive run. Fresh
+  run-details readback re-resolves the N4 source and complete child N5 source,
+  input, profile, atom, and frame bindings before projecting the candidate
+  selection. The intent means “form a hypothetical all-unique-member
+  diagnostic”: N4 source candidates remain alternatives, so the persisted
+  typed request and v2 selection receipt bind that basis and do not assert an
+  N4-authored compound design. Readback carries that distinction,
+  and marks policy composition and child-to-parent refinement
+  `not_established`. A historical v1 receipt binds source member identities
+  only and is projected with explicit unknown composition/refinement
+  limitations. No intent means no parent candidate set is silently selected.
+  Without source-bound coupling evidence, parent N8 remains `not_established`
+  and `value_pending_n8`; this candidate producer does not infer graph edges
+  or confer execution, publication, or promotion authority. The served
+  three-child witness uses a synthetic candidate adapted to the source
+  problem's existing `labor_market` / `agents_is_employed` lever; it is not
+  empirical evidence. Its first run stopped before parent N5 because the
+  fixture supplied an undeclared `credit_guarantee` lever. The fixture is
+  corrected, and the persisted fresh-GET verification remains pending.
+  This request path is separate from the recourse `InterventionProgram`, which
+  remains a distinct estimator input.
 - `joint_simulation_horizon.py` is the N5 candidate simulation adapter. It resolves
   simultaneous writes before invoking a selected engine. Duplicate writes merge
   only when recursively compared types and values match (including array shape
@@ -52,7 +100,9 @@ Boundary notes:
   flattening, signed-zero collapse, datetime normalization, and unsupported
   values) refuse the typed binding rather than changing the simulation input.
   Fresh N8/run-history consumers replay the whole request against the source-bound
-  input before resolving a current projection. Historical request-binding v1 and
+  input before resolving a current projection when that request and source lineage
+  are present. A missing legacy request remains readable with a typed
+  `not_established` limitation. Historical request-binding v1 and
   execution v1/v2 retain their original JSON hashes, CAS schemas, and parser paths;
   they are never rewritten or upgraded. No world evidence, causal authority, or
   publication eligibility is conferred.
@@ -382,6 +432,11 @@ Workspace ownership:
   by one generation-cycle run. It binds canonical substrate-registry, world,
   intervention, lever, and transport evidence without loading packs by filename
   or granting grounding, transport, or promotion authority.
+  A selected, profile-pinned `CausalGraphModelRef` is resolved through the exact
+  CAS manifest and bytes before N8 builds its candidate selection diagram. The
+  persisted V4 context-job envelope carries that ref; ref-free V1/V2/V3 payloads
+  keep their frozen replay formats. Measured context values add S-nodes without
+  inferring graph edges or granting transport authority.
 - `confidence_ledger.py` owns durable anytime-valid promotion-risk accounting.
   It resolves data-registered instruments through code-owned proof kernels,
   binds predictable claims to the prior ledger head, burns exact schedule risk
@@ -605,3 +660,54 @@ through `ArtifactAuthorityInfo`, the evidence authority envelope, and strict fre
 profileless historical link continues to resolve its default manifest view with its persisted
 schema version; it is not upgraded into a producer-attested selected profile. Hidden views outside
 the active CAS owner scope remain unresolved.
+
+## LA-036 selected BERL evidence
+
+The `polisyos.runtime.quality` warrant-reliability API resolves and subject-binds the exact
+selected BERL bundle through the supplied Core CAS store. Its typed store-read diagnostic is
+`ExplanationBundleStoreReadError`, exported by the separately supported experimental
+`polisyos.berl` facade. Both Python surfaces remain experimental; this bridge does not add an HTTP
+route or generated client, establish production currentness, or verify a conditional feature law.
+
+
+N5 replication results use the v3 joint-simulation payload to retain each selected-engine point's draw values, seed, and full JSON-ready engine state alongside the aggregate mean and recomputable sample standard error. The sample records are reconciled with the ordered per-point engine-state sidecar by strict canonical JSON bytes, preserving boolean, integer, and float distinctions; malformed or nonfinite state values fail closed. A single draw is explicitly `standard_error_not_estimated`; it never serializes a numeric zero for an unestimated error. Fresh CAS readers recompute the complete sample count, seed/state bindings, point means, and standard errors before N8 projects the result. Historical v1/v2 payload bytes remain readable and yield the typed candidate limitation `legacy_sampling_not_established`; they are not upgraded in place. An estimated error describes sampling variation under the selected model only. It does not measure model/world uncertainty, establish statistical independence, calibrate a causal model, or authorize promotion; N8 remains low-grade candidate-only behind its existing simulation blocker.
+
+### B31 candidate owner method-run basis
+
+N8's additive causal-run path requires a `ValueOwnerMethodRunIntentV1` bound to
+the exact v2 owner profile, explicit assignment reference, estimand coordinate,
+and selected method. The producer persists the panel input and typed runner
+request before invoking a registered real method, then persists its native
+`CausalEffectReport` and content-bound run basis. The report reference requests
+the selected profile from that same CAS write; the general typed persistence
+helper preserves historical default-reference behavior for legacy callers. A fresh CAS consumer reopens
+those sources and recomputes the profile, subject/unit coordinate, method,
+request, report, and interval binding before returning a `ValueOuterSet`.
+
+The identification/owner-assignment interval and the method's statistical CI
+remain separate fields. Controlled DID and synthetic-control witnesses are
+search-only candidate fixtures with `gate_eligible=False`; the default owner
+gateway returns no run intent, so ordinary execution remains
+`treatment_assignment_not_owner_derived`. A successful fit cannot supply an
+owner assignment, law, calibration, causal identification, or production
+currentness. Historical v1 owner profiles have no declared measurement unit and
+are not upgraded implicitly; source-backed candidate runs must reacquire a v2
+profile with one explicit unit across every row.
+
+
+
+The v2 run basis now uses a complete selected-manifest input multiset at every
+profile, panel, request, report, execution-receipt, and basis boundary. Duplicate
+edges, unbound extras, missing edges, and profileless default views are refused.
+A post-run candidate receipt records submitted request intent separately from
+runner-returned seed/backend/fingerprint and the returned report digest/parameter
+digest. The fresh consumer binds these values to the persisted report and basis,
+and compares request values only where the typed report directly exposes a
+corresponding value. Full used-parameter coverage remains `not_established`: the
+DID/SCM reports do not expose every resolved parameter, and the runner does not
+return that vector. This candidate record is not an institutional signature or
+authority claim. Historical v1 basis/default-manifest views remain limited and are never
+upgraded by a fresh read. The v5 input boundary also rejects coercible JSON types for
+fixture treatment periods, run seeds, and assignment bounds: booleans cannot become
+period 1 or seed 1, and numeric strings do not become owner bounds. This validates
+input types only; it does not strengthen the fixture's authority.

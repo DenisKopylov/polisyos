@@ -11,6 +11,9 @@ UKRAINE_NORMALIZED_SOURCES_KEY = AssetKey.from_parts("ukraine", "sources", "norm
 UKRAINE_DEMOGRAPHY_TARGETS_KEY = AssetKey.from_parts("ukraine", "demography", "targets")
 UKRAINE_DEMOGRAPHY_PRIORS_KEY = AssetKey.from_parts("ukraine", "demography", "priors")
 UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY = AssetKey.from_parts("ukraine", "demography", "donor_pool")
+UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY = AssetKey.from_parts(
+    "ukraine", "demography", "source_inventory"
+)
 UKRAINE_STATIC_AGING_INPUTS_KEY = AssetKey.from_parts("ukraine", "demography", "static_aging")
 UKRAINE_READINESS_KEY = AssetKey.from_parts("ukraine", "readiness")
 
@@ -59,12 +62,19 @@ UKRAINE_ASSET_GROUP = AssetGroup.from_specs(
             retention=RetentionClass.HOT,
         ),
         AssetSpec(
-            key=UKRAINE_STATIC_AGING_INPUTS_KEY,
+            key=UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY,
             deps=(
                 UKRAINE_DEMOGRAPHY_TARGETS_KEY,
                 UKRAINE_DEMOGRAPHY_PRIORS_KEY,
                 UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY,
             ),
+            owner="team-data-forge",
+            schema_id="ukraine.demography.source_inventory.v2",
+            retention=RetentionClass.HOT,
+        ),
+        AssetSpec(
+            key=UKRAINE_STATIC_AGING_INPUTS_KEY,
+            deps=(UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY,),
             owner="team-data-forge",
             schema_id="ukraine.demography.static_aging",
             retention=RetentionClass.HOT,
@@ -83,6 +93,7 @@ __all__ = [
     "UKRAINE_ASSET_GROUP",
     "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY",
     "UKRAINE_DEMOGRAPHY_PRIORS_KEY",
+    "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY",
     "UKRAINE_DEMOGRAPHY_TARGETS_KEY",
     "UKRAINE_NORMALIZED_SOURCES_KEY",
     "UKRAINE_RAW_SOURCES_KEY",

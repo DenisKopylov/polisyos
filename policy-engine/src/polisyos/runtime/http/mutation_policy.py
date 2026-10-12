@@ -102,8 +102,29 @@ def _is_live_stream_path(path: str) -> bool:
     return path == "/api/v1/review/live"
 
 
+def _is_run_predictive_calibration_path(path: str) -> bool:
+    """Recognize exactly one run-bound predictive-calibration resource path."""
+    parts = path.rstrip("/").split("/")
+    return (
+        len(parts) == 6
+        and parts[:4] == ["", "api", "v1", "runs"]
+        and bool(parts[4])
+        and parts[5] == "predictive-calibration"
+    )
+
+
 def _is_mutation_path(method: str, path: str) -> bool:
-    return method.upper() == "POST" and path.startswith("/api/v1/control")
+    return method.upper() == "POST" and (
+        path.startswith("/api/v1/control") or _is_run_predictive_calibration_path(path)
+    )
+
+
+def _uses_route_owned_idempotency(method: str, path: str) -> bool:
+    """Return whether a route owns idempotency in its typed operation store."""
+    return method.upper() == "POST" and (
+        path.rstrip("/") == "/api/v1/control/runs/nl"
+        or _is_run_predictive_calibration_path(path)
+    )
 
 
 def _is_managed_request(method: str, path: str) -> bool:
@@ -373,52 +394,64 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         tenant_id = _normalize_tenant_id(request)
         request_id = getattr(getattr(request, "state", object()), "request_id", None)
         live_stream_acquired = False
-        idempotency_key = (
+        legacy_idempotency_key = (
             request.headers.get("X-Idempotency-Key") if _is_mutation_path(method, path) else None
         )
+        # NL launches and run-bound predictive calibration have typed owners.
+        # Keep hashing the optional X-key for audit, but never let generic cache
+        # state return before the route validates its own scoped intent.
+        idempotency_key = (
+            legacy_idempotency_key
+            if not _uses_route_owned_idempotency(method, path)
+            else None
+        )
         request_hash_value: str | None = None
-        if idempotency_key:
+        if legacy_idempotency_key:
             raw_body = await request.body()
             request_hash_value = _request_hash(raw_body)
-            state, replay = self._idempotency_store.begin(
-                tenant_id=tenant_id,
-                method=method,
-                path=path,
-                idempotency_key=idempotency_key,
-                request_hash=request_hash_value,
-            )
-            if state == "replay" and replay is not None:
-                response = self._json_response_cls(
-                    status_code=replay.status_code,
-                    content=replay.body,
-                    media_type=replay.media_type,
+            if idempotency_key:
+                state, replay = self._idempotency_store.begin(
+                    tenant_id=tenant_id,
+                    method=method,
+                    path=path,
+                    idempotency_key=idempotency_key,
+                    request_hash=request_hash_value,
                 )
-                response.headers["X-Idempotent-Replay"] = "true"
-                if live_stream_acquired:
-                    self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
-                return response
-            if state == "mismatch":
-                if live_stream_acquired:
-                    self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
-                return problem_response(
-                    status_code=409,
-                    code="idempotency_key_reused",
-                    detail="X-Idempotency-Key cannot be reused with a different request payload",
-                    request_id=request_id,
-                    instance=path,
-                    error="idempotency_key_reused",
-                )
-            if state == "pending":
-                if live_stream_acquired:
-                    self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
-                return problem_response(
-                    status_code=409,
-                    code="idempotency_request_in_progress",
-                    detail="A matching idempotent request is still in progress",
-                    request_id=request_id,
-                    instance=path,
-                    error="idempotency_request_in_progress",
-                )
+                if state == "replay" and replay is not None:
+                    response = self._json_response_cls(
+                        status_code=replay.status_code,
+                        content=replay.body,
+                        media_type=replay.media_type,
+                    )
+                    response.headers["X-Idempotent-Replay"] = "true"
+                    if live_stream_acquired:
+                        self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
+                    return response
+                if state == "mismatch":
+                    if live_stream_acquired:
+                        self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
+                    return problem_response(
+                        status_code=409,
+                        code="idempotency_key_reused",
+                        detail=(
+                            "X-Idempotency-Key cannot be reused with a different request "
+                            "payload"
+                        ),
+                        request_id=request_id,
+                        instance=path,
+                        error="idempotency_key_reused",
+                    )
+                if state == "pending":
+                    if live_stream_acquired:
+                        self._rate_limiter.release_live_stream(tenant_id=tenant_id, path=path)
+                    return problem_response(
+                        status_code=409,
+                        code="idempotency_request_in_progress",
+                        detail="A matching idempotent request is still in progress",
+                        request_id=request_id,
+                        instance=path,
+                        error="idempotency_request_in_progress",
+                    )
 
         allowed, retry_after = self._rate_limiter.check_request(
             tenant_id=tenant_id,

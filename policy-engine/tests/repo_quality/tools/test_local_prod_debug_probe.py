@@ -11,9 +11,6 @@ from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
-from polisyos.scientist.orchestration.llm.provider_quality import (
-    build_controlled_grounding_observation,
-)
 from tools.quality.testing import local_prod_debug_probe
 from tools.quality.validation import check_production_data_scenario_contracts
 
@@ -553,7 +550,7 @@ def test_provider_preflight_no_key_path_does_not_construct_client(
     async def _unexpected_preflight(**_kwargs: object) -> object:
         raise AssertionError("provider preflight should not be called without an API key")
 
-    monkeypatch.setattr(local_prod_debug_probe, "run_provider_preflight", _unexpected_preflight)
+    monkeypatch.setattr(local_prod_debug_probe, "run_provider_preflight", _unexpected_preflight, raising=False)
     context = local_prod_debug_probe.ProbeContext.for_tests(
         repo_root=Path.cwd(),
         output=tmp_path / "probe.json",
@@ -567,38 +564,44 @@ def test_provider_preflight_no_key_path_does_not_construct_client(
     assert result["code"] == "live_provider_not_enabled"
 
 
-def test_provider_quality_controlled_check_builds_qwen_kimi_gate(
+def test_provider_preflight_live_path_refuses_without_durable_attempt_owner(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def _fake_samples(_context: local_prod_debug_probe.ProbeContext) -> list[object]:
-        observations = []
-        for model_id, fingerprint, prefix in (
-            (
-                "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
-                "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
-                "qwen",
-            ),
-            ("moonshotai/Kimi-K2.6", "moonshotai/Kimi-K2.6", "kimi"),
-        ):
-            for index in range(3):
-                observations.append(
-                    build_controlled_grounding_observation(
-                        provider="gonka_proxy",
-                        model_id=model_id,
-                        model_fingerprint=fingerprint,
-                        sample_index=index,
-                        request_fingerprint=f"sha256:{prefix}-controlled-{index}",
-                        latency_ms=100 + index,
-                        cost_usd=0.001,
-                    )
-                )
-        return observations
+    def _unexpected_preflight(**_kwargs: object) -> object:
+        raise AssertionError("unowned CLI path must not call a live provider")
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "run_provider_preflight",
+        _unexpected_preflight,
+        raising=False,
+    )
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=Path.cwd(),
+        output=tmp_path / "probe.json",
+        allow_live_provider=True,
+    )
+    context.runtime_env["POLISYOS_LLM_GATEWAY_API_KEY"] = "sk-live-secret-value"
+    result = local_prod_debug_probe.run_provider_preflight_check(context)
+    assert result["status"] == "fail"
+    assert result["code"] == "pre_admission_owner_unavailable"
+    assert result["details"]["provider_call_started"] is False
+    assert "sk-live-secret-value" not in json.dumps(result, sort_keys=True)
+
+
+def test_provider_quality_controlled_check_refuses_without_durable_attempt_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def _unexpected_samples(_context: local_prod_debug_probe.ProbeContext) -> list[object]:
+        raise AssertionError("unowned controlled samples must not call a live provider")
 
     monkeypatch.setattr(
         local_prod_debug_probe,
         "_run_controlled_grounding_live_samples",
-        _fake_samples,
+        _unexpected_samples,
+        raising=False,
     )
     context = local_prod_debug_probe.ProbeContext.for_tests(
         repo_root=Path.cwd(),
@@ -608,14 +611,11 @@ def test_provider_quality_controlled_check_builds_qwen_kimi_gate(
     context.runtime_env["POLISYOS_LLM_GATEWAY_API_KEY"] = "sk-live-secret-value"
 
     result = local_prod_debug_probe.run_provider_quality_controlled_check(context)
-    rendered = json.dumps(result, sort_keys=True)
 
-    assert result["status"] == "pass"
-    assert result["details"]["comparison"]["summary"]["status"] == "pass"
-    assert result["details"]["comparison"]["default_model_gate"]["action"] == "approve"
-    assert result["details"]["selected_model"] == local_prod_debug_probe.DEFAULT_MODEL
-    assert result["details"]["comparison"]["rows"][0]["sample_count"] == 3
-    assert "sk-live-secret-value" not in rendered
+    assert result["status"] == "fail"
+    assert result["code"] == "pre_admission_owner_unavailable"
+    assert result["details"]["provider_call_started"] is False
+    assert "sk-live-secret-value" not in json.dumps(result, sort_keys=True)
 
 
 def test_optional_postgres_lifecycle_probe_is_gated_by_env(tmp_path: Path) -> None:

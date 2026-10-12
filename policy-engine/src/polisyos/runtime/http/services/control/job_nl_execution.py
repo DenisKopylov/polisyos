@@ -91,6 +91,9 @@ class ControlNLJobExecutionMixin:
                     context=compiler_context,
                     model_name=model_name,
                     execution_intent=execution_intent,
+                    joint_interaction_candidate_intent=payload.get(
+                        "joint_interaction_candidate_intent"
+                    ),
                     # A configured generic handoff owner selects the N4/N5 route;
                     # without one, simulate_only stays on the N4 proposal-only lane.
                     n4_proposal_only=(
@@ -792,6 +795,10 @@ class ControlNLJobExecutionMixin:
                 else {}
             ),
         }
+        if compiled.recursive_budget_resolution is not None:
+            progress["recursive_budget_resolution"] = (
+                compiled.recursive_budget_resolution.model_dump(mode="json")
+            )
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=run_id,

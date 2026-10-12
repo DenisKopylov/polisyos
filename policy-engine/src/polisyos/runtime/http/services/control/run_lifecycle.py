@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
@@ -70,6 +72,12 @@ from polisyos.core.contracts.control import (
     SourceProfileInfo,
     SourceProfilesListResponse,
     WorkflowRunRequest,
+)
+from polisyos.core.contracts.control_admission_attempt import (
+    CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
+    ControlPreAdmissionAttemptEventInfo,
+    ControlPreAdmissionAttemptResponse,
+    ControlPreAdmissionOwnerBinding,
 )
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
@@ -201,7 +209,10 @@ from polisyos.scientist.governance.continuous import (
     resolve_governance_monitor_event,
 )
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
+from polisyos.scientist.orchestration.llm.provider_verification import (
+    ProviderPreflightReport,
+    run_provider_preflight,
+)
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 from .._control_contracts import (
@@ -222,6 +233,7 @@ from ..control_plane_store import (
     ControlJobLeaseLostError,
     ControlJobRecord,
     ControlPlaneStore,
+    ControlPreAdmissionIdempotencyConflictError,
     HumanDecisionRecoveryFence,
     HumanDecisionReservationRecord,
     HumanDecisionReservationResult,
@@ -230,6 +242,22 @@ from ..control_plane_store import (
 from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
+
+
+def _pre_admission_producer_event_refs(
+    settlement_store: BudgetMiddleware | None,
+    producer_run_binding: BudgetLedgerProducerRunBinding | None,
+) -> tuple[tuple[str, ...], Literal["not_applicable", "complete", "unavailable"]]:
+    """Read exact durable event IDs for one typed run binding without copying cost claims."""
+    if settlement_store is None or producer_run_binding is None:
+        return (), "not_applicable"
+    try:
+        records = settlement_store.list_producer_events_for_run_safe(producer_run_binding)
+    except Exception:
+        logger.exception("Pre-admission provider event references could not be read")
+        return (), "unavailable"
+    event_ids = tuple(sorted({str(record.event_id) for record in records}))
+    return event_ids, "complete" if event_ids else "unavailable"
 
 
 # These request keys can assert owner scope; the worker supplies them from its
@@ -437,6 +465,9 @@ if TYPE_CHECKING:
         RecursiveLeafContextOwner,
     )
     from polisyos.scientist import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
 
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
@@ -1507,6 +1538,15 @@ class ControlPlaneService(
             )
         self._registry_providers = registry_providers
         self._catalog_run_profile = registry_providers.catalog_run_profile
+        self._catalog_source_selection = registry_providers.catalog_source_selection
+        from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
+
+        self._catalog_serving_source = resolve_catalog_serving_source(
+            self._repo_root,
+            selection=self._catalog_source_selection,
+            requested_profile=self._catalog_run_profile,
+        )
+        self._catalog_run_profile = self._catalog_serving_source.catalog_run_profile
         self._owns_artifact_store = artifact_store is None
         signature_verifier = None
         if artifact_store is None:
@@ -1674,14 +1714,13 @@ class ControlPlaneService(
         self._retrieval_catalog = None
         if retrieval_service is None:
             from polisyos.data_forge.read_api import catalog as catalog_read_api
-            from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
             curated_dir = _resolve_curated_dir()
-            catalog_paths = default_substrate_catalog_paths(self._repo_root)
+            source = self._catalog_serving_source
             self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(
-                catalog_paths.l1_dcat_path,
-                catalog_paths.l1_dcat_path.parent,
-                overlay_path=catalog_read_api.default_acquisition_overlay_path(self._repo_root),
+                source.database_path,
+                source.index_dir,
+                overlay_path=source.overlay_path,
             )
             self._retrieval = RetrievalService(
                 curated_dir=curated_dir,
@@ -1690,6 +1729,13 @@ class ControlPlaneService(
                 providers=self._build_retrieval_providers(),
             )
         else:
+            if self._catalog_source_selection is not None:
+                from polisyos.runtime.quality.substrate_registry import (
+                    require_catalog_serving_graph_binding,
+                )
+
+                graph = getattr(retrieval_service, "_dataset_catalog", None)
+                require_catalog_serving_graph_binding(graph, self._catalog_serving_source)
             self._retrieval = retrieval_service
         from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
 
@@ -1778,6 +1824,8 @@ class ControlPlaneService(
         model_name: str,
         trusted_source_context: Mapping[str, object | None] | None = None,
         execution_intent: ExecutionIntent | None = None,
+        joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"]
+        | None = None,
         n4_proposal_only: bool = False,
         producer_run_id: str | None = None,
         compiler_gateway: _DesignProblemGatewayClient | None,
@@ -1806,44 +1854,54 @@ class ControlPlaneService(
             compile_and_run_recursive_generation_cycle,
         )
         from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
 
-        return await compile_and_run_recursive_generation_cycle(
-            raw_request=raw_request,
-            context=context,
-            trusted_source_context=trusted_source_context,
-            model_name=model_name,
-            execution_intent=execution_intent,
-            n4_proposal_only=n4_proposal_only,
-            producer_run_id=producer_run_id,
-            producer_settlement_store=self._llm_producer_settlement_store,
-            compiler_gateway=compiler_gateway,
-            budget_state=budget_state,
-            recursive_budget=recursive_budget,
-            recursive_budget_resolution=recursive_budget_resolution,
-            target_world_scope_profile_id=target_world_scope_profile_id,
-            catalog_run_profile=self._catalog_run_profile,
-            cycle_substrate_context_resolver=cycle_substrate_context_resolver,
-            candidate_simulation_currentness_resolver=(candidate_simulation_currentness_resolver),
-            generic_cycle_simulation_admission_owner=(
-                self._generic_cycle_simulation_admission_owner
-                if generic_cycle_simulation_handoff_resolver is not None
-                else None
-            ),
-            generic_cycle_simulation_handoff_resolver=(generic_cycle_simulation_handoff_resolver),
-            enable_contract_testing_credal_source_attempts=(
-                self._enable_contract_testing_credal_source_attempts
-            ),
-            generic_cycle_simulation_currentness_resolver=(
-                generic_cycle_simulation_currentness_resolver
-            ),
-            verified_nl_job_scope=verified_nl_job_scope,
-            n4_recursive_source=n4_recursive_source,
-            generation_source_repository=GenerationSourceRepository(self._artifact_store),
-            recursive_leaf_context_owner=recursive_leaf_context_owner,
-            root_evaluation_context=root_evaluation_context,
-            eval_safety_verifier=self._evaluation_safety_admission_verifier,
-            promotion_runtime=self._promotion_runtime,
-            repo_root=self._repo_root,
+        return await run_catalog_source_awaitable(
+            self._catalog_serving_source,
+            compile_and_run_recursive_generation_cycle(
+                raw_request=raw_request,
+                context=context,
+                trusted_source_context=trusted_source_context,
+                model_name=model_name,
+                execution_intent=execution_intent,
+                joint_interaction_candidate_intent=joint_interaction_candidate_intent,
+                n4_proposal_only=n4_proposal_only,
+                producer_run_id=producer_run_id,
+                producer_settlement_store=self._llm_producer_settlement_store,
+                compiler_gateway=compiler_gateway,
+                budget_state=budget_state,
+                recursive_budget=recursive_budget,
+                recursive_budget_resolution=recursive_budget_resolution,
+                target_world_scope_profile_id=target_world_scope_profile_id,
+                catalog_run_profile=self._catalog_run_profile,
+                catalog_serving_source=self._catalog_serving_source,
+                cycle_substrate_context_resolver=cycle_substrate_context_resolver,
+                candidate_simulation_currentness_resolver=(
+                    candidate_simulation_currentness_resolver
+                ),
+                generic_cycle_simulation_admission_owner=(
+                    self._generic_cycle_simulation_admission_owner
+                    if generic_cycle_simulation_handoff_resolver is not None
+                    else None
+                ),
+                generic_cycle_simulation_handoff_resolver=(
+                    generic_cycle_simulation_handoff_resolver
+                ),
+                enable_contract_testing_credal_source_attempts=(
+                    self._enable_contract_testing_credal_source_attempts
+                ),
+                generic_cycle_simulation_currentness_resolver=(
+                    generic_cycle_simulation_currentness_resolver
+                ),
+                verified_nl_job_scope=verified_nl_job_scope,
+                n4_recursive_source=n4_recursive_source,
+                generation_source_repository=GenerationSourceRepository(self._artifact_store),
+                recursive_leaf_context_owner=recursive_leaf_context_owner,
+                root_evaluation_context=root_evaluation_context,
+                eval_safety_verifier=self._evaluation_safety_admission_verifier,
+                promotion_runtime=self._promotion_runtime,
+                repo_root=self._repo_root,
+            )
         )
 
     @property
@@ -2463,6 +2521,135 @@ class ControlPlaneService(
         if record is None:
             raise KeyError(job_id)
         return self._current_normative_job_record(record).to_response(request_id=request_id)
+
+    def get_pre_admission_attempt_status_by_idempotency_key(
+        self,
+        idempotency_key: str,
+        *,
+        request_id: str | None,
+        principal: RuntimePrincipal,
+    ) -> ControlPreAdmissionAttemptResponse:
+        """Resolve recovery using the authenticated principal and header key only."""
+        if (
+            not isinstance(idempotency_key, str)
+            or not idempotency_key
+            or idempotency_key != idempotency_key.strip()
+            or len(idempotency_key) > 128
+            or any(ord(character) < 33 or ord(character) > 126 for character in idempotency_key)
+        ):
+            raise unprocessable_entity(
+                (
+                    "Idempotency-Key must be a non-empty printable ASCII value of at most "
+                    "128 characters."
+                ),
+                code="control_pre_admission_idempotency_key_invalid",
+            )
+        scope_values = (
+            (principal.subject, principal.tenant_id, principal.cell_id) if principal else ()
+        )
+        scope_sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        if (
+            principal is None
+            or not principal.authenticated
+            or any(
+                not isinstance(value, str)
+                or not value
+                or value != value.strip()
+                or value.casefold() in scope_sentinels
+                for value in scope_values
+            )
+        ):
+            raise forbidden(
+                "Pre-admission recovery requires an authenticated actor, tenant, and cell scope.",
+                code="control_pre_admission_scope_not_established",
+            )
+        digest = hashlib.sha256(idempotency_key.encode("ascii")).hexdigest()
+        record = self._control_store.get_pre_admission_attempt_by_idempotency_key(
+            tenant_id=principal.tenant_id,
+            cell_id=principal.cell_id,
+            actor_subject=principal.subject,
+            idempotency_key_sha256=digest,
+        )
+        if record is None:
+            raise KeyError("control_pre_admission_attempt_not_found")
+        return self.get_pre_admission_attempt_status(
+            record.attempt_id,
+            request_id=request_id,
+            principal=principal,
+        )
+
+    def get_pre_admission_attempt_status(
+        self,
+        attempt_id: str,
+        *,
+        request_id: str | None,
+        principal: RuntimePrincipal,
+    ) -> ControlPreAdmissionAttemptResponse:
+        """Return one attempt history only to its authenticated initiating actor."""
+        record = self._control_store.get_pre_admission_attempt(attempt_id)
+        if record is None:
+            raise KeyError(attempt_id)
+        if (
+            principal is None
+            or not principal.authenticated
+            or record.actor_subject is None
+            or record.tenant_id is None
+            or record.cell_id is None
+            or principal.subject != record.actor_subject
+            or principal.tenant_id != record.tenant_id
+            or principal.cell_id != record.cell_id
+        ):
+            raise forbidden(
+                "Pre-admission attempt is outside the caller's verified scope.",
+                code="control_pre_admission_attempt_scope_mismatch",
+            )
+        intent_content_sha256 = record.intent_binding.get("request_content_sha256")
+        if not isinstance(intent_content_sha256, str):
+            raise RuntimeError("pre-admission request content binding is not established")
+        owner = record.shared_owner
+        owner_binding = ControlPreAdmissionOwnerBinding(
+            purpose=owner.purpose,
+            scope_kind=owner.scope_kind,
+            scope_id=owner.scope_id,
+            tenant_id=owner.tenant_id,
+            cell_id=owner.cell_id,
+            actor_subject_sha256=owner.actor_subject_sha256,
+            run_id=owner.run_id,
+            intent_id=owner.intent_id,
+            body_sha256=owner.body_sha256,
+            request_content_sha256=intent_content_sha256,
+            effective_execution_profile=record.effective_execution_profile,
+        )
+        return ControlPreAdmissionAttemptResponse(
+            meta=_build_api_meta(request_id),
+            owner_binding=owner_binding,
+            attempt_id=record.attempt_id,
+            intent_sha256=record.intent_sha256,
+            status=record.status,
+            run_id=record.run_id,
+            job_id=record.job_id,
+            effective_execution_profile=record.effective_execution_profile,
+            producer_event_ids=list(record.producer_event_ids),
+            producer_event_observation=record.producer_event_observation,
+            producer_no_call_reason=record.producer_no_call_reason,
+            failure_code=record.failure_code,
+            created_at=record.created_at,
+            updated_at=record.updated_at,
+            history=[
+                ControlPreAdmissionAttemptEventInfo(
+                    event_id=event.event_id,
+                    sequence=event.sequence,
+                    event_type=event.event_type,
+                    observed_at=event.observed_at,
+                    producer_event_ids=list(event.producer_event_ids),
+                    producer_event_observation=event.producer_event_observation,
+                    producer_no_call_reason=event.producer_no_call_reason,
+                    failure_code=event.failure_code,
+                    job_id=event.job_id,
+                )
+                for event in record.history
+            ],
+        )
 
     def _current_normative_job_record(self, record: ControlJobRecord) -> ControlJobRecord:
         """Replay normative authority once for every outward job-record reader."""
@@ -3487,6 +3674,8 @@ class ControlPlaneService(
         authorization_proof: object | None = None,
         authorization_request_body: bytes | None = None,
         authorization_query_bytes: bytes = b"",
+        idempotency_key: str | None = None,
+        on_pre_admission_attempt: Callable[[str], None] | None = None,
     ) -> RunLaunchResponse:
         """Queue a natural-language agent run and apply execution-policy fallback constraints."""
         from polisyos.core.run.context import new_run_id
@@ -3545,7 +3734,14 @@ class ControlPlaneService(
             ):
                 raise ValueError("nl_route_authorization_actor_binding_mismatch")
         provider_preflight_payload: dict[str, Any] | None = None
-        if requested_models and policy.effective_profile in {"research", "governed", "production"}:
+        pre_admission_attempt_id: str | None = None
+        pre_admission_preflight_no_call = False
+        provider_preflight_required = (
+            policy.effective_profile in CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES
+        )
+        if requested_models and (
+            on_pre_admission_attempt is not None or provider_preflight_required
+        ):
             from polisyos.scientist.orchestration.engine.budget_ledger import (
                 BudgetLedgerProducerRunBinding,
             )
@@ -3566,92 +3762,383 @@ class ControlPlaneService(
                     profile_id=policy.effective_profile,
                     control_job_id=job_id,
                 )
-            preflight_report = await run_provider_preflight(
-                models=requested_models,
-                producer_settlement_store=producer_settlement_store,
-                producer_run_binding=producer_run_binding,
-                producer_budget_key=f"nl-run:{run_id}",
-                require_producer_settlement=True,
+            if idempotency_key is not None and (
+                not idempotency_key
+                or idempotency_key != idempotency_key.strip()
+                or len(idempotency_key) > 128
+                or any(ord(character) < 33 or ord(character) > 126 for character in idempotency_key)
+            ):
+                raise unprocessable_entity(
+                    (
+                        "Idempotency-Key must be a non-empty printable ASCII value of at most "
+                        "128 characters."
+                    ),
+                    code="control_pre_admission_idempotency_key_invalid",
+                )
+            if principal is None or not principal.authenticated:
+                raise forbidden(
+                    (
+                        "Natural-language launch ownership requires an authenticated actor, "
+                        "tenant, and cell scope."
+                    ),
+                    code="control_pre_admission_scope_not_established",
+                )
+            if idempotency_key is None:
+                raise unprocessable_entity(
+                    (
+                        "Every HTTP natural-language launch requires an Idempotency-Key for "
+                        "safe recovery."
+                    ),
+                    code="control_pre_admission_idempotency_key_required",
+                )
+            scope_values = (principal.subject, principal.tenant_id, principal.cell_id)
+            scope_sentinels = {
+                "unknown",
+                "tenant-unknown",
+                "cell-unknown",
+                "anonymous",
+                "none",
+                "null",
+            }
+            if any(
+                not isinstance(value, str)
+                or not value
+                or value != value.strip()
+                or value.casefold() in scope_sentinels
+                for value in scope_values
+            ):
+                raise forbidden(
+                    (
+                        "Natural-language launch ownership requires an authenticated actor, "
+                        "tenant, and cell scope."
+                    ),
+                    code="control_pre_admission_scope_not_established",
+                )
+            if (
+                preflight_execution_scope.status != "established"
+                or preflight_execution_scope.actor_subject != principal.subject
+                or preflight_execution_scope.tenant_id != principal.tenant_id
+                or preflight_execution_scope.cell_id != principal.cell_id
+            ):
+                raise forbidden(
+                    "Natural-language launch scope does not match the authenticated principal.",
+                    code="control_pre_admission_scope_mismatch",
+                )
+            authorization_snapshot = (
+                authorization_receipt.get("permission_snapshot")
+                if isinstance(authorization_receipt, Mapping)
+                else None
             )
-            provider_preflight_payload = preflight_report.model_dump(mode="json")
-            if preflight_report.status != "ok":
-                preflight_ref = self._put_json_artifact(
-                    provider_preflight_payload,
-                    kind="runtime.provider_preflight_report",
-                    schema_name="polisyos.runtime.ProviderPreflightReport",
-                )
-                execution_scope = preflight_execution_scope
-                policy = self._policy_with_execution_scope(policy, execution_scope)
-                submitted_by = execution_scope.actor_subject or "anonymous"
-                capability_manifest_ref = self._persist_capability_manifest(
-                    policy=policy,
-                    job_id=job_id,
+            if not isinstance(authorization_snapshot, Mapping):
+                raise ValueError("nl_route_authorization_snapshot_not_established")
+            intent_binding = {
+                "schema_version": "polisyos.runtime.control_pre_admission_intent.v1",
+                "request_content_sha256": _nl_request_snapshot_content_hash(request_snapshot),
+                "actor_subject": principal.subject,
+                "tenant_id": principal.tenant_id,
+                "cell_id": principal.cell_id,
+                "effective_execution_profile": policy.effective_profile,
+                "authorization_permission": authorization_snapshot.get("required_permission"),
+                "authorization_resource_sha256": authorization_snapshot.get("resource_digest"),
+            }
+            idempotency_digest = (
+                hashlib.sha256(idempotency_key.encode("ascii")).hexdigest()
+                if idempotency_key is not None
+                else None
+            )
+            if idempotency_digest is None:
+                raise RuntimeError("billable pre-admission intent key was not established")
+            pre_admission_attempt_id = hashlib.sha256(
+                f"control.nl_pre_admission.v1\0control.runs.nl\0{principal.tenant_id}\0{principal.cell_id}\0{principal.subject}\0{idempotency_digest}".encode()
+            ).hexdigest()[:32]
+            try:
+                attempt_record, attempt_created = self._control_store.start_pre_admission_attempt(
+                    attempt_id=pre_admission_attempt_id,
+                    request_id=request_id,
                     run_id=run_id,
-                    pipeline_id=None,
-                    payload_ref=None,
-                )
-                self._control_store.create_job(
-                    job_id=job_id,
-                    kind="natural_language_run",
-                    run_id=run_id,
-                    pipeline_id=None,
-                    requested_execution_profile=policy.requested_profile,
+                    candidate_job_id=job_id,
                     effective_execution_profile=policy.effective_profile,
-                    policy_flags=policy.policy_flags.model_dump(mode="json"),
-                    capability_manifest_ref=capability_manifest_ref,
-                    payload_ref=None,
-                    submitted_by=submitted_by,
-                    creation_event_payload=self._job_created_event_payload(
+                    intent_binding=intent_binding,
+                    producer_run_binding=(
+                        producer_run_binding.model_dump(mode="json")
+                        if producer_run_binding is not None
+                        else None
+                    ),
+                    idempotency_key_sha256=idempotency_digest,
+                )
+            except ControlPreAdmissionIdempotencyConflictError as exc:
+                if on_pre_admission_attempt is not None:
+                    on_pre_admission_attempt(exc.attempt_id)
+                raise conflict(
+                    (
+                        "Idempotency-Key is already bound to a different natural-language "
+                        "launch intent."
+                    ),
+                    code="control_pre_admission_idempotency_conflict",
+                    extensions={"pre_admission_attempt_id": exc.attempt_id},
+                ) from exc
+            pre_admission_attempt_id = attempt_record.attempt_id
+            if on_pre_admission_attempt is not None:
+                on_pre_admission_attempt(pre_admission_attempt_id)
+            if not attempt_created:
+                if attempt_record.status == "admitted" and attempt_record.job_id is not None:
+                    return RunLaunchResponse(
+                        meta=_build_api_meta(request_id),
+                        status="accepted",
+                        run_id=attempt_record.run_id,
+                        job_id=attempt_record.job_id,
+                        effective_execution_profile=attempt_record.effective_execution_profile,
+                        message=(
+                            "This idempotent launch was already admitted; "
+                            "no duplicate job was created."
+                        ),
+                    )
+                if attempt_record.status == "refused" and attempt_record.job_id is not None:
+                    return RunLaunchResponse(
+                        meta=_build_api_meta(request_id),
+                        status="rejected",
+                        run_id=attempt_record.run_id,
+                        job_id=attempt_record.job_id,
+                        effective_execution_profile=attempt_record.effective_execution_profile,
+                        message=(
+                            "This idempotent launch was already refused; "
+                            "no duplicate job was created."
+                        ),
+                    )
+                raise conflict(
+                    (
+                        "This idempotent launch already has an unresolved pre-admission "
+                        "attempt; inspect its history before retrying."
+                    ),
+                    code="control_pre_admission_attempt_unresolved",
+                    extensions={
+                        "pre_admission_attempt_id": attempt_record.attempt_id,
+                        "pre_admission_attempt_status": attempt_record.status,
+                    },
+                )
+            if provider_preflight_required and (
+                producer_settlement_store is None or producer_run_binding is None
+            ):
+                self._control_store.observe_pre_admission_attempt(
+                    attempt_id=pre_admission_attempt_id,
+                    event_type="refused",
+                    failure_code="producer_run_binding_not_established",
+                    producer_event_observation="no_call",
+                    producer_no_call_reason="producer_run_binding_not_established",
+                )
+                raise unprocessable_entity(
+                    (
+                        "Natural-language launch was refused because its durable producer "
+                        "binding is unavailable."
+                    ),
+                    code="producer_run_binding_not_established",
+                )
+            if provider_preflight_required:
+                try:
+                    preflight_report = await run_provider_preflight(
+                        models=requested_models,
+                        producer_settlement_store=producer_settlement_store,
+                        producer_run_binding=producer_run_binding,
+                        producer_budget_key=f"nl-run:{run_id}",
+                        require_producer_settlement=True,
+                    )
+                    if type(preflight_report) is not ProviderPreflightReport:
+                        raise RuntimeError(
+                            "control_pre_admission_provider_preflight_report_invalid"
+                        )
+                    producer_event_ids, producer_event_observation = (
+                        _pre_admission_producer_event_refs(
+                            producer_settlement_store, producer_run_binding
+                        )
+                    )
+                    provider_preflight_payload = preflight_report.model_dump(mode="json")
+                    completion_observation = preflight_report.producer_completion_observation
+                    if completion_observation == "not_started":
+                        if preflight_report.status not in {"failed", "skipped"}:
+                            raise RuntimeError(
+                                "control_pre_admission_provider_preflight_no_call_status_invalid"
+                            )
+                        if producer_event_observation == "complete" or producer_event_ids:
+                            raise RuntimeError(
+                                "control_pre_admission_provider_preflight_no_call_has_producer_events"
+                            )
+                        pre_admission_preflight_no_call = True
+                    elif (
+                        completion_observation == "complete"
+                        and preflight_report.status != "unknown"
+                        and producer_event_observation == "complete"
+                        and producer_event_ids
+                    ):
+                        self._control_store.observe_pre_admission_attempt(
+                            attempt_id=pre_admission_attempt_id,
+                            event_type="settled",
+                            producer_event_ids=producer_event_ids,
+                            producer_event_observation="complete",
+                        )
+                    else:
+                        self._control_store.observe_pre_admission_attempt(
+                            attempt_id=pre_admission_attempt_id,
+                            event_type="failed",
+                            producer_event_ids=producer_event_ids,
+                            producer_event_observation="unavailable",
+                            failure_code="provider_preflight_settlement_unavailable",
+                        )
+                        raise conflict(
+                            (
+                                "Provider preflight completion or producer settlement is "
+                                "unresolved; "
+                                "inspect the attempt and reconcile its history before retrying."
+                            ),
+                            code="control_pre_admission_attempt_unresolved",
+                            extensions={
+                                "pre_admission_attempt_id": pre_admission_attempt_id,
+                                "pre_admission_attempt_status": "failed",
+                            },
+                        )
+                except BaseException as exc:
+                    current_attempt = self._control_store.get_pre_admission_attempt(
+                        pre_admission_attempt_id
+                    )
+                    if current_attempt is not None and current_attempt.status in {
+                        "started",
+                        "settled",
+                    }:
+                        event_refs, event_observation = _pre_admission_producer_event_refs(
+                            producer_settlement_store, producer_run_binding
+                        )
+                        terminal_status = (
+                            "cancelled" if isinstance(exc, asyncio.CancelledError) else "failed"
+                        )
+                        try:
+                            if (
+                                current_attempt.status == "started"
+                                and event_refs
+                                and event_observation == "complete"
+                            ):
+                                current_attempt = self._control_store.observe_pre_admission_attempt(
+                                    attempt_id=pre_admission_attempt_id,
+                                    event_type="settled",
+                                    producer_event_ids=event_refs,
+                                    producer_event_observation=event_observation,
+                                )
+                            self._control_store.observe_pre_admission_attempt(
+                                attempt_id=pre_admission_attempt_id,
+                                event_type=terminal_status,
+                                producer_event_ids=event_refs,
+                                producer_event_observation=event_observation,
+                                failure_code=(
+                                    "provider_preflight_cancelled"
+                                    if terminal_status == "cancelled"
+                                    else "provider_preflight_exception"
+                                ),
+                            )
+                        except BaseException:
+                            logger.exception("Pre-admission attempt terminal observation failed")
+                    raise
+                if preflight_report.status != "ok":
+                    preflight_ref = self._put_json_artifact(
+                        provider_preflight_payload,
+                        kind="runtime.provider_preflight_report",
+                        schema_name="polisyos.runtime.ProviderPreflightReport",
+                    )
+                    execution_scope = preflight_execution_scope
+                    policy = self._policy_with_execution_scope(policy, execution_scope)
+                    submitted_by = execution_scope.actor_subject or "anonymous"
+                    capability_manifest_ref = self._persist_capability_manifest(
+                        policy=policy,
                         job_id=job_id,
-                        job_kind="natural_language_run",
                         run_id=run_id,
                         pipeline_id=None,
                         payload_ref=None,
-                        submitted_by=submitted_by,
+                    )
+                    self._control_store.create_job(
+                        job_id=job_id,
+                        kind="natural_language_run",
+                        run_id=run_id,
+                        pipeline_id=None,
                         requested_execution_profile=policy.requested_profile,
                         effective_execution_profile=policy.effective_profile,
                         policy_flags=policy.policy_flags.model_dump(mode="json"),
                         capability_manifest_ref=capability_manifest_ref,
-                        execution_scope=execution_scope,
-                    ),
-                )
-                failure = dict(preflight_report.failure or {})
-                failure.setdefault("code", "llm_provider_preflight_failed")
-                failure.setdefault("layer", "llm_gateway")
-                failure.setdefault("phase", "provider_preflight")
-                failure.setdefault("message", "LLM provider preflight failed.")
-                failure.setdefault("retryable", bool(preflight_report.retryable))
-                failure.setdefault("run_id", run_id)
-                failure.setdefault("job_id", job_id)
-                artifact_refs = failure.get("artifact_refs")
-                if not isinstance(artifact_refs, dict):
-                    artifact_refs = {}
-                artifact_refs["provider_preflight_ref"] = preflight_ref
-                failure["artifact_refs"] = artifact_refs
-                self._control_store.fail_job(
-                    job_id=job_id,
-                    error_message=str(failure.get("message") or "LLM provider preflight failed."),
-                    capability_manifest_ref=capability_manifest_ref,
-                    progress={
-                        "state": "failed",
-                        "phase": "provider_preflight",
-                        "run_id": run_id,
-                        "provider_preflight_ref": preflight_ref,
-                        "provider_preflight": provider_preflight_payload,
-                        "failure": failure,
-                    },
-                )
-                return RunLaunchResponse(
-                    meta=_build_api_meta(request_id),
-                    status="rejected",
-                    run_id=run_id,
-                    job_id=job_id,
-                    effective_execution_profile=policy.effective_profile,
-                    message=(
-                        f"Natural-language run {run_id} was rejected by LLM provider "
-                        "preflight. Inspect the control job failure envelope."
-                    ),
-                )
+                        payload_ref=None,
+                        submitted_by=submitted_by,
+                        creation_event_payload=self._job_created_event_payload(
+                            job_id=job_id,
+                            job_kind="natural_language_run",
+                            run_id=run_id,
+                            pipeline_id=None,
+                            payload_ref=None,
+                            submitted_by=submitted_by,
+                            requested_execution_profile=policy.requested_profile,
+                            effective_execution_profile=policy.effective_profile,
+                            policy_flags=policy.policy_flags.model_dump(mode="json"),
+                            capability_manifest_ref=capability_manifest_ref,
+                            execution_scope=execution_scope,
+                        ),
+                        initial_state="failed",
+                        initial_error_message="provider_preflight_refused",
+                        initial_progress={
+                            "state": "failed",
+                            "phase": "provider_preflight",
+                            "run_id": run_id,
+                            "provider_preflight_ref": preflight_ref,
+                            "provider_preflight": provider_preflight_payload,
+                        },
+                        pre_admission_attempt_id=pre_admission_attempt_id,
+                        pre_admission_outcome="refused",
+                        pre_admission_producer_event_observation=(
+                            "no_call" if pre_admission_preflight_no_call else None
+                        ),
+                        pre_admission_no_call_reason=(
+                            "provider_preflight_not_started"
+                            if pre_admission_preflight_no_call
+                            else None
+                        ),
+                        pre_admission_failure_code=(
+                            "provider_preflight_not_started"
+                            if pre_admission_preflight_no_call
+                            else None
+                        ),
+                    )
+                    failure = dict(preflight_report.failure or {})
+                    failure.setdefault("code", "llm_provider_preflight_failed")
+                    failure.setdefault("layer", "llm_gateway")
+                    failure.setdefault("phase", "provider_preflight")
+                    failure.setdefault("message", "LLM provider preflight failed.")
+                    failure.setdefault("retryable", bool(preflight_report.retryable))
+                    failure.setdefault("run_id", run_id)
+                    failure.setdefault("job_id", job_id)
+                    artifact_refs = failure.get("artifact_refs")
+                    if not isinstance(artifact_refs, dict):
+                        artifact_refs = {}
+                    artifact_refs["provider_preflight_ref"] = preflight_ref
+                    failure["artifact_refs"] = artifact_refs
+                    self._control_store.fail_job(
+                        job_id=job_id,
+                        error_message=str(
+                            failure.get("message") or "LLM provider preflight failed."
+                        ),
+                        capability_manifest_ref=capability_manifest_ref,
+                        progress={
+                            "state": "failed",
+                            "phase": "provider_preflight",
+                            "run_id": run_id,
+                            "provider_preflight_ref": preflight_ref,
+                            "provider_preflight": provider_preflight_payload,
+                            "failure": failure,
+                        },
+                    )
+                    return RunLaunchResponse(
+                        meta=_build_api_meta(request_id),
+                        status="rejected",
+                        run_id=run_id,
+                        job_id=job_id,
+                        effective_execution_profile=policy.effective_profile,
+                        message=(
+                            f"Natural-language run {run_id} was rejected by LLM provider "
+                            "preflight. Inspect the control job failure envelope."
+                        ),
+                    )
         nl_payload = {
             "run_id": run_id,
             "request": request.request,
@@ -3681,15 +4168,70 @@ class ControlPlaneService(
         nl_payload[_NL_REQUEST_SNAPSHOT_KEY] = request_snapshot
         if authorization_receipt is not None:
             nl_payload[_NL_AUTHORIZATION_RECEIPT_KEY] = authorization_receipt
-        queued_job = self._enqueue_job(
-            job_id=job_id,
-            job_kind="natural_language_run",
-            run_id=run_id,
-            pipeline_id=None,
-            payload=nl_payload,
-            policy=policy,
-            request_id=request_id,
-        )
+        try:
+            queued_job = self._enqueue_job(
+                job_id=job_id,
+                job_kind="natural_language_run",
+                run_id=run_id,
+                pipeline_id=None,
+                payload=nl_payload,
+                policy=policy,
+                request_id=request_id,
+                pre_admission_attempt_id=pre_admission_attempt_id,
+            )
+        except BaseException as exc:
+            current_attempt = (
+                self._control_store.get_pre_admission_attempt(pre_admission_attempt_id)
+                if pre_admission_attempt_id is not None
+                else None
+            )
+            if current_attempt is not None and current_attempt.status in {"started", "settled"}:
+                refs: tuple[str, ...] = ()
+                observation: Literal["not_applicable", "complete", "unavailable"] = "unavailable"
+                if current_attempt.producer_run_binding is not None:
+                    from polisyos.scientist.orchestration.engine.budget_ledger import (
+                        BudgetLedgerProducerRunBinding,
+                    )
+
+                    try:
+                        bound = BudgetLedgerProducerRunBinding.model_validate(
+                            current_attempt.producer_run_binding
+                        )
+                    except (TypeError, ValueError):
+                        observation = "unavailable"
+                    else:
+                        refs, observation = _pre_admission_producer_event_refs(
+                            self._llm_producer_settlement_store, bound
+                        )
+                existing_job = self._control_store.get_job(job_id)
+                linked = existing_job is not None and (
+                    existing_job.state != "failed"
+                    or existing_job.progress.get("phase") != "job_admission"
+                )
+                try:
+                    self._control_store.observe_pre_admission_attempt(
+                        attempt_id=pre_admission_attempt_id,
+                        event_type=(
+                            "admitted"
+                            if linked
+                            else "cancelled"
+                            if isinstance(exc, asyncio.CancelledError)
+                            else "failed"
+                        ),
+                        producer_event_ids=refs,
+                        producer_event_observation=observation,
+                        failure_code=(
+                            None
+                            if linked
+                            else "provider_preflight_cancelled"
+                            if isinstance(exc, asyncio.CancelledError)
+                            else "launch_admission_exception"
+                        ),
+                        job_id=existing_job.job_id if linked and existing_job is not None else None,
+                    )
+                except BaseException:
+                    logger.exception("Pre-admission attempt admission observation failed")
+            raise
         if queued_job.state == "failed":
             return RunLaunchResponse(
                 meta=_build_api_meta(request_id),

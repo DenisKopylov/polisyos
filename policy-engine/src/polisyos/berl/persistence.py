@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-
-from pydantic import ValidationError
+from collections.abc import Callable, Mapping, Sequence
+from typing import TYPE_CHECKING, cast
 
 from polisyos.berl.contracts.explanation_bundle import (
     EXPLANATION_BUNDLE_SCHEMA_VERSION,
@@ -27,8 +26,44 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactSelector
+
+from pydantic import ValidationError
+
 _EXPLANATION_BUNDLE_KIND = "scientist.explanation_bundle"
 _EXPLANATION_BUNDLE_SCHEMA_NAME = explanation_bundle_schema_id()
+
+
+class ExplanationBundleStoreReadError(RuntimeError):
+    """A selected CAS read failed without establishing that its object is absent."""
+
+    code = "explanation_bundle_store_read_unavailable"
+
+
+class _SelectedViewReadAdapter:
+    """Normalize unexpected exceptions from selected-view raw read operations."""
+
+    def __init__(self, store: IRArtifactStore) -> None:
+        self._store = store
+
+    def get_bytes(self, selector: ArtifactSelector) -> bytes:
+        return self._read(self._store.get_bytes, selector)
+
+    def get_manifest_bytes(self, selector: ArtifactSelector) -> bytes:
+        return self._read(self._store.get_manifest_bytes, selector)
+
+    @staticmethod
+    def _read(
+        reader: Callable[[ArtifactSelector], bytes],
+        selector: ArtifactSelector,
+    ) -> bytes:
+        try:
+            return reader(selector)
+        except (FileNotFoundError, TypeError, ValueError, MemoryError):
+            raise
+        except Exception:
+            raise ExplanationBundleStoreReadError(ExplanationBundleStoreReadError.code) from None
 
 
 def persist_explanation_bundle(
@@ -62,11 +97,15 @@ def persist_explanation_bundle(
         schema_version=EXPLANATION_BUNDLE_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     try:
-        return ExplanationBundleRef.model_validate(reference)
+        selected_ref = ExplanationBundleRef.model_validate(reference)
     except (TypeError, ValidationError, ValueError) as exc:
         raise ValueError("explanation_bundle_persisted_ref_invalid") from exc
+    if selected_ref.manifest_profile_sha256 is None:
+        raise ValueError("explanation_bundle_persisted_profile_missing")
+    return selected_ref
 
 
 def load_explanation_bundle(
@@ -83,6 +122,7 @@ def load_explanation_bundle(
         ExplanationBundle: Validated bundle from the exact selected manifest view.
 
     Raises:
+        ExplanationBundleStoreReadError: If a selected store read fails unexpectedly.
         ValueError: If the ref, selected manifest, or persisted bundle is invalid.
     """
     try:
@@ -91,10 +131,21 @@ def load_explanation_bundle(
         raise ValueError("explanation_bundle_ref_invalid") from exc
 
     ir_store = ensure_ir_artifact_store(store)
+    if not all(
+        callable(getattr(ir_store, method_name, None))
+        for method_name in ("get_manifest", "get_manifest_bytes", "get_bytes")
+    ):
+        raise TypeError("artifact store does not support selected BERL reads")
     try:
         manifest = ir_store.get_manifest(selected_ref)
-    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+    except FileNotFoundError as exc:
         raise ValueError("explanation_bundle_manifest_contract_mismatch") from exc
+    except (TypeError, ValueError) as exc:
+        raise ValueError("explanation_bundle_manifest_contract_mismatch") from exc
+    except MemoryError:
+        raise
+    except Exception:
+        raise ExplanationBundleStoreReadError(ExplanationBundleStoreReadError.code) from None
 
     schema = getattr(manifest, "artifact_schema", None)
     if (
@@ -107,8 +158,14 @@ def load_explanation_bundle(
         raise ValueError("explanation_bundle_manifest_contract_mismatch")
 
     try:
-        payload = get_json_artifact(ir_store, selected_ref)
-    except (OSError, TypeError, ValueError) as exc:
+        payload = get_json_artifact(
+            cast("IRArtifactStore", _SelectedViewReadAdapter(ir_store)), selected_ref
+        )
+    except ExplanationBundleStoreReadError:
+        raise
+    except FileNotFoundError as exc:
+        raise ValueError("explanation_bundle_persisted_payload_invalid") from exc
+    except (TypeError, ValueError) as exc:
         raise ValueError("explanation_bundle_persisted_payload_invalid") from exc
     if not isinstance(payload, Mapping):
         raise ValueError("explanation_bundle_persisted_payload_invalid")
@@ -137,4 +194,8 @@ def _reference_payload(
     return reference
 
 
-__all__ = ["load_explanation_bundle", "persist_explanation_bundle"]
+__all__ = [
+    "ExplanationBundleStoreReadError",
+    "load_explanation_bundle",
+    "persist_explanation_bundle",
+]

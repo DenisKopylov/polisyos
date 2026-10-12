@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import json
 import platform
+import types
 from collections.abc import Mapping
 from dataclasses import dataclass, field, fields
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Union, cast, get_args, get_origin, get_type_hints
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
 from polisyos.data_forge.domains.catalog._resources import catalog_default_resource_path
 from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
-from polisyos.data_forge.domains.catalog.batch.material_inputs import _material_file_snapshot
+from polisyos.data_forge.domains.catalog.batch.material_inputs import (
+    _material_file_snapshot,
+)
 from polisyos.data_forge.domains.catalog.batch.source_registry import (
     SourceRegistry,
     load_source_registry,
@@ -23,10 +26,15 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     COUNTRY_SCOPES,
     country_scope_members,
 )
-from polisyos.data_forge.domains.catalog.registry import default_catalog_source_registry_path
+from polisyos.data_forge.domains.catalog.registry import (
+    default_catalog_source_registry_path,
+)
 from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
-from polisyos.data_forge.kernel.io import ensure_dirs, snapshot_component_dir
+from polisyos.data_forge.kernel.io import ensure_dirs
 from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
+
+_PROFILE_INPUT_COVERAGE_SCHEMA_VERSION = "policyos.catalog.profile_input_coverage.v1"
+_PROFILE_INPUT_COVERAGE_STATES = frozenset({"none", "excluded_present"})
 
 ALL_STAGES = frozenset(
     {
@@ -87,9 +95,58 @@ class DatasetBatchConfig:
     # HTTP
     harvest_timeout: int = 60
 
+    @classmethod
+    def from_producer_config_snapshot(
+        cls, snapshot: Mapping[str, object]
+    ) -> DatasetBatchConfig | None:
+        """Rehydrate complete saved producer intent without producer side effects."""
+        coverage_state, _profile_coverage = _parse_profile_input_coverage(
+            snapshot.get("resolved_profile_input_coverage"),
+            missing="resolved_profile_input_coverage" not in snapshot,
+        )
+        if coverage_state != "established":
+            return None
+        raw = {item.name for item in fields(cls)} - {"resume", "stages"}
+        derived = {
+            "resolved_embedding_device",
+            "resolved_active_countries",
+            "resolved_year_window",
+            "resolved_metrics_map_path",
+            "resolved_registry_path",
+            "uses_custom_registry",
+            "is_sampled_run",
+            "producer_material_input_basis",
+            "resolved_profile_input_coverage",
+        }
+        if set(snapshot) != raw | derived:
+            return None
+        try:
+            annotations = get_type_hints(cls)
+            values = {
+                name: _decode_config_snapshot_value(snapshot[name], annotations[name])
+                for name in raw
+            }
+            if values.get("metrics_map_path") is None:
+                return None
+            values = _validate_dataset_batch_config_values(
+                values, allow_default_metrics_map=False
+            )
+            # Allocate only after strict decoding and the complete shared validator.
+            config = object.__new__(cls)
+            object.__setattr__(config, "stages", ALL_STAGES)
+            object.__setattr__(config, "resume", False)
+            for name, value in values.items():
+                object.__setattr__(config, name, value)
+            if set(_producer_config_snapshot(config)) != set(snapshot):
+                return None
+        except AttributeError, KeyError, OSError, TypeError, ValueError:
+            return None
+        return config
+
     @property
     def component_dir(self) -> Path:
-        return snapshot_component_dir(self.snapshot_root, "datasets")
+        """Return the component path without creating producer directories."""
+        return Path(self.snapshot_root) / "datasets"
 
     @property
     def raw_dir(self) -> Path:
@@ -193,7 +250,13 @@ class DatasetBatchConfig:
     def resolved_active_countries(self) -> tuple[str, ...]:
         if self.active_countries:
             return tuple(
-                sorted({item.strip().upper() for item in self.active_countries if item.strip()})
+                sorted(
+                    {
+                        item.strip().upper()
+                        for item in self.active_countries
+                        if item.strip()
+                    }
+                )
             )
         return tuple(country_scope_members(self.country_scope))
 
@@ -203,7 +266,9 @@ class DatasetBatchConfig:
         start_value = int(start_year)
         end_value = int(end_year)
         if end_value < start_value:
-            raise ValueError("active_year_window must be ordered as (start_year, end_year)")
+            raise ValueError(
+                "active_year_window must be ordered as (start_year, end_year)"
+            )
         return start_value, end_value
 
     @property
@@ -216,43 +281,40 @@ class DatasetBatchConfig:
             return False
         try:
             selected_path = self.registry_path.resolve()
-            legacy_path = (Path(__file__).resolve().parent / "source_registry.yaml").resolve()
-            return selected_path not in {self.default_registry_path.resolve(), legacy_path}
+            legacy_path = (
+                Path(__file__).resolve().parent / "source_registry.yaml"
+            ).resolve()
+            return selected_path not in {
+                self.default_registry_path.resolve(),
+                legacy_path,
+            }
         except FileNotFoundError:
             return True
 
     @property
     def is_sampled_run(self) -> bool:
-        return int(self.max_datasets_per_source) > 0 and int(self.max_datasets_per_source) < 100_000
+        return (
+            int(self.max_datasets_per_source) > 0
+            and int(self.max_datasets_per_source) < 100_000
+        )
 
     def __post_init__(self) -> None:
         unknown = set(self.stages) - ALL_STAGES
         if unknown:
             raise ValueError(f"Unknown stages: {sorted(unknown)}")
-        validate_catalog_run_profile(self.run_profile)
-        if self.metrics_map_path is None:
-            self.metrics_map_path = self.default_metrics_map_path
-        if not self.resolved_metrics_map_path.exists():
-            raise ValueError(f"metrics_map.yaml not found: {self.resolved_metrics_map_path}")
-        from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+        values = {
+            item.name: getattr(self, item.name)
+            for item in fields(self)
+            if item.name not in {"resume", "stages"}
+        }
+        for name, value in _validate_dataset_batch_config_values(
+            values, allow_default_metrics_map=True
+        ).items():
+            setattr(self, name, value)
+        self._ensure_output_directories()
 
-        load_metrics_map(self.resolved_metrics_map_path)
-        registry = self.load_registry()
-        if (self.date_start or self.date_end) and self.run_profile != "rest_backfill":
-            raise ValueError(
-                "date_start/date_end overrides are only supported for run_profile='rest_backfill'"
-            )
-        if self.run_profile == "rest_backfill":
-            if not any(spec.allow_manual_backfill and spec.enabled for spec in registry.sources):
-                raise ValueError(
-                    "rest_backfill profile requires at least one enabled rolling-window source"
-                )
-        if self.observation_mode not in {"all", "core", "backfill"}:
-            raise ValueError("observation_mode must be one of: all, core, backfill")
-        if self.resume_mode not in {"smart", "force", "off"}:
-            raise ValueError("resume_mode must be one of: smart, force, off")
-        if self.country_scope not in COUNTRY_SCOPES and not self.active_countries:
-            raise ValueError(f"Unknown country scope: {self.country_scope}")
+    def _ensure_output_directories(self) -> None:
+        """Create producer output directories after read-only validation."""
         ensure_dirs(
             self.component_dir,
             self.raw_dir,
@@ -262,6 +324,107 @@ class DatasetBatchConfig:
             self.manifests_dir,
             self.publish_manifest_path.parent,
         )
+
+
+def _decode_config_snapshot_value(value: object, annotation: object) -> object:
+    """Decode JSON-safe persisted values strictly using declared dataclass types."""
+    origin, args = get_origin(annotation), get_args(annotation)
+    if origin in {types.UnionType, Union}:
+        if value is None and type(None) in args:
+            return None
+        for member in args:
+            if member is type(None):
+                continue
+            try:
+                return _decode_config_snapshot_value(value, member)
+            except TypeError, ValueError:
+                pass
+        raise TypeError("persisted config union type mismatch")
+    if annotation is Path:
+        if not isinstance(value, str) or not value:
+            raise TypeError("persisted path must be a non-empty string")
+        return Path(value)
+    if origin is tuple:
+        if not isinstance(value, (list, tuple)) or isinstance(value, (str, bytes)):
+            raise TypeError("persisted tuple must be an array")
+        if len(args) == 2 and args[1] is Ellipsis:
+            return tuple(_decode_config_snapshot_value(x, args[0]) for x in value)
+        if len(value) != len(args):
+            raise TypeError("persisted tuple length mismatch")
+        return tuple(
+            _decode_config_snapshot_value(x, typ)
+            for x, typ in zip(value, args, strict=True)
+        )
+    if origin is frozenset:
+        if not isinstance(value, (list, tuple, set, frozenset)) or isinstance(
+            value, str
+        ):
+            raise TypeError("persisted frozenset must be an array")
+        return frozenset(_decode_config_snapshot_value(x, args[0]) for x in value)
+    if annotation is bool:
+        if type(value) is not bool:
+            raise TypeError("persisted bool mismatch")
+        return value
+    if annotation is int:
+        if type(value) is not int:
+            raise TypeError("persisted int mismatch")
+        return value
+    if annotation is str:
+        if not isinstance(value, str):
+            raise TypeError("persisted str mismatch")
+        return value
+    if isinstance(annotation, type) and isinstance(value, annotation):
+        return value
+    raise TypeError("unsupported persisted config field type")
+
+
+def _validate_dataset_batch_config_values(
+    values: Mapping[str, object], *, allow_default_metrics_map: bool
+) -> dict[str, object]:
+    """Canonical read-only semantic validation shared by constructor and rehydration."""
+    normalized = dict(values)
+    run_profile = normalized.get("run_profile")
+    if not isinstance(run_profile, str):
+        raise TypeError("run_profile must be text")
+    validate_catalog_run_profile(run_profile)
+    metrics_path = normalized.get("metrics_map_path")
+    if metrics_path is None and allow_default_metrics_map:
+        metrics_path = catalog_default_resource_path("metrics_map.yaml")
+    if not isinstance(metrics_path, Path):
+        raise ValueError("persisted metrics_map_path is required")
+    if not metrics_path.exists():
+        raise ValueError(f"metrics_map.yaml not found: {metrics_path}")
+    from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+
+    load_metrics_map(metrics_path)
+    normalized["metrics_map_path"] = metrics_path
+    registry_path = normalized.get("registry_path")
+    if registry_path is not None and not isinstance(registry_path, Path):
+        raise TypeError("registry_path must be a path or null")
+    registry = load_source_registry(
+        registry_path or default_catalog_source_registry_path()
+    )
+    if (
+        normalized.get("date_start") or normalized.get("date_end")
+    ) and run_profile != "rest_backfill":
+        raise ValueError(
+            "date_start/date_end overrides are only supported for run_profile='rest_backfill'"
+        )
+    if run_profile == "rest_backfill" and not any(
+        x.allow_manual_backfill and x.enabled for x in registry.sources
+    ):
+        raise ValueError(
+            "rest_backfill profile requires at least one enabled rolling-window source"
+        )
+    if normalized.get("observation_mode") not in {"all", "core", "backfill"}:
+        raise ValueError("observation_mode must be one of: all, core, backfill")
+    if normalized.get("resume_mode") not in {"smart", "force", "off"}:
+        raise ValueError("resume_mode must be one of: smart, force, off")
+    if normalized.get("country_scope") not in COUNTRY_SCOPES and not normalized.get(
+        "active_countries"
+    ):
+        raise ValueError(f"Unknown country scope: {normalized.get('country_scope')}")
+    return normalized
 
 
 def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
@@ -277,22 +440,31 @@ def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
         for item in fields(config)
         if item.name not in {"resume", "stages"}
     }
+    profile_input_coverage = _runtime_profile_input_coverage()
     values.update(
         {
             "resolved_embedding_device": config.resolved_embedding_device,
             "resolved_active_countries": config.resolved_active_countries,
             "resolved_year_window": config.resolved_year_window,
             "resolved_metrics_map_path": config.resolved_metrics_map_path,
-            "resolved_registry_path": config.registry_path or config.default_registry_path,
+            "resolved_registry_path": config.registry_path
+            or config.default_registry_path,
             "uses_custom_registry": config.uses_custom_registry,
             "is_sampled_run": config.is_sampled_run,
-            "producer_material_input_basis": _producer_material_input_basis(config),
+            "producer_material_input_basis": _producer_material_input_basis(
+                config, profile_input_coverage=profile_input_coverage
+            ),
+            "resolved_profile_input_coverage": profile_input_coverage,
         }
     )
     return {key: _signature_safe(value) for key, value in values.items()}
 
 
-def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, object]:
+def _producer_material_input_basis(
+    config: DatasetBatchConfig,
+    *,
+    profile_input_coverage: dict[str, object],
+) -> dict[str, object]:
     """Bind canonical policy file bytes and covered live profile settings.
 
     File members use the exact locators consumed by the canonical owners,
@@ -317,7 +489,11 @@ def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, obje
         "Callable[[], Path]", getattr(core_api, "_seed_alignments_path", None)
     )()
     paths = {
-        "source_registry": (config.registry_path or config.default_registry_path, True, True),
+        "source_registry": (
+            config.registry_path or config.default_registry_path,
+            True,
+            True,
+        ),
         "metrics_map": (config.resolved_metrics_map_path, True, True),
         "seed_variable_alignments": (seed_alignments_path, True, True),
         "proxy_metric_alignments": (
@@ -345,6 +521,17 @@ def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, obje
     members.append(("resolved_profile_registry", _runtime_source_profile_payload()))
     members.append(
         (
+            "resolved_profile_input_coverage",
+            json.dumps(
+                profile_input_coverage,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"),
+        )
+    )
+    members.append(
+        (
             "resolved_producer_runtime_policy",
             json.dumps(
                 {"legacy_serial_mode_enabled": _legacy_serial_mode_enabled()},
@@ -360,24 +547,95 @@ def _producer_material_input_basis(config: DatasetBatchConfig) -> dict[str, obje
     ).to_dict()
 
 
+def _runtime_profile_input_coverage() -> dict[str, object]:
+    """Classify the complete live profile registry without recording input values."""
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _resolve_profile_config,
+    )
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    coverage: dict[str, str] = {}
+    profiles = SourceProfileRegistry.get_instance().list_all()
+    for profile in profiles:
+        connection = _resolve_profile_config(profile.profile_id)
+        excluded_input_present = bool(
+            connection.headers or connection.auth_method or connection.auth_credentials
+        )
+        coverage[profile.profile_id] = (
+            "excluded_present" if excluded_input_present else "none"
+        )
+    return {
+        "schema_version": _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION,
+        "profiles": dict(sorted(coverage.items())),
+    }
+
+
+def _parse_profile_input_coverage(
+    value: object, *, missing: bool = False
+) -> tuple[str, dict[str, str] | None]:
+    """Validate persisted coverage classifications; absent legacy data stays unknown."""
+    if missing:
+        return "legacy_unknown", None
+    if not isinstance(value, Mapping) or set(value) != {"schema_version", "profiles"}:
+        return "malformed", None
+    if value.get("schema_version") != _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION:
+        return "malformed", None
+    profiles = value.get("profiles")
+    if not isinstance(profiles, Mapping) or not profiles:
+        return "malformed", None
+    normalized: dict[str, str] = {}
+    for profile_id, state in profiles.items():
+        if (
+            not isinstance(profile_id, str)
+            or not profile_id.strip()
+            or not isinstance(state, str)
+            or state not in _PROFILE_INPUT_COVERAGE_STATES
+        ):
+            return "malformed", None
+        normalized[profile_id] = state
+    return "established", dict(sorted(normalized.items()))
+
+
+def _profile_input_coverage_currentness(
+    value: object, *, missing: bool = False
+) -> tuple[str, dict[str, str] | None]:
+    """Classify whether excluded profile inputs are safe to call current.
+
+    Header and credential values are deliberately never persisted. Their mere
+    presence is therefore insufficient to prove two effective profiles equal.
+    """
+    state, profiles = _parse_profile_input_coverage(value, missing=missing)
+    if state != "established" or profiles is None:
+        return state, profiles
+    if any(value == "excluded_present" for value in profiles.values()):
+        return "not_established", profiles
+    return "established", profiles
+
+
+def _runtime_profile_input_currentness() -> tuple[str, dict[str, str] | None]:
+    """Recompute live profile coverage through the canonical resolver."""
+    try:
+        return _profile_input_coverage_currentness(_runtime_profile_input_coverage())
+    except Exception:
+        return "malformed", None
+
+
 def _runtime_source_profile_payload() -> bytes:
-    """Bind live profile settings and resolved contracts with declared exclusions.
+    """Bind profile settings while retaining only coverage of excluded inputs.
 
     Core ingest may select profile IDs from persisted catalog bindings as well
     as source YAML. The complete registry is a conservative finite denominator.
-    Presentation-only profile edits also invalidate reuse. ALL header policy
-    (including non-secret content negotiation), credentials and environment
-    auth overlays are omitted. No header revision or classifier is established;
-    complete effective-policy currentness remains limited until the owner
-    supplies a non-secret revision or enforces explicit invalidation.
-    Only member digests are persisted.
+    Header and credential contents remain excluded; their presence classification
+    is separately content-bound in the producer basis. No values or digests of
+    headers, credentials, or environment tokens are persisted.
     """
     from polisyos.fabric.connectors import resolve_connection_config
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
 
     profiles = [
-        profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
+        profile.model_copy(deep=True)
+        for profile in SourceProfileRegistry.get_instance().list_all()
     ]
     payload: list[dict[str, object]] = []
     for profile in profiles:
@@ -390,12 +648,14 @@ def _runtime_source_profile_payload() -> bytes:
                     for item in fields(connection)
                     if item.name not in {"headers", "auth_credentials"}
                 },
-                "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
+                "execution_policy": resolve_execution_policy(profile).model_dump(
+                    mode="json"
+                ),
             }
         )
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    return json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
 
 
 def _signature_safe(value: object) -> object:

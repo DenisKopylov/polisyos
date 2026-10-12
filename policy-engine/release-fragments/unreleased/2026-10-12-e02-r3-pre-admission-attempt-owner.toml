@@ -1,0 +1,82 @@
+id = "2026-10-12-e02-r3-pre-admission-attempt-owner"
+title = "Persist and recover all pre-admission attempts"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Every public natural-language launch has actor-scoped durable attempt history and exact-key recovery before a ControlJob exists; producer-attested pre-completion refusal is distinct from unknown settlement, profile-specific transitions and malformed history fail closed."
+evidence = [
+  "tests/integration/runtime/http/test_r3_pre_admission_attempt_owner.py",
+  "tests/unit/runtime/http/test_control_api.py",
+  "tests/unit/runtime/http/test_control_plane_store.py",
+  "src/polisyos/runtime/http/README.md",
+]
+compatibility = "The request body is unchanged. Every natural-language launch profile requires the route-specific Idempotency-Key, reused only for the same intent; an unkeyed launch is refused before provider work. X-Idempotency-Key is not an alias; generic response replay is bypassed on both route-owned R3 and Forecast writes. Attempt history adds canonical producer-call state plus nullable typed producer_no_call_reason, joined to the source-owned failure code; regenerate the status operation and generated clients."
+change_class = "schema-openapi-abi; js-package-api; python-public-api; runtime-state-format"
+surface_classification = "public_stable: POST /api/v1/control/runs/nl and GET /api/v1/control/admission-attempts/{attempt_id}; public_stable: polisyos.core.contracts"
+migration = "Regenerate OpenAPI and both generated TypeScript client families. REST callers must send a stable Idempotency-Key for every immutable natural-language launch intent and use authenticated attempt history after an ambiguous result. Clear a retained key only after complete producer refs or an explicit no_call refusal with exact typed producer_no_call_reason joined to its failure code; empty ledger reads remain unavailable. This route-specific key is distinct from X-Idempotency-Key. Existing SQLite and PostgreSQL claim primary keys migrate transactionally to typed scope; backfill only known Forecast run rows and known NL route rows, and abort on unclassified or duplicate identities."
+api = "Adds an exact shared-owner binding and actor/tenant/cell-scoped attempt history, and requires Idempotency-Key for every natural-language launch profile before provider preflight or job enqueue. Provider ledger event IDs link to durable started/settled/admitted/refused/cancelled/failed observations; a typed no_call refusal is producer-attested before completion, carries producer_no_call_reason through fresh readback, and is never inferred from an empty ledger. Dev may admit directly without fabricated settlement, while malformed history fails closed."
+limitations = "A local durable attempt and exact provider event reference do not establish an external invoice, provider-side idempotency, permission authority, or production currentness. Existing SQLite/PostgreSQL primary-key migrations and no_call transition require composed runtime execution; unresolved attempts are not automatically retried."
+generated_client_compatibility = "breaking_requires_consumer_action"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md", "docs/reference/api/control.md", "docs/reference/api/migration-guide.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "control-pre-admission-runtime-openapi"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: POST /api/v1/control/runs/nl and GET /api/v1/control/admission-attempts/{attempt_id}"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "No successful natural-language launch without Idempotency-Key; unkeyed calls are refused before provider work."
+release_note = "Every natural-language launch profile requires a caller key and exposes actor-scoped attempt recovery, including when no ControlJob was admitted."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "control-pre-admission-core-contract"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts ControlPreAdmissionAttemptResponse"
+owner = "team-runtime"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Core contracts expose the typed actor-scoped pre-admission attempt history response."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "control-pre-admission-store"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "shared runtime-operation claim plus typed ControlPlaneStore attempt projection and append-only event history with existing transactional outbox"
+owner = "team-runtime"
+version_owner = "team-ops"
+deprecation_window = "not_applicable"
+release_note = "The existing control-plane store persists pre-admission intent and terminal observations before job enqueue."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "control-pre-admission-generated-clients"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client and runtime-dashboard generated API types"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "OpenAPI source adds the attempt-history route, owner binding, launch key contract, and typed producer-call state and no-call reason; generated API clients remain pending regeneration and consumer verification."
+generated_client_compatibility = "breaking_requires_consumer_action"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[operation_identity]
+scope = "shared purpose-scoped runtime intent table"
+route_scope = "control.runs.nl"
+run_scope = "actual run_id for existing Forecast owner"
+legacy_migration = "known run.predictive_calibration.v1 rows backfill run scope from stored run_id; known control.nl_pre_admission.v1 rows backfill the fixed route scope; physical primary key becomes purpose/tenant/cell/actor/scope_kind/scope_id/intent; unclassified or duplicate identities abort the transaction"
+external_exactly_once = false

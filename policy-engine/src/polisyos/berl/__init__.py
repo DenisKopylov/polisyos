@@ -15,12 +15,17 @@ from polisyos.berl.metrics.empirical_bounds import (
     hoeffding_upper_bound,
 )
 from polisyos.berl.metrics.infidelity import estimate_local_infidelity
-from polisyos.berl.persistence import load_explanation_bundle, persist_explanation_bundle
+from polisyos.berl.persistence import (
+    ExplanationBundleStoreReadError,
+    load_explanation_bundle,
+    persist_explanation_bundle,
+)
 from polisyos.berl.service import ExplanationOrchestrator, ExplanationRequest
 
 __all__ = [
     "EmpiricalBoundResult",
     "ExplanationBundle",
+    "ExplanationBundleStoreReadError",
     "ExplanationOrchestrator",
     "ExplanationRequest",
     "ExplanationValidationResult",

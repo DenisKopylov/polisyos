@@ -9,7 +9,14 @@ from typing import Any
 import pytest
 
 from polisyos.foundry.methods.catalog.causal.admg_ops import ancestors
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+    PAGIdentificationPolicy,
+    graph_content_sha256,
+)
 from polisyos.ir.analytics.causal_graph_kuzu import (
     _export_graph_edges_csv,
     _export_graph_nodes_csv,
@@ -103,3 +110,81 @@ def test_actual_csv_helpers_retain_plain_row_values_after_reader_mutation(tmp_pa
     assert edges[0]["FROM"] == "X"
     assert edges[0]["TO"] == "Y"
     assert json.loads(edges[0]["metadata_json"]) == {"nested": {"tags": ["source"]}}
+
+
+def test_graph_content_hash_is_stable_after_all_declared_cache_reads() -> None:
+    graph = _graph()
+    expected = graph_content_sha256(graph)
+
+    assert graph.kuzu_node_rows
+    assert graph.kuzu_edge_rows
+    assert graph_content_sha256(graph) == expected
+
+
+def test_graph_content_hash_revalidates_constructed_graphs_from_declared_fields() -> None:
+    valid_constructed = CausalGraphModel.model_construct(
+        schema_version="1.0",
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+        discovery_method="",
+        skg_version_id=None,
+        pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+        id_confidence_under_pag=None,
+        metadata={},
+    )
+    canonical = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    assert graph_content_sha256(valid_constructed) == graph_content_sha256(canonical)
+
+    malformed_constructed = CausalGraphModel.model_construct(
+        schema_version="1.0",
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
+        discovery_method="",
+        skg_version_id=None,
+        pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
+        id_confidence_under_pag=None,
+        metadata={},
+    )
+    with pytest.raises(ValueError, match="canonical causal graph validation failed"):
+        graph_content_sha256(malformed_constructed)
+
+
+def test_graph_content_hash_tracks_model_fields_and_rejects_forged_storage() -> None:
+    graph = _graph()
+    changed_metadata = graph.model_copy(
+        update={"metadata": {"nested": {"tags": ["changed"]}}}
+    )
+    assert graph_content_sha256(changed_metadata) != graph_content_sha256(graph)
+
+    forged = _graph()
+    object.__setattr__(forged, "forged_runtime_field", "not in model schema")
+    with pytest.raises(ValueError, match="undeclared stored fields"):
+        graph_content_sha256(forged)
+
+    malformed = _graph().model_copy(
+        update={
+            "edges": [
+                CausalEdge(
+                    src="X",
+                    dst="Y",
+                    mark_src=EdgeMark.CIRCLE,
+                    mark_dst=EdgeMark.ARROW,
+                )
+            ]
+        }
+    )
+    with pytest.raises(ValueError, match="canonical causal graph validation failed"):
+        graph_content_sha256(malformed)

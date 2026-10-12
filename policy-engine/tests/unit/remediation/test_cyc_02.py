@@ -96,9 +96,7 @@ def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -
     assert all("joint_simulation_ref" not in node for node in replayed_payload["nodes"])
 
     legacy_parent_index, legacy_parent = next(
-        (index, node)
-        for index, node in enumerate(payload["nodes"])
-        if node["joint_simulation"]
+        (index, node) for index, node in enumerate(payload["nodes"]) if node["joint_simulation"]
     )
     with pytest.raises(ValueError, match="recursive_simulation_result_requires_cas_ref"):
         RecursiveCycleNode.model_validate(legacy_parent)
@@ -206,11 +204,7 @@ def _real_n5_observation(
     if single_step_horizon:
         # This static request must not add a separate incomplete-horizon blocker.
         request = request.model_copy(
-            update={
-                "horizon": request.horizon.model_copy(
-                    update={"end": request.horizon.start}
-                )
-            }
+            update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
         )
     problem = problem.model_copy(
         update={
@@ -240,9 +234,7 @@ def _real_n5_observation(
     for atom in candidate.intervention_atoms:
         rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
         rebound_atoms.append(
-            rebound.model_copy(
-                update={"content_hash": intervention_atom_content_hash(rebound)}
-            )
+            rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
         )
     candidate.intervention_atoms = tuple(rebound_atoms)
     candidate.atom = rebound_atoms[0]
@@ -449,9 +441,7 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
         single_step_horizon=True,
     )
 
-    assert set(simulation.authority_blockers) == {
-        "simulation_only_k_sim_not_world_evidence"
-    }
+    assert set(simulation.authority_blockers) == {"simulation_only_k_sim_not_world_evidence"}
     assert simulation_evaluation_input_ref(simulation) is None
     input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
 
@@ -465,9 +455,7 @@ def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
 ) -> None:
     """A transient backend failure does not become a false corruption verdict."""
 
-    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
-    )
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(tmp_path)
     assert simulation.simulation_result_ref is not None
 
     class _TransientHasStore:
@@ -505,9 +493,7 @@ def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
 ) -> None:
     """Production CAS guard errors become N5 unavailability, not corruption."""
 
-    problem, context, candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
-    )
+    problem, context, candidate, simulation, _produced, store = _real_n5_observation(tmp_path)
     assert simulation.simulation_result_ref is not None
 
     class _GuardFailureTarget:
@@ -553,9 +539,7 @@ def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
             cycle_index=0,
         )
         assert observation.status == "value_blocked"
-        assert observation.authority_blockers == (
-            "joint_simulation_result_unavailable",
-        )
+        assert observation.authority_blockers == ("joint_simulation_result_unavailable",)
         assert len(observed_errors) == 1
         assert isinstance(observed_errors[0].__cause__, expected_cause)
     finally:
@@ -565,9 +549,7 @@ def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
 def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> None:
     """Unexpected store faults surface instead of being mislabeled as corruption."""
 
-    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
-    )
+    _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(tmp_path)
     assert simulation.simulation_result_ref is not None
 
     class _BrokenHasStore:
@@ -670,20 +652,17 @@ def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(
                 ),
             )
 
-        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v2"
+        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v3"
         selected_program_graph = tuple(
             decision
             for decision in persisted.engine_decisions
-            if decision.engine_kind == "program_graph"
-            and decision.decision == "selected"
+            if decision.engine_kind == "program_graph" and decision.decision == "selected"
         )
         assert len(selected_program_graph) == 1
         state_consumption = persisted.state_consumption
         assert state_consumption is not None
         assert state_consumption.authority_limitations
-        assert set(state_consumption.authority_limitations).issubset(
-            simulation.authority_blockers
-        )
+        assert set(state_consumption.authority_limitations).issubset(simulation.authority_blockers)
         assert set(state_consumption.authority_limitations).issubset(
             persisted.promotion_ready_value_packet.get("authority_blockers", ())
         )
@@ -692,9 +671,7 @@ def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(
         # only the observation-side display of those limitations.
         unmarked = simulation.model_copy(update={"authority_blockers": ()})
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            assert simulation_evaluation_input_ref(
-                unmarked, artifact_store=witness.store
-            ) is None
+            assert simulation_evaluation_input_ref(unmarked, artifact_store=witness.store) is None
             observation = _DefaultSimulationBoundFoundryValuePort(
                 repo_root=tmp_path,
                 cycle_substrate_context=witness.context,
@@ -709,11 +686,75 @@ def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(
             )
 
         assert observation.status == "value_blocked"
-        assert observation.authority_blockers == (
-            "n8_state_consumption_limitation_mismatch",
-        )
+        assert observation.authority_blockers == ("n8_state_consumption_limitation_mismatch",)
         assert verifier_calls == []
         assert value_owner_calls == []
+
+        # Build a version-2 compatibility wire from the same real selected
+        # ProgramGraph result. Historical v2 predates the B21 sampling field.
+        import copy
+
+        from polisyos.runtime.quality.generation_cycle import (
+            JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+            JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+            build_content_bound_simulation_receipt,
+            persist_joint_simulation_result,
+        )
+
+        legacy_payload = copy.deepcopy(persisted.content_bound_payload())
+        legacy_payload["schema_version"] = "policyos.runtime.joint_simulation_horizon.v2"
+        for trajectory in legacy_payload["trajectories"]:
+            for point in trajectory["points"]:
+                point.pop("replication_sampling", None)
+        legacy_receipt = build_content_bound_simulation_receipt(
+            engine_kind=persisted.receipt.engine_kind,
+            payload=legacy_payload,
+            diagnostics=legacy_payload["diagnostics"],
+        )
+        legacy_payload["receipt"] = legacy_receipt.model_dump(mode="json")
+        compatibility_store = FileSystemCAS(tmp_path / "n5-v2-compatibility-cas")
+        try:
+            legacy_ref = compatibility_store.put_json(
+                legacy_payload,
+                PutOptions(
+                    kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+                        version="2.0.0",
+                    ),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            )
+            legacy_bytes = compatibility_store.get_bytes(legacy_ref)
+            assert compatibility_store.get_manifest(legacy_ref).artifact_schema.version == "2.0.0"
+            legacy_loaded = load_joint_simulation_result(
+                legacy_ref,
+                store=compatibility_store,
+                expected_world_model_record_content_hash=(
+                    witness.world_model_build.record.content_hash
+                ),
+            )
+            assert legacy_loaded.schema_version == "policyos.runtime.joint_simulation_horizon.v2"
+            assert legacy_loaded.state_consumption == persisted.state_consumption
+            assert legacy_loaded.content_bound_payload() == {
+                key: value for key, value in legacy_payload.items() if key != "receipt"
+            }
+            assert all(
+                not hasattr(point, "replication_sampling") or point.replication_sampling is None
+                for trajectory in legacy_loaded.trajectories
+                for point in trajectory.points
+            )
+            legacy_replayed_ref = persist_joint_simulation_result(
+                legacy_loaded,
+                store=compatibility_store,
+            )
+            assert legacy_replayed_ref.artifact_id == legacy_ref.artifact_id
+            assert compatibility_store.get_bytes(legacy_replayed_ref) == legacy_bytes
+        finally:
+            close_compatibility_store = getattr(compatibility_store, "close", None)
+            if callable(close_compatibility_store):
+                close_compatibility_store()
     finally:
         witness.store.close()
 
@@ -751,8 +792,8 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
     """The selected N5 view remains distinct from another honest view of its bytes."""
 
     store = _GenericDefaultN5Store(tmp_path / "n5-multiview-store")
-    _problem, _context, _candidate, simulation, produced, supplied_store = (
-        _real_n5_observation(tmp_path, artifact_store=store)
+    _problem, _context, _candidate, simulation, produced, supplied_store = _real_n5_observation(
+        tmp_path, artifact_store=store
     )
     assert supplied_store is store
     result_ref = simulation.simulation_result_ref
@@ -776,15 +817,11 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
     reopened = load_joint_simulation_result(
         result_ref,
         store=store,
-        expected_world_model_record_content_hash=(
-            produced.world_model_record_content_hash
-        ),
+        expected_world_model_record_content_hash=(produced.world_model_record_content_hash),
         expected_atom_ids=produced.atom_ids,
     )
     assert reopened.trajectories == produced.trajectories
-    assert reopened.world_model_record_content_hash == (
-        produced.world_model_record_content_hash
-    )
+    assert reopened.world_model_record_content_hash == (produced.world_model_record_content_hash)
 
     wrong_profile_ref = result_ref.model_copy(
         update={"manifest_profile_sha256": "sha256:" + "f" * 64}
@@ -884,9 +921,7 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
     run = await controller.run(
         graph,
         problems_by_node=problems,
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
         recursive_budget=RecursiveCycleBudget(
             max_depth=1,
             max_nodes=3,
@@ -923,12 +958,8 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
     reopened = load_joint_simulation_result(
         root_node.joint_simulation_ref,
         store=store,
-        expected_world_model_record_content_hash=(
-            request.world_model_record.content_hash
-        ),
-        expected_atom_ids=tuple(
-            atom.intervention_id for atom in request.intervention_atoms
-        ),
+        expected_world_model_record_content_hash=(request.world_model_record.content_hash),
+        expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
         expected_selected_outcomes=request.selected_outcomes,
     )
     assert reopened.trajectories == root_node.joint_simulation.trajectories

@@ -15,6 +15,34 @@ from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 
 
+def _temporal_consumption_metrics(
+    consumption: jnp.ndarray,
+    values: jnp.ndarray,
+    consumption_fraction: jnp.ndarray,
+    active: jnp.ndarray,
+) -> dict[str, jnp.ndarray]:
+    """Build the producer-owned metrics mapping for a temporal step."""
+    active_count = jnp.sum(active)
+    safe_count = jnp.maximum(active_count, 1.0)
+    return {
+        "mean_consumption": jnp.sum(consumption) / safe_count,
+        "mean_value": jnp.sum(values * active) / safe_count,
+        "mean_consumption_fraction": jnp.sum(consumption_fraction * active) / safe_count,
+    }
+
+
+def _empty_temporal_consumption_metrics(state: GlobalState) -> dict[str, jnp.ndarray]:
+    """Build the zero metrics tree from the temporal producer's metric owner."""
+    metric_dtype = jnp.result_type(state.agents.wealth.dtype, jnp.asarray(0.0).dtype)
+    zero = jnp.asarray(0.0, dtype=metric_dtype)
+    return _temporal_consumption_metrics(
+        consumption=zero,
+        values=zero,
+        consumption_fraction=zero,
+        active=jnp.asarray(False, dtype=jnp.bool_),
+    )
+
+
 @dataclass(frozen=True)
 class TemporalConsumptionMechanism(Mechanism):
     """Temporal consumption mechanism public type."""
@@ -90,11 +118,10 @@ class TemporalConsumptionMechanism(Mechanism):
             expected_lifetime_utility=new_values.astype(agents.expected_lifetime_utility.dtype),
         )
 
-        active_count = jnp.sum(active)
-        safe_count = jnp.maximum(active_count, 1.0)
-        metrics = {
-            "mean_consumption": jnp.sum(consumption) / safe_count,
-            "mean_value": jnp.sum(values * active) / safe_count,
-            "mean_consumption_fraction": jnp.sum(consumption_fraction * active) / safe_count,
-        }
+        metrics = _temporal_consumption_metrics(
+            consumption=consumption,
+            values=values,
+            consumption_fraction=consumption_fraction,
+            active=active,
+        )
         return state.replace(agents=new_agents), metrics

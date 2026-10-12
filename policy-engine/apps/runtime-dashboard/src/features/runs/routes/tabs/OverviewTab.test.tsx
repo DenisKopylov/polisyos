@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "@/api/validators";
@@ -7,6 +7,18 @@ import { renderWithProviders } from "@/test/render";
 
 const overviewState = vi.hoisted(() => ({
   artifactContentMock: vi.fn(),
+  predictiveCalibrationQuery: {
+    isPending: true,
+    error: undefined,
+    data: undefined,
+  } as Record<string, unknown>,
+  predictiveCalibrationMutation: {
+    isPending: false,
+    isError: false,
+    error: undefined,
+    mutate: vi.fn(),
+  },
+  canCreatePredictiveCalibration: false,
   decisionArtifact: null as Record<string, unknown> | null,
   primaryDecisionArtifactRef: null as Record<string, unknown> | null,
   run: { run_id: "run-1" } as Record<string, unknown>,
@@ -38,6 +50,11 @@ vi.mock("@/api/hooks/useRunEvidenceContext", () => ({
 vi.mock("@/api/hooks/useRunTimeline", () => ({
   useSuspenseRunTimeline: () => ({ data: { timeline: { events: [] } } }),
 }));
+vi.mock("@/api/hooks/useRunPredictiveCalibration", () => ({
+  useRunPredictiveCalibration: () => overviewState.predictiveCalibrationQuery,
+  useCreateRunPredictiveCalibration: () =>
+    overviewState.predictiveCalibrationMutation,
+}));
 vi.mock("@/api/hooks/useArtifactContent", () => ({
   useSuspenseArtifactContent: (...args: unknown[]) =>
     overviewState.artifactContentMock(...args),
@@ -45,7 +62,12 @@ vi.mock("@/api/hooks/useArtifactContent", () => ({
 vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("@/app/authz/AuthzProvider")>();
-  return { ...actual, usePermission: () => false };
+  return {
+    ...actual,
+    usePermission: (permission: string) =>
+      permission === "runs.feedback.evaluate" &&
+      overviewState.canCreatePredictiveCalibration,
+  };
 });
 vi.mock("@/app/providers/FeatureFlagProvider", async (importOriginal) => {
   const actual =
@@ -240,7 +262,10 @@ function parsedRunWithGenericCycleSimulation(projectionRunId = "run-1") {
 }
 
 describe("OverviewTab", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   beforeEach(() => {
     overviewState.artifactContentMock.mockReset();
@@ -248,8 +273,185 @@ describe("OverviewTab", () => {
       data: { artifact: overviewState.decisionArtifact },
     }));
     overviewState.decisionArtifact = null;
+    overviewState.predictiveCalibrationQuery = {
+      isPending: true,
+      error: undefined,
+      data: undefined,
+    };
     overviewState.primaryDecisionArtifactRef = null;
+    overviewState.canCreatePredictiveCalibration = false;
+    overviewState.predictiveCalibrationMutation = {
+      isPending: false,
+      isError: false,
+      error: undefined,
+      mutate: vi.fn(),
+    };
     overviewState.run = { run_id: "run-1" };
+  });
+
+  it("keeps the run-bound action hidden without the existing evaluation permission", () => {
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: { status: 404, code: "run_predictive_calibration_not_found" },
+      data: undefined,
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-predictive-calibration-permission"),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId("overview-predictive-calibration-form"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("submits exact selected run refs with a new intent and no parameter defaults", () => {
+    const candidate = {
+      artifact_id: `sha256:${"a".repeat(64)}`,
+      kind: "runtime.quality.n4_candidate_scenario_source",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
+    };
+    const observed = {
+      artifact_id: `sha256:${"c".repeat(64)}`,
+      kind: "fabric.data_snapshot",
+      media_type: "application/json",
+      manifest_profile_sha256: `sha256:${"d".repeat(64)}`,
+    };
+    const model = {
+      ...observed,
+      artifact_id: `sha256:${"e".repeat(64)}`,
+      kind: "ir.model_spec",
+    };
+    const policy = {
+      ...observed,
+      artifact_id: `sha256:${"f".repeat(64)}`,
+      kind: "ir.policy_spec",
+    };
+    const rule = {
+      ...observed,
+      artifact_id: `sha256:${"1".repeat(64)}`,
+      kind: "ir.forecast_calibration_rule",
+    };
+    overviewState.canCreatePredictiveCalibration = true;
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: { status: 404, code: "run_predictive_calibration_not_found" },
+      data: undefined,
+    };
+    overviewState.run = {
+      run_id: "run-1",
+      root_artifacts: [model, policy, rule],
+      root_input_artifacts: [observed],
+      candidate_simulation: {
+        run_id: "run-1",
+        artifact_status: "resolved",
+        n5_observations: [
+          {
+            status: "joint_simulated",
+            lineage_status: "resolved",
+            n4_source_ref: candidate,
+          },
+        ],
+      },
+    };
+    vi.stubGlobal("crypto", { randomUUID: () => "intent-r228-1" });
+
+    const view = renderWithProviders(<OverviewTab />);
+
+    expect(screen.getByTestId("predictive-candidate-source")).toHaveValue("");
+    expect(screen.getByTestId("predictive-observed-source")).toHaveValue("");
+    expect(screen.getByTestId("predictive-threshold")).toHaveValue(null);
+    const form = screen.getByTestId("overview-predictive-calibration-form");
+    const values: Record<string, string> = {
+      candidate_source_ref: JSON.stringify([
+        candidate.artifact_id,
+        candidate.kind,
+        candidate.media_type,
+        candidate.manifest_profile_sha256,
+      ]),
+      observed_source_ref: JSON.stringify([
+        observed.artifact_id,
+        observed.kind,
+        observed.media_type,
+        observed.manifest_profile_sha256,
+      ]),
+      model_spec_ref: JSON.stringify([
+        model.artifact_id,
+        model.kind,
+        model.media_type,
+        model.manifest_profile_sha256,
+      ]),
+      policy_spec_ref: JSON.stringify([
+        policy.artifact_id,
+        policy.kind,
+        policy.media_type,
+        policy.manifest_profile_sha256,
+      ]),
+      calibration_rule_ref: JSON.stringify([
+        rule.artifact_id,
+        rule.kind,
+        rule.media_type,
+        rule.manifest_profile_sha256,
+      ]),
+      target_metric: "metric",
+      calibration_threshold: "0.9",
+      seed: "0",
+      train_start: "0",
+      train_end: "30",
+      holdout_start: "30",
+      holdout_end: "34",
+      horizon: "4",
+      alpha: "0.3",
+      beta: "0.1",
+      data_valid_time: "2026-01-01T00:00",
+      calibration_window_start: "2026-01-02T00:00",
+      calibration_window_end: "2026-01-03T00:00",
+      policy_effective_time: "2026-01-04T00:00",
+      prediction_time: "2026-01-05T00:00",
+      observation_time: "2026-01-06T00:00",
+    };
+    for (const [name, value] of Object.entries(values)) {
+      const input = within(form).getByLabelText(/.+/, {
+        selector: `[name="${name}"]`,
+      });
+      fireEvent.change(input, { target: { value } });
+    }
+    fireEvent.submit(form);
+
+    const submitted =
+      overviewState.predictiveCalibrationMutation.mutate.mock.calls[0]?.[0];
+    expect(submitted).toMatchObject({
+      intent_id: "intent-r228-1",
+      candidate_source_ref: candidate,
+      observed_source_ref: observed,
+      model_spec_ref: model,
+      policy_spec_ref: policy,
+      calibration_rule_ref: rule,
+      split: {
+        train_start: 0,
+        train_end: 30,
+        holdout_start: 30,
+        holdout_end: 34,
+        horizon: 4,
+      },
+    });
+    expect(submitted.candidate_source_ref.manifest_profile_sha256).toBe(
+      candidate.manifest_profile_sha256,
+    );
+
+    overviewState.predictiveCalibrationMutation.isError = true;
+    overviewState.predictiveCalibrationMutation.error = new Error(
+      "response lost after persistence",
+    );
+    view.rerender(<OverviewTab />);
+    fireEvent.click(
+      screen.getByTestId("overview-predictive-calibration-retry"),
+    );
+    expect(
+      overviewState.predictiveCalibrationMutation.mutate,
+    ).toHaveBeenNthCalledWith(2, submitted);
   });
 
   it("keeps hook order and the selected profile through a mismatch-to-live transition", () => {
@@ -319,6 +521,59 @@ describe("OverviewTab", () => {
           metric: "time_to_decision_ms",
         },
       ],
+    ]);
+  });
+
+  it("shows empirical predictive evidence with explicit authority and time limits", () => {
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: {
+        association: {
+          assessment: "limited",
+          authority_scope: "predictive_only",
+          intent_id: "intent-ui-fixture",
+          observed_numerator: 3,
+          observed_denominator: 4,
+          observed_hit_rate: 0.75,
+          issuer_status: "not_established",
+          source_time_status: "not_established",
+          population_scope_status: "not_established",
+          counterfactual_credibility_status: "not_established",
+          empirical_evidence_ref: { artifact_id: `sha256:${"a".repeat(64)}` },
+          uncertainty_bundle_ref: {
+            artifact_id: `sha256:${"b".repeat(64)}`,
+            kind: "ir.forecasting_uncertainty_bundle",
+            media_type: "application/json",
+            manifest_profile_sha256: `sha256:${"c".repeat(64)}`,
+          },
+          s10: {
+            calibration_status: "limit",
+            forecast_tier: "limited_local_model",
+          },
+        },
+      },
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(panel).toHaveTextContent("Empirical predictive diagnostic");
+    expect(panel).toHaveTextContent("3 / 4");
+    expect(panel).toHaveTextContent("predictive_only");
+    expect(panel).toHaveTextContent("not_established");
+    expect(panel).toHaveTextContent("not a policy recommendation");
+    const intervalLink = screen.getByTestId(
+      "overview-predictive-uncertainty-bundle",
+    ) as HTMLAnchorElement;
+    const selectedRef = JSON.parse(
+      new URL(intervalLink.href).searchParams.get("artifactRefKey") ?? "null",
+    );
+    expect(selectedRef).toEqual([
+      `sha256:${"b".repeat(64)}`,
+      "ir.forecasting_uncertainty_bundle",
+      "application/json",
+      `sha256:${"c".repeat(64)}`,
     ]);
   });
 
@@ -559,10 +814,17 @@ describe("OverviewTab", () => {
         publication_authority: false,
         budget_stop_node_ref: "child-budget",
         pending_frontier: ["child-pending"],
-        completed_design_refs: ["child-computed", "child-budget"],
+        completed_design_refs: [
+          "child-computed",
+          "child-partial",
+          "child-stable",
+          "child-budget",
+        ],
         root_n9_status: "not_run",
         leaf_terminal_kinds: {
           "child-computed": "grounded_abstention",
+          "child-partial": "grounded_partial_admissible",
+          "child-stable": "frontier_stable",
           "child-budget": "budget_exhausted",
         },
         failed_branches: [],
@@ -574,6 +836,10 @@ describe("OverviewTab", () => {
     expect(panel).toHaveTextContent("child-pending");
     expect(panel).toHaveTextContent("child-budget: budget_exhausted");
     expect(panel).toHaveTextContent("child-computed: grounded_abstention");
+    expect(panel).toHaveTextContent(
+      "child-partial: grounded_partial_admissible",
+    );
+    expect(panel).toHaveTextContent("child-stable: frontier_stable");
     expect(panel).toHaveTextContent("Root N9: not_run");
   });
 

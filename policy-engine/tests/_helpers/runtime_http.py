@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import uuid
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager, suppress
 from datetime import UTC, datetime, timedelta
@@ -633,6 +634,7 @@ def submit_ordinary_nl_post(
 
     launch_response = client.post(
         "/api/v1/control/runs/nl",
+        headers={"Idempotency-Key": uuid.uuid4().hex},
         json={
             "request": request,
             "llm_model": llm_model,
@@ -1325,9 +1327,7 @@ def build_runtime_api_env(
                     },
                     "feedback_loop": {
                         "anchor_at": "2026-02-11T12:05:00Z",
-                        "monitoring_contract_ref": monitoring_contract_ref.model_dump(
-                            mode="json"
-                        ),
+                        "monitoring_contract_ref": monitoring_contract_ref.model_dump(mode="json"),
                         "latest_monitoring_report_ref": None,
                         "latest_compare_report_ref": None,
                         "latest_reissue_plan_ref": None,

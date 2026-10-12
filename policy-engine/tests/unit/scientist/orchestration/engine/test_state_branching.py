@@ -8,7 +8,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -23,6 +23,7 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
     _validate_producer_state,
     branch_state,
+    canonical_state_mutation_operations,
     mutation_journal_from_operations,
     snapshot_state,
 )
@@ -518,6 +519,9 @@ def test_cache_replay_normalizes_specialized_artifact_refs() -> None:
     serialized = recorded.model_dump(mode="python")
     reloaded = StateMutation.model_validate(serialized)
     replay_journal = mutation_journal_from_operations((reloaded,))
+    assert canonical_state_mutation_operations((recorded,), require_complete=True) == (
+        canonical_state_mutation_operations((reloaded,), require_complete=True)
+    )
     outcome = NodeOutcome(status="ok", state=branch.state)
 
     merged = merge_parallel_outcomes(
@@ -535,6 +539,167 @@ def test_cache_replay_normalizes_specialized_artifact_refs() -> None:
     replayed_ref = merged.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     assert isinstance(replayed_ref, ArtifactRef)
     assert str(replayed_ref.artifact_id) == str(ref.artifact_id)
+
+
+def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
+    class AlternateNestedModel(BaseModel):
+        items: list[str]
+        untouched: dict[str, list[str]]
+
+    class CustomEqualityModel(BaseModel):
+        value: str
+
+        def __eq__(self, other: object) -> bool:
+            return isinstance(other, CustomEqualityModel)
+
+    class PrivateStateModel(BaseModel):
+        value: str
+        _private_value: str = PrivateAttr(default="private")
+
+    class ExtraStateModel(BaseModel):
+        model_config = ConfigDict(extra="allow")
+        value: str
+
+    reference = ArtifactRef(
+        artifact_id=f"sha256:{'a' * 64}",
+        kind="scientist.discovery_artifact_bundle",
+        media_type="application/json",
+    )
+    nested = _BranchNestedModel(items=["x"], untouched={"k": ["v"]})
+    holder = _AnyHolderModel(payload={"flag": True, "nested": nested})
+    source = ExperimentState(
+        run_id="R_journaled_model_value_equality",
+        params={"reference": reference, "nested": nested, "holder": holder},
+    )
+    left = branch_state(source, write_paths=("params",))
+    right = branch_state(source, write_paths=("params",))
+    tracked_reference = left.state.params["reference"]
+    tracked_nested = left.state.params["nested"]
+    tracked_holder = left.state.params["holder"]
+
+    assert isinstance(tracked_reference, ArtifactRef)
+    assert tracked_reference == reference
+    assert reference == tracked_reference
+    assert tracked_reference == right.state.params["reference"]
+    assert tracked_reference != ArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        manifest_profile_sha256=f"sha256:{'b' * 64}",
+    )
+    assert tracked_nested == nested
+    assert nested == tracked_nested
+    assert tracked_holder != _AnyHolderModel(payload={"flag": 1, "nested": nested})
+    assert tracked_holder != _AnyHolderModel(
+        payload={
+            "flag": True,
+            "nested": AlternateNestedModel(items=["x"], untouched={"k": ["v"]}),
+        }
+    )
+
+    tracked_reference.kind = "scientist.other_bundle"
+    assert left.journal.operations[-1].path == ("params", "reference", "kind")
+    assert reference.kind == "scientist.discovery_artifact_bundle"
+
+    with pytest.raises(TypeError, match="ordinary BaseModel mutation/copy hooks"):
+        branch_state(
+            ExperimentState(
+                run_id="R_custom_equality_model_refusal",
+                params={"candidate": CustomEqualityModel(value="x")},
+            ),
+            write_paths=("params",),
+        )
+    with pytest.raises(TypeError, match="private or extra model runtime state"):
+        branch_state(
+            ExperimentState(
+                run_id="R_private_equality_model_refusal",
+                params={"candidate": PrivateStateModel(value="x")},
+            ),
+            write_paths=("params",),
+        )
+    with pytest.raises(TypeError, match="private or extra model runtime state"):
+        branch_state(
+            ExperimentState(
+                run_id="R_extra_equality_model_refusal",
+                params={"candidate": ExtraStateModel(value="x", unexpected="y")},
+            ),
+            write_paths=("params",),
+        )
+
+
+def test_cache_mutation_canonical_payload_preserves_operation_semantics() -> None:
+    def operation(**overrides: Any) -> StateMutation:
+        payload: dict[str, Any] = {
+            "path": "params.value",
+            "operation": "set",
+            "value": None,
+            "value_kind": "json",
+            "index": None,
+            "start": None,
+            "stop": None,
+            "step": None,
+            "target_presence": "present",
+            "target_kind": "scalar",
+            "operation_group": None,
+        }
+        payload.update(overrides)
+        return StateMutation.model_validate(payload)
+
+    explicit_null = operation()
+    boolean = operation(value=True)
+    integer = operation(value=1)
+    assert canonical_state_mutation_operations((boolean,), require_complete=True) != (
+        canonical_state_mutation_operations((integer,), require_complete=True)
+    )
+    assert canonical_state_mutation_operations(
+        (operation(value=1.0),), require_complete=True
+    ) != canonical_state_mutation_operations((integer,), require_complete=True)
+    assert canonical_state_mutation_operations(
+        (operation(value=("a", "b")),), require_complete=True
+    ) == canonical_state_mutation_operations(
+        (operation(value=["a", "b"]),), require_complete=True
+    )
+    assert canonical_state_mutation_operations(
+        (operation(value={"body": "left"}),), require_complete=True
+    ) != canonical_state_mutation_operations(
+        (operation(value={"body": "right"}),), require_complete=True
+    )
+    assert canonical_state_mutation_operations(
+        (operation(path="params.first"), operation(path="params.second")),
+        require_complete=True,
+    ) != canonical_state_mutation_operations(
+        (operation(path="params.second"), operation(path="params.first")),
+        require_complete=True,
+    )
+    assert canonical_state_mutation_operations((operation(path="params.other"),)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+    assert canonical_state_mutation_operations((operation(operation="delete"),)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+    assert canonical_state_mutation_operations((operation(index=0),)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+    assert canonical_state_mutation_operations((operation(target_kind="dict"),)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+    assert canonical_state_mutation_operations((operation(operation_group=0),)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+
+    missing_value = StateMutation.model_validate(
+        {"path": "params.value", "operation": "set"}
+    )
+    assert canonical_state_mutation_operations((missing_value,)) != (
+        canonical_state_mutation_operations((explicit_null,))
+    )
+    with pytest.raises(ValueError, match="incomplete state mutation fields"):
+        canonical_state_mutation_operations((missing_value,), require_complete=True)
+    with pytest.raises(ValueError, match="inconsistent state mutation operation group"):
+        mutation_journal_from_operations(
+            (operation(value=True, operation_group=0), operation(value=1, operation_group=0)),
+            require_complete=True,
+        )
 
 
 def test_artifacts_index_rejects_malformed_specialized_ref_before_journaling() -> None:

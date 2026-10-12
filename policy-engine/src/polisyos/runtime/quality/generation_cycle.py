@@ -24,6 +24,7 @@ import os
 import re
 import stat
 import time
+from collections import Counter
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from contextlib import suppress
 from dataclasses import dataclass, replace
@@ -71,7 +72,10 @@ from polisyos.core.contracts.value_outer_set import (
     ValueOuterSetIdentificationStatus,
 )
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.data_requirement.compiler import DataRequirementCompiler
+from polisyos.data_requirement.compiler import (
+    DataRequirementCompiler,
+    ScenarioScopeProfileInputError,
+)
 from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
     ArtifactRef,
@@ -144,8 +148,10 @@ from polisyos.runtime.quality.generic_simulation_admission import (
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
-    JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+    JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
     JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+    JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
     WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
     EnginePlan,
     JointSimulationHorizonController,
@@ -182,6 +188,7 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 
 if TYPE_CHECKING:
     from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.data_requirement import CapabilityRequirementResolution
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.pdc import ArtifactEnvelope
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
@@ -203,6 +210,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.promotion_sequence import (
         N9PromotionEvidenceBridgeRepository,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
 _GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
@@ -270,10 +278,18 @@ JOINT_SIMULATION_RESULT_ARTIFACT_KIND = "polisyos.runtime.joint_simulation_resul
 JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA = "policyos.runtime.n5.joint_simulation_result"
 JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION = "1.0.0"
 _JOINT_SIMULATION_RESULT_STATE_CONSUMPTION_ARTIFACT_SCHEMA_VERSION = "2.0.0"
+_JOINT_SIMULATION_RESULT_REPLICATION_UNCERTAINTY_ARTIFACT_SCHEMA_VERSION = "3.0.0"
+_JOINT_SIMULATION_RESULT_PAIRED_INTERACTION_UNCERTAINTY_ARTIFACT_SCHEMA_VERSION = "4.0.0"
 _JOINT_SIMULATION_RESULT_VERSIONS = {
-    JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION: JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA_VERSION: JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
     _JOINT_SIMULATION_RESULT_STATE_CONSUMPTION_ARTIFACT_SCHEMA_VERSION: (
         JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION
+    ),
+    _JOINT_SIMULATION_RESULT_REPLICATION_UNCERTAINTY_ARTIFACT_SCHEMA_VERSION: (
+        JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION
+    ),
+    _JOINT_SIMULATION_RESULT_PAIRED_INTERACTION_UNCERTAINTY_ARTIFACT_SCHEMA_VERSION: (
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
     ),
 }
 GENERATION_CYCLE_RULE_VERSION = "policyos.layer3.gy.n6.generation_cycle.v1"
@@ -304,7 +320,16 @@ _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
 # Keep this separate from the EvalSafety intake allowlist above: an incomplete
 # interaction horizon cannot become a promotion input.
 _N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
-    {*_SIMULATION_AUTHORITY_LIMITATIONS, "interaction_evidence_incomplete"}
+    {
+        *_SIMULATION_AUTHORITY_LIMITATIONS,
+        "interaction_evidence_incomplete",
+        "standard_error_not_estimated",
+        "legacy_sampling_not_established",
+        "legacy_interaction_not_established",
+        "interaction_sampling_not_established",
+        "interaction_sampling_variation_observed",
+        "interaction_numeric_classification_unsupported",
+    }
 )
 # Exhaustive typed projection partition. A new canonical terminal must be
 # assigned deliberately before N6 may turn a selected stop into a cycle result.
@@ -1248,16 +1273,20 @@ class ValueOwnerRow(_StrictModel):
     unit_id: str = Field(min_length=1)
     period_id: int
     outcome_value: float
+    measurement_unit: str = Field(min_length=1)
     source_row_content_hashes: tuple[str, ...] = Field(min_length=1)
     row_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _verify_row_content(self) -> ValueOwnerRow:
+        if not self.measurement_unit.strip():
+            raise ValueError("value_owner_row_measurement_unit_missing")
         expected = gy_content_hash(
             {
                 "unit_id": self.unit_id,
                 "period_id": self.period_id,
                 "outcome_value": self.outcome_value,
+                "measurement_unit": self.measurement_unit,
                 "source_row_content_hashes": self.source_row_content_hashes,
             }
         )
@@ -1300,10 +1329,11 @@ def _derived_value_data_modalities(
 class ValueDataProfile(_StrictModel):
     """Method-neutral owner rows and their still-missing treatment knowledge."""
 
-    schema_version: Literal["policyos.runtime.value_data_profile.v1"] = (
-        "policyos.runtime.value_data_profile.v1"
+    schema_version: Literal["policyos.runtime.value_data_profile.v2"] = (
+        "policyos.runtime.value_data_profile.v2"
     )
     outcome: str = Field(min_length=1)
+    measurement_unit: str = Field(min_length=1)
     rows: tuple[ValueOwnerRow, ...] = Field(min_length=4)
     owner_row_count: int = Field(ge=4)
     unit_count: int = Field(ge=1)
@@ -1318,6 +1348,10 @@ class ValueDataProfile(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_profile_content(self) -> ValueDataProfile:
+        if not self.measurement_unit.strip():
+            raise ValueError("value_data_profile_measurement_unit_missing")
+        if any(row.measurement_unit != self.measurement_unit for row in self.rows):
+            raise ValueError("value_data_profile_measurement_unit_mismatch")
         if self.owner_row_count != len(self.rows):
             raise ValueError("value_data_profile_row_count_mismatch")
         if self.unit_count != len({row.unit_id for row in self.rows}):
@@ -1469,6 +1503,19 @@ class ValuePortObservation(_StrictModel):
     calibration_receipt: ValueCalibrationReceipt | None = None
     value_receipt: ValueGateReceipt | None = None
     wall_time_ms: float | None = Field(default=None, ge=0.0)
+    n5_interaction_schema_version: Literal[
+        "policyos.runtime.joint_simulation_horizon.v1",
+        "policyos.runtime.joint_simulation_horizon.v2",
+        "policyos.runtime.joint_simulation_horizon.v3",
+        "policyos.runtime.joint_simulation_horizon.v4",
+    ] | None = None
+    numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
+    numeric_interaction_basis: Literal[
+        "finite_checked_model_point_estimate_only", "not_established"
+    ] | None = None
+    interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ] | None = None
 
     @model_validator(mode="after")
     def _verify_value_authority_shape(self) -> ValuePortObservation:
@@ -1490,6 +1537,42 @@ class ValuePortObservation(_StrictModel):
                 raise ValueError("value_conditional_requires_low_decision_grade")
             if self.value_receipt is not None or self.method_selection_receipt is not None:
                 raise ValueError("value_conditional_cannot_carry_owner_receipts")
+            if any(
+                value is None
+                for value in (
+                    self.n5_interaction_schema_version,
+                    self.numeric_interaction,
+                    self.numeric_interaction_basis,
+                    self.interaction_sampling_status,
+                )
+            ):
+                raise ValueError("value_conditional_interaction_qualification_missing")
+            if self.numeric_interaction == "unsupported" and (
+                "interaction_numeric_classification_unsupported" not in self.authority_blockers
+            ):
+                raise ValueError("value_conditional_unsupported_interaction_not_limited")
+            if self.interaction_sampling_status != "estimated" and not set(
+                self.authority_blockers
+            ).intersection(
+                {
+                    "interaction_sampling_not_established",
+                    "standard_error_not_estimated",
+                    "legacy_interaction_not_established",
+                }
+            ):
+                raise ValueError("value_conditional_interaction_sampling_not_limited")
+            if self.n5_interaction_schema_version != (
+                JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+            ) and (
+                self.numeric_interaction != "unsupported"
+                or self.numeric_interaction_basis != "not_established"
+                or self.interaction_sampling_status != "not_established"
+            ):
+                raise ValueError("value_conditional_legacy_interaction_laundered")
+            if self.interaction_sampling_status == "estimated" and (
+                self.numeric_interaction_basis != "finite_checked_model_point_estimate_only"
+            ):
+                raise ValueError("value_conditional_estimated_basis_missing")
         elif self.value_receipt is not None:
             raise ValueError("blocked_or_pending_value_cannot_carry_value_receipt")
         if self.acquisition_requirement is not None and self.status != "value_blocked":
@@ -1884,7 +1967,8 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.acquisition_overlay_reentry.v1",
         "policyos.runtime.acquisition_overlay_reentry.v2",
-    ] = "policyos.runtime.acquisition_overlay_reentry.v2"
+        "policyos.runtime.acquisition_overlay_reentry.v3",
+    ] = "policyos.runtime.acquisition_overlay_reentry.v3"
     source_run_id: str = Field(min_length=1)
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     source_cycle_index: int = Field(ge=0)
@@ -1905,6 +1989,15 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
     synthetic: bool | None = None
     source_handoff_refs: tuple[str, ...] = ()
     source_preservation_receipt: GenerationSourcePreservationReceipt | None = None
+    source_generation_run_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    continued_generation_run_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    source_run_currentness: N6DeploymentCurrentnessObservation | None = None
+    continuation_currentness: N6DeploymentCurrentnessObservation | None = None
+    continued_generation_run: GenerationCycleRun | None = None
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @classmethod
@@ -1912,7 +2005,7 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
         """Content-bind one independently reconciled direct re-entry result."""
 
         identity_payload = {
-            "schema_version": "policyos.runtime.acquisition_overlay_reentry.v2",
+            "schema_version": "policyos.runtime.acquisition_overlay_reentry.v3",
             **payload,
         }
         draft = cls.model_construct(
@@ -1939,6 +2032,40 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
             or receipt.synthetic is not self.synthetic
         ):
             raise ValueError("generation_source_reentry_receipt_binding_mismatch")
+        if self.schema_version.endswith(".v3"):
+            continuation = self.continued_generation_run
+            if (
+                self.source_generation_run_content_hash is None
+                or self.continued_generation_run_content_hash is None
+                or continuation is None
+                or (self.source_run_currentness is None)
+                != (self.continuation_currentness is None)
+            ):
+                raise ValueError("acquisition_overlay_reentry_continuation_incomplete")
+            if (
+                continuation.run_id != self.source_run_id
+                or continuation.design_problem_ref != self.design_problem_ref
+                or not continuation.cycles
+                or continuation.cycles[-1] != self.new_cycle
+                or self.continuation_currentness
+                != self.source_run_currentness
+                or generation_cycle_run_content_hash(continuation)
+                != self.continued_generation_run_content_hash
+            ):
+                raise ValueError("acquisition_overlay_reentry_continuation_binding_mismatch")
+            if self.source_run_currentness is None and (
+                continuation.promotion_port.status != "not_promoted"
+                or continuation.promotion_port.certified_candidate_ids
+            ):
+                raise ValueError("acquisition_overlay_reentry_unknown_currentness_promoted")
+            if self.continuation_currentness is not None and (
+                self.continuation_currentness.status != "current"
+                and (
+                    continuation.promotion_port.status != "not_promoted"
+                    or continuation.promotion_port.certified_candidate_ids
+                )
+            ):
+                raise ValueError("acquisition_overlay_reentry_currentness_refusal_missing")
         if self.content_hash != gy_content_hash(gy_artifact_self_identity_projection(self)):
             raise ValueError("acquisition_overlay_reentry_hash_mismatch")
         return self
@@ -1946,6 +2073,15 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         payload = handler(self)
+        if not self.schema_version.endswith(".v3"):
+            for key in (
+                "source_generation_run_content_hash",
+                "continued_generation_run_content_hash",
+                "source_run_currentness",
+                "continuation_currentness",
+                "continued_generation_run",
+            ):
+                payload.pop(key, None)
         if self.schema_version.endswith(".v1"):
             supplied = _historical_supplied_field_tree(self, payload)
             if not isinstance(supplied, dict):
@@ -2329,6 +2465,109 @@ class GenerationCycleRun(_StrictModel):
             for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
                 payload.pop(key, None)
         return payload
+
+
+AcquisitionOverlayReentryReceipt.model_rebuild(
+    _types_namespace={"GenerationCycleRun": GenerationCycleRun}
+)
+
+
+def generation_cycle_run_content_hash(run: GenerationCycleRun) -> str:
+    """Hash the schema-owned serialized bytes of one N6 run."""
+
+    return "sha256:" + hashlib.sha256(
+        to_canonical_bytes(
+            run.model_dump(mode="json"), CanonSpec(forbid_floats=False)
+        )
+    ).hexdigest()
+
+
+def validate_acquisition_overlay_continuation(
+    source_run: GenerationCycleRun, receipt: AcquisitionOverlayReentryReceipt
+) -> None:
+    """Validate one persisted N4/N5 occurrence continuation and its N9 projection."""
+
+    if not receipt.schema_version.endswith(".v3"):
+        return
+    continued = receipt.continued_generation_run
+    if (
+        continued is None
+        or not source_run.cycles
+        or source_run.cycles[-1].cycle_index != receipt.source_cycle_index
+    ):
+        raise GenerationCycleError("acquisition_reentry_source_run_not_latest")
+    if generation_cycle_run_content_hash(source_run) != receipt.source_generation_run_content_hash:
+        raise GenerationCycleError("acquisition_reentry_source_run_content_hash_mismatch")
+    if (
+        continued.run_id != source_run.run_id
+        or continued.design_problem_ref != source_run.design_problem_ref
+        or continued.controller_ref != source_run.controller_ref
+        or continued.engine_owner_ref != source_run.engine_owner_ref
+        or continued.cycles[:-1] != source_run.cycles
+        or len(continued.cycles) != len(source_run.cycles) + 1
+        or continued.cycles[-1] != receipt.new_cycle
+        or receipt.new_cycle.cycle_index != source_run.cycles[-1].cycle_index + 1
+        or generation_cycle_run_content_hash(continued)
+        != receipt.continued_generation_run_content_hash
+    ):
+        raise GenerationCycleError("acquisition_reentry_continued_run_binding_mismatch")
+    def occurrence_key(summary: CandidateSummary) -> tuple[object, ...]:
+        return (
+            summary.candidate_id,
+            summary.content_hash,
+            summary.source_content_hash,
+            summary.cycle_index,
+            summary.generation_channel,
+        )
+
+    source_occurrences = Counter(occurrence_key(row) for row in source_run.candidate_summaries)
+    appended_occurrences = Counter(occurrence_key(row) for row in receipt.candidate_summaries)
+    expected_occurrences = source_occurrences + appended_occurrences
+    actual_occurrences = Counter(occurrence_key(row) for row in continued.candidate_summaries)
+    if actual_occurrences != expected_occurrences:
+        raise GenerationCycleError("acquisition_reentry_occurrence_history_not_append_only")
+    projected_tail = tuple(
+        row for row in continued.candidate_summaries
+        if row.cycle_index == receipt.new_cycle.cycle_index
+    )
+    if tuple(map(occurrence_key, projected_tail)) != tuple(
+        map(occurrence_key, receipt.candidate_summaries)
+    ):
+        raise GenerationCycleError("acquisition_reentry_new_occurrence_projection_mismatch")
+    if _derive_fronts(continued.candidate_summaries) != continued.fronts:
+        raise GenerationCycleError("acquisition_reentry_current_front_mismatch")
+    source_currentness = receipt.source_run_currentness
+    continuation_currentness = receipt.continuation_currentness
+    if (source_currentness is None) != (continuation_currentness is None):
+        raise GenerationCycleError("acquisition_reentry_currentness_pair_incomplete")
+    if source_currentness is None or continuation_currentness is None:
+        if (
+            continued.promotion_port.status != "not_promoted"
+            or continued.promotion_port.certified_candidate_ids
+        ):
+            raise GenerationCycleError("acquisition_reentry_unknown_currentness_promoted")
+        return
+    if (
+        source_currentness != continuation_currentness
+        or source_currentness.recorded_identity_status != source_run.deployment_identity_status
+        or source_currentness.recorded_deployment_identity != source_run.deployment_identity
+        or continuation_currentness.recorded_identity_status != continued.deployment_identity_status
+        or continuation_currentness.recorded_deployment_identity != continued.deployment_identity
+    ):
+        raise GenerationCycleError("acquisition_reentry_currentness_binding_mismatch")
+    if continuation_currentness.status != "current" and (
+        continued.promotion_port.status != "not_promoted"
+        or continued.promotion_port.certified_candidate_ids
+    ):
+        raise GenerationCycleError("acquisition_reentry_currentness_refusal_missing")
+    current_ids = {
+        row.candidate_id
+        for row in _current_candidate_summaries(continued.candidate_summaries)
+    }
+    if not set(continued.promotion_port.certified_candidate_ids).issubset(current_ids):
+        raise GenerationCycleError("acquisition_reentry_n9_certification_not_current")
+    if continued.promotion_port.status == "promotion_pending_n9":
+        raise GenerationCycleError("acquisition_reentry_n9_outcome_not_recorded")
 
 
 def _source_custody_authority_refusal(
@@ -4591,6 +4830,16 @@ class JointSimulationPort:
         """
 
         if self._cycle_substrate_context is not None:
+            from polisyos.runtime.quality.substrate_registry import (
+                current_catalog_serving_source,
+                require_catalog_source_registry_binding,
+            )
+
+            require_catalog_source_registry_binding(
+                self._repo_root or Path.cwd(),
+                self._cycle_substrate_context.substrate_registry,
+                current_catalog_serving_source(),
+            )
             return self._context_world_model_record(
                 candidate=candidate,
                 problem=problem,
@@ -4700,6 +4949,17 @@ class ValueOwnerGateway(Protocol):
     ) -> ValueDataProfile:
         """Load content-bound outcome rows without inventing treatment knowledge."""
 
+    def load_value_method_run_intent(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        profile: ValueDataProfile,
+        selected_method_fqn: str,
+    ) -> ValueOwnerMethodRunIntentV1 | None:
+        """Resolve an explicit owner assignment and estimand for one selected method."""
+
     def produce_forecast_inputs(
         self,
         *,
@@ -4728,6 +4988,7 @@ class RealValueOwnerGateway:
     repo_root: Path | None = None
     cycle_substrate_context: CycleSubstrateContext | None = None
     catalog_overlay_path: Path | None = None
+    catalog_serving_source: CatalogServingSourcePaths | None = None
     empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None
     artifact_store: ArtifactStore | None = None
     activated_observation_projection: (
@@ -4744,6 +5005,9 @@ class RealValueOwnerGateway:
         """Load method-neutral rows through the real substrate owner."""
 
         del world_record
+        from polisyos.runtime.quality.substrate_registry import require_active_catalog_source
+
+        require_active_catalog_source(self.catalog_serving_source)
         outcome = _value_outcome_variable(candidate, problem)
         if outcome is None:
             raise ValueOwnerAccessError(
@@ -4803,6 +5067,23 @@ class RealValueOwnerGateway:
             )
         return profile
 
+    def load_value_method_run_intent(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        profile: ValueDataProfile,
+        selected_method_fqn: str,
+    ) -> ValueOwnerMethodRunIntentV1 | None:
+        """Return no assignment until an owner supplies a verified binding.
+
+        The current substrate loader owns outcome rows only. Candidate exposure
+        fields and method selection do not establish a treatment assignment.
+        """
+        del candidate, problem, world_record, profile, selected_method_fqn
+        return None
+
     def produce_forecast_inputs(
         self,
         *,
@@ -4842,6 +5123,7 @@ class RealValueOwnerGateway:
                 query_treatment=treatment,
                 query_outcome=outcome,
                 cycle_substrate_context=self.cycle_substrate_context,
+                artifact_store=self.artifact_store,
             ),
             "query_treatment": treatment,
             "query_outcome": outcome,
@@ -4899,7 +5181,7 @@ def simulation_evaluation_input_ref(
         except GenerationCycleError:
             return None
         if (
-            result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
+            result.schema_version != JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION
             or result.receipt.payload_hash != simulation.simulation_ref
             or not set(result.promotion_ready_value_packet.get("authority_blockers", ())).issubset(
                 blockers
@@ -4910,7 +5192,7 @@ def simulation_evaluation_input_ref(
         str(result_ref.artifact_id) if result_ref is not None else str(simulation.simulation_ref)
     )
     schema_ref = (
-        f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v1"
+        f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v3"
         if result_ref is not None
         else "policyos.runtime.n5.joint_simulation_observation.v1"
     )
@@ -5062,11 +5344,14 @@ class FoundryValuePort:
         runtime_budget_ms: float | None = None,
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        catalog_serving_source: CatalogServingSourcePaths | None = None,
         artifact_store: ArtifactStore | None = None,
     ) -> None:
         self._owner_gateway = owner_gateway or RealValueOwnerGateway(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            catalog_serving_source=catalog_serving_source,
+            artifact_store=artifact_store,
         )
         self._evaluation_context = evaluation_context
         self._eval_safety_verifier = eval_safety_verifier
@@ -5421,6 +5706,101 @@ class FoundryValuePort:
                 value_data_profile_content_hash=method_state.content_hash,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
+        run_intent_loader = getattr(self._owner_gateway, "load_value_method_run_intent", None)
+        if callable(run_intent_loader):
+            try:
+                candidate_intent = run_intent_loader(
+                    candidate=candidate,
+                    problem=problem,
+                    world_record=world_record,
+                    profile=method_state,
+                    selected_method_fqn=selected_method_fqn,
+                )
+            except Exception as exc:
+                return _blocked_value_observation(
+                    code="value_owner_method_run_intent_unresolved",
+                    reason=f"Owner method-run intent could not be resolved: {exc}",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    selected_method_fqn=selected_method_fqn,
+                    method_selection_receipt=selection_receipt,
+                    value_data_profile_content_hash=method_state.content_hash,
+                    world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+                )
+            if candidate_intent is not None:
+                try:
+                    if not isinstance(candidate_intent, ValueOwnerMethodRunIntentV1):
+                        raise ValueError("value_owner_method_run_intent_untyped")
+                    if self._artifact_store is None:
+                        raise ValueError("value_owner_method_run_artifact_store_missing")
+                    ir_store = _ensure_ir_artifact_store(self._artifact_store)
+                    run_basis_ref = _produce_value_owner_method_run_basis(
+                        store=ir_store,
+                        profile=method_state,
+                        intent=candidate_intent,
+                        selected_method_fqn=selected_method_fqn,
+                        method_parameters={},
+                    )
+                    candidate_trust = self._data_trust or DataTrust(
+                        tier="candidate_fixture",
+                        trust_cap=0.0,
+                        trust_multiplier=0.0,
+                        min_coverage=0.0,
+                        max_coverage=1.0,
+                        promotion_floor=1.0,
+                        authority_ref="candidate_fixture://value_method_run",
+                    )
+                    outer_set = _value_outer_set_from_owner_method_run_basis(
+                        store=ir_store,
+                        run_basis_ref=run_basis_ref,
+                        world_record=world_record,
+                        data_trust=candidate_trust,
+                    )
+                    from polisyos.ir.artifacts import put_json_artifact
+                    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+
+                    outer_ref = put_json_artifact(
+                        ir_store,
+                        outer_set.model_dump(mode="json"),
+                        kind="runtime.value_outer_set_candidate_fixture",
+                        schema_name="runtime.value_outer_set_candidate_fixture",
+                        schema_version="1.0",
+                        inputs=[_value_input_ref(run_basis_ref, role="owner_method_run_basis")],
+                        canon_spec=IRCanonSpec(forbid_floats=False),
+                    )
+                except Exception as exc:
+                    return _blocked_value_observation(
+                        code="value_owner_method_run_basis_invalid",
+                        reason=f"Candidate method run remains limited: {exc}",
+                        mode=mode,
+                        started=started,
+                        candidate_id=candidate_id,
+                        selected_method_fqn=selected_method_fqn,
+                        method_selection_receipt=selection_receipt,
+                        value_data_profile_content_hash=method_state.content_hash,
+                        world_model_record_content_hash=str(
+                            _object_get(world_record, "content_hash")
+                        ),
+                    )
+                return _blocked_value_observation(
+                    code="candidate_fixture_value_run_not_authority",
+                    reason=(
+                        "The selected real method and fresh CAS consumer produced a "
+                        "candidate-fixture ValueOuterSet. Its source-bound assignment "
+                        "and synthetic truth do not establish owner authority, "
+                        "identification, production currentness, calibration, or S10 admission."
+                    ),
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    value_ref=str(outer_ref["artifact_id"]),
+                    selected_method_fqn=selected_method_fqn,
+                    method_selection_receipt=selection_receipt,
+                    value_data_profile_content_hash=method_state.content_hash,
+                    world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+                )
+
         return _blocked_value_observation(
             code="treatment_assignment_not_owner_derived",
             reason=(
@@ -5495,6 +5875,77 @@ def _validated_n8_candidate_simulation_blockers(
         return None, "n8_persisted_blocker_not_candidate_allowlisted"
     return persisted_blockers, None
 
+
+def _n8_interaction_qualification(result: JointSimulationResult) -> dict[str, str]:
+    """Project interaction class and basis without upgrading historical schemas."""
+
+    if result.schema_version != (
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+    ):
+        return {
+            "n5_interaction_schema_version": result.schema_version,
+            "numeric_interaction": "unsupported",
+            "numeric_interaction_basis": "not_established",
+            "interaction_sampling_status": "not_established",
+        }
+    feedback = result.feedback_classification
+    return {
+        "n5_interaction_schema_version": result.schema_version,
+        "numeric_interaction": feedback.numeric_interaction,
+        "numeric_interaction_basis": feedback.numeric_interaction_basis,
+        "interaction_sampling_status": feedback.interaction_sampling_status,
+    }
+
+
+def _n8_sampling_uncertainty_limitations(
+    result: JointSimulationResult,
+) -> frozenset[str]:
+    """Derive candidate limitations from the exact fresh-loaded N5 artifact."""
+
+    if result.schema_version in {
+        JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+        JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+    }:
+        # v1-v3 did not bind pairwise and higher-order residual vectors. The
+        # existing point-level standard errors are not a substitute for them.
+        return frozenset(
+            {"legacy_sampling_not_established", "legacy_interaction_not_established"}
+        )
+    if (
+        result.schema_version
+        != JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+    ):
+        raise GenerationCycleError("joint_simulation_result_schema_unsupported")
+    statuses = {
+        point.replication_sampling.status
+        for trajectory in result.trajectories
+        for point in trajectory.points
+        if point.replication_sampling is not None
+    }
+    if not statuses or any(
+        point.replication_sampling is None
+        for trajectory in result.trajectories
+        for point in trajectory.points
+    ):
+        raise GenerationCycleError("replication_sampling_summary_missing")
+    if len(statuses) != 1:
+        raise GenerationCycleError("replication_sampling_status_mixed")
+    feedback = result.feedback_classification
+    limitations: set[str] = set()
+    if "standard_error_not_estimated" in statuses:
+        limitations.add("standard_error_not_estimated")
+    if feedback.interaction_sampling_status == "not_established":
+        limitations.add("interaction_sampling_not_established")
+    elif feedback.interaction_sampling_status == "standard_error_not_estimated":
+        limitations.update(
+            {"interaction_sampling_not_established", "standard_error_not_estimated"}
+        )
+    if feedback.numeric_interaction == "unsupported":
+        limitations.add("interaction_numeric_classification_unsupported")
+    if "interaction_sampling_variation_observed" in feedback.limitations:
+        limitations.add("interaction_sampling_variation_observed")
+    return frozenset(limitations)
 
 def _conditional_simulation_value_observation(
     *,
@@ -5624,6 +6075,18 @@ def _conditional_simulation_value_observation(
             candidate_id=candidate_id,
             world_model_record_content_hash=world_hash,
         )
+    try:
+        interaction_limitations = _n8_sampling_uncertainty_limitations(result)
+        blockers.update(interaction_limitations)
+    except GenerationCycleError as exc:
+        return _blocked_value_observation(
+            code=exc.code,
+            reason=f"N8 cannot establish N5 sampling uncertainty: {exc}",
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
     persisted_blockers, blocker_error = _validated_n8_candidate_simulation_blockers(
         result.promotion_ready_value_packet
     )
@@ -5633,6 +6096,22 @@ def _conditional_simulation_value_observation(
             reason=(
                 "N8 refuses persisted N5 blockers that are malformed or outside "
                 "the candidate limitation set."
+            ),
+            mode="simulate_only",
+            started=started,
+            candidate_id=candidate_id,
+            world_model_record_content_hash=world_hash,
+        )
+    if (
+        result.schema_version
+        == JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+        and not interaction_limitations.issubset(persisted_blockers)
+    ):
+        return _blocked_value_observation(
+            code="n8_interaction_qualification_not_bound",
+            reason=(
+                "N8 refuses a v4 result whose persisted blocker set omits "
+                "recomputed interaction limits."
             ),
             mode="simulate_only",
             started=started,
@@ -5690,6 +6169,7 @@ def _conditional_simulation_value_observation(
         decision_grade="low",
         world_model_record_content_hash=result.world_model_record_content_hash,
         wall_time_ms=(time.monotonic() - started) * 1000.0,
+        **_n8_interaction_qualification(result),
     )
 
 
@@ -5886,6 +6366,7 @@ class _DefaultSimulationBoundFoundryValuePort:
 
     repo_root: Path | None
     cycle_substrate_context: CycleSubstrateContext | None
+    catalog_serving_source: CatalogServingSourcePaths | None = None
     artifact_store: ArtifactStore | None = None
     owner_gateway: ValueOwnerGateway | None = None
     eval_safety_verifier: EvalSafetyVerifierPort | None = None
@@ -5904,6 +6385,7 @@ class _DefaultSimulationBoundFoundryValuePort:
             "observation_family": self.observation_family,
             "runtime_budget_ms": self.runtime_budget_ms,
             "cycle_substrate_context": self.cycle_substrate_context,
+            "catalog_serving_source": self.catalog_serving_source,
         }
 
     def __call__(
@@ -6122,6 +6604,7 @@ class GenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
+        catalog_serving_source: CatalogServingSourcePaths | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -6168,9 +6651,16 @@ class GenerationCycleController:
             generic_cycle_simulation_child_selection=(generic_cycle_simulation_child_selection),
             generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
         )
+        from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+        active_source = current_catalog_serving_source()
+        if catalog_serving_source is not None and catalog_serving_source is not active_source:
+            raise ValueError("generation_cycle_catalog_source_context_mismatch")
+        self._catalog_serving_source = catalog_serving_source or active_source
         self._value_port = value_port or _DefaultSimulationBoundFoundryValuePort(
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
+            catalog_serving_source=self._catalog_serving_source,
             artifact_store=artifact_store,
             eval_safety_verifier=eval_safety_verifier,
             observation_to_contract_manifest=observation_to_contract_manifest,
@@ -6653,13 +7143,48 @@ class GenerationCycleController:
                 blocked_reason=blocked_reason,
             )
 
+        run, _currentness = self._finish_run_after_loop(
+            run_id=run_id,
+            design_problem_ref=design_problem_ref,
+            cycles=tuple(cycles),
+            summaries=tuple(summaries),
+            last_cycle_problem=last_cycle_problem,
+            terminal_status=terminal_status,
+            blocked_reason=blocked_reason,
+            n6_currentness=n6_currentness,
+            deployment_identity_status=identity_status,
+            deployment_identity=deployment_identity,
+            deployment_identity_reason=identity_reason,
+        )
+        return run
+
+    def _finish_run_after_loop(
+        self,
+        *,
+        run_id: str,
+        design_problem_ref: str,
+        cycles: tuple[GenerationCycleRecord, ...],
+        summaries: tuple[CandidateSummary, ...],
+        last_cycle_problem: DesignProblem,
+        terminal_status: TerminalStatus,
+        blocked_reason: str | None,
+        n6_currentness: N6DeploymentCurrentnessObservation | None,
+        deployment_identity_status: Literal["established", "not_established"],
+        deployment_identity: str | None,
+        deployment_identity_reason: str | None,
+    ) -> tuple[GenerationCycleRun, N6DeploymentCurrentnessObservation | None]:
+        """Apply the canonical post-loop currentness and N9 gates to one run."""
+
         source_receipt = self._source_preservation_receipt()
+        if self._source_custody_limitation is not None:
+            source_receipt = None
         source_refusal = _source_custody_authority_refusal(
             self._source_custody_limitation, source_receipt
         )
-        promotion_summaries = _current_candidate_summaries(tuple(summaries))
+        promotion_summaries = _current_candidate_summaries(summaries)
         promotion_basis_ref = _cycle_basis_ref(cycles[-1]) if cycles else None
-        if n9_terminal_disposition(terminal_status) is (N9TerminalDisposition.TERMINAL_BLOCKED):
+        post_loop_currentness: N6DeploymentCurrentnessObservation | None = None
+        if n9_terminal_disposition(terminal_status) is N9TerminalDisposition.TERMINAL_BLOCKED:
             promotion = PromotionPortObservation(
                 status="not_promoted",
                 reason=(
@@ -6669,12 +7194,12 @@ class GenerationCycleController:
             )
         else:
             try:
-                pre_n9_currentness = observe_n6_deployment_currentness(
-                    recorded_identity_status=identity_status,
+                post_loop_currentness = observe_n6_deployment_currentness(
+                    recorded_identity_status=deployment_identity_status,
                     recorded_deployment_identity=deployment_identity,
                 )
             except Exception:
-                pre_n9_currentness = None
+                post_loop_currentness = None
             if source_refusal is not None and source_refusal[1] in {
                 "drift",
                 "receipt_incoherent",
@@ -6683,7 +7208,7 @@ class GenerationCycleController:
                     status="not_promoted",
                     reason=f"{source_refusal[0]}:{source_refusal[1]}",
                 )
-            elif pre_n9_currentness is None:
+            elif post_loop_currentness is None:
                 promotion = PromotionPortObservation(
                     status="not_promoted",
                     reason=(
@@ -6691,22 +7216,22 @@ class GenerationCycleController:
                         "loaded_deployment_identity_owner_unavailable"
                     ),
                 )
-            elif pre_n9_currentness.status == "stale":
+            elif post_loop_currentness.status == "stale":
                 promotion = PromotionPortObservation(
                     status="not_promoted",
                     reason=(
                         "generation_cycle_n6_deployment_identity_stale:"
-                        f"{pre_n9_currentness.reason_code}"
+                        f"{post_loop_currentness.reason_code}"
                     ),
                 )
             elif (
-                pre_n9_currentness.status != "current"
-                or pre_n9_currentness.census_verdict != "PASS"
+                post_loop_currentness.status != "current"
+                or post_loop_currentness.census_verdict != "PASS"
             ):
                 reason = (
                     n6_currentness.reason_code
-                    if identity_status != "established" and n6_currentness is not None
-                    else pre_n9_currentness.reason_code
+                    if deployment_identity_status != "established" and n6_currentness is not None
+                    else post_loop_currentness.reason_code
                 )
                 promotion = PromotionPortObservation(
                     status="not_promoted",
@@ -6724,28 +7249,27 @@ class GenerationCycleController:
                     design_problem_basis_ref=promotion_basis_ref,
                     deployment_identity=deployment_identity,
                 )
-        summaries = _apply_promotion_to_summaries(
-            tuple(summaries),
-            promotion,
-            problem=last_cycle_problem,
-            open_world_resolver=self._open_world_resolver,
-            epoch_validity_resolver=self._epoch_n9_evidence_resolver,
-            promotion_evidence_resolver=self._promotion_evidence_resolver,
+        projected_summaries = tuple(
+            _apply_promotion_to_summaries(
+                summaries,
+                promotion,
+                problem=last_cycle_problem,
+                open_world_resolver=self._open_world_resolver,
+                epoch_validity_resolver=self._epoch_n9_evidence_resolver,
+                promotion_evidence_resolver=self._promotion_evidence_resolver,
+            )
         )
-        fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
-            # New emissions use the current typed projection even when some
-            # lineage bindings are nullable. v1-v4 remain frozen readers.
             schema_version=GENERATION_CYCLE_SCHEMA_VERSION,
             run_id=run_id,
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
-            cycles=tuple(cycles),
+            cycles=cycles,
             acquisition_receipts=tuple(
                 cycle.acquisition_receipt for cycle in cycles if cycle.acquisition_receipt
             ),
-            fronts=fronts,
-            candidate_summaries=tuple(summaries),
+            fronts=_derive_fronts(projected_summaries),
+            candidate_summaries=projected_summaries,
             value_port=cycles[-1].value_port if cycles else ValuePortObservation(),
             promotion_port=promotion,
             strangle_receipt=_n6_not_established_strangle_receipt(
@@ -6761,11 +7285,11 @@ class GenerationCycleController:
             source_handoff_refs=tuple(self._source_handoff_refs),
             source_preservation_receipt=source_receipt,
             source_custody_limitation=self._source_custody_limitation,
-            deployment_identity_status=identity_status,
+            deployment_identity_status=deployment_identity_status,
             deployment_identity=deployment_identity,
-            deployment_identity_reason=identity_reason,
+            deployment_identity_reason=deployment_identity_reason,
         )
-        return run
+        return run, post_loop_currentness
 
     async def reenter_after_active_acquisition_overlay(
         self,
@@ -6789,6 +7313,8 @@ class GenerationCycleController:
         """
 
         problem_ref = _problem_ref(problem)
+        if not original_run.cycles or original_run.cycles[-1] != source_cycle:
+            raise GenerationCycleError("acquisition_reentry_source_not_latest_cycle")
         source_matches = tuple(
             row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
         )
@@ -6978,16 +7504,20 @@ class GenerationCycleController:
             artifact_store=self._artifact_store,
             owner_gateway=RealValueOwnerGateway(
                 repo_root=self._repo_root,
+                catalog_serving_source=self._catalog_serving_source,
                 cycle_substrate_context=self._cycle_substrate_context,
                 catalog_overlay_path=selected_overlay_path,
                 artifact_store=self._artifact_store,
                 activated_observation_projection=observation_projection,
             ),
             cycle_substrate_context=self._cycle_substrate_context,
+            catalog_serving_source=self._catalog_serving_source,
             **value_port_kwargs,
         )
         next_cycle_index = source_cycle.cycle_index + 1
         self._restore_source_run(original_run)
+        if original_run.source_custody_limitation is not None:
+            self._source_custody_limitation = original_run.source_custody_limitation
         new_cycle, summaries = await self._run_cycle(
             problem,
             cycle_index=next_cycle_index,
@@ -7004,8 +7534,47 @@ class GenerationCycleController:
             or any(summary.cycle_index != next_cycle_index for summary in summaries)
         ):
             raise GenerationCycleError("acquisition_reentry_result_binding_mismatch")
-        source_receipt = self._source_preservation_receipt()
-        return AcquisitionOverlayReentryReceipt.issue(
+        try:
+            source_n6_currentness = currentness_for_generation_cycle_run(original_run)
+        except Exception:
+            source_n6_currentness = None
+        continued_run, post_loop_currentness = self._finish_run_after_loop(
+            run_id=original_run.run_id,
+            design_problem_ref=original_run.design_problem_ref,
+            cycles=(*original_run.cycles, new_cycle),
+            summaries=(*original_run.candidate_summaries, *summaries),
+            last_cycle_problem=problem,
+            terminal_status=original_run.terminal_status,
+            blocked_reason=original_run.blocked_reason,
+            n6_currentness=source_n6_currentness,
+            deployment_identity_status=original_run.deployment_identity_status,
+            deployment_identity=original_run.deployment_identity,
+            deployment_identity_reason=original_run.deployment_identity_reason,
+        )
+        try:
+            continuation_currentness = currentness_for_generation_cycle_run(continued_run)
+        except Exception:
+            continuation_currentness = None
+        if (
+            post_loop_currentness is not None
+            and continuation_currentness is not None
+            and post_loop_currentness != continuation_currentness
+        ) or (
+            source_n6_currentness is not None
+            and continuation_currentness is not None
+            and source_n6_currentness != continuation_currentness
+        ):
+            raise GenerationCycleError("acquisition_reentry_n9_currentness_readback_mismatch")
+        attempt_currentness = (
+            post_loop_currentness or source_n6_currentness or continuation_currentness
+        )
+        source_receipt = continued_run.source_preservation_receipt
+        continued_summaries = tuple(
+            summary
+            for summary in continued_run.candidate_summaries
+            if summary.cycle_index == new_cycle.cycle_index
+        )
+        receipt = AcquisitionOverlayReentryReceipt.issue(
             source_run_id=original_run.run_id,
             design_problem_ref=original_run.design_problem_ref,
             source_cycle_index=source_cycle.cycle_index,
@@ -7024,13 +7593,22 @@ class GenerationCycleController:
                 production_events[0].receipt_content_hash
             ),
             new_cycle=new_cycle,
-            candidate_summaries=summaries,
-            synthetic=(
-                source_receipt.synthetic if source_receipt is not None else self._source_synthetic
-            ),
-            source_handoff_refs=tuple(self._source_handoff_refs),
+            candidate_summaries=continued_summaries,
+            synthetic=continued_run.synthetic,
+            source_handoff_refs=continued_run.source_handoff_refs,
             source_preservation_receipt=source_receipt,
+            source_generation_run_content_hash=generation_cycle_run_content_hash(original_run),
+            continued_generation_run_content_hash=(
+                generation_cycle_run_content_hash(continued_run)
+            ),
+            source_run_currentness=attempt_currentness,
+            continuation_currentness=attempt_currentness,
+            continued_generation_run=continued_run,
         )
+        validate_acquisition_overlay_continuation(original_run, receipt)
+        if post_loop_currentness is not None and post_loop_currentness != attempt_currentness:
+            raise GenerationCycleError("acquisition_reentry_n9_currentness_readback_mismatch")
+        return receipt
 
     def _promote_completed_generation(
         self,
@@ -7289,8 +7867,11 @@ class GenerationCycleController:
         acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
         if not isinstance(acquisition_request, Mapping):
             return None
-        specs = self._n7_data_requirement_specs(problem, acquisition_request=acquisition_request)
-        if not specs:
+        specs, capability_resolutions = self._n7_data_requirement_basis(
+            problem,
+            acquisition_request=acquisition_request,
+        )
+        if not specs and not capability_resolutions:
             return None
         owner_gateway = self._n7_owner_gateway(problem)
         if owner_gateway is None:
@@ -7307,6 +7888,7 @@ class GenerationCycleController:
             acquisition_request={**acquisition_request, "cycle_index": cycle.cycle_index},
             data_requirement_specs=tuple(specs),
             world_snapshot=world_snapshot,
+            capability_requirement_resolutions=capability_resolutions,
             design_problem=problem,
             owner_gateway=owner_gateway,
             useful_design_rate_before=float(
@@ -7361,6 +7943,25 @@ class GenerationCycleController:
         *,
         acquisition_request: Mapping[str, Any],
     ) -> tuple[object, ...]:
+        """Return the legacy specs-only view of the current compiler basis."""
+
+        specs, _ = self._n7_data_requirement_basis(
+            problem,
+            acquisition_request=acquisition_request,
+        )
+        return specs
+
+    def _n7_data_requirement_basis(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_request: Mapping[str, Any],
+    ) -> tuple[
+        tuple[object, ...],
+        tuple[CapabilityRequirementResolution, ...] | None,
+    ]:
+        """Compile data specs and retain typed capability results when available."""
+
         raw_gap = acquisition_request.get("requirement_gap")
         if isinstance(raw_gap, Mapping):
             gap = AcquisitionRequirementGap.model_validate(raw_gap)
@@ -7368,7 +7969,7 @@ class GenerationCycleController:
             if gap.model_dump(mode="json") == expected.model_dump(mode="json"):
                 # Carry the actual unsatisfied any_of request, without fabricating
                 # data-family requirements or claiming either alternative is met.
-                return (gap,)
+                return (gap,), None
         # A present primary field is authoritative, including an explicit empty
         # tuple.  Falling through via ``or`` used to let a stale alias or runtime
         # hint overwrite an intentional empty requirement set.
@@ -7379,31 +7980,95 @@ class GenerationCycleController:
             if explicit is None:
                 continue
             if isinstance(explicit, Sequence) and not isinstance(explicit, str | bytes | bytearray):
-                return tuple(explicit)
+                return tuple(explicit), None
             raise GenerationCycleError("n7_data_requirement_specs_invalid")
         hinted = problem.runtime_hints.get("n7_data_requirement_specs")
         if hinted is not None:
-            return tuple(hinted)
+            return tuple(hinted), None
         families = _n7_required_data_families(problem, acquisition_request)
-        if not families:
-            return ()
-        report = DataRequirementCompiler(
-            capability_resolver=self._n7_capability_resolver(problem),
-        ).compile_for_scenario(
-            {
-                "scenario_id": problem.design_problem_id,
-                "text": problem.problem_statement,
-                "domain": problem.domain,
-                "expected_evidence_contract": {
-                    "admissible_data_source_families": list(families),
-                },
-                "scenario_profile": self._n7_scope_profile(
-                    problem,
-                    acquisition_request=acquisition_request,
-                ),
-            }
+        profile_aliases = ("scenario_profile", "pilot_profile", "scope_profile", "profile")
+        raw_context = acquisition_request.get("context")
+        context_profile_supplied = isinstance(raw_context, Mapping) and any(
+            key in raw_context for key in ("scenario_profile", "pilot_profile", "scope_profile")
         )
-        return tuple(report.specs)
+        explicit_profile_supplied = (
+            any(key in acquisition_request for key in profile_aliases)
+            or context_profile_supplied
+            or "n7_scope_profile" in problem.runtime_hints
+        )
+        direct_requirement_supplied = any(
+            key in acquisition_request for key in ("required_constructs", "construct_refs")
+        )
+        if not families and not explicit_profile_supplied and not direct_requirement_supplied:
+            return (), None
+        scenario_payload: dict[str, Any] = {
+            "scenario_id": problem.design_problem_id,
+            "text": problem.problem_statement,
+            "domain": problem.domain,
+            "expected_evidence_contract": {
+                "admissible_data_source_families": list(families),
+            },
+        }
+        for key in (
+            *profile_aliases,
+            "required_constructs",
+            "construct_refs",
+            "candidate_construct_proposals",
+        ):
+            if key in acquisition_request:
+                scenario_payload[key] = acquisition_request[key]
+        profile_context = (
+            {
+                key: raw_context[key]
+                for key in ("scenario_profile", "pilot_profile", "scope_profile")
+                if key in raw_context
+            }
+            if isinstance(raw_context, Mapping)
+            else {}
+        )
+        runtime_profile_supplied = "n7_scope_profile" in problem.runtime_hints
+        if runtime_profile_supplied:
+            runtime_profile = problem.runtime_hints["n7_scope_profile"]
+            free_context_alias = next(
+                (
+                    key
+                    for key in ("scenario_profile", "pilot_profile", "scope_profile")
+                    if key not in profile_context
+                ),
+                None,
+            )
+            if free_context_alias is not None:
+                profile_context[free_context_alias] = runtime_profile
+            else:
+                free_top_alias = next(
+                    (key for key in profile_aliases if key not in scenario_payload),
+                    None,
+                )
+                if free_top_alias is None:
+                    raise GenerationCycleError(
+                        "n7_cycle_substrate_context_invalid",
+                        "scenario_scope_profile_alias_overflow",
+                    )
+                scenario_payload[free_top_alias] = runtime_profile
+        explicit_profile_supplied = explicit_profile_supplied or bool(profile_context)
+        if profile_context:
+            scenario_payload["context"] = profile_context
+        if not explicit_profile_supplied:
+            scenario_payload["scenario_profile"] = self._n7_scope_profile(
+                problem,
+                acquisition_request=acquisition_request,
+            )
+
+        try:
+            report = DataRequirementCompiler(
+                capability_resolver=self._n7_capability_resolver(problem),
+            ).compile_for_scenario(scenario_payload)
+        except ScenarioScopeProfileInputError as exc:
+            raise GenerationCycleError(
+                "n7_cycle_substrate_context_invalid",
+                str(exc),
+            ) from exc
+        return tuple(report.specs), report.capability_requirement_resolutions
 
     def _n7_capability_resolver(
         self,
@@ -7494,6 +8159,7 @@ class GenerationCycleController:
             families=families,
             repo_root=self._repo_root or Path.cwd(),
             cycle_substrate_context=self._cycle_substrate_context,
+            catalog_serving_source=self._catalog_serving_source,
         )
         context_world_ref = (
             self._cycle_substrate_context.world_model_record_content_hash
@@ -7538,6 +8204,7 @@ class GenerationCycleController:
                 self._promotion_runtime.store if self._promotion_runtime is not None else None
             ),
             catalog_run_profile=self._catalog_run_profile,
+            catalog_serving_source=self._catalog_serving_source,
         )
 
     def _validate_n7_acq01_measurement_root_custody(
@@ -10890,6 +11557,7 @@ def _n7_substrate_registry(
     families: Sequence[str],
     repo_root: Path,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    catalog_serving_source: CatalogServingSourcePaths | None = None,
 ) -> SubstrateRegistry:
     del families
     if cycle_substrate_context is not None:
@@ -10906,14 +11574,27 @@ def _n7_substrate_registry(
             ) from exc
         if context.design_problem_ref != _problem_ref(problem) or context.domain != problem.domain:
             raise GenerationCycleError("n7_cycle_substrate_context_mismatch")
+        from polisyos.runtime.quality.substrate_registry import (
+            require_catalog_source_registry_binding,
+        )
+
+        require_catalog_source_registry_binding(
+            repo_root, cycle_substrate_context.substrate_registry, catalog_serving_source
+        )
         return cycle_substrate_context.substrate_registry
     for key in ("substrate_registry", "s0_substrate_registry"):
         raw = problem.runtime_hints.get(key)
         if raw is not None:
             try:
-                return SubstrateRegistry.model_validate(
+                registry = SubstrateRegistry.model_validate(
                     raw.model_dump(mode="python") if isinstance(raw, SubstrateRegistry) else raw
                 )
+                from polisyos.runtime.quality.substrate_registry import (
+                    require_catalog_source_registry_binding,
+                )
+
+                require_catalog_source_registry_binding(repo_root, registry, catalog_serving_source)
+                return registry
             except ValueError as exc:
                 raise GenerationCycleError(
                     "n7_substrate_registry_invalid",
@@ -11459,8 +12140,9 @@ def _load_value_data_profile_from_l1_dcat(
     modalities = _derived_value_data_modalities(owner_rows)
     rows_payload = tuple(row.model_dump(mode="json") for row in owner_rows)
     payload = {
-        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "schema_version": "policyos.runtime.value_data_profile.v2",
         "outcome": outcome,
+        "measurement_unit": measurement_units[0],
         "rows": rows_payload,
         "owner_row_count": len(owner_rows),
         "unit_count": unit_count,
@@ -11481,6 +12163,9 @@ def _value_owner_row(
     source_rows: tuple[tuple[float, str, str, str], ...],
 ) -> ValueOwnerRow:
     ordered = tuple(sorted(source_rows, key=lambda row: (row[1], row[2], row[0])))
+    measurement_units = tuple(sorted({row[3] for row in ordered}))
+    if len(measurement_units) != 1 or not measurement_units[0].strip():
+        raise ValueError("value_owner_row_measurement_unit_ambiguous")
     source_hashes = tuple(
         gy_content_hash(
             {
@@ -11500,6 +12185,7 @@ def _value_owner_row(
         "unit_id": unit_id,
         "period_id": period_id,
         "outcome_value": outcome_value,
+        "measurement_unit": measurement_units[0],
         "source_row_content_hashes": source_hashes,
     }
     return ValueOwnerRow(
@@ -11751,6 +12437,7 @@ def _build_default_selection_diagram(
     problem: DesignProblem,
     world_record: WorldModelRecord,
     cycle_substrate_context: CycleSubstrateContext | None,
+    artifact_store: ArtifactStore | None = None,
 ) -> object:
     return _build_candidate_selection_diagram(
         candidate=candidate,
@@ -11759,6 +12446,7 @@ def _build_default_selection_diagram(
         query_treatment=_candidate_transport_treatment_variable(candidate),
         query_outcome=_candidate_transport_outcome_variable(candidate, problem),
         cycle_substrate_context=cycle_substrate_context,
+        artifact_store=artifact_store,
     )
 
 
@@ -11770,6 +12458,7 @@ def _build_candidate_selection_diagram(
     query_treatment: str,
     query_outcome: str,
     cycle_substrate_context: CycleSubstrateContext | None,
+    artifact_store: ArtifactStore | None = None,
 ) -> object:
     from polisyos.runtime.quality.cycle_substrate import (
         revalidate_cycle_substrate_context,
@@ -11790,6 +12479,15 @@ def _build_candidate_selection_diagram(
             owner_access_ref="cycle_substrate_context://content_validation_failed",
         ) from exc
     expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if (
+        context.transport_context is not None
+        and context.transport_context.causal_graph_ref is not None
+    ):
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
+
+        expected_problem_ref = cycle_job_design_problem_ref(problem)
     if context.design_problem_ref != expected_problem_ref or context.domain != problem.domain:
         raise ValueOwnerAccessError(
             "transport_context_problem_mismatch",
@@ -11812,6 +12510,77 @@ def _build_candidate_selection_diagram(
             "content-bound source/target transport measurements are absent",
             owner_access_ref=context.content_hash,
         )
+    graph_ref = transport.causal_graph_ref
+    if graph_ref is not None:
+        if artifact_store is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:causal_graph_artifact_store_unavailable",
+                "the selected causal graph cannot be verified without the bound artifact store",
+                owner_access_ref=context.content_hash,
+            )
+        if graph_ref.manifest_profile_sha256 is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:causal_graph_profile_unselected",
+                "the selected causal graph lacks an owner-selected manifest profile",
+                owner_access_ref=context.content_hash,
+            )
+        try:
+            from polisyos.core.artifacts import profile_bound_ref
+            from polisyos.ir.analytics.causal_graph import load_causal_graph_model
+            from polisyos.ir.analytics.transportability import (
+                SelectionDiagramBuilder,
+                measured_transport_severity,
+            )
+
+            ir_store = _ensure_ir_artifact_store(artifact_store)
+            selected_graph_ref = profile_bound_ref(ir_store, graph_ref)
+            if selected_graph_ref != graph_ref:
+                raise ValueError("causal_graph_profile_selection_changed")
+            manifest = ir_store.get_manifest(selected_graph_ref)
+            schema = manifest.artifact_schema
+            if (
+                schema is None
+                or schema.name != "ir.causal_graph_model"
+                or schema.version != "1.0"
+            ):
+                raise ValueError("causal_graph_schema_mismatch")
+            graph = load_causal_graph_model(
+                ir_store, selected_graph_ref
+            )
+            if graph.schema_version != "1.0":
+                raise ValueError("causal_graph_payload_schema_mismatch")
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:causal_graph_artifact_unresolved",
+                "the selected causal graph could not be profile-bound and content-verified",
+                owner_access_ref=context.content_hash,
+            ) from exc
+
+        required_nodes = {query_treatment, query_outcome}
+        required_nodes.update(item.canonical_var for item in transport.covariates)
+        missing_nodes = required_nodes.difference(graph.nodes)
+        if query_treatment == query_outcome or missing_nodes:
+            raise ValueOwnerAccessError(
+                "acquire_data:causal_graph_query_nodes_unresolved",
+                "the selected graph does not contain the distinct query and measured context nodes",
+                owner_access_ref=context.content_hash,
+            )
+        builder = SelectionDiagramBuilder(graph)
+        for item in transport.covariates:
+            builder.add_measured_sigma_variable(
+                item.canonical_var,
+                source_value=item.source_value,
+                target_value=item.target_value,
+                severity=measured_transport_severity(
+                    item.source_value,
+                    item.target_value,
+                ),
+                role=None,
+                source_ref=item.source_row_content_hash,
+                target_ref=item.target_row_content_hash,
+            )
+        return builder.build()
+
     runtime_hints = _object_get(problem, "runtime_hints")
     graph_hint_present = isinstance(runtime_hints, Mapping) and any(
         runtime_hints.get(key) is not None
@@ -12005,7 +12774,9 @@ def _s10_empirical_projection(
         "floor_passed": floor_passed,
         "calibration_status": calibration_status,
         "forecast_tier": forecast_tier,
-        "counterfactual_credibility": "credible" if usable else "insufficient_history",
+        # Predictive interval usability is a measurement result, not an independently
+        # verified causal or counterfactual credibility predicate.
+        "counterfactual_credibility": "not_established",
         "interval_coverage_metric": pass_rate if denominator else None,
         "calibration_error_metric": None,
         "source_lineage_refs": list(source_lineage_refs),
@@ -12604,6 +13375,7 @@ def _blocked_value_observation(
     mode: ValueEvaluationMode,
     started: float,
     candidate_id: str | None = None,
+    value_ref: str | None = None,
     calibration_receipt: ValueCalibrationReceipt | None = None,
     selected_method_fqn: str | None = None,
     method_selection_receipt: MethodSelectionReceipt | None = None,
@@ -12619,7 +13391,7 @@ def _blocked_value_observation(
     return ValuePortObservation(
         status="value_blocked",
         candidate_id=candidate_id,
-        value_ref=None,
+        value_ref=value_ref,
         authority_blockers=authority_blockers,
         reason=reason,
         evaluation_mode=mode,
@@ -12921,75 +13693,20 @@ def _value_outer_set_from_foundry_result(
     world_record: object,
     data_trust: DataTrust,
 ) -> ValueOuterSet:
-    report = _method_report(method_result)
-    if report is None:
+    """Refuse promotion projection without a producer-owned run coordinate.
+
+    A native interval is not a value axis. The current N8 owners can load
+    outcome rows and select a method, but do not yet issue a persisted run
+    basis binding the actual method input to the owner profile, the treatment
+    assignment, and a typed estimand/unit coordinate. Returning a ValueOuterSet
+    from report fields alone would make the method label an axis and can merge
+    unrelated causal questions. Keep the report candidate-only until that
+    owner-issued basis and a fresh consumer resolver exist.
+    """
+    del transport_receipt, calibration_receipt, world_record, data_trust
+    if _method_report(method_result) is None:
         raise ValueError("foundry_method_refused_value:report_missing")
-    point = getattr(report, "point_estimate", None)
-    interval = getattr(report, "confidence_interval", None)
-    if point is None or interval is None:
-        raise ValueError("foundry_method_refused_value:uncertainty_missing")
-    point_value = float(point)
-    lower_ci, upper_ci = (float(interval[0]), float(interval[1]))
-    if not (
-        math.isfinite(point_value)
-        and math.isfinite(lower_ci)
-        and math.isfinite(upper_ci)
-        and lower_ci <= upper_ci
-    ):
-        raise ValueError("foundry_method_refused_value:uncertainty_invalid")
-    identification_status = _derive_value_identification_status(
-        transport_receipt=transport_receipt,
-        calibration_receipt=calibration_receipt,
-    )
-    if identification_status == "point":
-        lower = upper = point_value
-    else:
-        lower = lower_ci
-        upper = upper_ci
-    method_name = str(getattr(report, "method", "foundry_value"))
-    world_hash = str(_object_get(world_record, "content_hash"))
-    return ValueOuterSet.interval_box(
-        coordinates=(method_name,),
-        lower=(lower,),
-        upper=(upper,),
-        statistical_lower=(lower_ci,),
-        statistical_upper=(upper_ci,),
-        identification_mode=identification_status,
-        assumptions=(
-            "foundry_method_output",
-            f"transport:{transport_receipt.transport_status}",
-            f"forecast_tier:{calibration_receipt.forecast_tier}",
-        ),
-        assumption_status=(
-            "declared" if identification_status == "proxy" else "externally_supported"
-        ),
-        calibration_scope={
-            "forecast_tier": calibration_receipt.forecast_tier,
-            "transport_status": transport_receipt.transport_status,
-            "transport_mode": transport_receipt.transport_mode,
-        },
-        data_trust=data_trust,
-        world_model_record_ref=world_hash,
-        epoch=str(_object_get(world_record, "valid_time_scope") or world_hash),
-        representation_status="certified",
-    )
-
-
-def _derive_value_identification_status(
-    *,
-    transport_receipt: ValueTransportReceipt,
-    calibration_receipt: ValueCalibrationReceipt,
-) -> ValueOuterSetIdentificationStatus:
-    if calibration_receipt.forecast_tier == "transported_limited":
-        return "proxy"
-    if transport_receipt.status == "transported_limited":
-        return "partial"
-    if transport_receipt.transport_status in {
-        "partially_identified",
-        "bounded_non_identified",
-    }:
-        return "partial"
-    return "point"
+    raise ValueError("foundry_method_refused_value:owner_method_run_basis_missing")
 
 
 def _method_report(method_result: object) -> object | None:
@@ -14626,3 +15343,931 @@ __all__ = [
     "validate_generation_cycle_run",
     "validate_generation_cycle_run_history",
 ]
+
+
+class ValueArtifactBindingRefV1(_StrictModel):
+    """One exact CAS object view selected by its content and manifest profile."""
+
+    artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    kind: str = Field(min_length=1)
+    media_type: Literal["application/json"] = "application/json"
+    manifest_profile_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ValueOwnerTreatmentAssignmentFixtureV1(_StrictModel):
+    """Synthetic treatment mapping used only to exercise the owner-run bridge."""
+
+    schema_version: Literal["policyos.runtime.value_owner_treatment_assignment_fixture.v1"] = (
+        "policyos.runtime.value_owner_treatment_assignment_fixture.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    outcome: str = Field(min_length=1)
+    measurement_unit: str = Field(min_length=1)
+    treated_unit_ids: tuple[str, ...] = Field(min_length=1)
+    treatment_period_id: int = Field(ge=1, strict=True)
+    fixture_identification_lower: float = Field(strict=True)
+    fixture_identification_upper: float = Field(strict=True)
+    source_ref: str = Field(min_length=1)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_fixture_assignment(self) -> ValueOwnerTreatmentAssignmentFixtureV1:
+        if len(set(self.treated_unit_ids)) != len(self.treated_unit_ids):
+            raise ValueError("value_owner_assignment_treated_units_not_unique")
+        if not all(unit_id.strip() for unit_id in self.treated_unit_ids):
+            raise ValueError("value_owner_assignment_treated_unit_missing")
+        if not (
+            math.isfinite(self.fixture_identification_lower)
+            and math.isfinite(self.fixture_identification_upper)
+            and self.fixture_identification_lower <= self.fixture_identification_upper
+        ):
+            raise ValueError("value_owner_assignment_fixture_bounds_invalid")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_assignment_content_hash_mismatch")
+        return self
+
+
+class ValueOwnerMethodRunIntentV1(_StrictModel):
+    """Immutable, candidate-grade request binding an owner profile and assignment."""
+
+    schema_version: Literal["policyos.runtime.value_owner_method_run_intent.v1"] = (
+        "policyos.runtime.value_owner_method_run_intent.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_ref: ValueArtifactBindingRefV1
+    assignment_ref: ValueArtifactBindingRefV1
+    estimand_spec_json: str = Field(min_length=2)
+    seed: int = Field(ge=0, strict=True)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_run_intent(self) -> ValueOwnerMethodRunIntentV1:
+        if self.profile_ref.kind != "runtime.value_data_profile":
+            raise ValueError("value_owner_method_run_profile_kind_mismatch")
+        if self.assignment_ref.kind != "runtime.value_owner_treatment_assignment_fixture":
+            raise ValueError("value_owner_method_run_assignment_kind_mismatch")
+        if (
+            self.profile_ref.manifest_profile_sha256 is None
+            or self.assignment_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("value_owner_method_selected_profile_unresolved")
+        _value_estimand_spec_from_json(self.estimand_spec_json)
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_method_run_intent_content_hash_mismatch")
+        return self
+
+
+class ValueOwnerMethodRunnerRequestV1(_StrictModel):
+    """Persisted exact method selection and bytes before a real Foundry runner call."""
+
+    schema_version: Literal["policyos.runtime.value_owner_method_runner_request.v1"] = (
+        "policyos.runtime.value_owner_method_runner_request.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    intent_ref: ValueArtifactBindingRefV1
+    profile_ref: ValueArtifactBindingRefV1
+    assignment_ref: ValueArtifactBindingRefV1
+    panel_input_ref: ValueArtifactBindingRefV1
+    selected_method_fqn: str = Field(min_length=1)
+    method_parameters_json: str = Field(min_length=2)
+    seed: int = Field(ge=0, strict=True)
+    runner_input_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    native_estimand_binding: dict[str, Any]
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_runner_request(self) -> ValueOwnerMethodRunnerRequestV1:
+        selected_refs = (
+            self.intent_ref,
+            self.profile_ref,
+            self.assignment_ref,
+            self.panel_input_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in selected_refs):
+            raise ValueError("value_owner_method_selected_profile_unresolved")
+        _value_canonical_json_object(
+            self.method_parameters_json,
+            "value_owner_method_parameters_invalid",
+        )
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_method_runner_request_content_hash_mismatch")
+        return self
+
+
+class ValueOwnerMethodExecutionReceiptV1(_StrictModel):
+    """Candidate request intent plus runner-returned facts for one method run."""
+
+    schema_version: Literal["policyos.runtime.value_owner_method_execution_receipt.v1"] = (
+        "policyos.runtime.value_owner_method_execution_receipt.v1"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    intent_ref: ValueArtifactBindingRefV1
+    profile_ref: ValueArtifactBindingRefV1
+    assignment_ref: ValueArtifactBindingRefV1
+    panel_input_ref: ValueArtifactBindingRefV1
+    runner_request_ref: ValueArtifactBindingRefV1
+    report_ref: ValueArtifactBindingRefV1
+    selected_method_fqn: str = Field(min_length=1)
+    # Request intent is persisted for lineage; it does not prove every parameter was used.
+    requested_method_parameters_json: str = Field(min_length=2)
+    runner_seed: int = Field(ge=0, strict=True)
+    runner_backend: Literal["numpy"] = "numpy"
+    runner_fingerprint: str = Field(pattern=r"^[0-9a-f]{16}$")
+    runner_input_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    report_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    report_method_parameters_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_execution_receipt(self) -> ValueOwnerMethodExecutionReceiptV1:
+        selected_refs = (
+            self.intent_ref,
+            self.profile_ref,
+            self.assignment_ref,
+            self.panel_input_ref,
+            self.runner_request_ref,
+            self.report_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in selected_refs):
+            raise ValueError("value_owner_method_selected_profile_unresolved")
+        _value_canonical_json_object(
+            self.requested_method_parameters_json,
+            "value_owner_method_execution_parameters_invalid",
+        )
+        if type(self.runner_seed) is not int:
+            raise ValueError("value_owner_method_execution_seed_invalid")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_method_execution_receipt_content_hash_mismatch")
+        return self
+
+
+class ValueOwnerMethodRunBasisV2(_StrictModel):
+    """Producer-generated CAS join of selected inputs, execution receipt and report."""
+
+    schema_version: Literal["policyos.runtime.value_owner_method_run_basis.v2"] = (
+        "policyos.runtime.value_owner_method_run_basis.v2"
+    )
+    authority_scope: Literal["candidate_fixture_only"] = "candidate_fixture_only"
+    production_value_eligible: Literal[False] = False
+    intent_ref: ValueArtifactBindingRefV1
+    profile_ref: ValueArtifactBindingRefV1
+    assignment_ref: ValueArtifactBindingRefV1
+    panel_input_ref: ValueArtifactBindingRefV1
+    runner_request_ref: ValueArtifactBindingRefV1
+    report_ref: ValueArtifactBindingRefV1
+    execution_receipt_ref: ValueArtifactBindingRefV1
+    selected_method_fqn: str = Field(min_length=1)
+    native_report_method: str = Field(min_length=1)
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    assignment_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    runner_input_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    report_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    native_interval_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    estimand_coordinate: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_run_basis(self) -> ValueOwnerMethodRunBasisV2:
+        selected_refs = (
+            self.intent_ref,
+            self.profile_ref,
+            self.assignment_ref,
+            self.panel_input_ref,
+            self.runner_request_ref,
+            self.report_ref,
+            self.execution_receipt_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in selected_refs):
+            raise ValueError("value_owner_method_selected_profile_unresolved")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_owner_method_run_basis_content_hash_mismatch")
+        return self
+
+
+def _value_json_object(payload: str, error_code: str) -> dict[str, Any]:
+    try:
+        value = json.loads(payload)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(error_code) from exc
+    if not isinstance(value, dict):
+        raise ValueError(error_code)
+    return value
+
+
+def _value_canonical_json_object(payload: str, error_code: str) -> dict[str, Any]:
+    """Require a stable JSON object encoding before binding a runner request."""
+
+    value = _value_json_object(payload, error_code)
+    try:
+        canonical = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(error_code) from exc
+    if payload != canonical:
+        raise ValueError(error_code)
+    return value
+
+
+def _value_estimand_spec_from_json(payload: str) -> object:
+    from polisyos.foundry.methods.components.consensus import EstimandSpec
+
+    raw = _value_json_object(payload, "value_owner_method_estimand_invalid")
+    try:
+        for name in ("covariates_or_conditioning", "adjustment_set"):
+            value = raw.get(name)
+            if value is None:
+                if name == "covariates_or_conditioning":
+                    raise ValueError("covariates_or_conditioning must be a JSON string array")
+                continue
+            if type(value) is not list or not all(type(item) is str for item in value):
+                raise ValueError(f"{name} must be a JSON string array")
+            raw[name] = tuple(value)
+        estimand = EstimandSpec(**raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("value_owner_method_estimand_invalid") from exc
+    if not estimand.query_id.strip() or not estimand.estimand_id.strip():
+        raise ValueError("value_owner_method_estimand_identity_missing")
+    return estimand
+
+
+def _value_estimand_payload(estimand: object) -> dict[str, Any]:
+    from dataclasses import asdict, is_dataclass
+
+    if not is_dataclass(estimand):
+        raise ValueError("value_owner_method_estimand_untyped")
+    payload = asdict(estimand)
+    if not isinstance(payload, dict):
+        raise ValueError("value_owner_method_estimand_invalid")
+    return payload
+
+
+def _value_estimand_coordinate(estimand: object) -> str:
+    return gy_content_hash(_value_estimand_payload(estimand))
+
+
+def _value_artifact_ref(
+    payload: object,
+    *,
+    expected_kind: str | None = None,
+) -> ValueArtifactBindingRefV1:
+    model_dump = getattr(payload, "model_dump", None)
+    raw = model_dump(mode="json") if callable(model_dump) else payload
+    if not isinstance(raw, Mapping):
+        raise ValueError("value_owner_method_artifact_ref_untyped")
+    ref = ValueArtifactBindingRefV1.model_validate(dict(raw))
+    if expected_kind is not None and ref.kind != expected_kind:
+        raise ValueError("value_owner_method_artifact_kind_mismatch")
+    return ref
+
+
+def _value_input_ref(
+    payload: object,
+    *,
+    role: str,
+) -> object:
+    from polisyos.ir.artifacts import InputRef
+
+    ref = _value_artifact_ref(payload)
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+def _value_load_ref_payload(store: object, ref: ValueArtifactBindingRefV1) -> object:
+    from polisyos.ir.artifacts import get_json_artifact
+
+    return get_json_artifact(store, ref.model_dump(mode="python"))
+
+
+def _value_profile_panel(
+    profile: ValueDataProfile,
+    assignment: ValueOwnerTreatmentAssignmentFixtureV1,
+) -> object:
+    import numpy as np
+
+    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+
+    if (
+        profile.content_hash != assignment.profile_content_hash
+        or profile.outcome != assignment.outcome
+        or profile.measurement_unit != assignment.measurement_unit
+    ):
+        raise ValueError("value_owner_method_assignment_profile_mismatch")
+    periods = tuple(sorted({row.period_id for row in profile.rows}))
+    units = tuple(sorted({row.unit_id for row in profile.rows}))
+    if len(periods) != profile.period_count or len(units) != profile.unit_count:
+        raise ValueError("value_owner_method_profile_denominator_mismatch")
+    if assignment.treatment_period_id not in periods:
+        raise ValueError("value_owner_method_treatment_period_missing")
+    treated = set(assignment.treated_unit_ids)
+    if not treated or not treated.issubset(units) or len(treated) >= len(units):
+        raise ValueError("value_owner_method_treatment_units_invalid")
+    period_index = periods.index(assignment.treatment_period_id)
+    if period_index == 0 or period_index == len(periods) - 1:
+        raise ValueError("value_owner_method_treatment_period_not_interior")
+    value_by_cell: dict[tuple[str, int], float] = {}
+    for row in profile.rows:
+        if row.measurement_unit != profile.measurement_unit:
+            raise ValueError("value_owner_method_profile_unit_mismatch")
+        key = (row.unit_id, row.period_id)
+        if key in value_by_cell:
+            raise ValueError("value_owner_method_profile_duplicate_cell")
+        value_by_cell[key] = row.outcome_value
+    expected_cells = {(unit_id, period_id) for unit_id in units for period_id in periods}
+    if set(value_by_cell) != expected_cells:
+        raise ValueError("value_owner_method_profile_not_dense_panel")
+    matrix = [[value_by_cell[(unit_id, period_id)] for period_id in periods] for unit_id in units]
+    return PanelObservationalData(
+        outcome=np.asarray(matrix, dtype=float),
+        treatment=np.asarray([int(unit_id in treated) for unit_id in units], dtype=int),
+        time_treatment=period_index,
+        unit_ids=np.asarray(units),
+        time_index=np.asarray(periods, dtype=float),
+        metadata={
+            "outcome": profile.outcome,
+            "measurement_unit": profile.measurement_unit,
+            "authority_scope": "candidate_fixture_only",
+        },
+    )
+
+
+def _value_manifest_has_exact_inputs(
+    store: object,
+    ref: ValueArtifactBindingRefV1,
+    expected: Sequence[tuple[ValueArtifactBindingRefV1, str]],
+) -> bool:
+    """Reconcile the complete selected-profile input multiset for a CAS object."""
+
+    if ref.manifest_profile_sha256 is None:
+        return False
+    get_by_profile = getattr(store, "get_manifest_by_profile", None)
+    if not callable(get_by_profile):
+        return False
+    try:
+        manifest = get_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+    except (AttributeError, OSError, TypeError, ValueError, KeyError):
+        return False
+    inputs = getattr(manifest, "inputs", None)
+    if not isinstance(inputs, Sequence) or isinstance(inputs, str | bytes | bytearray):
+        return False
+
+    expected_edges: Counter[tuple[str, str, str]] = Counter()
+    for input_ref, role in expected:
+        if input_ref.manifest_profile_sha256 is None or not isinstance(role, str) or not role:
+            return False
+        expected_edges[(input_ref.artifact_id, role, input_ref.manifest_profile_sha256)] += 1
+
+    observed_edges: Counter[tuple[str, str, str]] = Counter()
+    for edge in inputs:
+        artifact_id = getattr(edge, "artifact_id", None)
+        role = getattr(edge, "role", None)
+        profile_sha256 = getattr(edge, "manifest_profile_sha256", None)
+        if (
+            artifact_id is None
+            or not isinstance(role, str)
+            or not role
+            or not isinstance(profile_sha256, str)
+        ):
+            return False
+        artifact_id_text = str(artifact_id)
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", artifact_id_text) is None:
+            return False
+        if re.fullmatch(r"sha256:[0-9a-f]{64}", profile_sha256) is None:
+            return False
+        observed_edges[(artifact_id_text, role, profile_sha256)] += 1
+    return observed_edges == expected_edges
+
+
+def _produce_value_owner_method_run_basis(
+    *,
+    store: object,
+    profile: ValueDataProfile,
+    intent: ValueOwnerMethodRunIntentV1,
+    selected_method_fqn: str,
+    method_parameters: Mapping[str, Any],
+) -> ValueArtifactBindingRefV1:
+    """Run a registry-selected real method on exact persisted owner-profile bytes.
+
+    This path intentionally produces candidate-fixture evidence only. The real
+    substrate gateway currently supplies no treatment assignment; callers must
+    provide a separate source-bound intent, and that intent cannot confer
+    production, calibration, or causal-identification authority.
+    """
+    import hashlib
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+    from polisyos.ir.analytics.causal import CausalEffectReport, persist_causal_effect_report
+    from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
+    from polisyos.ir.artifacts import put_json_artifact
+    from polisyos.ir.model_layer.canon import (
+        CanonSpec as IRCanonSpec,
+    )
+    from polisyos.ir.model_layer.canon import (
+        from_canonical_bytes as from_ir_canonical_bytes,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        ValueOwnerMethodRunnerRequestV1,
+    )
+
+    ir_store = ensure_ir_artifact_store(store)
+    if not isinstance(profile, ValueDataProfile):
+        raise ValueError("value_owner_method_profile_untyped")
+    if not isinstance(intent, ValueOwnerMethodRunIntentV1):
+        raise ValueError("value_owner_method_run_intent_untyped")
+    if profile.content_hash != intent.profile_content_hash:
+        raise ValueError("value_owner_method_profile_content_hash_mismatch")
+    profile_ref = intent.profile_ref
+    assignment_ref = intent.assignment_ref
+    profile_payload = _value_load_ref_payload(ir_store, profile_ref)
+    selected_profile = ValueDataProfile.model_validate(profile_payload)
+    if selected_profile != profile:
+        raise ValueError("value_owner_method_selected_profile_mismatch")
+    assignment_payload = _value_load_ref_payload(ir_store, assignment_ref)
+    assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(assignment_payload)
+    estimand = _value_estimand_spec_from_json(intent.estimand_spec_json)
+    if (
+        estimand.outcome != profile.outcome
+        or estimand.unit != profile.measurement_unit
+        or assignment.outcome != estimand.outcome
+        or assignment.measurement_unit != estimand.unit
+    ):
+        raise ValueError("value_owner_method_estimand_profile_unit_mismatch")
+
+    intent_ref_raw = put_json_artifact(
+        ir_store,
+        intent.model_dump(mode="json"),
+        kind="runtime.value_owner_method_run_intent",
+        schema_name="runtime.value_owner_method_run_intent.v1",
+        schema_version="1.0",
+        inputs=[
+            _value_input_ref(profile_ref, role="selected_owner_profile"),
+            _value_input_ref(assignment_ref, role="owner_assignment"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=True),
+        return_selected_profile=True,
+    )
+    intent_ref = _value_artifact_ref(intent_ref_raw)
+    panel = _value_profile_panel(selected_profile, assignment)
+    panel_ref_raw = put_json_artifact(
+        ir_store,
+        panel.model_dump(mode="json"),
+        kind="runtime.value_owner_method_panel_input",
+        schema_name="runtime.value_owner_method_panel_input.v1",
+        schema_version="1.0",
+        inputs=[
+            _value_input_ref(profile_ref, role="selected_owner_profile"),
+            _value_input_ref(assignment_ref, role="owner_assignment"),
+            _value_input_ref(intent_ref, role="immutable_run_intent"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    panel_ref = _value_artifact_ref(panel_ref_raw)
+    runner_input_bytes = ir_store.get_bytes(panel_ref.model_dump(mode="python"))
+    input_sha256 = "sha256:" + hashlib.sha256(runner_input_bytes).hexdigest()
+    panel_payload = from_ir_canonical_bytes(runner_input_bytes)
+    if not isinstance(panel_payload, Mapping):
+        raise ValueError("value_owner_method_runner_input_invalid")
+    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+
+    runner_state = PanelObservationalData.model_validate(panel_payload)
+    native_binding = NativeValueEstimandBinding.from_estimand(
+        estimand=estimand,
+        native_contract_id="ir.causal_effect_report.v1",
+        producer_method_fqn=selected_method_fqn,
+        projection_input_content_hash=input_sha256,
+    )
+    parameters_json = json.dumps(
+        dict(method_parameters),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    request_payload = {
+        "schema_version": "policyos.runtime.value_owner_method_runner_request.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "intent_ref": intent_ref.model_dump(mode="json"),
+        "profile_ref": profile_ref.model_dump(mode="json"),
+        "assignment_ref": assignment_ref.model_dump(mode="json"),
+        "panel_input_ref": panel_ref.model_dump(mode="json"),
+        "selected_method_fqn": selected_method_fqn,
+        "method_parameters_json": parameters_json,
+        "seed": intent.seed,
+        "runner_input_sha256": input_sha256,
+        "native_estimand_binding": native_binding.model_dump(mode="json"),
+    }
+    runner_request = ValueOwnerMethodRunnerRequestV1.model_validate(
+        {**request_payload, "content_hash": gy_content_hash(request_payload)}
+    )
+    request_ref_raw = put_json_artifact(
+        ir_store,
+        runner_request.model_dump(mode="json"),
+        kind="runtime.value_owner_method_runner_request",
+        schema_name="runtime.value_owner_method_runner_request.v1",
+        schema_version="1.0",
+        inputs=[
+            _value_input_ref(intent_ref, role="immutable_run_intent"),
+            _value_input_ref(profile_ref, role="selected_owner_profile"),
+            _value_input_ref(assignment_ref, role="owner_assignment"),
+            _value_input_ref(panel_ref, role="exact_method_input_bytes"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    request_ref = _value_artifact_ref(request_ref_raw)
+
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    method_class = MethodRegistry.get_instance().get(selected_method_fqn)
+    signature = getattr(method_class, "signature", None)
+    if getattr(signature, "fqn", None) != selected_method_fqn:
+        raise ValueError("value_owner_method_registry_selection_mismatch")
+    result = NumpyRunner().execute(
+        method_class=method_class,
+        signature=signature,
+        state=runner_state,
+        params=json.loads(parameters_json),
+        seed=intent.seed,
+    )
+    raw_report = result.output.get("report") if isinstance(result.output, Mapping) else None
+    if not isinstance(raw_report, CausalEffectReport):
+        raise ValueError("value_owner_method_runner_report_missing")
+    if raw_report.status.value != "success" or raw_report.estimand != estimand.estimand_id:
+        raise ValueError("value_owner_method_runner_report_estimand_mismatch")
+    report_ref_model = persist_causal_effect_report(
+        ir_store,
+        raw_report,
+        inputs=[
+            _value_input_ref(panel_ref, role="exact_method_input_bytes"),
+            _value_input_ref(request_ref, role="selected_method_runner_request"),
+        ],
+        return_selected_profile=True,
+    )
+    report_ref = _value_artifact_ref(report_ref_model)
+    report_bytes = ir_store.get_bytes(report_ref.model_dump(mode="python"))
+    report_sha256 = "sha256:" + hashlib.sha256(report_bytes).hexdigest()
+    reproducibility = getattr(result, "reproducibility", None)
+    runner_seed = getattr(reproducibility, "seed", None)
+    runner_backend = getattr(getattr(reproducibility, "backend", None), "value", None)
+    runner_fingerprint = getattr(reproducibility, "fingerprint", None)
+    if (
+        type(runner_seed) is not int
+        or runner_seed != intent.seed
+        or not isinstance(runner_backend, str)
+        or not runner_backend
+        or not isinstance(runner_fingerprint, str)
+        or not runner_fingerprint
+    ):
+        raise ValueError("value_owner_method_runner_execution_fact_missing")
+    execution_receipt_payload = {
+        "schema_version": "policyos.runtime.value_owner_method_execution_receipt.v1",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "intent_ref": intent_ref.model_dump(mode="json"),
+        "profile_ref": profile_ref.model_dump(mode="json"),
+        "assignment_ref": assignment_ref.model_dump(mode="json"),
+        "panel_input_ref": panel_ref.model_dump(mode="json"),
+        "runner_request_ref": request_ref.model_dump(mode="json"),
+        "report_ref": report_ref.model_dump(mode="json"),
+        "selected_method_fqn": selected_method_fqn,
+        "requested_method_parameters_json": parameters_json,
+        "runner_seed": runner_seed,
+        "runner_backend": runner_backend,
+        "runner_fingerprint": runner_fingerprint,
+        "runner_input_sha256": input_sha256,
+        "report_sha256": report_sha256,
+        "report_method_parameters_sha256": gy_content_hash(raw_report.method_params),
+    }
+    execution_receipt = ValueOwnerMethodExecutionReceiptV1.model_validate(
+        {
+            **execution_receipt_payload,
+            "content_hash": gy_content_hash(execution_receipt_payload),
+        }
+    )
+    execution_receipt_ref_raw = put_json_artifact(
+        ir_store,
+        execution_receipt.model_dump(mode="json"),
+        kind="runtime.value_owner_method_execution_receipt",
+        schema_name="runtime.value_owner_method_execution_receipt.v1",
+        schema_version="1.0",
+        inputs=[
+            _value_input_ref(intent_ref, role="immutable_run_intent"),
+            _value_input_ref(profile_ref, role="selected_owner_profile"),
+            _value_input_ref(assignment_ref, role="owner_assignment"),
+            _value_input_ref(panel_ref, role="exact_method_input_bytes"),
+            _value_input_ref(request_ref, role="selected_method_runner_request"),
+            _value_input_ref(report_ref, role="native_method_report"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    execution_receipt_ref = _value_artifact_ref(execution_receipt_ref_raw)
+    interval = raw_report.confidence_interval
+    if interval is None:
+        raise ValueError("value_owner_method_runner_native_interval_missing")
+    basis_payload = {
+        "schema_version": "policyos.runtime.value_owner_method_run_basis.v2",
+        "authority_scope": "candidate_fixture_only",
+        "production_value_eligible": False,
+        "intent_ref": intent_ref.model_dump(mode="json"),
+        "profile_ref": profile_ref.model_dump(mode="json"),
+        "assignment_ref": assignment_ref.model_dump(mode="json"),
+        "panel_input_ref": panel_ref.model_dump(mode="json"),
+        "runner_request_ref": request_ref.model_dump(mode="json"),
+        "report_ref": report_ref.model_dump(mode="json"),
+        "execution_receipt_ref": execution_receipt_ref.model_dump(mode="json"),
+        "selected_method_fqn": selected_method_fqn,
+        "native_report_method": raw_report.method.value,
+        "profile_content_hash": profile.content_hash,
+        "assignment_content_hash": assignment.content_hash,
+        "runner_input_sha256": input_sha256,
+        "report_sha256": report_sha256,
+        "native_interval_content_hash": gy_content_hash(interval),
+        "estimand_coordinate": _value_estimand_coordinate(estimand),
+    }
+    basis = ValueOwnerMethodRunBasisV2.model_validate(
+        {**basis_payload, "content_hash": gy_content_hash(basis_payload)}
+    )
+    basis_ref_raw = put_json_artifact(
+        ir_store,
+        basis.model_dump(mode="json"),
+        kind="runtime.value_owner_method_run_basis",
+        schema_name="runtime.value_owner_method_run_basis.v2",
+        schema_version="2.0",
+        inputs=[
+            _value_input_ref(intent_ref, role="immutable_run_intent"),
+            _value_input_ref(profile_ref, role="selected_owner_profile"),
+            _value_input_ref(assignment_ref, role="owner_assignment"),
+            _value_input_ref(panel_ref, role="exact_method_input_bytes"),
+            _value_input_ref(request_ref, role="selected_method_runner_request"),
+            _value_input_ref(report_ref, role="native_method_report"),
+            _value_input_ref(execution_receipt_ref, role="method_execution_receipt"),
+        ],
+        canon_spec=IRCanonSpec(forbid_floats=True),
+        return_selected_profile=True,
+    )
+    return _value_artifact_ref(basis_ref_raw)
+
+
+def _value_outer_set_from_owner_method_run_basis(
+    *,
+    store: object,
+    run_basis_ref: object,
+    world_record: object,
+    data_trust: DataTrust,
+) -> ValueOuterSet:
+    """Freshly resolve the producer basis and preserve native CI apart from ID bounds."""
+    import hashlib
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.analytics.causal import load_causal_effect_report
+    from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
+    from polisyos.ir.model_layer.canon import (
+        CanonSpec as IRCanonSpec,
+    )
+    from polisyos.ir.model_layer.canon import (
+        to_canonical_bytes as to_ir_canonical_bytes,
+    )
+    from polisyos.ir.registry.refs import CausalEffectReportRef
+
+    ir_store = ensure_ir_artifact_store(store)
+    basis_ref = _value_artifact_ref(
+        run_basis_ref,
+        expected_kind="runtime.value_owner_method_run_basis",
+    )
+    if basis_ref.manifest_profile_sha256 is None:
+        raise ValueError("value_owner_method_selected_profile_unresolved")
+    basis = ValueOwnerMethodRunBasisV2.model_validate(_value_load_ref_payload(ir_store, basis_ref))
+    profile = ValueDataProfile.model_validate(_value_load_ref_payload(ir_store, basis.profile_ref))
+    assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.assignment_ref)
+    )
+    intent = ValueOwnerMethodRunIntentV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.intent_ref)
+    )
+    request = ValueOwnerMethodRunnerRequestV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.runner_request_ref)
+    )
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis_ref,
+            (
+                (basis.intent_ref, "immutable_run_intent"),
+                (basis.profile_ref, "selected_owner_profile"),
+                (basis.assignment_ref, "owner_assignment"),
+                (basis.panel_input_ref, "exact_method_input_bytes"),
+                (basis.runner_request_ref, "selected_method_runner_request"),
+                (basis.report_ref, "native_method_report"),
+                (basis.execution_receipt_ref, "method_execution_receipt"),
+            ),
+        )
+        or intent.profile_ref != basis.profile_ref
+        or intent.assignment_ref != basis.assignment_ref
+        or profile.content_hash != intent.profile_content_hash
+        or profile.content_hash != basis.profile_content_hash
+        or assignment.content_hash != basis.assignment_content_hash
+        or assignment.profile_content_hash != profile.content_hash
+        or request.intent_ref != basis.intent_ref
+        or request.profile_ref != basis.profile_ref
+        or request.assignment_ref != basis.assignment_ref
+        or request.panel_input_ref != basis.panel_input_ref
+        or request.selected_method_fqn != basis.selected_method_fqn
+        or request.seed != intent.seed
+        or request.runner_input_sha256 != basis.runner_input_sha256
+    ):
+        raise ValueError("value_owner_method_run_basis_binding_mismatch")
+    estimand = _value_estimand_spec_from_json(intent.estimand_spec_json)
+    if (
+        estimand.outcome != profile.outcome
+        or estimand.unit != profile.measurement_unit
+        or assignment.outcome != profile.outcome
+        or assignment.measurement_unit != profile.measurement_unit
+    ):
+        raise ValueError("value_owner_method_estimand_profile_unit_mismatch")
+    native_binding = NativeValueEstimandBinding.model_validate(request.native_estimand_binding)
+    if (
+        not native_binding.matches(estimand)
+        or native_binding.producer_method_fqn != basis.selected_method_fqn
+        or native_binding.projection_input_content_hash != basis.runner_input_sha256
+        or basis.estimand_coordinate != _value_estimand_coordinate(estimand)
+    ):
+        raise ValueError("value_owner_method_estimand_binding_mismatch")
+    expected_panel = _value_profile_panel(profile, assignment)
+    expected_bytes = to_ir_canonical_bytes(
+        expected_panel.model_dump(mode="json"),
+        IRCanonSpec(forbid_floats=False),
+    )
+    actual_bytes = ir_store.get_bytes(basis.panel_input_ref.model_dump(mode="python"))
+    input_sha256 = "sha256:" + hashlib.sha256(actual_bytes).hexdigest()
+    if actual_bytes != expected_bytes or input_sha256 != basis.runner_input_sha256:
+        raise ValueError("value_owner_method_runner_input_bytes_mismatch")
+    if not _value_manifest_has_exact_inputs(
+        ir_store,
+        basis.panel_input_ref,
+        (
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.intent_ref, "immutable_run_intent"),
+        ),
+    ):
+        raise ValueError("value_owner_method_panel_lineage_mismatch")
+    if not _value_manifest_has_exact_inputs(
+        ir_store,
+        basis.runner_request_ref,
+        (
+            (basis.intent_ref, "immutable_run_intent"),
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+        ),
+    ):
+        raise ValueError("value_owner_method_runner_request_lineage_mismatch")
+    report = load_causal_effect_report(
+        ir_store,
+        CausalEffectReportRef.model_validate(basis.report_ref.model_dump(mode="python")),
+    )
+    report_bytes = ir_store.get_bytes(basis.report_ref.model_dump(mode="python"))
+    report_sha256 = "sha256:" + hashlib.sha256(report_bytes).hexdigest()
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis.report_ref,
+            (
+                (basis.panel_input_ref, "exact_method_input_bytes"),
+                (basis.runner_request_ref, "selected_method_runner_request"),
+            ),
+        )
+        or report_sha256 != basis.report_sha256
+        or report.method.value != basis.native_report_method
+        or report.status.value != "success"
+        or report.estimand != estimand.estimand_id
+        or report.confidence_interval is None
+        or gy_content_hash(report.confidence_interval) != basis.native_interval_content_hash
+    ):
+        raise ValueError("value_owner_method_report_method_mismatch")
+    execution_receipt = ValueOwnerMethodExecutionReceiptV1.model_validate(
+        _value_load_ref_payload(ir_store, basis.execution_receipt_ref)
+    )
+    if (
+        not _value_manifest_has_exact_inputs(
+            ir_store,
+            basis.execution_receipt_ref,
+            (
+                (basis.intent_ref, "immutable_run_intent"),
+                (basis.profile_ref, "selected_owner_profile"),
+                (basis.assignment_ref, "owner_assignment"),
+                (basis.panel_input_ref, "exact_method_input_bytes"),
+                (basis.runner_request_ref, "selected_method_runner_request"),
+                (basis.report_ref, "native_method_report"),
+            ),
+        )
+        or execution_receipt.intent_ref != basis.intent_ref
+        or execution_receipt.profile_ref != basis.profile_ref
+        or execution_receipt.assignment_ref != basis.assignment_ref
+        or execution_receipt.panel_input_ref != basis.panel_input_ref
+        or execution_receipt.runner_request_ref != basis.runner_request_ref
+        or execution_receipt.report_ref != basis.report_ref
+        or execution_receipt.selected_method_fqn != basis.selected_method_fqn
+        or execution_receipt.requested_method_parameters_json != request.method_parameters_json
+        or execution_receipt.runner_seed != request.seed
+        or execution_receipt.runner_input_sha256 != basis.runner_input_sha256
+        or execution_receipt.report_sha256 != basis.report_sha256
+        or execution_receipt.report_method_parameters_sha256
+        != gy_content_hash(report.method_params)
+        or execution_receipt.runner_backend != "numpy"
+    ):
+        raise ValueError("value_owner_method_execution_receipt_binding_mismatch")
+    request_parameters = _value_canonical_json_object(
+        request.method_parameters_json,
+        "value_owner_method_parameters_invalid",
+    )
+    requested_confidence = request_parameters.get("confidence_level")
+    if requested_confidence is not None and (
+        isinstance(requested_confidence, bool)
+        or not isinstance(requested_confidence, int | float)
+        or report.confidence_level != float(requested_confidence)
+    ):
+        raise ValueError("value_owner_method_execution_report_parameters_mismatch")
+    if any(
+        gy_content_hash(report.method_params[name]) != gy_content_hash(value)
+        for name, value in request_parameters.items()
+        if name in report.method_params
+    ):
+        raise ValueError("value_owner_method_execution_report_parameters_mismatch")
+    projected_interval = report.to_value_uncertainty(
+        estimand=estimand,
+        projection_binding=native_binding,
+    )
+    projected_numeric_policy = (
+        projected_interval.numeric_policy if projected_interval is not None else None
+    )
+    projected_report_interval = (
+        tuple(projected_numeric_policy.canonicalize(value) for value in report.confidence_interval)
+        if projected_numeric_policy is not None and report.confidence_interval is not None
+        else None
+    )
+    projected_report_point = (
+        projected_numeric_policy.canonicalize(report.point_estimate)
+        if projected_numeric_policy is not None
+        else None
+    )
+    if (
+        projected_interval is None
+        or projected_interval.gate_eligible
+        or projected_interval.is_heuristic_ci
+        or projected_interval.confidence_interval != projected_report_interval
+        or projected_interval.point_estimate != projected_report_point
+    ):
+        raise ValueError("value_owner_method_report_projection_unavailable")
+    if (
+        basis.authority_scope != "candidate_fixture_only"
+        or basis.production_value_eligible
+        or data_trust.tier != "candidate_fixture"
+    ):
+        raise ValueError("value_owner_method_candidate_scope_mismatch")
+    world_hash = str(_object_get(world_record, "content_hash"))
+    return ValueOuterSet.interval_box(
+        coordinates=(basis.estimand_coordinate,),
+        lower=(assignment.fixture_identification_lower,),
+        upper=(assignment.fixture_identification_upper,),
+        statistical_lower=(float(projected_interval.confidence_interval[0]),),
+        statistical_upper=(float(projected_interval.confidence_interval[1]),),
+        identification_mode=(
+            "point"
+            if assignment.fixture_identification_lower == assignment.fixture_identification_upper
+            else "partial"
+        ),
+        assumptions=("candidate_fixture_owner_assignment", "native_method_confidence_interval"),
+        assumption_status="declared",
+        calibration_scope={
+            "authority_scope": "candidate_fixture_only",
+            "measurement_unit": profile.measurement_unit,
+            "native_method_fqn": basis.selected_method_fqn,
+        },
+        data_trust=data_trust,
+        world_model_record_ref=world_hash,
+        epoch=str(_object_get(world_record, "valid_time_scope") or world_hash),
+        representation_status="search_only",
+    )

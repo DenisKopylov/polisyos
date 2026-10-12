@@ -10269,6 +10269,321 @@
         "title": "ControlOutboxEventsResponse",
         "type": "object"
       },
+      "ControlPreAdmissionAttemptEventInfo": {
+        "additionalProperties": false,
+        "description": "Describe one append-only observation of a billable launch attempt.",
+        "properties": {
+          "event_id": {
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_type": {
+            "enum": [
+              "started",
+              "settled",
+              "admitted",
+              "refused",
+              "cancelled",
+              "failed"
+            ],
+            "title": "Event Type",
+            "type": "string"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9._-]{1,96}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "producer_event_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Producer Event Ids",
+            "type": "array"
+          },
+          "producer_event_observation": {
+            "default": "not_applicable",
+            "enum": [
+              "not_applicable",
+              "no_call",
+              "complete",
+              "unavailable"
+            ],
+            "title": "Producer Event Observation",
+            "type": "string"
+          },
+          "producer_no_call_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "producer_run_binding_not_established",
+                  "provider_preflight_not_started"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Producer No Call Reason"
+          },
+          "sequence": {
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "event_id",
+          "sequence",
+          "event_type",
+          "observed_at"
+        ],
+        "title": "ControlPreAdmissionAttemptEventInfo",
+        "type": "object"
+      },
+      "ControlPreAdmissionAttemptResponse": {
+        "additionalProperties": false,
+        "description": "Return the current attempt owner and its durable observation history.",
+        "properties": {
+          "attempt_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "effective_execution_profile": {
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Effective Execution Profile",
+            "type": "string"
+          },
+          "failure_code": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9._-]{1,96}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Code"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ControlPreAdmissionAttemptEventInfo"
+            },
+            "minItems": 1,
+            "title": "History",
+            "type": "array"
+          },
+          "intent_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Intent Sha256",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "owner_binding": {
+            "$ref": "#/components/schemas/ControlPreAdmissionOwnerBinding"
+          },
+          "producer_event_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Producer Event Ids",
+            "type": "array"
+          },
+          "producer_event_observation": {
+            "default": "not_applicable",
+            "enum": [
+              "not_applicable",
+              "no_call",
+              "complete",
+              "unavailable"
+            ],
+            "title": "Producer Event Observation",
+            "type": "string"
+          },
+          "producer_no_call_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "producer_run_binding_not_established",
+                  "provider_preflight_not_started"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Producer No Call Reason"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "started",
+              "settled",
+              "admitted",
+              "refused",
+              "cancelled",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "meta",
+          "owner_binding",
+          "attempt_id",
+          "intent_sha256",
+          "status",
+          "run_id",
+          "effective_execution_profile",
+          "created_at",
+          "updated_at",
+          "history"
+        ],
+        "title": "ControlPreAdmissionAttemptResponse",
+        "type": "object"
+      },
+      "ControlPreAdmissionOwnerBinding": {
+        "additionalProperties": false,
+        "description": "Expose the durable shared-owner identity used to authorize recovery.",
+        "properties": {
+          "actor_subject_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Actor Subject Sha256",
+            "type": "string"
+          },
+          "body_sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Body Sha256",
+            "type": "string"
+          },
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "effective_execution_profile": {
+            "enum": [
+              "dev",
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Effective Execution Profile",
+            "type": "string"
+          },
+          "intent_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "purpose": {
+            "const": "control.nl_pre_admission.v1",
+            "title": "Purpose",
+            "type": "string"
+          },
+          "request_content_sha256": {
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "title": "Request Content Sha256",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scope_id": {
+            "const": "control.runs.nl",
+            "title": "Scope Id",
+            "type": "string"
+          },
+          "scope_kind": {
+            "const": "route",
+            "title": "Scope Kind",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "purpose",
+          "scope_kind",
+          "scope_id",
+          "tenant_id",
+          "cell_id",
+          "actor_subject_sha256",
+          "run_id",
+          "intent_id",
+          "body_sha256",
+          "request_content_sha256",
+          "effective_execution_profile"
+        ],
+        "title": "ControlPreAdmissionOwnerBinding",
+        "type": "object"
+      },
       "ControlProjectionSource": {
         "additionalProperties": false,
         "description": "Label the projection surface used to shape a dashboard response.",
@@ -11930,6 +12245,42 @@
           "mode"
         ],
         "title": "DataResolveResponse",
+        "type": "object"
+      },
+      "DataSnapshotRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for a materialized snapshot of retrieved data and its metadata.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/ArtifactID-Input"
+          },
+          "kind": {
+            "default": "fabric.data_snapshot",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "DataSnapshotRef",
         "type": "object"
       },
       "DataSourceBinding": {
@@ -18683,6 +19034,82 @@
           "right_time"
         ],
         "title": "FiveRightsRequirement",
+        "type": "object"
+      },
+      "ForecastMethodParams": {
+        "additionalProperties": false,
+        "description": "The exact static/dynamic parameters accepted by the chosen ETS method.",
+        "properties": {
+          "alpha": {
+            "default": 0.3,
+            "maximum": 1.0,
+            "minimum": 1e-06,
+            "title": "Alpha",
+            "type": "number"
+          },
+          "beta": {
+            "default": 0.1,
+            "maximum": 1.0,
+            "minimum": 1e-06,
+            "title": "Beta",
+            "type": "number"
+          },
+          "horizon": {
+            "minimum": 1.0,
+            "title": "Horizon",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "horizon"
+        ],
+        "title": "ForecastMethodParams",
+        "type": "object"
+      },
+      "ForecastTemporalRoles": {
+        "additionalProperties": false,
+        "description": "Six distinct timezone-aware times carried across the predictive handoff.",
+        "properties": {
+          "calibration_window_end": {
+            "format": "date-time",
+            "title": "Calibration Window End",
+            "type": "string"
+          },
+          "calibration_window_start": {
+            "format": "date-time",
+            "title": "Calibration Window Start",
+            "type": "string"
+          },
+          "data_valid_time": {
+            "format": "date-time",
+            "title": "Data Valid Time",
+            "type": "string"
+          },
+          "observation_time": {
+            "format": "date-time",
+            "title": "Observation Time",
+            "type": "string"
+          },
+          "policy_effective_time": {
+            "format": "date-time",
+            "title": "Policy Effective Time",
+            "type": "string"
+          },
+          "prediction_time": {
+            "format": "date-time",
+            "title": "Prediction Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "data_valid_time",
+          "calibration_window_start",
+          "calibration_window_end",
+          "policy_effective_time",
+          "prediction_time",
+          "observation_time"
+        ],
+        "title": "ForecastTemporalRoles",
         "type": "object"
       },
       "ForkBRelationCensusPayload": {
@@ -25936,6 +26363,18 @@
             "title": "Governance Constraints",
             "type": "array"
           },
+          "joint_interaction_candidate_intent": {
+            "anyOf": [
+              {
+                "const": "n4_unique_parent_source_members.v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joint Interaction Candidate Intent"
+          },
           "llm_model": {
             "anyOf": [
               {
@@ -28048,6 +28487,379 @@
           "mass"
         ],
         "title": "PredictableScheduleProfile",
+        "type": "object"
+      },
+      "PredictiveCalibrationAssociation": {
+        "additionalProperties": false,
+        "description": "Versioned, append-only run attachment for a limited predictive result.",
+        "properties": {
+          "assessment": {
+            "const": "limited",
+            "default": "limited",
+            "title": "Assessment",
+            "type": "string"
+          },
+          "authority_scope": {
+            "const": "predictive_only",
+            "default": "predictive_only",
+            "title": "Authority Scope",
+            "type": "string"
+          },
+          "backtest_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "calibration_rule_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "control_run_id": {
+            "minLength": 1,
+            "title": "Control Run Id",
+            "type": "string"
+          },
+          "counterfactual_credibility_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Counterfactual Credibility Status",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "empirical_evidence_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "event_id": {
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "evidence_reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Reason Codes",
+            "type": "array"
+          },
+          "intent_id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "issuer_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Issuer Status",
+            "type": "string"
+          },
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "may_not_use_for": {
+            "default": [
+              "promotion",
+              "publication",
+              "policy_selection",
+              "causal_effect_claim"
+            ],
+            "items": {
+              "enum": [
+                "promotion",
+                "publication",
+                "policy_selection",
+                "causal_effect_claim"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "model_spec_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "nominal_confidence_level": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nominal Confidence Level"
+          },
+          "observed_denominator": {
+            "minimum": 1.0,
+            "title": "Observed Denominator",
+            "type": "integer"
+          },
+          "observed_hit_rate": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Observed Hit Rate",
+            "type": "number"
+          },
+          "observed_numerator": {
+            "minimum": 0.0,
+            "title": "Observed Numerator",
+            "type": "integer"
+          },
+          "observed_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "owner_suitability": {
+            "enum": [
+              "supported",
+              "limited",
+              "blocked"
+            ],
+            "title": "Owner Suitability",
+            "type": "string"
+          },
+          "policy_spec_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "population_scope_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Population Scope Status",
+            "type": "string"
+          },
+          "request_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Request Sha256",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "run_manifest_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "s10": {
+            "$ref": "#/components/schemas/PredictiveCalibrationS10Summary"
+          },
+          "schema_version": {
+            "const": "polisyos.runtime.predictive_calibration_association.v2",
+            "default": "polisyos.runtime.predictive_calibration_association.v2",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_time_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Time Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "uncertainty_bundle_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "event_id",
+          "intent_id",
+          "request_sha256",
+          "run_id",
+          "control_run_id",
+          "job_id",
+          "tenant_id",
+          "cell_id",
+          "run_manifest_ref",
+          "candidate_source_ref",
+          "observed_source_ref",
+          "model_spec_ref",
+          "policy_spec_ref",
+          "calibration_rule_ref",
+          "backtest_report_ref",
+          "empirical_evidence_ref",
+          "uncertainty_bundle_ref",
+          "observed_numerator",
+          "observed_denominator",
+          "observed_hit_rate",
+          "owner_suitability",
+          "s10",
+          "created_at"
+        ],
+        "title": "PredictiveCalibrationAssociation",
+        "type": "object"
+      },
+      "PredictiveCalibrationRequest": {
+        "additionalProperties": false,
+        "description": "Explicit, profile-selected inputs for one run-bound predictive diagnostic.",
+        "properties": {
+          "calibration_rule_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "calibration_threshold": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "title": "Calibration Threshold",
+            "type": "number"
+          },
+          "candidate_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "intent_id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "method_params": {
+            "$ref": "#/components/schemas/ForecastMethodParams"
+          },
+          "model_spec_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "observed_source_ref": {
+            "$ref": "#/components/schemas/DataSnapshotRef"
+          },
+          "policy_spec_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "seed": {
+            "minimum": 0.0,
+            "title": "Seed",
+            "type": "integer"
+          },
+          "split": {
+            "$ref": "#/components/schemas/TrainHoldoutSplit"
+          },
+          "target_metric": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Target Metric",
+            "type": "string"
+          },
+          "temporal_roles": {
+            "$ref": "#/components/schemas/ForecastTemporalRoles"
+          }
+        },
+        "required": [
+          "intent_id",
+          "candidate_source_ref",
+          "observed_source_ref",
+          "model_spec_ref",
+          "policy_spec_ref",
+          "calibration_rule_ref",
+          "calibration_threshold",
+          "split",
+          "target_metric",
+          "method_params",
+          "temporal_roles",
+          "seed"
+        ],
+        "title": "PredictiveCalibrationRequest",
+        "type": "object"
+      },
+      "PredictiveCalibrationResponse": {
+        "additionalProperties": false,
+        "description": "API wrapper for a durable, freshly resolved predictive association.",
+        "properties": {
+          "association": {
+            "$ref": "#/components/schemas/PredictiveCalibrationAssociation"
+          },
+          "association_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          }
+        },
+        "required": [
+          "meta",
+          "association_ref",
+          "association"
+        ],
+        "title": "PredictiveCalibrationResponse",
+        "type": "object"
+      },
+      "PredictiveCalibrationS10Summary": {
+        "additionalProperties": false,
+        "description": "Small persisted summary of the recomputed S10 candidate projection.",
+        "properties": {
+          "calibration_record_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibration Record Ref"
+          },
+          "calibration_status": {
+            "enum": [
+              "pass",
+              "limit",
+              "blocked",
+              "not_applicable_non_observable",
+              "insufficient_history"
+            ],
+            "title": "Calibration Status",
+            "type": "string"
+          },
+          "counterfactual_credibility": {
+            "const": "not_established",
+            "title": "Counterfactual Credibility",
+            "type": "string"
+          },
+          "denominator": {
+            "minimum": 0.0,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "forecast_tier": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Forecast Tier",
+            "type": "string"
+          },
+          "numerator": {
+            "minimum": 0.0,
+            "title": "Numerator",
+            "type": "integer"
+          },
+          "observed_pass_rate": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Observed Pass Rate",
+            "type": "number"
+          }
+        },
+        "required": [
+          "calibration_status",
+          "forecast_tier",
+          "counterfactual_credibility",
+          "numerator",
+          "denominator",
+          "observed_pass_rate"
+        ],
+        "title": "PredictiveCalibrationS10Summary",
         "type": "object"
       },
       "PredictiveCoverageDiagnosticPreview": {
@@ -31241,6 +32053,220 @@
         "title": "RunBoundDesignRecordBinding",
         "type": "object"
       },
+      "RunCandidateSimulationAcquisitionContinuationProjection": {
+        "additionalProperties": false,
+        "description": "Typed candidate-only projection of the exact N9 continuation.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "continuation_currentness_reason": {
+            "minLength": 1,
+            "title": "Continuation Currentness Reason",
+            "type": "string"
+          },
+          "continuation_currentness_status": {
+            "enum": [
+              "current",
+              "stale",
+              "not_established"
+            ],
+            "title": "Continuation Currentness Status",
+            "type": "string"
+          },
+          "continued_cycle_index": {
+            "minimum": 0.0,
+            "title": "Continued Cycle Index",
+            "type": "integer"
+          },
+          "continued_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Continued Generation Run Content Hash",
+            "type": "string"
+          },
+          "current_candidate_occurrences": {
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationCurrentOccurrence"
+            },
+            "title": "Current Candidate Occurrences",
+            "type": "array"
+          },
+          "current_fronts": {
+            "$ref": "#/components/schemas/RunCandidateSimulationContinuationFronts"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "n9_certified_candidate_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N9 Certified Candidate Ids",
+            "type": "array"
+          },
+          "n9_reason": {
+            "minLength": 1,
+            "title": "N9 Reason",
+            "type": "string"
+          },
+          "n9_status": {
+            "enum": [
+              "promotion_pending_n9",
+              "certified_current_valid",
+              "not_promoted"
+            ],
+            "title": "N9 Status",
+            "type": "string"
+          },
+          "previous_n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous_profile_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Profile Content Hash"
+          },
+          "previous_profile_selection_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Profile Selection Ref"
+          },
+          "previous_selected_target_baseline_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Selected Target Baseline Hash"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_n5_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_profile_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Profile Content Hash",
+            "type": "string"
+          },
+          "selected_profile_selection_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Profile Selection Ref",
+            "type": "string"
+          },
+          "selected_target_baseline_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Target Baseline Hash"
+          },
+          "selected_target_world_slot": {
+            "minLength": 1,
+            "title": "Selected Target World Slot",
+            "type": "string"
+          },
+          "source_currentness_reason": {
+            "minLength": 1,
+            "title": "Source Currentness Reason",
+            "type": "string"
+          },
+          "source_currentness_status": {
+            "enum": [
+              "current",
+              "stale",
+              "not_established"
+            ],
+            "title": "Source Currentness Status",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "source_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Generation Run Content Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_generation_run_content_hash",
+          "continued_generation_run_content_hash",
+          "source_cycle_index",
+          "continued_cycle_index",
+          "selected_n4_source_ref",
+          "selected_n5_input_ref",
+          "selected_profile_selection_ref",
+          "selected_profile_content_hash",
+          "selected_target_world_slot",
+          "source_currentness_status",
+          "source_currentness_reason",
+          "continuation_currentness_status",
+          "continuation_currentness_reason",
+          "n9_status",
+          "n9_reason",
+          "current_candidate_occurrences",
+          "current_fronts"
+        ],
+        "title": "RunCandidateSimulationAcquisitionContinuationProjection",
+        "type": "object"
+      },
       "RunCandidateSimulationAcquisitionHistoryEntry": {
         "additionalProperties": false,
         "description": "Persisted acquisition action facts projected as candidate history only.",
@@ -31255,6 +32281,16 @@
             "default": "candidate_observation_only",
             "title": "Authority Purpose",
             "type": "string"
+          },
+          "continuation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionContinuationProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "currentness_status": {
             "const": "not_established",
@@ -31473,6 +32509,104 @@
         "title": "RunCandidateSimulationChildProfileBinding",
         "type": "object"
       },
+      "RunCandidateSimulationContinuationFronts": {
+        "additionalProperties": false,
+        "description": "Current N6 fronts recomputed after the N9 continuation outcome.",
+        "properties": {
+          "decision_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Decision Candidate Ids",
+            "type": "array"
+          },
+          "portfolio_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Portfolio Candidate Ids",
+            "type": "array"
+          },
+          "quarantine_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Quarantine Candidate Ids",
+            "type": "array"
+          },
+          "research_candidate_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Research Candidate Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decision_candidate_ids",
+          "research_candidate_ids",
+          "quarantine_candidate_ids",
+          "portfolio_candidate_ids"
+        ],
+        "title": "RunCandidateSimulationContinuationFronts",
+        "type": "object"
+      },
+      "RunCandidateSimulationCurrentOccurrence": {
+        "additionalProperties": false,
+        "description": "One current candidate occurrence after append-only N6 continuation.",
+        "properties": {
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "certified_by_n9": {
+            "title": "Certified By N9",
+            "type": "boolean"
+          },
+          "content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "front": {
+            "enum": [
+              "decision",
+              "research",
+              "quarantine",
+              "portfolio"
+            ],
+            "title": "Front",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "cycle_index",
+          "content_hash",
+          "front",
+          "certified_by_n9"
+        ],
+        "title": "RunCandidateSimulationCurrentOccurrence",
+        "type": "object"
+      },
       "RunCandidateSimulationN5Observation": {
         "additionalProperties": false,
         "description": "One typed N5 observation projected from a persisted recursive run.",
@@ -31550,6 +32684,14 @@
             "title": "Design Problem Ref",
             "type": "string"
           },
+          "executed_steps": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Executed Steps",
+            "type": "array"
+          },
           "k_world_ref_after": {
             "anyOf": [
               {
@@ -31621,6 +32763,350 @@
               }
             ]
           },
+          "n5_interaction_evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunN5InteractionEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n8_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Authority Blockers",
+            "type": "array"
+          },
+          "n8_candidate_joint_selection_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Joint Selection Content Hash"
+          },
+          "n8_candidate_joint_selection_limitation_code": {
+            "anyOf": [
+              {
+                "const": "parent_joint_candidate_source_selection_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Joint Selection Limitation Code"
+          },
+          "n8_candidate_joint_selection_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Joint Selection Status"
+          },
+          "n8_candidate_member_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hypothetical_all_unique_n4_source_members",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Candidate Member Basis"
+          },
+          "n8_candidate_parent_atom_content_hashes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Candidate Parent Atom Content Hashes",
+            "type": "array"
+          },
+          "n8_candidate_parent_atom_ids": {
+            "default": [],
+            "items": {
+              "pattern": "^atom_[a-f0-9]{16}$",
+              "type": "string"
+            },
+            "title": "N8 Candidate Parent Atom Ids",
+            "type": "array"
+          },
+          "n8_candidate_parent_child_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Candidate Parent Child Refs",
+            "type": "array"
+          },
+          "n8_candidate_parent_intervention_ids": {
+            "default": [],
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "N8 Candidate Parent Intervention Ids",
+            "type": "array"
+          },
+          "n8_child_to_parent_refinement_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "child_to_parent_refinement_rule_not_established",
+                  "legacy_selection_receipt_has_no_refinement_basis",
+                  "parent_joint_candidate_source_selection_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Child To Parent Refinement Limitation Code"
+          },
+          "n8_child_to_parent_refinement_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Child To Parent Refinement Status"
+          },
+          "n8_interaction_sampling_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "estimated",
+                  "standard_error_not_estimated",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Interaction Sampling Status"
+          },
+          "n8_joint_outcome_units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "N8 Joint Outcome Units",
+            "type": "object"
+          },
+          "n8_joint_parent_atom_content_hashes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Joint Parent Atom Content Hashes",
+            "type": "array"
+          },
+          "n8_joint_parent_atom_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Joint Parent Atom Ids",
+            "type": "array"
+          },
+          "n8_joint_request_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Joint Request Content Hash"
+          },
+          "n8_joint_scope_limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Joint Scope Limitation Code"
+          },
+          "n8_joint_scope_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Joint Scope Status"
+          },
+          "n8_joint_value_limitation_code": {
+            "anyOf": [
+              {
+                "const": "joint_interaction_rule_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Joint Value Limitation Code"
+          },
+          "n8_joint_world_model_record_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Joint World Model Record Ref"
+          },
+          "n8_numeric_interaction": {
+            "anyOf": [
+              {
+                "enum": [
+                  "none",
+                  "additive",
+                  "non_additive",
+                  "unsupported"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Numeric Interaction"
+          },
+          "n8_numeric_interaction_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "finite_checked_model_point_estimate_only",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Numeric Interaction Basis"
+          },
+          "n8_parent_child_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "N8 Parent Child Refs",
+            "type": "array"
+          },
+          "n8_parent_child_source_bindings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationN8ChildSourceBinding"
+            },
+            "title": "N8 Parent Child Source Bindings",
+            "type": "array"
+          },
+          "n8_policy_composition_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "n4_source_candidates_are_alternatives_not_authored_compound_design",
+                  "legacy_selection_receipt_has_no_composition_basis",
+                  "parent_joint_candidate_source_selection_not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Policy Composition Limitation Code"
+          },
+          "n8_policy_composition_status": {
+            "anyOf": [
+              {
+                "const": "not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Policy Composition Status"
+          },
+          "n8_source_candidate_relationship": {
+            "anyOf": [
+              {
+                "enum": [
+                  "alternatives",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Source Candidate Relationship"
+          },
+          "n8_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_ready",
+                  "value_conditional",
+                  "value_blocked",
+                  "value_pending_n8"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Status"
+          },
           "node_ref": {
             "minLength": 1,
             "title": "Node Ref",
@@ -31649,6 +33135,14 @@
               }
             ],
             "title": "Profile Selection Ref"
+          },
+          "replication_seeds": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Replication Seeds",
+            "type": "array"
           },
           "selected_outcomes": {
             "default": [],
@@ -31709,6 +33203,92 @@
         "title": "RunCandidateSimulationN5Observation",
         "type": "object"
       },
+      "RunCandidateSimulationN8ChildSourceBinding": {
+        "additionalProperties": false,
+        "description": "One selected parent atom bound to its persisted child N5 source input.",
+        "properties": {
+          "child_design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Child Design Problem Ref",
+            "type": "string"
+          },
+          "child_node_ref": {
+            "minLength": 1,
+            "title": "Child Node Ref",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "parent_atom_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Parent Atom Content Hash",
+            "type": "string"
+          },
+          "parent_atom_id": {
+            "pattern": "^atom_[a-f0-9]{16}$",
+            "title": "Parent Atom Id",
+            "type": "string"
+          },
+          "profile_config_ref": {
+            "minLength": 1,
+            "title": "Profile Config Ref",
+            "type": "string"
+          },
+          "profile_selection_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Profile Selection Ref",
+            "type": "string"
+          },
+          "source_atom_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Atom Content Hash",
+            "type": "string"
+          },
+          "source_atom_id": {
+            "pattern": "^atom_[a-f0-9]{16}$",
+            "title": "Source Atom Id",
+            "type": "string"
+          },
+          "source_intervention_id": {
+            "minLength": 1,
+            "title": "Source Intervention Id",
+            "type": "string"
+          },
+          "source_problem_frame_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Problem Frame Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "child_node_ref",
+          "child_design_problem_ref",
+          "n4_source_ref",
+          "context_job_ref",
+          "n5_input_ref",
+          "n5_result_ref",
+          "profile_config_ref",
+          "profile_selection_ref",
+          "source_intervention_id",
+          "source_atom_id",
+          "source_atom_content_hash",
+          "source_problem_frame_ref",
+          "parent_atom_id",
+          "parent_atom_content_hash"
+        ],
+        "title": "RunCandidateSimulationN8ChildSourceBinding",
+        "type": "object"
+      },
       "RunCandidateSimulationProjection": {
         "additionalProperties": false,
         "description": "Source-bound candidate observations exposed for display, never authority.",
@@ -31762,7 +33342,8 @@
                   "compiled_cycle_artifact_integrity_not_established",
                   "compiled_cycle_artifact_content_invalid",
                   "n5_observation_not_emitted",
-                  "n5_result_reference_not_established"
+                  "n5_result_reference_not_established",
+                  "n5_interaction_scope_not_established"
                 ],
                 "type": "string"
               },
@@ -32193,6 +33774,13 @@
               "$ref": "#/components/schemas/ArtifactRef-Output"
             },
             "title": "Root Artifacts",
+            "type": "array"
+          },
+          "root_input_artifacts": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactRef-Output"
+            },
+            "title": "Root Input Artifacts",
             "type": "array"
           },
           "run_id": {
@@ -33181,6 +34769,14 @@
             "title": "Design Problem Ref",
             "type": "string"
           },
+          "executed_steps": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Executed Steps",
+            "type": "array"
+          },
           "n4_source_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
           },
@@ -33196,6 +34792,16 @@
           },
           "n5_input_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_interaction_evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunN5InteractionEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "n5_request_binding_status": {
             "default": "not_established",
@@ -33226,6 +34832,22 @@
             "title": "N8 Authority Blockers",
             "type": "array"
           },
+          "n8_interaction_sampling_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "estimated",
+                  "standard_error_not_estimated",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Interaction Sampling Status"
+          },
           "n8_limitation_code": {
             "anyOf": [
               {
@@ -33245,6 +34867,38 @@
             ],
             "title": "N8 Lineage Status",
             "type": "string"
+          },
+          "n8_numeric_interaction": {
+            "anyOf": [
+              {
+                "enum": [
+                  "none",
+                  "additive",
+                  "non_additive",
+                  "unsupported"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Numeric Interaction"
+          },
+          "n8_numeric_interaction_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "finite_checked_model_point_estimate_only",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Numeric Interaction Basis"
           },
           "n8_status": {
             "enum": [
@@ -33285,6 +34939,14 @@
             "default": false,
             "title": "Publication Authority",
             "type": "boolean"
+          },
+          "replication_seeds": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Replication Seeds",
+            "type": "array"
           },
           "selected_outcomes": {
             "default": [],
@@ -33689,6 +35351,231 @@
           "lineage"
         ],
         "title": "RunLineageResponse",
+        "type": "object"
+      },
+      "RunN5InteractionEvidence": {
+        "additionalProperties": false,
+        "description": "Candidate-only interaction evidence with legacy epochs explicitly limited.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_checked_model_only",
+            "default": "candidate_checked_model_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "checked_interaction_orders": {
+            "default": [],
+            "items": {
+              "type": "integer"
+            },
+            "title": "Checked Interaction Orders",
+            "type": "array"
+          },
+          "higher_order_residual_sampling": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/RunN5InteractionSamplingSummary"
+              },
+              "type": "object"
+            },
+            "title": "Higher Order Residual Sampling",
+            "type": "object"
+          },
+          "higher_order_residuals": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "title": "Higher Order Residuals",
+            "type": "object"
+          },
+          "interaction_sampling_status": {
+            "enum": [
+              "estimated",
+              "standard_error_not_estimated",
+              "not_established"
+            ],
+            "title": "Interaction Sampling Status",
+            "type": "string"
+          },
+          "interaction_terms": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunN5InteractionTerm"
+            },
+            "title": "Interaction Terms",
+            "type": "array"
+          },
+          "numeric_interaction": {
+            "enum": [
+              "none",
+              "additive",
+              "non_additive",
+              "unsupported"
+            ],
+            "title": "Numeric Interaction",
+            "type": "string"
+          },
+          "numeric_interaction_basis": {
+            "enum": [
+              "finite_checked_model_point_estimate_only",
+              "not_established"
+            ],
+            "title": "Numeric Interaction Basis",
+            "type": "string"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "enum": [
+              "policyos.runtime.joint_simulation_horizon.v1",
+              "policyos.runtime.joint_simulation_horizon.v2",
+              "policyos.runtime.joint_simulation_horizon.v3",
+              "policyos.runtime.joint_simulation_horizon.v4"
+            ],
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "numeric_interaction",
+          "numeric_interaction_basis",
+          "interaction_sampling_status"
+        ],
+        "title": "RunN5InteractionEvidence",
+        "type": "object"
+      },
+      "RunN5InteractionSample": {
+        "additionalProperties": false,
+        "description": "One shared-seed derived interaction value in a candidate N5 artifact.",
+        "properties": {
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "seed",
+          "value"
+        ],
+        "title": "RunN5InteractionSample",
+        "type": "object"
+      },
+      "RunN5InteractionSamplingSummary": {
+        "additionalProperties": false,
+        "description": "Recomputable shared-seed mean and sample SE for one interaction step.",
+        "properties": {
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "replicate_count": {
+            "minimum": 1.0,
+            "title": "Replicate Count",
+            "type": "integer"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/RunN5InteractionSample"
+            },
+            "minItems": 1,
+            "title": "Samples",
+            "type": "array"
+          },
+          "seeds": {
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Seeds",
+            "type": "array"
+          },
+          "standard_error": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standard Error"
+          },
+          "status": {
+            "enum": [
+              "estimated",
+              "standard_error_not_estimated"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "replicate_count",
+          "seeds",
+          "samples",
+          "mean",
+          "standard_error"
+        ],
+        "title": "RunN5InteractionSamplingSummary",
+        "type": "object"
+      },
+      "RunN5InteractionTerm": {
+        "additionalProperties": false,
+        "description": "One pairwise interaction mean and its paired replicate vector.",
+        "properties": {
+          "atom_ids": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "by_step": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "By Step",
+            "type": "object"
+          },
+          "outcome": {
+            "minLength": 1,
+            "title": "Outcome",
+            "type": "string"
+          },
+          "replication_sampling_by_step": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RunN5InteractionSamplingSummary"
+            },
+            "title": "Replication Sampling By Step",
+            "type": "object"
+          }
+        },
+        "required": [
+          "atom_ids",
+          "outcome",
+          "by_step"
+        ],
+        "title": "RunN5InteractionTerm",
         "type": "object"
       },
       "RunNodeRecord": {
@@ -38728,6 +40615,46 @@
         "title": "TraceSliceRef",
         "type": "object"
       },
+      "TrainHoldoutSplit": {
+        "additionalProperties": false,
+        "description": "Explicit, contiguous source positions used for training and evaluation.",
+        "properties": {
+          "holdout_end": {
+            "minimum": 2.0,
+            "title": "Holdout End",
+            "type": "integer"
+          },
+          "holdout_start": {
+            "minimum": 1.0,
+            "title": "Holdout Start",
+            "type": "integer"
+          },
+          "horizon": {
+            "minimum": 1.0,
+            "title": "Horizon",
+            "type": "integer"
+          },
+          "train_end": {
+            "minimum": 1.0,
+            "title": "Train End",
+            "type": "integer"
+          },
+          "train_start": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Train Start",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "train_end",
+          "holdout_start",
+          "holdout_end",
+          "horizon"
+        ],
+        "title": "TrainHoldoutSplit",
+        "type": "object"
+      },
       "TypedGap": {
         "additionalProperties": false,
         "description": "Typed gap state for explicit waivers and unknowns in the trust envelope.",
@@ -42450,6 +44377,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -42770,6 +44723,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -43013,6 +44992,32 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}/download",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
           },
           "422": {
             "content": {
@@ -43334,6 +45339,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}/lineage",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -43438,6 +45469,48 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "limited_not_measured_candidate": {
+                    "description": "Generated through the actual predictive-coverage projector from a controlled in-memory report fixture. The artifact ID is illustrative; this is not a stored source, production measurement, authority, issuer, publication, or currentness claim.",
+                    "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+                    "value": {
+                      "assessment": "limited",
+                      "causal_effect_status": "not_established",
+                      "counterfactual_credibility_status": "not_established",
+                      "effective_time_status": "not_established",
+                      "issuer_status": "not_established",
+                      "may_not_use_for": [
+                        "promotion",
+                        "publication",
+                        "policy_selection",
+                        "causal_effect_claim"
+                      ],
+                      "measurement_status": "not_measured",
+                      "metric": "predictive_interval_coverage",
+                      "producer_attestation_status": "not_established",
+                      "reason_code": "no_evaluated_intervals",
+                      "s10_metric_mapping_status": "not_established",
+                      "s10_threshold_status": "not_established",
+                      "scenarios": [
+                        {
+                          "interval_available_count": 0,
+                          "interval_evaluated_count": 0,
+                          "interval_hit_count": 0,
+                          "interval_requested_count": 1,
+                          "interval_type": "prediction",
+                          "metric_name": "outcome",
+                          "nominal_confidence_level": 0.9,
+                          "observed_hit_rate": null,
+                          "scenario_id": "openapi-no-intervals"
+                        }
+                      ],
+                      "source_artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "source_manifest_profile_sha256": "sha256:6d626a5911ec2022cf3ff9e9866a79215b7e91aa093dcf94ade70c5908c53624",
+                      "source_materialization": "reader_materialized",
+                      "source_schema_version": "1.0"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/PredictiveCoverageDiagnosticPreview"
                 }
@@ -43574,6 +45647,32 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}/predictive-coverage-diagnostic",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
           },
           "422": {
             "content": {
@@ -43839,6 +45938,32 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{artifact_id}/schema",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
           },
           "422": {
             "content": {
@@ -44256,6 +46381,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{packet_id}/export",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -44588,6 +46739,32 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "A route-specific conflict or refusal; the response code identifies the cause.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/artifacts/{packet_id}/render",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "A route-specific conflict or refusal; the response code identifies the cause."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -44914,6 +47091,444 @@
         "summary": "Get Auth Me",
         "tags": [
           "runtime-auth"
+        ]
+      }
+    },
+    "/api/v1/control/admission-attempts/by-idempotency-key": {
+      "get": {
+        "operationId": "get_control_pre_admission_attempt_by_idempotency_key",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlPreAdmissionAttemptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/admission-attempts/by-idempotency-key",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Recover a durable attempt using the authenticated actor's idempotency key",
+        "tags": [
+          "control-plane"
+        ]
+      }
+    },
+    "/api/v1/control/admission-attempts/{attempt_id}": {
+      "get": {
+        "operationId": "get_control_pre_admission_attempt_status",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ControlPreAdmissionAttemptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/admission-attempts/{attempt_id}",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get actor-scoped durable pre-admission attempt history",
+        "tags": [
+          "control-plane"
         ]
       }
     },
@@ -51693,6 +54308,22 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "selected_generation_unavailable": {
+                    "description": "A refusal example only; it does not assert that an embedding generation is available or current.",
+                    "summary": "Typed refusal without a selected generation",
+                    "value": {
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "output_dir": "example-legal-output",
+                      "refusal_code": "selected_generation_unavailable",
+                      "status": "refused"
+                    }
+                  }
+                },
                 "schema": {
                   "discriminator": {
                     "mapping": {
@@ -53140,6 +55771,19 @@
     "/api/v1/control/runs/nl": {
       "post": {
         "operationId": "launch_nl_run",
+        "parameters": [
+          {
+            "description": "Required for every natural-language launch; reuse only for the exact same immutable request intent.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Required for every natural-language launch; reuse only for the exact same immutable request intent.",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -53176,7 +55820,15 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-Control-Admission-Attempt-ID": {
+                "description": "Opaque durable attempt ID for the launch attempt, including a terminal refusal.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -53308,13 +55960,19 @@
             },
             "description": "Requested representation is not supported for this resource."
           },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "X-Control-Admission-Attempt-ID": {
+                "description": "Existing attempt bound to the supplied idempotency key.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "422": {
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              },
               "application/problem+json": {
                 "examples": {
                   "default": {
@@ -53337,7 +55995,24 @@
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content",
+            "headers": {
+              "X-Control-Admission-Attempt-ID": {
+                "description": "Durable attempt ID when a started attempt is refused.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Control-Pre-Admission-Outcome": {
+                "description": "not_created only when this request returned 4xx before an attempt was persisted.",
+                "schema": {
+                  "enum": [
+                    "not_created"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
           },
           "500": {
             "content": {
@@ -53364,6 +56039,20 @@
               }
             },
             "description": "Unexpected runtime API failure."
+          },
+          "default": {
+            "description": "Default Response",
+            "headers": {
+              "X-Control-Pre-Admission-Outcome": {
+                "description": "On a returned 4xx, not_created means no attempt was persisted by this request.",
+                "schema": {
+                  "enum": [
+                    "not_created"
+                  ],
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "summary": "Launch a natural-language run via agent circuit",
@@ -61257,18 +63946,18 @@
                           "semantic_role": "scope_total_spend"
                         }
                       },
-                      "projection_hash": "sha256:b8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5",
+                      "projection_hash": "sha256:2ac9de09ca78854a467cc58438e7ec7a8231015aa662653d44f228ff3cfd44b0",
                       "projection_id": "confidence-ledger-risk-spend",
                       "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                       "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
                       "registry_projection_hash": "sha256:000302a7a97aac6747cffca5ebb0536309505f3e45c0011cc7536ec80861eacc",
-                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3Ab8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3A3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
+                      "replay_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend?artifact_content_hash=sha256%3Add8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391&projection_hash=sha256%3A2ac9de09ca78854a467cc58438e7ec7a8231015aa662653d44f228ff3cfd44b0&projection_rule_version=policyos.runtime.confidence_ledger_risk_spend.v1&source_as_of=2026-02-11T12%3A00%3A00Z&source_dependency_hash=sha256%3Ab6ffa11d132fbc2a5d2c162776ee2fdb8246bf61b889c12ec3fb8a9090efeb81",
                       "replay_pins": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                        "projection_hash": "sha256:b8da45bda0160a56425bcf3149c089e122b32055685259fe0f76a9307f8ddec5",
+                        "projection_hash": "sha256:2ac9de09ca78854a467cc58438e7ec7a8231015aa662653d44f228ff3cfd44b0",
                         "projection_rule_version": "policyos.runtime.confidence_ledger_risk_spend.v1",
                         "source_as_of": "2026-02-11T12:00:00Z",
-                        "source_dependency_hash": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a"
+                        "source_dependency_hash": "sha256:b6ffa11d132fbc2a5d2c162776ee2fdb8246bf61b889c12ec3fb8a9090efeb81"
                       },
                       "source": {
                         "artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
@@ -61277,7 +63966,7 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391",
-                          "bound_dependency_aggregate_identity": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
+                          "bound_dependency_aggregate_identity": "sha256:b6ffa11d132fbc2a5d2c162776ee2fdb8246bf61b889c12ec3fb8a9090efeb81",
                           "bound_dependency_count": 1461,
                           "frozen_semantic_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
                           "issue_codes": [],
@@ -61293,16 +63982,16 @@
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
                           "validator_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
-                          "worker_validation_receipt_hash": "sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf"
+                          "worker_validation_receipt_hash": "sha256:459f5d81e2dcde3509cd3f417fb8b9f7e4391866dd1ccf9d0073d1050f23e4bb"
                         }
                       },
                       "source_blocked_reason": null,
-                      "source_dependency_hash": "sha256:3abad632c9abd8e0d536f6baca3579d42929960865c93d52b01204773ba32e0a",
+                      "source_dependency_hash": "sha256:b6ffa11d132fbc2a5d2c162776ee2fdb8246bf61b889c12ec3fb8a9090efeb81",
                       "source_rule_version": null,
                       "source_schema_version": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
                       "stable_address": "/api/v1/exports/governed-projections/confidence-ledger-risk-spend",
-                      "worker_validation_receipt_hash": "sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf",
-                      "worker_validation_receipt_ref": "owner-validation:sha256:6044c15016f85e8b5d0903d7fa0d4c3970c0631454bdf5d71e042a71ef8fd8bf"
+                      "worker_validation_receipt_hash": "sha256:459f5d81e2dcde3509cd3f417fb8b9f7e4391866dd1ccf9d0073d1050f23e4bb",
+                      "worker_validation_receipt_ref": "owner-validation:sha256:459f5d81e2dcde3509cd3f417fb8b9f7e4391866dd1ccf9d0073d1050f23e4bb"
                     }
                   }
                 },
@@ -77037,6 +79726,465 @@
           "allow_empty_body": true,
           "resource_kind": "runtime.run_paper",
           "source": "tenant_collection"
+        }
+      }
+    },
+    "/api/v1/runs/{run_id}/predictive-calibration": {
+      "get": {
+        "operationId": "get_run_predictive_calibration",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictiveCalibrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Predictive Calibration",
+        "tags": [
+          "runtime-runs"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.predictive_calibration",
+          "source": "owned_existing_path"
+        }
+      },
+      "post": {
+        "operationId": "create_run_predictive_calibration",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictiveCalibrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictiveCalibrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/predictive-calibration",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Create Run Predictive Calibration",
+        "tags": [
+          "runtime-runs"
+        ],
+        "x-polisyos-action-permission": "runs.feedback.evaluate",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.predictive_calibration",
+          "source": "owned_existing_path"
         }
       }
     },

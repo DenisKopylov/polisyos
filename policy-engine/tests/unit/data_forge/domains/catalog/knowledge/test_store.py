@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 import types
@@ -11,10 +12,17 @@ from threading import Event
 
 import duckdb
 import numpy as np
+import pytest
 
 from polisyos.data_forge.domains.catalog.batch.embedder import build_hnsw_index
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
-from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph, SearchFilters
+from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogSelectionError,
+)
+from polisyos.data_forge.domains.catalog.knowledge.search import (
+    DatasetCatalogGraph,
+    SearchFilters,
+)
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
 from polisyos.data_forge.domains.catalog.knowledge.types import (
     DatasetCoverage,
@@ -23,7 +31,9 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     DistributionRecord,
 )
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
-from polisyos.scientist.agent.tools.knowledge_tools_adapter import build_knowledge_tool_registry
+from polisyos.scientist.agent.tools.knowledge_tools_adapter import (
+    build_knowledge_tool_registry,
+)
 
 
 class _CatalogTokenizer:
@@ -96,7 +106,10 @@ def _build_test_db(tmpdir: str) -> Path:
             source_dataset_id="NY.GDP.PCAP.CD",
             execution_tier="fetchable",
             coverage=DatasetCoverage(
-                countries=["UA", "PL"], time_start="2018", time_end="2024", granularity="annual"
+                countries=["UA", "PL"],
+                time_start="2018",
+                time_end="2024",
+                granularity="annual",
             ),
             quality=DatasetQuality(execution_readiness_score=0.91),
             preferred_distribution_id="dist-gdp-1",
@@ -113,7 +126,10 @@ def _build_test_db(tmpdir: str) -> Path:
             source="ilo",
             execution_tier="transport_ready",
             coverage=DatasetCoverage(
-                countries=["DE"], time_start="2019", time_end="2023", granularity="annual"
+                countries=["DE"],
+                time_start="2019",
+                time_end="2023",
+                granularity="annual",
             ),
             quality=DatasetQuality(execution_readiness_score=0.74),
             distributions=[],
@@ -212,7 +228,10 @@ def test_vector_index_rejects_same_id_with_changed_projected_content(
     try:
         assert store.has_vector_index()
         assert [
-            result.id for result in store.search_by_vector(np.asarray([1.0, 0.0], dtype=np.float32))
+            result.id
+            for result in store.search_by_vector(
+                np.asarray([1.0, 0.0], dtype=np.float32)
+            )
         ] == ["ds-currentness"]
     finally:
         store.close()
@@ -230,19 +249,27 @@ def test_vector_index_rejects_same_id_with_changed_projected_content(
     fresh_store = DatasetCatalogStore(db_path, index_dir)
     try:
         assert not fresh_store.has_vector_index()
-        assert fresh_store.search_by_vector(np.asarray([1.0, 0.0], dtype=np.float32)) == []
-        assert fresh_store.vector_index_refusal_reason == "catalog_material_basis_mismatch"
+        assert (
+            fresh_store.search_by_vector(np.asarray([1.0, 0.0], dtype=np.float32)) == []
+        )
+        assert (
+            fresh_store.vector_index_refusal_reason == "catalog_material_basis_mismatch"
+        )
     finally:
         fresh_store.close()
 
     monkeypatch.setitem(
         sys.modules,
         "sentence_transformers",
-        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: _CatalogEncoder()),
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **_kwargs: _CatalogEncoder()
+        ),
     )
     graph = DatasetCatalogGraph(db_path, index_dir)
     try:
-        fallback_results = graph.search_datasets("original GDP series", top_k=1, explain=True)
+        fallback_results = graph.search_datasets(
+            "original GDP series", top_k=1, explain=True
+        )
         assert fallback_results
         assert all(
             result.search_explanation is not None
@@ -297,13 +324,17 @@ def test_graph_rejects_query_encoder_assets_mismatched_with_selected_generation(
     )
     matching_graph = DatasetCatalogGraph(db_path, index_dir)
     try:
-        matching_results = matching_graph.search_datasets("gdp series", top_k=1, explain=True)
+        matching_results = matching_graph.search_datasets(
+            "gdp series", top_k=1, explain=True
+        )
         assert matching_results
         assert matching_results[0].search_explanation is not None
         assert matching_results[0].search_explanation["vector_score"] > 0
         matching_encoder.weight[:] = np.asarray([0.0, 1.0], dtype=np.float32)
         calls_before_mutation = matching_encoder.encode_calls
-        cached_fallback = matching_graph.search_datasets("gdp series", top_k=1, explain=True)
+        cached_fallback = matching_graph.search_datasets(
+            "gdp series", top_k=1, explain=True
+        )
         assert cached_fallback
         assert matching_encoder.encode_calls == calls_before_mutation
         assert matching_graph.last_query_metrics is not None
@@ -328,7 +359,9 @@ def test_graph_rejects_query_encoder_assets_mismatched_with_selected_generation(
     )
     incompatible_graph = DatasetCatalogGraph(db_path, index_dir)
     try:
-        fallback_results = incompatible_graph.search_datasets("gdp series", top_k=1, explain=True)
+        fallback_results = incompatible_graph.search_datasets(
+            "gdp series", top_k=1, explain=True
+        )
         assert fallback_results
         assert incompatible_encoder.encode_calls == 0
         assert incompatible_graph.last_query_metrics is not None
@@ -405,7 +438,9 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         )
         actual_generation = compatible_graph._store._current_dataset_generation()
         assert actual_generation is not None
-        assert selected_context.selected_generation_id == actual_generation.generation_id
+        assert (
+            selected_context.selected_generation_id == actual_generation.generation_id
+        )
     finally:
         compatible_graph.close()
 
@@ -424,7 +459,9 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
 
         assert results
         assert results[0].search_mode == "text"
-        assert results[0].vector_refusal_code == "query_encoder_generation_intent_mismatch"
+        assert (
+            results[0].vector_refusal_code == "query_encoder_generation_intent_mismatch"
+        )
         assert results[0].search_explanation is None
         refused_context = results[0].query_generation_context
         assert refused_context is not None
@@ -472,7 +509,10 @@ def test_toolkit_reports_selected_generation_refusal_without_explanation(
         ).search_datasets("gdp series", top_k=1)
         assert wrong_profile_results
         assert wrong_profile_results[0].search_mode == "text"
-        assert wrong_profile_results[0].vector_refusal_code == "query_embedding_model_mismatch"
+        assert (
+            wrong_profile_results[0].vector_refusal_code
+            == "query_embedding_model_mismatch"
+        )
         assert wrong_profile_results[0].search_explanation is None
         assert wrong_profile_results[0].query_generation_context is not None
         assert wrong_profile_results[0].query_generation_context.state == "refused"
@@ -525,7 +565,9 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
         assert absent_tool_result.result["vector_refusal_code"] == (
             "selected_generation_unavailable"
         )
-        assert absent_tool_result.result["query_generation_context"] == {"state": "absent"}
+        assert absent_tool_result.result["query_generation_context"] == {
+            "state": "absent"
+        }
     finally:
         absent_graph.close()
 
@@ -533,7 +575,9 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
     monkeypatch.setitem(
         sys.modules,
         "sentence_transformers",
-        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: refusing_encoder),
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **_kwargs: refusing_encoder
+        ),
     )
     refusing_graph = DatasetCatalogGraph(db_path, index_dir)
     try:
@@ -565,7 +609,9 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
     monkeypatch.setitem(
         sys.modules,
         "sentence_transformers",
-        types.SimpleNamespace(SentenceTransformer=lambda *_args, **_kwargs: compatible_encoder),
+        types.SimpleNamespace(
+            SentenceTransformer=lambda *_args, **_kwargs: compatible_encoder
+        ),
     )
     compatible_graph = DatasetCatalogGraph(db_path, index_dir)
     try:
@@ -579,8 +625,13 @@ def test_registered_search_tool_keeps_refusal_for_empty_query_results(
         assert compatible_tool_result.result["results"] == []
         assert compatible_tool_result.result["search_mode"] == "vector"
         assert "vector_refusal_code" not in compatible_tool_result.result
-        assert compatible_tool_result.result["query_generation_context"]["state"] == "selected"
-        assert compatible_tool_result.result["query_generation_context"]["selected_generation_id"]
+        assert (
+            compatible_tool_result.result["query_generation_context"]["state"]
+            == "selected"
+        )
+        assert compatible_tool_result.result["query_generation_context"][
+            "selected_generation_id"
+        ]
         compatible_context = compatible_tool_result.result["query_generation_context"]
         assert (
             compatible_context["selected_profile"]["encoder_asset_identity"]
@@ -615,7 +666,9 @@ def test_legacy_empty_search_remains_limited_with_unknown_generation_context() -
     assert response.query_generation_context.state == "unknown"
 
 
-def test_overlapping_queries_keep_their_own_encoder_status(monkeypatch, tmp_path: Path) -> None:
+def test_overlapping_queries_keep_their_own_encoder_status(
+    monkeypatch, tmp_path: Path
+) -> None:
     class ConcurrentCatalogEncoder(_CatalogEncoder):
         def __init__(self) -> None:
             super().__init__()
@@ -738,12 +791,16 @@ def test_graph_names_model_device_and_dimension_generation_refusals(
             sys.modules,
             "sentence_transformers",
             types.SimpleNamespace(
-                SentenceTransformer=lambda *_args, _encoder=encoder, **_kwargs: _encoder,
+                SentenceTransformer=lambda *_args, _encoder=encoder, **_kwargs: (
+                    _encoder
+                ),
             ),
         )
         graph = DatasetCatalogGraph(db_path, index_dir, embedding_model=model)
         try:
-            fallback_results = graph.search_datasets("gdp series", top_k=1, explain=True)
+            fallback_results = graph.search_datasets(
+                "gdp series", top_k=1, explain=True
+            )
             assert fallback_results
             assert encoder.encode_calls == 0
             assert graph.last_query_metrics is not None
@@ -756,7 +813,9 @@ def test_graph_names_model_device_and_dimension_generation_refusals(
             graph.close()
 
 
-def test_graph_exposes_legacy_flat_generation_text_fallback(monkeypatch, tmp_path: Path) -> None:
+def test_graph_exposes_legacy_flat_generation_text_fallback(
+    monkeypatch, tmp_path: Path
+) -> None:
     db_path = tmp_path / "legacy-currentness.duckdb"
     index_dir = tmp_path / "index"
     build_graph(
@@ -1084,7 +1143,9 @@ def test_graph_suggest_related_uses_metric_overlap() -> None:
             graph.close()
 
 
-def test_graph_search_datasets_skips_embedding_import_when_index_missing(monkeypatch) -> None:
+def test_graph_search_datasets_skips_embedding_import_when_index_missing(
+    monkeypatch,
+) -> None:
     class _PoisonModule(types.ModuleType):
         def __getattr__(self, name: str) -> object:
             raise AssertionError(
@@ -1105,3 +1166,31 @@ def test_graph_search_datasets_skips_embedding_import_when_index_missing(monkeyp
             assert graph.last_query_metrics.vector_search_ms == 0.0
         finally:
             graph.close()
+
+
+@pytest.mark.parametrize(
+    "reader",
+    [
+        lambda store: store.get_dataset("ds-gdp"),
+        lambda store: store.find_by_polisyos_metric("gdp"),
+        lambda store: store.resolve_metric_bindings("gdp"),
+        lambda store: store.reconciled_metric_binding_population("gdp"),
+    ],
+)
+def test_open_store_rejects_same_size_mtime_database_replacement(
+    tmp_path, reader
+) -> None:
+    db_path = _build_test_db(str(tmp_path))
+    store = DatasetCatalogStore(db_path, tmp_path)
+    stat = db_path.stat()
+    content = bytearray(db_path.read_bytes())
+    content[-1] ^= 1
+    replacement = tmp_path / "replacement.duckdb"
+    replacement.write_bytes(content)
+    os.utime(replacement, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+    os.replace(replacement, db_path)
+    try:
+        with pytest.raises(CatalogSelectionError, match="catalog_read_session_stale"):
+            reader(store)
+    finally:
+        store.close()

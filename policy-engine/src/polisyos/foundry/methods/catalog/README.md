@@ -66,6 +66,8 @@ by domain family and registered into the shared `MethodRegistry`.
 
 ## Current State
 
+- Sparse demographic balancing computes a fractional feasible flow, then removes only positive-prior edges proven forced to zero by the hard margins before the existing entropic IPF solve. The original priors still define objective and structural-zero diagnostics.
+
 - Last updated: 2026-09-02
 - The Foundry dependency-only reducer and read-only diagnostic are implemented;
   the shared persisted GY-DEF22 companion and its orchestration bridge remain

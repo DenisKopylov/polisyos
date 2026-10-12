@@ -1,0 +1,20 @@
+id = "2026-10-12-e02-demographic-boundary-feasible-balancing"
+title = "Balance feasible sparse demographic boundary supports"
+type = "fixed"
+component = "foundry.demography"
+owner = "team-foundry"
+summary = "The sparse demographic estimator now removes only support edges proven forced to zero by a fractional feasible flow before running its existing hard-margin entropic balancing."
+evidence = [
+  "tests/unit/foundry/methods/catalog/survey/test_demographic_consistency.py",
+  "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+]
+compatibility = "No method signature, output schema, hard-margin, prior objective, structural-zero, or tolerance contract changes. Previously valid boundary-feasible sparse supports can now converge under the existing solver tolerance."
+change_class = "internal"
+surface_classification = "internal: Foundry estimator implementation"
+migration = "No caller migration is required."
+api = "The estimator API and result contract are unchanged; the implementation trims only positive-prior edges proven unable to carry positive mass under the existing exact row and state totals."
+limitations = "If floating-point residuals do not establish the feasible support conservatively, the estimator retains its original support and existing convergence refusal. This repair does not validate source authority or demographic semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

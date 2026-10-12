@@ -199,6 +199,470 @@ const operatorDiagnosticSchema = z.object({
   projection_labels: z.array(operatorProjectionStateLabelSchema).optional(),
 });
 
+const runN5InteractionSampleSchema = z
+  .object({
+    seed: z.number().int(),
+    value: z.number(),
+  })
+  .strict();
+
+const runN5InteractionSamplingSummarySchema = z
+  .object({
+    status: z.enum(["estimated", "standard_error_not_estimated"]),
+    replicate_count: z.number().int().positive(),
+    seeds: z.array(z.number().int()).min(1),
+    samples: z.array(runN5InteractionSampleSchema).min(1),
+    mean: z.number(),
+    standard_error: z.number().nullable(),
+  })
+  .strict()
+  .superRefine((summary, context) => {
+    const values = summary.samples.map((sample) => sample.value);
+    const expectedMean =
+      values.reduce((sum, value) => sum + value, 0) / values.length;
+    const expectedStatus =
+      values.length === 1 ? "standard_error_not_estimated" : "estimated";
+    if (
+      summary.replicate_count !== summary.seeds.length ||
+      summary.replicate_count !== summary.samples.length ||
+      new Set(summary.seeds).size !== summary.seeds.length ||
+      summary.samples.some(
+        (sample, index) => sample.seed !== summary.seeds[index],
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["seeds"],
+        message: "run_n5_interaction_seed_denominator_mismatch",
+      });
+    }
+    if (summary.status !== expectedStatus) {
+      context.addIssue({
+        code: "custom",
+        path: ["status"],
+        message: "run_n5_interaction_sampling_status_mismatch",
+      });
+    }
+    if (Math.abs(summary.mean - expectedMean) > 1e-12) {
+      context.addIssue({
+        code: "custom",
+        path: ["mean"],
+        message: "run_n5_interaction_mean_recomputation_mismatch",
+      });
+    }
+    if (values.length === 1) {
+      if (summary.standard_error !== null) {
+        context.addIssue({
+          code: "custom",
+          path: ["standard_error"],
+          message: "run_n5_interaction_single_draw_se_must_be_unestimated",
+        });
+      }
+    } else {
+      const sampleVariance =
+        values.reduce((sum, value) => sum + (value - expectedMean) ** 2, 0) /
+        (values.length - 1);
+      const expectedSe = Math.sqrt(sampleVariance / values.length);
+      if (
+        summary.standard_error === null ||
+        Math.abs(summary.standard_error - expectedSe) > 1e-12
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["standard_error"],
+          message: "run_n5_interaction_se_recomputation_mismatch",
+        });
+      }
+    }
+  });
+
+const runN5InteractionTermSchema = z
+  .object({
+    atom_ids: z.tuple([z.string().min(1), z.string().min(1)]),
+    outcome: z.string().min(1),
+    by_step: z.record(z.string(), z.number()),
+    replication_sampling_by_step: z.record(
+      z.string(),
+      runN5InteractionSamplingSummarySchema,
+    ),
+  })
+  .strict()
+  .superRefine((term, context) => {
+    for (const [step, summary] of Object.entries(
+      term.replication_sampling_by_step,
+    )) {
+      if (
+        !(step in term.by_step) ||
+        Math.abs(term.by_step[step] - summary.mean) > 1e-12
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["replication_sampling_by_step", step],
+          message: "run_n5_interaction_sample_mean_mismatch",
+        });
+      }
+    }
+  });
+
+const runN5InteractionEvidenceSchema = z
+  .object({
+    schema_version: z.enum([
+      "policyos.runtime.joint_simulation_horizon.v1",
+      "policyos.runtime.joint_simulation_horizon.v2",
+      "policyos.runtime.joint_simulation_horizon.v3",
+      "policyos.runtime.joint_simulation_horizon.v4",
+    ]),
+    numeric_interaction: z.enum([
+      "none",
+      "additive",
+      "non_additive",
+      "unsupported",
+    ]),
+    numeric_interaction_basis: z.enum([
+      "finite_checked_model_point_estimate_only",
+      "not_established",
+    ]),
+    interaction_sampling_status: z.enum([
+      "estimated",
+      "standard_error_not_estimated",
+      "not_established",
+    ]),
+    interaction_terms: z.array(runN5InteractionTermSchema),
+    higher_order_residuals: z.record(
+      z.string(),
+      z.record(z.string(), z.number()),
+    ),
+    higher_order_residual_sampling: z.record(
+      z.string(),
+      z.record(z.string(), runN5InteractionSamplingSummarySchema),
+    ),
+    checked_interaction_orders: z.array(z.number().int()),
+    authority_purpose: z.literal("candidate_checked_model_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((evidence, context) => {
+    const current =
+      evidence.schema_version ===
+      "policyos.runtime.joint_simulation_horizon.v4";
+    if (!current) {
+      if (
+        evidence.numeric_interaction !== "unsupported" ||
+        evidence.numeric_interaction_basis !== "not_established" ||
+        evidence.interaction_sampling_status !== "not_established" ||
+        Object.keys(evidence.higher_order_residual_sampling).length > 0 ||
+        evidence.interaction_terms.some(
+          (term) => Object.keys(term.replication_sampling_by_step).length > 0,
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "run_n5_legacy_interaction_uncertainty_laundered",
+        });
+      }
+      return;
+    }
+    const estimated = evidence.interaction_sampling_status === "estimated";
+    if (
+      estimated !==
+      (evidence.numeric_interaction_basis ===
+        "finite_checked_model_point_estimate_only")
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["numeric_interaction_basis"],
+        message: "run_n5_interaction_basis_status_mismatch",
+      });
+    }
+    if (!estimated && evidence.numeric_interaction !== "unsupported") {
+      context.addIssue({
+        code: "custom",
+        path: ["numeric_interaction"],
+        message: "run_n5_unestimated_interaction_classification_not_limited",
+      });
+    }
+    if (evidence.interaction_sampling_status !== "not_established") {
+      for (const term of evidence.interaction_terms) {
+        if (
+          Object.keys(term.by_step).length !==
+          Object.keys(term.replication_sampling_by_step).length
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interaction_terms"],
+            message: "run_n5_interaction_summary_step_missing",
+          });
+        }
+      }
+      for (const [outcome, byStep] of Object.entries(
+        evidence.higher_order_residuals,
+      )) {
+        if (
+          Object.keys(byStep).length !==
+          Object.keys(evidence.higher_order_residual_sampling[outcome] ?? {})
+            .length
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["higher_order_residual_sampling", outcome],
+            message: "run_n5_residual_summary_step_missing",
+          });
+        }
+      }
+    }
+  });
+
+type RunN5InteractionEvidence = z.infer<typeof runN5InteractionEvidenceSchema>;
+
+type RunN5ParentInteractionScope = {
+  atom_ids: string[];
+  selected_outcomes: string[];
+  executed_steps?: number[];
+  replication_seeds?: number[];
+};
+
+function validateRunN5InteractionScope(
+  evidence: RunN5InteractionEvidence | null | undefined,
+  parent: RunN5ParentInteractionScope,
+  context: z.RefinementCtx,
+): void {
+  if (
+    evidence == null ||
+    evidence.schema_version !== "policyos.runtime.joint_simulation_horizon.v4"
+  ) {
+    return;
+  }
+  const addIssue = (message: string, path: (string | number)[] = []) => {
+    context.addIssue({
+      code: "custom",
+      path: ["n5_interaction_evidence", ...path],
+      message: `run_n5_interaction_scope_${message}`,
+    });
+  };
+  const atoms = parent.atom_ids;
+  const outcomes = parent.selected_outcomes;
+  const steps = parent.executed_steps;
+  const seeds = parent.replication_seeds;
+  if (
+    atoms.length === 0 ||
+    outcomes.length === 0 ||
+    steps == null ||
+    steps.length === 0 ||
+    seeds == null ||
+    seeds.length === 0 ||
+    new Set(atoms).size !== atoms.length ||
+    new Set(outcomes).size !== outcomes.length ||
+    new Set(steps).size !== steps.length ||
+    new Set(seeds).size !== seeds.length ||
+    [...atoms, ...outcomes].some((value) => value.length === 0)
+  ) {
+    addIssue("parent_context_missing_or_invalid");
+    return;
+  }
+
+  const pairKey = (ids: string[]): string | null => {
+    if (ids.length !== 2 || ids[0] === ids[1]) return null;
+    return JSON.stringify([...ids].sort(compareUnicodeCodePoints));
+  };
+  const expectedPairs = new Set<string>();
+  for (let left = 0; left < atoms.length; left += 1) {
+    for (let right = left + 1; right < atoms.length; right += 1) {
+      const key = pairKey([atoms[left] ?? "", atoms[right] ?? ""]);
+      if (key != null) expectedPairs.add(key);
+    }
+  }
+  const expectedPairOutcomes = new Set<string>();
+  for (const pair of expectedPairs) {
+    for (const outcome of outcomes) {
+      expectedPairOutcomes.add(JSON.stringify([pair, outcome]));
+    }
+  }
+  const expectedStepKeys = new Set(steps.map(String));
+  const sameSet = (left: Iterable<string>, right: Set<string>) => {
+    const values = [...left];
+    return (
+      values.length === right.size && values.every((value) => right.has(value))
+    );
+  };
+  const isSubset = (left: Iterable<string>, right: Set<string>) =>
+    [...left].every((value) => right.has(value));
+  const samplingEstablished =
+    evidence.interaction_sampling_status !== "not_established";
+  const actualPairOutcomes = new Set<string>();
+  for (const [termIndex, term] of evidence.interaction_terms.entries()) {
+    const pair = pairKey(term.atom_ids);
+    const identity = pair == null ? null : JSON.stringify([pair, term.outcome]);
+    if (
+      pair == null ||
+      !expectedPairs.has(pair) ||
+      !outcomes.includes(term.outcome) ||
+      identity == null ||
+      actualPairOutcomes.has(identity)
+    ) {
+      addIssue("foreign_or_duplicate_pair", ["interaction_terms", termIndex]);
+      continue;
+    }
+    actualPairOutcomes.add(identity);
+    const meanSteps = Object.keys(term.by_step);
+    const summarySteps = Object.keys(term.replication_sampling_by_step);
+    if (!sameSet(meanSteps, expectedStepKeys)) {
+      addIssue("pair_step_basis_incomplete", ["interaction_terms", termIndex]);
+    }
+    if (
+      !isSubset(summarySteps, expectedStepKeys) ||
+      !isSubset(summarySteps, new Set(meanSteps))
+    ) {
+      addIssue("foreign_pair_step", ["interaction_terms", termIndex]);
+    }
+    for (const [step, summary] of Object.entries(
+      term.replication_sampling_by_step,
+    )) {
+      if (
+        summary.seeds.length !== seeds.length ||
+        summary.seeds.some((seed, index) => seed !== seeds[index])
+      ) {
+        addIssue("seed_basis_mismatch", [
+          "interaction_terms",
+          termIndex,
+          "replication_sampling_by_step",
+          step,
+        ]);
+      }
+    }
+    if (
+      (samplingEstablished && !sameSet(summarySteps, expectedStepKeys)) ||
+      (summarySteps.length > 0 && !sameSet(summarySteps, expectedStepKeys))
+    ) {
+      addIssue("pair_step_basis_incomplete", ["interaction_terms", termIndex]);
+    }
+  }
+  if (!sameSet(actualPairOutcomes, expectedPairOutcomes)) {
+    addIssue("pair_set_incomplete");
+  }
+
+  const expectedResidualOutcomes = new Set(atoms.length >= 3 ? outcomes : []);
+  const residualOutcomes = Object.keys(evidence.higher_order_residuals);
+  const residualSamplingOutcomes = Object.keys(
+    evidence.higher_order_residual_sampling,
+  );
+  if (
+    !isSubset(residualOutcomes, expectedResidualOutcomes) ||
+    !isSubset(residualSamplingOutcomes, expectedResidualOutcomes) ||
+    !isSubset(residualSamplingOutcomes, new Set(residualOutcomes))
+  ) {
+    addIssue("foreign_residual_outcome");
+  }
+  for (const outcome of residualOutcomes) {
+    const meanSteps = Object.keys(
+      evidence.higher_order_residuals[outcome] ?? {},
+    );
+    const summaries = evidence.higher_order_residual_sampling[outcome] ?? {};
+    const summarySteps = Object.keys(summaries);
+    if (!sameSet(meanSteps, expectedStepKeys)) {
+      addIssue("residual_step_basis_incomplete", [
+        "higher_order_residuals",
+        outcome,
+      ]);
+    }
+    if (
+      !isSubset(summarySteps, expectedStepKeys) ||
+      !isSubset(summarySteps, new Set(meanSteps))
+    ) {
+      addIssue("foreign_residual_step", [
+        "higher_order_residual_sampling",
+        outcome,
+      ]);
+    }
+    for (const [step, summary] of Object.entries(summaries)) {
+      if (
+        summary.seeds.length !== seeds.length ||
+        summary.seeds.some((seed, index) => seed !== seeds[index])
+      ) {
+        addIssue("residual_seed_basis_mismatch", [
+          "higher_order_residual_sampling",
+          outcome,
+          step,
+        ]);
+      }
+    }
+    if (
+      (samplingEstablished && !sameSet(summarySteps, expectedStepKeys)) ||
+      (summarySteps.length > 0 && !sameSet(summarySteps, expectedStepKeys))
+    ) {
+      addIssue("residual_step_basis_incomplete", [
+        "higher_order_residual_sampling",
+        outcome,
+      ]);
+    }
+  }
+  if (!sameSet(new Set(residualOutcomes), expectedResidualOutcomes)) {
+    addIssue("residual_basis_incomplete");
+  }
+
+  const expectedOrders =
+    atoms.length === 3 ? [1, 2, 3] : atoms.length >= 2 ? [1, 2] : [1];
+  const checked = evidence.checked_interaction_orders;
+  const sortedUnique = [...new Set(checked)].sort(
+    (left, right) => left - right,
+  );
+  if (
+    sortedUnique.length !== checked.length ||
+    checked.some((order, index) => order !== sortedUnique[index]) ||
+    checked.some((order) => !expectedOrders.includes(order)) ||
+    checked.length !== expectedOrders.length ||
+    checked.some((order, index) => order !== expectedOrders[index])
+  ) {
+    addIssue("checked_orders_mismatch");
+  }
+}
+
+const runCandidateSimulationN8ChildSourceBindingSchema = z
+  .object({
+    child_node_ref: z.string().min(1),
+    child_design_problem_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    n4_source_ref: artifactRefSchema,
+    context_job_ref: artifactRefSchema,
+    n5_input_ref: artifactRefSchema,
+    n5_result_ref: artifactRefSchema,
+    profile_config_ref: z.string().min(1),
+    profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    source_intervention_id: z.string().min(1),
+    source_atom_id: z.string().regex(/^atom_[a-f0-9]{16}$/),
+    source_atom_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    source_problem_frame_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    parent_atom_id: z.string().regex(/^atom_[a-f0-9]{16}$/),
+    parent_atom_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  })
+  .strict()
+  .superRefine((binding, context) => {
+    const expected: Array<[z.infer<typeof artifactRefSchema>, string[]]> = [
+      [
+        binding.n4_source_ref,
+        [
+          "runtime.generation_source_handoff",
+          "runtime.quality.n4_candidate_scenario_source",
+        ],
+      ],
+      [
+        binding.context_job_ref,
+        ["runtime.quality.cycle_substrate_context_job"],
+      ],
+      [binding.n5_input_ref, ["runtime.quality.candidate_simulation_n5_input"]],
+      [binding.n5_result_ref, ["polisyos.runtime.joint_simulation_result"]],
+    ];
+    for (const [ref, kinds] of expected) {
+      if (
+        !kinds.includes(ref.kind ?? "") ||
+        ref.media_type !== "application/json"
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "run_n8_joint_child_source_ref_invalid",
+        });
+      }
+    }
+  });
+
 const runCandidateSimulationN5ObservationSchema = z
   .object({
     node_ref: z.string().min(1),
@@ -212,6 +676,8 @@ const runCandidateSimulationN5ObservationSchema = z
     candidate_id: z.string().min(1).nullable().optional(),
     atom_ids: z.array(z.string()),
     selected_outcomes: z.array(z.string()),
+    executed_steps: z.array(z.number().int()).optional(),
+    replication_seeds: z.array(z.number().int()).optional(),
     status: z.enum([
       "joint_simulated",
       "simulation_pending_n5",
@@ -219,6 +685,21 @@ const runCandidateSimulationN5ObservationSchema = z
     ]),
     simulation_ref: z.string().nullable().optional(),
     simulation_result_ref: artifactRefSchema.nullable().optional(),
+    n4_source_ref: artifactRefSchema.nullable().optional(),
+    context_job_ref: artifactRefSchema.nullable().optional(),
+    n5_input_ref: artifactRefSchema.nullable().optional(),
+    profile_config_ref: z.string().min(1).nullable().optional(),
+    profile_selection_ref: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    lineage_status: z
+      .enum(["resolved", "not_established"])
+      .nullable()
+      .optional(),
+    lineage_limitation_code: z.string().min(1).nullable().optional(),
+    currentness_status: z.literal("not_established").nullable().optional(),
     world_model_record_content_hash: z
       .string()
       .regex(/^sha256:[0-9a-f]{64}$/)
@@ -235,8 +716,420 @@ const runCandidateSimulationN5ObservationSchema = z
       .nullable()
       .optional(),
     authority_blockers: z.array(z.string()),
+    n5_interaction_evidence: runN5InteractionEvidenceSchema
+      .nullable()
+      .optional(),
+    n8_numeric_interaction: z
+      .enum(["none", "additive", "non_additive", "unsupported"])
+      .nullable()
+      .optional(),
+    n8_numeric_interaction_basis: z
+      .enum(["finite_checked_model_point_estimate_only", "not_established"])
+      .nullable()
+      .optional(),
+    n8_interaction_sampling_status: z
+      .enum(["estimated", "standard_error_not_estimated", "not_established"])
+      .nullable()
+      .optional(),
+    n8_status: z
+      .enum([
+        "value_ready",
+        "value_conditional",
+        "value_blocked",
+        "value_pending_n8",
+      ])
+      .nullable()
+      .optional(),
+    n8_authority_blockers: z.array(z.string()).optional(),
+    n8_joint_request_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    n8_joint_world_model_record_ref: z.string().min(1).nullable().optional(),
+    n8_joint_outcome_units: z.record(z.string(), z.string()).optional(),
+    n8_joint_parent_atom_ids: z
+      .array(z.string().regex(/^atom_[a-f0-9]{16}$/))
+      .optional(),
+    n8_joint_parent_atom_content_hashes: z
+      .array(z.string().regex(/^sha256:[0-9a-f]{64}$/))
+      .optional(),
+    n8_parent_child_refs: z.array(z.string().min(1)).optional(),
+    n8_parent_child_source_bindings: z
+      .array(runCandidateSimulationN8ChildSourceBindingSchema)
+      .optional(),
+    n8_joint_scope_status: z
+      .enum(["resolved", "not_established"])
+      .nullable()
+      .optional(),
+    n8_joint_scope_limitation_code: z.string().min(1).nullable().optional(),
+    n8_joint_value_limitation_code: z
+      .literal("joint_interaction_rule_not_established")
+      .nullable()
+      .optional(),
+    n8_candidate_joint_selection_status: z
+      .enum(["resolved", "not_established"])
+      .nullable()
+      .optional(),
+    n8_candidate_joint_selection_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable()
+      .optional(),
+    n8_candidate_parent_atom_ids: z
+      .array(z.string().regex(/^atom_[a-f0-9]{16}$/))
+      .optional(),
+    n8_candidate_parent_atom_content_hashes: z
+      .array(z.string().regex(/^sha256:[0-9a-f]{64}$/))
+      .optional(),
+    n8_candidate_parent_intervention_ids: z.array(z.string().min(1)).optional(),
+    n8_candidate_parent_child_refs: z.array(z.string().min(1)).optional(),
+    n8_candidate_joint_selection_limitation_code: z
+      .literal("parent_joint_candidate_source_selection_not_established")
+      .nullable()
+      .optional(),
+    n8_candidate_member_basis: z
+      .enum(["hypothetical_all_unique_n4_source_members", "not_established"])
+      .nullable()
+      .optional(),
+    n8_source_candidate_relationship: z
+      .enum(["alternatives", "not_established"])
+      .nullable()
+      .optional(),
+    n8_policy_composition_status: z
+      .literal("not_established")
+      .nullable()
+      .optional(),
+    n8_policy_composition_limitation_code: z
+      .enum([
+        "n4_source_candidates_are_alternatives_not_authored_compound_design",
+        "legacy_selection_receipt_has_no_composition_basis",
+        "parent_joint_candidate_source_selection_not_established",
+      ])
+      .nullable()
+      .optional(),
+    n8_child_to_parent_refinement_status: z
+      .literal("not_established")
+      .nullable()
+      .optional(),
+    n8_child_to_parent_refinement_limitation_code: z
+      .enum([
+        "child_to_parent_refinement_rule_not_established",
+        "legacy_selection_receipt_has_no_refinement_basis",
+        "parent_joint_candidate_source_selection_not_established",
+      ])
+      .nullable()
+      .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((observation, context) => {
+    validateRunN5InteractionScope(
+      observation.n5_interaction_evidence,
+      observation,
+      context,
+    );
+    const candidateSelectionStatus =
+      observation.n8_candidate_joint_selection_status;
+    const candidateSelectionHash =
+      observation.n8_candidate_joint_selection_content_hash;
+    const candidateAtomIds = observation.n8_candidate_parent_atom_ids ?? [];
+    const candidateAtomHashes =
+      observation.n8_candidate_parent_atom_content_hashes ?? [];
+    const candidateInterventionIds =
+      observation.n8_candidate_parent_intervention_ids ?? [];
+    const candidateChildRefs = observation.n8_candidate_parent_child_refs ?? [];
+    const candidateSelectionLimitation =
+      observation.n8_candidate_joint_selection_limitation_code;
+    const candidateMemberBasis = observation.n8_candidate_member_basis;
+    const sourceCandidateRelationship =
+      observation.n8_source_candidate_relationship;
+    const compositionStatus = observation.n8_policy_composition_status;
+    const compositionLimitation =
+      observation.n8_policy_composition_limitation_code;
+    const refinementStatus = observation.n8_child_to_parent_refinement_status;
+    const refinementLimitation =
+      observation.n8_child_to_parent_refinement_limitation_code;
+    const candidateSelectionFieldsPresent =
+      candidateSelectionHash != null ||
+      candidateAtomIds.length > 0 ||
+      candidateAtomHashes.length > 0 ||
+      candidateInterventionIds.length > 0 ||
+      candidateChildRefs.length > 0 ||
+      candidateSelectionLimitation != null ||
+      candidateMemberBasis != null ||
+      sourceCandidateRelationship != null ||
+      compositionStatus != null ||
+      compositionLimitation != null ||
+      refinementStatus != null ||
+      refinementLimitation != null;
+    if (candidateSelectionStatus == null) {
+      if (candidateSelectionFieldsPresent) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_candidate_joint_selection_status"],
+          message: "run_n8_candidate_joint_selection_status_missing",
+        });
+      }
+    } else if (candidateSelectionStatus === "not_established") {
+      if (
+        candidateSelectionLimitation == null ||
+        candidateSelectionHash != null ||
+        candidateAtomIds.length > 0 ||
+        candidateAtomHashes.length > 0 ||
+        candidateInterventionIds.length > 0 ||
+        candidateChildRefs.length > 0 ||
+        candidateMemberBasis !== "not_established" ||
+        sourceCandidateRelationship !== "not_established" ||
+        compositionStatus !== "not_established" ||
+        compositionLimitation !==
+          "parent_joint_candidate_source_selection_not_established" ||
+        refinementStatus !== "not_established" ||
+        refinementLimitation !==
+          "parent_joint_candidate_source_selection_not_established"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_candidate_joint_selection_limitation_code"],
+          message: "run_n8_candidate_joint_selection_limitation_missing",
+        });
+      }
+    } else {
+      const unique = (values: string[]) =>
+        new Set(values).size === values.length;
+      const validHypotheticalBasis =
+        candidateMemberBasis === "hypothetical_all_unique_n4_source_members" &&
+        sourceCandidateRelationship === "alternatives" &&
+        compositionLimitation ===
+          "n4_source_candidates_are_alternatives_not_authored_compound_design" &&
+        refinementLimitation ===
+          "child_to_parent_refinement_rule_not_established";
+      const validLegacyBasis =
+        candidateMemberBasis === "not_established" &&
+        sourceCandidateRelationship === "not_established" &&
+        compositionLimitation ===
+          "legacy_selection_receipt_has_no_composition_basis" &&
+        refinementLimitation ===
+          "legacy_selection_receipt_has_no_refinement_basis";
+      if (
+        candidateSelectionHash == null ||
+        candidateSelectionLimitation != null ||
+        candidateAtomIds.length === 0 ||
+        candidateAtomIds.length !== observation.atom_ids.length ||
+        !unique(candidateAtomIds) ||
+        candidateAtomHashes.length !== observation.atom_ids.length ||
+        !unique(candidateAtomHashes) ||
+        candidateInterventionIds.length !== observation.atom_ids.length ||
+        candidateInterventionIds.some(
+          (value, index) => value !== observation.atom_ids[index],
+        ) ||
+        candidateChildRefs.length !== observation.atom_ids.length ||
+        !unique(candidateChildRefs) ||
+        observation.n8_joint_scope_status !== "not_established" ||
+        observation.n8_status !== "value_pending_n8" ||
+        compositionStatus !== "not_established" ||
+        refinementStatus !== "not_established" ||
+        !(validHypotheticalBasis || validLegacyBasis)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_candidate_parent_atom_content_hashes"],
+          message: "run_n8_candidate_joint_selection_binding_incomplete",
+        });
+      }
+    }
+    const fields = [
+      observation.n8_numeric_interaction,
+      observation.n8_numeric_interaction_basis,
+      observation.n8_interaction_sampling_status,
+    ];
+    if (fields.some((value) => value != null)) {
+      if (
+        observation.n5_interaction_evidence == null ||
+        fields.some((value) => value == null) ||
+        observation.n8_numeric_interaction !==
+          observation.n5_interaction_evidence.numeric_interaction ||
+        observation.n8_numeric_interaction_basis !==
+          observation.n5_interaction_evidence.numeric_interaction_basis ||
+        observation.n8_interaction_sampling_status !==
+          observation.n5_interaction_evidence.interaction_sampling_status
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n5_interaction_evidence"],
+          message: "run_n5_n8_interaction_qualification_missing_or_mismatched",
+        });
+      }
+    }
+    if (observation.n8_status === "value_conditional") {
+      if (
+        observation.n8_numeric_interaction === "unsupported" &&
+        !(observation.n8_authority_blockers ?? []).includes(
+          "interaction_numeric_classification_unsupported",
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_authority_blockers"],
+          message: "run_n5_n8_unsupported_interaction_not_limited",
+        });
+      }
+      if (
+        observation.n8_interaction_sampling_status != null &&
+        observation.n8_interaction_sampling_status !== "estimated" &&
+        ![
+          "interaction_sampling_not_established",
+          "standard_error_not_estimated",
+          "legacy_interaction_not_established",
+        ].some((code) =>
+          (observation.n8_authority_blockers ?? []).includes(code),
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_authority_blockers"],
+          message: "run_n5_n8_unestimated_interaction_not_limited",
+        });
+      }
+    }
+    const jointScope = observation.n8_joint_scope_status;
+    if (jointScope == null) {
+      const jointFieldsPresent =
+        observation.n8_joint_request_content_hash != null ||
+        observation.n8_joint_world_model_record_ref != null ||
+        Object.keys(observation.n8_joint_outcome_units ?? {}).length > 0 ||
+        (observation.n8_joint_parent_atom_ids ?? []).length > 0 ||
+        (observation.n8_joint_parent_atom_content_hashes ?? []).length > 0 ||
+        (observation.n8_parent_child_refs ?? []).length > 0 ||
+        (observation.n8_parent_child_source_bindings ?? []).length > 0 ||
+        observation.n8_joint_scope_limitation_code != null ||
+        observation.n8_joint_value_limitation_code != null;
+      if (jointFieldsPresent) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_joint_scope_status"],
+          message: "run_n8_joint_scope_status_missing",
+        });
+      }
+      return;
+    }
+
+    const scopeBlockers = observation.n8_authority_blockers ?? [];
+    const parentAtomIds = observation.n8_joint_parent_atom_ids ?? [];
+    const parentAtomHashes =
+      observation.n8_joint_parent_atom_content_hashes ?? [];
+    const childRefs = observation.n8_parent_child_refs ?? [];
+    const childBindings = observation.n8_parent_child_source_bindings ?? [];
+    const outcomeUnits = observation.n8_joint_outcome_units ?? {};
+    if (observation.n8_status !== "value_pending_n8") {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_status"],
+        message: "run_n8_joint_scope_must_remain_pending",
+      });
+    }
+    if (jointScope === "not_established") {
+      const limitation = observation.n8_joint_scope_limitation_code;
+      if (
+        limitation == null ||
+        observation.n8_joint_value_limitation_code != null ||
+        !scopeBlockers.includes(limitation) ||
+        Object.keys(outcomeUnits).length > 0 ||
+        parentAtomIds.length > 0 ||
+        parentAtomHashes.length > 0 ||
+        childRefs.length > 0 ||
+        childBindings.length > 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_joint_scope_limitation_code"],
+          message: "run_n8_joint_scope_limitation_missing",
+        });
+      }
+      return;
+    }
+
+    const evidence = observation.n5_interaction_evidence;
+    const n8Fields = [
+      observation.n8_numeric_interaction,
+      observation.n8_numeric_interaction_basis,
+      observation.n8_interaction_sampling_status,
+    ];
+    const expectedUnitOutcomes = new Set(observation.selected_outcomes);
+    const parentAtomIdSet = new Set(parentAtomIds);
+    const parentAtomHashSet = new Set(parentAtomHashes);
+    const sourceAtomIds = new Set(
+      childBindings.map((row) => row.source_atom_id),
+    );
+    const sourceAtomHashes = new Set(
+      childBindings.map((row) => row.source_atom_content_hash),
+    );
+    const bindingParentIds = new Set(
+      childBindings.map((row) => row.parent_atom_id),
+    );
+    const bindingParentHashes = new Set(
+      childBindings.map((row) => row.parent_atom_content_hash),
+    );
+    const sourceInterventionIds = new Set(
+      childBindings.map((row) => row.source_intervention_id),
+    );
+    const unique = (values: string[]) => new Set(values).size === values.length;
+    const sameSet = (left: Set<string>, right: string[]) =>
+      left.size === right.length && right.every((value) => left.has(value));
+    const selectedAtoms = observation.atom_ids;
+    const completeParentBasis =
+      observation.n8_joint_scope_limitation_code == null &&
+      observation.n8_joint_value_limitation_code ===
+        "joint_interaction_rule_not_established" &&
+      scopeBlockers.includes("joint_interaction_rule_not_established") &&
+      observation.n8_joint_request_content_hash != null &&
+      observation.n8_joint_world_model_record_ref != null &&
+      observation.world_model_record_content_hash != null &&
+      expectedUnitOutcomes.size > 0 &&
+      Object.keys(outcomeUnits).length === expectedUnitOutcomes.size &&
+      Object.keys(outcomeUnits).every((outcome) =>
+        expectedUnitOutcomes.has(outcome),
+      ) &&
+      Object.values(outcomeUnits).every((unit) => unit.trim().length > 0) &&
+      selectedAtoms.length > 0 &&
+      parentAtomIds.length === selectedAtoms.length &&
+      parentAtomHashes.length === selectedAtoms.length &&
+      unique(parentAtomIds) &&
+      unique(parentAtomHashes) &&
+      childRefs.length === selectedAtoms.length &&
+      unique(childRefs) &&
+      childBindings.length === selectedAtoms.length &&
+      childBindings.every(
+        (binding, index) => binding.child_node_ref === childRefs[index],
+      ) &&
+      sameSet(bindingParentIds, parentAtomIds) &&
+      sameSet(sourceAtomIds, parentAtomIds) &&
+      sameSet(bindingParentHashes, parentAtomHashes) &&
+      sameSet(sourceAtomHashes, parentAtomHashes) &&
+      sameSet(sourceInterventionIds, selectedAtoms) &&
+      childBindings.every(
+        (binding) =>
+          binding.source_problem_frame_ref === observation.design_problem_ref,
+      ) &&
+      evidence?.schema_version ===
+        "policyos.runtime.joint_simulation_horizon.v4" &&
+      evidence.interaction_sampling_status !== "not_established" &&
+      observation.status === "joint_simulated" &&
+      (observation.executed_steps ?? []).length > 0 &&
+      (observation.replication_seeds ?? []).length > 0 &&
+      n8Fields.every((value) => value != null) &&
+      observation.n8_numeric_interaction === evidence.numeric_interaction &&
+      observation.n8_numeric_interaction_basis ===
+        evidence.numeric_interaction_basis &&
+      observation.n8_interaction_sampling_status ===
+        evidence.interaction_sampling_status;
+    if (!completeParentBasis) {
+      context.addIssue({
+        code: "custom",
+        path: ["n8_parent_child_source_bindings"],
+        message: "run_n8_joint_scope_binding_incomplete",
+      });
+    }
+  });
 
 const runRecursiveCycleBranchFailureSchema = z
   .object({
@@ -286,6 +1179,146 @@ const runGenericCycleSimulationCheckpointSchema =
     }
   });
 
+const runCandidateSimulationCurrentOccurrenceSchema = z
+  .object({
+    candidate_id: z.string().min(1),
+    cycle_index: z.number().int().nonnegative(),
+    content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    source_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable(),
+    front: z.enum(["decision", "research", "quarantine", "portfolio"]),
+    certified_by_n9: z.boolean(),
+  })
+  .strict();
+
+const runCandidateSimulationContinuationFrontsSchema = z
+  .object({
+    decision_candidate_ids: z.array(z.string().min(1)),
+    research_candidate_ids: z.array(z.string().min(1)),
+    quarantine_candidate_ids: z.array(z.string().min(1)),
+    portfolio_candidate_ids: z.array(z.string().min(1)),
+  })
+  .strict();
+
+const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
+  .object({
+    source_generation_run_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/),
+    continued_generation_run_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/),
+    source_cycle_index: z.number().int().nonnegative(),
+    continued_cycle_index: z.number().int().nonnegative(),
+    previous_n4_source_ref: artifactRefSchema.nullable(),
+    previous_n5_input_ref: artifactRefSchema.nullable(),
+    selected_n4_source_ref: artifactRefSchema,
+    selected_n5_input_ref: artifactRefSchema,
+    previous_profile_selection_ref: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable(),
+    previous_profile_content_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable(),
+    selected_profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    selected_profile_content_hash: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    selected_target_world_slot: z.string().min(1),
+    previous_selected_target_baseline_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable(),
+    selected_target_baseline_hash: z
+      .string()
+      .regex(/^sha256:[0-9a-f]{64}$/)
+      .nullable(),
+    source_currentness_status: z.enum(["current", "stale", "not_established"]),
+    source_currentness_reason: z.string().min(1),
+    continuation_currentness_status: z.enum([
+      "current",
+      "stale",
+      "not_established",
+    ]),
+    continuation_currentness_reason: z.string().min(1),
+    n9_status: z.enum([
+      "promotion_pending_n9",
+      "certified_current_valid",
+      "not_promoted",
+    ]),
+    n9_reason: z.string().min(1),
+    n9_certified_candidate_ids: z.array(z.string().min(1)),
+    current_candidate_occurrences: z.array(
+      runCandidateSimulationCurrentOccurrenceSchema,
+    ),
+    current_fronts: runCandidateSimulationContinuationFrontsSchema,
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((projection, context) => {
+    const occurrences = new Set(
+      projection.current_candidate_occurrences.map((row) => row.candidate_id),
+    );
+    const fronts = [
+      ...projection.current_fronts.decision_candidate_ids,
+      ...projection.current_fronts.research_candidate_ids,
+      ...projection.current_fronts.quarantine_candidate_ids,
+      ...projection.current_fronts.portfolio_candidate_ids,
+    ];
+    if (
+      new Set(fronts).size !== fronts.length ||
+      occurrences.size !== projection.current_candidate_occurrences.length ||
+      fronts.length !== occurrences.size ||
+      fronts.some((candidateId) => !occurrences.has(candidateId)) ||
+      projection.n9_certified_candidate_ids.some(
+        (candidateId) => !occurrences.has(candidateId),
+      ) ||
+      projection.continued_cycle_index !== projection.source_cycle_index + 1 ||
+      projection.selected_n4_source_ref.kind !==
+        "runtime.quality.n4_candidate_scenario_source" ||
+      projection.selected_n5_input_ref.kind !==
+        "runtime.quality.candidate_simulation_n5_input" ||
+      (projection.previous_n4_source_ref === null) !==
+        (projection.previous_n5_input_ref === null) ||
+      (projection.previous_profile_selection_ref === null) !==
+        (projection.previous_profile_content_hash === null) ||
+      (projection.previous_n4_source_ref !== null &&
+        projection.previous_n4_source_ref.kind !==
+          "runtime.quality.n4_candidate_scenario_source") ||
+      (projection.previous_n5_input_ref !== null &&
+        projection.previous_n5_input_ref.kind !==
+          "runtime.quality.candidate_simulation_n5_input") ||
+      (projection.previous_selected_target_baseline_hash !== null &&
+        projection.selected_target_baseline_hash !== null &&
+        projection.previous_selected_target_baseline_hash ===
+          projection.selected_target_baseline_hash) ||
+      projection.current_candidate_occurrences.some(
+        (row) =>
+          row.certified_by_n9 !==
+            projection.n9_certified_candidate_ids.includes(row.candidate_id) ||
+          !{
+            decision: projection.current_fronts.decision_candidate_ids,
+            research: projection.current_fronts.research_candidate_ids,
+            quarantine: projection.current_fronts.quarantine_candidate_ids,
+            portfolio: projection.current_fronts.portfolio_candidate_ids,
+          }[row.front].includes(row.candidate_id),
+      ) ||
+      (projection.n9_status !== "certified_current_valid" &&
+        projection.n9_certified_candidate_ids.length > 0) ||
+      (projection.continuation_currentness_status !== "current" &&
+        projection.n9_status === "certified_current_valid")
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "run_candidate_simulation_continuation_projection_invalid",
+      });
+    }
+  });
+
 const runCandidateSimulationAcquisitionHistoryEntrySchema = z
   .object({
     route_receipt_ref: artifactRefSchema,
@@ -297,11 +1330,54 @@ const runCandidateSimulationAcquisitionHistoryEntrySchema = z
     new_candidate_id: z.string().min(1).nullable().optional(),
     new_candidate_source_ref: artifactRefSchema.nullable().optional(),
     origin_source_ref: artifactRefSchema.nullable().optional(),
+    continuation: runCandidateSimulationAcquisitionContinuationProjectionSchema
+      .nullable()
+      .optional(),
     currentness_status: z.literal("not_established"),
     authority_purpose: z.literal("candidate_observation_only"),
     publication_authority: z.literal(false),
   })
-  .strict();
+  .strict()
+  .superRefine((entry, context) => {
+    if (
+      entry.terminal_outcome === "quarantined_no_growth" &&
+      entry.continuation != null
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_acquisition_quarantine_has_continuation",
+      });
+    }
+    const projection = entry.continuation;
+    if (
+      projection != null &&
+      entry.old_candidate_id === entry.new_candidate_id
+    ) {
+      if (
+        entry.old_candidate_id == null ||
+        projection.previous_n4_source_ref == null ||
+        projection.previous_n5_input_ref == null ||
+        projection.previous_profile_selection_ref == null ||
+        projection.previous_profile_content_hash == null ||
+        projection.previous_profile_selection_ref !==
+          projection.selected_profile_selection_ref ||
+        projection.previous_selected_target_baseline_hash == null ||
+        projection.selected_target_baseline_hash == null ||
+        projection.previous_selected_target_baseline_hash ===
+          projection.selected_target_baseline_hash ||
+        projection.previous_n4_source_ref.artifact_id ===
+          projection.selected_n4_source_ref.artifact_id ||
+        projection.previous_n5_input_ref.artifact_id ===
+          projection.selected_n5_input_ref.artifact_id
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "candidate_acquisition_same_candidate_continuation_binding_invalid",
+        });
+      }
+    }
+  });
 
 const runCandidateSimulationProjectionSchema = z
   .object({
@@ -326,6 +1402,7 @@ const runCandidateSimulationProjectionSchema = z
         "compiled_cycle_artifact_content_invalid",
         "n5_observation_not_emitted",
         "n5_result_reference_not_established",
+        "n5_interaction_scope_not_established",
       ])
       .nullable()
       .optional(),
@@ -490,6 +1567,21 @@ const runGenericCycleSimulationN5ObservationSchema = z
       .optional(),
     n8_authority_blockers: z.array(z.string()),
     n8_limitation_code: z.string().min(1).nullable().optional(),
+    n5_interaction_evidence: runN5InteractionEvidenceSchema
+      .nullable()
+      .optional(),
+    n8_numeric_interaction: z
+      .enum(["none", "additive", "non_additive", "unsupported"])
+      .nullable()
+      .optional(),
+    n8_numeric_interaction_basis: z
+      .enum(["finite_checked_model_point_estimate_only", "not_established"])
+      .nullable()
+      .optional(),
+    n8_interaction_sampling_status: z
+      .enum(["estimated", "standard_error_not_estimated", "not_established"])
+      .nullable()
+      .optional(),
     n8_lineage_status: z.enum(["resolved", "not_established"]),
     n8_status: z.enum([
       "value_ready",
@@ -503,6 +1595,8 @@ const runGenericCycleSimulationN5ObservationSchema = z
     profile_selection_ref: z.string().regex(/^sha256:[0-9a-f]{64}$/),
     publication_authority: z.literal(false),
     selected_outcomes: z.array(z.string()),
+    executed_steps: z.array(z.number().int()).optional(),
+    replication_seeds: z.array(z.number().int()).optional(),
     simulation_result_ref: runGenericCycleSimulationArtifactRefSchema
       .nullable()
       .optional(),
@@ -515,6 +1609,11 @@ const runGenericCycleSimulationN5ObservationSchema = z
   })
   .strict()
   .superRefine((observation, context) => {
+    validateRunN5InteractionScope(
+      observation.n5_interaction_evidence,
+      observation,
+      context,
+    );
     const expectedNodeRef =
       "design-problem://" +
       observation.design_problem_ref.slice("sha256:".length);
@@ -634,6 +1733,52 @@ const runGenericCycleSimulationN5ObservationSchema = z
       });
     }
     if (observation.n8_status === "value_conditional") {
+      if (
+        observation.n5_interaction_evidence == null ||
+        observation.n8_numeric_interaction == null ||
+        observation.n8_numeric_interaction_basis == null ||
+        observation.n8_interaction_sampling_status == null ||
+        observation.n8_numeric_interaction !==
+          observation.n5_interaction_evidence.numeric_interaction ||
+        observation.n8_numeric_interaction_basis !==
+          observation.n5_interaction_evidence.numeric_interaction_basis ||
+        observation.n8_interaction_sampling_status !==
+          observation.n5_interaction_evidence.interaction_sampling_status
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n5_interaction_evidence"],
+          message:
+            "generic_cycle_n8_interaction_qualification_missing_or_mismatched",
+        });
+      }
+      if (
+        observation.n8_numeric_interaction === "unsupported" &&
+        !observation.n8_authority_blockers.includes(
+          "interaction_numeric_classification_unsupported",
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_authority_blockers"],
+          message: "generic_cycle_n8_unsupported_interaction_not_limited",
+        });
+      }
+      if (
+        observation.n8_interaction_sampling_status != null &&
+        observation.n8_interaction_sampling_status !== "estimated" &&
+        ![
+          "interaction_sampling_not_established",
+          "standard_error_not_estimated",
+          "legacy_interaction_not_established",
+        ].some((code) => observation.n8_authority_blockers.includes(code))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["n8_authority_blockers"],
+          message: "generic_cycle_n8_unestimated_interaction_not_limited",
+        });
+      }
       if (observation.n8_lineage_status === "resolved") {
         if (
           observation.simulation_result_ref == null ||
@@ -3275,3 +4420,91 @@ export type HumanDecisionGatePayload = z.infer<
 export type HumanDecisionReviewEffectivenessPayload = z.infer<
   typeof humanDecisionReviewEffectivenessSchema
 >;
+
+const predictiveCalibrationArtifactRefSchema = z
+  .object({
+    artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    kind: z.string().min(1),
+    media_type: z.string().min(1),
+    manifest_profile_sha256: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+  })
+  .strict();
+
+const predictiveCalibrationS10Schema = z
+  .object({
+    calibration_status: z.enum([
+      "pass",
+      "limit",
+      "blocked",
+      "not_applicable_non_observable",
+      "insufficient_history",
+    ]),
+    forecast_tier: z.string().min(1),
+    counterfactual_credibility: z.literal("not_established"),
+    numerator: z.number().int().nonnegative(),
+    denominator: z.number().int().nonnegative(),
+    observed_pass_rate: z.number().min(0).max(1),
+    calibration_record_ref: z.string().nullable(),
+  })
+  .strict();
+
+const predictiveCalibrationAssociationSchema = z
+  .object({
+    schema_version: z.literal(
+      "polisyos.runtime.predictive_calibration_association.v2",
+    ),
+    event_id: z.string().min(1),
+    intent_id: z.string().min(1).max(120),
+    request_sha256: z.string().regex(/^[0-9a-f]{64}$/),
+    run_id: z.string().min(1),
+    control_run_id: z.string().min(1),
+    job_id: z.string().min(1),
+    tenant_id: z.string().min(1),
+    cell_id: z.string().min(1),
+    run_manifest_ref: predictiveCalibrationArtifactRefSchema,
+    candidate_source_ref: predictiveCalibrationArtifactRefSchema,
+    observed_source_ref: predictiveCalibrationArtifactRefSchema,
+    model_spec_ref: predictiveCalibrationArtifactRefSchema,
+    policy_spec_ref: predictiveCalibrationArtifactRefSchema,
+    calibration_rule_ref: predictiveCalibrationArtifactRefSchema,
+    backtest_report_ref: predictiveCalibrationArtifactRefSchema,
+    empirical_evidence_ref: predictiveCalibrationArtifactRefSchema,
+    uncertainty_bundle_ref: predictiveCalibrationArtifactRefSchema,
+    assessment: z.literal("limited"),
+    authority_scope: z.literal("predictive_only"),
+    issuer_status: z.literal("not_established"),
+    source_time_status: z.literal("not_established"),
+    population_scope_status: z.literal("not_established"),
+    counterfactual_credibility_status: z.literal("not_established"),
+    observed_numerator: z.number().int().nonnegative(),
+    observed_denominator: z.number().int().positive(),
+    observed_hit_rate: z.number().min(0).max(1),
+    nominal_confidence_level: z.number().gt(0).lt(1).nullable(),
+    owner_suitability: z.enum(["supported", "limited", "blocked"]),
+    s10: predictiveCalibrationS10Schema,
+    evidence_reason_codes: z.array(z.string()),
+    may_not_use_for: z.array(
+      z.enum([
+        "promotion",
+        "publication",
+        "policy_selection",
+        "causal_effect_claim",
+      ]),
+    ),
+    created_at: z.iso.datetime({ offset: true }),
+  })
+  .strict();
+
+export const predictiveCalibrationResponseSchema = z
+  .object({
+    meta: z
+      .object({
+        request_id: z.string().min(1),
+        generated_at: z.iso.datetime({ offset: true }),
+        source_kinds: z.array(z.literal("core_run")),
+      })
+      .strict(),
+    association_ref: predictiveCalibrationArtifactRefSchema,
+    association: predictiveCalibrationAssociationSchema,
+  })
+  .strict();

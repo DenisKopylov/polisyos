@@ -1,0 +1,36 @@
+id = "2026-10-11-e02-la036-selected-profile-cas-readers"
+title = "Preserve selected BERL CAS profiles across writes and fresh reads"
+type = "changed"
+component = "berl"
+owner = "team-scientist"
+summary = "BERL persistence now returns the profile selected by the same CAS write, while fresh readers validate the fixed bundle contract and distinguish unexpected store-read failures from object absence."
+evidence = [
+  "tests/unit/berl/test_persistence.py",
+  "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+  "tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+  "src/polisyos/berl/README.md",
+]
+compatibility = "The ExplanationBundle payload schema remains unchanged. New writes retain the selected manifest profile returned by that same write and refuse a profileless write result. Existing profileless historical refs remain readable only when the default manifest view satisfies the fixed BERL kind, media, schema, and payload contract; no historical objects are rewritten."
+change_class = "public-experimental-additive"
+surface_classification = "public_experimental: polisyos.berl"
+migration = "No persisted-bundle migration is required. Callers can catch ExplanationBundleStoreReadError when a selected CAS read fails unexpectedly; that condition means object absence is not established. Custom stores used for BERL reads must implement the selected-manifest and raw selected-view read methods."
+api = "The supported public_experimental polisyos.berl facade newly exports ExplanationBundleStoreReadError. Existing persist_explanation_bundle and load_explanation_bundle exports retain their signatures: writes request the exact selected profile from the same CAS operation, and reads validate the typed selected ref, fixed scientist.explanation_bundle kind, application/json media, generated schema name/version, required fields, and whole bundle. Runtime reliability consumes a supplied ref through that reader and does not rescue it with inline payload bytes."
+limitations = "This storage/read boundary does not prove producer-owned claim/run/prediction/model subject custody, conditional feature-law validity, calibration, production store availability, issuer, or currentness. A supplied ref that cannot be resolved fails closed; Runtime reports the selected store read as unavailable rather than asserting absence. The public-surface inventory remains unreconciled and must be regenerated/reviewed before its inventory-review flag can change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/berl/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "berl-selected-profile-cas-read-error-export"
+change_class = "python-public-api"
+impact = "additive"
+surface = "python: polisyos.berl.ExplanationBundleStoreReadError"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "The public_experimental BERL facade exports a typed error for unexpected selected-CAS read failures, preserving the distinction between an unavailable read and an absent bundle."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/berl/README.md"]
+runbook_docs = []

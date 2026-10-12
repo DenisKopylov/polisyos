@@ -158,6 +158,7 @@ class BootstrapStabilityAnalyzer:
         skeleton_counts = {skeleton_key_for_edge(edge): 0 for edge in base_edges}
         warnings: list[str] = []
         completed = 0
+        analysis_completed = 0
         identifiable_hits = 0
         adjustment_sets: list[frozenset[str]] = []
 
@@ -200,6 +201,9 @@ class BootstrapStabilityAnalyzer:
 
             graph_for_analysis, graph_warnings = _graph_for_analysis(rerun_report)
             warnings.extend(graph_warnings)
+            if graph_for_analysis is None:
+                continue
+            analysis_completed += 1
             identifiability = _evaluate_identifiability(graph_for_analysis, causal_query)
             if identifiability:
                 identifiable_hits += 1
@@ -212,12 +216,17 @@ class BootstrapStabilityAnalyzer:
         skeleton_frequency = _finalize_frequency(skeleton_counts, completed)
         mean_edge = float(np.mean(list(edge_frequency.values()))) if edge_frequency else None
         identifiable_rate = (
-            float(identifiable_hits / completed)
-            if causal_query is not None and completed > 0
+            float(identifiable_hits / analysis_completed)
+            if causal_query is not None and analysis_completed > 0
             else None
         )
         adjustment_stability = _pairwise_jaccard_mean(adjustment_sets)
 
+        if causal_query is not None and analysis_completed < completed:
+            warnings.append(
+                "bootstrap_graph_analysis_limited: admitted "
+                f"{analysis_completed}/{completed} resamples"
+            )
         if completed < self._config.n_resamples:
             warnings.append(
                 f"bootstrap_truncated: completed {completed}/{self._config.n_resamples} resamples"
@@ -315,13 +324,13 @@ def _graph_for_analysis(
     report: Any,
 ) -> tuple[Any, list[str]]:
     warnings: list[str] = []
-    graph = getattr(report, "resolved_graph", None) or report.graph
+    graph = report.graph_for_analysis()
     if getattr(graph, "graph_type", None) is not None and getattr(
         report.graph, "graph_type", None
     ) != getattr(graph, "graph_type", None):
         warnings.append("resolved_graph_used_for_bootstrap_analysis")
-    elif getattr(report.graph.graph_type, "value", "") in {"pag", "cpdag"}:
-        warnings.append("structural_uncertainty_limited_bootstrap_analysis")
+    elif graph is None:
+        warnings.append("graph_projection_unavailable_for_bootstrap_identifiability")
     return graph, warnings
 
 

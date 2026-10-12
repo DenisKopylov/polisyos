@@ -56,7 +56,22 @@ Source plan phases: D1-L4 Phase 2 estimand/uncertainty normalization, Phase 3 ve
 
 ::: polisyos.ir.analytics.causal_queries
 
+The direct static ID family admits a resolved DAG or acyclic ADMG. Cyclic ADMGs
+receive a typed static-ID limitation; the validated dynamic-reduction and
+sigma/cyclic owners remain separate. Direct scalar ID refuses M-graphs, which
+require the full-law recovery owner and explicit missingness inputs. Direct TR
+admission also verifies that every S-node target is present in the selection
+diagram's base graph.
+
 ## Discovery And Structural Uncertainty
+
+`CausalDiscoveryReport` schema 1.1 carries a content-bound graph projection
+receipt. DAG-only readers consume the source only when it is a declared DAG or
+when the receipt binds an exact canonical projection. Historical reports without
+a receipt are upgraded fail-closed: an old resolved graph is admitted only if
+replaying the current profile-specific projector reproduces its complete graph
+payload; otherwise it remains retained as an unsupported candidate. PAG/CPDAG
+completion semantics are not selected by this receipt.
 
 ::: polisyos.ir.analytics.causal_discovery
 
@@ -256,3 +271,45 @@ to exist on the facade root.
 | Causal, HTE, distributional, backtest, and transportability contracts are ABI-backed where public | `src/polisyos/schemas/abi_models.py`                    | [JSON Schema Catalog](../schemas.md), `tests/unit/ir/analytics/test_shared_invariants.py`                         |
 | Frontier causal reports are typed research contracts, not runtime support promises                | frontier analytics modules                 | `tests/unit/ir/test_frontier_causal_contracts.py`, `docs/adr/0110-ir-frontier-governance-and-causal-contracts.md` |
 | Package facade counts and lazy import behavior stay ratcheted                                     | `src/polisyos/ir/api.py`                   | `tests/unit/ir/test_public_surface.py`                                                                            |
+
+## Native causal reports in value search
+
+The existing public `CausalEffectReport` model now declares the Foundry output
+contract for its typed native causal result and can project its estimate and
+statistical interval through `to_value_uncertainty()` when the caller supplies a
+matching `NativeValueEstimandBinding`. This is only a typed non-gating
+projection: `gate_eligible` remains false, and a failed, heuristic, or
+coordinate-mismatched report cannot project a value interval. The report fields,
+IR schema snapshot, and `polisyos.ir` exports do not change.
+
+The N8 producer persists a v2 owner-method run basis that binds selected
+profile bytes, typed owner run intent, assignment, panel input, method request,
+a post-run execution receipt, and actual report. Its fresh consumer resolves the
+selected manifest profile and compares each full input multiset before projecting
+a ValueOuterSet. The receipt binds canonical submitted request intent, runner-returned
+seed/backend/fingerprint, and exact persisted report bytes. Request values are
+reconciled only when the native report directly exposes them; full used-parameter
+coverage remains `not_established` because the current methods and runner do not
+expose every effective parameter. Profileless historical/default views,
+malformed estimand arrays, extra or duplicate lineage edges, and reused reports
+under changed exposed request values are refused.
+It keeps assignment/identification bounds separate from the method's statistical
+CI. The current default owner gateway supplies no treatment assignment; absent
+that external input, N8 remains blocked. Controlled DID and synthetic-control
+tests show candidate-only implementation behavior and do not establish empirical
+authority or production currentness. Historical basis v1 is not upgraded into a
+v2 receipt-bearing run. V5 also rejects coercive JSON boolean, string, float, and null
+values at the typed integer fields, and rejects boolean, string, and null assignment
+bounds before any fresh projection.
+
+### Scalar query graph admission
+
+A scalar ID query consumes a strict detached snapshot of the complete causal
+graph and edge fields. Public scalar entry points refuse PAG/CPDAG source tags
+with a typed limitation while equivalence-class completion semantics remain
+not adjudicated. Directed endpoints alone, a PAG policy field, or a previous
+identified result do not authorize a completion. Direct TR admission rebuilds the
+typed selection diagram and its S-node set together with the graph snapshot, then
+consumes that returned object. Structural endpoint inspection remains separate;
+valid resolved DAG/ADMG queries and their existing native cyclic, sigma, temporal,
+and full-law owners are not redefined here.

@@ -3595,11 +3595,12 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Summary: Bounded Explanation Reliability Layer public API.
 - Export resolution incomplete: Unresolved import-time ImportFrom outside pure-declaration grammar: src/polisyos/berl/__init__.py:from __future__ import annotations.
 
-<details><summary>Source-declared candidates (13; native exports unproved)</summary>
+<details><summary>Source-declared candidates (14; native exports unproved)</summary>
 
 ```text
 EmpiricalBoundResult
 ExplanationBundle
+ExplanationBundleStoreReadError
 ExplanationOrchestrator
 ExplanationRequest
 ExplanationValidationResult

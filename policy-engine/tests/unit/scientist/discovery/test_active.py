@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphType,
+)
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.scientist.methods.discovery.active import (
     ActiveDisambiguationPlanner,
@@ -150,6 +155,71 @@ def test_active_planner_builds_ready_plan_for_disputed_edge() -> None:
     assert plan.status == "ready"
     assert plan.target_edge_keys == ["X->Y"]
     assert any(action.action_type == "run_intervention" for action in plan.actions)
+
+
+def test_active_planner_refuses_unresolved_partial_graph() -> None:
+    partial = GraphHypothesis(
+        hypothesis_id="fci-partial",
+        algorithm_family=DiscoveryAlgorithmFamily.CONSTRAINT_BASED,
+        method=DiscoveryMethod.FCI,
+        graph=CausalGraphModel(
+            graph_type=GraphType.PAG,
+            nodes=["X", "Y"],
+            edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE)],
+        ),
+        edge_confidence={"X->Y": 0.8},
+        compute_footprint=ComputeFootprint(),
+    )
+    plan = ActiveDisambiguationPlanner().plan(
+        ActiveDisambiguationPlannerInput(
+            edge_confidence_matrix=EdgeConfidenceMatrix(
+                entries=[
+                    EdgeConfidenceEntry(
+                        skeleton_key="X--Y",
+                        edge_key="X->Y",
+                        src="X",
+                        dst="Y",
+                        presence_confidence=0.8,
+                        orientation_confidence=0.4,
+                        directional_support={"X->Y": 0.5, "Y->X": 0.45},
+                        orientation_support={"X|tail>arrow|Y": 0.5},
+                        supporting_hypothesis_ids=["fci-partial"],
+                        disputed=True,
+                        dispute_reasons=["orientation_conflict"],
+                    )
+                ]
+            ),
+            bootstrap_stability_report=_stability("fci-partial"),
+            downstream_utility_report=_utility(
+                hypothesis_id="fci-partial",
+                identification_status="unsupported_graph_profile",
+                composite_score=0.0,
+            ),
+            hypotheses=[partial],
+            graph_prior_bundle=GraphPriorBundle(
+                disputed_edges=[
+                    DisputedEdge(
+                        dispute_id="partial-profile",
+                        skeleton_key="X--Y",
+                        candidate_edges=[
+                            PriorEdge(
+                                edge_key="X->Y",
+                                src="X",
+                                dst="Y",
+                                presence_confidence=0.8,
+                                orientation_confidence=0.4,
+                                supporting_hypothesis_ids=["fci-partial"],
+                            )
+                        ],
+                        dispute_reasons=["orientation_conflict"],
+                    )
+                ]
+            ),
+            prior_knowledge_bundle=PriorKnowledgeBundle(),
+            causal_query=_query(),
+        )
+    )
+    assert all(action.action_type != "run_intervention" for action in plan.actions)
 
 
 def test_active_planner_returns_no_action_needed_when_ambiguity_is_absent() -> None:

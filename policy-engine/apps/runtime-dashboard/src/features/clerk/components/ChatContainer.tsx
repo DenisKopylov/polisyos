@@ -12,12 +12,13 @@ import { ChatMessage } from "./ChatMessage";
 import { ClerkFollowUpBar } from "./ClerkFollowUpBar";
 import { ExportConversation } from "./ExportConversation";
 import { ConversationHistorySearch } from "./ConversationHistorySearch";
+import { ControlPreAdmissionRecoveryNotice } from "@/features/runs/components/ControlPreAdmissionRecoveryNotice";
 
 export function ChatContainer() {
   const { t } = useI18n();
   const { flags } = useFeatureFlags();
   const { messages, isStreaming } = useChatStore();
-  const { submit, isLoading } = useClerkNlRun();
+  const { submit, isLoading, recovery } = useClerkNlRun();
   const ctx = useConversationContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -103,6 +104,11 @@ export function ChatContainer() {
         ))}
         <div ref={messagesEndRef} />
       </div>
+
+      <ControlPreAdmissionRecoveryNotice
+        data={recovery.data ?? null}
+        error={recovery.error}
+      />
 
       {/* Follow-up bar (shown after completed responses) */}
       {!isStreaming && messages.length > 0 && followUpActions.length > 0 && (

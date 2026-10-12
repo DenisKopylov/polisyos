@@ -162,6 +162,20 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async getControlPreAdmissionAttemptByIdempotencyKey(params) {
+    const path = `/api/v1/control/admission-attempts/by-idempotency-key`;
+    const query = undefined;
+    const requestHeaders = new Headers();
+    requestHeaders.set("Idempotency-Key", String(params["Idempotency-Key"]));
+    return this.request("GET", path, query, undefined, requestHeaders);
+  }
+
+  async getControlPreAdmissionAttemptStatus(params) {
+    const path = `/api/v1/control/admission-attempts/${encodeURIComponent(String(params.attempt_id))}`;
+    const query = undefined;
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async getControlCapabilities() {
     const path = `/api/v1/control/capabilities`;
     const query = undefined;
@@ -801,6 +815,12 @@ export class RuntimeApiClient {
       paper_projection_rule_version: params?.paper_projection_rule_version,
       paper_projection_hash: params?.paper_projection_hash,
     });
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
+  async getRunPredictiveCalibration(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/predictive-calibration`;
+    const query = undefined;
     return this.request("GET", path, query, undefined, undefined);
   }
 

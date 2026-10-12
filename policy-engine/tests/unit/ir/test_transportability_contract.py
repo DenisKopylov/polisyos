@@ -14,6 +14,7 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeMark,
     EdgeSource,
     GraphType,
+    graph_content_sha256,
 )
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import BoundMethod, compute_manski_bounds
@@ -46,6 +47,151 @@ def test_transportability_result_artifact_roundtrip(tmp_path) -> None:
     assert isinstance(ref, TransportabilityResultRef)
     assert ref.kind == "ir.transportability_result"
     assert loaded == result
+
+
+
+def test_partial_graph_refusal_retains_exact_source_identity():
+    graph = CausalGraphModel(
+        graph_type=GraphType.CPDAG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.TAIL,
+            )
+        ],
+    )
+    source = ContextProfile(
+        context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH
+    )
+    target = ContextProfile(
+        context_id="target",
+        countries=["UA"],
+        income_level=IncomeLevel.LOWER_MIDDLE,
+    )
+    diagram = SelectionDiagram(
+        base_graph=graph,
+        source_context=source,
+        target_context=target,
+        context_distance=0.25,
+    )
+    raw = CheckTransportability.pure_step(
+        state={
+            "selection_diagram": diagram.model_dump(mode="json"),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params={},
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert (
+        result.unsupported_reason
+        == "partial_graph_completion_semantics_not_established"
+    )
+    assert result.source_graph_type is GraphType.CPDAG
+    assert result.source_graph_sha256 == graph_content_sha256(graph)
+
+
+def test_transportability_source_graph_type_and_digest_are_all_or_none():
+    with pytest.raises(ValidationError, match="source graph type and content digest"):
+        TransportabilityResult(source_graph_type=GraphType.PAG)
+
+def test_malformed_graph_refusal_does_not_bind_the_context_placeholder_as_source():
+    source = ContextProfile(
+        context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH
+    )
+    target = ContextProfile(
+        context_id="target", countries=["UA"], income_level=IncomeLevel.LOWER_MIDDLE
+    )
+    raw_diagram = {
+        "base_graph": {
+            "graph_type": GraphType.DAG.value,
+            "nodes": ["X", "Y"],
+            "edges": [
+                {
+                    "src": "X",
+                    "dst": "Y",
+                    "mark_src": EdgeMark.CIRCLE.value,
+                    "mark_dst": EdgeMark.ARROW.value,
+                }
+            ],
+        },
+        "source_context": source.model_dump(mode="json"),
+        "target_context": target.model_dump(mode="json"),
+        "context_distance": 0.25,
+    }
+    raw = CheckTransportability.pure_step(
+        state={
+            "selection_diagram": raw_diagram,
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params={},
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == "causal_graph_profile_invalid"
+    assert result.source_graph_type is None
+    assert result.source_graph_sha256 is None
+    assert result.source_context_id == "source"
+    assert result.target_context_id == "target"
+    assert "graph_type:dag" in result.identification_trace
+    assert "__scalar_graph_admission__" not in str(result.model_dump(mode="json"))
+
+
+def test_model_copy_invalid_dag_is_refused_before_registered_scalar_claim() -> None:
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    ).model_copy(
+        update={
+            "edges": [
+                CausalEdge(
+                    src="X",
+                    dst="Y",
+                    mark_src=EdgeMark.CIRCLE,
+                    mark_dst=EdgeMark.ARROW,
+                )
+            ]
+        }
+    )
+    valid_base = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    diagram = SelectionDiagram(
+        base_graph=valid_base,
+        source_context=ContextProfile(
+            context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH
+        ),
+        target_context=ContextProfile(
+            context_id="target", countries=["UA"], income_level=IncomeLevel.LOWER_MIDDLE
+        ),
+        context_distance=0.25,
+    ).model_copy(update={"base_graph": graph})
+    raw = CheckTransportability.pure_step(
+        state={
+            "selection_diagram": diagram,
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        },
+        params={},
+    )
+    result = TransportabilityResult.model_validate(raw["transport_result"])
+
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.unsupported_reason == "causal_graph_profile_invalid"
+    assert result.transport_formula is None
+    assert "graph_admission_gate:refused:causal_graph_profile_invalid" in (
+        result.identification_trace
+    )
+    assert raw["proof_bundle"]["proof_status"] == "oracle_needed"
 
 
 def test_causal_report_accepts_transportability_fields() -> None:

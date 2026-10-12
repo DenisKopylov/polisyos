@@ -973,11 +973,11 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                     },
                     "execution_profile": "dev",
                 },
-                headers={
+                headers={**({
                     "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
                     "X-Tenant-ID": TENANT,
                     "Content-Type": "application/json",
-                },
+                }), "Idempotency-Key": "test-r216-192b38ae25f6425ebe45b42d7f7539e1"},
             )
             assert launch_response.status_code == 200, launch_response.text
             launch = launch_response.json()
@@ -1058,6 +1058,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert seed_source.stable_subject_ref == closure.design_problem_ref
             assert seed_source.candidate.candidate_id == n5_input.original_candidate_id
             assert n5_input.profile.profile_selection_ref == profile.profile_selection_ref
+            seed_n5_input = n5_input
             assert n5_input.context_job_ref == seed_simulation.candidate_simulation_context_job_ref
             assert artifact_ref_identity_key(n5_input.n4_source_ref) == artifact_ref_identity_key(
                 seed_simulation.candidate_simulation_n4_source_ref
@@ -1436,7 +1437,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert reentry_manifest.artifact_schema.name == (
                 "polisyos.runtime.AcquisitionOverlayReentryReceipt"
             )
-            assert reentry_manifest.artifact_schema.version == "1.0"
+            assert reentry_manifest.artifact_schema.version == "2.0"
             reentry_scope = _within_fixture_owner(
                 reconcile_authority_ref,
                 artifact_store=control._artifact_store,
@@ -1456,6 +1457,57 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 )
             )
             _within_fixture_owner(cases[-1].bridge._validate_reentry, closure, growth, reentry)
+            assert reentry.schema_version == "policyos.runtime.acquisition_overlay_reentry.v3"
+            from polisyos.runtime.quality.generation_cycle import (
+                generation_cycle_run_content_hash,
+                validate_acquisition_overlay_continuation,
+            )
+
+            continued_run = reentry.continued_generation_run
+            assert continued_run is not None
+            validate_acquisition_overlay_continuation(closure.generation_run, reentry)
+            assert reentry.source_generation_run_content_hash == generation_cycle_run_content_hash(
+                closure.generation_run
+            )
+            assert reentry.continued_generation_run_content_hash == generation_cycle_run_content_hash(
+                continued_run
+            )
+            assert continued_run.cycles[:-1] == closure.generation_run.cycles
+            assert continued_run.cycles[-1] == reentry.new_cycle
+            assert continued_run.promotion_port.status == "not_promoted"
+            assert continued_run.promotion_port.certified_candidate_ids == ()
+            assert reentry.source_run_currentness == reentry.continuation_currentness
+            assert reentry.source_run_currentness is not None
+            assert reentry.source_run_currentness.status == "not_established"
+            # Removing the appended cycle while retaining the new_cycle marker is refused.
+            removed_occurrence_run = continued_run.model_copy(
+                update={"cycles": continued_run.cycles[:-1]}
+            )
+            removed_occurrence_receipt = reentry.model_copy(
+                update={"continued_generation_run": removed_occurrence_run}
+            )
+            with pytest.raises(ValueError, match="acquisition_reentry_continued_run_binding_mismatch"):
+                validate_acquisition_overlay_continuation(
+                    closure.generation_run, removed_occurrence_receipt
+                )
+            source_n4_ref = closure.source_cycle.simulation.candidate_simulation_n4_source_ref
+            source_n5_ref = closure.source_cycle.simulation.candidate_simulation_n5_input_ref
+            assert source_n4_ref is not None and source_n5_ref is not None
+            swapped_simulation = reentry.new_cycle.simulation.model_copy(
+                update={
+                    "candidate_simulation_n4_source_ref": source_n4_ref,
+                    "candidate_simulation_n5_input_ref": source_n5_ref,
+                }
+            )
+            swapped_cycle = reentry.new_cycle.model_copy(
+                update={"simulation": swapped_simulation}
+            )
+            swapped_receipt = reentry.model_copy(update={"new_cycle": swapped_cycle})
+            assert swapped_receipt.source_candidate_ref == reentry.source_candidate_ref
+            assert swapped_receipt.new_cycle.selected_candidate_ref == reentry.new_cycle.selected_candidate_ref
+            assert swapped_receipt.source_candidate_ref == swapped_receipt.new_cycle.selected_candidate_ref
+            with pytest.raises(ValueError, match="acquisition_reentry_continued_run_binding_mismatch"):
+                validate_acquisition_overlay_continuation(closure.generation_run, swapped_receipt)
             cycle = reentry.new_cycle
             assert cycle.simulation.status == "joint_simulated", cycle.simulation
             assert cycle.simulation.candidate_id == cycle.selected_candidate_ref
@@ -1719,6 +1771,61 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert acquisition_history["currentness_status"] == "not_established"
             assert acquisition_history["authority_purpose"] == "candidate_observation_only"
             assert acquisition_history["publication_authority"] is False
+            continuation = acquisition_history["continuation"]
+            assert continuation["source_generation_run_content_hash"] == reentry.source_generation_run_content_hash
+            assert continuation["continued_generation_run_content_hash"] == reentry.continued_generation_run_content_hash
+            assert continuation["source_cycle_index"] == reentry.source_cycle_index
+            assert continuation["continued_cycle_index"] == cycle.cycle_index
+            assert continuation["selected_n4_source_ref"]["artifact_id"] == str(
+                n5_input.n4_source_ref.artifact_id
+            )
+            assert continuation["selected_n5_input_ref"]["artifact_id"] == str(
+                n5_input_ref.artifact_id
+            )
+            assert continuation["previous_n4_source_ref"]["artifact_id"] == str(
+                closure.source_cycle.simulation.candidate_simulation_n4_source_ref.artifact_id
+            )
+            assert continuation["previous_n5_input_ref"]["artifact_id"] == str(
+                closure.source_cycle.simulation.candidate_simulation_n5_input_ref.artifact_id
+            )
+            assert continuation["previous_profile_selection_ref"] == (
+                seed_n5_input.profile.profile_selection_ref
+            )
+            assert continuation["previous_profile_content_hash"] == seed_n5_input.profile.content_hash
+            assert continuation["selected_profile_selection_ref"] == (
+                n5_input.profile.profile_selection_ref
+            )
+            assert continuation["selected_profile_content_hash"] == n5_input.profile.content_hash
+            assert continuation["previous_profile_selection_ref"] == (
+                continuation["selected_profile_selection_ref"]
+            )
+            assert continuation["selected_target_world_slot"] == "government.balance"
+            assert continuation["previous_selected_target_baseline_hash"] is not None
+            assert continuation["selected_target_baseline_hash"] is not None
+            assert continuation["previous_selected_target_baseline_hash"] != (
+                continuation["selected_target_baseline_hash"]
+            )
+            assert continuation["n9_status"] == continued_run.promotion_port.status
+            assert continuation["n9_reason"] == continued_run.promotion_port.reason
+            assert continuation["n9_certified_candidate_ids"] == []
+            assert continuation["continuation_currentness_status"] == "not_established"
+            assert continuation["currentness_status"] == "not_established"
+            assert continuation["authority_purpose"] == "candidate_observation_only"
+            assert continuation["publication_authority"] is False
+            current_occurrence = next(
+                row
+                for row in continuation["current_candidate_occurrences"]
+                if row["candidate_id"] == cycle.selected_candidate_ref
+            )
+            assert current_occurrence["cycle_index"] == cycle.cycle_index
+            assert current_occurrence["content_hash"] == next(
+                row.content_hash
+                for row in continued_run.candidate_summaries
+                if row.candidate_id == cycle.selected_candidate_ref
+                and row.cycle_index == cycle.cycle_index
+            )
+            projected_fronts = continuation["current_fronts"]
+            assert cycle.selected_candidate_ref in projected_fronts[current_occurrence["front"] + "_candidate_ids"]
             n4_selected_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_n4_source_selected_ref"]
             )
@@ -2042,6 +2149,34 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 n5_input.materialization.world_model_record_hash
             )
             assert n5_input.materialization.value == 2
+            unselected_baseline = dict(seed_n5_input.profile.n5.baseline_state)
+            target_slot = seed_n5_input.materialization.target_world_slot
+            unselected_slot = target_slot + ".unselected-control"
+            unselected_baseline[unselected_slot] = 1.0
+            unselected_profile = seed_n5_input.profile.model_copy(
+                update={
+                    "n5": seed_n5_input.profile.n5.model_copy(
+                        update={"baseline_state": unselected_baseline}
+                    )
+                }
+            )
+            unselected_only_input = seed_n5_input.model_copy(
+                update={"profile": unselected_profile}
+            )
+            from polisyos.runtime.http.routes.runs import _selected_target_baseline_hashes
+
+            assert _selected_target_baseline_hashes(
+                seed_n5_input, unselected_only_input
+            ) is None
+            id_time_only_input = seed_n5_input.model_copy(
+                update={
+                    "run_id": seed_n5_input.run_id + "-later",
+                    "job_id": seed_n5_input.job_id + "-later",
+                }
+            )
+            assert _selected_target_baseline_hashes(
+                seed_n5_input, id_time_only_input
+            ) is None
 
             execution_ref = ArtifactRef.model_validate(
                 diagnostics["candidate_simulation_execution_selected_ref"]

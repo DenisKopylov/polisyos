@@ -8,6 +8,7 @@ SCM and does not establish empirical grounding, source time, S8, or N9 authority
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import threading
 from collections.abc import Sequence
@@ -343,7 +344,6 @@ def _controlled_procurement_recording(
     return controlled
 
 
-
 _CONTROLLED_SLOT_ALIASES = {
     "agents_income": "agents.income",
     "agents_is_employed": "agents.is_employed",
@@ -355,6 +355,130 @@ _CONTROLLED_SLOT_ALIASES = {
 }
 
 
+@dataclass(frozen=True)
+class ControlledSKGSourceSelection:
+    """Exact owner-resolved identity for one read-only controlled SKG source."""
+
+    db_path: Path
+    version_id: int
+    snapshot_ref: str
+    sha256: str
+    schema_sha256: str
+
+
+def _controlled_skg_source_observation(db_path: Path) -> tuple[int, str, str, str]:
+    """Observe version, ref, bytes, and schema through read-only owner APIs."""
+    import duckdb
+
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    resolved_path = db_path.resolve()
+    if not resolved_path.is_file():
+        raise ValueError("controlled_selected_skg_source_missing")
+    if resolved_path.with_name(resolved_path.name + ".wal").exists():
+        raise ValueError("controlled_selected_skg_source_wal_unbound")
+    before_stat = resolved_path.stat()
+    before_identity = (
+        before_stat.st_dev,
+        before_stat.st_ino,
+        before_stat.st_size,
+        before_stat.st_mtime_ns,
+    )
+    before_sha256 = hashlib.sha256(resolved_path.read_bytes()).hexdigest()
+    try:
+        with duckdb.connect(str(resolved_path), read_only=True) as connection:
+            schema_rows = tuple(
+                (str(table), str(column), str(data_type))
+                for table, column, data_type in connection.execute(
+                    "SELECT table_name, column_name, data_type "
+                    "FROM information_schema.columns "
+                    "WHERE table_catalog=current_database() AND table_schema='main' "
+                    "ORDER BY table_name, ordinal_position"
+                ).fetchall()
+            )
+            versions = tuple(
+                int(row[0])
+                for row in connection.execute(
+                    "SELECT version_id FROM main.ac_skg_versions ORDER BY version_id"
+                ).fetchall()
+            )
+    except (duckdb.Error, OSError, TypeError, ValueError) as exc:
+        raise ValueError("controlled_selected_skg_source_schema_unresolved") from exc
+    required_columns = {
+        ("ac_skg_edges", "edge_id"),
+        ("ac_skg_edges", "src"),
+        ("ac_skg_edges", "dst"),
+        ("ac_skg_variables", "canonical_name"),
+        ("ac_skg_versions", "version_id"),
+    }
+    if not required_columns.issubset({(table, column) for table, column, _ in schema_rows}):
+        raise ValueError("controlled_selected_skg_source_schema_incomplete")
+    if versions != (7,):
+        raise ValueError("controlled_selected_skg_source_version_set_mismatch")
+    query = SKGQuery(db_path=resolved_path, index_dir=resolved_path.parent / "index")
+    try:
+        version_id = query.latest_skg_version_id()
+        if version_id is None or not query.has_skg_version_id(version_id=version_id):
+            raise ValueError("controlled_selected_skg_source_version_unresolved")
+        snapshot_ref = query.skg_snapshot_ref(version_id=version_id)
+    finally:
+        query.close()
+    if version_id != 7 or snapshot_ref is None:
+        raise ValueError("controlled_selected_skg_source_version_unresolved")
+    after_stat = resolved_path.stat()
+    after_identity = (
+        after_stat.st_dev,
+        after_stat.st_ino,
+        after_stat.st_size,
+        after_stat.st_mtime_ns,
+    )
+    after_sha256 = hashlib.sha256(resolved_path.read_bytes()).hexdigest()
+    if before_identity != after_identity or before_sha256 != after_sha256:
+        raise ValueError("controlled_selected_skg_source_changed_during_read")
+    schema_sha256 = hashlib.sha256(
+        json.dumps(schema_rows, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    ).hexdigest()
+    return version_id, snapshot_ref, before_sha256, schema_sha256
+
+
+def _capture_controlled_skg_source(db_path: Path) -> ControlledSKGSourceSelection:
+    """Bind the new controlled source only after its real reader resolves it."""
+    version_id, snapshot_ref, sha256, schema_sha256 = _controlled_skg_source_observation(db_path)
+    return ControlledSKGSourceSelection(
+        db_path=db_path.resolve(),
+        version_id=version_id,
+        snapshot_ref=snapshot_ref,
+        sha256=sha256,
+        schema_sha256=schema_sha256,
+    )
+
+
+def _validate_controlled_skg_source(
+    selected_source: ControlledSKGSourceSelection,
+) -> ControlledSKGSourceSelection:
+    """Refuse any changed, malformed, or differently versioned selected source."""
+    from polisyos.runtime.quality.world_model_record import _parse_skg_snapshot_ref
+
+    if type(selected_source) is not ControlledSKGSourceSelection:
+        raise TypeError("controlled_selected_skg_source_untyped")
+    parsed = _parse_skg_snapshot_ref(selected_source.snapshot_ref)
+    if (
+        parsed.db_path.resolve() != selected_source.db_path.resolve()
+        or parsed.version_id != selected_source.version_id
+    ):
+        raise ValueError("controlled_selected_skg_source_ref_mismatch")
+    version_id, snapshot_ref, sha256, schema_sha256 = _controlled_skg_source_observation(
+        selected_source.db_path
+    )
+    if version_id != selected_source.version_id or snapshot_ref != selected_source.snapshot_ref:
+        raise ValueError("controlled_selected_skg_source_version_mismatch")
+    if schema_sha256 != selected_source.schema_sha256:
+        raise ValueError("controlled_selected_skg_source_schema_mismatch")
+    if sha256 != selected_source.sha256:
+        raise ValueError("controlled_selected_skg_source_bytes_mismatch")
+    return selected_source
+
+
 def _materialize_controlled_world_model_record(
     *,
     source_world_model_record: Any,
@@ -364,6 +488,7 @@ def _materialize_controlled_world_model_record(
     selected_registry_entry_hashes: Sequence[str],
     substrate_registry_ref: Any,
     policy_slot_ids: Sequence[str],
+    selected_skg_source: ControlledSKGSourceSelection,
     tenant_id: str,
     cell_id: str,
 ) -> Any:
@@ -372,7 +497,11 @@ def _materialize_controlled_world_model_record(
     The synthetic fixture aliases its explicit controlled variables onto existing
     canonical runtime paths. It never represents an empirical or live source.
     """
-    import duckdb
+    source_root = tmp_path / "controlled-candidate-source"
+    expected_skg_path = source_root / "academic-skg.duckdb"
+    if selected_skg_source.db_path.resolve() != expected_skg_path.resolve():
+        raise ValueError("controlled_selected_skg_source_path_mismatch")
+    _validate_controlled_skg_source(selected_skg_source)
 
     from polisyos.core.artifacts import (
         ArtifactRef,
@@ -405,9 +534,7 @@ def _materialize_controlled_world_model_record(
 
     if not selected_registry_entry_hashes:
         raise ValueError("controlled_wmr_selected_registry_entries_missing")
-    registry = SubstrateRegistry.model_validate(
-        substrate_registry.model_dump(mode="json")
-    )
+    registry = SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="json"))
     selected_hashes = tuple(dict.fromkeys(str(item) for item in selected_registry_entry_hashes))
     selected_entries = tuple(
         entry for entry in registry.entries if entry.entry_content_hash in selected_hashes
@@ -546,24 +673,8 @@ def _materialize_controlled_world_model_record(
         notes=["controlled candidate-only source fixture"],
     )
 
-    skg_path = source_root / "academic-skg.duckdb"
-    skg_path.parent.mkdir(parents=True, exist_ok=True)
-    connection = duckdb.connect(str(skg_path))
-    try:
-        connection.execute("CREATE OR REPLACE TABLE ac_skg_versions (version_id INTEGER)")
-        connection.execute("INSERT INTO ac_skg_versions VALUES (7)")
-    finally:
-        connection.close()
-    from polisyos.data_forge.read_api.academic import SKGQuery
-
-    query = SKGQuery(db_path=skg_path, index_dir=source_root / "index")
-    try:
-        skg_version_id = query.latest_skg_version_id()
-        skg_snapshot_ref = query.skg_snapshot_ref(version_id=skg_version_id)
-    finally:
-        query.close()
-    if skg_snapshot_ref is None:
-        raise ValueError("controlled_wmr_skg_snapshot_unresolved")
+    skg_version_id = selected_skg_source.version_id
+    skg_snapshot_ref = selected_skg_source.snapshot_ref
 
     selected_sources = tuple(dict.fromkeys(entry.source_id for entry in selected_entries))
     selected_families = tuple(dict.fromkeys(entry.family_id for entry in selected_entries))
@@ -579,9 +690,7 @@ def _materialize_controlled_world_model_record(
                 world_query_policy="default_allow_public",
                 provenance_manifest_ref="fixture://controlled-candidate-source-v1",
             ),
-            data_forge_snapshot_binding_path=(
-                data_forge_root / "data_forge_snapshot_binding.json"
-            ),
+            data_forge_snapshot_binding_path=(data_forge_root / "data_forge_snapshot_binding.json"),
             data_snapshot_ref=ArtifactRef.model_validate(
                 data_snapshot_ref.model_dump(mode="python")
             ),
@@ -631,9 +740,7 @@ def _materialize_controlled_world_model_record(
                     "bound_state_snapshot_ref": str(
                         built.record.foundry_binding_ref.bound_state_snapshot_ref
                     ),
-                    "policy_slot_map": [
-                        item.model_dump(mode="json") for item in alias_bindings
-                    ],
+                    "policy_slot_map": [item.model_dump(mode="json") for item in alias_bindings],
                 }
             )
         }
@@ -643,8 +750,7 @@ def _materialize_controlled_world_model_record(
             "policy_slot_map": alias_bindings,
             "foundry_binding_ref": foundry_binding_ref,
             "producer_ref": (
-                "tests._helpers.controlled_candidate_profile."
-                "candidate_only_slot_alias_projection"
+                "tests._helpers.controlled_candidate_profile.candidate_only_slot_alias_projection"
             ),
         }
     )
@@ -659,6 +765,7 @@ def _materialize_controlled_world_model_record(
         }
     )
     return type(built.record).model_validate(payload)
+
 
 def _configured_procurement_profile(
     *,

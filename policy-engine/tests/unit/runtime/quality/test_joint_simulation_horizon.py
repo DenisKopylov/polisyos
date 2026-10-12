@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 from decimal import Decimal
@@ -641,7 +642,8 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert term.outcome == "firm_survival"
     assert term.by_step == {0: pytest.approx(5.0)}
     assert term.formula == "joint_effect_minus_sum_individual_effects"
-    assert result.feedback_classification.numeric_interaction == "non_additive"
+    assert result.feedback_classification.numeric_interaction == "unsupported"
+    assert "interaction_numeric_classification_unsupported" in authority_blockers
 
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
@@ -649,7 +651,60 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
 def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
     tmp_path: Path,
 ) -> None:
-    """Historical v1 N5 bytes replay without acquiring the later state field."""
+    """The tracked historical v1 projection survives an exact CAS read/re-persist."""
+
+    from polisyos.core.canon.canon_json import CanonSpec, to_canonical_bytes
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    fixture_path = (
+        Path(__file__).resolve().parents[4]
+        / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
+    embedded = json.loads(fixture_path.read_text(encoding="utf-8"))["recursive_runs"][0]["nodes"][
+        2
+    ]["joint_simulation"]
+    assert embedded["schema_version"] == "policyos.runtime.joint_simulation_horizon.v1"
+    assert "state_consumption" not in embedded
+    legacy_spec = CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+
+    store = FileSystemCAS(tmp_path / "n5-v1-replay-cas")
+    try:
+        first_ref = store.put_json(
+            embedded,
+            PutOptions(
+                kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA, version="1.0.0"),
+            ),
+            canon_spec=legacy_spec,
+        )
+        first_bytes = store.get_bytes(first_ref)
+        assert first_bytes == to_canonical_bytes(embedded, legacy_spec)
+        first_manifest = store.get_manifest(first_ref)
+        assert first_manifest.artifact_schema is not None
+        assert first_manifest.artifact_schema.version == "1.0.0"
+
+        replayed = load_joint_simulation_result(first_ref, store=store)
+        assert replayed.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
+        assert replayed.state_consumption is None
+        replayed_ref = persist_joint_simulation_result(replayed, store=store)
+        assert replayed_ref.artifact_id == first_ref.artifact_id
+        assert store.get_bytes(replayed_ref) == first_bytes
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+def test_joint_simulation_v4_result_replays_byte_exactly_with_interaction_summary(
+    tmp_path: Path,
+) -> None:
+    """New v4 N5 bytes replay exactly with the selected interaction summary."""
 
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.generation_cycle import (
@@ -658,20 +713,20 @@ def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
     )
 
     result = JointSimulationHorizonController().run(_request())
-    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
+    assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
     assert result.state_consumption is None
 
-    store = FileSystemCAS(tmp_path / "n5-v1-replay-cas")
+    store = FileSystemCAS(tmp_path / "n5-v4-replay-cas")
     try:
         first_ref = persist_joint_simulation_result(result, store=store)
         first_bytes = store.get_bytes(first_ref)
         first_payload = from_canonical_bytes(first_bytes)
         first_manifest = store.get_manifest(first_ref)
 
-        assert first_payload["schema_version"] == ("policyos.runtime.joint_simulation_horizon.v1")
+        assert first_payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
         assert "state_consumption" not in first_payload
         assert first_manifest.artifact_schema is not None
-        assert first_manifest.artifact_schema.version == "1.0.0"
+        assert first_manifest.artifact_schema.version == "4.0.0"
 
         replayed = load_joint_simulation_result(
             first_ref,
@@ -691,6 +746,174 @@ def test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff(
             close()
 
 
+def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> None:
+    """B21: signed summary markers cannot replace the selected draw substance."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        build_content_bound_simulation_receipt,
+    )
+
+    request = _request().model_copy(update={"replications": 2})
+    result = JointSimulationHorizonController().run(request)
+    payload = result.content_bound_payload()
+    assert payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    point = payload["trajectories"][0]["points"][0]
+    summary = point["replication_sampling"]
+    assert summary["status"] == "estimated"
+    assert summary["replicate_count"] == 2
+    assert len(set(summary["seeds"])) == 2
+    for trajectory in payload["trajectories"]:
+        for persisted_point in trajectory["points"]:
+            persisted_summary = persisted_point["replication_sampling"]
+            assert [sample["seed"] for sample in persisted_summary["samples"]] == persisted_summary[
+                "seeds"
+            ]
+            assert [sample["engine_state"] for sample in persisted_summary["samples"]] == (
+                persisted_point["engine_state"]["replication_engine_states"]
+            )
+
+    unbound_state = copy.deepcopy(payload)
+    state_point = unbound_state["trajectories"][0]["points"][0]
+    state_point["engine_state"]["replication_engine_states"][0]["candidate_probe"] = True
+    state_receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=unbound_state,
+        diagnostics=unbound_state["diagnostics"],
+    )
+    with pytest.raises(ValueError, match="replication_engine_state_binding_mismatch"):
+        JointSimulationResult.model_validate(
+            {**unbound_state, "receipt": state_receipt.model_dump(mode="json")}
+        )
+
+    unbound_seed = copy.deepcopy(payload)
+    unbound_seed["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]["seed"] += 20
+    seed_receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=unbound_seed,
+        diagnostics=unbound_seed["diagnostics"],
+    )
+    with pytest.raises(ValueError, match="replication_sample_seed_binding_mismatch"):
+        JointSimulationResult.model_validate(
+            {**unbound_seed, "receipt": seed_receipt.model_dump(mode="json")}
+        )
+
+    forged = copy.deepcopy(payload)
+    forged_summary = forged["trajectories"][0]["points"][0]["replication_sampling"]
+    forged_summary["outcomes_standard_error"] = {
+        key: float(value or 0.0) + 1.0
+        for key, value in forged_summary["outcomes_standard_error"].items()
+    }
+    forged_receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=forged,
+        diagnostics=forged["diagnostics"],
+    )
+    with pytest.raises(ValueError, match="replication_standard_error_recomputation_mismatch"):
+        JointSimulationResult.model_validate(
+            {**forged, "receipt": forged_receipt.model_dump(mode="json")}
+        )
+
+    missing = copy.deepcopy(payload)
+    missing["trajectories"][0]["points"][0].pop("replication_sampling")
+    missing_receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=missing,
+        diagnostics=missing["diagnostics"],
+    )
+    with pytest.raises(ValueError, match="replication_sampling_summary_missing"):
+        JointSimulationResult.model_validate(
+            {**missing, "receipt": missing_receipt.model_dump(mode="json")}
+        )
+
+    # Remove the derived interaction summary but retain its additive/status markers.
+    missing_interaction_summary = copy.deepcopy(payload)
+    assert missing_interaction_summary["interaction_terms"]
+    missing_interaction_summary["interaction_terms"][0].pop(
+        "replication_sampling_by_step"
+    )
+    interaction_receipt = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=missing_interaction_summary,
+        diagnostics=missing_interaction_summary["diagnostics"],
+    )
+    with pytest.raises(ValueError, match="interaction_sampling_source_recomputation_mismatch"):
+        JointSimulationResult.model_validate(
+            {
+                **missing_interaction_summary,
+                "receipt": interaction_receipt.model_dump(mode="json"),
+            }
+        )
+
+
+def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> None:
+    """A content-bound CAS payload cannot replace the selected draw mean."""
+
+    from polisyos.core.canon import CanonSpec
+    from polisyos.runtime.quality.generation_cycle import (
+        JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+        JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+        GenerationCycleError,
+        load_joint_simulation_result,
+    )
+
+    result = JointSimulationHorizonController().run(
+        _request().model_copy(update={"replications": 2})
+    )
+    forged = result.content_bound_payload()
+    point = forged["trajectories"][0]["points"][0]
+    key = next(iter(point["outcomes"]))
+    point["outcomes"][key] += 1.0
+    forged["receipt"] = build_content_bound_simulation_receipt(
+        engine_kind=result.receipt.engine_kind,
+        payload=forged,
+        diagnostics=forged["diagnostics"],
+    ).model_dump(mode="json")
+
+    store = FileSystemCAS(tmp_path / "n5-forged-mean-cas")
+    try:
+        ref = store.put_json(
+            forged,
+            PutOptions(
+                kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
+                    version="4.0.0",
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        )
+        with pytest.raises(GenerationCycleError) as exc_info:
+            load_joint_simulation_result(ref, store=store)
+        assert exc_info.value.code == "joint_simulation_result_integrity_invalid"
+        assert "replication_mean_recomputation_mismatch" in str(exc_info.value.__cause__)
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map() -> None:
+    """A supplied malformed draw map returns a typed issue, not an uncaught error."""
+
+    from tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract import (
+        _replication_sampling_issues,
+        _replication_sampling_projection,
+    )
+
+    result = JointSimulationHorizonController().run(
+        _request().model_copy(update={"replications": 2})
+    )
+    projection = _replication_sampling_projection(result)
+    assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
+    projection["trajectories"][0]["points"][0]["replication_sampling"]["samples"][0]["outcomes"] = (
+        None
+    )
+    issues = _replication_sampling_issues(projection, expected_count=2)
+    assert {issue["code"] for issue in issues} == {"replication_sample_metric_mapping_invalid"}
+
+
 def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
     """Replay the one tracked v1 result projection without adding v2 fields."""
 
@@ -706,6 +929,11 @@ def test_committed_v1_joint_result_keeps_original_receipt_projection() -> None:
     parsed = JointSimulationResult.model_validate(embedded)
     assert parsed.schema_version == "policyos.runtime.joint_simulation_horizon.v1"
     verify_simulation_receipt(parsed.receipt, payload)
+    from polisyos.runtime.quality.generation_cycle import _n8_sampling_uncertainty_limitations
+
+    assert _n8_sampling_uncertainty_limitations(parsed) == frozenset(
+        {"legacy_sampling_not_established", "legacy_interaction_not_established"}
+    )
 
 
 @pytest.mark.parametrize(
@@ -737,6 +965,8 @@ def test_unsupported_coupling_is_gated_not_summed(
     assert result.feedback_classification.numeric_interaction == "unsupported"
     assert result.feedback_classification.support_status == "unsupported"
     assert expected_blocker in result.feedback_classification.support_blockers
+    assert result.feedback_classification.interaction_sampling_status == "not_established"
+    assert "interaction_evidence_incomplete" in result.diagnostics["interaction_sampling_issues"]
 
 
 def test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt() -> None:

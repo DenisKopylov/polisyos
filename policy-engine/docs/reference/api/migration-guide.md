@@ -3,7 +3,7 @@
 Related reference: [REST API Reference](index.md), [Runtime API Versioning and
 Deprecation Policy](versioning.md).
 
-Freshness: 2026-04-17
+Freshness: 2026-10-12
 Owner: `@runtime-owners`
 Source of truth: `schemas/runtime_api_v1.openapi.json`, `src/polisyos/runtime/http/{app.py,mutation_policy.py,response_policies.py}`, and the route handlers under `src/polisyos/runtime/http/routes/`
 Validation:
@@ -30,6 +30,32 @@ The current committed OpenAPI snapshot contains 53 public `GET`/`POST`
 operations. The two run live-stream routes are schema-hidden and should not be
 treated as generated-client contract surface.
 
+## Optional deployment catalog input
+
+The app factory accepts an optional typed catalog selector for deployments
+that need candidate L1 reads from a snapshot root:
+
+    from pathlib import Path
+
+    from polisyos.runtime.http import create_runtime_api_app
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+
+    app = create_runtime_api_app(
+        catalog_source_selection=CatalogServingSourceSelection(
+            snapshot_root=Path("/srv/policyos/catalog-snapshot"),
+            catalog_run_profile="prod_full",
+        ),
+    )
+
+The selected database must exist at
+snapshot_root/datasets/graph/dataset_catalog.duckdb. Its profile must agree
+with catalog_run_profile; when the app option is omitted, the repository
+default and existing behavior remain in force. A selected path is candidate
+input only. It does not establish source provenance, publisher lineage,
+profile coverage, freshness/currentness, or publication authority. This is
+deployment configuration, not a client request or generated-client migration;
+no persisted-data migration is required.
+
 ## Required Client Updates
 
 ### 1. Treat auth as fail-closed
@@ -42,11 +68,33 @@ treated as generated-client contract surface.
 
 ### 2. Add idempotency keys for write retries
 
-For supported `POST /api/v1/control/*` endpoints:
+For middleware-supported mutations, use `X-Idempotency-Key` where the route
+documents that contract. Natural-language launch has a separate required
+`Idempotency-Key` owner contract:
 
-- generate one `X-Idempotency-Key` per logical mutation attempt;
-- reuse the same key for safe retry of the same payload;
-- never reuse a key for a different payload.
+- send a stable key on every `POST /api/v1/control/runs/nl`, for every
+  execution profile;
+- retry only with the same authenticated principal and exact immutable request
+  intent; never reuse a key for changed intent;
+- after a lost or ambiguous reply, query
+  `GET /api/v1/control/admission-attempts/by-idempotency-key` with the same
+  key under the same authentication scope;
+- treat a `404` lookup as unresolved, not proof that an attempt or provider
+  event is absent.
+
+`X-Idempotency-Key` is not a substitute for `Idempotency-Key` on this route.
+The admission-attempt response also includes the shared owner purpose, route scope,
+principal digest, normalized request-intent digest, and complete status history.
+Clients preserve the key while producer status is unavailable. A refused attempt
+can release it only when the provider-preflight producer explicitly reports
+`no_call` before completion and the history and aggregate response include the exact typed `producer_no_call_reason` joined to the failure code; an
+empty ledger or event list by itself never proves no call. A dev direct-admission
+history is valid only with a concrete job and `not_applicable` settlement evidence.
+The generic middleware response cache is intentionally skipped for natural-language
+launches and run-bound predictive-calibration writes; each route replays only its
+shared typed operation owner. Natural-language same-key recovery is served only
+after the route validates its required key and immutable intent. Route-owner
+requests remain subject to the per-tenant write quota; mutation audit remains active.
 
 ### 3. Prefer batch reads
 
@@ -74,8 +122,9 @@ matching validators. Client caches should preserve and replay:
 ## Rollout Checklist
 
 - verify bearer/JWT flows against the fail-closed `/auth/me` behavior;
-- add `X-Idempotency-Key` to all client-side safe retry loops for supported
-  mutations;
+- add route-specific `Idempotency-Key` to every natural-language launch caller
+  and preserve it across same-intent retries; use `X-Idempotency-Key` only on
+  middleware-supported routes that document it;
 
 - replace one-by-one read loops with batch endpoints where possible;
 - update generated client/OpenAPI review to include deprecation headers and
@@ -100,3 +149,8 @@ Client-facing behavior is also covered by:
 - `tests/unit/runtime/http/test_artifact_inspector_api.py`
 - `tests/unit/runtime/http/test_runs_api.py`
 - `tests/unit/runtime/http/test_api_maturity.py`
+
+
+### Shared operation identity migration
+
+`runtime_operation_intents` now uses typed scope as part of its primary key, so a route intent is distinct even when its candidate run id matches another route claim. The SQLite migration transaction rebuilds the table when the old primary key still includes `run_id`; PostgreSQL replaces that primary-key constraint in its migration transaction. Both preserve stored claim rows and values. Only recognized `run.predictive_calibration.v1` rows are backfilled from their stored `run_id`, and only recognized `control.nl_pre_admission.v1` rows receive the fixed `control.runs.nl` route scope. Unclassified rows, duplicate identities after rekeying, or malformed scopes abort migration rather than inventing identity. The R3 NL attempt handle continues to derive from owner purpose/route, authenticated tenant/cell/subject, and the hashed idempotency key; its actual candidate `run_id` remains separate provenance, and raw keys are not stored. The event-observation response adds the `no_call` literal for a producer-attested refusal before provider completion. Regenerate OpenAPI and generated clients after source freeze; no generated artifacts are hand-authored in this source proposal.

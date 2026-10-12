@@ -1,5 +1,8 @@
 import numpy as np
 
+from polisyos.foundry.methods.catalog.causal._graph_projection import (
+    pag_to_dag_projection,
+)
 from polisyos.foundry.methods.catalog.causal.protocols import (
     TabularCausalDiscoveryData,
     TimeSeriesCausalData,
@@ -9,7 +12,10 @@ from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
     EdgeMark,
+    GraphProjectionStatus,
     GraphType,
+    graph_projection_disposition,
+    legacy_graph_projection_disposition,
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.scientist.methods.discovery import stability as stability_module
@@ -72,9 +78,24 @@ def _dag_graph() -> CausalGraphModel:
         graph_type=GraphType.DAG,
         nodes=["X", "Y", "Z"],
         edges=[
-            CausalEdge(src="Z", dst="X", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="Z", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
+            CausalEdge(
+                src="Z",
+                dst="X",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+            CausalEdge(
+                src="Z",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
         ],
         discovery_method="fci_resolved",
     )
@@ -85,9 +106,24 @@ def _pag_graph() -> CausalGraphModel:
         graph_type=GraphType.PAG,
         nodes=["X", "Y", "Z"],
         edges=[
-            CausalEdge(src="Z", dst="X", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="Z", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW),
+            CausalEdge(
+                src="Z",
+                dst="X",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+            CausalEdge(
+                src="Z",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
         ],
         discovery_method="fci",
     )
@@ -99,10 +135,23 @@ def _candidate(
     resolved_graph: CausalGraphModel | None,
     method: DiscoveryMethod,
 ) -> PortfolioCandidate:
+    if resolved_graph is None:
+        disposition = legacy_graph_projection_disposition(graph, None)
+    else:
+        disposition = graph_projection_disposition(
+            graph,
+            resolved_graph,
+            status=(
+                GraphProjectionStatus.IDENTITY
+                if graph.graph_type is GraphType.DAG
+                else GraphProjectionStatus.PROJECTED
+            ),
+        )
     report = CausalDiscoveryReport(
         method=method.value,
         graph=graph,
         resolved_graph=resolved_graph,
+        projection_disposition=disposition,
     )
     return PortfolioCandidate(
         hypothesis=GraphHypothesis(
@@ -111,6 +160,7 @@ def _candidate(
             method=method,
             graph=graph,
             resolved_graph=resolved_graph,
+            projection_disposition=disposition,
             edge_confidence={"Z->X": 0.5, "Z->Y": 0.5, "X->Y": 0.5},
             compute_footprint=ComputeFootprint(),
         ),
@@ -132,15 +182,21 @@ def test_bootstrap_mode_selection_matches_input_type() -> None:
 def test_adjustment_set_stability_appears_for_query_when_resolved_graph_is_available(
     monkeypatch,
 ) -> None:
-    dag = _dag_graph()
     pag = _pag_graph()
+    dag, _ = pag_to_dag_projection(pag)
     candidate = _candidate(graph=pag, resolved_graph=dag, method=DiscoveryMethod.FCI)
+    disposition = graph_projection_disposition(
+        pag,
+        dag,
+        status=GraphProjectionStatus.PROJECTED,
+    )
 
     def fake_run(state, method, params):
         return CausalDiscoveryReport(
             method="fci",
             graph=pag,
             resolved_graph=dag,
+            projection_disposition=disposition,
             computation_time_seconds=0.1,
         )
 

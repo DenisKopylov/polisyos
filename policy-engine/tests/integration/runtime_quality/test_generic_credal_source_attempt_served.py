@@ -159,7 +159,7 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
     )
     with TestClient(app) as client:
         accepted_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-18b79c44c24f4676a2ec907bc7954430"},
             json={
                 "request": problem.nl_provenance.raw_request,
                 "llm_model": model_id,

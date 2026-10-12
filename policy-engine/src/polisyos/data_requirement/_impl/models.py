@@ -4,10 +4,23 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
+
+from polisyos.core.contracts import RequirementToCapabilityQuery
 
 DATA_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.data_requirement_spec.v1"
 DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION = "policyos.data_requirement_compilation.v1"
+CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION = (
+    "policyos.data_requirement.capability_requirement_resolution.v1"
+)
 
 LineageStrictness = Literal["strict", "standard", "relaxed"]
 TransformationTolerance = Literal[
@@ -156,9 +169,93 @@ class DataRequirementSpec(BaseModel):
             raise ValueError("mandatory_facets are required for Fabric admissibility")
         if self.missingness_tolerance > 1.0 - self.quality_minima.min_completeness:
             raise ValueError(
-                "missingness_tolerance cannot exceed the completeness gap allowed by "
-                "quality_minima"
+                "missingness_tolerance cannot exceed the completeness gap allowed by quality_minima"
             )
+        return self
+
+
+class CapabilityBindingSnapshot(BaseModel):
+    """Typed projection of the resolver port fields consumed by requirement compilation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = Field(min_length=1)
+    rule_version_ref: str = Field(min_length=1)
+    requirement_id: str = Field(min_length=1)
+    status: str = Field(min_length=1)
+    selected_capability_ref: str | None = None
+    construct_ref: str = Field(min_length=1)
+    capability_index_ref: str | None = None
+    authority_level: str = Field(min_length=1)
+    authority_envelope_result: str = Field(min_length=1)
+    binding_reasons: tuple[str, ...] = ()
+    blocked_reasons: tuple[str, ...] = ()
+    limitations: tuple[str, ...] = ()
+    acquisition_strategies: tuple[dict[str, Any], ...] = ()
+    rejected_alternatives: tuple[dict[str, Any], ...] = ()
+    conflict_markers: tuple[dict[str, Any], ...] = ()
+
+    @field_validator("binding_reasons", "blocked_reasons", "limitations", mode="before")
+    @classmethod
+    def _clean_reason_tuple(cls, value: object) -> tuple[str, ...]:
+        return _text_tuple(value)
+
+    @model_validator(mode="after")
+    def _validate_result_identity(self) -> CapabilityBindingSnapshot:
+        if not self.requirement_id.strip() or not self.construct_ref.strip():
+            raise ValueError("capability_binding_identity_missing")
+        return self
+
+
+class CapabilityRequirementResolution(BaseModel):
+    """Versioned compiler result binding one required construct to a resolver outcome."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.data_requirement.capability_requirement_resolution.v1"] = (
+        CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION
+    )
+    scope_profile_id: str | None = None
+    query: RequirementToCapabilityQuery
+    state: Literal["binding_returned", "not_established"]
+    binding: CapabilityBindingSnapshot | None = None
+    reason_codes: tuple[str, ...] = ()
+
+    @field_validator("scope_profile_id", mode="before")
+    @classmethod
+    def _clean_profile_id(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    @field_validator("reason_codes", mode="before")
+    @classmethod
+    def _clean_reason_codes(cls, value: object) -> tuple[str, ...]:
+        return _text_tuple(value)
+
+    @model_serializer(mode="wrap")
+    def _serialize_query_with_contract_alias(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        payload = handler(self)
+        payload["query"] = self.query.model_dump(mode="json", by_alias=True)
+        return payload
+
+    @model_validator(mode="after")
+    def _validate_query_binding(self) -> CapabilityRequirementResolution:
+        if self.binding is None:
+            if self.state != "not_established" or not self.reason_codes:
+                raise ValueError("capability_resolution_missing_binding_reason")
+            return self
+        if self.state != "binding_returned":
+            raise ValueError("capability_resolution_state_binding_mismatch")
+        if self.binding.requirement_id != self.query.requirement_id:
+            raise ValueError("capability_resolution_requirement_id_mismatch")
+        bound_construct = self.binding.construct_ref.removeprefix("construct:")
+        if bound_construct != self.query.construct:
+            raise ValueError("capability_resolution_construct_mismatch")
         return self
 
 
@@ -173,13 +270,15 @@ class DataRequirementCompilationReport(BaseModel):
     run_id: str = Field(min_length=1)
     scenario_id: str | None = None
     specs: tuple[DataRequirementSpec, ...] = Field(default=())
+    capability_resolution_schema_version: (
+        Literal["policyos.data_requirement.capability_requirement_resolution.v1"] | None
+    ) = None
+    capability_requirement_resolutions: tuple[CapabilityRequirementResolution, ...] | None = None
     legacy_admissible_data_source_families: tuple[str, ...] = Field(default=())
     capability_reality_label: Literal["implemented"] = "implemented"
     pattern_refs: tuple[str, ...] = ("P02", "P05", "P08", "P12", "P14")
     runtime_event_ref: str | None = Field(default=None, min_length=1)
-    authority_boundary: dict[str, Any] = Field(
-        default_factory=data_requirement_authority_boundary
-    )
+    authority_boundary: dict[str, Any] = Field(default_factory=data_requirement_authority_boundary)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("legacy_admissible_data_source_families", mode="before")
@@ -192,9 +291,7 @@ class DataRequirementCompilationReport(BaseModel):
         if not self.legacy_admissible_data_source_families:
             families = tuple(
                 dict.fromkeys(
-                    family
-                    for spec in self.specs
-                    for family in spec.required_data_families
+                    family for spec in self.specs for family in spec.required_data_families
                 )
             )
             object.__setattr__(self, "legacy_admissible_data_source_families", families)
@@ -210,6 +307,10 @@ class DataRequirementCompilationReport(BaseModel):
                 "authority_boundary",
                 data_requirement_authority_boundary(),
             )
+        if (self.capability_resolution_schema_version is None) != (
+            self.capability_requirement_resolutions is None
+        ):
+            raise ValueError("capability_resolution_carrier_version_mismatch")
         return self
 
 
@@ -234,8 +335,11 @@ def _slug(value: str) -> str:
 
 
 __all__ = [
+    "CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION",
     "DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION",
     "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
+    "CapabilityBindingSnapshot",
+    "CapabilityRequirementResolution",
     "DataQualityMinimums",
     "DataRequirementCompilationReport",
     "DataRequirementScope",

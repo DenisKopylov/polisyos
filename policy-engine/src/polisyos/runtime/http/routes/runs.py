@@ -13,6 +13,8 @@ from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
@@ -31,6 +33,7 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationChildProfileBinding,
     RunCandidateSimulationN5Observation,
+    RunCandidateSimulationN8ChildSourceBinding,
     RunCandidateSimulationProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
@@ -63,6 +66,7 @@ from polisyos.fabric.evidence.decision_data import (
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,
+    principal_from_access_scope,
     require_action_permission,
 )
 from polisyos.runtime.http.container import resolve_production_approval_resolver
@@ -109,6 +113,13 @@ from polisyos.runtime.http.services.channel_contracts import (
 from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionWriteContext
 from polisyos.runtime.http.services.human_decisions import HumanDecisionPersistenceError
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
+from polisyos.runtime.http.services.predictive_calibration import (
+    PredictiveCalibrationError,
+    PredictiveCalibrationRequest,
+    PredictiveCalibrationResponse,
+    load_run_predictive_calibration,
+    produce_run_predictive_calibration,
+)
 from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperPacket,
     RunPaperReplayConflictError,
@@ -133,6 +144,8 @@ if TYPE_CHECKING:
 
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
+
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import APIRouter, Depends, Query, Request, Response
@@ -166,6 +179,23 @@ _GET_CASE_INSPECTION_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.case_inspection",
+        allow_empty_body=True,
+    ),
+)
+_CREATE_RUN_PREDICTIVE_CALIBRATION_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_FEEDBACK_EVALUATE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.predictive_calibration",
+        path_parameter="run_id",
+    ),
+)
+_GET_RUN_PREDICTIVE_CALIBRATION_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.predictive_calibration",
+        path_parameter="run_id",
         allow_empty_body=True,
     ),
 )
@@ -300,6 +330,30 @@ def _candidate_simulation_checkpoint(
     return None
 
 
+def _selected_target_baseline_hashes(
+    before: CandidateSimulationN5InputV5, after: CandidateSimulationN5InputV5
+) -> tuple[str, str] | None:
+    """Hash the exact selected target baseline before and after N5 re-entry."""
+
+    if before.materialization.target_world_slot != after.materialization.target_world_slot:
+        return None
+    target_slot = before.materialization.target_world_slot
+    before_value = before.profile.n5.baseline_state.get(target_slot)
+    after_value = after.profile.n5.baseline_state.get(target_slot)
+    if before_value is None or after_value is None:
+        return None
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+
+    def digest(value: float) -> str:
+        payload = {"target_world_slot": target_slot, "baseline_value": value}
+        return "sha256:" + hashlib.sha256(
+            to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
+        ).hexdigest()
+
+    hashes = digest(before_value), digest(after_value)
+    return None if hashes[0] == hashes[1] else hashes
+
+
 def _candidate_acquisition_history_projection(
     *,
     compiled: Any,
@@ -387,7 +441,11 @@ def _candidate_acquisition_history_projection(
     )
     from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
-    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+        _current_candidate_summaries,
+        validate_acquisition_overlay_continuation,
+    )
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV3,
@@ -407,7 +465,7 @@ def _candidate_acquisition_history_projection(
         *,
         expected_kind: str,
         expected_schema: str,
-        expected_version: str,
+        expected_version: str | tuple[str, ...],
         expected_job_id: str,
     ) -> tuple[Any, bytes, Any]:
         expected_producer = {
@@ -429,7 +487,9 @@ def _candidate_acquisition_history_projection(
             or manifest.media_type != "application/json"
             or schema is None
             or schema.name != expected_schema
-            or schema.version != expected_version
+            or schema.version not in (
+                expected_version if isinstance(expected_version, tuple) else (expected_version,)
+            )
             or manifest.producer.component != expected_producer
             or manifest.tenant_context is None
             or manifest.tenant_context.tenant_id != tenant_id
@@ -611,7 +671,7 @@ def _candidate_acquisition_history_projection(
                 reentry_receipt_ref,
                 expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
                 expected_schema="polisyos.runtime.AcquisitionOverlayReentryReceipt",
-                expected_version="1.0",
+                expected_version=("1.0", "2.0"),
                 expected_job_id=route_receipt.source_job_id,
             )
             reentry_receipt = AcquisitionOverlayReentryReceipt.model_validate(reentry_payload)
@@ -623,13 +683,21 @@ def _candidate_acquisition_history_projection(
             ):
                 raise ValueError("acquisition_reentry_route_binding_mismatch")
 
-            source_cycles = tuple(
-                cycle
+            source_runs = tuple(
+                node.cycle_run
                 for node in recursive_run.nodes
                 if isinstance(node, RecursiveCycleNode)
                 and node.cycle_run is not None
                 and node.design_problem_ref == reentry_receipt.design_problem_ref
-                for cycle in node.cycle_run.cycles
+                and any(
+                    cycle.cycle_index == reentry_receipt.source_cycle_index
+                    for cycle in node.cycle_run.cycles
+                )
+            )
+            source_cycles = tuple(
+                cycle
+                for run in source_runs
+                for cycle in run.cycles
                 if cycle.cycle_index == reentry_receipt.source_cycle_index
             )
             if (
@@ -639,6 +707,11 @@ def _candidate_acquisition_history_projection(
             ):
                 raise ValueError("acquisition_reentry_source_candidate_binding_mismatch")
             source_cycle = source_cycles[0]
+            if len(source_runs) != 1:
+                raise ValueError("acquisition_reentry_source_run_ambiguous")
+            source_run = source_runs[0]
+            if reentry_receipt.schema_version.endswith(".v3"):
+                validate_acquisition_overlay_continuation(source_run, reentry_receipt)
             old_source_ref = source_cycle.simulation.candidate_simulation_n4_source_ref
             old_input_ref = source_cycle.simulation.candidate_simulation_n5_input_ref
             old_source = None
@@ -726,7 +799,126 @@ def _candidate_acquisition_history_projection(
                     != artifact_ref_identity_key(expected_origin_ref)
                 ):
                     raise ValueError("acquisition_reentry_same_candidate_lineage_mismatch")
+                selected_target_hashes = _selected_target_baseline_hashes(old_input, new_input)
+                if (
+                    old_input is None
+                    or old_input.profile.profile_selection_ref
+                    != new_input.profile.profile_selection_ref
+                    or old_source.profile_selection_ref
+                    != old_input.profile.profile_selection_ref
+                    or new_source.profile_selection_ref
+                    != new_input.profile.profile_selection_ref
+                ):
+                    raise ValueError(
+                        "acquisition_reentry_same_candidate_profile_selection_mismatch"
+                    )
+                if (
+                    selected_target_hashes is None
+                    or selected_target_hashes[0] == selected_target_hashes[1]
+                ):
+                    raise ValueError("acquisition_reentry_selected_target_input_not_changed")
 
+            continuation_projection = None
+            if reentry_receipt.schema_version.endswith(".v3"):
+                continued = reentry_receipt.continued_generation_run
+                if continued is None:
+                    raise ValueError("acquisition_reentry_continuation_missing")
+                if old_input is None:
+                    target_hashes = None
+                    previous_n4_ref = None
+                    previous_n5_ref = None
+                    previous_profile_selection_ref = None
+                    previous_profile_content_hash = None
+                else:
+                    target_hashes = _selected_target_baseline_hashes(old_input, new_input)
+                    previous_n4_ref = ArtifactRef.model_validate(
+                        old_input.n4_source_ref.model_dump(mode="json")
+                    )
+                    previous_n5_ref = ArtifactRef.model_validate(
+                        source_cycle.simulation.candidate_simulation_n5_input_ref.model_dump(
+                            mode="json"
+                        )
+                    )
+                    previous_profile_selection_ref = old_input.profile.profile_selection_ref
+                    previous_profile_content_hash = old_input.profile.content_hash
+                if same_candidate and (
+                    target_hashes is None or target_hashes[0] == target_hashes[1]
+                ):
+                    raise ValueError("acquisition_reentry_selected_target_input_not_changed")
+                from polisyos.core.contracts.runtime import (
+                    RunCandidateSimulationAcquisitionContinuationProjection,
+                    RunCandidateSimulationContinuationFronts,
+                    RunCandidateSimulationCurrentOccurrence,
+                )
+
+                current_occurrences = _current_candidate_summaries(continued.candidate_summaries)
+                source_currentness = reentry_receipt.source_run_currentness
+                continuation_currentness = reentry_receipt.continuation_currentness
+                continuation_projection = RunCandidateSimulationAcquisitionContinuationProjection(
+                    source_generation_run_content_hash=(
+                        reentry_receipt.source_generation_run_content_hash
+                    ),
+                    continued_generation_run_content_hash=(
+                        reentry_receipt.continued_generation_run_content_hash
+                    ),
+                    source_cycle_index=reentry_receipt.source_cycle_index,
+                    continued_cycle_index=reentry_receipt.new_cycle.cycle_index,
+                    previous_n4_source_ref=previous_n4_ref,
+                    previous_n5_input_ref=previous_n5_ref,
+                    selected_n4_source_ref=new_source_ref,
+                    selected_n5_input_ref=new_input_ref,
+                    previous_profile_selection_ref=previous_profile_selection_ref,
+                    previous_profile_content_hash=previous_profile_content_hash,
+                    selected_profile_selection_ref=new_input.profile.profile_selection_ref,
+                    selected_profile_content_hash=new_input.profile.content_hash,
+                    selected_target_world_slot=new_input.materialization.target_world_slot,
+                    previous_selected_target_baseline_hash=(
+                        target_hashes[0] if target_hashes is not None else None
+                    ),
+                    selected_target_baseline_hash=(
+                        target_hashes[1] if target_hashes is not None else None
+                    ),
+                    source_currentness_status=(
+                        source_currentness.status
+                        if source_currentness is not None
+                        else "not_established"
+                    ),
+                    source_currentness_reason=(
+                        source_currentness.reason_code
+                        if source_currentness is not None
+                        else "currentness_observation_unavailable"
+                    ),
+                    continuation_currentness_status=(
+                        continuation_currentness.status
+                        if continuation_currentness is not None
+                        else "not_established"
+                    ),
+                    continuation_currentness_reason=(
+                        continuation_currentness.reason_code
+                        if continuation_currentness is not None
+                        else "currentness_observation_unavailable"
+                    ),
+                    n9_status=continued.promotion_port.status,
+                    n9_reason=continued.promotion_port.reason,
+                    n9_certified_candidate_ids=continued.promotion_port.certified_candidate_ids,
+                    current_candidate_occurrences=tuple(
+                        RunCandidateSimulationCurrentOccurrence(
+                            candidate_id=row.candidate_id,
+                            cycle_index=row.cycle_index,
+                            content_hash=row.content_hash,
+                            source_content_hash=row.source_content_hash,
+                            front=row.front,
+                            certified_by_n9=row.certified_by_n9,
+                        )
+                        for row in current_occurrences
+                    ),
+                    current_fronts=RunCandidateSimulationContinuationFronts(
+                        decision_candidate_ids=continued.fronts.decision.candidate_ids,
+                        research_candidate_ids=continued.fronts.research.candidate_ids,
+                        quarantine_candidate_ids=continued.fronts.quarantine.candidate_ids,
+                        portfolio_candidate_ids=continued.fronts.portfolio.candidate_ids,
+                    ),
+                )
             history_entries.append(
                 RunCandidateSimulationAcquisitionHistoryEntry(
                     route_receipt_ref=route_receipt_ref,
@@ -738,11 +930,159 @@ def _candidate_acquisition_history_projection(
                     new_candidate_id=reentry_receipt.new_cycle.selected_candidate_ref,
                     new_candidate_source_ref=new_source_ref,
                     origin_source_ref=new_source.origin_source_ref,
+                    continuation=continuation_projection,
                 )
             )
         return tuple(history_entries), None
     except Exception:
         return (), "acquisition_action_history_integrity_not_established"
+
+
+def _n5_interaction_evidence_projection(result: object | None) -> dict[str, Any] | None:
+    """Project exact validated paired-scope samples into the run readback DTO."""
+
+    if result is None:
+        return None
+    from polisyos.core.contracts.runtime import (
+        RunN5InteractionEvidence,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+    )
+
+    schema_version = str(result.schema_version)
+    current = (
+        schema_version == JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+    )
+    terms: list[dict[str, Any]] = []
+    for term in result.interaction_terms:
+        summaries: dict[int, dict[str, Any]] = {}
+        if current:
+            for step, summary in term.replication_sampling_by_step.items():
+                values = tuple(
+                    {
+                        "seed": sample.seed,
+                        "value": sample.effects["derived_effect"],
+                    }
+                    for sample in summary.samples
+                )
+                summaries[int(step)] = {
+                    "status": summary.status,
+                    "replicate_count": summary.replicate_count,
+                    "seeds": summary.seeds,
+                    "samples": values,
+                    "mean": term.by_step[step],
+                    "standard_error": summary.effects_standard_error["derived_effect"],
+                }
+        terms.append(
+            {
+                "atom_ids": term.atom_ids,
+                "outcome": term.outcome,
+                "by_step": term.by_step,
+                "replication_sampling_by_step": summaries,
+            }
+        )
+    residual_sampling: dict[str, dict[int, dict[str, Any]]] = {}
+    if current:
+        for outcome, by_step in result.higher_order_residual_sampling.items():
+            projected_steps: dict[int, dict[str, Any]] = {}
+            for step, summary in by_step.items():
+                projected_steps[int(step)] = {
+                    "status": summary.status,
+                    "replicate_count": summary.replicate_count,
+                    "seeds": summary.seeds,
+                    "samples": tuple(
+                        {
+                            "seed": sample.seed,
+                            "value": sample.effects["derived_effect"],
+                        }
+                        for sample in summary.samples
+                    ),
+                    "mean": result.higher_order_residuals[outcome][step],
+                    "standard_error": summary.effects_standard_error["derived_effect"],
+                }
+            residual_sampling[outcome] = projected_steps
+    if current:
+        feedback = result.feedback_classification
+        numeric = feedback.numeric_interaction
+        basis = feedback.numeric_interaction_basis
+        sampling_status = feedback.interaction_sampling_status
+    else:
+        # A v1-v3 numeric label was not bound to complete paired interaction
+        # summaries. Preserve its means for history, but never its old authority.
+        numeric = "unsupported"
+        basis = "not_established"
+        sampling_status = "not_established"
+    projection = RunN5InteractionEvidence(
+        schema_version=schema_version,
+        numeric_interaction=numeric,
+        numeric_interaction_basis=basis,
+        interaction_sampling_status=sampling_status,
+        interaction_terms=tuple(terms),
+        higher_order_residuals=result.higher_order_residuals,
+        higher_order_residual_sampling=residual_sampling,
+        checked_interaction_orders=result.feedback_classification.checked_interaction_orders,
+    )
+    return projection.model_dump(mode="json")
+
+
+def _n5_interaction_scope_fields(result: object | None) -> dict[str, tuple[int, ...]]:
+    """Project the selected result's horizon and replicate axes into its parent DTO."""
+
+    if result is None:
+        return {}
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
+    )
+
+    if (
+        str(result.schema_version)
+        != JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+    ):
+        return {}
+    return {
+        "executed_steps": tuple(result.horizon.steps()),
+        "replication_seeds": tuple(result.diagnostics.get("replication_seeds", ())),
+    }
+
+
+def _is_n5_interaction_scope_validation_error(error: ValidationError) -> bool:
+    """Recognize a failed current-scope binding without conflating it with absence."""
+
+    return any(
+        "run_n5_interaction_scope_" in str(item.get("msg", ""))
+        for item in error.errors()
+    )
+
+
+def _n8_interaction_qualification_fields(
+    value_port: object | None,
+    *,
+    include_status: bool = True,
+) -> dict[str, Any]:
+    """Expose the interaction qualifier N8 actually consumed."""
+
+    if value_port is None:
+        return {}
+    projected = {
+        "n8_numeric_interaction": getattr(value_port, "numeric_interaction", None),
+        "n8_numeric_interaction_basis": getattr(
+            value_port, "numeric_interaction_basis", None
+        ),
+        "n8_interaction_sampling_status": getattr(
+            value_port, "interaction_sampling_status", None
+        ),
+    }
+    if include_status:
+        projected.update(
+            {
+                "n8_status": getattr(value_port, "status", None),
+                "n8_authority_blockers": tuple(
+                    getattr(value_port, "authority_blockers", ())
+                ),
+            }
+        )
+    return projected
 
 
 def _candidate_simulation_projection(
@@ -1051,6 +1391,7 @@ def _candidate_simulation_projection(
 
     observations: list[RunCandidateSimulationN5Observation] = []
     n5_ref_unresolved = False
+    n5_ref_unresolved_limitation_code = "n5_result_reference_not_established"
     root_node_ref = "design-problem://" + compiled.design_problem_ref.removeprefix("sha256:")
     compiled_child_handoffs = {
         row.node_ref: row.handoff for row in compiled.n4_child_profile_bindings
@@ -1089,6 +1430,8 @@ def _candidate_simulation_projection(
         "acquisition_history": acquisition_history,
         "acquisition_history_limitation_code": acquisition_history_limitation_code,
     }
+
+    resolved_lineage_by_input_ref: dict[str, Any] = {}
 
     def _lineage_projection(simulation: Any, *, node_ref: str, problem_ref: str) -> dict[str, Any]:
         selected_refs = (
@@ -1214,6 +1557,7 @@ def _candidate_simulation_projection(
                     )
                 ):
                     raise ValueError("candidate_simulation_child_profile_binding_mismatch")
+            resolved_lineage_by_input_ref[str(input_ref.artifact_id)] = lineage
             return {
                 **common,
                 "lineage_status": "resolved",
@@ -1315,6 +1659,13 @@ def _candidate_simulation_projection(
                             k_world_ref_before=simulation.k_world_ref_before,
                             k_world_ref_after=simulation.k_world_ref_after,
                             authority_blockers=blockers,
+                            n5_interaction_evidence=(
+                                _n5_interaction_evidence_projection(result)
+                            ),
+                            **_n5_interaction_scope_fields(result),
+                            **_n8_interaction_qualification_fields(
+                                getattr(cycle, "value_port", None)
+                            ),
                             **lineage_fields,
                         )
                     )
@@ -1347,10 +1698,277 @@ def _candidate_simulation_projection(
                         k_world_ref_before=result.world_model_record_content_hash,
                         k_world_ref_after=result.world_model_record_content_hash,
                         authority_blockers=blockers,
+                        n5_interaction_evidence=(
+                            _n5_interaction_evidence_projection(result)
+                        ),
+                        **_n5_interaction_scope_fields(result),
+                        n8_status="value_pending_n8",
                     )
                 )
+    except ValidationError as exc:
+        n5_ref_unresolved = True
+        if _is_n5_interaction_scope_validation_error(exc):
+            n5_ref_unresolved_limitation_code = "n5_interaction_scope_not_established"
     except Exception:
         n5_ref_unresolved = True
+
+    if not n5_ref_unresolved:
+        from polisyos.pdc import gy_content_hash
+
+        for node in recursive_run.nodes:
+            if not isinstance(node, RecursiveCycleNode) or node.joint_simulation is None:
+                continue
+            parent_index = next(
+                (
+                    index
+                    for index, observation in enumerate(observations)
+                    if observation.node_ref == node.node_ref
+                    and observation.simulation_result_ref == node.joint_simulation_ref
+                ),
+                None,
+            )
+            if parent_index is None:
+                continue
+            parent_observation = observations[parent_index]
+            request = node.joint_simulation_request
+            scope_failure = None
+            child_bindings: list[RunCandidateSimulationN8ChildSourceBinding] = []
+            outcome_units: dict[str, str] = {}
+            request_hash = node.joint_simulation_request_content_hash
+            candidate_selection_fields: dict[str, Any] = {}
+            candidate_selection = node.joint_candidate_selection
+            if candidate_selection is not None:
+                try:
+                    candidate_selection_fields = _parent_joint_candidate_selection_projection(
+                        compiled=compiled,
+                        node=node,
+                        request=request,
+                        root_n4_source=root_n4_source,
+                    )
+                except Exception:
+                    candidate_selection_fields = {
+                        "n8_candidate_joint_selection_status": "not_established",
+                        "n8_candidate_joint_selection_limitation_code": (
+                            "parent_joint_candidate_source_selection_not_established"
+                        ),
+                        "n8_candidate_member_basis": "not_established",
+                        "n8_source_candidate_relationship": "not_established",
+                        "n8_policy_composition_status": "not_established",
+                        "n8_policy_composition_limitation_code": (
+                            "parent_joint_candidate_source_selection_not_established"
+                        ),
+                        "n8_child_to_parent_refinement_status": "not_established",
+                        "n8_child_to_parent_refinement_limitation_code": (
+                            "parent_joint_candidate_source_selection_not_established"
+                        ),
+                    }
+            if request is None or request_hash is None:
+                scope_failure = "parent_joint_request_binding_not_established"
+            elif request_hash != gy_content_hash(request.model_dump(mode="json")):
+                scope_failure = "parent_joint_request_content_binding_mismatch"
+            elif (
+                request.world_model_record.content_hash
+                != parent_observation.world_model_record_content_hash
+                or request.world_model_record_ref != node.joint_simulation.world_model_record_ref
+                or tuple(request.selected_outcomes) != parent_observation.selected_outcomes
+                or tuple(atom.intervention_id for atom in request.intervention_atoms)
+                != parent_observation.atom_ids
+                or request.horizon.model_dump(mode="json")
+                != node.joint_simulation.horizon.model_dump(mode="json")
+            ):
+                scope_failure = "parent_joint_request_result_binding_mismatch"
+            elif request.coupling_graph is None:
+                scope_failure = (
+                    "parent_joint_coupling_evidence_not_established"
+                    if candidate_selection is not None
+                    and candidate_selection_fields.get(
+                        "n8_candidate_joint_selection_status"
+                    )
+                    == "resolved"
+                    else "parent_joint_selected_child_program_not_established"
+                )
+            elif (
+                request.coupling_graph.design_ref != node.node_ref
+                or tuple(request.coupling_graph.module_refs) != tuple(node.child_refs)
+            ):
+                scope_failure = "parent_joint_selected_child_program_not_established"
+            elif (
+                parent_observation.n5_interaction_evidence is None
+                or parent_observation.n5_interaction_evidence.schema_version
+                != "policyos.runtime.joint_simulation_horizon.v4"
+                or parent_observation.n5_interaction_evidence.interaction_sampling_status
+                == "not_established"
+                or not parent_observation.executed_steps
+                or not parent_observation.replication_seeds
+            ):
+                scope_failure = "parent_joint_interaction_sampling_not_established"
+            else:
+                child_observations: dict[str, list[RunCandidateSimulationN5Observation]] = {}
+                for row in observations:
+                    child_observations.setdefault(row.node_ref, []).append(row)
+                if (
+                    not node.child_refs
+                    or len(node.child_refs) != len(set(node.child_refs))
+                    or len(node.child_refs) != len(request.intervention_atoms)
+                    or set(node.child_refs) != set(request.coupling_graph.module_refs)
+                ):
+                    scope_failure = "parent_joint_selected_child_denominator_mismatch"
+                else:
+                    source_atoms_by_node: dict[str, Any] = {}
+                    for child_ref in node.child_refs:
+                        rows = child_observations.get(child_ref, [])
+                        if len(rows) != 1:
+                            scope_failure = "parent_joint_child_n5_selection_ambiguous"
+                            break
+                        child_row = rows[0]
+                        if (
+                            child_row.status != "joint_simulated"
+                            or child_row.lineage_status != "resolved"
+                            or child_row.n5_input_ref is None
+                            or child_row.n4_source_ref is None
+                            or child_row.context_job_ref is None
+                            or child_row.simulation_result_ref is None
+                            or child_row.profile_config_ref is None
+                            or child_row.profile_selection_ref is None
+                        ):
+                            scope_failure = "parent_joint_child_input_lineage_not_established"
+                            break
+                        profile_binding = child_projection_by_node.get(child_ref)
+                        if (
+                            profile_binding is None
+                            or profile_binding.historical_binding_status != "resolved"
+                            or compiled.n4_child_profile_status != "resolved"
+                            or profile_binding.profile_config_ref != child_row.profile_config_ref
+                            or profile_binding.profile_selection_ref != child_row.profile_selection_ref
+                            or profile_binding.context_job_ref != child_row.context_job_ref
+                            or profile_binding.root_n4_source_ref != child_row.n4_source_ref
+                        ):
+                            scope_failure = "parent_joint_child_profile_aggregate_not_established"
+                            break
+                        lineage = resolved_lineage_by_input_ref.get(
+                            str(child_row.n5_input_ref.artifact_id)
+                        )
+                        source_atom = getattr(
+                            getattr(lineage, "materialization", None), "derived_n5_atom", None
+                        )
+                        if source_atom is None or len(child_row.atom_ids) != 1:
+                            scope_failure = "parent_joint_child_atom_source_not_established"
+                            break
+                        if source_atom.intervention_id != child_row.atom_ids[0]:
+                            scope_failure = "parent_joint_child_atom_result_binding_mismatch"
+                            break
+                        if source_atom.problem_frame_ref != node.design_problem_ref:
+                            scope_failure = "parent_joint_atom_frame_binding_not_established"
+                            break
+                        source_atoms_by_node[child_ref] = (child_row, source_atom)
+                    if scope_failure is None:
+                        unmatched_parent_atoms = list(request.intervention_atoms)
+                        matched_by_child: dict[str, Any] = {}
+                        for child_ref in node.child_refs:
+                            child_row, source_atom = source_atoms_by_node[child_ref]
+                            matches = []
+                            for parent_atom in unmatched_parent_atoms:
+                                if _parent_joint_atom_matches_child_source(
+                                    parent_atom,
+                                    source_atom,
+                                ):
+                                    matches.append(parent_atom)
+                            if len(matches) != 1:
+                                scope_failure = "parent_joint_atom_child_source_binding_not_established"
+                                break
+                            parent_atom = matches[0]
+                            unmatched_parent_atoms.remove(parent_atom)
+                            if parent_atom.world_model_record_ref != request.world_model_record_ref:
+                                scope_failure = "parent_joint_atom_world_model_binding_mismatch"
+                                break
+                            matched_by_child[child_ref] = (child_row, source_atom, parent_atom)
+                        if scope_failure is None and unmatched_parent_atoms:
+                            scope_failure = "parent_joint_atom_child_denominator_mismatch"
+                    if scope_failure is None:
+                        for outcome in request.selected_outcomes:
+                            unit_ids = {
+                                source_atom.intended_downstream_estimand.unit_id
+                                for _child, source_atom, _parent in matched_by_child.values()
+                                if outcome
+                                in source_atom.intended_downstream_estimand.outcome_variables
+                            }
+                            if len(unit_ids) != 1 or None in unit_ids or "" in unit_ids:
+                                scope_failure = "parent_joint_outcome_unit_not_established"
+                                break
+                            outcome_units[outcome] = next(iter(unit_ids))
+                    if scope_failure is None:
+                        for child_ref in node.child_refs:
+                            child_row, source_atom, parent_atom = matched_by_child[child_ref]
+                            child_bindings.append(
+                                RunCandidateSimulationN8ChildSourceBinding(
+                                    child_node_ref=child_ref,
+                                    child_design_problem_ref=child_row.design_problem_ref,
+                                    n4_source_ref=child_row.n4_source_ref,
+                                    context_job_ref=child_row.context_job_ref,
+                                    n5_input_ref=child_row.n5_input_ref,
+                                    n5_result_ref=child_row.simulation_result_ref,
+                                    profile_config_ref=child_row.profile_config_ref,
+                                    profile_selection_ref=child_row.profile_selection_ref,
+                                    source_intervention_id=source_atom.intervention_id,
+                                    source_atom_id=source_atom.atom_id,
+                                    source_atom_content_hash=source_atom.content_hash,
+                                    source_problem_frame_ref=source_atom.problem_frame_ref,
+                                    parent_atom_id=parent_atom.atom_id,
+                                    parent_atom_content_hash=parent_atom.content_hash,
+                                )
+                            )
+            blocker = (
+                scope_failure
+                if scope_failure is not None
+                else "joint_interaction_rule_not_established"
+            )
+            evidence = parent_observation.n5_interaction_evidence
+            n8_fields: dict[str, Any] = {
+                "n8_joint_request_content_hash": request_hash,
+                "n8_joint_world_model_record_ref": (
+                    request.world_model_record_ref if request is not None else None
+                ),
+                "n8_joint_outcome_units": outcome_units if scope_failure is None else {},
+                "n8_joint_parent_atom_ids": (
+                    tuple(atom.atom_id for atom in request.intervention_atoms)
+                    if scope_failure is None and request is not None
+                    else ()
+                ),
+                "n8_joint_parent_atom_content_hashes": (
+                    tuple(atom.content_hash for atom in request.intervention_atoms)
+                    if scope_failure is None and request is not None
+                    else ()
+                ),
+                "n8_parent_child_refs": (
+                    tuple(row.child_node_ref for row in child_bindings)
+                    if scope_failure is None
+                    else ()
+                ),
+                "n8_parent_child_source_bindings": (
+                    tuple(child_bindings) if scope_failure is None else ()
+                ),
+                "n8_joint_scope_status": (
+                    "resolved" if scope_failure is None else "not_established"
+                ),
+                "n8_joint_scope_limitation_code": scope_failure,
+                "n8_joint_value_limitation_code": (
+                    "joint_interaction_rule_not_established" if scope_failure is None else None
+                ),
+                "n8_status": "value_pending_n8",
+                "n8_authority_blockers": tuple(
+                    dict.fromkeys((*parent_observation.n8_authority_blockers, blocker))
+                ),
+                **candidate_selection_fields,
+            }
+            if scope_failure is None and evidence is not None:
+                n8_fields.update(
+                    {
+                        "n8_numeric_interaction": evidence.numeric_interaction,
+                        "n8_numeric_interaction_basis": evidence.numeric_interaction_basis,
+                        "n8_interaction_sampling_status": evidence.interaction_sampling_status,
+                    }
+                )
+            observations[parent_index] = parent_observation.model_copy(update=n8_fields)
 
     if n5_ref_unresolved:
         return RunCandidateSimulationProjection(
@@ -1358,7 +1976,7 @@ def _candidate_simulation_projection(
             artifact_status="resolved",
             source_ref=ref,
             source_content_hash=compiled.content_hash,
-            limitation_code="n5_result_reference_not_established",
+            limitation_code=n5_ref_unresolved_limitation_code,
             recursive_cycle_checkpoint=checkpoint,
             **acquisition_history_fields,
             **n4_projection_fields,
@@ -1384,6 +2002,209 @@ def _candidate_simulation_projection(
         **acquisition_history_fields,
         **n4_projection_fields,
     )
+
+
+def _parent_joint_atom_matches_child_source(parent_atom: Any, child_source_atom: Any) -> bool:
+    """Require exact producer-owned atom identity across the parent-child seam."""
+
+    if type(parent_atom) is not type(child_source_atom):
+        return False
+    parent_dump = getattr(parent_atom, "model_dump", None)
+    child_dump = getattr(child_source_atom, "model_dump", None)
+    if not callable(parent_dump) or not callable(child_dump):
+        return False
+    return parent_dump(mode="json") == child_dump(mode="json")
+
+
+def _parent_joint_candidate_selection_projection(
+    *,
+    compiled: Any,
+    node: Any,
+    request: Any,
+    root_n4_source: Any,
+) -> dict[str, Any]:
+    """Reconcile the candidate parent basis against the fresh N4 source readback."""
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        ParentJointCandidateSelectionV2,
+    )
+
+    selection = getattr(node, "joint_candidate_selection", None)
+    handoff = getattr(compiled, "generic_cycle_simulation_handoff", None)
+    if (
+        selection is None
+        or request is None
+        or root_n4_source is None
+        or handoff is None
+        or root_n4_source.generation_result.status != "generated"
+    ):
+        raise ValueError("parent_joint_candidate_source_selection_not_established")
+    source_result = root_n4_source.generation_result
+    source_result_hash = gy_content_hash(source_result.model_dump(mode="json"))
+    if isinstance(selection, ParentJointCandidateSelectionV2) and (
+        selection.candidate_intent != "n4_unique_parent_source_members.v1"
+        or selection.joint_simulation_request_content_hash
+        != gy_content_hash(request.model_dump(mode="json"))
+        or selection.member_basis != "hypothetical_all_unique_n4_source_members"
+        or selection.source_candidate_relationship != "alternatives"
+        or selection.composition_status != "not_established"
+        or selection.composition_limitation_code
+        != "n4_source_candidates_are_alternatives_not_authored_compound_design"
+        or selection.child_to_parent_refinement_status != "not_established"
+        or selection.child_to_parent_refinement_limitation_code
+        != "child_to_parent_refinement_rule_not_established"
+        or request.candidate_intent != selection.candidate_intent
+        or request.member_basis != selection.member_basis
+        or request.source_candidate_relationship
+        != selection.source_candidate_relationship
+        or request.composition_status != selection.composition_status
+        or request.composition_limitation_code
+        != selection.composition_limitation_code
+        or request.child_to_parent_refinement_status
+        != selection.child_to_parent_refinement_status
+        or request.child_to_parent_refinement_limitation_code
+        != selection.child_to_parent_refinement_limitation_code
+    ):
+        raise ValueError("parent_joint_candidate_diagnostic_binding_mismatch")
+    world_record = handoff.profile.context_inputs.world_model_record
+    if (
+        artifact_ref_identity_key(selection.n4_source_ref)
+        != artifact_ref_identity_key(compiled.n4_recursive_source_ref)
+        or selection.n4_source_result_content_hash != source_result_hash
+        or artifact_ref_identity_key(selection.context_job_ref)
+        != artifact_ref_identity_key(compiled.n4_recursive_source_context_job_ref)
+        or artifact_ref_identity_key(selection.context_job_ref)
+        != artifact_ref_identity_key(handoff.context_job_ref)
+        or artifact_ref_identity_key(selection.profile_ref)
+        != artifact_ref_identity_key(handoff.profile_ref)
+        or selection.profile_selection_ref != handoff.profile.profile_selection_ref
+        or selection.profile_selection_ref
+        != compiled.n4_recursive_source_profile_selection_ref
+        or selection.parent_design_problem_ref != node.design_problem_ref
+        or handoff.context.design_problem_ref != node.design_problem_ref
+        or selection.world_model_record_ref != world_record.world_model_record_id
+        or selection.world_model_record_content_hash != world_record.content_hash
+        or request.world_model_record != world_record
+        or request.world_model_record_ref != world_record.world_model_record_id
+        or selection.outcome_variable not in request.selected_outcomes
+        or tuple(request.selected_outcomes) != (selection.outcome_variable,)
+        or selection.child_node_refs != node.child_refs
+        or tuple(member.child_node_ref for member in selection.members) != node.child_refs
+    ):
+        raise ValueError("parent_joint_candidate_source_selection_binding_mismatch")
+
+    children = derive_n4_candidate_child_problems(
+        compiled.design_problem,
+        source_result,
+        model_id=compiled.model_id,
+    )
+    expected_child_refs = tuple(
+        "design-problem://"
+        + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+        for child in children
+    )
+    candidates_by_atom_hash: dict[str, list[Any]] = {}
+    for candidate in source_result.candidates:
+        candidates_by_atom_hash.setdefault(candidate.atom.content_hash, []).append(candidate)
+    if (
+        expected_child_refs != node.child_refs
+        or len(children) != len(selection.members)
+        or len(candidates_by_atom_hash) != len(children)
+        or any(len(rows) != 1 for rows in candidates_by_atom_hash.values())
+        or len(request.intervention_atoms) != len(children)
+    ):
+        raise ValueError("parent_joint_candidate_source_denominator_mismatch")
+
+    selected_atoms = []
+    for child, member, parent_atom in zip(
+        children,
+        selection.members,
+        request.intervention_atoms,
+        strict=True,
+    ):
+        child_ref = (
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+        )
+        source_candidates = candidates_by_atom_hash.get(child.source_atom_refs[0], ())
+        if len(source_candidates) != 1:
+            raise ValueError("parent_joint_candidate_source_member_not_established")
+        candidate = source_candidates[0]
+        source_atom = candidate.atom
+        if (
+            child.source_result_ref != source_result_hash
+            or tuple(child.source_atom_refs) != (source_atom.content_hash,)
+            or member.child_node_ref != child_ref
+            or member.child_design_problem_ref
+            != cycle_job_design_problem_ref(child.problem)
+            or member.semantic_ref != child.semantic_ref
+            or member.source_candidate_id != candidate.candidate_id
+            or member.source_candidate_content_hash
+            != gy_content_hash(candidate.model_dump(mode="json"))
+            or member.source_atom_id != source_atom.atom_id
+            or member.source_atom_content_hash != source_atom.content_hash
+            or member.parent_problem_frame_ref != node.design_problem_ref
+            or source_atom.problem_frame_ref != node.design_problem_ref
+            or source_atom.world_model_record_ref != request.world_model_record_ref
+            or parent_atom != source_atom
+        ):
+            raise ValueError("parent_joint_candidate_source_member_binding_mismatch")
+        selected_atoms.append(parent_atom)
+    if {atom.content_hash for atom in selected_atoms} != set(candidates_by_atom_hash):
+        raise ValueError("parent_joint_candidate_source_member_denominator_mismatch")
+    if tuple(atom.atom_id for atom in selected_atoms) != tuple(
+        atom.atom_id for atom in request.intervention_atoms
+    ):
+        raise ValueError("parent_joint_candidate_request_order_mismatch")
+
+    candidate_selection_fields: dict[str, Any] = {
+        "n8_candidate_joint_selection_status": "resolved",
+        "n8_candidate_joint_selection_content_hash": selection.content_hash,
+        "n8_candidate_parent_atom_ids": tuple(member.source_atom_id for member in selection.members),
+        "n8_candidate_parent_atom_content_hashes": tuple(
+            member.source_atom_content_hash for member in selection.members
+        ),
+        "n8_candidate_parent_intervention_ids": tuple(
+            atom.intervention_id for atom in request.intervention_atoms
+        ),
+        "n8_candidate_parent_child_refs": tuple(selection.child_node_refs),
+    }
+    if isinstance(selection, ParentJointCandidateSelectionV2):
+        candidate_selection_fields.update(
+            {
+                "n8_candidate_member_basis": "hypothetical_all_unique_n4_source_members",
+                "n8_source_candidate_relationship": "alternatives",
+                "n8_policy_composition_status": "not_established",
+                "n8_policy_composition_limitation_code": (
+                    "n4_source_candidates_are_alternatives_not_authored_compound_design"
+                ),
+                "n8_child_to_parent_refinement_status": "not_established",
+                "n8_child_to_parent_refinement_limitation_code": (
+                    "child_to_parent_refinement_rule_not_established"
+                ),
+            }
+        )
+    else:
+        # Historical v1 binds source identities only; it has no typed statement
+        # that the members are a hypothetical diagnostic or an authored design.
+        candidate_selection_fields.update(
+            {
+                "n8_candidate_member_basis": "not_established",
+                "n8_source_candidate_relationship": "not_established",
+                "n8_policy_composition_status": "not_established",
+                "n8_policy_composition_limitation_code": (
+                    "legacy_selection_receipt_has_no_composition_basis"
+                ),
+                "n8_child_to_parent_refinement_status": "not_established",
+                "n8_child_to_parent_refinement_limitation_code": (
+                    "legacy_selection_receipt_has_no_refinement_basis"
+                ),
+            }
+        )
+    return candidate_selection_fields
 
 
 def _generic_cycle_simulation_refusal(
@@ -2036,8 +2857,25 @@ def _generic_cycle_simulation_projection(
                         n8_value_ref=n8_value_ref,
                         n8_authority_blockers=tuple(value_port.authority_blockers),
                         n8_limitation_code=n8_limitation,
+                        n5_interaction_evidence=(
+                            _n5_interaction_evidence_projection(resolved_result)
+                        ),
+                        **_n5_interaction_scope_fields(resolved_result),
+                        **_n8_interaction_qualification_fields(
+                            value_port,
+                            include_status=False,
+                        ),
                     )
                 )
+        except ValidationError as exc:
+            # Keep a source-resolved but structurally incoherent current scope
+            # distinct from an absent/unreadable N5 lineage.
+            n5_limitation = (
+                "generic_n5_interaction_scope_not_established"
+                if _is_n5_interaction_scope_validation_error(exc)
+                else "generic_n5_persisted_lineage_not_established"
+            )
+            continue
         except Exception:
             # Preserve each sibling that independently replayed. The recursive
             # checkpoint carries the failed sibling's exact terminal state.
@@ -3053,6 +3891,150 @@ if router is not None:
             meta=build_meta(request, source_kinds=[run.source_kind]),
             temporal_scope=temporal_scope,
             run=run_details,
+        )
+
+    @router.post(
+        "/{run_id}/predictive-calibration",
+        response_model=PredictiveCalibrationResponse,
+        operation_id="create_run_predictive_calibration",
+        status_code=201,
+        dependencies=[Depends(_CREATE_RUN_PREDICTIVE_CALIBRATION_AUTHZ)],
+    )
+    def create_run_predictive_calibration(
+        run_id: str,
+        body: PredictiveCalibrationRequest,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> PredictiveCalibrationResponse:
+        if not ctx.allow_candidate_run_predictive_calibration_surface:
+            raise service_unavailable(
+                "Candidate predictive diagnostics are not enabled on this runtime",
+                code="candidate_predictive_diagnostic_surface_disabled",
+            )
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
+        actor_subject, actor_tenant_id, _actor_identity_id, _actor_roles = (
+            principal_from_access_scope(scope)
+        )
+        if (
+            actor_tenant_id != run.details.tenant_id
+            or not scope.cell_id
+            or scope.cell_id != run.details.cell_id
+        ):
+            raise forbidden(
+                "Predictive diagnostics require the verified run tenant and cell scope",
+                code="predictive_calibration_scope_mismatch",
+            )
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run.predictive_calibration",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
+            ),
+        )
+        control_service = _control_service_from_request(request)
+        event_log = getattr(control_service, "_diagnostic_event_log", None)
+        if event_log is None:
+            raise service_unavailable(
+                "Run diagnostic event log is unavailable",
+                code="predictive_calibration_event_log_unavailable",
+            )
+        try:
+            association_ref, association = produce_run_predictive_calibration(
+                store=ctx.store,
+                run=run,
+                request=body,
+                event_log=event_log,
+                event_scope={
+                    "run_id": run.details.run_id,
+                    "job_id": run.details.control_job_id or "",
+                    "tenant_id": scope.tenant_id,
+                    "cell_id": scope.cell_id or "",
+                },
+                actor_subject=actor_subject,
+            )
+        except PredictiveCalibrationError as exc:
+            if exc.code in {
+                "predictive_calibration_intent_conflict",
+                "predictive_calibration_legacy_intent_scope_unverifiable",
+                "predictive_calibration_intent_in_progress",
+                "predictive_calibration_intent_recovery_required",
+                "predictive_calibration_completed_intent_result_unresolved",
+            }:
+                raise conflict(str(exc), code=exc.code) from exc
+            raise unprocessable_entity(str(exc), code=exc.code) from exc
+        return PredictiveCalibrationResponse(
+            meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
+            association_ref=association_ref,
+            association=association,
+        )
+
+    @router.get(
+        "/{run_id}/predictive-calibration",
+        response_model=PredictiveCalibrationResponse,
+        operation_id="get_run_predictive_calibration",
+        dependencies=[Depends(_GET_RUN_PREDICTIVE_CALIBRATION_AUTHZ)],
+    )
+    def get_run_predictive_calibration(
+        run_id: str,
+        request: Request,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> PredictiveCalibrationResponse:
+        if not ctx.allow_candidate_run_predictive_calibration_surface:
+            raise service_unavailable(
+                "Candidate predictive diagnostics are not enabled on this runtime",
+                code="candidate_predictive_diagnostic_surface_disabled",
+            )
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        scope = require_access_scope(request)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run.predictive_calibration",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id) if run.details.manifest_ref else None
+            ),
+        )
+        control_service = _control_service_from_request(request)
+        event_log = getattr(control_service, "_diagnostic_event_log", None)
+        if event_log is None:
+            raise service_unavailable(
+                "Run diagnostic event log is unavailable",
+                code="predictive_calibration_event_log_unavailable",
+            )
+        try:
+            association_ref, association = load_run_predictive_calibration(
+                store=ctx.store,
+                run=run,
+                event_log=event_log,
+                event_scope={
+                    "run_id": run.details.run_id,
+                    "job_id": run.details.control_job_id or "",
+                    "tenant_id": scope.tenant_id,
+                    "cell_id": scope.cell_id or "",
+                },
+            )
+        except FileNotFoundError as exc:
+            raise not_found(
+                "Run predictive-calibration diagnostic was not found",
+                code="run_predictive_calibration_not_found",
+            ) from exc
+        except PredictiveCalibrationError as exc:
+            raise conflict(str(exc), code=exc.code) from exc
+        record_data_access_audit(
+            request,
+            resource_id=str(association_ref.artifact_id),
+            resource_kind="runtime.run.predictive_calibration",
+            tenant_id=run.details.tenant_id,
+            outcome="predictive_diagnostic_read",
+        )
+        return PredictiveCalibrationResponse(
+            meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
+            association_ref=association_ref,
+            association=association,
         )
 
     @router.get("/{run_id}/live", include_in_schema=False)

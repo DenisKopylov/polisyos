@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from pathlib import Path
+
 import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
 
 from polisyos.foundry.agent_sim.distributions import (
+    GiniPopulationProfile,
+    active_gini_population_supported,
     compute_gini_hard,
     compute_gini_proxy,
     compute_gini_soft,
@@ -29,6 +34,242 @@ from polisyos.foundry.plugins.composite import (
 )
 from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
+
+
+@pytest.mark.parametrize(
+    "selector",
+    [
+        pytest.param(None, id="falsey-none"),
+        pytest.param("false", id="truthy-string"),
+    ],
+)
+def test_jit_training_config_rejects_malformed_track_selector(selector: object) -> None:
+    """A present malformed bool cannot become the default wealth-only path."""
+
+    from polisyos.foundry.agent_sim.jit_training import JITTrainingConfig
+
+    with pytest.raises(TypeError, match="track_active_wealth must be a bool"):
+        JITTrainingConfig(track_active_wealth=selector)
+
+
+def test_jit_training_config_preserves_valid_selector_and_profile_contract() -> None:
+    """Exact booleans retain legacy behavior and selected-profile requirements."""
+
+    from polisyos.foundry.agent_sim.jit_training import JITTrainingConfig
+
+    profile = GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
+    assert JITTrainingConfig(track_active_wealth=False).track_active_wealth is False
+    assert JITTrainingConfig(track_active_wealth=True).track_active_wealth is True
+    with pytest.raises(ValueError, match="requires track_active_wealth=True"):
+        JITTrainingConfig(track_active_wealth=False, gini_population_profile=profile)
+    selected = JITTrainingConfig(track_active_wealth=True, gini_population_profile=profile)
+    assert selected.gini_population_profile is profile
+
+
+@pytest.mark.parametrize(
+    "entrypoint",
+    ["train_actor_critic_jit", "train_actor_critic_with_artifact"],
+)
+@pytest.mark.parametrize(
+    "selector,profile",
+    [
+        pytest.param(
+            None,
+            GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
+            id="falsey-with-selected-profile",
+        ),
+        pytest.param("false", None, id="truthy-string-without-profile"),
+    ],
+)
+def test_exported_training_entrypoints_reject_malformed_selector_before_setup(
+    entrypoint: str,
+    selector: object,
+    profile: GiniPopulationProfile | None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject malformed selectors before trainer, logger, fingerprint, or artifact work."""
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.foundry import agent_sim
+    from polisyos.foundry.agent_sim import jit_training as jit_training_module
+    from polisyos.foundry.agent_sim import training as training_module
+    from polisyos.foundry.agent_sim.training import TrainingConfig
+    from polisyos.foundry.runtime.fingerprint import EnvironmentFingerprint
+
+    calls: list[str] = []
+
+    def unexpected(name: str) -> Callable[..., None]:
+        def fail(*args: object, **kwargs: object) -> None:
+            del args, kwargs
+            calls.append(name)
+            raise AssertionError(f"{name} ran before selector admission")
+
+        return fail
+
+    monkeypatch.setattr(jit_training_module, "create_jit_trainer", unexpected("trainer"))
+    monkeypatch.setattr(training_module, "get_logger", unexpected("logger"))
+    monkeypatch.setattr(
+        EnvironmentFingerprint, "capture", staticmethod(unexpected("fingerprint"))
+    )
+    monkeypatch.setattr(training_module.jax.random, "PRNGKey", unexpected("prng"))
+
+    config = TrainingConfig(gini_population_profile=profile)
+    function = getattr(agent_sim, entrypoint)
+    kwargs = {
+        "make_executor": unexpected("executor"),
+        "track_active_wealth": selector,
+    }
+    cas = None
+    if entrypoint == "train_actor_critic_with_artifact":
+        cas = FileSystemCAS(tmp_path / "malformed-selector-artifacts")
+        kwargs.update(run_id="malformed-selector", cas=cas)
+    else:
+        kwargs["rng_key"] = object()
+
+    with pytest.raises(TypeError, match="track_active_wealth must be a bool"):
+        function(None, None, config, **kwargs)
+
+    assert calls == []
+    if cas is not None:
+        assert not list(cas.root.rglob("*.blob"))
+        assert not list(cas.root.rglob("*.manifest.json"))
+
+
+@pytest.mark.parametrize(
+    "selector,profile,expected",
+    [
+        pytest.param(False, None, False, id="legacy-disabled"),
+        pytest.param(True, None, True, id="legacy-enabled"),
+        pytest.param(
+            False,
+            GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
+            True,
+            id="profile-auto-enables-monitor",
+        ),
+        pytest.param(
+            True,
+            GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1,
+            True,
+            id="profile-explicitly-enabled",
+        ),
+    ],
+)
+def test_jit_training_entrypoint_preserves_valid_selector_semantics(
+    selector: bool,
+    profile: GiniPopulationProfile | None,
+    expected: bool,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The wrapper auto-enables only for a selected profile and retains bool inputs."""
+
+    from polisyos.foundry import agent_sim
+    from polisyos.foundry.agent_sim import jit_training as jit_training_module
+    from polisyos.foundry.agent_sim.jit_training import JITTrainingConfig
+    from polisyos.foundry.agent_sim.training import TrainingConfig
+
+    captured: list[JITTrainingConfig] = []
+
+    def factory(
+        _actor: object,
+        _make_executor: object,
+        _initial_state: object,
+        config: JITTrainingConfig,
+    ) -> Callable[[object], tuple[object, dict[str, object]]]:
+        captured.append(config)
+
+        def run(_rng_key: object) -> tuple[object, dict[str, object]]:
+            metrics: dict[str, object] = {}
+            if config.track_active_wealth:
+                metrics["active_wealth_validation"] = (
+                    jit_training_module._ActiveWealthTrajectoryValidation(
+                        initial_state_checked=True,
+                        episodes_checked=int(config.n_episodes),
+                        transitions_checked=int(config.n_episodes)
+                        * int(config.steps_per_episode),
+                        active_wealth_supported=True,
+                    )
+                )
+            return object(), metrics
+
+        return run
+
+    monkeypatch.setattr(jit_training_module, "create_jit_trainer", factory)
+    config = TrainingConfig(
+        n_episodes=1,
+        steps_per_episode=1,
+        gini_population_profile=profile,
+    )
+    policy, metrics = agent_sim.train_actor_critic_jit(
+        None,
+        None,
+        config,
+        make_executor=lambda _actor: None,
+        rng_key=object(),
+        track_active_wealth=selector,
+    )
+
+    assert policy is not None
+    assert metrics == {}
+    assert len(captured) == 1
+    assert captured[0].track_active_wealth is expected
+    assert captured[0].gini_population_profile is profile
+
+
+@pytest.mark.parametrize(
+    "wealth,income,active,expected",
+    [
+        ([0.0, 10.0], [0.0, 20.0], [True, True], True),
+        ([0.0, -1.0], [0.0, float("nan")], [True, False], True),
+        ([0.0, 1.0], [0.0, -1.0], [True, True], False),
+        ([0.0, 1.0], [0.0, float("nan")], [True, True], False),
+        ([float("inf"), 1.0], [0.0, 1.0], [True, True], False),
+    ],
+)
+def test_shared_gini_population_predicate_covers_all_active_resources(
+    wealth, income, active, expected
+) -> None:
+    """Selected profile checks both resource vectors and ignores inactive padding."""
+
+    supported = active_gini_population_supported(
+        jnp.asarray(active, dtype=jnp.bool_),
+        jnp.asarray(wealth, dtype=jnp.float32),
+        jnp.asarray(income, dtype=jnp.float32),
+    )
+    assert bool(supported) is expected
+
+
+def test_shared_gini_population_predicate_fails_closed_on_unsupported_array_schema() -> None:
+    """Malformed masks and resources cannot be broadcast into a valid profile."""
+
+    assert not bool(
+        active_gini_population_supported(
+            jnp.asarray([True, False]),
+            jnp.asarray([1.0]),
+            jnp.asarray([2.0, 3.0]),
+        )
+    )
+    assert not bool(
+        active_gini_population_supported(
+            jnp.asarray([1, 0]),
+            jnp.asarray([1.0, 2.0]),
+            jnp.asarray([2.0, 3.0]),
+        )
+    )
+    assert not bool(
+        active_gini_population_supported(
+            jnp.asarray([True, False]),
+            jnp.asarray([1.0 + 2.0j, 2.0 + 3.0j]),
+            jnp.asarray([2.0, 3.0]),
+        )
+    )
+    assert not bool(
+        active_gini_population_supported(
+            jnp.asarray([True]),
+            ["not-a-numeric-resource"],
+            jnp.asarray([2.0]),
+        )
+    )
 
 
 @pytest.mark.parametrize("function", [compute_gini_hard, compute_gini_soft, compute_gini_proxy])

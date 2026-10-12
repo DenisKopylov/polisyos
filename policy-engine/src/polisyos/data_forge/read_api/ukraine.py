@@ -28,12 +28,19 @@ _EXPORTS = {
     "UKRAINE_ASSET_GROUP": _UKRAINE_DOMAIN,
     "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_DEMOGRAPHY_PRIORS_KEY": _UKRAINE_DOMAIN,
+    "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_DEMOGRAPHY_TARGETS_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_NORMALIZED_SOURCES_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_RAW_SOURCES_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_READINESS_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_SOURCE_CONFIG_KEY": _UKRAINE_DOMAIN,
     "UKRAINE_STATIC_AGING_INPUTS_KEY": _UKRAINE_DOMAIN,
+    "DemographyRoleProjection": _UKRAINE_DOMAIN,
+    "DemographySourceEvidence": _UKRAINE_DOMAIN,
+    "DemographySourceRequest": _UKRAINE_DOMAIN,
+    "HistoricalLayoutRequest": _UKRAINE_DOMAIN,
+    "InventorySourceRequest": _UKRAINE_DOMAIN,
+    "SourceResolutionRefusalError": _UKRAINE_DOMAIN,
     "UkraineDemographyArtifacts": _UKRAINE_DOMAIN,
     "UkraineLexPreShardDiff": _UKRAINE_DOMAIN,
     "UkraineLexPreShardSummary": _UKRAINE_DOMAIN,
@@ -671,6 +678,36 @@ def _snapshot_media_type(path: Path) -> str:
     return "application/octet-stream"
 
 
+def load_demography_candidate_artifacts(
+    manifest_path: Path,
+    *,
+    store: core_artifacts.FileSystemCAS,
+    allowed_root: Path,
+) -> UkraineDemographyArtifacts:
+    """Load a candidate inventory stage through the verified-stage/CAS boundary."""
+    from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
+        SOURCE_INVENTORY_STAGE_ID,
+    )
+
+    from polisyos.data_forge.domains.ukraine.demography import (
+        InventorySourceRequest,
+        load_demography_artifacts,
+    )
+
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=allowed_root,
+        expected_stage=SOURCE_INVENTORY_STAGE_ID,
+        required_outputs=("inventory.json",),
+    )
+    return load_demography_artifacts(
+        source=InventorySourceRequest(
+            kind="inventory", stage_receipt=receipt, store=store
+        )
+    )
+
+
 def __getattr__(name: str) -> object:
     """Lazily resolve Ukraine exports without importing domain internals at module import."""
     return load_lazy_export(name, exports=_EXPORTS, module_name=__name__, namespace=globals())
@@ -718,6 +755,7 @@ __all__ = sorted(
         "build_static_aging_state",
         "load_verified_stage_output_bytes",
         "load_verified_stage_artifacts",
+        "load_demography_candidate_artifacts",
         "load_verified_release_artifact_bytes",
         "load_verified_release_artifacts",
     )

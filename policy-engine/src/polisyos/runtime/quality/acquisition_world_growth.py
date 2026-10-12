@@ -1296,6 +1296,11 @@ class AcquisitionWorldGrowthBridge:
             != growth.previously_active_observations + growth.admitted_observation_delta
         ):
             raise ValueError("acquisition_reentry_result_binding_mismatch")
+        if receipt.schema_version.endswith(".v3"):
+            from polisyos.runtime.quality.generation_cycle import (
+                validate_acquisition_overlay_continuation,
+            )
+            validate_acquisition_overlay_continuation(closure.generation_run, receipt)
 
     def _persist(
         self,
@@ -1331,7 +1336,10 @@ class AcquisitionWorldGrowthBridge:
             artifacts.ArtifactWriteOptions(
                 kind=kind,
                 media_type="application/json",
-                schema=artifacts.SchemaInfo(name=schema, version="1.0"),
+                schema=artifacts.SchemaInfo(
+                    name=schema,
+                    version=("2.0" if kind == _REENTRY_KIND else "1.0"),
+                ),
                 producer=artifacts.ProducerInfo(
                     component="polisyos.runtime.acquisition_world_growth", version="1.0"
                 ),

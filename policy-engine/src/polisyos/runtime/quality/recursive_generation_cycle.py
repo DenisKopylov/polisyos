@@ -87,6 +87,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
 
 RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generation_cycle.v1"
@@ -1509,6 +1510,106 @@ def _legacy_supplied_field_tree(value: object, payload: object) -> object:
     return payload
 
 
+class ParentJointCandidateSourceMember(_StrictModel):
+    """One exact parent-frame N4 member selected for a candidate joint run."""
+
+    child_node_ref: str = Field(min_length=1)
+    child_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    semantic_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_candidate_id: str = Field(min_length=1)
+    source_candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_atom_id: str = Field(min_length=1)
+    source_atom_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    parent_problem_frame_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class ParentJointCandidateSelectionV1(_StrictModel):
+    """Content-bound, candidate-only selection of one actual N4 member per child."""
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v1"
+    ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v1"
+    authority_purpose: Literal["candidate_only"] = "candidate_only"
+    selection_rule: Literal["n4_unique_parent_source_members.v1"] = (
+        "n4_unique_parent_source_members.v1"
+    )
+    parent_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    n4_source_ref: CASArtifactRef
+    n4_source_result_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_job_ref: CASArtifactRef
+    profile_ref: CASArtifactRef
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_ref: str = Field(min_length=1)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    outcome_variable: str = Field(min_length=1)
+    child_node_refs: tuple[str, ...] = Field(min_length=2)
+    members: tuple[ParentJointCandidateSourceMember, ...] = Field(min_length=2)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _bind_selected_source_members(self) -> ParentJointCandidateSelectionV1:
+        if (
+            type(self.n4_source_ref) is not CASArtifactRef
+            or self.n4_source_ref.kind != "runtime.generation_source_handoff"
+            or self.n4_source_ref.media_type != "application/json"
+            or type(self.context_job_ref) is not CASArtifactRef
+            or self.context_job_ref.kind != "runtime.quality.cycle_substrate_context_job"
+            or self.context_job_ref.media_type != "application/json"
+            or type(self.profile_ref) is not CASArtifactRef
+            or self.profile_ref.kind != "runtime.quality.generic_cycle_simulation_profile"
+            or self.profile_ref.media_type != "application/json"
+        ):
+            raise ValueError("recursive_parent_joint_candidate_owner_refs_invalid")
+        if (
+            len(self.child_node_refs) != len(set(self.child_node_refs))
+            or tuple(member.child_node_ref for member in self.members) != self.child_node_refs
+            or any(
+                member.parent_problem_frame_ref != self.parent_design_problem_ref
+                for member in self.members
+            )
+            or len({member.source_candidate_id for member in self.members}) != len(self.members)
+            or len({member.source_atom_content_hash for member in self.members}) != len(self.members)
+        ):
+            raise ValueError("recursive_parent_joint_candidate_member_denominator_invalid")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("recursive_parent_joint_candidate_selection_hash_mismatch")
+        return self
+
+
+class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
+    """Bind an explicit all-source-member diagnostic without claiming composition.
+
+    N4 candidates are alternatives. This receipt records the caller's request
+    to inspect every unique source member as a hypothetical candidate
+    diagnostic; it does not make that set an authored compound design or prove
+    child-to-parent refinement.
+    """
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
+    ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
+    selection_rule: Literal[
+        "hypothetical_all_unique_n4_source_members.v2"
+    ] = "hypothetical_all_unique_n4_source_members.v2"
+    candidate_intent: Literal["n4_unique_parent_source_members.v1"]
+    member_basis: Literal["hypothetical_all_unique_n4_source_members"] = (
+        "hypothetical_all_unique_n4_source_members"
+    )
+    source_candidate_relationship: Literal["alternatives"] = "alternatives"
+    composition_status: Literal["not_established"] = "not_established"
+    composition_limitation_code: Literal[
+        "n4_source_candidates_are_alternatives_not_authored_compound_design"
+    ] = "n4_source_candidates_are_alternatives_not_authored_compound_design"
+    child_to_parent_refinement_status: Literal["not_established"] = "not_established"
+    child_to_parent_refinement_limitation_code: Literal[
+        "child_to_parent_refinement_rule_not_established"
+    ] = "child_to_parent_refinement_rule_not_established"
+    joint_simulation_request_content_hash: str = Field(
+        pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+
+
 class RecursiveCycleNode(_StrictModel):
     """One replay-visible node routed through existing depth owners."""
 
@@ -1520,6 +1621,22 @@ class RecursiveCycleNode(_StrictModel):
     cycle_run: GenerationCycleRun | None = None
     joint_simulation: JointSimulationResult | None = None
     joint_simulation_ref: CASArtifactRef | None = None
+    joint_simulation_request: JointSimulationRequest | None = None
+    joint_simulation_request_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    joint_candidate_selection: (
+        ParentJointCandidateSelectionV1 | ParentJointCandidateSelectionV2 | None
+    ) = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    joint_candidate_selection_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        exclude_if=lambda value: value is None,
+    )
     leaf_context_ref: CASArtifactRef | None = None
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
@@ -1564,6 +1681,113 @@ class RecursiveCycleNode(_StrictModel):
             or self.joint_simulation_ref.media_type != "application/json"
         ):
             raise ValueError("recursive_simulation_ref_contract_mismatch")
+        if (self.joint_simulation_request is None) != (
+            self.joint_simulation_request_content_hash is None
+        ):
+            raise ValueError("recursive_parent_n5_request_binding_shape_invalid")
+        if self.joint_simulation_request is not None:
+            request = self.joint_simulation_request
+            result = self.joint_simulation
+            expected_request_hash = gy_content_hash(request.model_dump(mode="json"))
+            graph = request.coupling_graph
+            if (
+                result is None
+                or self.joint_simulation_ref is None
+                or self.joint_simulation_request_content_hash != expected_request_hash
+                or request.world_model_record.content_hash
+                != result.world_model_record_content_hash
+                or request.world_model_record_ref != result.world_model_record_ref
+                or tuple(atom.intervention_id for atom in request.intervention_atoms)
+                != tuple(result.atom_ids)
+                or tuple(request.selected_outcomes) != tuple(result.selected_outcomes)
+                or request.horizon.model_dump(mode="json")
+                != result.horizon.model_dump(mode="json")
+                or any(atom.problem_frame_ref != self.design_problem_ref for atom in request.intervention_atoms)
+                or (graph is None and self.joint_candidate_selection is None)
+                or (
+                    graph is not None
+                    and (
+                        graph.design_ref != self.node_ref
+                        or tuple(graph.module_refs) != tuple(self.child_refs)
+                    )
+                )
+            ):
+                raise ValueError("recursive_parent_n5_request_result_binding_mismatch")
+            if result.schema_version == "policyos.runtime.joint_simulation_horizon.v4":
+                from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
+
+                if (
+                    result.diagnostics.get("requested_replications") != request.replications
+                    or tuple(result.diagnostics.get("replication_seeds", ()))
+                    != tuple(_replication_seeds(request))
+                ):
+                    raise ValueError("recursive_parent_n5_request_seed_binding_mismatch")
+        elif self.joint_simulation_request_content_hash is not None:
+            raise ValueError("recursive_parent_n5_request_content_hash_without_request")
+        if (self.joint_candidate_selection is None) != (
+            self.joint_candidate_selection_content_hash is None
+        ):
+            raise ValueError("recursive_parent_joint_candidate_selection_binding_shape_invalid")
+        if self.joint_candidate_selection is not None:
+            selection = self.joint_candidate_selection
+            request = self.joint_simulation_request
+            if (
+                self.joint_candidate_selection_content_hash != selection.content_hash
+                or request is None
+                or request.coupling_graph is not None
+                or selection.parent_design_problem_ref != self.design_problem_ref
+                or selection.child_node_refs != self.child_refs
+                or selection.world_model_record_ref != request.world_model_record_ref
+                or selection.world_model_record_content_hash
+                != request.world_model_record.content_hash
+                or selection.outcome_variable not in request.selected_outcomes
+                or tuple(member.source_atom_id for member in selection.members)
+                != tuple(atom.atom_id for atom in request.intervention_atoms)
+                or tuple(member.source_atom_content_hash for member in selection.members)
+                != tuple(atom.content_hash for atom in request.intervention_atoms)
+            ):
+                raise ValueError("recursive_parent_joint_candidate_request_binding_mismatch")
+            if isinstance(selection, ParentJointCandidateSelectionV2):
+                if (
+                    request is None
+                    or selection.joint_simulation_request_content_hash
+                    != gy_content_hash(request.model_dump(mode="json"))
+                    or request.candidate_intent != selection.candidate_intent
+                    or request.member_basis != selection.member_basis
+                    or request.source_candidate_relationship
+                    != selection.source_candidate_relationship
+                    or request.composition_status != selection.composition_status
+                    or request.composition_limitation_code
+                    != selection.composition_limitation_code
+                    or request.child_to_parent_refinement_status
+                    != selection.child_to_parent_refinement_status
+                    or request.child_to_parent_refinement_limitation_code
+                    != selection.child_to_parent_refinement_limitation_code
+                ):
+                    raise ValueError("recursive_parent_joint_candidate_v2_request_hash_mismatch")
+            elif any(
+                getattr(request, field_name) is not None
+                for field_name in (
+                    "candidate_intent",
+                    "member_basis",
+                    "source_candidate_relationship",
+                    "composition_status",
+                    "composition_limitation_code",
+                    "child_to_parent_refinement_status",
+                    "child_to_parent_refinement_limitation_code",
+                )
+            ):
+                raise ValueError("recursive_parent_joint_candidate_v1_scope_unbound")
+            if (
+                self.composition_certificate is None
+                and not _joint_simulation_is_unsupported(self.joint_simulation)
+                and (
+                    self.terminal.kind is not SearchTerminalKind.RECURSIVE_BLOCKED
+                    or "observed_coupling_evidence_missing"
+                    not in self.terminal.blocking_obligations
+                )
+            ):
+                raise ValueError("recursive_parent_joint_candidate_requires_blocked_composition")
         if self.child_refs and self.cycle_run is not None:
             raise ValueError("recursive_internal_node_cannot_run_leaf_cycle")
         if self.leaf_context_ref is not None and (
@@ -2627,6 +2851,7 @@ def build_default_recursive_generation_cycle_controller(
     repo_root: Path | None = None,
     model_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
+    catalog_serving_source: CatalogServingSourcePaths | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router from one container-owned promotion runtime."""
 
@@ -2634,6 +2859,7 @@ def build_default_recursive_generation_cycle_controller(
         repo_root=repo_root,
         model_id=model_id,
         catalog_run_profile=catalog_run_profile,
+        catalog_serving_source=catalog_serving_source,
         promotion_runtime=promotion_runtime,
         eval_safety_verifier=eval_safety_verifier,
     )
@@ -2648,6 +2874,7 @@ class RecursiveGenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
+        catalog_serving_source: CatalogServingSourcePaths | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
@@ -2671,6 +2898,7 @@ class RecursiveGenerationCycleController:
         self._repo_root = repo_root.resolve() if repo_root is not None else None
         self._leaf_model_id = model_id
         self._catalog_run_profile = catalog_run_profile
+        self._catalog_serving_source = catalog_serving_source
         self._promotion_runtime = promotion_runtime
         self._artifact_store = artifact_store
         self._eval_safety_verifier = eval_safety_verifier
@@ -2710,6 +2938,12 @@ class RecursiveGenerationCycleController:
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
         joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
+        joint_candidate_selections_by_node: Mapping[
+            str, ParentJointCandidateSelectionV1 | ParentJointCandidateSelectionV2
+        ]
+        | None = None,
+        joint_candidate_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
+        | None = None,
         subdesign_contracts_by_node: Mapping[str, tuple[SubDesignContract, ...]] | None = None,
         cycle_substrate_contexts_by_node: Mapping[str, CycleSubstrateContext] | None = None,
         candidate_simulation_handoffs_by_node: Mapping[str, CandidateSimulationContextHandoff]
@@ -3209,6 +3443,7 @@ class RecursiveGenerationCycleController:
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         catalog_run_profile=self._catalog_run_profile,
+                        catalog_serving_source=self._catalog_serving_source,
                         cycle_substrate_context=context,
                         candidate_simulation_handoff=(
                             candidate_simulation_handoffs_by_node or {}
@@ -3363,8 +3598,9 @@ class RecursiveGenerationCycleController:
             routed_children = tuple(routed_children_list)
             if len(routed_children) != 1:
                 request = (joint_simulation_requests_by_node or {}).get(node_ref)
+                candidate_selection = (joint_candidate_selections_by_node or {}).get(node_ref)
                 subdesigns = (subdesign_contracts_by_node or {}).get(node_ref)
-                if request is None or request.coupling_graph is None:
+                if request is None:
                     result = RecursiveCycleNode(
                         node_ref=node_ref,
                         parent_ref=parent_by_node.get(node_ref),
@@ -3375,7 +3611,65 @@ class RecursiveGenerationCycleController:
                     )
                     node_results[node_ref] = result
                     return result
-                if subdesigns is None or len(subdesigns) != len(child_refs):
+                if candidate_selection is not None:
+                    selection_issue = None
+                    if (
+                        request.coupling_graph is not None
+                        or candidate_selection.parent_design_problem_ref != problem_ref
+                        or candidate_selection.child_node_refs != child_refs
+                        or candidate_selection.world_model_record_ref
+                        != request.world_model_record_ref
+                        or candidate_selection.world_model_record_content_hash
+                        != request.world_model_record.content_hash
+                        or candidate_selection.outcome_variable
+                        not in request.selected_outcomes
+                        or tuple(member.source_atom_id for member in candidate_selection.members)
+                        != tuple(atom.atom_id for atom in request.intervention_atoms)
+                        or tuple(
+                            member.source_atom_content_hash
+                            for member in candidate_selection.members
+                        )
+                        != tuple(atom.content_hash for atom in request.intervention_atoms)
+                        or any(
+                            atom.problem_frame_ref != problem_ref
+                            for atom in request.intervention_atoms
+                        )
+                    ):
+                        selection_issue = (
+                            "recursive_parent_joint_candidate_request_binding_not_established"
+                        )
+                    currentness_resolver = (
+                        joint_candidate_currentness_resolvers_by_node or {}
+                    ).get(node_ref)
+                    if selection_issue is None and (
+                        currentness_resolver is None or currentness_resolver() is not True
+                    ):
+                        selection_issue = "generic_cycle_simulation_currentness_not_established"
+                    if selection_issue is not None:
+                        result = RecursiveCycleNode(
+                            node_ref=node_ref,
+                            parent_ref=parent_by_node.get(node_ref),
+                            depth=depths[node_ref],
+                            child_refs=child_refs,
+                            design_problem_ref=problem_ref,
+                            terminal=_blocked_parent_terminal(selection_issue),
+                        )
+                        node_results[node_ref] = result
+                        return result
+                elif request.coupling_graph is None:
+                    result = RecursiveCycleNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=child_refs,
+                        design_problem_ref=problem_ref,
+                        terminal=_blocked_parent_terminal("observed_coupling_evidence_missing"),
+                    )
+                    node_results[node_ref] = result
+                    return result
+                if candidate_selection is None and (
+                    subdesigns is None or len(subdesigns) != len(child_refs)
+                ):
                     result = RecursiveCycleNode(
                         node_ref=node_ref,
                         parent_ref=parent_by_node.get(node_ref),
@@ -3386,14 +3680,18 @@ class RecursiveGenerationCycleController:
                     )
                     node_results[node_ref] = result
                     return result
-                binding_issue = _branch_binding_issue(
-                    node_ref=node_ref,
-                    problem_ref=problem_ref,
-                    problem=problem,
-                    child_refs=child_refs,
-                    routed_children=routed_children,
-                    request=request,
-                    subdesigns=subdesigns,
+                binding_issue = (
+                    None
+                    if candidate_selection is not None
+                    else _branch_binding_issue(
+                        node_ref=node_ref,
+                        problem_ref=problem_ref,
+                        problem=problem,
+                        child_refs=child_refs,
+                        routed_children=routed_children,
+                        request=request,
+                        subdesigns=subdesigns,
+                    )
                 )
                 if binding_issue is not None:
                     result = RecursiveCycleNode(
@@ -3431,7 +3729,36 @@ class RecursiveGenerationCycleController:
                         design_problem_ref=problem_ref,
                         joint_simulation=joint_simulation,
                         joint_simulation_ref=joint_simulation_ref,
+                        joint_simulation_request=request,
+                        joint_simulation_request_content_hash=gy_content_hash(
+                            request.model_dump(mode="json")
+                        ),
+                        joint_candidate_selection=candidate_selection,
+                        joint_candidate_selection_content_hash=(
+                            candidate_selection.content_hash
+                            if candidate_selection is not None
+                            else None
+                        ),
                         terminal=_blocked_parent_terminal("unsupported_coupling_gated"),
+                    )
+                    node_results[node_ref] = result
+                    return result
+                if candidate_selection is not None:
+                    result = RecursiveCycleNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=child_refs,
+                        design_problem_ref=problem_ref,
+                        joint_simulation=joint_simulation,
+                        joint_simulation_ref=joint_simulation_ref,
+                        joint_simulation_request=request,
+                        joint_simulation_request_content_hash=gy_content_hash(
+                            request.model_dump(mode="json")
+                        ),
+                        joint_candidate_selection=candidate_selection,
+                        joint_candidate_selection_content_hash=candidate_selection.content_hash,
+                        terminal=_blocked_parent_terminal("observed_coupling_evidence_missing"),
                     )
                     node_results[node_ref] = result
                     return result
@@ -3453,6 +3780,10 @@ class RecursiveGenerationCycleController:
                     design_problem_ref=problem_ref,
                     joint_simulation=joint_simulation,
                     joint_simulation_ref=joint_simulation_ref,
+                    joint_simulation_request=request,
+                    joint_simulation_request_content_hash=gy_content_hash(
+                        request.model_dump(mode="json")
+                    ),
                     composition_certificate=certificate,
                     terminal=_fold_composed_terminal(
                         children=routed_children,

@@ -5,8 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._impl.models import (
+    CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
     DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION,
     DATA_REQUIREMENT_SPEC_SCHEMA_VERSION,
+    CapabilityBindingSnapshot,
+    CapabilityRequirementResolution,
     DataQualityMinimums,
     DataRequirementCompilationReport,
     DataRequirementScope,
@@ -77,8 +80,11 @@ def __getattr__(name: str) -> object:
 
 
 __all__ = [
+    "CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION",
     "DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION",
     "DATA_REQUIREMENT_SPEC_SCHEMA_VERSION",
+    "CapabilityBindingSnapshot",
+    "CapabilityRequirementResolution",
     "DataQualityMinimums",
     "DataRequirementCompilationReport",
     "DataRequirementCompiler",

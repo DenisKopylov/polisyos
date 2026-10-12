@@ -247,7 +247,7 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
         app = env["app"]
         with client:
             response = client.post(
-                "/api/v1/control/runs/nl",
+                "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-387d7233b4d3452484f7a7d90baad73c"},
                 json={
                     "request": raw_request,
                     "llm_model": model_id,
@@ -554,7 +554,7 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         app = env["app"]
         with client:
             response = client.post(
-                "/api/v1/control/runs/nl",
+                "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-3522d584f8ed410fa29d0f9bf70ae0e6"},
                 json={
                     "request": raw_request,
                     "llm_model": model_id,
@@ -843,7 +843,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     with TestClient(app) as client:
         response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7c23e38b50bb4fc5b6e2ec4f2dfbef9e"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1352,7 +1352,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         n5_calls_before_foreign_ref = len(n5_calls)
         foreign_ref_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7920db2261c44c8dbecc2c81b7f69dcc"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1625,7 +1625,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         calls_before_drift = len(n5_calls)
         alter_next_compilation[0] = True
         second_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-1f6518cf64aa4a638ec27651477a6322"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1702,7 +1702,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         calls_before_nonmatch = len(n5_calls)
         third_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-4208fbae2cc546cdafe82eed49725d7f"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1818,7 +1818,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         calls_before_persistence_refusal = len(n5_calls)
         fourth_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-a543aeab5e6f4419b7dc6de0c0789cfd"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1869,7 +1869,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         controllers_before_zero_budget = len(candidate_leaf_controllers)
         compiled_problems_before_zero_budget = len(compiled_problems)
         zero_budget_response = client.post(
-            "/api/v1/control/runs/nl",
+            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-474b45079dcc466497ce422066b2aa87"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,

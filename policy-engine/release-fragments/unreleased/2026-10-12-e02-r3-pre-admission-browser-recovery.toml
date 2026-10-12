@@ -1,0 +1,9 @@
+schema_version = "polisyos.release_fragment.v1"
+id = "e02-r3-pre-admission-browser-recovery-2026-10-12"
+title = "Recover ambiguous natural-language launches across browser reloads"
+status = "candidate"
+
+[change]
+summary = "Every accepted natural-language launch requires a stable owner key. Composer and Clerk retain it across remounts until exact principal/scope/purpose/body owner binding and the complete profile-specific history justify recovery; terminal unavailable observations and malformed evidence never clear it."
+boundary = "This does not establish provider invoices, cost amounts, permission, custody, production workload, or currentness. A by-key 404 or lost reply remains unresolved. Only a returned 4xx with X-Control-Pre-Admission-Outcome: not_created permits release of the exact key/body claim."
+verification = "Authored source proposal only. Static client logic and authored controls are unrun; generated OpenAPI/client companions, runtime/API tests, dashboard type/build tests, browser journey, removal controls, and native gates remain UNRUN pending source integration and compute lease."

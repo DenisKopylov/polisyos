@@ -59,6 +59,80 @@ class _PresenceNode:
         return NodeOutcome(status="ok", state=state, artifacts=[ref])
 
 
+class _ArtifactRefWriter:
+    def __init__(self) -> None:
+        self.calls = 0
+        self.spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.async_artifact_ref_writer@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="Async ArtifactRef writer",
+                description="Cache a typed ArtifactRef state mutation",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=["params.seed"],
+            state_writes=["preflight_report_ref"],
+        )
+
+    def execute(self, ctx, state):
+        raise AssertionError("Actual async method required")
+
+    async def execute_async(self, ctx, state):
+        self.calls += 1
+        ref = ctx.store.put_json(
+            {"writer": "async_artifact_ref"},
+            PutOptions(
+                kind="scientist.artifact_ref_effect",
+                media_type="application/json",
+            ),
+        )
+        state.preflight_report_ref = ref
+        return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+
+@pytest.mark.asyncio
+async def test_async_cache_replays_typed_artifact_ref_mutation_from_cas(tmp_path):
+    root = tmp_path / "artifact-ref-cache"
+    store = FileSystemCAS(root)
+    bundle_ref = build_default_registry_bundle(store).bundle_ref
+    node = _ArtifactRefWriter()
+    registry = NodeRegistry()
+    registry.register(node)
+    run_id = "R_async_artifact_ref_cache"
+    workflow = WorkflowSpec(
+        workflow_id="async_artifact_ref_cache",
+        nodes=[NodeInvocation(alias="write_ref", node_id=node.spec.metadata.component_id)],
+    )
+
+    for ordinal in range(2):
+        reopened = FileSystemCAS(root)
+        run = RunContext.start(reopened, bundle_ref, run_id=run_id)
+        ctx = ExecutionContext(
+            store=reopened,
+            run=run,
+            logger=logging.getLogger("async-artifact-ref-cache"),
+        )
+        state = ExperimentState(run_id=run_id, params={"seed": 7})
+        result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, state)
+
+        assert result.report.status == "ok"
+        ref = result.state.preflight_report_ref
+        assert isinstance(ref, ArtifactRef)
+        assert reopened.verify(ref).ok
+        assert node.calls == 1
+        assert run.trace_path is not None
+        records = [
+            json.loads(line)
+            for line in run.trace_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        hits = [record for record in records if record.get("event") == "NODE_CACHE_HIT"]
+        assert len(hits) == ordinal
+
+    assert node.calls == 1
+
+
 @pytest.mark.asyncio
 async def test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result(tmp_path):
     root = tmp_path / "cas"

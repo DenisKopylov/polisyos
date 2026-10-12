@@ -14,6 +14,7 @@ import os
 import shlex
 import subprocess
 import sys
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -204,6 +205,7 @@ def _remote_script(args: argparse.Namespace, request_json: str) -> str:
     replace_runtime = "1" if args.replace_runtime else "0"
     simulation_mode = "1" if args.mode == "simulated" else "0"
     run_label = f"{args.run_label}-{args.mode}-{_stamp()}"
+    idempotency_key = f"policyos-real-e2e-{uuid.uuid4().hex}"
     gcs_prefix = f"{args.bucket.rstrip('/')}/real_runs/{run_label}"
     return f"""
 set -euo pipefail
@@ -211,6 +213,7 @@ set -euo pipefail
 export REPO={_quote(args.remote_repo)}
 export PORT={args.port}
 export RUN_LABEL={_quote(run_label)}
+export IDEMPOTENCY_KEY={_quote(idempotency_key)}
 export RUN_ROOT="/workspace/policyos_real_runs/${{RUN_LABEL}}"
 export GCS_PREFIX={_quote(gcs_prefix)}
 export REPLACE_RUNTIME={replace_runtime}
@@ -332,6 +335,7 @@ for attempt in $(seq 1 5); do
   POST_STATUS=$(curl -sS -o "$RUN_ROOT/launch_response.json" -w "%{{http_code}}" \\
     -X POST "http://127.0.0.1:$PORT/api/v1/control/runs/nl" \\
     -H "Content-Type: application/json" \\
+    -H "Idempotency-Key: $IDEMPOTENCY_KEY" \\
     --data-binary "@$RUN_ROOT/launch_request.json" || true)
   POST_STATUS=${{POST_STATUS:-000}}
   if [ "$POST_STATUS" -ge 200 ] && [ "$POST_STATUS" -lt 300 ]; then

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
+import math
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.ir import governance, observation
 
@@ -1904,6 +1906,309 @@ class RunOperatorDiagnostic(BaseModel):
     projection_labels: list[RunOperatorProjectionStateLabel] = Field(default_factory=list)
 
 
+class RunN5InteractionSample(BaseModel):
+    """One shared-seed derived interaction value in a candidate N5 artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    seed: int
+    value: float
+
+    @field_validator("seed", mode="before")
+    @classmethod
+    def _strict_seed(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("run_n5_interaction_seed_not_integer")
+        return value
+
+    @field_validator("value", mode="before")
+    @classmethod
+    def _finite_value(cls, value: object) -> object:
+        if isinstance(value, bool) or not isinstance(value, int | float):
+            raise ValueError("run_n5_interaction_value_not_real")
+        if not math.isfinite(float(value)):
+            raise ValueError("run_n5_interaction_value_non_finite")
+        return value
+
+
+class RunN5InteractionSamplingSummary(BaseModel):
+    """Recomputable shared-seed mean and sample SE for one interaction step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["estimated", "standard_error_not_estimated"]
+    replicate_count: int = Field(ge=1)
+    seeds: tuple[int, ...] = Field(min_length=1)
+    samples: tuple[RunN5InteractionSample, ...] = Field(min_length=1)
+    mean: float
+    standard_error: float | None
+
+    @model_validator(mode="after")
+    def _recompute_summary(self) -> RunN5InteractionSamplingSummary:
+        if (
+            self.replicate_count != len(self.seeds)
+            or self.replicate_count != len(self.samples)
+            or len(set(self.seeds)) != len(self.seeds)
+            or tuple(sample.seed for sample in self.samples) != self.seeds
+        ):
+            raise ValueError("run_n5_interaction_seed_denominator_mismatch")
+        values = [sample.value for sample in self.samples]
+        expected_mean = sum(values) / len(values)
+        if not math.isfinite(self.mean) or not math.isclose(
+            self.mean, expected_mean, rel_tol=1e-12, abs_tol=1e-12
+        ):
+            raise ValueError("run_n5_interaction_mean_recomputation_mismatch")
+        expected_status = "standard_error_not_estimated" if len(values) == 1 else "estimated"
+        if self.status != expected_status:
+            raise ValueError("run_n5_interaction_sampling_status_mismatch")
+        if len(values) == 1:
+            if self.standard_error is not None:
+                raise ValueError("run_n5_interaction_single_draw_se_must_be_unestimated")
+        else:
+            expected_se = math.sqrt(
+                sum((value - expected_mean) ** 2 for value in values)
+                / (len(values) - 1)
+                / len(values)
+            )
+            if self.standard_error is None or not math.isclose(
+                self.standard_error, expected_se, rel_tol=1e-12, abs_tol=1e-12
+            ):
+                raise ValueError("run_n5_interaction_se_recomputation_mismatch")
+        return self
+
+
+class RunN5InteractionTerm(BaseModel):
+    """One pairwise interaction mean and its paired replicate vector."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    atom_ids: tuple[str, str]
+    outcome: str = Field(min_length=1)
+    by_step: dict[int, float]
+    replication_sampling_by_step: dict[int, RunN5InteractionSamplingSummary] = Field(
+        default_factory=dict
+    )
+
+    @model_validator(mode="after")
+    def _bind_sampling_to_means(self) -> RunN5InteractionTerm:
+        if set(self.replication_sampling_by_step) - set(self.by_step):
+            raise ValueError("run_n5_interaction_sample_step_without_mean")
+        for step, summary in self.replication_sampling_by_step.items():
+            if not math.isclose(
+                self.by_step[step], summary.mean, rel_tol=1e-12, abs_tol=1e-12
+            ):
+                raise ValueError("run_n5_interaction_sample_mean_mismatch")
+        return self
+
+
+class RunN5InteractionEvidence(BaseModel):
+    """Candidate-only interaction evidence with legacy epochs explicitly limited."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal[
+        "policyos.runtime.joint_simulation_horizon.v1",
+        "policyos.runtime.joint_simulation_horizon.v2",
+        "policyos.runtime.joint_simulation_horizon.v3",
+        "policyos.runtime.joint_simulation_horizon.v4",
+    ]
+    numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"]
+    numeric_interaction_basis: Literal[
+        "finite_checked_model_point_estimate_only", "not_established"
+    ]
+    interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ]
+    interaction_terms: tuple[RunN5InteractionTerm, ...] = ()
+    higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
+    higher_order_residual_sampling: dict[
+        str, dict[int, RunN5InteractionSamplingSummary]
+    ] = Field(default_factory=dict)
+    checked_interaction_orders: tuple[int, ...] = ()
+    authority_purpose: Literal["candidate_checked_model_only"] = "candidate_checked_model_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_interaction_evidence_epoch(self) -> RunN5InteractionEvidence:
+        current = self.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        if not current:
+            if (
+                self.numeric_interaction != "unsupported"
+                or self.numeric_interaction_basis != "not_established"
+                or self.interaction_sampling_status != "not_established"
+                or any(term.replication_sampling_by_step for term in self.interaction_terms)
+                or self.higher_order_residual_sampling
+            ):
+                raise ValueError("run_n5_legacy_interaction_uncertainty_laundered")
+            return self
+        if (self.interaction_sampling_status == "estimated") != (
+            self.numeric_interaction_basis == "finite_checked_model_point_estimate_only"
+        ):
+            raise ValueError("run_n5_interaction_basis_status_mismatch")
+        if (
+            self.interaction_sampling_status != "estimated"
+            and self.numeric_interaction != "unsupported"
+        ):
+            raise ValueError("run_n5_unestimated_interaction_classification_not_limited")
+        if self.interaction_sampling_status != "not_established":
+            for term in self.interaction_terms:
+                if set(term.by_step) != set(term.replication_sampling_by_step):
+                    raise ValueError("run_n5_interaction_summary_step_missing")
+            for outcome, by_step in self.higher_order_residuals.items():
+                if set(by_step) != set(self.higher_order_residual_sampling.get(outcome, {})):
+                    raise ValueError("run_n5_residual_summary_step_missing")
+        return self
+
+
+def _validate_run_n5_interaction_scope(
+    evidence: RunN5InteractionEvidence | None,
+    *,
+    atom_ids: tuple[str, ...],
+    selected_outcomes: tuple[str, ...],
+    executed_steps: tuple[int, ...],
+    replication_seeds: tuple[int, ...],
+) -> None:
+    """Bind current interaction records to the selected, source-derived N5 basis."""
+
+    if (
+        evidence is None
+        or evidence.schema_version != "policyos.runtime.joint_simulation_horizon.v4"
+    ):
+        return
+    if (
+        not atom_ids
+        or not selected_outcomes
+        or not executed_steps
+        or not replication_seeds
+        or len(set(atom_ids)) != len(atom_ids)
+        or len(set(selected_outcomes)) != len(selected_outcomes)
+        or len(set(executed_steps)) != len(executed_steps)
+        or len(set(replication_seeds)) != len(replication_seeds)
+        or any(not value for value in (*atom_ids, *selected_outcomes))
+    ):
+        raise ValueError("run_n5_interaction_scope_parent_context_missing_or_invalid")
+
+    expected_pairs = {
+        frozenset(pair) for pair in itertools.combinations(atom_ids, 2)
+    }
+    expected_steps = set(executed_steps)
+    expected_outcomes = set(selected_outcomes)
+    actual_term_keys: set[tuple[frozenset[str], str]] = set()
+    sampling_established = evidence.interaction_sampling_status != "not_established"
+    for term in evidence.interaction_terms:
+        pair = frozenset(term.atom_ids)
+        term_key = (pair, term.outcome)
+        if (
+            len(pair) != 2
+            or pair not in expected_pairs
+            or term.outcome not in expected_outcomes
+            or term_key in actual_term_keys
+        ):
+            raise ValueError("run_n5_interaction_scope_foreign_or_duplicate_pair")
+        actual_term_keys.add(term_key)
+        mean_steps = set(term.by_step)
+        summary_steps = set(term.replication_sampling_by_step)
+        if mean_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_pair_step_basis_incomplete")
+        if (
+            not summary_steps.issubset(expected_steps)
+            or not summary_steps.issubset(mean_steps)
+        ):
+            raise ValueError("run_n5_interaction_scope_foreign_step")
+        for summary in term.replication_sampling_by_step.values():
+            if summary.seeds != replication_seeds:
+                raise ValueError("run_n5_interaction_scope_seed_basis_mismatch")
+        if sampling_established and summary_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_pair_step_basis_incomplete")
+        if summary_steps and summary_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_pair_step_basis_incomplete")
+
+    expected_term_keys = {
+        (frozenset(pair), outcome)
+        for pair in itertools.combinations(atom_ids, 2)
+        for outcome in selected_outcomes
+    }
+    if actual_term_keys != expected_term_keys:
+        raise ValueError("run_n5_interaction_scope_pair_set_incomplete")
+
+    residual_outcomes = set(evidence.higher_order_residuals)
+    residual_sampling_outcomes = set(evidence.higher_order_residual_sampling)
+    expected_residual_outcomes = expected_outcomes if len(atom_ids) >= 3 else set()
+    if (
+        not residual_outcomes.issubset(expected_residual_outcomes)
+        or not residual_sampling_outcomes.issubset(expected_residual_outcomes)
+        or not residual_sampling_outcomes.issubset(residual_outcomes)
+    ):
+        raise ValueError("run_n5_interaction_scope_foreign_residual_outcome")
+    for outcome, by_step in evidence.higher_order_residuals.items():
+        mean_steps = set(by_step)
+        summary_steps = set(evidence.higher_order_residual_sampling.get(outcome, {}))
+        if mean_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_residual_step_basis_incomplete")
+        if (
+            not summary_steps.issubset(expected_steps)
+            or not summary_steps.issubset(mean_steps)
+        ):
+            raise ValueError("run_n5_interaction_scope_foreign_residual_step")
+        for summary in evidence.higher_order_residual_sampling.get(outcome, {}).values():
+            if summary.seeds != replication_seeds:
+                raise ValueError("run_n5_interaction_scope_residual_seed_basis_mismatch")
+        if sampling_established and summary_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_residual_step_basis_incomplete")
+        if summary_steps and summary_steps != expected_steps:
+            raise ValueError("run_n5_interaction_scope_residual_step_basis_incomplete")
+    if residual_outcomes != expected_residual_outcomes:
+        raise ValueError("run_n5_interaction_scope_residual_basis_incomplete")
+
+    expected_orders = (
+        (1, 2, 3)
+        if len(atom_ids) == 3
+        else (1, 2)
+        if len(atom_ids) >= 2
+        else (1,)
+    )
+    checked_orders = evidence.checked_interaction_orders
+    if (
+        tuple(sorted(set(checked_orders))) != checked_orders
+        or not set(checked_orders).issubset(expected_orders)
+        or checked_orders != expected_orders
+    ):
+        raise ValueError("run_n5_interaction_scope_checked_orders_mismatch")
+
+
+class RunCandidateSimulationN8ChildSourceBinding(BaseModel):
+    """One selected parent atom bound to its persisted child N5 source input."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    child_node_ref: str = Field(min_length=1)
+    child_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    n4_source_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    n5_input_ref: ArtifactRef
+    n5_result_ref: ArtifactRef
+    profile_config_ref: str = Field(min_length=1)
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_intervention_id: str = Field(min_length=1)
+    source_atom_id: str = Field(pattern=r"^atom_[a-f0-9]{16}$")
+    source_atom_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_problem_frame_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    parent_atom_id: str = Field(pattern=r"^atom_[a-f0-9]{16}$")
+    parent_atom_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_child_source_refs(self) -> RunCandidateSimulationN8ChildSourceBinding:
+        expected = (
+            (self.n4_source_ref, {"runtime.generation_source_handoff", "runtime.quality.n4_candidate_scenario_source"}),
+            (self.context_job_ref, {"runtime.quality.cycle_substrate_context_job"}),
+            (self.n5_input_ref, {"runtime.quality.candidate_simulation_n5_input"}),
+            (self.n5_result_ref, {"polisyos.runtime.joint_simulation_result"}),
+        )
+        if any(ref.kind not in kinds or ref.media_type != "application/json" for ref, kinds in expected):
+            raise ValueError("run_n8_joint_child_source_ref_invalid")
+        return self
+
+
 class RunCandidateSimulationN5Observation(BaseModel):
     """One typed N5 observation projected from a persisted recursive run."""
 
@@ -1919,6 +2224,8 @@ class RunCandidateSimulationN5Observation(BaseModel):
     candidate_id: str | None = Field(default=None, min_length=1)
     atom_ids: tuple[str, ...] = ()
     selected_outcomes: tuple[str, ...] = ()
+    executed_steps: tuple[int, ...] = ()
+    replication_seeds: tuple[int, ...] = ()
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: ArtifactRef | None = None
@@ -1946,9 +2253,82 @@ class RunCandidateSimulationN5Observation(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     authority_blockers: tuple[str, ...] = ()
+    n5_interaction_evidence: RunN5InteractionEvidence | None = None
+    n8_numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
+    n8_numeric_interaction_basis: Literal[
+        "finite_checked_model_point_estimate_only", "not_established"
+    ] | None = None
+    n8_interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ] | None = None
+    n8_status: Literal[
+        "value_ready", "value_conditional", "value_blocked", "value_pending_n8"
+    ] | None = None
+    n8_authority_blockers: tuple[str, ...] = ()
+    n8_joint_request_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    n8_joint_world_model_record_ref: str | None = Field(default=None, min_length=1)
+    n8_joint_outcome_units: dict[str, str] = Field(default_factory=dict)
+    n8_joint_parent_atom_ids: tuple[str, ...] = ()
+    n8_joint_parent_atom_content_hashes: tuple[str, ...] = ()
+    n8_parent_child_refs: tuple[str, ...] = ()
+    n8_parent_child_source_bindings: tuple[RunCandidateSimulationN8ChildSourceBinding, ...] = ()
+    n8_joint_scope_status: Literal["resolved", "not_established"] | None = None
+    n8_joint_scope_limitation_code: str | None = Field(default=None, min_length=1)
+    n8_joint_value_limitation_code: Literal["joint_interaction_rule_not_established"] | None = None
+    n8_candidate_joint_selection_status: Literal["resolved", "not_established"] | None = None
+    n8_candidate_joint_selection_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    n8_candidate_parent_atom_ids: tuple[
+        Annotated[str, Field(pattern=r"^atom_[a-f0-9]{16}$")], ...
+    ] = ()
+    n8_candidate_parent_atom_content_hashes: tuple[str, ...] = ()
+    n8_candidate_parent_intervention_ids: tuple[
+        Annotated[str, Field(min_length=1)], ...
+    ] = ()
+    n8_candidate_parent_child_refs: tuple[str, ...] = ()
+    n8_candidate_joint_selection_limitation_code: Literal[
+        "parent_joint_candidate_source_selection_not_established"
+    ] | None = None
+    n8_candidate_member_basis: Literal[
+        "hypothetical_all_unique_n4_source_members", "not_established"
+    ] | None = None
+    n8_source_candidate_relationship: Literal["alternatives", "not_established"] | None = None
+    n8_policy_composition_status: Literal["not_established"] | None = None
+    n8_policy_composition_limitation_code: Literal[
+        "n4_source_candidates_are_alternatives_not_authored_compound_design",
+        "legacy_selection_receipt_has_no_composition_basis",
+        "parent_joint_candidate_source_selection_not_established",
+    ] | None = None
+    n8_child_to_parent_refinement_status: Literal["not_established"] | None = None
+    n8_child_to_parent_refinement_limitation_code: Literal[
+        "child_to_parent_refinement_rule_not_established",
+        "legacy_selection_receipt_has_no_refinement_basis",
+        "parent_joint_candidate_source_selection_not_established",
+    ] | None = None
+
+    @field_validator("executed_steps", "replication_seeds", mode="before")
+    @classmethod
+    def _strict_interaction_scope_ints(cls, value: object) -> object:
+        if not isinstance(value, (list, tuple)) or any(
+            isinstance(item, bool) or not isinstance(item, int) for item in value
+        ):
+            raise ValueError("run_n5_interaction_scope_integer_basis_invalid")
+        return value
 
     @model_validator(mode="after")
     def _verify_n4_n5_lineage_projection(self) -> RunCandidateSimulationN5Observation:
+        _validate_run_n5_interaction_scope(
+            self.n5_interaction_evidence,
+            atom_ids=self.atom_ids,
+            selected_outcomes=self.selected_outcomes,
+            executed_steps=self.executed_steps,
+            replication_seeds=self.replication_seeds,
+        )
         refs = (self.n4_source_ref, self.context_job_ref, self.n5_input_ref)
         if any(ref is not None for ref in refs):
             source, context, n5_input = refs
@@ -1975,6 +2355,193 @@ class RunCandidateSimulationN5Observation(BaseModel):
             raise ValueError("run_n5_lineage_resolved_with_limitation")
         if self.lineage_status == "not_established" and self.lineage_limitation_code is None:
             raise ValueError("run_n5_lineage_limitation_missing")
+        n8_fields = (
+            self.n8_numeric_interaction,
+            self.n8_numeric_interaction_basis,
+            self.n8_interaction_sampling_status,
+        )
+        if any(value is not None for value in n8_fields):
+            if self.n5_interaction_evidence is None or any(value is None for value in n8_fields):
+                raise ValueError("run_n5_n8_interaction_qualification_missing")
+            if n8_fields != (
+                self.n5_interaction_evidence.numeric_interaction,
+                self.n5_interaction_evidence.numeric_interaction_basis,
+                self.n5_interaction_evidence.interaction_sampling_status,
+            ):
+                raise ValueError("run_n5_n8_interaction_qualification_mismatch")
+        if self.n8_status == "value_conditional":
+            if self.n5_interaction_evidence is None or any(value is None for value in n8_fields):
+                raise ValueError("run_n5_n8_conditional_interaction_missing")
+            if self.n8_numeric_interaction == "unsupported" and (
+                "interaction_numeric_classification_unsupported"
+                not in self.n8_authority_blockers
+            ):
+                raise ValueError("run_n5_n8_unsupported_interaction_not_limited")
+            if self.n8_interaction_sampling_status != "estimated" and not set(
+                self.n8_authority_blockers
+            ).intersection(
+                {
+                    "interaction_sampling_not_established",
+                    "standard_error_not_estimated",
+                    "legacy_interaction_not_established",
+                }
+            ):
+                raise ValueError("run_n5_n8_unestimated_interaction_not_limited")
+        joint_fields_present = any(
+            (
+                self.n8_joint_request_content_hash is not None,
+                self.n8_joint_world_model_record_ref is not None,
+                bool(self.n8_joint_outcome_units),
+                bool(self.n8_joint_parent_atom_ids),
+                bool(self.n8_joint_parent_atom_content_hashes),
+                bool(self.n8_parent_child_refs),
+                bool(self.n8_parent_child_source_bindings),
+                self.n8_joint_scope_status is not None,
+                self.n8_joint_scope_limitation_code is not None,
+                self.n8_joint_value_limitation_code is not None,
+            )
+        )
+        if self.n8_joint_scope_status is None:
+            if joint_fields_present:
+                raise ValueError("run_n8_joint_scope_status_missing")
+        elif self.n8_status != "value_pending_n8":
+            raise ValueError("run_n8_joint_scope_must_remain_pending")
+        elif self.n8_joint_scope_status == "not_established":
+            if (
+                self.n8_joint_scope_limitation_code is None
+                or self.n8_joint_value_limitation_code is not None
+                or self.n8_joint_scope_limitation_code not in self.n8_authority_blockers
+            ):
+                raise ValueError("run_n8_joint_scope_limitation_missing")
+        elif (
+            self.n8_joint_scope_limitation_code is not None
+            or self.n8_joint_value_limitation_code != "joint_interaction_rule_not_established"
+            or "joint_interaction_rule_not_established" not in self.n8_authority_blockers
+            or self.n8_joint_request_content_hash is None
+            or self.n8_joint_world_model_record_ref is None
+            or self.world_model_record_content_hash is None
+            or not self.n8_joint_outcome_units
+            or set(self.n8_joint_outcome_units) != set(self.selected_outcomes)
+            or any(not unit.strip() for unit in self.n8_joint_outcome_units.values())
+            or len(self.n8_joint_parent_atom_content_hashes) != len(self.atom_ids)
+            or len(set(self.n8_joint_parent_atom_content_hashes))
+            != len(self.n8_joint_parent_atom_content_hashes)
+            or len(self.n8_joint_parent_atom_ids) != len(self.atom_ids)
+            or len(set(self.n8_joint_parent_atom_ids)) != len(self.n8_joint_parent_atom_ids)
+            or not self.n8_parent_child_refs
+            or tuple(row.child_node_ref for row in self.n8_parent_child_source_bindings)
+            != self.n8_parent_child_refs
+            or {row.parent_atom_id for row in self.n8_parent_child_source_bindings}
+            != set(self.n8_joint_parent_atom_ids)
+            or {row.source_atom_id for row in self.n8_parent_child_source_bindings}
+            != set(self.n8_joint_parent_atom_ids)
+            or {row.source_intervention_id for row in self.n8_parent_child_source_bindings}
+            != set(self.atom_ids)
+            or {row.parent_atom_content_hash for row in self.n8_parent_child_source_bindings}
+            != set(self.n8_joint_parent_atom_content_hashes)
+            or {row.source_atom_content_hash for row in self.n8_parent_child_source_bindings}
+            != set(self.n8_joint_parent_atom_content_hashes)
+            or any(
+                row.source_problem_frame_ref != self.design_problem_ref
+                for row in self.n8_parent_child_source_bindings
+            )
+            or len(self.n8_parent_child_refs) != len(set(self.n8_parent_child_refs))
+            or len(self.n8_parent_child_source_bindings) != len(self.atom_ids)
+            or self.n5_interaction_evidence is None
+            or self.n5_interaction_evidence.schema_version
+            != "policyos.runtime.joint_simulation_horizon.v4"
+            or any(value is None for value in n8_fields)
+            or n8_fields
+            != (
+                self.n5_interaction_evidence.numeric_interaction,
+                self.n5_interaction_evidence.numeric_interaction_basis,
+                self.n5_interaction_evidence.interaction_sampling_status,
+            )
+        ):
+            raise ValueError("run_n8_joint_scope_binding_incomplete")
+        candidate_selection_fields_present = any(
+            (
+                self.n8_candidate_joint_selection_status is not None,
+                self.n8_candidate_joint_selection_content_hash is not None,
+                bool(self.n8_candidate_parent_atom_ids),
+                bool(self.n8_candidate_parent_atom_content_hashes),
+                bool(self.n8_candidate_parent_intervention_ids),
+                bool(self.n8_candidate_parent_child_refs),
+                self.n8_candidate_joint_selection_limitation_code is not None,
+                self.n8_candidate_member_basis is not None,
+                self.n8_source_candidate_relationship is not None,
+                self.n8_policy_composition_status is not None,
+                self.n8_policy_composition_limitation_code is not None,
+                self.n8_child_to_parent_refinement_status is not None,
+                self.n8_child_to_parent_refinement_limitation_code is not None,
+            )
+        )
+        if self.n8_candidate_joint_selection_status is None:
+            if candidate_selection_fields_present:
+                raise ValueError("run_n8_candidate_joint_selection_status_missing")
+        elif self.n8_candidate_joint_selection_status == "not_established":
+            if (
+                self.n8_candidate_joint_selection_limitation_code
+                != "parent_joint_candidate_source_selection_not_established"
+                or self.n8_candidate_joint_selection_content_hash is not None
+                or self.n8_candidate_parent_atom_ids
+                or self.n8_candidate_parent_atom_content_hashes
+                or self.n8_candidate_parent_intervention_ids
+                or self.n8_candidate_parent_child_refs
+                or self.n8_candidate_member_basis != "not_established"
+                or self.n8_source_candidate_relationship != "not_established"
+                or self.n8_policy_composition_status != "not_established"
+                or self.n8_policy_composition_limitation_code
+                != "parent_joint_candidate_source_selection_not_established"
+                or self.n8_child_to_parent_refinement_status != "not_established"
+                or self.n8_child_to_parent_refinement_limitation_code
+                != "parent_joint_candidate_source_selection_not_established"
+            ):
+                raise ValueError("run_n8_candidate_joint_selection_limitation_missing")
+        elif (
+            self.n8_candidate_joint_selection_content_hash is None
+            or self.n8_candidate_joint_selection_limitation_code is not None
+            or not self.n8_candidate_parent_atom_ids
+            or len(self.n8_candidate_parent_atom_ids) != len(self.atom_ids)
+            or len(set(self.n8_candidate_parent_atom_ids)) != len(self.n8_candidate_parent_atom_ids)
+            or len(self.n8_candidate_parent_atom_content_hashes) != len(self.atom_ids)
+            or len(set(self.n8_candidate_parent_atom_content_hashes))
+            != len(self.n8_candidate_parent_atom_content_hashes)
+            or self.n8_candidate_parent_intervention_ids != self.atom_ids
+            or len(self.n8_candidate_parent_child_refs) != len(self.atom_ids)
+            or len(set(self.n8_candidate_parent_child_refs))
+            != len(self.n8_candidate_parent_child_refs)
+            or self.n8_joint_scope_status != "not_established"
+            or self.n8_status != "value_pending_n8"
+            or self.n8_candidate_member_basis is None
+            or self.n8_source_candidate_relationship is None
+            or self.n8_policy_composition_status != "not_established"
+            or self.n8_policy_composition_limitation_code is None
+            or self.n8_child_to_parent_refinement_status != "not_established"
+            or self.n8_child_to_parent_refinement_limitation_code is None
+            or (
+                self.n8_candidate_member_basis
+                == "hypothetical_all_unique_n4_source_members"
+                and (
+                    self.n8_source_candidate_relationship != "alternatives"
+                    or self.n8_policy_composition_limitation_code
+                    != "n4_source_candidates_are_alternatives_not_authored_compound_design"
+                    or self.n8_child_to_parent_refinement_limitation_code
+                    != "child_to_parent_refinement_rule_not_established"
+                )
+            )
+            or (
+                self.n8_candidate_member_basis == "not_established"
+                and (
+                    self.n8_source_candidate_relationship != "not_established"
+                    or self.n8_policy_composition_limitation_code
+                    != "legacy_selection_receipt_has_no_composition_basis"
+                    or self.n8_child_to_parent_refinement_limitation_code
+                    != "legacy_selection_receipt_has_no_refinement_basis"
+                )
+            )
+        ):
+            raise ValueError("run_n8_candidate_joint_selection_binding_incomplete")
         return self
 
 
@@ -2060,6 +2627,127 @@ class RunCandidateSimulationChildProfileBinding(BaseModel):
         return self
 
 
+class RunCandidateSimulationCurrentOccurrence(BaseModel):
+    """One current candidate occurrence after append-only N6 continuation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(min_length=1)
+    cycle_index: int = Field(ge=0)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    front: Literal["decision", "research", "quarantine", "portfolio"]
+    certified_by_n9: bool
+
+
+class RunCandidateSimulationContinuationFronts(BaseModel):
+    """Current N6 fronts recomputed after the N9 continuation outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_candidate_ids: tuple[str, ...]
+    research_candidate_ids: tuple[str, ...]
+    quarantine_candidate_ids: tuple[str, ...]
+    portfolio_candidate_ids: tuple[str, ...]
+
+
+class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
+    """Typed candidate-only projection of the exact N9 continuation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_generation_run_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    continued_generation_run_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    source_cycle_index: int = Field(ge=0)
+    continued_cycle_index: int = Field(ge=0)
+    previous_n4_source_ref: ArtifactRef | None = None
+    previous_n5_input_ref: ArtifactRef | None = None
+    selected_n4_source_ref: ArtifactRef
+    selected_n5_input_ref: ArtifactRef
+    previous_profile_selection_ref: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    previous_profile_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    selected_profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selected_target_world_slot: str = Field(min_length=1)
+    previous_selected_target_baseline_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    selected_target_baseline_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    source_currentness_status: Literal["current", "stale", "not_established"]
+    source_currentness_reason: str = Field(min_length=1)
+    continuation_currentness_status: Literal["current", "stale", "not_established"]
+    continuation_currentness_reason: str = Field(min_length=1)
+    n9_status: Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
+    n9_reason: str = Field(min_length=1)
+    n9_certified_candidate_ids: tuple[str, ...] = ()
+    current_candidate_occurrences: tuple[RunCandidateSimulationCurrentOccurrence, ...]
+    current_fronts: RunCandidateSimulationContinuationFronts
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_n9_current_front(self) -> RunCandidateSimulationAcquisitionContinuationProjection:
+        current_ids = {row.candidate_id for row in self.current_candidate_occurrences}
+        front_ids = (
+            *self.current_fronts.decision_candidate_ids,
+            *self.current_fronts.research_candidate_ids,
+            *self.current_fronts.quarantine_candidate_ids,
+            *self.current_fronts.portfolio_candidate_ids,
+        )
+        if (
+            len(front_ids) != len(set(front_ids))
+            or set(front_ids) != current_ids
+            or len(current_ids) != len(self.current_candidate_occurrences)
+            or not set(self.n9_certified_candidate_ids).issubset(current_ids)
+            or any(
+                row.candidate_id
+                not in getattr(self.current_fronts, f"{row.front}_candidate_ids")
+                or row.certified_by_n9
+                != (row.candidate_id in self.n9_certified_candidate_ids)
+                for row in self.current_candidate_occurrences
+            )
+            or self.continued_cycle_index != self.source_cycle_index + 1
+            or self.selected_n4_source_ref.kind != "runtime.quality.n4_candidate_scenario_source"
+            or self.selected_n5_input_ref.kind != "runtime.quality.candidate_simulation_n5_input"
+            or (self.previous_n4_source_ref is None) != (self.previous_n5_input_ref is None)
+            or (self.previous_profile_selection_ref is None)
+            != (self.previous_profile_content_hash is None)
+            or (
+                self.previous_n4_source_ref is not None
+                and self.previous_n4_source_ref.kind
+                != "runtime.quality.n4_candidate_scenario_source"
+            )
+            or (
+                self.previous_n5_input_ref is not None
+                and self.previous_n5_input_ref.kind
+                != "runtime.quality.candidate_simulation_n5_input"
+            )
+            or (
+                self.previous_selected_target_baseline_hash is not None
+                and self.selected_target_baseline_hash is not None
+                and self.previous_selected_target_baseline_hash
+                == self.selected_target_baseline_hash
+            )
+            or (
+                self.n9_status != "certified_current_valid"
+                and self.n9_certified_candidate_ids
+            )
+            or (
+                self.continuation_currentness_status != "current"
+                and self.n9_status == "certified_current_valid"
+            )
+        ):
+            raise ValueError("run_candidate_simulation_continuation_projection_invalid")
+        return self
+
+
 class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
     """Persisted acquisition action facts projected as candidate history only."""
 
@@ -2074,6 +2762,7 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
     new_candidate_id: str | None = Field(default=None, min_length=1)
     new_candidate_source_ref: ArtifactRef | None = None
     origin_source_ref: ArtifactRef | None = None
+    continuation: RunCandidateSimulationAcquisitionContinuationProjection | None = None
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
     publication_authority: Literal[False] = False
@@ -2118,10 +2807,33 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
             value is None for value in reentry_fields
         ):
             raise ValueError("candidate_acquisition_reentry_binding_incomplete")
+        if self.terminal_outcome == "quarantined_no_growth" and self.continuation is not None:
+            raise ValueError("candidate_acquisition_quarantine_has_continuation")
         if self.terminal_outcome == "quarantined_no_growth" and any(
             value is not None for value in reentry_fields
         ):
             raise ValueError("candidate_acquisition_quarantine_claims_reentry")
+        continuation = self.continuation
+        if continuation is not None and self.old_candidate_id == self.new_candidate_id and (
+            self.old_candidate_id is None
+            or continuation.previous_n4_source_ref is None
+            or continuation.previous_n5_input_ref is None
+            or continuation.previous_profile_selection_ref is None
+            or continuation.previous_profile_content_hash is None
+            or continuation.previous_profile_selection_ref
+            != continuation.selected_profile_selection_ref
+            or continuation.previous_selected_target_baseline_hash is None
+            or continuation.selected_target_baseline_hash is None
+            or continuation.previous_selected_target_baseline_hash
+            == continuation.selected_target_baseline_hash
+            or str(continuation.previous_n4_source_ref.artifact_id)
+            == str(continuation.selected_n4_source_ref.artifact_id)
+            or str(continuation.previous_n5_input_ref.artifact_id)
+            == str(continuation.selected_n5_input_ref.artifact_id)
+        ):
+            raise ValueError(
+                "candidate_acquisition_same_candidate_continuation_binding_invalid"
+            )
         return self
 
 
@@ -2182,6 +2894,7 @@ class RunCandidateSimulationProjection(BaseModel):
             "compiled_cycle_artifact_content_invalid",
             "n5_observation_not_emitted",
             "n5_result_reference_not_established",
+            "n5_interaction_scope_not_established",
         ]
         | None
     ) = None
@@ -2247,10 +2960,10 @@ class RunCandidateSimulationProjection(BaseModel):
                 self.n4_child_profile_limitation_code is not None
             ):
                 raise ValueError("candidate_projection_unexpected_child_profile_limitation")
-            if (
-                self.limitation_code == "n5_result_reference_not_established"
-                and self.n5_observations
-            ):
+            if self.limitation_code in {
+                "n5_result_reference_not_established",
+                "n5_interaction_scope_not_established",
+            } and self.n5_observations:
                 raise ValueError("candidate_projection_unverified_n5_observation_present")
             if self.limitation_code == "n5_observation_not_emitted" and self.n5_observations:
                 raise ValueError("candidate_projection_empty_n5_observation_mismatch")
@@ -2347,6 +3060,8 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     atom_ids: tuple[str, ...] = ()
     selected_outcomes: tuple[str, ...] = ()
+    executed_steps: tuple[int, ...] = ()
+    replication_seeds: tuple[int, ...] = ()
     world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     authority_blockers: tuple[str, ...] = ()
     n8_status: Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"]
@@ -2354,12 +3069,36 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     n8_value_ref: str | None = None
     n8_authority_blockers: tuple[str, ...] = ()
     n8_limitation_code: str | None = Field(default=None, min_length=1)
+    n5_interaction_evidence: RunN5InteractionEvidence | None = None
+    n8_numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
+    n8_numeric_interaction_basis: Literal[
+        "finite_checked_model_point_estimate_only", "not_established"
+    ] | None = None
+    n8_interaction_sampling_status: Literal[
+        "estimated", "standard_error_not_estimated", "not_established"
+    ] | None = None
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     publication_authority: Literal[False] = False
 
+    @field_validator("executed_steps", "replication_seeds", mode="before")
+    @classmethod
+    def _strict_interaction_scope_ints(cls, value: object) -> object:
+        if not isinstance(value, (list, tuple)) or any(
+            isinstance(item, bool) or not isinstance(item, int) for item in value
+        ):
+            raise ValueError("run_generic_n5_interaction_scope_integer_basis_invalid")
+        return value
+
     @model_validator(mode="after")
     def _verify_generic_n5_lineage(self) -> RunGenericCycleSimulationN5Observation:
+        _validate_run_n5_interaction_scope(
+            self.n5_interaction_evidence,
+            atom_ids=self.atom_ids,
+            selected_outcomes=self.selected_outcomes,
+            executed_steps=self.executed_steps,
+            replication_seeds=self.replication_seeds,
+        )
         typed_refs = (
             (self.n4_source_ref, "runtime.generation_source_handoff"),
             (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
@@ -2394,6 +3133,39 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
         if self.n8_lineage_status == "resolved" and (self.n5_request_binding_status != "resolved"):
             raise ValueError("run_generic_n8_request_binding_not_established")
         if self.n8_status == "value_conditional":
+            if any(
+                value is None
+                for value in (
+                    self.n5_interaction_evidence,
+                    self.n8_numeric_interaction,
+                    self.n8_numeric_interaction_basis,
+                    self.n8_interaction_sampling_status,
+                )
+            ):
+                raise ValueError("run_generic_n8_interaction_qualification_missing")
+            if self.n8_numeric_interaction != self.n5_interaction_evidence.numeric_interaction or (
+                self.n8_numeric_interaction_basis
+                != self.n5_interaction_evidence.numeric_interaction_basis
+            ) or (
+                self.n8_interaction_sampling_status
+                != self.n5_interaction_evidence.interaction_sampling_status
+            ):
+                raise ValueError("run_generic_n8_interaction_qualification_mismatch")
+            if self.n8_numeric_interaction == "unsupported" and (
+                "interaction_numeric_classification_unsupported"
+                not in self.n8_authority_blockers
+            ):
+                raise ValueError("run_generic_n8_unsupported_interaction_not_limited")
+            if self.n8_interaction_sampling_status != "estimated" and not set(
+                self.n8_authority_blockers
+            ).intersection(
+                {
+                    "interaction_sampling_not_established",
+                    "standard_error_not_estimated",
+                    "legacy_interaction_not_established",
+                }
+            ):
+                raise ValueError("run_generic_n8_unestimated_interaction_not_limited")
             if self.n8_lineage_status == "resolved" and (
                 self.simulation_result_ref is None
                 or self.n8_value_ref != str(self.simulation_result_ref.artifact_id)
@@ -2523,6 +3295,7 @@ class RunDetails(RunRecordV1):
     trace_ref: ArtifactRef | None = None
     capability_manifest_ref: ArtifactRef | None = None
     root_artifacts: list[ArtifactRef] = Field(default_factory=list)
+    root_input_artifacts: list[ArtifactRef] = Field(default_factory=list)
     has_workflow_report: bool = False
     workflow_report_ref: ArtifactRef | None = None
     warnings: list[str] = Field(default_factory=list)

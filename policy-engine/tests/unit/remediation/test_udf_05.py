@@ -238,7 +238,7 @@ def test_read_api_and_static_aging_preserve_snapshot_controls(tmp_path: Path) ->
         exit_weights=np.array([0.2, 0.0]),
     )
 
-    assert artifacts.contract_id == "data_forge.ukraine.demography.artifacts.v1"
+    assert artifacts.contract_id == "data_forge.ukraine.demography.artifacts.v2"
     assert not hasattr(artifacts, "authority_purpose")
     assert np.array_equal(state["target_state_totals"], np.array([100.0, 250.0]))
     assert np.array_equal(state["donor_record_index"], np.array([1001, 1002]))
@@ -355,7 +355,11 @@ def test_scalar_public_donor_absence_is_scoped_to_empty_or_complete_layout(
     """An absent optional donor is empty only when no conflicting partial source exists."""
     empty_root = tmp_path / "empty"
     empty_root.mkdir()
-    assert load_donor_pool_from_read_api(empty_root) == {}
+    empty_donor = load_donor_pool_from_read_api(empty_root)
+    assert dict(empty_donor) == {}
+    assert empty_donor.evidence.source_status == "legacy_limited"
+    assert empty_donor.evidence.source_layout is None
+    assert empty_donor.evidence.donor_disposition == "not_established"
     with pytest.raises(ValueError, match="unsupported demographic layout"):
         load_donor_pool_from_read_api(empty_root, layout="unknown")
 
@@ -435,8 +439,17 @@ def test_empty_donor_absence_requires_no_layout_intent(
     root = tmp_path / "empty"
     root.mkdir()
     if layout is None:
-        assert load_donor_pool_from_read_api(root) == {}
-        assert load_donor_pool_from_read_api(root, layout=None) == {}
+        donor = load_donor_pool_from_read_api(root)
+        assert dict(donor) == {}
+        assert donor.evidence.source_status == "legacy_limited"
+        assert donor.evidence.source_layout is None
+        assert donor.evidence.donor_disposition == "not_established"
+
+        explicit_none = load_donor_pool_from_read_api(root, layout=None)
+        assert dict(explicit_none) == {}
+        assert explicit_none.evidence.source_status == "legacy_limited"
+        assert explicit_none.evidence.source_layout is None
+        assert explicit_none.evidence.donor_disposition == "not_established"
     else:
         with pytest.raises(FileNotFoundError):
             load_donor_pool_from_read_api(root, layout=layout)
@@ -454,7 +467,11 @@ def test_each_complete_selected_layout_allows_its_missing_optional_donor(
 
     with pytest.raises(ValueError, match="multiple complete demographic layouts"):
         load_donor_pool_from_read_api(root)
-    assert load_donor_pool_from_read_api(root, layout=layout) == {}
+    selected_donor = load_donor_pool_from_read_api(root, layout=layout)
+    assert dict(selected_donor) == {}
+    assert selected_donor.evidence.source_status == "legacy_limited"
+    assert selected_donor.evidence.source_layout == layout
+    assert selected_donor.evidence.donor_disposition == "not_established"
 
 
 def test_selected_donor_absence_does_not_borrow_from_complete_sibling(

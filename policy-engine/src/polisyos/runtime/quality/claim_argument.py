@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.runtime.quality.explanation_reliability import (
     evaluate_warrant_berl_reliability,
     warrant_berl_reliability_refs,
     warrant_requires_berl_reliability,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
 
 CLAIM_ARGUMENT_VALIDATION_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.claim_argument.validation.v1"
@@ -25,9 +28,21 @@ PRE_PUBLICATION_CHALLENGE_NODE_SCHEMA_VERSION = (
 
 CLAIM_ARGUMENT_NODE_MAPPING = {
     "claim": {"sacm": "SACM.claim", "cae": "CAE.claim", "gsn": "goal"},
-    "argument": {"sacm": "SACM.argument_reasoning", "cae": "CAE.argument", "gsn": "strategy"},
-    "warrant": {"sacm": "SACM.asserted_inference", "cae": "CAE.warrant", "gsn": "justification"},
-    "rebuttal": {"sacm": "SACM.defeated_claim", "cae": "CAE.rebuttal", "gsn": "away_goal"},
+    "argument": {
+        "sacm": "SACM.argument_reasoning",
+        "cae": "CAE.argument",
+        "gsn": "strategy",
+    },
+    "warrant": {
+        "sacm": "SACM.asserted_inference",
+        "cae": "CAE.warrant",
+        "gsn": "justification",
+    },
+    "rebuttal": {
+        "sacm": "SACM.defeated_claim",
+        "cae": "CAE.rebuttal",
+        "gsn": "away_goal",
+    },
     "counter_evidence": {
         "sacm": "SACM.artifact_reference",
         "cae": "CAE.defeater",
@@ -43,7 +58,11 @@ CLAIM_ARGUMENT_NODE_MAPPING = {
         "cae": "CAE.challenge",
         "gsn": "context",
     },
-    "blocker": {"sacm": "SACM.assurance_deficit", "cae": "CAE.blocker", "gsn": "undeveloped"},
+    "blocker": {
+        "sacm": "SACM.assurance_deficit",
+        "cae": "CAE.blocker",
+        "gsn": "undeveloped",
+    },
 }
 
 _SURFACE_TOP_LEVEL_KEYS = {
@@ -97,9 +116,23 @@ _SURFACE_REF_KEYS = {
     "blocker": ("blocker_refs", "blocker_ref", "claim_argument_blocker_refs"),
 }
 _SURFACE_ID_KEYS = {
-    "argument": ("argument_id", "record_id", "node_id", "id", "cas_ref", "evidence_ref"),
+    "argument": (
+        "argument_id",
+        "record_id",
+        "node_id",
+        "id",
+        "cas_ref",
+        "evidence_ref",
+    ),
     "warrant": ("warrant_id", "record_id", "node_id", "id", "cas_ref", "evidence_ref"),
-    "rebuttal": ("rebuttal_id", "record_id", "node_id", "id", "cas_ref", "evidence_ref"),
+    "rebuttal": (
+        "rebuttal_id",
+        "record_id",
+        "node_id",
+        "id",
+        "cas_ref",
+        "evidence_ref",
+    ),
     "counter_evidence": (
         "counter_evidence_id",
         "counterevidence_id",
@@ -135,26 +168,16 @@ _MISSING_CODES = {
     "rebuttal": "policy_design_major_claim_rebuttal_missing",
     "counter_evidence": "policy_design_major_claim_counter_evidence_missing",
     "deficit": "policy_design_major_claim_deficit_missing",
-    "requester_capture_challenge": (
-        "policy_design_requester_capture_challenge_missing"
-    ),
+    "requester_capture_challenge": ("policy_design_requester_capture_challenge_missing"),
 }
 _SEMANTIC_BINDING_MISSING_CODES = {
-    "policy_design_major_claim_argument_missing": (
-        "semantic_major_claim_argument_refs_missing"
-    ),
-    "policy_design_major_claim_warrant_missing": (
-        "semantic_major_claim_warrant_refs_missing"
-    ),
-    "policy_design_major_claim_rebuttal_missing": (
-        "semantic_major_claim_rebuttal_refs_missing"
-    ),
+    "policy_design_major_claim_argument_missing": ("semantic_major_claim_argument_refs_missing"),
+    "policy_design_major_claim_warrant_missing": ("semantic_major_claim_warrant_refs_missing"),
+    "policy_design_major_claim_rebuttal_missing": ("semantic_major_claim_rebuttal_refs_missing"),
     "policy_design_major_claim_counter_evidence_missing": (
         "semantic_major_claim_counter_evidence_refs_missing"
     ),
-    "policy_design_major_claim_deficit_missing": (
-        "semantic_major_claim_limitation_refs_missing"
-    ),
+    "policy_design_major_claim_deficit_missing": ("semantic_major_claim_limitation_refs_missing"),
 }
 _MISSING_MESSAGES = {
     "argument": "Major claims must cite an explicit argument strategy record.",
@@ -162,9 +185,7 @@ _MISSING_MESSAGES = {
     "rebuttal": "Major claims must cite a rebuttal assessment.",
     "counter_evidence": "Major claims must cite visible counter-evidence assessment nodes.",
     "deficit": "Major claims must expose an assurance-deficit surface, even when empty.",
-    "requester_capture_challenge": (
-        "Major claims must cite a requester-capture challenge result."
-    ),
+    "requester_capture_challenge": ("Major claims must cite a requester-capture challenge result."),
 }
 _SCIENTIST_CHALLENGE_REF_REQUIREMENTS = (
     (
@@ -322,16 +343,10 @@ def build_pre_publication_challenge_node(
         "backtesting_adversarial_refs": _dedupe_texts(backtesting_adversarial_refs),
     }
     adversarial_output_refs = _dedupe_texts(
-        [
-            ref
-            for refs in scientist_output_refs.values()
-            for ref in refs
-        ]
+        [ref for refs in scientist_output_refs.values() for ref in refs]
     )
     alternatives = [
-        dict(item)
-        for item in independent_alternative_analyses
-        if isinstance(item, Mapping)
+        dict(item) for item in independent_alternative_analyses if isinstance(item, Mapping)
     ]
     resolved_result = _text(challenge_result)
     if resolved_result is None:
@@ -466,8 +481,15 @@ def validate_claim_argument_case_surfaces(
     case: Mapping[str, Any],
     *,
     effective_authority_profile: str | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> ClaimArgumentValidationResult:
-    """Validate explicit argument, warrant, rebuttal, counter-evidence, and deficits."""
+    """Validate explicit argument, warrant, rebuttal, counter-evidence, and deficits.
+
+    Args:
+        case: Candidate Policy Design Case evidence.
+        effective_authority_profile: Optional selected execution authority profile.
+        artifact_store: Optional Core CAS store for resolving selected BERL bundle refs.
+    """
 
     if not isinstance(case, Mapping):
         issue = ClaimArgumentIssue(
@@ -478,12 +500,9 @@ def validate_claim_argument_case_surfaces(
         )
         return ClaimArgumentValidationResult("fail", (), (issue,))
 
-    profile = _text(effective_authority_profile) or _text(
-        case.get("effective_execution_profile")
-    )
+    profile = _text(effective_authority_profile) or _text(case.get("effective_execution_profile"))
     rows_by_surface = {
-        surface: _surface_rows(case, surface)
-        for surface in (*_REQUIRED_SURFACES, "blocker")
+        surface: _surface_rows(case, surface) for surface in (*_REQUIRED_SURFACES, "blocker")
     }
     issues: list[ClaimArgumentIssue] = []
     summaries: list[dict[str, Any]] = []
@@ -560,6 +579,7 @@ def validate_claim_argument_case_surfaces(
                 case,
                 warrant,
                 claim_id=claim_id,
+                artifact_store=artifact_store,
             )
             warrant_reliability_records.extend(reliability.records)
             for issue in reliability.issues:
@@ -596,9 +616,8 @@ def validate_claim_argument_case_surfaces(
                         evidence_ref=_surface_evidence_ref(warrant),
                     )
                 )
-            if (
-                warrant_requires_berl_reliability(warrant)
-                and not warrant_berl_reliability_refs(warrant)
+            if warrant_requires_berl_reliability(warrant) and not warrant_berl_reliability_refs(
+                warrant
             ):
                 issues.append(
                     ClaimArgumentIssue(
@@ -617,8 +636,7 @@ def validate_claim_argument_case_surfaces(
         hidden_counter_evidence = [
             row
             for row in rows_by_surface["counter_evidence"]
-            if _row_matches_claim(row, claim_id=claim_id)
-            and _counter_evidence_hidden(row)
+            if _row_matches_claim(row, claim_id=claim_id) and _counter_evidence_hidden(row)
         ]
         for row in hidden_counter_evidence:
             issues.append(
@@ -627,8 +645,7 @@ def validate_claim_argument_case_surfaces(
                     claim_id=claim_id,
                     field="counter_evidence.visibility",
                     message=(
-                        "Counter-evidence must remain visible to reviewer and "
-                        "closeout surfaces."
+                        "Counter-evidence must remain visible to reviewer and closeout surfaces."
                     ),
                     evidence_ref=_surface_evidence_ref(row),
                 )
@@ -657,9 +674,7 @@ def validate_claim_argument_case_surfaces(
             claim_id=claim_id,
         )
         blocker_refs = [
-            value
-            for row in blockers
-            if (value := _surface_identity(row, surface="blocker"))
+            value for row in blockers if (value := _surface_identity(row, surface="blocker"))
         ]
         if "blocker_refs" in claim:
             blocker_refs.extend(_text_values(claim.get("blocker_refs")))
@@ -693,9 +708,7 @@ def validate_claim_argument_case_surfaces(
                 "argument_refs": list(surface_refs.get("argument_refs", [])),
                 "warrant_refs": list(surface_refs.get("warrant_refs", [])),
                 "rebuttal_refs": list(surface_refs.get("rebuttal_refs", [])),
-                "counter_evidence_refs": list(
-                    surface_refs.get("counter_evidence_refs", [])
-                ),
+                "counter_evidence_refs": list(surface_refs.get("counter_evidence_refs", [])),
                 "limitation_refs": list(surface_refs.get("deficit_refs", [])),
             },
             "berl_reliability_refs": list(dict.fromkeys(berl_reliability_refs)),
@@ -785,9 +798,7 @@ def _final_major_claims(case: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...
     if not isinstance(claims, list):
         return ()
     return tuple(
-        claim
-        for claim in claims
-        if isinstance(claim, Mapping) and claim.get("major") is not False
+        claim for claim in claims if isinstance(claim, Mapping) and claim.get("major") is not False
     )
 
 
@@ -813,10 +824,7 @@ def _surface_rows(
                 node_type == surface
                 or node_family == surface
                 or (surface == "deficit" and node_type == "deficit")
-                or (
-                    surface == "blocker"
-                    and node_family in {"blocker", "assurance_blocker"}
-                )
+                or (surface == "blocker" and node_family in {"blocker", "assurance_blocker"})
             ):
                 rows.append(node)
     return tuple(rows)
@@ -942,11 +950,9 @@ def _requester_capture_challenge_issues(
                 evidence_ref=evidence_ref,
             )
         )
-    elif (
-        (challenge_preferred or case_preferred) is not None
-        and _normalized_text(independent_conclusion)
-        == _normalized_text(challenge_preferred or case_preferred)
-    ):
+    elif (challenge_preferred or case_preferred) is not None and _normalized_text(
+        independent_conclusion
+    ) == _normalized_text(challenge_preferred or case_preferred):
         issues.append(
             ClaimArgumentIssue(
                 code="policy_design_requester_capture_independent_analysis_confirms_prior",
@@ -1045,7 +1051,9 @@ def _case_requester_preferred_conclusion(case: Mapping[str, Any]) -> str | None:
     return _first_text(case.get("requester_preferred_conclusion"))
 
 
-def _challenge_requester_preferred_conclusion(challenge: Mapping[str, Any]) -> str | None:
+def _challenge_requester_preferred_conclusion(
+    challenge: Mapping[str, Any],
+) -> str | None:
     preference = challenge.get("requester_preference")
     return _first_text(
         challenge.get("requester_preferred_conclusion"),
@@ -1061,7 +1069,9 @@ def _challenge_result(challenge: Mapping[str, Any]) -> str | None:
     )
 
 
-def _challenge_independent_analysis_conclusion(challenge: Mapping[str, Any]) -> str | None:
+def _challenge_independent_analysis_conclusion(
+    challenge: Mapping[str, Any],
+) -> str | None:
     independent = challenge.get("independent_analysis")
     return _first_text(
         challenge.get("independent_analysis_conclusion"),
@@ -1077,7 +1087,10 @@ def _challenge_minimum_alternative_count(
     case: Mapping[str, Any],
     preferred_conclusion: str | None,
 ) -> int:
-    for source in (case.get("challenge_depth_policy"), _intent_challenge_depth_policy(case)):
+    for source in (
+        case.get("challenge_depth_policy"),
+        _intent_challenge_depth_policy(case),
+    ):
         if not isinstance(source, Mapping):
             continue
         count = _coerce_positive_int(source.get("minimum_alternative_count"))
@@ -1187,9 +1200,7 @@ def _scientist_output_refs(
     *,
     preferred_fields: tuple[str, ...],
 ) -> list[str]:
-    return _dedupe_texts(
-        _scientist_ref_values(source, preferred_fields=preferred_fields)
-    )
+    return _dedupe_texts(_scientist_ref_values(source, preferred_fields=preferred_fields))
 
 
 def _scientist_ref_values(
@@ -1221,9 +1232,7 @@ def _scientist_ref_values(
             "value",
         ):
             if field in value:
-                values.extend(
-                    _scientist_ref_values(value.get(field), preferred_fields=())
-                )
+                values.extend(_scientist_ref_values(value.get(field), preferred_fields=()))
         metadata = value.get("metadata")
         if isinstance(metadata, Mapping):
             values.extend(_scientist_ref_values(metadata, preferred_fields=()))
@@ -1231,9 +1240,7 @@ def _scientist_ref_values(
     if isinstance(value, list | tuple | set):
         values = []
         for item in value:
-            values.extend(
-                _scientist_ref_values(item, preferred_fields=preferred_fields)
-            )
+            values.extend(_scientist_ref_values(item, preferred_fields=preferred_fields))
         return values
 
     values: list[str] = []
@@ -1252,9 +1259,7 @@ def _scientist_ref_values(
         "cas_artifact_id",
     ):
         if hasattr(value, field):
-            values.extend(
-                _scientist_ref_values(getattr(value, field), preferred_fields=())
-            )
+            values.extend(_scientist_ref_values(getattr(value, field), preferred_fields=()))
     if hasattr(value, "root"):
         values.extend(_scientist_ref_values(value.root, preferred_fields=()))
     metadata = getattr(value, "metadata", None)

@@ -133,6 +133,7 @@ describe("LaunchRunPage", () => {
       status: "ready",
       user: {
         tenant_id: "tenant-a",
+        cell_id: "cell-a",
         user_id: "reviewer-a",
       },
     });
@@ -184,6 +185,7 @@ describe("LaunchRunPage", () => {
       error: null,
       isPending: false,
       mutate: vi.fn(),
+      recovery: { data: null, error: null },
     });
   });
 
@@ -196,7 +198,7 @@ describe("LaunchRunPage", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("passes only settled Authz tenant-user scope to composer hydration", async () => {
+  it("uses settled Authz scope for draft hydration and launch recovery", async () => {
     renderLaunchRunPage();
 
     await waitFor(() => {
@@ -204,6 +206,11 @@ describe("LaunchRunPage", () => {
         { tenantId: "tenant-a", userId: "reviewer-a" },
         "nl:new",
       );
+    });
+    expect(useLaunchNlRunMock).toHaveBeenCalledWith({
+      tenantId: "tenant-a",
+      cellId: "cell-a",
+      userId: "reviewer-a",
     });
   });
 
@@ -622,6 +629,7 @@ describe("LaunchRunPage", () => {
       error: null,
       isPending: false,
       mutate: mutateMock,
+      recovery: { data: null, error: null },
     });
 
     const user = userEvent.setup();

@@ -32,6 +32,7 @@ from polisyos.foundry.methods.catalog.causal._common import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
     CausalMethod,
     DiagnosticTest,
     EstimationStatus,
@@ -345,10 +346,11 @@ class SyntheticControlMethod:
         ),
         output_slots=frozenset(
             {
-                SlotSpec(
+                SlotSpec.for_output_contract(
                     name="report",
                     slot_type=SlotType.SCALAR,
                     unit=Unit("report", "json"),
+                    output_contract=CausalEffectReport,
                 ),
                 SlotSpec(
                     name="envelope",

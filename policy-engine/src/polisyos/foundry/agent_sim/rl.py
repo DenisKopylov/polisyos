@@ -81,6 +81,28 @@ def compute_returns_and_advantages(
     return returns, advantages
 
 
+def _ppo_loss_metrics(
+    policy_loss: Array,
+    value_loss: Array,
+    entropy: Array,
+    mean_ratio: Array,
+    clip_fraction: Array,
+) -> dict[str, Array]:
+    """Build the canonical PPO metric mapping for both update outcomes."""
+    return {
+        "policy_loss": policy_loss,
+        "value_loss": value_loss,
+        "entropy": entropy,
+        "mean_ratio": mean_ratio,
+        "clip_fraction": clip_fraction,
+    }
+
+
+def _zero_ppo_loss_metrics(zero: Array) -> dict[str, Array]:
+    """Return zero-valued metrics with the canonical PPO mapping structure."""
+    return _ppo_loss_metrics(zero, zero, zero, zero, zero)
+
+
 def ppo_loss(
     actor_critic: ActorCritic,
     trajectory: Trajectory,
@@ -135,11 +157,12 @@ def ppo_loss(
     total_loss = policy_loss + value_coef * value_loss - entropy_coef * entropy_term
     clip_fraction = jnp.sum((jnp.abs(ratio - 1.0) > clip_epsilon) * mask_f) / mask_sum
 
-    metrics = {
-        "policy_loss": policy_loss,
-        "value_loss": value_loss,
-        "entropy": entropy_term,
-        "mean_ratio": jnp.sum(ratio * mask_f) / mask_sum,
-        "clip_fraction": clip_fraction,
-    }
+    mean_ratio = jnp.sum(ratio * mask_f) / mask_sum
+    metrics = _ppo_loss_metrics(
+        policy_loss,
+        value_loss,
+        entropy_term,
+        mean_ratio,
+        clip_fraction,
+    )
     return total_loss, metrics

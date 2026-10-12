@@ -82,6 +82,7 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.normative_evidence", "run_id"): _ResolverKind.RUN,
     ("runtime.run.epoch_staleness", "run_id"): _ResolverKind.RUN,
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.predictive_calibration", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
     ("runtime.run.public_verification_record", "run_id"): _ResolverKind.RUN,

@@ -12,7 +12,7 @@ import json
 import time
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from typing import Any, Literal
 
@@ -22,6 +22,8 @@ import numpy as np
 import optax
 from jax.flatten_util import ravel_pytree
 
+from polisyos.core.artifacts import ArtifactStore, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
 from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
@@ -58,6 +60,8 @@ from polisyos.foundry.calibration.report import (
     CalibrationReport,
     CalibrationSeriesComparison,
     CalibrationUncertainty,
+    put_calibration_config,
+    put_calibration_report,
 )
 from polisyos.foundry.calibration.uncertainty_adapter import envelopes_from_calibration
 from polisyos.foundry.contracts.state import GlobalState
@@ -671,6 +675,35 @@ class Calibrator:
                 )
             )
         return groups, diagnostics
+
+    def run_and_persist(self, store: ArtifactStore) -> tuple[CalibrationReport, ArtifactRef]:
+        """Run once and persist the report with the exact configuration used.
+
+        A deep configuration snapshot is passed to the optimizer and stored as
+        a versioned artifact. The report edge is built from the complete config ArtifactRef, preserving a
+        selected non-default manifest profile as well as the content ID. The report's
+        fitted coordinates can then be inspected alongside that exact config view.
+
+        This binds the internal config-to-report run. It does not authenticate
+        observed data, establish a calibration/noise law, or make heuristic
+        uncertainty gate-eligible; callers must keep those source facts and
+        authority claims separate.
+
+        Args:
+            store: Artifact store used for the configuration and report.
+
+        Returns:
+            The report produced by the run and its persisted CAS reference.
+        """
+        config = self.inputs.config.model_copy(deep=True)
+        report = Calibrator(replace(self.inputs, config=config)).run()
+        config_ref = put_calibration_config(store, config)
+        report_ref = put_calibration_report(
+            store,
+            report,
+            inputs=[input_ref_from_artifact_ref(config_ref, role="calibration_config")],
+        )
+        return report, report_ref
 
     def run(self) -> CalibrationReport:
         """Run the optimizer loop and return a report-ready calibration artifact.

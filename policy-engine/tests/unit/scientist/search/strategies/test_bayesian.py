@@ -141,7 +141,7 @@ def test_warm_start_rejections_survive_public_state_artifact_without_entering_co
     assert len(restored.get_state().metadata["warm_start_rejections"]["records"]) == 1
 
 
-def test_canonical_warm_start_rejects_a_profile_for_another_target_context(
+def test_canonical_warm_start_rejects_raw_native_profile_before_context_admission(
     simple_space: SearchSpace,
 ) -> None:
     strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=23))
@@ -184,7 +184,42 @@ def test_canonical_warm_start_rejects_a_profile_for_another_target_context(
 
     assert strategy.warm_start_accepted_count == 0
     assert strategy._select_training_subset([]) == []
-    assert strategy.warm_start_rejections[-1]["reason"] == ("incompatible context fingerprint")
+    assert strategy.warm_start_rejections[-1]["reason"] == (
+        "native GP profile lacks fresh fit-basis admission"
+    )
+
+
+def test_canonical_warm_start_rejects_self_described_native_profile_with_matching_context(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = BayesianOptimizer(simple_space, BayesianConfig(seed=31))
+    evaluation = make_evaluation(
+        candidate_id="warm-forged-native-profile",
+        params={"x": 0.25},
+        score=0.5,
+        space=simple_space,
+    )
+    evaluation.provenance_ref = "origin/warm-forged-native-profile"
+    evaluation.metadata = {
+        "warm_start_compatibility": {
+            "profile_kind": "configured_native_gp",
+            "warm_start_eligible": True,
+            "context_fingerprint": "context/target",
+            "objective_fingerprint": "objective/target",
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+        }
+    }
+
+    strategy.warm_start(
+        [evaluation],
+        target_context_fingerprint="context/target",
+        target_objective_fingerprint="objective/target",
+    )
+
+    assert strategy.warm_start_accepted_count == 0
+    assert strategy.warm_start_rejections[-1]["reason"] == (
+        "native GP profile lacks fresh fit-basis admission"
+    )
 
 
 def _warm_planning_records(simple_space: SearchSpace):

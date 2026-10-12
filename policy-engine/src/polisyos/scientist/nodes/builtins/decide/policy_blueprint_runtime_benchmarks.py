@@ -29,6 +29,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import maybe_
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_benchmark_evaluation,
 )
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_WELFARE_BUNDLE_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -618,6 +619,9 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
         "transfer_context": transfer_context,
         "policy_candidate_schema": candidate,
         "policy_candidate_ref": session.candidate_ref,
+        "welfare_bundle_ref": owner.maybe_artifact_ref(
+            state.artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
+        ),
         "simulation_metrics": session.simulation_metrics,
         "uncertainty_envelope": session.uncertainty_envelope,
         "uncertainty_basis_ref": owner.maybe_artifact_ref(

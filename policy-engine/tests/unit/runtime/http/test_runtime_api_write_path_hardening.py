@@ -6,11 +6,20 @@ import time
 import pytest
 
 try:  # pragma: no cover - optional dependency guard
+    from fastapi import FastAPI
     from fastapi.testclient import TestClient
 except ModuleNotFoundError:  # pragma: no cover
+    FastAPI = None  # type: ignore[assignment]
     TestClient = None  # type: ignore[assignment]
 
 from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
+from polisyos.runtime.http.mutation_policy import (
+    MutationProtectionMiddleware,
+    RuntimeIdempotencyStore,
+    RuntimeMutationAuditTrail,
+    RuntimeRateLimiter,
+)
 
 
 def _launch_payload(env: dict[str, object]) -> dict[str, object]:
@@ -188,3 +197,61 @@ def test_runtime_shutdown_cleans_up_worker_and_review_hub(tmp_path) -> None:
     assert control_service._worker._thread is not None
     assert not control_service._worker._thread.is_alive()
     assert app.state.review_collaboration_hub._subscribers == {}
+
+
+@pytest.mark.skipif(TestClient is None or FastAPI is None, reason="fastapi is not installed")
+def test_route_owned_predictive_intent_bypasses_generic_replay_but_keeps_rate_and_audit(
+    tmp_path,
+) -> None:
+    app = FastAPI()
+    audit_path = tmp_path / "mutation-audit.jsonl"
+    app.add_middleware(
+        MutationProtectionMiddleware,
+        rate_limiter=RuntimeRateLimiter(write_limit=8),
+        idempotency_store=RuntimeIdempotencyStore(root=tmp_path / "idempotency"),
+        audit_trail=RuntimeMutationAuditTrail(path=audit_path),
+    )
+    route_calls = {"owned": 0, "generic": 0}
+
+    @app.post("/api/v1/runs/{run_id}/predictive-calibration")
+    def route_owned(run_id: str) -> dict[str, object]:
+        route_calls["owned"] += 1
+        return {"run_id": run_id, "call": route_calls["owned"]}
+
+    @app.post("/api/v1/control/cache-probe")
+    def generic_mutation() -> dict[str, int]:
+        route_calls["generic"] += 1
+        return {"call": route_calls["generic"]}
+
+    client = TestClient(app)
+    cache_header = {"X-Idempotency-Key": "same-generic-cache-key"}
+    owned_first = client.post(
+        "/api/v1/runs/run-route-owned/predictive-calibration",
+        headers=cache_header, json={"intent_id": "typed-owner"},
+    )
+    owned_second = client.post(
+        "/api/v1/runs/run-route-owned/predictive-calibration",
+        headers=cache_header, json={"intent_id": "typed-owner"},
+    )
+    assert owned_first.status_code == owned_second.status_code == 200
+    assert owned_first.json()["call"] == 1
+    assert owned_second.json()["call"] == 2
+    assert owned_second.headers.get("X-Idempotent-Replay") is None
+
+    generic_first = client.post(
+        "/api/v1/control/cache-probe", headers=cache_header, json={"value": 1}
+    )
+    generic_second = client.post(
+        "/api/v1/control/cache-probe", headers=cache_header, json={"value": 1}
+    )
+    assert generic_first.status_code == generic_second.status_code == 200
+    assert generic_first.json()["call"] == generic_second.json()["call"] == 1
+    assert generic_second.headers["X-Idempotent-Replay"] == "true"
+    assert route_calls == {"owned": 2, "generic": 1}
+
+    audit_rows = [
+        json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert len(audit_rows) == 3
+    assert sum(row["endpoint"] == "/api/v1/runs/run-route-owned/predictive-calibration" for row in audit_rows) == 2
+    assert sum(row["endpoint"] == "/api/v1/control/cache-probe" for row in audit_rows) == 1

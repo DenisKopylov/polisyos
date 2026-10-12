@@ -1,0 +1,36 @@
+id = "2026-10-11-e02-profile-only-requirement-resolution"
+title = "Preserve declared requirements through N7 acquisition planning"
+type = "changed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "The compiler joins direct required_constructs/construct_refs with compatible explicit profile and context declarations, and N7 carries typed resolution outcomes into persisted gaps without treating candidate proposals as requirements."
+evidence = [
+  "src/polisyos/data_requirement/compiler.py",
+  "src/polisyos/runtime/quality/acquisition_planner.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "tests/unit/data_requirement/test_compiler.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+]
+compatibility = "The typed compiler carrier is additive and optional. Historic reports without it remain readable as not established; a present empty carrier means the current compiler resolved no required constructs. Supplied direct and profile declarations are joined conjunctively or typed-refused if malformed/incompatible; a present null construct alias is malformed rather than absence/default. Candidate proposals remain separate and are not promoted to requirements or queries."
+change_class = "internal-and-schema-versioned-artifact"
+surface_classification = "internal: polisyos.data_requirement is absent from the supported-surface inventory; the N7 compiler-to-acquisition bridge adds no new HTTP/OpenAPI or generated-client surface."
+migration = "No historical report is rewritten. Consumers that need N7 construct gaps must use reports carrying the versioned resolution rows; older reports retain their existing data-family behavior and are limited where profile-resolution evidence was not recorded."
+api = "The compilation report, acquisition gaps, planner records, and receipt add an optional typed resolution carrier with an explicit schema version. Existing call signatures remain compatible; N7 forwards direct required aliases and explicit profile/context scopes to the shared validated compiler input builder, and passes the carrier only when emitted by the current compiler."
+limitations = "A resolved binding is evidence from the existing capability resolver only. An unresolved or unobserved requirement remains not_established; this bridge creates no capability family, law, issuer, authority, source custody, or external-currentness fact."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/data_requirement/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "data-requirement-profile-resolution-v1"
+change_class = "internal"
+impact = "additive"
+surface = "internal: data-requirement compilation and N7 acquisition-planner artifacts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Current compiler reports preserve the conjunctive union of direct and compatible profile/context required constructs through typed N7 gaps and receipts; malformed supplied aliases, including null, refuse instead of becoming absence/default, and candidate proposals remain candidate-only."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_requirement/README.md"]
+runbook_docs = []

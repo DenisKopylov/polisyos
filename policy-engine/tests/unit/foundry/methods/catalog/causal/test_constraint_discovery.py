@@ -259,10 +259,44 @@ def test_fci_discovery_graceful_fallback_on_timeout(monkeypatch) -> None:
     assert report.graph.graph_type is GraphType.PAG
     assert report.graph.pag_identification_policy is PAGIdentificationPolicy.CONSERVATIVE
     assert report.graph.edges == []
-    assert report.resolved_graph is not None
-    assert report.resolved_graph.graph_type is GraphType.DAG
+    assert report.resolved_graph is None
+    assert report.projection_disposition is not None
+    assert report.projection_disposition.status.value == "unavailable"
+    assert report.projection_disposition.reason_code == "discovery_fallback"
+    assert report.graph_for_analysis() is None
     assert report.n_bootstrap == 0
     assert any("timeout" in warning.lower() for warning in report.warnings)
+
+
+
+def test_successful_empty_fci_source_projects_but_timeout_source_does_not(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _successful_empty_runner(**kwargs):
+        del kwargs
+        return constraint_module._DiscoveryExecutionResult(
+            adjacency=np.zeros((3, 3), dtype=int),
+            metadata={"engine": "controlled-success"},
+            error=None,
+            timed_out=False,
+        )
+
+    monkeypatch.setattr(
+        constraint_module, "_run_discovery_with_timeout", _successful_empty_runner
+    )
+    report = FCIDiscovery.pure_step(
+        _state(), params={"timeout_seconds": 1, "n_bootstrap": 0}
+    )["report"]
+
+    assert report.graph.graph_type is GraphType.PAG
+    assert report.graph.edges == []
+    assert report.metadata.get("fallback") is not True
+    assert report.resolved_graph is not None
+    assert report.resolved_graph.graph_type is GraphType.DAG
+    assert report.resolved_graph.edges == []
+    assert report.projection_disposition is not None
+    assert report.projection_disposition.status.value == "projected"
+    assert report.graph_for_analysis() == report.resolved_graph
 
 
 def test_fci_boundary_retains_unresolved_pag_instead_of_empty_fallback() -> None:
@@ -289,9 +323,12 @@ def test_fci_boundary_retains_unresolved_pag_instead_of_empty_fallback() -> None
     assert edge.mark_src is EdgeMark.CIRCLE
     assert edge.mark_dst is EdgeMark.ARROW
     assert resolved_graph is None
-    assert graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
+    assert graph.metadata["resolved_graph_status"] == "blocked_partial_graph_profile"
     assert "resolved_graph_limitation" in graph.metadata
-    assert any("retained as PAG" in warning for warning in warnings)
+    assert any(
+        "unsupported partial-graph source retained" in warning
+        for warning in warnings
+    )
 
 
 def test_ges_discovery_bootstrap_stability_is_bounded(monkeypatch) -> None:
@@ -373,8 +410,14 @@ def test_fci_report_keeps_pag_when_projection_is_unresolved(monkeypatch) -> None
     assert report.graph.edges[0].mark_src is EdgeMark.CIRCLE
     assert report.graph.edges[0].mark_dst is EdgeMark.ARROW
     assert report.resolved_graph is None
-    assert report.graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
-    assert any("retained as PAG" in warning for warning in report.warnings)
+    assert (
+        report.graph.metadata["resolved_graph_status"]
+        == "blocked_partial_graph_profile"
+    )
+    assert any(
+        "unsupported partial-graph source retained" in warning
+        for warning in report.warnings
+    )
 
 
 def test_pc_discovery_auto_prefers_dagma_for_high_dim(monkeypatch) -> None:
@@ -1111,12 +1154,15 @@ def test_fci_var1_emits_pag_uncertainty_when_causallearn_available() -> None:
         for edge in report.graph.edges
     )
     assert has_unresolved_endpoint or has_bidirected_edge
-    if has_unresolved_endpoint:
+    if has_unresolved_endpoint or has_bidirected_edge:
         assert report.resolved_graph is None
-        assert report.graph.metadata["resolved_graph_status"] == "blocked_unresolved_pag"
+        assert report.projection_disposition is not None
+        assert report.projection_disposition.status.value == "unsupported"
+        assert report.graph_for_analysis() is None
     else:
         assert report.resolved_graph is not None
         assert report.resolved_graph.graph_type is GraphType.DAG
+        assert report.graph_for_analysis() is report.resolved_graph
 
 
 @pytest.mark.integration
@@ -1171,9 +1217,6 @@ def test_unified_discovery_report_has_skeleton_agreement(monkeypatch: pytest.Mon
     mock_report = CausalDiscoveryReport(method="pc", graph=cpdag)
 
     def _fake_parallel(state, dc, algo_specs, params):
-        weights = {spec.name: spec.weight for spec in algo_specs}
-        total = sum(weights.values()) or 1.0
-        normed = {k: v / total for k, v in weights.items()}
         # Return pc report regardless of what was asked
         return [mock_report], {"pc": 1.0}
 

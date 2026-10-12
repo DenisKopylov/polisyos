@@ -2,6 +2,7 @@ import { useCallback, useRef } from "react";
 
 import { useLaunchNlRun } from "@/api/hooks/useLaunchNlRun";
 import { useLlmProfiles } from "@/api/hooks/useLlmProfiles";
+import { useAuthz } from "@/app/authz/AuthzProvider";
 import { getSseRealtimeTransport } from "@/app/realtime/sseTransport";
 import type { RealtimeSubscription } from "@/app/realtime/types";
 import {
@@ -14,7 +15,19 @@ import { hasProducerFinishedAt, useChatStore } from "../state/useChatStore";
 
 export function useClerkNlRun() {
   const { locale } = useI18n();
-  const launchMutation = useLaunchNlRun();
+  const authz = useAuthz();
+  const recoveryScope =
+    authz.status === "ready" &&
+    authz.user?.tenant_id &&
+    authz.user.cell_id &&
+    authz.user.user_id
+      ? {
+          tenantId: authz.user.tenant_id,
+          cellId: authz.user.cell_id,
+          userId: authz.user.user_id,
+        }
+      : null;
+  const launchMutation = useLaunchNlRun(recoveryScope);
   const profilesQuery = useLlmProfiles();
   const store = useChatStore();
   const sseRef = useRef<RealtimeSubscription | null>(null);
@@ -127,6 +140,7 @@ export function useClerkNlRun() {
   return {
     submit,
     isLoading: launchMutation.isPending || store.isStreaming,
+    recovery: launchMutation.recovery,
     defaultModelId,
   };
 }

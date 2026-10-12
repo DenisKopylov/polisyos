@@ -35,6 +35,10 @@ failed`; итоговый backtest report ссылается на этот ар�
 явно помечает отсутствие поддержанного multi-run projection и использует naive diagnostic fallback;
 он не усредняет реплики в scalar и не размножает его по горизонту.
 
+## Selected artifact profiles
+
+`ForecastOwnerRequest` preserves the complete selected model and policy `ArtifactRefModel` when the caller supplies those typed refs, including `manifest_profile_sha256`. The owner resolves the requested manifest profile and records that exact profile in report lineage; same-ID sibling profiles are not substituted. The legacy scalar-ID form remains an explicitly unselected/default-manifest lookup and does not attest to an alternate profile.
+
 ## Public API
 
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`

@@ -70,6 +70,7 @@ if TYPE_CHECKING:
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationProfileV1,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -193,6 +194,8 @@ class RuntimeContainerConfig:
     process_worker_capacity: int | None = None
     process_worker_profile_revision: str | None = None
     catalog_run_profile: CatalogRunProfile | None = None
+    catalog_source_selection: CatalogServingSourceSelection | None = None
+    allow_candidate_run_predictive_calibration_surface: bool = True
     _resolved_process_worker_profile: SharedExecutorProfile = field(
         init=False,
         repr=False,
@@ -214,6 +217,16 @@ class RuntimeContainerConfig:
             )
 
             validate_catalog_run_profile(self.catalog_run_profile)
+        if self.catalog_source_selection is not None:
+            from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+
+            if type(self.catalog_source_selection) is not CatalogServingSourceSelection:
+                raise ValueError("catalog_source_selection_invalid")
+            selected_profile = self.catalog_source_selection.catalog_run_profile
+            if self.catalog_run_profile not in (None, selected_profile):
+                raise ValueError("catalog_source_selection_profile_mismatch")
+            if self.catalog_run_profile is None:
+                object.__setattr__(self, "catalog_run_profile", selected_profile)
 
     def shared_executor_profile(self) -> SharedExecutorProfile:
         """Resolve the configured candidate profile or the legacy host fallback."""
@@ -295,6 +308,8 @@ class RuntimeServiceContainer:
             raise TypeError("candidate_simulation_model_declarations_must_be_tuple")
         if type(config.generic_cycle_simulation_profiles) is not tuple:
             raise TypeError("generic_cycle_simulation_profiles_must_be_tuple")
+        if type(config.allow_candidate_run_predictive_calibration_surface) is not bool:
+            raise TypeError("candidate_run_predictive_calibration_surface_flag_must_be_bool")
         if type(config.enable_contract_testing_credal_source_attempts) is not bool:
             raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
         if (
@@ -335,6 +350,9 @@ class RuntimeServiceContainer:
             lineage_max_depth=config.lineage_max_depth,
             lineage_max_nodes=config.lineage_max_nodes,
             allow_unscoped_artifacts=config.allow_unscoped_artifacts,
+            allow_candidate_run_predictive_calibration_surface=(
+                config.allow_candidate_run_predictive_calibration_surface
+            ),
             artifact_redaction_hooks=config.artifact_redaction_hooks,
             metrics=runtime_metrics,
             tracer=runtime_tracer,
@@ -397,19 +415,29 @@ class RuntimeServiceContainer:
         control_registry_providers = overrides.control_registry_providers
         if control_registry_providers is None:
             control_registry_providers = _resolve_default_control_registry_providers(
-                catalog_run_profile=config.catalog_run_profile
+                catalog_run_profile=config.catalog_run_profile,
+                catalog_source_selection=config.catalog_source_selection,
             )
-        elif config.catalog_run_profile is not None:
-            if (
-                control_registry_providers.catalog_run_profile is not None
-                and control_registry_providers.catalog_run_profile != config.catalog_run_profile
-            ):
-                raise ValueError("catalog_run_profile_runtime_configuration_mismatch")
-            if control_registry_providers.catalog_run_profile is None:
-                control_registry_providers = replace(
-                    control_registry_providers,
-                    catalog_run_profile=config.catalog_run_profile,
-                )
+        else:
+            if config.catalog_run_profile is not None:
+                if control_registry_providers.catalog_run_profile not in (
+                    None, config.catalog_run_profile
+                ):
+                    raise ValueError("catalog_run_profile_runtime_configuration_mismatch")
+                if control_registry_providers.catalog_run_profile is None:
+                    control_registry_providers = replace(
+                        control_registry_providers,
+                        catalog_run_profile=config.catalog_run_profile,
+                    )
+            if config.catalog_source_selection is not None:
+                supplied = control_registry_providers.catalog_source_selection
+                if supplied not in (None, config.catalog_source_selection):
+                    raise ValueError("catalog_source_selection_runtime_configuration_mismatch")
+                if supplied is None:
+                    control_registry_providers = replace(
+                        control_registry_providers,
+                        catalog_source_selection=config.catalog_source_selection,
+                    )
         if overrides.decision_validity_service is not None and not (
             ControlPlaneService.is_decision_validity_owner(overrides.decision_validity_service)
         ):
@@ -1065,9 +1093,14 @@ def resolve_runtime_review_opa_guard(subject: Any) -> Any | None:
 
 
 def _resolve_default_control_registry_providers(
-    *, catalog_run_profile: CatalogRunProfile | None = None
+    *,
+    catalog_run_profile: CatalogRunProfile | None = None,
+    catalog_source_selection: CatalogServingSourceSelection | None = None,
 ) -> ControlRegistryProviders:
-    return resolve_control_registry_providers(catalog_run_profile=catalog_run_profile)
+    return resolve_control_registry_providers(
+        catalog_run_profile=catalog_run_profile,
+        catalog_source_selection=catalog_source_selection,
+    )
 
 
 async def _close_maybe_async(resource: Any) -> None:

@@ -16,6 +16,12 @@ not make them interchangeable.
 | Employment accounting | Employer IDs and firm labor counts in complete patches | Employment and hours in the returned economic state; no firm assignments |
 | Randomness | Fiscal key unchanged; labor returns the third split key | Labor uses three draws from the supplied key, returns a state; absent key defaults to time step |
 
+Each built-in mechanism writes a numeric result in the destination field's existing dtype.
+When an x64 calculation targets a narrower field, dependent calculations use the value
+stored in that field, so the declared state layout remains stable and the narrower slot
+retains its ordinary dtype-conversion semantics. The generic composite executor does not cast custom producer
+outputs in the selected Economics profile; its complete-state schema gate still refuses changed shapes or dtypes.
+
 The units are those of the supplied fixture. The plugin's annualizing factor
 2000 does not establish the native step's duration. A flat tax fixture with the
 same one-period income base can match the numerical tax debit after an explicit

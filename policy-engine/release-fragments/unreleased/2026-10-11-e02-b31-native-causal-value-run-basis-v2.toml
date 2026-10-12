@@ -1,0 +1,41 @@
+id = "2026-10-11-e02-b31-native-causal-value-run-basis-v2"
+title = "Bind native causal reports to a candidate owner method-run basis"
+type = "changed"
+component = "runtime"
+owner = "team-policyos-runtime"
+summary = "Registered DID and synthetic-control reports now project through the shared typed output contract and an N8 CAS run basis that binds selected v2 owner-profile bytes, explicit owner-run intent, runner input, a post-run NumpyRunner execution receipt, and actual report to one estimand/unit coordinate."
+evidence = [
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/ir/analytics/causal.py",
+  "src/polisyos/ir/analytics/uncertainty.py",
+  "src/polisyos/foundry/methods/catalog/causal/did.py",
+  "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py",
+  "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+  "tests/unit/foundry/methods/test_causal_value_method_output_contract.py",
+  "tests/unit/ir/analytics/test_causal_identification_candidate.py",
+  "tests/unit/runtime/quality/test_value_gate.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "docs/reference/ir/analytics.md",
+]
+change_class = "internal"
+surface_classification = "public_stable: polisyos.ir.CausalEffectReport.to_value_uncertainty; internal: N8 candidate owner-run basis"
+compatibility = "The CausalEffectReport payload, ABI snapshot, public facade exports, and registered causal method identities remain unchanged. The internal run basis advances to v2; historical v1 basis or profileless default-manifest reads are limited and never upgraded. The typed causal-report persistence helper preserves historical default-reference behavior; its strict selected-profile option returns the profile from the same CAS write, and the B31 producer opts into it. Historical profileless report refs are never retrofitted. ValueDataProfile advances to strict v2 because the method-run basis requires an explicit measurement unit. A historical v1 profile has no unit and is not upgraded implicitly; reacquire it through the source owner before a candidate method run."
+migration = "N8 owners must supply an explicit ValueOwnerMethodRunIntentV1 bound to the selected v2 profile, assignment reference, typed estimand and method. Missing or malformed supplied owner inputs remain typed refusals; the default gateway still supplies no treatment assignment."
+limitations = "DID and synthetic-control controlled runs are candidate-fixture witnesses only. Their persisted ValueOuterSet keeps assignment bounds distinct from native statistical CI, is search_only with gate_eligible=false, and does not establish identification, owner authority, calibration, law, production currentness, or S10 admission. The post-run receipt binds submitted request intent and runner-returned facts as candidate lineage; strict numeric input types reject bool/string/float/null coercion for integer fields and bool/string/null coercion for fixture bounds. Full used-parameter coverage remains not_established, and the receipt is not an external signature. The original B31/EMP01 whole-property criterion remains unclosed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/ir/analytics.md", "src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-effect-report-value-projection"
+change_class = "internal"
+impact = "compatible"
+surface = "public_stable: polisyos.ir.CausalEffectReport.to_value_uncertainty"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Existing CausalEffectReport fields and ABI schema are unchanged; native CI projection is typed and non-gating."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/ir/analytics.md"]
+runbook_docs = []

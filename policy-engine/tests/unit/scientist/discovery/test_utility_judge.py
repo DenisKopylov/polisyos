@@ -170,12 +170,17 @@ def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_
     )
     assert isinstance(low_level, IdentificationResult)
     assert low_level.status is IdentificationStatus.ORACLE_NEEDED
-    assert low_level.metadata["limitation_code"] == "unsupported_static_admg_profile"
+    assert low_level.metadata["limitation_code"] == (
+        "partial_graph_completion_semantics_not_established"
+    )
 
     assert [score.hypothesis_id for score in report.scores] == ["identified", "ambiguous"]
     assert report.scores[0].identification_status == "identified"
-    assert report.scores[1].identification_status == "oracle_needed"
-    assert "identifiability:unsupported_static_admg_profile" in report.scores[1].reasons
+    assert report.scores[1].identification_status == "unsupported_graph_profile"
+    assert (
+        "identifiability:unsupported:graph_projection_unavailable"
+        in report.scores[1].reasons
+    )
     assert report.scores[1].composite_score <= report.scores[0].composite_score
 
     writer = FileSystemCAS(tmp_path / "utility-report")
@@ -185,8 +190,10 @@ def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_
         ref,
     )
     fresh_score = next(score for score in fresh_report.scores if score.hypothesis_id == "ambiguous")
-    assert fresh_score.identification_status == "oracle_needed"
-    assert "identifiability:unsupported_static_admg_profile" in fresh_score.reasons
+    assert fresh_score.identification_status == "unsupported_graph_profile"
+    assert (
+        "identifiability:unsupported:graph_projection_unavailable" in fresh_score.reasons
+    )
 
 
 def test_untyped_identification_error_keeps_generic_negative_certificate(monkeypatch) -> None:

@@ -351,3 +351,43 @@ any selected manifest profile or receipt link is unresolved.
 ## Y0 proof pairing and review grade
 
 The registered `CheckTransportability`, `SymbolicIdentify`, and `SymbolicIdentifyV2` result/proof pairs use the shared ProofBundle projection. An actual scoped direct Y0 expression remains `identified` as conditional graph mathematics; its A2/sound-incomplete bundle and computed `review_required` grade preserve that source-data existence, currentness, and authority remain unestablished. Other identified results remain mathematical candidates, but their grade is `unknown` until a source-resolved, content-bound, verifier-provenance basis is available. Native and simplified backend labels alone cannot clear the protected pass. The projector preserves an available theorem/AST while marking the bundle sound-incomplete; the strict pass blocks both `review_required` and `unknown`. This is a review boundary, not a data, legal, publication, or institutional authority claim. The accepted meaning of A1 completeness remains open in the G decision packet.
+
+### Source-preserving DAG admission
+
+`polisyos.ir.analytics.causal_graph.project_graph_to_dag` is the canonical
+profile-specific projection used by DAG-only discovery consumers. Its
+`GraphProjectionDisposition` binds the source graph type and complete source and
+resolved graph hashes. Discovery reports and graph hypotheses carry that typed
+receipt; supported analysis readers consume only a source DAG or a projection
+that can be recomputed from the same source. A missing historical receipt is
+upgraded to a fail-closed limitation unless a stored projection replays exactly.
+FCI failure/timeout remains `unavailable` with no resolved graph, distinct from
+an empty graph returned by a successful run. Every projector and analysis reader
+rebuilds the complete declared graph and disposition fields before branching;
+only class-declared cached-property storage is excluded from the content digest.
+The accepted result is the detached canonical snapshot itself, so a later caller
+mutation cannot replace the graph already admitted to an analysis consumer.
+A malformed `model_copy` or extra stored field is rejected before DAG identity or
+projection is selected. The report/hypothesis adapter is limited to unversioned
+and schema-1.0 receipts; schema-1.1 payloads must carry their required typed
+receipt. The projection does not choose PAG/CPDAG completion semantics or assign
+probability to completions.
+
+### Scalar identification admission
+
+Direct scalar identification and the registered transport routes share one
+canonical graph-snapshot boundary. It rebuilds the complete live IR field set,
+including nested edges and declared cache storage, then the consumer uses that
+returned immutable snapshot. PAG and CPDAG tags are typed `oracle_needed` /
+unsupported until the open G decision selects a completion-set contract; a
+fully oriented endpoint row or policy label is not a selected extension.
+Static ID accepts resolved DAG and acyclic ADMG profiles; a cyclic ADMG receives
+a typed refusal at that owner. Direct scalar ID refuses M-graphs because those
+queries need the full-law owner and explicit missingness-recovery inputs. The
+existing CausalEngine validated dynamic reduction, sigma/cyclic, and full-law
+M-graph paths retain their separate owners.
+Direct TR calls rebuild the entire typed selection diagram, require every S-node
+target to name a base-graph variable, and pass that same detached object to the
+identifier. Raw endpoint/orientation inspection stays descriptive; it does not
+authorize a scalar proof. This does not estimate completion probabilities,
+establish graph truth, or close B214.

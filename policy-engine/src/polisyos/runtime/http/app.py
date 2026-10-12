@@ -82,6 +82,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 
 FastAPI: Any | None
 Request: Any
@@ -108,6 +109,7 @@ def create_runtime_api_app(
     lineage_max_depth: int = 64,
     lineage_max_nodes: int = 2000,
     allow_unscoped_artifacts: bool = False,
+    allow_candidate_run_predictive_calibration_surface: bool = True,
     artifact_redaction_hooks: dict[str, Any] | None = None,
     enable_response_compression: bool = True,
     enable_security_middlewares: bool = False,
@@ -133,6 +135,7 @@ def create_runtime_api_app(
     process_worker_capacity: int | None = None,
     process_worker_profile_revision: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
+    catalog_source_selection: CatalogServingSourceSelection | None = None,
     enable_csrf_protection: bool | None = None,
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
@@ -146,7 +149,17 @@ def create_runtime_api_app(
     candidate N5 lane. Its result remains simulation evidence and cannot be
     promoted to N9, S8, or publication authority. Contract-testing K_ref
     source-attempt capture is separately disabled by default and restricted to
-    the development profile.
+    the development profile. Run-bound predictive calibration is a candidate-only
+    surface controlled by ``allow_candidate_run_predictive_calibration_surface``;
+    it defaults to enabled and can be disabled at the normal application root. This
+    setting does not grant authorization.
+
+    catalog_source_selection optionally binds candidate L1 reads to one
+    fixed-layout snapshot root. Omitting it preserves the repository default.
+    Its CatalogRunProfile supplies catalog_run_profile when that option is
+    omitted, and conflicting profiles refuse composition. Selection is a
+    candidate input only; it does not establish source provenance, freshness,
+    currentness, or publication authority.
     """
     if FastAPI is None:
         raise RuntimeError("Runtime HTTP API requires fastapi/starlette dependencies")
@@ -256,6 +269,9 @@ def create_runtime_api_app(
             lineage_max_depth=lineage_max_depth,
             lineage_max_nodes=lineage_max_nodes,
             allow_unscoped_artifacts=allow_unscoped_artifacts,
+            allow_candidate_run_predictive_calibration_surface=(
+                allow_candidate_run_predictive_calibration_surface
+            ),
             artifact_redaction_hooks=artifact_redaction_hooks,
             metrics_factory=metrics_factory,
             tracer_factory=tracer_factory,
@@ -271,6 +287,7 @@ def create_runtime_api_app(
             process_worker_capacity=process_worker_capacity,
             process_worker_profile_revision=process_worker_profile_revision,
             catalog_run_profile=catalog_run_profile,
+            catalog_source_selection=catalog_source_selection,
         ),
         deployment_policy=deployment_policy,
         runtime_security=RuntimeSecurityConfig(
@@ -551,8 +568,25 @@ def _install_request_telemetry_middleware(
             status_code=status_code,
             duration_seconds=duration_seconds,
         )
-        if str(getattr(request.url, "path", "")).startswith("/api/v1/"):
+        request_path = str(getattr(request.url, "path", ""))
+        request_method = str(getattr(request, "method", "")).upper()
+        if request_path.startswith("/api/v1/"):
             set_versioning_headers(response)
+        if (
+            request_method == "GET"
+            and request_path.startswith("/api/v1/control/admission-attempts/")
+        ):
+            response.headers["Cache-Control"] = "no-store"
+        attempt_id = getattr(request.state, "control_pre_admission_attempt_id", None)
+        if (
+            request_method == "POST"
+            and request_path == "/api/v1/control/runs/nl"
+            and 400 <= status_code < 500
+            and attempt_id is None
+        ):
+            response.headers["X-Control-Pre-Admission-Outcome"] = "not_created"
+        if attempt_id is not None:
+            response.headers["X-Control-Admission-Attempt-ID"] = str(attempt_id)
         response.headers["X-Request-ID"] = request_id
         return response
 

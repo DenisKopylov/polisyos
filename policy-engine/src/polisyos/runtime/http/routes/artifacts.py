@@ -59,6 +59,19 @@ from polisyos.runtime.quality.authority import authority_surface_decision
 
 _PREDICTIVE_COVERAGE_DIAGNOSTIC_SCAN_SCOPE = "dashboard/public/export packets"
 
+_ARTIFACT_PROFILE_RESOLUTION_RESPONSES = {
+    409: {
+        "description": (
+            "A route-specific conflict or refusal; the response code identifies the cause."
+        ),
+        "content": {
+            "application/problem+json": {
+                "schema": {"$ref": "#/components/schemas/RuntimeApiProblem"}
+            }
+        },
+    }
+}
+
 _BUREAUCRATIC_OBSERVATION_TIMESTAMP = re.compile(
     r"(?<=Дата формування: )\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
     + r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
@@ -198,6 +211,7 @@ if router is not None:
         "/{artifact_id}",
         response_model=ArtifactManifestResponse,
         operation_id="get_artifact_manifest",
+        responses=_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
     )
     def get_artifact_manifest(
         artifact_id: str,
@@ -300,6 +314,7 @@ if router is not None:
         "/{artifact_id}/predictive-coverage-diagnostic",
         response_model=PredictiveCoverageDiagnosticPreview,
         operation_id="get_predictive_coverage_diagnostic",
+        responses=_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
     )
     def get_predictive_coverage_diagnostic(
         artifact_id: str,
@@ -410,6 +425,7 @@ if router is not None:
         "/{artifact_id}/content",
         response_model=ArtifactContentResponse,
         operation_id="get_artifact_content",
+        responses=_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
     )
     def get_artifact_content(
         artifact_id: str,
@@ -561,6 +577,7 @@ if router is not None:
         "/{artifact_id}/lineage",
         response_model=ArtifactLineageResponse,
         operation_id="get_artifact_lineage",
+        responses=_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
     )
     def get_artifact_lineage(
         artifact_id: str,
@@ -672,6 +689,7 @@ if router is not None:
         "/{artifact_id}/schema",
         response_model=ArtifactSchemaResponse,
         operation_id="get_artifact_schema",
+        responses=_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
     )
     def get_artifact_schema(
         artifact_id: str,
@@ -770,7 +788,10 @@ if router is not None:
         "/{packet_id}/render",
         response_model=BureaucraticRenderResponse,
         operation_id="render_bureaucratic_artifact",
-        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
+        responses={
+            **_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
+            200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS},
+        },
         dependencies=[Depends(_RENDER_BUREAUCRATIC_ARTIFACT_AUTHZ)],
     )
     def render_bureaucratic_artifact(
@@ -852,7 +873,10 @@ if router is not None:
         "/{packet_id}/export",
         response_model=BureaucraticExportResponse,
         operation_id="export_bureaucratic_artifact",
-        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
+        responses={
+            **_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
+            200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS},
+        },
     )
     def export_bureaucratic_artifact(
         packet_id: str,
@@ -970,6 +994,7 @@ if router is not None:
         "/{artifact_id}/download",
         operation_id="download_artifact_content",
         responses={
+            **_ARTIFACT_PROFILE_RESOLUTION_RESPONSES,
             "200": {
                 "description": "Raw artifact bytes",
                 "content": {
@@ -1123,6 +1148,11 @@ def _resolve_artifact_manifest(
     if manifest_profile_sha256 is None:
         try:
             default_manifest = store.get_manifest(artifact_id)
+        except ArtifactIntegrityError as exc:
+            raise conflict(
+                "The selected artifact failed CAS integrity verification",
+                code="artifact_integrity_failed",
+            ) from exc
         except ArtifactOwnershipError as exc:
             raise not_found(
                 "Selected artifact manifest profile is unavailable",
@@ -1142,6 +1172,11 @@ def _resolve_artifact_manifest(
                 "Selected artifact manifest profile is unavailable",
                 code="artifact_manifest_profile_not_found",
             ) from exc
+        except ArtifactIntegrityError as exc:
+            raise conflict(
+                "The selected artifact failed CAS integrity verification",
+                code="artifact_integrity_failed",
+            ) from exc
         except (ArtifactOwnershipError, TypeError, ValueError) as exc:
             raise not_found(
                 "Selected artifact manifest profile is unavailable",
@@ -1154,7 +1189,19 @@ def _resolve_artifact_manifest(
             artifact_id,
             manifest_profile_sha256,
         )
-    except (ArtifactOwnershipError, FileNotFoundError, TypeError, ValueError) as exc:
+    except FileNotFoundError as exc:
+        if not store.has(artifact_id):
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        raise not_found(
+            "Selected artifact manifest profile is unavailable",
+            code="artifact_manifest_profile_not_found",
+        ) from exc
+    except ArtifactIntegrityError as exc:
+        raise conflict(
+            "The selected artifact failed CAS integrity verification",
+            code="artifact_integrity_failed",
+        ) from exc
+    except (ArtifactOwnershipError, TypeError, ValueError) as exc:
         raise not_found(
             "Selected artifact manifest profile is unavailable",
             code="artifact_manifest_profile_not_found",

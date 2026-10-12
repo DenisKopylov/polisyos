@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 
 import duckdb
+import pytest
 
 from polisyos.data_forge.domains.academic.knowledge import skg_query
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 
 
@@ -28,9 +30,7 @@ def _seed_skg_tables(db_path) -> None:
             """
         )
         con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
-        con.execute(
-            "CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)"
-        )
+        con.execute("CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)")
         con.execute(
             "CREATE TABLE ac_causal_claims ("
             "id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, "
@@ -737,9 +737,9 @@ def test_query_claims_supports_contested_summary_mode(tmp_path) -> None:
         con.execute(
             "INSERT INTO ac_skg_contested_edges VALUES ("
             "'ce-claims', 'macro.tax', 'macro.employment', 4, 3, "
-            "'[\"W8\",\"W9\",\"W10\",\"W11\"]', '[\"c8\",\"c9\",\"c10\"]', "
+            '\'["W8","W9","W10","W11"]\', \'["c8","c9","c10"]\', '
             "'mixed', 'contested', 'MIXED', 'observational', 0.71, "
-            "'{\"positive\": 2, \"negative\": 2}', '{\"conflict_flag\": true}')"
+            '\'{"positive": 2, "negative": 2}\', \'{"conflict_flag": true}\')'
         )
     finally:
         con.close()
@@ -761,9 +761,7 @@ def test_query_claims_supports_contested_summary_mode(tmp_path) -> None:
     assert rows[0].evidence_strength.value == "observational"
     assert rows[0].evidence_strength_status.value == "candidate"
     assert rows[0].projection_binding.subject_kind == "edge_summary"
-    assert rows[0].projection_binding.source_rows[0].source_table == (
-        "ac_skg_contested_edges"
-    )
+    assert rows[0].projection_binding.source_rows[0].source_table == ("ac_skg_contested_edges")
     assert rows[0].work_id == "W8"
     assert "strength" not in rows[0].model_dump()
 
@@ -820,9 +818,7 @@ def test_query_claims_family_summary_establishes_only_explicit_evidence(tmp_path
     assert rows[0].design_family_hint is None
     assert rows[0].claim_extraction_confidence is None
     assert rows[0].source_basis is None
-    assert rows[0].projection_binding.source_rows[0].source_table == (
-        "ac_skg_family_edges"
-    )
+    assert rows[0].projection_binding.source_rows[0].source_table == ("ac_skg_family_edges")
     assert rows[0].work_id == "W1"
 
 
@@ -834,8 +830,7 @@ def test_query_claims_hybrid_preserves_tied_explicit_theoretical_evidence(
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = 'theoretical' "
-            "WHERE edge_id = 'e1'"
+            "UPDATE ac_skg_edges SET evidence_strength = 'theoretical' WHERE edge_id = 'e1'"
         )
         con.execute(
             "INSERT INTO ac_skg_family_edges VALUES "
@@ -868,9 +863,7 @@ def test_query_claims_edge_summary_types_sql_null_as_not_established(tmp_path) -
     _seed_skg_tables(db_path)
     con = duckdb.connect(str(db_path))
     try:
-        con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = NULL WHERE edge_id = 'e1'"
-        )
+        con.execute("UPDATE ac_skg_edges SET evidence_strength = NULL WHERE edge_id = 'e1'")
     finally:
         con.close()
 
@@ -896,8 +889,7 @@ def test_query_claims_decodes_persisted_declared_absence(tmp_path) -> None:
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
-            "WHERE edge_id = 'e1'"
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' WHERE edge_id = 'e1'"
         )
     finally:
         con.close()
@@ -927,8 +919,7 @@ def test_query_edge_support_pairs_declared_absence_with_status(tmp_path) -> None
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
-            "WHERE edge_id = 'e1'"
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' WHERE edge_id = 'e1'"
         )
     finally:
         con.close()
@@ -957,8 +948,7 @@ def test_query_claims_hybrid_ignores_declared_absence_when_evidence_exists(
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
-            "WHERE edge_id = 'e1'"
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' WHERE edge_id = 'e1'"
         )
         con.execute(
             "INSERT INTO ac_skg_family_edges VALUES "
@@ -1124,5 +1114,128 @@ def test_prepared_read_uses_source_connection_without_temporary_clone(
         assert opens == [(str(db_path.resolve()), True)]
         assert set(tmp_path.iterdir()) == original_files
         assert skg_query._file_sha256(db_path) == original_sha256
+    finally:
+        prepared.close()
+
+
+def _seed_credal_read_source(db_path) -> None:
+    """Create the exact SKG tables consumed by the source-bound K_ref reader."""
+    with duckdb.connect(str(db_path)) as con:
+        ensure_skg_schema(con)
+        con.execute("INSERT INTO ac_skg_versions(version_id) VALUES (7)")
+        con.execute(
+            "INSERT INTO ac_skg_variables "
+            "(canonical_name, normalized_name, display_name, approved_canonical_name, "
+            "is_approved_canonical, resolution_method, resolution_confidence, mention_count) "
+            "VALUES ('global.tax_rate','global.tax_rate','Tax rate','global.tax_rate',TRUE,"
+            "'controlled_fixture',0.95,5),"
+            "('government.balance','government.balance','Balance','government.balance',TRUE,"
+            "'controlled_fixture',0.95,5)"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_variable_synonyms(synonym, canonical_name, method, confidence, approved) "
+            "VALUES ('tax rate','global.tax_rate','controlled_fixture',0.95,TRUE)"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_edges "
+            "(edge_id, src, dst, direction, n_articles, article_refs, evidence_strength, "
+            "confidence, scope_conditions, candidate_layer, quality_signals_json) VALUES "
+            "('tax-balance','global.tax_rate','government.balance','increases',3,'[]','strong',"
+            "0.9,'[]','controlled','{}')"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_family_edges "
+            "(family_edge_id, src_family, dst_family, direction, n_articles, n_claims, "
+            "article_refs, claim_refs, evidence_strength, confidence, candidate_layer, "
+            "quality_signals_json) VALUES ('family-a','tax','balance','increases',3,2,'[]','[]',"
+            "'strong',0.9,'controlled','{}')"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_moderation_edges "
+            "(moderation_id, base_cause, base_effect, moderator, direction_of_mod, "
+            "interaction_coeff, interaction_pvalue, evidence_count, confidence, match_quality, "
+            "alignment_source, source_refs, skg_version) VALUES "
+            "('moderation-a','global.tax_rate','government.balance','cells.output','decreases',"
+            "-0.2,0.05,3,0.9,'exact_claim_ref','controlled_fixture','[]',7)"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_contested_edges "
+            "(contested_edge_id, src_family, dst_family, article_refs, claim_refs, dominant_direction, "
+            "resolution_status, runtime_support, evidence_strength, confidence, positive_weight, "
+            "negative_weight, mixed_weight, direction_histogram_json, quality_signals_json) VALUES "
+            "('contested-a','tax','balance','[]','[\"claim-a\"]','increases','resolved','strong',"
+            "'strong',0.8,1.0,0.0,0.0,'{}','{\"exact_edge_ids\":[\"tax-balance\"]}')"
+        )
+        con.execute("CREATE TABLE ac_causal_claims_raw (synthetic BOOLEAN)")
+        con.execute("INSERT INTO ac_causal_claims_raw VALUES (TRUE)")
+        con.execute(
+            "CREATE TABLE ac_causal_claims ("
+            "id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, "
+            "effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, mechanism VARCHAR, "
+            "domain VARCHAR, trust_score FLOAT, strong_design_evidence BOOLEAN, "
+            "design_quality_tier INTEGER, publish_blockers VARCHAR, candidate_layer VARCHAR)"
+        )
+        con.execute("CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)")
+        con.execute("INSERT INTO ac_works VALUES ('work-a','Controlled work',2025)")
+        con.execute(
+            "INSERT INTO ac_causal_claims VALUES "
+            "('claim-a','work-a','global.tax_rate','government.balance','positive','rct',"
+            "'controlled mechanism','macro',0.9,TRUE,4,'[]','controlled')"
+        )
+
+
+def test_prepared_read_exposes_typed_credal_rows_on_bound_source(tmp_path) -> None:
+    db_path = tmp_path / "credal-source.duckdb"
+    _seed_credal_read_source(db_path)
+
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        marker = prepared.query_execution_marker()
+        snapshot = prepared.read_credal_source_rows()
+        assert snapshot.version_id == 7
+        assert snapshot.source_snapshot_ref == prepared.source_snapshot_ref
+        assert snapshot.source_snapshot_sha256 == prepared.source_snapshot_sha256
+        assert prepared.matches_path(db_path)
+        assert not prepared.matches_path(tmp_path / "other.duckdb")
+        assert snapshot.variables[0].canonical_name == "global.tax_rate"
+        assert snapshot.variables[1].canonical_name == "government.balance"
+        assert snapshot.variable_synonyms[0].synonym == "tax rate"
+        assert snapshot.causal_edges[0].edge_id == "tax-balance"
+        assert snapshot.family_edges[0].family_edge_id == "family-a"
+        assert snapshot.moderation_edges[0].moderation_id == "moderation-a"
+        assert snapshot.contested_edges[0].claim_refs == '["claim-a"]'
+        assert snapshot.causal_claim_results[0].id == "claim-a"
+        assert snapshot.synthetic_column_present is True
+        assert snapshot.synthetic_values == (True,)
+        assert len(prepared.query_fingerprints_since(marker)) >= 10
+        assert prepared.source_generation_matches()
+        assert not hasattr(snapshot, "execute")
+        assert not hasattr(snapshot, "connection")
+    finally:
+        prepared.close()
+
+    with pytest.raises(RuntimeError, match="prepared_skg_read_closed"):
+        prepared.read_credal_source_rows()
+
+
+def test_prepared_read_refuses_source_generation_change_during_typed_read(
+    tmp_path,
+    monkeypatch,
+) -> None:
+    db_path = tmp_path / "credal-generation-change.duckdb"
+    _seed_credal_read_source(db_path)
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path / "idx")
+    generation_checks = iter((True, False))
+    monkeypatch.setattr(
+        type(prepared),
+        "source_generation_matches",
+        lambda self: next(generation_checks),
+    )
+    try:
+        with pytest.raises(
+            ValueError,
+            match="prepared_skg_read_source_changed_during_read",
+        ):
+            prepared.read_credal_source_rows()
     finally:
         prepared.close()

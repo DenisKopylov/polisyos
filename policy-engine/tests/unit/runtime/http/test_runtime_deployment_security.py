@@ -1377,7 +1377,7 @@ def test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation(
     }
 
     with client:
-        allowed = client.post("/api/v1/control/runs/nl", headers=headers, json={})
+        allowed = client.post("/api/v1/control/runs/nl", headers={**(headers), "Idempotency-Key": "test-r216-e0d6e53e610149439dbac3577dade2c8"}, json={})
         safe_read = client.get("/api/v1/control/jobs/missing", headers=headers)
         denied = client.post("/api/v1/control/data/ingest", headers=headers, json={})
 

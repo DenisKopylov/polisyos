@@ -373,7 +373,9 @@ def _resolve_selection_diagram(
 ) -> SelectionDiagram | None:
     if not hypotheses:
         return None
-    base_graph = hypotheses[0].resolved_graph or hypotheses[0].graph
+    base_graph = hypotheses[0].graph_for_analysis()
+    if base_graph is None:
+        return None
     raw = state.params.get("discovery_selection_diagram")
     if isinstance(raw, dict):
         try:
@@ -471,7 +473,7 @@ def _measure_seed_reproducibility(
 ) -> dict[str, float]:
     measured: dict[str, float] = {}
     for hypothesis in shortlist:
-        base_graph = hypothesis.resolved_graph or hypothesis.graph
+        base_graph = hypothesis.graph_for_analysis() or hypothesis.graph
         base_edges = {edge_key_for_edge(edge) for edge in base_graph.edges}
         overlaps: list[float] = []
         for replay_index in range(1, replay_count + 1):
@@ -489,7 +491,8 @@ def _measure_seed_reproducibility(
                 compute_footprint=ComputeFootprint(method_params=params),
             )
             replay_edges = {
-                edge_key_for_edge(edge) for edge in (replay.resolved_graph or replay.graph).edges
+                edge_key_for_edge(edge)
+                for edge in (replay.graph_for_analysis() or replay.graph).edges
             }
             overlaps.append(_edge_jaccard(base_edges, replay_edges))
         if overlaps:

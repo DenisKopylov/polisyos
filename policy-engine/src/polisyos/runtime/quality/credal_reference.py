@@ -13,15 +13,17 @@ import importlib
 import importlib.metadata
 import json
 from collections import Counter, defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
-from datetime import date
+from datetime import UTC, date, datetime
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import SkgCausalPriorRef, gy_content_hash
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     _production_composed_world_model_record,
@@ -39,12 +41,14 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.data_forge.read_api import academic
+    from polisyos.data_forge.read_api.academic import (
+        PreparedSKGCredalSourceRows,
+        PreparedSKGRead,
+    )
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v2"
-GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION = (
-    "policyos.runtime.grounding_backend_availability.v1"
-)
+GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION = "policyos.runtime.grounding_backend_availability.v1"
 DEFAULT_REFERENCE_AS_OF = "2026-06-29"
 DEFAULT_DATA_FORGE_CATALOG_PATH = (
     "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
@@ -247,6 +251,127 @@ class AdmissibleCompletion:
         }
 
 
+def _credal_reference_source_profile_content_hash(payload: Mapping[str, Any]) -> str:
+    """Hash source identity while keeping transaction time as separate provenance.
+
+    The read timestamp remains in the profile payload and is validated as UTC, but
+    an otherwise identical source read must not create a new causal K_ref epoch.
+    Source bytes, selected version, query/schema, and status semantics remain bound.
+    """
+    semantic_payload = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"content_hash", "source_read_prepared_at_utc"}
+    }
+    return gy_content_hash(semantic_payload)
+
+
+class CredalReferenceSourceProfile(BaseModel):
+    """Candidate-only byte profile for the WMR-selected Academic SKG read."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["runtime.quality.credal_reference_skg_source_profile.v1"] = (
+        "runtime.quality.credal_reference_skg_source_profile.v1"
+    )
+    selection_owner: Literal[
+        "world_model_record.skg_causal_prior_ref",
+        "legacy.default_l2_source",
+    ]
+    world_model_record_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    skg_causal_prior_ref: SkgCausalPriorRef | None = None
+    source_snapshot_ref: str = Field(min_length=1)
+    source_snapshot_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_binding_schema_version: str = Field(min_length=1)
+    query_version: str = Field(min_length=1)
+    source_read_prepared_at_utc: str = Field(min_length=20)
+    authority_band: Literal["candidate"] = "candidate"
+    source_snapshot_authenticity: Literal["not_established"] = "not_established"
+    currentness_status: Literal["not_established"] = "not_established"
+    time_semantics: Literal["read_transaction_opened_at"] = "read_transaction_opened_at"
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_source_selection(self) -> CredalReferenceSourceProfile:
+        if self.selection_owner == "world_model_record.skg_causal_prior_ref":
+            if self.skg_causal_prior_ref is None or self.world_model_record_content_hash is None:
+                raise ValueError("credal_reference_skg_wmr_selector_missing")
+        elif (
+            self.skg_causal_prior_ref is not None
+            or self.world_model_record_content_hash is not None
+        ):
+            raise ValueError("credal_reference_skg_legacy_selector_mismatch")
+        try:
+            prepared_at = datetime.fromisoformat(
+                self.source_read_prepared_at_utc.replace("Z", "+00:00")
+            )
+        except ValueError as exc:
+            raise ValueError("credal_reference_skg_source_read_time_invalid") from exc
+        if (
+            prepared_at.tzinfo is None
+            or prepared_at.utcoffset() != UTC.utcoffset(prepared_at)
+            or not self.source_read_prepared_at_utc.endswith("Z")
+        ):
+            raise ValueError("credal_reference_skg_source_read_time_unqualified")
+        expected = _credal_reference_source_profile_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        )
+        if self.content_hash != expected:
+            raise ValueError("credal_reference_skg_source_profile_hash_mismatch")
+        return self
+
+
+def credal_reference_l2_source_profile(
+    reference: CredalReference,
+) -> CredalReferenceSourceProfile | None:
+    """Resolve the unique selected-source profile carried by a K_ref snapshot.
+
+    Historical references without the profile remain readable. A newly profiled
+    reference must carry the same complete profile on every SKG-owned L2 edge.
+    Independent Data Forge alignment edges retain their own provenance, while
+    the K_ref component binding must equal the selected profile content hash.
+    """
+
+    expected_hash = reference.component_versions.get("L2_SOURCE_PROFILE")
+    edges = tuple(reference.essential_edges.values())
+    l2_edges = tuple(edge for edge in edges if edge.modality.startswith("L2_"))
+    selected_source_edges = tuple(edge for edge in l2_edges if edge.provenance.get("owner") == "L2")
+    profile_edges = tuple(
+        edge for edge in edges if edge.provenance.get("selected_source_profile") is not None
+    )
+    if expected_hash is None:
+        if profile_edges:
+            raise ValueError("credal_reference_skg_source_profile_component_missing")
+        return None
+    if (
+        not selected_source_edges
+        or len(profile_edges) != len(selected_source_edges)
+        or {edge.key for edge in profile_edges} != {edge.key for edge in selected_source_edges}
+    ):
+        raise ValueError("credal_reference_skg_source_profile_denominator_mismatch")
+    profiles = tuple(
+        CredalReferenceSourceProfile.model_validate(edge.provenance["selected_source_profile"])
+        for edge in selected_source_edges
+    )
+    if any(profile.content_hash != expected_hash for profile in profiles):
+        raise ValueError("credal_reference_skg_source_profile_denominator_mismatch")
+    unique_profiles = {profile.content_hash: profile for profile in profiles}
+    if len(unique_profiles) != 1:
+        raise ValueError("credal_reference_skg_source_profile_denominator_mismatch")
+    return unique_profiles[expected_hash]
+
+
+@dataclass(frozen=True)
+class _PreparedL2Source:
+    """One WMR-selected source and its owner-held, read-only transaction."""
+
+    prepared_read: PreparedSKGRead
+    profile: CredalReferenceSourceProfile
+    version: str
+
+
 @dataclass(frozen=True)
 class CredalReferenceEdge:
     """Statused, content-addressed grounding edge in the credal reference."""
@@ -273,25 +398,33 @@ class CredalReferenceEdge:
         return len(self.admissible_completions) > 1
 
     def with_content_hash(self) -> CredalReferenceEdge:
-        """Return the same edge with its deterministic content hash populated."""
+        """Return the same edge with a stable semantic content hash populated."""
 
-        return replace(self, content_hash=gy_content_hash(self._hash_payload()))
+        return replace(
+            self,
+            content_hash=gy_content_hash(self._hash_payload(semantic_content=True)),
+        )
 
     def to_payload(self) -> dict[str, Any]:
-        """Return a stable payload for contract surfaces and hashing."""
+        """Return the full payload, including transaction-time provenance."""
 
         payload = self._hash_payload()
         payload["content_hash"] = self.content_hash
         return payload
 
-    def _hash_payload(self) -> dict[str, Any]:
+    def _hash_payload(self, *, semantic_content: bool = False) -> dict[str, Any]:
+        provenance = _json_ready(self.provenance)
+        if semantic_content and isinstance(provenance, dict):
+            selected_profile = provenance.get("selected_source_profile")
+            if isinstance(selected_profile, dict):
+                selected_profile.pop("source_read_prepared_at_utc", None)
         return {
             "admissible_completions": [
                 completion.to_payload() for completion in self.admissible_completions
             ],
             "edge_id": self.edge_id,
             "modality": self.modality,
-            "provenance": _json_ready(self.provenance),
+            "provenance": provenance,
             "scale": self.scale,
             "status": self.status,
             "unit": self.unit,
@@ -437,8 +570,15 @@ def build_credal_reference(
     root = repo_root.resolve()
     world_record = world_model_record or _production_world_model_record(root.as_posix())
     edge_index: dict[EdgeKey, CredalReferenceEdge] = {}
-    for edge in _iter_l2_edges(root):
-        edge_index[edge.key] = edge
+    with _prepared_l2_source(root, world_record) as selected_l2:
+        if selected_l2 is not None:
+            selected_l2_edges = tuple(_iter_selected_l2_edges(root, selected_l2))
+            if not selected_l2_edges:
+                raise ValueError("credal_reference_selected_l2_source_empty")
+            edge_index.update({edge.key: edge for edge in selected_l2_edges})
+            l2_source_profile_hash = selected_l2.profile.content_hash
+        else:
+            l2_source_profile_hash = None
     for edge in _iter_l3_edges(root, as_of=as_of):
         edge_index[edge.key] = edge
     for edge in _iter_l6_edges(root, world_model_record=world_record):
@@ -446,7 +586,11 @@ def build_credal_reference(
     for edge in _iter_wmr_edges(world_record):
         edge_index[edge.key] = edge
 
-    component_versions = _component_versions(edge_index, world_model_record=world_record)
+    component_versions = _component_versions(
+        edge_index,
+        world_model_record=world_record,
+        l2_source_profile_hash=l2_source_profile_hash,
+    )
     reference_hash = _reference_hash(
         component_versions=component_versions,
         edge_index=edge_index,
@@ -510,9 +654,11 @@ def reference_certificate_staleness(
         reasons.append("reference_hash_changed")
     for key_text, old_hash in sorted(certificate.edge_scope_hashes.items()):
         edge = current_reference.essential_edges.get(_normalize_edge_key(key_text))
-        new_hash = edge.content_hash if edge else out_of_scope_edge(
-            _normalize_edge_key(key_text)
-        ).content_hash
+        new_hash = (
+            edge.content_hash
+            if edge
+            else out_of_scope_edge(_normalize_edge_key(key_text)).content_hash
+        )
         if new_hash != old_hash:
             stale_edges.append(key_text)
     if stale_edges:
@@ -535,6 +681,7 @@ def replace_reference_edge(
     component_versions = _component_versions(
         updated,
         world_model_record_hash=reference.component_versions["WMR"],
+        l2_source_profile_hash=reference.component_versions.get("L2_SOURCE_PROFILE"),
     )
     reference_hash = _reference_hash(
         component_versions=component_versions,
@@ -729,8 +876,7 @@ def build_grounding_backend_availability() -> GroundingBackendAvailability:
         "status": "deferred",
         "reason": "no local model; gateway /embeddings untested",
         "inclusion_criterion": (
-            "enable when CG1 first-pass FTS+alignment recall leaves a measured "
-            "semantic-analog tail"
+            "enable when CG1 first-pass FTS+alignment recall leaves a measured semantic-analog tail"
         ),
     }
     fields = {
@@ -781,152 +927,242 @@ def edge_payload_sample(
     return samples
 
 
-def _iter_l2_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
-    """Carry the complete source snapshot's synthetic ancestry into every L2 view."""
-    db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
-    if not db_path.is_file():
-        return
-    with duckdb.connect(str(db_path), read_only=True) as con:
-        present = con.execute(
-            "SELECT 1 FROM information_schema.columns WHERE table_name = 'ac_causal_claims_raw' "
-            "AND column_name = 'synthetic'"
-        ).fetchone()
-        synthetic = present is not None and any(
-            value is True for (value,) in con.execute(
-                "SELECT synthetic FROM ac_causal_claims_raw"
-            ).fetchall()
-        )
-    for edge in _iter_l2_source_edges(repo_root):
-        if synthetic:
-            edge = replace(edge, provenance={**edge.provenance, "synthetic": True,
-                "synthetic_scope": "snapshot_contains_constructed_raw_support"}).with_content_hash()
-        yield edge
-
-
-def _iter_l2_source_edges(repo_root: Path) -> Iterable[CredalReferenceEdge]:
+@contextmanager
+def _prepared_l2_source(
+    repo_root: Path,
+    world_model_record: WorldModelRecord | None,
+) -> Iterator[_PreparedL2Source | None]:
+    """Bind one actual SKGQuery transaction to the WMR-selected URI and bytes."""
     from polisyos.data_forge.read_api import academic
+    from polisyos.runtime.quality.world_model_record import _parse_skg_snapshot_ref
 
-    db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
+    prior_ref: SkgCausalPriorRef | None = None
+    wmr_content_hash: str | None = None
+    if world_model_record is None:
+        db_path = repo_root / DEFAULT_L2_SCHOLAR_KG_PATH
+        selection_owner: Literal[
+            "world_model_record.skg_causal_prior_ref",
+            "legacy.default_l2_source",
+        ] = "legacy.default_l2_source"
+        parsed_ref = None
+    else:
+        from polisyos.pdc import WorldModelRecord
+
+        verified_world_record = WorldModelRecord.model_validate(
+            world_model_record.model_dump(mode="python")
+        )
+        prior_ref = verified_world_record.skg_causal_prior_ref
+        if type(prior_ref) is not SkgCausalPriorRef:
+            raise ValueError("credal_reference_skg_wmr_selector_untyped")
+        parsed_ref = _parse_skg_snapshot_ref(prior_ref.skg_snapshot_ref)
+        try:
+            declared_version = int(prior_ref.skg_version_id)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("credal_reference_skg_wmr_version_invalid") from exc
+        if parsed_ref.version_id != declared_version:
+            raise ValueError("credal_reference_skg_wmr_version_mismatch")
+        db_path = parsed_ref.db_path
+        wmr_content_hash = verified_world_record.content_hash
+        selection_owner = "world_model_record.skg_causal_prior_ref"
+
+    if not db_path.is_file():
+        if world_model_record is None:
+            yield None
+            return
+        raise FileNotFoundError("credal_reference_wmr_selected_skg_source_missing")
+
+    # Keep the existing vintage gate and then bind the same source bytes through
+    # the SKG owner. The prepared connection repeats this check against its own
+    # byte digest, so a race cannot turn a supplied historical source into default.
     academic.SKGQuery.require_forwardable_confidence(db_path)
-    con = duckdb.connect(str(db_path), read_only=True)
+    prepared = academic.SKGQuery.prepare_read(
+        db_path=db_path,
+        index_dir=db_path.parent / "index",
+    )
+    completed = False
     try:
-        version = str(con.execute("SELECT MAX(version_id) FROM ac_skg_versions").fetchone()[0])
-        variables = con.execute(
-            """
-            SELECT canonical_name, approved_canonical_name, is_approved_canonical,
-                   resolution_method, resolution_confidence, mention_count,
-                   parent_name, approved_parent_name
-            FROM ac_skg_variables
-            ORDER BY canonical_name
-            """
-        ).fetchall()
-        variable_names = {str(row[0]) for row in variables if row[0]}
-        approved_variables = {str(row[0]) for row in variables if row[0] and bool(row[2])}
-        for row in variables:
-            yield _derive_l2_variable_edge(row, version=version)
-        for row in variables:
-            parent_edge = _derive_l2_variable_hierarchy_edge(
-                row,
-                version=version,
-                variable_names=variable_names,
-                approved_variables=approved_variables,
-            )
-            if parent_edge is not None:
-                yield parent_edge
+        if not prepared.source_generation_matches():
+            raise ValueError("credal_reference_skg_source_changed_during_binding")
+        latest_version = prepared.query.latest_skg_version_id()
+        if latest_version is None:
+            raise ValueError("credal_reference_skg_version_missing")
+        if parsed_ref is not None:
+            if (
+                prepared.db_path != parsed_ref.db_path.resolve()
+                or latest_version != parsed_ref.version_id
+                or not prepared.query.has_skg_version_id(version_id=parsed_ref.version_id)
+            ):
+                raise ValueError("credal_reference_skg_wmr_selected_source_mismatch")
+            selected_ref = prepared.query.skg_snapshot_ref(version_id=parsed_ref.version_id)
+            if selected_ref != prepared.source_snapshot_ref:
+                raise ValueError("credal_reference_skg_prepared_ref_mismatch")
+        else:
+            selected_ref = prepared.source_snapshot_ref
+        if not prepared.source_generation_matches():
+            raise ValueError("credal_reference_skg_prepared_read_unbound")
+        payload = {
+            "schema_version": "runtime.quality.credal_reference_skg_source_profile.v1",
+            "selection_owner": selection_owner,
+            "world_model_record_content_hash": wmr_content_hash,
+            "skg_causal_prior_ref": (
+                prior_ref.model_dump(mode="json") if prior_ref is not None else None
+            ),
+            "source_snapshot_ref": selected_ref,
+            "source_snapshot_sha256": prepared.source_snapshot_sha256,
+            "source_binding_schema_version": prepared.source_binding_schema_version,
+            "query_version": prepared.query_version,
+            "source_read_prepared_at_utc": prepared.prepared_at.astimezone(UTC)
+            .isoformat()
+            .replace("+00:00", "Z"),
+            "authority_band": "candidate",
+            "source_snapshot_authenticity": "not_established",
+            "currentness_status": "not_established",
+            "time_semantics": "read_transaction_opened_at",
+        }
+        profile = CredalReferenceSourceProfile.model_validate(
+            {
+                **payload,
+                "content_hash": _credal_reference_source_profile_content_hash(payload),
+            }
+        )
+        yield _PreparedL2Source(
+            prepared_read=prepared,
+            profile=profile,
+            version=str(latest_version),
+        )
+        completed = True
+    finally:
+        try:
+            if completed and not prepared.source_generation_matches():
+                raise ValueError("credal_reference_skg_source_changed_during_read")
+        finally:
+            prepared.close()
 
-        for row in con.execute(
-            """
-            SELECT synonym, canonical_name, method, confidence, approved
-            FROM ac_skg_variable_synonyms
-            ORDER BY synonym, canonical_name
-            """
-        ).fetchall():
-            yield derive_variable_alignment_edge(
+
+def _iter_l2_edges(
+    repo_root: Path,
+    *,
+    world_model_record: WorldModelRecord | None = None,
+) -> Iterable[CredalReferenceEdge]:
+    """Carry selected source bytes and synthetic ancestry into the complete L2 view."""
+    root = repo_root.resolve()
+    with _prepared_l2_source(root, world_model_record) as selected:
+        if selected is None:
+            return
+        yield from _iter_selected_l2_edges(root, selected)
+
+
+def _iter_selected_l2_edges(
+    repo_root: Path,
+    selected: _PreparedL2Source,
+) -> Iterable[CredalReferenceEdge]:
+    """Derive L2 edges from typed rows returned by the selected owner transaction."""
+    rows = selected.prepared_read.read_credal_source_rows()
+    if (
+        rows.source_snapshot_ref != selected.profile.source_snapshot_ref
+        or rows.source_snapshot_sha256 != selected.profile.source_snapshot_sha256
+        or str(rows.version_id) != selected.version
+    ):
+        raise ValueError("credal_reference_skg_prepared_read_unbound")
+    synthetic = any(value is True for value in rows.synthetic_values)
+    for edge in _iter_l2_source_edges(
+        repo_root,
+        rows=rows,
+        version=selected.version,
+    ):
+        provenance = dict(edge.provenance)
+        if provenance.get("owner") == "L2":
+            provenance["selected_source_profile"] = selected.profile.model_dump(mode="json")
+        if synthetic:
+            provenance.update(
                 {
-                    "approved": row[4],
-                    "canonical_name": row[1],
-                    "confidence": row[3],
-                    "method": row[2],
-                    "synonym": row[0],
-                },
-                provenance_version=version,
+                    "synthetic": True,
+                    "synthetic_scope": "snapshot_contains_constructed_raw_support",
+                }
             )
+        yield replace(edge, provenance=provenance, content_hash="").with_content_hash()
 
-        yield from _iter_data_forge_variable_alignment_edges(
-            repo_root,
+
+def _iter_l2_source_edges(
+    repo_root: Path,
+    *,
+    rows: PreparedSKGCredalSourceRows,
+    version: str,
+) -> Iterable[CredalReferenceEdge]:
+    """Derive the complete SKG-owned K_ref denominator from its typed source rows."""
+    if str(rows.version_id) != version:
+        raise ValueError("credal_reference_skg_version_changed_during_read")
+    variables = rows.variables
+    variable_names = {str(row.canonical_name) for row in variables if row.canonical_name}
+    approved_variables = {
+        str(row.canonical_name)
+        for row in variables
+        if row.canonical_name and bool(row.is_approved_canonical)
+    }
+    for row in variables:
+        yield _derive_l2_variable_edge(row, version=version)
+    for row in variables:
+        parent_edge = _derive_l2_variable_hierarchy_edge(
+            row,
+            version=version,
+            variable_names=variable_names,
+            approved_variables=approved_variables,
+        )
+        if parent_edge is not None:
+            yield parent_edge
+
+    for row in rows.variable_synonyms:
+        yield derive_variable_alignment_edge(
+            {
+                "approved": row.approved,
+                "canonical_name": row.canonical_name,
+                "confidence": row.confidence,
+                "method": row.method,
+                "synonym": row.synonym,
+            },
+            provenance_version=version,
+        )
+
+    yield from _iter_data_forge_variable_alignment_edges(
+        repo_root,
+        variable_names=variable_names,
+    )
+
+    contested_edges, contested_claims = _l2_contested_memberships(rows.contested_edges)
+    for row in rows.causal_edges:
+        yield _derive_l2_causal_edge(
+            row,
+            version=version,
+            variable_names=variable_names,
+            approved_variables=approved_variables,
+            contested_edges=contested_edges,
+        )
+
+    for row in rows.family_edges:
+        yield _derive_l2_family_edge(
+            row,
+            version=version,
+            variable_names=variable_names,
+            contested_edges=contested_edges,
+        )
+
+    for row in rows.moderation_edges:
+        yield _derive_l2_moderation_edge(
+            row,
+            version=version,
             variable_names=variable_names,
         )
 
-        contested_edges, contested_claims = _l2_contested_memberships(con)
-        for row in con.execute(
-            """
-            SELECT edge_id, src, dst, direction, n_articles, evidence_strength,
-                   confidence, candidate_layer, quality_signals_json
-            FROM ac_skg_edges
-            ORDER BY edge_id
-            """
-        ).fetchall():
-            yield _derive_l2_causal_edge(
-                row,
-                version=version,
-                variable_names=variable_names,
-                approved_variables=approved_variables,
-                contested_edges=contested_edges,
-            )
+    for claim_result in rows.causal_claim_results:
+        yield _derive_l2_causal_claim(
+            claim_result,
+            version=version,
+            variable_names=variable_names,
+            contested_claims=contested_claims,
+        )
 
-        for row in con.execute(
-            """
-            SELECT family_edge_id, src_family, dst_family, direction, n_articles,
-                   n_claims, evidence_strength, confidence, direction_histogram_json,
-                   design_tier_histogram_json, candidate_layer, quality_signals_json
-            FROM ac_skg_family_edges
-            ORDER BY family_edge_id
-            """
-        ).fetchall():
-            yield _derive_l2_family_edge(
-                row,
-                version=version,
-                variable_names=variable_names,
-                contested_edges=contested_edges,
-            )
-
-        for row in con.execute(
-            """
-            SELECT moderation_id, base_cause, base_effect, moderator, base_claim_id,
-                   direction_of_mod, interaction_coeff, interaction_pvalue,
-                   evidence_count, confidence, match_quality, alignment_source,
-                   source_refs, skg_version
-            FROM ac_skg_moderation_edges
-            ORDER BY moderation_id
-            """
-        ).fetchall():
-            yield _derive_l2_moderation_edge(
-                row,
-                version=version,
-                variable_names=variable_names,
-            )
-
-        for claim_result in academic.iter_causal_claim_results_v2(con):
-            yield _derive_l2_causal_claim(
-                claim_result,
-                version=version,
-                variable_names=variable_names,
-                contested_claims=contested_claims,
-            )
-
-        for row in con.execute(
-            """
-            SELECT contested_edge_id, src_family, dst_family, dominant_direction,
-                   resolution_status, runtime_support, confidence, positive_weight,
-                   negative_weight, mixed_weight, direction_histogram_json,
-                   quality_signals_json
-            FROM ac_skg_contested_edges
-            ORDER BY contested_edge_id
-            """
-        ).fetchall():
-            yield _derive_l2_contested_edge(row, version=version)
-    finally:
-        con.close()
+    for row in rows.contested_edges:
+        yield _derive_l2_contested_edge(row[:12], version=version)
 
 
 def _derive_l2_variable_edge(row: Sequence[Any], *, version: str) -> CredalReferenceEdge:
@@ -1040,11 +1276,7 @@ def _derive_l2_variable_hierarchy_edge(
             _incomplete_completions("variable_hierarchy_parent_not_in_l2"),
             provenance,
         )
-    if (
-        child in approved_variables
-        and target_parent in approved_variables
-        and confidence >= 0.65
-    ):
+    if child in approved_variables and target_parent in approved_variables and confidence >= 0.65:
         return _confirmed_edge("L2_VARIABLE_HIERARCHY", edge_id, value, provenance)
     if child_approved or approved_parent or confidence >= 0.4:
         return _edge(
@@ -1585,26 +1817,20 @@ def _derive_l2_contested_edge(row: Sequence[Any], *, version: str) -> CredalRefe
 
 
 def _l2_contested_memberships(
-    con: duckdb.DuckDBPyConnection,
+    contested_rows: Sequence[Any],
 ) -> tuple[dict[str, Mapping[str, Any]], set[str]]:
     edge_membership: dict[str, Mapping[str, Any]] = {}
     claim_membership: set[str] = set()
-    for row in con.execute(
-        """
-        SELECT contested_edge_id, claim_refs, direction_histogram_json,
-               quality_signals_json
-        FROM ac_skg_contested_edges
-        """
-    ).fetchall():
-        contested_id = str(row[0] or "")
-        for claim_id in _json_list(row[1]):
+    for row in contested_rows:
+        contested_id = str(row.contested_edge_id or "")
+        for claim_id in _json_list(row.claim_refs):
             claim_membership.add(str(claim_id))
-        quality = _json_object(row[3])
+        quality = _json_object(row.quality_signals_json)
         for field_name in ("exact_edge_ids", "family_edge_ids"):
             for edge_id in _json_list(quality.get(field_name)):
                 edge_membership[str(edge_id)] = {
                     "contested_edge_id": contested_id,
-                    "direction_histogram_json": row[2],
+                    "direction_histogram_json": row.direction_histogram_json,
                     "quality_signals": quality,
                 }
     return edge_membership, claim_membership
@@ -1756,9 +1982,7 @@ def _derive_l3_threshold_edge(
         next_start is not None and as_of_date >= next_start
     ):
         status = "deprecated"
-        completions = (
-            AdmissibleCompletion("excluded", value, "threshold_superseded_or_expired"),
-        )
+        completions = (AdmissibleCompletion("excluded", value, "threshold_superseded_or_expired"),)
     elif str(temporal_resolution_status or "").casefold() == "partial":
         status = "contested"
         completions = (
@@ -2141,22 +2365,27 @@ def _iter_l6_edges(
                 resolutions.append({"knob_id": knob_id, "status": "blocked", "reason": reason})
             else:
                 reason = resolved.mapping_reason_code
-                mapping_value.update(provision_ref=resolved.provision_ref,
-                                     threshold_id=resolved.threshold_id)
+                mapping_value.update(
+                    provision_ref=resolved.provision_ref, threshold_id=resolved.threshold_id
+                )
                 resolutions.append(resolved.model_dump(mode="json"))
             # Preserve every declared association, including unresolved ones. Empty
             # completions erase the dependency before the existing CG1 status gate.
             completions.append(AdmissibleCompletion("may_exist", mapping_value, reason))
-        completions.append(AdmissibleCompletion("may_not_exist", {},
-                                               "law_mapping_correspondence_not_established"))
+        completions.append(
+            AdmissibleCompletion("may_not_exist", {}, "law_mapping_correspondence_not_established")
+        )
         yield _edge(
             "L6_LEX_INTERVENTION_MAP",
             str(law_token),
             "incomplete",
             completions,
-            {**provenance, "mapping_resolutions": resolutions,
-             "mapping_predicate_provenance": "consumer_asserted",
-             "mapping_reason_code": "law_mapping_correspondence_not_established"},
+            {
+                **provenance,
+                "mapping_resolutions": resolutions,
+                "mapping_predicate_provenance": "consumer_asserted",
+                "mapping_reason_code": "law_mapping_correspondence_not_established",
+            },
         )
 
     for route in _mapping_list(bundle.observation_manifest.get("routes")):
@@ -2227,9 +2456,7 @@ def _iter_wmr_edges(world_model_record: WorldModelRecord) -> Iterable[CredalRefe
             "world_model_record_id": world_model_record.world_model_record_id,
         }
         status: CredalReferenceStatus = (
-            "confirmed"
-            if slot.slot_id and slot.state_path and slot.entity_scope
-            else "incomplete"
+            "confirmed" if slot.slot_id and slot.state_path and slot.entity_scope else "incomplete"
         )
         completions = (
             (AdmissibleCompletion("fixed", value, "world_slot_present_in_wmr"),)
@@ -2257,18 +2484,20 @@ def _component_versions(
     *,
     world_model_record: WorldModelRecord | None = None,
     world_model_record_hash: str | None = None,
+    l2_source_profile_hash: str | None = None,
 ) -> dict[str, str]:
     by_component: dict[str, list[str]] = defaultdict(list)
     for edge in edge_index.values():
         by_component[_component_for_modality(edge.modality)].append(edge.content_hash)
     component_versions = {
-        component: _hash_sequence(hashes)
-        for component, hashes in sorted(by_component.items())
+        component: _hash_sequence(hashes) for component, hashes in sorted(by_component.items())
     }
     if world_model_record is not None:
         component_versions["WMR"] = world_model_record.content_hash
     elif world_model_record_hash is not None:
         component_versions["WMR"] = world_model_record_hash
+    if l2_source_profile_hash is not None:
+        component_versions["L2_SOURCE_PROFILE"] = l2_source_profile_hash
     return component_versions
 
 

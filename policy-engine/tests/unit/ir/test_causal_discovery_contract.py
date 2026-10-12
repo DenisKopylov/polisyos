@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicCalibrationMode,
@@ -29,7 +31,16 @@ from polisyos.ir.analytics.causal_discovery import (
     load_causal_discovery_report,
     persist_causal_discovery_report,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    EdgeMark,
+    GraphProjectionStatus,
+    GraphType,
+    graph_for_analysis,
+    graph_projection_disposition,
+    project_graph_to_dag,
+)
 from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.registry.refs import ArtifactRefModel, CausalDiscoveryReportRef
 
@@ -38,25 +49,112 @@ def _minimal_report() -> CausalDiscoveryReport:
     graph = CausalGraphModel(
         graph_type=GraphType.PAG,
         nodes=["X", "Y"],
-        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE, mark_dst=EdgeMark.ARROW)],
+        edges=[
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            )
+        ],
         discovery_method="fci",
     )
-    resolved_graph = CausalGraphModel(
-        graph_type=GraphType.DAG,
-        nodes=["X", "Y"],
-        edges=[CausalEdge(src="X", dst="Y")],
-        discovery_method="fci",
+    from polisyos.foundry.methods.catalog.causal._graph_projection import (
+        pag_to_dag_projection,
+    )
+    from polisyos.ir.analytics.causal_graph import (
+        GraphProjectionStatus,
+        graph_projection_disposition,
+    )
+
+    resolved_graph, _ = pag_to_dag_projection(graph)
+    disposition = graph_projection_disposition(
+        graph,
+        resolved_graph,
+        status=GraphProjectionStatus.PROJECTED,
     )
     return CausalDiscoveryReport(
         method="fci",
         graph=graph,
         resolved_graph=resolved_graph,
+        projection_disposition=disposition,
         bootstrap_stability={"X->Y@lag=1": 0.92},
         n_bootstrap=100,
         significance_level=0.05,
         computation_time_seconds=12.4,
         warnings=[],
     )
+
+
+def test_historical_graph_receipt_adapter_replays_or_refuses_without_losing_source(
+) -> None:
+    source = CausalGraphModel(
+        graph_type=GraphType.CPDAG,
+        nodes=["X", "Y", "Z"],
+        edges=[
+            CausalEdge(src="X", dst="Y"),
+            CausalEdge(src="Y", dst="Z"),
+        ],
+        discovery_method="pc",
+    )
+    resolved, _ = project_graph_to_dag(source)
+    verified = CausalDiscoveryReport.model_validate(
+        {
+            "schema_version": "1.0",
+            "method": "pc",
+            "graph": source.model_dump(mode="json"),
+            "resolved_graph": resolved.model_dump(mode="json"),
+        }
+    )
+    assert verified.schema_version == "1.1"
+    assert verified.projection_disposition.status is GraphProjectionStatus.PROJECTED
+    assert verified.graph is not None
+    assert verified.graph_for_analysis() == resolved
+
+    unresolved = source.model_copy(
+        update={
+            "edges": [
+                CausalEdge(
+                    src="X",
+                    dst="Y",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.TAIL,
+                )
+            ]
+        }
+    )
+    refused = CausalDiscoveryReport.model_validate(
+        {
+            "schema_version": "1.0",
+            "method": "pc",
+            "graph": unresolved.model_dump(mode="json"),
+        }
+    )
+    assert refused.projection_disposition.status is GraphProjectionStatus.UNSUPPORTED
+    assert (
+        refused.projection_disposition.reason_code
+        == "historical_projection_disposition_not_recorded"
+    )
+    assert refused.graph.graph_type is GraphType.CPDAG
+    assert refused.graph_for_analysis() is None
+
+
+def test_explicit_null_partial_graph_disposition_is_invalid_not_legacy_absence(
+) -> None:
+    source = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE)],
+    )
+    with pytest.raises(ValueError):
+        CausalDiscoveryReport.model_validate(
+            {
+                "schema_version": "1.1",
+                "method": "fci",
+                "graph": source.model_dump(mode="json"),
+                "projection_disposition": None,
+            }
+        )
 
 
 def _report_with_algebraic_constraints() -> CausalDiscoveryReport:
@@ -384,3 +482,101 @@ def test_causal_discovery_report_roundtrips_promoted_latent_governance_bundle(
         "linear_nongaussian",
         "metric_invariant",
     ]
+
+
+def test_mutated_identity_disposition_and_malformed_dag_fail_shared_admission() -> None:
+    source = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    refusal = graph_projection_disposition(
+        source,
+        None,
+        status=GraphProjectionStatus.UNSUPPORTED,
+        reason_code="partial_graph_profile_not_admitted",
+    )
+    forged_identity = refusal.model_copy(
+        update={"status": GraphProjectionStatus.IDENTITY}
+    )
+    with pytest.raises(ValueError):
+        graph_for_analysis(source, None, forged_identity)
+
+    report = CausalDiscoveryReport(
+        method="fci",
+        graph=source,
+        projection_disposition=refusal,
+    )
+    copied_report = report.model_copy(
+        update={"projection_disposition": forged_identity}
+    )
+    with pytest.raises(ValueError):
+        copied_report.graph_for_analysis()
+
+    dag = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    malformed_dag = dag.model_copy(
+        update={
+            "edges": [
+                CausalEdge(
+                    src="X",
+                    dst="Y",
+                    mark_src=EdgeMark.CIRCLE,
+                    mark_dst=EdgeMark.ARROW,
+                )
+            ]
+        }
+    )
+    with pytest.raises(ValueError):
+        graph_for_analysis(malformed_dag, None, None)
+
+
+def test_current_report_schema_cannot_use_historical_absence_adapter() -> None:
+    source = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    with pytest.raises(ValueError, match="projection_disposition"):
+        CausalDiscoveryReport.model_validate(
+            {
+                "schema_version": "1.1",
+                "method": "pc",
+                "graph": source.model_dump(mode="json"),
+            }
+        )
+
+
+def test_unversioned_report_uses_the_bounded_legacy_absence_adapter() -> None:
+    source = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    legacy = CausalDiscoveryReport.model_validate(
+        {"method": "pc", "graph": source.model_dump(mode="json")}
+    )
+
+    assert legacy.schema_version == "1.1"
+    assert legacy.projection_disposition.status is GraphProjectionStatus.IDENTITY
+    admitted = legacy.graph_for_analysis()
+    assert admitted is not None
+    assert admitted == source
+    assert admitted is not source
+    object.__setattr__(
+        source,
+        "edges",
+        [
+            CausalEdge(
+                src="X",
+                dst="Y",
+                mark_src=EdgeMark.CIRCLE,
+                mark_dst=EdgeMark.CIRCLE,
+            )
+        ],
+    )
+    assert admitted.edges[0].mark_src is EdgeMark.TAIL
+    assert admitted.edges[0].mark_dst is EdgeMark.ARROW

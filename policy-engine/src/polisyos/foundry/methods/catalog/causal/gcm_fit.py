@@ -22,7 +22,13 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal._graph_projection import pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    GraphProjectionStatus,
+    GraphType,
+    graph_content_sha256,
+    graph_projection_disposition,
+)
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     MechanismSource,
@@ -431,7 +437,7 @@ def _gcm_spec_from_worker(
         resample_indices=resample_indices,
     )
     return StructuralCausalModelSpec(
-        schema_version="1.1",
+        schema_version="1.2",
         graph=graph,
         mechanisms=mechanisms,
         fitted=True,
@@ -441,6 +447,13 @@ def _gcm_spec_from_worker(
         fit_metrics={"dowhy_available": 1.0, "n_nodes": float(len(graph.nodes))},
         mechanism_source_summary={"data_fitted": len(mechanisms)},
         skg_snapshot_ref=payload.skg_snapshot_ref,
+        source_graph=graph,
+        source_graph_ref=payload.graph_ref,
+        graph_projection=graph_projection_disposition(
+            graph,
+            graph,
+            status=GraphProjectionStatus.IDENTITY,
+        ),
     )
 
 
@@ -500,7 +513,7 @@ def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any)
         scm_spec: The model freshly decoded from its CAS artifact.
         store: The enclosing Scientist job's existing authorized artifact store.
     """
-    if scm_spec.schema_version != "1.1" or scm_spec.fit_method != "gcm":
+    if scm_spec.schema_version not in {"1.1", "1.2"} or scm_spec.fit_method != "gcm":
         return  # Historical/manual research models make no new backend assertion.
     from polisyos.core import artifacts
     from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
@@ -605,6 +618,7 @@ class HybridSCMFit:
             if isinstance(payload.graph, CausalGraphModel)
             else CausalGraphModel.model_validate(payload.graph)
         )
+        graph_content_sha256(graph)
         if any(edge.lag not in (None, 0) for edge in graph.edges):
             raise ValueError(
                 "gcm_fit is a static consumer; temporal edges require a temporal "
@@ -629,8 +643,10 @@ class HybridSCMFit:
 
         projected_graph = graph
         latent_vars: list[str] = []
+        projection_status = GraphProjectionStatus.IDENTITY
         if graph.graph_type is not GraphType.DAG:
             projected_graph, latent_vars = pag_to_dag_projection(graph)
+            projection_status = GraphProjectionStatus.PROJECTED
 
         dowhy_available = 0.0
 
@@ -780,6 +796,13 @@ class HybridSCMFit:
         fit_method = "native_hybrid"
         scm_spec = StructuralCausalModelSpec(
             graph=projected_graph,
+            source_graph=graph,
+            source_graph_ref=payload.graph_ref,
+            graph_projection=graph_projection_disposition(
+                graph,
+                projected_graph,
+                status=projection_status,
+            ),
             mechanisms=mechanisms,
             fitted=True,
             fit_method=fit_method,

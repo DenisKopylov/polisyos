@@ -1,10 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
 import { useSuspenseGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { useSuspenseRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
+import {
+  useCreateRunPredictiveCalibration,
+  useRunPredictiveCalibration,
+} from "@/api/hooks/useRunPredictiveCalibration";
+import type { components } from "@/api/types";
+import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
@@ -952,6 +958,635 @@ function GenericCycleSimulationPanel({
   );
 }
 
+type RunArtifactRef = components["schemas"]["ArtifactRef-Output"];
+type PredictiveCalibrationRequest =
+  components["schemas"]["PredictiveCalibrationRequest"];
+type RunDetailsPayload = components["schemas"]["RunDetails"];
+
+function fullRunArtifactRefKey(ref: RunArtifactRef): string {
+  return JSON.stringify([
+    ref.artifact_id,
+    ref.kind,
+    ref.media_type,
+    ref.manifest_profile_sha256 ?? null,
+  ]);
+}
+
+function selectedValueRef(
+  options: RunArtifactRef[],
+  key: string,
+): RunArtifactRef | undefined {
+  return options.find((ref) => fullRunArtifactRefKey(ref) === key);
+}
+
+function PredictiveCalibrationPanel({
+  runId,
+  run,
+}: {
+  runId: string;
+  run: RunDetailsPayload;
+}) {
+  const { t } = useI18n();
+  const query = useRunPredictiveCalibration(runId);
+  const mutation = useCreateRunPredictiveCalibration(runId);
+  const canCreate = usePermission("runs.feedback.evaluate");
+  const [lastIntent, setLastIntent] =
+    useState<PredictiveCalibrationRequest | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const candidateSourceRefs = (run.candidate_simulation?.n5_observations ?? [])
+    .filter(
+      (observation) =>
+        observation.status === "joint_simulated" &&
+        observation.lineage_status === "resolved" &&
+        observation.n4_source_ref?.kind ===
+          "runtime.quality.n4_candidate_scenario_source" &&
+        Boolean(observation.n4_source_ref.manifest_profile_sha256),
+    )
+    .map((observation) => observation.n4_source_ref as RunArtifactRef);
+  const rootInputs = (run.root_input_artifacts ?? []).filter((ref) =>
+    Boolean(ref.manifest_profile_sha256),
+  );
+  const rootArtifacts = [...(run.root_artifacts ?? []), ...rootInputs].filter(
+    (ref) => Boolean(ref.manifest_profile_sha256),
+  );
+  const observedSourceRefs = rootInputs.filter(
+    (ref) => ref.kind === "fabric.data_snapshot",
+  );
+  const modelSpecRefs = rootArtifacts.filter(
+    (ref) => ref.kind === "ir.model_spec",
+  );
+  const policySpecRefs = rootArtifacts.filter(
+    (ref) => ref.kind === "ir.policy_spec",
+  );
+  const calibrationRuleRefs = rootArtifacts.filter(
+    (ref) => ref.kind === "ir.forecast_calibration_rule",
+  );
+  const queryUnresolved = query.isPending;
+  const noSavedAssociation = Boolean(
+    query.error && isRuntimeApiNotFound(query.error),
+  );
+  const queryRefused = Boolean(query.error && !noSavedAssociation);
+  const canOfferForm = canCreate && !queryRefused;
+
+  const submit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError(null);
+    const form = new FormData(event.currentTarget);
+    const candidateSourceRef = selectedValueRef(
+      candidateSourceRefs,
+      String(form.get("candidate_source_ref") ?? ""),
+    );
+    const observedSourceRef = selectedValueRef(
+      observedSourceRefs,
+      String(form.get("observed_source_ref") ?? ""),
+    );
+    const modelSpecRef = selectedValueRef(
+      modelSpecRefs,
+      String(form.get("model_spec_ref") ?? ""),
+    );
+    const policySpecRef = selectedValueRef(
+      policySpecRefs,
+      String(form.get("policy_spec_ref") ?? ""),
+    );
+    const calibrationRuleRef = selectedValueRef(
+      calibrationRuleRefs,
+      String(form.get("calibration_rule_ref") ?? ""),
+    );
+    const textValue = (name: string) => String(form.get(name) ?? "").trim();
+    const integerValue = (name: string): number | null => {
+      const raw = textValue(name);
+      if (!raw) return null;
+      const value = Number(raw);
+      return Number.isSafeInteger(value) && value >= 0 ? value : null;
+    };
+    const decimalValue = (name: string): number | null => {
+      const raw = textValue(name);
+      if (!raw) return null;
+      const value = Number(raw);
+      return Number.isFinite(value) ? value : null;
+    };
+    const timeValue = (name: string): string | null => {
+      const value = textValue(name);
+      if (!value) return null;
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.valueOf()) ? null : parsed.toISOString();
+    };
+    const split = {
+      train_start: integerValue("train_start"),
+      train_end: integerValue("train_end"),
+      holdout_start: integerValue("holdout_start"),
+      holdout_end: integerValue("holdout_end"),
+      horizon: integerValue("horizon"),
+    };
+    const methodAlpha = decimalValue("alpha");
+    const methodBeta = decimalValue("beta");
+    const threshold = decimalValue("calibration_threshold");
+    const seed = integerValue("seed");
+    const temporalRoles = {
+      data_valid_time: timeValue("data_valid_time"),
+      calibration_window_start: timeValue("calibration_window_start"),
+      calibration_window_end: timeValue("calibration_window_end"),
+      policy_effective_time: timeValue("policy_effective_time"),
+      prediction_time: timeValue("prediction_time"),
+      observation_time: timeValue("observation_time"),
+    };
+    const splitValues = Object.values(split);
+    const splitIsValid =
+      splitValues.every((value) => value !== null) &&
+      split.train_start! < split.train_end! &&
+      split.holdout_start === split.train_end &&
+      split.holdout_start! < split.holdout_end! &&
+      split.horizon === split.holdout_end! - split.holdout_start!;
+    const roleValues = Object.values(temporalRoles);
+    const rolesAreValid =
+      roleValues.every((value) => value !== null) &&
+      new Set(roleValues).size === roleValues.length &&
+      temporalRoles.data_valid_time! <
+        temporalRoles.calibration_window_start! &&
+      temporalRoles.calibration_window_start! <
+        temporalRoles.calibration_window_end! &&
+      temporalRoles.calibration_window_end! <= temporalRoles.prediction_time! &&
+      temporalRoles.prediction_time! < temporalRoles.observation_time! &&
+      temporalRoles.policy_effective_time! <= temporalRoles.prediction_time!;
+    if (
+      !candidateSourceRef ||
+      !observedSourceRef ||
+      !modelSpecRef ||
+      !policySpecRef ||
+      !calibrationRuleRef ||
+      threshold === null ||
+      threshold <= 0 ||
+      threshold > 1 ||
+      !splitIsValid ||
+      methodAlpha === null ||
+      methodAlpha <= 0 ||
+      methodAlpha > 1 ||
+      methodBeta === null ||
+      methodBeta <= 0 ||
+      methodBeta > 1 ||
+      seed === null ||
+      !rolesAreValid ||
+      !textValue("target_metric")
+    ) {
+      setFormError(t("pages.runs.predictiveCalibration.formIncomplete"));
+      return;
+    }
+    const intentId = globalThis.crypto.randomUUID();
+    const request: PredictiveCalibrationRequest = {
+      intent_id: intentId,
+      candidate_source_ref: candidateSourceRef,
+      observed_source_ref: observedSourceRef,
+      model_spec_ref: modelSpecRef,
+      policy_spec_ref: policySpecRef,
+      calibration_rule_ref: calibrationRuleRef,
+      calibration_threshold: threshold,
+      split: {
+        train_start: split.train_start!,
+        train_end: split.train_end!,
+        holdout_start: split.holdout_start!,
+        holdout_end: split.holdout_end!,
+        horizon: split.horizon!,
+      },
+      target_metric: textValue("target_metric"),
+      method_params: {
+        horizon: split.horizon!,
+        alpha: methodAlpha,
+        beta: methodBeta,
+      },
+      temporal_roles: {
+        data_valid_time: temporalRoles.data_valid_time!,
+        calibration_window_start: temporalRoles.calibration_window_start!,
+        calibration_window_end: temporalRoles.calibration_window_end!,
+        policy_effective_time: temporalRoles.policy_effective_time!,
+        prediction_time: temporalRoles.prediction_time!,
+        observation_time: temporalRoles.observation_time!,
+      },
+      seed,
+    };
+    setLastIntent(request);
+    mutation.mutate(request);
+  };
+
+  const retrySameIntent = () => {
+    if (lastIntent && mutation.isError && !mutation.isPending) {
+      mutation.mutate(lastIntent);
+    }
+  };
+
+  const { association } = query.data ?? {};
+  return (
+    <Card className="space-y-4" data-testid="overview-predictive-calibration">
+      <div>
+        <p className="eyebrow">
+          {t("pages.runs.predictiveCalibration.eyebrow")}
+        </p>
+        <h4>{t("pages.runs.predictiveCalibration.title")}</h4>
+        <p className="text-muted text-sm">
+          {t("pages.runs.predictiveCalibration.authority")}
+        </p>
+      </div>
+      {queryUnresolved ? (
+        <p role="status">{t("pages.runs.predictiveCalibration.loading")}</p>
+      ) : null}
+      {queryRefused ? (
+        <p role="alert" data-testid="overview-predictive-calibration-refused">
+          {t("pages.runs.predictiveCalibration.unavailable")}
+        </p>
+      ) : null}
+      {association ? (
+        <>
+          <div className="grid gap-3 md:grid-cols-2">
+            <MetricCard
+              label={t("pages.runs.predictiveCalibration.observedCoverage")}
+              value={t("pages.runs.predictiveCalibration.coverageCount", {
+                numerator: formatNumber(association.observed_numerator),
+                denominator: formatNumber(association.observed_denominator),
+              })}
+            />
+            <MetricCard
+              label={t("pages.runs.predictiveCalibration.s10Status")}
+              value={association.s10.calibration_status}
+            />
+          </div>
+          <dl className="grid gap-2 text-sm md:grid-cols-2">
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.assessment")}
+              </dt>
+              <dd>{association.assessment}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.authorityScope")}
+              </dt>
+              <dd>{association.authority_scope}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.observedRate")}
+              </dt>
+              <dd>{formatPercent(association.observed_hit_rate)}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.forecastTier")}
+              </dt>
+              <dd>{association.s10.forecast_tier}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.issuerStatus")}
+              </dt>
+              <dd>{association.issuer_status}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.sourceTimeStatus")}
+              </dt>
+              <dd>{association.source_time_status}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.populationStatus")}
+              </dt>
+              <dd>{association.population_scope_status}</dd>
+            </div>
+            <div>
+              <dt className="text-muted">
+                {t("pages.runs.predictiveCalibration.counterfactualStatus")}
+              </dt>
+              <dd>{association.counterfactual_credibility_status}</dd>
+            </div>
+          </dl>
+          <p className="text-muted text-xs break-all">
+            {t("pages.runs.predictiveCalibration.evidenceRef", {
+              ref: association.empirical_evidence_ref.artifact_id,
+            })}
+          </p>
+          <p className="text-muted text-xs break-all">
+            {t("pages.runs.predictiveCalibration.intent", {
+              intent: association.intent_id,
+            })}
+          </p>
+          <Link
+            to={buildArtifactHref(
+              association.uncertainty_bundle_ref.artifact_id,
+              {
+                tab: "content",
+                artifactRef: association.uncertainty_bundle_ref,
+              },
+            )}
+            data-testid="overview-predictive-uncertainty-bundle"
+            className="text-accent text-sm font-semibold underline"
+          >
+            {t("pages.runs.predictiveCalibration.uncertaintyBundle")}
+          </Link>
+        </>
+      ) : null}
+      {!canCreate ? (
+        <p
+          role="status"
+          data-testid="overview-predictive-calibration-permission"
+        >
+          {t("pages.runs.predictiveCalibration.permissionRequired")}
+        </p>
+      ) : null}
+      {canOfferForm ? (
+        <form
+          className="border-subtle space-y-3 border-t pt-4"
+          data-testid="overview-predictive-calibration-form"
+          onSubmit={submit}
+        >
+          <h5>{t("pages.runs.predictiveCalibration.formTitle")}</h5>
+          <p className="text-muted text-sm">
+            {t("pages.runs.predictiveCalibration.formBoundary")}
+          </p>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="space-y-1 text-sm">
+              <span>
+                {t("pages.runs.predictiveCalibration.candidateSource")}
+              </span>
+              <select
+                name="candidate_source_ref"
+                required
+                defaultValue=""
+                data-testid="predictive-candidate-source"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.chooseRef")}
+                </option>
+                {candidateSourceRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.kind} · {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>
+                {t("pages.runs.predictiveCalibration.observedSource")}
+              </span>
+              <select
+                name="observed_source_ref"
+                required
+                defaultValue=""
+                data-testid="predictive-observed-source"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.chooseRef")}
+                </option>
+                {observedSourceRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.kind} · {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.modelSpec")}</span>
+              <select
+                name="model_spec_ref"
+                required
+                defaultValue=""
+                data-testid="predictive-model-spec"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.chooseRef")}
+                </option>
+                {modelSpecRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.policySpec")}</span>
+              <select
+                name="policy_spec_ref"
+                required
+                defaultValue=""
+                data-testid="predictive-policy-spec"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.chooseRef")}
+                </option>
+                {policySpecRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>
+                {t("pages.runs.predictiveCalibration.calibrationRule")}
+              </span>
+              <select
+                name="calibration_rule_ref"
+                required
+                defaultValue=""
+                data-testid="predictive-calibration-rule"
+              >
+                <option value="">
+                  {t("pages.runs.predictiveCalibration.chooseRef")}
+                </option>
+                {calibrationRuleRefs.map((ref) => (
+                  <option
+                    key={fullRunArtifactRefKey(ref)}
+                    value={fullRunArtifactRefKey(ref)}
+                  >
+                    {ref.artifact_id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.targetMetric")}</span>
+              <input
+                name="target_metric"
+                required
+                maxLength={200}
+                data-testid="predictive-target-metric"
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.threshold")}</span>
+              <input
+                name="calibration_threshold"
+                type="number"
+                min="0.000001"
+                max="1"
+                step="any"
+                required
+                data-testid="predictive-threshold"
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.seed")}</span>
+              <input
+                name="seed"
+                type="number"
+                min="0"
+                step="1"
+                required
+                data-testid="predictive-seed"
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.trainStart")}</span>
+              <input
+                name="train_start"
+                type="number"
+                min="0"
+                step="1"
+                required
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.trainEnd")}</span>
+              <input name="train_end" type="number" min="0" step="1" required />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.holdoutStart")}</span>
+              <input
+                name="holdout_start"
+                type="number"
+                min="0"
+                step="1"
+                required
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.holdoutEnd")}</span>
+              <input
+                name="holdout_end"
+                type="number"
+                min="0"
+                step="1"
+                required
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.horizon")}</span>
+              <input name="horizon" type="number" min="1" step="1" required />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.alpha")}</span>
+              <input
+                name="alpha"
+                type="number"
+                min="0"
+                max="1"
+                step="any"
+                required
+              />
+            </label>
+            <label className="space-y-1 text-sm">
+              <span>{t("pages.runs.predictiveCalibration.beta")}</span>
+              <input
+                name="beta"
+                type="number"
+                min="0"
+                max="1"
+                step="any"
+                required
+              />
+            </label>
+          </div>
+          <fieldset className="grid gap-3 md:grid-cols-2">
+            <legend>
+              {t("pages.runs.predictiveCalibration.temporalRoles")}
+            </legend>
+            {(
+              [
+                "data_valid_time",
+                "calibration_window_start",
+                "calibration_window_end",
+                "policy_effective_time",
+                "prediction_time",
+                "observation_time",
+              ] as const
+            ).map((name) => (
+              <label key={name} className="space-y-1 text-sm">
+                <span>{t(`pages.runs.predictiveCalibration.${name}`)}</span>
+                <input name={name} type="datetime-local" required />
+              </label>
+            ))}
+          </fieldset>
+          {candidateSourceRefs.length === 0 ||
+          observedSourceRefs.length === 0 ||
+          modelSpecRefs.length === 0 ||
+          policySpecRefs.length === 0 ||
+          calibrationRuleRefs.length === 0 ? (
+            <p
+              role="status"
+              data-testid="overview-predictive-calibration-inputs-missing"
+            >
+              {t("pages.runs.predictiveCalibration.runInputsRequired")}
+            </p>
+          ) : null}
+          {formError ? <p role="alert">{formError}</p> : null}
+          {mutation.isError ? (
+            <div
+              role="alert"
+              data-testid="overview-predictive-calibration-mutation-error"
+            >
+              <p>
+                {mutation.error instanceof Error
+                  ? mutation.error.message
+                  : String(mutation.error)}
+              </p>
+              {lastIntent ? (
+                <button
+                  type="button"
+                  onClick={retrySameIntent}
+                  disabled={mutation.isPending}
+                  data-testid="overview-predictive-calibration-retry"
+                >
+                  {t("pages.runs.predictiveCalibration.retrySameIntent")}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+          <p className="text-muted text-xs">
+            {t("pages.runs.predictiveCalibration.newIntentHint")}
+          </p>
+          <button
+            type="submit"
+            disabled={
+              !canCreate ||
+              queryUnresolved ||
+              queryRefused ||
+              mutation.isPending ||
+              candidateSourceRefs.length === 0 ||
+              observedSourceRefs.length === 0
+            }
+            data-testid="overview-predictive-calibration-submit"
+          >
+            {mutation.isPending
+              ? t("pages.runs.predictiveCalibration.submitting")
+              : t("pages.runs.predictiveCalibration.submit")}
+          </button>
+        </form>
+      ) : null}
+    </Card>
+  );
+}
+
 export default function OverviewTab() {
   const { t } = useI18n();
   const whatIfEnabled = useFeatureFlag("enableWhatIfAnalysis");
@@ -969,6 +1604,7 @@ export default function OverviewTab() {
 
   return (
     <div className="space-y-5" data-testid="run-tab-overview">
+      <PredictiveCalibrationPanel runId={runId} run={summary.run} />
       <CandidateSimulationPanel run={summary.run} />
       <GenericCycleSimulationPanel presentation={genericCycleSimulation} />
       <div className="grid gap-5 xl:grid-cols-2">

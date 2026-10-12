@@ -18,6 +18,7 @@ from .common import (
     StageBuildResult,
 )
 from .demography import build_d3_stage
+from .demography_inventory import build_demography_source_inventory_stage
 from .governance_handoff import build_d4_stage
 from .release import build_d5_stage
 from .sources import build_d0_p0_stage, build_d1_stage, build_d2_stage
@@ -67,6 +68,7 @@ STAGE_BUILDERS = {
     StageId.D3: build_d3_stage,
     StageId.D4: build_d4_stage,
     StageId.D5: build_d5_stage,
+    StageId.DEMOGRAPHY_SOURCE_INVENTORY: build_demography_source_inventory_stage,
 }
 
 __all__ = (
@@ -82,4 +84,5 @@ __all__ = (
     "build_d3_stage",
     "build_d4_stage",
     "build_d5_stage",
+    "build_demography_source_inventory_stage",
 )

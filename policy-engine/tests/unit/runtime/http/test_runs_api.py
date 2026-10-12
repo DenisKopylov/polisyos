@@ -7,6 +7,10 @@ from datetime import UTC, datetime
 from typing import Any
 
 import pytest
+from polisyos.runtime.http.services.predictive_calibration import (
+    PredictiveCalibrationAssociation,
+    PredictiveCalibrationS10Summary,
+)
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -29,6 +33,7 @@ from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord, TraceRefs
 from polisyos.core.trace.sink import JsonlTraceSink
+from polisyos.runtime.http.dependencies import get_runtime_api_context
 from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
 from polisyos.runtime.http.services.run_index import RunIndexService
@@ -1465,6 +1470,113 @@ def test_get_run_details_returns_normalized_payload(runtime_api_env) -> None:
     assert secondary_payload["source_kind"] == "core_run"
     assert secondary_payload["tenant_id"] == runtime_api_env["tenant_a"]
     assert secondary_payload["execution_profile"] is None
+
+
+def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachment(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    context = runtime_api_env["app"].state.runtime_api_ctx
+    run = context.run_index.get_run(runtime_api_env["core_run_id"])
+    selected_run_ref = run.details.manifest_ref
+    assert selected_run_ref is not None
+    selected_input_refs = tuple(run.details.root_artifacts)
+    assert selected_input_refs
+    association_ref = ArtifactRef(
+        artifact_id="sha256:" + "f" * 64,
+        kind="runtime.predictive_calibration_association",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "e" * 64,
+    )
+    association = PredictiveCalibrationAssociation(
+        event_id="evt_run_predictive_calibration_fixture",
+        intent_id="intent-run-predictive-calibration-fixture",
+        request_sha256="a" * 64,
+        run_id=run.details.run_id,
+        control_run_id="control-run-fixture",
+        job_id=run.details.control_job_id or "",
+        tenant_id=run.details.tenant_id or "",
+        cell_id=run.details.cell_id or "",
+        run_manifest_ref=selected_run_ref,
+        candidate_source_ref=selected_input_refs[0],
+        observed_source_ref=selected_input_refs[0],
+        model_spec_ref=selected_input_refs[0],
+        policy_spec_ref=selected_input_refs[0],
+        calibration_rule_ref=selected_input_refs[0],
+        backtest_report_ref=selected_input_refs[0],
+        empirical_evidence_ref=selected_input_refs[0],
+        uncertainty_bundle_ref=selected_input_refs[0],
+        observed_numerator=3,
+        observed_denominator=4,
+        observed_hit_rate=0.75,
+        owner_suitability="limited",
+        s10=PredictiveCalibrationS10Summary(
+            calibration_status="limit",
+            forecast_tier="limited_local_model",
+            counterfactual_credibility="not_established",
+            numerator=3,
+            denominator=4,
+            observed_pass_rate=0.75,
+        ),
+        created_at=datetime(2026, 10, 12, tzinfo=UTC),
+    )
+    observed_calls: list[tuple[str, str, str]] = []
+
+    def _read_association(**kwargs):
+        observed_run = kwargs["run"]
+        event_log = kwargs["event_log"]
+        observed_calls.append(
+            (
+                observed_run.details.run_id,
+                observed_run.details.control_job_id or "",
+                type(event_log).__name__,
+            )
+        )
+        return association_ref, association
+
+    monkeypatch.setattr(
+        runs_routes,
+        "load_run_predictive_calibration",
+        _read_association,
+    )
+
+    response = runtime_api_env["client"].get(
+        f"/api/v1/runs/{run.details.run_id}/predictive-calibration"
+    )
+
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["association"]["assessment"] == "limited"
+    assert payload["association"]["authority_scope"] == "predictive_only"
+    assert payload["association"]["counterfactual_credibility_status"] == "not_established"
+    assert observed_calls == [
+        (
+            run.details.run_id,
+            run.details.control_job_id or "",
+            "RuntimeDiagnosticEventLog",
+        )
+    ]
+    assert context.allow_candidate_predictive_diagnostic_surface is False
+    assert context.allow_candidate_run_predictive_calibration_surface is True
+
+    app = runtime_api_env["app"]
+    previous_override = app.dependency_overrides.get(get_runtime_api_context)
+    app.dependency_overrides[get_runtime_api_context] = lambda: replace(
+        context,
+        allow_candidate_run_predictive_calibration_surface=False,
+    )
+    try:
+        disabled = runtime_api_env["client"].get(
+            f"/api/v1/runs/{run.details.run_id}/predictive-calibration"
+        )
+    finally:
+        if previous_override is None:
+            app.dependency_overrides.pop(get_runtime_api_context, None)
+        else:
+            app.dependency_overrides[get_runtime_api_context] = previous_override
+    assert disabled.status_code == 503
+    assert disabled.json()["code"] == "candidate_predictive_diagnostic_surface_disabled"
+    assert len(observed_calls) == 1
 
 
 def test_list_runs_cursor_pagination(runtime_api_env) -> None:

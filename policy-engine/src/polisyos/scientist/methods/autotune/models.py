@@ -6,6 +6,7 @@ import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
+from math import isfinite
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, Protocol, Self, TypeVar, cast
 
@@ -20,11 +21,11 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import fingerprint, from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping
 
     from polisyos.core.artifacts.protocol import ArtifactStore
 
@@ -190,6 +191,265 @@ class BayesianSourceProfile(_PydanticBaseModel):
             raise ValueError(
                 "Only a complete configured native GP profile can admit warm-start data"
             )
+        return self
+
+
+class SearchGPFitBound(_PydanticBaseModel):
+    """One exact search-space dimension used to recompute a native GP fit."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    name: str = Field(..., min_length=1, max_length=128)
+    lower: float
+    upper: float
+    dtype: Literal["continuous", "integer", "categorical", "log_continuous"]
+    log_scale: bool
+    categories: list[Any] | None = None
+
+
+class SearchMethodRunProfile(_PydanticBaseModel):
+    """Candidate-grade identity of one configured Search → MethodJob run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1", "2"] = "1"
+    loop_id: str = Field(..., min_length=1, max_length=128)
+    suite_ref: ArtifactRef
+    method_fqn: str = Field(..., min_length=1, max_length=512)
+    method_version: str | None = Field(default=None, max_length=128)
+    method_params_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    candidate_input_bindings: dict[str, str]
+    data_snapshot_bindings: dict[str, str]
+    search_parameter_bindings: dict[str, str] = Field(default_factory=dict)
+    search_parameter_bounds: list[SearchGPFitBound] = Field(default_factory=list)
+    method_signature_abi_digest: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$"
+    )
+    data_snapshot_ref: ArtifactRef | None = None
+    data_ref: ArtifactRef | None = None
+    data_sample_count: int | None = Field(default=None, ge=1)
+    method_seed: int
+    primary_metric: str = Field(..., min_length=1, max_length=128)
+    direction: Literal["minimize", "maximize"]
+    split: Literal["selection", "holdout"]
+    unit: str | None = Field(default=None, max_length=128)
+    search_space_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    context_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    objective_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_data_binding(self) -> SearchMethodRunProfile:
+        has_bindings = bool(self.data_snapshot_bindings)
+        if has_bindings != (self.data_snapshot_ref is not None and self.data_ref is not None):
+            raise ValueError("Search GP profile data bindings require exact snapshot and data refs")
+        if has_bindings != (self.data_sample_count is not None):
+            raise ValueError("Search GP profile data bindings require a recomputed sample count")
+        if self.method_seed < 0:
+            raise ValueError("Search GP profile seed must be non-negative")
+        if len(set(self.candidate_input_bindings) & set(self.data_snapshot_bindings)):
+            raise ValueError("Search GP method input slots must have one source")
+        if not self.search_parameter_bindings:
+            if (
+                self.schema_version != "1"
+                or self.search_parameter_bounds
+                or self.method_signature_abi_digest is not None
+            ):
+                raise ValueError("Unbound Search GP profiles must retain the schema 1 shape")
+            return self
+        if self.schema_version != "2":
+            raise ValueError("Search parameter bindings require Search GP profile schema 2")
+        search_names = set(self.search_parameter_bindings)
+        method_names = list(self.search_parameter_bindings.values())
+        bound_names = [bound.name for bound in self.search_parameter_bounds]
+        if (
+            any(not name.strip() for name in search_names)
+            or any(not name.strip() for name in method_names)
+            or len(set(method_names)) != len(method_names)
+            or set(bound_names) != search_names
+            or len(bound_names) != len(search_names)
+            or self.method_signature_abi_digest is None
+        ):
+            raise ValueError("Search parameter bindings require exact bounds and method ABI")
+        for bound in self.search_parameter_bounds:
+            if (
+                bound.dtype not in {"continuous", "integer", "log_continuous"}
+                or bound.categories is not None
+                or not isfinite(bound.lower)
+                or not isfinite(bound.upper)
+                or bound.lower >= bound.upper
+            ):
+                raise ValueError("Search method parameter bounds must be finite numeric ranges")
+        return self
+
+
+def _search_method_parameters_match_run_profile(
+    *,
+    profile: SearchMethodRunProfile,
+    candidate: Mapping[str, Any],
+    method_params: Mapping[str, Any],
+) -> bool:
+    """Recompute a declared numeric search-parameter binding against the method ABI."""
+    try:
+        if not profile.search_parameter_bindings:
+            return (
+                profile.schema_version == "1"
+                and _search_parameter_fingerprint(dict(method_params))
+                == profile.method_params_fingerprint
+            )
+        if profile.schema_version != "2" or profile.method_signature_abi_digest is None:
+            return False
+        from polisyos.foundry.methods import MethodRegistry
+
+        signature = MethodRegistry.get_instance().get_signature(profile.method_fqn)
+        if (
+            signature is None
+            or signature.version != profile.method_version
+            or signature.abi_digest() != profile.method_signature_abi_digest
+        ):
+            return False
+        parameters = {item.name: item for item in signature.parameters}
+        bounds = {item.name: item for item in profile.search_parameter_bounds}
+        if set(bounds) != set(profile.search_parameter_bindings):
+            return False
+        method_parameter_names = set(profile.search_parameter_bindings.values())
+        if len(method_parameter_names) != len(profile.search_parameter_bindings):
+            return False
+        for search_name, method_name in profile.search_parameter_bindings.items():
+            parameter = parameters.get(method_name)
+            bound = bounds.get(search_name)
+            if (
+                parameter is None
+                or bound is None
+                or parameter.is_static
+                or type(parameter.default) not in {int, float}
+                or method_name not in method_params
+                or search_name not in candidate
+            ):
+                return False
+            expected_dtype = "integer" if type(parameter.default) is int else None
+            if expected_dtype == "integer":
+                if (
+                    bound.dtype != expected_dtype
+                    or not bound.lower.is_integer()
+                    or not bound.upper.is_integer()
+                ):
+                    return False
+            elif bound.dtype not in {"continuous", "log_continuous"}:
+                return False
+            raw_value = candidate[search_name]
+            configured_value = method_params[method_name]
+            if (
+                type(raw_value) is not type(parameter.default)
+                or type(configured_value) is not type(parameter.default)
+                or raw_value != configured_value
+                or not isfinite(float(raw_value))
+                or not bound.lower <= float(raw_value) <= bound.upper
+            ):
+                return False
+            declared_lower, declared_upper = parameter.bounds
+            if (
+                declared_lower is not None
+                and bound.lower < float(declared_lower)
+            ) or (
+                declared_upper is not None
+                and bound.upper > float(declared_upper)
+            ):
+                return False
+        base_params = {
+            name: value
+            for name, value in method_params.items()
+            if name not in method_parameter_names
+        }
+        return (
+            _search_parameter_fingerprint(base_params)
+            == profile.method_params_fingerprint
+        )
+    except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
+        return False
+
+
+def _search_parameter_fingerprint(value: Any) -> str | None:
+    """Return the canonical fixed-parameter fingerprint used by Search run profiles."""
+    try:
+        return fingerprint(value, canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False))
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+class SearchGPFitConfig(_PydanticBaseModel):
+    """Strict optimizer settings required to recompute the recorded GP view."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    n_initial: int = Field(..., ge=1)
+    acquisition: Literal[
+        "expected_improvement",
+        "upper_confidence_bound",
+        "probability_of_improvement",
+        "q_expected_improvement",
+        "expected_hypervolume_improvement",
+        "q_expected_hypervolume_improvement",
+    ]
+    ucb_beta: float
+    num_restarts: int = Field(..., ge=1)
+    raw_samples: int = Field(..., ge=1)
+    max_train_size: int = Field(..., ge=1)
+    invalid_penalty: float
+    seed: int
+    fallback_on_failure: bool
+    adaptive_acquisition: bool
+    exploration_switch_threshold: float
+    refit_interval: int = Field(..., ge=1)
+    warm_start_noise_factor: float
+
+
+class SearchGPFitBasis(_PydanticBaseModel):
+    """Persisted candidate-only basis for a fresh canonical GP refit."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1"] = "1"
+    authority_purpose: Literal["candidate_gp_fit_recomputation_basis"] = (
+        "candidate_gp_fit_recomputation_basis"
+    )
+    grade: Literal["candidate_only"] = "candidate_only"
+    run_profile: SearchMethodRunProfile
+    fit_config: SearchGPFitConfig
+    bounds: list[SearchGPFitBound] = Field(..., min_length=1)
+    training_evaluation_refs: list[ArtifactRef] = Field(..., min_length=1)
+    training_observation_count: int = Field(..., ge=1)
+    fit_backend: str = Field(..., min_length=1, max_length=128)
+    fitted_model_state_fingerprint: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    proposal_source: str = Field(..., min_length=1, max_length=128)
+    profile: BayesianSourceProfile
+
+    @model_validator(mode="after")
+    def _validate_complete_basis(self) -> SearchGPFitBasis:
+        if self.training_observation_count != len(self.training_evaluation_refs):
+            raise ValueError("Search GP fit observation count must match its exact source refs")
+        if any(not ref.manifest_profile_sha256 for ref in self.training_evaluation_refs):
+            raise ValueError("Search GP fit source refs must select exact CAS manifest profiles")
+        identities = [
+            (str(ref.artifact_id), ref.manifest_profile_sha256)
+            for ref in self.training_evaluation_refs
+        ]
+        if len(set(identities)) != len(identities):
+            raise ValueError("Search GP fit basis cannot double-count a source evaluation")
+        if (
+            not self.profile.warm_start_eligible
+            or self.profile.training_observation_count != self.training_observation_count
+            or self.profile.search_space_fingerprint is None
+            or self.profile.context_fingerprint != self.run_profile.context_fingerprint
+            or self.profile.objective_fingerprint != self.run_profile.objective_fingerprint
+        ):
+            raise ValueError("Search GP fit profile does not match its complete run basis")
+        if self.run_profile.schema_version == "2":
+            fit_bounds = {bound.name: bound for bound in self.bounds}
+            if any(
+                fit_bounds.get(bound.name) != bound
+                for bound in self.run_profile.search_parameter_bounds
+            ):
+                raise ValueError("Search GP fit bounds do not match the bound MethodJob parameters")
         return self
 
 

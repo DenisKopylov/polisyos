@@ -5,7 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import TYPE_CHECKING
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from functools import wraps
+from typing import TYPE_CHECKING, Any, Callable
 
 import duckdb
 import numpy as np
@@ -16,7 +20,12 @@ from polisyos.data_forge.domains.catalog.embedding_projection import (
     CATALOG_DATASET_EMBEDDING_PROJECTION_RULE_VERSION,
     project_catalog_dataset_embedding,
 )
-from polisyos.data_forge.domains.catalog.knowledge.overlay import open_catalog_read_session
+from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+    CatalogSelectionError,
+)
+from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+    open_catalog_read_session,
+)
 from polisyos.data_forge.domains.catalog.knowledge.types import (
     CatalogContentIdentity,
     CatalogFetchBinding,
@@ -132,6 +141,21 @@ _CONNECTOR_ALIASES = {
     "rest_json": "rest.json",
 }
 
+_ACTIVE_CATALOG_READS: ContextVar[frozenset[int]] = ContextVar(
+    "active_catalog_read_sessions", default=frozenset()
+)
+
+
+def _guarded_catalog_read(method: Callable[..., Any]) -> Callable[..., Any]:
+    """Guard one logical read, reusing the check across nested store calls."""
+
+    @wraps(method)
+    def wrapped(self: DatasetCatalogStore, *args: object, **kwargs: object) -> Any:
+        with self.read_session():
+            return method(self, *args, **kwargs)
+
+    return wrapped
+
 
 class DatasetCatalogStore:
     """Read-only handle to the dataset catalog (DuckDB + HNSW)."""
@@ -161,10 +185,57 @@ class DatasetCatalogStore:
         self._vector_index_refusal_reason: str | None = None
 
     @property
+    def database_path(self) -> Path:
+        """Return the baseline path used by this open read session."""
+        return self._db_path
+
+    @property
+    def database_identity(self) -> CatalogContentIdentity:
+        """Return the baseline identity captured when this reader opened."""
+        return self._session_source_identities[0]
+
+    @property
+    def overlay_path(self) -> Path | None:
+        """Return the configured overlay locator, if any."""
+        return self._overlay_path
+
+    def _require_current_read_session(
+        self,
+    ) -> tuple[CatalogContentIdentity, str | None, CatalogContentIdentity | None]:
+        try:
+            current = self._fetch_source_identities()
+        except (OSError, TypeError, ValueError) as exc:
+            raise CatalogSelectionError("catalog_read_session_unavailable") from exc
+        if current != self._session_source_identities:
+            raise CatalogSelectionError("catalog_read_session_stale")
+        return current
+
+    @contextmanager
+    def read_session(self) -> Iterator[None]:
+        """Check byte identity around one complete logical catalog read."""
+        active = _ACTIVE_CATALOG_READS.get()
+        key = id(self)
+        if key in active:
+            yield
+            return
+        self._require_current_read_session()
+        token = _ACTIVE_CATALOG_READS.set(active | {key})
+        try:
+            try:
+                yield
+            except BaseException:
+                self._require_current_read_session()
+                raise
+            self._require_current_read_session()
+        finally:
+            _ACTIVE_CATALOG_READS.reset(token)
+
+    @property
     def vector_index_refusal_reason(self) -> str | None:
         """Return the named reason the latest vector admission was refused."""
         return self._vector_index_refusal_reason
 
+    @_guarded_catalog_read
     def has_vector_index(self) -> bool:
         return self._current_dataset_generation() is not None
 
@@ -177,7 +248,7 @@ class DatasetCatalogStore:
                 legacy_embeddings_path=self._index_dir / "ds_dataset_embeddings.npz",
                 legacy_index_path=self._index_dir / "ds_dataset_index.hnsw",
             )
-        except (OSError, TypeError, ValueError):
+        except OSError, TypeError, ValueError:
             self._vector_index_refusal_reason = "selected_generation_invalid"
             return None
         if generation is None:
@@ -200,13 +271,18 @@ class DatasetCatalogStore:
             rows = self._con.execute(
                 "SELECT id, title, description, keywords, variables FROM ds_datasets ORDER BY id"
             ).fetchall()
-            current_projection = [project_catalog_dataset_embedding(row) for row in rows]
+            current_projection = [
+                project_catalog_dataset_embedding(row) for row in rows
+            ]
             current_ids = [identifier for identifier, _text in current_projection]
             current_members = [
-                (identifier, text.encode("utf-8")) for identifier, text in current_projection
+                (identifier, text.encode("utf-8"))
+                for identifier, text in current_projection
             ]
-        except (duckdb.Error, AttributeError, TypeError, ValueError):
-            self._vector_index_refusal_reason = "catalog_material_projection_unavailable"
+        except duckdb.Error, AttributeError, TypeError, ValueError:
+            self._vector_index_refusal_reason = (
+                "catalog_material_projection_unavailable"
+            )
             return None
         if current_ids != list(generation.ids) or not generation_basis_matches_members(
             generation,
@@ -231,7 +307,9 @@ class DatasetCatalogStore:
         if current_generation is None:
             return False
         if current_generation.generation_id != generation.generation_id:
-            self._vector_index_refusal_reason = "selected_generation_changed_during_query"
+            self._vector_index_refusal_reason = (
+                "selected_generation_changed_during_query"
+            )
             return False
         if not embedding_generation_matches_encoder(
             current_generation,
@@ -242,7 +320,9 @@ class DatasetCatalogStore:
             embedding_device=embedding_device,
             embedding_dimension=embedding_dimension,
         ):
-            self._vector_index_refusal_reason = "query_encoder_generation_intent_mismatch"
+            self._vector_index_refusal_reason = (
+                "query_encoder_generation_intent_mismatch"
+            )
             return False
         self._vector_index_refusal_reason = None
         return True
@@ -303,7 +383,8 @@ class DatasetCatalogStore:
             self._dataset_generation_id = None
             if not self._index_warning_logged:
                 logger.warning(
-                    "No current selected dataset index is available in {}", self._index_dir
+                    "No current selected dataset index is available in {}",
+                    self._index_dir,
                 )
                 self._index_warning_logged = True
             return
@@ -314,7 +395,9 @@ class DatasetCatalogStore:
             self._dataset_index = None
             self._dataset_ids = None
             self._dataset_generation_id = None
-            self._vector_index_refusal_reason = "selected_generation_changed_during_query"
+            self._vector_index_refusal_reason = (
+                "selected_generation_changed_during_query"
+            )
             return
         if (
             self._dataset_index is not None
@@ -385,7 +468,9 @@ class DatasetCatalogStore:
             description=str(row.get("description") or ""),
             publisher=str(row.get("publisher") or ""),
             spatial=str(row.get("spatial") or ""),
-            temporal_start=str(row["temporal_start"]) if row.get("temporal_start") else None,
+            temporal_start=str(row["temporal_start"])
+            if row.get("temporal_start")
+            else None,
             temporal_end=str(row["temporal_end"]) if row.get("temporal_end") else None,
             source_portal=str(row.get("source_portal") or ""),
             polisyos_metrics=self._as_list(row.get("polisyos_metrics")),
@@ -408,7 +493,9 @@ class DatasetCatalogStore:
                 time_start=str(row["coverage_time_start"])
                 if row.get("coverage_time_start")
                 else None,
-                time_end=str(row["coverage_time_end"]) if row.get("coverage_time_end") else None,
+                time_end=str(row["coverage_time_end"])
+                if row.get("coverage_time_end")
+                else None,
                 granularity=str(row.get("coverage_granularity") or ""),
             ),
             access=DatasetAccess(
@@ -423,8 +510,12 @@ class DatasetCatalogStore:
             ),
             quality=DatasetQuality(
                 description_score=float(row.get("quality_description_score") or 0.0),
-                machine_readable_score=float(row.get("quality_machine_readable_score") or 0.0),
-                parser_support_score=float(row.get("quality_parser_support_score") or 0.0),
+                machine_readable_score=float(
+                    row.get("quality_machine_readable_score") or 0.0
+                ),
+                parser_support_score=float(
+                    row.get("quality_parser_support_score") or 0.0
+                ),
                 freshness_score=float(row.get("quality_freshness_score") or 0.0),
                 execution_readiness_score=float(
                     row.get("quality_execution_readiness_score") or 0.0
@@ -440,7 +531,9 @@ class DatasetCatalogStore:
             dataset_id=str(row.get("dataset_id") or ""),
             url=str(row.get("url") or ""),
             format=str(row.get("format") or ""),
-            connector_type=self._normalize_connector_id(str(row.get("connector_type") or "")),
+            connector_type=self._normalize_connector_id(
+                str(row.get("connector_type") or "")
+            ),
             connector_params=self._json_mapping(row.get("connector_params")),
             source_locator=str(row.get("source_locator") or ""),
             profile_id=str(row.get("profile_id") or ""),
@@ -462,6 +555,7 @@ class DatasetCatalogStore:
         )
         return rows[0] if rows else None
 
+    @_guarded_catalog_read
     def get_dataset(self, dataset_id: str) -> DatasetSearchResult | None:
         row = self._get_dataset_row(dataset_id)
         if row is None:
@@ -499,6 +593,7 @@ class DatasetCatalogStore:
             return str(params.get("url") or distribution.url or "").strip()
         return distribution.url or ""
 
+    @_guarded_catalog_read
     def search_by_vector(
         self,
         query_vector: np.ndarray,
@@ -512,7 +607,9 @@ class DatasetCatalogStore:
             return []
 
         k = min(top_k, len(self._dataset_ids))
-        labels, distances = self._dataset_index.knn_query(query_vector.reshape(1, -1), k=k)
+        labels, distances = self._dataset_index.knn_query(
+            query_vector.reshape(1, -1), k=k
+        )
         results: list[DatasetSearchResult] = []
         select_clause = self._select_clause("ds_datasets", _DATASET_COLUMNS)
         for label, dist in zip(labels[0], distances[0], strict=False):
@@ -520,19 +617,26 @@ class DatasetCatalogStore:
             if similarity < min_similarity:
                 continue
             did = self._dataset_ids[int(label)]
-            rows = self._fetch_dicts(f"SELECT {select_clause} FROM ds_datasets WHERE id = ?", [did])
+            rows = self._fetch_dicts(
+                f"SELECT {select_clause} FROM ds_datasets WHERE id = ?", [did]
+            )
             if rows:
                 results.append(self._to_dataset_result(rows[0], similarity=similarity))
         return results
 
-    def search_by_text(self, query: str, *, top_k: int = 20) -> list[DatasetSearchResult]:
+    @_guarded_catalog_read
+    def search_by_text(
+        self, query: str, *, top_k: int = 20
+    ) -> list[DatasetSearchResult]:
         normalized = query.strip().lower()
         if not normalized:
             return []
 
         tokens = [
             token
-            for token in dict.fromkeys(re.split(r"[^\w]+", normalized, flags=re.UNICODE))
+            for token in dict.fromkeys(
+                re.split(r"[^\w]+", normalized, flags=re.UNICODE)
+            )
             if len(token) >= 2
         ][:8]
         if not tokens:
@@ -558,7 +662,11 @@ class DatasetCatalogStore:
             f"CASE WHEN {description_expr} LIKE ? THEN 3 ELSE 0 END",
             f"CASE WHEN {haystack} LIKE ? THEN 2 ELSE 0 END",
         ]
-        score_params: list[object] = [f"%{normalized}%", f"%{normalized}%", f"%{normalized}%"]
+        score_params: list[object] = [
+            f"%{normalized}%",
+            f"%{normalized}%",
+            f"%{normalized}%",
+        ]
         where_parts = [f"{haystack} LIKE ?"]
         where_params: list[object] = [f"%{normalized}%"]
 
@@ -584,6 +692,7 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
+    @_guarded_catalog_read
     def find_by_polisyos_metric(
         self, metric_name: str, *, top_k: int | None = 20
     ) -> list[DatasetSearchResult]:
@@ -595,6 +704,7 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
+    @_guarded_catalog_read
     def find_by_variables(
         self, variables: list[str], *, top_k: int = 20
     ) -> list[DatasetSearchResult]:
@@ -607,13 +717,15 @@ class DatasetCatalogStore:
         )
         return [self._to_dataset_result(row, similarity=1.0) for row in rows]
 
-    def reconciled_metric_binding_population(self, metric_name: str) -> list[MetricBindingMatch]:
+    @_guarded_catalog_read
+    def reconciled_metric_binding_population(
+        self, metric_name: str
+    ) -> list[MetricBindingMatch]:
         """Read all declared bindings and independently reconcile raw identities.
 
         This establishes a catalog-query denominator only, never transport
         occurrence or the scientific correctness of a metric/construct link.
         """
-        before = self._fetch_source_identities()
         if not self._table_exists("ds_metric_bindings"):
             raise ValueError("catalog_metric_binding_population_table_unreadable")
         raw = self._fetch_dicts(
@@ -628,7 +740,10 @@ class DatasetCatalogStore:
             raise ValueError("catalog_metric_binding_population_count_drift")
         keys = ("metric_id", "dataset_id", "distribution_id")
         if any(
-            any(key not in row or not isinstance(row[key], str) or not row[key] for key in keys)
+            any(
+                key not in row or not isinstance(row[key], str) or not row[key]
+                for key in keys
+            )
             for row in raw
         ):
             raise ValueError("catalog_metric_binding_population_member_unreadable")
@@ -639,10 +754,9 @@ class DatasetCatalogStore:
         )
         if raw_ids != typed_ids or len(raw_ids) != len(set(raw_ids)):
             raise ValueError("catalog_metric_binding_population_identity_drift")
-        if before != self._fetch_source_identities():
-            raise ValueError("catalog_metric_binding_population_source_changed")
         return rows
 
+    @_guarded_catalog_read
     def resolve_metric_bindings(
         self,
         metric_name: str,
@@ -669,7 +783,9 @@ class DatasetCatalogStore:
             allowed = _tiers_at_or_above(min_execution_tier)
             if allowed:
                 placeholders = ", ".join("?" for _ in allowed)
-                tier_filter_sql = f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                tier_filter_sql = (
+                    f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                )
                 bind_params.extend(allowed)
         if top_k is not None:
             bind_params.append(top_k)
@@ -685,7 +801,8 @@ class DatasetCatalogStore:
             "WHEN 'fetchable' THEN 1 "
             "ELSE 2 END ASC, "
             f"CASE WHEN {schema_exists_sql} THEN 0 ELSE 1 END ASC, "
-            "b.confidence DESC, b.dataset_id ASC " + ("LIMIT ?" if top_k is not None else ""),
+            "b.confidence DESC, b.dataset_id ASC "
+            + ("LIMIT ?" if top_k is not None else ""),
             bind_params,
         )
         out: list[MetricBindingMatch] = []
@@ -695,7 +812,9 @@ class DatasetCatalogStore:
                     metric_id=str(row.get("metric_id") or ""),
                     catalog_dataset_id=str(row.get("dataset_id") or ""),
                     distribution_id=str(row.get("distribution_id") or ""),
-                    connector_id=self._normalize_connector_id(str(row.get("connector_id") or "")),
+                    connector_id=self._normalize_connector_id(
+                        str(row.get("connector_id") or "")
+                    ),
                     profile_id=str(row.get("profile_id") or ""),
                     request_dataset_id=str(row.get("request_dataset_id") or ""),
                     confidence=float(row.get("confidence") or 0.0),
@@ -710,6 +829,7 @@ class DatasetCatalogStore:
             )
         return out
 
+    @_guarded_catalog_read
     def search_metric_bindings(
         self,
         query: str,
@@ -731,7 +851,9 @@ class DatasetCatalogStore:
         use_exact = "exact" in modes or "alias" in modes
         use_lexical = "lexical" in modes or "semantic" in modes
         metric_expr = "lower(coalesce(b.metric_id, ''))"
-        metric_norm_expr = "replace(replace(lower(coalesce(b.metric_id, '')), '.', '_'), '-', '_')"
+        metric_norm_expr = (
+            "replace(replace(lower(coalesce(b.metric_id, '')), '.', '_'), '-', '_')"
+        )
         if use_exact and aliases:
             placeholders = ", ".join("?" for _ in aliases)
             conditions.append(f"({metric_expr} IN ({placeholders}))")
@@ -752,7 +874,9 @@ class DatasetCatalogStore:
             allowed = _tiers_at_or_above(min_execution_tier)
             if allowed:
                 placeholders = ", ".join("?" for _ in allowed)
-                tier_filter_sql = f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                tier_filter_sql = (
+                    f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                )
                 params.extend(allowed)
         params.append(max(top_k * 8, top_k))
         rows = self._fetch_dicts(
@@ -774,7 +898,9 @@ class DatasetCatalogStore:
             rows,
             key=lambda row: (
                 self._metric_binding_search_rank(row, aliases, tokens),
-                _EXECUTION_TIER_RANK.get(str(row.get("execution_tier") or "catalog"), 2),
+                _EXECUTION_TIER_RANK.get(
+                    str(row.get("execution_tier") or "catalog"), 2
+                ),
                 -float(row.get("confidence") or 0.0),
                 str(row.get("metric_id") or ""),
                 str(row.get("dataset_id") or ""),
@@ -783,7 +909,9 @@ class DatasetCatalogStore:
         return [self._to_metric_binding_match(row) for row in ranked[:top_k]]
 
     @staticmethod
-    def _metric_binding_search_terms(query: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    def _metric_binding_search_terms(
+        query: str,
+    ) -> tuple[tuple[str, ...], tuple[str, ...]]:
         raw = " ".join(str(query or "").strip().lower().split())
         if not raw:
             return (), ()
@@ -828,28 +956,37 @@ class DatasetCatalogStore:
             metric_id=str(row.get("metric_id") or ""),
             catalog_dataset_id=str(row.get("dataset_id") or ""),
             distribution_id=str(row.get("distribution_id") or ""),
-            connector_id=self._normalize_connector_id(str(row.get("connector_id") or "")),
+            connector_id=self._normalize_connector_id(
+                str(row.get("connector_id") or "")
+            ),
             profile_id=str(row.get("profile_id") or ""),
             request_dataset_id=str(row.get("request_dataset_id") or ""),
             confidence=float(row.get("confidence") or 0.0),
-            metric_inference_confidence=float(row.get("metric_inference_confidence") or 0.0),
+            metric_inference_confidence=float(
+                row.get("metric_inference_confidence") or 0.0
+            ),
             default_filters=self._json_mapping(row.get("default_filters")),
             execution_tier=str(row.get("execution_tier") or "catalog"),
             source=str(row.get("source") or ""),
             title=str(row.get("title") or ""),
         )
 
+    @_guarded_catalog_read
     def resolve_fetch_target(
         self, dataset_id: str, *, distribution_id: str | None = None
     ) -> ResolvedFetchTarget | None:
         dataset_row = self._get_dataset_row(dataset_id)
         distributions = self.get_distributions(dataset_id)
         if distribution_id is not None:
-            distributions = [item for item in distributions if item.id == distribution_id]
+            distributions = [
+                item for item in distributions if item.id == distribution_id
+            ]
         if not distributions:
             return None
         preferred_distribution_id = (
-            str(dataset_row.get("preferred_distribution_id") or "") if dataset_row else ""
+            str(dataset_row.get("preferred_distribution_id") or "")
+            if dataset_row
+            else ""
         )
         distribution = sorted(
             distributions,
@@ -876,6 +1013,7 @@ class DatasetCatalogStore:
             parser_supported=distribution.parser_supported,
         )
 
+    @_guarded_catalog_read
     def bind_fetch_target(
         self,
         *,
@@ -908,7 +1046,8 @@ class DatasetCatalogStore:
         metric_id: str,
         targets: dict[tuple[str, str | None], ResolvedFetchTarget | None],
     ) -> dict[
-        tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+        tuple[str, str, str | None],
+        list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]],
     ]:
         """Build the complete candidate index using only actual owner lookups."""
 
@@ -927,10 +1066,16 @@ class DatasetCatalogStore:
         for binding in matches:
             if binding.execution_tier not in {"fetchable", "transport_ready"}:
                 continue
-            target = target_for(binding.catalog_dataset_id, binding.distribution_id or None)
+            target = target_for(
+                binding.catalog_dataset_id, binding.distribution_id or None
+            )
             if target is None:
                 continue
-            if (binding.connector_id, binding.request_dataset_id, binding.profile_id or None) != (
+            if (
+                binding.connector_id,
+                binding.request_dataset_id,
+                binding.profile_id or None,
+            ) != (
                 target.connector_id,
                 target.request_dataset_id,
                 target.profile_id or None,
@@ -945,10 +1090,15 @@ class DatasetCatalogStore:
                 if target is not None:
                     candidates.append((None, target))
         indexed: dict[
-            tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+            tuple[str, str, str | None],
+            list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]],
         ] = {}
         for binding, target in candidates:
-            key = (target.connector_id, target.request_dataset_id, target.profile_id or None)
+            key = (
+                target.connector_id,
+                target.request_dataset_id,
+                target.profile_id or None,
+            )
             indexed.setdefault(key, []).append((binding, target))
         return indexed
 
@@ -956,7 +1106,8 @@ class DatasetCatalogStore:
     def _select_fetch_target(
         request: CatalogFetchRequest,
         candidates: dict[
-            tuple[str, str, str | None], list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]]
+            tuple[str, str, str | None],
+            list[tuple[MetricBindingMatch | None, ResolvedFetchTarget]],
         ],
     ) -> tuple[MetricBindingMatch | None, ResolvedFetchTarget] | None:
         """Apply the same exact tuple and default-filter predicate in both APIs."""
@@ -967,11 +1118,14 @@ class DatasetCatalogStore:
             defaults = dict(target.default_filters)
             if binding is not None:
                 defaults.update(binding.default_filters)
-            if any(request.filters.get(key) != values for key, values in defaults.items()):
+            if any(
+                request.filters.get(key) != values for key, values in defaults.items()
+            ):
                 continue
             return (binding, target)
         return None
 
+    @_guarded_catalog_read
     def bind_fetch_targets(
         self, requests: list[CatalogFetchRequest | dict[str, object]]
     ) -> tuple[CatalogFetchResolution, ...]:
@@ -983,13 +1137,13 @@ class DatasetCatalogStore:
         """
         checked = [
             CatalogFetchRequest.model_validate(
-                item.model_dump(mode="python") if isinstance(item, CatalogFetchRequest) else item
+                item.model_dump(mode="python")
+                if isinstance(item, CatalogFetchRequest)
+                else item
             )
             for item in requests
         ]
-        before = self._fetch_source_identities()
-        if before != self._session_source_identities:
-            raise ValueError("catalog_fetch_read_session_stale")
+        before = self._session_source_identities
         baseline, overlay_path, overlay = before
         targets: dict[tuple[str, str | None], ResolvedFetchTarget | None] = {}
         by_metric = {}
@@ -1037,10 +1191,9 @@ class DatasetCatalogStore:
             outcomes.append(
                 CatalogFetchResolution(request=request, status="bound", binding=binding)
             )
-        if before != self._fetch_source_identities():
-            raise ValueError("catalog_fetch_source_changed")
         return tuple(outcomes)
 
+    @_guarded_catalog_read
     def verify_fetch_binding(self, binding: CatalogFetchBinding) -> CatalogFetchBinding:
         """Recompute a supplied binding through this store's actual source files."""
         supplied = CatalogFetchBinding.model_validate(binding.model_dump(mode="python"))
@@ -1081,6 +1234,7 @@ class DatasetCatalogStore:
             identify(overlay) if present else None,
         )
 
+    @_guarded_catalog_read
     def get_connector_params(self, dataset_id: str) -> dict | None:
         target = self.resolve_fetch_target(dataset_id)
         if target is None:
@@ -1096,6 +1250,7 @@ class DatasetCatalogStore:
             "parser_supported": target.parser_supported,
         }
 
+    @_guarded_catalog_read
     def get_distributions(self, dataset_id: str) -> list[DistributionResult]:
         rows = self._fetch_dicts(
             f"SELECT {self._select_clause('ds_distributions', _DISTRIBUTION_COLUMNS)} "

@@ -99,6 +99,30 @@ def test_persistence_returns_selected_typed_ref_and_reads_its_manifest_view(
         load_explanation_bundle(fresh_store, wrong_profile)
 
 
+def test_persist_requires_profile_from_the_same_write_result() -> None:
+    class ProfilelessWriter:
+        return_selected_profile: bool | None = None
+
+        def put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=None,
+            *,
+            return_selected_profile: bool = False,
+        ):
+            self.return_selected_profile = return_selected_profile
+            return ExplanationBundleRef(
+                artifact_id="sha256:" + "0" * 64,
+                manifest_profile_sha256=None,
+            )
+
+    writer = ProfilelessWriter()
+    with pytest.raises(ValueError, match="artifact_write_selected_profile_missing"):
+        persist_explanation_bundle(writer, _bundle())
+    assert writer.return_selected_profile is True
+
+
 @pytest.mark.parametrize(
     ("kind", "media_type", "schema_name", "schema_version"),
     [

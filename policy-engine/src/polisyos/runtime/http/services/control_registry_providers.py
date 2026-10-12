@@ -15,6 +15,7 @@ if TYPE_CHECKING:
         CapabilityConformanceVerifier,
         CapabilityLiveOperationRegistry,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 
 
 class ConnectorRegistryLike(Protocol):
@@ -57,10 +58,18 @@ class ControlRegistryProviders:
     capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None
     catalog_run_profile: CatalogRunProfile | None = None
+    catalog_source_selection: CatalogServingSourceSelection | None = None
 
     def __post_init__(self) -> None:
         """Validate an explicitly configured catalog scope without a default."""
         _validate_catalog_run_profile(self.catalog_run_profile)
+        _validate_catalog_source_selection(self.catalog_source_selection)
+        if self.catalog_source_selection is not None:
+            profile = self.catalog_source_selection.catalog_run_profile
+            if self.catalog_run_profile not in (None, profile):
+                raise ValueError("catalog_source_selection_profile_mismatch")
+            if self.catalog_run_profile is None:
+                object.__setattr__(self, "catalog_run_profile", profile)
 
 
 ConnectorRegistryFactory = Callable[[], ConnectorRegistryLike]
@@ -81,6 +90,7 @@ def resolve_control_registry_providers(
     capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None,
     capability_conformance_verifier: CapabilityConformanceVerifier | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
+    catalog_source_selection: CatalogServingSourceSelection | None = None,
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -89,6 +99,13 @@ def resolve_control_registry_providers(
 ) -> ControlRegistryProviders:
     """Resolve runtime control registries once at the bootstrap boundary."""
     _validate_catalog_run_profile(catalog_run_profile)
+    _validate_catalog_source_selection(catalog_source_selection)
+    if catalog_source_selection is not None:
+        selected_profile = catalog_source_selection.catalog_run_profile
+        if catalog_run_profile not in (None, selected_profile):
+            raise ValueError("catalog_source_selection_profile_mismatch")
+        if catalog_run_profile is None:
+            catalog_run_profile = selected_profile
 
     registry_factory_overridden = any(
         factory is not None
@@ -165,7 +182,18 @@ def resolve_control_registry_providers(
         capability_live_operation_registry=capability_live_operation_registry,
         capability_conformance_verifier=capability_conformance_verifier,
         catalog_run_profile=catalog_run_profile,
+        catalog_source_selection=catalog_source_selection,
     )
+
+
+def _validate_catalog_source_selection(selection: object | None) -> None:
+    """Reject selectors that are not the immutable runtime type."""
+    if selection is None:
+        return
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+
+    if type(selection) is not CatalogServingSourceSelection:
+        raise ValueError("catalog_source_selection_invalid")
 
 
 def _validate_catalog_run_profile(profile: object | None) -> None:

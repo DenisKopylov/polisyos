@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import lru_cache
-from typing import Any
+from types import UnionType
+from typing import Annotated, Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -17,13 +18,21 @@ from polisyos.ir.analytics.causal_discovery import (
     CausalDiscoveryReport,
     LatentDiscoveryBundle,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
+from polisyos.ir.analytics.causal_graph import (
+    CausalEdge,
+    CausalGraphModel,
+    GraphProjectionDisposition,
+    _allows_legacy_graph_projection_adaptation,
+    _canonical_model_field_snapshot,
+    graph_for_analysis,
+    legacy_graph_projection_disposition,
+)
 from polisyos.ir.registry.refs import CausalDiscoveryReportRef
 from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.latent_producers import produce_latent_discovery_bundle
 
 GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphHypothesis"
-GRAPH_HYPOTHESIS_SCHEMA_VERSION = "1.0"
+GRAPH_HYPOTHESIS_SCHEMA_VERSION: Literal["1.1"] = "1.1"
 
 
 class DiscoveryAlgorithmFamily(str, Enum):
@@ -68,15 +77,13 @@ class GraphHypothesis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field(
-        default=GRAPH_HYPOTHESIS_SCHEMA_VERSION,
-        pattern=r"^\d+\.\d+$",
-    )
+    schema_version: Literal["1.1"] = GRAPH_HYPOTHESIS_SCHEMA_VERSION
     hypothesis_id: str = Field(min_length=1)
     algorithm_family: DiscoveryAlgorithmFamily
     method: DiscoveryMethod
     graph: CausalGraphModel
     resolved_graph: CausalGraphModel | None = None
+    projection_disposition: GraphProjectionDisposition
     edge_confidence: dict[str, float] = Field(default_factory=dict)
     assumptions: list[str] = Field(default_factory=list)
     compute_footprint: ComputeFootprint = Field(default_factory=ComputeFootprint)
@@ -87,14 +94,49 @@ class GraphHypothesis(BaseModel):
     source_discovery_report_ref: CausalDiscoveryReportRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _adapt_historical_graph_projection(cls, value: Any) -> Any:
+        if not isinstance(value, dict) or "projection_disposition" in value:
+            return value
+        if (
+            "graph" not in value
+            or not _allows_legacy_graph_projection_adaptation(value)
+        ):
+            return value
+        data = dict(value)
+        source_graph = CausalGraphModel.model_validate(data["graph"])
+        resolved_value = data.get("resolved_graph")
+        resolved_graph = (
+            CausalGraphModel.model_validate(resolved_value)
+            if resolved_value is not None
+            else None
+        )
+        data["projection_disposition"] = legacy_graph_projection_disposition(
+            source_graph,
+            resolved_graph,
+        )
+        if data.get("schema_version") in (None, "1.0"):
+            data["schema_version"] = GRAPH_HYPOTHESIS_SCHEMA_VERSION
+        return data
+
     @model_validator(mode="after")
     def _validate_edge_confidence(self) -> GraphHypothesis:
+        if self.projection_disposition is None:
+            raise ValueError("graph hypotheses require a typed graph disposition")
+        graph_for_analysis(self.graph, self.resolved_graph, self.projection_disposition)
         for key, value in self.edge_confidence.items():
             if not key:
                 raise ValueError("edge_confidence keys must be non-empty")
             if not (0.0 <= float(value) <= 1.0):
                 raise ValueError(f"edge_confidence[{key!r}] must be in [0,1], got {value}")
         return self
+
+    def graph_for_analysis(self) -> CausalGraphModel | None:
+        """Return only a content-bound DAG accepted by this hypothesis."""
+        return graph_for_analysis(
+            self.graph, self.resolved_graph, self.projection_disposition
+        )
 
 
 def edge_key_for_edge(edge: CausalEdge) -> str:
@@ -277,6 +319,7 @@ def graph_hypothesis_from_report(
         method=method,
         graph=report.graph,
         resolved_graph=report.resolved_graph,
+        projection_disposition=report.projection_disposition,
         edge_confidence=edge_confidence,
         assumptions=default_method_assumptions(method),
         compute_footprint=compute_footprint or ComputeFootprint(),
@@ -285,7 +328,7 @@ def graph_hypothesis_from_report(
         algebraic_constraints=report.algebraic_constraints,
         latent_discovery=produce_latent_discovery_bundle(
             report,
-            graph=report.resolved_graph or report.graph,
+            graph=report.graph_for_analysis(),
         ),
         metadata={
             "discovery_report_metadata": dict(report.metadata),
@@ -294,21 +337,238 @@ def graph_hypothesis_from_report(
     )
 
 
+def _snapshot_untyped_graph_hypothesis_value(value: Any) -> Any:
+    """Copy values under Any without trusting model serializers or iterators."""
+    if isinstance(value, BaseModel):
+        model_type = type(value)
+        fields = _canonical_model_field_snapshot(value, model_type)
+        return {
+            name: _snapshot_untyped_graph_hypothesis_value(fields[name])
+            for name in model_type.model_fields
+        }
+    if type(value) is dict:
+        return {
+            key: _snapshot_untyped_graph_hypothesis_value(item)
+            for key, item in dict.items(value)
+        }
+    if type(value) is list:
+        return [
+            _snapshot_untyped_graph_hypothesis_value(item)
+            for item in list.__iter__(value)
+        ]
+    if type(value) is tuple:
+        return tuple(_snapshot_untyped_graph_hypothesis_value(item) for item in value)
+    if type(value) is set:
+        return {_snapshot_untyped_graph_hypothesis_value(item) for item in value}
+    if type(value) is frozenset:
+        return frozenset(_snapshot_untyped_graph_hypothesis_value(item) for item in value)
+    if isinstance(value, (list, dict, tuple, set, frozenset)):
+        raise ValueError("graph hypothesis contains a noncanonical nested container")
+    return value
+
+
+def _annotation_matches_value(value: Any, annotation: Any) -> bool:
+    """Select a union branch using the stored runtime value, not serialization."""
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        return _annotation_matches_value(value, get_args(annotation)[0])
+    if origin in (Union, UnionType):
+        return any(_annotation_matches_value(value, item) for item in get_args(annotation))
+    if annotation is Any:
+        return True
+    if annotation is type(None):
+        return value is None
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return isinstance(value, annotation)
+    if origin is list:
+        return isinstance(value, list)
+    if origin is dict:
+        return isinstance(value, dict)
+    if origin is tuple:
+        return isinstance(value, tuple)
+    if origin is set:
+        return isinstance(value, set)
+    if origin is frozenset:
+        return isinstance(value, frozenset)
+    if isinstance(annotation, type):
+        return isinstance(value, annotation)
+    return True
+
+
+def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
+    """Rebuild a declared value recursively from its actual stored fields."""
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        return _snapshot_graph_hypothesis_value(value, get_args(annotation)[0])
+    if origin in (Union, UnionType):
+        candidates = [item for item in get_args(annotation) if item is not type(None)]
+        if value is None and len(candidates) != len(get_args(annotation)):
+            return None
+        for candidate in candidates:
+            if _annotation_matches_value(value, candidate):
+                return _snapshot_graph_hypothesis_value(value, candidate)
+        return value
+    if annotation is Any or annotation in (list, dict, tuple, set, frozenset):
+        return _snapshot_untyped_graph_hypothesis_value(value)
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        if isinstance(value, BaseModel):
+            if not isinstance(value, annotation):
+                raise ValueError(
+                    f"graph hypothesis nested model does not match {annotation.__name__}"
+                )
+            if annotation in {CausalGraphModel, CausalEdge, GraphProjectionDisposition} and type(value) is not annotation:
+                raise ValueError(
+                    f"graph hypothesis requires exact {annotation.__name__} runtime type"
+                )
+            actual_fields = _canonical_model_field_snapshot(value, type(value))
+            if type(value) is not annotation:
+                extra_fields = set(actual_fields) - set(annotation.model_fields)
+                if extra_fields:
+                    raise ValueError(
+                        f"graph hypothesis nested {annotation.__name__} has undeclared fields"
+                    )
+            fields = {
+                name: _snapshot_graph_hypothesis_value(
+                    actual_fields[name], field.annotation
+                )
+                for name, field in annotation.model_fields.items()
+                if name in actual_fields
+            }
+            missing_fields = set(annotation.model_fields) - set(fields)
+            if missing_fields:
+                raise ValueError(
+                    f"graph hypothesis nested {annotation.__name__} is missing declared fields"
+                )
+            return annotation.model_validate(fields, strict=True)
+        if type(value) is dict:
+            fields = {}
+            for name, item in dict.items(value):
+                field = annotation.model_fields.get(name)
+                fields[name] = (
+                    _snapshot_graph_hypothesis_value(item, field.annotation)
+                    if field is not None
+                    else _snapshot_untyped_graph_hypothesis_value(item)
+                )
+            return annotation.model_validate(fields, strict=True)
+        return value
+    if origin is list:
+        if type(value) is not list:
+            return value
+        item_annotation = get_args(annotation)[0]
+        return [
+            _snapshot_graph_hypothesis_value(item, item_annotation)
+            for item in list.__iter__(value)
+        ]
+    if origin is dict:
+        if type(value) is not dict:
+            return value
+        key_annotation, item_annotation = get_args(annotation)
+        return {
+            _snapshot_graph_hypothesis_value(key, key_annotation):
+            _snapshot_graph_hypothesis_value(item, item_annotation)
+            for key, item in dict.items(value)
+        }
+    if origin is tuple:
+        if type(value) is not tuple:
+            return value
+        item_annotations = get_args(annotation)
+        if len(item_annotations) == 2 and item_annotations[1] is Ellipsis:
+            return tuple(
+                _snapshot_graph_hypothesis_value(item, item_annotations[0])
+                for item in value
+            )
+        if len(value) != len(item_annotations):
+            return value
+        return tuple(
+            _snapshot_graph_hypothesis_value(item, item_annotation)
+            for item, item_annotation in zip(value, item_annotations, strict=True)
+        )
+    if origin in (set, frozenset):
+        if type(value) is not origin:
+            return value
+        item_annotation = get_args(annotation)[0]
+        items = (
+            _snapshot_graph_hypothesis_value(item, item_annotation)
+            for item in value
+        )
+        return origin(items)
+    return value
+
+
+def _revalidate_current_graph_hypothesis(hypothesis: GraphHypothesis) -> GraphHypothesis:
+    """Rebuild every declared field before a current-version artifact write."""
+    if type(hypothesis) is not GraphHypothesis:
+        raise ValueError("graph hypothesis persistence requires the canonical model type")
+    try:
+        fields = _canonical_model_field_snapshot(hypothesis, GraphHypothesis)
+        snapshot = {
+            name: _snapshot_graph_hypothesis_value(
+                fields[name], field.annotation
+            )
+            for name, field in GraphHypothesis.model_fields.items()
+        }
+        return GraphHypothesis.model_validate(snapshot, strict=True)
+    except RecursionError as exc:
+        raise ValueError("graph hypothesis contains cyclic nested values") from exc
+
+
+def _validate_graph_hypothesis_artifact_binding(
+    ref: GraphHypothesisRef,
+    manifest: Any,
+    payload: Any,
+) -> str:
+    """Bind a stored graph hypothesis payload to its manifest schema version."""
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.kind != "scientist.graph_hypothesis"
+        or manifest.media_type != ref.media_type
+        or manifest.media_type != "application/json"
+    ):
+        raise ValueError("graph hypothesis manifest identity mismatch")
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != GRAPH_HYPOTHESIS_SCHEMA_NAME:
+        raise ValueError("graph hypothesis manifest schema name is missing or invalid")
+    if type(payload) is not dict:
+        raise ValueError("graph hypothesis payload must be a JSON object")
+
+    payload_version = payload.get("schema_version")
+    if schema.version == GRAPH_HYPOTHESIS_SCHEMA_VERSION:
+        if (
+            payload_version != GRAPH_HYPOTHESIS_SCHEMA_VERSION
+            or "projection_disposition" not in payload
+        ):
+            raise ValueError("current graph hypothesis manifest/payload schema mismatch")
+        return GRAPH_HYPOTHESIS_SCHEMA_VERSION
+    if schema.version == "1.0":
+        if (
+            payload_version != "1.0"
+            or "projection_disposition" in payload
+            or not _allows_legacy_graph_projection_adaptation(payload)
+        ):
+            raise ValueError("graph hypothesis is not an exact historical schema 1.0 shape")
+        return "1.0"
+    raise ValueError("unsupported graph hypothesis manifest schema version")
+
+
 def persist_graph_hypothesis(
     store: FileSystemCAS,
     hypothesis: GraphHypothesis,
     *,
     inputs: list[InputRef] | None = None,
 ) -> GraphHypothesisRef:
-    """Persist a single graph hypothesis and return its typed artifact reference."""
+    """Persist only a revalidated current graph hypothesis and matching manifest."""
+    current = _revalidate_current_graph_hypothesis(hypothesis)
+    if current.schema_version != GRAPH_HYPOTHESIS_SCHEMA_VERSION:
+        raise ValueError("graph hypothesis producer requires the current schema version")
     ref = store.put_json(
-        hypothesis,
+        current,
         PutOptions(
             kind="scientist.graph_hypothesis",
             media_type="application/json",
             schema=SchemaInfo(
                 name=GRAPH_HYPOTHESIS_SCHEMA_NAME,
-                version=hypothesis.schema_version,
+                version=GRAPH_HYPOTHESIS_SCHEMA_VERSION,
             ),
             inputs=list(inputs or []),
         ),
@@ -322,9 +582,17 @@ def load_graph_hypothesis(
     store: FileSystemCAS,
     ref: GraphHypothesisRef,
 ) -> GraphHypothesis:
-    """Load graph hypothesis."""
+    """Load a version-bound current hypothesis or an exact historical 1.0 candidate."""
+    manifest = store.get_manifest(ref)
     payload = from_canonical_bytes(store.get_bytes(ref))
-    return GraphHypothesis.model_validate(payload)
+    stored_version = _validate_graph_hypothesis_artifact_binding(ref, manifest, payload)
+    hypothesis = GraphHypothesis.model_validate(payload)
+    if stored_version == GRAPH_HYPOTHESIS_SCHEMA_VERSION:
+        if hypothesis.schema_version != GRAPH_HYPOTHESIS_SCHEMA_VERSION:
+            raise ValueError("current graph hypothesis payload did not retain its schema version")
+    elif hypothesis.schema_version != GRAPH_HYPOTHESIS_SCHEMA_VERSION:
+        raise ValueError("historical graph hypothesis did not adapt to the current typed model")
+    return hypothesis
 
 
 __all__ = [

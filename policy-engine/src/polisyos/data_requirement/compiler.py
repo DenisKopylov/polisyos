@@ -35,6 +35,9 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 from ._impl.models import (
+    CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
+    CapabilityBindingSnapshot,
+    CapabilityRequirementResolution,
     DataQualityMinimums,
     DataRequirementCompilationReport,
     DataRequirementScope,
@@ -129,6 +132,38 @@ class _ScenarioScopeProfile:
     time_end: str | None = None
     required_constructs: tuple[str, ...] = ()
     candidate_construct_proposals: tuple[str, ...] = ()
+
+
+class ScenarioScopeProfileInputError(ValueError):
+    """Typed refusal for a supplied scenario scope profile that cannot be admitted."""
+
+    code = "scenario_scope_profile_invalid"
+
+    def __init__(self, reason_code: str, field_path: str) -> None:
+        self.reason_code = reason_code
+        self.field_path = field_path
+        super().__init__(f"{self.code}:{reason_code}:{field_path}")
+
+
+_SCENARIO_PROFILE_TOP_LEVEL_ALIASES = (
+    "scenario_profile",
+    "pilot_profile",
+    "scope_profile",
+    "profile",
+)
+_SCENARIO_PROFILE_CONTEXT_ALIASES = ("scenario_profile", "pilot_profile", "scope_profile")
+_SCENARIO_DIRECT_REQUIRED_CONSTRUCT_ALIASES = ("required_constructs", "construct_refs")
+_SCENARIO_DIRECT_CANDIDATE_CONSTRUCT_ALIASES = ("candidate_construct_proposals",)
+_SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES = (
+    "required_constructs",
+    "required_evidence_constructs",
+    "declared_constructs",
+)
+_SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES = (
+    "candidate_construct_proposals",
+    "construct_proposals",
+    "topic_proposals",
+)
 
 
 @dataclass(frozen=True)
@@ -255,7 +290,7 @@ class DataRequirementCompiler:
             ),
         )
         scope = _scope_from_facets(facet_index, scope_profile=scope_profile)
-        capability_bindings = _capability_bindings_for_requirements(
+        capability_bindings, capability_resolutions = _resolve_capability_requirements(
             facets=facets,
             claims=claims,
             obligation_graph=obligation_graph,
@@ -345,6 +380,8 @@ class DataRequirementCompiler:
             run_id=run_id,
             scenario_id=scenario_id,
             specs=deduped,
+            capability_resolution_schema_version=(CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION),
+            capability_requirement_resolutions=capability_resolutions,
             authority_boundary=data_requirement_authority_boundary(),
             metadata={
                 "producer": "data_requirement_compiler",
@@ -523,14 +560,42 @@ class DataRequirementCompiler:
             )
             for family in families
         )
+        fallback_scope = _scope_from_facets({}, scope_profile=scope_profile)
+        resolution_inputs = _construct_resolution_inputs(
+            facets=(),
+            claims=(),
+            obligation_graph=None,
+            scenario_id=scenario_id,
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+            declared_constructs=(scope_profile.required_constructs if scope_profile else ()),
+            candidate_construct_proposals=(
+                scope_profile.candidate_construct_proposals if scope_profile else ()
+            ),
+        )
+        _, capability_resolutions = _resolve_capability_requirements(
+            facets=(),
+            claims=(),
+            obligation_graph=None,
+            scenario_id=scenario_id,
+            scope=fallback_scope,
+            resolver=self._resolver_for_compilation(),
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
+            scope_profile=scope_profile,
+            resolution_inputs=resolution_inputs,
+        )
         return DataRequirementCompilationReport(
             run_id=f"scenario-{scenario_id}",
             scenario_id=scenario_id,
             specs=specs,
+            capability_resolution_schema_version=(CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION),
+            capability_requirement_resolutions=capability_resolutions,
             metadata={
                 "producer": "data_requirement_compiler",
                 "fallback": "legacy_scenario_contract_when_universal_grammar_blocked",
                 "missing_capability_label": "bridge_missing",
+                "candidate_construct_proposals": (
+                    scope_profile.candidate_construct_proposals if scope_profile else ()
+                ),
             },
         )
 
@@ -673,14 +738,7 @@ def _spec_for_claim_family(
         },
     }
     if scope_profile is not None:
-        metadata["scope_profile"] = {
-            "profile_id": scope_profile.profile_id,
-            "jurisdiction": scope_profile.jurisdiction,
-            "time_window": {
-                "start": scope_profile.time_start,
-                "end": scope_profile.time_end,
-            },
-        }
+        metadata["scope_profile"] = _scenario_scope_profile_metadata(scope_profile)
     if capability_binding is not None:
         metadata["capability_binding"] = _capability_binding_metadata(capability_binding)
         metadata["construct_ref"] = capability_binding.construct_ref
@@ -719,6 +777,23 @@ def _spec_for_claim_family(
     )
 
 
+def _scenario_scope_profile_metadata(
+    scope_profile: _ScenarioScopeProfile,
+) -> dict[str, Any]:
+    """Project the admitted declaration without resolving it as an authority."""
+
+    return {
+        "profile_id": scope_profile.profile_id,
+        "jurisdiction": scope_profile.jurisdiction,
+        "time_window": {
+            "start": scope_profile.time_start,
+            "end": scope_profile.time_end,
+        },
+        "required_constructs": list(scope_profile.required_constructs),
+        "candidate_construct_proposals": list(scope_profile.candidate_construct_proposals),
+    }
+
+
 def _minimal_spec(
     *,
     scenario_id: str,
@@ -726,6 +801,11 @@ def _minimal_spec(
     source_requirement_ref: str,
     scope_profile: _ScenarioScopeProfile | None = None,
 ) -> DataRequirementSpec:
+    metadata = (
+        {"scope_profile": _scenario_scope_profile_metadata(scope_profile)}
+        if scope_profile is not None
+        else {}
+    )
     return DataRequirementSpec(
         requirement_id=f"data-requirement:scenario-{scenario_id}:{family}",
         claim_id=f"scenario:{scenario_id}:legacy-data-claim",
@@ -752,21 +832,21 @@ def _minimal_spec(
         concept_spine_refs=(f"concept://scenario/{scenario_id}",),
         authority_profile_refs=(f"authority_profile.{scenario_id}",),
         source_requirement_refs=(source_requirement_ref,),
+        metadata=metadata,
     )
 
 
-def _capability_bindings_for_requirements(
+def _capability_queries_for_requirements(
     *,
     facets: Sequence[Mapping[str, Any]],
     claims: Sequence[Any],
     obligation_graph: object | Mapping[str, Any] | None,
     scenario_id: str | None,
     scope: DataRequirementScope,
-    resolver: CapabilityResolverPort | None = None,
     scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
     scope_profile: _ScenarioScopeProfile | None = None,
     resolution_inputs: _ConstructResolutionInputs | None = None,
-) -> tuple[CapabilityBindingLike, ...]:
+) -> tuple[RequirementToCapabilityQuery, ...]:
     rows = tuple(
         contracts.ScenarioFamilyConstructRow.model_validate(row)
         for row in scenario_family_construct_rows
@@ -782,14 +862,8 @@ def _capability_bindings_for_requirements(
             scope_profile.candidate_construct_proposals if scope_profile else ()
         ),
     )
-    constructs = inputs.required_constructs
-    if not constructs:
-        return ()
-    if resolver is None:
-        return ()
-    bindings: list[CapabilityBindingLike] = []
-    for construct in constructs:
-        query = RequirementToCapabilityQuery(
+    return tuple(
+        RequirementToCapabilityQuery(
             requirement_id=f"data-requirement:{_slug(scenario_id or 'run')}:{construct}",
             construct=construct,
             entity_scope=_entity_scope_for_construct(construct),
@@ -810,8 +884,106 @@ def _capability_bindings_for_requirements(
             forbidden_evidence_modes=("simulation_only", "candidate_unverified"),
             source_family_alias=legacy_family_for_construct(construct, rows=rows),
         )
-        bindings.append(resolver.resolve(query))
-    return tuple(bindings)
+        for construct in inputs.required_constructs
+    )
+
+
+def _capability_bindings_for_requirements(
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    claims: Sequence[Any],
+    obligation_graph: object | Mapping[str, Any] | None,
+    scenario_id: str | None,
+    scope: DataRequirementScope,
+    resolver: CapabilityResolverPort | None = None,
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
+    scope_profile: _ScenarioScopeProfile | None = None,
+    resolution_inputs: _ConstructResolutionInputs | None = None,
+) -> tuple[CapabilityBindingLike, ...]:
+    """Resolve required constructs through the existing binding-only adapter."""
+
+    if resolver is None:
+        return ()
+    return tuple(
+        resolver.resolve(query)
+        for query in _capability_queries_for_requirements(
+            facets=facets,
+            claims=claims,
+            obligation_graph=obligation_graph,
+            scenario_id=scenario_id,
+            scope=scope,
+            scenario_family_construct_rows=scenario_family_construct_rows,
+            scope_profile=scope_profile,
+            resolution_inputs=resolution_inputs,
+        )
+    )
+
+
+def _resolve_capability_requirements(
+    *,
+    facets: Sequence[Mapping[str, Any]],
+    claims: Sequence[Any],
+    obligation_graph: object | Mapping[str, Any] | None,
+    scenario_id: str | None,
+    scope: DataRequirementScope,
+    resolver: CapabilityResolverPort | None,
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
+    scope_profile: _ScenarioScopeProfile | None = None,
+    resolution_inputs: _ConstructResolutionInputs | None = None,
+) -> tuple[tuple[CapabilityBindingLike, ...], tuple[CapabilityRequirementResolution, ...]]:
+    queries = _capability_queries_for_requirements(
+        facets=facets,
+        claims=claims,
+        obligation_graph=obligation_graph,
+        scenario_id=scenario_id,
+        scope=scope,
+        scenario_family_construct_rows=scenario_family_construct_rows,
+        scope_profile=scope_profile,
+        resolution_inputs=resolution_inputs,
+    )
+    bindings: list[CapabilityBindingLike] = []
+    resolutions: list[CapabilityRequirementResolution] = []
+    for query in queries:
+        binding = resolver.resolve(query) if resolver is not None else None
+        snapshot = _capability_binding_snapshot(binding) if binding is not None else None
+        resolutions.append(
+            CapabilityRequirementResolution(
+                scope_profile_id=scope_profile.profile_id if scope_profile else None,
+                query=query,
+                state="binding_returned" if snapshot is not None else "not_established",
+                binding=snapshot,
+                reason_codes=(
+                    () if snapshot is not None else ("capability_resolver_not_established",)
+                ),
+            )
+        )
+        if binding is not None:
+            bindings.append(binding)
+    return tuple(bindings), tuple(resolutions)
+
+
+def _capability_binding_snapshot(
+    binding: CapabilityBindingLike,
+) -> CapabilityBindingSnapshot:
+    """Copy resolver-port fields into the versioned compilation carrier."""
+
+    return CapabilityBindingSnapshot(
+        schema_version=str(binding.schema_version),
+        rule_version_ref=str(binding.rule_version_ref),
+        requirement_id=str(binding.requirement_id or ""),
+        status=str(binding.status),
+        selected_capability_ref=binding.selected_capability_ref,
+        construct_ref=str(binding.construct_ref or ""),
+        capability_index_ref=binding.capability_index_ref,
+        authority_level=str(binding.authority_level),
+        authority_envelope_result=str(binding.authority_envelope_result),
+        binding_reasons=tuple(binding.binding_reasons),
+        blocked_reasons=tuple(binding.blocked_reasons),
+        limitations=tuple(binding.limitations),
+        acquisition_strategies=tuple(dict(item) for item in binding.acquisition_strategies),
+        rejected_alternatives=tuple(dict(item) for item in binding.rejected_alternatives),
+        conflict_markers=tuple(dict(item) for item in binding.conflict_markers),
+    )
 
 
 def _construct_resolution_inputs(
@@ -840,7 +1012,7 @@ def _construct_resolution_inputs(
         scenario_id=scenario_id,
     )
     explicit = _normalised_construct_refs(declared_constructs)
-    required_constructs = graph_constructs or explicit or declared
+    required_constructs = tuple(dict.fromkeys((*graph_constructs, *explicit, *declared)))
     proposals = tuple(
         dict.fromkeys(
             (
@@ -1285,74 +1457,272 @@ def _scenario_adapter_input(scenario: Mapping[str, Any]) -> _ScenarioAdapterInpu
 def _scenario_scope_profile(
     scenario: Mapping[str, Any],
 ) -> _ScenarioScopeProfile | None:
-    """Read an explicit versioned scope profile; absent input stays generic."""
+    """Join every supplied scope and required-construct source without promotion."""
 
-    raw_profile: Mapping[str, Any] | None = None
-    for key in ("scenario_profile", "pilot_profile", "scope_profile", "profile"):
-        candidate = scenario.get(key)
-        if isinstance(candidate, Mapping):
-            raw_profile = candidate
-            break
-    if raw_profile is None:
-        context = scenario.get("context")
-        if isinstance(context, Mapping):
-            for key in ("scenario_profile", "pilot_profile", "scope_profile"):
-                candidate = context.get(key)
-                if isinstance(candidate, Mapping):
-                    raw_profile = candidate
-                    break
-    if raw_profile is None:
-        return None
+    source_profiles: list[tuple[str, object]] = []
+    for key in _SCENARIO_PROFILE_TOP_LEVEL_ALIASES:
+        if key in scenario:
+            source_profiles.append((key, scenario[key]))
+    context = scenario.get("context")
+    if isinstance(context, Mapping):
+        for key in _SCENARIO_PROFILE_CONTEXT_ALIASES:
+            if key in context:
+                source_profiles.append((f"context.{key}", context[key]))
 
-    profile_id = _text(
-        raw_profile.get("profile_id")
-        or raw_profile.get("profile_ref")
-        or raw_profile.get("versioned_profile_id")
-        or raw_profile.get("id")
-        or raw_profile.get("name")
+    parsed = tuple(
+        _parse_scenario_scope_profile(raw_profile, source=source)
+        for source, raw_profile in source_profiles
     )
-    if not profile_id:
-        return None
-    scope = raw_profile.get("scope")
-    scope_mapping = scope if isinstance(scope, Mapping) else {}
-    interval = raw_profile.get("time_window")
-    if not isinstance(interval, Mapping):
-        interval = raw_profile.get("temporal_interval")
-    if not isinstance(interval, Mapping):
-        interval = scope_mapping.get("time_window")
-    interval_mapping = interval if isinstance(interval, Mapping) else {}
+    direct_required = tuple(
+        dict.fromkeys(
+            construct
+            for key in _SCENARIO_DIRECT_REQUIRED_CONSTRUCT_ALIASES
+            if key in scenario
+            for construct in _scenario_profile_construct_aliases(
+                {key: scenario[key]},
+                source="scenario",
+                aliases=(key,),
+                conflict_code="scenario_direct_construct_alias_conflict",
+            )
+        )
+    )
+    direct_proposals = (
+        tuple(
+            dict.fromkeys(
+                construct
+                for key in _SCENARIO_DIRECT_CANDIDATE_CONSTRUCT_ALIASES
+                if key in scenario
+                for construct in _scenario_profile_construct_aliases(
+                    {key: scenario[key]},
+                    source="scenario",
+                    aliases=(key,),
+                    conflict_code="scenario_candidate_proposal_alias_conflict",
+                )
+            )
+        )
+        if any(key in scenario for key in _SCENARIO_DIRECT_CANDIDATE_CONSTRUCT_ALIASES)
+        else ()
+    )
+
+    if not parsed:
+        required = direct_required
+        proposals = direct_proposals
+        if not required and not proposals:
+            return None
+        return _ScenarioScopeProfile(
+            profile_id=_text(scenario.get("scenario_id")) or "scenario",
+            required_constructs=required,
+            candidate_construct_proposals=proposals,
+        )
+
+    primary = parsed[0]
+    primary_scope = (
+        primary.profile_id,
+        primary.jurisdiction,
+        primary.time_start,
+        primary.time_end,
+    )
+    if any(
+        (profile.profile_id, profile.jurisdiction, profile.time_start, profile.time_end)
+        != primary_scope
+        for profile in parsed[1:]
+    ):
+        raise ScenarioScopeProfileInputError(
+            "profile_source_alias_conflict",
+            ",".join(source for source, _ in source_profiles),
+        )
+    return _ScenarioScopeProfile(
+        profile_id=primary.profile_id,
+        jurisdiction=primary.jurisdiction,
+        time_start=primary.time_start,
+        time_end=primary.time_end,
+        required_constructs=tuple(
+            dict.fromkeys(
+                construct
+                for values in (
+                    *(profile.required_constructs for profile in parsed),
+                    direct_required,
+                )
+                for construct in values
+            )
+        ),
+        candidate_construct_proposals=tuple(
+            dict.fromkeys(
+                proposal
+                for values in (
+                    *(profile.candidate_construct_proposals for profile in parsed),
+                    direct_proposals,
+                )
+                for proposal in values
+            )
+        ),
+    )
+
+
+def _parse_scenario_scope_profile(
+    raw_profile: object,
+    *,
+    source: str,
+) -> _ScenarioScopeProfile:
+    if not isinstance(raw_profile, Mapping):
+        raise ScenarioScopeProfileInputError("profile_source_wrong_type", source)
+
+    identity_values: list[tuple[str, str]] = []
+    for key in ("profile_id", "profile_ref", "versioned_profile_id", "id", "name"):
+        if key not in raw_profile:
+            continue
+        value = raw_profile[key]
+        if not isinstance(value, str) or not value.strip():
+            raise ScenarioScopeProfileInputError("profile_identity_invalid", f"{source}.{key}")
+        identity_values.append((key, value.strip()))
+    if not identity_values:
+        raise ScenarioScopeProfileInputError("profile_identity_missing", source)
+    profile_id = identity_values[0][1]
+    if any(value != profile_id for _, value in identity_values[1:]):
+        raise ScenarioScopeProfileInputError("profile_identity_alias_conflict", source)
+
+    scope_value = raw_profile.get("scope", {})
+    if "scope" in raw_profile and not isinstance(scope_value, Mapping):
+        raise ScenarioScopeProfileInputError("profile_scope_wrong_type", f"{source}.scope")
+    scope = scope_value if isinstance(scope_value, Mapping) else {}
+
+    jurisdiction = _scenario_profile_text_alias(
+        tuple(
+            (path, mapping[key])
+            for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+            for key in ("jurisdiction",)
+            if key in mapping
+        ),
+        conflict_code="profile_jurisdiction_alias_conflict",
+    )
+
+    interval_sources: list[tuple[str, Mapping[str, Any]]] = []
+    for path, mapping in ((source, raw_profile), (f"{source}.scope", scope)):
+        for key in ("time_window", "temporal_interval"):
+            if key not in mapping:
+                continue
+            interval = mapping[key]
+            if not isinstance(interval, Mapping):
+                raise ScenarioScopeProfileInputError("profile_interval_wrong_type", f"{path}.{key}")
+            interval_sources.append((f"{path}.{key}", interval))
+
+    start_values = [
+        (f"{path}.{key}", mapping[key])
+        for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+        for key in ("time_start", "start")
+        if key in mapping
+    ]
+    start_values.extend(
+        (f"{path}.{key}", interval[key])
+        for path, interval in interval_sources
+        for key in ("start", "from")
+        if key in interval
+    )
+    time_start = _scenario_profile_text_alias(
+        tuple(start_values),
+        conflict_code="profile_time_start_alias_conflict",
+    )
+
+    end_values = [
+        (f"{path}.{key}", mapping[key])
+        for path, mapping in ((source, raw_profile), (f"{source}.scope", scope))
+        for key in ("time_end", "end")
+        if key in mapping
+    ]
+    end_values.extend(
+        (f"{path}.{key}", interval[key])
+        for path, interval in interval_sources
+        for key in ("end", "to")
+        if key in interval
+    )
+    time_end = _scenario_profile_text_alias(
+        tuple(end_values),
+        conflict_code="profile_time_end_alias_conflict",
+    )
+
+    required_constructs = _scenario_profile_construct_aliases(
+        raw_profile,
+        source=source,
+        aliases=_SCENARIO_PROFILE_REQUIRED_CONSTRUCT_ALIASES,
+        conflict_code="profile_required_construct_alias_conflict",
+    )
+    candidate_construct_proposals = _scenario_profile_construct_aliases(
+        raw_profile,
+        source=source,
+        aliases=_SCENARIO_PROFILE_CANDIDATE_CONSTRUCT_ALIASES,
+        conflict_code="profile_candidate_construct_alias_conflict",
+    )
     return _ScenarioScopeProfile(
         profile_id=profile_id,
-        jurisdiction=(
-            _text(raw_profile.get("jurisdiction"))
-            or _text(scope_mapping.get("jurisdiction"))
-            or None
-        ),
-        time_start=(
-            _text(interval_mapping.get("start"))
-            or _text(interval_mapping.get("from"))
-            or _text(raw_profile.get("time_start"))
-            or _text(raw_profile.get("start"))
-            or None
-        ),
-        time_end=(
-            _text(interval_mapping.get("end"))
-            or _text(interval_mapping.get("to"))
-            or _text(raw_profile.get("time_end"))
-            or _text(raw_profile.get("end"))
-            or None
-        ),
-        required_constructs=_normalised_construct_refs(
-            raw_profile.get("required_constructs")
-            or raw_profile.get("required_evidence_constructs")
-            or raw_profile.get("declared_constructs")
-        ),
-        candidate_construct_proposals=_normalised_construct_refs(
-            raw_profile.get("candidate_construct_proposals")
-            or raw_profile.get("construct_proposals")
-            or raw_profile.get("topic_proposals")
-        ),
+        jurisdiction=jurisdiction,
+        time_start=time_start,
+        time_end=time_end,
+        required_constructs=required_constructs,
+        candidate_construct_proposals=candidate_construct_proposals,
     )
+
+
+def _scenario_profile_text_alias(
+    values: tuple[tuple[str, object], ...],
+    *,
+    conflict_code: str,
+) -> str | None:
+    normalized: list[tuple[str, str | None]] = []
+    for path, value in values:
+        if value is None:
+            normalized.append((path, None))
+        elif isinstance(value, str) and value.strip():
+            normalized.append((path, value.strip()))
+        else:
+            raise ScenarioScopeProfileInputError("profile_text_invalid", path)
+    if not normalized:
+        return None
+    first = normalized[0][1]
+    if any(value != first for _, value in normalized[1:]):
+        raise ScenarioScopeProfileInputError(
+            conflict_code, ",".join(path for path, _ in normalized)
+        )
+    return first
+
+
+def _scenario_profile_construct_aliases(
+    raw_profile: Mapping[str, Any],
+    *,
+    source: str,
+    aliases: tuple[str, ...],
+    conflict_code: str,
+) -> tuple[str, ...]:
+    normalized: list[tuple[str, tuple[str, ...]]] = []
+    for key in aliases:
+        if key not in raw_profile:
+            continue
+        raw_value = raw_profile[key]
+        if raw_value is None:
+            raise ScenarioScopeProfileInputError("profile_constructs_wrong_type", f"{source}.{key}")
+        elif isinstance(raw_value, str):
+            values = (raw_value,)
+        elif isinstance(raw_value, Sequence) and not isinstance(raw_value, bytes | bytearray):
+            values = tuple(raw_value)
+        else:
+            raise ScenarioScopeProfileInputError("profile_constructs_wrong_type", f"{source}.{key}")
+        refs: list[str] = []
+        for value in values:
+            if not isinstance(value, str) or not value.strip():
+                raise ScenarioScopeProfileInputError("profile_construct_invalid", f"{source}.{key}")
+            construct = value.strip().removeprefix("construct:")
+            if not construct:
+                raise ScenarioScopeProfileInputError("profile_construct_invalid", f"{source}.{key}")
+            if construct not in refs:
+                refs.append(construct)
+        normalized.append((key, tuple(refs)))
+    if not normalized:
+        return ()
+    first = normalized[0][1]
+    if any(value != first for _, value in normalized[1:]):
+        raise ScenarioScopeProfileInputError(
+            conflict_code, f"{source}." + ",".join(key for key, _ in normalized)
+        )
+    return first
 
 
 def _scenario_text(scenario: Mapping[str, Any]) -> str:

@@ -240,6 +240,52 @@ def _target_descriptor(value: Any) -> tuple[StateMutationTargetPresence, StateMu
     return "present", "scalar"
 
 
+def _canonical_state_mutation_payload(
+    operation: StateMutation,
+    *,
+    excluded_fields: frozenset[str] = frozenset(),
+    require_complete: bool = False,
+) -> bytes:
+    """Encode one operation through the journal's typed canonical JSON profile."""
+    if type(operation) is not StateMutation:
+        raise ValueError("state mutation operation must be a StateMutation")
+    if require_complete:
+        missing_fields = sorted(
+            set(StateMutation.model_fields).difference(operation.model_fields_set)
+        )
+        if missing_fields:
+            raise ValueError("incomplete state mutation fields: " + ", ".join(missing_fields))
+    payload = operation.model_dump(
+        mode="python",
+        by_alias=True,
+        exclude_none=False,
+        exclude_unset=True,
+    )
+    for name in excluded_fields:
+        payload.pop(name, None)
+    return to_canonical_bytes(payload, _JOURNAL_INTENT_CANON)
+
+
+def canonical_state_mutation_operations(
+    operations: Iterable[StateMutation],
+    *,
+    require_complete: bool = False,
+) -> tuple[bytes, ...]:
+    """Return ordered canonical operation bytes for a cache/journal comparison.
+
+    Field presence is retained, canonical JSON distinguishes booleans from
+    integers and tagged floats from integers, and JSON sequences use the same
+    array representation across tuple/list persistence boundaries.
+    """
+    return tuple(
+        _canonical_state_mutation_payload(
+            operation,
+            require_complete=require_complete,
+        )
+        for operation in operations
+    )
+
+
 @dataclass(frozen=True)
 class BranchedState:
     """A branched state plus the isolation journal used to build it."""
@@ -557,16 +603,23 @@ def mutation_journal_for_state(state: ExperimentState) -> StateMutationJournal |
 
 def mutation_journal_from_operations(
     operations: Iterable[StateMutation],
+    *,
+    require_complete: bool = False,
 ) -> StateMutationJournal:
     """Build a replay journal for operations loaded from a cache artifact."""
-    operations = list(operations)
+    operations = tuple(operations)
+    canonical_state_mutation_operations(
+        operations,
+        require_complete=require_complete,
+    )
     groups: dict[int, bytes] = {}
     for operation in operations:
         if operation.operation_group is None:
             continue
-        intent = to_canonical_bytes(
-            operation.model_dump(exclude={"path", "operation_group"}),
-            _JOURNAL_INTENT_CANON,
+        intent = _canonical_state_mutation_payload(
+            operation,
+            excluded_fields=frozenset({"path", "operation_group"}),
+            require_complete=require_complete,
         )
         previous = groups.setdefault(operation.operation_group, intent)
         if previous != intent:
@@ -574,7 +627,7 @@ def mutation_journal_from_operations(
     return StateMutationJournal(
         isolated_fields=(),
         isolated_paths=(),
-        operations=operations,
+        operations=list(operations),
     )
 
 
@@ -1083,6 +1136,12 @@ class _TrackedModelMixin(BaseModel):
     at admission; this finite profile is not a Python object sandbox.
     """
 
+    def __eq__(self, other: object) -> bool:
+        # Keep model value equality separate from wrapper identity.
+        if not isinstance(other, BaseModel):
+            return False
+        return _tracked_model_values_equal(self, other)
+
     __slots__ = (
         "_mutation_detached",
         "_mutation_journal",
@@ -1258,6 +1317,8 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
         "__get_pydantic_json_schema__",
         "__setattr__",
         "__delattr__",
+        "__eq__",
+        "__ne__",
         "__getattribute__",
         "__copy__",
         "__deepcopy__",
@@ -1290,6 +1351,156 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
     if value.__pydantic_private__ or value.__pydantic_extra__:
         raise TypeError("state mutation journaling refuses private or extra model runtime state")
     return original
+
+
+def _tracked_model_values_equal(
+    left: BaseModel,
+    right: BaseModel,
+    *,
+    depth: int = 0,
+    left_ancestors: frozenset[int] = frozenset(),
+    right_ancestors: frozenset[int] = frozenset(),
+) -> bool:
+    # Compare the full admitted value graph, ignoring only journal wrapper types.
+    if depth > _JOURNAL_INTENT_CANON.max_depth:
+        return False
+    try:
+        left_original = _ordinary_model_type(left)
+        right_original = _ordinary_model_type(right)
+    except TypeError:
+        return False
+    if left_original is not right_original:
+        return False
+    left_identity = id(left)
+    right_identity = id(right)
+    if left_identity in left_ancestors or right_identity in right_ancestors:
+        return False
+    left_ancestors = left_ancestors | {left_identity}
+    right_ancestors = right_ancestors | {right_identity}
+
+    for name in ("__pydantic_extra__", "__pydantic_private__"):
+        left_state = object.__getattribute__(left, name)
+        right_state = object.__getattribute__(right, name)
+        if (left_state is None) != (right_state is None):
+            return False
+        if left_state is not None and not _tracked_values_equal(
+            left_state,
+            right_state,
+            depth=depth + 1,
+            left_ancestors=left_ancestors,
+            right_ancestors=right_ancestors,
+        ):
+            return False
+
+    left_members = dict(_model_members(left))
+    right_members = dict(_model_members(right))
+    if left_members.keys() != right_members.keys():
+        return False
+    return all(
+        _tracked_values_equal(
+            left_members[name],
+            right_members[name],
+            depth=depth + 1,
+            left_ancestors=left_ancestors,
+            right_ancestors=right_ancestors,
+        )
+        for name in left_members
+    )
+
+
+def _tracked_values_equal(
+    left: Any,
+    right: Any,
+    *,
+    depth: int,
+    left_ancestors: frozenset[int],
+    right_ancestors: frozenset[int],
+) -> bool:
+    # Distinguish equal-looking types while normalizing tracked containers.
+    if depth > _JOURNAL_INTENT_CANON.max_depth:
+        return False
+    left_type = type(left)
+    right_type = type(right)
+    left_mro = type.__getattribute__(left_type, "__mro__")
+    right_mro = type.__getattribute__(right_type, "__mro__")
+    left_is_model = BaseModel in left_mro
+    right_is_model = BaseModel in right_mro
+    if left_is_model or right_is_model:
+        return left_is_model and right_is_model and _tracked_model_values_equal(
+            cast("BaseModel", left),
+            cast("BaseModel", right),
+            depth=depth,
+            left_ancestors=left_ancestors,
+            right_ancestors=right_ancestors,
+        )
+
+    if left_type in {dict, _TrackedDict} or right_type in {dict, _TrackedDict}:
+        if left_type not in {dict, _TrackedDict} or right_type not in {dict, _TrackedDict}:
+            return False
+        left_items = tuple(dict.items(left))
+        right_items = tuple(dict.items(right))
+        if any(type(key) is not str for key, _ in (*left_items, *right_items)):
+            return False
+        left_values = dict(left_items)
+        right_values = dict(right_items)
+        if left_values.keys() != right_values.keys():
+            return False
+        return all(
+            _tracked_values_equal(
+                left_values[key],
+                right_values[key],
+                depth=depth + 1,
+                left_ancestors=left_ancestors,
+                right_ancestors=right_ancestors,
+            )
+            for key in left_values
+        )
+
+    if left_type in {list, _TrackedList} or right_type in {list, _TrackedList}:
+        if left_type not in {list, _TrackedList} or right_type not in {list, _TrackedList}:
+            return False
+        left_values = tuple(list.__iter__(left))
+        right_values = tuple(list.__iter__(right))
+        return len(left_values) == len(right_values) and all(
+            _tracked_values_equal(
+                left_item,
+                right_item,
+                depth=depth + 1,
+                left_ancestors=left_ancestors,
+                right_ancestors=right_ancestors,
+            )
+            for left_item, right_item in zip(left_values, right_values, strict=True)
+        )
+
+    if left_type is tuple or right_type is tuple:
+        if left_type is not tuple or right_type is not tuple:
+            return False
+        return len(left) == len(right) and all(
+            _tracked_values_equal(
+                left_item,
+                right_item,
+                depth=depth + 1,
+                left_ancestors=left_ancestors,
+                right_ancestors=right_ancestors,
+            )
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+
+    left_enum = _is_callback_free_scalar_enum(left)
+    right_enum = _is_callback_free_scalar_enum(right)
+    if left_enum or right_enum:
+        return left_enum and right_enum and left_type is right_type and left is right
+    if left_type is not right_type:
+        return False
+    if left is None:
+        return right is None
+    if left_type in {bool, int, str, bytes, date, datetime}:
+        return left == right
+    if left_type is float:
+        return isfinite(left) and isfinite(right) and left == right
+    if left_type is Decimal:
+        return left.is_finite() and right.is_finite() and left == right
+    return False
 
 
 def _initialize_model_tracking(

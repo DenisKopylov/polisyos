@@ -1195,6 +1195,103 @@ async def test_provider_preflight_required_accounting_refuses_before_provider_io
     assert client_calls == []
 
 
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("scenario", "expected_fetches"),
+    [
+        ("simulation", 0),
+        ("missing_key", 0),
+        ("health", 1),
+        ("models", 2),
+        ("pricing", 4),
+        ("model_absent", 4),
+    ],
+)
+async def test_preflight_attests_known_no_completion_before_provider_generation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+    scenario: str,
+    expected_fetches: int,
+) -> None:
+    """Every documented early preflight refusal proves generation was never entered."""
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    module = importlib.import_module("polisyos.scientist.orchestration.llm.provider_verification")
+    monkeypatch.setattr(module, "_PREFLIGHT_CACHE", {})
+    if scenario == "simulation":
+        monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "true")
+    else:
+        monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
+    if scenario == "missing_key":
+        monkeypatch.delenv("POLISYOS_LLM_GATEWAY_API_KEY", raising=False)
+    fetch_calls: list[str] = []
+    client_calls: list[str] = []
+    store = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(tmp_path / f"{scenario}-ledger.json")
+    )
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=f"preflight-{scenario}-run",
+        tenant_id="tenant-fixture",
+        cell_id="cell-fixture",
+        profile_id="research",
+        control_job_id=f"preflight-{scenario}-job",
+    )
+
+    async def fetch_json(url: str, **_kwargs: Any) -> dict[str, Any]:
+        fetch_calls.append(url)
+        leaf = url.rsplit("/", 1)[-1]
+        if scenario == "health" and leaf == "health":
+            raise OSError("configured health endpoint unavailable")
+        if scenario == "models" and leaf == "models":
+            raise OSError("configured model endpoint unavailable")
+        if scenario == "pricing" and leaf == "pricing":
+            raise OSError("configured pricing endpoint unavailable")
+        model_id = "different-model" if scenario == "model_absent" else "model-a"
+        if leaf == "models":
+            return {"data": [{"id": model_id}]}
+        return {}
+
+    def client_factory(**_kwargs: Any) -> object:
+        client_calls.append("constructed")
+        raise AssertionError("a known pre-completion refusal constructed an LLM client")
+
+    report = await run_provider_preflight(
+        models=["model-a"],
+        base_url="http://127.0.0.1:1/v1",
+        provider="configured-gateway",
+        api_key=None if scenario == "missing_key" else "sk-provider-preflight-test-key",
+        producer_settlement_store=store,
+        producer_run_binding=binding,
+        producer_budget_key=f"nl-run:{binding.run_id}",
+        require_producer_settlement=True,
+        fetch_json=fetch_json,
+        client_factory=client_factory,
+    )
+
+    assert report.status in {"failed", "skipped"}
+    assert report.producer_completion_observation == "not_started"
+    assert len(fetch_calls) == expected_fetches
+    assert client_calls == []
+
+
+def test_unclassified_preflight_report_does_not_default_to_no_call() -> None:
+    """A missing producer observation remains unavailable, never an absence claim."""
+    report = ProviderPreflightReport(
+        status="failed",
+        provider="configured-gateway",
+        base_url="https://gateway.example/v1",
+    )
+
+    assert report.producer_completion_observation == "unavailable"
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("ledger_settlement_fails", "expected_status"),
@@ -1313,6 +1410,7 @@ async def test_provider_preflight_gateway_exception_preserves_unknown_settlement
     assert report.status == expected_status
     if ledger_settlement_fails:
         assert tiny.status == "unknown"
+        assert report.producer_completion_observation == "unavailable"
         assert report.failure is not None
         assert report.failure["code"] == "llm_provider_preflight_settlement_unknown"
         assert "producer_event" not in tiny.details
@@ -1323,6 +1421,7 @@ async def test_provider_preflight_gateway_exception_preserves_unknown_settlement
         assert records[0].run_binding == binding
     else:
         assert tiny.status == "failed"
+        assert report.producer_completion_observation == "complete"
         event_reference = tiny.details["producer_event"]
         assert event_reference["event_kind"] == "provider"
         assert event_reference["cost_origin"] == "unknown"

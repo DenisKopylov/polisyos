@@ -5,6 +5,8 @@ const {
   closeMock,
   launchMutationMock,
   subscribeMock,
+  useAuthzMock,
+  useLaunchNlRunMock,
 } = vi.hoisted(() => ({
   buildNaturalLanguageLaunchRequestMock: vi.fn(() => ({
     nl_request: "question",
@@ -12,13 +14,16 @@ const {
   closeMock: vi.fn(),
   launchMutationMock: vi.fn(),
   subscribeMock: vi.fn(),
+  useAuthzMock: vi.fn(),
+  useLaunchNlRunMock: vi.fn(),
 }));
 
 vi.mock("@/api/hooks/useLaunchNlRun", () => ({
-  useLaunchNlRun: () => ({
-    isPending: false,
-    mutateAsync: launchMutationMock,
-  }),
+  useLaunchNlRun: (...args: unknown[]) => useLaunchNlRunMock(...args),
+}));
+
+vi.mock("@/app/authz/AuthzProvider", () => ({
+  useAuthz: () => useAuthzMock(),
 }));
 
 vi.mock("@/api/hooks/useLlmProfiles", () => ({
@@ -55,12 +60,38 @@ function resetStore() {
 }
 
 describe("useClerkNlRun", () => {
+  it("passes the server-returned principal scope to the shared recovery owner", () => {
+    const { result } = renderHook(() => useClerkNlRun());
+
+    expect(useLaunchNlRunMock).toHaveBeenCalledWith({
+      tenantId: "tenant-a",
+      cellId: "cell-a",
+      userId: "principal-a",
+    });
+    expect(result.current.recovery).toEqual({ data: null, error: null });
+  });
+
   beforeEach(() => {
     localStorage.clear();
     resetStore();
     buildNaturalLanguageLaunchRequestMock.mockClear();
     closeMock.mockReset();
     launchMutationMock.mockReset();
+    useAuthzMock.mockReset();
+    useAuthzMock.mockReturnValue({
+      status: "ready",
+      user: {
+        tenant_id: "tenant-a",
+        cell_id: "cell-a",
+        user_id: "principal-a",
+      },
+    });
+    useLaunchNlRunMock.mockReset();
+    useLaunchNlRunMock.mockReturnValue({
+      isPending: false,
+      mutateAsync: launchMutationMock,
+      recovery: { data: null, error: null },
+    });
     subscribeMock.mockReset();
     subscribeMock.mockReturnValue({ close: closeMock });
   });

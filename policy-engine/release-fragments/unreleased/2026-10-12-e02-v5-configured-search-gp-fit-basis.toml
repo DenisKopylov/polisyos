@@ -1,0 +1,27 @@
+id = "2026-10-12-e02-v5-configured-search-gp-fit-basis"
+title = "Recompute configured Search GP fit basis before warm-start admission"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Configured native-GP Search binds selected candidate dimensions to current dynamic MethodJob parameters and carries the typed binding through the fitted CAS basis and fresh receiver. The synthetic DR witness checks a real parameter-dependent metric while remaining candidate-only."
+evidence = [
+  "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+  "src/polisyos/scientist/methods/autotune/models.py",
+  "src/polisyos/scientist/methods/autotune/execution_work.py",
+  "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+  "src/polisyos/scientist/methods/autotune/runtime.py",
+  "tests/unit/scientist/search/strategies/test_bayesian.py",
+  "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+  "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+  "src/polisyos/scientist/methods/autotune/README.md",
+]
+compatibility = "No symbols or DTO exports are added. The optional MethodJobBenchmarkEvaluator.search_parameter_bindings configuration is additive. Work-packet schema 1.2 remains readable only without Search parameter binding fields; bound packets use schema 1.3. Historical profiles remain ordinary measurements unless their exact method/data basis is freshly verified."
+change_class = "python-public-api; persisted-artifact-format"
+surface_classification = "public_experimental: additive configured Search-to-MethodJob parameter binding; no new exported symbols or DTOs"
+migration = "No historical CAS objects are rewritten. Older profile-only evaluations remain available as ordinary measurements; a fresh native-GP warm-start receiver requires the new selected fit-basis artifact and exact MethodJob observation refs."
+api = "SearchLoopRunner resolves each declared SearchSpace field to a dynamic parameter in the current registered MethodSignature, records the exact bounds and ABI digest, and uses the persisted candidate value in the actual MethodJob. The configured generator writes a candidate-only SearchGPFitBasis; its fresh receiver validates the request, selected parameter values, full CAS lineage, and canonical GP refit before using profile-bearing rows."
+limitations = "The R8 source and tests are frozen as an unapplied proposal; no test or native GP/DR execution ran in this author lane. The controlled nonlinear/noisy DR fixture is synthetic and checks only that a declared numeric method parameter reaches the real producer, persisted request/work packet, and fresh reader with differing measured outputs. It establishes no causal truth, identification, calibration, fiscal-source rule, historical issuer custody, or external source authority. B108 remains limited and B157 remains held for the default policy funnel and native L3/L4 economics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/autotune/README.md"]
+runbook_docs = []

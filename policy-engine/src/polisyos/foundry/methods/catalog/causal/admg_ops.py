@@ -52,6 +52,22 @@ class UnsupportedStaticADMGProfileError(ValueError):
 
     limitation_code = "unsupported_static_admg_profile"
 
+    def __init__(self, message: str, *, graph_type_label: str = "not_established") -> None:
+        super().__init__(message)
+        self.graph_type_label = graph_type_label
+
+
+class PartialGraphCompletionSemanticsError(UnsupportedStaticADMGProfileError):
+    """A partial-graph tag has no admitted completion semantics for scalar ID."""
+
+    limitation_code = "partial_graph_completion_semantics_not_established"
+
+
+class InvalidCausalGraphProfileError(UnsupportedStaticADMGProfileError):
+    """The live graph cannot be rebuilt as its declared canonical IR profile."""
+
+    limitation_code = "causal_graph_profile_invalid"
+
 
 class CachedAdjacency:
     """Admit the resolved static profile and prepare its adjacency once."""
@@ -106,6 +122,7 @@ class CachedAdjacency:
 _ADJ_CACHE: dict[int, CachedAdjacency] = {}
 _CC_CACHE: dict[int, tuple[frozenset[str], ...]] = {}
 _GRAPH_REFS: dict[int, weakref.ReferenceType[Any]] = {}
+_CANONICAL_GRAPH_REFS: dict[int, weakref.ReferenceType[Any]] = {}
 
 
 def _purge_graph_cache(key: int) -> None:
@@ -136,9 +153,158 @@ def _get_cached_adjacency(graph: CausalGraphModel) -> CachedAdjacency:
     return adj
 
 
-def _validate_static_admg(graph: CausalGraphModel) -> None:
-    """Require the shared static profile before a consumer transforms the graph."""
-    _get_cached_adjacency(graph)
+def _remember_canonical_graph(graph: CausalGraphModel) -> None:
+    """Remember a validated immutable snapshot for recursive consumers."""
+    key = id(graph)
+    _CANONICAL_GRAPH_REFS[key] = weakref.ref(
+        graph, lambda _ref, cache_key=key: _CANONICAL_GRAPH_REFS.pop(cache_key, None)
+    )
+
+
+def canonical_causal_graph_snapshot(graph: CausalGraphModel) -> CausalGraphModel:
+    """Rebuild the complete live graph from declared IR fields.
+
+    The detached result is the object downstream consumers must use. The small
+    weak identity cache avoids rebuilding an already admitted immutable snapshot
+    during recursive ID calls; ordinary caller-owned and ``model_copy`` values
+    are always revalidated before admission.
+    """
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel, _canonical_causal_graph
+
+    if type(graph) is CausalGraphModel:
+        reference = _CANONICAL_GRAPH_REFS.get(id(graph))
+        if reference is not None and reference() is graph:
+            return graph
+    try:
+        canonical = _canonical_causal_graph(graph)
+    except (TypeError, ValueError) as exc:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: causal graph fields fail canonical IR validation."
+        ) from exc
+    if type(canonical) is not CausalGraphModel:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: canonical graph has a noncanonical runtime type."
+        )
+    _remember_canonical_graph(canonical)
+    return canonical
+
+
+def canonical_scalar_query_graph(graph: CausalGraphModel) -> CausalGraphModel:
+    """Return the canonical graph snapshot or refuse an unadmitted partial tag.
+
+    PAG and CPDAG completion semantics are not selected by endpoint orientation,
+    policy labels, or a first completion. Full-law M-graph and other native
+    query paths remain available because this boundary does not impose an ADMG
+    or acyclicity restriction.
+    """
+    from polisyos.ir.analytics.causal_graph import GraphType
+
+    canonical = canonical_causal_graph_snapshot(graph)
+    if canonical.graph_type in {GraphType.PAG, GraphType.CPDAG}:
+        label = canonical.graph_type.value
+        raise PartialGraphCompletionSemanticsError(
+            "Unsupported static ADMG profile: graph type "
+            f"{label!r} has no admitted completion semantics for scalar identification.",
+            graph_type_label=label,
+        )
+    return canonical
+
+
+def _validate_static_admg(graph: CausalGraphModel) -> CausalGraphModel:
+    """Admit a scalar query graph and return the exact snapshot it validated."""
+    canonical = canonical_scalar_query_graph(graph)
+    _get_cached_adjacency(canonical)
+    return canonical
+
+
+def _validate_static_id_graph(graph: CausalGraphModel) -> CausalGraphModel:
+    """Admit the resolved acyclic graph profile required by static ID methods.
+
+    The sigma calculus retains its cyclic graph owner, and CausalEngine's
+    validated dynamic reduction remains a separate route. Direct static ID
+    methods require an acyclic directed component for a declared ADMG; DAG
+    acyclicity is already enforced by canonical IR validation.
+    """
+    from polisyos.ir.analytics.causal_graph import GraphType
+
+    canonical = _validate_static_admg(graph)
+    if canonical.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        raise UnsupportedStaticADMGProfileError(
+            "Unsupported static ID profile: graph type "
+            f"{canonical.graph_type.value!r} requires its dedicated query owner; "
+            "M-graph identification requires full-law recovery inputs.",
+            graph_type_label=canonical.graph_type.value,
+        )
+    if canonical.graph_type is GraphType.ADMG and has_directed_cycle(canonical):
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: declared ADMG has a directed cycle; "
+            "static ID requires an acyclic directed component.",
+            graph_type_label=canonical.graph_type.value,
+        )
+    return canonical
+
+
+def canonical_scalar_selection_diagram(diagram: Any) -> Any:
+    """Rebuild a direct TR query from the actual typed diagram fields.
+
+    The scalar graph gate and the S-node set are one direct-query input. This
+    returns a detached diagram whose graph and S-nodes are the exact values
+    consumed by the transport identifier.
+    """
+    from polisyos.ir.analytics.causal_graph import (
+        _canonical_model,
+        _canonical_model_field_snapshot,
+        _snapshot_canonical_value,
+    )
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
+
+    try:
+        fields = _canonical_model_field_snapshot(diagram, SelectionDiagram)
+        fields["base_graph"] = _validate_static_id_graph(fields["base_graph"])
+        fields["s_nodes"] = [_canonical_model(node, SNode) for node in fields["s_nodes"]]
+        graph_nodes = set(fields["base_graph"].nodes)
+        unknown_targets = sorted(
+            {node.target_variable for node in fields["s_nodes"]} - graph_nodes
+        )
+        if unknown_targets:
+            raise InvalidCausalGraphProfileError(
+                "Unsupported static ADMG profile: S-node target(s) are absent from "
+                f"the base graph nodes: {unknown_targets!r}.",
+                graph_type_label=fields["base_graph"].graph_type.value,
+            )
+
+        context_fields: dict[str, dict[str, Any]] = {}
+        for field_name in ("source_context", "target_context"):
+            context = fields[field_name]
+            if type(context) is not ContextProfile:
+                raise ValueError("selection diagram context must have its canonical IR type")
+            stored = object.__getattribute__(context, "__dict__")
+            if type(stored) is not dict or set(stored) != set(ContextProfile.model_fields):
+                raise ValueError("selection diagram context fields are not canonical")
+            context_fields[field_name] = {
+                name: _snapshot_canonical_value(stored[name])
+                for name in ContextProfile.model_fields
+            }
+        fields.update(
+            {
+                name: ContextProfile.model_validate(payload, strict=True)
+                for name, payload in context_fields.items()
+            }
+        )
+        canonical = SelectionDiagram.model_validate(fields, strict=True)
+    except UnsupportedStaticADMGProfileError:
+        raise
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: selection diagram fields fail canonical IR validation."
+        ) from exc
+
+    if type(canonical) is not SelectionDiagram:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: canonical selection diagram has a noncanonical type."
+        )
+    return canonical
 
 
 def _derived_graph_model(
@@ -273,7 +439,7 @@ def do_operator(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     kept_edges = []
     for e in graph.edges:
         # Remove directed edges INTO intervention nodes
@@ -334,7 +500,7 @@ def remove_outgoing_edges(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     kept_edges = []
     for e in graph.edges:
         # Drop directed edges whose source is in the cut set
@@ -368,7 +534,7 @@ def c_components(graph: CausalGraphModel) -> list[frozenset[str]]:
 
     Returns list of frozensets (one per component), sorted largest-first.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     key = id(graph)
     cached_components = _CC_CACHE.get(key)
     if cached_components is not None:
@@ -455,7 +621,7 @@ def induced_subgraph(
     Only nodes in node_subset and edges with both endpoints in node_subset
     are retained.  graph_type is preserved.
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     kept_nodes = [n for n in graph.nodes if n in node_subset]
     kept_edges = [e for e in graph.edges if e.src in node_subset and e.dst in node_subset]
     return _derived_graph_model(
@@ -505,7 +671,7 @@ def m_separation(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     if x_set & y_set:
         return False
     if not x_set or not y_set:
@@ -815,7 +981,7 @@ def condense_graph(
     sccs: list[frozenset[str]],
 ) -> CausalGraphModel:
     """Collapse each SCC into a meta-node and preserve inter-component edges."""
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
 
     node_to_comp: dict[str, frozenset[str]] = {}
@@ -1004,7 +1170,7 @@ def augment_with_s_nodes(
     """
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     existing_nodes = set(graph.nodes)
     existing_edge_pairs = {(e.src, e.dst) for e in graph.edges}
 
@@ -1116,7 +1282,7 @@ def resolve_s_node_by_adjustment(
     CausalGraphModel
         New graph without the S-node and its edges (original is unchanged).
     """
-    _validate_static_admg(graph)
+    graph = _validate_static_admg(graph)
     s_name = f"S_{s_var_name}"
     if s_name not in graph.nodes:
         return graph  # no-op

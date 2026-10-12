@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections import deque
 from collections.abc import Mapping
+from dataclasses import dataclass
 from typing import Any, ClassVar
 
 import numpy as np
@@ -368,6 +370,295 @@ def _validate_feasibility(
         )
 
 
+@dataclass(slots=True)
+class _ResidualEdge:
+    """One mutable edge in the fractional transportation network."""
+
+    destination: int
+    reverse_index: int
+    remaining: float
+
+
+def _add_residual_edge(
+    graph: list[list[_ResidualEdge]], source: int, destination: int, capacity: float
+) -> int:
+    forward_index = len(graph[source])
+    reverse_index = len(graph[destination])
+    graph[source].append(_ResidualEdge(destination, reverse_index, capacity))
+    graph[destination].append(_ResidualEdge(source, forward_index, 0.0))
+    return forward_index
+
+
+def _strongly_connected_components(adjacency: list[list[int]]) -> list[int]:
+    """Return component ids using iterative Kosaraju traversal."""
+    reverse_adjacency = [[] for _ in adjacency]
+    for source, destinations in enumerate(adjacency):
+        for destination in destinations:
+            reverse_adjacency[destination].append(source)
+
+    visited = [False] * len(adjacency)
+    order: list[int] = []
+    for root in range(len(adjacency)):
+        if visited[root]:
+            continue
+        visited[root] = True
+        stack = [(root, 0)]
+        while stack:
+            node, next_index = stack[-1]
+            if next_index == len(adjacency[node]):
+                order.append(node)
+                stack.pop()
+                continue
+            destination = adjacency[node][next_index]
+            stack[-1] = (node, next_index + 1)
+            if not visited[destination]:
+                visited[destination] = True
+                stack.append((destination, 0))
+
+    components = [-1] * len(adjacency)
+    component_id = 0
+    for root in reversed(order):
+        if components[root] >= 0:
+            continue
+        components[root] = component_id
+        stack = [root]
+        while stack:
+            node = stack.pop()
+            for destination in reverse_adjacency[node]:
+                if components[destination] < 0:
+                    components[destination] = component_id
+                    stack.append(destination)
+        component_id += 1
+    return components
+
+
+def _relative_interior_support(
+    row_targets: np.ndarray,
+    col_targets: np.ndarray,
+    row_index: np.ndarray,
+    col_index: np.ndarray,
+    prior_flows: np.ndarray,
+) -> np.ndarray | None:
+    """Find edges that can be positive in a feasible fractional transportation flow.
+
+    A single feasible flow identifies edges already carrying mass. A zero-flow
+    edge can carry mass in another feasible flow exactly when its forward
+    residual arc lies on an alternating cycle in the row/column residual graph.
+    If floating-point residuals make that support proof ambiguous, return None
+    and leave the existing IPF path to handle the original support.
+    """
+    n_rows = row_targets.shape[0]
+    n_cols = col_targets.shape[0]
+    n_edges = prior_flows.shape[0]
+    if row_index.shape != prior_flows.shape or col_index.shape != prior_flows.shape:
+        return None
+    if (
+        not np.all(np.isfinite(row_targets))
+        or not np.all(np.isfinite(col_targets))
+        or not np.all(np.isfinite(prior_flows))
+        or np.any(row_targets < 0.0)
+        or np.any(col_targets < 0.0)
+        or np.any(prior_flows < 0.0)
+        or np.any((row_index < 0) | (row_index >= n_rows))
+        or np.any((col_index < 0) | (col_index >= n_cols))
+    ):
+        return None
+
+    row_mass = float(np.sum(row_targets))
+    col_mass = float(np.sum(col_targets))
+    if not np.isfinite(row_mass) or not np.isfinite(col_mass) or row_mass != col_mass:
+        return None
+    if row_mass == 0.0:
+        return np.zeros(n_edges, dtype=bool)
+
+    roundoff = (
+        np.finfo(float).eps
+        * max(1.0, row_mass)
+        * max(32, n_rows + n_cols + n_edges)
+    )
+    if not np.isfinite(roundoff) or roundoff <= 0.0:
+        return None
+    if np.any((row_targets > 0.0) & (row_targets <= roundoff)):
+        return None
+    if np.any((col_targets > 0.0) & (col_targets <= roundoff)):
+        return None
+
+    edge_capacities = np.minimum(row_targets[row_index], col_targets[col_index])
+    supported_edges = prior_flows > 0.0
+    if np.any(supported_edges & (edge_capacities > 0.0) & (edge_capacities <= roundoff)):
+        return None
+
+    source = 0
+    row_offset = 1
+    col_offset = row_offset + n_rows
+    sink = col_offset + n_cols
+    graph: list[list[_ResidualEdge]] = [[] for _ in range(sink + 1)]
+    source_edges: list[tuple[int, int]] = []
+    sink_edges: list[tuple[int, int]] = []
+    for row, target in enumerate(row_targets):
+        edge_index = _add_residual_edge(graph, source, row_offset + row, float(target))
+        source_edges.append((source, edge_index))
+    for col, target in enumerate(col_targets):
+        edge_index = _add_residual_edge(graph, col_offset + col, sink, float(target))
+        sink_edges.append((col_offset + col, edge_index))
+
+    candidate_edges: list[tuple[int, int, int, float]] = []
+    for edge_position, (row, col) in enumerate(zip(row_index, col_index, strict=True)):
+        if not supported_edges[edge_position]:
+            continue
+        capacity = float(edge_capacities[edge_position])
+        if capacity <= 0.0:
+            candidate_edges.append((edge_position, row_offset + int(row), -1, 0.0))
+            continue
+        graph_edge_index = _add_residual_edge(
+            graph, row_offset + int(row), col_offset + int(col), capacity
+        )
+        candidate_edges.append(
+            (edge_position, row_offset + int(row), graph_edge_index, capacity)
+        )
+
+    ambiguous_flow = False
+
+    def _send_one_path(levels: list[int], cursors: list[int]) -> float:
+        nonlocal ambiguous_flow
+        nodes = [source]
+        path: list[tuple[int, int]] = []
+        while nodes:
+            node = nodes[-1]
+            if node == sink:
+                amount = min(graph[parent][edge_index].remaining for parent, edge_index in path)
+                if amount <= roundoff:
+                    ambiguous_flow = True
+                    return 0.0
+                for parent, edge_index in path:
+                    edge = graph[parent][edge_index]
+                    reverse = graph[edge.destination][edge.reverse_index]
+                    edge.remaining -= amount
+                    reverse.remaining += amount
+                return amount
+
+            while cursors[node] < len(graph[node]):
+                edge_index = cursors[node]
+                edge = graph[node][edge_index]
+                if edge.remaining > 0.0 and levels[edge.destination] == levels[node] + 1:
+                    path.append((node, edge_index))
+                    nodes.append(edge.destination)
+                    break
+                cursors[node] += 1
+            else:
+                levels[node] = -1
+                nodes.pop()
+                if path:
+                    parent, _ = path.pop()
+                    cursors[parent] += 1
+        return 0.0
+
+    while True:
+        levels = [-1] * len(graph)
+        levels[source] = 0
+        queue = deque([source])
+        while queue:
+            node = queue.popleft()
+            for edge in graph[node]:
+                if edge.remaining > 0.0 and levels[edge.destination] < 0:
+                    levels[edge.destination] = levels[node] + 1
+                    queue.append(edge.destination)
+        if levels[sink] < 0:
+            break
+        cursors = [0] * len(graph)
+        while _send_one_path(levels, cursors) > 0.0:
+            pass
+        if ambiguous_flow:
+            return None
+
+    if any(graph[node][edge_index].remaining != 0.0 for node, edge_index in source_edges):
+        return None
+    if any(graph[node][edge_index].remaining != 0.0 for node, edge_index in sink_edges):
+        return None
+
+    edge_flows = np.zeros(n_edges, dtype=float)
+    edge_residuals = np.zeros(n_edges, dtype=float)
+    for edge_position, node, edge_index, capacity in candidate_edges:
+        if edge_index < 0:
+            continue
+        edge = graph[node][edge_index]
+        reverse = graph[edge.destination][edge.reverse_index]
+        edge_flows[edge_position] = reverse.remaining
+        edge_residuals[edge_position] = edge.remaining
+        if (
+            0.0 < reverse.remaining <= roundoff
+            or 0.0 < edge.remaining <= roundoff
+            or reverse.remaining > capacity + roundoff
+        ):
+            return None
+
+    if (
+        not np.all(np.isfinite(edge_flows))
+        or np.any(edge_flows < 0.0)
+        or np.any(edge_flows > edge_capacities + roundoff)
+        or np.any(edge_flows[~supported_edges] != 0.0)
+    ):
+        return None
+    flow_mass = float(np.sum(edge_flows))
+    if not np.isfinite(flow_mass) or abs(flow_mass - row_mass) > roundoff:
+        return None
+
+    achieved_rows = _bincount(row_index, edge_flows, n_rows)
+    achieved_cols = _bincount(col_index, edge_flows, n_cols)
+    if (
+        np.max(np.abs(achieved_rows - row_targets), initial=0.0) > roundoff
+        or np.max(np.abs(achieved_cols - col_targets), initial=0.0) > roundoff
+    ):
+        return None
+
+    adjacency = [[] for _ in range(n_rows + n_cols)]
+    for edge_position, (row, col) in enumerate(zip(row_index, col_index, strict=True)):
+        if not supported_edges[edge_position]:
+            continue
+        row_node = int(row)
+        col_node = n_rows + int(col)
+        if edge_flows[edge_position] > 0.0:
+            adjacency[col_node].append(row_node)
+        if edge_residuals[edge_position] > 0.0:
+            adjacency[row_node].append(col_node)
+
+    components = _strongly_connected_components(adjacency)
+    relative_support = np.zeros(n_edges, dtype=bool)
+    positive_flow = edge_flows > 0.0
+    alternating_cycle = np.fromiter(
+        (
+            components[int(row)] == components[n_rows + int(col)]
+            for row, col in zip(row_index, col_index, strict=True)
+        ),
+        dtype=bool,
+        count=n_edges,
+    )
+    relative_support[supported_edges] = positive_flow[supported_edges] | (
+        (edge_residuals[supported_edges] > 0.0) & alternating_cycle[supported_edges]
+    )
+
+    retained_flow = np.where(relative_support, edge_flows, 0.0)
+    retained_rows = _bincount(row_index, retained_flow, n_rows)
+    retained_cols_from_flow = _bincount(col_index, retained_flow, n_cols)
+    if (
+        np.max(np.abs(retained_rows - row_targets), initial=0.0) > roundoff
+        or np.max(np.abs(retained_cols_from_flow - col_targets), initial=0.0) > roundoff
+    ):
+        return None
+
+    retained_rows = _bincount(
+        row_index[relative_support], np.ones(np.count_nonzero(relative_support)), n_rows
+    )
+    retained_cols = _bincount(
+        col_index[relative_support], np.ones(np.count_nonzero(relative_support)), n_cols
+    )
+    if np.any((row_targets > 0.0) & (retained_rows == 0.0)):
+        return None
+    if np.any((col_targets > 0.0) & (retained_cols == 0.0)):
+        return None
+    return relative_support
+
+
 def _sparse_ipf(
     row_targets: np.ndarray,
     col_targets: np.ndarray,
@@ -553,6 +844,16 @@ def _solve_demographic_consistency(
         prior_flows,
         tolerance=tolerance,
     )
+    objective_prior_flows = prior_flows
+    relative_support = _relative_interior_support(
+        row_targets,
+        reconciled_survivor_targets,
+        row_index,
+        col_index,
+        prior_flows,
+    )
+    if relative_support is not None:
+        prior_flows = np.where(relative_support, prior_flows, 0.0)
     if soft_constraint_matrix is None:
         flows, achieved_rows, achieved_survivor_states, iterations, converged = _sparse_ipf(
             row_targets,
@@ -612,7 +913,7 @@ def _solve_demographic_consistency(
         )
     )
     structural_zero_violations = int(
-        np.count_nonzero((prior_flows <= tolerance) & (flows > tolerance))
+        np.count_nonzero((objective_prior_flows <= tolerance) & (flows > tolerance))
     )
     diagnostics.update(
         {
@@ -627,7 +928,9 @@ def _solve_demographic_consistency(
             ),
             "entrant_mass_total": float(np.sum(entrant_state_totals)),
             "exit_mass_total": float(np.sum(exit_weights)),
-            "entropic_objective": _entropic_objective(flows, np.maximum(prior_flows, 1e-300)),
+            "entropic_objective": _entropic_objective(
+                flows, np.maximum(objective_prior_flows, 1e-300)
+            ),
             "structural_zero_violations": structural_zero_violations,
         }
     )

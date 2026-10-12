@@ -1,0 +1,35 @@
+id = "2026-10-12-v4-v7-artifact-profile-resolution-errors"
+title = "Distinguish corrupt artifact bytes from profile lookup misses"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Eight resolver-backed artifact operations declare route-specific 409 responses as application/problem+json with the strict RuntimeApiProblem model; missing artifacts and unavailable profiles remain in the 404 family."
+evidence = [
+  "src/polisyos/runtime/http/routes/artifacts.py",
+  "docs/reference/api/artifacts.md",
+  "schemas/runtime_api_v1.openapi.json",
+  "tests/unit/remediation/test_frc_02_owner.py",
+]
+compatibility = "Clients of the eight resolver-backed artifact operations should handle 409 artifact_integrity_failed separately from 404 lookup results. The POST batch route is outside this resolver-scoped response declaration; the predictive diagnostic's default-off refusal remains a separate 409 reason."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API"
+migration = "No persisted-artifact migration is required. Regenerate the Runtime API OpenAPI snapshot, canonical runtime client, and dashboard API types with their registered generators."
+api = "The eight single-artifact operations using the shared manifest resolver advertise 409 as application/problem+json with a direct RuntimeApiProblem schema reference, matching the runtime error serializer; route-specific codes distinguish integrity failures from other conflicts. Missing artifacts remain 404 artifact_not_found; unavailable selected profiles use 404 artifact_manifest_profile_not_found only when the store can distinguish them."
+limitations = "The generic ArtifactStore interface does not inventory exact views independently of a default view. An exact-only view queried with a different valid profile can therefore still be reported as 404 artifact_not_found rather than 404 artifact_manifest_profile_not_found. Both outcomes remain 404; no integrity or admission bypass was observed. The artifact route change is a public response contract, not proof of profile inventory, runtime currentness, admission, producer authority, or criterion closure."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/artifacts.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "artifact-profile-resolution-integrity-response"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: polisyos.runtime HTTP API artifact operation responses"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The eight artifact operations that use the shared manifest resolver declare route-specific application/problem+json 409 responses using RuntimeApiProblem, matching the runtime serializer and leaving each operation's reason in code."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/artifacts.md"]
+runbook_docs = []

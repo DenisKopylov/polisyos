@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Mapping
 from copy import deepcopy
@@ -40,6 +41,340 @@ class EdgeMark(str, Enum):
     TAIL = "tail"
     ARROW = "arrow"
     CIRCLE = "circle"
+
+
+class UnsupportedGraphProjectionError(ValueError):
+    """Typed refusal when a source graph cannot support one admitted DAG projection."""
+
+    def __init__(self, reason_code: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(
+            "cannot project unresolved partial orientation or unsupported source "
+            f"profile: {reason_code}; retain the original graph for a partial-graph "
+            "consumer"
+        )
+
+
+class GraphProjectionStatus(str, Enum):
+    """Describe whether a source graph has an admitted DAG projection."""
+
+    IDENTITY = "identity"
+    PROJECTED = "projected"
+    UNAVAILABLE = "unavailable"
+    UNSUPPORTED = "unsupported"
+
+
+class GraphProjectionDisposition(BaseModel):
+    """Content-bound status for a graph identity or an explicit DAG projection."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: GraphProjectionStatus
+    source_graph_type: GraphType
+    source_graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    resolved_graph_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    reason_code: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_disposition(self) -> GraphProjectionDisposition:
+        if self.status is GraphProjectionStatus.IDENTITY:
+            if self.source_graph_type is not GraphType.DAG:
+                raise ValueError("identity disposition requires a declared DAG source")
+            if self.resolved_graph_sha256 not in (None, self.source_graph_sha256):
+                raise ValueError(
+                    "identity disposition cannot change the source graph content"
+                )
+            if self.reason_code is not None:
+                raise ValueError("identity disposition cannot carry a refusal reason")
+        elif self.status is GraphProjectionStatus.PROJECTED:
+            if self.source_graph_type not in {
+                GraphType.PAG, GraphType.CPDAG, GraphType.ADMG
+            }:
+                raise ValueError(
+                    "projected disposition requires an admitted source graph profile"
+                )
+            if self.resolved_graph_sha256 is None or self.reason_code is not None:
+                raise ValueError(
+                    "projected disposition requires a resolved graph and no refusal"
+                )
+        elif self.status is GraphProjectionStatus.UNAVAILABLE:
+            if self.resolved_graph_sha256 is not None or self.reason_code is None:
+                raise ValueError("unavailable disposition requires a reason and no DAG")
+        elif self.reason_code is None:
+            raise ValueError("unsupported disposition requires a reason")
+        return self
+
+
+def _declared_cached_property_names(model_type: type[BaseModel]) -> frozenset[str]:
+    """Return cache names declared by the model class hierarchy."""
+    return frozenset(
+        name
+        for base in reversed(model_type.__mro__)
+        for name, descriptor in vars(base).items()
+        if isinstance(descriptor, cached_property)
+    )
+
+
+def _snapshot_canonical_value(value: Any) -> Any:
+    """Copy canonical container values without trusting caller-defined iterators."""
+    if type(value) in (list, _FrozenList):
+        return [_snapshot_canonical_value(item) for item in list.__iter__(value)]
+    if type(value) in (dict, _FrozenDict):
+        return {
+            key: _snapshot_canonical_value(item)
+            for key, item in dict.items(value)
+        }
+    if type(value) is tuple:
+        return tuple(_snapshot_canonical_value(item) for item in value)
+    if type(value) is set:
+        return {_snapshot_canonical_value(item) for item in value}
+    if type(value) is frozenset:
+        return frozenset(_snapshot_canonical_value(item) for item in value)
+    if isinstance(value, (list, dict, tuple, set, frozenset)):
+        raise ValueError("canonical model contains a noncanonical container")
+    return value
+
+
+def _canonical_model_field_snapshot(
+    instance: object,
+    model_type: type[BaseModel],
+) -> dict[str, Any]:
+    """Read every declared model field and reject undeclared runtime storage."""
+    if type(instance) is not model_type:
+        raise ValueError(f"expected canonical {model_type.__name__} runtime type")
+    try:
+        stored_fields = object.__getattribute__(instance, "__dict__")
+        extra_fields = object.__getattribute__(instance, "__pydantic_extra__")
+    except AttributeError as exc:
+        raise ValueError("canonical model storage is unavailable") from exc
+    try:
+        private_fields = object.__getattribute__(instance, "__pydantic_private__")
+    except AttributeError as exc:
+        if getattr(model_type, "__private_attributes__", {}):
+            raise ValueError("canonical model private storage is unavailable") from exc
+        # Pydantic's model_construct omits this internal slot when the schema
+        # declares no private attributes. It carries no model data; the complete
+        # declared fields below are still rebuilt and strictly revalidated.
+        private_fields = None
+    if type(stored_fields) is not dict:
+        raise ValueError("canonical model field storage must be a plain dictionary")
+    if extra_fields is not None:
+        raise ValueError("canonical model cannot carry Pydantic extra fields")
+    if private_fields is not None and (
+        type(private_fields) is not dict or private_fields
+    ):
+        raise ValueError("canonical model cannot carry undeclared private fields")
+
+    declared_fields = set(model_type.model_fields)
+    cached_properties = _declared_cached_property_names(model_type)
+    stored_names = set(stored_fields)
+    unknown_names = stored_names - declared_fields - cached_properties
+    missing_names = declared_fields - stored_names
+    if unknown_names:
+        raise ValueError(
+            "canonical model has undeclared stored fields: "
+            + ", ".join(sorted(str(name) for name in unknown_names))
+        )
+    if missing_names:
+        raise ValueError(
+            "canonical model is missing stored fields: "
+            + ", ".join(sorted(missing_names))
+        )
+    return {
+        name: _snapshot_canonical_value(stored_fields[name])
+        for name in model_type.model_fields
+    }
+
+
+def _canonical_model(instance: object, model_type: type[BaseModel]) -> BaseModel:
+    """Revalidate a model from its complete declared field set."""
+    fields = _canonical_model_field_snapshot(instance, model_type)
+    try:
+        return model_type.model_validate(fields, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"canonical {model_type.__name__} validation failed") from exc
+
+
+def _canonical_causal_graph(graph: object) -> CausalGraphModel:
+    """Rebuild a graph and every nested edge from the actual canonical fields."""
+    fields = _canonical_model_field_snapshot(graph, CausalGraphModel)
+    edges = fields.get("edges")
+    if type(edges) is not list:
+        raise ValueError("canonical graph edges must be a list")
+    fields["edges"] = [_canonical_model(edge, CausalEdge) for edge in edges]
+    try:
+        return CausalGraphModel.model_validate(fields, strict=True)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("canonical causal graph validation failed") from exc
+
+
+def _canonical_graph_projection_disposition(
+    disposition: object,
+) -> GraphProjectionDisposition:
+    """Revalidate the complete stored disposition before using its status."""
+    canonical = _canonical_model(disposition, GraphProjectionDisposition)
+    if type(canonical) is not GraphProjectionDisposition:
+        raise ValueError("canonical graph disposition validation failed")
+    return canonical
+
+
+def _allows_legacy_graph_projection_adaptation(value: Mapping[str, Any]) -> bool:
+    """Allow the adapter only for unversioned or exact schema-1.0 receipts."""
+    return "schema_version" not in value or value["schema_version"] == "1.0"
+
+
+def graph_content_sha256(graph: CausalGraphModel) -> str:
+    """Hash complete, strictly revalidated model fields, excluding declared caches."""
+    canonical = _canonical_causal_graph(graph)
+    payload = canonical.model_dump(mode="json")
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def graph_projection_disposition(
+    source_graph: CausalGraphModel,
+    resolved_graph: CausalGraphModel | None,
+    *,
+    status: GraphProjectionStatus,
+    reason_code: str | None = None,
+) -> GraphProjectionDisposition:
+    """Bind a projection status to the exact source and optional resolved graph."""
+    source_graph = _canonical_causal_graph(source_graph)
+    if resolved_graph is not None:
+        resolved_graph = _canonical_causal_graph(resolved_graph)
+    return GraphProjectionDisposition(
+        status=status,
+        source_graph_type=source_graph.graph_type,
+        source_graph_sha256=graph_content_sha256(source_graph),
+        resolved_graph_sha256=(
+            graph_content_sha256(resolved_graph) if resolved_graph is not None else None
+        ),
+        reason_code=reason_code,
+    )
+
+
+def legacy_graph_projection_disposition(
+    source_graph: CausalGraphModel,
+    resolved_graph: CausalGraphModel | None,
+) -> GraphProjectionDisposition:
+    """Upgrade a historical graph receipt only when its projection replays exactly.
+
+    A historical source graph without a recorded result remains an unsupported
+    input for DAG-only consumers. A stored DAG is admitted only when the current
+    canonical projector recreates the complete payload byte-for-byte by digest.
+    The old candidate remains preserved on an unsupported receipt but cannot be
+    consumed as an analysis graph.
+    """
+    source_graph = _canonical_causal_graph(source_graph)
+    if resolved_graph is not None:
+        resolved_graph = _canonical_causal_graph(resolved_graph)
+    source_hash = graph_content_sha256(source_graph)
+    resolved_hash = (
+        graph_content_sha256(resolved_graph) if resolved_graph is not None else None
+    )
+    if source_graph.graph_type is GraphType.DAG:
+        if resolved_hash in (None, source_hash):
+            return GraphProjectionDisposition(
+                status=GraphProjectionStatus.IDENTITY,
+                source_graph_type=source_graph.graph_type,
+                source_graph_sha256=source_hash,
+                resolved_graph_sha256=resolved_hash,
+            )
+        return GraphProjectionDisposition(
+            status=GraphProjectionStatus.UNSUPPORTED,
+            source_graph_type=source_graph.graph_type,
+            source_graph_sha256=source_hash,
+            resolved_graph_sha256=resolved_hash,
+            reason_code="historical_identity_projection_mismatch",
+        )
+    if resolved_graph is None:
+        return GraphProjectionDisposition(
+            status=GraphProjectionStatus.UNSUPPORTED,
+            source_graph_type=source_graph.graph_type,
+            source_graph_sha256=source_hash,
+            reason_code="historical_projection_disposition_not_recorded",
+        )
+    try:
+        expected, _ = project_graph_to_dag(source_graph)
+    except ValueError:
+        expected = None
+    if expected is not None and graph_content_sha256(expected) == resolved_hash:
+        return GraphProjectionDisposition(
+            status=GraphProjectionStatus.PROJECTED,
+            source_graph_type=source_graph.graph_type,
+            source_graph_sha256=source_hash,
+            resolved_graph_sha256=resolved_hash,
+        )
+    return GraphProjectionDisposition(
+        status=GraphProjectionStatus.UNSUPPORTED,
+        source_graph_type=source_graph.graph_type,
+        source_graph_sha256=source_hash,
+        resolved_graph_sha256=resolved_hash,
+        reason_code="historical_projection_receipt_not_recomputed",
+    )
+
+
+def graph_for_analysis(
+    source_graph: CausalGraphModel,
+    resolved_graph: CausalGraphModel | None,
+    disposition: GraphProjectionDisposition | None,
+) -> CausalGraphModel | None:
+    """Return only a fully revalidated source identity or canonical DAG projection."""
+    source_graph = _canonical_causal_graph(source_graph)
+    if resolved_graph is not None:
+        resolved_graph = _canonical_causal_graph(resolved_graph)
+    if disposition is None:
+        if resolved_graph is not None:
+            raise ValueError("resolved graph requires a typed projection disposition")
+        return source_graph if source_graph.graph_type is GraphType.DAG else None
+
+    disposition = _canonical_graph_projection_disposition(disposition)
+    if (
+        disposition.source_graph_type is not source_graph.graph_type
+        or disposition.source_graph_sha256 != graph_content_sha256(source_graph)
+    ):
+        raise ValueError(
+            "graph projection disposition does not bind the current source graph"
+        )
+    if disposition.status is GraphProjectionStatus.IDENTITY:
+        if (
+            resolved_graph is not None
+            and graph_content_sha256(resolved_graph) != disposition.source_graph_sha256
+        ):
+            raise ValueError("identity projection differs from its source graph")
+        return source_graph
+    if disposition.status is GraphProjectionStatus.PROJECTED:
+        if (
+            resolved_graph is None
+            or graph_content_sha256(resolved_graph) != disposition.resolved_graph_sha256
+        ):
+            raise ValueError("resolved graph does not match its projection disposition")
+        expected, _ = project_graph_to_dag(source_graph)
+        if graph_content_sha256(expected) != graph_content_sha256(resolved_graph):
+            raise ValueError(
+                "resolved graph is not the canonical projection of its source"
+            )
+        return resolved_graph
+    if disposition.status is GraphProjectionStatus.UNAVAILABLE:
+        if resolved_graph is not None:
+            raise ValueError("unavailable source cannot carry a resolved DAG")
+        return None
+    if (
+        resolved_graph is not None
+        and graph_content_sha256(resolved_graph) != disposition.resolved_graph_sha256
+    ):
+        raise ValueError(
+            "unsupported candidate graph does not match its refusal disposition"
+        )
+    if resolved_graph is None and disposition.resolved_graph_sha256 is not None:
+        raise ValueError("unsupported refusal references a missing candidate graph")
+    return None
 
 
 class EdgeSource(str, Enum):
@@ -248,6 +583,14 @@ class CausalGraphModel(BaseModel):
     pag_identification_policy: PAGIdentificationPolicy = PAGIdentificationPolicy.CONSERVATIVE
     id_confidence_under_pag: float | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def dag_projection_refusal_code(self) -> str | None:
+        """Return why this fully revalidated graph cannot be admitted as one DAG."""
+        try:
+            graph = _canonical_causal_graph(self)
+        except (TypeError, ValueError):
+            return "causal_graph_profile_invalid"
+        return _dag_projection_refusal_code_from_canonical(graph)
 
     @model_validator(mode="after")
     def _validate_graph(self) -> CausalGraphModel:
@@ -594,13 +937,156 @@ def load_causal_graph_model(
     return CausalGraphModel.model_validate(payload)
 
 
+def _dag_projection_refusal_code_from_canonical(
+    graph: CausalGraphModel,
+) -> str | None:
+    """Apply the projection profile only to an already canonical graph snapshot."""
+    if graph.graph_type is GraphType.DAG:
+        return None
+    if graph.graph_type not in {GraphType.PAG, GraphType.CPDAG, GraphType.ADMG}:
+        return "graph_type_not_admitted_for_dag_projection"
+    if any(edge.lag not in (None, 0) for edge in graph.edges):
+        return "temporal_graph_projection_not_admitted"
+    for edge in graph.edges:
+        pair = (edge.mark_src, edge.mark_dst)
+        if pair in {
+            (EdgeMark.TAIL, EdgeMark.ARROW),
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+        }:
+            continue
+        if graph.graph_type is GraphType.ADMG and pair == (
+            EdgeMark.ARROW,
+            EdgeMark.ARROW,
+        ):
+            continue
+        return "partial_graph_endpoint_profile_not_admitted"
+    return None
+
+
+def project_graph_to_dag(graph: CausalGraphModel) -> tuple[CausalGraphModel, list[str]]:
+    """Build the unique admitted DAG representation for a supported source profile.
+
+    DAG inputs preserve their graph content in a detached canonical snapshot.
+    Directed-only PAG/CPDAG sources preserve their known orientations. Static
+    ADMG bidirected edges receive explicit latent parents. Other profiles retain
+    their source graph and are refused.
+    """
+    try:
+        graph = _canonical_causal_graph(graph)
+    except (TypeError, ValueError) as exc:
+        raise UnsupportedGraphProjectionError("causal_graph_profile_invalid") from exc
+    refusal = _dag_projection_refusal_code_from_canonical(graph)
+    if refusal is not None:
+        raise UnsupportedGraphProjectionError(refusal)
+    if graph.graph_type is GraphType.DAG:
+        return graph, []
+
+    new_edges: list[CausalEdge] = []
+    latent_vars: list[str] = []
+    used_nodes = set(graph.nodes)
+    projection_stats = {"bidirected_replaced": 0, "reversed_normalized": 0}
+
+    def next_latent_name() -> str:
+        index = 0
+        while True:
+            candidate = f"U_{index}"
+            index += 1
+            if candidate not in used_nodes:
+                used_nodes.add(candidate)
+                return candidate
+
+    for edge in graph.edges:
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
+            latent_name = next_latent_name()
+            latent_vars.append(latent_name)
+            projection_stats["bidirected_replaced"] += 1
+            edge_label = f"{edge.src}<->{edge.dst}"
+            base_meta = dict(edge.metadata)
+            for endpoint in (edge.src, edge.dst):
+                new_edges.append(
+                    edge.model_copy(
+                        update={
+                            "src": latent_name,
+                            "dst": endpoint,
+                            "mark_src": EdgeMark.TAIL,
+                            "mark_dst": EdgeMark.ARROW,
+                            "metadata": {
+                                **base_meta,
+                                "latent_proxy": True,
+                                "original_bidirected": edge_label,
+                            },
+                        }
+                    )
+                )
+            continue
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.TAIL:
+            projection_stats["reversed_normalized"] += 1
+            new_edges.append(
+                edge.model_copy(
+                    update={
+                        "src": edge.dst,
+                        "dst": edge.src,
+                        "mark_src": EdgeMark.TAIL,
+                        "mark_dst": EdgeMark.ARROW,
+                        "metadata": {
+                            **dict(edge.metadata),
+                            "orientation_normalized": True,
+                            "original_src": edge.src,
+                            "original_dst": edge.dst,
+                            "original_marks": [
+                                edge.mark_src.value,
+                                edge.mark_dst.value,
+                            ],
+                        },
+                    }
+                )
+            )
+            continue
+        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
+            new_edges.append(edge)
+            continue
+        raise ValueError(
+            "cannot project unresolved partial orientation: "
+            f"{edge.src!r} {edge.mark_src.value}-{edge.mark_dst.value} {edge.dst!r}"
+        )
+
+    metadata = {
+        **dict(graph.metadata),
+        "pag_projection": {
+            "performed": True,
+            "latent_vars": list(latent_vars),
+            **projection_stats,
+        },
+    }
+    projected = CausalGraphModel(
+        schema_version=graph.schema_version,
+        graph_type=GraphType.DAG,
+        nodes=list(graph.nodes) + latent_vars,
+        edges=new_edges,
+        discovery_method=graph.discovery_method,
+        skg_version_id=graph.skg_version_id,
+        pag_identification_policy=graph.pag_identification_policy,
+        id_confidence_under_pag=None,
+        metadata=metadata,
+    )
+    return projected, latent_vars
+
+
 __all__ = [
     "CausalEdge",
     "CausalGraphModel",
     "EdgeMark",
     "EdgeSource",
+    "GraphProjectionDisposition",
+    "GraphProjectionStatus",
     "GraphType",
     "PAGIdentificationPolicy",
+    "UnsupportedGraphProjectionError",
+    "graph_content_sha256",
+    "graph_for_analysis",
+    "graph_projection_disposition",
+    "legacy_graph_projection_disposition",
     "load_causal_graph_model",
     "persist_causal_graph_model",
+    "project_graph_to_dag",
 ]

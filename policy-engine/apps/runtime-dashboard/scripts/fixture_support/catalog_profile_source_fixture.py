@@ -26,7 +26,6 @@ import pytest
 _TENANT_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 _CELL_ID = "cell-a"
 _SOURCE_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
-_V6_RUN_ID = "R_dashboard_source_bound_v6_partial_001"
 _CATALOG_PROFILE = "prod_full"
 _CONFLICTING_CATALOG_PROFILE = "catalog_refresh"
 
@@ -128,178 +127,6 @@ def _restore_environment(previous: dict[str, str | None]) -> None:
             os.environ.pop(key, None)
         else:
             os.environ[key] = value
-
-
-def _capture_v6_partial(*, tmp_root: Path, cas_root: Path) -> tuple[object, object]:
-    """Run the existing V6 producer test and retain its real partial result."""
-    _ensure_import_roots()
-    source_test = importlib.import_module(
-        "tests.unit.runtime.quality.test_recursive_generation_cycle"
-    )
-    generation_test = importlib.import_module("tests.unit.runtime.quality.test_generation_cycle")
-    horizon_test = importlib.import_module(
-        "tests.unit.runtime.quality.test_joint_simulation_horizon"
-    )
-    recursive_module = importlib.import_module(
-        "polisyos.runtime.quality.recursive_generation_cycle"
-    )
-    tenant_module = importlib.import_module("polisyos.core.security.tenant_context")
-    original_tenant_scope = tenant_module.tenant_scope
-    original_run = recursive_module.RecursiveGenerationCycleController.run
-    captured: list[tuple[object, object]] = []
-
-    def shared_owner_tenant_scope(*args: object, **kwargs: object) -> object:
-        if kwargs.get("tenant_id") == "tenant-n5-owner":
-            kwargs = {**kwargs, "tenant_id": _TENANT_ID, "cell_id": _CELL_ID}
-        return original_tenant_scope(*args, **kwargs)
-
-    def build_shared_ncm_store(
-        _ignored_tmp_path: Path,
-        *,
-        schema_version: str = "1.0",
-    ) -> tuple[object, object, str]:
-        from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.ir.analytics.ncm import persist_ncm_spec
-        from polisyos.runtime.http.resilience import guard_runtime_cas
-
-        store = guard_runtime_cas(FileSystemCAS(cas_root).with_ambient_ownership_enforcement())
-        expected = horizon_test._ncm_with_cross_term()
-        with original_tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
-            ref = persist_ncm_spec(
-                ensure_ir_artifact_store(store),
-                expected,
-                schema_version=schema_version,
-            )
-        return store, expected, str(ref.artifact_id)
-
-    async def capture_run(self: object, *args: object, **kwargs: object) -> object:
-        partial = await original_run(self, *args, **kwargs)
-        captured.append((partial, kwargs.get("problems_by_node")))
-        return partial
-
-    with pytest.MonkeyPatch.context() as monkeypatch:
-        monkeypatch.setattr(tenant_module, "tenant_scope", shared_owner_tenant_scope)
-        monkeypatch.setattr(source_test, "tenant_scope", shared_owner_tenant_scope)
-        monkeypatch.setattr(
-            generation_test,
-            "_runtime_ncm_fixture_store",
-            build_shared_ncm_store,
-        )
-        monkeypatch.setattr(
-            recursive_module.RecursiveGenerationCycleController,
-            "run",
-            capture_run,
-        )
-        asyncio.run(
-            source_test.test_real_leaf_result_survives_later_independent_sibling_failure(
-                tmp_root / "v6-producer-source",
-                monkeypatch,
-            )
-        )
-
-    if len(captured) != 1:
-        raise RuntimeError("source_bound_v6_partial_capture_invalid")
-    partial, problems_by_node = captured[0]
-    if not isinstance(problems_by_node, dict):
-        raise RuntimeError("source_bound_v6_problem_map_missing")
-    root_problem = problems_by_node.get("design://root")
-    if root_problem is None:
-        raise RuntimeError("source_bound_v6_root_problem_missing")
-    return partial, root_problem
-
-
-def _seed_v6_partial_run(env: dict[str, object]) -> dict[str, str]:
-    """Persist the V6 producer result under a fixture Core run for real GET projection."""
-    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
-    from polisyos.core.run.context import RunContext
-    from polisyos.core.security.tenant_context import tenant_scope
-    from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.http.services.adapters.core_run import (
-        load_terminal_core_run_source,
-    )
-    from polisyos.runtime.http.services.control.generation_cycle import (
-        COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION,
-        CompiledRecursiveGenerationCycleRun,
-    )
-    from polisyos.runtime.quality.recursive_generation_cycle import (
-        RecursiveCycleFailedNode,
-    )
-
-    app = env["app"]
-    container = app.state.runtime_container
-    runtime_context = container.runtime_api_context
-    partial, root_problem = _capture_v6_partial(
-        tmp_root=Path(env["cas_root"]).parent,
-        cas_root=Path(env["cas_root"]),
-    )
-    partial_payload = partial.model_dump(mode="json", exclude={"leaf_nodes"})
-    problem_payload = root_problem.model_dump(mode="json")
-    compiled_payload = {
-        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION,
-        "design_problem_ref": gy_content_hash(problem_payload),
-        "design_problem": problem_payload,
-        "cycle_substrate_context_ref": None,
-        "recursive_run": partial_payload,
-    }
-    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-        {
-            **compiled_payload,
-            "recursive_run": partial,
-            "content_hash": gy_content_hash(compiled_payload),
-        }
-    )
-    existing_core_run = runtime_context.run_index.get_run(str(env["core_run_id"]))
-    if existing_core_run is None:
-        raise RuntimeError("source_bound_v6_registry_source_run_missing")
-    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
-        core_run_source = load_terminal_core_run_source(
-            store=runtime_context.store,
-            core_runs_root=runtime_context.core_runs_root,
-            run_id=str(env["core_run_id"]),
-        )
-    service = app.state._control_service
-    compiled_ref = service._put_json_artifact_ref(
-        compiled.model_dump(mode="json"),
-        kind="runtime.compiled_recursive_generation_cycle",
-        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
-        tenant_context=ArtifactTenantContextInfo(tenant_id=_TENANT_ID, cell_id=_CELL_ID),
-    )
-    with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
-        fixture_run = RunContext.start(
-            store=runtime_context.store,
-            registry_bundle=core_run_source.manifest.registry_bundle,
-            run_id=_V6_RUN_ID,
-            tenant_id=_TENANT_ID,
-            cell_id=_CELL_ID,
-        )
-        fixture_run.add_output(compiled_ref)
-        fixture_run.finalize(status="completed")
-    runtime_context.run_index.refresh(force=True)
-
-    failed_node = next(node for node in partial.nodes if isinstance(node, RecursiveCycleFailedNode))
-    successful_result_ref = next(
-        node.cycle_run.cycles[0].simulation.simulation_result_ref
-        for node in partial.nodes
-        if getattr(node, "cycle_run", None) is not None
-        and node.cycle_run.cycles[0].simulation.simulation_result_ref is not None
-    )
-    return {
-        "source_bound_v6_run_id": _V6_RUN_ID,
-        "source_bound_v6_compiled_ref": str(compiled_ref.artifact_id),
-        "source_bound_v6_partial_schema": str(partial.schema_version),
-        "source_bound_v6_failure_code": str(failed_node.failure.error_code),
-        "source_bound_v6_success_result_ref": str(successful_result_ref.artifact_id),
-        "source_bound_v6_control_job_status": "not_established_fixture_run_wrapper",
-        "source_bound_v6_source_test": (
-            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::"
-            "test_real_leaf_result_survives_later_independent_sibling_failure"
-        ),
-        "source_bound_acquisition_history_status": "not_established",
-        "source_bound_acquisition_history_reason": (
-            "fixture V6 output has no production control-job or acquisition-action head"
-        ),
-    }
 
 
 def _seed_profile_qualified_inspector_views(env: dict[str, object]) -> dict[str, str]:
@@ -561,10 +388,18 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         recorded_problem = _current_compiler_problem(controlled_recording)
         gateway.set_fixture(controlled_recording, problem=recorded_problem)
 
+        from fastapi.testclient import TestClient
+
+        from polisyos.runtime.http.app import create_runtime_api_app
         from polisyos.runtime.http.container import RuntimeContainerOverrides
         from polisyos.runtime.http.dependencies import build_runtime_api_context
         from polisyos.runtime.http.services.control import (
             generation_cycle as generation_cycle_service,
+        )
+        from tests._helpers.generic_n4_served_replay import (
+            prepare_generic_n4_served_replay,
+            run_n4_budget_stop_worker_and_get,
+            run_n4_control_worker_and_get,
         )
         from tests._helpers.runtime_http import _DeterministicSpanSupportClient
 
@@ -573,12 +408,148 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",
         )
+        v6_monkeypatch = pytest.MonkeyPatch()
+        try:
+            prepared_v6 = asyncio.run(
+                prepare_generic_n4_served_replay(
+                    tmp_path=tmp_root / "v6-served-replay",
+                    controlled_candidate_gateway=gateway,
+                    monkeypatch=v6_monkeypatch,
+                    tenant_id=_TENANT_ID,
+                    cell_id=_CELL_ID,
+                    recording_id=_SOURCE_RECORDING_ID,
+                    runtime_api_context=runtime_api_context,
+                )
+            )
+            if prepared_v6.runtime_api_context is not runtime_api_context:
+                raise RuntimeError("source_bound_v6_runtime_context_was_replaced")
+            if (
+                prepared_v6.app_kwargs["container_overrides"].runtime_api_context
+                is not runtime_api_context
+            ):
+                raise RuntimeError("source_bound_v6_app_context_does_not_match")
+
+            selected_source_profile = prepared_v6.selected_source_profile
+            selected_skg_source = prepared_v6.selected_skg_source
+            selected_skg_snapshot_ref = selected_skg_source.snapshot_ref
+            selected_skg_snapshot_sha256 = selected_skg_source.sha256
+            source_profile_content_hash = selected_source_profile.content_hash
+            if (
+                selected_source_profile.skg_causal_prior_ref
+                != prepared_v6.selected_source_ref
+                or selected_source_profile.source_snapshot_ref != selected_skg_snapshot_ref
+                or prepared_v6.selected_source_ref.skg_snapshot_ref != selected_skg_snapshot_ref
+                or selected_source_profile.source_snapshot_sha256
+                != selected_skg_snapshot_sha256
+                or not source_profile_content_hash
+            ):
+                raise RuntimeError("source_bound_v6_selected_source_identity_mismatch")
+
+            v6_app = create_runtime_api_app(**prepared_v6.app_kwargs)
+            with TestClient(v6_app) as v6_client:
+                v6_receipt = asyncio.run(
+                    run_n4_control_worker_and_get(
+                        client=v6_client,
+                        app=v6_app,
+                        prepared=prepared_v6,
+                        monkeypatch=v6_monkeypatch,
+                        expected_failure_code="v6_controlled_second_n4_child_failure",
+                        exercise_projection_controls=True,
+                    )
+                )
+                v7_receipt = asyncio.run(
+                    run_n4_budget_stop_worker_and_get(
+                        client=v6_client,
+                        app=v6_app,
+                        prepared=prepared_v6,
+                    )
+                )
+        finally:
+            v6_monkeypatch.undo()
+
+        # TestClient shutdown closes the guarded store owned by the producer app.
+        # Reopen the same CAS root for fixture profile writes and browser readback.
+        serving_runtime_api_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+        serving_runtime_api_context.run_index.refresh(force=True)
+        if serving_runtime_api_context.run_index.get_run(v7_receipt.run_id) is None:
+            raise RuntimeError("source_bound_v7_reopened_run_index_missing")
+        gateway.set_fixture(controlled_recording, problem=recorded_problem)
         profile, declaration = _configured_procurement_profile(
             recorded_problem=recorded_problem,
-            artifact_store=runtime_api_context.store,
+            artifact_store=serving_runtime_api_context.store,
             tenant_id=_TENANT_ID,
             cell_id=_CELL_ID,
         )
+        v6_projection = v6_receipt.projection
+        if (
+            v6_receipt.job_state != "completed"
+            or v6_receipt.failure_code != "v6_controlled_second_n4_child_failure"
+            or not v6_receipt.failure_message
+            or v6_projection.get("artifact_status") != "resolved"
+            or v6_projection.get("publication_authority") is not False
+            or v6_projection.get("currentness_status") != "not_established"
+            or v6_projection.get("child_profile_status") != "resolved"
+        ):
+            raise RuntimeError("source_bound_v6_served_projection_incomplete")
+        v6_observations = v6_projection.get("n5_observations")
+        successful_v6_observation = next(
+            (
+                row
+                for row in v6_observations
+                if isinstance(row, dict) and row.get("status") == "joint_simulated"
+            ),
+            None,
+        ) if isinstance(v6_observations, list) else None
+        if not isinstance(successful_v6_observation, dict):
+            raise RuntimeError("source_bound_v6_n5_observation_missing")
+        successful_v6_ref = successful_v6_observation.get("simulation_result_ref")
+        if (
+            not isinstance(successful_v6_ref, dict)
+            or successful_v6_ref.get("artifact_id")
+            != str(v6_receipt.n5_result_ref.artifact_id)
+        ):
+            raise RuntimeError("source_bound_v6_n5_reference_mismatch")
+        if (
+            v6_receipt.checkpoint.get("status") != "partial"
+            or v6_receipt.checkpoint.get("publication_authority") is not False
+            or not any(
+                isinstance(row, dict)
+                and row.get("error_code") == v6_receipt.failure_code
+                and row.get("error_message") == v6_receipt.failure_message
+                for row in v6_receipt.checkpoint.get("failed_branches", [])
+            )
+        ):
+            raise RuntimeError("source_bound_v6_sibling_failure_not_reconciled")
+        v7_projection = v7_receipt.projection
+        v7_checkpoint = v7_receipt.checkpoint
+        v7_budget_stop_ref = v7_checkpoint.get("budget_stop_node_ref")
+        v7_pending_frontier = v7_checkpoint.get("pending_frontier")
+        v7_completed_refs = v7_checkpoint.get("completed_design_refs")
+        v7_leaf_terminals = v7_checkpoint.get("leaf_terminal_kinds")
+        if (
+            v7_receipt.job_state != "completed"
+            or v7_projection.get("child_profile_status") != "resolved"
+            or v7_projection.get("publication_authority") is not False
+            or v7_projection.get("currentness_status") != "not_established"
+            or len(v7_receipt.child_node_refs) != 2
+            or v7_checkpoint.get("schema_version")
+            != "policyos.runtime.recursive_cycle_checkpoint.v1"
+            or v7_checkpoint.get("status") != "partial"
+            or v7_checkpoint.get("publication_authority") is not False
+            or v7_checkpoint.get("root_n9_status") != "not_run"
+            or v7_checkpoint.get("failed_branches") != []
+            or not isinstance(v7_budget_stop_ref, str)
+            or v7_budget_stop_ref not in v7_receipt.child_node_refs
+            or set(v7_pending_frontier or ())
+            != set(v7_receipt.child_node_refs) - {v7_budget_stop_ref}
+            or v7_budget_stop_ref not in set(v7_completed_refs or ())
+            or not isinstance(v7_leaf_terminals, dict)
+            or v7_leaf_terminals.get(v7_budget_stop_ref) != "budget_exhausted"
+        ):
+            raise RuntimeError("source_bound_v7_budget_frontier_not_reconciled")
         original_compiler = generation_cycle_service.build_design_problem_from_nl_request
 
         async def compile_with_controlled_span_support(**kwargs: object) -> object:
@@ -606,17 +577,25 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                 )
             },
         }
-        env = build_runtime_api_env(
-            tmp_root,
-            include_test_client=False,
-            app_kwargs={
+        serving_app_kwargs = {
+            key: value
+            for key, value in prepared_v6.app_kwargs.items()
+            if key not in {"cas_root", "core_runs_root"}
+        }
+        serving_app_kwargs.update(
+            {
                 "catalog_run_profile": _CATALOG_PROFILE,
                 "candidate_simulation_profiles": (profile,),
                 "candidate_simulation_model_declarations": (declaration,),
                 "container_overrides": RuntimeContainerOverrides(
-                    runtime_api_context=runtime_api_context
+                    runtime_api_context=serving_runtime_api_context
                 ),
-            },
+            }
+        )
+        env = build_runtime_api_env(
+            tmp_root,
+            include_test_client=False,
+            app_kwargs=serving_app_kwargs,
         )
         env.update(
             {
@@ -641,13 +620,49 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                     "durable BudgetMiddleware settlement ledger"
                 ),
                 "source_bound_cost_scope": "real_traced_producer_unknown_cost_not_manual_event",
+                "source_bound_v6_run_id": v6_receipt.run_id,
+                "source_bound_v6_control_job_id": v6_receipt.job_id,
+                "source_bound_v6_control_job_status": v6_receipt.job_state,
+                "source_bound_v6_failure_code": v6_receipt.failure_code,
+                "source_bound_v6_failure_message": v6_receipt.failure_message,
+                "source_bound_v6_success_result_ref": str(
+                    v6_receipt.n5_result_ref.artifact_id
+                ),
+                "source_bound_v6_source_profile_content_hash": source_profile_content_hash,
+                "source_bound_v6_selected_skg_snapshot_ref": selected_skg_snapshot_ref,
+                "source_bound_v6_selected_skg_snapshot_sha256": selected_skg_snapshot_sha256,
+                "source_bound_v6_child_count": str(len(prepared_v6.child_keys)),
+                "source_bound_v6_missing_result_ref_error_code": (
+                    v6_receipt.missing_result_ref_error_code
+                ),
+                "source_bound_v6_source_test": (
+                    "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::"
+                    "test_served_real_n4_children_keep_first_n5_after_later_sibling_failure"
+                ),
+                "source_bound_v6_fixture_boundary": (
+                    "controlled local ordinary POST, worker, CAS and fresh GET; "
+                    "candidate-only with no production currentness or authority claim"
+                ),
+                "source_bound_v7_run_id": v7_receipt.run_id,
+                "source_bound_v7_control_job_id": v7_receipt.job_id,
+                "source_bound_v7_control_job_status": v7_receipt.job_state,
+                "source_bound_v7_budget_stop_node_ref": str(v7_budget_stop_ref),
+                "source_bound_v7_child_count": str(len(v7_receipt.child_node_refs)),
+                "source_bound_v7_source_test": (
+                    "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::"
+                    "test_served_real_n4_children_keep_first_n5_after_later_sibling_failure"
+                ),
+                "source_bound_v7_fixture_boundary": (
+                    "controlled ordinary POST with run_budget_usd=0, real N6 owner, worker, "
+                    "persisted checkpoint and reopened CAS; candidate-only, no production "
+                    "currentness or authority claim"
+                ),
                 "source_bound_fixture_boundaries": (
                     "controlled synthetic profile; development fixture identity; "
                     "no production claim"
                 ),
             }
         )
-        env.update(_seed_v6_partial_run(env))
         env.update(_seed_profile_qualified_inspector_views(env))
         env.update(_seed_profiled_workflow_data_view_request(env, tmp_root, stack))
         yield env

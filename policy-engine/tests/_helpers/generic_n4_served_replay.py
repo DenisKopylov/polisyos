@@ -1,0 +1,1381 @@
+"""Real N4 source/profile preparation and served N5 replay helpers for tests."""
+
+from __future__ import annotations
+
+import dataclasses
+import json
+import uuid
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import duckdb
+import pytest
+
+from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.pdc import gy_content_hash
+from tests._helpers.controlled_candidate_profile import (
+    ControlledSKGSourceSelection,
+    _capture_controlled_skg_source,
+    _configured_procurement_profile,
+    _controlled_procurement_recording,
+    _current_compiler_problem,
+    _materialize_controlled_world_model_record,
+    _validate_controlled_skg_source,
+)
+from tools.quality.validation import (
+    check_layer3_gy_design_generation_contract as n4_contract,
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+
+
+@dataclass(frozen=True)
+class PreparedGenericN4ServedReplay:
+    """Controlled source and complete N4-derived profile set for a serving app."""
+
+    tmp_path: Path
+    cas_root: Path
+    runtime_api_context: Any
+    app_kwargs: dict[str, Any]
+    request_json: dict[str, Any]
+    recording: dict[str, Any]
+    source_recording_id: str
+    source_recording_content_hash: str
+    recorded_problem: Any
+    organ_run: Any
+    selected_reference: Any
+    selected_source_ref: Any
+    selected_source_profile: Any
+    selected_skg_db_path: Path
+    selected_skg_version_id: int
+    selected_skg_snapshot_ref: str
+    selected_skg_source: ControlledSKGSourceSelection
+    selected_skg_source_checkpoints: tuple[str, ...]
+    base_profile: Any
+    base_declaration: Any
+    generic_profiles: tuple[Any, ...]
+    generic_child_profiles: tuple[Any, ...]
+    children: tuple[Any, ...]
+    child_keys: tuple[str, ...]
+    root_profile: Any
+    model_id: str
+    tenant_id: str
+    cell_id: str
+
+
+@dataclass(frozen=True)
+class N4ServedRunReceipt:
+    """Observed output from the actual control worker and fresh run-details GET."""
+
+    accepted_payload: dict[str, Any]
+    job_id: str
+    job_state: str
+    run_id: str
+    failure_code: str
+    failure_message: str
+    get_payload: dict[str, Any]
+    projection: dict[str, Any]
+    successful_observation: dict[str, Any]
+    n5_result_ref: Any
+    checkpoint: dict[str, Any]
+    actual_sibling_failure: dict[str, Any]
+    child_attempt_profile_ids: tuple[str, ...]
+    successful_child_runs: tuple[Any, ...]
+    corrupt_projection: dict[str, Any] | None
+    incomplete_profile_projection: dict[str, Any] | None
+    missing_result_ref_error_code: str
+
+
+@dataclass(frozen=True)
+class N4BudgetStopRunReceipt:
+    """Observed actual N6 budget stop and its HTTP checkpoint projection."""
+
+    accepted_payload: dict[str, Any]
+    job_id: str
+    job_state: str
+    run_id: str
+    get_payload: dict[str, Any]
+    job_status_payload: dict[str, Any]
+    projection: dict[str, Any]
+    checkpoint: dict[str, Any]
+    child_node_refs: tuple[str, ...]
+
+
+def _emit_served_phase(
+    phase_callback: Any | None,
+    stage: str,
+    *,
+    job_id: str | None = None,
+    run_id: str | None = None,
+) -> None:
+    """Emit one optional test-only lifecycle marker without recording payloads."""
+    if phase_callback is not None:
+        phase_callback(stage, job_id, run_id)
+
+
+def _hashed_model(model_type: type[Any], fields: dict[str, Any], *, hash_fn: Any):
+    draft = model_type.model_construct(
+        **fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    body = draft.model_dump(mode="json", exclude={"content_hash"})
+    return model_type.model_validate({**body, "content_hash": hash_fn(body)})
+
+
+def _two_child_recording(recording: dict[str, Any], *, outcome_variable: str) -> dict[str, Any]:
+    """Derive a two-child controlled recording without claiming historical bytes."""
+    from polisyos.pdc import gy_content_hash
+
+    # This composite fixture has one persisted parent: the recorded input. The
+    # controlled overlay below is an in-memory transformation step, not a
+    # separately recorded artifact.
+    source_recording_id = str(recording["recording_id"])
+    source_recording_content_hash = str(recording["recording_content_hash"])
+    controlled = _controlled_procurement_recording(
+        recording,
+        outcome_variable=outcome_variable,
+    )
+    responses = controlled["responses"]
+    if not isinstance(responses, list):
+        raise AssertionError("controlled_recording_responses_not_list")
+    for response_index in (4, 8):
+        response = responses[response_index]
+        if not isinstance(response, dict):
+            raise AssertionError("controlled_recording_response_not_object")
+        raw = response.get("raw_response")
+        if not isinstance(raw, str):
+            raise AssertionError("controlled_recording_response_bytes_missing")
+        payload = json.loads(raw)
+        interventions = payload["policy_spec"]["interventions"]
+        retained = [row for row in interventions if row.get("kind") != "credit_guarantee"]
+        if {row.get("kind") for row in retained} != {
+            "tax_relief_rate",
+            "procurement_shock_intensity",
+        }:
+            raise AssertionError("controlled_recording_child_interventions_changed")
+        removed_ids = {row.get("intervention_id") for row in interventions if row not in retained}
+        payload["policy_spec"]["interventions"] = retained
+        payload["policy_spec"]["parameters"] = [
+            row
+            for row in payload["policy_spec"].get("parameters", [])
+            if row.get("intervention_id") not in removed_ids
+        ]
+        rewritten = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        response["raw_response"] = rewritten
+        response["raw_response_hash"] = gy_content_hash(rewritten)
+
+    fixture_id = (
+        "synthetic_two_n4_children_"
+        + gy_content_hash(
+            {
+                "base_recording_id": source_recording_id,
+                "base_content_hash": source_recording_content_hash,
+                "response_hashes": [
+                    row.get("raw_response_hash") for row in responses if isinstance(row, dict)
+                ],
+            }
+        ).removeprefix("sha256:")[:20]
+    )
+    controlled["recording_id"] = fixture_id
+    controlled["fixture_id"] = fixture_id
+    controlled["recording_source"] = "synthetic_two_child_overlay_of_recorded_capture"
+    controlled["derived_from_recording_id"] = source_recording_id
+    controlled["derived_from_content_hash"] = source_recording_content_hash
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(controlled)  # type: ignore[arg-type]
+    return controlled
+
+
+def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) -> dict[str, Any]:
+    """Derive a three-child controlled recording from its selected recorded source."""
+    from polisyos.pdc import gy_content_hash
+
+    source_recording_id = str(recording["recording_id"])
+    source_recording_content_hash = str(recording["recording_content_hash"])
+    controlled = _controlled_procurement_recording(
+        recording,
+        outcome_variable=outcome_variable,
+    )
+    responses = controlled["responses"]
+    if not isinstance(responses, list):
+        raise AssertionError("controlled_recording_responses_not_list")
+    # The source problem declares labor_market on agents_is_employed, but it
+    # does not declare credit_guarantee. Adapt the recorded third proposal into
+    # a synthetic candidate for the existing lever so this fixture exercises
+    # the complete source-bound child path without adding a lever or claiming
+    # evidence.
+    expected_kinds = {
+        "labor_market",
+        "tax_relief_rate",
+        "procurement_shock_intensity",
+    }
+    for response_index in (4, 8):
+        response = responses[response_index]
+        if not isinstance(response, dict):
+            raise AssertionError("controlled_recording_response_not_object")
+        raw = response.get("raw_response")
+        if not isinstance(raw, str):
+            raise AssertionError("controlled_recording_response_bytes_missing")
+        payload = json.loads(raw)
+        interventions = payload["policy_spec"]["interventions"]
+        third = [row for row in interventions if row.get("kind") == "credit_guarantee"]
+        if len(third) != 1:
+            raise AssertionError("controlled_recording_third_candidate_missing")
+        third[0].update(
+            {
+                "description": (
+                    "A synthetic labor-market retention candidate adapted to the "
+                    "parent's already-declared lever."
+                ),
+                "intervention_id": f"synthetic_labor_market_retention_{response_index}",
+                "kind": "labor_market",
+                "name": "Synthetic labor-market employment-retention candidate",
+                "notes": [
+                    "Synthetic candidate adapted to the already-declared labor_market "
+                    "lever; no empirical effect or authority is asserted."
+                ],
+                "params": {
+                    "effect_path": ["agents.is_employed", "employment_retention"],
+                    "estimand": "average_treatment_effect",
+                    "employment_threshold": "0.5",
+                    "outcome_slots": ["employment_retention"],
+                    "sign": "increase",
+                    "target_world_slot": "agents.is_employed",
+                },
+                "rationale": (
+                    "This controlled candidate exercises the declared labor-market "
+                    "lever in a synthetic replay. It does not assert an empirical "
+                    "effect, source evidence, or authority."
+                ),
+                "target_population": "Synthetic industrial MSME test population",
+            }
+        )
+        payload["policy_spec"]["description"] = (
+            "Synthetic three-intervention candidate combining tax relief, procurement "
+            "stabilization, and the already-declared labor-market retention lever."
+        )
+        model_spec = payload.get("model_spec")
+        if isinstance(model_spec, dict):
+            assumptions = model_spec.get("assumptions")
+            if isinstance(assumptions, list):
+                for assumption in assumptions:
+                    if not isinstance(assumption, dict):
+                        continue
+                    if "credit_guarantee" in str(assumption.get("assumption_id", "")):
+                        assumption.update(
+                            {
+                                "assumption_id": (
+                                    f"synthetic_labor_market_candidate_{response_index}"
+                                ),
+                                "description": (
+                                    "The labor-market candidate is a synthetic test input "
+                                    "adapted to an existing declared lever; no empirical "
+                                    "effect or authority is asserted."
+                                ),
+                            }
+                        )
+        rewritten = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+        response["raw_response"] = rewritten
+        response["raw_response_hash"] = gy_content_hash(rewritten)
+        if {row.get("kind") for row in interventions} != expected_kinds:
+            raise AssertionError("controlled_recording_three_child_interventions_changed")
+
+    fixture_id = (
+        "synthetic_three_n4_children_"
+        + gy_content_hash(
+            {
+                "base_recording_id": source_recording_id,
+                "base_content_hash": source_recording_content_hash,
+                "response_hashes": [
+                    row.get("raw_response_hash") for row in responses if isinstance(row, dict)
+                ],
+            }
+        ).removeprefix("sha256:")[:20]
+    )
+    controlled["recording_id"] = fixture_id
+    controlled["fixture_id"] = fixture_id
+    controlled["recording_source"] = "synthetic_three_child_overlay_of_recorded_capture"
+    controlled["derived_from_recording_id"] = source_recording_id
+    controlled["derived_from_content_hash"] = source_recording_content_hash
+    controlled["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in controlled.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(controlled)  # type: ignore[arg-type]
+    return controlled
+
+
+def _persist_compiled_run_with_incomplete_child_set(
+    *,
+    store: Any,
+    compiled_ref: Any,
+    tenant_id: str,
+    cell_id: str,
+):
+    """Persist a self-consistent compiled ref to a source-incomplete child-set artifact."""
+    from polisyos.core import canon
+    from polisyos.core.artifacts import ArtifactWriteOptions
+    from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, SchemaInfo
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.pdc import gy_artifact_self_identity_projection, gy_content_hash
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveLeafContextOwner,
+        RecursiveN4ChildProfileSetV1,
+    )
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(compiled_ref))
+        )
+        child_set_ref = compiled.n4_child_profile_set_ref
+        assert child_set_ref is not None
+        original_set = RecursiveN4ChildProfileSetV1.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(child_set_ref))
+        )
+    assert len(original_set.children) == 2
+    incomplete_set = _hashed_model(
+        RecursiveN4ChildProfileSetV1,
+        {
+            **original_set.model_dump(mode="python", exclude={"content_hash"}),
+            "children": original_set.children[:-1],
+        },
+        hash_fn=gy_content_hash,
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        incomplete_set_ref = store.put_json(
+            incomplete_set.model_dump(mode="json"),
+            RecursiveLeafContextOwner._n4_child_profile_set_write_options(incomplete_set),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+
+    compiled_fields = compiled.model_dump(mode="python", exclude={"content_hash"})
+    compiled_fields["n4_child_profile_set_ref"] = incomplete_set_ref
+    draft = compiled.model_copy(
+        update={
+            "n4_child_profile_set_ref": incomplete_set_ref,
+            "content_hash": "sha256:" + "0" * 64,
+        },
+    )
+    identity_payload = gy_artifact_self_identity_projection(draft)
+    recursive_payload = dict(identity_payload["recursive_run"])
+    recursive_payload.pop("leaf_nodes", None)
+    identity_payload["recursive_run"] = recursive_payload
+    compiled_fields["content_hash"] = gy_content_hash(identity_payload)
+    incomplete_compiled = CompiledRecursiveGenerationCycleRun.model_validate(compiled_fields)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        incomplete_compiled_ref = store.put_json(
+            incomplete_compiled.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind="runtime.compiled_recursive_generation_cycle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    version="1.0",
+                ),
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    return incomplete_compiled_ref, incomplete_set_ref
+
+
+def _seed_controlled_selected_skg_source(tmp_path: Path) -> ControlledSKGSourceSelection:
+    """Create a synthetic SKG snapshot and return its owner-resolved versioned ref."""
+    source_root = tmp_path / "controlled-candidate-source"
+    source_root.mkdir(parents=True, exist_ok=True)
+    db_path = source_root / "academic-skg.duckdb"
+    if db_path.exists() or db_path.with_name(db_path.name + ".wal").exists():
+        raise ValueError("controlled_selected_skg_seed_target_exists")
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            "CREATE TABLE ac_skg_variables (canonical_name VARCHAR, "
+            "approved_canonical_name VARCHAR, is_approved_canonical BOOLEAN, "
+            "resolution_method VARCHAR, resolution_confidence DOUBLE, mention_count INTEGER, "
+            "parent_name VARCHAR, approved_parent_name VARCHAR)"
+        )
+        con.execute(
+            "INSERT INTO ac_skg_variables VALUES "
+            "('global.tax_rate','global.tax_rate',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
+            "('government.balance','government.balance',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
+            "('cells.distress_score','cells.distress_score',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
+            "('cells.output','cells.output',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
+            "('cells.employment','cells.employment',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
+            "('agents.income','agents.income',TRUE,'controlled_fixture',0.95,5,NULL,NULL)"
+        )
+        con.execute(
+            "CREATE TABLE ac_skg_variable_synonyms (synonym VARCHAR, canonical_name VARCHAR, "
+            "method VARCHAR, confidence DOUBLE, approved BOOLEAN)"
+        )
+        con.execute(
+            "CREATE TABLE ac_skg_edges (edge_id VARCHAR, src VARCHAR, dst VARCHAR, "
+            "direction VARCHAR, n_articles INTEGER, evidence_strength VARCHAR, confidence DOUBLE, "
+            "candidate_layer VARCHAR, quality_signals_json VARCHAR)"
+        )
+        con.executemany(
+            "INSERT INTO ac_skg_edges VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                (
+                    "tax-balance",
+                    "global.tax_rate",
+                    "government.balance",
+                    "increases",
+                    3,
+                    "strong",
+                    0.9,
+                    "controlled",
+                    json.dumps(
+                        {
+                            "strong_design_evidence": {"any": True},
+                            "design_quality_tiers": [4],
+                        },
+                        sort_keys=True,
+                    ),
+                ),
+                (
+                    "distress-output",
+                    "cells.distress_score",
+                    "cells.output",
+                    "decreases",
+                    3,
+                    "strong",
+                    0.9,
+                    "controlled",
+                    json.dumps(
+                        {
+                            "strong_design_evidence": {"any": True},
+                            "design_quality_tiers": [4],
+                        },
+                        sort_keys=True,
+                    ),
+                ),
+            ),
+        )
+        con.execute(
+            "CREATE TABLE ac_skg_family_edges (family_edge_id VARCHAR, src_family VARCHAR, "
+            "dst_family VARCHAR, direction VARCHAR, n_articles INTEGER, n_claims INTEGER, "
+            "evidence_strength VARCHAR, confidence DOUBLE, direction_histogram_json VARCHAR, "
+            "design_tier_histogram_json VARCHAR, candidate_layer VARCHAR, quality_signals_json VARCHAR)"
+        )
+        con.execute(
+            "CREATE TABLE ac_skg_moderation_edges (moderation_id VARCHAR, base_cause VARCHAR, "
+            "base_effect VARCHAR, moderator VARCHAR, base_claim_id VARCHAR, direction_of_mod VARCHAR, "
+            "interaction_coeff DOUBLE, interaction_pvalue DOUBLE, evidence_count INTEGER, "
+            "confidence DOUBLE, match_quality VARCHAR, alignment_source VARCHAR, source_refs VARCHAR, "
+            "skg_version INTEGER)"
+        )
+        con.execute(
+            "CREATE TABLE ac_skg_contested_edges (contested_edge_id VARCHAR, src_family VARCHAR, "
+            "dst_family VARCHAR, dominant_direction VARCHAR, resolution_status VARCHAR, "
+            "runtime_support DOUBLE, confidence DOUBLE, positive_weight DOUBLE, negative_weight DOUBLE, "
+            "mixed_weight DOUBLE, direction_histogram_json VARCHAR, quality_signals_json VARCHAR, "
+            "claim_refs VARCHAR)"
+        )
+        con.execute("CREATE TABLE ac_causal_claims_raw (synthetic BOOLEAN)")
+        con.execute("INSERT INTO ac_causal_claims_raw VALUES (TRUE)")
+        con.execute(
+            "CREATE TABLE ac_causal_claims (id VARCHAR, work_id VARCHAR, cause VARCHAR, "
+            "effect VARCHAR, direction VARCHAR, mechanism VARCHAR, trust_score DOUBLE, strength VARCHAR)"
+        )
+        con.execute("CREATE TABLE ac_works (id VARCHAR, title VARCHAR, year INTEGER)")
+        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+        con.execute("INSERT INTO ac_skg_versions VALUES (7)")
+
+    selected_source = _capture_controlled_skg_source(db_path)
+    if selected_source.version_id != 7:
+        raise ValueError("controlled_selected_skg_snapshot_ref_unresolved")
+    return selected_source
+
+
+def _bind_profile_to_selected_skg_snapshot(
+    *,
+    base_profile: Any,
+    base_declaration: Any,
+    selected_snapshot_ref: str,
+    selected_version_id: int,
+) -> tuple[Any, Any]:
+    """Rehash the typed candidate profile around the exact owner-selected SKG source."""
+    from polisyos.pdc import gy_content_hash, world_model_record_content_hash
+    from polisyos.runtime.quality.candidate_simulation import candidate_simulation_profile_ref
+
+    world = base_profile.context_inputs.world_model_record
+    selected_prior = world.skg_causal_prior_ref.model_copy(
+        update={
+            "skg_snapshot_ref": selected_snapshot_ref,
+            "skg_version_id": str(selected_version_id),
+        }
+    )
+    draft_world = world.model_copy(
+        update={
+            "skg_causal_prior_ref": selected_prior,
+            "content_hash": "sha256:" + "0" * 64,
+        }
+    )
+    world_hash = world_model_record_content_hash(draft_world)
+    world_fields = draft_world.model_dump(mode="python")
+    world_fields.update(
+        {
+            "content_hash": world_hash,
+            "world_model_record_id": (
+                "world_model_record_" + world_hash.removeprefix("sha256:")[:16]
+            ),
+        }
+    )
+    selected_world = type(world).model_validate(world_fields)
+
+    context_inputs = base_profile.context_inputs.model_copy(
+        update={"world_model_record": selected_world}
+    )
+    profile_fields = base_profile.model_dump(mode="python", exclude={"content_hash"})
+    profile_fields["context_inputs"] = context_inputs
+    selected_profile = _hashed_model(
+        type(base_profile),
+        profile_fields,
+        hash_fn=gy_content_hash,
+    )
+
+    declaration_fields = base_declaration.model_dump(mode="python", exclude={"content_hash"})
+    declaration_fields.update(
+        {
+            "profile_config_ref": candidate_simulation_profile_ref(selected_profile),
+            "profile_content_hash": selected_profile.content_hash,
+        }
+    )
+    selected_declaration = _hashed_model(
+        type(base_declaration),
+        declaration_fields,
+        hash_fn=gy_content_hash,
+    )
+    if (
+        selected_world.content_hash == world.content_hash
+        or selected_profile.content_hash == base_profile.content_hash
+        or selected_declaration.content_hash == base_declaration.content_hash
+        or selected_declaration.profile_content_hash != selected_profile.content_hash
+        or selected_profile.context_inputs.world_model_record.skg_causal_prior_ref != selected_prior
+    ):
+        raise ValueError("controlled_selected_skg_profile_rebind_mismatch")
+    return selected_profile, selected_declaration
+
+
+def _generic_profile_for_selection(
+    *,
+    tmp_path: Path,
+    base_profile: Any,
+    base_declaration: Any,
+    profile_id: str,
+    profile_selection_ref: str,
+    profile_selection_kind: str,
+    target_world_slot: str,
+    operator_kind: str,
+    store: Any,
+    substrate_registry_ref: Any,
+    selected_skg_source: ControlledSKGSourceSelection,
+    tenant_id: str,
+    cell_id: str,
+):
+    """Build a typed candidate-only profile and persist its exact WMRv2/NCM basis."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        persist_ncm_spec,
+    )
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioSetToRule,
+        CandidateSimulationScenarioProfile,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV1,
+        GenericCycleSimulationProfileV1,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+        load_world_model_record,
+        persist_world_model_record,
+    )
+
+    outcome_variable = base_declaration.outcome_variable
+    baseline_state = {key: float(value) for key, value in base_profile.n5.baseline_state.items()}
+    baseline_state.setdefault(target_world_slot, 0.0)
+    baseline_state.setdefault(outcome_variable, 0.0)
+    rule = CandidateScenarioSetToRule(
+        operator_kind=operator_kind,
+        parameter_id="controlled_value",
+        target_world_slot=target_world_slot,
+        unit_id=base_profile.rule.unit_id,
+        minimum=base_profile.rule.minimum,
+        maximum=base_profile.rule.maximum,
+    )
+    candidate_n5 = base_profile.n5.model_copy(update={"baseline_state": baseline_state})
+    candidate_fields = base_profile.model_dump(mode="python", exclude={"content_hash"})
+    candidate_fields.update(
+        {
+            "profile_id": "v6-synthetic-model-" + profile_id,
+            "profile_selection_ref": profile_selection_ref,
+            "context_inputs": base_profile.context_inputs,
+            "rule": rule,
+            "n5": candidate_n5,
+        }
+    )
+    synthetic_profile = _hashed_model(
+        CandidateSimulationScenarioProfile,
+        candidate_fields,
+        hash_fn=gy_content_hash,
+    )
+    declaration_fields = base_declaration.model_dump(mode="python", exclude={"content_hash"})
+    declaration_fields.update(
+        {
+            "profile_config_ref": candidate_simulation_profile_ref(synthetic_profile),
+            "profile_content_hash": synthetic_profile.content_hash,
+            "profile_selection_ref": profile_selection_ref,
+            "target_world_slot": target_world_slot,
+            "target_unit_id": synthetic_profile.rule.unit_id,
+            "target_baseline": baseline_state[target_world_slot],
+            "outcome_baseline": baseline_state[outcome_variable],
+        }
+    )
+    declaration = _hashed_model(
+        type(base_declaration),
+        declaration_fields,
+        hash_fn=gy_content_hash,
+    )
+    ncm = candidate_ncm_spec_from_declaration(declaration)
+
+    base_context_inputs = base_profile.context_inputs
+    base_world = base_context_inputs.world_model_record
+    materialized_base_world = _materialize_controlled_world_model_record(
+        source_world_model_record=base_world,
+        artifact_store=store,
+        tmp_path=tmp_path,
+        substrate_registry=base_context_inputs.substrate_registry,
+        selected_registry_entry_hashes=base_context_inputs.selected_registry_entry_hashes,
+        substrate_registry_ref=substrate_registry_ref,
+        policy_slot_ids=tuple(
+            dict.fromkeys(
+                [item.slot_id for item in base_world.policy_slot_map]
+                + [target_world_slot, outcome_variable]
+            )
+        ),
+        selected_skg_source=selected_skg_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
+        ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
+        world = derive_candidate_scenario_world_model_record(
+            materialized_base_world,
+            ncm_artifact_ref=ncm_ref,
+            declaration_content_hash=declaration.content_hash,
+            substrate_registry_view_ref=substrate_registry_ref,
+        )
+        world_ref = persist_world_model_record(store, world)
+        world_ref = ArtifactRef.model_validate(world_ref.model_dump(mode="python"))
+        if load_world_model_record(store, world_ref) != world:
+            raise ValueError("controlled_generic_profile_wmr_readback_mismatch")
+
+    context_inputs = base_context_inputs.model_copy(update={"world_model_record": world})
+    generic_n5 = GenericCycleN5RequestProfileV1(
+        budget_ref=base_profile.n5.budget_ref,
+        horizon=base_profile.n5.horizon,
+        baseline_state=baseline_state,
+        comparator_refs=base_profile.n5.comparator_refs,
+        seed=base_profile.n5.seed,
+        replications=base_profile.n5.replications,
+    )
+    profile_fields = {
+        "profile_id": profile_id,
+        "profile_selection_ref": profile_selection_ref,
+        "profile_selection_kind": profile_selection_kind,
+        "world_model_record_ref": world_ref,
+        "substrate_registry_ref": substrate_registry_ref,
+        "selected_ncm_ref": ncm_ref,
+        "context_inputs": context_inputs,
+        "n5": generic_n5,
+        "limitations": (
+            "controlled_inputs_only",
+            "currentness_not_established",
+            "n5_simulation_not_world_evidence",
+            "n9_not_admitted",
+            "s8_blocked",
+            "source_truth_not_established",
+        ),
+    }
+    return _hashed_model(
+        GenericCycleSimulationProfileV1,
+        profile_fields,
+        hash_fn=gy_content_hash,
+    )
+
+
+async def prepare_generic_n4_served_replay(
+    *,
+    tmp_path: Path,
+    controlled_candidate_gateway: Any,
+    monkeypatch: Any,
+    tenant_id: str,
+    cell_id: str,
+    recording_id: str = _RECORDING_ID,
+    child_count: int = 2,
+    runtime_api_context: Any | None = None,
+    phase_callback: Any | None = None,
+) -> PreparedGenericN4ServedReplay:
+    """Derive a source-bound N4 child family and all typed profiles for a served app.
+
+    This helper builds controlled local bytes; it makes no claim about their
+    institutional authority, authenticity, or currentness.
+    """
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.quality.credal_reference import (
+        credal_reference_l2_source_profile,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        build_cycle_substrate_context,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationProfileV1,
+    )
+    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+    monkeypatch.setenv("OMP_NUM_THREADS", "1")
+
+    source_recording = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("design_problem_id") == recording_id
+    )
+    source_problem = _current_compiler_problem(source_recording)
+    source_recording_id = str(source_recording["recording_id"])
+    source_recording_content_hash = str(source_recording["recording_content_hash"])
+    if child_count == 2:
+        recording = _two_child_recording(
+            source_recording,
+            outcome_variable=source_problem.outcome_of_interest.target_variable,
+        )
+    elif child_count == 3:
+        recording = _three_child_recording(
+            source_recording,
+            outcome_variable=source_problem.outcome_of_interest.target_variable,
+        )
+    else:
+        raise ValueError("controlled_n4_child_count_unsupported")
+    if (
+        recording.get("recording_source")
+        != (
+            "synthetic_three_child_overlay_of_recorded_capture"
+            if child_count == 3
+            else "synthetic_two_child_overlay_of_recorded_capture"
+        )
+        or recording.get("derived_from_recording_id") != source_recording_id
+        or recording.get("derived_from_content_hash") != source_recording_content_hash
+    ):
+        raise AssertionError("controlled_n4_recording_source_lineage_mismatch")
+    recorded_problem = _current_compiler_problem(recording)
+    controlled_candidate_gateway.set_fixture(recording, problem=recorded_problem)
+    model_id = str(recording["model_id"])
+    cas_root = tmp_path / ".polisyos"
+    if runtime_api_context is None:
+        runtime_api_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+    else:
+        cas_root = Path(runtime_api_context.cas_root)
+
+    selected_skg_source = _seed_controlled_selected_skg_source(tmp_path)
+    selected_skg_db_path = selected_skg_source.db_path
+    selected_skg_version_id = selected_skg_source.version_id
+    selected_skg_snapshot_ref = selected_skg_source.snapshot_ref
+    source_identity_checkpoints = [_validate_controlled_skg_source(selected_skg_source).sha256]
+    base_profile, base_declaration = _configured_procurement_profile(
+        recorded_problem=recorded_problem,
+        artifact_store=runtime_api_context.store,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    base_profile, base_declaration = _bind_profile_to_selected_skg_snapshot(
+        base_profile=base_profile,
+        base_declaration=base_declaration,
+        selected_snapshot_ref=selected_skg_snapshot_ref,
+        selected_version_id=selected_skg_version_id,
+    )
+    base_inputs = base_profile.context_inputs
+    if (
+        base_inputs.world_model_record.skg_causal_prior_ref.skg_snapshot_ref
+        != selected_skg_snapshot_ref
+        or base_inputs.world_model_record.skg_causal_prior_ref.skg_version_id
+        != str(selected_skg_version_id)
+    ):
+        raise AssertionError("controlled_n4_preflight_wmr_source_not_selected")
+    preflight_context = build_cycle_substrate_context(
+        design_problem_ref=cycle_job_design_problem_ref(recorded_problem),
+        domain=recorded_problem.domain,
+        substrate_registry=base_inputs.substrate_registry,
+        selected_registry_entry_hashes=base_inputs.selected_registry_entry_hashes,
+        world_model_record=base_inputs.world_model_record,
+        intervention_substrate=base_inputs.intervention_substrate,
+        candidate_levers=base_inputs.candidate_levers,
+        transport_context=base_inputs.transport_context,
+        source_pack_content_hash=base_inputs.source_pack_content_hash,
+        substrate_input_content_hash=base_inputs.substrate_input_content_hash,
+    )
+    _emit_served_phase(phase_callback, "fixture.n4_port.start")
+    organ_run = await N4GenerationPort(
+        model_id=model_id,
+        llm_client=n4_contract.RecordedGenerationReplayClient(recording),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=preflight_context,
+    )(recorded_problem, cycle_index=0)
+    _emit_served_phase(phase_callback, "fixture.n4_port.complete")
+    selected_reference = organ_run.credal_reference
+    if selected_reference is None:
+        raise AssertionError("controlled_n4_selected_credal_reference_missing")
+    selected_source_ref = base_inputs.world_model_record.skg_causal_prior_ref
+    selected_source_profile = credal_reference_l2_source_profile(selected_reference)
+    if selected_source_profile is None:
+        raise AssertionError("controlled_n4_selected_skg_profile_missing")
+    if (
+        selected_source_profile.selection_owner != "world_model_record.skg_causal_prior_ref"
+        or selected_source_profile.skg_causal_prior_ref != selected_source_ref
+        or selected_source_profile.source_snapshot_authenticity != "not_established"
+        or selected_source_profile.currentness_status != "not_established"
+    ):
+        raise AssertionError("controlled_n4_selected_skg_source_binding_mismatch")
+
+    generation_result = getattr(organ_run, "result", None)
+    if generation_result is None:
+        raise AssertionError("controlled_n4_generation_result_missing")
+    children = tuple(
+        derive_n4_candidate_child_problems(
+            recorded_problem,
+            generation_result,
+            model_id=model_id,
+        )
+    )
+    if (
+        len(children) != child_count
+        or len({child.semantic_ref for child in children}) != child_count
+    ):
+        raise AssertionError("controlled_n4_child_family_not_complete_and_distinct")
+    parent_problem_ref = cycle_job_design_problem_ref(recorded_problem)
+    child_keys = tuple(
+        generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        for child in children
+    )
+    if len(set(child_keys)) != len(children):
+        raise AssertionError("controlled_n4_child_profile_selection_not_unique")
+    with pytest.raises(
+        ValueError,
+        match="generic_cycle_child_profile_selection_lineage_mismatch",
+    ):
+        generic_n4_child_profile_selection_ref(
+            children[0].problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=children[0].source_result_ref,
+            source_atom_refs=("sha256:" + "f" * 64,),
+            semantic_ref=children[0].semantic_ref,
+        )
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        substrate_registry_ref = persist_substrate_registry(
+            runtime_api_context.store,
+            base_inputs.substrate_registry,
+        )
+    generic_child_profiles_list = []
+    for index, (child, child_key) in enumerate(zip(children, child_keys, strict=True)):
+        _validate_controlled_skg_source(selected_skg_source)
+        generic_child_profiles_list.append(
+            _generic_profile_for_selection(
+                tmp_path=tmp_path,
+                base_profile=base_profile,
+                base_declaration=base_declaration,
+                profile_id=f"v6-n4-child-{index}",
+                profile_selection_ref=child_key,
+                profile_selection_kind="n4_candidate_child",
+                target_world_slot=child.problem.candidate_lever_space.candidate_levers[
+                    0
+                ].target_slot,
+                operator_kind=child.problem.candidate_lever_space.candidate_levers[0].operator_kind,
+                store=runtime_api_context.store,
+                substrate_registry_ref=substrate_registry_ref,
+                selected_skg_source=selected_skg_source,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+        )
+        source_identity_checkpoints.append(
+            _validate_controlled_skg_source(selected_skg_source).sha256
+        )
+    generic_child_profiles = tuple(generic_child_profiles_list)
+    if any(
+        profile.context_inputs.world_model_record.skg_causal_prior_ref != selected_source_ref
+        for profile in generic_child_profiles
+    ):
+        raise AssertionError("controlled_n4_child_profiles_lost_selected_source")
+    root_fields = generic_child_profiles[0].model_dump(
+        mode="python",
+        exclude={"content_hash"},
+    )
+    root_fields.update(
+        {
+            "profile_id": "v6-generic-root",
+            "profile_selection_ref": cycle_job_profile_selection_ref(recorded_problem),
+            "profile_selection_kind": "problem",
+        }
+    )
+    root_profile = _hashed_model(
+        type(generic_child_profiles[0]),
+        root_fields,
+        hash_fn=gy_content_hash,
+    )
+    source_identity_checkpoints.append(_validate_controlled_skg_source(selected_skg_source).sha256)
+    generic_profiles = (root_profile, *generic_child_profiles)
+    if any(type(profile) is not GenericCycleSimulationProfileV1 for profile in generic_profiles):
+        raise AssertionError("controlled_n4_profile_tuple_not_fully_typed")
+    if any(
+        profile.context_inputs.world_model_record.skg_causal_prior_ref != selected_source_ref
+        for profile in generic_profiles
+    ):
+        raise AssertionError("controlled_n4_complete_profile_set_lost_selected_source")
+    request_json = {
+        "request": recorded_problem.nl_provenance.raw_request,
+        "llm_model": model_id,
+        "context": {
+            "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                mode="json"
+            )
+        },
+    }
+    app_kwargs = {
+        "cas_root": cas_root,
+        "container_overrides": RuntimeContainerOverrides(runtime_api_context=runtime_api_context),
+        "allow_fixture_identity": True,
+        "generic_cycle_simulation_profiles": generic_profiles,
+        "generic_cycle_simulation_root_profile_id": root_profile.profile_id,
+    }
+    return PreparedGenericN4ServedReplay(
+        tmp_path=tmp_path,
+        cas_root=cas_root,
+        runtime_api_context=runtime_api_context,
+        app_kwargs=app_kwargs,
+        request_json=request_json,
+        recording=recording,
+        source_recording_id=source_recording_id,
+        source_recording_content_hash=source_recording_content_hash,
+        recorded_problem=recorded_problem,
+        organ_run=organ_run,
+        selected_reference=selected_reference,
+        selected_source_ref=selected_source_ref,
+        selected_source_profile=selected_source_profile,
+        selected_skg_db_path=selected_skg_db_path,
+        selected_skg_version_id=selected_skg_version_id,
+        selected_skg_snapshot_ref=selected_skg_snapshot_ref,
+        selected_skg_source=selected_skg_source,
+        selected_skg_source_checkpoints=tuple(source_identity_checkpoints),
+        base_profile=base_profile,
+        base_declaration=base_declaration,
+        generic_profiles=generic_profiles,
+        generic_child_profiles=generic_child_profiles,
+        children=children,
+        child_keys=child_keys,
+        root_profile=root_profile,
+        model_id=model_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+
+
+async def run_n4_control_worker_and_get(
+    *,
+    client: Any,
+    app: Any,
+    prepared: PreparedGenericN4ServedReplay,
+    monkeypatch: Any,
+    expected_failure_code: str,
+    exercise_projection_controls: bool = True,
+    phase_callback: Any | None = None,
+) -> N4ServedRunReceipt:
+    """POST, execute the actual control worker, and replay persisted history through GET.
+
+    The clean GET is captured first. Negative control bytes and run-index overrides are
+    restored before returning so a separate serving app can read the same run.
+    """
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+        load_joint_simulation_result,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    controller_run = GenerationCycleController.run
+    child_attempts: list[str] = []
+    successful_child_runs: list[Any] = []
+    actual_failure_code = "v6_controlled_second_n4_child_failure"
+
+    async def fail_second_child(self: Any, *args: Any, **kwargs: Any) -> Any:
+        handoff = getattr(self, "_generic_cycle_simulation_handoff", None)
+        if handoff is None or handoff.profile.profile_selection_kind != "n4_candidate_child":
+            return await controller_run(self, *args, **kwargs)
+        child_attempts.append(handoff.profile.profile_id)
+        if len(child_attempts) == 2:
+            raise GenerationCycleError(
+                actual_failure_code,
+                "controlled later N4 sibling failure",
+            )
+        run = await controller_run(self, *args, **kwargs)
+        successful_child_runs.append(run)
+        return run
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(GenerationCycleController, "run", fail_second_child)
+        _emit_served_phase(phase_callback, "sibling.post.start")
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json=prepared.request_json,
+        )
+        if response.status_code != 200:
+            raise AssertionError(f"n4_control_post_failed:{response.text}")
+        accepted = response.json()
+        if accepted.get("status") != "accepted":
+            raise AssertionError("n4_control_post_not_accepted")
+        job_id = str(accepted["job_id"])
+        _emit_served_phase(phase_callback, "sibling.post.accepted", job_id=job_id)
+        service = app.state._control_service
+        _emit_served_phase(phase_callback, "sibling.dispatch.start", job_id=job_id)
+        dispatched = dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=accepted["job_id"],
+        )
+        _emit_served_phase(phase_callback, "sibling.dispatch.complete", job_id=job_id)
+        if dispatched != accepted["job_id"]:
+            raise AssertionError("n4_control_job_not_dispatched")
+        job = service._control_store.get_job(accepted["job_id"])
+        if job is None or job.state != "completed":
+            raise AssertionError("n4_control_job_not_completed")
+        run_id = str(job.progress["core_run_id"])
+        _emit_served_phase(
+            phase_callback, "sibling.fresh_run_get.start", job_id=job_id, run_id=run_id
+        )
+        get_response = client.get(f"/api/v1/runs/{run_id}")
+        _emit_served_phase(
+            phase_callback, "sibling.fresh_run_get.complete", job_id=job_id, run_id=run_id
+        )
+        if get_response.status_code != 200:
+            raise AssertionError(f"n4_fresh_run_get_failed:{get_response.text}")
+        get_payload = get_response.json()["run"]
+        projection = get_payload["generic_cycle_simulation"]
+        observations = [
+            row for row in projection["n5_observations"] if row["status"] == "joint_simulated"
+        ]
+        if not observations:
+            raise AssertionError("n4_fresh_run_get_lost_successful_n5_observation")
+        successful = observations[0]
+        checkpoint = projection["recursive_cycle_checkpoint"]
+        failed = checkpoint.get("failed_branches", [])
+        if len(failed) != 1:
+            raise AssertionError("n4_fresh_run_get_missing_single_sibling_failure")
+        actual_failure = failed[0]
+        if actual_failure.get("error_code") != actual_failure_code:
+            raise AssertionError("n4_sibling_failure_receipt_not_actual_controlled_failure")
+        if len(child_attempts) != len(successful_child_runs) + 1:
+            raise AssertionError("n4_controlled_child_attempts_incomplete")
+        if expected_failure_code != actual_failure.get("error_code"):
+            raise AssertionError("n4_failure_oracle_does_not_match_actual_projection")
+        result_ref = ArtifactRef.model_validate(successful["simulation_result_ref"])
+
+        absent_id = "sha256:" + "0" * 64
+        if absent_id == str(result_ref.artifact_id):
+            absent_id = "sha256:" + "1" * 64
+        absent_ref_fields = result_ref.model_dump(mode="python")
+        absent_ref_fields["artifact_id"] = ArtifactID.model_validate(absent_id)
+        absent_ref = type(result_ref).model_validate(absent_ref_fields)
+        try:
+            load_joint_simulation_result(
+                absent_ref,
+                store=prepared.runtime_api_context.store,
+                expected_world_model_record_content_hash=(
+                    successful["world_model_record_content_hash"]
+                ),
+                expected_atom_ids=tuple(successful["atom_ids"]),
+                expected_selected_outcomes=tuple(successful["selected_outcomes"]),
+            )
+        except GenerationCycleError as exc:
+            missing_ref_error = exc.code
+        else:
+            raise AssertionError("missing_n5_result_ref_was_not_refused")
+        if missing_ref_error != "joint_simulation_result_unavailable":
+            raise AssertionError("missing_n5_result_ref_refusal_code_mismatch")
+
+        corrupt_projection: dict[str, Any] | None = None
+        incomplete_projection: dict[str, Any] | None = None
+        if exercise_projection_controls:
+            with tenant_scope(
+                None,
+                tenant_id=prepared.tenant_id,
+                cell_id=prepared.cell_id,
+            ):
+                blob_path, _manifest_path = service._artifact_store._paths(
+                    ArtifactID.model_validate(result_ref.artifact_id)
+                )
+                original_blob = blob_path.read_bytes()
+                try:
+                    blob_path.write_bytes(b"controlled-corrupt-result")
+                    _emit_served_phase(
+                        phase_callback, "sibling.corrupt_get.start", job_id=job_id, run_id=run_id
+                    )
+                    corrupt_response = client.get(f"/api/v1/runs/{run_id}")
+                    _emit_served_phase(
+                        phase_callback, "sibling.corrupt_get.complete", job_id=job_id, run_id=run_id
+                    )
+                    if corrupt_response.status_code != 200:
+                        raise AssertionError("n4_corrupt_result_get_http_failure")
+                    corrupt_projection = corrupt_response.json()["run"]["generic_cycle_simulation"]
+                    if (
+                        corrupt_projection["child_profile_status"] != "resolved"
+                        or corrupt_projection["recursive_cycle_checkpoint"] != checkpoint
+                        or corrupt_projection["n5_limitation_code"]
+                        != "generic_n5_persisted_lineage_not_established"
+                        or any(
+                            row["simulation_result_ref"] == successful["simulation_result_ref"]
+                            for row in corrupt_projection["n5_observations"]
+                        )
+                    ):
+                        raise AssertionError("n4_corrupt_result_control_not_fail_closed")
+                finally:
+                    blob_path.write_bytes(original_blob)
+
+            _emit_served_phase(
+                phase_callback, "sibling.restored_get.start", job_id=job_id, run_id=run_id
+            )
+            restored_response = client.get(f"/api/v1/runs/{run_id}")
+            _emit_served_phase(
+                phase_callback, "sibling.restored_get.complete", job_id=job_id, run_id=run_id
+            )
+            if restored_response.status_code != 200:
+                raise AssertionError("n4_restored_result_get_http_failure")
+            restored_projection = restored_response.json()["run"]["generic_cycle_simulation"]
+            if not any(
+                row["simulation_result_ref"] == successful["simulation_result_ref"]
+                for row in restored_projection["n5_observations"]
+            ):
+                raise AssertionError("n4_corrupt_control_did_not_restore_selected_bytes")
+
+            indexed_run = prepared.runtime_api_context.run_index.get_run(run_id)
+            if indexed_run is None:
+                raise AssertionError("n4_run_index_entry_missing_for_child_control")
+            compiled_ref = next(
+                ref
+                for ref in indexed_run.details.root_artifacts
+                if ref.kind == "runtime.compiled_recursive_generation_cycle"
+            )
+            incomplete_compiled_ref, incomplete_set_ref = (
+                _persist_compiled_run_with_incomplete_child_set(
+                    store=prepared.runtime_api_context.store,
+                    compiled_ref=compiled_ref,
+                    tenant_id=prepared.tenant_id,
+                    cell_id=prepared.cell_id,
+                )
+            )
+            original_get_run = prepared.runtime_api_context.run_index.get_run
+            with monkeypatch.context() as index_scope:
+
+                def run_with_incomplete_child_set(run_id_arg: str) -> Any:
+                    indexed = original_get_run(run_id_arg)
+                    if run_id_arg != run_id or indexed is None:
+                        return indexed
+                    altered_roots = tuple(
+                        incomplete_compiled_ref if ref == compiled_ref else ref
+                        for ref in indexed.details.root_artifacts
+                    )
+                    return dataclasses.replace(
+                        indexed,
+                        details=indexed.details.model_copy(
+                            update={"root_artifacts": altered_roots}
+                        ),
+                    )
+
+                index_scope.setattr(
+                    prepared.runtime_api_context.run_index,
+                    "get_run",
+                    run_with_incomplete_child_set,
+                )
+                _emit_served_phase(
+                    phase_callback,
+                    "sibling.incomplete_profile_get.start",
+                    job_id=job_id,
+                    run_id=run_id,
+                )
+                incomplete_response = client.get(f"/api/v1/runs/{run_id}")
+                _emit_served_phase(
+                    phase_callback,
+                    "sibling.incomplete_profile_get.complete",
+                    job_id=job_id,
+                    run_id=run_id,
+                )
+            if incomplete_response.status_code != 200:
+                raise AssertionError("n4_incomplete_child_profile_get_http_failure")
+            incomplete_projection = incomplete_response.json()["run"]["generic_cycle_simulation"]
+            if (
+                incomplete_projection["child_profile_status"] != "not_established"
+                or incomplete_projection["child_profile_limitation_code"]
+                != "generic_n4_child_profile_set_reference_not_established"
+                or incomplete_projection["child_profile_set_ref"]["artifact_id"]
+                != str(incomplete_set_ref.artifact_id)
+                or incomplete_projection["n5_observations"]
+                or incomplete_projection["recursive_cycle_checkpoint"] != checkpoint
+            ):
+                raise AssertionError("n4_incomplete_child_profile_control_not_fail_closed")
+
+    return N4ServedRunReceipt(
+        accepted_payload=accepted,
+        job_id=accepted["job_id"],
+        job_state=job.state,
+        run_id=run_id,
+        failure_code=str(actual_failure["error_code"]),
+        failure_message=str(actual_failure["error_message"]),
+        get_payload=get_payload,
+        projection=projection,
+        successful_observation=successful,
+        n5_result_ref=result_ref,
+        checkpoint=checkpoint,
+        actual_sibling_failure=actual_failure,
+        child_attempt_profile_ids=tuple(child_attempts),
+        successful_child_runs=tuple(successful_child_runs),
+        corrupt_projection=corrupt_projection,
+        incomplete_profile_projection=incomplete_projection,
+        missing_result_ref_error_code=missing_ref_error,
+    )
+
+
+async def run_n4_budget_stop_worker_and_get(
+    *,
+    client: Any,
+    app: Any,
+    prepared: PreparedGenericN4ServedReplay,
+    phase_callback: Any | None = None,
+) -> N4BudgetStopRunReceipt:
+    """POST a real zero-budget request and read the worker result through GET.
+
+    The controlled request sets the existing run budget to zero. The canonical
+    N6 scheduler and recursive controller produce the terminal; this helper
+    does not patch the controller or fabricate checkpoint fields.
+    """
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    request_json = {**prepared.request_json, "run_budget_usd": 0}
+    _emit_served_phase(phase_callback, "budget.post.start")
+    response = client.post(
+        "/api/v1/control/runs/nl",
+        headers={"Idempotency-Key": uuid.uuid4().hex},
+        json=request_json,
+    )
+    if response.status_code != 200:
+        raise AssertionError(f"n4_budget_post_failed:{response.text}")
+    accepted = response.json()
+    if accepted.get("status") != "accepted":
+        raise AssertionError("n4_budget_post_not_accepted")
+    job_id = str(accepted["job_id"])
+    _emit_served_phase(phase_callback, "budget.post.accepted", job_id=job_id)
+    service = app.state._control_service
+    _emit_served_phase(phase_callback, "budget.dispatch.start", job_id=job_id)
+    dispatched = dispatch_one_control_job(
+        store=service._control_store,
+        handler=service._process_control_job,
+        expected_job_id=accepted["job_id"],
+    )
+    _emit_served_phase(phase_callback, "budget.dispatch.complete", job_id=job_id)
+    if dispatched != accepted["job_id"]:
+        raise AssertionError("n4_budget_control_job_not_dispatched")
+    job = service._control_store.get_job(accepted["job_id"])
+    if job is None or job.state != "completed":
+        raise AssertionError("n4_budget_control_job_not_completed")
+    _emit_served_phase(phase_callback, "budget.job_status_get.start", job_id=job_id)
+    job_status_response = client.get(f"/api/v1/control/jobs/{accepted['job_id']}")
+    _emit_served_phase(phase_callback, "budget.job_status_get.complete", job_id=job_id)
+    if job_status_response.status_code != 200:
+        raise AssertionError(f"n4_budget_control_job_get_failed:{job_status_response.text}")
+    job_status_payload = job_status_response.json()
+    job_progress = job_status_payload.get("progress")
+    if (
+        job_status_payload.get("job_id") != accepted["job_id"]
+        or job_status_payload.get("state") != "completed"
+        or not isinstance(job_progress, dict)
+        or job_progress.get("recursive_budget_resolution")
+        != job.progress.get("recursive_budget_resolution")
+    ):
+        raise AssertionError("n4_budget_control_job_get_not_bound_to_persisted_resolution")
+    run_id = str(job.progress["core_run_id"])
+    _emit_served_phase(phase_callback, "budget.fresh_run_get.start", job_id=job_id, run_id=run_id)
+    get_response = client.get(f"/api/v1/runs/{run_id}")
+    _emit_served_phase(
+        phase_callback, "budget.fresh_run_get.complete", job_id=job_id, run_id=run_id
+    )
+    if get_response.status_code != 200:
+        raise AssertionError(f"n4_budget_fresh_get_failed:{get_response.text}")
+    get_payload = get_response.json()
+    run_payload = get_payload.get("run")
+    if not isinstance(run_payload, dict):
+        raise AssertionError("n4_budget_fresh_get_run_missing")
+    projection = run_payload.get("generic_cycle_simulation")
+    if not isinstance(projection, dict):
+        raise AssertionError("n4_budget_fresh_get_projection_missing")
+    checkpoint = projection.get("recursive_cycle_checkpoint")
+    if not isinstance(checkpoint, dict):
+        raise AssertionError("n4_budget_fresh_get_checkpoint_missing")
+    bindings = projection.get("child_profile_bindings")
+    if not isinstance(bindings, list):
+        raise AssertionError("n4_budget_child_profile_bindings_missing")
+    child_node_refs = tuple(
+        sorted(
+            str(binding["node_ref"])
+            for binding in bindings
+            if isinstance(binding, dict) and isinstance(binding.get("node_ref"), str)
+        )
+    )
+    if len(child_node_refs) != 2 or len(set(child_node_refs)) != 2:
+        raise AssertionError("n4_budget_child_profile_denominator_not_two")
+    return N4BudgetStopRunReceipt(
+        accepted_payload=accepted,
+        job_id=str(accepted["job_id"]),
+        job_state=str(job.state),
+        run_id=run_id,
+        get_payload=get_payload,
+        job_status_payload=job_status_payload,
+        projection=projection,
+        checkpoint=checkpoint,
+        child_node_refs=child_node_refs,
+    )

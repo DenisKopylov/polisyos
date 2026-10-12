@@ -1,0 +1,35 @@
+id = "2026-10-12-e02-v2-simulate-only-recursive-budget-progress"
+title = "Retain compiled recursive limits in simulate-only job progress"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "Completed simulate-only natural-language jobs now expose the final compiled recursive budget resolution in durable control-job progress when the compiled owner emitted it."
+evidence = [
+  "src/polisyos/runtime/http/services/control/job_nl_execution.py",
+  "src/polisyos/runtime/http/services/control/generation_cycle.py",
+  "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+  "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+]
+compatibility = "The existing ControlJobResponse.progress map gains an additive key only when the compiled cycle contains a typed resolution. Historical job records are not rewritten, and an absent compiled resolution remains absent."
+change_class = "additive"
+surface_classification = "public: existing GET /api/v1/control/jobs/{job_id} ControlJobResponse.progress projection; no new request field or generated-client/OpenAPI schema field."
+migration = "No data migration. Newly completed simulate-only jobs expose the same source-owned compiled resolution when present; old job progress remains unchanged."
+api = "The recursive_budget_resolution value is exactly compiled.recursive_budget_resolution.model_dump(mode=\"json\") on the simulate-only completion path. Other intent lanes and the compiled artifact contract are unchanged."
+limitations = "This remains a candidate-only projection. The controlled source-bound fixture does not establish external source authenticity or currentness, recursive search completeness, publication authority, or formal B15/B29 closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-control-job-recursive-budget-resolution"
+change_class = "runtime-state-format"
+impact = "compatible"
+surface = "persisted ControlJobResponse.progress runtime state, surfaced through the existing public GET /api/v1/control/jobs/{job_id} projection; the open progress map contract is unchanged"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "New simulate-only control-job progress persists the compiled recursive budget resolution when present; the existing open progress-map API shape is unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

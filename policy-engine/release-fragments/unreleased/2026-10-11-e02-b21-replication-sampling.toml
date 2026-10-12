@@ -1,0 +1,26 @@
+id = "2026-10-11-e02-b21-replication-sampling"
+title = "Bind N5 replication uncertainty to actual engine draws"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "New N5 v3 results retain each selected engine's per-point replicate outputs, ordered seeds, and full engine states with the actual count, aggregate point values, and recomputable sample standard error. One draw is typed as standard_error_not_estimated with no numeric error. Fresh CAS validation checks the full draw denominator, seed/state identity using strict canonical JSON bytes that distinguish bool/int/float values, key set, means, and error against stored samples; malformed or nonfinite state input is rejected. N8 derives the limitation from the exact loaded result and stays low-grade candidate-only under the existing K_sim blocker. Historical v1/v2 payloads remain byte-readable and report legacy_sampling_not_established without rewriting stored artifacts."
+evidence = [
+  "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/README.md",
+  "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+  "tests/unit/remediation/test_sim_03.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/remediation/test_cyc_02.py",
+]
+compatibility = "Joint-simulation payload v3 and CAS schema 3.0.0 are used for new output. The v1 1.0.0 and state-consumption v2 2.0.0 readers remain available and preserve original canonical bytes; legacy results receive a candidate-only sampling limitation and are not upgraded in place."
+change_class = "internal"
+surface_classification = "Internal Runtime quality artifact and N8 candidate projection; no promoted or published value surface changes."
+migration = "No history rewrite. New writes use the v3 payload and schema 3.0.0; old v1/v2 objects remain readable through their existing typed schemas."
+api = "Per-point sampling summaries carry raw outcome/effect draws, actual replicate count, ordered distinct seeds, full JSON-ready engine states, and estimated or standard_error_not_estimated status. N5 and N8 compare ordered states through strict canonical JSON bytes, preserving bool/int/float distinctions and rejecting malformed/nonfinite values. N8 recomputes the candidate blocker from the fresh-loaded CAS result. A two-or-more-draw standard error is conditional sampling error under the selected model only; it is not total/world uncertainty or a calibration claim."
+limitations = "No independence, calibration, causal attribution, model adequacy, source authority, or promotion readiness is established. N8 remains low-grade candidate-only with simulation_only_k_sim_not_world_evidence. The generated Layer 3 GY contract artifact still requires its canonical live generator and corrupt-field/removal controls after source freeze; those gates were not run in this virtual proposal."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

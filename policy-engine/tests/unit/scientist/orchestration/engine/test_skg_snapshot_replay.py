@@ -39,7 +39,11 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
-from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
+from polisyos.data_forge.read_api.academic import (
+    ParameterSelector,
+    PreparedSKGRead,
+    SKGQuery,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     GraphType,
@@ -52,6 +56,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine import executor as executor_module
 from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine import skg_snapshot
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
@@ -84,12 +89,12 @@ from polisyos.scientist.orchestration.engine.skg_snapshot import (
     retain_prepared_skg_read,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 from polisyos.scientist.replay import replay_dead_letter
 from tests._helpers.b61_timeout_worker import run_delayed_timeout_task_after_release
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.executor import WorkflowExecutionResult
 
 
@@ -823,6 +828,456 @@ def test_real_workflow_selector_replays_saved_source_with_current_live_replaceme
             assert _value(live) == 9.75
         finally:
             live.close()
+
+
+def test_executor_keeps_cache_bound_reader_through_query_close_and_reopen(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _source, store, run, ctx, state, ref = _workflow_fixture(tmp_path)
+        selected = load_retained_skg_snapshot(store, ref)
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        bindings: list[tuple[PreparedSKGRead, dict[str, str]]] = []
+        key_inputs: list[dict[str, Any]] = []
+        node_inputs: list[PreparedSKGRead] = []
+        query_reads: list[tuple[PreparedSKGRead, tuple[str, ...]]] = []
+        closed_reads: list[PreparedSKGRead] = []
+
+        original_binding = PreparedSKGRead.cache_binding
+        original_compute = executor_module.compute_idempotency_key
+        original_execute = ResolveParametersNode.execute
+        original_fingerprints = PreparedSKGRead.query_fingerprints_since
+        original_close = PreparedSKGRead.close
+
+        def record_binding(
+            prepared: PreparedSKGRead,
+            *,
+            selector_version: str,
+        ) -> dict[str, str]:
+            binding = original_binding(prepared, selector_version=selector_version)
+            bindings.append((prepared, binding))
+            return binding
+
+        def record_key(
+            spec: NodeSpec,
+            state: ExperimentState,
+            bind_params: dict[str, Any] | None = None,
+        ) -> str:
+            key_inputs.append(dict(bind_params or {}))
+            return original_compute(spec=spec, state=state, bind_params=bind_params)
+
+        def record_execute(
+            node: ResolveParametersNode,
+            execution_ctx: ExecutionContext,
+            current_state: ExperimentState,
+        ) -> NodeOutcome:
+            assert execution_ctx.prepared_skg_read is not None
+            node_inputs.append(execution_ctx.prepared_skg_read)
+            return original_execute(node, execution_ctx, current_state)
+
+        def record_fingerprints(
+            prepared: PreparedSKGRead,
+            marker: int,
+        ) -> tuple[str, ...]:
+            fingerprints = original_fingerprints(prepared, marker)
+            query_reads.append((prepared, fingerprints))
+            return fingerprints
+
+        def record_close(prepared: PreparedSKGRead) -> None:
+            closed_reads.append(prepared)
+            original_close(prepared)
+
+        monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_binding)
+        monkeypatch.setattr(executor_module, "compute_idempotency_key", record_key)
+        monkeypatch.setattr(ResolveParametersNode, "execute", record_execute)
+        monkeypatch.setattr(PreparedSKGRead, "query_fingerprints_since", record_fingerprints)
+        monkeypatch.setattr(PreparedSKGRead, "close", record_close)
+
+        result = _execute_workflow("sync", ctx, registry, replay_state)
+
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+        assert len(bindings) == len(key_inputs) == len(node_inputs) == len(query_reads) == 1
+        bound_read, binding = bindings[0]
+        assert key_inputs[0]["prepared_skg_read"] == binding
+        assert node_inputs[0] is bound_read
+        assert query_reads[0][0] is bound_read
+        assert query_reads[0][1]
+        assert all(len(fingerprint) == 64 for fingerprint in query_reads[0][1])
+        assert binding["source_snapshot_sha256"] == selected.source_sha256
+        assert binding["source_snapshot_ref"] == bound_read.source_snapshot_ref
+        assert binding["source_snapshot_ref"] != selected.source_reference
+        assert sum(closed is bound_read for closed in closed_reads) == 1
+        assert bound_read._closed
+        with pytest.raises(duckdb.Error):
+            bound_read.query._con.execute("SELECT 1")
+
+        bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert float(bundle.parameters["fiscal_multiplier"].value) == 1.25
+        assert (
+            input_ref_from_artifact_ref(ref, role="skg_source_snapshot")
+            in store.get_manifest(bundle_ref).inputs
+        )
+        assert ref in run.run_manifest.inputs
+
+        reopened = prepare_retained_skg_read(
+            store,
+            ref,
+            directory=tmp_path / "reopened-snapshot",
+            index_dir=tmp_path,
+        )
+        try:
+            assert reopened is not bound_read
+            assert reopened.source_snapshot_sha256 == binding["source_snapshot_sha256"]
+            assert _value(reopened) == 1.25
+        finally:
+            reopened.close()
+        assert sum(closed is reopened for closed in closed_reads) == 1
+
+
+def test_executor_misses_after_same_path_skg_bytes_change_and_reuses_only_stable_bytes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, run, ctx, state, _ref = _workflow_fixture(tmp_path)
+        assert SNAPSHOT_INPUT_KEY not in state.inputs
+        initial = tmp_path / "initial.duckdb"
+        _seed(initial, 1.25)
+        os.replace(initial, source)
+        changed = tmp_path / "changed.duckdb"
+        _seed(changed, 9.75)
+        unconsumed = tmp_path / "unconsumed.duckdb"
+
+        bundle_path = f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}"
+
+        def _clear_bundle(current_state: ExperimentState) -> ExperimentState:
+            next_state = branch_state(current_state, write_paths=(bundle_path,)).state
+            next_state.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)
+            return next_state
+
+        source_update_metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_test_source_update@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Test SKG source update",
+            description="Replace the live fixture bytes between real resolver invocations.",
+            tags=["test"],
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+        unrelated_fixture_metadata = ComponentMetadata(
+            component_id=ComponentId.parse("scientist.node_test_unconsumed_fixture@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Test unconsumed fixture",
+            description="Add unrelated bytes before the stable-source resolver invocation.",
+            tags=["test"],
+            capabilities=Capability.SCIENTIST_NODE,
+        )
+
+        class ReplaceLiveSourceAndClearBundle:
+            def __init__(self, source_path: Path, replacement_path: Path) -> None:
+                self._source_path = source_path
+                self._replacement_path = replacement_path
+
+            @property
+            def spec(self) -> NodeSpec:
+                return NodeSpec(metadata=source_update_metadata, state_writes=[bundle_path])
+
+            def execute(
+                self, _ctx: ExecutionContext, current_state: ExperimentState
+            ) -> NodeOutcome:
+                os.replace(self._replacement_path, self._source_path)
+                return NodeOutcome(status="ok", state=_clear_bundle(current_state))
+
+        class AddUnconsumedFixtureAndClearBundle:
+            @property
+            def spec(self) -> NodeSpec:
+                return NodeSpec(metadata=unrelated_fixture_metadata, state_writes=[bundle_path])
+
+            def execute(
+                self, _ctx: ExecutionContext, current_state: ExperimentState
+            ) -> NodeOutcome:
+                _seed(unconsumed, 3.5)
+                return NodeOutcome(status="ok", state=_clear_bundle(current_state))
+
+        resolve_id = ComponentId.parse("scientist.node_resolve_parameters@1.0.0")
+        source_update_id = source_update_metadata.component_id
+        unconsumed_fixture_id = unrelated_fixture_metadata.component_id
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        registry.register(ReplaceLiveSourceAndClearBundle(source, changed))
+        registry.register(AddUnconsumedFixtureAndClearBundle())
+        workflow = WorkflowSpec(
+            workflow_id="same_run_skg_cache_source_change",
+            nodes=[
+                NodeInvocation(alias="resolve_before", node_id=resolve_id),
+                NodeInvocation(
+                    alias="replace_live_source",
+                    node_id=source_update_id,
+                    depends_on=["resolve_before"],
+                ),
+                NodeInvocation(
+                    alias="resolve_after_change",
+                    node_id=resolve_id,
+                    depends_on=["replace_live_source"],
+                ),
+                NodeInvocation(
+                    alias="add_unconsumed_fixture",
+                    node_id=unconsumed_fixture_id,
+                    depends_on=["resolve_after_change"],
+                ),
+                NodeInvocation(
+                    alias="resolve_stable",
+                    node_id=resolve_id,
+                    depends_on=["add_unconsumed_fixture"],
+                ),
+            ],
+        )
+
+        key_calls: list[tuple[dict[str, Any], str]] = []
+        bindings: list[tuple[PreparedSKGRead, dict[str, str]]] = []
+        node_inputs: list[PreparedSKGRead] = []
+        executed_values: list[float] = []
+        query_reads: list[tuple[PreparedSKGRead, tuple[str, ...]]] = []
+        closed_reads: list[PreparedSKGRead] = []
+        original_binding = PreparedSKGRead.cache_binding
+        original_compute = executor_module.compute_idempotency_key
+        original_execute = ResolveParametersNode.execute
+        original_fingerprints = PreparedSKGRead.query_fingerprints_since
+        original_close = PreparedSKGRead.close
+
+        def record_binding(
+            prepared: PreparedSKGRead,
+            *,
+            selector_version: str,
+        ) -> dict[str, str]:
+            binding = original_binding(prepared, selector_version=selector_version)
+            bindings.append((prepared, binding))
+            return binding
+
+        def record_key(
+            spec: NodeSpec,
+            state: ExperimentState,
+            bind_params: dict[str, Any] | None = None,
+        ) -> str:
+            frozen_params = dict(bind_params or {})
+            key = original_compute(spec=spec, state=state, bind_params=bind_params)
+            if "prepared_skg_read" in frozen_params:
+                key_calls.append((frozen_params, key))
+            return key
+
+        def record_execute(
+            node: ResolveParametersNode,
+            execution_ctx: ExecutionContext,
+            current_state: ExperimentState,
+        ) -> NodeOutcome:
+            assert execution_ctx.prepared_skg_read is not None
+            node_inputs.append(execution_ctx.prepared_skg_read)
+            outcome = original_execute(node, execution_ctx, current_state)
+            bundle_ref = outcome.state.artifacts_index[
+                ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+            ]
+            bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(store), bundle_ref
+            )
+            executed_values.append(float(bundle.parameters["fiscal_multiplier"].value))
+            return outcome
+
+        def record_fingerprints(
+            prepared: PreparedSKGRead,
+            marker: int,
+        ) -> tuple[str, ...]:
+            fingerprints = original_fingerprints(prepared, marker)
+            query_reads.append((prepared, fingerprints))
+            return fingerprints
+
+        def record_close(prepared: PreparedSKGRead) -> None:
+            closed_reads.append(prepared)
+            original_close(prepared)
+
+        monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_binding)
+        monkeypatch.setattr(executor_module, "compute_idempotency_key", record_key)
+        monkeypatch.setattr(ResolveParametersNode, "execute", record_execute)
+        monkeypatch.setattr(PreparedSKGRead, "query_fingerprints_since", record_fingerprints)
+        monkeypatch.setattr(PreparedSKGRead, "close", record_close)
+
+        result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+        assert not changed.exists()
+        assert unconsumed.is_file()
+        assert len(bindings) == len(key_calls) == 3
+        assert len(node_inputs) == len(query_reads) == 2
+        assert executed_values == [1.25, 9.75]
+        prepared_reads = [prepared for prepared, _binding in bindings]
+        source_bindings = [binding for _prepared, binding in bindings]
+        assert node_inputs[0] is prepared_reads[0]
+        assert node_inputs[1] is prepared_reads[1]
+        assert all(query_reads[index][0] is prepared_reads[index] for index in range(2))
+        assert all(fingerprints for _read, fingerprints in query_reads)
+        hashes = [binding["source_snapshot_sha256"] for binding in source_bindings]
+        refs = [binding["source_snapshot_ref"] for binding in source_bindings]
+        assert hashes[0] != hashes[1] == hashes[2]
+        assert refs[0] == refs[1] == refs[2]
+        assert [params["prepared_skg_read"] for params, _key in key_calls] == source_bindings
+        cache_keys = [key for _params, key in key_calls]
+        assert cache_keys[0] != cache_keys[1] == cache_keys[2]
+        assert len(closed_reads) == len(prepared_reads) == 3
+        assert all(
+            sum(closed is prepared for closed in closed_reads) == 1 for prepared in prepared_reads
+        )
+        assert all(prepared._closed for prepared in prepared_reads)
+        assert hashlib.sha256(source.read_bytes()).hexdigest() == hashes[2]
+
+        assert run.trace_path is not None
+        trace_events = [
+            json.loads(line)
+            for line in run.trace_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        resolver_hits = [
+            event
+            for event in trace_events
+            if event.get("phase")
+            in {
+                "scientist.node.resolve_before",
+                "scientist.node.resolve_after_change",
+                "scientist.node.resolve_stable",
+            }
+            and event.get("event") == "NODE_CACHE_HIT"
+        ]
+        assert [event["phase"] for event in resolver_hits] == ["scientist.node.resolve_stable"]
+        assert (
+            sum(
+                event.get("phase") == "core" and event.get("event") == "RUN_STARTED"
+                for event in trace_events
+            )
+            == 1
+        )
+        assert (
+            sum(
+                event.get("phase") == "core" and event.get("event") == "RUN_FINALIZED"
+                for event in trace_events
+            )
+            == 1
+        )
+
+        bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), bundle_ref
+        )
+        assert float(bundle.parameters["fiscal_multiplier"].value) == 9.75
+
+
+def test_executor_refuses_reader_swapped_after_cache_key_binds_selected_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        source, store, _run, ctx, state, ref = _workflow_fixture(tmp_path)
+        replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: ref}})
+        selected = load_retained_skg_snapshot(store, ref)
+        registry = NodeRegistry()
+        registry.register(ResolveParametersNode())
+        bindings: list[tuple[PreparedSKGRead, dict[str, str]]] = []
+        key_calls: list[tuple[dict[str, Any], str]] = []
+        original_inputs: list[PreparedSKGRead] = []
+        swapped_reads: list[PreparedSKGRead] = []
+        query_reads: list[tuple[PreparedSKGRead, tuple[str, ...]]] = []
+        closed_reads: list[PreparedSKGRead] = []
+        refusals: list[str] = []
+
+        original_binding = PreparedSKGRead.cache_binding
+        original_compute = executor_module.compute_idempotency_key
+        original_execute = ResolveParametersNode.execute
+        original_fingerprints = PreparedSKGRead.query_fingerprints_since
+        original_close = PreparedSKGRead.close
+
+        def record_binding(
+            prepared: PreparedSKGRead,
+            *,
+            selector_version: str,
+        ) -> dict[str, str]:
+            binding = original_binding(prepared, selector_version=selector_version)
+            bindings.append((prepared, binding))
+            return binding
+
+        def record_key(
+            spec: NodeSpec,
+            state: ExperimentState,
+            bind_params: dict[str, Any] | None = None,
+        ) -> str:
+            frozen_params = dict(bind_params or {})
+            key = original_compute(spec=spec, state=state, bind_params=bind_params)
+            key_calls.append((frozen_params, key))
+            return key
+
+        def swap_at_consumer(
+            node: ResolveParametersNode,
+            execution_ctx: ExecutionContext,
+            current_state: ExperimentState,
+        ) -> NodeOutcome:
+            assert execution_ctx.prepared_skg_read is not None
+            original_reader = execution_ctx.prepared_skg_read
+            original_inputs.append(original_reader)
+            changed_reader = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+            swapped_reads.append(changed_reader)
+            assert changed_reader.source_snapshot_sha256 != selected.source_sha256
+            try:
+                try:
+                    return original_execute(
+                        node,
+                        replace(execution_ctx, prepared_skg_read=changed_reader),
+                        current_state,
+                    )
+                except RetainedSKGSnapshotError as exc:
+                    refusals.append(str(exc))
+                    raise
+            finally:
+                changed_reader.close()
+
+        def record_fingerprints(
+            prepared: PreparedSKGRead,
+            marker: int,
+        ) -> tuple[str, ...]:
+            fingerprints = original_fingerprints(prepared, marker)
+            query_reads.append((prepared, fingerprints))
+            return fingerprints
+
+        def record_close(prepared: PreparedSKGRead) -> None:
+            closed_reads.append(prepared)
+            original_close(prepared)
+
+        monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_binding)
+        monkeypatch.setattr(executor_module, "compute_idempotency_key", record_key)
+        monkeypatch.setattr(ResolveParametersNode, "execute", swap_at_consumer)
+        monkeypatch.setattr(PreparedSKGRead, "query_fingerprints_since", record_fingerprints)
+        monkeypatch.setattr(PreparedSKGRead, "close", record_close)
+
+        result = _execute_workflow("sync", ctx, registry, replay_state)
+
+        assert result.report.status == "fail"
+        assert len(bindings) == len(key_calls) == len(original_inputs) == 1
+        bound_reader, binding = bindings[0]
+        assert key_calls[0][0]["prepared_skg_read"] == binding
+        assert key_calls[0][1]
+        assert original_inputs[0] is bound_reader
+        assert swapped_reads[0] is not bound_reader
+        assert swapped_reads[0].source_snapshot_sha256 != binding["source_snapshot_sha256"]
+        assert refusals == ["retained_skg_prepared_source_mismatch"]
+        assert len(query_reads) == 1
+        assert query_reads[0][0] is bound_reader
+        assert query_reads[0][1] == ()
+        assert sum(closed is bound_reader for closed in closed_reads) == 1
+        assert sum(closed is swapped_reads[0] for closed in closed_reads) == 1
+        assert bound_reader._closed
+        assert swapped_reads[0]._closed
 
 
 def test_selected_snapshot_consumer_rechecks_and_recovers_exact_source_after_bind(

@@ -10,6 +10,10 @@ import pytest
 from polisyos.foundry.agent_sim.distributions import compute_gini_hard
 from polisyos.foundry.plugins.core import DomainConfig
 from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
+from polisyos.foundry.plugins.economics.mechanisms import (
+    ConsumptionMechanism,
+    SavingsMechanism,
+)
 
 _DTYPE_CASES = [
     pytest.param(jnp.float32, False, jnp.float32, jnp.float32, id="float32-default"),
@@ -104,3 +108,99 @@ def test_native_plugin_factory_statistics_reach_objective_and_observation_consum
             np.asarray(observations[:, 0]), np.asarray(state.agents.wealth) / 100000.0, rtol=1e-6
         )
         assert np.isfinite(np.asarray(observations)).all()
+
+
+def _assert_conditional_state_abi(candidate: EconomicState, template: EconomicState) -> None:
+    """Trace the actual JAX conditional that carries a complete economics state."""
+    jax.eval_shape(
+        lambda predicate: jax.lax.cond(
+            predicate,
+            lambda _: candidate,
+            lambda _: template,
+            operand=None,
+        ),
+        jnp.asarray(True, dtype=jnp.bool_),
+    )
+
+
+@pytest.mark.parametrize("x64_enabled", [False, True], ids=["x64-off", "x64-on"])
+def test_builtin_economics_producers_preserve_complete_conditional_state_abi(
+    x64_enabled: bool,
+) -> None:
+    """Every plugin producer keeps the full state pytree compatible under x64."""
+    with jax.enable_x64(x64_enabled):
+        plugin = EconomicsPlugin()
+        state = plugin.create_initial_state(
+            DomainConfig(n_agents=10, max_agents=11), jax.random.PRNGKey(31)
+        )
+
+        for mechanism in plugin.get_mechanisms():
+            candidate = mechanism.apply(state, rng_key=jax.random.PRNGKey(32))
+            _assert_conditional_state_abi(candidate, state)
+
+
+def test_consumption_wealth_uses_the_value_stored_in_its_target_slot() -> None:
+    """Wealth uses rounded stored consumption when x64 inputs feed an f32 slot."""
+    with jax.enable_x64(True):
+        state = EconomicsPlugin().create_initial_state(
+            DomainConfig(n_agents=10, max_agents=10), jax.random.PRNGKey(41)
+        )
+        agents = state.agents.replace(
+            wealth=jnp.full_like(state.agents.wealth, 2**24 + 1),
+            income=jnp.full_like(state.agents.income, 7.0),
+            consumption_preference=jnp.full_like(state.agents.consumption_preference, 0.65),
+        )
+        result = ConsumptionMechanism().apply(state.replace(agents=agents))
+
+        wealth = float(agents.wealth[0])
+        income = float(agents.income[0])
+        preference = float(agents.consumption_preference[0])
+        unrounded_consumption = income * preference + wealth * 0.02
+        expected_stored_consumption = np.asarray(
+            unrounded_consumption, dtype=np.asarray(agents.consumption).dtype
+        ).item()
+        expected_wealth = wealth + income - expected_stored_consumption
+        actual_wealth = float(result.agents.wealth[0])
+
+        assert result.agents.consumption.dtype == agents.consumption.dtype
+        assert float(result.agents.consumption[0]) == expected_stored_consumption
+        assert actual_wealth == expected_wealth
+        assert abs(actual_wealth - (wealth + income - unrounded_consumption)) > 0.01
+
+
+def test_savings_interest_uses_the_value_stored_in_its_target_slot() -> None:
+    """Interest uses rounded stored savings when x64 inputs feed an f32 slot."""
+    with jax.enable_x64(True):
+        state = EconomicsPlugin().create_initial_state(
+            DomainConfig(n_agents=10, max_agents=10), jax.random.PRNGKey(42)
+        )
+        agents = state.agents.replace(
+            active=jnp.ones_like(state.agents.active),
+            wealth=jnp.full_like(state.agents.wealth, 2**24 + 1),
+            consumption=jnp.full_like(state.agents.consumption, 0.5),
+        )
+        policy = state.policy.replace(interest_rate=jnp.full_like(state.policy.interest_rate, 0.75))
+        result = SavingsMechanism().apply(state.replace(agents=agents, policy=policy))
+
+        wealth = float(agents.wealth[0])
+        consumption = float(agents.consumption[0])
+        rate = float(policy.interest_rate)
+        unrounded_savings = wealth - consumption
+        slot_dtype = np.asarray(agents.savings).dtype
+        rate_dtype = np.asarray(policy.interest_rate).dtype
+        operation_dtype = np.result_type(slot_dtype, rate_dtype)
+        expected_stored_savings = np.asarray(unrounded_savings, dtype=slot_dtype).item()
+        expected_interest = np.asarray(
+            np.asarray(expected_stored_savings, dtype=slot_dtype)
+            * np.asarray(rate, dtype=rate_dtype)
+            / np.asarray(12.0, dtype=operation_dtype),
+            dtype=operation_dtype,
+        ).item()
+        expected_wealth = wealth + expected_interest
+        actual_wealth = float(result.agents.wealth[0])
+        unrounded_wealth = wealth + unrounded_savings * rate / 12.0
+
+        assert result.agents.savings.dtype == agents.savings.dtype
+        assert float(result.agents.savings[0]) == expected_stored_savings
+        assert actual_wealth == expected_wealth
+        assert abs(actual_wealth - unrounded_wealth) > 0.003

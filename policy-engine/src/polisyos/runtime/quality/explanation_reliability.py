@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from polisyos.berl.contracts.validation_rules import ValidationThresholds
+    from polisyos.core.artifacts import ArtifactStore
 
 _REQUIRES_BERL_KEYS = (
     "requires_explanation_reliability",
@@ -109,8 +110,17 @@ def evaluate_warrant_berl_reliability(
     warrant: Mapping[str, Any],
     *,
     claim_id: str | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> WarrantReliabilityEvaluation:
-    """Validate BERL reliability records linked to a warrant."""
+    """Validate BERL reliability records linked to a warrant.
+
+    Args:
+        case: Candidate Policy Design Case evidence.
+        warrant: Warrant whose reliability records are selected.
+        claim_id: Optional claim identity used to narrow candidate rows.
+        artifact_store: Optional Core CAS store used to resolve selected bundle refs.
+            A supplied reference requires this store and is never rescued by inline bytes.
+    """
 
     refs = set(warrant_berl_reliability_refs(warrant))
     rows = _matching_reliability_rows(case, warrant, refs=refs, claim_id=claim_id)
@@ -126,7 +136,12 @@ def evaluate_warrant_berl_reliability(
             )
         )
     for row in rows:
-        normalized, row_issues = _normalize_reliability_record(row, warrant=warrant)
+        normalized, row_issues = _normalize_reliability_record(
+            row,
+            warrant=warrant,
+            claim_id=claim_id,
+            artifact_store=artifact_store,
+        )
         records.append(normalized)
         issues.extend(row_issues)
     return WarrantReliabilityEvaluation(tuple(records), tuple(issues))
@@ -143,16 +158,39 @@ def build_berl_warrant_reliability_record(
     warrant_id: str | None = None,
     runtime_event_ref: str | None = None,
     metadata: Mapping[str, Any] | None = None,
+    expected_explanation_subject: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Build a BERL warrant reliability record without requiring argument refs."""
+    """Build a BERL warrant reliability candidate record.
+
+    Inline bundle values can provide candidate diagnostics at construction time. Runtime
+    admission must independently resolve ``explanation_bundle_ref`` through its CAS store.
+
+    Args:
+        reliability_id: Stable identity for this reliability record.
+        claim_id: Claim associated with the record.
+        explanation_bundle_ref: Selected typed CAS reference serialized as JSON.
+        validation_thresholds: BERL thresholds to apply to the resolved bundle.
+        explanation_bundle: Optional candidate payload for preliminary diagnostics only.
+        evidence_ref: Optional upstream evidence reference.
+        warrant_id: Optional warrant associated with the record.
+        runtime_event_ref: Optional runtime event reference.
+        metadata: Optional non-authoritative descriptive metadata.
+        expected_explanation_subject: Optional caller-provided subject to bind at admission.
+    """
 
     record: dict[str, Any] = {
-        "schema_version": "policyos.runtime.policy_design_case.berl_warrant_reliability.v1",
+        "schema_version": "policyos.runtime.policy_design_case.berl_warrant_reliability.v2",
         "record_type": "berl_warrant_reliability",
         "reliability_id": str(reliability_id),
         "claim_id": str(claim_id),
         "explanation_bundle_ref": str(explanation_bundle_ref),
         "validation_thresholds": dict(validation_thresholds),
+        "subject_context_resolution": {
+            "status": "not_established",
+            "predicate_class": "not_established",
+            "source": "no_typed_claim_run_subject_resolver",
+            "reason": "Record construction cannot reconcile a producer-owned claim/run subject.",
+        },
     }
     if evidence_ref is not None:
         record["evidence_ref"] = str(evidence_ref)
@@ -162,20 +200,16 @@ def build_berl_warrant_reliability_record(
         record["runtime_event_ref"] = str(runtime_event_ref)
     if explanation_bundle is not None:
         record["explanation_bundle"] = dict(explanation_bundle)
-        normalized, issues = _normalize_reliability_record(record, warrant={})
-        record.update(
-            {
-                key: value
-                for key, value in normalized.items()
-                if key
-                in {
-                    "threshold_decision",
-                    "empirical_bounds",
-                    "local_infidelity_diagnostics",
-                    "explanation_bundle",
-                }
-            }
+        candidate_record, issues = _validate_bundle_record(
+            record["explanation_bundle"],
+            thresholds=dict(validation_thresholds),
+            evidence_ref=evidence_ref or str(explanation_bundle_ref),
         )
+        record["candidate_diagnostics"] = {
+            "source": "inline_builder_payload",
+            **candidate_record,
+        }
+        record["candidate_diagnostics_status"] = _decision_status(candidate_record)
         if issues:
             record["validation_issues"] = [
                 {
@@ -186,8 +220,15 @@ def build_berl_warrant_reliability_record(
                 }
                 for issue in issues
             ]
+    record["threshold_decision"] = {
+        "status": "fail",
+        "violations": ["policy_design_warrant_berl_subject_context_not_established"],
+        "candidate_status": record.get("candidate_diagnostics_status", "not_evaluated"),
+    }
     if metadata:
         record["metadata"] = dict(metadata)
+    if expected_explanation_subject is not None:
+        record["expected_explanation_subject"] = dict(expected_explanation_subject)
     return record
 
 
@@ -261,20 +302,19 @@ def _normalize_reliability_record(
     row: Mapping[str, Any],
     *,
     warrant: Mapping[str, Any],
+    claim_id: str | None,
+    artifact_store: ArtifactStore | None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     record_id = _first_text(*[row.get(key) for key in _RELIABILITY_RECORD_ID_KEYS])
     evidence_ref = _first_text(row.get("evidence_ref"), row.get("cas_ref"), row.get("artifact_ref"))
     thresholds = _thresholds_payload(row)
     normalized: dict[str, Any] = {
+        "schema_version": "policyos.runtime.policy_design_case.berl_warrant_reliability.v2",
         "record_id": record_id,
         "claim_id": _first_text(row.get("claim_id"), warrant.get("claim_id")),
         "warrant_id": _first_text(row.get("warrant_id"), warrant.get("warrant_id")),
         "evidence_ref": evidence_ref,
-        "explanation_bundle_ref": _first_text(
-            row.get("explanation_bundle_ref"),
-            row.get("berl_explanation_bundle_ref"),
-            row.get("bundle_ref"),
-        ),
+        "explanation_bundle_ref": _bundle_ref_display_value(row),
         "validation_thresholds": thresholds or None,
         "empirical_bounds": _explicit_sequence(
             row.get("empirical_bounds") or row.get("empirical_reliability_bounds")
@@ -282,34 +322,157 @@ def _normalize_reliability_record(
         "local_infidelity_diagnostics": _explicit_sequence(
             row.get("local_infidelity_diagnostics") or row.get("infidelity_diagnostics")
         ),
+        "subject_context_resolution": {
+            "status": "not_established",
+            "predicate_class": "not_established",
+            "source": "no_typed_claim_run_subject_resolver",
+            "reason": (
+                "The selected bundle has not been joined to a producer-owned claim/run subject."
+            ),
+        },
     }
     issues: list[WarrantReliabilityIssue] = []
-    bundle_payload = _as_mapping(
-        row.get("explanation_bundle") or row.get("berl_explanation_bundle")
+    bundle_payload, selected_ref, resolution_code = _load_selected_bundle_payload(
+        row, artifact_store=artifact_store
     )
-    if bundle_payload is not None:
-        bundle_record, bundle_issues = _validate_bundle_record(
-            bundle_payload,
-            thresholds=thresholds,
-            evidence_ref=evidence_ref,
-        )
-        normalized.update(bundle_record)
-        issues.extend(bundle_issues)
-    else:
-        validation = _first_mapping(row, _VALIDATION_KEYS)
-        normalized["threshold_decision"] = dict(validation) if validation else None
-        if _validation_failed_thresholds(validation):
-            issues.append(
-                WarrantReliabilityIssue(
-                    code="policy_design_warrant_berl_threshold_failed",
-                    field="warrant_reliability_records.validation_thresholds",
-                    message="BERL warrant reliability thresholds did not pass.",
+    if selected_ref is not None:
+        normalized["explanation_bundle_ref"] = selected_ref
+    if resolution_code is not None:
+        if resolution_code == "policy_design_warrant_berl_bundle_ref_missing":
+            # An inline payload remains visible only as a candidate diagnostic. It cannot
+            # establish selected CAS bytes or a claim/run subject.
+            candidate_payload = _as_mapping(
+                row.get("explanation_bundle") or row.get("berl_explanation_bundle")
+            )
+            if candidate_payload is not None:
+                candidate_record, candidate_issues = _validate_bundle_record(
+                    candidate_payload,
+                    thresholds=thresholds,
                     evidence_ref=evidence_ref,
                 )
+                normalized["candidate_diagnostics"] = {
+                    "source": "inline_record_payload",
+                    **candidate_record,
+                }
+                normalized["candidate_diagnostics_status"] = _decision_status(candidate_record)
+                normalized.update(_candidate_summary_fields(candidate_record))
+                issues.extend(candidate_issues)
+            normalized["threshold_decision"] = {
+                "status": "fail",
+                "violations": [resolution_code],
+                "candidate_status": normalized.get("candidate_diagnostics_status", "not_evaluated"),
+            }
+        else:
+            normalized["threshold_decision"] = {
+                "status": "fail",
+                "violations": [resolution_code],
+            }
+            issues.append(
+                WarrantReliabilityIssue(
+                    code=resolution_code,
+                    field="warrant_reliability_records.explanation_bundle_ref",
+                    message=(
+                        "The selected BERL store read failed; object absence is not established."
+                        if resolution_code
+                        == "policy_design_warrant_berl_bundle_store_read_unavailable"
+                        else "The selected BERL explanation artifact could not be resolved."
+                    ),
+                    evidence_ref=selected_ref or evidence_ref,
+                )
             )
+    else:
+        candidate_record, candidate_issues = _validate_bundle_record(
+            bundle_payload or {},
+            thresholds=thresholds,
+            evidence_ref=selected_ref or evidence_ref,
+        )
+        normalized["candidate_diagnostics"] = {
+            "source": "selected_cas_bundle",
+            **candidate_record,
+        }
+        normalized["candidate_diagnostics_status"] = _decision_status(candidate_record)
+        normalized.update(_candidate_summary_fields(candidate_record))
+        issues.extend(candidate_issues)
+
+        subject_context = _candidate_subject_context_resolution(
+            row,
+            warrant,
+            claim_id=claim_id,
+            record_id=record_id,
+            selected_ref=selected_ref,
+            bundle_payload=bundle_payload or {},
+        )
+        normalized["subject_context_resolution"] = subject_context
+        candidate_decision = _as_mapping(candidate_record.get("threshold_decision")) or {}
+        candidate_violations = candidate_decision.get("violations")
+        violations = list(candidate_violations if isinstance(candidate_violations, list) else [])
+        violations.append("policy_design_warrant_berl_subject_context_not_established")
+        linkage = _as_mapping(subject_context.get("claim_warrant_linkage")) or {}
+        if linkage.get("status") == "mismatch":
+            violations.append("policy_design_warrant_berl_subject_context_link_mismatch")
+            issues.append(
+                WarrantReliabilityIssue(
+                    code="policy_design_warrant_berl_subject_context_link_mismatch",
+                    field="warrant_reliability_records.claim_warrant_linkage",
+                    message=(
+                        "The record's claim or warrant identifiers conflict with "
+                        "the selected claim/warrant references."
+                    ),
+                    evidence_ref=selected_ref or evidence_ref,
+                )
+            )
+        assertions = _as_mapping(subject_context.get("candidate_assertions")) or {}
+        if assertions.get("status") in {"mismatch", "conflicting"}:
+            violations.append("policy_design_warrant_berl_bundle_subject_mismatch")
+            issues.append(
+                WarrantReliabilityIssue(
+                    code="policy_design_warrant_berl_bundle_subject_mismatch",
+                    field="warrant_reliability_records.expected_explanation_subject",
+                    message=(
+                        "A caller-provided candidate subject conflicts with the selected "
+                        "bundle; the assertion is not an authority source."
+                    ),
+                    evidence_ref=selected_ref or evidence_ref,
+                )
+            )
+        normalized["threshold_decision"] = {
+            **{
+                key: value
+                for key, value in candidate_decision.items()
+                if key not in {"status", "violations"}
+            },
+            "status": "fail",
+            "candidate_status": _decision_status(candidate_record),
+            "violations": list(dict.fromkeys(violations)),
+        }
+        issues.append(
+            WarrantReliabilityIssue(
+                code="policy_design_warrant_berl_subject_context_not_established",
+                field="warrant_reliability_records.subject_context_resolution",
+                message=(
+                    "A selected BERL bundle is candidate evidence until a typed claim/run "
+                    "subject is independently resolved and joined."
+                ),
+                evidence_ref=selected_ref or evidence_ref,
+            )
+        )
 
     _required_reliability_record_issues(normalized, evidence_ref=evidence_ref, issues=issues)
     return {key: value for key, value in normalized.items() if value is not None}, tuple(issues)
+
+
+def _candidate_summary_fields(candidate_record: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        key: candidate_record[key]
+        for key in ("explanation_bundle", "empirical_bounds", "local_infidelity_diagnostics")
+        if key in candidate_record
+    }
+
+
+def _decision_status(candidate_record: Mapping[str, Any]) -> str:
+    decision = _as_mapping(candidate_record.get("threshold_decision")) or {}
+    status = _first_text(decision.get("status"))
+    return status or "not_evaluated"
 
 
 def _required_reliability_record_issues(
@@ -371,6 +534,216 @@ def _has_required_payload(value: object) -> bool:
     if isinstance(value, str):
         return bool(value.strip())
     return value is not None
+
+
+_BUNDLE_REF_KEYS = (
+    "explanation_bundle_ref",
+    "berl_explanation_bundle_ref",
+    "bundle_ref",
+)
+_EXPECTED_BUNDLE_SUBJECT_KEYS = frozenset({"prediction_id", "model_hash", "feature_schema_version"})
+
+
+def _bundle_ref_display_value(row: Mapping[str, Any]) -> object | None:
+    """Keep the exact selected ref representation visible in normalized output."""
+
+    supplied = [(key, row[key]) for key in _BUNDLE_REF_KEYS if key in row]
+    if len(supplied) != 1:
+        return None
+    value = supplied[0][1]
+    if isinstance(value, str):
+        return value
+    model_dump = getattr(value, "model_dump_json", None)
+    if callable(model_dump):
+        try:
+            return model_dump()
+        except (TypeError, ValueError):
+            return None
+    return dict(value) if isinstance(value, Mapping) else value
+
+
+def _load_selected_bundle_payload(
+    row: Mapping[str, Any],
+    *,
+    artifact_store: ArtifactStore | None,
+) -> tuple[dict[str, Any] | None, str | None, str | None]:
+    """Resolve the exact persisted BERL ref; embedded copies never rescue a supplied ref."""
+
+    supplied = [(key, row[key]) for key in _BUNDLE_REF_KEYS if key in row]
+    if not supplied:
+        return None, None, "policy_design_warrant_berl_bundle_ref_missing"
+    if len(supplied) != 1:
+        return None, None, "policy_design_warrant_berl_bundle_ref_invalid"
+
+    from polisyos.ir.registry.refs import ExplanationBundleRef
+
+    raw_ref = supplied[0][1]
+    try:
+        if isinstance(raw_ref, str):
+            selected_ref = ExplanationBundleRef.model_validate_json(raw_ref)
+        elif isinstance(raw_ref, Mapping):
+            selected_ref = ExplanationBundleRef.model_validate(raw_ref)
+        else:
+            model_dump = getattr(raw_ref, "model_dump", None)
+            if not callable(model_dump):
+                raise TypeError("typed BERL bundle reference required")
+            selected_ref = ExplanationBundleRef.model_validate(model_dump(mode="python"))
+    except (TypeError, ValueError):
+        return None, None, "policy_design_warrant_berl_bundle_ref_invalid"
+
+    selected_ref_text = selected_ref.model_dump_json()
+    if artifact_store is None:
+        return (
+            None,
+            selected_ref_text,
+            "policy_design_warrant_berl_bundle_store_unavailable",
+        )
+    try:
+        from polisyos.berl import (
+            ExplanationBundleStoreReadError,
+            load_explanation_bundle,
+        )
+
+        bundle = load_explanation_bundle(artifact_store, selected_ref)
+    except ExplanationBundleStoreReadError:
+        return (
+            None,
+            selected_ref_text,
+            "policy_design_warrant_berl_bundle_store_read_unavailable",
+        )
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return None, selected_ref_text, "policy_design_warrant_berl_bundle_unresolved"
+    return bundle.model_dump(mode="json"), selected_ref_text, None
+
+
+def _candidate_subject_context_resolution(
+    row: Mapping[str, Any],
+    warrant: Mapping[str, Any],
+    *,
+    claim_id: str | None,
+    record_id: str | None,
+    selected_ref: str | None,
+    bundle_payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Describe candidate joins while refusing caller claims as subject authority."""
+
+    actual_subject = _bundle_subject_values(bundle_payload)
+    record_assertion_status, record_assertion = _subject_assertion(row)
+    warrant_assertion_status, warrant_assertion = _subject_assertion(warrant)
+    assertions = [
+        assertion for assertion in (record_assertion, warrant_assertion) if assertion is not None
+    ]
+    assertion_conflict = len(assertions) > 1 and any(
+        assertion != assertions[0] for assertion in assertions[1:]
+    )
+    assertion_mismatch = any(assertion != actual_subject for assertion in assertions)
+    if assertion_conflict:
+        assertion_status = "conflicting"
+    elif assertion_mismatch:
+        assertion_status = "mismatch"
+    elif assertions:
+        assertion_status = "matched"
+    elif "malformed" in {record_assertion_status, warrant_assertion_status}:
+        assertion_status = "malformed"
+    else:
+        assertion_status = "absent"
+
+    expected_warrant_id = _first_text(
+        warrant.get("warrant_id"), warrant.get("record_id"), warrant.get("id")
+    )
+    row_warrant_id = _first_text(row.get("warrant_id"))
+    record_claim_id = _first_text(row.get("claim_id"), row.get("major_claim_id"))
+    warrant_claim_id = _first_text(warrant.get("claim_id"), warrant.get("major_claim_id"))
+    refs = set(warrant_berl_reliability_refs(warrant))
+    record_ref_linked = record_id is not None and record_id in refs
+
+    claim_mismatch = any(
+        value is not None and claim_id is not None and value != claim_id
+        for value in (record_claim_id, warrant_claim_id)
+    ) or (
+        record_claim_id is not None
+        and warrant_claim_id is not None
+        and record_claim_id != warrant_claim_id
+    )
+    warrant_mismatch = (
+        row_warrant_id is not None
+        and expected_warrant_id is not None
+        and row_warrant_id != expected_warrant_id
+    )
+    if claim_mismatch or warrant_mismatch:
+        linkage_status = "mismatch"
+    elif (
+        claim_id is not None
+        and record_claim_id == claim_id
+        and record_ref_linked
+        and (warrant_claim_id is None or warrant_claim_id == claim_id)
+    ):
+        linkage_status = "matched"
+    else:
+        linkage_status = "not_established"
+
+    return {
+        "status": (
+            "contested"
+            if assertion_status in {"mismatch", "conflicting"} or linkage_status == "mismatch"
+            else "not_established"
+        ),
+        "predicate_class": "not_established",
+        "source": "no_typed_claim_run_subject_resolver",
+        "selected_ref": selected_ref,
+        "selected_bundle_subject": actual_subject,
+        "candidate_assertions": {
+            "status": assertion_status,
+            "record_status": record_assertion_status,
+            "record_value": record_assertion,
+            "warrant_status": warrant_assertion_status,
+            "warrant_value": warrant_assertion,
+        },
+        "claim_warrant_linkage": {
+            "status": linkage_status,
+            "expected_claim_id": claim_id,
+            "record_claim_id": record_claim_id,
+            "warrant_claim_id": warrant_claim_id,
+            "record_id": record_id,
+            "record_id_in_warrant_refs": record_ref_linked,
+            "row_warrant_id": row_warrant_id,
+            "warrant_id": expected_warrant_id,
+        },
+        "gate_predicate": {
+            "selected_cas_content": "recomputed",
+            "identifier_joins": "recomputed",
+            "identifier_authority": "consumer_asserted",
+            "claim_run_model_prediction_relation": "not_established",
+        },
+    }
+
+
+def _subject_assertion(
+    source: Mapping[str, Any],
+) -> tuple[str, dict[str, str] | None]:
+    value = source.get("expected_explanation_subject")
+    if value is None:
+        return "absent", None
+    if not isinstance(value, Mapping) or set(value) != _EXPECTED_BUNDLE_SUBJECT_KEYS:
+        return "malformed", None
+    subject: dict[str, str] = {}
+    for key in _EXPECTED_BUNDLE_SUBJECT_KEYS:
+        field_value = value.get(key)
+        if not isinstance(field_value, str) or not field_value.strip():
+            return "malformed", None
+        subject[key] = field_value
+    return "supplied", subject
+
+
+def _bundle_subject_values(payload: Mapping[str, Any]) -> dict[str, Any]:
+    model = _as_mapping(payload.get("model")) or {}
+    prediction = _as_mapping(payload.get("prediction")) or {}
+    feature_context = _as_mapping(payload.get("feature_context")) or {}
+    return {
+        "prediction_id": prediction.get("prediction_id"),
+        "model_hash": model.get("model_hash"),
+        "feature_schema_version": feature_context.get("feature_schema_version"),
+    }
 
 
 def _validate_bundle_record(

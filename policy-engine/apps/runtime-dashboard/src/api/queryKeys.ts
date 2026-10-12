@@ -104,6 +104,8 @@ export const queryKeys = {
       "fabric-decision-data",
       { temporal: temporalScopeKey(temporalScope) },
     ] as const,
+  runPredictiveCalibration: (runId: string) =>
+    ["runtime", "run", runId, "predictive-calibration"] as const,
   runCompare: (
     runAId: string,
     runBId: string,
@@ -301,6 +303,11 @@ export const queryKeys = {
   // Control-plane keys
   controlJobStatus: (jobId: string) =>
     ["control", "jobs", jobId, "status"] as const,
+  controlPreAdmissionAttempt: (attemptId: string) =>
+    ["control", "pre-admission-attempt", attemptId] as const,
+  controlPreAdmissionRecovery: (
+    scope: { tenantId: string; cellId: string; userId: string } | null,
+  ) => ["control", "pre-admission-recovery", scope] as const,
   connectors: () => ["control", "connectors"] as const,
   cacheStatus: () => ["control", "cache"] as const,
   sourceProfiles: () => ["control", "profiles"] as const,

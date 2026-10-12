@@ -22,6 +22,7 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
     _FrozenDict,
     _FrozenList,
+    graph_content_sha256,
 )
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
@@ -299,6 +300,8 @@ def _graph_admission_refusal_result(
     outcome: str,
     reason: str,
     trace: list[str],
+    source_context_id: str | None = None,
+    target_context_id: str | None = None,
 ) -> TransportabilityResult:
     """Return a typed limitation without claiming identification or non-identification."""
     warning_by_reason = {
@@ -334,13 +337,27 @@ def _graph_admission_refusal_result(
         identification_trace=trace,
         unsupported_reason=reason,
         warnings=[warning_by_reason[reason]],
+        source_graph_type=(
+            selection_diagram.base_graph.graph_type
+            if selection_diagram is not None
+            else None
+        ),
+        source_graph_sha256=(
+            graph_content_sha256(selection_diagram.base_graph)
+            if selection_diagram is not None
+            else None
+        ),
         source_context_id=(
-            selection_diagram.source_context.context_id
+            source_context_id
+            if source_context_id is not None
+            else selection_diagram.source_context.context_id
             if selection_diagram is not None
             else "not_established:noncanonical_selection_diagram"
         ),
         target_context_id=(
-            selection_diagram.target_context.context_id
+            target_context_id
+            if target_context_id is not None
+            else selection_diagram.target_context.context_id
             if selection_diagram is not None
             else "not_established:noncanonical_selection_diagram"
         ),
@@ -382,6 +399,33 @@ def validate_scalar_graph_selection_diagram(
     try:
         parsed_diagram = SelectionDiagram.model_validate(raw_diagram)
         admitted_diagram = _snapshot_typed_model(parsed_diagram, SelectionDiagram)
+        graph_reason, graph_type_label, canonical_graph = _canonical_scalar_graph_refusal(
+            admitted_diagram.base_graph
+        )
+        if canonical_graph is None:
+            trace = [
+                f"solver_mode:{solver_mode}",
+                f"graph_type:{graph_type_label}",
+                f"graph_profile:{graph_reason or 'causal_graph_profile_invalid'}",
+                f"graph_admission_gate:refused:{graph_reason or 'causal_graph_profile_invalid'}",
+            ]
+            result = _graph_admission_refusal_result(
+                selection_diagram=None,
+                treatment=treatment,
+                outcome=outcome,
+                reason=graph_reason or "causal_graph_profile_invalid",
+                trace=trace,
+            )
+            return None, _finalize_transport_result(result, privacy_context=privacy_context)
+        diagram_fields = object.__getattribute__(admitted_diagram, "__dict__")
+        diagram_payload = {
+            field_name: diagram_fields[field_name]
+            for field_name in SelectionDiagram.model_fields
+        }
+        diagram_payload["base_graph"] = canonical_graph
+        admitted_diagram = _snapshot_typed_model(
+            SelectionDiagram.model_validate(diagram_payload), SelectionDiagram
+        )
         return admitted_diagram, None
     except _NoncanonicalSelectionSnapshotError:
         trace = [
@@ -403,8 +447,8 @@ def validate_scalar_graph_selection_diagram(
             raise
 
         # Validate the non-graph selection-diagram fields independently. The
-        # placeholder is never consumed by an algorithm; it only supplies the
-        # contexts needed for the typed, non-adjudicative refusal projection.
+        # placeholder exists only to run the existing context-field validators;
+        # it is never returned or bound as the source graph in the refusal.
         sanitized = dict(raw_diagram)
         sanitized["base_graph"] = {
             "graph_type": GraphType.DAG.value,
@@ -432,13 +476,15 @@ def validate_scalar_graph_selection_diagram(
             "graph_admission_gate:refused:causal_graph_profile_invalid",
         ]
         result = _graph_admission_refusal_result(
-            selection_diagram=diagram,
+            selection_diagram=None,
             treatment=treatment,
             outcome=outcome,
             reason="causal_graph_profile_invalid",
             trace=trace,
+            source_context_id=diagram.source_context.context_id,
+            target_context_id=diagram.target_context.context_id,
         )
-        return diagram, _finalize_transport_result(result, privacy_context=privacy_context)
+        return None, _finalize_transport_result(result, privacy_context=privacy_context)
 
 
 class _NoncanonicalSelectionSnapshotError(ValueError):
@@ -584,79 +630,45 @@ def _model_field_snapshot(instance: object, model_type: type[Any]) -> dict[str, 
     return snapshot
 
 
-def _canonical_scalar_graph_refusal(graph: Any) -> tuple[str | None, str]:
-    """Admit exact live IR values from their stored fields, never their serializers."""
-    if type(graph) is not CausalGraphModel:
-        return "causal_graph_profile_invalid", "noncanonical_graph_object"
-
-    graph_fields = _model_field_snapshot(graph, CausalGraphModel)
-    if graph_fields is None:
-        return "causal_graph_profile_invalid", "noncanonical_graph_object"
-
-    graph_type = graph_fields.get("graph_type")
-    if type(graph_type) is not GraphType:
-        return "causal_graph_profile_invalid", "noncanonical_graph_type"
-    graph_type_label = graph_type.value
-
-    nodes = graph_fields.get("nodes")
-    edges = graph_fields.get("edges")
-    if not isinstance(nodes, list) or not isinstance(edges, list):
-        return "causal_graph_profile_invalid", graph_type_label
-    if any(type(node) is not str for node in nodes):
-        return "causal_graph_profile_invalid", graph_type_label
-
-    edge_snapshots: list[dict[str, Any]] = []
-    for edge in edges:
-        edge_fields = _model_field_snapshot(edge, CausalEdge)
-        if edge_fields is None:
-            return "causal_graph_profile_invalid", graph_type_label
-        mark_src = edge_fields.get("mark_src")
-        mark_dst = edge_fields.get("mark_dst")
-        src = edge_fields.get("src")
-        dst = edge_fields.get("dst")
-        lag = edge_fields.get("lag")
-        if (
-            type(src) is not str
-            or type(dst) is not str
-            or type(mark_src) is not EdgeMark
-            or type(mark_dst) is not EdgeMark
-            or (lag is not None and type(lag) is not int)
-        ):
-            return "causal_graph_profile_invalid", graph_type_label
-        edge_snapshots.append(edge_fields)
-
-    graph_fields["nodes"] = nodes
-    graph_fields["edges"] = edge_snapshots
-    try:
-        canonical_graph = CausalGraphModel.model_validate(graph_fields)
-    except (AttributeError, TypeError, ValueError):
-        return "causal_graph_profile_invalid", graph_type_label
-
-    graph_type = canonical_graph.graph_type
-    graph_type_label = graph_type.value
-    if graph_type in {GraphType.PAG, GraphType.CPDAG}:
-        return "partial_graph_completion_semantics_not_established", graph_type_label
-    if graph_type not in {GraphType.DAG, GraphType.ADMG}:
-        return "causal_graph_type_not_supported", graph_type_label
-
-    # Keep the scalar boundary on the canonical native static endpoint profile.
-    # This admits the three resolved directed/bidirected mark pairs and rejects
-    # every unresolved or temporal pair through the same owner used by static ID.
+def _canonical_scalar_graph_refusal(
+    graph: Any,
+) -> tuple[str | None, str, CausalGraphModel | None]:
+    """Return the shared canonical snapshot and any scalar transport refusal."""
     from .admg_ops import (
         UnsupportedStaticADMGProfileError,
         _validate_static_admg,
+        canonical_causal_graph_snapshot,
         topological_order,
     )
 
     try:
-        _validate_static_admg(canonical_graph)
-    except UnsupportedStaticADMGProfileError:
-        return "unsupported_static_admg_profile", graph_type_label
+        canonical_graph = canonical_causal_graph_snapshot(graph)
+    except UnsupportedStaticADMGProfileError as exc:
+        return exc.limitation_code, exc.graph_type_label, None
+    except (AttributeError, TypeError, ValueError):
+        return "causal_graph_profile_invalid", "not_established", None
+
+    graph_type_label = canonical_graph.graph_type.value
+    if canonical_graph.graph_type in {GraphType.PAG, GraphType.CPDAG}:
+        return (
+            "partial_graph_completion_semantics_not_established",
+            graph_type_label,
+            canonical_graph,
+        )
+    if canonical_graph.graph_type not in {GraphType.DAG, GraphType.ADMG}:
+        return "causal_graph_type_not_supported", graph_type_label, canonical_graph
+
+    try:
+        # This shared owner returns the exact detached object that downstream
+        # transport backends will consume.
+        canonical_graph = _validate_static_admg(canonical_graph)
+    except UnsupportedStaticADMGProfileError as exc:
+        return exc.limitation_code, graph_type_label, canonical_graph
     try:
         topological_order(canonical_graph)
     except (AttributeError, TypeError, ValueError):
-        return "causal_graph_profile_invalid", graph_type_label
-    return None, graph_type_label
+        return "causal_graph_profile_invalid", graph_type_label, canonical_graph
+    return None, graph_type_label, canonical_graph
 
 
 def scalar_graph_admission_refusal(
@@ -685,7 +697,7 @@ def scalar_graph_admission_refusal(
     else:
         diagram_fields = object.__getattribute__(selection_diagram, "__dict__")
         graph = diagram_fields.get("base_graph")
-        reason, graph_type_label = _canonical_scalar_graph_refusal(graph)
+        reason, graph_type_label, _canonical_graph = _canonical_scalar_graph_refusal(graph)
         refusal_diagram = selection_diagram
     if reason is None:
         return None
@@ -1035,7 +1047,9 @@ def _run_simplified_legacy(
     pag_threshold: float,
     pag_seed: int,
 ) -> TransportabilityResult | None:
-    from polisyos.foundry.methods.catalog.causal.transport_check import _legacy_pure_step
+    from polisyos.foundry.methods.catalog.causal.transport_check import (
+        _legacy_pure_step,
+    )
 
     payload = _legacy_pure_step(
         {
@@ -1323,8 +1337,6 @@ def _c_component_candidates(s_nodes: list[Any]) -> list[str]:
 
 
 def _directed_edges(graph: Any) -> set[tuple[str, str]]:
-    from polisyos.ir.analytics.causal_graph import CausalEdge, EdgeMark
-
     directed: set[tuple[str, str]] = set()
     for edge in graph.edges:
         if not isinstance(edge, CausalEdge):

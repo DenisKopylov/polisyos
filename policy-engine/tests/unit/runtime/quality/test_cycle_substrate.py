@@ -24,6 +24,7 @@ from polisyos.core.security import (
     set_current_access_scope,
     tenant_scope,
 )
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.pdc import (
     WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
     WorldModelArtifactViews,
@@ -1035,6 +1036,7 @@ def _cycle_context(
     world_model_record: WorldModelRecord | None = None,
     intervention_substrate: InterventionSubstrateBundle | None = None,
     design_problem_ref: str | None = None,
+    transport_graph_ref: CausalGraphModelRef | None = None,
 ) -> CycleSubstrateContext:
     registry = registry or _registry(domain)
     world_model_record = world_model_record or _world_record(domain, registry)
@@ -1086,6 +1088,10 @@ def _cycle_context(
             ),
         ),
     )
+    if transport_graph_ref is not None:
+        transport = transport.model_copy(
+            update={"causal_graph_ref": transport_graph_ref}
+        )
     return build_cycle_substrate_context(
         design_problem_ref=design_problem_ref,
         domain=domain,
@@ -2241,6 +2247,184 @@ def test_cycle_substrate_context_job_v3_artifact_id_scalar_and_strictness() -> N
         _serialize_context_job_v3_value(malformed_artifact_id)
 
 
+def test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref(
+    tmp_path: Any,
+) -> None:
+    """V4 carries the graph through a fresh gateway read; legacy jobs refuse it."""
+
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+    from polisyos.ir.analytics.causal_graph import (
+        CausalEdge,
+        CausalGraphModel,
+        EdgeMark,
+        GraphType,
+        persist_causal_graph_model,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA,
+        CycleSubstrateContextJobArtifactV4,
+        _cycle_job_v1_design_problem_ref,
+        cycle_job_design_problem_ref,
+        cycle_substrate_context_job_content_hash,
+        parse_cycle_substrate_context_job_artifact,
+    )
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    problem = _qualified_v3_design_problem()
+    problem_ref = cycle_job_design_problem_ref(problem)
+    registry = _registry("education")
+    tenant_id = "tenant-context-v4-graph"
+    cell_id = "cell-context-v4-graph"
+    store = FileSystemCAS(
+        tmp_path / "cycle-context-v4-graph-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+    declared_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction=problem.jurisdiction_time.region,
+        policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+    )
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=[
+            "education_teaching_method",
+            "school_quality",
+            "education_learning_outcomes",
+        ],
+        edges=[
+            CausalEdge(
+                src="education_teaching_method",
+                dst="education_learning_outcomes",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+            CausalEdge(
+                src="school_quality",
+                dst="education_learning_outcomes",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+        ],
+        discovery_method="controlled-b33-fixture",
+    )
+    with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+        substrate_registry_artifact_ref, declared_world = (
+            _fixture_world_with_persisted_substrate_registry(
+                store,
+                registry,
+                declared_world,
+            )
+        )
+        unselected_graph_ref = persist_causal_graph_model(
+            ensure_ir_artifact_store(store), graph
+        )
+        selected_graph_ref = profile_bound_ref(store, unselected_graph_ref)
+    world = _world_record_with_selected_views(
+        declared_world,
+        substrate_registry_artifact_ref=substrate_registry_artifact_ref,
+        selected_profile=_hash("selected-view-v4"),
+    )
+    context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=selected_graph_ref,
+    )
+    owner = CycleSubstrateContextArtifactOwner(
+        store=store,
+        control_store=_TestCurrentJobExecutionOwner(
+            "job-context-v4-graph", "run-context-v4-graph"
+        ),
+    )
+
+    with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+        ref = owner.persist_for_current_job(context, problem=problem)
+        resolved = owner.resolve_for_current_job(ref, problem=problem)
+        payload = canon.from_canonical_bytes(store.get_bytes(ref))
+        transport_result = RealValueOwnerGateway(
+            cycle_substrate_context=resolved.context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=SimpleNamespace(
+                candidate_id="education-v4-context-graph",
+                treatment_variable="education.teaching_method",
+            ),
+            problem=problem,
+            world_record=world,
+        )
+
+    assert type(resolved) is CycleSubstrateContextJobArtifactV4
+    assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
+    assert resolved.profile_admission_status == "not_established"
+    assert resolved.s8_status == "blocked"
+    assert resolved.context.transport_context is not None
+    assert resolved.context.transport_context.causal_graph_ref == selected_graph_ref
+    serialized_ref = payload["context"]["transport_context"]["causal_graph_ref"]
+    assert serialized_ref["artifact_id"] == str(selected_graph_ref.artifact_id)
+    assert serialized_ref["manifest_profile_sha256"] == (
+        selected_graph_ref.manifest_profile_sha256
+    )
+    assert payload["schema_version"] == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
+    assert cycle_substrate_context_job_content_hash(payload) == payload["content_hash"]
+    assert parse_cycle_substrate_context_job_artifact(payload) == resolved
+    assert transport_result["selection_diagram"].base_graph == graph
+    assert len(transport_result["selection_diagram"].s_nodes) == 1
+    assert transport_result["selection_diagram"].s_nodes[0].role is None
+
+    legacy_v1_problem = _design_problem()
+    legacy_v1_problem_ref = _cycle_job_v1_design_problem_ref(legacy_v1_problem)
+    legacy_payloads = (
+        (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+            {
+                **payload,
+                "schema_version": CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA,
+                "problem": legacy_v1_problem.model_dump(mode="python"),
+                "design_problem_ref": legacy_v1_problem_ref,
+                "context": _cycle_context(
+                    design_problem_ref=legacy_v1_problem_ref,
+                    registry=registry,
+                    world_model_record=declared_world,
+                    transport_graph_ref=selected_graph_ref,
+                ).model_dump(mode="python"),
+            },
+            "cycle_substrate_context_job_v1_graph_ref_schema_unsupported",
+        ),
+        (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+            {
+                **payload,
+                "schema_version": CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA,
+                "context": _cycle_context(
+                    design_problem_ref=problem_ref,
+                    registry=registry,
+                    world_model_record=declared_world,
+                    transport_graph_ref=selected_graph_ref,
+                ).model_dump(mode="python"),
+            },
+            "cycle_substrate_context_job_v2_graph_ref_schema_unsupported",
+        ),
+        (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+            {
+                **payload,
+                "schema_version": CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA,
+            },
+            "cycle_substrate_context_job_v3_graph_ref_schema_unsupported",
+        ),
+    )
+    for _legacy_schema, legacy_payload, refusal_code in legacy_payloads:
+        with pytest.raises(ValueError, match=refusal_code):
+            parse_cycle_substrate_context_job_artifact(legacy_payload)
+
+
 @pytest.mark.parametrize(
     "schema_version",
     ["policyos.runtime.world_model_record.v1", WORLD_MODEL_RECORD_SCHEMA_V2_VERSION],
@@ -2560,3 +2744,310 @@ def _rehash_world_record_fixture(
         }
     )
     return WorldModelRecord.model_validate(values)
+
+
+def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
+    tmp_path: Any,
+) -> None:
+    """The N8 gateway preserves loaded topology and refuses unselected substitutes."""
+
+    from types import SimpleNamespace
+
+    from pydantic import ValidationError
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+    from polisyos.ir.analytics.causal_graph import (
+        CausalEdge,
+        CausalGraphModel,
+        EdgeMark,
+        GraphType,
+        persist_causal_graph_model,
+    )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import (
+        RealValueOwnerGateway,
+        ValueOwnerAccessError,
+    )
+
+    problem = _design_problem()
+    problem_ref = cycle_job_design_problem_ref(problem)
+    registry = _registry("education")
+    world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction=problem.jurisdiction_time.region,
+        policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+    )
+    store = FileSystemCAS(tmp_path / "b33-selected-graph-cas")
+    candidate = SimpleNamespace(
+        candidate_id="education_teaching_method_candidate",
+        treatment_variable="education.teaching_method",
+    )
+
+    graphs = (
+        CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=[
+                "education_teaching_method",
+                "school_quality",
+                "learning_outcomes",
+            ],
+            edges=[
+                CausalEdge(
+                    src="education_teaching_method",
+                    dst="learning_outcomes",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+                CausalEdge(
+                    src="school_quality",
+                    dst="learning_outcomes",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+            ],
+            discovery_method="controlled-b33-slice-a",
+        ),
+        CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=[
+                "education_teaching_method",
+                "school_quality",
+                "learning_outcomes",
+            ],
+            edges=[
+                CausalEdge(
+                    src="education_teaching_method",
+                    dst="school_quality",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+                CausalEdge(
+                    src="school_quality",
+                    dst="learning_outcomes",
+                    mark_src=EdgeMark.TAIL,
+                    mark_dst=EdgeMark.ARROW,
+                ),
+            ],
+            discovery_method="controlled-b33-slice-b",
+        ),
+    )
+    diagrams = []
+    selected_refs = []
+    contexts = []
+    for graph in graphs:
+        producer_ref = persist_causal_graph_model(
+            ensure_ir_artifact_store(store), graph
+        )
+        selected_ref = profile_bound_ref(store, producer_ref)
+        selected_refs.append(selected_ref)
+        context = _cycle_context(
+            design_problem_ref=problem_ref,
+            registry=registry,
+            world_model_record=world,
+            transport_graph_ref=selected_ref,
+        )
+        contexts.append(context)
+        gateway = RealValueOwnerGateway(
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )
+        result = gateway.build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+        diagrams.append(result["selection_diagram"])
+
+    assert diagrams[0].base_graph == graphs[0]
+    assert diagrams[1].base_graph == graphs[1]
+    assert diagrams[0].base_graph.nodes == diagrams[1].base_graph.nodes
+    assert diagrams[0].base_graph.edges != diagrams[1].base_graph.edges
+    for diagram, context in zip(diagrams, contexts, strict=True):
+        assert len(diagram.s_nodes) == 1
+        s_node = diagram.s_nodes[0]
+        assert s_node.target_variable == "school_quality"
+        assert s_node.role is None
+        assert s_node.source_value == 1.0
+        assert s_node.target_value == 2.0
+        assert s_node.source_ref == _hash("education:school_quality:source")
+        assert s_node.target_ref == _hash("education:school_quality:target")
+        assert context.transport_context is not None
+        assert context.transport_context.causal_graph_ref in selected_refs
+
+    with pytest.raises(ValueOwnerAccessError) as store_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=contexts[0],
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert store_error.value.code == "acquire_data:causal_graph_artifact_store_unavailable"
+
+    missing_blob_ref = selected_refs[0].model_copy(
+        update={"artifact_id": ArtifactID.from_sha256_hex("f" * 64)}
+    )
+    missing_blob_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=missing_blob_ref,
+    )
+    with pytest.raises(ValueOwnerAccessError) as blob_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=missing_blob_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert blob_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    wrong_schema_producer_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(store),
+        graphs[0],
+        schema_version="2.0",
+    )
+    wrong_schema_ref = profile_bound_ref(store, wrong_schema_producer_ref)
+    wrong_schema_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=wrong_schema_ref,
+    )
+    with pytest.raises(ValueOwnerAccessError) as schema_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=wrong_schema_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert schema_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    malformed_payload = contexts[0].transport_context.model_dump(mode="python")
+    malformed_payload["causal_graph_ref"] = {
+        **selected_refs[0].model_dump(mode="python"),
+        "kind": "not-a-causal-graph",
+    }
+    with pytest.raises(ValidationError):
+        TransportContextEvidence.model_validate(malformed_payload)
+
+    wrong_profile_ref = selected_refs[0].model_copy(
+        update={"manifest_profile_sha256": _hash("wrong-selected-profile")}
+    )
+    wrong_profile_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=wrong_profile_ref,
+    )
+    with pytest.raises(ValueOwnerAccessError) as profile_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=wrong_profile_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert profile_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
+
+    profileless_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(store), graphs[0]
+    )
+    profileless_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=profileless_ref,
+    )
+    with pytest.raises(ValueOwnerAccessError) as profileless_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=profileless_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert profileless_error.value.code == "transport_context_invalid"
+
+    graph_without_treatment = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["school_quality", "learning_outcomes"],
+        edges=[
+            CausalEdge(
+                src="school_quality",
+                dst="learning_outcomes",
+                mark_src=EdgeMark.TAIL,
+                mark_dst=EdgeMark.ARROW,
+            ),
+        ],
+        discovery_method="controlled-b33-missing-query-node",
+    )
+    missing_node_producer_ref = persist_causal_graph_model(
+        ensure_ir_artifact_store(store), graph_without_treatment
+    )
+    missing_node_ref = profile_bound_ref(store, missing_node_producer_ref)
+    missing_node_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=missing_node_ref,
+    )
+    with pytest.raises(ValueOwnerAccessError) as node_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=missing_node_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert node_error.value.code == "acquire_data:causal_graph_query_nodes_unresolved"
+
+    sibling_world = _world_record(
+        "education",
+        registry,
+        region_or_jurisdiction="UA-sibling-context",
+        policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
+    )
+    sibling_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=sibling_world,
+        transport_graph_ref=selected_refs[0],
+    )
+    with pytest.raises(ValueOwnerAccessError) as world_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=sibling_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+        )
+    assert world_error.value.code == "transport_context_world_mismatch"
+
+    no_selector_problem = problem.model_copy(
+        update={"runtime_hints": {"causal_graph_model": graphs[0].model_dump(mode="json")}}
+    )
+    no_selector_context = _cycle_context(
+        design_problem_ref=gy_content_hash(no_selector_problem.model_dump(mode="json")),
+        registry=registry,
+        world_model_record=world,
+    )
+    with pytest.raises(ValueOwnerAccessError) as raw_hint_error:
+        RealValueOwnerGateway(
+            cycle_substrate_context=no_selector_context,
+            artifact_store=store,
+        ).build_transport_inputs(
+            candidate=candidate,
+            problem=no_selector_problem,
+            world_record=world,
+        )
+    assert raw_hint_error.value.code == "acquire_data:causal_graph_artifact_unresolved"

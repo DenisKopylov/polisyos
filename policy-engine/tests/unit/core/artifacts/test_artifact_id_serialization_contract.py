@@ -23,6 +23,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 from polisyos.ir.artifacts.contracts import StorePutOptions
+from polisyos.ir.registry.refs import BacktestReportRef
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 from polisyos.runtime.quality.authority import GovernanceMetadata
 
@@ -38,6 +39,187 @@ def test_core_artifact_id_accepts_foreign_artifact_id_wrapper() -> None:
 
     assert isinstance(ref.artifact_id, CoreArtifactID)
     assert ref.model_dump(mode="json")["artifact_id"] == "sha256:" + "a" * 64
+
+
+def test_transactional_reads_normalize_and_enforce_reader_selector_contracts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = b"transactional reads preserve Core-compatible IR selectors"
+    core_ref = store.put_bytes(
+        payload,
+        PutOptions(kind="ir.backtest_report", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert core_ref.manifest_profile_sha256 is not None
+    selected_profile = core_ref.manifest_profile_sha256
+    foreign_id = IRArtifactID.model_validate(str(core_ref.artifact_id))
+    foreign_ref = BacktestReportRef.model_validate(
+        {
+            "artifact_id": foreign_id,
+            "kind": core_ref.kind,
+            "media_type": core_ref.media_type,
+            "manifest_profile_sha256": selected_profile,
+        }
+    )
+
+    pending_reads: list[tuple[str, str | None, str | None]] = []
+    lease_attempts: list[tuple[str, bool]] = []
+    captured_reads: list[str] = []
+    lease_depth = 0
+    coordinator = store._coordinator
+    original_artifact_lease = coordinator.artifact_lease
+    original_require_no_pending_transaction = store._ownership_index.require_no_pending_transaction
+    original_capture = store._capture_public_read_operation
+
+    @contextmanager
+    def record_artifact_lease(artifact_id: CoreArtifactID, *, exclusive: bool):
+        nonlocal lease_depth
+        lease_attempts.append((str(artifact_id), exclusive))
+        with original_artifact_lease(artifact_id, exclusive=exclusive) as lease:
+            lease_depth += 1
+            try:
+                yield lease
+            finally:
+                lease_depth -= 1
+
+    def record_pending_read(
+        artifact_id: CoreArtifactID,
+        *,
+        manifest_profile_sha256: str | None = None,
+        signature_profile: str | None = None,
+    ) -> None:
+        assert lease_depth > 0
+        pending_reads.append((str(artifact_id), manifest_profile_sha256, signature_profile))
+        original_require_no_pending_transaction(
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+            signature_profile=signature_profile,
+        )
+
+    def record_capture(
+        operation: str,
+        artifact_id: CoreArtifactID | ArtifactRef | str,
+    ) -> None:
+        assert lease_depth > 0
+        captured_reads.append(operation)
+        original_capture(operation, artifact_id)
+
+    monkeypatch.setattr(coordinator, "artifact_lease", record_artifact_lease)
+    monkeypatch.setattr(
+        store._ownership_index,
+        "require_no_pending_transaction",
+        record_pending_read,
+    )
+    monkeypatch.setattr(store, "_capture_public_read_operation", record_capture)
+
+    assert store.get_manifest(foreign_ref).kind == "ir.backtest_report"
+    assert pending_reads[-1] == (str(core_ref.artifact_id), selected_profile, None)
+    assert store.get_manifest(artifact_id=foreign_ref).kind == "ir.backtest_report"
+    assert store.get_bytes(foreign_ref) == payload
+    assert store.get_bytes(artifact_id=foreign_ref) == payload
+    assert store.has(foreign_ref) is True
+    assert store.verify(foreign_ref).ok is True
+    assert store._load_verified_snapshot(foreign_ref).data == payload
+    assert store.get_signature(foreign_ref) is None
+    assert store.has_signature(foreign_ref) is False
+    assert pending_reads[-2:] == [
+        (str(core_ref.artifact_id), selected_profile, selected_profile),
+        (str(core_ref.artifact_id), selected_profile, selected_profile),
+    ]
+
+    selected_raw_manifest = store.get_raw_manifest_bytes(
+        artifact_id=foreign_ref,
+        manifest_profile_sha256=None,
+    )
+    assert pending_reads[-1] == (str(core_ref.artifact_id), selected_profile, None)
+    assert selected_raw_manifest == store.get_manifest_bytes(core_ref)
+    assert store.get_raw_manifest_bytes(foreign_ref) == selected_raw_manifest
+    assert (
+        store.get_raw_manifest_bytes(
+            foreign_id,
+            manifest_profile_sha256=selected_profile,
+        )
+        == selected_raw_manifest
+    )
+
+    assert store.has_manifest_view(foreign_id, selected_profile) is True
+    assert (
+        store.get_manifest_by_profile(
+            artifact_id=str(core_ref.artifact_id),
+            manifest_profile_sha256=selected_profile,
+        ).kind
+        == "ir.backtest_report"
+    )
+
+    def assert_refused_before_guards(read):
+        lease_count = len(lease_attempts)
+        pending_count = len(pending_reads)
+        with pytest.raises(
+            TypeError,
+            match="transactional CAS read selector contract does not accept full artifact references",
+        ):
+            read()
+        assert len(lease_attempts) == lease_count
+        assert len(pending_reads) == pending_count
+
+    assert_refused_before_guards(lambda: store.has_manifest_view(foreign_ref, selected_profile))
+    assert_refused_before_guards(
+        lambda: store.get_manifest_by_profile(
+            artifact_id=core_ref,
+            manifest_profile_sha256=selected_profile,
+        )
+    )
+
+    wrong_profile = "sha256:" + "0" * 64
+    assert wrong_profile != selected_profile
+    lease_count = len(lease_attempts)
+    pending_count = len(pending_reads)
+    with pytest.raises(ValueError, match="conflicting manifest profile selectors"):
+        store.get_raw_manifest_bytes(
+            foreign_ref,
+            manifest_profile_sha256=wrong_profile,
+        )
+    with pytest.raises(ValueError, match="manifest_profile_sha256 must be"):
+        store.get_raw_manifest_bytes(
+            foreign_ref,
+            manifest_profile_sha256="not-a-profile",
+        )
+    malformed_ref_profile = {
+        "artifact_id": str(core_ref.artifact_id),
+        "kind": core_ref.kind,
+        "media_type": core_ref.media_type,
+        "manifest_profile_sha256": "not-a-profile",
+    }
+    with pytest.raises(
+        TypeError,
+        match="transactional CAS read requires an artifact selector",
+    ):
+        store.get_manifest(malformed_ref_profile)
+    unknown_ref_field = {
+        "artifact_id": str(core_ref.artifact_id),
+        "kind": core_ref.kind,
+        "media_type": core_ref.media_type,
+        "manifest_profile_sha256": selected_profile,
+        "unexpected": "must not be projected away",
+    }
+    with pytest.raises(
+        TypeError,
+        match="transactional CAS read requires an artifact selector",
+    ):
+        store.get_manifest(unknown_ref_field)
+    assert len(lease_attempts) == lease_count
+    assert len(pending_reads) == pending_count
+
+    assert store.get_bytes(foreign_id) == payload
+    assert store.get_bytes(artifact_id=foreign_id) == payload
+    assert pending_reads[-2:] == [
+        (str(core_ref.artifact_id), None, None),
+        (str(core_ref.artifact_id), None, None),
+    ]
+    assert lease_depth == 0
+    assert captured_reads
 
 
 def test_constructed_artifact_ref_serializes_foreign_artifact_id_without_warning() -> None:
@@ -198,13 +380,9 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
     outcomes: dict[str, ArtifactRef | Exception] = {}
     coordinator = ambient._coordinator
     original_artifact_lease = coordinator.artifact_lease
-    lease_removal_probe = os.environ.get(
-        "POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE"
-    )
+    lease_removal_probe = os.environ.get("POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE")
     if lease_removal_probe not in {None, "1"}:
-        raise ValueError(
-            "POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE must be unset or 1"
-        )
+        raise ValueError("POLISYOS_ARTIFACT_ID_REMOVE_SAME_ID_LEASE_PROBE must be unset or 1")
 
     if lease_removal_probe == "1":
         original_stripe = coordinator._stripe
@@ -223,8 +401,7 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
     @contextmanager
     def observe_contender_lease(candidate_id, *, exclusive):
         is_contender = (
-            candidate_id == artifact_id
-            and threading.current_thread().name == "ambient-contender"
+            candidate_id == artifact_id and threading.current_thread().name == "ambient-contender"
         )
         if is_contender:
             ambient_lease_attempted.set()
@@ -243,10 +420,7 @@ def test_unscoped_cas_loser_refuses_default_claimed_during_write(
         *,
         expected_sha256: str,
     ) -> bool:
-        if (
-            final_path == default_path
-            and threading.current_thread().name == "tenant-owner"
-        ):
+        if final_path == default_path and threading.current_thread().name == "tenant-owner":
             intent = tenant_a._ownership_index._read_transaction_intent(artifact_id)
             assert intent is not None
             assert intent["status"] == "pending"
@@ -378,10 +552,13 @@ def test_ambient_cas_unscoped_claim_check_covers_read_metadata_enumeration_and_p
         store.get_signature(view_ref)
     assert not hasattr(store, "get_paths")
     assert store.has(default_ref.artifact_id) is False
-    assert store.has_manifest_view(
-        view_ref.artifact_id,
-        view_ref.manifest_profile_sha256,
-    ) is False
+    assert (
+        store.has_manifest_view(
+            view_ref.artifact_id,
+            view_ref.manifest_profile_sha256,
+        )
+        is False
+    )
     assert default_ref.artifact_id not in store.iter_artifact_ids()
     with pytest.raises(ArtifactOwnershipError):
         store.export_subgraph(
@@ -563,9 +740,7 @@ def test_ambient_claim_cache_revalidates_after_separate_instance_claim(
 
     store_b = FileSystemCAS(shared_root, tenant_id="tenant-b")
     payload_b = b"tenant B newly claimed bytes"
-    expected_id_b = CoreArtifactID.from_sha256_hex(
-        hashlib.sha256(payload_b).hexdigest()
-    )
+    expected_id_b = CoreArtifactID.from_sha256_hex(hashlib.sha256(payload_b).hexdigest())
     assert str(expected_id_b) not in cached_claims
     cached_file_identities = ambient._ownership_index._claim_file_identities
     assert cached_file_identities is not None
@@ -574,8 +749,7 @@ def test_ambient_claim_cache_revalidates_after_separate_instance_claim(
     )
     if invalidation_removal_probe not in {None, "1"}:
         raise ValueError(
-            "POLISYOS_ARTIFACT_ID_REMOVE_CLAIM_IDENTITY_REFRESH_PROBE "
-            "must be unset or 1"
+            "POLISYOS_ARTIFACT_ID_REMOVE_CLAIM_IDENTITY_REFRESH_PROBE must be unset or 1"
         )
     if invalidation_removal_probe == "1":
         monkeypatch.setattr(

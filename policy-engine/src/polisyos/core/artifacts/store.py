@@ -16,15 +16,22 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
+from inspect import signature
 from pathlib import Path
+from types import UnionType
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     BinaryIO,
     Literal,
     ParamSpec,
     TypedDict,
     TypeVar,
+    Union,
+    get_args,
+    get_origin,
+    get_type_hints,
     overload,
 )
 
@@ -407,6 +414,56 @@ def _current_cell_id() -> str | None:
     return get_current_cell_id()
 
 
+def _transactional_read_selector(value: object) -> ArtifactID | ArtifactRef | str:
+    """Normalize compatible selector models through the existing Core adapter."""
+    if isinstance(value, (ArtifactID, ArtifactRef, str)):
+        return value
+
+    from .ir_adapter import _coerce_core_artifact_selector
+
+    try:
+        return _coerce_core_artifact_selector(value)
+    except (TypeError, ValueError) as exc:
+        raise TypeError("transactional CAS read requires an artifact selector") from exc
+
+
+def _selector_annotation_accepts_full_reference(annotation: object) -> bool:
+    """Return whether a reader's declared selector union accepts a Core ref."""
+    if annotation is ArtifactRef:
+        return True
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        arguments = get_args(annotation)
+        return bool(arguments) and _selector_annotation_accepts_full_reference(arguments[0])
+    if origin in (Union, UnionType):
+        return any(
+            _selector_annotation_accepts_full_reference(argument)
+            for argument in get_args(annotation)
+        )
+    return False
+
+
+def _transactional_read_profile(
+    value: object,
+    *,
+    parameter_name: str,
+    allow_none: bool,
+    selected_profile: str | None,
+) -> str | None:
+    """Validate an explicit profile and reconcile it with a selected ref."""
+    if value is None:
+        if not allow_none:
+            raise TypeError(f"transactional CAS read {parameter_name} must be a string")
+        return selected_profile
+    if not isinstance(value, str):
+        raise TypeError(f"transactional CAS read {parameter_name} must be a string")
+    if re.fullmatch(r"sha256:[0-9a-f]{64}", value) is None:
+        raise ValueError(f"{parameter_name} must be sha256:<64 lowercase hex>")
+    if selected_profile is not None and selected_profile != value:
+        raise ValueError("conflicting manifest profile selectors")
+    return value
+
+
 def _transactional_read(
     *,
     profile_argument_index: int | None = None,
@@ -420,28 +477,60 @@ def _transactional_read(
     def decorate(
         method: Callable[_TransactionalParams, _TransactionalResult],
     ) -> Callable[_TransactionalParams, _TransactionalResult]:
+        method_signature = signature(method)
+        method_parameters = tuple(method_signature.parameters.values())
+        if len(method_parameters) < 2:
+            raise TypeError("transactional CAS read requires receiver and selector parameters")
+        receiver_parameter_name = method_parameters[0].name
+        selector_parameter = method_parameters[1]
+        selector_parameter_name = selector_parameter.name
+        try:
+            selector_annotation = get_type_hints(method).get(selector_parameter_name)
+        except (NameError, TypeError) as exc:
+            raise TypeError("transactional CAS read selector annotation is not resolvable") from exc
+        selector_accepts_full_reference = _selector_annotation_accepts_full_reference(
+            selector_annotation
+        )
+        selector_position = 1
+        profile_position = (
+            selector_position + 1 + profile_argument_index
+            if profile_argument_index is not None
+            else None
+        )
+        if profile_position is not None and profile_position >= len(method_parameters):
+            raise TypeError("transactional CAS read profile parameter is missing")
+        profile_parameter = (
+            method_parameters[profile_position] if profile_position is not None else None
+        )
+
         @wraps(method)
         def wrapped(
             *args: _TransactionalParams.args,
             **kwargs: _TransactionalParams.kwargs,
         ) -> _TransactionalResult:
-            store_value: object = args[0] if args else kwargs.get("self")
-            selector_value: object = args[1] if len(args) > 1 else kwargs.get("artifact_id")
+            bound_call = method_signature.bind(*args, **kwargs)
+            arguments = bound_call.arguments
+            store_value: object = arguments[receiver_parameter_name]
+            raw_selector_value: object = arguments[selector_parameter_name]
             if not isinstance(store_value, FileSystemCAS):
                 raise TypeError("transactional CAS read requires a FileSystemCAS receiver")
-            if not isinstance(selector_value, (ArtifactID, ArtifactRef, str)):
-                raise TypeError("transactional CAS read requires an artifact selector")
-            store = store_value
-            artifact_id = selector_value
-            aid, profile_sha256, _ref = _artifact_reference(artifact_id)
-            if profile_argument_index is not None:
-                profile_position = profile_argument_index + 2
-                requested_profile: object = kwargs.get(
-                    "manifest_profile_sha256",
-                    args[profile_position] if len(args) > profile_position else profile_sha256,
+            selector_value = _transactional_read_selector(raw_selector_value)
+            if isinstance(selector_value, ArtifactRef) and not selector_accepts_full_reference:
+                raise TypeError(
+                    "transactional CAS read selector contract "
+                    "does not accept full artifact references"
                 )
-                if requested_profile is None or isinstance(requested_profile, str):
-                    profile_sha256 = requested_profile
+            aid, profile_sha256, _ref = _artifact_reference(selector_value)
+            if profile_parameter is not None:
+                requested_profile = arguments.get(profile_parameter.name, profile_sha256)
+                profile_sha256 = _transactional_read_profile(
+                    requested_profile,
+                    parameter_name=profile_parameter.name,
+                    allow_none=profile_parameter.default is None,
+                    selected_profile=profile_sha256,
+                )
+            transactional_method: Callable[..., _TransactionalResult] = method
+            store = store_value
             with store._coordinator.artifact_lease(aid, exclusive=False):
                 store._ownership_index.require_no_pending_transaction(
                     aid,
@@ -450,10 +539,24 @@ def _transactional_read(
                 )
                 operation_token = _PUBLIC_READ_OPERATION.set(method.__name__)
                 try:
-                    result = method(*args, **kwargs)
+                    if selector_value is raw_selector_value:
+                        result = transactional_method(*args, **kwargs)
+                    elif len(args) > selector_position:
+                        normalized_args = (
+                            *args[:selector_position],
+                            selector_value,
+                            *args[selector_position + 1 :],
+                        )
+                        result = transactional_method(*normalized_args, **kwargs)
+                    else:
+                        normalized_kwargs = {
+                            **kwargs,
+                            selector_parameter_name: selector_value,
+                        }
+                        result = transactional_method(*args, **normalized_kwargs)
                 finally:
                     _PUBLIC_READ_OPERATION.reset(operation_token)
-                store._capture_public_read_operation(method.__name__, artifact_id)
+                store._capture_public_read_operation(method.__name__, selector_value)
                 return result
 
         return wrapped

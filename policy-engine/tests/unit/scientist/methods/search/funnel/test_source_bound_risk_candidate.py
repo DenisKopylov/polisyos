@@ -591,6 +591,38 @@ def _ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
     return (str(ref.artifact_id), ref.kind, ref.media_type, ref.manifest_profile_sha256)
 
 
+def _persist_source_observation_variant(
+    store: FileSystemCAS,
+    source_ref: ArtifactRef,
+    payload: Mapping[str, Any],
+) -> tuple[ArtifactRef, Any]:
+    """Persist a changed observation payload with its actual producer write envelope."""
+    _, source_manifest = _selected_manifest(store, source_ref)
+    assert source_manifest.artifact_schema is not None
+    assert source_manifest.canon is not None
+    canonical_spec = CanonSpec(**source_manifest.canon.model_dump(mode="python"))
+    variant_ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=source_manifest.kind,
+            media_type=source_manifest.media_type,
+            schema=source_manifest.artifact_schema,
+            producer=source_manifest.producer,
+            env=source_manifest.env,
+            inputs=source_manifest.inputs,
+            canon=source_manifest.canon,
+            governance=source_manifest.governance,
+            tenant_context=source_manifest.tenant_context,
+            same_input_closure=source_manifest.same_input_closure,
+            authority=source_manifest.authority,
+            warnings=source_manifest.warnings,
+        ),
+        canon_spec=canonical_spec,
+        return_selected_profile=True,
+    )
+    return variant_ref, source_manifest
+
+
 def test_source_ref_identity_uses_all_fields_not_pydantic_subclass() -> None:
     selected_profile = f"sha256:{'b' * 64}"
     base_ref = ArtifactRef(
@@ -620,7 +652,10 @@ def test_source_ref_identity_uses_all_fields_not_pydantic_subclass() -> None:
         )
         == "same_artifact_id_different_profile"
     )
-    with pytest.raises(ValueError, match="same profile but differ in kind or media type"):
+    with pytest.raises(
+        ValueError,
+        match="source-bound risk refs share a profile but differ in kind or media type",
+    ):
         _source_identity_relation(base_ref, changed_ref(kind="foundry.other"))
 
 
@@ -2854,22 +2889,26 @@ def test_fresh_reader_rejects_changed_count_while_candidate_markers_remain(
     outcome = _funnel_outcome(store, candidate_ref, welfare_ref)
     observation_ref = next(ref for ref in outcome.audit_refs if ref.kind == _SOURCE_KIND)
     observation = load_source_bound_risk_observation(store, observation_ref, candidate_ref)
+    original_payload = observation.model_dump(mode="json")
     forged = SourceBoundRiskObservation.model_validate(
         observation.model_dump(mode="python")
         | {"valid_draw_count": observation.valid_draw_count + 1}
     )
-    forged_ref = store.put_json(
-        forged.model_dump(mode="json"),
-        PutOptions(
-            kind=_SOURCE_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.SourceBoundRiskObservation", version="1.1"),
-            inputs=store.get_manifest(observation_ref).inputs,
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
-    )
+    forged_payload = forged.model_dump(mode="json")
+    assert forged_payload["valid_draw_count"] == observation.valid_draw_count + 1
+    assert {key: value for key, value in forged_payload.items() if key != "valid_draw_count"} == {
+        key: value for key, value in original_payload.items() if key != "valid_draw_count"
+    }
 
+    forged_ref, source_manifest = _persist_source_observation_variant(
+        store, observation_ref, forged_payload
+    )
+    forged_ref, forged_manifest = _selected_manifest(store, forged_ref)
+    assert forged_ref.manifest_profile_sha256 is not None
+    dynamic_manifest_fields = {"artifact_id", "byte_size", "created_at", "integrity"}
+    assert forged_manifest.model_dump(mode="python", exclude=dynamic_manifest_fields) == (
+        source_manifest.model_dump(mode="python", exclude=dynamic_manifest_fields)
+    )
     assert forged.risk_interpretation_status == "not_established"
     with pytest.raises(ValueError, match="recomputed source contents"):
         load_source_bound_risk_observation(store, forged_ref, candidate_ref)

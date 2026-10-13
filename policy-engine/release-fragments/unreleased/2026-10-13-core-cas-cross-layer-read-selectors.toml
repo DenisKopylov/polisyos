@@ -1,0 +1,16 @@
+id = "2026-10-13-core-cas-cross-layer-read-selectors"
+title = "Core CAS readers normalize compatible selector models"
+type = "fixed"
+component = "core-artifacts"
+owner = "team-polisyos"
+summary = "Transactional CAS reads normalize compatible selectors and enforce each reader’s declared selector contract before acquiring the shared read lease."
+evidence = [
+  "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py::test_transactional_reads_normalize_and_enforce_reader_selector_contracts",
+]
+compatibility = "Existing Core ID, Core ref, and string selectors keep their behavior. Compatible IR root IDs and complete refs are normalized through the Core selector adapter; full refs are rejected before the lease by readers whose declared API accepts only IDs or strings. Malformed refs and conflicting or malformed profile arguments fail closed."
+change_class = "internal"
+surface_classification = "internal: no new public API or exported selector type"
+migration = "No stored manifest, schema, canonical bytes, artifact ID, or write behavior changes."
+api = "FileSystemCAS read signatures remain unchanged. The generic transactional wrapper derives full-ref support from the original selector annotation, then normalizes and forwards accepted selectors under the shared read lease. An omitted or None optional profile preserves a selected ref profile; an explicit conflicting profile is refused before the lease."
+limitations = "This fixes selector interoperability only. It makes no producer-authority, publication, or Core/IR tag-law claim."
+generated_client_compatibility = "not_applicable"

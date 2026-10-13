@@ -8,12 +8,14 @@ the production repair is selected.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.agent import vector_memory as vector_memory_module
@@ -92,18 +94,6 @@ def _fingerprint(run_id: str, *, embedding: list[float] | None = None) -> RunFin
     )
 
 
-def _artifact_id_key(artifact_id: ArtifactID | ArtifactRef | str) -> str:
-    """Normalize a Core CAS selector without stringifying an ArtifactRef."""
-    if isinstance(artifact_id, ArtifactRef):
-        artifact_id = artifact_id.artifact_id
-    normalized_id = (
-        artifact_id
-        if isinstance(artifact_id, ArtifactID)
-        else ArtifactID.model_validate(artifact_id)
-    )
-    return str(normalized_id)
-
-
 class _CountingStore:
     def __init__(self, store: FileSystemCAS) -> None:
         self.store = store
@@ -165,32 +155,6 @@ class _DiscoveryIndex:
                 },
             )
         ]
-
-
-class _BundleStore:
-    def __init__(self, bundle_ref: ArtifactRef, index_ref: ArtifactRef) -> None:
-        self.bundle_ref = bundle_ref
-        self.index_ref = index_ref
-        self.reads: list[ArtifactID | ArtifactRef | str] = []
-
-    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
-        self.reads.append(artifact_id)
-        key = _artifact_id_key(artifact_id)
-        if key == str(self.bundle_ref.artifact_id):
-            return json.dumps(
-                {
-                    "dim": 2,
-                    "max_elements": 2,
-                    "ef_construction": 200,
-                    "M": 16,
-                    "keys": ["new-key"],
-                    "metadata": [{}],
-                    "index_artifact_id": str(self.index_ref.artifact_id),
-                }
-            ).encode("utf-8")
-        if key == str(self.index_ref.artifact_id):
-            return b"controlled-load-failure-payload"
-        raise KeyError(key)
 
 
 def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(tmp_path) -> None:
@@ -298,21 +262,70 @@ def test_failed_native_add_does_not_publish_a_second_python_record() -> None:
 
 
 def test_failed_native_load_does_not_publish_partial_bundle(
+    tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """B134: controlled native load failure retains the prior generation."""
+    """B134: a genuine selected bundle reaching native load cannot partially publish."""
     pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+
+    source_memory = VectorMemoryStore(dim=3, max_elements=5)
+    source_memory.add("replacement", [0.0, 0.0, 1.0], {"origin": "replacement"})
+    source_bundle_ref = source_memory.save_to_artifact(artifact_store)
+    source_bundle_manifest = artifact_store.get_manifest(source_bundle_ref)
+    selected_bundle_ref = ArtifactRef(
+        artifact_id=source_bundle_manifest.artifact_id,
+        kind=source_bundle_manifest.kind,
+        media_type=source_bundle_manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(source_bundle_manifest),
+    )
+
+    assert selected_bundle_ref.manifest_profile_sha256 is not None
+    assert source_bundle_manifest.kind == "vector_memory.bundle"
+    assert source_bundle_manifest.media_type == "application/json"
+    assert source_bundle_manifest.artifact_schema is None
+    assert source_bundle_manifest.canon == CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    assert artifact_store.get_manifest(selected_bundle_ref) == source_bundle_manifest
+
+    bundle = json.loads(artifact_store.get_bytes(selected_bundle_ref))
+    assert set(bundle) == {
+        "dim",
+        "max_elements",
+        "ef_construction",
+        "M",
+        "keys",
+        "metadata",
+        "index_bytes_len",
+        "index_artifact_id",
+    }
+    assert bundle["dim"] == 3
+    assert bundle["max_elements"] == 5
+    assert bundle["ef_construction"] == 200
+    assert bundle["M"] == 16
+    assert bundle["keys"] == ["replacement"]
+    assert bundle["metadata"] == [{"origin": "replacement"}]
+
+    index_id = ArtifactID.model_validate(bundle["index_artifact_id"])
+    index_manifest = artifact_store.get_manifest(index_id)
+    index_bytes = artifact_store.get_bytes(index_id)
+    assert index_manifest.kind == "vector_memory.index"
+    assert index_manifest.media_type == "application/octet-stream"
+    assert index_manifest.byte_size == len(index_bytes) == bundle["index_bytes_len"]
+
     memory = VectorMemoryStore(dim=2, max_elements=2)
     memory.add("first", [1.0, 0.0], {"origin": "first"})
-    bundle_ref = _artifact_ref("d")
-    index_ref = _artifact_ref("e")
+    native_constructions: list[tuple[str, int]] = []
+    native_loads: list[tuple[int, int, int]] = []
 
     class _ControlledLoadFailureIndex:
         def __init__(self, *, space: str, dim: int) -> None:
-            del space, dim
+            native_constructions.append((space, dim))
+            self.dim = dim
 
         def load_index(self, path: str, *, max_elements: int) -> None:
-            del path, max_elements
+            loaded_bytes = Path(path).read_bytes()
+            assert loaded_bytes == index_bytes
+            native_loads.append((self.dim, max_elements, len(loaded_bytes)))
             raise RuntimeError("controlled native load failure")
 
         def set_ef(self, value: int) -> None:
@@ -324,11 +337,14 @@ def test_failed_native_load_does_not_publish_partial_bundle(
         _ControlledLoadFailureIndex,
     )
 
-    store = _BundleStore(bundle_ref, index_ref)
+    store = _CountingStore(artifact_store)
     with pytest.raises(RuntimeError, match="controlled native load failure"):
-        memory.load_from_artifact(store, bundle_ref)
+        memory.load_from_artifact(store, selected_bundle_ref)
 
-    assert store.reads == [bundle_ref, str(index_ref.artifact_id)]
+    assert native_constructions == [("cosine", 3)]
+    assert native_loads == [(3, 5, len(index_bytes))]
+    assert store.reads == [selected_bundle_ref, str(index_id)]
+    assert memory.dim == 2
     assert len(memory) == 1
     assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]
 

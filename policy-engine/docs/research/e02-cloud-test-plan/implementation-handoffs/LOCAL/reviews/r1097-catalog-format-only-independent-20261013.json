@@ -1,0 +1,58 @@
+{
+  "packet_id": "R1097-catalog-format-only-independent-20261013",
+  "verdict": "GO_ROOT_NATIVE_ONLY",
+  "formal_closure_ids": [],
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1094-20261013.json",
+    "frame_sha256": "948808a5976991e620887ffdccaf20dbab38c2739006f265d092e260d142a7df",
+    "frame_source_paths": 553,
+    "r4_input_denominator": {
+      "python": 34,
+      "exact_head": 27,
+      "current_frame_postimage": 7,
+      "mismatches": 0
+    }
+  },
+  "delta": {
+    "packet_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1096-catalog-target-format-only-20261013",
+    "manifest_sha256": "380cfbc61aff73a3c4d9c9a47a87019a30c34308963c0b5ba8029be113b629f5",
+    "patch_sha256": "e3d3b740fa2ba2fc8009fed24cebd7083d3ea00415b664cb34f78049c87ed320",
+    "target": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+    "preimage_sha256": "c41f621399327f613970a9cf0c8b11bd87f3afa05bb3b01d240c31e97123a183",
+    "postimage_sha256": "5638893c19a12ade9148cf8230c16d9e0def437f44fe1e1023ab72491a23367a",
+    "changed_semantics": "none; three-line formatting-only delta",
+    "full_ast_equal": true,
+    "ruff_formatter_preimage_equals_postimage": true,
+    "target_present_in_checkout": false
+  },
+  "checks": {
+    "ruff_check_postimage": {
+      "exit_code": 0,
+      "stdout": "[]",
+      "stderr": ""
+    },
+    "ruff_format_check_postimage": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "ruff_format_check_preimage": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    "ruff_format_preimage_equals_postimage": true,
+    "pytest_http_runtime": "UNRUN; Root native wave required"
+  },
+  "p40": {
+    "classification": "same reviewed Catalog profile/currentness property; formatting delta introduces no behavior class",
+    "closure_ids": []
+  },
+  "limitations": [
+    "No runtime behavior was executed.",
+    "R1073 excluded-profile HTTP test proves stale refusal but not the exact excluded_present coverage-reason branch."
+  ]
+}

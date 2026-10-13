@@ -1,0 +1,140 @@
+{
+  "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1065-20261013.json",
+    "sha256": "e540bff820b741246d6ace27d0b5b325e8a09ee361d7bd17de577a06a8579cfb"
+  },
+  "counts": {
+    "pass": 17,
+    "fail": 1,
+    "error": 0,
+    "skip": 0
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.runtime.http.test_control_service_di::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_predictive_calibration_profile_boundary::test_evidence_ref_adapter_preserves_exact_selected_core_view",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_predictive_calibration_profile_boundary::test_association_event_read_refuses_raw_selected_profile_drift_before_dto",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_real_forecast_owner_bridge_recomputes_holdout_but_refuses_unbound_persistence",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[prediction_time]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[observation_time]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[policy_effective_time]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[data_valid_time]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[calibration_window_start]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_rejects_temporal_roles_that_disagree_with_persisted_report[calibration_window_end]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_bridge_refuses_context_when_report_does_not_bind_temporal_roles",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_frc_02_empirical_bridge::test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_rejects_wrong_empirical_artifact_profile[mapping-ir.forecast_support-application/json]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_rejects_wrong_empirical_artifact_profile[mapping-ir.empirical_calibration_evidence-text/csv]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_rejects_wrong_empirical_artifact_profile[core-ir.forecast_support-application/json]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_rejects_wrong_empirical_artifact_profile[core-ir.empirical_calibration_evidence-text/csv]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_preserves_core_artifact_ref_identity[sha256:8888888888888888888888888888888888888888888888888888888888888888]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.quality.design_axes.test_outcome_prediction::test_calibration_producer_preserves_core_artifact_ref_identity[None]",
+      "outcome": "pass"
+    }
+  ],
+  "source_inputs": 6216,
+  "source_stable": true,
+  "own_product_modules": 1745,
+  "foreign_product_modules": [],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/module-origins.json"
+  },
+  "boundary": "POST201/event/completedintent/profiledEvidence and wrongrunGET409; freshGET200 exactassociation/ref preserved; test direct-ownedCAS read of backtestreport/evidence outsideactivefixturetenant fails ArtifactOwnershipError read_manifest; subsequentexactintentretry UNRUN",
+  "p40": "NEW test-consumer owner context defect; whole ForecastCalibrationRecord Core/IR ref seam reached successfully atHTTPGET; RootR1071 fixture-only ownercontext companion prepared; production ownership remainsstrict",
+  "limitations": [
+    "full exact-intent replay/remaining differential prediction assertions not reached; no V7 whole-property closure",
+    "fullNative/Q2/Linux/authentic closeout stillpending, no globalfreeze or G acceptance"
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/command.json",
+      "sha256": "0d63245a1398dfb69414024dee37ea7ab40b0109026144ec8c368227bd736956"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/stdout.txt",
+      "sha256": "d30dfe9945269ee0b8ff5ce166e9d2104e4887ae30e7b0d4b8648f061d61f7a7"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/junit.xml",
+      "sha256": "7ad60383056cc2f6b41ea4e60fff84fb3d6030e2cd6d513b02af660848d2e3e8"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/module-origins.json",
+      "sha256": "9097e8d92b27d887b8f12e829ad80b1266651faa5a1fb7608d4c3dd10d5e65bc"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/progress.json",
+      "sha256": "c7c497686058c3d1fc55f95971c1839dd7e16c4b4d5d3ec14e360b5678b4bd67"
+    }
+  }
+}

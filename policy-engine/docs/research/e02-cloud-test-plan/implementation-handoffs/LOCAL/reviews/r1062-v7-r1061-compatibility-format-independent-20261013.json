@@ -1,0 +1,67 @@
+{
+  "base": {
+    "all_delta_preimages_match_overlay": true,
+    "composition_path": "LOCAL/raw/reviewed-v7-whole-forecast-ref-r1058-20261013/composition.json",
+    "composition_sha256": "d8df94f06d0ef78fe54bcf6fc1357202e866dd87452297dd43c91aeebb73d3a3",
+    "manifest_base_match": true,
+    "net_patch_sha256": "1c35063f30099531f838491e86c63c1076e518c448b320c4d2a9bef168cf130f"
+  },
+  "behavioral_review": {
+    "core_ref_negative_retained": true,
+    "mapping_negative_retained": true,
+    "runtime_candidate_tests": "UNRUN",
+    "selected_profile_and_profileless_positive_controls_retained_from_r1027": true
+  },
+  "candidate": {
+    "manifest_sha256": "71cb11c53273b02ae8f15166a90c5f709e2b08586c6637f1a98b2677502c81d7",
+    "patch_path": "LOCAL/raw/r1061-v7-forecast-ref-mapping-compatibility-format-companions-20261013/candidate.patch",
+    "patch_sha256": "ba8e6047fe136684269b66157fe650fa3a8ac684747ce3a9df4e4aaf75b5142c"
+  },
+  "closure_ids": [],
+  "current_binding": {
+    "frame_path": "LOCAL/root-author-source-frame-r1059-20261013.json",
+    "frame_sha256": "110476638a39394b71eef6ab6701d0ef751a53c4509f8a96fe3d221ca24930f2",
+    "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "patch_applied": false,
+    "physical_targets_remain_r1027_preimages": true,
+    "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913"
+  },
+  "harness_attempts": [
+    {
+      "detail": "initial filename suffix predicate matched test_outcome_prediction.py as the source module and triggered an inappropriate test-AST-equality assertion after image hash matches",
+      "result": "review harness error; not candidate failure"
+    },
+    {
+      "detail": "Ruff was passed repository-root test path while cwd was policy-engine; per-file ignores did not match and S101 was reported",
+      "result": "review harness error; not candidate failure",
+      "stdout_sha256": "7ff33cad1d41e17a123313dc771697459c31a70e9b342b2b29b7d5031add0268"
+    }
+  ],
+  "p40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "finding": "R1061 restores the mapping-input negative alongside Core-ref negatives and formats the existing source postimage",
+    "new_runtime_escape_found": false
+  },
+  "postimages": [
+    {
+      "ast_equal": true,
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "post_sha256": "b6fc06a2fff4747c87786af282f1aa20ddf4b503afbc7aeafb7651c9f6638dc4",
+      "pre_sha256": "287b41deae358f694726193191027a0db3b0c767d13f1eb624c58069ebf44437",
+      "ruff_check_exit": 0,
+      "ruff_format_exit": 0
+    },
+    {
+      "mapping_and_core_negatives": true,
+      "path": "policy-engine/tests/unit/runtime/quality/design_axes/test_outcome_prediction.py",
+      "post_sha256": "00a2e8eaa11361e84012db4cfa52911e43f2f7759f0dc30f338eb9e5caeef30c",
+      "pre_sha256": "1c8ef77916403cf57f30a622dc83ccb7a9cd10266dbf1a50d7fbd2a22064fa6a",
+      "ruff_check_exit": 0,
+      "ruff_format_exit": 0
+    }
+  ],
+  "review_id": "R1062-v7-r1061-compatibility-format-independent-20261013",
+  "review_markdown_sha256": "beefef7f3a500c0864b24787a1eee2b30abe4872ae34c7e2440d690d52f7a4cf",
+  "review_scope": "R1061 delta over exact R1058 R1027 overlay; no R1027 source re-review and no runtime execution",
+  "verdict": "GO for root focused native replay only"
+}

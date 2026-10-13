@@ -1,0 +1,1140 @@
+{
+  "canonical_inputs": [
+    {
+      "bytes": 5137,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/README.md",
+      "role": "canonical E02 package README",
+      "sha256": "8488b27dce8836e84fdef2b352eac9ff62c38000d386be3d13945102392dc85a"
+    },
+    {
+      "bytes": 7724,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/CURRENT-STATE.md",
+      "role": "canonical E02 current state",
+      "sha256": "7de5978672e8e3764e4302b238be546cad3b816dafc3a139f64222b8d16194dc"
+    },
+    {
+      "bytes": 7242,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "role": "canonical pinned inputs",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+    },
+    {
+      "bytes": 27989,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "role": "canonical task map",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "bytes": 12680,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "role": "execution/occurrence rules",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+    },
+    {
+      "bytes": 5747,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "role": "decision boundary",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+    },
+    {
+      "bytes": 7835,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "role": "original I4 exit/dependency",
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    {
+      "bytes": 550854,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "role": "historical per-occurrence ledger and acceptance criteria",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "bytes": 648034,
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "role": "pinned full original criterion source",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    },
+    {
+      "bytes": 63965,
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "role": "failure/repair register",
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    },
+    {
+      "bytes": 6087,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/i4-c12/README.md",
+      "role": "earlier bounded C12 slice, historical only",
+      "sha256": "8a36a0c286636754fb1c67f387faaa6232f5cdef6154de51d78b5f8055c61c31"
+    },
+    {
+      "bytes": 14320,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-generation-member-encoder-serving-deciding-r1042-20261013.json",
+      "role": "R1042 prior run receipt",
+      "sha256": "a7c5b74ebd63d4dd92748151caac1c1b35469b59c5fb85b56040346fee59c8d7"
+    },
+    {
+      "bytes": 1745173,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/command.json",
+      "role": "R1042 exact pytest command/evidence manifest",
+      "sha256": "73e2584c4b401cc30ef8c37523f6508a69f57e70430e212192dab59aeee5b842"
+    },
+    {
+      "bytes": 145119,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1055-20261013.json",
+      "role": "historical R1055 source frame; not current after HEAD advance",
+      "sha256": "dbb113c2a571de08e2cf89c0c9076f0cbe7e0f217964993101ad58c40cefff79"
+    }
+  ],
+  "catalog_and_legal_contract_readback": {
+    "catalog": {
+      "admission": "Catalog admission requires a selected profile, an open Catalog database/source identity joined to the current publish receipt, established producer profile-input coverage, and the requested row profile ID to be included. Unknown/malformed/legacy coverage refuses plan admission.",
+      "known_gap": "No current-HEAD TestClient run binds the profile-specific real Catalog fixture through /api/v1/control/data/resolve and its fresh Catalog reader in the supplied R1042 receipt.",
+      "selection": "ControlPlaneService.data_resolve validates supplied/configured profile, refuses conflict with 422, and forwards the selected profile. RetrievalService compares request/profile inputs and does not promote missing profile to an admitted catalog currentness result.",
+      "separate_surface": "CatalogServingSourceSelection is an app-level explicit path/profile selector marked candidate-only; path selection alone is not currentness.",
+      "test_evidence": "Current test source contains real Catalog fixture positive plus missing profile typed refusal in test_control_service_preserves_real_catalog_ownership; server profile conflict tests; actual currentness/coverage and malformed/missing selection tests. These are source expectations only in this R1041 artifact, not a command result.",
+      "typed_request": "DataResolveRequest.catalog_run_profile is optional CatalogRunProfile Literal and extra-forbid; /api/v1/control/data/resolve accepts that request type."
+    },
+    "legal": {
+      "fresh_consumer": "Search reconstructs canonical inventory, checks the fresh selected generation ID and full inventory bytes, current member set, saved index/matrix binding, expected model/device/dimension and current encoder assets before vector results; missing/malformed/stale inputs stay text mode with a typed refusal.",
+      "producer_bridge": "selected_legal_fact_query_intent reads the persisted selected, complete Legal fact generation and serializes the selected inventory snapshot into the typed intent; available status is documented as a snapshot only.",
+      "scope": "The distinct DTOs match separate Catalog DataResolve and Legal Lex search surfaces. No evidence says a single LexSearchRequest must also carry CatalogRunProfile.",
+      "typed_request": "LegalQueryGenerationIntentV1 is frozen and extra-forbid; LexSearchRequest carries a tuple of those Legal intents, with no CatalogRunProfile field."
+    }
+  },
+  "closure_ids": [],
+  "created_at": "2026-10-13",
+  "decision": {
+    "catalog_leg": "Source-level path is present: typed DataResolveRequest profile -> current ControlPlaneService validation/config selection -> RetrievalService currentness/profile-coverage gates. Current tests include a real Catalog fixture positive and missing-profile refusal at the service boundary, but those Catalog tests were not run in R1042 or by this review. The existing TestClient /data/resolve test checks generic response shape, not profile-specific Catalog currentness.",
+    "legal_leg": "R1042 provides a bounded controlled synthetic producer -> persisted selected generation -> immutable request intent -> fresh Legal reader -> actual HTTP vector/text response receipt, including typed malformed/missing/stale fallback.",
+    "next_root_check": "A focused current-HEAD Catalog route/currentness wave is the concrete remaining evidence action if the public route is in the I4 acceptance surface. Use existing DataResolveRequest and Catalog profile APIs; do not invent a coupled Legal DTO. Run real Catalog fixture positive, absent/wrong/conflicting profile refusals, and currentness/profile-coverage negatives through the actual selected request/reader boundary.",
+    "overall": "No formal I4 closure is supported by this review. The current code shows two separate typed request paths; a combined CatalogRunProfile+LegalQueryGenerationIntent DTO is not an original criterion and is not required by the evidence.",
+    "scope_limits": [
+      "No production data/model/authority claim",
+      "No N7 admitted-input-to-WMR proof",
+      "No LA-032, LA-033, LA-046, or Catalog test execution by this review",
+      "No closure IDs"
+    ]
+  },
+  "denominator": {
+    "criterion_source_test_footprint": [
+      {
+        "bytes": 13537,
+        "path": "policy-engine/src/polisyos/core/components/_cli_replay.py",
+        "role": "LA-033 CLI canonical replay target",
+        "sha256": "cb433628d1eedacde5ced5d768a501d95222639764fb9be4a8d93245f7c973eb"
+      },
+      {
+        "bytes": 69472,
+        "path": "policy-engine/src/polisyos/core/contracts/control.py",
+        "role": "shared strict Catalog request and immutable Legal intent DTOs",
+        "sha256": "d3490715c87dcf4ab8dd9964602207abc9f21b8713b35a10d57f598b672cbf36"
+      },
+      {
+        "bytes": 25312,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "role": "default producer registry selection and profile input coverage",
+        "sha256": "8aa92f329ccc9b2defaf6d1a4e8c35d413ac56b906e95638936fde8368c68335"
+      },
+      {
+        "bytes": 48964,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "role": "Catalog publish receipt/currentness recomputation",
+        "sha256": "484b1ce4397187df0fb0ddd6d4e6167616aca929e82893b4a82253ddf1ee3b52"
+      },
+      {
+        "bytes": 3146,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.py",
+        "role": "batch projection through canonical registry/selection",
+        "sha256": "45b495ce015e0ee7efdf2ab10d69cd0d165c406b331f56e77d8ce93e0c2d28ed"
+      },
+      {
+        "bytes": 15427,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/source_registry.yaml",
+        "role": "retained batch compatibility YAML copy",
+        "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789"
+      },
+      {
+        "bytes": 14726,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "role": "typed canonical Catalog registry",
+        "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a"
+      },
+      {
+        "bytes": 5333,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+        "role": "canonical Catalog profile and seed selection",
+        "sha256": "c1449de694cd61834d3d3eb3852a831bcd02e749a430e16844fbe48caaed1f46"
+      },
+      {
+        "bytes": 10972,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+        "role": "lazy source-module projection from canonical registry",
+        "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a"
+      },
+      {
+        "bytes": 15427,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_registry.yaml",
+        "role": "canonical Catalog source registry",
+        "sha256": "2389b15dbbc0ec66c20cf2b247569100a341387eb5e0611220766b8c6cbb4789"
+      },
+      {
+        "bytes": 15969,
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "role": "Legal content-bound embedding producer",
+        "sha256": "0964adbcc1f06d6416618fe171e7b082329415f3bd2e272be8f8f526702b2845"
+      },
+      {
+        "bytes": 18859,
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "role": "LA-032 whole-layout selection and historical adapter",
+        "sha256": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436"
+      },
+      {
+        "bytes": 50839,
+        "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "role": "shared selected-generation writer/reader boundary",
+        "sha256": "3321c8511f3f206a98245fd7c02a679bc401f0f1753e3a11e91c3c1acd29d72e"
+      },
+      {
+        "bytes": 11249,
+        "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "role": "shared content/rule basis primitives",
+        "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343"
+      },
+      {
+        "bytes": 58622,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "role": "Catalog read API/publish receipt facade",
+        "sha256": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9"
+      },
+      {
+        "bytes": 8818,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+        "role": "public Legal generation/profile facade",
+        "sha256": "6c5e2cd9606570714f1d0788a629123aa7007ff91e7881fa3502fe0b3386cdd7"
+      },
+      {
+        "bytes": 50567,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "role": "LA-032 public readers",
+        "sha256": "dd3a4b71941ec16a4dd57a87d3e68532df480ea832f1ff182b13b02b4d953937"
+      },
+      {
+        "bytes": 75881,
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "role": "LA-046 explicit scenario scope/compiler path",
+        "sha256": "fce7969fd7298e02868621084a09affbf47d3216a8528f4427a64998c7d4568b"
+      },
+      {
+        "bytes": 72912,
+        "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "role": "Catalog request conflict/currentness/profile-coverage plan admission",
+        "sha256": "9cdcd8ed3b953c1432f67f4e9e9c0ec548672b5b089cdae22cd99c4350a8a51f"
+      },
+      {
+        "bytes": 109309,
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "role": "fresh Legal reader current-generation/member/index/encoder gates",
+        "sha256": "f15628ba6cf563f73b1a046d3cb93b7f06f629f37e4802add47eed4ea1d4d6c6"
+      },
+      {
+        "bytes": 2878,
+        "path": "policy-engine/src/polisyos/runtime/__init__.py",
+        "role": "LA-033 lazy public replay exports",
+        "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287"
+      },
+      {
+        "bytes": 55597,
+        "path": "policy-engine/src/polisyos/runtime/http/container.py",
+        "role": "Legal query encoder provider",
+        "sha256": "c901c778ff08d2d13ba7cbaba8979143cf58177d16a4c694da779662ee5a89a8"
+      },
+      {
+        "bytes": 45541,
+        "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "role": "public /data/resolve and /lex/search-profile,/lex/search routes",
+        "sha256": "6cf6a88a2b0407359004181b7e07e46e1aedaa8f34b09604bf5a004034e03695"
+      },
+      {
+        "bytes": 17056,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "role": "immutable Legal request parse and typed vector/text response",
+        "sha256": "c99b1a16fb0a33375faf24bf0a3f9396d004a8cb9b2b669ab7fa1abdc8feeff8"
+      },
+      {
+        "bytes": 3086,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+        "role": "selected Legal fact-generation intent bridge",
+        "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a"
+      },
+      {
+        "bytes": 251265,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "role": "Catalog request/profile validation and forwarding; current shared lifecycle file",
+        "sha256": "7a8044cb1141b665d25a9cb453e649444fc8e9b306cd02efe36e15e4960850c4"
+      },
+      {
+        "bytes": 724916,
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "current N7 compiler/capability resolver source path",
+        "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+      },
+      {
+        "bytes": 87078,
+        "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+        "role": "separate Catalog source selector/scope (candidate-only path)",
+        "sha256": "f9a420cd91fd16cc53a480011d21f50dac4ee3001c2f8a67fbe2d477d809faaa"
+      },
+      {
+        "bytes": 2092,
+        "path": "policy-engine/src/polisyos/runtime/replay.py",
+        "role": "LA-033 retained compatibility alias",
+        "sha256": "c8de51a24b7587505ba1677a98b3853c7a39d4a43ec03c55797b5f42d0d03dde"
+      },
+      {
+        "bytes": 5156,
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+        "role": "LA-032 historical/malformed reader cases (not R1042 run)",
+        "sha256": "d938e99602339a351dece1be4a9cb3a305bad82446f61b42954ee9d9df58ae96"
+      },
+      {
+        "bytes": 25695,
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+        "role": "LA-032 source inventory/readers controls (not R1042 run)",
+        "sha256": "a644c0a8356fd162fdeeb6297325a890c3674682dce7f57db34972d364169246"
+      },
+      {
+        "bytes": 4872,
+        "path": "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+        "role": "R1042 public-facade identity tests",
+        "sha256": "e067fea6b737b1fbb3dd2230411a88a4223d393707fbc4c092d2f926b95e2074"
+      },
+      {
+        "bytes": 54950,
+        "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+        "role": "LA-046 compiler-profile/opaque-ID/text-request tests (not R1042 run)",
+        "sha256": "490e871d04c207cf6e9b9a46038753a33eb9d729e77931a6134ee2a0daa9a2e7"
+      },
+      {
+        "bytes": 70520,
+        "path": "policy-engine/tests/unit/fabric/test_retrieval_service_catalog.py",
+        "role": "Catalog currentness, profile coverage, and candidate route tests (not R1042 run)",
+        "sha256": "b3d507b0f5c0091ec94bf92fbb638c8d5dbca888e07ccb05e59a4669c2a325b7"
+      },
+      {
+        "bytes": 77955,
+        "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+        "role": "LA-046 acquisition occurrence evidence path (not R1042 run)",
+        "sha256": "3b9237b88b1582c7c62375f1fa04180f115e6b009422cb67dcaf67237c92a56c"
+      },
+      {
+        "bytes": 29259,
+        "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+        "role": "LA-028 registry selection/compatibility tests (not R1042 run)",
+        "sha256": "dcbcb0ff8237489dd8d26cc3898f9555086ce184c96ba08e2a9b25f9a8ac4004"
+      },
+      {
+        "bytes": 36220,
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "role": "R1042 Legal producer-to-fresh-reader and callable-swap controls",
+        "sha256": "23a8d48b827f7519e75d2a23039d08b64707b801f4a6e61dd69af4a7bd39701e"
+      },
+      {
+        "bytes": 13720,
+        "path": "policy-engine/tests/unit/remediation/test_rep_01.py",
+        "role": "LA-033 replay alias/import contract tests (not R1042 run)",
+        "sha256": "b9dfe67825c85accb175885bb43b0fbae86e71d0fe2adffa045561f3898c6856"
+      },
+      {
+        "bytes": 16431,
+        "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+        "role": "R1042 Legal typed request/consumer tests",
+        "sha256": "7d2bf253313a424ba33e589c25352fc2ac52765bf87b85488b05b4181d74c9f4"
+      },
+      {
+        "bytes": 117078,
+        "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+        "role": "public data/resolve endpoint generic response test (not profile-specific currentness)",
+        "sha256": "0c59d5602466322c864ef3aec485134063f91fc0c2757d59f2072885b8a4f445"
+      },
+      {
+        "bytes": 238179,
+        "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "role": "actual catalog fixture through typed service request; missing profile and conflict tests (not R1042 run)",
+        "sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff"
+      },
+      {
+        "bytes": 142868,
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+        "role": "real owner-gateway Catalog profile admission/refusal tests (not R1042 run)",
+        "sha256": "cad8819d8371ec1d85de250cc21cab1ee5c9d09eadb98d44208cad42dda7509c"
+      },
+      {
+        "bytes": 11241,
+        "path": "policy-engine/tests/unit/runtime/quality/test_catalog_source_selection.py",
+        "role": "Catalog serving-source selection refusal tests (not R1042 run)",
+        "sha256": "b77b4d68bdddcc9685a821b45966f23b34825f6af991b8ce62798ace8f0e3333"
+      }
+    ],
+    "queries": [
+      {
+        "description": "typed Catalog selection and call sites",
+        "file_type_denominator": 2761,
+        "matching_file_count": 19,
+        "matching_files": [
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+            "sha256": "abbccc96dcf35ae571cd9396dfbceb600ce4f3cf28a61b41d47c4bb08feb720f"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/core/contracts/control.py",
+            "sha256": "d3490715c87dcf4ab8dd9964602207abc9f21b8713b35a10d57f598b672cbf36"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/__init__.py",
+            "sha256": "8f1b6f490f93b10fa4ffeb55d197e4070779666694c1866fa3bef43a932b87ae"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+            "sha256": "8aa92f329ccc9b2defaf6d1a4e8c35d413ac56b906e95638936fde8368c68335"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+            "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a"
+          },
+          {
+            "matching_lines": 8,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+            "sha256": "c1449de694cd61834d3d3eb3852a831bcd02e749a430e16844fbe48caaed1f46"
+          },
+          {
+            "matching_lines": 7,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/source_modules.py",
+            "sha256": "582275c5a5bb4f4f395a8402b6f10d8f97e813ae1246da6cc7598f1bb4d46b0a"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+            "sha256": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9"
+          },
+          {
+            "matching_lines": 16,
+            "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+            "sha256": "9cdcd8ed3b953c1432f67f4e9e9c0ec548672b5b089cdae22cd99c4350a8a51f"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/runtime/http/app.py",
+            "sha256": "c838b49b86439d0aa8cec880afd29a44d4444fa866aa7a75d810e491c8f6cd80"
+          },
+          {
+            "matching_lines": 20,
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "sha256": "c901c778ff08d2d13ba7cbaba8979143cf58177d16a4c694da779662ee5a89a8"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+            "sha256": "195e9e5986ef651eb2729e695053eb9b3664dbd274dd8194519a30431c7e1237"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "sha256": "662e71013f192faaee670f334eaba80fcd87a0ce5f0a7b76c9ca9d8b6821f9f4"
+          },
+          {
+            "matching_lines": 10,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+            "sha256": "7a8044cb1141b665d25a9cb453e649444fc8e9b306cd02efe36e15e4960850c4"
+          },
+          {
+            "matching_lines": 18,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py",
+            "sha256": "2056a1ee271bdfc3251f69560ae1ddf9f12e52d2c8d5daf3010d2ec844a48507"
+          },
+          {
+            "matching_lines": 8,
+            "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+            "sha256": "069de1196e53857394d1459dd6273a97310c08a805f85a556b2f976c27acd11a"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+            "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+          },
+          {
+            "matching_lines": 6,
+            "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+            "sha256": "3f335317d0e68e03ba5334ac7419305cc89b017cba078706024a9c196da132b4"
+          },
+          {
+            "matching_lines": 6,
+            "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+            "sha256": "f9a420cd91fd16cc53a480011d21f50dac4ee3001c2f8a67fbe2d477d809faaa"
+          }
+        ],
+        "matching_line_count": 127,
+        "name": "catalog_profile",
+        "regex": "CatalogRunProfile|catalog_run_profile",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/src/polisyos"
+      },
+      {
+        "description": "Legal immutable request intent and runtime provider call sites",
+        "file_type_denominator": 2761,
+        "matching_file_count": 5,
+        "matching_files": [
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+            "sha256": "abbccc96dcf35ae571cd9396dfbceb600ce4f3cf28a61b41d47c4bb08feb720f"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/src/polisyos/core/contracts/control.py",
+            "sha256": "d3490715c87dcf4ab8dd9964602207abc9f21b8713b35a10d57f598b672cbf36"
+          },
+          {
+            "matching_lines": 9,
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "sha256": "c901c778ff08d2d13ba7cbaba8979143cf58177d16a4c694da779662ee5a89a8"
+          },
+          {
+            "matching_lines": 12,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+            "sha256": "c99b1a16fb0a33375faf24bf0a3f9396d004a8cb9b2b669ab7fa1abdc8feeff8"
+          },
+          {
+            "matching_lines": 6,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+            "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a"
+          }
+        ],
+        "matching_line_count": 33,
+        "name": "legal_intent",
+        "regex": "LegalQueryGenerationIntentV1|query_generation_intent|LegalQueryEncoderProvider|selected_legal_fact_query_intent",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/src/polisyos"
+      },
+      {
+        "description": "producer/profile/member/index APIs, including other-domain consumers",
+        "file_type_denominator": 2761,
+        "matching_file_count": 16,
+        "matching_files": [
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/best_snapshot.py",
+            "sha256": "2d45e808711c42254cf8da0e3d67df1a9b53c9f6c931f2aa6a7c2b68b3e05140"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/store.py",
+            "sha256": "14075615a733db87e80ed5a3aa0945223bbc10c08758601b0a23ed9ed2f11207"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
+            "sha256": "6dc5b011698874a32d0b3ae285f832768794ec3f080c7b9c19b0344fe1878e1b"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+            "sha256": "d683ec0033f08b99ad7173e73b472c3b39c241e682ef98e731800e28d6e4a207"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+            "sha256": "9c065efd1c5802dde4cfda6f9392dd9b33efc55e1f590306dd7abc40fd9b3ad6"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+            "sha256": "742aba02470ce84156aad55a9d26e118cdc7778f5444b9b610d2ce66fa30c768"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+            "sha256": "0964adbcc1f06d6416618fe171e7b082329415f3bd2e272be8f8f526702b2845"
+          },
+          {
+            "matching_lines": 12,
+            "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+            "sha256": "3321c8511f3f206a98245fd7c02a679bc401f0f1753e3a11e91c3c1acd29d72e"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+            "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+            "sha256": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+            "sha256": "6c5e2cd9606570714f1d0788a629123aa7007ff91e7881fa3502fe0b3386cdd7"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+            "sha256": "f15628ba6cf563f73b1a046d3cb93b7f06f629f37e4802add47eed4ea1d4d6c6"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/src/polisyos/runtime/http/container.py",
+            "sha256": "c901c778ff08d2d13ba7cbaba8979143cf58177d16a4c694da779662ee5a89a8"
+          },
+          {
+            "matching_lines": 1,
+            "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+            "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+            "sha256": "9862701a330df02a96186eb1d8f1129b0d4476d71b03721df51a92c07fb2b03a"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
+            "sha256": "076b0be55356e34e556765f3d2daba3ec8d60e6e2dcdd6811a6c793b301ce831"
+          }
+        ],
+        "matching_line_count": 56,
+        "name": "generation_basis",
+        "regex": "derive_encoder_identity|resolve_embedding_generation|generation_basis_matches_members|hnsw_index_matches_vectors",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/src/polisyos"
+      },
+      {
+        "description": "Catalog profile/selection tests",
+        "file_type_denominator": 2994,
+        "matching_file_count": 12,
+        "matching_files": [
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/tests/_helpers/runtime_http.py",
+            "sha256": "43d6ceaa0850e84f5deabdd1c9a9f534d3402a918154f8dbcf10be36aa57bc00"
+          },
+          {
+            "matching_lines": 4,
+            "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+            "sha256": "2ee973564cd12aa8a9b491e4db17aae2a5a9d30200717461aa424a586102a0cd"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+            "sha256": "14ec00f37735162a7bcb2fdf7674b95387fbe1f26893147b34a3d3f8ab88acbb"
+          },
+          {
+            "matching_lines": 6,
+            "path": "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+            "sha256": "e067fea6b737b1fbb3dd2230411a88a4223d393707fbc4c092d2f926b95e2074"
+          },
+          {
+            "matching_lines": 1,
+            "path": "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+            "sha256": "3204eac71a40552a271c0456cf055e260b70d81784ca1ac79f9c0cfb67b7725a"
+          },
+          {
+            "matching_lines": 1,
+            "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+            "sha256": "3b9237b88b1582c7c62375f1fa04180f115e6b009422cb67dcaf67237c92a56c"
+          },
+          {
+            "matching_lines": 13,
+            "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+            "sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+            "sha256": "d85790cd89d335dcde5839323277bbe8449c7283a4c8ed80c5106b0312be848d"
+          },
+          {
+            "matching_lines": 14,
+            "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+            "sha256": "cad8819d8371ec1d85de250cc21cab1ee5c9d09eadb98d44208cad42dda7509c"
+          },
+          {
+            "matching_lines": 13,
+            "path": "policy-engine/tests/unit/runtime/quality/test_catalog_source_selection.py",
+            "sha256": "b77b4d68bdddcc9685a821b45966f23b34825f6af991b8ce62798ace8f0e3333"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+            "sha256": "cac66d3b29b1d4488b4de43484c28b3a842910af31f2c673f6bcd7e7c8c235ca"
+          },
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+            "sha256": "c7c6c8abc4c34a3c4dbb89890ba1a7059b478e0daf1d6b7c0aefd2b5b946a831"
+          }
+        ],
+        "matching_line_count": 69,
+        "name": "catalog_profile_tests",
+        "regex": "CatalogRunProfile|catalog_run_profile|catalog_source_selection",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/tests"
+      },
+      {
+        "description": "Legal typed intent/provider tests",
+        "file_type_denominator": 2994,
+        "matching_file_count": 3,
+        "matching_files": [
+          {
+            "matching_lines": 9,
+            "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+            "sha256": "23a8d48b827f7519e75d2a23039d08b64707b801f4a6e61dd69af4a7bd39701e"
+          },
+          {
+            "matching_lines": 9,
+            "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+            "sha256": "7d2bf253313a424ba33e589c25352fc2ac52765bf87b85488b05b4181d74c9f4"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/tests/unit/runtime/http/test_control_api.py",
+            "sha256": "0c59d5602466322c864ef3aec485134063f91fc0c2757d59f2072885b8a4f445"
+          }
+        ],
+        "matching_line_count": 23,
+        "name": "legal_intent_tests",
+        "regex": "LegalQueryGenerationIntentV1|query_generation_intent|LegalQueryEncoderProvider|selected_legal_fact_query_intent",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/tests"
+      },
+      {
+        "description": "generation/profile conformance tests",
+        "file_type_denominator": 2994,
+        "matching_file_count": 5,
+        "matching_files": [
+          {
+            "matching_lines": 2,
+            "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_store.py",
+            "sha256": "ba83c5b98c0cde280b41b74578493f56878d317740569ad19ab3cc653e4e404a"
+          },
+          {
+            "matching_lines": 39,
+            "path": "policy-engine/tests/unit/data_forge/kernel/test_encoder_identity.py",
+            "sha256": "3526af957b37c300a1bf1488c52c406ccd9825ca5768eef6890ef92a5e940be5"
+          },
+          {
+            "matching_lines": 3,
+            "path": "policy-engine/tests/unit/remediation/test_dfi_03.py",
+            "sha256": "e150f55294523725635ebc155d48e773b82322e2a4ec05c8c4577a0c0a83a47b"
+          },
+          {
+            "matching_lines": 7,
+            "path": "policy-engine/tests/unit/remediation/test_dfk_02.py",
+            "sha256": "dcbcb0ff8237489dd8d26cc3898f9555086ce184c96ba08e2a9b25f9a8ac4004"
+          },
+          {
+            "matching_lines": 5,
+            "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+            "sha256": "23a8d48b827f7519e75d2a23039d08b64707b801f4a6e61dd69af4a7bd39701e"
+          }
+        ],
+        "matching_line_count": 56,
+        "name": "generation_basis_tests",
+        "regex": "derive_encoder_identity|resolve_embedding_generation|generation_basis_matches_members|hnsw_index_matches_vectors",
+        "searched_file_type": "*.py",
+        "searched_root": "policy-engine/tests"
+      }
+    ],
+    "search_method": "Python stdlib read-only traversal and exact token regex per query; each query walked every .py file below the stated root. Counts are query-scoped and are not a claim of universal semantic caller coverage.",
+    "source_python_file_denominator": 2761,
+    "test_python_file_denominator": 2994
+  },
+  "formal_adjudication": false,
+  "gate_review": {
+    "P37": [
+      {
+        "classification": "consumer_asserted and type-validated; selection itself is not a proof of currentness",
+        "guard": "local current publish receipt, open-session database identity, and established producer profile-input coverage are checked before Catalog plans",
+        "predicate": "Catalog caller-selected profile"
+      },
+      {
+        "classification": "recomputed and independently reconciled against fresh persisted selector/inventory/member/index evidence in the reader path",
+        "guard": "exact typed request inventory and generation ID must equal fresh persisted generation; incompatible/malformed inputs refuse vector mode",
+        "predicate": "Legal current selected inventory/member/index profile"
+      },
+      {
+        "classification": "not_established by loaded-asset identity",
+        "guard": "assets, model/device/dimension and rule version are recomputed, but arbitrary replacement of encode behavior is not bound",
+        "predicate": "Legal encoder executable behavior"
+      }
+    ],
+    "P38": {
+      "classification": "same-class deeper residual; do not patch one encoder/site. Smallest closure capability is a trusted executable behavior/code identity bound to the loaded encoder; no such owner is present in the inspected profile contract.",
+      "divergent_case": "test_runtime_asset_provider_cannot_detect_same_asset_query_callable_swap replaces encode while keeping measured assets; vector search returns entity-decoy for query target and the query is encoded.",
+      "impact_limit": "This blocks an encoder-equivalence or semantic-vector correctness claim; it does not invalidate the narrower request/profile/currentness guards or imply Legal grounding authority.",
+      "implementation_measure": "derive_encoder_identity and provider checks recompute asset/config identity, not code or callable behavior of encode.",
+      "property": "A vector query encoder has the same behavior as the encoder whose vectors produced the selected generation."
+    },
+    "failure_repair_patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P10",
+      "P12",
+      "P29",
+      "P31",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "pattern_pass": "The Legal path is not contract-only in the selected controlled run (producer, persisted generation, bridge, reader, HTTP surface and negative profile cases are exercised). The Catalog path is source-wired and has focused test source, but its selected current-HEAD route proof is missing from the supplied deciding run. Keep candidate status distinct from authority; typed refusal/status and content/currentness gates are load-bearing. P40: same-assets/callable-swap is the second deeper encoder identity finding, so record a bounded residual rather than add a per-callable ladder."
+  },
+  "original_criterion_occurrences": [
+    {
+      "current_static_review": "Canonical default registry is the typed source used by batch and lazy module projection; both source and retained batch YAML copies currently have identical SHA. Shared select_catalog_sources/seed closure is used. Direct acceptance tests exist, but were not executed in this review or R1042.",
+      "finding_id": "LA-028",
+      "historical_capability_label": "bridge_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "partial",
+      "next_bounded_check": "Run current DFK-02 selection tests with ordered profiles, disabled/missing/cyclic seeds, explicit [] vs None, waves and both registry paths; keep compatibility copy/caller lifecycle explicit.",
+      "occurrence_id": "LA-028 / DFK-02",
+      "original_source": {
+        "lines": [
+          1466,
+          1517
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "DFK-02",
+      "r1042_status": "not in selected 3-module command"
+    },
+    {
+      "current_static_review": "Current reader selects one complete new/legacy layout, rejects mixed, incomplete, ambiguous or present-invalid members, and retains bounded historical layout handling; source-inventory reader tests exist.",
+      "finding_id": "LA-032",
+      "historical_capability_label": "bridge_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "held",
+      "next_bounded_check": "Current UDF-05 source-inventory and historical-layout tests across actual sibling readers, including malformed/tampered member and legacy reader control.",
+      "occurrence_id": "LA-032 / UDF-05",
+      "original_source": {
+        "lines": [
+          1668,
+          1715
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "UDF-05",
+      "r1042_status": "outside Catalog/Legal selected command; no test executed in this review"
+    },
+    {
+      "current_static_review": "Runtime package exports resolve lazily from Scientist canonical replay owner; CLI imports canonical module; old runtime.replay compatibility facade remains. Current compatibility tests exist.",
+      "finding_id": "LA-033",
+      "historical_capability_label": "verification_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "partial",
+      "next_bounded_check": "Run exact REP-01 lazy import, export identity, CLI/dynamic-import, and compatibility consumer acceptance before changing/removing alias.",
+      "occurrence_id": "LA-033 / REP-01",
+      "original_source": {
+        "lines": [
+          1994,
+          2028
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "REP-01",
+      "r1042_status": "outside selected 3-module command; no test executed in this review"
+    },
+    {
+      "current_static_review": "Legal producer derives content/rule/member basis from the same loaded encoder used to build the selected generation. R1042 executes same-ID text change, withdrawal, encoder revision/dimension/projection invalidation, selector refusal, fresh selected-generation request and fresh Legal reader, actual HTTP vector/text modes, and negative profile controls with deterministic fixture encoder.",
+      "finding_id": "LA-040",
+      "historical_capability_label": "producer_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "partial",
+      "next_bounded_check": "No additional implementation finding from this source slice; preserve the explicit same-assets/different-encode residual and keep production-model/authority claim out of scope.",
+      "occurrence_id": "LA-040 / EMB-03",
+      "original_source": {
+        "lines": [
+          2556,
+          2594
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "EMB-03",
+      "r1042_status": "covered by 60/60 passing selected suite; the receipt authority is controlled synthetic deterministic encoder fixtures, not live model or production semantics"
+    },
+    {
+      "current_static_review": "Compiler now carries an explicit parsed scenario scope/profile, rejects malformed/conflicting profile aliases, treats scenario_id as identity rather than prompt text, accepts text/request input, and separates candidate topic proposals from required constructs. Current generic compiler tests cover opaque IDs, negation, generic scope, explicit scope and typed refusal.",
+      "finding_id": "LA-046",
+      "historical_capability_label": "verification_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "partial",
+      "next_bounded_check": "Run the current compiler profile controls and trace the actual N7 caller using its current resolver; do not treat generic compiler tests as N7 acquisition proof.",
+      "occurrence_id": "LA-046 / REQ-01",
+      "original_source": {
+        "lines": [
+          3034,
+          3068
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "REQ-01",
+      "r1042_status": "outside selected 3-module command; no test executed in this review"
+    },
+    {
+      "current_static_review": "Current N7 source has an explicit profile/context path and passes _n7_capability_resolver into DataRequirementCompiler. This static observation does not show that a real admitted acquisition result changes the WMR on the actual path.",
+      "finding_id": "LA-046",
+      "historical_capability_label": "verification_missing",
+      "historical_closeout": "not_adjudicated",
+      "historical_ledger_status": "partial",
+      "historical_occurrence_acceptance": "The coverage ledger keeps the same LA-046 source block twice: ACQ-01 must prove actual admitted N7 inputs alter WMR; a recording resolver is insufficient. REQ-01 does not close this occurrence.",
+      "next_bounded_check": "Execute/inspect the genuine N7→admitted material input→WMR content change property at current source, with unchanged-input and resolver-recording-only negative controls.",
+      "occurrence_id": "LA-046 / ACQ-01",
+      "original_source": {
+        "lines": [
+          3034,
+          3068
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      "owner": "ACQ-01",
+      "r1042_status": "not in selected command; no N7 acquisition/WMR run in this review"
+    }
+  ],
+  "r1042_receipt": {
+    "authority": "source-bound controlled synthetic deterministic encoder fixtures through actual generation/member APIs and actual typed immutable Legal request/HTTP/fresh serving consumers; no live production currentness/authority or real-model semantic equivalence asserted",
+    "closure_ids": [],
+    "currentness_qualification": "R1042 passed at HEAD 226cedb822e6e242d861ea8c903c9b396375dd0e. Current review directly reads HEAD 9511169e1a7f6dbd4137de824905dfbff8992a3f; R1042 is historical evidence, not a current-HEAD rerun.",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/command.json",
+        "sha256": "73e2584c4b401cc30ef8c37523f6508a69f57e70430e212192dab59aeee5b842"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/stdout.txt",
+        "sha256": "01ae1c11f90912ab992eaf4cc1d7086e990e8b6d758783e15aceeedfc0524e1b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/junit.xml",
+        "sha256": "257267f1ddd1ca0fc25e058bf739c148d7b5500f5fe060e946103397e1c3b445"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/module-origins.json",
+        "sha256": "8f042ebbd273295de61f8cece04269a6f243d017a5d265cdd28db7716400e6aa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/progress.json",
+        "sha256": "17e35fbdb04cd4deb1f8a755655d2b7107353a98e19eee533c37d60747557554"
+      }
+    ],
+    "error": 0,
+    "fail": 0,
+    "foreign_modules": [],
+    "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "own_product_modules": 1709,
+    "pass": 60,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-generation-member-encoder-serving-deciding-r1042-20261013.json",
+    "sha256": "a7c5b74ebd63d4dd92748151caac1c1b35469b59c5fb85b56040346fee59c8d7",
+    "skip": 0,
+    "source_input_count": 6216,
+    "source_stable_during_command": true,
+    "test_files": [
+      "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+      "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py"
+    ],
+    "whole_property_limitations": [
+      "runtime_asset_provider_cannot_detect_same_asset_query_callable_swap explicitly proves residual asset-only fingerprint limits, not whole arbitrary encoder-code identity",
+      "this selected wave does not cover complete I4 CatalogRunProfile request/fresh runtime/Catalog installed-wheel consumers",
+      "all original LA-033/LA-046/LA-028/LA-032/LA-040 remain individually reviewable pending whole-property source/consumer qualification; no60tests→closures",
+      "Root source contracts still pending; no global composed/source/profile/input freeze or Native repository green"
+    ]
+  },
+  "review_actions": {
+    "child_agents_used": false,
+    "git_or_history_mutated": false,
+    "imports_or_product_runtime_executed": false,
+    "independent_review_blockers": [
+      "No profile-specific Catalog public-route/current-reader receipt in R1042 evidence",
+      "Same-assets query encode callable substitution remains a bounded semantic residual",
+      "No actual N7 admitted-input-to-WMR evidence in this review"
+    ],
+    "proposals_not_formal_findings": [
+      "Run profile-specific Catalog TestClient/current-reader positive and refusal controls at current source HEAD.",
+      "Preserve separate Catalog and Legal request surfaces unless a concrete existing caller proves both must compose in one action.",
+      "Keep LA-046/ACQ-01 separate from LA-046/REQ-01 in any further ledger or G adjudication."
+    ],
+    "source_or_index_written": false,
+    "tests_executed_by_R1041": []
+  },
+  "review_id": "R1041",
+  "review_mode": "read-only source/contract/test/evidence review",
+  "schema": "polisyos.e02.i4_independent_review.v1",
+  "source_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_head_advance_after_that_frame": {
+      "changed_path_count": 11,
+      "changed_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-13-e02-n6-producer-budget-reconciliation.toml",
+        "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/job_nl_context.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/README.md",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+      ],
+      "commit_subject": "E02: reconcile producer settlements into same-run N6 budget decisions",
+      "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "parent": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "readback_note": "This N6 budget reconciliation is an authorized root commit after R1055. It changes shared lifecycle files. The run_lifecycle.py diff adds N6 producer-budget reconciliation and other lifecycle changes outside ControlPlaneService.data_resolve; the current data_resolve selection block was directly reread at HEAD. No current-source run is claimed for R1042.",
+      "topic_manifest_intersections": [
+        "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+      ],
+      "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913"
+    },
+    "current_relevant_path_hashes": [
+      {
+        "bytes": 69472,
+        "path": "policy-engine/src/polisyos/core/contracts/control.py",
+        "role": "shared strict Catalog request and immutable Legal intent DTOs",
+        "sha256": "d3490715c87dcf4ab8dd9964602207abc9f21b8713b35a10d57f598b672cbf36"
+      },
+      {
+        "bytes": 25312,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "role": "default producer registry selection and profile input coverage",
+        "sha256": "8aa92f329ccc9b2defaf6d1a4e8c35d413ac56b906e95638936fde8368c68335"
+      },
+      {
+        "bytes": 48964,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+        "role": "Catalog publish receipt/currentness recomputation",
+        "sha256": "484b1ce4397187df0fb0ddd6d4e6167616aca929e82893b4a82253ddf1ee3b52"
+      },
+      {
+        "bytes": 14726,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/registry.py",
+        "role": "typed canonical Catalog registry",
+        "sha256": "9c873a02b832b6d01dd3bff85193e73a89e78cf03926bba9c6d47081c93f206a"
+      },
+      {
+        "bytes": 5333,
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/selection.py",
+        "role": "canonical Catalog profile and seed selection",
+        "sha256": "c1449de694cd61834d3d3eb3852a831bcd02e749a430e16844fbe48caaed1f46"
+      },
+      {
+        "bytes": 15969,
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+        "role": "Legal content-bound embedding producer",
+        "sha256": "0964adbcc1f06d6416618fe171e7b082329415f3bd2e272be8f8f526702b2845"
+      },
+      {
+        "bytes": 50839,
+        "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+        "role": "shared selected-generation writer/reader boundary",
+        "sha256": "3321c8511f3f206a98245fd7c02a679bc401f0f1753e3a11e91c3c1acd29d72e"
+      },
+      {
+        "bytes": 58622,
+        "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+        "role": "Catalog read API/publish receipt facade",
+        "sha256": "13f0ce31107caf7e3ce0fa2dddc13739c392ae8e1d002d0a23752dc5706767f9"
+      },
+      {
+        "bytes": 75881,
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+        "role": "LA-046 explicit scenario scope/compiler path",
+        "sha256": "fce7969fd7298e02868621084a09affbf47d3216a8528f4427a64998c7d4568b"
+      },
+      {
+        "bytes": 72912,
+        "path": "policy-engine/src/polisyos/fabric/retrieval/service.py",
+        "role": "Catalog request conflict/currentness/profile-coverage plan admission",
+        "sha256": "9cdcd8ed3b953c1432f67f4e9e9c0ec548672b5b089cdae22cd99c4350a8a51f"
+      },
+      {
+        "bytes": 109309,
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "role": "fresh Legal reader current-generation/member/index/encoder gates",
+        "sha256": "f15628ba6cf563f73b1a046d3cb93b7f06f629f37e4802add47eed4ea1d4d6c6"
+      },
+      {
+        "bytes": 55597,
+        "path": "policy-engine/src/polisyos/runtime/http/container.py",
+        "role": "Legal query encoder provider",
+        "sha256": "c901c778ff08d2d13ba7cbaba8979143cf58177d16a4c694da779662ee5a89a8"
+      },
+      {
+        "bytes": 45541,
+        "path": "policy-engine/src/polisyos/runtime/http/routes/control.py",
+        "role": "public /data/resolve and /lex/search-profile,/lex/search routes",
+        "sha256": "6cf6a88a2b0407359004181b7e07e46e1aedaa8f34b09604bf5a004034e03695"
+      },
+      {
+        "bytes": 17056,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "role": "immutable Legal request parse and typed vector/text response",
+        "sha256": "c99b1a16fb0a33375faf24bf0a3f9396d004a8cb9b2b669ab7fa1abdc8feeff8"
+      },
+      {
+        "bytes": 3086,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+        "role": "selected Legal fact-generation intent bridge",
+        "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a"
+      },
+      {
+        "bytes": 251265,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "role": "Catalog request/profile validation and forwarding; current shared lifecycle file",
+        "sha256": "7a8044cb1141b665d25a9cb453e649444fc8e9b306cd02efe36e15e4960850c4"
+      },
+      {
+        "bytes": 724916,
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "current N7 compiler/capability resolver source path",
+        "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+      },
+      {
+        "bytes": 87078,
+        "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+        "role": "separate Catalog source selector/scope (candidate-only path)",
+        "sha256": "f9a420cd91fd16cc53a480011d21f50dac4ee3001c2f8a67fbe2d477d809faaa"
+      }
+    ],
+    "last_root_source_frame": {
+      "authority": "root author source frame; not G acceptance or global freeze",
+      "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1055-20261013.json",
+      "physical_source_paths": 551,
+      "sha256": "dbb113c2a571de08e2cf89c0c9076f0cbe7e0f217964993101ad58c40cefff79",
+      "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+    },
+    "parent": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "reviewed_head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "reviewed_tree": "d6d48c83b5a60afdead8066253bc30cd216f5913"
+  }
+}

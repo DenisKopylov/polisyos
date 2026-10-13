@@ -1,0 +1,83 @@
+{
+  "candidate": {
+    "decision_sha256": "39e5edc43653b6c582d3cf75a272a0a6a852adc221790d3661e37ec22e89cb95",
+    "manifest_sha256": "176e4789c81e17a381897ce09193a3dab4bb9b59055f5ff7fbf4c69f750e0db3",
+    "patch_path": "LOCAL/raw/r1027-v7-whole-forecast-core-ir-ref-boundary-20261013/candidate.patch",
+    "patch_sha256": "e319405f762f17cd2c24f130c6a174b7e343d377c823d0bbd50347ac13bdf889"
+  },
+  "current_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "LOCAL/root-author-source-frame-r1055-20261013.json",
+    "frame_sha256": "dbb113c2a571de08e2cf89c0c9076f0cbe7e0f217964993101ad58c40cefff79",
+    "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "patch_applied": false,
+    "source_implementation_head": "b5dd2956cdda5ee320b96428d1fdbcc05dda522f",
+    "target_preimages_match_current_worktree_head_and_source_implementation": true,
+    "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+  },
+  "deciding_preimage_run": {
+    "junit_sha256": "2f2961eb072906c7741a5966c28b45f35491d270937fe7362e98e29425c319c4",
+    "receipt_path": "LOCAL/v7-selected-evidence-post-event-fresh-get-deciding-r1024-20261013.json",
+    "receipt_sha256": "88a7fc5a24fcea54096a28f7d84e7793858782ac979adfda905bf15c1101aa07",
+    "result": "11 passed, 1 failed; POST/event and wrong-run refusal succeeded; fresh GET failed 400 on Core ArtifactRef versus IR ArtifactRefModel; retry after failure UNRUN",
+    "stdout_sha256": "634bd40cbf217e9ae9ed2453bd3c9fa7d64dc82af0d8f2b368999104f1678357"
+  },
+  "formal_closure_ids": [],
+  "observations": {
+    "current_schema_ref_members": [
+      "empirical_evidence_ref: ArtifactRefModel | None"
+    ],
+    "git_apply_check": "exit 0; two expected paths checked; no write",
+    "normalizer": "existing normalize_artifact_ref validates declared fields, preserves selected profile when present, and does not synthesize a missing profile",
+    "postimage_patch_reconstruction": "both source/test images matched manifest pre/post SHA-256",
+    "preserved_guards": [
+      "kind",
+      "media type",
+      "calibration constraints",
+      "prediction authority boundary",
+      "existing loader profile/schema/lineage/run/recomputation checks"
+    ],
+    "runtime_candidate_tests": "UNRUN",
+    "test_coverage_note": "candidate changes the wrong-kind/media unit negative from mapping input to Core ArtifactRef input; mapping inputs remain on the unchanged Pydantic route but that unit no longer directly pins the mapping branch"
+  },
+  "p37": {
+    "external_issuer_content_currentness_and_calibration_truth": "not_established by this adapter; remain with existing loader/consumer",
+    "four_field_candidate_test_execution": "not_established in this static review",
+    "ref_shape": "recomputed by normalize_artifact_ref and Pydantic model validation",
+    "schema_member_set": "recomputed from cls.model_fields"
+  },
+  "p38": {
+    "implementation": "schema-derived direct/optional ArtifactRefModel scan and existing strict normalizer",
+    "preimage_divergence": "Core ref object failed nested DTO parsing while IR mapping/model form validated",
+    "present_candidate_divergence_found": false,
+    "property": "preserve full selected ref identity across the typed DTO boundary"
+  },
+  "p40": {
+    "additional_same_class_escape_found": false,
+    "bucket": "SAME_CLASS_DEEPER",
+    "finding_number": 2,
+    "mechanism_widened_to": "whole schema-declared direct/optional reference member set of ForecastCalibrationRecord"
+  },
+  "review_id": "R1053-v7-r1027-whole-forecast-ref-independent-20261013",
+  "review_markdown_sha256": "95023a943b2b87f8d4c96e18a411ef9b0478bc47aeb4a02053f9c4193af215bb",
+  "reviewer_role": "independent static reviewer",
+  "target_paths": [
+    {
+      "ast_postimage": "pass",
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "post_sha256": "287b41deae358f694726193191027a0db3b0c767d13f1eb624c58069ebf44437",
+      "pre_sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da",
+      "ruff_check_pre_post": "pass",
+      "ruff_format_pre_post": "same two pre-existing source regions; no new hunk drift"
+    },
+    {
+      "ast_postimage": "pass",
+      "path": "policy-engine/tests/unit/runtime/quality/design_axes/test_outcome_prediction.py",
+      "post_sha256": "1c8ef77916403cf57f30a622dc83ccb7a9cd10266dbf1a50d7fbd2a22064fa6a",
+      "pre_sha256": "fffb6b0438a34a95e0036065243ceae2fa038668638f21906874cd3302224194",
+      "ruff_check_pre_post": "pass",
+      "ruff_format_pre_post": "pass"
+    }
+  ],
+  "verdict": "GO for focused native replay only"
+}

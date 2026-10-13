@@ -1,0 +1,1156 @@
+{
+  "schema": "policyos.e02.prepared_b.r1126_current_source_and_timeout_wire_review.v1",
+  "review_id": "R1126",
+  "date": "2026-10-13",
+  "authority": "independent read-only review; source frame is not G acceptance or a global source freeze",
+  "verdict": {
+    "current_R1_source_rebind": "GO",
+    "batched_R1_native_characterization": "READY_FOR_ROOT_RUN_AFTER_SOURCE_QUEUE_FREEZE",
+    "timeout_wire_whole_property": "OPEN_ENGINEERING_VERIFICATION_GAP_REQUIRES_ONE_PORTABLE_SPAWN_IPC_CONSUMER_WITNESS_AND_REMOVAL_CONTROL",
+    "formal_closure_ids": []
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+    "frame_sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad",
+    "parent": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+    "physical_source_paths": 568,
+    "actual_postimage_readback": {
+      "checked": 568,
+      "missing": 0,
+      "mismatches": 0
+    },
+    "previous_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1128-20261013.json",
+      "sha256": "da72001a1461c64ab7a2c7b4349e6a251bdc2a013d1d8ddcb4790d6bf446d392",
+      "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+      "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+      "physical_source_paths": 554
+    },
+    "R1134_frame_delta_vs_R1128": {
+      "added_path_count": 14,
+      "added_paths": [
+        "policy-engine/pyproject.toml",
+        "policy-engine/release-fragments/unreleased/2026-10-13-e02-b116-b117-registry-profile-atomicity.toml",
+        "policy-engine/release-fragments/unreleased/2026-10-13-stress-score-selected-source-manifests.toml",
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/_claim_evidence.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+        "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+        "policy-engine/uv.lock"
+      ],
+      "intersects_R1_14_targets": [],
+      "intersects_R1_principal_19_sources": [],
+      "qualification": "All 14 added paths are outside the exact R1 target and principal-source denominators; the shared R1 source identity remains the R1128 postimage set, now re-read under R1134."
+    }
+  },
+  "pinned_inputs_readback": {
+    "INPUTS": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da",
+      "bytes": 7242
+    },
+    "TASKS": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "bytes": 27989
+    },
+    "original_connected_tasks": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d",
+      "bytes": 7835
+    },
+    "R1_denominator_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1-readiness-afce1c-20261011/manifest.json",
+      "sha256": "ca2bec12116cb1a84653092e210e56c04a9a320d710a797cc958f0d160a8c0b8",
+      "bytes": 91175
+    },
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "bytes": 550854
+    },
+    "prepared_B_preservation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/custody/prepared-B-preservation.json",
+      "sha256": "da8f037f040c7a72719d2626d67a12ffec8dfc9fe9acde2fea0c691faecb8190",
+      "bytes": 793
+    }
+  },
+  "prepared_B_objects": {
+    "prepared_B_defining_baseline": {
+      "commit": "2d3a990ff716b46ccf473e229b9de7e009a1d1fb",
+      "tree": "68ae933789c2160911260d769039757c7a142a58"
+    },
+    "prepared_B_source": {
+      "commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "tree": "e711617c480101e5a7e8f9dd1fb23ab74e2c78ea",
+      "protected_ref": "refs/e02-g/local-transition-20261009/prepared-B-1e18a965",
+      "protected_ref_resolves_to": "1e18a965b4334331dc3d5542b609f8a00bb35c6d"
+    },
+    "prepared_B_handoff": {
+      "commit": "a0ee451fb287d9666c620defd01fdc87ff864c60",
+      "tree": "677257974c442ba878a6bf4dba6686ae854b2e67",
+      "protected_ref": "refs/e02-g/local-transition-20261009/prepared-B-a0ee451f",
+      "protected_ref_resolves_to": "a0ee451fb287d9666c620defd01fdc87ff864c60"
+    },
+    "prepared_B_delivery_base": {
+      "commit": "53b14a6e5af66f2a784d7f4981c4613e534acd40",
+      "tree": "568e2e42e18abcea9fd39759546f1e48525c590a"
+    }
+  },
+  "R1": {
+    "current_task_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "title": "Prepared B exact verification and source publication",
+    "finding_ids": [
+      "LA-033",
+      "B13",
+      "B59",
+      "B61",
+      "B74",
+      "B148"
+    ],
+    "scope_status": "execution_remaining; inherited proposals are not closures",
+    "original_exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf",
+    "original_connected_plan_sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d",
+    "original_connected_R1": {
+      "flow": "R",
+      "title": "Prepared B exact verification and source publication",
+      "depends": [
+        "Q1"
+      ],
+      "exit": "prepared defining baseline/13 named affected contours/matched removals; no carry from old0bf"
+    },
+    "canonical_B_r19_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    "B_r19_original_whole_document_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "contours_13": [
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "property": "Declared nested-write isolation, finite producer-state graph admission, and copy-on-write branch behavior; source state_branching.py.",
+        "current_source_readback_sha256": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+        "current_test_function_defs": 26
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "property": "Journaled parallel writes, conflict policy, and distinct set/delete/null/no-write replay through engine/state_merge.py.",
+        "current_source_readback_sha256": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+        "current_test_function_defs": 21
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "property": "Native-state presence sensitivity across cache reopen/replay through engine/idempotency.py.",
+        "current_source_readback_sha256": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2",
+        "current_test_function_defs": 2
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "property": "Idempotency input identity, deadlines/scope, embedded outcome, mutation journal, epoch compatibility, and corrupt-entry refusal through NodeResultCache.",
+        "current_source_readback_sha256": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+        "current_test_function_defs": 26
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "property": "WorkflowExecutor cache hit after reopen, compatible replay, incompatible target recompute, and failed-node noncommit.",
+        "current_source_readback_sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+        "current_test_function_defs": 8
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "property": "Async cold seed/recovery, late-read nonpublication, absolute workflow deadline, and durable cache publication via async_executor/checkpoint/retry.",
+        "current_source_readback_sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+        "current_test_function_defs": 8
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "property": "Selected CAS manifest-view identity, foreign-view refusal, and full ArtifactRef dedupe via cache plus Core CAS.",
+        "current_source_readback_sha256": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+        "current_test_function_defs": 4
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "property": "Actual async DAG producer execution, cache boundary, budget/cancellation, and no partial CAS publication.",
+        "current_source_readback_sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+        "current_test_function_defs": 15
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "property": "Parallel branch isolation, savepoint rollback, merge conflict, timeout and budget effects.",
+        "current_source_readback_sha256": "94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531",
+        "current_test_function_defs": 11
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "property": "Worker store ownership/context preflight, declared operation replay, checkpoint, and native status preservation.",
+        "current_source_readback_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+        "current_test_function_defs": 17
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "property": "Ordinary public state/outcome wire, typed reader, incomplete subtype refusal, and explicit legacy compatibility.",
+        "current_source_readback_sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+        "current_test_function_defs": 26
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "property": "Real worker-process Decimal/ArtifactRef transport; non-finite, tampered, and untyped values refuse.",
+        "current_source_readback_sha256": "ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba",
+        "current_test_function_defs": 9
+      },
+      {
+        "path": "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+        "property": "Worker-produced declared write journal and artifact-index merge conflict semantics.",
+        "current_source_readback_sha256": "316baf196fac8810bbf1894928d9472f3c6951f738a9edcff4eb67af2f4933b0",
+        "current_test_function_defs": 8
+      }
+    ],
+    "separate_defining_producer_baseline": {
+      "path": "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+      "property": "Defining producer admission/reconciliation: actual producer writes and grants reconcile with reopened cache intent and a live consumer; unsupported model hooks/colluding scope refuse before state/journal/store effects.",
+      "current_source_readback_sha256": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+      "current_test_function_defs": 6
+    },
+    "exact_current_test_denominator": {
+      "files": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+          "sha256_current_worktree_head_index": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+          "bytes": 52144,
+          "top_level_and_nested_test_function_defs": 26,
+          "R1134_frame_postimage_sha256": "ed54168d41095cd81f000c45901460e45484f6ba8842c291c752f532dc8368fe",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+          "sha256_current_worktree_head_index": "44597a58ee34d703db68f189d03b6e7a99a5d7bbe7a9352ac8876241537e1648",
+          "bytes": 15169,
+          "top_level_and_nested_test_function_defs": 21,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+          "sha256_current_worktree_head_index": "3278cd12581863fc133b746b68227ad94e694a18513fba5b2ed17dd25d9571b2",
+          "bytes": 8028,
+          "top_level_and_nested_test_function_defs": 2,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+          "sha256_current_worktree_head_index": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+          "bytes": 32105,
+          "top_level_and_nested_test_function_defs": 26,
+          "R1134_frame_postimage_sha256": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+          "sha256_current_worktree_head_index": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+          "bytes": 20236,
+          "top_level_and_nested_test_function_defs": 8,
+          "R1134_frame_postimage_sha256": "9f87c306b83b8b9e397685e05aedde96291e35b2a846dd5f4161ec94aadc4703",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+          "sha256_current_worktree_head_index": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+          "bytes": 22226,
+          "top_level_and_nested_test_function_defs": 8,
+          "R1134_frame_postimage_sha256": "3bf81925e005c386889c6df80f48f5319fd741cd95ea0a65bacdd19a5de820ee",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+          "sha256_current_worktree_head_index": "08f7d895f640625f74090ec1bf5c959b539e98974c7f92b41f793a630cceae9a",
+          "bytes": 6681,
+          "top_level_and_nested_test_function_defs": 4,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+          "sha256_current_worktree_head_index": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b",
+          "bytes": 30571,
+          "top_level_and_nested_test_function_defs": 15,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+          "sha256_current_worktree_head_index": "94b9cc60813d85b6a22e0f707d141d64d04ff2b219f13b3c2b4470a4219bf531",
+          "bytes": 17392,
+          "top_level_and_nested_test_function_defs": 11,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+          "sha256_current_worktree_head_index": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+          "bytes": 31960,
+          "top_level_and_nested_test_function_defs": 17,
+          "R1134_frame_postimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+          "sha256_current_worktree_head_index": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+          "bytes": 16281,
+          "top_level_and_nested_test_function_defs": 26,
+          "R1134_frame_postimage_sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+          "R1134_frame_entry_absent_means_current_head_and_index_match": false
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+          "sha256_current_worktree_head_index": "ea6579ebeafd7ef336ff2fe6af2cd3f5ceb87889952832c7185098226cde75ba",
+          "bytes": 8209,
+          "top_level_and_nested_test_function_defs": 9,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+          "sha256_current_worktree_head_index": "316baf196fac8810bbf1894928d9472f3c6951f738a9edcff4eb67af2f4933b0",
+          "bytes": 4614,
+          "top_level_and_nested_test_function_defs": 8,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py",
+          "sha256_current_worktree_head_index": "7ed69a33cb1b73057179fb52d1f10df8788c5c957fe27c8b0bbffb28f84416c7",
+          "bytes": 29771,
+          "top_level_and_nested_test_function_defs": 6,
+          "R1134_frame_postimage_sha256": null,
+          "R1134_frame_entry_absent_means_current_head_and_index_match": true
+        }
+      ],
+      "affected_contours": 13,
+      "separate_producer_baseline_files": 1,
+      "ast_test_function_defs": 187
+    },
+    "principal_source_denominator": {
+      "files": 19,
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+          "sha256_current_worktree_head_index": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626",
+          "bytes": 72211,
+          "R1134_frame_postimage_sha256": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+          "sha256_current_worktree_head_index": "7cbd92c9afd24a40deb483bbe9f6ff6a66357662ded1d79f2765346aab39239b",
+          "bytes": 23943,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+          "sha256_current_worktree_head_index": "f1c2e67c0100e823cc9e7c68b39258d5ee8fd2919576b4bd116e028a13e40965",
+          "bytes": 34873,
+          "R1134_frame_postimage_sha256": "f1c2e67c0100e823cc9e7c68b39258d5ee8fd2919576b4bd116e028a13e40965"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+          "sha256_current_worktree_head_index": "174c48d699b6b8ddf402bde0e3152b88a7a25803ca1a9ce944ab1d8b4f47bc42",
+          "bytes": 87649,
+          "R1134_frame_postimage_sha256": "174c48d699b6b8ddf402bde0e3152b88a7a25803ca1a9ce944ab1d8b4f47bc42"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "sha256_current_worktree_head_index": "8d32088938451e9a91b413c98137b613fec514085e02dc350d3e5bb840538d16",
+          "bytes": 108869,
+          "R1134_frame_postimage_sha256": "8d32088938451e9a91b413c98137b613fec514085e02dc350d3e5bb840538d16"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "sha256_current_worktree_head_index": "0dba2b36a5b4850d090048779819df03050d6a035b0474ae14dcdbf1737e66d5",
+          "bytes": 99221,
+          "R1134_frame_postimage_sha256": "0dba2b36a5b4850d090048779819df03050d6a035b0474ae14dcdbf1737e66d5"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+          "sha256_current_worktree_head_index": "d3b4c6524c6a0c7e64154d03e021944861b3626466e506771ac295a005cb4c39",
+          "bytes": 94683,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "sha256_current_worktree_head_index": "9c04d537d978797d91affdeea8d5c44cece0166a360f7ce4745cfdc1cf2b3036",
+          "bytes": 42102,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "sha256_current_worktree_head_index": "2b39861329dd273d026cf46062d38f03af417fb3c0d3ce04e6103a8a97aed79c",
+          "bytes": 12074,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+          "sha256_current_worktree_head_index": "296dcc2af4f74f0cdb8f205ccfc2a7dd6e466b39ecde464588073283a890ef9f",
+          "bytes": 29415,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+          "sha256_current_worktree_head_index": "f2e9048c32a28acee19fcfea3ad8b7476a552be1c2b9f28f33d5231303513077",
+          "bytes": 37967,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/state_merge.py",
+          "sha256_current_worktree_head_index": "9cc1d5702723f0dc26c43ecaf229b01af28b3ebfbe6a0aaae2c45fd952ac3433",
+          "bytes": 7094,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+          "sha256_current_worktree_head_index": "50ea8fcaa2756169747110dbc85a273738b13aa1fa0a11ef2a53a35f1a0c6e8a",
+          "bytes": 19034,
+          "R1134_frame_postimage_sha256": "50ea8fcaa2756169747110dbc85a273738b13aa1fa0a11ef2a53a35f1a0c6e8a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "sha256_current_worktree_head_index": "d6b964a9faf49bdac0a1663d3afbaba425c021bf74d33f989a0fe72d23309a5c",
+          "bytes": 7132,
+          "R1134_frame_postimage_sha256": "d6b964a9faf49bdac0a1663d3afbaba425c021bf74d33f989a0fe72d23309a5c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+          "sha256_current_worktree_head_index": "5da02a3b913eefca0215a9bad528a0915699fac6c3b74f8568c0e944c8733186",
+          "bytes": 10585,
+          "R1134_frame_postimage_sha256": "5da02a3b913eefca0215a9bad528a0915699fac6c3b74f8568c0e944c8733186"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "sha256_current_worktree_head_index": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb",
+          "bytes": 200684,
+          "R1134_frame_postimage_sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+          "sha256_current_worktree_head_index": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+          "bytes": 49169,
+          "R1134_frame_postimage_sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+          "sha256_current_worktree_head_index": "9b4a40a101e21d00b35b5d32b42a1343e2d38207cfaf5bd99db2016d4e64e02e",
+          "bytes": 6645,
+          "R1134_frame_postimage_sha256": null
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+          "sha256_current_worktree_head_index": "ab2213fc2653eb1f2d29b789aa533234396e29016cb7dd10d1e0d806a7e177e6",
+          "bytes": 137951,
+          "R1134_frame_postimage_sha256": "ab2213fc2653eb1f2d29b789aa533234396e29016cb7dd10d1e0d806a7e177e6"
+        }
+      ]
+    },
+    "original_finding_status": [
+      {
+        "id": "LA-033",
+        "historical_ledger_status": "partial",
+        "appendix_c_status": "partial",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "LA_r09",
+        "criterion_lines": [
+          1994,
+          2028
+        ],
+        "criterion_sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f"
+      },
+      {
+        "id": "B13",
+        "historical_ledger_status": "partial",
+        "appendix_c_status": "partial",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "B_r19",
+        "criterion_lines": [
+          349,
+          362
+        ],
+        "criterion_sha256": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799"
+      },
+      {
+        "id": "B59",
+        "historical_ledger_status": "closed",
+        "appendix_c_status": "no_finding_level_record",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "B_r19",
+        "criterion_lines": [
+          1573,
+          1586
+        ],
+        "criterion_sha256": "f1be31314c74127f473589edbd1cda207e908ba5d0d1917d3cdbbb857ed306a8"
+      },
+      {
+        "id": "B61",
+        "historical_ledger_status": "held",
+        "appendix_c_status": "held",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "B_r19",
+        "criterion_lines": [
+          1601,
+          1614
+        ],
+        "criterion_sha256": "d866142adb470420e36484ae68a71a865e730697ae87639bbef85c27ef86c32b"
+      },
+      {
+        "id": "B74",
+        "historical_ledger_status": "partial",
+        "appendix_c_status": "partial",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "B_r19",
+        "criterion_lines": [
+          1939,
+          1952
+        ],
+        "criterion_sha256": "8d9049975bdf678761aab8dbf7f9b2e3fa2aa4dabda2d6c2fd9a2d2c6ba5a88b"
+      },
+      {
+        "id": "B148",
+        "historical_ledger_status": "partial",
+        "appendix_c_status": "closed_bounded",
+        "closure_now": "not_adjudicated",
+        "criterion_path": "B_r19",
+        "criterion_lines": [
+          3917,
+          3928
+        ],
+        "criterion_sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a"
+      }
+    ],
+    "criterion_specific_routes_outside_batch": {
+      "LA-033": [
+        {
+          "path": "policy-engine/tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "product_root_target": "tests/unit/scientist/replay/test_deterministic_compatibility.py",
+          "sha256_at_r762": "e13e98449eef1c9d1338d46c86e1b848f577f241966644a6a95336632da1a45e",
+          "head_blob": "ab91dbb907fe2e209327d83509de263176d83fc8",
+          "ast_test_functions": [
+            {
+              "name": "test_runtime_replay_is_an_exact_identity_preserving_compatibility_facade",
+              "line": 31
+            },
+            {
+              "name": "test_scientist_replay_consumers_bind_to_the_canonical_owner",
+              "line": 65
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/test_replay_runtime.py",
+          "product_root_target": "tests/unit/runtime/test_replay_runtime.py",
+          "sha256_at_r762": "acbced54bb34cf5e09953312ac3b45959f94e4b768519702cdacd69a4f91fe1a",
+          "head_blob": "44cd7e644cdc3ed7b7686a310f7b015960b76052",
+          "ast_test_functions": [
+            {
+              "name": "test_completeness_check_detects_foundry_strategy",
+              "line": 93
+            },
+            {
+              "name": "test_verify_replay_bit_exact_passes_for_same_simulation_result",
+              "line": 104
+            },
+            {
+              "name": "test_verify_replay_ci_bounded_detects_metric_drift",
+              "line": 119
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/core/components/test_cli_replay.py",
+          "product_root_target": "tests/unit/core/components/test_cli_replay.py",
+          "sha256_at_r762": "f2e5c481f2c57572790e06f2dd25e6e58bb6c7cbbbb7440d3ddce78a2e8f53ab",
+          "head_blob": "6471544ea81b6c4c82c84831b11341bb1e63eec5",
+          "ast_test_functions": [
+            {
+              "name": "test_bundle_cli_exports_actual_import_report_and_selected_graph",
+              "line": 125
+            },
+            {
+              "name": "test_replay_cli_consumes_real_noop_report_and_selected_input_refs",
+              "line": 173
+            },
+            {
+              "name": "test_replay_cli_exports_prior_generation_after_real_import_refusal",
+              "line": 265
+            },
+            {
+              "name": "test_replay_export_json_reports_refused_bundle_import",
+              "line": 365
+            },
+            {
+              "name": "test_all_replay_import_surfaces_project_one_typed_report",
+              "line": 421
+            }
+          ]
+        }
+      ],
+      "B13": [
+        {
+          "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "product_root_target": "tests/integration/scientist/test_res_03_real_simulation_route.py",
+          "sha256_at_r762": "402ff3142416d2e01fd6c9afde505ad948aeb44dffa55a5b01c150ded28b7167",
+          "head_blob": "91fa34fe5bf908081e549e31f530449bf7b141ba",
+          "ast_test_functions": [
+            {
+              "name": "test_res_03_real_simulation_later_failure_reaches_user_route",
+              "line": 442
+            },
+            {
+              "name": "test_sql_dataframe_source_binds_into_a_real_foundry_state",
+              "line": 1110
+            }
+          ]
+        }
+      ],
+      "B61": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+          "product_root_target": "tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+          "sha256_at_r762": "a1b387778c248e5e424d23e23f6a6f33ca66e4398900e4dee1b5729674c82528",
+          "head_blob": "511653c1ddc5f731f8d7324d18f4f784d621e519",
+          "ast_test_functions": [
+            {
+              "name": "test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks",
+              "line": 159
+            },
+            {
+              "name": "test_selected_snapshot_reader_accepts_revocable_attempt_read_facade",
+              "line": 170
+            },
+            {
+              "name": "test_descriptor_without_selected_profile_is_refused",
+              "line": 188
+            },
+            {
+              "name": "test_existing_descriptor_refuses_unavailable_retained_chunk_even_with_healthy_live_source",
+              "line": 196
+            },
+            {
+              "name": "test_saved_source_reads_old_parameter_after_real_live_replacement",
+              "line": 228
+            },
+            {
+              "name": "test_snapshot_replays_with_live_path_absent_and_fresh_process",
+              "line": 251
+            },
+            {
+              "name": "test_exact_existing_descriptor_does_not_write_source_again",
+              "line": 306
+            },
+            {
+              "name": "test_capture_refuses_actual_source_generation_replacement",
+              "line": 327
+            },
+            {
+              "name": "test_missing_or_corrupt_selected_descriptor_never_reads_live_source",
+              "line": 357
+            },
+            {
+              "name": "test_materialization_fsync_failure_does_not_publish_partial_database",
+              "line": 385
+            },
+            {
+              "name": "test_materialized_corruption_is_refused_without_overwriting_it",
+              "line": 411
+            },
+            {
+              "name": "test_shared_worker_intake_reads_selected_cas_source_before_retry",
+              "line": 509
+            },
+            {
+              "name": "test_timeout_worker_rejects_store_run_owner_mismatch_before_reconstruction",
+              "line": 561
+            },
+            {
+              "name": "test_shared_worker_intake_refuses_tampered_snapshot_without_live_path",
+              "line": 575
+            },
+            {
+              "name": "test_public_dead_letter_replay_binds_selected_skg_source_before_resolve",
+              "line": 619
+            },
+            {
+              "name": "test_public_dead_letter_replay_refuses_profileless_selected_skg_source",
+              "line": 658
+            },
+            {
+              "name": "test_async_workflow_deadline_cancels_checkpoint_after_real_skg_node_completed",
+              "line": 693
+            },
+            {
+              "name": "test_real_workflow_selector_replays_saved_source_with_current_live_replacement",
+              "line": 762
+            },
+            {
+              "name": "test_executor_keeps_cache_bound_reader_through_query_close_and_reopen",
+              "line": 833
+            },
+            {
+              "name": "test_executor_misses_after_same_path_skg_bytes_change_and_reuses_only_stable_bytes",
+              "line": 943
+            },
+            {
+              "name": "test_executor_refuses_reader_swapped_after_cache_key_binds_selected_snapshot",
+              "line": 1178
+            },
+            {
+              "name": "test_selected_snapshot_consumer_rechecks_and_recovers_exact_source_after_bind",
+              "line": 1283
+            },
+            {
+              "name": "test_selected_snapshot_ref_cannot_be_reused_as_absent_source",
+              "line": 1327
+            },
+            {
+              "name": "test_spawn_timeout_reaps_worker_and_reports_unresolved_group_truthfully",
+              "line": 1353
+            },
+            {
+              "name": "test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation",
+              "line": 1399
+            },
+            {
+              "name": "test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fallback",
+              "line": 1463
+            },
+            {
+              "name": "test_workflow_selected_snapshot_supplies_missing_required_source_path",
+              "line": 1560
+            },
+            {
+              "name": "test_invalid_explicit_workflow_snapshot_refuses_before_real_selector_body",
+              "line": 1597
+            },
+            {
+              "name": "test_published_materialization_sync_failure_is_not_reported_as_rollback",
+              "line": 1648
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+          "product_root_target": "tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+          "sha256_at_r762": "e7b3fe412c27c722f83b16159d73024aad1f7e7b99e2590e3029fe0bcd53ae92",
+          "head_blob": "49063e4305277807090172fb45bd75dc3fada4cb",
+          "ast_test_functions": [
+            {
+              "name": "test_each_skg_node_owner_prepares_the_selected_source",
+              "line": 287
+            },
+            {
+              "name": "test_hierarchical_candidate_callback_keeps_executor_prepared_read",
+              "line": 321
+            },
+            {
+              "name": "test_workflow_executor_binds_source_transaction_and_emits_hit_receipt",
+              "line": 387
+            },
+            {
+              "name": "test_workflow_executor_scopes_constant_query_as_execution_only",
+              "line": 511
+            },
+            {
+              "name": "test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes",
+              "line": 587
+            },
+            {
+              "name": "test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finishes",
+              "line": 642
+            },
+            {
+              "name": "test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineage",
+              "line": 854
+            },
+            {
+              "name": "test_spawn_timeout_refuses_live_prepared_read_before_child_start",
+              "line": 1168
+            },
+            {
+              "name": "test_duckdb_cache_preparation_failure_bypasses_cache_and_runs_node",
+              "line": 1222
+            },
+            {
+              "name": "test_workflow_executor_bypasses_cache_if_source_generation_changes_during_miss",
+              "line": 1282
+            },
+            {
+              "name": "test_build_literature_prior_recomputes_existing_output_from_changed_prepared_source",
+              "line": 1339
+            },
+            {
+              "name": "test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_source",
+              "line": 1403
+            },
+            {
+              "name": "test_cross_graph_recomputes_existing_profile_from_changed_prepared_source",
+              "line": 1468
+            },
+            {
+              "name": "test_removed_cache_key_binding_is_stopped_by_origin_read_set_check",
+              "line": 1541
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+          "product_root_target": "tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+          "sha256_at_r762": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca",
+          "head_blob": "3d975f2b6e0c5d5413db735e3ddbe3707f6ead55",
+          "ast_test_functions": [
+            {
+              "name": "test_context_adaptive_parameter_bundle_artifact_roundtrip",
+              "line": 33
+            },
+            {
+              "name": "test_context_adaptive_parameter_bundle_v1_1_resolves_selected_skg_source_profile",
+              "line": 110
+            },
+            {
+              "name": "test_context_adaptive_parameter_bundle_v1_1_rejects_unbound_skg_source",
+              "line": 142
+            },
+            {
+              "name": "test_context_adaptive_parameter_bundle_v1_1_loader_rechecks_source_manifest",
+              "line": 168
+            },
+            {
+              "name": "test_context_adaptive_parameter_bundle_v1_1_records_verified_profile_absence",
+              "line": 189
+            },
+            {
+              "name": "test_context_adaptive_parameter_bundle_v1_1_missing_selection_field_is_rejected",
+              "line": 216
+            }
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+          "product_root_target": "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py",
+          "sha256_at_r762": "fc8b8484eb9e9637f9e543bf0695a56457daa8c661a1104642bf91ab906575b9",
+          "head_blob": "44b1bc6aa33e8fb91f678b0eb1147c2494c696a1",
+          "ast_test_functions": [
+            {
+              "name": "test_skip_when_missing_target_context",
+              "line": 210
+            },
+            {
+              "name": "test_skip_when_target_context_invalid",
+              "line": 224
+            },
+            {
+              "name": "test_skip_when_missing_required_parameters",
+              "line": 239
+            },
+            {
+              "name": "test_skip_when_required_parameters_empty_list",
+              "line": 252
+            },
+            {
+              "name": "test_existing_bundle_requires_valid_cas_artifact",
+              "line": 270
+            },
+            {
+              "name": "test_target_context_assertion_is_not_swallowed",
+              "line": 301
+            },
+            {
+              "name": "test_resolve_parameters_uses_branch_state_for_declared_outputs",
+              "line": 327
+            },
+            {
+              "name": "test_cache_hit_requires_exact_graph_profile_and_role",
+              "line": 474
+            },
+            {
+              "name": "test_cache_hit_requires_exact_cross_graph_profile_and_role",
+              "line": 548
+            },
+            {
+              "name": "test_invalid_supplied_graph_ref_is_not_treated_as_absence_or_cache_hit",
+              "line": 634
+            },
+            {
+              "name": "test_invalid_supplied_cross_graph_profile_is_not_absence_or_cache_hit",
+              "line": 685
+            },
+            {
+              "name": "test_explicit_null_graph_selector_is_not_treated_as_absence_or_cache_hit",
+              "line": 753
+            },
+            {
+              "name": "test_true_graph_absence_keeps_the_existing_skip_boundary",
+              "line": 791
+            },
+            {
+              "name": "test_existing_bundle_reuse_requires_exact_graph_manifest_profile",
+              "line": 811
+            },
+            {
+              "name": "test_legacy_v1_0_bundle_is_readable_but_not_reused_for_active_request",
+              "line": 837
+            }
+          ]
+        }
+      ],
+      "B74": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+          "product_root_target": "tests/unit/foundry/methods/backends/test_checkpointing.py",
+          "sha256_at_r762": "526788944b6c932e45a3789dc77a30cfab9aec27805e9c05be8b8fe72154d1e1",
+          "head_blob": "54cbc24e9602e0ed4ae5ce022e3918fb0652b684",
+          "ast_test_functions": [
+            {
+              "name": "test_chain_checkpoint_round_trips_numpy_sidecars_atomically",
+              "line": 33
+            },
+            {
+              "name": "test_chain_checkpoint_load_rejects_missing_sidecar",
+              "line": 52
+            },
+            {
+              "name": "test_find_latest_checkpoint_skips_corrupt_latest_and_records_issue",
+              "line": 68
+            },
+            {
+              "name": "test_checkpoint_save_failure_is_diagnostic_and_can_fail_closed",
+              "line": 93
+            },
+            {
+              "name": "test_execute_rejects_legacy_checkpoint_stub_results",
+              "line": 128
+            },
+            {
+              "name": "test_execute_resumes_fully_bound_checkpoint_with_native_results",
+              "line": 182
+            }
+          ]
+        }
+      ],
+      "B148": [
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_bound_import_preservation.py",
+          "product_root_target": "tests/unit/core/artifacts/test_bound_import_preservation.py",
+          "sha256_at_r762": "a2f0b9833b0b286e7904cc429c0db695a499e5bf906c3ab1572b1c2529721140",
+          "head_blob": "5648594bb21f520925dd463dac2550c861960bac",
+          "ast_test_functions": [
+            {
+              "name": "test_matching_bound_import_cannot_reclaim_an_existing_foreign_owner",
+              "line": 79
+            },
+            {
+              "name": "test_bad_bound_inventory_preserves_the_readable_claimed_view",
+              "line": 185
+            },
+            {
+              "name": "test_physically_interrupted_bound_archive_read_preserves_existing_custody",
+              "line": 220
+            },
+            {
+              "name": "test_changed_directory_bytes_after_intake_never_publish_a_scoped_view",
+              "line": 240
+            }
+          ]
+        }
+      ]
+    },
+    "B198_separate_control": {
+      "id": "B198",
+      "relationship": "Separate historical/control occurrence; not included in R1.finding_ids. Preserve as its own row, not merged into B197 or R1.",
+      "historical_ledger_status": "closed",
+      "appendix_c_status": "closed_bounded",
+      "closure_now": "not_adjudicated",
+      "criterion_ref": {
+        "criterion_id": "B198",
+        "document": "B_r19",
+        "lines": [
+          4936,
+          4949
+        ],
+        "sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+        "card": "CAL-06"
+      },
+      "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "formal_closure_ids": []
+  },
+  "historical_native_receipt_not_current": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/prepared-b-defining-baseline-all13-deciding-r793-20261013.json",
+    "sha256": "380d5614982364568a1dcc8c37d9c07c01e879bd7659e36d7efa886aba7a0710",
+    "source_frame": "root-author-source-frame-r785-20261013.json",
+    "actual_entry_sha": "14683576597938efc1b01b7e2eeb8fe80b175721",
+    "counts": {
+      "total": 326,
+      "PASS": 314,
+      "FAIL": 12,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "wall_seconds": 51.72441187500954,
+    "disposition": "Historical R785/HEAD 146835... run only; do not present as R1134 evidence. R796 records two invalid positive registry fixture references and proposes real refs from build_default_registry_bundle in the same CAS; current worker/serialization test files contain that builder and selected-profile use, but current suite remains unrun.",
+    "R796_fixture_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r796-prepared-b-r1-r793-lifecycle-and-cas-disposition-20261013.json",
+      "sha256": "c2a0af05d0a8e0a6b3dcdb5234d1192bef3d19ccc1b6b0931a4c90e010e448fb",
+      "candidate_patch_sha256": "659c8e9aef4974ff58f982c5c6d47353c218adfbe9aa6988966544d1e60f07c4",
+      "native_execution": "not run; root-owned test slot reserved"
+    }
+  },
+  "timeout_wire_review": {
+    "property": "A timeout worker carries the selected branch writes/deletes through the actual process task, typed result channel, and fresh receiver merge, applying only declared operations while preserving unrelated receiver changes.",
+    "prepared_B_candidate_test": {
+      "source_commit": "1e18a965b4334331dc3d5542b609f8a00bb35c6d",
+      "file": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "sha256": "2c5c3308b9a8a6f28091a834d13d7286f1db3316c906f7e1ac65c3b91123f9e2",
+      "name": "test_remote_worker_timeout_wire_replays_only_declared_branch_operations",
+      "behavior": "Calls run_node_in_worker with custom JournalReplayWorkerNode and timeout_s=2.0, deserializes NodeOutcome, merges against changed receiver with broad and narrowed write specs.",
+      "portability": "On Darwin actual timeout route uses spawn and rejects custom node; that candidate test is not portable to the current closed timeout admission contract."
+    },
+    "current_R1134_test": {
+      "file": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+      "name": "test_remote_worker_wire_replays_only_declared_branch_operations",
+      "behavior": "Runs generic async activity worker with same custom JournalReplayWorkerNode, then calls merge_tier_outcomes; timeout_s is 2.0 only on Linux and None on Darwin."
+    },
+    "actual_current_process_route": [
+      "execute_with_retry_sync or execute_with_retry_async",
+      "_execute_with_timeout_process or _execute_with_timeout_process_async",
+      "_build_spawn_timeout_task constructs typed NodeTask on Darwin; _SPAWN_TIMEOUT_NODE_IDS admits only scientist.node_resolve_parameters@1.0.0",
+      "_typed_node_timeout_worker -> run_node_task_in_timeout_worker_sync -> run_node_in_worker(timeout_authority=...)",
+      "_WorkerResultChannel returns serialized bytes; caller receives NodeOutcome and merge_tier_outcomes consumes it"
+    ],
+    "nearest_current_controls": [
+      {
+        "scope": "R1 current worker test",
+        "value": "Generic direct worker serialization and receiver merge, but no actual spawn NodeTask result channel and no negative operation-removal control through that path."
+      },
+      {
+        "scope": "R1 spawn/retry/cache tests",
+        "value": "Retry and async deadline/cancel/cache behaviors exercise other paths; they do not join timeout-child operation journal to a changed parent-state receiver."
+      },
+      {
+        "scope": "outside R1 test_skg_snapshot_replay.py",
+        "value": "Actual spawn cleanup, revocable CAS authority, and unsupported-input/no-fallback controls exist, but no changed-parent declared-operation replay/removal witness."
+      },
+      {
+        "scope": "outside R1 integration test_skg_prepared_read_cache.py",
+        "value": "Real Darwin spawn resolves changed SKG bytes and persists profile lineage, but tests cache/source lineage, not operation replay into a changed receiver."
+      }
+    ],
+    "P38_divergence": "Property: actual admitted timed process IPC preserves/replays selected journal operations into the changed receiver. Current R1 marker agrees with a generic run_node_in_worker byte roundtrip and merge; on Darwin timeout_s=None bypasses the process route, and forcing 2.0 on the custom node would be refused. The implementation therefore measures generic worker replay, not the spawn IPC boundary it must qualify.",
+    "removal_falsifier": "No R1 test is present that removes the serialized mutation operations while retaining the task/outcome markers and proves the changed receiver diverges through the actual admitted process route.",
+    "minimal_companion": "Add one test inside the existing runner/test_activity_worker.py denominator using the current canonical ResolveParametersNode and a real RunContext/CAS fixture; drive execute_with_retry_sync/async through the native spawn caller (typed NodeTask, child PID, result channel), merge returned serialized outcome into a deliberately changed receiver, assert declared set/delete effects and preservation of unrelated values, then suppress only the operation payload while leaving markers and assert the merge no longer matches. Keep custom-node, bad-context, foreign-view, and no-thread/process-refusal controls. This is a current API/real caller witness, not a source-baseline claim.",
+    "P40_bucket": "SAME_CLASS_DEEPER; widen one complete timeout-producer→typed-IPC→parent-consumer witness, not another unit-level projection. The second same-class escape is a worked example after that property-complete companion lands.",
+    "status": "engineering_verification_gap; does not prevent running the batch for honest characterization; prevents claiming this timeout-wire property verified or closing R1."
+  },
+  "native_command": {
+    "status": "prepared_only_not_run_by_independent_reviewer",
+    "cwd": "policy-engine",
+    "environment": {
+      "PYTHONPATH": "src:docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1126-current-composition-20261013/progress.json",
+      "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1126-current-composition-20261013/module-origins.json"
+    },
+    "executable": ".venv/bin/python",
+    "argv": [
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--tb=short",
+      "--color=no",
+      "--maxfail=0",
+      "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1126-current-composition-20261013/junit.xml",
+      "--basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1126-current-composition-20261013/pytest-basetemp",
+      "-p",
+      "e02_progress_failure_r559_20261013",
+      "-p",
+      "v5_single_thread_pytest_r315_20261012",
+      "-p",
+      "e02_runtime_module_origins_r792_20261013",
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+    ],
+    "test_targets_14": [
+      "tests/unit/scientist/orchestration/engine/test_state_branching.py",
+      "tests/unit/scientist/orchestration/engine/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+      "tests/unit/scientist/orchestration/engine/test_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+      "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+      "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py",
+      "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"
+    ],
+    "unfiltered": true,
+    "no_k_selector": true,
+    "explicit_no_early_stop": true,
+    "capture_dir": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-r1126-current-composition-20261013",
+    "required_capture": [
+      "stdout.txt",
+      "stderr.txt",
+      "junit.xml",
+      "module-origins.json",
+      "progress.json",
+      "run-metadata.json"
+    ]
+  },
+  "pattern_register": {
+    "relevant_ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Run the exact current unfiltered selected denominator from one source freeze, capture loaded module origins and all outcomes, and use actual worker task/result/consumer execution for any timeout-wire claim.",
+    "capability_labels": "R1 whole task remains verification_missing until current native run and matched removal controls are read back; B61 and B148 remain separate criterion-specific routes."
+  },
+  "review_limits": {
+    "tests_or_runtime_imports_performed": false,
+    "product_source_or_test_writes": false,
+    "git_index_or_ref_mutations": false,
+    "whole_criterion_closure_claim": false,
+    "closure_ids": []
+  }
+}

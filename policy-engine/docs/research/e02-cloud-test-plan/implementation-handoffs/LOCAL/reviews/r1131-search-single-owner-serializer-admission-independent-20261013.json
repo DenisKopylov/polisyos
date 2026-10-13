@@ -1,0 +1,66 @@
+{
+  "callback_residual": {
+    "claim": "No callback purity, bounded-work, or no-one-shot-consumption guarantee is claimed; R1120 does not alter callback behavior.",
+    "status": "bounded_unratified_G_choice"
+  },
+  "closure_ids": [],
+  "current_readback": {
+    "branch": "codex/e02-unified-local-20261009",
+    "four_target_git_status": "clean",
+    "four_target_preimages_match": true,
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1128-20261013.json",
+    "frame_sha256": "da72001a1461c64ab7a2c7b4349e6a251bdc2a013d1d8ddcb4790d6bf446d392",
+    "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "source_path_denominator": 554,
+    "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4"
+  },
+  "decision": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_NATIVE_WAVE",
+  "footprint": {
+    "inherited_companions_unchanged": [
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock"
+    ],
+    "mechanism_count": 1,
+    "mechanism_paths": [
+      {
+        "base_sha256": "99e992117d5a042344fa0912e957509ce0735a98526abb3c88176d5d9e237e6d",
+        "candidate_sha256": "a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      },
+      {
+        "base_sha256": "a58f2b992e989b64e7c1676ddae830e8749d0c8b271480dca8eb7f50d4e5b6b9",
+        "candidate_sha256": "ec108d8e1bc6b2b3e6ab0638032c29c2980cc0c48863d92a1b897af44139e57c",
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+      }
+    ]
+  },
+  "formal_G_acceptance": false,
+  "packet": {
+    "cumulative_patch_sha256": "fb563f37b99f0ac9bd9c89788a6c88856fee4fada9b8f37eebdb9811a1fb7fc3",
+    "decision_sha256": "088e50b012901d99cd9e3de82104c95b540955fb257bbc16b0a0b829538fb792",
+    "delta_sha256": "632e60bd1a2869bd5a42b37c8c812a0bee01c31f46173c3567ac8da39f81acbe",
+    "manifest_readback": "R1121; independently requalified against current R1128 frame",
+    "manifest_sha256": "8f9d80ea8cb3820e9ed9fed8429e8626f90dcd709c51245c85e2998a0c7f104f",
+    "status": "virtual_unapplied"
+  },
+  "property_review": {
+    "classification": "SAME_CLASS_DEEPER",
+    "decision": "GO",
+    "finding": "R1120 removes the duplicate RootModel identity entry; _prompt_to_python is the single owner on top-level and nested typed/dynamic routes.",
+    "residual": "Model-through-mapping recursion is a typed refusal with search_prompt_model_serialization_failed; this remains fail closed and no new specific reason-code contract is proposed.",
+    "source_discriminator": "R1090 exact source rejects finite float/Any roots and masks non-finite root reason codes; R1120 exact source accepts finite scalar/object roots and selected projections, refuses raw non-finite roots and true cycles, and accepts shared siblings."
+  },
+  "review_id": "R1131",
+  "source_index_git_mutations_by_review": false,
+  "verification": {
+    "ast_extracted_actual_helper_replay": "PASS rerun on Python 3.14.3 / Pydantic 2.12.5 / pydantic-core 2.41.5, no PolicyOS imports; results match retained cases",
+    "candidate_hashes": "PASS exact manifest postimages for mechanism/test and unchanged inherited config/lock",
+    "composed_producer_replay": "UNRUN",
+    "configured_ruff_and_format": "PASS packet receipts verified against exact postimage hashes; not rerun",
+    "current_cumulative_git_apply_check": "PASS exit 0",
+    "formal_G_acceptance": "UNRUN",
+    "native_repo_gates": "UNRUN",
+    "product_imports": "UNRUN",
+    "pytest": "UNRUN"
+  }
+}

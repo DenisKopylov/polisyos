@@ -1,0 +1,65 @@
+{
+  "packet_id": "R1073-catalog-r1067-public-route-profile-independent-20261013",
+  "verdict": "GO_ROOT_NATIVE_ONLY",
+  "formal_closure_ids": [],
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913",
+    "parents": [
+      "226cedb822e6e242d861ea8c903c9b396375dd0e"
+    ],
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1076-20261013.json",
+    "frame_sha256": "018b1e5998e45ca73fcfb4cac4fbcee11c0851610d283d2e9c2dff2f7ba39e12",
+    "frame_physical_source_paths": 553,
+    "input_denominator": {
+      "python": 34,
+      "exact_head": 27,
+      "frame_postimage": 7,
+      "mismatches": 0
+    },
+    "rebound_input": {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "why": "root-authorized tenant-context fixture change after R1065; outside the Catalog producer/route call chain",
+      "current_r1076_sha256": "80cf995c501b7932864b36bcad4ba2438759acc9aa4971dc46f5687d306d5c00"
+    }
+  },
+  "candidate": {
+    "proposal_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1067-catalog-real-profile-http-fresh-reader-semantic-companion-20261013/r4",
+    "manifest_sha256": "4b63cb4f801fb08e4fe8466816d588e207473e2712c4aa433fbd5e92861b38f0",
+    "patch_sha256": "a6637fb0b6d0a82b06cedb25f38ad0a2ef43bc1d8ede5d78d75ee22bc997ba5e",
+    "candidate_sha256": "c41f621399327f613970a9cf0c8b11bd87f3afa05bb3b01d240c31e97123a183",
+    "decision_sha256": "f928e34cbca643bde7cc0564e4f85c5ff30a0fae7ee406883f8439313b4b15d4",
+    "paths_changed": [
+      "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py"
+    ]
+  },
+  "p40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "claim_boundary": "public Catalog /api/v1/control/data/resolve profile/currentness path through a fresh reader",
+    "bounded_residual": "No coverage of Catalog ingestion/discovery or the separate Legal request surface; no exact HTTP assertion of excluded_present coverage reason."
+  },
+  "checks": {
+    "git_apply_check": {
+      "exit_code": 0,
+      "output": ""
+    },
+    "stdlib_ast_parse": {
+      "result": "PASS",
+      "product_imports": 0
+    },
+    "configured_ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": "",
+      "command": ".venv/bin/python -m ruff check --no-cache --config ruff.toml --stdin-filename tests/unit/runtime/http/test_catalog_profile_http.py -"
+    },
+    "pytest_http_runtime": "UNRUN by independent review; required in Root native replay"
+  },
+  "limitations": [
+    "Controlled synthetic local Catalog fixture; no live production currentness or authority.",
+    "Fixture development identity and route permission dependency; no deployed OPA/identity proof.",
+    "Excluded-profile HTTP case proves stale refusal but not the exact coverage refusal reason.",
+    "No capability closure or formal finding adjudication."
+  ]
+}

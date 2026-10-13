@@ -1,0 +1,454 @@
+{
+  "I4_occurrences": [
+    {
+      "closure_ids": [],
+      "criterion_card": "REP-01",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "Runtime replay moved to its canonical owner while legacy aliases and actual import/string consumers remain a migration boundary.",
+      "finding_id": "LA-033",
+      "handoff_proposal": "Run current REP-01 lazy import, export identity, CLI/dynamic-import and compatibility acceptance before changing or removing the alias.",
+      "historical_disposition": {
+        "appendix_c_status": "partial",
+        "capability_label": "verification_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "partial"
+      },
+      "occurrence_id": "LA-033 / REP-01",
+      "original_source_span": {
+        "block_sha256": "60a48ac490a9fe0add1bbecc3bbfb74a011f8038a5dc3f6196f929f9de19739f",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          1994,
+          2028
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "Run exact REP-01 lazy import, export identity, CLI/dynamic-import, and compatibility consumer acceptance before changing/removing alias.",
+        "r1042_status": "outside selected 3-module command; no test executed in this review",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Runtime package exports resolve lazily from Scientist canonical replay owner; CLI imports canonical module; old runtime.replay compatibility facade remains. Current compatibility tests exist."
+      },
+      "r1129_catalog_slice_relation": "No direct evidence from the Catalog profile route tests; Catalog route success cannot establish replay export/CLI/dynamic-import compatibility.",
+      "status_effect": "No occurrence status change proposed."
+    },
+    {
+      "closure_ids": [],
+      "criterion_card": "REQ-01",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "Generic data requirement compilation must use explicit scenario/profile context and avoid treating opaque IDs or generic text as authority-bearing scope.",
+      "finding_id": "LA-046",
+      "handoff_proposal": "Run current generic compiler profile controls for named pilot profile, opaque IDs, text/request inputs, explicit scope/date/jurisdiction and negation. Keep generic compiler acceptance distinct from N7 acquisition.",
+      "historical_disposition": {
+        "appendix_c_status": "partial",
+        "capability_label": "verification_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "partial"
+      },
+      "occurrence_id": "LA-046 / REQ-01",
+      "original_source_span": {
+        "block_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          3034,
+          3068
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "Run the current compiler profile controls and trace the actual N7 caller using its current resolver; do not treat generic compiler tests as N7 acquisition proof.",
+        "r1042_status": "outside selected 3-module command; no test executed in this review",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Compiler now carries an explicit parsed scenario scope/profile, rejects malformed/conflicting profile aliases, treats scenario_id as identity rather than prompt text, accepts text/request input, and separates candidate topic proposals from required constructs. Current generic compiler tests cover opaque IDs, negation, generic scope, explicit scope and typed refusal."
+      },
+      "r1129_catalog_slice_relation": "No direct compiler evidence from this Catalog HTTP slice; the R1041 audit records explicit compiler profile/context support but does not run these controls.",
+      "status_effect": "No occurrence status change proposed."
+    },
+    {
+      "closure_ids": [],
+      "criterion_card": "ACQ-01",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "A real admitted N7 acquisition input must change WMR content; a resolver that only records a request is not sufficient.",
+      "finding_id": "LA-046",
+      "handoff_proposal": "Execute the genuine N7→admitted material input→WMR content change with unchanged-input and resolver-recording-only negative controls.",
+      "historical_disposition": {
+        "appendix_c_status": "partial",
+        "capability_label": "verification_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "partial"
+      },
+      "occurrence_id": "LA-046 / ACQ-01",
+      "original_source_span": {
+        "block_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          3034,
+          3068
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "Execute/inspect the genuine N7→admitted material input→WMR content change property at current source, with unchanged-input and resolver-recording-only negative controls.",
+        "r1042_status": "not in selected command; no N7 acquisition/WMR run in this review",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Current N7 source has an explicit profile/context path and passes _n7_capability_resolver into DataRequirementCompiler. This static observation does not show that a real admitted acquisition result changes the WMR on the actual path."
+      },
+      "r1129_catalog_slice_relation": "No N7 acquisition/WMR mutation path is exercised by the Catalog profile route tests.",
+      "status_effect": "No occurrence status change proposed; ACQ-01 remains separate from REQ-01 although both cite the same LA-046 block."
+    },
+    {
+      "closure_ids": [],
+      "criterion_card": "DFK-02",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "One versioned Catalog source registry and one ordered selection/seed-closure policy must drive both batch production and serving; None, explicit empty, disabled/missing seed and cycle semantics stay distinct.",
+      "finding_id": "LA-028",
+      "handoff_proposal": "Run current DFK-02 source-selection controls with ordered profiles, disabled/missing/cyclic seeds, explicit [] versus None, waves and both registry paths; retain compatibility-copy and caller lifecycle explicitly.",
+      "historical_disposition": {
+        "appendix_c_status": "partial",
+        "capability_label": "bridge_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "partial"
+      },
+      "occurrence_id": "LA-028 / DFK-02",
+      "original_source_span": {
+        "block_sha256": "ca582afd9387c0ba6c4c4bbc9278a6da82d00d06d347269c089531d12355b2f6",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          1466,
+          1517
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "Run current DFK-02 selection tests with ordered profiles, disabled/missing/cyclic seeds, explicit [] vs None, waves and both registry paths; keep compatibility copy/caller lifecycle explicit.",
+        "r1042_status": "not in selected 3-module command",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Canonical default registry is the typed source used by batch and lazy module projection; both source and retained batch YAML copies currently have identical SHA. Shared select_catalog_sources/seed closure is used. Direct acceptance tests exist, but were not executed in this review or R1042."
+      },
+      "r1129_catalog_slice_relation": "The new tests witness an actual selected Catalog profile flowing from the real publisher through a public route to a fresh reader. They do not run ordered profile/seed closure, explicit [] versus None, disabled/missing seed, cycle, wave or dual registry-path equivalence controls.",
+      "status_effect": "Adds bounded public-route consumer evidence; no DFK-02 closure/status change proposed."
+    },
+    {
+      "closure_ids": [],
+      "criterion_card": "UDF-05",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "The demographic reader must choose one complete versioned snapshot/layout and preserve supported historical readers; it must not combine or fall back file-by-file.",
+      "finding_id": "LA-032",
+      "handoff_proposal": "Run UDF-05 source inventory and historical-layout tests across actual sibling readers, including malformed/tampered member and legacy reader controls.",
+      "historical_disposition": {
+        "appendix_c_status": "held",
+        "capability_label": "bridge_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "held"
+      },
+      "occurrence_id": "LA-032 / UDF-05",
+      "original_source_span": {
+        "block_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          1668,
+          1715
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "Current UDF-05 source-inventory and historical-layout tests across actual sibling readers, including malformed/tampered member and legacy reader control.",
+        "r1042_status": "outside Catalog/Legal selected command; no test executed in this review",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Current reader selects one complete new/legacy layout, rejects mixed, incomplete, ambiguous or present-invalid members, and retains bounded historical layout handling; source-inventory reader tests exist."
+      },
+      "r1129_catalog_slice_relation": "No demographic snapshot, sibling reader or historical-layout behavior is exercised by this Catalog HTTP slice.",
+      "status_effect": "No occurrence status change proposed."
+    },
+    {
+      "closure_ids": [],
+      "criterion_card": "EMB-03",
+      "criterion_document": "LA_r09",
+      "criterion_summary": "Legal embedding reuse must bind submitted content, encoder/model/projection profile and membership/withdrawal to a selected generation; stale or incompatible reuse must not leak into current retrieval.",
+      "finding_id": "LA-040",
+      "handoff_proposal": "Preserve the bounded synthetic evidence and explicit callable-swap residual. Keep live production model, actual code identity and authority/currentness claims out of scope unless a trusted executable identity capability is established.",
+      "historical_disposition": {
+        "appendix_c_status": "partial",
+        "capability_label": "producer_missing",
+        "formal_closeout": "not_adjudicated",
+        "ledger_status": "partial"
+      },
+      "occurrence_id": "LA-040 / EMB-03",
+      "original_source_span": {
+        "block_sha256": "04d9279a2c0e0e0f10649e69a1a06e4e8a4128b384d5b44f2c9cd45fff8ba67a",
+        "full_file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "lines": [
+          2556,
+          2594
+        ],
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md"
+      },
+      "r1041_scoped_review": {
+        "prior_next_check": "No additional implementation finding from this source slice; preserve the explicit same-assets/different-encode residual and keep production-model/authority claim out of scope.",
+        "r1042_status": "covered by 60/60 passing selected suite; the receipt authority is controlled synthetic deterministic encoder fixtures, not live model or production semantics",
+        "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2",
+        "static_review": "Legal producer derives content/rule/member basis from the same loaded encoder used to build the selected generation. R1042 executes same-ID text change, withdrawal, encoder revision/dimension/projection invalidation, selector refusal, fresh selected-generation request and fresh Legal reader, actual HTTP vector/text modes, and negative profile controls with deterministic fixture encoder."
+      },
+      "r1129_catalog_slice_relation": "Catalog route evidence is a separate plane. R1042 independently records a controlled synthetic Legal producer→selected generation→immutable intent→fresh reader/HTTP path (60/60), but its run is historical at HEAD 226cedb… and is not a current-HEAD or real-model semantic-equivalence claim. R1041 retains the same-assets/different-encode callable-swap P38 limitation.",
+      "status_effect": "R1129 contributes no Legal result and proposes no EMB-03 status change."
+    }
+  ],
+  "authority": "Author source handoff only. This is neither G acceptance nor formal criterion adjudication.",
+  "catalog_capability_witness": {
+    "boundary": "Controlled local World Bank fixture only. This does not establish live production source custody, external currentness, institutional permissions or deployed authorization.",
+    "bridge": "CatalogServingSourceSelection selects snapshot_root plus catalog_run_profile, and the actual /api/v1/control/data/resolve request passes the profile into the service.",
+    "consumer": "A fresh runtime app/service and fresh RetrievalService graph read the same database path, distinct from the producer graph, and return a nonempty fetch plan.",
+    "contract": "R1041 source audit identifies typed DataResolveRequest.catalog_run_profile, CatalogServingSourceSelection, and the ControlPlaneService profile-selection/currentness path.",
+    "grade": "bounded controlled producer-to-public-reader behavioral evidence; not I4 closure",
+    "negative_semantics": [
+      "absent profile refuses with catalog_run_profile_unresolved and no fetch_plans",
+      "request/profile conflict refuses with catalog_run_profile_conflict and no fetch_plans",
+      "malformed present profile refuses with 422 and no fetch_plans",
+      "producer-excluded input yields stale candidate, warning and no plan"
+    ],
+    "persisted_artifact": "The publisher writes the snapshot/database and producer receipt; the API is configured to read that published database path.",
+    "positive_semantics": [
+      "selected profile returns one candidate and one plan",
+      "source currentness is current with catalog_profile_inputs_covered",
+      "fresh consumer reads same persisted DB path while holding a graph distinct from producer graph"
+    ],
+    "producer": "The test calls the existing _actual_scope_catalog producer and built-in World Bank profile scope; it does not replace or mock the producer.",
+    "surface": "FastAPI TestClient exercises the public /api/v1/control/data/resolve route.",
+    "verification": "R1116 and R1124 each report all five exact Catalog case IDs passing; outputs are cited in raw support."
+  },
+  "closure_ids": [],
+  "complete_canonical_denominator": {
+    "bundles": 127,
+    "criterion_occurrences": 291,
+    "findings": 282,
+    "i4_criterion_occurrences": 6,
+    "i4_findings": 5,
+    "source_support_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1129-catalog-selected-public-profile-source-handoff-20261013/support.json@70372a301a25d27b5c22a0fc34eb9ce960d55f24d547211b355a850bab46dba5"
+  },
+  "created_on": "2026-10-13",
+  "cross_plane_and_authority_limits": [
+    "Catalog and Legal are separate request/profile planes. Do not infer that CatalogRunProfile must be embedded in LexSearchRequest or invent a coupled DTO.",
+    "R1042 is a separate controlled synthetic Legal run: 60/60 selected cases at HEAD 226cedb…; it is historical evidence, not a current-HEAD rerun or real-model semantic equivalence. See the R1041 currentness qualification.",
+    "The Legal same-assets/different-encode callable-swap test passes while executable behavior identity remains not_established; asset equality is not code identity.",
+    "No live production source, model, protected profile, or external permission/custody fact was supplied or inferred.",
+    "R1124’s 23-case result is tied to candidate HEAD 43eb; a later committed test_control_service_di.py change means the full set was not rerun at 23d. The five Catalog node IDs passed at 43eb and their source file remains byte-identical at 23d.",
+    "Installed wheel/rebuilt sdist, Linux and browser surfaces remain unrun in these receipts; no global I4 acceptance follows."
+  ],
+  "deciding_runtime_receipts": {
+    "R1116": {
+      "Catalog_case_ids": [
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_blocks_published_excluded_profile_inputs",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_catalog_plan_requires_generation_profile_input_coverage",
+          "outcome": "pass"
+        }
+      ],
+      "authority_boundary": "Root captured deciding output; author verification, not G acceptance/global adjudication",
+      "counts": {
+        "error": 0,
+        "fail": 0,
+        "pass": 5,
+        "skip": 0
+      },
+      "frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1115-20261013.json",
+        "sha256": "5877a2ce136713313c91f4cff53f088de88df2f58913d69fcbc9e76a7237e0e1"
+      },
+      "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+      "limitations": [
+        "Controlled Source-bound fixture, not live production custody/currentness. Legal plane R1042 remains separately captured; no combinedLegalCatalogDTO inferred.",
+        "HTTP excluded case asserts stale/no plan; lower generation inputcoverage is separate; installed archive/wheel stillUNRUN.",
+        "No formal G acceptance or automatic original criterion closures."
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c12-catalog-public-profile-fresh-reader-deciding-r1116-20261013.json@a3427dfd2f4444c3852ef8f5b4fef2966eb9fe77cdd96058309e757cce6d90aa",
+      "source_inputs": 6217,
+      "source_stable": true,
+      "wall_seconds": 24.44703975005541
+    },
+    "R1124": {
+      "Catalog_case_ids": [
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_blocks_published_excluded_profile_inputs",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+          "outcome": "pass"
+        },
+        {
+          "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_catalog_plan_requires_generation_profile_input_coverage",
+          "outcome": "pass"
+        }
+      ],
+      "authority_boundary": "Root captured deciding output; author verification, not G acceptance/global adjudication",
+      "counts": {
+        "error": 0,
+        "fail": 0,
+        "pass": 23,
+        "skip": 0
+      },
+      "frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1123-20261013.json",
+        "sha256": "decaeee91fa962644256a26b471f8dc73b5103ccbe52ca479cd42dc0652e3ef1"
+      },
+      "head": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+      "limitations": [
+        "Scientific conformal minimum/rules and uncertainty diagnostics remain unchanged; only a test fixture supplieseligible sharedhistory.",
+        "Empirical support remainspredictive_only and associationassessmentlimited; issuer/source-time/population/counterfactual statusesnotestablished.",
+        "Controlled source-bound witness, not causal calibration or live production workload/custody/currentness.",
+        "Whole-ID adjudication, source/globalfreeze, required nativeSOTA, installedwheel/rebuiltSDist/Linux/browser remainingUNRUN; closure_ids=[]"
+      ],
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-c12-real-empirical-public-profile-composed-deciding-r1124-20261013.json@008cbf7d914a4e159a12fbaf73e8a6d54bad8c2cd0ee463a40b1c9d8b47cccf5",
+      "source_inputs": 6217,
+      "source_stable": true,
+      "wall_seconds": 56.86961912503466
+    }
+  },
+  "formal_adjudication": "not performed by this handoff",
+  "handoff_id": "R1129-catalog-selected-public-profile-source-handoff-20261013",
+  "original_I4_contract": {
+    "connected_plan_conditional_inputs": [
+      "I1 acceptance required for Catalog; isolated Legal fixture preparation may proceed earlier",
+      "paired Legal generation/assets/encoder only for production claim"
+    ],
+    "connected_plan_ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/I4",
+    "depends": [
+      "BOOT0",
+      "I1"
+    ],
+    "finding_ids": [
+      "LA-033",
+      "LA-046",
+      "LA-028",
+      "LA-032",
+      "LA-040"
+    ],
+    "interpretation": "I4 contains distinct Catalog and Legal evidence planes. The Catalog route result does not create a combined Legal/Catalog DTO or close the independent Legal generation/encoder criteria.",
+    "next_action": "Wire CatalogRunProfile and immutable Legal intent through existing request/caller/encoder/fresh reader; preserve refusal code and truthful text fallback.",
+    "original_exit": "actual request->typedprofile/encodedquery->fresh reader; wrong/missing profile refuses",
+    "scope_status": "execution_remaining; inherited proposals are not closures",
+    "task_id": "I4",
+    "title": "Catalog/Legal serving profile bridge"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "The handoff is reviewable from the exact source commit, readback frame, complete I4 occurrence crosswalk, and retained deciding outputs; formal closure remains outside this author handoff.",
+    "avoided_failures": [
+      "Do not turn this bounded test chain into a global capability closure.",
+      "Do not use selected profile markers as proof; the suite exercises actual producer, persisted DB, public route and fresh consumer behavior.",
+      "Keep the separate Legal plane and callable-identity residual visible.",
+      "Keep all 6 I4 criterion occurrences and complete 127/282/291 denominator; LA-046 REQ-01 and ACQ-01 remain distinct.",
+      "Bind receipts to their exact source frame and do not promote R1124 to a whole-current-HEAD rerun."
+    ],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P10",
+      "P12",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ]
+  },
+  "schema": "e02-catalog-selected-public-profile-source-handoff/v1",
+  "source_and_document_denominators": {
+    "R1041_scoped_source_context": {
+      "exact_hash_matches_at_current_HEAD": 18,
+      "paths": 18,
+      "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1041-c12-i4-systemic-independent-review-20261013.json@da4647ea1b6f61a0f832919fe26abf942aed58ec656be42b832565fda3e283d2"
+    },
+    "R1129_source_patch": {
+      "changed_bytes": 9810,
+      "file_types": {
+        "python_test": 1
+      },
+      "paths": 1
+    },
+    "R1141_current_physical_frame": {
+      "meaning": "Current root-owned source frame, not a changed-file count.",
+      "postimage_paths": 568
+    },
+    "document_input_inventory": {
+      "count": 14,
+      "file_type_counts": {
+        "json": 5,
+        "markdown": 9
+      },
+      "support_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1129-catalog-selected-public-profile-source-handoff-20261013/support.json@70372a301a25d27b5c22a0fc34eb9ce960d55f24d547211b355a850bab46dba5"
+    },
+    "prior_review_denominators": {
+      "R1073_R4": "34 Python inputs: 26 product source and 8 test/support; 27 exact HEAD plus 7 frame postimages, zero mismatch at reviewed frame; see cited manifest.",
+      "R1113_R1108_fixture_setup": "11 scoped direct fixture/producer/HTTP setup files, exact scope only, all hash matches to its addendum at review base; see cited review."
+    }
+  },
+  "source_and_evidence_support": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1129-catalog-selected-public-profile-source-handoff-20261013/support.json@70372a301a25d27b5c22a0fc34eb9ce960d55f24d547211b355a850bab46dba5",
+  "source_slice": {
+    "base_commit": "808225e86db87a557e39afdf38f22c40a364cf77",
+    "base_tree": "047ea0dff5b33068ffa7c6eea92581002bc3c684",
+    "candidate_commit": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+    "candidate_parent": "808225e86db87a557e39afdf38f22c40a364cf77",
+    "candidate_target_matches_current_HEAD": true,
+    "candidate_tree": "ff678923a0ddcd237f5a712eb87f5ffbbce66d7f",
+    "changed_path_count": 1,
+    "changed_paths": [
+      {
+        "bytes": 9810,
+        "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+        "role": "test-only public Catalog profile/currentness behavioral companion",
+        "sha256": "da373550c49fa9e084b15f7c3fd277fe2ddc4d5e0c1d1b2f40824900c3dfdd3e",
+        "status": "A"
+      }
+    ],
+    "composition_since_candidate": {
+      "1ccb_to_current_path_count": 36,
+      "1ccb_to_current_scope": "Root-announced Academic/Stressor/Search composition; no Catalog target or test_control_service_di.py path in the 36-path commit.",
+      "candidate_to_1ccb_paths": [
+        "M\tpolicy-engine/tests/unit/runtime/http/test_control_service_di.py"
+      ],
+      "candidate_to_current_path_count": 37,
+      "current_frame_readback": "R1141"
+    },
+    "currentness_limit": "R1124 is a 23-case run at candidate HEAD 43eb. The intervening 1ccb commit changed test_control_service_di.py, so the 23-case result is not a whole-command current-HEAD rerun. The Catalog test target remains byte-identical at current HEAD."
+  },
+  "workspace": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_HEAD": "23d3bebf41654e3b152702887b58974cedab0af3",
+    "current_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1141-20261013.json",
+      "physical_source_paths": 568,
+      "sha256": "1484c711f50c356b3707b1d76b98371dfa5ecf01048aa859055bb0768a953fff"
+    },
+    "current_tree": "ea093fb460650eeefb2248e2744677d46b823762",
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "write_scope": "Only this new LOCAL handoff JSON was written in this step; source, index and Git history were not modified."
+  }
+}

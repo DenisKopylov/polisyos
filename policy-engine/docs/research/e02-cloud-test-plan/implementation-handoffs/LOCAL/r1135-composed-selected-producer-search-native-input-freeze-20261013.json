@@ -1,0 +1,38 @@
+{
+  "authority": "Root narrow composed owner slice freeze; not global E02 or G acceptance",
+  "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+  "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+    "sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad",
+    "physical_source_denominator": 568,
+    "mismatches": []
+  },
+  "scope_paths": 36,
+  "reviews": [
+    "reviews/r1117-stress-adjudication-shared-owner-composition-independent-20261013.json",
+    "reviews/r1131-search-single-owner-serializer-admission-independent-20261013.json"
+  ],
+  "test_modules": [
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+    "tests/unit/scientist/compute/test_runner_polyglot.py",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/search/test_search_loop.py"
+  ],
+  "input_profile": "Repository authentic code with controlled CAS/adjudication/stress fixtures; no live production custody/currentness or external issuer receipt-v2 claim",
+  "backend_profile": "Existinglocked .venv CPython3.14.3/Pydantic2.12.5/Core2.41.5; CPU/numericalTorch intra+interop1; oneHeavySlot",
+  "bounded_decisions": [
+    "callback arbitrary iterator consumption not established; one-shot finite iterator refusal unratified G choice",
+    "same-payload CAS ID may be reused; selected kind/profile fullRef identifies view",
+    "protected external evaluator receipt-v2 producer missing; crash/race separateUNRUN"
+  ],
+  "full_id_closure_ids": [],
+  "wall_budget_seconds": 300
+}

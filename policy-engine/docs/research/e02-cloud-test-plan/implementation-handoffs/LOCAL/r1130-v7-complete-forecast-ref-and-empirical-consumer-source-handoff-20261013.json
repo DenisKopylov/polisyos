@@ -1,0 +1,330 @@
+{
+  "document_type": "candidate_source_handoff",
+  "document_id": "r1130-v7-complete-forecast-ref-and-empirical-consumer-source-handoff-20261013",
+  "date": "2026-10-13",
+  "decision": "bounded V7 runtime source slice is ready for root receipt review; no formal closure or global G acceptance is claimed",
+  "authority": "Candidate-author handoff grounded in the root-captured deciding runtime receipt. It does not make producer issuer, custody, currentness, causal-calibration, or institutional authority claims.",
+  "source": {
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "candidate_commit": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "candidate_tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+    "candidate_parent": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+    "live_worktree_qualification": "Root-owned edits outside the four assigned V7 paths are present and preserved. The four V7 paths match both the pinned R1128 frame and the newer R1134 frame. The R1124 run remains a prior source-bound witness for the R1123/R1128 snapshot; it is not a rerun of the newer R1134 live source frame.",
+    "current_diff_from_base": {
+      "path_count": 4,
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+          "change": "M",
+          "before_sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da",
+          "after_sha256": "b6fc06a2fff4747c87786af282f1aa20ddf4b503afbc7aeafb7651c9f6638dc4",
+          "bytes_after": 44311,
+          "role": "runtime typed ref boundary"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+          "change": "A",
+          "before_sha256": null,
+          "after_sha256": "da373550c49fa9e084b15f7c3fd277fe2ddc4d5e0c1d1b2f40824900c3dfdd3e",
+          "bytes_after": 9810,
+          "role": "HTTP/API and semantic test"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "change": "M",
+          "before_sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff",
+          "after_sha256": "d91046569a3d3a48592e019cbe200d87024b5e67f89a0f0b6c38524802dcc96c",
+          "bytes_after": 238894,
+          "role": "HTTP/API and semantic test"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/design_axes/test_outcome_prediction.py",
+          "change": "M",
+          "before_sha256": "fffb6b0438a34a95e0036065243ceae2fa038668638f21906874cd3302224194",
+          "after_sha256": "00a2e8eaa11361e84012db4cfa52911e43f2f7759f0dc30f338eb9e5caeef30c",
+          "bytes_after": 3870,
+          "role": "HTTP/API and semantic test"
+        }
+      ],
+      "numstat": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+          "additions": 34,
+          "deletions": 13
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+          "additions": 275,
+          "deletions": 0
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+          "additions": 46,
+          "deletions": 38
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/design_axes/test_outcome_prediction.py",
+          "additions": 74,
+          "deletions": 34
+        }
+      ]
+    },
+    "source_commits": [
+      {
+        "commit": "808225e86db87a557e39afdf38f22c40a364cf77",
+        "scope": "generic typed Core ArtifactRef to declared IR ArtifactRefModel normalization, exact selected-ref preservation and complete owner-bound fixture CAS context; three paths; 147 additions / 81 deletions"
+      },
+      {
+        "commit": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+        "scope": "new public Catalog-profile HTTP/fresh-reader tests and absent/conflicting/malformed/excluded-profile negatives; one test path; 275 additions"
+      },
+      {
+        "commit": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+        "scope": "test-only eligible shared-history fixture for a genuine empirical-grade differential; one existing test path; 7 additions / 4 deletions; no scientific rule or production code change"
+      }
+    ],
+    "source_frame_at_candidate_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1128-20261013.json",
+      "sha256": "da72001a1461c64ab7a2c7b4349e6a251bdc2a013d1d8ddcb4790d6bf446d392",
+      "physical_source_path_count": 554,
+      "source_head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+      "source_tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4"
+    },
+    "current_root_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+      "sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad",
+      "physical_source_path_count": 568,
+      "source_head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+      "source_tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+      "qualification": "later root source frame; not the source frame used by the R1124 test run"
+    },
+    "deciding_run_source_relation": {
+      "receipt_head": "43eb7aa29fff30ae21cd980b610bd2e132fa88f5",
+      "receipt_source_frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1123-20261013.json",
+        "sha256": "decaeee91fa962644256a26b471f8dc73b5103ccbe52ca479cd42dc0652e3ef1"
+      },
+      "physical_postimages_compared": {
+        "count": 554,
+        "denominator_by_file_extension": {
+          ".cjs": 2,
+          ".json": 3,
+          ".md": 41,
+          ".py": 455,
+          ".toml": 24,
+          ".ts": 15,
+          ".tsx": 12,
+          ".yml": 1,
+          "no_extension": 1
+        },
+        "mismatches": 0
+      },
+      "explanation": "R1124 was recorded at the preceding commit, while the eligible-history test fixture was already present in its frozen physical source frame. R1123 and R1128 physical postimage maps match across all 554 framed paths; the later 1ccb commit records the already-tested fixture postimage in Git. R1134 is a later, broader root frame and has not been replayed by R1124."
+    }
+  },
+  "change_summary": {
+    "runtime_boundary": "ForecastCalibrationRecord normalizes Core ArtifactRef BaseModel members to the declared IR ArtifactRefModel using the existing canonical ref normalizer, then applies the existing kind/media validation. The typed member walk preserves selected artifact id, kind, media type, and manifest profile, including absent profile as absent.",
+    "producer_and_consumer_witness": "Actual ForecastOwner output is persisted as selected-profile CAS report/evidence and an association event with completed intent, then read through fresh HTTP GET. Same-intent retry is idempotent; conflict/tamper and untrusted or mismatched refs are refused.",
+    "empirical_differential": "Two owner-produced forecasts share model/history/point/interval setup while held-out outcomes differ. Recomputed held-out coverage is 4/4 versus 0/4; the empirical grade is persisted and distinguished. Thresholds and scientific rule are unchanged; only the test fixture supplies eligible shared history.",
+    "public_profile_surface": "New Catalog-profile HTTP tests exercise the published profile through a fresh reader, with absent/conflicting/malformed selection and excluded-profile-input controls.",
+    "removal_probe": "No property-removal probe is claimed. Evidence is actual producer-to-CAS-to-event-to-fresh-consumer behavior plus adverse runtime controls."
+  },
+  "deciding_runtime_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-c12-real-empirical-public-profile-composed-deciding-r1124-20261013.json",
+    "sha256": "008cbf7d914a4e159a12fbaf73e8a6d54bad8c2cd0ee463a40b1c9d8b47cccf5",
+    "outcomes": {
+      "pass": 23,
+      "fail": 0,
+      "error": 0,
+      "skip": 0
+    },
+    "wall_seconds": 56.86961912503466,
+    "captured_source_inputs": 6217,
+    "source_stable": true,
+    "own_product_modules": 1759,
+    "foreign_product_modules": 0,
+    "runtime_profile": {
+      "forecast_backend": "locked NumPy forecast bridge",
+      "torch_device": "cpu",
+      "torch_threads": 1,
+      "torch_interop_threads": 1
+    },
+    "test_scope": [
+      "actual predictive-calibration POST/event/fresh-GET/exact-intent-retry flow",
+      "typed-ref profile and mismatch controls",
+      "real empirical forecast bridge and temporal-role negatives",
+      "public Catalog profile HTTP/fresh-reader tests and selected retrieval-route tests"
+    ],
+    "behavioral_controls": [
+      "same-intent replay does not call the producer again",
+      "conflicting intent returns 409",
+      "tampered event returns 409",
+      "legacy unverifiable association returns 409",
+      "profileless candidate source is refused before event write",
+      "wrong kind/media/selected-profile and wrong-run inputs are refused",
+      "Catalog absent/conflicting/malformed selection and excluded profile inputs are refused"
+    ],
+    "evidence_files": [
+      {
+        "label": "command.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/command.json",
+        "sha256": "1d85703f498db99daaca2d0548e402242e2f7e6f92ab098306e7ee5fa0e6d95c",
+        "bytes": 2173388,
+        "availability": "retained local ignored raw"
+      },
+      {
+        "label": "junit.xml",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/junit.xml",
+        "sha256": "932911b095672bca012d94328f1ab081110ebcca66043c6f884f895c539cfa40",
+        "bytes": 4566,
+        "availability": "retained local ignored raw"
+      },
+      {
+        "label": "module-origins.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/module-origins.json",
+        "sha256": "ed83fc78ad05b38cd378e69ffc055de9c0cb9e29c83458b9609618a18b11b996",
+        "bytes": 552666,
+        "availability": "retained local ignored raw"
+      },
+      {
+        "label": "progress.json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/progress.json",
+        "sha256": "f96dd74b6597d4e7cd317d1f4a0a594dbdfdbb748881b04bd29fcaa1a155546e",
+        "bytes": 31065,
+        "availability": "retained local ignored raw"
+      },
+      {
+        "label": "stderr.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained local ignored raw"
+      },
+      {
+        "label": "stdout.txt",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-c12-real-empirical-differential-and-public-profile-composed-actual-r1124-20261013/stdout.txt",
+        "sha256": "8007cbac1ed8bef8a50110b4e043198b7a08ac692311d2e4203d6024ec92774a",
+        "bytes": 293,
+        "availability": "retained local ignored raw"
+      }
+    ]
+  },
+  "historical_failures": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-selected-evidence-post-event-fresh-get-deciding-r1024-20261013.json",
+      "sha256": "88a7fc5a24fcea54096a28f7d84e7793858782ac979adfda905bf15c1101aa07",
+      "source_head": "300ef5a5c093fb97b8612987fca539d4371982cd",
+      "source_frame_sha256": "63da6d607ffe6d2998f90559d7f7a44926171f946fe0ec1174b7bc51328be1f1",
+      "outcome_counts": {
+        "pass": 11,
+        "fail": 1,
+        "error": 0,
+        "skip": 0
+      },
+      "finding": "11 pass / 1 fail: fresh GET nested Core ArtifactRef to IR ArtifactRefModel conversion; later whole typed-ref boundary repair",
+      "status": "retained historical source-bound failure; not erased and not the current V7 scope state"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-whole-record-ref-fresh-get-deciding-r1066-20261013.json",
+      "sha256": "c3516cd9d23df5e20aa057f687b8b01a11e60db7fd6f126ca1de48d2c3a5a027",
+      "source_head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "source_frame_sha256": "e540bff820b741246d6ace27d0b5b325e8a09ee361d7bd17de577a06a8579cfb",
+      "outcome_counts": {
+        "pass": 17,
+        "fail": 1,
+        "error": 0,
+        "skip": 0
+      },
+      "finding": "17 pass / 1 fail: fixture CAS read outside active tenant context; later fixture owner-context companion",
+      "status": "retained historical source-bound failure; not erased and not the current V7 scope state"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-ordinary-post-fresh-get-owner-fixture-deciding-r1077-20261013.json",
+      "sha256": "1c1944dbd17d04b39e4a2169fe304cc80d94e1912b18f50f218a6f04cfacb732",
+      "source_head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "source_frame_sha256": "018b1e5998e45ca73fcfb4cac4fbcee11c0851610d283d2e9c2dff2f7ba39e12",
+      "outcome_counts": {
+        "fail": 1,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "finding": "0 pass / 1 fail: direct legacy fixture CAS write outside active tenant context; later whole-fixture context repair",
+      "status": "retained historical source-bound failure; not erased and not the current V7 scope state"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v7-empirical-grade-discriminator-deciding-r1095-20261013.json",
+      "sha256": "636e97f3d6002c49e228f49403d699f237ea75bbcd3ae2a896ae83b9eb0265af",
+      "source_head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "source_frame_sha256": "948808a5976991e620887ffdccaf20dbab38c2739006f265d092e260d142a7df",
+      "outcome_counts": {
+        "pass": 0,
+        "fail": 1,
+        "error": 0,
+        "skip": 0
+      },
+      "finding": "0 pass / 1 fail: different held-out coverage but both grades blocked because shared history was not eligible; later fixture-only eligible history change, scientific rule unchanged",
+      "status": "retained historical source-bound failure; not erased and not the current V7 scope state"
+    }
+  ],
+  "prior_empirical_producer_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1030-v7-selected-evidence-five-source-handoff-20261013.json",
+    "sha256": "7709daed75254a95685938ec44270e1c8d902072c9f129bac992bf7e85feb118",
+    "source_scope": "R995/R1008 producer/profile and role-specific evidence handoff; candidate-author evidence, not independent G acceptance."
+  },
+  "pattern_pass": {
+    "register_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P14",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "assessment": "For this bounded slice the receipt follows the real producer, persisted CAS/event, bridge, fresh API consumer, semantic assertions, and negative controls (P01/P02/P29/P32/P38). Authority remains candidate/predictive-only with unestablished external facts (P05/P37); explicit temporal roles and unchanged rule are exercised but do not establish institutional time/currentness (P07/P08). The shared-history fixture demonstrates a grade discriminator, not independent empirical support or causal calibration (P10/P14). Repeated typed-ref and fixture-CAS failures were widened to the whole member/fixture boundary and earlier reds remain source-qualified (P40/P41)."
+  },
+  "limits_and_open_proposals": {
+    "capability_scope": "The V7 producer-to-fresh-consumer runtime slice is exercised. This does not close the original criteria or establish an installed/browser/archive consumer.",
+    "empirical_authority": "Empirical support remains predictive_only and the association assessment remains limited. Issuer, source-time, population, counterfactual, causal-calibration, live-production currentness, and institutional authority are not established by these fixtures.",
+    "unrun_checks": [
+      "full original-criterion whole-set check",
+      "repository SOTA gate",
+      "installed wheel and rebuilt sdist consumers",
+      "Linux and browser surfaces",
+      "Q2 wave",
+      "full-ID freeze and independent G acceptance"
+    ],
+    "separate_open_proposals": [
+      {
+        "id": "B16",
+        "status": "open",
+        "remaining": "Original criterion requires whole-set assessment; this bounded V7 source/consumer evidence is not closure."
+      },
+      {
+        "id": "B32",
+        "status": "open",
+        "remaining": "Original criterion requires whole-set assessment; this bounded V7 source/consumer evidence is not closure."
+      },
+      {
+        "id": "LA-051",
+        "status": "open",
+        "remaining": "Original criterion requires whole-set assessment; this bounded V7 source/consumer evidence is not closure."
+      }
+    ],
+    "prior_checkpoint_not_extended": {
+      "sha256": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "scope": "prior bounded CAN/C10/C11/DFK G101PASS7SKIP only; this handoff does not extend it"
+    },
+    "formal_closure_ids": []
+  },
+  "raw_support": "The deciding command, JUnit, stdout/stderr, progress, and module-origin files already exist under LOCAL/raw and are cited by exact path/hash/size above. No large output was copied or regenerated."
+}

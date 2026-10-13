@@ -1,0 +1,67 @@
+{
+  "candidate": {
+    "base_head": "808225e86db87a557e39afdf38f22c40a364cf77",
+    "closure_ids": [],
+    "composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1109-stress-adjudication-two-owner-source-composition-r4-20261013/composition.json",
+    "composition_sha256": "ab0e139aa8f4bf3ae7c89584b96513db78947d625e22e6fa456b5ee2a7e4039b",
+    "current_preimages_matching": 32,
+    "file_type_denominator": {
+      ".md": 2,
+      ".py": 28,
+      ".toml": 2
+    },
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1109-stress-adjudication-two-owner-source-composition-r4-20261013/net.patch",
+    "patch_sha256": "89114e3d6068f37d42530cf3789492a279a436e1dc07f090a86105f112335475",
+    "path_count": 32,
+    "postimages_reconstructed_and_matching": 32,
+    "prior_packet_nonoverlap_postimages_matching": 30,
+    "product_writes": false,
+    "root_owned_overlap_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+    ]
+  },
+  "composition_findings": {
+    "format_delta": "Blank-line-only; full AST equality is recorded in the candidate manifest.",
+    "p40": "Protected selected-source-edge behavior is the already-reviewed class carried through shared owners; stress kind/schema normalization is a distinct identity class. No second escape found in the merged quantity.",
+    "protected_source_edge_helper": "Retained and shared across producer paths; it checks duplicate roles, binds to producer-returned ArtifactRefs, and fails closed on selected-profile mismatches or absent protected suite binding.",
+    "stress_identity": "Shared kind helper and schema constant preserve the existing canonical writer identity; two reader-side schema literals remain unchanged."
+  },
+  "decision": "GO_FOR_ROOT_APPLY_AND_NARROW_NATIVE_VALIDATION_ONLY",
+  "formal_closure_ids": [],
+  "qualified_limitations": [
+    "The stress selected-profile test must not be described as requiring a distinct CAS artifact ID; same-payload content may reuse an ID while the selected manifest profile differs.",
+    "External receipt-v2 issuance and crash/race atomicity were not validated in this review.",
+    "The candidate Ruff receipt does not run product tests or runtime verification."
+  ],
+  "quality": {
+    "python_paths": 28,
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1109-stress-adjudication-two-owner-source-composition-r4-20261013/root-quality-r1093.json",
+    "receipt_sha256": "17d4f226cf986ed9d08c6df897bb7f752860a9273a3ca96b54eb9d0195b06902",
+    "ruff_successful_invocations": 56,
+    "runtime_verification": "UNRUN",
+    "tests_run_by_reviewer": false
+  },
+  "retained_review_inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1089-adjudication-selected-manifest-edge-independent-20261013.md",
+      "sha256": "7767c242f5592c2e4405f301994d800257ba6de3484d6df46e3d8728928e705e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1070-stress-r1022-canonical-kind-all-consumers-independent-20261013.md",
+      "sha256": "ba3b133b036e0ffd0caa453a8cb5a670cb2405174e0900d489c828f840223041"
+    }
+  ],
+  "review_id": "R1117",
+  "scope": "Independent read-only review of exact 32-path Root composition; product tests, runtime imports, G acceptance, and external issuer behavior are not claimed.",
+  "verification_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1117-stress-adjudication-shared-owner-composition-independent-20261013.verify.py",
+  "workspace": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "current_source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1128-20261013.json",
+    "current_source_frame_sha256": "da72001a1461c64ab7a2c7b4349e6a251bdc2a013d1d8ddcb4790d6bf446d392",
+    "current_tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+    "frame_physical_source_path_count": 554,
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  }
+}

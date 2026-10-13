@@ -1,0 +1,307 @@
+{
+  "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+  "counts": {
+    "pass": 60,
+    "fail": 0,
+    "error": 0,
+    "skip": 0
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_unchanged_append_reuses_only_unchanged_current_member",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_changed_projected_text_same_id_is_reembedded",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_withdrawal_removes_id_from_current_generation",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_encoder_revision_and_dimension_change_never_reuses_old_vectors",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_projection_rule_change_invalidates_reuse",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_missing_or_corrupt_generation_selector_fails_closed_to_rebuild",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_legacy_backend_argument_is_rejected_explicitly",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_legacy_wrapper_preserves_canonical_result_and_forwards_profile",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projections[entity_embedding_text-row0-ENTITY\\nen: Budget Office\\nuk: \\u0411\\u044e\\u0434\\u0436\\u0435\\u0442\\u043d\\u0435 \\u0443\\u043f\\u0440\\u0430\\u0432\\u043b\\u0456\\u043d\\u043d\\u044f\\ntype: agency\\naliases: Finance; Budget; \\u041c\\u0456\\u043d\\u0444\\u0456\\u043d]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projections[fact_embedding_text-row1-FACT\\nnorm_type: approval\\naction: approve\\nspo: Cabinet (\\u041a\\u0430\\u0431\\u043c\\u0456\\u043d) approves budget (\\u0431\\u044e\\u0434\\u0436\\u0435\\u0442)\\nfact_en: Cabinet approves the budget\\ncondition_uk: after review\\nexception_uk: emergency exception\\nprocedure_uk: submit a report\\nthresholds: {\"amount\": 3}\\nquote_uk: Article 7]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projections[provision_embedding_text-row2-Budget submissions shall be published.]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projection_rejects_incomplete_rows[entity_embedding_text-row0]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projection_rejects_incomplete_rows[fact_embedding_text-row1]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_canonical_legal_embedding_projection_rejects_incomplete_rows[provision_embedding_text-row2]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_missing_and_mixed_intent_refuse_all_vector_tables_before_encode",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_same_assets_new_generation_requires_fresh_intent_and_fresh_reader",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_producer_selected_intent_reaches_fresh_served_reader_with_typed_fallback",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_producer_generation_reaches_native_http_with_typed_vector_modes",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_current_generation_refuses_changed_projected_members_before_encode",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_query_encoder_assets_must_match_before_encoding",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_runtime_asset_provider_cannot_detect_same_asset_query_callable_swap",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[-1.0-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[0.0-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[1e-05-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[2.0-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[5.0-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-0.0-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-between]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.remediation.test_emb_03::test_reopened_threshold_consumer_retains_numeric_scalar[6.0-1e-05-in]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.read_api.test_surfaces::test_catalog_type_checking_exports_match_lazy_mapping",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.read_api.test_surfaces::test_existing_facade_exports_preserve_canonical_object_identity",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.read_api.test_surfaces::test_read_api_surface_registry_resolves_public_modules",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.read_api.test_surfaces::test_read_api_surface_registry_rejects_unknown_surface",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.read_api.test_surfaces::test_runtime_contract_exports_keep_canonical_object_identity",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_runtime_container_rejects_untyped_legal_query_encoder_provider",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_uses_public_graph_and_preserves_owner_results",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_get_lex_search_profile_reads_the_selected_fact_generation_snapshot",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_get_lex_search_profile_returns_typed_refusal_without_a_selected_generation",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_treats_empty_present_intent_as_malformed",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_reports_malformed_present_intent_without_database",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_degrades_known_error_and_closes_graph",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.services.test_lex_pipeline::test_search_lex_graph_propagates_unknown_error_and_closes_graph_in_finally",
+      "outcome": "pass"
+    }
+  ],
+  "anonymous_cases": 0,
+  "source_input_count": 6216,
+  "source_stable": true,
+  "own_product_modules": 1709,
+  "foreign_modules": [],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/module-origins.json"
+  },
+  "authority": "source-bound controlled synthetic deterministic encoder fixtures through actual generation/member APIs and actual typed immutable Legal request/HTTP/fresh serving consumers; no live production currentness/authority or real-model semantic equivalence asserted",
+  "whole_property_limitations": [
+    "runtime_asset_provider_cannot_detect_same_asset_query_callable_swap explicitly proves residual asset-only fingerprint limits, not whole arbitrary encoder-code identity",
+    "this selected wave does not cover complete I4 CatalogRunProfile request/fresh runtime/Catalog installed-wheel consumers",
+    "all original LA-033/LA-046/LA-028/LA-032/LA-040 remain individually reviewable pending whole-property source/consumer qualification; no60tests→closures",
+    "Root source contracts still pending; no global composed/source/profile/input freeze or Native repository green"
+  ],
+  "independent_review": "R1041 in progress; findings not self-adjudicated",
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/command.json",
+      "sha256": "73e2584c4b401cc30ef8c37523f6508a69f57e70430e212192dab59aeee5b842"
+    },
+    "stdout.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/stdout.txt",
+      "sha256": "01ae1c11f90912ab992eaf4cc1d7086e990e8b6d758783e15aceeedfc0524e1b"
+    },
+    "stderr.txt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/junit.xml",
+      "sha256": "257267f1ddd1ca0fc25e058bf739c148d7b5500f5fe060e946103397e1c3b445"
+    },
+    "module-origins.json": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/module-origins.json",
+      "sha256": "8f042ebbd273295de61f8cece04269a6f243d017a5d265cdd28db7716400e6aa"
+    },
+    "progress.json": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-existing-generation-member-encoder-serving-actual-r1042-20261013/progress.json",
+      "sha256": "17e35fbdb04cd4deb1f8a755655d2b7107353a98e19eee533c37d60747557554"
+    }
+  }
+}

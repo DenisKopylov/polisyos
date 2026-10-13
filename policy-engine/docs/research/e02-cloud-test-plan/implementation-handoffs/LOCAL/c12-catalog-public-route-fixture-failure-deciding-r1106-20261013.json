@@ -1,0 +1,125 @@
+{
+  "authority": "Root captured deciding output; author verification, not G acceptance/global adjudication",
+  "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1105-20261013.json",
+    "sha256": "d7e9ead894477fd5a679e3d7acb68422ece36c361e13a7d2e7dd1afe00e4e884"
+  },
+  "counts": {
+    "pass": 2,
+    "fail": 3,
+    "error": 0,
+    "skip": 0
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_blocks_published_excluded_profile_inputs",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_catalog_plan_requires_generation_profile_input_coverage",
+      "outcome": "pass"
+    }
+  ],
+  "exit_code": 1,
+  "wall_seconds": 19.229428416932933,
+  "source_inputs": 6217,
+  "source_stable": true,
+  "own_product_modules": 1704,
+  "foreign_product_modules": [],
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/runtime/http/test_catalog_profile_http.py",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_plan_requires_generation_profile_input_coverage",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/module-origins.json"
+  },
+  "boundary": "3newHTTPcases fail before actual publisher at nonexistentcatalog/registry.yaml. 2existing lower real-route/header-loss and generation-input coverage controls pass. PublicHTTPnew3 behaviors UNRUN in this attempt.",
+  "limitations": [
+    "Own new fixture precondition failure; never inherited/product or authority proof. R1108 repair separately reviewed.",
+    "No C12 whole property or production currentness closure."
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/command.json",
+      "sha256": "70867da3350ea9ad50ab2ccb5dc498688298fee57fce9a063d75029bae0058ee",
+      "availability": "retained local ignored raw"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/junit.xml",
+      "sha256": "b535570b82786e0e40ba9af2fcf415d39daaaa074324ad571ab1be76fe43a108",
+      "availability": "retained local ignored raw"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/module-origins.json",
+      "sha256": "17c12eb3736096aaa94e1c083de4734d4007812ceffe2c4b77432235420c4ec4",
+      "availability": "retained local ignored raw"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/progress.json",
+      "sha256": "0a6ca9fa0b08804b7c1168aad46445dced580a5dbaa47bf30f776139f4ef0836",
+      "availability": "retained local ignored raw"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "retained local ignored raw"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/stdout.txt",
+      "sha256": "f2fb6cf4abf33a031678870c558dc9fc9d6e068d3e33673fec6049db2317168a",
+      "availability": "retained local ignored raw"
+    }
+  }
+}

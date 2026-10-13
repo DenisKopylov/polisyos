@@ -1,0 +1,75 @@
+{
+  "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1055-20261013.json",
+    "sha256": "dbb113c2a571de08e2cf89c0c9076f0cbe7e0f217964993101ad58c40cefff79"
+  },
+  "counts": {
+    "pass": 1,
+    "fail": 0,
+    "error": 0,
+    "skip": 0
+  },
+  "source_inputs": 6217,
+  "source_stable": true,
+  "own_product_modules": 1503,
+  "foreign_product_modules": [],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/module-origins.json"
+  },
+  "measured_property": "actual traced gateway settlement -> durable FileBudgetLedger owner run/profile/job binding -> N6 budget reconciler -> VOI defer when cost prevents next-level execution; cache reuse zero retains origin; foreign sibling spend excluded; original two error outcomes unknown/None refused without fabricating zero",
+  "inputs": {
+    "all_success_capture": "gy_n4_replay_20260704_091144_550613_f74107b0bbd2",
+    "all_success_capture_hash": "103e8680d9603db3eca33873669424f9aaf3e3c2342c96bea9975baf750a0eba",
+    "original_capture": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+    "original_capture_hash": "107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1",
+    "capture_file_hash": "db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71"
+  },
+  "removal_control": "keep actual persisted gateway rows/owner markers; remove producer budget reconciler only; same N6 decision advances with empty spend, proving runtime cost consumer effect",
+  "limitations": [
+    "single exact source-bound semantic test uses recorded controlled gateway responses with estimated repo pricing; no provider invoice/currentness or production workload claim",
+    "test calls real N6 scheduler seam; composed served firstN5→later N4 producer spend→N6 terminal→freshGET target remains UNRUN until Grounding repair/freeze",
+    "original N4 second-capture generation/performance/persisted-result chain still incomplete; no task/ID whole-property closure",
+    "native repository/Q2/Linux/authentic full closeout gates UNRUN for this delta"
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/command.json",
+      "sha256": "19b5b4821878eaf8646fe66a8144c172e4014973cb4b6604fd0dee5a2f1c1e99"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/stdout.txt",
+      "sha256": "bc1046c86f1709dc9f81decec640340718ff6a59dc2d8e1d6267a4a697a01e75"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/junit.xml",
+      "sha256": "8c9c369c8e3bfa38c43779c377e1c6e6031ee47a685cb1bc08779b665c9834d6"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/module-origins.json",
+      "sha256": "8f0f9b0c2c7308c07066750990fb4eb7a7cc05c0c913c67078ee453bc91a0621"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/progress.json",
+      "sha256": "390d6d9bdc64ac318f7ae7650fcd2b9f0102b04401d3a226cf84ceed7befc693"
+    }
+  }
+}

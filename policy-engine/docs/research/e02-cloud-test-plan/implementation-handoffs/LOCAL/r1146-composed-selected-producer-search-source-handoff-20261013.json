@@ -1,0 +1,314 @@
+{
+  "authority": "Root authored candidate; independent G code acceptance/publication/finding adjudication remains external",
+  "slice_base": {
+    "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4"
+  },
+  "candidate": {
+    "head": "23d3bebf41654e3b152702887b58974cedab0af3",
+    "tree": "ea093fb460650eeefb2248e2744677d46b823762",
+    "parents": [
+      "1ccb8368df94735006cbfd16d5bc2d220d8e66b4"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "92850014b496849fb6d20851f52af31fd986e289bae45edcff0c15fb0489c65d",
+      "bytes": 11040
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-e02-b116-b117-registry-profile-atomicity.toml",
+      "sha256": "a2547194f5075bbd6ed5e1e2b2d6f5113f40323932fa7950d9f9c0d18d527db0",
+      "bytes": 2014
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-stress-score-selected-source-manifests.toml",
+      "sha256": "a0c6dbbb55fb78a48643cea2f628e17d1efa90256d43f909c16353325c47f6eb",
+      "bytes": 3464
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/admitted_claim_adjudications.py",
+      "sha256": "4a07db4e3e11e3bc9badfbfb51d43dc574aee59bcbefcf5aafbc7905200419c8",
+      "bytes": 8908
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "sha256": "e1110f7701d23fd29fdfd38dedb5269068d999531e979e302b2c272f4f8baccc",
+      "bytes": 35341
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
+      "sha256": "3bc85fba4694a9d6c279da443aeffefc14a08f16d755993bec0be89ccb6fe189",
+      "bytes": 18859
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "4bcdb323111f6c046287413ad7c0f98cbacdc98b9d5e5aed839a0fdb13eb980c",
+      "bytes": 34395
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/stress_scenarios.py",
+      "sha256": "38f9c9614cd913199d28106485f3e11f9461836edc6796c104d46aff254e88eb",
+      "bytes": 12648
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "sha256": "fe1bea1b5e5e316d31b7047cac407d2f7829209f87a3955c94e854300f05f4b2",
+      "bytes": 16365
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication_runtime.py",
+      "sha256": "606662e32279023f118ac79c856b7c92ebab7cd73a8391deac9c2f20d4e4470b",
+      "bytes": 21494
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "sha256": "349c4d5743016ff71e202d3cfc619fd67a5b4a9508b98b69f8f6be616d69f4fb",
+      "bytes": 8352
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "09821711c754c9f70dd45be0779833b7da226df5327a6aa4c25c168711d17a61",
+      "bytes": 36219
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "7dc8b67a2bbe81a65a074c2d76bbfe04cbbcd0ab8656ac9a9a2cbe0a8343705a",
+      "bytes": 19150
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "19a215700c4a53b10ea7671424ae8736d1207f32497dd95f01e6faf2e5af87e5",
+      "bytes": 114378
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "sha256": "2b1f2956d8f5eab4a4a25977f7ce0e92f3c16022b67c7e7d4ec3a82a9ad3bccf",
+      "bytes": 5459
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "bytes": 14353
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "486ac9b7530ae1a9eb7a274db3f7ec8b397dd00a2af1b261ffc599d2e92dcf04",
+      "bytes": 29406
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "sha256": "893fb1394059cd3820fdf56483e4a23e1dad600854f9317a6c2140140d4adb73",
+      "bytes": 42662
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "sha256": "a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5",
+      "bytes": 101257
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+      "sha256": "423bcb88d77f3d3f281154ba7dcb851f77015688e8dcf1b21983450ebea90610",
+      "bytes": 31045
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "sha256": "7879df0172c2cf466e9a8272872d41af468f45876877d3a96e1035a21ef57fdc",
+      "bytes": 37699
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+      "sha256": "f4e268741b759a4e180ba25c87c8a699092c242a74965ce02014febee7069cd3",
+      "bytes": 33152
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "sha256": "b11f21cc4275df6e7089aca13e0044d5aab2feedf1023bb3517e6fb6217220fc",
+      "bytes": 15117
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/_claim_evidence.py",
+      "sha256": "37194bb22c3153202251e62323e88493f246a6d9ed0de8eaacc0d01578f14971",
+      "bytes": 14244
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+      "sha256": "c70e47f2da7ae9de46e6c6fc5d407881af2375e0235dab508fbec04f4d522187",
+      "bytes": 10309
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+      "sha256": "2db21984303c7f992653a26e95215b8ad09b6d2056c787d79d97ee5089bff0bc",
+      "bytes": 22237
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+      "sha256": "36107842f135f1aaec4a5bfbd5f96ed001551c46cf59b98fa04abce2c5461923",
+      "bytes": 24978
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "sha256": "01dd84a0102348b3af39fed8916e8780d164f18065079dde13a872497758daf1",
+      "bytes": 18092
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "sha256": "3a07df70f4d02dfc17520f6e5b90f085971e0d2590c4b83c275cab5c926140a9",
+      "bytes": 22657
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "sha256": "094c8e1b53c1ddfe4ba8a80ee865877cb5e862b69714eb7cf05fec8ed909ea05",
+      "bytes": 51834
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "sha256": "928dd955695c1963679b9901e6ac83d38aa1a52bb6bd49f4f03f44a1cf569258",
+      "bytes": 30461
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+      "sha256": "c24b5d6cbbcee4b79242f3b0d1aed85ea11968e655de2181220e7bc87f568652",
+      "bytes": 10538
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "sha256": "d39ae3e08528cb2d7771ffb820cd723cc1b2d9bdf963e981ccdfc46e5b55cd3b",
+      "bytes": 39333
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "sha256": "cc9072f1cf1452496a872592c4bdcaff430e732e51630a04d442fc6ca561fb38",
+      "bytes": 31999
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+      "sha256": "ec108d8e1bc6b2b3e6ab0638032c29c2980cc0c48863d92a1b897af44139e57c",
+      "bytes": 85002
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "sha256": "63a394b509071b4125419b7304860d15a53a2e65e148adca6eee043be6315740",
+      "bytes": 779298
+    }
+  ],
+  "source_implementation_commits": [
+    "23d3bebf41654e3b152702887b58974cedab0af3"
+  ],
+  "implementation": [
+    "Actual protected raw/candidate/suite/MethodJob/result/evidence/packet/fit-basis producer writes return selected manifest profiles; shared evaluation helper binds six exact source roles and refuses duplicate or protected missing source profiles.",
+    "Stress producer and runtime use canonical PolicyCandidateSchema and evaluation kind/schema owners; selected full refs persist through report/basis/score consumer guards.",
+    "Search private prompt emission checks source-selected finite values/serializers/extras/default and RootModel schema paths/cycles. Direct pydantic-core dependency uses the existing pinned version; lock delta adds only three dependency edges."
+  ],
+  "actual_chain": "Producer generation and persisted selected CAS role edges→autotune/champion/verifier/report bridge→fresh academic consumer and runtime/search prompt. Native individual results preserve failures before target boundaries; no contractual declaration counted as successful capability.",
+  "selected_input_profile_backend": "Controlled repository-native CAS/stress/adjudication fixtures and existing CPython3.14.3/Pydantic2.12.5/Core2.41.5 NumPy/CPU Torch1/1 environment; no external issuer receipt-v2 or live production currentness inferred.",
+  "verification": {
+    "deciding_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-stress-protected-search-real-native-deciding-r1136-20261013.json",
+      "sha256": "8ebe7f0be901e54b0637ea5e1d965eddb3e080362dba6041dd6c9b05fd8d4923"
+    },
+    "counts": {
+      "PASS": 152,
+      "FAIL": 26,
+      "ERROR": 0,
+      "SKIP": 2
+    },
+    "source_inputs": 6217,
+    "source_stable": true,
+    "wall_seconds": 48.35585599998012,
+    "loaded_own_modules": 1669,
+    "foreign_modules": 0,
+    "full_scoped_ruff": "56 configured commands across32owner composition (28Py) plus4commands2Py Search composition; all0. No native repository-wide SOTA green claim.",
+    "skips": "NativeGP/DR MethodJob numerical selectors require explicit allocation; preserved asSKIP/remainingUNRUN."
+  },
+  "controls": [
+    "Actual selected-profile source-role/profile mismatch controls, candidate/suite binding and canonical kind/media/schema refusals in existing test modules.",
+    "Opaque/root/callback/private emitted prompt finite/cycle and durable ownership cases run; Source-owned no-best inf still blocks eightvaliddurable consumers, typed callback reason preservation pending.",
+    "Stress topk/occurrence and exactsource_schema controls failed in malformed fixture expectations; matched-remove semantic controls remainqueued."
+  ],
+  "limitations": [
+    "NativeFAIL26 is owned current candidate evidence, never automaticallyinherited. Searchextra call count4 vs3 was one added legitimatepositive call; 14malformed inputcases stillprovider0, notescaped admission.",
+    "Generic same-ID selectedinputprofile conflict replacement and predecessorpolicy envelope reader/writer mismatch require R1138mechanism repair; fixtures require completevalidpreconditions.",
+    "Stress wrongpayloadsame-ID and guard routing fixture corrections remainR1145 pendingindie.",
+    "Arbitrary custom serializer callback iterator consumption boundedunproved; finite one-shot refusal compatibility is concrete unratified Gchoice, notnewauthority.",
+    "Current externalv2 evaluator issuer/appointment producer missing; crash/race/globalcurrentness workload/fullnativeSOTA/Q2/installedwheel+rebuiltSDist/Linux/browser/authentic closeout pending.",
+    "Physical source verification doesnotcreate law/refinement/calibration/custodyfacts."
+  ],
+  "proposals": [
+    {
+      "id": "B106",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B107",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B111",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B116",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B117",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B118",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B120",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    },
+    {
+      "id": "B134",
+      "state": "open",
+      "boundary": "Actual authored source and per-case native evidence only; whole original criterion and dependencies stillrequire independent acceptance/fullfreeze verification",
+      "next_check": "ApplyindependentlyreviewedblockingR1137/R1138/R1145 fixes then frozencomposedconsumerreplay and originalcriterionrow check"
+    }
+  ],
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "evidence": {
+    "root-author-source-frame-r1141-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1141-20261013.json",
+      "sha256": "1484c711f50c356b3707b1d76b98371dfa5ecf01048aa859055bb0768a953fff"
+    },
+    "composed-stress-protected-search-real-native-deciding-r1136-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-stress-protected-search-real-native-deciding-r1136-20261013.json",
+      "sha256": "8ebe7f0be901e54b0637ea5e1d965eddb3e080362dba6041dd6c9b05fd8d4923"
+    },
+    "r1135-composed-selected-producer-search-native-input-freeze-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1135-composed-selected-producer-search-native-input-freeze-20261013.json",
+      "sha256": "ace073d3e88a40982645b8371b66237c62edc2b44401a4a04a14936371ff73ed"
+    },
+    "reviews/r1117-stress-adjudication-shared-owner-composition-independent-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1117-stress-adjudication-shared-owner-composition-independent-20261013.json",
+      "sha256": "db7fe0b03529f7412f3a7edf14686dadaeb944f34883618186d34399769b2617"
+    },
+    "reviews/r1131-search-single-owner-serializer-admission-independent-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1131-search-single-owner-serializer-admission-independent-20261013.json",
+      "sha256": "794922eabf67111b93ea097c0f3e7862dc68af513cfe12c06ffea75e652de2a5"
+    }
+  },
+  "receipt_commit_sha": "not_recorded_here; nofutureownreceiptSHA"
+}

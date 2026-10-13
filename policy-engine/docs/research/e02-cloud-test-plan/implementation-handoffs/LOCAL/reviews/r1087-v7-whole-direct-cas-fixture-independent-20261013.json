@@ -1,0 +1,75 @@
+{
+  "closure_ids": [],
+  "date": "2026-10-13",
+  "direct_cas_scope_census": {
+    "alternate_profile_negative_fixture": "existing narrow tenant_scope retained; HTTP POST outside it.",
+    "job_input_callback": "source/spec/rule/selected-profile CAS calls rely on existing admitted execution scope verified at ControlPlaneService._install_execution_scope and _process_control_job_admitted.",
+    "legacy_fixture": "new narrow tenant_scope wraps only _persist_association and _append_association_event; retry POST outside it.",
+    "other_HTTP_routes": "all GET/POST calls remain outside newly added scopes.",
+    "persisted_report_and_evidence_reads": "existing R1071 narrow tenant_scope retained.",
+    "unrooted_model_negative_fixture": "new narrow tenant_scope wraps only _spec write; HTTP POST outside it."
+  },
+  "full_test_function_ast_equal_after_unwrapping_only_new_fixture_scopes": true,
+  "limits": [
+    "Focused root native replay still must show that the legacy HTTP retry remains 409/unverifiable after fixture data is owned.",
+    "No product behavior or formal capability closure is claimed."
+  ],
+  "p37": {
+    "R1077_failure": "independently_reconciled from JUnit/stdout receipts",
+    "owner_context_source_binding": "recomputed from fixture claim, tenant_scope, CAS resolver, and admitted job execution source",
+    "patch_lineage": "independently_reconciled",
+    "post_delta_runtime": "not_established"
+  },
+  "p40": "SAME_CLASS_DEEPER: owner context for direct fixture CAS materialization; widened to the two remaining fixture write branches while retaining existing job and narrow scopes.",
+  "packet": {
+    "frame_path": "LOCAL/root-author-source-frame-r1076-20261013.json",
+    "frame_sha256": "018b1e5998e45ca73fcfb4cac4fbcee11c0851610d283d2e9c2dff2f7ba39e12",
+    "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "manifest_path": "LOCAL/raw/r1078-v7-whole-fixture-direct-cas-owner-context-20261013/manifest.json",
+    "manifest_sha256": "1d08dfaa61f132f3196894d8cb88e49fcfef5f178fc8aa367c463fbe30e5faae",
+    "patch_path": "LOCAL/raw/r1078-v7-whole-fixture-direct-cas-owner-context-20261013/candidate.patch",
+    "patch_sha256": "92194e8392ea76437174c1526b55f90c138e3403503621cf4f37ff3c86fae900",
+    "post_bytes": 238759,
+    "post_sha256": "958a166e00c66fb1fdbabdd509944e53ef0d98b0b9b149e152583ef50a8f665d",
+    "pre_bytes": 238292,
+    "pre_sha256": "80cf995c501b7932864b36bcad4ba2438759acc9aa4971dc46f5687d306d5c00",
+    "target": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913"
+  },
+  "prior_failure": {
+    "path": "LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-owner-context-actual-r1077-20261013/junit.xml",
+    "result": "One failing end-to-end test reached prior POST/event/fresh GET/same-intent/conflict/tampered-event controls; direct legacy association fixture write then raised ArtifactOwnershipError for write input:run_manifest without active owner.",
+    "sha256": "2f5d77dea2663f1baf970d621e96b2f8d4ae2110225d3bed4468967e7e5f5a52",
+    "stdout_path": "LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-owner-context-actual-r1077-20261013/stdout.txt",
+    "stdout_sha256": "98418f494b7cf39b409e5197c2de56b91e4ba3fdbe6108a0ddacda687ff6a2f7"
+  },
+  "replay": {
+    "exact_postimage_match": true,
+    "hunks": 2,
+    "index_or_history_writes": 0,
+    "new_lines_added": 43,
+    "old_lines_consumed": 39,
+    "source_writes": 0,
+    "status": "PASS"
+  },
+  "review_id": "R1087",
+  "runtime_tests_run": false,
+  "static_checks": [
+    {
+      "command": ".venv/bin/python -B -m ruff check --no-cache --output-format json --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "[]",
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "command": ".venv/bin/python -B -m ruff format --check --no-cache --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "verdict": "GO for root apply and focused native replay only"
+}

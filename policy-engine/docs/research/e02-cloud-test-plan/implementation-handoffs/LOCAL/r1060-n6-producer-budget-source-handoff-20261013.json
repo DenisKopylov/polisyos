@@ -1,0 +1,499 @@
+{
+  "schema_version": "e02.n6_producer_budget_source_handoff.r1060.v1",
+  "receipt_kind": "immutable source-slice handoff; candidate implementation and bounded native witness, not a closure receipt",
+  "slice": "N4 gateway settlement -> durable owner-run budget ledger -> N6 reconciliation",
+  "author_role": "candidate source author/handoff; independent G acceptance and whole-criterion adjudication remain outside this receipt",
+  "slice_identity": {
+    "base": {
+      "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a",
+      "parent": "b5dd2956cdda5ee320b96428d1fdbcc05dda522f",
+      "frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1055-20261013.json",
+        "sha256": "dbb113c2a571de08e2cf89c0c9076f0cbe7e0f217964993101ad58c40cefff79"
+      }
+    },
+    "candidate": {
+      "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913",
+      "parents": [
+        "226cedb822e6e242d861ea8c903c9b396375dd0e"
+      ],
+      "branch": "codex/e02-unified-local-20261009",
+      "subject": "E02: reconcile producer settlements into same-run N6 budget decisions",
+      "frame": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1059-20261013.json",
+        "sha256": "110476638a39394b71eef6ab6701d0ef751a53c4509f8a96fe3d221ca24930f2"
+      }
+    },
+    "current_source_history": {
+      "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+      "tree": "047ea0dff5b33068ffa7c6eea92581002bc3c684",
+      "parent": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+      "branch": "codex/e02-unified-local-20261009",
+      "frames": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1100-20261013.json",
+          "sha256": "4b9f1aa6a39da7a0683a223c00066cae9330cc1b546a19fd7e18f7000bd20a16",
+          "physical_source_paths": 553,
+          "index_staged_path_count": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1105-20261013.json",
+          "sha256": "d7e9ead894477fd5a679e3d7acb68422ece36c361e13a7d2e7dd1afe00e4e884",
+          "physical_source_paths": 554,
+          "index_staged_path_count": 0
+        }
+      ],
+      "candidate_to_current_changes": [
+        "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+        "policy-engine/tests/unit/runtime/quality/design_axes/test_outcome_prediction.py"
+      ],
+      "candidate_11_postimages_match_R1100_R1105": true,
+      "qualification": "This receipt is bound to immutable base 226cedb -> candidate 9511169, not current HEAD 808225e. The later commit has three disjoint changes listed above. R1100/R1105 are author frames, not a global source freeze or G acceptance."
+    }
+  },
+  "source_footprint": {
+    "mechanism_and_mandatory_companion_count": 11,
+    "composition": {
+      "runtime_source": 7,
+      "tests_and_helper": 2,
+      "README": 1,
+      "release_fragment": 1
+    },
+    "R1055_R1059_full_551_path_maps_equal": true,
+    "all_11_candidate_paths_match_R1055_R1059_R1100_R1105": true,
+    "current_frames": {
+      "R1100_sha256": "4b9f1aa6a39da7a0683a223c00066cae9330cc1b546a19fd7e18f7000bd20a16",
+      "R1105_sha256": "d7e9ead894477fd5a679e3d7acb68422ece36c361e13a7d2e7dd1afe00e4e884"
+    },
+    "paths": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-13-e02-n6-producer-budget-reconciliation.toml",
+        "change": "added",
+        "category": "release_fragment",
+        "base_sha256": null,
+        "base_bytes": 0,
+        "candidate_sha256": "00dab9ee889d7e5acbe749fa14d94ea7b2006bf0d1b3ddb39196f0d2fae49ad4",
+        "candidate_bytes": 2150,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "c96eb406d4c3b9b3e146db0bbf2ac116859ab6f6fcf709d88661a62d9d2094e8",
+        "base_bytes": 134239,
+        "candidate_sha256": "195e9e5986ef651eb2729e695053eb9b3664dbd274dd8194519a30431c7e1237",
+        "candidate_bytes": 133813,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "5f916a063b1a306c0b81625bc1be9265fc8941ead387ae2a13cfe7ea80f37ff8",
+        "base_bytes": 31330,
+        "candidate_sha256": "4dfef8aced895f73cb827c90bd3801aa33ce90b845e8f014e5784d647ff5dfe0",
+        "candidate_bytes": 31465,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_context.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "4beb5afc37c528da6414a3536cbc3a590d1248601ea89b99867fffa24e6998c8",
+        "base_bytes": 3343,
+        "candidate_sha256": "5628d8026a5c2075ec17ff7268da33afa4ff0120082020ea2a5a6b7b915777e6",
+        "candidate_bytes": 3532,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "14b574a262e265b7f09c2bedbe1a00728c6f685af29f2233bbfd175b25e1be8f",
+        "base_bytes": 40360,
+        "candidate_sha256": "f9755df7ec2579a5bc6c59244ecc3eff361d711bf1177bd85d11913d089368e3",
+        "candidate_bytes": 40483,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "51e33d825f9311201e80030d345a8cd07a269b5cee272430f8f10dcd64849107",
+        "base_bytes": 244011,
+        "candidate_sha256": "7a8044cb1141b665d25a9cb453e649444fc8e9b306cd02efe36e15e4960850c4",
+        "candidate_bytes": 251265,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "change": "modified",
+        "category": "readme",
+        "base_sha256": "e7abb0e7b64729913834976cf16b64bbfeaefd4a7331f10e6385c7c709094822",
+        "base_bytes": 54429,
+        "candidate_sha256": "1efbd1f214069be78e2b231067f392ec966f2bea1858972dbdb0ab72ed3582d4",
+        "candidate_bytes": 55377,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "9a080871be497756778e29f77e75456af492b3f5df2f559c748f37eb43200e6d",
+        "base_bytes": 724635,
+        "candidate_sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a",
+        "candidate_bytes": 724916,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "change": "modified",
+        "category": "runtime_source",
+        "base_sha256": "0eda8a94bcfc2d912652570e3fb6dd216b1a37b82dd1d9ad8fcad8f84b99a349",
+        "base_bytes": 182590,
+        "candidate_sha256": "3f335317d0e68e03ba5334ac7419305cc89b017cba078706024a9c196da132b4",
+        "candidate_bytes": 182322,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "change": "modified",
+        "category": "test_and_helper",
+        "base_sha256": "2a8e472bc8870f6138df2fce2b1a0cb930d3935533a19fa05b39f1832b84f3ce",
+        "base_bytes": 72641,
+        "candidate_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190",
+        "candidate_bytes": 80627,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "change": "modified",
+        "category": "test_and_helper",
+        "base_sha256": "ddd8eb327d8a46735cbcd5bc02c0f6087d2a753cff1d98893477db2efa8371fc",
+        "base_bytes": 42677,
+        "candidate_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7",
+        "candidate_bytes": 70081,
+        "candidate_postimage_matches_frames": [
+          "root-author-source-frame-r1055-20261013.json",
+          "root-author-source-frame-r1059-20261013.json",
+          "root-author-source-frame-r1100-20261013.json",
+          "root-author-source-frame-r1105-20261013.json"
+        ]
+      }
+    ]
+  },
+  "lineage_and_reviews": {
+    "R898_parent": {
+      "patch_sha256": "50cd1f3837bda3d016ed52be7aa7b3b2eafa5db23f6c0dd0d4409b424aafc128",
+      "manifest_sha256": "1afa678e422e661c92d4b4d65fc40365de8d3be23fba3417f26910dcec9f7d99"
+    },
+    "R965_served_test_delta": {
+      "patch_sha256": "809ad4440d13ac3c38e934aa8562da8238c3eeb5b129dc825d347113d5656434",
+      "manifest_sha256": "48ce75f9cac6f1d4a241d82e8a99fc1fd7a55c52ee598ab20242cba7f2304811",
+      "qualification": "test-only same-served-run candidate; exact composed selector remains UNRUN in R1056"
+    },
+    "R1032_style": {
+      "patch_sha256": "ee76aecb46c8ab240b1caa5035a3cb83777292ccaf87298a78bee10ac45b3502",
+      "manifest_sha256": "1e80c08462909592713372895f70679b44738465c3fc37a094197a40a4994fee",
+      "review_json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1033-n4-budget-native-style-independent-20261013.json",
+        "sha256": "4a854244150c5f732cccb3c4e538a048e73fafbc4408062100cb53732c11faef"
+      },
+      "review_markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1033-n4-budget-native-style-independent-20261013.md",
+        "sha256": "3a6e34979987041a46bef49dfbb98e57963062a7c847f050ba6f639d20d0cb64"
+      },
+      "scope": "style-only GO; 24 scoped Ruff commands passed; no native behavior/closure"
+    },
+    "R1002_review": {
+      "json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1002-n4-budget-r965-served-chain-independent-20261013.json",
+        "sha256": "c5f541c7a07bc28f490c1e79da8c37a7b47fe8b3da87d10e803a421fbf9950c4"
+      },
+      "markdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1002-n4-budget-r965-served-chain-independent-20261013.md",
+        "sha256": "d5c02acbaa91ac70944e4295cb803ee2e0955e0d809d0265449d7ec6be53fc9b"
+      },
+      "scope": "GO for root exact-source quality/native wave; B15 remains open pending native same-served-run witness; synthetic three-child overlay and local estimate do not establish external invoice/production authority"
+    }
+  },
+  "implementation": {
+    "summary": "Carries the existing immutable BudgetLedgerProducerRunBinding through the N4 producer/caller and reconciles committed producer settlements for the same run/profile/job at the N6 decision. Reuse preserves origin with zero incremental spend; sibling spend is excluded; unsettled/unknown cost is refused rather than converted to zero or budget-exhausted.",
+    "chain": {
+      "producer": "controlled gateway response usage priced at repository-local estimate, committed as FileBudgetLedger producer settlement",
+      "binding": "same run/tenant/cell/effective profile/job basis",
+      "persisted_artifact": "durable FileBudgetLedger rows with owner identity and reuse origin",
+      "bridge": "N6 reconciles the owner-bound committed rows before next-level execution",
+      "consumer": "N6 spend/action/reason",
+      "surface": "R1056 direct scheduler seam only; composed served/fresh GET remains unrun"
+    },
+    "semantic_limits": [
+      "estimated local pricing is not invoice/current-price authority",
+      "reused request is zero incremental charge while preserving original usage origin",
+      "foreign sibling binding is excluded",
+      "unknown cost remains unknown and refuses; no zero substitution",
+      "no public API or ledger schema change/historical receipt rewrite claimed"
+    ]
+  },
+  "original_criteria": {
+    "task_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "V2": {
+        "scope_status": "execution_remaining",
+        "findings": [
+          "B15",
+          "B29"
+        ],
+        "exit": "actual N4 two meaningful children -> N6 frontier/history -> fresh GET/client; manual graph is not producer"
+      },
+      "V6": {
+        "scope_status": "execution_remaining",
+        "findings": [
+          "B13"
+        ],
+        "exit": "actual producer then independent failure; prior result, exact error and corrupt-ref refusal readable"
+      }
+    },
+    "connected_tasks": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+      "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+    },
+    "findings": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/findings.json",
+      "sha256": "590cb7631422175148022217a96fc1c234f8ba4f0d22e83bde46d9636bdd5ce0",
+      "original_criterion_ref_pointers": {
+        "B15": "/findings/64/criterion_refs",
+        "B29": "/findings/154/criterion_refs",
+        "B13": "/findings/42/criterion_refs"
+      }
+    },
+    "pinned_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "criterion_digests": {
+        "B13": "8718ad1c767f83c1f9e5cf47c86e84a80b44005a548d2a109c9d15cc0ebbc799",
+        "B15": "aee22bfdeaa32d69566dcb038984da712ead8849f625524bc4e6eb7e535fa3b1",
+        "B29": "b8e65549bab11a9d52bd33a78faf071a96c241730ecb10dfdfe237cf494d8f4"
+      },
+      "sections": {
+        "B13": "349-362",
+        "B15": "375-386",
+        "B29": "565-578"
+      }
+    },
+    "pinned_G_coverage": {
+      "commit": "6f3983466f1eca14b510c4f5006fab5092d418d3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "blob_oid": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "content_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "use": "original occurrence locator only; no closure occurrence added"
+    }
+  },
+  "native_witness": {
+    "packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n6-real-gateway-ledger-estimated-reuse-unknown-deciding-r1056-20261013.json",
+      "sha256": "cd93e33d66af10c98c46a9dc0458a40122e62c219c963c716baf242296226b6e"
+    },
+    "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013",
+    "selector": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_n6_voi_reconciles_real_gateway_settlements_and_refuses_unknown_costs",
+    "counts": {
+      "pass": 1,
+      "fail": 0,
+      "error": 0,
+      "skip": 0
+    },
+    "wall_seconds": 16.34838495904114,
+    "pytest_summary": "1 passed in 11.41s",
+    "source_capture": {
+      "command_head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "source_inputs": 6217,
+      "stable": true,
+      "own_product_modules": 1503,
+      "foreign_product_modules": [],
+      "capture_helper_sha256": "080a695e7f712a31e30acb47654b27f87ba4f82e82d4981e3d67b0a34093ec88",
+      "qualification": "R1056 command ran at HEAD 226cedb; R1055/R1059 full 551-path maps match and candidate postimages are exact in R1100/R1105. Do not report command HEAD as 951 or claim global replay/freeze."
+    },
+    "recorded_inputs": {
+      "recording_path": "policy-engine/architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json",
+      "recording_sha256": "db5f892c19412e74ff78683901dd81e49ebb446f75eb394d254cc75d7c74ae71",
+      "positive_capture": {
+        "id": "gy_n4_replay_20260704_091144_550613_f74107b0bbd2",
+        "sha256": "103e8680d9603db3eca33873669424f9aaf3e3c2342c96bea9975baf750a0eba",
+        "response_count": 9,
+        "usage": "positive recorded prompt/completion token usage"
+      },
+      "unknown_capture": {
+        "id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+        "sha256": "107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1",
+        "response_count": 10,
+        "error_indexes": [
+          2,
+          6
+        ]
+      },
+      "owner_binding": {
+        "run": "n6-real-gateway-owner",
+        "tenant": "tenant-candidate",
+        "cell": "cell-candidate",
+        "profile": "research",
+        "job": "job-owner"
+      },
+      "sibling": "separately bound sibling row is present and excluded",
+      "mode": "controlled recorded-response replay via actual traced gateway client, not live provider"
+    },
+    "observed": {
+      "owner": "positive estimate committed for selected run/profile/job",
+      "reuse": "zero incremental amount; origin retained",
+      "N6": "owner spend recomputed and defer/budget-exhausted when it blocks next level",
+      "unknown": "error rows have no cost; typed unsettled-event refusal, no fabricated zero",
+      "removal": "remove N6 reconciler only, retain ledger rows/markers -> empty spend and scheduler advance"
+    },
+    "outputs": {
+      "command.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/command.json",
+        "sha256": "19b5b4821878eaf8646fe66a8144c172e4014973cb4b6604fd0dee5a2f1c1e99"
+      },
+      "stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/stdout.txt",
+        "sha256": "bc1046c86f1709dc9f81decec640340718ff6a59dc2d8e1d6267a4a697a01e75"
+      },
+      "stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit.xml": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/junit.xml",
+        "sha256": "8c9c369c8e3bfa38c43779c377e1c6e6031ee47a685cb1bc08779b665c9834d6"
+      },
+      "module-origins.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/module-origins.json",
+        "sha256": "8f0f9b0c2c7308c07066750990fb4eb7a7cc05c0c913c67078ee453bc91a0621"
+      },
+      "progress.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n6-real-gateway-ledger-estimated-reuse-unknown-actual-r1056-20261013/progress.json",
+        "sha256": "390d6d9bdc64ac318f7ae7650fcd2b9f0102b04401d3a226cf84ceed7befc693"
+      }
+    }
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "property": "real N4 settlement for selected run affects N6 status and survives served readback without erasing completed N5",
+    "actual_gate": "R1056 exercises gateway -> durable FileBudgetLedger -> N6 consumer including reuse, sibling exclusion, unknown refusal and property-removal control",
+    "divergence": "whole served N4 -> first N5 -> later producer spend -> N6 terminal -> fresh GET is broader than the direct scheduler seam; counting R1056 as B15/B29/B13 closure is a P38/P40 proxy",
+    "gate_predicates": {
+      "owner ledger sum vs budget": "recomputed from persisted rows in controlled run",
+      "reuse origin/sibling exclusion": "independently reconciled against rows and owner binding",
+      "local price estimate": "controlled estimate, not live billing",
+      "invoice/current price/production workload": "not_established",
+      "two meaningful children/retained served N5/fresh GET": "not_established; composed selector UNRUN"
+    }
+  },
+  "remaining": {
+    "same_served_selector": "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py::test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5",
+    "status": "UNRUN in R1056",
+    "required": "actual served producer chain, first N5 retained, later real settlement drives N6 terminal, fresh GET preserves completed output and bounded status under same immutable run/profile/job basis; keep negative controls",
+    "criteria_limits": [
+      "B15: two meaningfully specified children through real recursion and retained completed work unproven; R965 synthetic overlay is not this evidence",
+      "B29: normal budget/frontier stop vs abstention in readback/Atlas untested",
+      "B13: later independent failure preserving typed result/exact error untested",
+      "original N4 second-capture generation/performance/persisted-result path incomplete"
+    ],
+    "authority_limits": [
+      "local price estimate is not invoice/current provider price authority",
+      "controlled replay is not live provider or production qualification",
+      "no global replay/Q2/Linux/closeout or G acceptance is inferred"
+    ]
+  },
+  "proposal_disposition": {
+    "B10_B66_B67_B68": "remain separate proposals; no aggregation or closure",
+    "B15": "open/limited",
+    "B29": "open/limited",
+    "B13": "open/limited",
+    "V2": "execution_remaining",
+    "V6": "execution_remaining",
+    "G_acceptance": "not granted by this handoff"
+  },
+  "next_checks": [
+    "Run the same-served selector against the declared reviewed source frame with root-owned compute slot and R898/R965 controls.",
+    "Verify two meaningful actual child outputs/effective limits, first N5, later actual producer spend, N6 budget terminal, fresh GET under one immutable owner binding.",
+    "Retain exact later failure and completed outputs; verify wrong-run/profile, unknown-cost, corrupt-ref and producer-removal controls semantically.",
+    "Read the actual consumer surface for distinct budget stop/frontier/abstention states; do not infer Atlas/browser from producer fields.",
+    "Keep missing external/current pricing authority as typed limitation."
+  ],
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "delivery": {
+    "created": "receipt only",
+    "product_source_changes_by_author": 0,
+    "source_index_or_history_changes_by_author": 0,
+    "self_hash": "intentionally omitted",
+    "physical_writer": "root remains sole source/index/history writer"
+  }
+}

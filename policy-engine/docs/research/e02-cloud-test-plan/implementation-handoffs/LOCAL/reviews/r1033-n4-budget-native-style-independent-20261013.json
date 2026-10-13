@@ -1,0 +1,117 @@
+{
+  "artifacts": {
+    "base_composition": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-served-n4-budget-r1031-20261013/composition.json",
+    "base_composition_sha256": "f189637dc878aedd0ada0f130884ec915cad723b3c14d2537432315f7a51be31",
+    "base_net_patch": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-served-n4-budget-r1031-20261013/net.patch",
+    "base_net_patch_sha256": "9ca4b7ef812bac0a37db994667562a2aba244d38f002c4e7694b3c2394f436a2",
+    "candidate_patch": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1032-n4-budget-full-native-style-companions-20261013/candidate.patch",
+    "candidate_patch_sha256": "ee76aecb46c8ab240b1caa5035a3cb83777292ccaf87298a78bee10ac45b3502",
+    "manifest": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1032-n4-budget-full-native-style-companions-20261013/manifest.json",
+    "manifest_sha256": "1e80c08462909592713372895f70679b44738465c3fc37a094197a40a4994fee",
+    "prior_quality_receipt": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-served-n4-budget-r1031-20261013/root-native-quality-r2.json",
+    "prior_quality_receipt_sha256": "14b73344093eb70554f3a191c294f795c0fcdb296e28084e8c234d32618ab6d1"
+  },
+  "assessment": {
+    "P40": {
+      "bucket": "SAME_CLASS_DEEPER",
+      "class": "R1031 identified the same style-only Ruff failure class across the full six-file R965 quantity; R1032 covers that complete quantity, not isolated spans."
+    },
+    "budget_run_id_and_reconciliation": "unchanged by this style-only delta; the R965 values and assertions retain their semantic AST.",
+    "formal_closure_ids": [],
+    "native_or_pytest": "not run; GO only to apply this style companion and proceed to the focused native wave.",
+    "semantic_effect": "none observed; exact virtual R1032 postimages match the manifest and all six files are Ruff-clean after the style delta."
+  },
+  "identity_advance": {
+    "changed_shared_source_hashes": 0,
+    "current_frame_path_count": 548,
+    "prior_frame": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1029-20261013.json",
+    "prior_head": "b5dd2956cdda5ee320b96428d1fdbcc05dda522f",
+    "prior_tree": "8c5dc685cf7d6106cb2e1e3a59a3eae193111afe",
+    "reason": "root supplied the new author frame after a receipt-only commit; all 548 source-frame hashes equal R1029. The earlier review was stopped before writing any receipt.",
+    "shared_source_paths": 548
+  },
+  "lineage": {
+    "R1031_virtual_posts_reconstructed_in_memory": true,
+    "R1032_six_posts_match_manifest": true,
+    "R1032_six_preimages_match_R965_virtual_posts": true,
+    "R965_current_path_count": 11,
+    "R965_current_preimages_match": 11
+  },
+  "reviewer": "/root/b61_run_cache_witness_oracle_r343",
+  "schema_version": "e02.independent_style_review.r1033.v1",
+  "scope": {
+    "R1032_scoped_Ruff_commands": 24,
+    "R1032_scoped_Ruff_passed": 24,
+    "changed_path_count": 6,
+    "files": [
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "postimage_sha256": "195e9e5986ef651eb2729e695053eb9b3664dbd274dd8194519a30431c7e1237",
+        "preimage_sha256": "895d50e7196764fa46d8a8cb6ba4c968ab9883952f2d401f80b9e165478b898e"
+      },
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "postimage_sha256": "7a8044cb1141b665d25a9cb453e649444fc8e9b306cd02efe36e15e4960850c4",
+        "preimage_sha256": "5b0cac95313a544c39362f3576995508d44d69abc0c4d489d8e20bbff5c2880b"
+      },
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "postimage_sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a",
+        "preimage_sha256": "509f126bd9fce4b7772610fa856f060ec4cf8fd1a877b5deb6dc87103ba9f63b"
+      },
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "postimage_sha256": "3f335317d0e68e03ba5334ac7419305cc89b017cba078706024a9c196da132b4",
+        "preimage_sha256": "6188dfda76880f97b07e7859b2ee779828938ca8fee285825a04ca090117c601"
+      },
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "postimage_sha256": "ba86d5234f9adeeb30f59028210d68c03987e86a085d92a660954ca25d1f5190",
+        "preimage_sha256": "bfa4bf3fa981f152923422d80c95b979e630978f025ac8144e4d573e97d59487"
+      },
+      {
+        "four_Ruff_commands_pass": true,
+        "import_bindings_equal": true,
+        "non_import_ast_equal": true,
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "postimage_sha256": "0a4a0aea753a4f5be80f805e7177db5bb6fd12c6f3b94038aa928715f716b6b7",
+        "preimage_sha256": "df15f33df30cbca3800c7f25fe323522dbebaf7b502c6a7f434b1611b36a506b"
+      }
+    ],
+    "preceding_quality_receipt_commands": 18,
+    "preceding_quality_receipt_failures": 7,
+    "review_method": "Read-only in-memory composition and static verification: replayed the R1031 net patch on the 11 current source preimages; applied the R1032 patch in memory; confirmed six pre/post hashes, non-import AST equality (normalizing only type-ignore line numbers), import-binding equality, unchanged comment token sequence; replayed Ruff import-fix, format, lint and format-check over stdin with exact filename for each file. No product source/index writes, product imports, or tests.",
+    "runtime_files": 4,
+    "test_files": 2
+  },
+  "source_identity": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "parent": "b5dd2956cdda5ee320b96428d1fdbcc05dda522f",
+    "source_frame": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1035-20261013.json",
+    "source_frame_sha256": "45a723fa45bbf6f13f3b1db7063acd11cc78d7f772aa4117eef9ffd97470214d",
+    "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+  },
+  "verdict": {
+    "formal_closure_ids": [],
+    "native_behavior": "not run by reviewer",
+    "root_apply_and_focused_native": "GO",
+    "style_delta": "GO"
+  }
+}

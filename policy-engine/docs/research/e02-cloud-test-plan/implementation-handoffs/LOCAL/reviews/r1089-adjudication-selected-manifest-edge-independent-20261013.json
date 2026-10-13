@@ -1,0 +1,74 @@
+{
+  "binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "root_frame_entries": 553,
+    "root_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1076-20261013.json",
+    "root_frame_sha256": "018b1e5998e45ca73fcfb4cac4fbcee11c0851610d283d2e9c2dff2f7ba39e12",
+    "tree": "d6d48c83b5a60afdead8066253bc30cd216f5913"
+  },
+  "classification": {
+    "class": "selected-edge/fixture binding completeness",
+    "p40": "SAME_CLASS_DEEPER_WIDENED",
+    "reason": "R1085 fixes the wrong InputRef fields and checks the complete current six-role set and selected typed references."
+  },
+  "decision": "GO_FOR_ROOT_NATIVE_ONLY",
+  "finding_count": 0,
+  "limits": {
+    "b117_process_crash_race": "UNRUN",
+    "closure_ids": [],
+    "external_evaluator_issuer": "producer_missing",
+    "g_acceptance": "none"
+  },
+  "property_checks": {
+    "edge_id_and_nonnull_profile": "PASS against producer-returned ArtifactRefs",
+    "exact_role_set": "PASS",
+    "expected_role_count": 6,
+    "expected_roles": [
+      "raw_input",
+      "candidate",
+      "evaluation",
+      "evaluation_receipt",
+      "execution_receipt",
+      "benchmark_suite"
+    ],
+    "full_selected_ref_comparison": "PASS (artifact ID, kind, media type, profile)",
+    "payload_byte_read_by_this_test": "NO; no payload-integrity claim made",
+    "selected_manifest_lookup": "PASS by exact artifact ID and selected profile",
+    "unique_role_keys": "PASS via input-map count == original edge count"
+  },
+  "schema_version": "r1089-independent-review-v1",
+  "scope": "Independent static review of the complete R1009 -> R1054 -> R1085 protected-adjudication test stack; no source or index mutation and no runtime execution.",
+  "stack": {
+    "r1009_patch_sha256": "3d46ebf6b9dddb4625f220706b40ddca68b993ae4a2392cc22cc46334cdc238a",
+    "r1009_path_types": {
+      ".md": 1,
+      ".py": 17,
+      ".toml": 1
+    },
+    "r1009_paths": 19,
+    "r1009_physical_preimages_matching": 19,
+    "r1009_source_prepost_sha256": "9b13ca1495574314e1b5e974f24161a09fd4627333ef31a24c96df8448a5c0ca",
+    "r1054_manifest_sha256": "a00bcb7a2490595586a4daf6a7468ccb0664024558f74d64132a18c298c94fa4",
+    "r1054_patch_sha256": "d9e0ed39e2b401b77bffb7cb1feb7783be45627de1e1ccdbe9a120ec8c326a62",
+    "r1054_postimage_sha256": "a2f8444914058ac1cb81ec4947bc03f7de0f8435318a2af3326cb000ae854486",
+    "r1085_candidate_base_sha256": "a2f8444914058ac1cb81ec4947bc03f7de0f8435318a2af3326cb000ae854486",
+    "r1085_manifest_sha256": "2cd40e2fe5c82453b6a0928cf489a70c2d290080f75da925aea6229c3138e573",
+    "r1085_patch_sha256": "7f30764d2c1c9c6b069483da9bf562b621e92f84e4a8c621b7210145843b2fee",
+    "r1085_path_types": {
+      ".py": 1
+    },
+    "r1085_paths": 1,
+    "r1085_physical_preimage_sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28",
+    "r1085_postimage_sha256": "3a07df70f4d02dfc17520f6e5b90f085971e0d2590c4b83c275cab5c926140a9",
+    "r1085_source_prepost_sha256": "6173c999dcb34bc94284f6387f373dbeca1327d5ff4502b5b9283a02b6432668"
+  },
+  "verification": {
+    "author_ast": "PASS (receipt)",
+    "author_ruff_check": "PASS (receipt)",
+    "author_ruff_format": "PASS (receipt)",
+    "current_root_dirty_source_paths": 3,
+    "independent_pytest_runtime_native": "UNRUN by review lease",
+    "overlap_with_r1009_paths": 0
+  }
+}

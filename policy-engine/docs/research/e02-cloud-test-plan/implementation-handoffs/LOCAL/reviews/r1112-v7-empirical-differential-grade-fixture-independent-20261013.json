@@ -1,0 +1,193 @@
+{
+  "actual_r1095_failure": {
+    "command_exit": 1,
+    "failure": "assertion compared blocked vs blocked",
+    "junit_sha256": "db16a4197c59f4db6d524df27819c874e31630f7b6795c8d8c39cd058a838797",
+    "old_conditional_pvalues": [
+      0.017067029363,
+      0.019249054237,
+      0.024522346257
+    ],
+    "old_red_horizons": [
+      1,
+      2,
+      4
+    ],
+    "old_sample_counts": [
+      27,
+      26,
+      25,
+      24
+    ],
+    "stdout_sha256": "3a251386761ca9a39222d4de78d3c6cda7d89da4094692301338dbfb53078e88",
+    "test": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry"
+  },
+  "artifact": "R1112 independent R1098 empirical differential fixture review",
+  "classification": {
+    "P29_P33": "actual owner and HTTP/event/fresh-reader chain retained; controlled fixture is an integration witness only, not representative performance evidence",
+    "P37": {
+      "external calibration law/currentness/issuer/population/counterfactual": "not_established",
+      "training/sample diagnostics/coverage/owner grade": "recomputed by source mechanism; candidate runtime still pending focused replay"
+    },
+    "P38": {
+      "divergent_case": "old 30-point exact-linear training yielded red horizons 1/2/4 and blocked both grades before holdout evaluation",
+      "property": "same training/model/rule and interval context, distinct run-rooted held-out values drive recomputed owner grade through actual POST and fresh GET"
+    },
+    "P40": "NEW empirical-qualification fixture class, distinct from R1078 direct-CAS tenant-context issue"
+  },
+  "closure_ids": [],
+  "decision": "GO for focused native replay only",
+  "evidence_origins": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "rehashed_match": true,
+      "sha256": "4548000faaf56cae5bbe7c7752214056f967e922cd106bdd1ff2a047bce6bad2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/uncertainty.py",
+      "rehashed_match": true,
+      "sha256": "30678d3f80051bf60ecac204b7c10dcdf99a05892188cf1cc1cf253501e94d4e786"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/forecasting/univariate.py",
+      "rehashed_match": true,
+      "sha256": "13af9e369b3ae70dfaba96be626f4450848a2e2ee5e189013d8c2c75c02e1542"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "rehashed_match": true,
+      "sha256": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "rehashed_match": true,
+      "sha256": "7fe6a930852b930d5175addabed96f1d9bd506ff1844f5ca079ccf5118ac0f2f"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "rehashed_match": true,
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "rehashed_match": true,
+      "sha256": "ae191ba25c688bb68c7b0c53ff5b3e6e825d7065a7d7133a2596d1a6f0b53ada"
+    }
+  ],
+  "limitations": [
+    "No focused native replay in this review.",
+    "Low-N warning at four held-out observations remains.",
+    "No external calibration law, issuer, source-currentness, population scope, or counterfactual credibility established.",
+    "No closure claimed."
+  ],
+  "packet": {
+    "decision_sha256": "b03b8e2cd19e343886c23ca04e9d84b964b4670b6885487484dfd4d2c0b00a19",
+    "manifest_sha256": "d9a819dac55845e1bb94fccd6a67868eed5e430171238bff669a912d83875e04",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1098-v7-empirical-differential-grade-boundary-20261013/candidate.patch",
+    "patch_sha256": "e08f81c130dab5a483c5ac4649b476db76a1e3d9958006bdb6e36b4077dfea7c",
+    "source_frame_r1100_sha256": "4b9f1aa6a39da7a0683a223c00066cae9330cc1b546a19fd7e18f7000bd20a16",
+    "source_frame_r1105_sha256": "d7e9ead894477fd5a679e3d7acb68422ece36c361e13a7d2e7dd1afe00e4e884",
+    "validation_readback_sha256": "f700beb1391180a3f01921ff33a8b4d2ba8876912d89d5f6dab335a594070520"
+  },
+  "qualified_base": {
+    "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+    "preimage_sha256": "958a166e00c66fb1fdbabdd509944e53ef0d98b0b9b149e152583ef50a8f665d",
+    "target": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+    "tree": "047ea0dff5b33068ffa7c6eea92581002bc3c684",
+    "virtual_postimage_sha256": "d91046569a3d3a48592e019cbe200d87024b5e67f89a0f0b6c38524802dcc96c"
+  },
+  "reconstruction": {
+    "all_assert_subtrees_unchanged": true,
+    "assert_subtree_count": 832,
+    "ast_parse": "PASS",
+    "hunks": 2,
+    "old_side_matches": "PASS",
+    "result": "PASS",
+    "source_unchanged": true
+  },
+  "ruff": {
+    "check_command": "policy-engine/.venv/bin/python -m ruff check --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+    "check_exit": 0,
+    "check_stderr": "",
+    "check_stdout": "All checks passed!",
+    "format_command": "policy-engine/.venv/bin/python -m ruff format --check --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+    "format_exit": 0,
+    "format_stderr": "",
+    "format_stdout": ""
+  },
+  "source_derived_candidate_expectation": {
+    "bundle_gate_eligible": true,
+    "conditional_pvalues": [
+      0.1941597475,
+      0.2245510415,
+      0.260833788,
+      0.3046782456
+    ],
+    "coverage_tolerance": 0.5,
+    "diagnostics": [
+      "amber",
+      "amber",
+      "amber",
+      "amber"
+    ],
+    "holdout_in_profile": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "holdout_outlier": [
+      1000,
+      1001,
+      1002,
+      1003
+    ],
+    "independence_pvalues": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "native_confirmation": "UNRUN",
+    "paired_holdout_counts": [
+      4,
+      0
+    ],
+    "predicted_suitability": [
+      "supported",
+      "limited"
+    ],
+    "rolling_sample_counts": [
+      8,
+      7,
+      6,
+      5
+    ],
+    "split": {
+      "holdout_end": 15,
+      "holdout_start": 11,
+      "horizon": 4,
+      "train_end": 11,
+      "train_start": 0
+    },
+    "training": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "training_hit_rates": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  }
+}

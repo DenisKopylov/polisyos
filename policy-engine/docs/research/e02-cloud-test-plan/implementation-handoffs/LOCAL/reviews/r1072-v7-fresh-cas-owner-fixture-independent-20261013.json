@@ -1,0 +1,107 @@
+{
+  "closure_ids": [],
+  "date": "2026-10-13",
+  "deciding_prior_receipt": {
+    "command_path": "LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/command.json",
+    "command_sha256": "0d63245a1398dfb69414024dee37ea7ab40b0109026144ec8c368227bd736956",
+    "counts": {
+      "errors": 0,
+      "failed": 1,
+      "passed": 17,
+      "skipped": 0
+    },
+    "junit_path": "LOCAL/raw/v7-whole-record-ref-post-event-fresh-get-exact-intent-actual-r1066-20261013/junit.xml",
+    "junit_sha256": "7ad60383056cc2f6b41ea4e60fff84fb3d6030e2cd6d513b02af660848d2e3e8",
+    "observed": "POST 201/event and intent completed; foreign run GET 409; fresh GET 200 exact association/ref; subsequent direct CAS report read failed ArtifactOwnershipError because no active fixture tenant for read_manifest; exact-intent replay afterward UNRUN",
+    "path": "LOCAL/v7-whole-record-ref-fresh-get-deciding-r1066-20261013.json",
+    "sha256": "c3516cd9d23df5e20aa057f687b8b01a11e60db7fd6f126ca1de48d2c3a5a027"
+  },
+  "lineage_and_replay": {
+    "hunk_new_lines": 14,
+    "hunk_old_lines": 13,
+    "in_memory_unified_diff_replay": "PASS",
+    "index_or_history_writes": 0,
+    "physical_preimage_match": true,
+    "product_source_changes": 0,
+    "virtual_postimage_match": true
+  },
+  "p40_classification": "NEW test-consumer context regression; distinct from Core/IR reference-shape compatibility; both current helper CAS reads are covered by the same fixture owner scope.",
+  "packet": {
+    "frame_head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+    "frame_path": "LOCAL/root-author-source-frame-r1059-20261013.json",
+    "frame_sha256": "110476638a39394b71eef6ab6701d0ef751a53c4509f8a96fe3d221ca24930f2",
+    "frame_tree": "d6d48c83b5a60afdead8066253bc30cd216f5913",
+    "manifest_path": "LOCAL/raw/r1071-v7-fresh-cas-owner-read-test-companion-20261013/manifest.json",
+    "manifest_sha256": "7fad3e3508861f9dcc7c83cb68d555ab1e8bb7215e59733cbdba007130304557",
+    "patch_path": "LOCAL/raw/r1071-v7-fresh-cas-owner-read-test-companion-20261013/candidate.patch",
+    "patch_sha256": "3de346c9b49ce64bf8248a564973e9c7e4990f50211f31efb7499a415ab7f625",
+    "post_sha256": "80cf995c501b7932864b36bcad4ba2438759acc9aa4971dc46f5687d306d5c00",
+    "pre_sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff",
+    "target": "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+  },
+  "property_review": {
+    "change_summary": "Test-only tenant_scope around direct report and empirical-evidence CAS loaders in assert_persisted_evidence_identity; exact reason-code/report identity/profile/run/intent assertions remain outside the scope.",
+    "limits": [
+      "No pytest/native replay in this review.",
+      "R1066 exact-intent replay after the helper was not reached.",
+      "GO is only for root focused native replay; no capability closure claimed."
+    ],
+    "normalized_test_function_ast_equal": true,
+    "ownership_guard_weakened": false,
+    "p37": {
+      "R1066_failure_location": "independently_reconciled from JUnit and R1066 decision JSON",
+      "fixture_tenant_cell_match": "independently_reconciled from test fixture source and tenant_scope implementation",
+      "patch_pre_post_binding": "independently_reconciled",
+      "post-delta_runtime_pass": "not_established"
+    },
+    "production_semantics_changed": false,
+    "runtime_after_delta": "not run; not established",
+    "scope_binding": "tenant_scope tenant-fixture/cell-fixture matches _fixture_claims and the existing fixture lifespan scope; FileSystemCAS continues to check ownership using active tenant/cell."
+  },
+  "review_id": "R1072",
+  "source_origins": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "role": "fixture claims, tenant scope import, helper, HTTP request/GET and assertions",
+      "sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+      "role": "tenant_scope installs and resets tenant/cell context",
+      "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "role": "active owner resolution and CAS manifest/blob ownership enforcement",
+      "sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "role": "load_backtest_report direct consumer",
+      "sha256": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "role": "load_empirical_calibration_evidence direct consumer",
+      "sha256": "99c11c8e2e706ed66c0e084cbc38af666d18a9a9c31c9769985cf64e2c55dc91"
+    }
+  ],
+  "static_checks": [
+    {
+      "command": ".venv/bin/python -B -m ruff check --no-cache --output-format json --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "[]",
+      "stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "command": ".venv/bin/python -B -m ruff format --check --no-cache --stdin-filename tests/unit/runtime/http/test_control_service_di.py -",
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "verdict": "GO for focused root native replay only"
+}

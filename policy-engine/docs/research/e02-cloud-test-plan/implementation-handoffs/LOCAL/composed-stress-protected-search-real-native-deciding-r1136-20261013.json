@@ -1,0 +1,852 @@
+{
+  "authority": "Root exact composed author runtime evidence, not G acceptance/global closeout",
+  "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+    "sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad",
+    "physical_source_paths": 568
+  },
+  "slice_input_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1135-composed-selected-producer-search-native-input-freeze-20261013.json",
+    "sha256": "ace073d3e88a40982645b8371b66237c62edc2b44401a4a04a14936371ff73ed"
+  },
+  "counts": {
+    "pass": 152,
+    "fail": 26,
+    "error": 0,
+    "skip": 2
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_admitted_claim_adjudication_consumers::test_verified_receipt_drives_graph_and_conflict_consumers",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_admitted_claim_adjudication_consumers::test_constant_receipt_rejects_false_to_true_projection_flip_in_both_consumers",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_admitted_claim_adjudication_consumers::test_invalid_replacement_receipt_cannot_erase_existing_admitted_pointer",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_admitted_claim_adjudication_consumers::test_fresh_consumer_rejects_same_id_candidate_with_other_selected_profile",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_default_claim_policy_projection_preserves_historical_absent_unit_shape",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_explicit_claim_policy_unit_survives_canonical_serialization",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_claim_policy_serializer_characterization_across_json_and_nesting",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_baseline_claim_adjudication_config_preserves_current_consensus_behavior",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_confidence_weighted_claim_consensus_prefers_high_confidence_votes",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_claim_promotion_is_blocked_on_abstract_only_overcall",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_successful_claim_promotion_changes_runtime_selection",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_search_loop_persists_selected_suite_candidate_and_evaluation_for_fresh_reader",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_search_loop_refuses_profileless_suite_before_candidate_generation",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_claim_registry_refuses_profileless_suite_without_publishing",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_rejects_profileless_declared_producer_roles[method_result]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_rejects_profileless_declared_producer_roles[method_evidence]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_rejects_profileless_declared_producer_roles[execution_work_packet]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_rejects_profileless_declared_producer_roles[search_gp_fit_basis]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_accepts_selected_suite_input_without_suite_argument",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_autotune::test_protected_evaluation_rejects_unbound_search_gp_input_edge",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_signed_observations_drive_runtime_and_direct_materialization[True]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_signed_observations_drive_runtime_and_direct_materialization[False]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_claim_transition_envelope_reopens_with_its_embedded_basis",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[signature-scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[signature-data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[unappointed_signer-scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[unappointed_signer-data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[missing_observation-scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[missing_observation-data_forge]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[champion-scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[champion-data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[metric-scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes[metric-data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_empty_deployment_appointment_cannot_publish[scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_empty_deployment_appointment_cannot_publish[data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_valid_champion_does_not_authorize_fabricated_run_result[scientist]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_valid_champion_does_not_authorize_fabricated_run_result[data_forge]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_appointment_cannot_name_its_producer_as_evaluator",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_graph_rejects_raw_or_unminted_verified_rows_before_writing",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_verified_rows_recheck_current_champion_at_graph_use",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_retained_promotion_basis_requires_actual_incumbent_observations",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_claim_registry_process_exit_at_atomic_replace_keeps_old_or_new_state[before-81]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_claim_registry_process_exit_at_atomic_replace_keeps_old_or_new_state[after-82]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_claim_transition_rejects_alternate_policy_without_changing_basis",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_same_id_alternate_candidate_profile_is_refused_by_full_claim_chain",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_profileless_v1_signed_receipt_is_retained_as_history_but_refused",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_id_only_replay_api_fails_with_typed_selected_profile_refusal",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.data_forge.domains.academic.batch.test_claim_adjudication_verifier::test_same_id_alternate_suite_profile_is_refused_by_complete_chain",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_job_spec_kind_validation",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_job_key_legacy_ignores_polyglot_fields",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_flow",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_flow_records_finite_float_dispatch_and_adapter[finite-request-profile]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_flow_records_finite_float_dispatch_and_adapter[strict-default-mutation]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_nonfinite_method_params_leave_dispatch_unbound[nan]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_nonfinite_method_params_leave_dispatch_unbound[positive-infinity]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_nonfinite_method_params_leave_dispatch_unbound[negative-infinity]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_method_job_results_follow_ambient_tenant_ownership",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_without_fqn_returns_issue",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_flow_accepts_injected_store_and_method_providers",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_run_job_method_flow_accepts_protocol_store_factory",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_competing_method_jobs_share_the_configured_physical_executor[1]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.compute.test_runner_polyglot::test_competing_method_jobs_share_the_configured_physical_executor[2]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_raw_input_excludes_producer_publish_authority_and_freezes_bytes",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_missing_champion_blocks_without_emitting_result",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_promoted_champion_executes_and_publishes_strong_fulltext",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_model_positive_cannot_publish_abstract_only_claim",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_evaluation_candidate_mismatch_blocks_admission",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_required_guardrail_false_blocks_admission",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_tampered_raw_blob_is_rejected_before_execution",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_execution_result_cannot_be_presented_as_validity_evidence",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_scientist_cli_route_executes_real_transport_and_materializes_receipt",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_runtime_result_manifest_preserves_all_selected_claim_refs",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime::test_raw_batch_binds_complete_extraction_and_retraction_source_profiles",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_method_request_fingerprint_accepts_only_finite_floats_and_preserves_int_bytes",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_rejects_score_after_source_bound_dispatch_swap",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_suppresses_unreconciled_source_bound_score[missing_packet]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_suppresses_unreconciled_source_bound_score[unreadable_packet]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_suppresses_unreconciled_source_bound_score[metric_mismatch]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_suppresses_unreconciled_source_bound_score[capture_omitted]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_search_loop_suppresses_unreconciled_source_bound_score[capture_disabled]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+      "outcome": "skip",
+      "reason": "native GP and DR MethodJob use the serialized numerical verification slot"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_methodjob_execution_work_packets::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+      "outcome": "skip",
+      "reason": "native DR L3/L4 fit uses the serialized numerical verification slot"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_default_store_uses_storage_factory",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_autotune_persistence_helpers_accept_protocol_backed_store",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_omitted_suite_binding",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_evaluation_for_different_candidate",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_evaluation_for_different_loop",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_policy_for_different_loop",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_evaluation_from_different_suite_basis",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_binds_selected_candidate_and_suite_views",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_same_candidate_bytes_with_other_selected_profile",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_persist_evaluation_preserves_candidate_profile_and_rejects_conflicting_view",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_wrong_comparison_split",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_search_loop_runner_rejects_evaluator_from_foreign_suite",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.methods.autotune.test_registry_and_runner::test_pydantic_mutation_codec_keeps_runtime_identity_after_modeling",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks::test_runtime_candidate_bridge_writes_selected_owner_schema_and_body",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks::test_runtime_candidate_bridge_preserves_legacy_candidate_only_ref",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks::test_runtime_candidate_bridge_binds_canonical_candidate_to_selected_trinity_source",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks::test_source_statuses_are_per_source_and_choose_the_configured_benchmark_report",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.nodes.builtins.decide.test_policy_blueprint_runtime_benchmarks::test_benchmark_admission_requires_exact_loop_and_split_and_keeps_scope_filters",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_negated_objective_inverts_sign",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_grid_extreme_reports_worst_case",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_top_k_does_not_change_ten_violation_score",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_lower_tail_selects_negative_worst_case",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_tracks_lower_tail_through_adaptive_step",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_stops_on_first_lower_tail_vulnerability",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_reverses_order_for_minimize_cost",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_composite_budget_cost_selects_high_cost_as_worst_case",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[missing]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[non_numeric]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[nan]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result[inf]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_platform_meta_evaluator_passes_healthy_sentinel_injection",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_platform_meta_evaluator_detects_holdout_rotation_failure",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_platform_meta_evaluator_rejects_mistyped_rotations",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_adversarial::test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_phase_d4_runtime_integration::test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_phase_d4_runtime_integration::test_continuous_stress_stays_limited_through_fresh_level5_gate",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_phase_d4_runtime_integration::test_l5_distinguishes_missing_legacy_and_malformed_stress_scores",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_phase_d4_runtime_integration::test_phase_d4_runtime_helper_skips_cleanly_without_evidence",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop::test_traced_prompt_refuses_lossy_json_serializer_output_before_provider",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop::test_traced_prompt_guards_allowed_model_extras_before_provider",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop::test_prompt_field_guard_follows_effective_source_resolution_projection",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop::test_prompt_projection_preserves_artifact_ref_and_datetime_json_contract",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_search_finds_quadratic_minimum",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_search_respects_max_iterations",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_cost_budget_snapshot_stops_after_owner_spend_and_is_reported",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_durable_provider_owner_controls_search_stopping_and_result[0.25-0.50-resolved-1]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_durable_provider_owner_controls_search_stopping_and_result[0.25-0.25-resolved-0]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_durable_provider_owner_controls_search_stopping_and_result[0-0.50-resolved-1]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_durable_provider_owner_controls_search_stopping_and_result[true-0.50-unavailable-0]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_autotune_runner_binds_real_provider_call_to_durable_budget_owner[0.25-resolved-1]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_autotune_runner_binds_real_provider_call_to_durable_budget_owner[true-unavailable-0]",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_budgeted_search_refuses_unproven_generator_before_runner_callback",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_budgeted_search_rejects_traced_client_bound_to_another_owner",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_generation_with_missing_owner_event_readback_stops_before_stage_b",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_durable_spend_crosses_cost_threshold_after_two_traced_calls",
+      "outcome": "fail"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_valid_infeasible_typed_evaluation_remains_typed",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_concurrent_runs_are_rejected_as_non_reentrant",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestOptimizationFlow::test_diversity_telemetry_is_scoped_to_each_run",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_max_iterations_stops_exactly",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_triggers",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_stops_after_zero_then_positive_loss",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_preserves_negative_gain_after_zero",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_keeps_real_progress_open",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[positive-infinity]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[negative-infinity]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[nan]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[null]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[malformed-string]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_refuses_nonfinite_or_malformed_window_values[boolean-is-not-a-metric]",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_does_not_drop_a_missing_historical_observation",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_improvement_plateau_does_not_treat_malformed_history_row_as_absence",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_search_controller_preserves_best_through_nonfinite_plateau_history",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestStoppingCriteria::test_composite_stops_on_first_trigger",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestTwoStageFiltering::test_stage_a_rejection_skips_stage_b",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestTwoStageFiltering::test_stage_a_approval_runs_stage_b",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestTwoStageFiltering::test_cheap_stage_rejects_invalid_params",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestWorkflowEngineAbstraction::test_simple_engine_runs_to_completion",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestWorkflowEngineAbstraction::test_simple_engine_run_async_awaits_nodes_and_honors_terminal",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestWorkflowEngineAbstraction::test_simple_engine_step_by_step",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestWorkflowEngineAbstraction::test_engine_protocol_compliance",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestObjectives::test_gdp_objective_maximizes",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestObjectives::test_composite_combines_correctly",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestIntegration::test_end_to_end_search_with_mock_workflow",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestGenerationContext::test_search_controller_exposes_execution_plan_mutations_in_generation_context",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.scientist.search.test_search_loop.TestGenerationContext::test_search_controller_refreshes_mutation_context_from_stage_b_feedback",
+      "outcome": "pass"
+    }
+  ],
+  "source_inputs": 6217,
+  "source_stable": true,
+  "own_product_modules": 1669,
+  "foreign_product_modules": [],
+  "exit_code": 1,
+  "wall_seconds": 48.35585599998012,
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+    "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+    "tests/unit/scientist/compute/test_runner_polyglot.py",
+    "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/module-origins.json"
+  },
+  "deciding_boundary": "152 individual passes include selected-role producer/manifest controls. 26 failures remain in actual protected fixtures/producer-profile reconciliation, stress occurrence basis/schema controls, and Search emitted extras plus durable-provider prompt consumers. No aggregate property closure. Two native GP/DR selectors intentionally skip unless explicitly allocated numerical verification slot; required follow-up remains UNRUN.",
+  "repair_owners": {
+    "protected_actual_producer_fixture_and_selected_profile_class": "R1138 virtual author",
+    "stress_occurrence_basis_and_source_schema_control": "R1139 virtual author",
+    "search_actual_model_extra_and_durable_provider_prompt_quantity": "R1137 virtual author"
+  },
+  "p40": "Bucket actual failure classes before repair; widen producer/fixture or complete emitted/caller quantity; no inherited status without exact slice replay/full input intersection proof.",
+  "limitations": [
+    "Full original IDs/occurrences are proposals; no formal closures",
+    "Required GP/DR meaningful numerical positives still UNRUN, skip reasons retained",
+    "Global source/input/backend freeze, native repository SOTA/Q2/wheel/sdist/Linux/browser/authentic custody closeout still pending"
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/command.json",
+      "sha256": "2a14b2d0b06b5392df8e09abfc44a7fa177aa45237e7c3f10e607328de81dc1f",
+      "availability": "retained ignored local raw"
+    },
+    "failure-classification-input.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/failure-classification-input.json",
+      "sha256": "54212b284c50f23ead48311f413ff09f1e42e9abc73d6c5e66407ec9429a2fd7",
+      "availability": "retained ignored local raw"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/junit.xml",
+      "sha256": "eeed6c0665d3b78683bb71649cc638509ed1959fba51729a441bc2c80623f325",
+      "availability": "retained ignored local raw"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/module-origins.json",
+      "sha256": "ab4a341170c9bb9c14b8a5d26ec850ce3ffdb2c97852265feb98de8537ce2cb5",
+      "availability": "retained ignored local raw"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/progress.json",
+      "sha256": "cc20c5acf7500803526ff320189d4d81e5e6eca70763d7ebf9a77187cb8541ad",
+      "availability": "retained ignored local raw"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "retained ignored local raw"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/stdout.txt",
+      "sha256": "92e6ec027239c6f8b8826e1855ffc1d9c551c3337d21c01e9f4eff0a3b37ca04",
+      "availability": "retained ignored local raw"
+    }
+  }
+}

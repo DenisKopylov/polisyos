@@ -1,0 +1,29 @@
+# R1073 — independent review of the R1067 Catalog HTTP companion
+
+## Verdict
+
+**GO for Root to apply and include this one-file companion in the native composed replay.** The evidence supports the declared `/api/v1/control/data/resolve` profile-selection and fresh-reader currentness behavior in a controlled local fixture. It does not establish a C12 closure, a production currentness fact, Legal/Catalog DTO coupling, or a formal G finding disposition (`formal_closure_ids=[]`).
+
+## Source and artifact binding
+
+The proposal is R4 only: `LOCAL/raw/r1067-catalog-real-profile-http-fresh-reader-semantic-companion-20261013/r4/`. Its manifest SHA-256 is `4b63cb4f801fb08e4fe8466816d588e207473e2712c4aa433fbd5e92861b38f0`; the one-file patch is `a6637fb0b6d0a82b06cedb25f38ad0a2ef43bc1d8ede5d78d75ee22bc997ba5e`; the candidate postimage is `c41f621399327f613970a9cf0c8b11bd87f3afa05bb3b01d240c31e97123a183`; and the author's decision note is `f928e34cbca643bde7cc0564e4f85c5ff30a0fae7ee406883f8439313b4b15d4`. The patch adds only `policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py`.
+
+I rebound the declared 34-Python-file denominator to current source frame `root-author-source-frame-r1076-20261013.json` (SHA-256 `018b1e5998e45ca73fcfb4cac4fbcee11c0851610d283d2e9c2dff2f7ba39e12`): 27 files match the exact review HEAD, six retain the R1065 postimage, and `tests/unit/runtime/http/test_control_service_di.py` matches its R1076 postimage after the root-authorized tenant-context fixture delta. All 34 source bytes match their applicable HEAD/frame binding. The current branch is `codex/e02-unified-local-20261009`, HEAD `9511169e1a7f6dbd4137de824905dfbff8992a3f`, tree `d6d48c83b5a60afdead8066253bc30cd216f5913`, parent `226cedb822e6e242d861ea8c903c9b396375dd0e`. The frame covers 553 source paths and is not a global freeze. The changed `test_control_service_di.py` helper is outside this companion's Catalog producer/route call chain; the Catalog source and direct helper inputs remain byte-identical.
+
+## Behavioral review
+
+The positive path uses the canonical `_actual_scope_catalog` producer and the built-in `worldbank_wdi` source profile, closes that producer graph, configures an immutable `CatalogServingSourceSelection` for `prod_full`, and makes a real FastAPI `TestClient` POST to `/api/v1/control/data/resolve`. The assertions require one concrete WDI fetch plan, the expected connector/dataset/source-profile tuple, a fresh reader object over the producer's exact database path, recomputed `current` source status, and `catalog_profile_inputs_covered` admission. This checks the public route and fresh consumer result rather than only service fields or profile labels.
+
+The fixture request runs under the existing development test identity and route authorization dependency. That is a real HTTP and authorization-code path for this fixture, but it is not an OPA/deployed-identity or production-authentication receipt. The Catalog snapshot is synthetic and source-bound to the test producer; there is no live production manifest, currentness, or authority claim.
+
+Negative behavior is material: a valid but conflicting request profile returns the typed `catalog_run_profile_conflict`; an unsupported present profile value returns HTTP 422 without plans; and absence of both request and app selection returns `catalog_run_profile_unresolved`. The producer-excluded case changes a built-in profile input before canonical publication, restores it, then serves through a fresh reader; the HTTP result contains no fetch plan and reports stale currentness. These output assertions exercise the consumer behavior and would fail if the route accepted an unsupported default, if the positive profile stopped reaching a usable serving selection, or if stale input were allowed to publish a plan.
+
+P40 is `SAME_CLASS_DEEPER`: R1041 identified the missing Catalog public-route/current-reader receipt; R1042's controlled Legal serving run does not cover this separate Catalog path. R4 widens the same Catalog profile/currentness property through producer → typed app selection → authenticated route → fresh reader. Its bounded scope is `/data/resolve`; it does not claim Catalog ingestion/discovery or the separate Legal DTO path.
+
+One precision limit remains: the new excluded-profile HTTP test asserts stale currentness and no plan, but does not assert the producer receipt's exact `excluded_present` value or the distinct `catalog_profile_inputs_not_established` admission reason. It therefore supports the route-level stale/currentness refusal, not an independent HTTP proof of that exact coverage-reason branch. The existing source contains separate controls for generation coverage (`test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed` and `test_catalog_plan_requires_generation_profile_input_coverage`); Root should run them in the composed native wave and keep that distinction in the receipt.
+
+## Verification performed and remaining
+
+I ran read-only checks against the candidate: `git apply --check --unidiff-zero` exited 0; stdlib `ast.parse` passed; and configured product Ruff (`.venv/bin/python -m ruff check --no-cache --config ruff.toml --stdin-filename tests/unit/runtime/http/test_catalog_profile_http.py -`) exited 0 with `All checks passed!`. These agree with the packet's recorded receipts. I did not import product modules, run pytest, or start a runtime/DB; the actual HTTP behavior remains **UNRUN** until Root's native replay. If FastAPI/TestClient is unavailable the candidate is skipped, so the native receipt must show the test ran rather than infer behavior from collection or a skip marker.
+
+The prior C12/I4 audit keeps original occurrences separate, including LA-046 REQ-01 and ACQ-01. This companion proposes no closures for them or any other ID. Global source freeze, full ID adjudication, and G acceptance remain open.

@@ -1,0 +1,107 @@
+{
+  "authority": "Root captured deciding output; author verification, not G acceptance/global adjudication",
+  "head": "9511169e1a7f6dbd4137de824905dfbff8992a3f",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1094-20261013.json",
+    "sha256": "948808a5976991e620887ffdccaf20dbab38c2739006f265d092e260d142a7df"
+  },
+  "counts": {
+    "pass": 0,
+    "fail": 1,
+    "error": 0,
+    "skip": 0
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.runtime.http.test_control_service_di::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+      "outcome": "fail"
+    }
+  ],
+  "exit_code": 1,
+  "wall_seconds": 46.76881429203786,
+  "source_inputs": 6216,
+  "source_stable": true,
+  "own_product_modules": 1745,
+  "foreign_product_modules": [],
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/runtime/http/test_control_service_di.py::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/module-origins.json"
+  },
+  "boundary": "Actual two POST201→persisted report/evidence refs→fresh GET200; exact-intent reuse/conflict/tamper/legacy controls reached. Heldout4/4 vs0/4 coverage differs but both empirical_suitability=blocked at original assertion4953. Shared training bundle admitted no empirical grade; Nativewhole test FAIL, source-bound defining failure retained.",
+  "limitations": [
+    "Scientific thresholds unchanged. R1098 test-only shared-history eligibility companion reviewed separately; later result does not erase this FAIL.",
+    "No global freeze/currentness/G acceptance/closure."
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/command.json",
+      "sha256": "1f85bf51956cc3ed5b51f17b13fa5e7cba729c81ef0254713229903d5d8ee953",
+      "availability": "retained local ignored raw"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/junit.xml",
+      "sha256": "db16a4197c59f4db6d524df27819c874e31630f7b6795c8d8c39cd058a838797",
+      "availability": "retained local ignored raw"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/module-origins.json",
+      "sha256": "9097e8d92b27d887b8f12e829ad80b1266651faa5a1fb7608d4c3dd10d5e65bc",
+      "availability": "retained local ignored raw"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/progress.json",
+      "sha256": "167e7004553e1e9e987a83a4851883e479274fe6bb83f4c2f20799c92b57b505",
+      "availability": "retained local ignored raw"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "retained local ignored raw"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-ordinary-post-fresh-get-same-intent-whole-cas-fixture-actual-r1095-20261013/stdout.txt",
+      "sha256": "3a251386761ca9a39222d4de78d3c6cda7d89da4094692301338dbfb53078e88",
+      "availability": "retained local ignored raw"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "artifact": "r1113-catalog-fixture-prerequisites-independent-20261013",
+  "review_type": "independent delta review; no source edits or execution",
+  "verdict": "GO_ROOT_NATIVE_ONLY",
+  "closure_ids": [],
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+    "tree": "047ea0dff5b33068ffa7c6eea92581002bc3c684",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1105-20261013.json",
+      "sha256": "d7e9ead894477fd5a679e3d7acb68422ece36c361e13a7d2e7dd1afe00e4e884"
+    }
+  },
+  "proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1108-catalog-real-producer-fixture-prerequisites-20261013/delta.patch",
+    "sha256": "03b2f2b18505bc05e57dc4e7d23c0f1529a61152e217f80d35382d07f9274829",
+    "manifest_sha256": "9fe1b2c1291dd5e64ec71cf63f1a006ec5552052e4d12a107df4d48000d698ec",
+    "fixture_footprint_sha256": "c5b936ae78ffa646e34bd56eebb17abf7cf3800dfd232b4e98aa3e4fec2dfde8",
+    "changed_path": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py",
+    "mechanism_path_count": 1,
+    "preimage_sha256": "5638893c19a12ade9148cf8230c16d9e0def437f44fe1e1023ab72491a23367a",
+    "candidate_sha256": "da373550c49fa9e084b15f7c3fd277fe2ddc4d5e0c1d1b2f40824900c3dfdd3e",
+    "candidate_bytes": 9810
+  },
+  "evidence": {
+    "r1106_junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-public-profile-fresh-reader-coverage-actual-r1106-20261013/junit.xml",
+      "sha256": "b535570b82786e0e40ba9af2fcf415d39daaaa074324ad571ab1be76fe43a108",
+      "cases": 5,
+      "passed": 2,
+      "failed": 3,
+      "failed_cases": [
+        "test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+        "test_catalog_profile_http_blocks_published_excluded_profile_inputs"
+      ],
+      "observed_failure": "FileNotFoundError opening <pytest tmp_path>/catalog/registry.yaml from _actual_scope_catalog at registry_path.write_text, before DatasetBatchConfig, catalog graph producer, API setup, or HTTP request."
+    },
+    "source_footprint": {
+      "scoped_files": 11,
+      "all_current_sha_match_addendum": true,
+      "scope": "direct fixture, producer, and HTTP setup chain only; not a repository-wide denominator"
+    },
+    "callsite_review": {
+      "observation": "All _actual_scope_catalog test call sites were inspected. Existing fabric/runtime tests pass pytest tmp_path directly; the reviewed HTTP helper passes a nested catalog directory in both branches, which is the missing caller-owned directory.",
+      "candidate_effect": "Creates catalog_root with parents=True and exist_ok=True once before the branch; both actual producer calls and the selected snapshot path use that same root.",
+      "behavior_removed_or_bypassed": false
+    }
+  },
+  "checks": [
+    {
+      "command": "git apply --check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1108-catalog-real-producer-fixture-prerequisites-20261013/delta.patch",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "stdlib AST parse of exact in-memory patch candidate",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": ".venv/bin/python -m ruff check --no-cache --stdin-filename tests/unit/runtime/http/test_catalog_profile_http.py -",
+      "exit_code": 0,
+      "result": "PASS; All checks passed!"
+    },
+    {
+      "command": ".venv/bin/python -m ruff format --check --stdin-filename tests/unit/runtime/http/test_catalog_profile_http.py -",
+      "exit_code": 0,
+      "result": "PASS; no output"
+    },
+    {
+      "command": "pytest/runtime/native replay",
+      "result": "UNRUN by independent-review lease; Root must run the composed actual HTTP cases"
+    }
+  ],
+  "p40": {
+    "bucket": "NEW",
+    "class": "test-fixture filesystem precondition",
+    "quantity": "one shared HTTP helper used by three cases and two producer branches",
+    "distinction": "separate from the previously reviewed format-only finding",
+    "falsifier_evidence": "The prior actual R1106 run fails all three new cases at the same missing registry parent; candidate preserves the real producer, public app/client, fresh reader, and assertions."
+  },
+  "limitations": [
+    "Static review does not establish the post-patch three-case runtime result.",
+    "No formal finding closure or capability acceptance is proposed."
+  ]
+}

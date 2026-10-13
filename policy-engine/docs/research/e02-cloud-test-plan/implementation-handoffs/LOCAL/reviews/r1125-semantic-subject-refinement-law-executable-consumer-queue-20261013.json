@@ -1,0 +1,2109 @@
+{
+  "schema": "policyos.semantic_subject_refinement_law_executable_consumer_queue.v1",
+  "audit_id": "R1125",
+  "title": "S1 / S2 / S3 semantic subject, refinement and law consumer run queue",
+  "mode": "read-only source/test selector audit; no product import, tests, native runtime, dependency install, source write, Git write, or index write",
+  "checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1ccb8368df94735006cbfd16d5bc2d220d8e66b4",
+    "tree": "aec287e84229ee2c20c3f88ab1ad057d543177a4",
+    "frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+    "frame_sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad",
+    "frame_authority": "root author source frame; branch source binding only, not G acceptance or global freeze",
+    "physical_source_path_count": 568,
+    "verified_frame_postimage_count": 568,
+    "frame_postimage_mismatches": 0,
+    "worktree_root_owned_tracked_delta_count": 34,
+    "worktree_root_owned_delta_intersects_selected_code_tests": false,
+    "prior_checkpoint": {
+      "branch": "codex/e02-unified-local-20261009",
+      "frame_note": "Parent-confirmed R1035 frame: 548 paths; S1/S2/S3 semantic paths unchanged from R1023/R1029. This audit binds exact current HEAD.",
+      "head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+      "source_frame": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1035-20261013.json",
+      "source_frame_sha256": "45a723fa45bbf6f13f3b1db7063acd11cc78d7f772aa4117eef9ffd97470214d",
+      "tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a"
+    }
+  },
+  "assigned_denominator": {
+    "B31_note": "Original criterion remains uncertainty-channel separation; S3 exact subject/unit join is additional acceptance.",
+    "S1_ids": [
+      "B07",
+      "B19",
+      "B20",
+      "B21",
+      "B22",
+      "B31",
+      "B33",
+      "B36",
+      "LA-023",
+      "LA-032",
+      "LA-036",
+      "B161",
+      "B172",
+      "B173",
+      "B214"
+    ],
+    "S2_ids": [
+      "LA-036",
+      "B157",
+      "B190",
+      "B194",
+      "B197",
+      "B200"
+    ],
+    "S3_ids": [
+      "B31"
+    ],
+    "assigned_criterion_refs": 21,
+    "connected_exits": {
+      "S1": "three separate minimal decisions B31/B161/B214 with actual discriminators; reuse existing carriers/ID",
+      "S2": "attempted denominator/covariance/axis/subject identity consumed fresh; counterfeit metadata refuses",
+      "S3": "exact identification/nativeuncertainty refs bound to recomputed resolvedsubject/unit; freshAconsumer retains4point and1to10interval; fake/mismatch/unresolvedremoval refuses; no contract-only authority"
+    },
+    "connected_tasks_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+    "connected_tasks_sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d",
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "coverage_status": "not_adjudicated; scope is planning traceability, not behavioral proof",
+    "criterion_docs": {
+      "B_r19": {
+        "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "worktree_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      "LA_r09": {
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "worktree_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      }
+    },
+    "formal_closure_ids": [],
+    "not_routed": [
+      "LA-021",
+      "LA-029"
+    ],
+    "overlap": {
+      "B31": [
+        "S1",
+        "S3"
+      ],
+      "LA-036": [
+        "S1",
+        "S2"
+      ]
+    },
+    "queue_memberships": {
+      "S1": 15,
+      "S2": 6,
+      "S3": 1,
+      "total": 22
+    },
+    "task_status": {
+      "S1": "execution_remaining; inherited proposals are not closures",
+      "S2": "execution_remaining; inherited proposals are not closures",
+      "S3": "execution_remaining; inherited proposals are not closures"
+    },
+    "tasks_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "tasks_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "unique_ids": 20,
+    "whole_denominator": {
+      "bundles": 127,
+      "criterion_occurrences": 291,
+      "findings": 282
+    }
+  },
+  "evidence_denominator": {
+    "scope": "Explicit selected evidence inputs only, not a repository-wide census.",
+    "base_R1026_selected_files": 64,
+    "base_R1026_file_type_counts": {
+      "json": 4,
+      "markdown": 7,
+      "product_python": 33,
+      "test_python": 20,
+      "total": 64
+    },
+    "base_source_test_files_rehashed": 53,
+    "base_source_test_files_unchanged": 52,
+    "base_source_test_files_changed": [
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "prior_sha256": "9a080871be497756778e29f77e75456af492b3f5df2f559c748f37eb43200e6d",
+        "current_sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+      }
+    ],
+    "extra_test_witness_modules": [
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "bytes": 198908,
+        "sha256": "4a5399264fd4829a458c39e4705351835990a1634c5a53dba350c57b1b38cb8e"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "bytes": 18751,
+        "sha256": "382efe9b3d48b179a5f5e9518193a88cc7f07c6ed5a7ad2779135f0c75cb0738"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+        "bytes": 116814,
+        "sha256": "af09dbf437ccf4e1a327d34c72357b1cc27aed5d5d3ef1da33543dc5c9fec473"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "bytes": 218556,
+        "sha256": "3574ec5b024c6c5b31c219cf4a9d9f1d2287340b05e662a7d0d9574733797257"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+        "bytes": 7158,
+        "sha256": "0af0a123f41b7cabbc9019c4e2f0ea0c82e08833e5568b0fe3ff35e3e6bf5d21"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "bytes": 48476,
+        "sha256": "2ae5568ce2644af709b257bf294bfe7004508954d819bd449f03dc98b87a9f96"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+        "bytes": 18941,
+        "sha256": "f9e99127c1546788f4d455ae292d17c50be7120444eba680772b7e7c2d38914f"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+        "bytes": 42781,
+        "sha256": "7dcbd18dac903859e9e074a0077a2b02a255d579929858b3cf413fd2341cb60c"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "bytes": 25972,
+        "sha256": "55e174b178d535b8356ba1e4fe5c576e393c215e427648d7021cbea7995491a8"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/berl/test_adapters.py",
+        "bytes": 4721,
+        "sha256": "feb52c4919251dce99035ae228787bcb8afe79cd06a09937a56b1dd2b2c4491b"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/berl/test_contracts.py",
+        "bytes": 9619,
+        "sha256": "e4e02faea29e4e2929df10bf5bbae46c34273f06ef7a42b7d90f98be13803efc"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_dynamic_panel.py",
+        "bytes": 6271,
+        "sha256": "2e1b56a08fe5aad7fd555a18ab33251127b2274484a89c140e989292c6bc6e58"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+        "bytes": 8441,
+        "sha256": "232b004fd16472a5ddffacdf175426632e6407da922f3f8b5beae44d33b759ba"
+      }
+    ],
+    "current_direct_selected_file_count": 77,
+    "current_direct_file_type_counts": {
+      "product_python": 33,
+      "test_python": 33,
+      "json": 4,
+      "markdown": 7,
+      "total": 77
+    },
+    "current_control_documents": [
+      {
+        "file_type": ".md",
+        "path": "AGENTS.md",
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "ae191ba25c688bb68c7b0c53ff5b3e6e825d7065a7d7133a2596d1a6f0b53ada"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+      },
+      {
+        "file_type": ".json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      },
+      {
+        "file_type": ".json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+        "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      },
+      {
+        "file_type": ".json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json",
+        "sha256": "488806f7ffa455a84e311e19b2cc1d207016b587625abf846ddd11753b21cd7d"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      },
+      {
+        "file_type": ".md",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-current-coverage-gap-audit-r1-20261012.md",
+        "sha256": "2d5fd1171131465168416c2c0746b76bb415a0c7bf0bfcdfaf7f76477063937f"
+      },
+      {
+        "file_type": "json",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1134-20261013.json",
+        "sha256": "81b47b6e7f1cb846959aa7d711a8853c123d6eb194f9aa40ff8be3683a21e5ad"
+      }
+    ],
+    "lineage_artifacts_read": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1026-semantic-subject-refinement-law-remaining-source-quantity-20261013.json",
+        "sha256": "a8698df38e6ca12b7a49d7ad36753fd2da73b3dfeb6b80626e544219ba3479ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1026-semantic-subject-refinement-law-remaining-source-quantity-20261013.md",
+        "sha256": "6f7997c5f6e99c40d168826a7ffc49cbd4f7ae2e9cbe87d4434ce748f20db1e4"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1035-20261013.json",
+        "sha256": "45a723fa45bbf6f13f3b1db7063acd11cc78d7f772aa4117eef9ffd97470214d"
+      }
+    ],
+    "current_source_test_inventory": [
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+        "sha256": "1da84b6d2cc5caccf29c29df379c0b42f159122435e5a9a2acddd2d786c23d78"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+        "sha256": "eec2042fb36bcde5fc150d053a1cd2e072366dc0b1c2f91077934b167a491781"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/berl/service.py",
+        "sha256": "56511a6b8c9efb637b4c6f747bfb5ba2b58bdd571323b34f1e818f144101f526"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+        "sha256": "86795e0eec732e33ab43f08f864a0ad3dc01c848ac262048521b97609dde180f"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+        "sha256": "970be4bd15c297871cd65c612e596e162fa05ef0c2e93f4a3a358cce43713f6d"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "sha256": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+        "sha256": "78d15089eafb8127b04276b24bc0b399bf58c5c18fb9cbb070b8650f3580f805"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+        "sha256": "960509e1096062107da094575bf5975454409840bfac5f0a9068010a3f2a6318"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "sha256": "7c7d4a66483103195d74969e86ff4992fab7ee54ae693ecd1217a97e837cb54b"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "sha256": "382499f2501c45b115a5a20a985b3fb29682739b5432f736f618cbc184d6b926"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "sha256": "4fc5b420732e42575ed7620e8e9936b9774aa2aceefc6e1e9ccbdace027b15dd"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+        "sha256": "81e9c8cda63041e0c105930bdb8de719d230ccd3ce963fe48d7f8af67979d18a"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "sha256": "5b366d0f3323ade292ffe3f3464397b83b26f834541a07152f5c73f10e2ab050"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "sha256": "323940352151a1ed496713504c7f6f01677d2f26668bd41e655958823cfbc892"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "sha256": "3fc2c5c0401f5e5df91389f70bab10aa6d8458926aa2861a4a75a00bb854ac20"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "sha256": "7ad0a65a8b578b25892c82647ebad447fd7729817ee78e65156018d414f9232d"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "967a64c71d1f5dcd33a837dcc63e16678a05824a3bae620627afe3acce447aec"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "sha256": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+        "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "sha256": "8c9eb7e183bfec9f17508195f34f40a8e17e51163362105fc79dee179de98d05"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "sha256": "f18dab7330f3a979f58670f856986ba3938bbf209eee9076af8322979351e3e7"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+        "sha256": "2076dcce76f68aa5b5b6963f9cc575f20b906ce0ce12d7e3227f1832cbb656a0"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "sha256": "a0d21146a1cc1bd3593c4d4997f9d3f14f0d44588322b6b73ac820dc53b7d46f"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "766bb4be5a1f811f2a5eda67d5b8c1501c13ba1c0a0bd08d7c8bb4354e0599d2"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "sha256": "4c3bc70f597bf0dbf7488878dea9a9b27b470148ebaf1575f5e2c235ef5aa7d6"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "sha256": "7a1f629420af573b2835d3944c660c66c091f0dd7adda0e094f698a563b43a96"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+        "sha256": "e6799bc06f7ad5ee88db2ff57b61ad323653a22b509cdd1a91902de3b749d4f4"
+      },
+      {
+        "kind": "product_source",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "sha256": "c147b152e10703343c60e881720cfc45a649cc955c6821d05c194f460710f28f"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py",
+        "sha256": "177a295ada7cb5c612d846d476d646a273d05b504b0a64bf059d0e3f1a6d51e6"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+        "sha256": "a644c0a8356fd162fdeeb6297325a890c3674682dce7f57db34972d364169246"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "sha256": "34bc760f7784bd52d680bad2b6aed565fb421ff4cde358155e5db5814c875227"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+        "sha256": "430febfc95fc86457ae7d99ed3fadb49915772d2b654294c614faed9b6f8680d"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "sha256": "5ea5a3808c5c793eba014a9d50c64631ad6c5af73fd1cb06edde56bda873d2b1"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "sha256": "3a1783e7c2f3606ba4ac1619e26039ef6a72509d61b9e4b89d958071aaa7695c"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+        "sha256": "2aa86fb8ee265d1948702771739b94f13e2c5436f78863074d03959b199bd365"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+        "sha256": "ef692a674e5a934674e8d980975d79368c8a90a8a947e9fa3f0cf3022320d360"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+        "sha256": "1fe5384525b07a46147f0e58fd17349e417ee4e37a5770e0beb686798d389857"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+        "sha256": "f841137a4e50f0af6df9e6b435387a683e467086ad3027982ba6e4f4bb8ae2fe"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+        "sha256": "bef0deeb6e4b20f438f1a06a62ddf1bffef3587695762d61592948767cda7abb"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "bb80715e750b337996184ee7000c297dddbc7995a50c00ef239895b1706ad9d1"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "sha256": "2e8867f38b256f09f7ad798c20f46071375ef70e441a5d7b233dfd6f8d356ecb"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+        "sha256": "1acc2f75846e58f26249750493737b0ec48cf66188981888060de757bf97a896"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "sha256": "cdffd0429316458c92385056b5f85dbc8dfd2a619776b249a6ebf50836abe8ee"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py",
+        "sha256": "992366eb70538fe7cc1313644180dc8f4bba99056ef1081a28174c77056a822b"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "sha256": "b1ad33cca5f78b1e25463a6f4e090d8566cb06a6237b6e4a570658577e61f649"
+      },
+      {
+        "kind": "test_source",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "bcf763e37810cef2eb2d30afde479e0fc327c61d3712de7446aa96274fca3886"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "bytes": 198908,
+        "sha256": "4a5399264fd4829a458c39e4705351835990a1634c5a53dba350c57b1b38cb8e"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "bytes": 18751,
+        "sha256": "382efe9b3d48b179a5f5e9518193a88cc7f07c6ed5a7ad2779135f0c75cb0738"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+        "bytes": 116814,
+        "sha256": "af09dbf437ccf4e1a327d34c72357b1cc27aed5d5d3ef1da33543dc5c9fec473"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "bytes": 218556,
+        "sha256": "3574ec5b024c6c5b31c219cf4a9d9f1d2287340b05e662a7d0d9574733797257"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+        "bytes": 7158,
+        "sha256": "0af0a123f41b7cabbc9019c4e2f0ea0c82e08833e5568b0fe3ff35e3e6bf5d21"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "bytes": 48476,
+        "sha256": "2ae5568ce2644af709b257bf294bfe7004508954d819bd449f03dc98b87a9f96"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+        "bytes": 18941,
+        "sha256": "f9e99127c1546788f4d455ae292d17c50be7120444eba680772b7e7c2d38914f"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+        "bytes": 42781,
+        "sha256": "7dcbd18dac903859e9e074a0077a2b02a255d579929858b3cf413fd2341cb60c"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "bytes": 25972,
+        "sha256": "55e174b178d535b8356ba1e4fe5c576e393c215e427648d7021cbea7995491a8"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/berl/test_adapters.py",
+        "bytes": 4721,
+        "sha256": "feb52c4919251dce99035ae228787bcb8afe79cd06a09937a56b1dd2b2c4491b"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/berl/test_contracts.py",
+        "bytes": 9619,
+        "sha256": "e4e02faea29e4e2929df10bf5bbae46c34273f06ef7a42b7d90f98be13803efc"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_dynamic_panel.py",
+        "bytes": 6271,
+        "sha256": "2e1b56a08fe5aad7fd555a18ab33251127b2274484a89c140e989292c6bc6e58"
+      },
+      {
+        "kind": "test_source_companion",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+        "bytes": 8441,
+        "sha256": "232b004fd16472a5ddffacdf175426632e6407da922f3f8b5beae44d33b759ba"
+      }
+    ],
+    "no_test_execution": "Selectors are proposed for root execution only; no test result is claimed here."
+  },
+  "patterns": {
+    "p40_class_first": [
+      {
+        "bucket": "same class; whole quantity",
+        "class": "B172/B173",
+        "disposition": "One verifier over complete scenario/metric/backend and every fresh direct/nested consumer."
+      },
+      {
+        "bucket": "same source-bound refinement class; bounded residual",
+        "class": "B161",
+        "disposition": "Preserve historical risk and candidate until allowed owner relation exists; no min/last or per-field patch."
+      },
+      {
+        "bucket": "one method property; two queue memberships",
+        "class": "LA-036",
+        "disposition": "One generic refusal until law-bound sampler exists."
+      },
+      {
+        "bucket": "one finding; two acceptance dimensions",
+        "class": "B31",
+        "disposition": "Preserve channel separation and S3 join; membership is not closure."
+      },
+      {
+        "bucket": "distinct original properties",
+        "class": "others",
+        "disposition": "Keep comparator, composition, sampling, time, topology, transform, denominator, mapping, and dependency classes separate."
+      }
+    ],
+    "relevant_register_ids": [
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P36",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "p37_rule": "For each gate predicate distinguish recomputed, independently_reconciled, consumer_asserted, institutionally_supplied, or not_established. The last three cannot support authority-grade admission.",
+    "p38_rule": "Name actual runtime property, what the code/test currently turns on, and a divergent case.",
+    "p40_rule": "B172/B173 are one whole diagnostic/trust class; B161 one source-bound refinement class; LA-036 one conditional-method class; B31 one finding with B31 and S3 acceptance dimensions. No per-field/per-surface ladder.",
+    "p41_rule": "No tests were run, so no current red is attributed to this leaf or called inherited; test results remain not_established until root runs from its pinned supported environment."
+  },
+  "run_protocol": {
+    "environment": "Use the already-provisioned supported Python runtime from the root harness (NumPy/SciPy/PyTorch1 as applicable). Do not install, bootstrap, or create an environment for this queue.",
+    "invocation": "From policy-engine/, execute each batch as `python -m pytest -q <selectors...>` after activating the existing supported environment. Exact argv prefixes and pytest node IDs are in each batch.",
+    "order": [
+      "simulation-selection-and-horizon",
+      "subject-bound-intervals-and-graph-topology",
+      "modality-training-and-inventory",
+      "conditional-shap-refusal-and-marginal-control",
+      "source-bound-risk-and-backtest-consumers",
+      "effective-config-jacobian-denominator-covariance-dependence"
+    ],
+    "reuse_only": "Do not repeat successful selectors absent a source delta, failure, or changed input."
+  },
+  "batches": [
+    {
+      "id": "simulation-selection-and-horizon",
+      "criteria": [
+        "B07",
+        "B19",
+        "B20",
+        "B21",
+        "B22"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run with the already-provisioned supported Python environment; do not install or create an environment.",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_fresh_cas_reader_rejects_forged_replicate_mean",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_v4_sampling_and_interaction_summaries_are_recomputed_and_required",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_refuses_conflicting_shared_slot_before_execution",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "subject-bound-intervals-and-graph-topology",
+      "criteria": [
+        "B31",
+        "B33",
+        "B214"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run with the already-provisioned supported Python environment; no installation.",
+      "selectors": [
+        "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+        "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+        "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+        "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_manifest_lineage_requires_exact_complete_input_multiset",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_identification_contract_projects_exact_native_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_value_outer_set_width_tracks_real_did_interval",
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref",
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows",
+        "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py::test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreign_kind",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_artifact_roundtrip",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_roundtrip_uses_fresh_reader",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencies",
+        "tests/unit/remediation/test_grf_03.py::test_projection_rejects_unresolved_cpdag_triangle_instead_of_labeling_cycle_dag",
+        "tests/unit/remediation/test_grf_03.py::test_graph_projection_admission_covers_full_profile_endpoint_product",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_id_refuses_before_pag_orientation_or_optimistic_commitment",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_graph",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "modality-training-and-inventory",
+      "criteria": [
+        "B36",
+        "LA-023",
+        "LA-032"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run training selectors only in the existing supported native/JAX environment; do not provision dependencies.",
+      "selectors": [
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_builds_content_bound_selection_receipt_from_real_trace",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_modalities_require_one_method_with_the_full_source_union",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py::test_event_study_runs",
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+        "tests/unit/remediation/test_plg_03.py::test_training_uses_supplied_tenant_store_for_persist_and_readback",
+        "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+        "tests/unit/remediation/test_plg_03.py::test_zero_effective_gradient_is_typed_pending_without_policy_or_cas_persistence",
+        "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_candidate_readers_refuse_malformed_present_members",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_stage_manifest_rejects_inexact_selected_input_membership",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_same_shape_state_order_drift_is_rejected_by_the_real_resolver",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_facts_cannot_claim_independent_provenance"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "conditional-shap-refusal-and-marginal-control",
+      "criteria": [
+        "LA-036"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run with the existing supported NumPy/SciPy/PyTorch1 environment; do not install dependencies.",
+      "selectors": [
+        "tests/unit/remediation/test_ber_01.py::test_gaussian_conditional_shapley_discriminator_is_not_mislabeled_marginal",
+        "tests/unit/remediation/test_ber_01.py::test_default_conditional_kernel_shap_refuses_without_conditional_law",
+        "tests/unit/remediation/test_ber_01.py::test_service_request_guard_overrides_custom_kernel_adapter_for_conditional_request",
+        "tests/unit/remediation/test_ber_01.py::test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_direct_call_refuses_unverified_conditional_route",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_exact_enumeration_matches_linear_model",
+        "tests/unit/berl/test_contracts.py::test_conditional_bundle_requires_a_verified_observed_feature_law",
+        "tests/unit/berl/test_contracts.py::test_unknown_feature_dependence_profile_fails_closed",
+        "tests/unit/berl/test_contracts.py::test_method_profile_must_match_bundle_feature_dependence_profile",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_control_distinct"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "source-bound-risk-and-backtest-consumers",
+      "criteria": [
+        "B161",
+        "B172",
+        "B173"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run using the supported SciPy environment. Keep controlled fixture rows/roles and source refs exact; do not rewrite test inputs.",
+      "selectors": [
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_valid_foreign_data_snapshot_stays_candidate_only_and_never_becomes_refinement",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_only",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_nominal_component_source_change_is_withheld_with_markers_intact",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_nominal_components_keeps_markers_but_is_withheld",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_source_method_edge_keeps_candidate_markers_from_admitting_observation",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_accepts_real_rows_and_keeps_legacy_candidate_untrusted",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric_set_gaps",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_recomputes_mape_and_interval_summaries",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_forged_availability_and_t_statistic",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_preserves_selected_split_gap_and_basis_refs",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_refuses_conflicting_role_requests",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_backtesting_report_persists_nonsignificant_method_identity",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_historical_plan_retains_named_split_roles",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "effective-config-jacobian-denominator-covariance-dependence",
+      "criteria": [
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Use the existing supported environment; B194 uses deterministic fixed draws and is the only moderate-cost selector here.",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_fidelity_config_in_feedback",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_reuses_cached_stage_a_progress",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_cache_miss_falls_back_to_full_execution",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_preserves_zero_baseline_effect",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_typed_transient_retries_the_same_draw_without_changing_its_denominator",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_sampler_transient_is_not_retried_as_an_evaluator_call",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exhausted_typed_transient_fails_closed_after_one_same_draw_retry",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_normative_admission_recomputes_denominator_while_markers_stay_true",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_report_without_projection_does_not_use_v1_name_identity",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_projection_must_cover_every_reported_calibrated_field",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_tied_projection_is_invariant_to_coordinate_name",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_equal_variance_does_not_trust_independence_label",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_does_not_favor_a_source_without_resolved_relation",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_bayesian_combination_without_resolved_relation_does_not_narrow"
+      ],
+      "not_run_here": true
+    }
+  ],
+  "criteria": [
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "JointSimulationRequest/HorizonSpec → candidate selector/coupling checks → result feedback. Current selector checks applicability before final choice; no route executed here.",
+      "coverage_capability_label_preserved": "verification_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "a81abf22f14ad4405e6f867082275cd232a6a18bc591b99a4594cd4613dfc567",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            277,
+            288
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SIM-01"
+        }
+      ],
+      "id": "B07",
+      "next": "Same request: first engine coupling-incompatible, second compatible and executed; then all-incompatible refusal with rejected reasons retained.",
+      "original": "Check coupling/time applicability before choosing the final engine; a compatible fallback must execute or refusal remain explicit.",
+      "p37": "Request/candidate support is recomputed; source law and truth of declared engine capability remain not_established.",
+      "p38": "A support/method name can select an engine that never executes the requested interaction.",
+      "p40": "Same selector property; no one-engine patch.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+        }
+      ],
+      "batch": "simulation-selection-and-horizon",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_refuses_conflicting_shared_slot_before_execution"
+      ],
+      "run_inputs": "One exact request with equal horizon and atom set: put a coupling-incompatible registered engine before a compatible coupled engine, reverse order, then all-incompatible; only compatible engine may execute and its result must persist, with rejected reasons retained.",
+      "known_gap": "Existing tests cover support/refusal independently and a compatible engine; no explicit order-sensitive fallback selection with a later compatible engine.",
+      "next_control": "Add a producer→CAS→fresh-reader fallback-order control and all-incompatible control; select real registered engines, never a caller-supplied method name.",
+      "owner_facts": "Engine capability must be observed through the selected actual engine; no external policy fact is needed."
+    },
+    {
+      "audit_gap_label": "bridge_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Baseline presence/finite value is checked and subtraction recomputed. comparator_refs/effect_basis status remain not_established; no source artifact/horizon resolution is shown.",
+      "coverage_capability_label_preserved": "bridge_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "db1ff4d20be85b6c4370b73aecc9f8f68ac09568e7e98163e639f67c2f15a733",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            425,
+            438
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SIM-03"
+        }
+      ],
+      "id": "B19",
+      "next": "Missing baseline, no-op, changed baseline, foreign/unresolved comparator ref/horizon through producer and fresh consumer.",
+      "original": "Comparator/baseline is factual and aligned to model/scope/horizon; absent state is not zero and no-op is not effect.",
+      "p37": "Subtraction recomputes; comparator identity, source, scope/model/horizon and meaning not_established.",
+      "p38": "A finite caller baseline plus unresolved/mismatched comparator ref produces a plausible number without comparator evidence.",
+      "p40": "Distinct comparator-binding class.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+        }
+      ],
+      "batch": "simulation-selection-and-horizon",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_fresh_cas_reader_rejects_forged_replicate_mean"
+      ],
+      "run_inputs": "Three same model/scope/horizon controls: absent baseline; source-selected baseline equal to observed result; source-selected baseline yielding a real delta. Then retain comparator declaration but swap its artifact/model/profile/horizon; fresh consumer must withhold the delta.",
+      "known_gap": "Current request has finite baseline values and comparator_refs strings; route does not demonstrate factual comparator artifact resolution aligned to model/scope/horizon. Existing N5 reader does not prove comparator basis.",
+      "next_control": "Reuse an owner-supported content-bound resolver if available; otherwise record bridge gap and obtain the true baseline schema/artifact from its owner before defining a positive. Missing baseline is not zero.",
+      "owner_facts": "Baseline identity, reference frame, scope, time, and meaning are source-owner facts; do not fabricate them."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Typed writes validate before engine; compatible writes merge and conflicts reject. No explicit sequence contract is visible.",
+      "coverage_capability_label_preserved": "verification_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "ed3aedc0aa1d801dff49f931a0789190350d32f64039e946c5dc4468469b7838",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            439,
+            450
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SIM-02"
+        }
+      ],
+      "id": "B20",
+      "next": "Permute compatible inputs across engines; reverse conflicts; prove refusal precedes engine call.",
+      "original": "Compatible unordered atoms are permutation-stable; conflicting writes refuse before calculation; no implicit sequence.",
+      "p37": "Conflict is recomputed; sequential meaning not_established.",
+      "p38": "Engine-specific ordering may diverge even when constructor/mapping markers match.",
+      "p40": "Whole composition across engines; no adapter ladder.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+        }
+      ],
+      "batch": "simulation-selection-and-horizon",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_refuses_conflicting_shared_slot_before_execution",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction"
+      ],
+      "run_inputs": "Take existing compatible typed atoms and run both permutations on the same coupled engine; compare complete per-step results and persisted output. Reverse conflicting writes and assert both orders refuse before engine callback count changes.",
+      "known_gap": "Existing checks refuse conflict before execution and cover compatible joint output; permutation invariance is not explicitly selected.",
+      "next_control": "Add one property over the complete request atom list, not a hand-picked pair. If sequence is intended, require explicit sequence semantics; never infer order from mapping order.",
+      "owner_facts": "No external fact; unordered composition is an internal contract property stated by the criterion."
+    },
+    {
+      "audit_gap_label": "producer_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Seeds/count feed engine and typed summary; one sample is standard_error_not_estimated. IID/Sobol law and failed/unattempted denominator are not established from fields.",
+      "coverage_capability_label_preserved": "producer_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "f2e8020b22206a84bcdcbf796bfb0c00545c4d8b211d75f20c45a91283c16084",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            451,
+            464
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SIM-03"
+        }
+      ],
+      "id": "B21",
+      "next": "Use actual IID/Sobol modes if available, one/multiple draws and early failure; inspect persisted denominator and fresh reader without synthesizing law.",
+      "original": "Sampling uncertainty follows actual law; one draw is not zero SE and IID/QMC/failure counts differ.",
+      "p37": "Counts/SE recompute; exchangeability, scrambling and draw relationship not_established without actual sampler contract.",
+      "p38": "Distinct seeds from deterministic Sobol may yield nonzero SE while failing an IID requirement.",
+      "p40": "Separate from B194 missingness and B200 dependence.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+        }
+      ],
+      "batch": "simulation-selection-and-horizon",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_v4_sampling_and_interaction_summaries_are_recomputed_and_required",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_fresh_cas_reader_rejects_forged_replicate_mean"
+      ],
+      "run_inputs": "Preserve real request replication count, produced seeds/draws, actual engine identity, and failure/unattempted records. Compare one vs multiple replications. If actual registry has IID and Sobol engines, use their real registrations and assert persisted sampler identity; never synthesize a law flag.",
+      "known_gap": "Counts, seeds and summary are recomputed; sampling law and IID-vs-QMC identity are not established by the request/output fields.",
+      "next_control": "Probe actual registrations. Add law-specific producer→artifact→fresh-reader tests only for real registered samplers. If unavailable, keep law not_established and do not infer SE from seed uniqueness.",
+      "owner_facts": "Sampling law and interpretation of uncertainty require the real engine/source contract, not a seed list."
+    },
+    {
+      "audit_gap_label": "absent/unallocated",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "HorizonSpec defines integer steps and coverage checks exact expected steps/scopes; physical origin/unit are absent from this basis.",
+      "coverage_capability_label_preserved": "absent/unallocated",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "e9a1b5a2974b1a75054280ce4be8e31f20ccf352a522af4dd1be8a0187459cbc",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            465,
+            476
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SIM-02"
+        }
+      ],
+      "id": "B22",
+      "next": "Short/empty/full, duplicate, shifted-origin and mismatched-unit through producer/reader; transformations only if typed source selected.",
+      "original": "Preserve complete/short/empty grid; no tail fill, interpolation, or silent unit conversion.",
+      "p37": "Step coverage recomputes; physical unit, origin and transformation law not_established.",
+      "p38": "Same point count on shifted origin or different unit passes cardinality but means wrong period.",
+      "p40": "Distinct temporal grid/unit class.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+        }
+      ],
+      "batch": "simulation-selection-and-horizon",
+      "selectors": [
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_fresh_cas_reader_rejects_forged_replicate_mean"
+      ],
+      "run_inputs": "HorizonSpec start=0,end=3,step=1 expects (0,1,2,3). Retain full case; remove final step; empty output; duplicate one step; shift to 1..4 with same count. Mismatch must type a gap/refusal, never fill/interpolate.",
+      "known_gap": "Typed integer step coverage exists; physical origin/unit are absent, and no existing test covers short/empty/full/duplicate/shifted cases as a matrix.",
+      "next_control": "Add an expected-step-identity property rather than count-only test. Bind origin/unit only from selected source profile; without it keep limitation visible.",
+      "owner_facts": "Time origin, unit, calendar and transformations are selected-source/owner facts."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Owner-run basis → candidate fixture → ValueOuterSet and native uncertainty; fixture/run-basis types are candidate-only. S3 additionally demands exact refs, resolved subject/unit and fresh reader.",
+      "coverage_capability_label_preserved": "absent/unallocated",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            593,
+            606
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "EMP-01"
+        }
+      ],
+      "id": "B31",
+      "next": "Real refs, nonzero/asymmetric native interval, zero-width identification; persist/read fresh and remove/mismatch refs or subject/unit with markers intact.",
+      "original": "Identification bounds stay separate from native statistical/model uncertainty for same estimand/unit; zero-width bound is not certainty.",
+      "p37": "Envelope arithmetic recomputes; factual law/native provenance/subject-unit-time identity not_established by fixture label.",
+      "p38": "Correctly shaped intervals attached to wrong subject/unit pass a marker/shape-only check.",
+      "p40": "One finding/two acceptance dimensions; memberships are not closure.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "sha256": "4fc5b420732e42575ed7620e8e9936b9774aa2aceefc6e1e9ccbdace027b15dd"
+        }
+      ],
+      "task_memberships": [
+        "S1",
+        "S3"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+          "sha256": "bef0deeb6e4b20f438f1a06a62ddf1bffef3587695762d61592948767cda7abb"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256": "bb80715e750b337996184ee7000c297dddbc7995a50c00ef239895b1706ad9d1"
+        }
+      ],
+      "batch": "subject-bound-intervals-and-graph-topology",
+      "selectors": [
+        "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+        "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_manifest_lineage_requires_exact_complete_input_multiset",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_identification_contract_projects_exact_native_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_value_outer_set_width_tracks_real_did_interval"
+      ],
+      "run_inputs": "Exact projection control: identification point lower=upper=(4.0,), native statistical lower=(1.0,), upper=(10.0,). B31 v2 owner-basis fixture has explicit candidate_fixture_only assignment (2.125,2.125); compare actual method output/native interval without promoting the fixture.",
+      "known_gap": "In-memory projection and a real persist/fresh-CAS candidate route exist. The persisted basis fixture explicitly forbids production-value eligibility; S3 still requires source-owned subject/unit identity and fresh consumer.",
+      "next_control": "Run both. Only if owner supplies true same-estimand/unit/custody inputs, add source→producer→persisted basis→fresh consumer; mutate/remove subject/unit/ref with interval markers intact.",
+      "owner_facts": "Estimand, measurement unit, source law and production eligibility are owner-supplied."
+    },
+    {
+      "audit_gap_label": "bridge_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Generation-cycle resolves selected graph ref/profile/content, validates graph IR and builds SelectionDiagram; unresolved ref returns acquisition reason. No fresh route run.",
+      "coverage_capability_label_preserved": "bridge_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            621,
+            634
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "EMP-01"
+        }
+      ],
+      "id": "B33",
+      "next": "Source graph→diagram→persist→fresh consumer; compare two topologies and remove ref with markers intact.",
+      "original": "Use typed source graph topology, not names/marginals/template; different topology must change selection evidence.",
+      "p37": "Ref/profile/content recompute; graph truth/population/time/topology authority not_established from presence.",
+      "p38": "Equal names/marginals but different edges should produce different diagram.",
+      "p40": "Distinct from B214 endpoint projection.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+          "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "sha256": "430febfc95fc86457ae7d99ed3fadb49915772d2b654294c614faed9b6f8680d"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+          "sha256": "bb80715e750b337996184ee7000c297dddbc7995a50c00ef239895b1706ad9d1"
+        }
+      ],
+      "batch": "subject-bound-intervals-and-graph-topology",
+      "selectors": [
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref",
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows",
+        "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+        "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py::test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreign_kind"
+      ],
+      "run_inputs": "Use same declared nodes and measured rows with two persisted selected graph profiles: T→Y,S→Y vs T→S→Y. The real gateway should carry different edge topology and the measured row refs. Remove selected ref or select a sibling profile while retaining names/values; fresh route refuses.",
+      "known_gap": "Fresh selected graph ref and topology-sensitive gateway are exercised; no scoped test demonstrates a persisted SelectionDiagram artifact resolved by a fresh consumer. Direct helper refusal exists.",
+      "next_control": "Extend only an existing SelectionDiagram persistence consumer if one exists; otherwise record precise bridge/surface gap. Graph presence or equal names/marginals is not topology proof.",
+      "owner_facts": "Graph truth, population and time coverage are not established by content hash alone."
+    },
+    {
+      "audit_gap_label": "producer_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Advisor preserves requested modality and filters catalog; no end-to-end transform producer/output consumer is demonstrated.",
+      "coverage_capability_label_preserved": "producer_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            682,
+            699
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "SEL-01"
+        }
+      ],
+      "id": "B36",
+      "next": "No-method refusal and supported real transform→persisted output→fresh consumer; remove transform while retaining markers.",
+      "original": "Required modality is hard; selection does not prove transform production; unsupported remains refused.",
+      "p37": "Modal filtering recomputes; transform output identity not established by catalog metadata.",
+      "p38": "Catalog advertises modality while transform never runs or output is dropped.",
+      "p40": "Whole modality/output property.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+          "sha256": "430febfc95fc86457ae7d99ed3fadb49915772d2b654294c614faed9b6f8680d"
+        }
+      ],
+      "batch": "modality-training-and-inventory",
+      "selectors": [
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_builds_content_bound_selection_receipt_from_real_trace",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_modalities_require_one_method_with_the_full_source_union",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py::test_event_study_runs"
+      ],
+      "run_inputs": "Explicit required modality panel. Advisor supplies a paired negative (tabular-only catalog blocked with required-modality blocker) and positive selection `econometrics.panel.event_study@1.0.0`. Separate dispatcher test uses controlled 8×8 outcomes, treated rows 4–7, treatment time 4, +0.6 post-treatment shift, and returns uncertainty envelope.",
+      "known_gap": "Advisor selection and method dispatch are separate tests; no same-request advisor→selected method→persisted output→fresh value consumer chain is demonstrated.",
+      "next_control": "Join selected method via existing dispatcher if available, persist output plus selected source ref, resolve using existing value consumer. Remove execution while catalog/selection markers remain and ensure no admissible value output.",
+      "owner_facts": "Panel rows, units, subject and time profile are source data, not catalog metadata."
+    },
+    {
+      "audit_gap_label": "semantic_test_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Facade→Economics adapter→actor-critic trainer→supplied store. Unsupported-profile refusal exists; public promise/checkpoint remain separate owner decisions.",
+      "coverage_capability_label_preserved": "semantic_test_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            1052,
+            1083
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "route": "PLG-02"
+        },
+        {
+          "criterion_sha256": "b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            1052,
+            1083
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "route": "PLG-03"
+        }
+      ],
+      "id": "LA-023",
+      "next": "Fixed Economics seed train→persist→reopen→independent action; remove update, use composite profile, request unsupported resume.",
+      "original": "Economics .train route actually updates/persists/reads policy; other profiles bridge_pending; resume needs typed checkpoint basis.",
+      "p37": "Action/update can recompute; public scope/RNG/resume contract needs owner decision and typed input.",
+      "p38": "Artifact/status marker survives after optimizer update removal.",
+      "p40": "Two PLG criterion pointers, one finding.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+          "sha256": "323940352151a1ed496713504c7f6f01677d2f26668bd41e655958823cfbc892"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+          "sha256": "3fc2c5c0401f5e5df91389f70bab10aa6d8458926aa2861a4a75a00bb854ac20"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+          "sha256": "960509e1096062107da094575bf5975454409840bfac5f0a9068010a3f2a6318"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+          "sha256": "1fe5384525b07a46147f0e58fd17349e417ee4e37a5770e0beb686798d389857"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+          "sha256": "f841137a4e50f0af6df9e6b435387a683e467086ad3027982ba6e4f4bb8ae2fe"
+        }
+      ],
+      "batch": "modality-training-and-inventory",
+      "selectors": [
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+        "tests/unit/remediation/test_plg_03.py::test_training_uses_supplied_tenant_store_for_persist_and_readback",
+        "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+        "tests/unit/remediation/test_plg_03.py::test_zero_effective_gradient_is_typed_pending_without_policy_or_cas_persistence",
+        "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending"
+      ],
+      "run_inputs": "Actual training test uses seed 7 and small config; compare initial vs trained policy tree delta. Tenant-store test stubs native optimizer, so it is store-route only. Unsupported composite and zero-effective-gradient must remain pending with no policy artifact.",
+      "known_gap": "Real optimizer/artifact and supplied-tenant persistence/readback are separate tests; none combines actual training with fresh read from supplied store. Resume/checkpoint contract is not proved.",
+      "next_control": "Run native training once after light batches. Add one real train→tenant store→fresh load→independent action read chain, preserving unsupported refusal. Keep learned policy candidate-grade.",
+      "owner_facts": "Institutional model scope, resume/checkpoint semantics and any policy authority require their owner."
+    },
+    {
+      "audit_gap_label": "bridge_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "source_inventory.v2/manifest→composite/read API/sibling readers; shared route exists, all-reader fresh control not run.",
+      "coverage_capability_label_preserved": "bridge_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            1668,
+            1715
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "route": "UDF-05"
+        }
+      ],
+      "id": "LA-032",
+      "next": "One inventory through all sibling readers/fresh read; swap, mutate, and mix-generation members while markers remain.",
+      "original": "One versioned snapshot/inventory drives readers; swapped/mixed generation refuses; optional absence explicit.",
+      "p37": "Selected hashes/layout/generation recompute; source authority/currentness/domain truth not established by inventory description.",
+      "p38": "Same filenames with one member from a different generation pass filename-only checks but mix source.",
+      "p40": "Whole inventory/reader set; no per-file fallback.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+          "sha256": "78d15089eafb8127b04276b24bc0b399bf58c5c18fb9cbb070b8650f3580f805"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+          "sha256": "970be4bd15c297871cd65c612e596e162fa05ef0c2e93f4a3a358cce43713f6d"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+          "sha256": "86795e0eec732e33ab43f08f864a0ad3dc01c848ac262048521b97609dde180f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+          "sha256": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+          "sha256": "a644c0a8356fd162fdeeb6297325a890c3674682dce7f57db34972d364169246"
+        }
+      ],
+      "batch": "modality-training-and-inventory",
+      "selectors": [
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_candidate_readers_refuse_malformed_present_members",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_stage_manifest_rejects_inexact_selected_input_membership",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_same_shape_state_order_drift_is_rejected_by_the_real_resolver",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_facts_cannot_claim_independent_provenance"
+      ],
+      "run_inputs": "Use existing source_inventory.v2 fixture across all sibling readers. Mutate one member without filename change; swap same-shape generation; alter state order; present malformed member with inventory markers intact. Fresh resolver/readers must refuse; preserve optional absence.",
+      "known_gap": "Versioned inventory/real readers already have class-level controls. Institutional authority, source epoch/currentness and independent provenance remain not_established.",
+      "next_control": "Run the whole-reader selectors. A production currentness positive needs owner epoch/signature evidence, never an implementation timestamp default.",
+      "owner_facts": "Source authority/currentness and institutional provenance are owner supplied; exact bytes/membership are recomputable."
+    },
+    {
+      "audit_gap_label": "producer_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Service routes conditional to unavailable/refusal; Kernel adapter refuses conditional ID; TreeSHAP fallback is explicit. This is bounded refusal, not producer.",
+      "coverage_capability_label_preserved": "producer_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "ebc61d92552c6dfbf538aed17c8a7ed476ee4322fc9df09f7ed3b89e8c530a2a",
+          "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+          "lines": [
+            2103,
+            2145
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "route": "BER-01"
+        }
+      ],
+      "id": "LA-036",
+      "next": "Analytic correlated and rho=0 public-service controls; absent sampler must refuse/no attribution; remove sampler with markers.",
+      "original": "Conditional SHAP requires law-bound sampler; marginal fallback cannot carry conditional label.",
+      "p37": "Method/fallback identity recomputes; law/support/population/order/epoch/sampler not_established.",
+      "p38": "Correlated f=x1 marginal (1,0) differs from conditional (.6,.4); conditional label on marginal result diverges.",
+      "p40": "One method class across two queue memberships.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/berl/service.py",
+          "sha256": "56511a6b8c9efb637b4c6f747bfb5ba2b58bdd571323b34f1e818f144101f526"
+        },
+        {
+          "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+          "sha256": "1da84b6d2cc5caccf29c29df379c0b42f159122435e5a9a2acddd2d786c23d78"
+        },
+        {
+          "path": "policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+          "sha256": "eec2042fb36bcde5fc150d053a1cd2e072366dc0b1c2f91077934b167a491781"
+        }
+      ],
+      "task_memberships": [
+        "S1",
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py",
+          "sha256": "177a295ada7cb5c612d846d476d646a273d05b504b0a64bf059d0e3f1a6d51e6"
+        }
+      ],
+      "batch": "conditional-shap-refusal-and-marginal-control",
+      "selectors": [
+        "tests/unit/remediation/test_ber_01.py::test_gaussian_conditional_shapley_discriminator_is_not_mislabeled_marginal",
+        "tests/unit/remediation/test_ber_01.py::test_default_conditional_kernel_shap_refuses_without_conditional_law",
+        "tests/unit/remediation/test_ber_01.py::test_service_request_guard_overrides_custom_kernel_adapter_for_conditional_request",
+        "tests/unit/remediation/test_ber_01.py::test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_direct_call_refuses_unverified_conditional_route",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_exact_enumeration_matches_linear_model",
+        "tests/unit/berl/test_contracts.py::test_conditional_bundle_requires_a_verified_observed_feature_law",
+        "tests/unit/berl/test_contracts.py::test_unknown_feature_dependence_profile_fails_closed",
+        "tests/unit/berl/test_contracts.py::test_method_profile_must_match_bundle_feature_dependence_profile",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_control_distinct"
+      ],
+      "run_inputs": "Standardized Gaussian rho=.8, f(x1,x2)=x1 at x=(1,1): conditional reference Shapley (.6,.4), marginal SHAP (1,0). Real service must refuse conditional absent a verified observed feature law, retain reason, and keep marginal output explicitly separate. Integration test persists both routes through reliability/closeout consumers.",
+      "known_gap": "Bounded refusal is the intended current behavior; no source-bound conditional law/sampler positive route exists. Do not synthesize sampler or relabel marginal output.",
+      "next_control": "Run refusal and marginal controls as one batch, including correlated and law-absent inputs. A positive conditional route requires a resolved owner-provided law and actual sampler.",
+      "owner_facts": "Feature dependence law and data epoch are source-owner inputs; synthetic Gaussian is a discriminator, not a real population law."
+    },
+    {
+      "audit_gap_label": "semantic_test_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "SourceBoundRiskObservation is candidate; FunnelOrchestrator preserves historical merge_max and reports producer_law_not_established; no silent promotion.",
+      "coverage_capability_label_preserved": "semantic_test_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4165,
+            4176
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "FUN-03"
+        }
+      ],
+      "id": "B161",
+      "next": "Persist/fresh promotion controls same vs foreign subject, changed value/input/rule/time, independent risk, stale/missing ref.",
+      "original": "Only same-subject/value/input/rule/time estimate under allowed procedure may refine early unknown; independent risk remains.",
+      "p37": "Candidate arithmetic/refs recompute; refinement identity/permission not_established from label or recency.",
+      "p38": "Later lower value from foreign population/different rule looks like refinement if recency/field match suffices.",
+      "p40": "Same source-bound refinement class; retain bounded residual, no min/last patch.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+          "sha256": "4c3bc70f597bf0dbf7488878dea9a9b27b470148ebaf1575f5e2c235ef5aa7d6"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "sha256": "766bb4be5a1f811f2a5eda67d5b8c1501c13ba1c0a0bd08d7c8bb4354e0599d2"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "sha256": "bcf763e37810cef2eb2d30afde479e0fc327c61d3712de7446aa96274fca3886"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+          "sha256": "1acc2f75846e58f26249750493737b0ec48cf66188981888060de757bf97a896"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+          "sha256": "b1ad33cca5f78b1e25463a6f4e090d8566cb06a6237b6e4a570658577e61f649"
+        }
+      ],
+      "batch": "source-bound-risk-and-backtest-consumers",
+      "selectors": [
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_valid_foreign_data_snapshot_stays_candidate_only_and_never_becomes_refinement",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_only",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_nominal_component_source_change_is_withheld_with_markers_intact",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_nominal_components_keeps_markers_but_is_withheld",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_source_method_edge_keeps_candidate_markers_from_admitting_observation"
+      ],
+      "run_inputs": "Existing producer uses 100 controlled mixed-nested Monte Carlo draws and persists source-bound observation. Keep refinement not_established, scope relation consumer_asserted, unit unset, and candidate_only. Then run foreign artifact, same bytes/different profile, source edge removal, and marker-retaining component mutation.",
+      "known_gap": "Real candidate producer and fresh funnel consumer preserve non-authority. Missing positive is a permitted same-subject/value/input/rule/time relation under owner-approved procedure; that input is absent.",
+      "next_control": "Run candidate/refusal controls. Do not author min/last/recency promotion. Obtain exact procedure/relations from owner, or preserve bounded candidate-only residual.",
+      "owner_facts": "Same subject, value, input, rule, time, unit and permission are source/institution facts, not inferable from IDs or recency."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Backtest scenarios→IR full metric reconciliation→shared diagnostic/trust verifier→C5b and direct/nested packet. Source has shared recomputation; runtime not rerun.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4388,
+            4399
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "BKT-03"
+        }
+      ],
+      "id": "B172",
+      "next": "BKT-03 D4→CAS→fresh C5b→direct/nested; exact-zero and constant-nonzero plus scenario tamper, missing/extra metric, source/profile mismatch.",
+      "original": "Nonzero constant residual remains descriptive while zero-variance test unavailable; empty bias list is not neutral.",
+      "p37": "Metric set/count/means/MAE/finite/status recompute; direction/unit/equivalence/dependence/multiplicity/population not_established.",
+      "p38": "[10,10,10] has no estimable variation, but empty detected list looks neutral if consumer uses list alone.",
+      "p40": "Same complete diagnostic/trust class as B173; no metric/surface ladder.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+          "sha256": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "sha256": "f18dab7330f3a979f58670f856986ba3938bbf209eee9076af8322979351e3e7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+          "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+          "sha256": "8c9eb7e183bfec9f17508195f34f40a8e17e51163362105fc79dee179de98d05"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+          "sha256": "e6799bc06f7ad5ee88db2ff57b61ad323653a22b509cdd1a91902de3b749d4f4"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+          "sha256": "2076dcce76f68aa5b5b6963f9cc575f20b906ce0ce12d7e3227f1832cbb656a0"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+          "sha256": "2e8867f38b256f09f7ad798c20f46071375ef70e441a5d7b233dfd6f8d356ecb"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+          "sha256": "2aa86fb8ee265d1948702771739b94f13e2c5436f78863074d03959b199bd365"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+          "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+        }
+      ],
+      "batch": "source-bound-risk-and-backtest-consumers",
+      "selectors": [
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_accepts_real_rows_and_keeps_legacy_candidate_untrusted",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric_set_gaps",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_recomputes_mape_and_interval_summaries",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_forged_availability_and_t_statistic",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_preserves_selected_split_gap_and_basis_refs",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet"
+      ],
+      "run_inputs": "Keep scenarios with residuals [10,10,10] and separately [0,0,0]. Constant nonzero residual must retain descriptive MAE=10 while zero-variance test is unavailable. Run producer→CAS→fresh C5b and direct+nested packet. Flip actual scenario, remove/add metric, forge count/availability/trust score/grade/eligible with markers and refs intact; all consumers withhold trust.",
+      "known_gap": "Whole scenario/metric reconciliation and C5b/direct/nested consumer tests are present. Metric direction, units, materiality/equivalence margin and population interpretation are not established.",
+      "next_control": "Run together with B173 as one P40 class, never one statistic/surface at a time. Descriptive diagnostic stays candidate-grade without source-owned qualification basis.",
+      "owner_facts": "Metric orientation, units, threshold, population and authority are source-owner inputs."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Existing ttest_1samp plus backend identity; missing/error typed unavailable; shared fresh verifier checks rows. No runtime availability control run.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4400,
+            4411
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "BKT-03"
+        }
+      ],
+      "id": "B173",
+      "next": "Same BKT-03 chain with installed and controlled missing/exception backend; unavailable never upgrades trust at any surface.",
+      "original": "Missing SciPy yields unavailable test and retained metrics; never substitute normal approximation under t-test label.",
+      "p37": "Test values/status recompute when backend exists; installed backend provenance and residual assumptions not established here.",
+      "p38": "[.5,1.5,2.5] SciPy p≈.121690 versus former normal p≈.009375.",
+      "p40": "Same whole diagnostic/trust class as B172.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "sha256": "f18dab7330f3a979f58670f856986ba3938bbf209eee9076af8322979351e3e7"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+          "sha256": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+          "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+          "sha256": "8c9eb7e183bfec9f17508195f34f40a8e17e51163362105fc79dee179de98d05"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+          "sha256": "e6799bc06f7ad5ee88db2ff57b61ad323653a22b509cdd1a91902de3b749d4f4"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+          "sha256": "2e8867f38b256f09f7ad798c20f46071375ef70e441a5d7b233dfd6f8d356ecb"
+        },
+        {
+          "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+          "sha256": "2aa86fb8ee265d1948702771739b94f13e2c5436f78863074d03959b199bd365"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+          "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+        }
+      ],
+      "batch": "source-bound-risk-and-backtest-consumers",
+      "selectors": [
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_backtesting_report_persists_nonsignificant_method_identity",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_historical_plan_retains_named_split_roles",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_refuses_conflicting_role_requests",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet"
+      ],
+      "run_inputs": "Named fixture_training/fixture_validation/fixture_holdout; residuals [.5,1.5,2.5]. Actual SciPy ttest_1samp gives p≈.121690; persist real method ID/backend version despite nonsignificance. Keep exact-zero as separate control. Backend missing/raising preserves metrics, marks test unavailable and trust false; never use normal fallback p≈.009375.",
+      "known_gap": "Actual method identity and fresh consumers exist; run backend available/unavailable cases together. Statistic is descriptive; missing orientation/equivalence threshold cannot be invented.",
+      "next_control": "Run installed actual backend plus a controlled missing/error backend path if available. Keep method/version in both significant and nonsignificant reports and do not promote trust.",
+      "owner_facts": "Significance direction, multiplicity, assumptions, metric direction and population meaning are not established by the runner."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Typed graph→project_graph_to_dag validates kind/endpoints/orientation/latent conversion/cycles; ID path refuses unresolved PAG. Fresh consumer not run.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            5218,
+            5229
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "GRF-03"
+        }
+      ],
+      "id": "B214",
+      "next": "Supported DAG/ADMG and PAG/CPDAG refusal through persisted ref/fresh consumer; known-arrow, cycle, marker-ref-removal controls.",
+      "original": "Admitted graph profiles preserve known arrows and acyclicity; unresolved endpoints refuse instead of inventing completion.",
+      "p37": "Endpoint/cycle recompute; source graph truth and arbitrary equivalence-class completion not_established.",
+      "p38": "Unresolved CPDAG triangle cannot become one arbitrary DAG because downstream accepts DAG.",
+      "p40": "Existing generic projector/refusal; no endpoint ladder.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+          "sha256": "81e9c8cda63041e0c105930bdb8de719d230ccd3ce963fe48d7f8af67979d18a"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+          "sha256": "5b366d0f3323ade292ffe3f3464397b83b26f834541a07152f5c73f10e2ab050"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+          "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+          "sha256": "7a1f629420af573b2835d3944c660c66c091f0dd7adda0e094f698a563b43a96"
+        }
+      ],
+      "task_memberships": [
+        "S1"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+          "sha256": "ef692a674e5a934674e8d980975d79368c8a90a8a947e9fa3f0cf3022320d360"
+        }
+      ],
+      "batch": "subject-bound-intervals-and-graph-topology",
+      "selectors": [
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_artifact_roundtrip",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_roundtrip_uses_fresh_reader",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencies",
+        "tests/unit/remediation/test_grf_03.py::test_projection_rejects_unresolved_cpdag_triangle_instead_of_labeling_cycle_dag",
+        "tests/unit/remediation/test_grf_03.py::test_graph_projection_admission_covers_full_profile_endpoint_product",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_id_refuses_before_pag_orientation_or_optimistic_commitment",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_graph",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification"
+      ],
+      "run_inputs": "Run full endpoint/profile product and fresh persisted reader. Control fully oriented DAG/ADMG against partially oriented CPDAG/PAG triangle; preserve known arrows, refuse scalar ID for unresolved endpoints, reject duplicate/cyclic edges. Removal probe makes the deleted static-profile gate reopen the forbidden ID path.",
+      "known_gap": "Generic endpoint projector and ID refusal exist; no source basis proving the true graph of a real population is supplied. Keep graph class distinct from causal truth.",
+      "next_control": "Run projector endpoint product, actual ID consumer, fresh reader and removal control as one batch; no arbitrary completion of unresolved endpoints.",
+      "owner_facts": "Source graph truth/equivalence class and any allowed completion are owner supplied."
+    },
+    {
+      "audit_gap_label": "bridge_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Level3MediumFidelity builds per-stage mappings/overlay. Direct alias path addressed; native engine config/draws/artifacts not measured.",
+      "coverage_capability_label_preserved": "bridge_missing",
+      "criterion_refs": [
+        {
+          "criterion_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4117,
+            4128
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "FUN-02"
+        }
+      ],
+      "id": "B157",
+      "next": "Direct L4 vs L3→L4 recording engine; compare config, immutability, draws and artifacts; mutate nested/top-level sentinels.",
+      "original": "L3 reduced config cannot mutate caller or alter later L4 full profile; consumed profile/work count must be visible.",
+      "p37": "Copy/overlay recompute; native full/reduced settings/work counts not_established until observed.",
+      "p38": "L4 says full while engine receives reduced settings; nested mutable values can survive shallow outer copy.",
+      "p40": "Whole effective-config handoff class.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+          "sha256": "a0d21146a1cc1bd3593c4d4997f9d3f14f0d44588322b6b73ac820dc53b7d46f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+          "sha256": "766bb4be5a1f811f2a5eda67d5b8c1501c13ba1c0a0bd08d7c8bb4354e0599d2"
+        }
+      ],
+      "task_memberships": [
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py",
+          "sha256": "992366eb70538fe7cc1313644180dc8f4bba99056ef1081a28174c77056a822b"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "sha256": "bcf763e37810cef2eb2d30afde479e0fc327c61d3712de7446aa96274fca3886"
+        }
+      ],
+      "batch": "effective-config-jacobian-denominator-covariance-dependence",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_fidelity_config_in_feedback",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_reuses_cached_stage_a_progress",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_cache_miss_falls_back_to_full_execution"
+      ],
+      "run_inputs": "Compare direct L4 vs L3→L4 for same candidate. Record actual engine config, draws/work count, persisted output and later reader. Mutate nested config sentinel after L3; it must not alias caller state or alter L4. Preserve cache hit/miss controls.",
+      "known_gap": "Tests prove L3 config injection/feedback and stage B cache behavior, not actual L4 engine input/artifact identity across both routes.",
+      "next_control": "Add recording real-engine control at existing orchestration boundary; engine receipt is the discriminator, not `full` metadata.",
+      "owner_facts": "Actual engine fidelity/work is proven by registered engine input/receipt, not caller labels."
+    },
+    {
+      "audit_gap_label": "producer_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Propagation accepts explicit checked map; missing map empty and output candidate-only/not gate-eligible. No source-owned exact Jacobian.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4752,
+            4761
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "UQP-01"
+        }
+      ],
+      "id": "B190",
+      "next": "Missing/wrong/source-owned Jacobian and zero/nonzero baseline through producer/fresh reader; remove/permute row with markers.",
+      "original": "Unknown sensitivity/Jacobian remains unknown; names/zero baseline cannot fabricate derivative or authority.",
+      "p37": "Map supplied by caller is consumer_asserted; arithmetic recomputes; derivative identity/units not_established.",
+      "p38": "Numeric delta from name/zero baseline looks like sensitivity while derivative is absent.",
+      "p40": "Distinct from B197 covariance projection.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "sha256": "c147b152e10703343c60e881720cfc45a649cc955c6821d05c194f460710f28f"
+        }
+      ],
+      "task_memberships": [
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+          "sha256": "cdffd0429316458c92385056b5f85dbc8dfd2a619776b249a6ebf50836abe8ee"
+        }
+      ],
+      "batch": "effective-config-jacobian-denominator-covariance-dependence",
+      "selectors": [
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_preserves_zero_baseline_effect"
+      ],
+      "run_inputs": "Existing no-map control: base y=10,z=20 at x=2 unchanged at x=3. Explicit map y←x, baseline y=0 at x=2 gives y=1 at x=3 and y=−1 at x=1.",
+      "known_gap": "Arithmetic for an explicit map and unknown-map refusal are covered; no source-owned typed Jacobian basis is present in this path, so map remains caller-supplied.",
+      "next_control": "Run both. Authority-grade route must resolve actual Jacobian source, unit and subject and recompute before propagation. Absent that, keep sensitivity not_established/candidate-only.",
+      "owner_facts": "Derivative identity, units and evaluation domain require owning model/source."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Monte Carlo records attempts/failures/retries/input hashes; IR reader recomputes denominator/summary. Law/missing-mass semantics remain non-authoritative.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4792,
+            4801
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "UQP-03"
+        }
+      ],
+      "id": "B194",
+      "next": "Complete and interrupted/error/retry producer→persisted→fresh IR; remove one failure record with denominator markers intact.",
+      "original": "Failure filtering cannot make surviving draws unconditional; preserve requested/attempted/succeeded/failed/unattempted.",
+      "p37": "Counts/summaries recompute; population law, missing mass, identity, independence not_established from metadata.",
+      "p38": "Early stop after easy successes looks complete if failure/unattempted rows disappear but marker remains.",
+      "p40": "Distinct denominator class from B21/B200.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "sha256": "967a64c71d1f5dcd33a837dcc63e16678a05824a3bae620627afe3acce447aec"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+        }
+      ],
+      "task_memberships": [
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+          "sha256": "3a1783e7c2f3606ba4ac1619e26039ef6a72509d61b9e4b89d958071aaa7695c"
+        }
+      ],
+      "batch": "effective-config-jacobian-denominator-covariance-dependence",
+      "selectors": [
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_typed_transient_retries_the_same_draw_without_changing_its_denominator",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_sampler_transient_is_not_retried_as_an_evaluator_call",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exhausted_typed_transient_fails_closed_after_one_same_draw_retry",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_normative_admission_recomputes_denominator_while_markers_stay_true"
+      ],
+      "run_inputs": "Real producer requests 100 draws: 50 succeed and 50 failures at indices 0–49; estimate 50/99, sample_size 50, heuristic interval, gate_eligible=false, denominator complete. Then verify same-draw retry, sampler/evaluator transient distinction and exhausted retry through fresh normative consumer.",
+      "known_gap": "Producer, persisted report and fresh normative consumer are tested. Population sampling law/missing mass is not established; successful-only conditional summary is not unconditional population estimate.",
+      "next_control": "Run real-node and retry controls. Remove one failure record while 100 request/attempt markers remain; fresh consumer must withhold normative status.",
+      "owner_facts": "Sampling population/law and unobserved-mass meaning come from source owner; counts are recomputable."
+    },
+    {
+      "audit_gap_label": "verification_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "CalibrationReport v2 projection + Calibrator mapping + adapter JΣJᵀ; legacy/no map unavailable. Tests exist, unrun.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4922,
+            4935
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "CAL-06"
+        }
+      ],
+      "id": "B197",
+      "next": "Calibrator→persist v2→fresh adapter tied/rename controls; remove/permute/forge row and prove v1 stays not_established.",
+      "original": "Covariance fields map by actual Jacobian JΣJᵀ including tied coords; no string-name guessing.",
+      "p37": "Projection recomputes; fitted coordinate ownership and covariance provenance are source-produced inputs.",
+      "p38": "Two tied fields become independent if field-name order substitutes for actual mapping.",
+      "p40": "Whole coordinate-to-field set.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "sha256": "7c7d4a66483103195d74969e86ff4992fab7ee54ae693ecd1217a97e837cb54b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+          "sha256": "382499f2501c45b115a5a20a985b3fb29682739b5432f736f618cbc184d6b926"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+          "sha256": "4fc5b420732e42575ed7620e8e9936b9774aa2aceefc6e1e9ccbdace027b15dd"
+        }
+      ],
+      "task_memberships": [
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+          "sha256": "34bc760f7784bd52d680bad2b6aed565fb421ff4cde358155e5db5814c875227"
+        }
+      ],
+      "batch": "effective-config-jacobian-denominator-covariance-dependence",
+      "selectors": [
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_report_without_projection_does_not_use_v1_name_identity",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_projection_must_cover_every_reported_calibrated_field",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_tied_projection_is_invariant_to_coordinate_name"
+      ],
+      "run_inputs": "Tied map has one coordinate variance Σ=[[.0025]], std=.05; J=[[1],[1]] maps to A.rate and B.rate, so each covariance row is [.0025,.0025]. Rename coordinate and preserve result. v2 without/incomplete map remains unavailable.",
+      "known_gap": "Adapter recomputes JΣJᵀ and refuses v2 field-name identity; tests do not show Calibrator→persisted v2 report→fresh adapter using actual producer bytes.",
+      "next_control": "Add one real producer→CAS→fresh adapter chain with tied coordinates, rename/permutation, missing/extra row controls; consume only source-generated projection.",
+      "owner_facts": "Fitted-coordinate ownership and covariance source come from calibration owner."
+    },
+    {
+      "audit_gap_label": "producer_missing",
+      "audit_status": "selector queued; tests and product runtime were not executed; no source admission or closure claim",
+      "chain": "Aggregator reconciles exact origin/equality; exact repeats dedupe, conflict rejects, distinct refs remain dependency-unknown; label alone cannot combine.",
+      "coverage_capability_label_preserved": null,
+      "criterion_refs": [
+        {
+          "criterion_sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+          "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "lines": [
+            4964,
+            4977
+          ],
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "route": "UQS-01"
+        }
+      ],
+      "id": "B200",
+      "next": "Exact duplicate/conflict/different-but-unknown/source-bound relation through aggregate→persisted→fresh; mutate relation marker only.",
+      "original": "Duplicate artifact is not independent evidence; exact repeats dedupe, conflicts reject, source count stays distinct from effective information count.",
+      "p37": "Identity/equality recompute; independence/dependence relation not_established absent source evidence.",
+      "p38": "Different refs may overlap data despite metadata saying independent.",
+      "p40": "Distinct dependency class from B194/B197.",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+          "sha256": "7ad0a65a8b578b25892c82647ebad447fd7729817ee78e65156018d414f9232d"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+          "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+        }
+      ],
+      "task_memberships": [
+        "S2"
+      ],
+      "test_paths_present_not_run": [
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+          "sha256": "5ea5a3808c5c793eba014a9d50c64631ad6c5af73fd1cb06edde56bda873d2b1"
+        }
+      ],
+      "batch": "effective-config-jacobian-denominator-covariance-dependence",
+      "selectors": [
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_equal_variance_does_not_trust_independence_label",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_does_not_favor_a_source_without_resolved_relation",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_bayesian_combination_without_resolved_relation_does_not_narrow"
+      ],
+      "run_inputs": "Exact pair: means 10/12, std 1/1, both labeled independent; result stays unresolved hull. Also mean 10/std .5 vs 20/std 5 and Bayesian means 10/10.5 without relation; no narrowing.",
+      "known_gap": "Direct aggregator ignores caller independence label and preserves hull; no persisted producer→fresh consumer/source-owner relation path shown in selected tests.",
+      "next_control": "Run direct controls. Extend existing artifact relation only if owner-supported relation exists; exact duplicate/conflict through fresh consumer. Different refs alone must never imply independence.",
+      "owner_facts": "Independence/dependence and overlapping source rows are source-owner facts, not distinct-ID or caller-label implications."
+    }
+  ],
+  "external_or_owner_inputs_not_to_invent": [
+    "B19 source-selected factual comparator, scope, model identity, horizon, and baseline meaning.",
+    "B21 actual sampling law/engine method identity; seed uniqueness does not establish IID or QMC.",
+    "B22 physical origin, unit, calendar, and source time transformation.",
+    "B31 same estimand/subject/unit, owner-run law, and production eligibility.",
+    "B33 graph truth and source population/time scope.",
+    "B36 actual panel rows/units/time profile; catalog presence is not a transform result.",
+    "LA-023 institutional model scope, resume/checkpoint owner contract, and any policy authority.",
+    "LA-032 source authority/currentness epoch and institutional provenance.",
+    "LA-036 source-bound feature-dependence law and real conditional sampler.",
+    "B161 permitted same-subject/value/input/rule/time relation and refinement permission.",
+    "B172/B173 metric direction/unit, materiality or equivalence margin, population interpretation, and authority threshold.",
+    "B190 source-owned Jacobian identity, units, and evaluation domain.",
+    "B194 sampling population/law and meaning of unobserved mass.",
+    "B197 fitted-coordinate ownership and covariance source.",
+    "B200 source dependency/overlap relationship; different refs do not prove independence.",
+    "B214 source graph truth and any allowed completion of unresolved endpoints."
+  ],
+  "closure_ids": []
+}

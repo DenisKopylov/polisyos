@@ -1,0 +1,126 @@
+{
+  "authority": "Root captured deciding output; author verification, not G acceptance/global adjudication",
+  "head": "808225e86db87a557e39afdf38f22c40a364cf77",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1115-20261013.json",
+    "sha256": "5877a2ce136713313c91f4cff53f088de88df2f58913d69fcbc9e76a7237e0e1"
+  },
+  "counts": {
+    "pass": 5,
+    "fail": 0,
+    "error": 0,
+    "skip": 0
+  },
+  "cases": [
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.runtime.http.test_catalog_profile_http::test_catalog_profile_http_blocks_published_excluded_profile_inputs",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+      "outcome": "pass"
+    },
+    {
+      "nodeid": "tests.unit.fabric.test_retrieval_service_catalog::test_catalog_plan_requires_generation_profile_input_coverage",
+      "outcome": "pass"
+    }
+  ],
+  "exit_code": 0,
+  "wall_seconds": 24.44703975005541,
+  "source_inputs": 6217,
+  "source_stable": true,
+  "own_product_modules": 1714,
+  "foreign_product_modules": [],
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=180.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/runtime/http/test_catalog_profile_http.py",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_catalog_plan_requires_generation_profile_input_coverage",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/junit.xml"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "SCI_TORCH_THREADS": "1",
+    "SCI_TORCH_INTEROP_THREADS": "1",
+    "E02_PROGRESS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/module-origins.json"
+  },
+  "boundary": "Actual Worldbank scoped generation/member publisher→closed graph and typedCatalogServingSourceSelection→ProfileRegistry→public/data/resolve→fresh DB-backed source reader and nonempty plan; missing/conflicting/malformed profile and excluded producerinput refuse. Twoexistinglowercontrols verify missingheaders candidate-only and generation inputcoverage.",
+  "limitations": [
+    "Controlled Source-bound fixture, not live production custody/currentness. Legal plane R1042 remains separately captured; no combinedLegalCatalogDTO inferred.",
+    "HTTP excluded case asserts stale/no plan; lower generation inputcoverage is separate; installed archive/wheel stillUNRUN.",
+    "No formal G acceptance or automatic original criterion closures."
+  ],
+  "closure_ids": [],
+  "evidence": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/command.json",
+      "sha256": "8abf0d8804d47ee7b201bb30ca3e7ed30b106866fb4a689fa2edb7b734521494",
+      "availability": "retained local ignored raw"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/junit.xml",
+      "sha256": "9ff04b59a1c3ab4594fc26f5fcbbef4c744485be4f88a6ef11e73e9a31909613",
+      "availability": "retained local ignored raw"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/module-origins.json",
+      "sha256": "37a28fce66bcc42c7257ee8723ce071224cf0b0aa69723548ae3696cec850adf",
+      "availability": "retained local ignored raw"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/progress.json",
+      "sha256": "a5aa62e6e758e6a120d69ef3bb9a1a941d37b4748da726844facd2636fcc12ed",
+      "availability": "retained local ignored raw"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "availability": "retained local ignored raw"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-catalog-actual-public-profile-fixture-ready-r1116-20261013/stdout.txt",
+      "sha256": "2d32a9fd0fd8609dd6a87712bd7a8bb57a5169bb5f1fd964eee9bce3ea5a313b",
+      "availability": "retained local ignored raw"
+    }
+  }
+}

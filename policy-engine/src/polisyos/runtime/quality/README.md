@@ -542,6 +542,15 @@ unresolved relation remains candidate-only shadow. The attempt vector records
 the backend, native status, availability and unsatisfiable core. Historical v1
 hashing and serialization omit that new vector.
 
+Each CG1 engine keeps its selected reference's atom IDs, operator/slot coverage
+summary, and FTS state for that engine lifetime. FTS rows are inserted in bounded
+batches, and the reported indexed count comes from the built DuckDB table. A cold
+blank or tokenless query has no indexed coverage. Full coverage may also be
+established by exact enumeration of the complete reference atom universe during
+CG2 replay; a source edge count alone is not evidence that FTS rows were built.
+These caches are local to the engine and do not cross reference, epoch, or policy
+instances. CG1 remains shadow-only and cannot bind, admit, or promote.
+
 CG2 replays that same CG1 owner computation before binding. Changed solver
 status, unresolved axes, validator or attempt vector produce semantic
 `currentness_reasons`, separately from reference/epoch `stale_reasons`. Neither
@@ -769,3 +778,30 @@ upgraded by a fresh read. The v5 input boundary also rejects coercible JSON type
 fixture treatment periods, run seeds, and assignment bounds: booleans cannot become
 period 1 or seed 1, and numeric strings do not become owner bounds. This validates
 input types only; it does not strengthen the fixture's authority.
+
+### N4 full-basis capture and retrieval boundary
+
+A `CredalReference` snapshots its component-version header and complete edge map
+at construction. Its JSON-native nested containers are copied and frozen; arrays use tuples
+inside the snapshot and are thawed back to JSON arrays at serialization boundaries.
+Each mapping captures immutable lookup values and their legacy JSON projection in
+one ordered pass. Exact dictionaries remain JSON objects, and their captured fallback
+text is the same scalar used by direct runtime lookups. Generic `Mapping`
+implementations retain their legacy `default=str` fallback at the mapping boundary
+while exposing a separate immutable lookup view built from that same capture.
+JSON-native scalar subclasses and JSON-supported object-key subclasses are copied to
+their builtin wire values. Exact builtin bytes remain immutable bytes; mutable bytes
+subclasses and other values the existing JSON `default=str` path would stringify are
+captured as that same fallback text. Later access cannot reevaluate an opaque value
+or revise the selected payload or its content hash. `GroundingRelationEngine` and its
+DuckDB retrieval index expose that selected reference read-only for their lifetime,
+keeping warm atom, coverage, and FTS state on one capture. This is a content boundary,
+not a claim that the source remains live or current; a revised selection needs a new
+reference and engine.
+Each source edge key must be a two-part nonempty tuple and equal the contained
+edge's own key. The shared retrieval-index protocol reports actual materialized
+rows and whether it contains the complete key-bound reference set. The real DuckDB
+index establishes those fields from inserted rows; no-lexical bounded wrappers
+report zero rows and incomplete retrieval. Exact full atom-ID reconciliation stays
+a separate candidate-coverage path and does not upgrade a bounded index or add
+bind/admit/promote authority.

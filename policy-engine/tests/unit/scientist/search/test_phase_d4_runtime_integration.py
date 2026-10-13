@@ -486,7 +486,7 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     )
     assert wrong_schema_ref.artifact_id == stress_refs[0].artifact_id
     assert wrong_schema_ref.manifest_profile_sha256 != stress_refs[0].manifest_profile_sha256
-    with pytest.raises(ValueError, match="stress_report_source_schema_mismatch"):
+    with pytest.raises(ValueError, match="selected_source_schema_name_mismatch"):
         _ensure_stress_test_report(
             ctx,
             state,

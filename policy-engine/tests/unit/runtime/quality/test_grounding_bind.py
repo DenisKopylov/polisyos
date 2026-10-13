@@ -91,9 +91,7 @@ def test_hash_valid_historical_cg1_unknown_attempt_is_not_current(monkeypatch) -
     provisional = GroundingRelationCertificate.model_validate(legacy_payload)
     historical_hash = recompute_grounding_relation_content_hash(provisional)
     legacy_payload["content_hash"] = historical_hash
-    legacy_payload["certificate_id"] = (
-        f"cg1_cert_{historical_hash.removeprefix('sha256:')[:16]}"
-    )
+    legacy_payload["certificate_id"] = f"cg1_cert_{historical_hash.removeprefix('sha256:')[:16]}"
     historical = GroundingRelationCertificate.model_validate(legacy_payload)
 
     assert historical.model_dump(mode="json") == legacy_payload
@@ -193,9 +191,7 @@ def test_historical_cg2_v2_projection_omits_new_currentness_field() -> None:
     legacy_payload["content_hash"] = "sha256:" + "0" * 64
     historical_hash = recompute_grounding_decision_content_hash(legacy_payload)
     legacy_payload["content_hash"] = historical_hash
-    legacy_payload["certificate_id"] = (
-        f"cg2_cert_{historical_hash.removeprefix('sha256:')[:16]}"
-    )
+    legacy_payload["certificate_id"] = f"cg2_cert_{historical_hash.removeprefix('sha256:')[:16]}"
     historical = GroundingDecisionCertificate.model_validate(legacy_payload)
 
     assert historical.model_dump(mode="json") == legacy_payload
@@ -415,12 +411,21 @@ def test_false_analog_hard_abstains_even_when_cg1_hands_off_novel() -> None:
     reference = _reference()
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_false_analog_probe(), proposal_id="cg2-false-hard")
-
-    decision = GroundingBindGate.for_contract_testing(
+    gate = GroundingBindGate.for_contract_testing(
         reference,
         calibration_seed_anchor=True,
-    ).certificate_for(cg1)
+    )
 
+    decision = gate.certificate_for(cg1)
+    replayed = next(iter(gate._replay_cache.values()))
+    replay_coverage = replayed.relation_set["known_space_coverage"]
+
+    assert replayed.selected_relation == "novel-candidate"
+    assert replay_coverage["retrieval_indexed_edge_count"] == 0
+    assert replay_coverage["atom_universe_count"] == replay_coverage["base_candidate_count"]
+    assert replay_coverage["coverage_sufficient"] is True
+    assert gate._engine._fts_index is None
+    assert decision.revalidation.status == "passed"
     assert cg1.selected_relation == "novel-candidate"
     assert cg1.critical_contradictions
     assert decision.decision == "abstain"

@@ -219,6 +219,10 @@ class SearchBudgetProducerUnsupportedError(RuntimeError):
         super().__init__(f"{reason_code}: {detail}")
 
 
+class _PromptTypedRefusalAbort(Exception):
+    """Stop CoreSchema serialization after preserving the typed prompt refusal."""
+
+
 def _prompt_refuse(reason_code: str, detail: str) -> NoReturn:
     raise SearchBudgetProducerUnsupportedError(reason_code, detail)
 
@@ -257,6 +261,43 @@ _PROMPT_ACTIVE_GRAPH: ContextVar[set[int] | None] = ContextVar(
     "polisyos_search_prompt_active_graph",
     default=None,
 )
+_PROMPT_TYPED_REFUSALS: ContextVar[list[SearchBudgetProducerUnsupportedError] | None] = ContextVar(
+    "polisyos_search_prompt_typed_refusals",
+    default=None,
+)
+
+
+def _prompt_capture_typed_refusal(
+    refusal: SearchBudgetProducerUnsupportedError,
+) -> bool:
+    pending = _PROMPT_TYPED_REFUSALS.get()
+    if pending is None:
+        return False
+    if not pending:
+        pending.append(refusal)
+    return True
+
+
+def _prompt_preserve_typed_refusal(
+    callback: Callable[..., Any],
+) -> Callable[..., Any]:
+    """Carry a typed guard result across Pydantic's callback error wrapper."""
+
+    @wraps(callback)
+    def guarded(*args: Any, **kwargs: Any) -> Any:
+        if _PROMPT_TYPED_REFUSALS.get():
+            raise _PromptTypedRefusalAbort
+        try:
+            result = callback(*args, **kwargs)
+        except SearchBudgetProducerUnsupportedError as exc:
+            if not _prompt_capture_typed_refusal(exc):
+                raise
+            raise _PromptTypedRefusalAbort from None
+        if _PROMPT_TYPED_REFUSALS.get():
+            raise _PromptTypedRefusalAbort
+        return result
+
+    return guarded
 
 
 def _prompt_track_active_graph(value: Any, operation: Callable[[], Any]) -> Any:
@@ -468,26 +509,53 @@ def _prompt_validate_raw_graph(
 
 
 def _prompt_to_python(serializer: SchemaSerializer, value: Any, **kwargs: Any) -> Any:
-    """Preserve typed prompt refusals through Pydantic's serializer wrapper."""
+    """Preserve the first typed refusal across nested Pydantic serializer calls."""
+    pending = _PROMPT_TYPED_REFUSALS.get()
+    owns_refusals = pending is None
+    token = None
+    if pending is None:
+        pending = []
+        token = _PROMPT_TYPED_REFUSALS.set(pending)
+
     try:
-        if isinstance(value, BaseModel):
-            return _prompt_track_active_graph(
-                value,
-                lambda: serializer.to_python(value, **kwargs),
-            )
-        return serializer.to_python(value, **kwargs)
-    except PydanticSerializationError as exc:
-        cause: BaseException | None = exc
-        visited: set[int] = set()
-        while cause is not None and id(cause) not in visited:
-            visited.add(id(cause))
-            if isinstance(cause, SearchBudgetProducerUnsupportedError):
-                raise cause
-            cause = cause.__cause__ or cause.__context__
-        raise SearchBudgetProducerUnsupportedError(
-            "search_prompt_model_serialization_failed",
-            "the selected Pydantic serializer could not produce a supported prompt value",
-        ) from exc
+        try:
+            if isinstance(value, BaseModel):
+                result = _prompt_track_active_graph(
+                    value,
+                    lambda: serializer.to_python(value, **kwargs),
+                )
+            else:
+                result = serializer.to_python(value, **kwargs)
+        except SearchBudgetProducerUnsupportedError as exc:
+            if not pending:
+                pending.append(exc)
+            result = None
+        except PydanticSerializationError as exc:
+            cause: BaseException | None = exc
+            visited: set[int] = set()
+            refusal: SearchBudgetProducerUnsupportedError | None = None
+            while cause is not None and id(cause) not in visited:
+                visited.add(id(cause))
+                if isinstance(cause, SearchBudgetProducerUnsupportedError):
+                    refusal = cause
+                    break
+                cause = cause.__cause__ or cause.__context__
+            if not pending:
+                pending.append(
+                    refusal
+                    or SearchBudgetProducerUnsupportedError(
+                        "search_prompt_model_serialization_failed",
+                        "the selected Pydantic serializer could not produce a supported prompt value",
+                    )
+                )
+            result = None
+
+        if owns_refusals and pending:
+            raise pending[0]
+        return result
+    finally:
+        if token is not None:
+            _PROMPT_TYPED_REFUSALS.reset(token)
 
 
 def _prompt_serialize_model(
@@ -689,7 +757,7 @@ def _prompt_instrument_model_extras(schema: Any, *, untyped: bool) -> dict[str, 
 
     return core_schema.any_schema(
         serialization=core_schema.wrap_serializer_function_ser_schema(
-            checked_extra,
+            _prompt_preserve_typed_refusal(checked_extra),
             info_arg=True,
             schema=schema,
             when_used="json",
@@ -735,7 +803,7 @@ def _prompt_instrument_serializer(schema: Any, parent_type: str | None) -> dict[
                 )
                 return emitted
 
-            result["function"] = checked_plain
+            result["function"] = _prompt_preserve_typed_refusal(checked_plain)
         else:
             handler_index = 2 if schema.get("is_field_serializer", False) else 1
             info_index = handler_index + 1 if schema.get("info_arg", False) else None
@@ -787,7 +855,7 @@ def _prompt_instrument_serializer(schema: Any, parent_type: str | None) -> dict[
                 )
                 return emitted
 
-            result["function"] = checked_wrap
+            result["function"] = _prompt_preserve_typed_refusal(checked_wrap)
 
         if result.get("return_schema") is None:
             result["return_schema"] = _prompt_copy_schema_value(core_schema.any_schema())
@@ -828,7 +896,7 @@ def _prompt_instrument_model_field(value: Any) -> dict[str, Any]:
 
     result["schema"] = core_schema.any_schema(
         serialization=core_schema.wrap_serializer_function_ser_schema(
-            checked_field,
+            _prompt_preserve_typed_refusal(checked_field),
             info_arg=True,
             schema=inner,
             when_used="json",
@@ -885,7 +953,7 @@ def _prompt_copy_schema_value(
                 return emitted
 
             outer["serialization"] = core_schema.wrap_serializer_function_ser_schema(
-                checked_computed,
+                _prompt_preserve_typed_refusal(checked_computed),
                 info_arg=True,
                 schema=inner,
                 when_used="json",
@@ -987,7 +1055,7 @@ def _prompt_copy_schema_value(
                     return serialize_root()
 
                 result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
-                    checked_root_model,
+                    _prompt_preserve_typed_refusal(checked_root_model),
                     info_arg=True,
                     when_used="json",
                 )
@@ -1010,7 +1078,7 @@ def _prompt_copy_schema_value(
                     return _prompt_serialize_model(item, info, model_type)
 
                 result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
-                    checked_nested_model,
+                    _prompt_preserve_typed_refusal(checked_nested_model),
                     info_arg=True,
                     when_used="json",
                 )
@@ -1032,7 +1100,7 @@ def _prompt_copy_schema_value(
                     return emitted
 
                 result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
-                    checked_any,
+                    _prompt_preserve_typed_refusal(checked_any),
                     info_arg=True,
                     schema=inner,
                     when_used="json",
@@ -2039,11 +2107,15 @@ class SearchController:
         iteration: int,
     ) -> dict[str, Any]:
         enriched = dict(context)
+        best_candidate = self._best_candidate
+        best_objective = self._best_objective
+        if best_candidate is None and best_objective == float("inf"):
+            best_objective = None
         enriched["search_state"] = {
             "iteration": int(iteration),
             "history_length": len(self._history),
-            "current_best_candidate": self._best_candidate,
-            "current_best_objective": self._best_objective,
+            "current_best_candidate": best_candidate,
+            "current_best_objective": best_objective,
         }
         if self._history:
             enriched["last_stage_b_result"] = self._history[-1].stage_b_result

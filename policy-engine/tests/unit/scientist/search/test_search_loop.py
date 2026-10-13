@@ -61,6 +61,22 @@ def test_traced_prompt_refuses_lossy_json_serializer_output_before_provider() ->
             del value
             return {1: "candidate"}
 
+    sibling_serializer_calls: list[str] = []
+
+    class SiblingCallbackSerializer(BaseModel):
+        invalid: str
+        later: str
+
+        @field_serializer("invalid", when_used="json")
+        def serialize_invalid(self, value: str) -> Any:
+            del value
+            return {"nested": math.nan}
+
+        @field_serializer("later", when_used="json")
+        def serialize_later(self, value: str) -> str:
+            sibling_serializer_calls.append(value)
+            return value
+
     class AnyPayload(BaseModel):
         value: Any
 
@@ -88,6 +104,10 @@ def test_traced_prompt_refuses_lossy_json_serializer_output_before_provider() ->
             "search_prompt_contains_non_string_key",
         ),
         (
+            SiblingCallbackSerializer(invalid="source", later="must-not-run"),
+            "search_prompt_contains_nonfinite_number",
+        ),
+        (
             AnyPayload(value=LossyFieldSerializer(value="candidate")),
             "search_prompt_contains_nonfinite_number",
         ),
@@ -97,6 +117,7 @@ def test_traced_prompt_refuses_lossy_json_serializer_output_before_provider() ->
         assert raised.value.reason_code == expected_reason
 
     assert client.calls == 0
+    assert sibling_serializer_calls == []
 
 
 def test_traced_prompt_guards_allowed_model_extras_before_provider() -> None:
@@ -173,6 +194,7 @@ def test_traced_prompt_guards_allowed_model_extras_before_provider() -> None:
     cycle["self"] = cycle
     invalid_payloads = (
         math.nan,
+        math.inf,
         NestedPromptValue(value=math.nan),
         {"child": NestedPromptValue(value=math.nan)},
         {"children": [NestedPromptValue(value=math.nan)]},
@@ -348,7 +370,7 @@ def test_traced_prompt_guards_allowed_model_extras_before_provider() -> None:
         },
     ) == {"candidate": "accepted"}
     assert list(finite_callback_iterator) == []
-    assert root_accepting_client.calls == 3
+    assert root_accepting_client.calls == 4
 
     class ExcludeIfPromptValue(BaseModel):
         payload: Any = Field(
@@ -570,6 +592,57 @@ class TestOptimizationFlow:
     Mock the ExpensiveStage with f(x) = x^2. Assert the search loop
     converges toward the minimum at x=0.
     """
+
+    def test_generation_context_projects_missing_best_objective_as_absent(
+        self,
+        mock_candidate_generator,
+        quadratic_objective,
+    ) -> None:
+        """A source-owned no-best sentinel becomes JSON absence at the producer boundary."""
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(1),
+                objective=quadratic_objective,
+            ),
+            candidate_generator=mock_candidate_generator,
+            stage_a_evaluator=lambda _candidate, _context: (0.0, True),
+            stage_b_evaluator=lambda _candidate, _context: {},
+            metrics=MagicMock(),
+        )
+
+        context = controller._build_generation_context({}, iteration=0)
+
+        assert controller._best_candidate is None
+        assert math.isinf(controller._best_objective)
+        assert context["search_state"]["current_best_candidate"] is None
+        assert context["search_state"]["current_best_objective"] is None
+
+        controller._best_candidate = {}
+        controller._best_objective = math.inf
+        malformed = controller._build_generation_context({}, iteration=1)
+        assert math.isinf(malformed["search_state"]["current_best_objective"])
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            _search_prompt_value(malformed)
+        assert raised.value.reason_code == "search_prompt_contains_nonfinite_number"
+
+        controller._best_candidate = None
+        for malformed_objective in (math.nan, -math.inf):
+            controller._best_objective = malformed_objective
+            malformed_absence = controller._build_generation_context({}, iteration=2)
+            projected_objective = malformed_absence["search_state"]["current_best_objective"]
+            if math.isnan(malformed_objective):
+                assert math.isnan(projected_objective)
+            else:
+                assert projected_objective == malformed_objective
+            with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+                _search_prompt_value(malformed_absence)
+            assert raised.value.reason_code == "search_prompt_contains_nonfinite_number"
+
+        controller._best_candidate = {}
+        controller._best_objective = 0.0
+        populated = controller._build_generation_context({}, iteration=2)
+        assert populated["search_state"]["current_best_candidate"] == {}
+        assert populated["search_state"]["current_best_objective"] == 0.0
 
     def test_search_finds_quadratic_minimum(
         self,

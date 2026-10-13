@@ -694,8 +694,11 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         and item.manifest_profile_sha256 == candidate_ref.manifest_profile_sha256
         for item in report_manifest.inputs
     )
+    candidate_body = load_core_json_artifact(
+        store, candidate_ref, manifest_profile_sha256=candidate_ref.manifest_profile_sha256
+    )
     alternate_candidate_ref = store.put_json(
-        {"candidate_id": "candidate-finite-stress"},
+        candidate_body,
         PutOptions(
             kind="scientist.policy_candidate_schema",
             media_type="application/json",
@@ -706,10 +709,12 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     )
     assert alternate_candidate_ref.artifact_id == candidate_ref.artifact_id
     assert alternate_candidate_ref.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
-    _, profile_mismatch_resolution = resolve_stress_report_artifact(
+    _, report_lineage_resolution = resolve_stress_report_artifact(
         store, top_one_ref, expected_candidate_ref=alternate_candidate_ref
     )
-    assert profile_mismatch_resolution.status == "invalid"
+    assert report_lineage_resolution.status == "invalid"
+    assert report_lineage_resolution.reason_code == "stress_report_lineage_mismatch"
+    assert report_lineage_resolution.robustness_score is None
     top_ten, top_ten_ref = run(10)
     assert top_one.critical_count + top_one.high_count > 0
     finite_failure = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
@@ -737,9 +742,6 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert len(top_ten.vulnerabilities) == 10
     assert one_resolution.status == ten_resolution.status == "available"
 
-    candidate_body = load_core_json_artifact(
-        store, candidate_ref, manifest_profile_sha256=candidate_ref.manifest_profile_sha256
-    )
     wrong_schema_candidate = store.put_json(
         candidate_body,
         PutOptions(
@@ -756,6 +758,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         store, top_one.score_components, expected_candidate_ref=wrong_schema_candidate
     )
     assert wrong_schema_resolution.status == "invalid"
+    assert wrong_schema_resolution.reason_code == "current_candidate_manifest_invalid"
     assert wrong_schema_resolution.robustness_score is None
 
     counterfeit_legacy_kind = store.put_json(
@@ -772,6 +775,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         store, top_one.score_components, expected_candidate_ref=counterfeit_legacy_kind
     )
     assert legacy_resolution.status == "unbound"
+    assert legacy_resolution.reason_code == "current_candidate_ref_not_canonical"
     assert legacy_resolution.robustness_score is None
 
     profileless_candidate = candidate_ref.model_copy(update={"manifest_profile_sha256": None})

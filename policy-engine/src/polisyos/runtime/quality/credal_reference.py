@@ -20,6 +20,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from functools import lru_cache
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
@@ -239,6 +240,135 @@ type CompletionKind = Literal[
 type EdgeKey = tuple[str, str]
 
 
+def _freeze_reference_text(value: str) -> str:
+    """Copy string subclasses to their immutable JSON wire value."""
+
+    return str.__str__(value)
+
+
+def _freeze_reference_mapping_key(key: object) -> str | int | float | bool | None:
+    """Copy every JSON-supported mapping-key subclass to a builtin scalar."""
+
+    if key is None or type(key) in (bool, int, float, str):
+        return key
+    if isinstance(key, str):
+        return str.__str__(key)
+    if isinstance(key, int):
+        return int.__int__(key)
+    if isinstance(key, float):
+        return float.__float__(key)
+    raise TypeError("credal_reference_mapping_key_not_json_scalar")
+
+
+@dataclass(frozen=True, eq=False)
+class _FrozenReferenceMapping(Mapping[Any, Any]):
+    """Immutable lookup view with the original mapping's JSON wire captured."""
+
+    _view: Mapping[Any, Any]
+    _wire_json: str
+
+    __hash__ = None
+
+    def __getitem__(self, key: object) -> object:
+        return self._view[key]
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self._view)
+
+    def __len__(self) -> int:
+        return len(self._view)
+
+    def __eq__(self, other: object) -> bool:
+        return self._view == other
+
+
+def _capture_reference_payload(
+    value: object,
+    ancestors: set[int] | None = None,
+) -> tuple[object, object]:
+    """Freeze one value and return its matching legacy JSON projection."""
+
+    if isinstance(value, _FrozenReferenceMapping):
+        return value, json.loads(value._wire_json)
+    active_ancestors = ancestors if ancestors is not None else set()
+    if isinstance(value, Mapping | list | tuple):
+        marker = id(value)
+        if marker in active_ancestors:
+            raise ValueError("Circular reference detected")
+        active_ancestors.add(marker)
+        try:
+            if isinstance(value, Mapping):
+                if isinstance(value, dict):
+                    source_items = tuple(value.items())
+                    captured_by_source_key: dict[object, object] = {}
+                    wire_payload: dict[object, object] = {}
+                    for key, item in sorted(source_items):
+                        frozen_key = _freeze_reference_mapping_key(key)
+                        frozen_item, wire_item = _capture_reference_payload(item, active_ancestors)
+                        captured_by_source_key[key] = frozen_item
+                        wire_payload[frozen_key] = wire_item
+                    frozen_view = MappingProxyType(
+                        {
+                            _freeze_reference_mapping_key(key): captured_by_source_key[key]
+                            for key, _item in source_items
+                        }
+                    )
+                    wire_json = json.dumps(
+                        wire_payload,
+                        ensure_ascii=False,
+                        sort_keys=False,
+                        default=str,
+                    )
+                else:
+                    fallback_text = str(value)
+                    frozen_view = MappingProxyType(
+                        {
+                            _freeze_reference_mapping_key(key): _capture_reference_payload(
+                                item, active_ancestors
+                            )[0]
+                            for key, item in value.items()
+                        }
+                    )
+                    wire_json = json.dumps(
+                        fallback_text,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                        default=str,
+                    )
+                frozen_mapping = _FrozenReferenceMapping(frozen_view, wire_json)
+                return frozen_mapping, json.loads(wire_json)
+            captured = tuple(_capture_reference_payload(item, active_ancestors) for item in value)
+            frozen_sequence = tuple(item for item, _wire in captured)
+            wire_sequence = [wire for _item, wire in captured]
+            return frozen_sequence, wire_sequence
+        finally:
+            active_ancestors.remove(marker)
+    if type(value) is bytes:
+        return value, str(value)
+    if type(value) in (bool, type(None), str, int, float):
+        return value, value
+    if isinstance(value, str):
+        frozen_text = str.__str__(value)
+        return frozen_text, frozen_text
+    if isinstance(value, int):
+        frozen_integer = int.__int__(value)
+        return frozen_integer, frozen_integer
+    if isinstance(value, float):
+        frozen_float = float.__float__(value)
+        return frozen_float, frozen_float
+    if isinstance(value, bytes):
+        fallback_text = str(value)
+        return fallback_text, fallback_text
+    fallback_text = str(value)
+    return fallback_text, fallback_text
+
+
+def _freeze_reference_payload(value: object) -> object:
+    """Return the immutable side of one wire-and-lookup capture."""
+
+    return _capture_reference_payload(value)[0]
+
+
 @dataclass(frozen=True)
 class AdmissibleCompletion:
     """One symbolic reference completion for a credal edge."""
@@ -246,6 +376,13 @@ class AdmissibleCompletion:
     completion_kind: CompletionKind
     value: Mapping[str, Any] = field(default_factory=dict)
     reason: str = ""
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, Mapping):
+            raise TypeError("credal_reference_completion_value_must_be_mapping")
+        object.__setattr__(self, "completion_kind", _freeze_reference_text(self.completion_kind))
+        object.__setattr__(self, "reason", _freeze_reference_text(self.reason))
+        object.__setattr__(self, "value", _freeze_reference_payload(self.value))
 
     def to_payload(self) -> dict[str, Any]:
         """Return a stable JSON payload."""
@@ -391,6 +528,23 @@ class CredalReferenceEdge:
     scale: str | None = None
     content_hash: str = ""
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.provenance, Mapping):
+            raise TypeError("credal_reference_edge_provenance_must_be_mapping")
+        completions = tuple(self.admissible_completions)
+        if any(not isinstance(item, AdmissibleCompletion) for item in completions):
+            raise TypeError("credal_reference_edge_completion_type_invalid")
+        object.__setattr__(self, "modality", _freeze_reference_text(self.modality))
+        object.__setattr__(self, "edge_id", _freeze_reference_text(self.edge_id))
+        object.__setattr__(self, "status", _freeze_reference_text(self.status))
+        if self.unit is not None:
+            object.__setattr__(self, "unit", _freeze_reference_text(self.unit))
+        if self.scale is not None:
+            object.__setattr__(self, "scale", _freeze_reference_text(self.scale))
+        object.__setattr__(self, "content_hash", _freeze_reference_text(self.content_hash))
+        object.__setattr__(self, "admissible_completions", completions)
+        object.__setattr__(self, "provenance", _freeze_reference_payload(self.provenance))
+
     @property
     def key(self) -> EdgeKey:
         """Return the canonical edge key."""
@@ -447,6 +601,39 @@ class CredalReference:
     as_of: str
     component_versions: Mapping[str, str]
     essential_edges: Mapping[EdgeKey, CredalReferenceEdge]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "schema_version", _freeze_reference_text(self.schema_version))
+        object.__setattr__(self, "reference_epoch", _freeze_reference_text(self.reference_epoch))
+        object.__setattr__(self, "reference_hash", _freeze_reference_text(self.reference_hash))
+        object.__setattr__(self, "as_of", _freeze_reference_text(self.as_of))
+        if not isinstance(self.component_versions, Mapping):
+            raise TypeError("credal_reference_component_versions_must_be_mapping")
+        if not isinstance(self.essential_edges, Mapping):
+            raise TypeError("credal_reference_edges_must_be_mapping")
+        captured_edges: dict[EdgeKey, CredalReferenceEdge] = {}
+        for source_key, edge in self.essential_edges.items():
+            if not isinstance(source_key, tuple) or tuple.__len__(source_key) != 2:
+                raise ValueError("credal_reference_edge_source_key_invalid")
+            source_modality = tuple.__getitem__(source_key, 0)
+            source_edge_id = tuple.__getitem__(source_key, 1)
+            if not isinstance(source_modality, str) or not isinstance(source_edge_id, str):
+                raise ValueError("credal_reference_edge_source_key_invalid")
+            captured_key = (
+                _freeze_reference_text(source_modality),
+                _freeze_reference_text(source_edge_id),
+            )
+            if any(not part.strip() for part in captured_key):
+                raise ValueError("credal_reference_edge_source_key_invalid")
+            if not isinstance(edge, CredalReferenceEdge):
+                raise TypeError("credal_reference_edge_value_invalid")
+            if captured_key != edge.key:
+                raise ValueError("credal_reference_edge_source_key_mismatch")
+            captured_edges[captured_key] = edge
+        object.__setattr__(
+            self, "component_versions", _freeze_reference_payload(self.component_versions)
+        )
+        object.__setattr__(self, "essential_edges", MappingProxyType(captured_edges))
 
     def reference_lift(
         self,
@@ -2800,6 +2987,8 @@ def _json_list(value: object) -> list[Any]:
 
 
 def _json_ready(value: object) -> object:
+    if isinstance(value, _FrozenReferenceMapping):
+        return json.loads(value._wire_json)
     if value is None or type(value) in (bool, str):
         return value
     if type(value) is int:

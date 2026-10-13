@@ -433,10 +433,7 @@ class GroundingDecisionCertificate(_StrictModel):
         expected_id = _decision_certificate_id(expected_hash)
         if self.certificate_id != expected_id:
             raise ValueError("decision_certificate_id_mismatch")
-        if (
-            self.schema_version.endswith((".v1", ".v2"))
-            and self.revalidation.currentness_reasons
-        ):
+        if self.schema_version.endswith((".v1", ".v2")) and self.revalidation.currentness_reasons:
             raise ValueError("historical_cg2_currentness_reasons_forbidden")
         if self.schema_version.endswith((".v2", ".v3")):
             if self.run_admission is None:
@@ -888,11 +885,7 @@ class GroundingBindGate:
             *base_candidates,
             *_cg1._adversarial_countercandidates(base_candidates, parsed),
         )
-        return self._engine._certificate_for_parsed(
-            parsed,
-            candidates,
-            retrieval_indexed_edge_count=len(self.reference.essential_edges),
-        )
+        return self._engine._certificate_for_parsed(parsed, candidates)
 
     def _safe_set(self, certificate: GroundingRelationCertificate) -> GroundingSafeSet:
         atom_payloads = _mapping(certificate.atom_signature_or_bundle)
@@ -1622,8 +1615,7 @@ def _cg1_currentness_reasons(
     reasons: list[str] = []
     if consumed.schema_version != replayed.schema_version:
         reasons.append(
-            "cg1_schema_version_mismatch:"
-            f"{consumed.schema_version}->{replayed.schema_version}"
+            f"cg1_schema_version_mismatch:{consumed.schema_version}->{replayed.schema_version}"
         )
     if consumed.validator_version != replayed.validator_version:
         reasons.append(

@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import re
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
@@ -41,6 +41,7 @@ GROUNDING_RELATION_SCHEMA_VERSION_V1 = "policyos.runtime.grounding_relation_cert
 GROUNDING_RELATION_SCHEMA_VERSION = "policyos.runtime.grounding_relation_certificate.v2"
 GROUNDING_RELATION_VALIDATOR_VERSION = "policyos.runtime.grounding_relation.cg1.v2"
 NUMERIC_SCALING = "basis_points"
+_REFERENCE_FTS_INSERT_BATCH_SIZE = 512
 
 AxisRelation = Literal[
     "equivalent",
@@ -307,10 +308,7 @@ class GroundingRelationCertificate(_StrictModel):
 
     @model_validator(mode="after")
     def _shadow_only_boundary(self) -> GroundingRelationCertificate:
-        if (
-            self.schema_version == GROUNDING_RELATION_SCHEMA_VERSION_V1
-            and self.solver_attempts
-        ):
+        if self.schema_version == GROUNDING_RELATION_SCHEMA_VERSION_V1 and self.solver_attempts:
             raise ValueError("cg1_v1_solver_attempts_forbidden")
         if self.recommended_transition not in _SHADOW_TRANSITIONS:
             raise ValueError("cg1_recommended_transition_not_shadow_only")
@@ -344,6 +342,23 @@ class _ProposalVerdict:
     coverage_claim: dict[str, Any]
 
 
+class _ReferenceRetrievalIndex(Protocol):
+    """Structural contract for lexical and deliberately bounded CG1 indexes."""
+
+    indexed_edge_count: int
+    reference_edge_set_complete: bool
+
+    def search(self, query: str, *, limit: int) -> list[dict[str, Any]]: ...
+
+
+@dataclass(frozen=True)
+class _ReferenceCoverageBasis:
+    atom_ids: frozenset[str]
+    atom_count: int
+    registered_ops: frozenset[str]
+    writable_slots: frozenset[str]
+
+
 class GroundingRelationEngine:
     """Thin GY-CG1 engine over a CG0 ``CredalReference``."""
 
@@ -354,19 +369,54 @@ class GroundingRelationEngine:
         axis_witness_provider: AxisWitnessProvider | None = None,
         policy: GroundingEnginePolicy | None = None,
     ) -> None:
-        self.reference = reference
+        self._reference = reference
         self.axis_witness_provider = axis_witness_provider
         self.policy = policy or GroundingEnginePolicy()
         self._reference_atoms: tuple[GroundingCandidateAtom, ...] | None = None
-        self._fts_index: _DuckDbReferenceFtsIndex | None = None
+        self._reference_writable_slots_cache: tuple[str, ...] | None = None
+        self._coverage_basis_cache: _ReferenceCoverageBasis | None = None
+        self._fts_index: _ReferenceRetrievalIndex | None = None
+
+    @property
+    def reference(self) -> CredalReference:
+        """Return the immutable reference selected for this engine lifetime."""
+
+        return self._reference
 
     @property
     def reference_atoms(self) -> tuple[GroundingCandidateAtom, ...]:
         """Return owner-derived L6/WMR atom candidates."""
 
         if self._reference_atoms is None:
-            self._reference_atoms = tuple(_reference_atoms_from_cg0(self.reference))
+            self._reference_atoms = tuple(
+                _reference_atoms_from_cg0(
+                    self.reference,
+                    writable_slots=self._reference_writable_slots(),
+                )
+            )
         return self._reference_atoms
+
+    def _reference_writable_slots(self) -> tuple[str, ...]:
+        if self._reference_writable_slots_cache is None:
+            self._reference_writable_slots_cache = _writable_wmr_slots(self.reference)
+        return self._reference_writable_slots_cache
+
+    def _reference_coverage_basis(self) -> _ReferenceCoverageBasis:
+        """Return one cached coverage summary for this selected reference."""
+
+        if self._coverage_basis_cache is None:
+            atoms = self.reference_atoms
+            self._coverage_basis_cache = _ReferenceCoverageBasis(
+                atom_ids=frozenset(atom.atom_id for atom in atoms),
+                atom_count=len(atoms),
+                registered_ops=frozenset(
+                    _canonical_operator(edge.edge_id)
+                    for edge in self.reference.essential_edges.values()
+                    if edge.modality == "L6_KNOB_OPERATOR"
+                ),
+                writable_slots=frozenset(self._reference_writable_slots()),
+            )
+        return self._coverage_basis_cache
 
     def certificate_for(
         self,
@@ -393,25 +443,38 @@ class GroundingRelationEngine:
         self,
         parsed: ParsedProposal,
         candidates: Sequence[GroundingCandidateAtom],
-        *,
-        retrieval_indexed_edge_count: int | None = None,
     ) -> GroundingRelationCertificate:
         """Build issuer and replay certificates through one CG1 owner."""
 
         evaluation = self._candidate_relation_results(parsed, candidates)
         pair_results = evaluation.pair_results
+        coverage_basis = self._reference_coverage_basis()
+        base_candidates = tuple(
+            candidate for candidate in candidates if not candidate.is_adversarial_countercandidate
+        )
+        complete_atom_universe = False
+        if len(base_candidates) == coverage_basis.atom_count:
+            candidate_atom_ids = frozenset(candidate.atom_id for candidate in base_candidates)
+            complete_atom_universe = (
+                len(candidate_atom_ids) == len(base_candidates)
+                and candidate_atom_ids == coverage_basis.atom_ids
+            )
+        fts_index = self._fts_index
+        retrieval_indexed_edge_count = fts_index.indexed_edge_count if fts_index else 0
+        retrieval_index_complete = bool(
+            fts_index is not None
+            and fts_index.reference_edge_set_complete
+            and retrieval_indexed_edge_count == len(self.reference.essential_edges)
+        )
         verdict = _proposal_verdict(
             pair_results,
             candidates=candidates,
             parsed=parsed,
             reference=self.reference,
-            retrieval_indexed_edge_count=(
-                retrieval_indexed_edge_count
-                if retrieval_indexed_edge_count is not None
-                else self._fts_index.indexed_edge_count
-                if self._fts_index is not None
-                else 0
-            ),
+            coverage_basis=coverage_basis,
+            retrieval_indexed_edge_count=retrieval_indexed_edge_count,
+            retrieval_index_complete=retrieval_index_complete,
+            complete_atom_universe=complete_atom_universe,
             policy=self.policy,
         )
         selected = verdict.representative
@@ -877,27 +940,66 @@ def parse_n4_proposal(
     )
 
 
+def _iter_reference_fts_document_batches(
+    reference: CredalReference,
+) -> Iterator[list[tuple[str, str, str, str]]]:
+    """Yield bounded full-reference FTS document batches in source order."""
+
+    batch: list[tuple[str, str, str, str]] = []
+    for source_key, edge in reference.essential_edges.items():
+        if (
+            not isinstance(source_key, tuple)
+            or len(source_key) != 2
+            or any(not isinstance(part, str) or not part.strip() for part in source_key)
+        ):
+            raise ValueError("cg0_reference_edge_source_key_invalid")
+        if source_key != edge.key:
+            raise ValueError("cg0_reference_edge_key_mismatch")
+        batch.append(
+            (
+                _edge_key_text(edge.key),
+                edge.modality,
+                edge.edge_id,
+                _edge_search_text(edge),
+            )
+        )
+        if len(batch) >= _REFERENCE_FTS_INSERT_BATCH_SIZE:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
 class _DuckDbReferenceFtsIndex:
     """DuckDB FTS index over every CG0 essential edge."""
 
     def __init__(self, reference: CredalReference) -> None:
-        self.reference = reference
-        self.indexed_edge_count = len(reference.essential_edges)
+        self._reference = reference
+        self.indexed_edge_count = 0
+        self.reference_edge_set_complete = False
         self._con: duckdb.DuckDBPyConnection | None = None
+
+    @property
+    def reference(self) -> CredalReference:
+        """Return the immutable reference indexed by this retrieval instance."""
+
+        return self._reference
 
     def search(self, query: str, *, limit: int) -> list[dict[str, Any]]:
         """Return lexical full-reference FTS hits."""
 
         if not query.strip():
             return []
-        if self._con is None:
-            self._build()
-        con = self._con
-        if con is None:
-            raise RuntimeError("duckdb_fts_index_not_initialized")
         safe_query = " ".join(sorted(_tokens(query)))[:800]
         if not safe_query:
             return []
+        if self._con is None:
+            self._build()
+        if not self.reference_edge_set_complete or self.indexed_edge_count == 0:
+            return []
+        con = self._con
+        if con is None:
+            raise RuntimeError("duckdb_fts_index_not_initialized")
         rows = con.execute(
             """
             SELECT doc_id, modality, edge_id,
@@ -920,30 +1022,67 @@ class _DuckDbReferenceFtsIndex:
     def _build(self) -> None:
         import pandas as pd
 
+        expected_edge_count = len(self.reference.essential_edges)
+        inserted_edge_count = 0
         con = duckdb.connect(":memory:")
-        docs = {
-            "doc_id": [],
-            "edge_id": [],
-            "modality": [],
-            "text": [],
-        }
-        for edge in self.reference.essential_edges.values():
-            docs["doc_id"].append(_edge_key_text(edge.key))
-            docs["modality"].append(edge.modality)
-            docs["edge_id"].append(edge.edge_id)
-            docs["text"].append(_edge_search_text(edge))
-        con.register("cg0_reference_edge_rows", pd.DataFrame(docs))
-        con.execute(
-            """
-            CREATE TABLE cg0_reference_edges AS
-            SELECT doc_id, modality, edge_id, text FROM cg0_reference_edge_rows
-            """
-        )
-        con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
-        self._con = con
+        try:
+            con.execute(
+                """
+                CREATE TABLE cg0_reference_edges (
+                    doc_id VARCHAR,
+                    modality VARCHAR,
+                    edge_id VARCHAR,
+                    text VARCHAR
+                )
+                """
+            )
+            for batch in _iter_reference_fts_document_batches(self.reference):
+                if not batch:
+                    continue
+                frame = pd.DataFrame(
+                    batch,
+                    columns=("doc_id", "modality", "edge_id", "text"),
+                )
+                con.register("cg0_reference_edge_batch", frame)
+                try:
+                    con.execute(
+                        """
+                        INSERT INTO cg0_reference_edges
+                        SELECT doc_id, modality, edge_id, text
+                        FROM cg0_reference_edge_batch
+                        """
+                    )
+                finally:
+                    con.unregister("cg0_reference_edge_batch")
+                inserted_edge_count += len(batch)
+            actual_edge_count, distinct_edge_count = con.execute(
+                """
+                SELECT COUNT(*), COUNT(DISTINCT doc_id)
+                FROM cg0_reference_edges
+                """
+            ).fetchone()
+            actual_edge_count = int(actual_edge_count)
+            distinct_edge_count = int(distinct_edge_count)
+            reference_edge_set_complete = (
+                inserted_edge_count == expected_edge_count
+                and actual_edge_count == expected_edge_count
+                and distinct_edge_count == expected_edge_count
+            )
+            if reference_edge_set_complete and expected_edge_count:
+                con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+            self.indexed_edge_count = actual_edge_count
+            self.reference_edge_set_complete = reference_edge_set_complete
+            self._con = con
+        except BaseException:
+            con.close()
+            raise
 
 
-def _reference_atoms_from_cg0(reference: CredalReference) -> list[GroundingCandidateAtom]:
+def _reference_atoms_from_cg0(
+    reference: CredalReference,
+    *,
+    writable_slots: Sequence[str] | None = None,
+) -> list[GroundingCandidateAtom]:
     op_edges = {
         edge.edge_id: edge
         for edge in reference.essential_edges.values()
@@ -963,7 +1102,9 @@ def _reference_atoms_from_cg0(reference: CredalReference) -> list[GroundingCandi
             if knob_id:
                 lex_edges_by_knob[knob_id].append(edge)
     atoms: list[GroundingCandidateAtom] = []
-    writable_slots = _writable_wmr_slots(reference)
+    selected_writable_slots = (
+        tuple(writable_slots) if writable_slots is not None else _writable_wmr_slots(reference)
+    )
     for op_id, op_edge in sorted(op_edges.items()):
         target_edge = target_edges.get(op_id)
         op_value = _first_completion_value(op_edge)
@@ -972,7 +1113,7 @@ def _reference_atoms_from_cg0(reference: CredalReference) -> list[GroundingCandi
         domain = _mapping(op_value.get("parameter_domain"))
         target_slots = tuple(
             slot
-            for slot in writable_slots
+            for slot in selected_writable_slots
             if _operator_target_compatible(
                 reference,
                 op_id=op_id,
@@ -1531,14 +1672,20 @@ def _proposal_verdict(
     candidates: Sequence[GroundingCandidateAtom],
     parsed: ParsedProposal,
     reference: CredalReference,
+    coverage_basis: _ReferenceCoverageBasis,
     retrieval_indexed_edge_count: int,
+    retrieval_index_complete: bool,
+    complete_atom_universe: bool,
     policy: GroundingEnginePolicy,
 ) -> _ProposalVerdict:
     coverage_claim = _known_space_coverage_claim(
         parsed,
         candidates=candidates,
         reference=reference,
+        coverage_basis=coverage_basis,
         retrieval_indexed_edge_count=retrieval_indexed_edge_count,
+        retrieval_index_complete=retrieval_index_complete,
+        complete_atom_universe=complete_atom_universe,
     )
     if not results:
         return _ProposalVerdict(
@@ -1575,9 +1722,7 @@ def _proposal_verdict(
             coverage_claim=coverage_claim,
         )
 
-    false_analogs = [
-        result for result in sat_results if result.selected_relation == "false-analog"
-    ]
+    false_analogs = [result for result in sat_results if result.selected_relation == "false-analog"]
     coverage_sufficient = bool(coverage_claim.get("coverage_sufficient"))
     proposal_has_denotation = bool(
         coverage_claim.get("proposal_registered_ops")
@@ -1662,9 +1807,7 @@ def grounding_candidate_semantic_sort_key(
 
     signature = candidate.signature
     relation_axes = {
-        axis: _axis_value(signature, axis)
-        for axis in RELATION_AXES
-        if axis != "wm_version"
+        axis: _axis_value(signature, axis) for axis in RELATION_AXES if axis != "wm_version"
     }
     return json.dumps(
         _json_ready(relation_axes),
@@ -1679,14 +1822,13 @@ def _known_space_coverage_claim(
     *,
     candidates: Sequence[GroundingCandidateAtom],
     reference: CredalReference,
+    coverage_basis: _ReferenceCoverageBasis,
     retrieval_indexed_edge_count: int,
+    retrieval_index_complete: bool,
+    complete_atom_universe: bool,
 ) -> dict[str, Any]:
-    registered_ops = {
-        _canonical_operator(edge.edge_id)
-        for edge in reference.essential_edges.values()
-        if edge.modality == "L6_KNOB_OPERATOR"
-    }
-    writable_slots = set(_writable_wmr_slots(reference))
+    registered_ops = coverage_basis.registered_ops
+    writable_slots = coverage_basis.writable_slots
     proposal_ops = {
         _canonical_operator(hypothesis.signature.op)
         for hypothesis in parsed.hypotheses
@@ -1714,8 +1856,14 @@ def _known_space_coverage_claim(
     )
     coverage_sufficient = (
         len(reference.essential_edges) > 0
-        and retrieval_indexed_edge_count == len(reference.essential_edges)
         and bool(base_candidates)
+        and (
+            (
+                retrieval_index_complete
+                and retrieval_indexed_edge_count == len(reference.essential_edges)
+            )
+            or complete_atom_universe
+        )
     )
     return {
         "coverage_sufficient": coverage_sufficient,
@@ -1723,7 +1871,7 @@ def _known_space_coverage_claim(
         "retrieval_indexed_edge_count": retrieval_indexed_edge_count,
         "registered_operator_count": len(registered_ops),
         "writable_wmr_slot_count": len(writable_slots),
-        "atom_universe_count": len(_reference_atoms_from_cg0(reference)),
+        "atom_universe_count": coverage_basis.atom_count,
         "base_candidate_count": len(base_candidates),
         "adversarial_countercandidate_count": len(candidates) - len(base_candidates),
         "adversarial_countercandidate_reasons": counter_reasons,
@@ -2044,6 +2192,7 @@ def _signature_text_terms(signature: MechanisticSignature) -> tuple[str, ...]:
 
 
 def _edge_search_text(edge: CredalReferenceEdge) -> str:
+    payload = edge.to_payload()
     return " ".join(
         (
             edge.modality,
@@ -2051,11 +2200,11 @@ def _edge_search_text(edge: CredalReferenceEdge) -> str:
             edge.status,
             edge.unit or "",
             json.dumps(
-                [completion.to_payload() for completion in edge.admissible_completions],
+                payload["admissible_completions"],
                 sort_keys=True,
                 default=str,
             ),
-            json.dumps(edge.provenance, sort_keys=True, default=str),
+            json.dumps(payload["provenance"], sort_keys=True, default=str),
         )
     )
 
@@ -2738,9 +2887,7 @@ def _counter_outcome(
     current_outcomes: Sequence[str],
     current_targets: Sequence[str],
 ) -> str:
-    current = {
-        _canonical_variable(item) for item in (*current_outcomes, *current_targets) if item
-    }
+    current = {_canonical_variable(item) for item in (*current_outcomes, *current_targets) if item}
     for outcome in (
         "household_cells.disposable_income",
         "government.balance",

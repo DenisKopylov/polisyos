@@ -34,9 +34,7 @@ if TYPE_CHECKING:
 GROUNDING_PHRASING_DEFENSE_SCHEMA_VERSION = (
     "policyos.runtime.grounding_phrasing_defense_certificate.v1"
 )
-GROUNDING_PHRASING_DEFENSE_VALIDATOR_VERSION = (
-    "policyos.runtime.grounding_phrasing_defense.cg4.v1"
-)
+GROUNDING_PHRASING_DEFENSE_VALIDATOR_VERSION = "policyos.runtime.grounding_phrasing_defense.cg4.v1"
 
 type _AuthorityScope = Literal["production", "contract_testing"]
 type BaseCaseClass = Literal[
@@ -546,9 +544,7 @@ class GroundingPhrasingDefenseEngine:
         comparisons: list[PhrasingPairEvaluation] = []
         for base in base_cases:
             for transform in transforms_by_base.get(base.case_id, ()):
-                comparisons.append(
-                    self._evaluate_pair(base, transform, bounded_cg1=proof_bounded)
-                )
+                comparisons.append(self._evaluate_pair(base, transform, bounded_cg1=proof_bounded))
 
         risks: list[GroundingProxyGapRisk] = []
         handoffs: list[QuarantineHandoffRecord] = []
@@ -842,7 +838,8 @@ class _BoundedReferenceIndex:
     """Bound CG1 matrix replay without rebuilding DuckDB FTS for every pair."""
 
     def __init__(self, reference: CredalReference) -> None:
-        self.indexed_edge_count = len(reference.essential_edges)
+        self.indexed_edge_count = 0
+        self.reference_edge_set_complete = False
 
     def search(self, query: str, *, limit: int) -> list[dict[str, Any]]:
         """Return no lexical hits; CG1 still uses owner atom/token evidence."""
@@ -961,9 +958,7 @@ def _evidence_signature(
     if isinstance(cg3.mechanism_witness.evidence, Mapping):
         actuatability = dict(cg3.mechanism_witness.evidence.get("actuatability") or {})
     raw_payload = {
-        "cg1_axis_relations": {
-            witness.axis: witness.relation for witness in cg1.axis_witnesses
-        },
+        "cg1_axis_relations": {witness.axis: witness.relation for witness in cg1.axis_witnesses},
         "cg1_critical_contradictions": list(cg1.critical_contradictions),
         "cg1_relation_class": cg1.selected_relation,
         "cg1_residual_constraints": list(cg1.residual_constraints),
@@ -1372,10 +1367,7 @@ def _consumed_intermediate_diff_flags(
 
 
 def _counter_payload(value: Mapping[str, Counter[str]]) -> dict[str, dict[str, int]]:
-    return {
-        family: dict(sorted(counter.items()))
-        for family, counter in sorted(value.items())
-    }
+    return {family: dict(sorted(counter.items())) for family, counter in sorted(value.items())}
 
 
 def _cg1_rank(value: str) -> int:
@@ -1406,10 +1398,14 @@ def _cg3_rank(value: str) -> int:
 
 
 def _has_denotation_match(signature: GroundingEvidenceSignature) -> bool:
-    return signature.cg1_relation_class in {
-        "exact",
-        "certified-specialization",
-    } or signature.cg3_denotation_match_kind == "resolved_proof"
+    return (
+        signature.cg1_relation_class
+        in {
+            "exact",
+            "certified-specialization",
+        }
+        or signature.cg3_denotation_match_kind == "resolved_proof"
+    )
 
 
 def _causal_evidence_score(signature: GroundingEvidenceSignature) -> float:

@@ -3,7 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from collections import UserDict
+from dataclasses import replace
 from pathlib import Path
+from types import MappingProxyType
+from typing import cast
 
 import duckdb
 import pytest
@@ -25,9 +29,11 @@ from polisyos.ir.analytics.literature import (
 from polisyos.runtime.quality.credal_reference import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
     AdmissibleCompletion,
+    CompletionKind,
     CredalReference,
     CredalReferenceEdge,
     CredalReferenceSourceProfile,
+    CredalReferenceStatus,
     _component_versions,
     _credal_reference_source_profile_content_hash,
     _derive_l2_causal_claim,
@@ -1130,3 +1136,480 @@ def test_l6_observation_route_edges_keep_per_row_refusals_for_invalid_manifest(
         "observation_family_missing",
     ]
     assert [edge.provenance["signals"]["route"] for edge in edges] == raw_routes
+
+
+def test_credal_reference_captures_deep_immutable_source_content() -> None:
+    """Caller aliases cannot revise a selected reference after construction."""
+
+    completion_value = {"nested": {"items": ["captured-completion"]}}
+    provenance = {"nested": {"items": ["captured-provenance"]}}
+    completion = AdmissibleCompletion("fixed", completion_value)
+    edge = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="captured-edge",
+        status="confirmed",
+        admissible_completions=(completion,),
+        provenance=provenance,
+    ).with_content_hash()
+    source_edges = {edge.key: edge}
+    source_versions = {"WMR": "selected-world-model"}
+    reference_hash = _reference_hash(
+        component_versions=source_versions,
+        edge_index=source_edges,
+        as_of="2026-10-13",
+    )
+    reference = CredalReference(
+        schema_version="policyos.runtime.grounding_credal_reference.v2",
+        reference_epoch="kref:selected-epoch",
+        reference_hash=reference_hash,
+        as_of="2026-10-13",
+        component_versions=source_versions,
+        essential_edges=source_edges,
+    )
+
+    completion_value["nested"]["items"].append("caller-change")
+    provenance["nested"]["items"].append("caller-change")
+    source_versions["WMR"] = "caller-change"
+    replacement = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="replacement-edge",
+        status="contested",
+        admissible_completions=(AdmissibleCompletion("may_exist"),),
+        provenance={"owner": "caller-replacement"},
+    ).with_content_hash()
+    source_edges[edge.key] = replacement
+
+    assert len(source_edges) == len(reference.essential_edges) == 1
+    assert reference.schema_version == "policyos.runtime.grounding_credal_reference.v2"
+    assert reference.reference_epoch == "kref:selected-epoch"
+    assert reference.reference_hash == reference_hash
+    assert reference.as_of == "2026-10-13"
+    assert reference.component_versions["WMR"] == "selected-world-model"
+    captured = reference.essential_edges[edge.key]
+    assert captured.admissible_completions[0].value["nested"]["items"] == ("captured-completion",)
+    assert captured.provenance["nested"]["items"] == ("captured-provenance",)
+    assert captured.to_payload()["admissible_completions"][0]["value"]["nested"]["items"] == [
+        "captured-completion"
+    ]
+    assert captured.to_payload()["provenance"]["nested"]["items"] == ["captured-provenance"]
+
+    with pytest.raises(TypeError):
+        reference.component_versions["WMR"] = "mutated"  # type: ignore[index]
+    with pytest.raises(TypeError):
+        reference.essential_edges[edge.key] = replacement  # type: ignore[index]
+    captured_provenance_items = captured.provenance["nested"]["items"]
+    captured_completion_items = captured.admissible_completions[0].value["nested"]["items"]
+    captured_hash = captured.content_hash
+    assert isinstance(captured_provenance_items, tuple)
+    assert isinstance(captured_completion_items, tuple)
+    with pytest.raises(AttributeError):
+        captured_provenance_items.append("mutated")
+    with pytest.raises(TypeError):
+        list.append(captured_provenance_items, "base-append-mutation")
+    with pytest.raises(TypeError):
+        list.__setitem__(captured_completion_items, 0, "base-setitem-mutation")
+    assert captured.content_hash == captured_hash
+    assert captured.to_payload()["admissible_completions"][0]["value"]["nested"]["items"] == [
+        "captured-completion"
+    ]
+    assert captured.to_payload()["provenance"]["nested"]["items"] == ["captured-provenance"]
+
+
+def test_credal_reference_snapshots_mutable_legacy_json_fallback_values() -> None:
+    """Mutable values accepted through ``default=str`` stay fixed after capture."""
+
+    class MutableTextFallback:
+        def __init__(self, value: str) -> None:
+            self.value = value
+
+        def __str__(self) -> str:
+            return self.value
+
+    class MutableBytesFallback(bytes):
+        display: str
+
+        def __new__(cls, value: bytes, display: str) -> MutableBytesFallback:
+            instance = super().__new__(cls, value)
+            instance.display = display
+            return instance
+
+        def __str__(self) -> str:
+            return self.display
+
+    completion_bytes = bytearray(b"completion-before")
+    completion_text = MutableTextFallback("completion-text-before")
+    completion_bytes_subclass = MutableBytesFallback(
+        b"completion-subclass", "completion-subclass-before"
+    )
+    provenance_bytes = bytearray(b"provenance-before")
+    provenance_text = MutableTextFallback("provenance-text-before")
+    provenance_bytes_subclass = MutableBytesFallback(
+        b"provenance-subclass", "provenance-subclass-before"
+    )
+    completion_value = {
+        "bytes": completion_bytes,
+        "custom": completion_text,
+        "subclass_bytes": completion_bytes_subclass,
+    }
+    provenance = {
+        "bytes": provenance_bytes,
+        "custom": provenance_text,
+        "subclass_bytes": provenance_bytes_subclass,
+    }
+    expected_completion = json.loads(
+        json.dumps(completion_value, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    expected_provenance = json.loads(
+        json.dumps(provenance, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    assert expected_completion == {
+        "bytes": "bytearray(b'completion-before')",
+        "custom": "completion-text-before",
+        "subclass_bytes": "completion-subclass-before",
+    }
+    assert expected_provenance == {
+        "bytes": "bytearray(b'provenance-before')",
+        "custom": "provenance-text-before",
+        "subclass_bytes": "provenance-subclass-before",
+    }
+
+    edge = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="mutable-fallback-edge",
+        status="confirmed",
+        admissible_completions=(AdmissibleCompletion("fixed", completion_value),),
+        provenance=provenance,
+    ).with_content_hash()
+    captured_hash = edge.content_hash
+
+    completion_bytes.extend(b"-caller-change")
+    completion_text.value = "completion-text-after"
+    completion_bytes_subclass.display = "completion-subclass-after"
+    provenance_bytes.extend(b"-caller-change")
+    provenance_text.value = "provenance-text-after"
+    provenance_bytes_subclass.display = "provenance-subclass-after"
+
+    payload = edge.to_payload()
+    assert payload["admissible_completions"][0]["value"] == expected_completion
+    assert payload["provenance"] == expected_provenance
+    assert edge.content_hash == captured_hash
+
+
+def test_credal_mapping_snapshot_preserves_legacy_json_fallback_wire() -> None:
+    """Generic mappings keep default=str wire output while their lookup view is frozen."""
+
+    nested_user_mapping_data = {"owner": "nested-before", "status": True}
+    nested_user_mapping = UserDict(nested_user_mapping_data)
+    completion_data = {"owner": "completion-before", "nested": nested_user_mapping}
+    completion_mapping = UserDict(completion_data)
+    provenance_data = {"owner": "provenance-before", "status": True}
+    provenance_mapping = MappingProxyType(provenance_data)
+    exact_dict_data = {"nested": UserDict({"owner": "dict-nested-before"})}
+
+    expected_completion = json.loads(
+        json.dumps(completion_mapping, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    expected_exact_dict = json.loads(
+        json.dumps(exact_dict_data, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    expected_provenance = json.loads(
+        json.dumps(provenance_mapping, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    edge = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="generic-mapping-wire-edge",
+        status="confirmed",
+        admissible_completions=(
+            AdmissibleCompletion("fixed", completion_mapping),
+            AdmissibleCompletion("fixed", exact_dict_data),
+        ),
+        provenance=provenance_mapping,
+    ).with_content_hash()
+    captured_hash = edge.content_hash
+
+    payload = edge.to_payload()
+    assert payload["admissible_completions"][0]["value"] == expected_completion
+    assert payload["admissible_completions"][1]["value"] == expected_exact_dict
+    assert payload["provenance"] == expected_provenance
+    assert edge.admissible_completions[0].value["owner"] == "completion-before"
+    assert edge.admissible_completions[0].value["nested"]["owner"] == "nested-before"
+    assert edge.provenance["owner"] == "provenance-before"
+
+    completion_data["owner"] = "completion-after"
+    nested_user_mapping_data["owner"] = "nested-after"
+    provenance_data["owner"] = "provenance-after"
+    exact_dict_data["nested"]["owner"] = "dict-nested-after"
+
+    assert edge.content_hash == captured_hash
+    assert edge.to_payload()["admissible_completions"][0]["value"] == expected_completion
+    assert edge.to_payload()["admissible_completions"][1]["value"] == expected_exact_dict
+    assert edge.to_payload()["provenance"] == expected_provenance
+    assert edge.admissible_completions[0].value["owner"] == "completion-before"
+    assert edge.admissible_completions[0].value["nested"]["owner"] == "nested-before"
+    assert edge.provenance["owner"] == "provenance-before"
+
+
+def test_credal_reference_captures_json_scalar_subclasses_as_builtin_wire_values() -> None:
+    """The selected snapshot preserves old JSON values without retaining subclasses."""
+
+    class MutableWireText(str):
+        display: str
+
+        def __new__(cls, value: str, display: str) -> MutableWireText:
+            instance = super().__new__(cls, value)
+            instance.display = display
+            return instance
+
+        def __str__(self) -> str:
+            return self.display
+
+    class MutableWireInteger(int):
+        display: str
+
+        def __new__(cls, value: int, display: str) -> MutableWireInteger:
+            instance = super().__new__(cls, value)
+            instance.display = display
+            return instance
+
+        def __str__(self) -> str:
+            return self.display
+
+    class MutableWireFloat(float):
+        display: str
+
+        def __new__(cls, value: float, display: str) -> MutableWireFloat:
+            instance = super().__new__(cls, value)
+            instance.display = display
+            return instance
+
+        def __str__(self) -> str:
+            return self.display
+
+    modality = MutableWireText("L2_CAUSAL_EDGE", "mutable-modality")
+    edge_id = MutableWireText("scalar-wire-edge", "mutable-edge-id")
+    status_value = MutableWireText("confirmed", "mutable-status")
+    status = cast("CredalReferenceStatus", status_value)
+    completion_kind_value = MutableWireText("fixed", "mutable-kind")
+    completion_kind = cast("CompletionKind", completion_kind_value)
+    reason = MutableWireText("wire-reason", "mutable-reason")
+    unit = MutableWireText("wire-unit", "mutable-unit")
+    scale = MutableWireText("wire-scale", "mutable-scale")
+    supplied_hash = MutableWireText("sha256:wire-value", "mutable-hash")
+    text_value = MutableWireText("wire-text", "mutable-text")
+    integer_value = MutableWireInteger(17, "mutable-integer")
+    float_value = MutableWireFloat(0.25, "mutable-float")
+    text_key = MutableWireText("text-key", "mutable-text-key")
+    integer_key = MutableWireInteger(2, "mutable-integer-key")
+    float_key = MutableWireFloat(3.5, "mutable-float-key")
+    raw_value = {
+        "text": text_value,
+        "integer": integer_value,
+        "float": float_value,
+        "text-key": {text_key: "text-key-value"},
+        "integer-key": {integer_key: "integer-key-value"},
+        "float-key": {float_key: "float-key-value"},
+    }
+    provenance_key = MutableWireText("source-key", "mutable-source-key")
+    raw_provenance = {provenance_key: text_value}
+    legacy_completion = {
+        "completion_kind": completion_kind,
+        "reason": reason,
+        "value": raw_value,
+    }
+    legacy_edge_payload = {
+        "admissible_completions": [legacy_completion],
+        "edge_id": edge_id,
+        "modality": modality,
+        "provenance": raw_provenance,
+        "scale": scale,
+        "status": status,
+        "unit": unit,
+        "content_hash": supplied_hash,
+    }
+    expected_edge_payload = json.loads(
+        json.dumps(legacy_edge_payload, ensure_ascii=False, sort_keys=True, default=str)
+    )
+
+    schema_version = MutableWireText("schema-wire", "mutable-schema")
+    reference_epoch = MutableWireText("epoch-wire", "mutable-epoch")
+    reference_hash = MutableWireText("hash-wire", "mutable-reference-hash")
+    as_of = MutableWireText("2026-10-13", "mutable-as-of")
+    component_key = MutableWireText("L2", "mutable-component-key")
+    component_value = MutableWireText("source-version", "mutable-component-value")
+    raw_component_versions = {component_key: component_value}
+    expected_reference_fields = json.loads(
+        json.dumps(
+            {
+                "schema_version": schema_version,
+                "reference_epoch": reference_epoch,
+                "reference_hash": reference_hash,
+                "as_of": as_of,
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+    )
+    expected_component_versions = json.loads(
+        json.dumps(raw_component_versions, ensure_ascii=False, sort_keys=True, default=str)
+    )
+
+    edge = CredalReferenceEdge(
+        modality=modality,
+        edge_id=edge_id,
+        status=status,
+        admissible_completions=(AdmissibleCompletion(completion_kind, raw_value, reason),),
+        provenance=raw_provenance,
+        unit=unit,
+        scale=scale,
+        content_hash=supplied_hash,
+    )
+    selected_key = (modality, edge_id)
+    reference = CredalReference(
+        schema_version=schema_version,
+        reference_epoch=reference_epoch,
+        reference_hash=reference_hash,
+        as_of=as_of,
+        component_versions=raw_component_versions,
+        essential_edges={selected_key: edge},
+    )
+    frozen_hash = edge.with_content_hash().content_hash
+
+    for value in (
+        modality,
+        edge_id,
+        status_value,
+        completion_kind_value,
+        reason,
+        unit,
+        scale,
+        supplied_hash,
+        text_value,
+        integer_value,
+        float_value,
+        text_key,
+        integer_key,
+        float_key,
+        schema_version,
+        reference_epoch,
+        reference_hash,
+        as_of,
+        component_key,
+        component_value,
+        provenance_key,
+    ):
+        value.display = "mutated-after-selection"
+
+    assert edge.to_payload() == expected_edge_payload
+    assert edge.with_content_hash().content_hash == frozen_hash
+    assert type(edge.modality) is str
+    assert type(edge.edge_id) is str
+    assert type(edge.status) is str
+    assert type(edge.unit) is str
+    assert type(edge.scale) is str
+    assert type(edge.content_hash) is str
+    completion = edge.admissible_completions[0]
+    assert type(completion.completion_kind) is str
+    assert type(completion.reason) is str
+    value = completion.value
+    assert type(value["text"]) is str
+    assert type(value["integer"]) is int
+    assert type(value["float"]) is float
+    assert type(next(iter(value["text-key"]))) is str
+    assert type(next(iter(value["integer-key"]))) is int
+    assert type(next(iter(value["float-key"]))) is float
+    assert type(next(iter(edge.provenance))) is str
+    assert reference.schema_version == expected_reference_fields["schema_version"]
+    assert reference.reference_epoch == expected_reference_fields["reference_epoch"]
+    assert reference.reference_hash == expected_reference_fields["reference_hash"]
+    assert reference.as_of == expected_reference_fields["as_of"]
+    assert type(reference.schema_version) is str
+    assert type(reference.reference_epoch) is str
+    assert type(reference.reference_hash) is str
+    assert type(reference.as_of) is str
+    assert reference.component_versions == expected_component_versions
+    assert type(next(iter(reference.component_versions))) is str
+    assert type(next(iter(reference.component_versions.values()))) is str
+    captured_key = next(iter(reference.essential_edges))
+    assert captured_key == ("L2_CAUSAL_EDGE", "scalar-wire-edge")
+    assert all(type(part) is str for part in captured_key)
+
+
+@pytest.mark.parametrize("source_key", [("", "edge-a"), ("L2_CAUSAL_EDGE", " ")])
+def test_credal_reference_rejects_unusable_edge_source_keys(
+    source_key: tuple[str, str],
+) -> None:
+    reference = _profiled_l2_reference(_selected_l2_profile_fixture())
+    edge = next(iter(reference.essential_edges.values()))
+
+    with pytest.raises(ValueError, match="credal_reference_edge_source_key_invalid"):
+        replace(reference, essential_edges={source_key: edge})
+
+
+def test_credal_reference_rejects_edge_key_that_differs_from_source_key() -> None:
+    reference = _profiled_l2_reference(_selected_l2_profile_fixture())
+    edge = next(iter(reference.essential_edges.values()))
+
+    with pytest.raises(ValueError, match="credal_reference_edge_source_key_mismatch"):
+        replace(reference, essential_edges={(edge.modality, f"{edge.edge_id}-other"): edge})
+
+
+def test_credal_snapshot_reuses_stateful_fallback_for_wire_and_lookup() -> None:
+    """A fallback is captured once and shared with the immutable lookup view."""
+
+    class StatefulFallback:
+        def __init__(self, label: str, calls: list[str]) -> None:
+            self.label = label
+            self.calls = calls
+
+        def __str__(self) -> str:
+            self.calls.append(self.label)
+            return f"{self.label}-{len(self.calls)}"
+
+    expected_calls: list[str] = []
+    expected_wire = json.loads(
+        json.dumps(
+            {
+                "z": StatefulFallback("expected-z", expected_calls),
+                "a": StatefulFallback("expected-a", expected_calls),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+    )
+    assert expected_calls == ["expected-a", "expected-z"]
+
+    actual_calls: list[str] = []
+    completion = AdmissibleCompletion(
+        "fixed",
+        {
+            "z": StatefulFallback("actual-z", actual_calls),
+            "a": StatefulFallback("actual-a", actual_calls),
+        },
+        "stateful fallback probe",
+    )
+
+    assert actual_calls == ["actual-a", "actual-z"]
+    assert completion.value["a"] == "actual-a-1"
+    assert completion.value["z"] == "actual-z-2"
+    assert completion.to_payload()["value"] == {
+        "a": "actual-a-1",
+        "z": "actual-z-2",
+    }
+    assert completion.to_payload()["value"] == {
+        key: value.replace("expected", "actual") for key, value in expected_wire.items()
+    }
+    assert actual_calls == ["actual-a", "actual-z"]
+
+
+def test_credal_snapshot_rejects_recursive_json_values() -> None:
+    """Recursive JSON containers retain the standard encoder's bounded refusal."""
+
+    recursive: dict[str, object] = {}
+    recursive["self"] = recursive
+
+    with pytest.raises(ValueError, match="Circular reference detected"):
+        json.dumps(recursive, ensure_ascii=False, sort_keys=True, default=str)
+    with pytest.raises(ValueError, match="Circular reference detected"):
+        AdmissibleCompletion("fixed", recursive, "recursive fallback probe")

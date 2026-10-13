@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import json
+from collections import UserDict
+from collections.abc import Mapping
 from dataclasses import replace
+from types import MappingProxyType
 
 import pytest
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality import credal_reference as credal_owner
+from polisyos.runtime.quality import grounding_relation as grounding_owner
 from polisyos.runtime.quality.credal_reference import (
     CREDAL_REFERENCE_SCHEMA_VERSION,
     AdmissibleCompletion,
@@ -20,8 +26,10 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingRelationEngine,
     HypothesisSolverAttempt,
     MechanisticSignature,
+    ParsedProposal,
     SolverStatus,
     _aggregate_solver_status,
+    _DuckDbReferenceFtsIndex,
     _rank_candidate_results,
     _SolverResult,
     grounding_candidate_semantic_sort_key,
@@ -372,17 +380,13 @@ def test_candidate_selection_is_invariant_to_content_id_readdressing() -> None:
         op="procurement_shock_intensity",
         target="cells.distress_score",
     )
-    readdressed_budget = budget.model_copy(
-        update={"atom_id": "cg0_atom_0000000000000000"}
-    )
+    readdressed_budget = budget.model_copy(update={"atom_id": "cg0_atom_0000000000000000"})
     readdressed_procurement = procurement.model_copy(
         update={"atom_id": "cg0_atom_ffffffffffffffff"}
     )
 
     first = _selected_tied_semantics((budget, procurement))
-    readdressed = _selected_tied_semantics(
-        (readdressed_procurement, readdressed_budget)
-    )
+    readdressed = _selected_tied_semantics((readdressed_procurement, readdressed_budget))
 
     assert first == readdressed
     assert first == (
@@ -459,11 +463,7 @@ def test_candidate_semantic_key_excludes_provenance_but_not_relation_axes() -> N
         }
     )
     semantic_change = provenance_only.model_copy(
-        update={
-            "signature": readdressed_signature.model_copy(
-                update={"unit": "index"}
-            )
-        }
+        update={"signature": readdressed_signature.model_copy(update={"unit": "index"})}
     )
 
     assert grounding_candidate_semantic_sort_key(candidate) == (
@@ -847,3 +847,724 @@ def _unknown_probe() -> dict[str, object]:
 
 def _axis_relations(certificate: object) -> dict[str, str]:
     return {witness.axis: witness.relation for witness in certificate.axis_witnesses}
+
+
+def _empty_hypothesis_proposal(raw_text: str) -> ParsedProposal:
+    return ParsedProposal(
+        proposal_id="unit-empty-hypothesis-proposal",
+        raw_text=raw_text,
+        raw_text_hash=gy_content_hash(raw_text),
+        canonical_ast={"ast_kind": "unit_empty_hypothesis"},
+        hypotheses=(),
+    )
+
+
+def _legacy_plain_json_value(value: object) -> object:
+    """Restore pre-freeze JSON containers without calling production helpers."""
+
+    if isinstance(value, Mapping):
+        return {key: _legacy_plain_json_value(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_legacy_plain_json_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_legacy_plain_json_value(item) for item in value)
+    return value
+
+
+def _legacy_completion_payload(completion: AdmissibleCompletion) -> dict[str, object]:
+    """Rebuild completion JSON from its source fields, without production helpers."""
+
+    return {
+        "completion_kind": completion.completion_kind,
+        "reason": completion.reason,
+        "value": _legacy_plain_json_value(completion.value),
+    }
+
+
+def _legacy_edge_search_text(edge: CredalReferenceEdge) -> str:
+    """Build the prior FTS text from ordinary mapping/list JSON values."""
+
+    return " ".join(
+        (
+            edge.modality,
+            edge.edge_id,
+            edge.status,
+            edge.unit or "",
+            json.dumps(
+                [
+                    _legacy_completion_payload(completion)
+                    for completion in edge.admissible_completions
+                ],
+                sort_keys=True,
+                default=str,
+            ),
+            json.dumps(
+                _legacy_plain_json_value(edge.provenance),
+                sort_keys=True,
+                default=str,
+            ),
+        )
+    )
+
+
+def _legacy_fts_search(reference, query: str, limit: int) -> list[dict[str, object]]:
+    """Keep the prior whole-frame DuckDB path as a small-fixture oracle."""
+    import duckdb
+    import pandas as pd
+
+    docs = {"doc_id": [], "edge_id": [], "modality": [], "text": []}
+    for edge in reference.essential_edges.values():
+        docs["doc_id"].append(grounding_owner._edge_key_text(edge.key))
+        docs["modality"].append(edge.modality)
+        docs["edge_id"].append(edge.edge_id)
+        docs["text"].append(_legacy_edge_search_text(edge))
+    con = duckdb.connect(":memory:")
+    try:
+        con.register("cg0_reference_edge_rows", pd.DataFrame(docs))
+        con.execute(
+            """
+            CREATE TABLE cg0_reference_edges AS
+            SELECT doc_id, modality, edge_id, text FROM cg0_reference_edge_rows
+            """
+        )
+        con.execute("PRAGMA create_fts_index('cg0_reference_edges', 'doc_id', 'text')")
+        safe_query = " ".join(sorted(grounding_owner._tokens(query)))[:800]
+        if not safe_query:
+            return []
+        rows = con.execute(
+            """
+            SELECT doc_id, modality, edge_id,
+                   fts_main_cg0_reference_edges.match_bm25(doc_id, ?) AS score
+            FROM cg0_reference_edges
+            WHERE score IS NOT NULL
+            ORDER BY score DESC, doc_id
+            LIMIT ?
+            """,
+            [safe_query, int(limit)],
+        ).fetchall()
+        return [
+            {
+                "edge_key": grounding_owner._edge_key_text((str(row[1]), str(row[2]))),
+                "score": float(row[3] or 0.0),
+            }
+            for row in rows
+        ]
+    finally:
+        con.close()
+
+
+def test_legacy_fts_corpus_reconstructs_completion_source_fields() -> None:
+    """Every legal completion literal retains raw nested JSON FTS serialization."""
+
+    raw_fixed_value = {
+        "optional_signal": None,
+        "nested": {"labels": ["fixed", None], "weight": 0.25},
+    }
+    raw_partial_value = {
+        "optional_signal": {"owner": None},
+        "nested": {"labels": ["partial", "candidate"], "weight": 0.75},
+    }
+    raw_provenance = {"source": None, "route": ["L3", "WMR"]}
+    raw_completions = [
+        {"completion_kind": "fixed", "reason": "unit-fixed", "value": raw_fixed_value},
+        {
+            "completion_kind": "alternative",
+            "reason": "unit-alternative",
+            "value": raw_partial_value,
+        },
+        {"completion_kind": "may_exist", "reason": "unit-may-exist", "value": raw_fixed_value},
+        {
+            "completion_kind": "may_not_exist",
+            "reason": "unit-may-not-exist",
+            "value": raw_partial_value,
+        },
+        {"completion_kind": "partial", "reason": "unit-partial", "value": raw_fixed_value},
+        {"completion_kind": "excluded", "reason": "unit-excluded", "value": raw_partial_value},
+    ]
+    expected_text = " ".join(
+        (
+            "L6_KNOB_OPERATOR",
+            "unit-source-fields",
+            "confirmed",
+            "",
+            json.dumps(raw_completions, sort_keys=True, default=str),
+            json.dumps(raw_provenance, sort_keys=True, default=str),
+        )
+    )
+    edge = CredalReferenceEdge(
+        modality="L6_KNOB_OPERATOR",
+        edge_id="unit-source-fields",
+        status="confirmed",
+        admissible_completions=(
+            AdmissibleCompletion("fixed", raw_fixed_value, "unit-fixed"),
+            AdmissibleCompletion("alternative", raw_partial_value, "unit-alternative"),
+            AdmissibleCompletion("may_exist", raw_fixed_value, "unit-may-exist"),
+            AdmissibleCompletion("may_not_exist", raw_partial_value, "unit-may-not-exist"),
+            AdmissibleCompletion("partial", raw_fixed_value, "unit-partial"),
+            AdmissibleCompletion("excluded", raw_partial_value, "unit-excluded"),
+        ),
+        provenance=raw_provenance,
+    )
+    raw_fixed_value["nested"]["labels"].append("caller-mutation")
+    raw_partial_value["nested"]["labels"].append("caller-mutation")
+    raw_provenance["route"].append("caller-mutation")
+
+    assert grounding_owner._edge_search_text(edge) == expected_text
+    assert _legacy_edge_search_text(edge) == expected_text
+
+
+def test_batched_fts_index_preserves_full_edge_set_and_legacy_results(monkeypatch) -> None:
+    monkeypatch.setattr(grounding_owner, "_REFERENCE_FTS_INSERT_BATCH_SIZE", 2)
+    reference = _reference()
+    index = _DuckDbReferenceFtsIndex(reference)
+
+    hits = index.search("tax_relief_rate", limit=80)
+
+    assert hits
+    assert index.reference_edge_set_complete is True
+    assert index.indexed_edge_count == len(reference.essential_edges)
+    assert index._con is not None
+    actual_documents = [
+        (str(row[0]), str(row[1]))
+        for row in index._con.execute(
+            "SELECT doc_id, text FROM cg0_reference_edges ORDER BY doc_id"
+        ).fetchall()
+    ]
+    expected_documents = sorted(
+        (
+            grounding_owner._edge_key_text(edge.key),
+            _legacy_edge_search_text(edge),
+        )
+        for edge in reference.essential_edges.values()
+    )
+    assert actual_documents == expected_documents
+    assert [doc_id for doc_id, _text in actual_documents] == sorted(
+        grounding_owner._edge_key_text(edge.key) for edge in reference.essential_edges.values()
+    )
+    assert hits == _legacy_fts_search(reference, "tax_relief_rate", limit=80)
+
+
+def test_fts_text_preserves_legacy_nested_mapping_json() -> None:
+    """A frozen mapping retains the exact text the old JSON path emitted."""
+
+    original_edge = next(iter(_reference().essential_edges.values()))
+    raw_provenance = {
+        "owner": "L2",
+        "signals": {"empty": None, "status": True},
+    }
+    expected_provenance = json.dumps(raw_provenance, sort_keys=True, default=str)
+    edge = replace(original_edge, provenance=raw_provenance)
+    expected = " ".join(
+        (
+            edge.modality,
+            edge.edge_id,
+            edge.status,
+            edge.unit or "",
+            json.dumps(
+                [completion.to_payload() for completion in edge.admissible_completions],
+                sort_keys=True,
+                default=str,
+            ),
+            expected_provenance,
+        )
+    )
+
+    actual = grounding_owner._edge_search_text(edge)
+    assert actual == expected
+    assert "mappingproxy" not in actual
+
+
+def test_fts_text_preserves_generic_mapping_default_str_wire_and_captured_identity() -> None:
+    """The FTS corpus matches old JSON fallback for generic Mapping implementations."""
+
+    raw_completion_data = {"owner": "completion-before", "status": True}
+    raw_completion = UserDict(raw_completion_data)
+    raw_provenance_data = {"owner": "provenance-before", "status": True}
+    raw_provenance = MappingProxyType(raw_provenance_data)
+    expected_completion_value = json.loads(
+        json.dumps(raw_completion, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    expected_provenance_value = json.loads(
+        json.dumps(raw_provenance, ensure_ascii=False, sort_keys=True, default=str)
+    )
+    original_edge = next(iter(_reference().essential_edges.values()))
+    completion = AdmissibleCompletion(
+        "fixed",
+        raw_completion,
+        "generic mapping serializer discriminator",
+    )
+    edge = replace(
+        original_edge,
+        edge_id="generic-mapping-wire-edge",
+        admissible_completions=(completion,),
+        provenance=raw_provenance,
+    ).with_content_hash()
+    expected_text = " ".join(
+        (
+            edge.modality,
+            edge.edge_id,
+            edge.status,
+            edge.unit or "",
+            json.dumps(
+                [
+                    {
+                        "completion_kind": "fixed",
+                        "reason": "generic mapping serializer discriminator",
+                        "value": expected_completion_value,
+                    }
+                ],
+                sort_keys=True,
+                default=str,
+            ),
+            json.dumps(raw_provenance, sort_keys=True, default=str),
+        )
+    )
+
+    assert edge.to_payload()["admissible_completions"][0]["value"] == expected_completion_value
+    assert edge.to_payload()["provenance"] == expected_provenance_value
+    assert grounding_owner._edge_search_text(edge) == expected_text
+    captured_hash = edge.content_hash
+
+    raw_completion_data["owner"] = "completion-after"
+    raw_provenance_data["owner"] = "provenance-after"
+
+    assert edge.content_hash == captured_hash
+    assert edge.to_payload()["admissible_completions"][0]["value"] == expected_completion_value
+    assert edge.to_payload()["provenance"] == expected_provenance_value
+    assert grounding_owner._edge_search_text(edge) == expected_text
+
+
+@pytest.mark.parametrize("raw_text", ["", "!!!"])
+def test_cold_empty_or_tokenless_query_does_not_claim_index_coverage(raw_text: str) -> None:
+    engine = _engine()
+    parsed = _empty_hypothesis_proposal(raw_text)
+    candidates = engine.retrieve_candidates(parsed, include_adversarial_countercandidates=False)
+
+    assert engine._fts_index is not None
+    assert engine._fts_index._con is None
+    assert engine._fts_index.indexed_edge_count == 0
+    assert engine._fts_index.reference_edge_set_complete is False
+    assert len(candidates) == 1
+
+    certificate = engine._certificate_for_parsed(parsed, candidates)
+    coverage = certificate.relation_set["known_space_coverage"]
+    assert certificate.selected_relation == "unknown"
+    assert certificate.solver_status == "UNKNOWN"
+    assert certificate.shadow_only is True
+    assert certificate.no_bind_admit_promote is True
+    assert coverage["retrieval_indexed_edge_count"] == 0
+    assert coverage["atom_universe_count"] > coverage["base_candidate_count"]
+    assert coverage["coverage_sufficient"] is False
+
+
+def test_fts_text_captures_mutable_bytes_fallback_before_hash_and_cache_use() -> None:
+    """A bytes subclass cannot revise selected JSON or FTS text after capture."""
+
+    class MutableBytesFallback(bytes):
+        display: str
+
+        def __new__(cls, value: bytes, display: str) -> MutableBytesFallback:
+            instance = super().__new__(cls, value)
+            instance.display = display
+            return instance
+
+        def __str__(self) -> str:
+            return self.display
+
+    source_value = MutableBytesFallback(b"owner-bytes", "owner-bytes-before")
+    raw_provenance = {"owner-fallback": source_value}
+    original_edge = next(iter(_reference().essential_edges.values()))
+    expected_text = " ".join(
+        (
+            original_edge.modality,
+            "mutable-bytes-fallback-edge",
+            original_edge.status,
+            original_edge.unit or "",
+            json.dumps(
+                [
+                    {
+                        "completion_kind": completion.completion_kind,
+                        "reason": completion.reason,
+                        "value": _legacy_plain_json_value(completion.value),
+                    }
+                    for completion in original_edge.admissible_completions
+                ],
+                sort_keys=True,
+                default=str,
+            ),
+            json.dumps(raw_provenance, sort_keys=True, default=str),
+        )
+    )
+    edge = replace(
+        original_edge,
+        edge_id="mutable-bytes-fallback-edge",
+        provenance=raw_provenance,
+    ).with_content_hash()
+    captured_hash = edge.content_hash
+
+    assert grounding_owner._edge_search_text(edge) == expected_text
+    source_value.display = "owner-bytes-after"
+
+    assert edge.to_payload()["provenance"] == {"owner-fallback": "owner-bytes-before"}
+    assert edge.content_hash == captured_hash
+    assert grounding_owner._edge_search_text(edge) == expected_text
+
+
+def test_zero_hit_query_can_claim_coverage_only_after_full_index_build() -> None:
+    engine = _engine()
+    parsed = _empty_hypothesis_proposal("token-absent-from-every-source-edge")
+    candidates = engine.retrieve_candidates(parsed, include_adversarial_countercandidates=False)
+
+    assert engine._fts_index is not None
+    assert engine._fts_index.reference_edge_set_complete is True
+    assert engine._fts_index.indexed_edge_count == len(engine.reference.essential_edges)
+    assert candidates
+    assert len(candidates) < len(engine.reference_atoms)
+
+    certificate = engine._certificate_for_parsed(parsed, candidates)
+    coverage = certificate.relation_set["known_space_coverage"]
+    assert certificate.selected_relation == "unknown"
+    assert coverage["retrieval_indexed_edge_count"] == len(engine.reference.essential_edges)
+    assert coverage["coverage_sufficient"] is True
+
+
+@pytest.mark.parametrize("mutation", ["missing_row", "duplicate_row"])
+def test_incomplete_fts_document_set_fails_coverage_with_source_count_unchanged(
+    mutation: str,
+    monkeypatch,
+) -> None:
+    reference = _reference()
+    original_batches = grounding_owner._iter_reference_fts_document_batches
+
+    def changed_batches(selected_reference):
+        rows = [row for batch in original_batches(selected_reference) for row in batch]
+        if mutation == "missing_row":
+            rows.pop()
+        else:
+            rows[-1] = rows[0]
+        batch_size = grounding_owner._REFERENCE_FTS_INSERT_BATCH_SIZE
+        for offset in range(0, len(rows), batch_size):
+            yield rows[offset : offset + batch_size]
+
+    monkeypatch.setattr(grounding_owner, "_iter_reference_fts_document_batches", changed_batches)
+    engine = GroundingRelationEngine(reference)
+    parsed = _empty_hypothesis_proposal("token-absent-from-every-source-edge")
+    candidates = engine.retrieve_candidates(parsed, include_adversarial_countercandidates=False)
+
+    assert engine._fts_index is not None
+    assert len(reference.essential_edges) > 0
+    assert engine._fts_index.reference_edge_set_complete is False
+    assert engine._fts_index._con is not None
+    actual_count, distinct_count = engine._fts_index._con.execute(
+        "SELECT COUNT(*), COUNT(DISTINCT doc_id) FROM cg0_reference_edges"
+    ).fetchone()
+    expected_actual_count = (
+        len(reference.essential_edges) - 1
+        if mutation == "missing_row"
+        else len(reference.essential_edges)
+    )
+    assert actual_count == expected_actual_count
+    assert distinct_count == len(reference.essential_edges) - 1
+    assert candidates
+
+    certificate = engine._certificate_for_parsed(parsed, candidates)
+    coverage = certificate.relation_set["known_space_coverage"]
+    assert coverage["reference_edge_count"] == len(reference.essential_edges)
+    assert coverage["retrieval_indexed_edge_count"] == actual_count
+    assert coverage["coverage_sufficient"] is False
+
+
+@pytest.mark.parametrize("mutation", ["foreign_id", "duplicate_id"])
+def test_atom_count_alone_does_not_establish_the_full_candidate_universe(
+    mutation: str,
+) -> None:
+    engine = _engine()
+    parsed = _empty_hypothesis_proposal("")
+    atoms = engine.reference_atoms
+    if mutation == "foreign_id":
+        candidates = (
+            *atoms[:-1],
+            atoms[-1].model_copy(update={"atom_id": "cg0_atom_ffffffffffffffff"}),
+        )
+    else:
+        candidates = (*atoms[:-1], atoms[0])
+    certificate = engine._certificate_for_parsed(parsed, candidates)
+    coverage = certificate.relation_set["known_space_coverage"]
+
+    assert len(candidates) == len(atoms)
+    assert coverage["atom_universe_count"] == len(atoms)
+    assert coverage["retrieval_indexed_edge_count"] == 0
+    assert coverage["coverage_sufficient"] is False
+
+
+def test_coverage_summary_reuses_the_engine_reference_basis(monkeypatch) -> None:
+    real_atom_builder = grounding_owner._reference_atoms_from_cg0
+    real_slot_reader = grounding_owner._writable_wmr_slots
+    atom_builds = 0
+    slot_reads = 0
+
+    def record_atom_build(
+        reference: CredalReference,
+        *,
+        writable_slots: tuple[str, ...] | None = None,
+    ) -> list[GroundingCandidateAtom]:
+        nonlocal atom_builds
+        atom_builds += 1
+        return real_atom_builder(reference, writable_slots=writable_slots)
+
+    def record_slot_read(reference):
+        nonlocal slot_reads
+        slot_reads += 1
+        return real_slot_reader(reference)
+
+    monkeypatch.setattr(grounding_owner, "_reference_atoms_from_cg0", record_atom_build)
+    monkeypatch.setattr(grounding_owner, "_writable_wmr_slots", record_slot_read)
+    engine = _engine()
+    certificates = (
+        engine.certificate_for(_pure_synonym_probe(engine), proposal_id="unit-summary-exact"),
+        engine.certificate_for(_false_analog_probe(), proposal_id="unit-summary-novel"),
+    )
+    coverage = [certificate.relation_set["known_space_coverage"] for certificate in certificates]
+
+    assert atom_builds == 1
+    assert slot_reads == 1
+    assert [certificate.selected_relation for certificate in certificates] == [
+        "exact",
+        "novel-candidate",
+    ]
+    assert all(certificate.solver_status == "SAT" for certificate in certificates)
+    assert all(certificate.shadow_only for certificate in certificates)
+    assert all(certificate.no_bind_admit_promote for certificate in certificates)
+    assert len({item["atom_universe_count"] for item in coverage}) == 1
+    assert all(item["atom_universe_count"] == len(engine.reference_atoms) for item in coverage)
+    assert all(item["registered_operator_count"] == 2 for item in coverage)
+    assert all(item["writable_wmr_slot_count"] == 3 for item in coverage)
+    assert all(item["coverage_sufficient"] is True for item in coverage)
+    assert engine._fts_index is not None
+    assert engine._fts_index.reference_edge_set_complete is True
+
+
+def test_reference_coverage_caches_are_scoped_to_epoch_and_component_versions() -> None:
+    reference = _reference()
+    component_versions = dict(reference.component_versions)
+    component_versions.update(
+        {
+            "L2": "unit-l2-reissued",
+            "L3": "unit-l3-reissued",
+            "WMR": "unit-wmr-reissued",
+        }
+    )
+    as_of = "2026-06-30"
+    reference_hash = credal_owner._reference_hash(
+        component_versions=component_versions,
+        edge_index=reference.essential_edges,
+        as_of=as_of,
+    )
+    reissued_reference = CredalReference(
+        schema_version=reference.schema_version,
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of=as_of,
+        component_versions=component_versions,
+        essential_edges=reference.essential_edges,
+    )
+    current_engine = GroundingRelationEngine(reference)
+    reissued_engine = GroundingRelationEngine(reissued_reference)
+    current_basis = current_engine._reference_coverage_basis()
+    reissued_basis = reissued_engine._reference_coverage_basis()
+    proposal = _empty_hypothesis_proposal("tax_relief_rate")
+    current_candidates = current_engine.retrieve_candidates(
+        proposal,
+        include_adversarial_countercandidates=False,
+    )
+    reissued_candidates = reissued_engine.retrieve_candidates(
+        proposal,
+        include_adversarial_countercandidates=False,
+    )
+    current_certificate = current_engine._certificate_for_parsed(proposal, current_candidates)
+    reissued_certificate = reissued_engine._certificate_for_parsed(proposal, reissued_candidates)
+
+    assert reference.reference_hash != reissued_reference.reference_hash
+    assert reference.as_of != reissued_reference.as_of
+    assert current_basis is not reissued_basis
+    assert current_basis.atom_ids != reissued_basis.atom_ids
+    assert current_engine._reference_atoms is not reissued_engine._reference_atoms
+    assert current_engine._fts_index is not None
+    assert reissued_engine._fts_index is not None
+    assert current_engine._fts_index is not reissued_engine._fts_index
+    assert current_engine._fts_index._con is not reissued_engine._fts_index._con
+    assert current_engine._fts_index.reference_edge_set_complete is True
+    assert reissued_engine._fts_index.reference_edge_set_complete is True
+    assert current_engine._fts_index.search("tax_relief_rate", limit=80) == (
+        reissued_engine._fts_index.search("tax_relief_rate", limit=80)
+    )
+    assert current_certificate.candidate_atom_ids != reissued_certificate.candidate_atom_ids
+    assert current_certificate.relation_set["known_space_coverage"]["coverage_sufficient"] is True
+    assert reissued_certificate.relation_set["known_space_coverage"]["coverage_sufficient"] is True
+
+
+def test_engine_caches_remain_bound_to_same_cardinality_reference_capture() -> None:
+    """Warm basis caches cannot drift when caller-owned source maps are changed."""
+
+    original = _reference()
+    source_edges = dict(original.essential_edges)
+    source_versions = dict(original.component_versions)
+    captured = replace(
+        original,
+        component_versions=source_versions,
+        essential_edges=source_edges,
+    )
+    engine = GroundingRelationEngine(captured)
+    atoms = engine.reference_atoms
+    coverage_basis = engine._reference_coverage_basis()
+    source_key = next(iter(source_edges))
+    original_edge = source_edges[source_key]
+    source_edges[source_key] = replace(original_edge, content_hash=f"sha256:{'f' * 64}")
+    source_versions["WMR"] = "caller-reissued-without-new-reference"
+
+    assert len(source_edges) == len(captured.essential_edges)
+    assert engine.reference_atoms is atoms
+    assert engine._reference_coverage_basis() is coverage_basis
+    assert engine.reference.essential_edges[source_key] is original_edge
+    assert engine.reference.component_versions["WMR"] == "unit-wmr"
+
+
+def test_engine_and_fts_reference_bindings_reject_same_size_rebinding() -> None:
+    """Warm caches and FTS rows remain tied to one immutable reference capture."""
+
+    original = _reference()
+    engine = GroundingRelationEngine(original)
+    atoms = engine.reference_atoms
+    coverage_basis = engine._reference_coverage_basis()
+    parsed = _empty_hypothesis_proposal("tax relief rate")
+    engine.retrieve_candidates(parsed, include_adversarial_countercandidates=False)
+    index = engine._fts_index
+    assert isinstance(index, _DuckDbReferenceFtsIndex)
+    assert index.reference_edge_set_complete is True
+    assert index.indexed_edge_count == len(original.essential_edges)
+
+    source_key, selected_edge = next(iter(original.essential_edges.items()))
+    changed_edge = replace(
+        selected_edge,
+        provenance={**dict(selected_edge.provenance), "rebind_probe": "changed"},
+        content_hash="",
+    )
+    replacement = credal_owner.replace_reference_edge(original, changed_edge)
+    assert len(replacement.essential_edges) == len(original.essential_edges)
+    assert replacement.reference_epoch != original.reference_epoch
+    assert replacement.essential_edges[source_key].provenance["rebind_probe"] == "changed"
+
+    reference_attribute = "reference"
+    with pytest.raises(AttributeError):
+        setattr(engine, reference_attribute, replacement)
+    with pytest.raises(AttributeError):
+        setattr(index, reference_attribute, replacement)
+
+    assert engine.reference is original
+    assert engine.reference_atoms is atoms
+    assert engine._reference_coverage_basis() is coverage_basis
+    assert index.reference is original
+    assert index.reference_edge_set_complete is True
+    assert index.indexed_edge_count == len(original.essential_edges)
+
+
+def test_installed_no_lexical_indexes_report_zero_incomplete_retrieval() -> None:
+    """Bounded wrappers satisfy the shared protocol without claiming FTS rows."""
+
+    from polisyos.runtime.quality.grounding_active_controller import (
+        _NoLexicalReferenceIndex,
+    )
+    from polisyos.runtime.quality.grounding_phrasing_defense import (
+        _BoundedReferenceIndex,
+    )
+
+    reference = _reference()
+    parsed = parse_n4_proposal(
+        {"raw_text": "unregistered neutral probe", "signature": {}},
+        proposal_id="unit-no-lexical-index-protocol",
+        reference=reference,
+    )
+    for index_type in (_NoLexicalReferenceIndex, _BoundedReferenceIndex):
+        engine = GroundingRelationEngine(reference)
+        index = index_type(reference)
+        engine._fts_index = index
+
+        assert index.indexed_edge_count == 0
+        assert index.reference_edge_set_complete is False
+        assert index.search("unregistered probe", limit=5) == []
+        certificate = engine._certificate_for_parsed(parsed, ())
+        coverage = certificate.relation_set["known_space_coverage"]
+        assert coverage["retrieval_indexed_edge_count"] == 0
+        assert coverage["coverage_sufficient"] is False
+
+
+def test_fts_hash_and_lookup_share_one_stateful_fallback_capture() -> None:
+    """Hashing, FTS, and direct lookups consume one captured fallback value."""
+
+    class StatefulFallback:
+        def __init__(self, label: str, calls: list[str]) -> None:
+            self.label = label
+            self.calls = calls
+
+        def __str__(self) -> str:
+            self.calls.append(self.label)
+            return f"{self.label}-{len(self.calls)}"
+
+    expected_calls: list[str] = []
+    expected_completion_value = json.loads(
+        json.dumps({"opaque": StatefulFallback("completion", expected_calls)}, default=str)
+    )
+    expected_provenance = json.loads(
+        json.dumps({"opaque": StatefulFallback("provenance", expected_calls)}, default=str)
+    )
+    assert expected_calls == ["completion", "provenance"]
+
+    actual_calls: list[str] = []
+    completion = AdmissibleCompletion(
+        "fixed",
+        {"opaque": StatefulFallback("completion", actual_calls)},
+        "single-capture probe",
+    )
+    edge = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="single-capture-stateful-fallback",
+        status="confirmed",
+        admissible_completions=(completion,),
+        provenance={"opaque": StatefulFallback("provenance", actual_calls)},
+    ).with_content_hash()
+
+    expected_completion = {
+        "completion_kind": "fixed",
+        "reason": "single-capture probe",
+        "value": expected_completion_value,
+    }
+    expected_hash = gy_content_hash(
+        {
+            "admissible_completions": [expected_completion],
+            "edge_id": edge.edge_id,
+            "modality": edge.modality,
+            "provenance": expected_provenance,
+            "scale": None,
+            "status": edge.status,
+            "unit": edge.unit,
+        }
+    )
+    expected_fts_text = " ".join(
+        (
+            edge.modality,
+            edge.edge_id,
+            edge.status,
+            edge.unit or "",
+            json.dumps([expected_completion], sort_keys=True, default=str),
+            json.dumps(expected_provenance, sort_keys=True, default=str),
+        )
+    )
+
+    assert edge.content_hash == expected_hash
+    assert completion.value["opaque"] == expected_completion_value["opaque"]
+    assert edge.provenance["opaque"] == expected_provenance["opaque"]
+    assert edge.to_payload()["admissible_completions"][0]["value"] == expected_completion_value
+    assert edge.to_payload()["provenance"] == expected_provenance
+    assert grounding_owner._edge_search_text(edge) == expected_fts_text
+    assert edge.with_content_hash().content_hash == expected_hash
+    assert actual_calls == ["completion", "provenance"]

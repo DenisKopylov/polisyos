@@ -44,9 +44,7 @@ from polisyos.runtime.quality.grounding_relation import (
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference
 
-GROUNDING_ACTIVE_CONTROLLER_SCHEMA_VERSION = (
-    "policyos.runtime.grounding_action_certificate.v1"
-)
+GROUNDING_ACTIVE_CONTROLLER_SCHEMA_VERSION = "policyos.runtime.grounding_action_certificate.v1"
 GROUNDING_ACTIVE_CONTROLLER_VALIDATOR_VERSION = (
     "policyos.runtime.grounding_active_controller.cg5.v1"
 )
@@ -98,9 +96,7 @@ _CG3_OBLIGATIONS: tuple[str, ...] = (
     "cg2_novel_handoff",
     "cg1_content_bound",
 )
-_DECISIVE_ADVANCED_DISPOSITIONS = frozenset(
-    {"admit_new_lever", "reject_hallucination", "non_new"}
-)
+_DECISIVE_ADVANCED_DISPOSITIONS = frozenset({"admit_new_lever", "reject_hallucination", "non_new"})
 
 
 class _StrictModel(BaseModel):
@@ -207,9 +203,7 @@ class GroundingColdStartAssumptions(_StrictModel):
     )
     ordinal_cost_order: Mapping[str, int] = Field(default_factory=lambda: dict(ACTION_COST_ORDER))
     action_budget: int = Field(DEFAULT_ACTION_BUDGET, ge=0)
-    cost_provenance: Literal["cold_start_ordinal_assumption"] = (
-        "cold_start_ordinal_assumption"
-    )
+    cost_provenance: Literal["cold_start_ordinal_assumption"] = "cold_start_ordinal_assumption"
     cost_currency: None = None
 
 
@@ -542,9 +536,7 @@ class GroundingActiveController:
 
         if result.action_family == "adversarial_validate":
             verdict = (
-                result.cg4_verdict
-                if self._settings.authority_scope == "contract_testing"
-                else None
+                result.cg4_verdict if self._settings.authority_scope == "contract_testing" else None
             ) or (case.proxy_gap_risk.model_dump(mode="json") if case.proxy_gap_risk else {})
             after = str(verdict.get("disposition") or "cg4_verdict_recorded")
             return GroundingActionReentryRecord(
@@ -786,9 +778,7 @@ class GroundingActiveController:
             blocker_id=blocker.blocker_id,
             before_disposition=before,
             after_disposition=after.selected_relation,
-            before_content_hash=case.cg1_certificate.content_hash
-            if case.cg1_certificate
-            else None,
+            before_content_hash=case.cg1_certificate.content_hash if case.cg1_certificate else None,
             after_content_hash=after.content_hash,
             after_reason=after.decisive_reason,
             flipped=flipped,
@@ -862,7 +852,8 @@ class _NoLexicalReferenceIndex:
     """Contract-test CG1 index that avoids rebuilding DuckDB FTS."""
 
     def __init__(self, reference: CredalReference) -> None:
-        self.indexed_edge_count = len(reference.essential_edges)
+        self.indexed_edge_count = 0
+        self.reference_edge_set_complete = False
 
     def search(self, query: str, *, limit: int) -> list[dict[str, Any]]:
         """Return no lexical hits while leaving owner atom/token checks active."""
@@ -1085,9 +1076,7 @@ def grounding_blocker_denominator() -> GroundingBlockerDenominator:
         cg3_decisive_reasons=tuple(_literal_values(GroundingAdmissionReason)),
         cg3_open_obligations=_CG3_OBLIGATIONS,
         cg4_proxy_gap_fields=("proxy_gap_quarantine",),
-        action_family_table_hash=gy_content_hash(
-            [row.model_dump(mode="json") for row in table]
-        ),
+        action_family_table_hash=gy_content_hash([row.model_dump(mode="json") for row in table]),
     )
 
 

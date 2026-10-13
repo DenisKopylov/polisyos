@@ -844,11 +844,12 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert corrupted_resolution.status == "invalid"
     assert corrupted_resolution.robustness_score is None
 
-    _, unbound_resolution = resolve_stress_report_artifact(
+    _, missing_candidate_resolution = resolve_stress_report_artifact(
         store, top_one_ref, expected_candidate_ref=None
     )
-    assert unbound_resolution.status == "unbound"
-    assert unbound_resolution.robustness_score is None
+    assert missing_candidate_resolution.status == "invalid"
+    assert missing_candidate_resolution.reason_code == "score_claim_without_resolved_basis"
+    assert missing_candidate_resolution.robustness_score is None
 
     component = top_one.score_components[0]
     basis = StressOutcomeBasis.model_validate(

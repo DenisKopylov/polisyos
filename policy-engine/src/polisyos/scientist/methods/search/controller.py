@@ -1188,6 +1188,52 @@ def _search_prompt_value(value: Any) -> Any:
     )
 
 
+def _search_prompt_objective_detail(value: Any) -> dict[str, Any]:
+    """Project one declared search objective detail without admitting other dataclasses."""
+    if type(value) is not ObjectiveValue:
+        _prompt_refuse(
+            "search_prompt_contains_unsupported_value",
+            f"candidate input type {type(value).__name__} has no declared JSON projection",
+        )
+    return {
+        objective_field.name: getattr(value, objective_field.name)
+        for objective_field in fields(value)
+    }
+
+
+def _search_prompt_history(history: list[SearchIteration]) -> list[dict[str, Any]]:
+    """Project the controller-owned history contract for a traced prompt."""
+    if not isinstance(history, list):
+        _prompt_refuse(
+            "search_prompt_history_projection_unavailable",
+            "protected search history must use the declared list representation",
+        )
+    _prompt_validate_raw_graph(history)
+    projected: list[dict[str, Any]] = []
+    for iteration in history:
+        if type(iteration) is not SearchIteration:
+            _prompt_refuse(
+                "search_prompt_contains_unsupported_value",
+                f"candidate input type {type(iteration).__name__} has no declared JSON projection",
+            )
+        record: dict[str, Any] = {}
+        for record_field in fields(iteration):
+            value = getattr(iteration, record_field.name)
+            if record_field.name == "objective_details":
+                if not isinstance(value, list):
+                    _prompt_refuse(
+                        "search_prompt_history_projection_unavailable",
+                        "SearchIteration objective_details must retain its declared list shape",
+                    )
+                record[record_field.name] = [
+                    _search_prompt_objective_detail(detail) for detail in value
+                ]
+            else:
+                record[record_field.name] = value
+        projected.append(record)
+    return projected
+
+
 @dataclass(frozen=True)
 class TracedLLMCandidateGenerator:
     """Generate one JSON candidate through an exact, durably settled LLM client.
@@ -1279,7 +1325,7 @@ class TracedLLMCandidateGenerator:
         from polisyos.core.llm.response import extract_llm_response_data
 
         request = {
-            "history": history,
+            "history": _search_prompt_history(history),
             "current_best": current_best,
             "context": context,
         }

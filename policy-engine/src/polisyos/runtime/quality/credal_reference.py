@@ -260,6 +260,21 @@ def _freeze_reference_mapping_key(key: object) -> str | int | float | bool | Non
     raise TypeError("credal_reference_mapping_key_not_json_scalar")
 
 
+class _FrozenReferenceList(tuple[Any, ...]):
+    """Tuple-backed list snapshot with the source list's value equality."""
+
+    __slots__ = ()
+    __hash__ = None
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, list):
+            other = tuple(list.__iter__(other))
+        return tuple.__eq__(self, other) is True
+
+    def __ne__(self, other: object) -> bool:
+        return not self == other
+
+
 @dataclass(frozen=True, eq=False)
 class _FrozenReferenceMapping(Mapping[Any, Any]):
     """Immutable lookup view with the original mapping's JSON wire captured."""
@@ -338,7 +353,10 @@ def _capture_reference_payload(
                 frozen_mapping = _FrozenReferenceMapping(frozen_view, wire_json)
                 return frozen_mapping, json.loads(wire_json)
             captured = tuple(_capture_reference_payload(item, active_ancestors) for item in value)
-            frozen_sequence = tuple(item for item, _wire in captured)
+            captured_items = tuple(item for item, _wire in captured)
+            frozen_sequence = (
+                _FrozenReferenceList(captured_items) if isinstance(value, list) else captured_items
+            )
             wire_sequence = [wire for _item, wire in captured]
             return frozen_sequence, wire_sequence
         finally:
@@ -367,6 +385,28 @@ def _freeze_reference_payload(value: object) -> object:
     """Return the immutable side of one wire-and-lookup capture."""
 
     return _capture_reference_payload(value)[0]
+
+
+def _materialize_reference_value(value: object) -> object:
+    """Copy a captured lookup tree into detached containers for typed consumers."""
+
+    if isinstance(value, Mapping):
+        return _materialize_reference_mapping(value)
+    if isinstance(value, _FrozenReferenceList):
+        return [_materialize_reference_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_materialize_reference_value(item) for item in value)
+    if isinstance(value, list):
+        return [_materialize_reference_value(item) for item in value]
+    return value
+
+
+def _materialize_reference_mapping(value: object) -> dict[str, Any]:
+    """Return a detached builtin mapping tree for a typed mapping field."""
+
+    if not isinstance(value, Mapping):
+        return {}
+    return {key: _materialize_reference_value(item) for key, item in value.items()}
 
 
 @dataclass(frozen=True)
@@ -495,7 +535,9 @@ def credal_reference_l2_source_profile(
     ):
         raise ValueError("credal_reference_skg_source_profile_denominator_mismatch")
     profiles = tuple(
-        CredalReferenceSourceProfile.model_validate(edge.provenance["selected_source_profile"])
+        CredalReferenceSourceProfile.model_validate(
+            _json_ready(edge.provenance["selected_source_profile"])
+        )
         for edge in selected_source_edges
     )
     if any(profile.content_hash != expected_hash for profile in profiles):

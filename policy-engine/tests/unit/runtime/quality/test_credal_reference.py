@@ -1202,6 +1202,8 @@ def test_credal_reference_captures_deep_immutable_source_content() -> None:
     captured_hash = captured.content_hash
     assert isinstance(captured_provenance_items, tuple)
     assert isinstance(captured_completion_items, tuple)
+    assert captured_provenance_items == ["captured-provenance"]
+    assert captured_completion_items == ["captured-completion"]
     with pytest.raises(AttributeError):
         captured_provenance_items.append("mutated")
     with pytest.raises(TypeError):

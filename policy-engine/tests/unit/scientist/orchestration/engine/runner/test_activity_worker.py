@@ -4,35 +4,61 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
+import logging
 import sys
 from typing import TYPE_CHECKING
 
+import duckdb
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods.causal import PanelObservationalData
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    GraphType,
+    persist_causal_graph_model,
+)
+from polisyos.scientist.nodes.builtins.causal.resolve_parameters import ResolveParametersNode
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
+    ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointScopeMismatchError,
     resolve_latest_checkpoint,
 )
-from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
     NodeOutcome,
     NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.retry import (
+    RetryPolicy,
+    execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.runner import (
     _activity_worker as activity_worker_module,
@@ -46,10 +72,14 @@ from polisyos.scientist.orchestration.engine.runner._activity_worker import (
 from polisyos.scientist.orchestration.engine.runner.serialization import (
     deserialize_outcome,
     deserialize_state,
+    serialize_outcome,
     serialize_state,
 )
 from polisyos.scientist.orchestration.engine.runner.state_merge import merge_tier_outcomes
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import (
+    mutation_journal_for_state,
+)
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
 if TYPE_CHECKING:
@@ -637,6 +667,223 @@ class FailedWorkerNode:
             events=[NodeEvent(code="worker.fail", message="worker failed")],
             error=NodeError(code="node.worker_failure", message="returned failure"),
         )
+
+
+def _seed_spawn_timeout_skg(db_path: Path) -> None:
+    connection = duckdb.connect(str(db_path))
+    try:
+        connection.execute("CREATE TABLE ac_skg_versions(version_id INTEGER)")
+        connection.execute("INSERT INTO ac_skg_versions VALUES (7)")
+        connection.execute(
+            """
+            CREATE TABLE ac_skg_simulation_parameters (
+                numeric_id VARCHAR,
+                openalex_id VARCHAR,
+                canonical_name VARCHAR,
+                estimate_type VARCHAR,
+                point_estimate DOUBLE,
+                estimate_sign VARCHAR,
+                unit VARCHAR,
+                evidence_strength VARCHAR,
+                confidence_interval_json VARCHAR,
+                std_error DOUBLE,
+                source_layer VARCHAR,
+                uncertainty_source VARCHAR,
+                quality_flags_json VARCHAR,
+                linked_claim_ids_json VARCHAR,
+                linked_edges_json VARCHAR,
+                context_json VARCHAR
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO ac_skg_simulation_parameters VALUES
+                ('p1', 'W1', 'fiscal_multiplier', 'point', 1.4, 'positive',
+                 'ratio', 'rct', '[1.1, 1.7]', NULL, 'simulation_ready',
+                 'confidence_interval', '[]', '[]', '[]', ?)
+            """,
+            [
+                json.dumps(
+                    {
+                        "context_id": "us-2025",
+                        "countries": ["US"],
+                        "publication_year": 2025,
+                    }
+                )
+            ],
+        )
+    finally:
+        connection.close()
+
+
+def test_canonical_timeout_worker_replays_operations_into_changed_receiver(
+    tmp_path: Path,
+) -> None:
+    """The admitted timed node's typed process result drives the real receiver merge."""
+    db_path = tmp_path / "timeout-skg.duckdb"
+    _seed_spawn_timeout_skg(db_path)
+
+    tenant_id = "tenant-timeout-wire"
+    cell_id = "cell-timeout-wire"
+    run_id = "R_worker_canonical_timeout_mutation_journal"
+    store = FileSystemCAS(
+        tmp_path / "timeout-cas",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    run: RunContext | None = None
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            registry_bundle = build_default_registry_bundle(
+                store,
+                return_selected_profile=True,
+            )
+            run = RunContext.start(
+                store=store,
+                registry_bundle=registry_bundle.bundle_ref,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            graph_ref = persist_causal_graph_model(
+                _ensure_ir_artifact_store(store),
+                CausalGraphModel(
+                    graph_type=GraphType.DAG,
+                    nodes=["fiscal_multiplier"],
+                    edges=[],
+                ),
+            )
+            context = ExecutionContext(
+                store=store,
+                run=run,
+                logger=logging.getLogger("test.canonical_timeout_mutation_journal"),
+            )
+            producer_state = ExperimentState(
+                run_id=run_id,
+                artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+                params={
+                    "target_context": {
+                        "context_id": "us-2025",
+                        "countries": ["US"],
+                        "publication_year": 2025,
+                    },
+                    "required_parameters": ["fiscal_multiplier"],
+                    "domain": "fiscal",
+                    "skg_db_path": str(db_path),
+                    "phase15_runtime_backend": "numpy",
+                    "phase15_runtime_draws": 16,
+                    "phase15_runtime_seed": 7,
+                    "phase15_runtime_backend_used": "producer-before-timeout",
+                },
+            )
+            receiver_state = producer_state.model_copy(deep=True)
+            receiver_state.params["phase15_runtime_backend_used"] = "receiver-before-timeout"
+            receiver_state.params["receiver_only"] = "changed-after-dispatch"
+            node = ResolveParametersNode()
+
+            # This high-level timed call selects Darwin's spawn + typed NodeTask/result
+            # channel. Other supported hosts retain their own timed process method.
+            outcome = execute_with_retry_sync(
+                node,
+                context,
+                producer_state,
+                retry_policy=RetryPolicy(max_retries=0),
+                timeout_s=30.0,
+                alias="resolve",
+            )
+            assert outcome.status == "ok"
+            assert outcome.state.run_id == run_id
+            assert (
+                outcome.state.params["phase15_runtime_backend_used"]
+                != (receiver_state.params["phase15_runtime_backend_used"])
+            )
+            journal = mutation_journal_for_state(outcome.state)
+            assert journal is not None
+            assert any(
+                mutation.path == "params.phase15_runtime_backend_used"
+                and mutation.operation == "set"
+                for mutation in journal.operations
+            )
+            assert {mutation.path for mutation in journal.operations}.issubset(
+                set(node.spec.state_writes)
+            )
+
+            result_wire = serialize_outcome(outcome)
+            merge_args = {
+                "requested_aliases": ["resolve"],
+                "write_specs": {"resolve": list(node.spec.state_writes)},
+            }
+            merged = merge_tier_outcomes(
+                serialize_state(receiver_state),
+                {"resolve": result_wire},
+                **merge_args,
+            )
+            merged_state = deserialize_state(merged.state_bytes)
+            assert (
+                merged_state.params["phase15_runtime_backend_used"]
+                == outcome.state.params["phase15_runtime_backend_used"]
+            )
+            assert merged_state.params["receiver_only"] == "changed-after-dispatch"
+            merged_graph_ref = merged_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
+            expected_graph_ref = ArtifactRef.model_validate(
+                {
+                    "artifact_id": str(graph_ref.artifact_id),
+                    "kind": graph_ref.kind,
+                    "media_type": graph_ref.media_type,
+                    "manifest_profile_sha256": graph_ref.manifest_profile_sha256,
+                }
+            )
+            assert artifact_ref_identity_key(merged_graph_ref) == artifact_ref_identity_key(
+                expected_graph_ref
+            )
+            assert (
+                merged_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+                == outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+            )
+
+            # Keep both typed envelope markers and the full result snapshot, but remove
+            # only the operation body. An empty journal is authoritative at the merge
+            # boundary, so this must lose the changed receiver's declared node writes.
+            encoded = json.loads(result_wire)
+            outer_schema = encoded["wire_schema"]
+            operation_envelope = encoded["value"]
+            operation_schema = operation_envelope["wire_schema"]
+            outcome_snapshot = json.dumps(
+                operation_envelope["outcome"], sort_keys=True, separators=(",", ":")
+            )
+            assert operation_schema == "polisyos.scientist.node_outcome.mutations.v1"
+            assert operation_envelope["state_mutations"]
+            operation_envelope["state_mutations"] = []
+            assert encoded["wire_schema"] == outer_schema
+            assert operation_envelope["wire_schema"] == operation_schema
+            assert (
+                json.dumps(operation_envelope["outcome"], sort_keys=True, separators=(",", ":"))
+                == outcome_snapshot
+            )
+            stripped_wire = json.dumps(encoded, separators=(",", ":")).encode("utf-8")
+            removed = merge_tier_outcomes(
+                serialize_state(receiver_state),
+                {"resolve": stripped_wire},
+                **merge_args,
+            )
+            removed_state = deserialize_state(removed.state_bytes)
+            assert (
+                removed_state.params["phase15_runtime_backend_used"]
+                == receiver_state.params["phase15_runtime_backend_used"]
+            )
+            assert (
+                removed_state.params["phase15_runtime_backend_used"]
+                != merged_state.params["phase15_runtime_backend_used"]
+            )
+            assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in (
+                removed_state.artifacts_index
+            )
+            assert removed_state.params["receiver_only"] == "changed-after-dispatch"
+    finally:
+        if run is not None:
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                run.suspend_for_resume()
 
 
 def test_remote_worker_wire_replays_only_declared_branch_operations(

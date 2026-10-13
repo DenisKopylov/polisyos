@@ -31,6 +31,7 @@ from polisyos.runtime.quality.credal_reference import (
     CredalReference,
     CredalReferenceEdge,
     EdgeKey,
+    _materialize_reference_mapping,
     build_credal_reference,
 )
 
@@ -1111,6 +1112,7 @@ def _reference_atoms_from_cg0(
         target_value = _first_completion_value(target_edge) if target_edge is not None else {}
         explicit_slots = tuple(_string_list(target_value.get("target_world_slots")))
         domain = _mapping(op_value.get("parameter_domain"))
+        candidate_domain = _materialize_reference_mapping(domain)
         target_slots = tuple(
             slot
             for slot in selected_writable_slots
@@ -1139,9 +1141,9 @@ def _reference_atoms_from_cg0(
             signature = MechanisticSignature(
                 op=_canonical_operator(op_id),
                 X_do=(target_slot,),
-                x_do={"domain": domain},
+                x_do={"domain": candidate_domain},
                 sign=_default_sign_for_operator(op_id),
-                params={"domain": domain},
+                params={"domain": candidate_domain},
                 scope=_scope_for_slot(target_slot),
                 unit=_unit_for_target(reference, target_slot) or _text(domain.get("unit")) or None,
                 population=_population_for_slot(target_slot),

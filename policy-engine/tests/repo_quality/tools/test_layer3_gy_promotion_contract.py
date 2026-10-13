@@ -36,7 +36,9 @@ def test_n9_contract_input_preserves_actual_cg2_producer_output(
     )
     from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
 
-    assert _CredalReferenceReplayRecord.from_reference(reference).to_reference() == reference
+    replay_record = _CredalReferenceReplayRecord.from_reference(reference)
+    replay_payload = replay_record.model_dump(mode="json")
+    assert _CredalReferenceReplayRecord.model_validate(replay_payload).to_reference() == reference
     assert reference.essential_edges
     assert all(edge.provenance["synthetic"] is True for edge in reference.essential_edges.values())
     assert returned.synthetic is True
@@ -878,3 +880,72 @@ def test_n9_source_flip_harness_targets_current_n11_guards_and_tests() -> None:
             relative_path, test_name = node_id.split("::", 1)
             test_source = (POLICY_ENGINE_ROOT / relative_path).read_text(encoding="utf-8")
             assert f"def {test_name}(" in test_source, case.mutation_id
+
+
+def test_n9_credal_edge_replay_round_trips_nested_captured_provenance() -> None:
+    """Nested frozen provenance survives the actual JSON replay DTO boundary."""
+    from polisyos.runtime.quality.credal_reference import (
+        AdmissibleCompletion,
+        CredalReferenceEdge,
+    )
+    from polisyos.runtime.quality.promotion_sequence import _CredalEdgeReplayRecord
+
+    class StatefulFallback:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def __str__(self) -> str:
+            self.calls += 1
+            return f"fallback-{self.calls}"
+
+    fallback = StatefulFallback()
+    source_items = ["selected"]
+    nested_source = {
+        "items": source_items,
+        "route": ("selected-route", {"scope": ["candidate"]}),
+        "opaque": fallback,
+    }
+    provenance = {"owner": "controlled-test", "nested": nested_source}
+    edge = CredalReferenceEdge(
+        modality="L2_CAUSAL_EDGE",
+        edge_id="nested-provenance-replay",
+        status="incomplete",
+        admissible_completions=(
+            AdmissibleCompletion(
+                completion_kind="partial",
+                value={"candidate": {"values": [1, 2]}},
+                reason="source basis remains incomplete",
+            ),
+        ),
+        provenance=provenance,
+    ).with_content_hash()
+    expected_payload = edge.to_payload()
+
+    assert expected_payload["provenance"]["nested"]["items"] == ["selected"]
+    assert expected_payload["provenance"]["nested"]["route"] == [
+        "selected-route",
+        {"scope": ["candidate"]},
+    ]
+    assert expected_payload["provenance"]["nested"]["opaque"] == "fallback-1"
+    assert fallback.calls == 1
+
+    source_items.append("caller-change")
+    nested_source["late"] = "caller-change"
+    provenance["late"] = "caller-change"
+    assert edge.to_payload() == expected_payload
+    assert fallback.calls == 1
+
+    captured_items = edge.provenance["nested"]["items"]
+    assert captured_items == ["selected"]
+    with pytest.raises(TypeError):
+        list.append(captured_items, "base-list-mutation")
+    assert edge.to_payload() == expected_payload
+
+    record = _CredalEdgeReplayRecord.from_edge(edge)
+    serialized_record = record.model_dump_json()
+    assert json.loads(serialized_record) == expected_payload
+    fresh_record = _CredalEdgeReplayRecord.model_validate_json(serialized_record)
+    replayed_edge = fresh_record.to_edge()
+    assert replayed_edge.to_payload() == expected_payload
+    assert replayed_edge.content_hash == edge.content_hash
+    assert fallback.calls == 1

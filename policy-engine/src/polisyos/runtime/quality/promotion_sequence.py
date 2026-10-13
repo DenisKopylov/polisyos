@@ -297,19 +297,7 @@ class _CredalEdgeReplayRecord(_StrictModel):
 
     @classmethod
     def from_edge(cls, edge: CredalReferenceEdge) -> _CredalEdgeReplayRecord:
-        return cls(
-            modality=edge.modality,
-            edge_id=edge.edge_id,
-            status=edge.status,
-            admissible_completions=tuple(
-                _CredalCompletionReplayRecord.from_completion(item)
-                for item in edge.admissible_completions
-            ),
-            provenance=dict(edge.provenance),
-            unit=edge.unit,
-            scale=edge.scale,
-            content_hash=edge.content_hash,
-        )
+        return cls.model_validate(edge.to_payload())
 
     def to_edge(self) -> CredalReferenceEdge:
         edge = CredalReferenceEdge(
@@ -1164,6 +1152,7 @@ class N9PromotionEvidenceBridgeRepository:
         real source. Existing evidence owners still decide the source outcome.
         """
         from polisyos.core.artifacts import load_core_json_artifact
+
         raw = self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
         if _raw_hash(raw) != source_artifact_id or not self._store.verify(source_artifact_id).ok:
             raise ValueError("promotion_evidence_source_content_mismatch")
@@ -1361,6 +1350,7 @@ class N9PromotionEvidenceBridgeRepository:
         source_root_ref: ArtifactRef | None,
     ) -> tuple[dict[str, Any], ArtifactRef]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         envelope = self._resolve_measurement_envelope(source_artifact_id)
         if envelope.producer_roots != [source_root_ref]:
             raise ValueError("measurement_root_source_projection_mismatch")
@@ -1375,6 +1365,7 @@ class N9PromotionEvidenceBridgeRepository:
         source_root_ref: ArtifactRef | None,
     ) -> tuple[dict[str, Any], ArtifactRef]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if source_root_ref is None or source_root_ref.artifact_type != "MeasurementRoot":
             raise ValueError("measurement_root_source_ref_missing")
         artifact_id = core_artifacts.ArtifactID(source_artifact_id)

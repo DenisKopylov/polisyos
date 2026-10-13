@@ -508,17 +508,31 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     assert merged_ref is not None
     assert merged_ref.manifest_profile_sha256 is not None
     merged_inputs = ctx.store.get_manifest(merged_ref).inputs
-    assert [item.role for item in merged_inputs] == [
-        "candidate",
-        "supplemental_stress_report",
-        "supplemental_stress_report",
+    expected_merged_inputs = [
+        InputRef(
+            artifact_id=candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        *[
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role="supplemental_stress_report",
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref in stress_refs
+        ],
+        *[
+            InputRef(
+                artifact_id=component.outcome_basis_ref.artifact_id,
+                role="stress_outcome_basis",
+                manifest_profile_sha256=component.outcome_basis_ref.manifest_profile_sha256,
+            )
+            for report in stress_reports
+            for component in report.score_components
+        ],
     ]
-    assert [str(item.artifact_id) for item in merged_inputs[1:]] == [
-        str(ref.artifact_id) for ref in stress_refs
-    ]
-    assert [item.manifest_profile_sha256 for item in merged_inputs[1:]] == [
-        ref.manifest_profile_sha256 for ref in stress_refs
-    ]
+    assert merged_inputs == expected_merged_inputs
 
     duplicate_ref = _ensure_stress_test_report(
         ctx,
@@ -538,6 +552,31 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
         str(stress_refs[0].artifact_id),
         str(stress_refs[0].artifact_id),
     ]
+    expected_duplicate_inputs = [
+        InputRef(
+            artifact_id=candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        *[
+            InputRef(
+                artifact_id=stress_refs[0].artifact_id,
+                role="supplemental_stress_report",
+                manifest_profile_sha256=stress_refs[0].manifest_profile_sha256,
+            )
+            for _ in range(2)
+        ],
+        *[
+            InputRef(
+                artifact_id=component.outcome_basis_ref.artifact_id,
+                role="stress_outcome_basis",
+                manifest_profile_sha256=component.outcome_basis_ref.manifest_profile_sha256,
+            )
+            for _ in range(2)
+            for component in stress_reports[0].score_components
+        ],
+    ]
+    assert duplicate_manifest.inputs == expected_duplicate_inputs
     duplicate_report = StressTestReport.model_validate(
         load_core_json_artifact(ctx.store, duplicate_ref)
     )

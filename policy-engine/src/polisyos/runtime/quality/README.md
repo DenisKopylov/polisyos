@@ -783,9 +783,10 @@ input types only; it does not strengthen the fixture's authority.
 
 A `CredalReference` snapshots its component-version header and complete edge map
 at construction. Its JSON-native nested containers are copied and frozen; arrays use tuples
-inside the snapshot and are thawed back to JSON arrays at serialization boundaries.
-Each mapping captures immutable lookup values and their legacy JSON projection in
-one ordered pass. Exact dictionaries remain JSON objects, and their captured fallback
+inside the snapshot and are thawed back to JSON arrays at serialization boundaries. Typed consumers receive detached builtin mapping
+and sequence projections at their DTO boundary; strict DTOs do not retain the
+snapshot wrappers. Each mapping captures immutable lookup values and their legacy
+JSON projection in one ordered pass. Exact dictionaries remain JSON objects, and their captured fallback
 text is the same scalar used by direct runtime lookups. Generic `Mapping`
 implementations retain their legacy `default=str` fallback at the mapping boundary
 while exposing a separate immutable lookup view built from that same capture.

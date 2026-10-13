@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.controller import (
     SearchBudgetProducerUnsupportedError,
     SearchConfig,
     SearchController,
+    SearchIteration,
     SearchStatus,
     TracedLLMCandidateGenerator,
     _search_prompt_value,
@@ -29,6 +30,8 @@ from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     GDPGrowthObjective,
     ObjectivePresets,
+    ObjectiveValue,
+    OptimizationDirection,
 )
 from polisyos.scientist.methods.search.stages import CheapStage, ExpensiveStage
 from polisyos.scientist.methods.search.stopping import (
@@ -522,6 +525,116 @@ def test_prompt_projection_preserves_artifact_ref_and_datetime_json_contract() -
         "reference": reference.model_dump(mode="json", exclude_none=False),
         "created_at": created_at.isoformat(),
     }
+
+
+def test_traced_prompt_projects_owned_search_history_and_keeps_refusals() -> None:
+    """The declared history row reaches JSON while foreign or malformed inputs refuse."""
+    import json
+    from types import SimpleNamespace
+
+    class PromptClient:
+        _cache_reuse_owner = None
+
+        def __init__(self) -> None:
+            self.calls = 0
+            self.user_prompts: list[str] = []
+
+        async def generate(self, **kwargs: Any) -> object:
+            self.calls += 1
+            self.user_prompts.append(str(kwargs["user"]))
+            return SimpleNamespace(content='{"candidate":"accepted"}')
+
+    client = PromptClient()
+    generator = TracedLLMCandidateGenerator(
+        client=client,  # type: ignore[arg-type]
+        system_prompt="Return one search candidate as a non-empty JSON object.",
+    )
+    timestamp = datetime(2026, 10, 13, 12, 30, tzinfo=UTC)
+
+    def row(
+        *,
+        objective_value: float = 1.0,
+        candidate: dict[str, Any] | None = None,
+        stage_b_result: dict[str, Any] | None = None,
+        objective_details: list[Any] | None = None,
+    ) -> SearchIteration:
+        return SearchIteration(
+            iteration=0,
+            candidate=candidate or {"x": 1.0},
+            objective_value=objective_value,
+            objective_details=objective_details
+            if objective_details is not None
+            else [
+                ObjectiveValue(
+                    name="quadratic",
+                    raw_value=1.0,
+                    direction=OptimizationDirection.MINIMIZE,
+                    weight=1.0,
+                    is_satisfied=True,
+                    threshold=None,
+                )
+            ],
+            is_promising=True,
+            stage_a_passed=True,
+            stage_b_result=stage_b_result
+            or {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}},
+            duration_seconds=0.125,
+            policy_evaluation=None,
+            timestamp=timestamp,
+            policy_evaluation_status="missing",
+            policy_evaluation_error=None,
+        )
+
+    assert generator.generate([row()], None, {}) == {"candidate": "accepted"}
+    prompt = client.user_prompts[0].partition("Search inputs JSON:\n")[2]
+    emitted = json.loads(prompt)["history"][0]
+    assert emitted == {
+        "iteration": 0,
+        "candidate": {"x": 1.0},
+        "objective_value": 1.0,
+        "objective_details": [
+            {
+                "name": "quadratic",
+                "raw_value": 1.0,
+                "direction": "minimize",
+                "weight": 1.0,
+                "is_satisfied": True,
+                "threshold": None,
+            }
+        ],
+        "is_promising": True,
+        "stage_a_passed": True,
+        "stage_b_result": {
+            "simulation_results": {"x": 1.0},
+            "feedback": {"verdict": "APPROVE"},
+        },
+        "duration_seconds": 0.125,
+        "policy_evaluation": None,
+        "timestamp": timestamp.isoformat(),
+        "policy_evaluation_status": "missing",
+        "policy_evaluation_error": None,
+    }
+
+    cycle: dict[str, Any] = {}
+    cycle["self"] = cycle
+    invalid_rows = (
+        ([row(objective_value=math.nan)], "search_prompt_contains_nonfinite_number"),
+        ([row(stage_b_result=cycle)], "search_prompt_contains_cycle"),
+        (
+            [row(candidate={"opaque": object()})],
+            "search_prompt_contains_unsupported_value",
+        ),
+        (
+            [row(objective_details=[object()])],
+            "search_prompt_contains_unsupported_value",
+        ),
+        ([object()], "search_prompt_contains_unsupported_value"),
+    )
+    for history, reason_code in invalid_rows:
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            generator.generate(history, None, {})
+        assert raised.value.reason_code == reason_code
+    assert client.calls == 1
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1518,6 +1631,7 @@ class TestOptimizationFlow:
     ) -> None:
         """The actual durable owner spend, not caller context, stops later evaluation."""
         import json
+        from dataclasses import fields
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
@@ -1574,6 +1688,9 @@ class TestOptimizationFlow:
             }
         )
 
+        dispatch_records: list[SearchIteration] = []
+        controller: SearchController | None = None
+
         class FakeResponse:
             status = 200
             headers: dict[str, str] = {}
@@ -1593,9 +1710,14 @@ class TestOptimizationFlow:
 
             def __init__(self) -> None:
                 self.request_count = 0
+                self.requests: list[dict[str, Any]] = []
 
-            def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+            def post(self, *_args: object, **kwargs: object) -> FakeContext:
                 self.request_count += 1
+                self.requests.append(dict(kwargs))
+                if self.request_count == 2:
+                    assert controller is not None
+                    dispatch_records.extend(controller._history)
                 return FakeContext()
 
             async def close(self) -> None:
@@ -1616,13 +1738,16 @@ class TestOptimizationFlow:
             producer_budget_key=budget_key,
         )
         stage_b_calls: list[dict[str, Any]] = []
+        stage_b_results: list[dict[str, Any]] = []
 
         def stage_b(candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
             stage_b_calls.append(candidate)
-            return {
+            result = {
                 "simulation_results": {"x": candidate["x"]},
                 "feedback": {"verdict": "APPROVE"},
             }
+            stage_b_results.append(result)
+            return result
 
         controller = SearchController(
             config=SearchConfig(
@@ -1645,6 +1770,76 @@ class TestOptimizationFlow:
         durable = FileBudgetLedger(ledger_path).snapshot()
         events = list(durable.producer_settlements.values())
         assert session.request_count == 2
+        second_request = session.requests[1]["json"]
+        second_user_prompt = next(
+            message["content"]
+            for message in second_request["messages"]
+            if message["role"] == "user"
+        )
+        second_history = json.loads(second_user_prompt.partition("Search inputs JSON:\n")[2])[
+            "history"
+        ]
+        assert len(second_history) == 1
+        assert len(dispatch_records) == 1
+        first_record = dispatch_records[0]
+        assert result.history == [first_record]
+
+        source_candidate = {"x": 1.0, "semantic": {"interventions": []}}
+        source_stage_b_result = {
+            "simulation_results": {"x": 1.0},
+            "feedback": {"verdict": "APPROVE"},
+        }
+        expected_objective = ObjectiveValue(
+            name="quadratic",
+            raw_value=1.0,
+            direction=OptimizationDirection.MINIMIZE,
+            weight=1.0,
+            is_satisfied=True,
+            threshold=None,
+        )
+        assert first_record.iteration == 0
+        assert first_record.candidate == source_candidate
+        assert first_record.objective_value == expected_objective.raw_value
+        assert first_record.objective_details == [expected_objective]
+        assert first_record.is_promising is True
+        assert first_record.stage_a_passed is True
+        assert first_record.stage_b_result == source_stage_b_result == stage_b_results[0]
+        assert first_record.duration_seconds >= 0.0
+        assert first_record.policy_evaluation is None
+        assert isinstance(first_record.timestamp, datetime)
+        assert first_record.policy_evaluation_status == "missing"
+        assert first_record.policy_evaluation_error is None
+
+        expected_objective_detail = {
+            "name": expected_objective.name,
+            "raw_value": expected_objective.raw_value,
+            "direction": expected_objective.direction.value,
+            "weight": expected_objective.weight,
+            "is_satisfied": expected_objective.is_satisfied,
+            "threshold": expected_objective.threshold,
+        }
+        objective_fields = {field.name for field in fields(ObjectiveValue)}
+        assert set(expected_objective_detail) == objective_fields
+        expected_history_row = {
+            "iteration": first_record.iteration,
+            "candidate": source_candidate,
+            "objective_value": expected_objective.raw_value,
+            "objective_details": [expected_objective_detail],
+            "is_promising": True,
+            "stage_a_passed": True,
+            "stage_b_result": source_stage_b_result,
+            "duration_seconds": first_record.duration_seconds,
+            "policy_evaluation": None,
+            "timestamp": first_record.timestamp.isoformat(),
+            "policy_evaluation_status": "missing",
+            "policy_evaluation_error": None,
+        }
+        expected_history_fields = {field.name for field in fields(SearchIteration)}
+        assert set(expected_history_row) == expected_history_fields
+        assert set(second_history[0]) == expected_history_fields
+        assert second_history[0]["objective_details"] == [expected_objective_detail]
+        assert set(second_history[0]["objective_details"][0]) == objective_fields
+        assert second_history[0] == expected_history_row
         assert len(events) == 2
         assert all(event.run_binding == binding for event in events)
         assert all(event.key == budget_key and event.status == "committed" for event in events)

@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Literal
+from typing import Any, Literal, get_args
 
-from pydantic import AwareDatetime, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-from polisyos.ir import ArtifactRefModel  # noqa: TC001
+from polisyos.ir import ArtifactRefModel
+from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
     ForecastClaimScope,
@@ -168,6 +169,17 @@ class ForecastSupport(Layer2ReadinessModel):
         return self
 
 
+def _artifact_ref_model_for_annotation(
+    annotation: object,
+) -> type[ArtifactRefModel] | None:
+    """Return the declared IR ref type for a direct or optional ref member."""
+
+    for candidate in (annotation, *get_args(annotation)):
+        if isinstance(candidate, type) and issubclass(candidate, ArtifactRefModel):
+            return candidate
+    return None
+
+
 class ForecastCalibrationRecord(Layer2ReadinessModel):
     """Observable-subset calibration record for S10 forecast support."""
 
@@ -205,6 +217,21 @@ class ForecastCalibrationRecord(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     may_not_use_for: list[str] = Field(default_factory=lambda: list(_S10_MAY_NOT_USE_FOR))
     rule_version_ref: str = LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_core_artifact_ref_members(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        normalized = dict(value)
+        for name, field in cls.model_fields.items():
+            ref_model = _artifact_ref_model_for_annotation(field.annotation)
+            ref = normalized.get(name)
+            if ref_model is None or ref is None or isinstance(ref, ref_model):
+                continue
+            if isinstance(ref, BaseModel):
+                normalized[name] = ref_model.model_validate(normalize_artifact_ref(ref))
+        return normalized
 
     @model_validator(mode="after")
     def _validate_calibration(self) -> ForecastCalibrationRecord:
@@ -799,10 +826,9 @@ def _safe_prediction_authority_boundary(
     *,
     rule_version_ref: object,
 ) -> AuthorityBoundary:
-    if (
-        isinstance(authority_boundary, AuthorityBoundary)
-        and _prediction_authority_boundary_is_valid(authority_boundary, may_not_use_for)
-    ):
+    if isinstance(
+        authority_boundary, AuthorityBoundary
+    ) and _prediction_authority_boundary_is_valid(authority_boundary, may_not_use_for):
         return authority_boundary
     safe_rule_version_ref = (
         rule_version_ref
@@ -883,12 +909,7 @@ def _has_fail_closed_ref(values: object) -> bool:
 
 
 def _stable_token(value: str) -> str:
-    return (
-        value.replace("pdc://", "")
-        .replace("://", "-")
-        .replace("/", "-")
-        .replace(".", "-")[:96]
-    )
+    return value.replace("pdc://", "").replace("://", "-").replace("/", "-").replace(".", "-")[:96]
 
 
 __all__ = [

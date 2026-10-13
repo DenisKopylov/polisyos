@@ -4207,13 +4207,14 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
         ir_store = _ensure_ir_artifact_store(store)
         report_ref = BacktestReportRef.model_validate(stored_association["backtest_report_ref"])
-        report = load_backtest_report(ir_store, report_ref)
-        evidence = load_empirical_calibration_evidence(
-            ir_store,
-            EmpiricalCalibrationEvidenceRef.model_validate(
-                stored_association["empirical_evidence_ref"]
-            ),
-        )
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            report = load_backtest_report(ir_store, report_ref)
+            evidence = load_empirical_calibration_evidence(
+                ir_store,
+                EmpiricalCalibrationEvidenceRef.model_validate(
+                    stored_association["empirical_evidence_ref"]
+                ),
+            )
         reopened_association = PredictiveCalibrationAssociation.model_validate(stored_association)
         assert reopened_association.evidence_reason_codes == evidence.failure_codes
 
@@ -4515,11 +4516,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             for record in prewrite_events
         )
 
-        unrooted_model_ref = _spec(
-            context_store,
-            kind="ir.model_spec",
-            spec_id="unrooted-model-spec-fixture",
-        )
+        # Scope the direct CAS fixture write; keep its HTTP request outside this scope.
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            unrooted_model_ref = _spec(
+                context_store,
+                kind="ir.model_spec",
+                spec_id="unrooted-model-spec-fixture",
+            )
         unrooted_response = client.post(
             f"/api/v1/runs/{core_run_id}/predictive-calibration",
             json={**body, "model_spec_ref": unrooted_model_ref.model_dump(mode="json")},
@@ -4849,28 +4852,30 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             }
         )
         reopened_store = cast("FileSystemCAS", fresh_app.state.runtime_api_ctx.store)
-        legacy_association_ref = calibration_service._persist_association(
-            store=reopened_store,
-            association=legacy_association,
-            report_inputs=(),
-        )
-        calibration_service._append_association_event(
-            event_log=event_log,
-            association=legacy_association,
-            association_ref=legacy_association_ref,
-            request_sha256=legacy_request_sha256,
-            refs=(
-                legacy_association.run_manifest_ref,
-                legacy_association.candidate_source_ref,
-                legacy_association.observed_source_ref,
-                legacy_association.model_spec_ref,
-                legacy_association.policy_spec_ref,
-                legacy_association.calibration_rule_ref,
-                legacy_association.backtest_report_ref,
-                legacy_association.empirical_evidence_ref,
-                legacy_association.uncertainty_bundle_ref,
-            ),
-        )
+        # Materialize legacy CAS/event state under the fixture owner only; the retry stays unscoped.
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            legacy_association_ref = calibration_service._persist_association(
+                store=reopened_store,
+                association=legacy_association,
+                report_inputs=(),
+            )
+            calibration_service._append_association_event(
+                event_log=event_log,
+                association=legacy_association,
+                association_ref=legacy_association_ref,
+                request_sha256=legacy_request_sha256,
+                refs=(
+                    legacy_association.run_manifest_ref,
+                    legacy_association.candidate_source_ref,
+                    legacy_association.observed_source_ref,
+                    legacy_association.model_spec_ref,
+                    legacy_association.policy_spec_ref,
+                    legacy_association.calibration_rule_ref,
+                    legacy_association.backtest_report_ref,
+                    legacy_association.empirical_evidence_ref,
+                    legacy_association.uncertainty_bundle_ref,
+                ),
+            )
         legacy_retry = client.post(
             f"/api/v1/runs/{core_run_id}/predictive-calibration",
             json=legacy_body,

@@ -381,6 +381,7 @@ plans, or backlog docs.
 - Do not change admissibility, taxonomy, claim-support, or closeout logic without checking P04, P07, P08, and P10.
 - Do not change monitoring, DDM, invalidation, reissue, or calibration behavior without checking P01, P02, P07, P08, and P09.
 - Do not change evidence producers or cross-graph compilation without checking P02, P08, P11, P12, and P14.
+- P12 receipt joins: derive consumer schema identity from the canonical producer owner; prove a real owner-produced readback and an otherwise-identical wrong-schema refusal. A namespace alias accepted only by one side is handshake drift, not compatibility.
 - Do not change LLM formulation, critic, drafting, summarization, or tool-repair behavior without checking P05, P10, P13, and P15.
 - Do not change universal policy-design axes, regime classification, decomposition, value choices, capacity, mandate, stakes, strategic-response modeling, design search, or delegation without checking P16 through P26.
 

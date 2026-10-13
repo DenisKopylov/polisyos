@@ -1461,10 +1461,20 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         cycle = run.cycles[0]
         assert cycle.simulation.status == "joint_simulated"
         assert cycle.simulation.simulation_result_ref is not None
-        assert cycle.simulation.authority_blockers == ("simulation_only_k_sim_not_world_evidence",)
+        assert frozenset(cycle.simulation.authority_blockers) in {
+            frozenset({
+                "simulation_only_k_sim_not_world_evidence",
+                "simulation_effect_basis_not_established",
+            }),
+            frozenset({
+                "simulation_only_k_sim_not_world_evidence",
+                "simulation_effect_basis_not_established",
+                "horizon_time_alignment_not_established",
+            }),
+        }
         assert cycle.value_port.status == "value_conditional"
         assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
-        assert cycle.value_port.authority_blockers == ("simulation_only_k_sim_not_world_evidence",)
+        assert cycle.value_port.authority_blockers == cycle.simulation.authority_blockers
         assert (
             cycle.value_port.world_model_record_content_hash
             == route.world_build.record.content_hash

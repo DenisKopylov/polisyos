@@ -32,7 +32,7 @@ from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     ExecPlanRef,
     ExecuteRequest,
@@ -950,6 +950,7 @@ def persist_world_model_record(
 
 def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> WorldModelRecord:
     """Load and verify one WMR through its selected manifest and lineage."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     selected_ref: ArtifactRef | str = ref
     try:
@@ -961,7 +962,7 @@ def load_world_model_record(store: FileSystemCAS, ref: ArtifactRef | str) -> Wor
             manifest = store.get_manifest(ref)
             if not store.verify(ref).ok:
                 raise ValueError("world model artifact verification failed")
-        payload = from_canonical_bytes(store.get_bytes(selected_ref))
+        payload = load_core_json_artifact(store, selected_ref)
         record = WorldModelRecord.model_validate(payload)
         if (
             manifest.kind != WORLD_MODEL_RECORD_ARTIFACT_KIND
@@ -1053,9 +1054,10 @@ def _iter_world_model_view_refs(record: WorldModelRecord) -> tuple[ArtifactRef, 
 
 
 def _load_data_snapshot(store: FileSystemCAS, ref: ArtifactRef) -> DataSnapshot:
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.contracts import DataSnapshot
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return DataSnapshot.model_validate(payload)
 
 

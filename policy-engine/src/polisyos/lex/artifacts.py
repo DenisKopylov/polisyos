@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
 from polisyos.lex.errors import LexValidationError
@@ -23,9 +22,10 @@ def load_json_artifact(
     read_error_prefix: str | None = None,
 ) -> dict:
     """Load a JSON-object artifact with Lex caller-selected error semantics."""
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
     except Exception as exc:
         if not wrap_read_errors:
             raise

@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.quality import design_generation as n4
 from polisyos.runtime.quality.generation_cycle import N4GenerationPort
 from polisyos.runtime.quality.generation_source import (
     GenerationSourceRepository,
     _canonical_model_content_hash,
+    _generation_source_read_result,
     _require_unavailable_candidate_credal_source,
 )
 from tests.unit.runtime.quality.test_design_generation import (
@@ -142,6 +146,26 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
         execution_scope="contract_testing",
     )
     fresh = repository.load(ref, run_id="generic-n4-wire-identity")
+    fresh_read = _generation_source_read_result(fresh)
+    assert fresh_read is not None and fresh_read.value is fresh
+    assert fresh_read.provenance.canon_read_status == "declared_bytes_conformant"
+    assert fresh_read.provenance.source_materialization == "reader_materialized"
+    assert fresh_read.provenance.producer_attestation_status == "not_established"
+    assert fresh_read.provenance.selected_artifact_id == str(ref.artifact_id)
+    assert fresh_read.provenance.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+    assert "_generation_source_read_provenance" not in fresh.model_dump(mode="python")
+    assert fresh == type(fresh).model_validate(fresh.model_dump(mode="python"))
+    with (
+        patch.object(repository.store, "get_raw_manifest_bytes", return_value=b'{"canon":null}'),
+        patch.object(
+            repository.store,
+            "verify",
+            side_effect=AssertionError("typed verification preceded raw-profile parsing"),
+        ) as verify,
+    ):
+        with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"):
+            repository.load(ref, run_id="generic-n4-wire-identity")
+        verify.assert_not_called()
     assert _canonical_model_content_hash(fresh.generation_result) == (
         _canonical_model_content_hash(result)
     )
@@ -280,6 +304,31 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
         raw_request=problem.nl_provenance.raw_request,
     )
 
+    loaded_read = _generation_source_read_result(loaded)
+    assert loaded_read is not None and loaded_read.value is loaded
+    assert loaded_read.provenance.canon_read_status == "declared_bytes_conformant"
+    assert loaded_read.provenance.source_materialization == "reader_materialized"
+    assert loaded_read.provenance.producer_attestation_status == "not_established"
+    assert loaded_read.provenance.selected_artifact_id == str(proposal_ref.artifact_id)
+    assert loaded == type(loaded).model_validate(loaded.model_dump(mode="python"))
+    with (
+        patch.object(repository.store, "get_raw_manifest_bytes", return_value=b'{"canon":null}'),
+        patch.object(
+            repository.store,
+            "verify",
+            side_effect=AssertionError("typed verification preceded raw-profile parsing"),
+        ) as verify,
+    ):
+        with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"):
+            repository.load_candidate_proposal(
+                proposal_ref,
+                job_id="job-n4-candidate",
+                run_id="run-n4-candidate",
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                raw_request=problem.nl_provenance.raw_request,
+            )
+        verify.assert_not_called()
     assert loaded.proposal == proposal
     assert loaded.execution_band == "candidate"
     assert loaded.limitation_code == "cycle_substrate_context_unavailable"
@@ -334,6 +383,15 @@ async def test_candidate_proposal_repository_replays_exact_tenant_binding(tmp_pa
         "cycle_substrate_context_not_established"
     )
     assert simulation_record.n5_status == simulation_record.s8_status == "not_run"
+    simulation_read = _generation_source_read_result(simulation_record)
+    assert simulation_read is not None and simulation_read.value is simulation_record
+    assert simulation_read.provenance.canon_read_status == "declared_bytes_conformant"
+    assert simulation_read.provenance.source_materialization == "reader_materialized"
+    assert simulation_read.provenance.producer_attestation_status == "not_established"
+    assert simulation_read.provenance.selected_artifact_id == str(simulation_ref.artifact_id)
+    assert simulation_record == type(simulation_record).model_validate(
+        simulation_record.model_dump(mode="python")
+    )
 
     altered = simulation_record.model_dump(mode="python")
     altered["job_id"] = "job-other"
@@ -503,6 +561,13 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
         cell_id=owner_context["cell_id"],
         raw_request=problem.nl_provenance.raw_request,
     )
+    assert decoded == historical_record
+    decoded_read = _generation_source_read_result(decoded)
+    assert decoded_read is not None and decoded_read.value is decoded
+    assert decoded_read.provenance.canon_read_status == "declared_bytes_conformant"
+    assert decoded_read.provenance.source_materialization == "reader_materialized"
+    assert decoded_read.provenance.producer_attestation_status == "not_established"
+    assert decoded_read.provenance.selected_artifact_id == str(historical_ref.artifact_id)
     assert decoded == historical_record
     assert decoded.schema_version == "policyos.runtime.quality.n4_candidate_proposal_record.v1"
     with pytest.raises(ValueError, match="n4_candidate_proposal_tenant_scope_binding_mismatch"):
@@ -2692,6 +2757,22 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             expected_cell_id=cell_id,
         )
         assert replayed == execution
+        from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+
+        replayed_read = _generation_source_read_result(replayed)
+        assert replayed_read is not None and replayed_read.value is replayed
+        expected_profile_read = read_core_json_artifact(repository.store, execution_ref)
+        assert (
+            replayed_read.provenance.canon_read_status == expected_profile_read.status
+        )
+        assert replayed_read.read_trace == (replayed_read.provenance,)
+        assert replayed_read.provenance.source_materialization == "reader_materialized"
+        assert replayed_read.provenance.producer_attestation_status == "not_established"
+        assert replayed_read.provenance.selected_artifact_id == str(execution_ref.artifact_id)
+        assert (
+            replayed_read.provenance.selected_manifest_profile_sha256
+            == execution_ref.manifest_profile_sha256
+        )
 
         # A valid source with a different profile body cannot join the selected
         # input merely because its execution/profile reference string is alike.
@@ -2761,3 +2842,186 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             )
             == execution
         )
+
+
+def test_every_generation_source_json_reader_refuses_malformed_present_profile_before_verify(
+    tmp_path,
+) -> None:
+    """Invoke every actual JSON reader and keep malformed-present distinct from history."""
+    import inspect
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality import generation_source
+
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "reader-class-cas"))
+
+    def selected_ref(method_name: str) -> ArtifactRef:
+        if method_name == "load_candidate_proposal":
+            kind = "runtime.quality.n4_candidate_proposal"
+        elif method_name == "load_candidate_credal_source_attempt":
+            kind = "runtime.quality.candidate_credal_source_attempt"
+        elif method_name == "load":
+            kind = "runtime.generation_source_handoff"
+        elif "scenario_source" in method_name:
+            kind = "runtime.quality.n4_candidate_scenario_source"
+        elif "model_declaration" in method_name:
+            kind = "runtime.quality.candidate_simulation_model_declaration"
+        else:
+            kind = "runtime.quality.candidate_simulation_n5_input"
+        return ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind=kind,
+            media_type="application/json",
+        )
+
+    def invoke_actual_reader(method_name: str, method: object) -> None:
+        signature = inspect.signature(method)
+        arguments: dict[str, object] = {}
+        for parameter in signature.parameters.values():
+            if parameter.default is not inspect.Parameter.empty:
+                continue
+            name = parameter.name
+            if name == "ref":
+                ref = selected_ref(method_name)
+                arguments[name] = (
+                    str(ref.artifact_id)
+                    if parameter.annotation is str or parameter.annotation == "str"
+                    else ref
+                )
+            elif name in {
+                "run_id",
+                "expected_run_id",
+                "source_run_id",
+                "job_id",
+                "expected_job_id",
+                "tenant_id",
+                "expected_tenant_id",
+                "cell_id",
+                "expected_cell_id",
+                "raw_request",
+                "profile_id",
+                "profile_selection_ref",
+            }:
+                arguments[name] = "reader-class-fixture"
+            else:
+                # The selected malformed profile must refuse before these values
+                # can participate in model, lineage, or authority decisions.
+                arguments[name] = object()
+
+        raw_readers = []
+        with (
+            patch.object(
+                repository.store,
+                "get_raw_manifest_bytes",
+                side_effect=lambda *_args, **_kwargs: (
+                    raw_readers.append(method_name) or b'{"canon":null}'
+                ),
+            ),
+            patch.object(
+                repository.store,
+                "get_manifest",
+                side_effect=AssertionError("typed manifest read preceded profile refusal"),
+            ) as typed_manifest,
+            patch.object(
+                repository.store,
+                "verify",
+                side_effect=AssertionError("CAS verification preceded profile refusal"),
+            ) as verify,pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid")
+        ):
+            method(**arguments)
+        assert raw_readers == [method_name]
+        typed_manifest.assert_not_called()
+        verify.assert_not_called()
+
+    # Discover the actual direct Core JSON readers from the class source, then
+    # invoke each method through its public repository API. The AST/source scan
+    # only builds the denominator; malformed-present refusal is asserted after
+    # running each method with a real repository and selected Core store.
+    readers = [
+        (name, getattr(repository, name))
+        for name, method in inspect.getmembers(
+            generation_source.GenerationSourceRepository, inspect.isfunction
+        )
+        if "read_core_json_artifact(" in inspect.getsource(method)
+    ]
+    assert readers
+    for name, method in readers:
+        invoke_actual_reader(name, method)
+
+
+def test_scenario_source_dispatch_refuses_malformed_present_profile_before_manifest_lookup(
+    tmp_path,
+):
+    """The schema dispatcher cannot collapse a malformed selected profile to absence."""
+    from polisyos.core import artifacts
+
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "scenario-cas"))
+    ref = repository.store.put_bytes(
+        b"{}",
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.quality.n4_candidate_scenario_source",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="policyos.runtime.quality.n4_candidate_scenario_source.v1",
+                version="1.0",
+            ),
+            producer=artifacts.ProducerInfo(component="test", version="1"),
+        ),
+    )
+    with (
+        patch.object(repository.store, "get_raw_manifest_bytes", return_value=b'{"canon":null}'),
+        patch.object(
+            repository.store,
+            "get_manifest",
+            side_effect=AssertionError("manifest schema dispatch preceded raw profile parsing"),
+        ) as get_manifest,
+        patch.object(
+            repository.store,
+            "verify",
+            side_effect=AssertionError("typed verification preceded raw profile parsing"),
+        ) as verify,
+    ):
+        with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"):
+            repository.load_candidate_scenario_source_for_n5(
+                ref,
+                expected_run_id="run",
+                expected_job_id="job",
+                expected_tenant_id="tenant",
+                expected_cell_id="cell",
+            )
+        get_manifest.assert_not_called()
+        verify.assert_not_called()
+
+
+def test_generation_source_read_provenance_keeps_artifact_ref_subtype_identity(tmp_path):
+    """Accepted ref subtypes retain the exact selected CAS identity in provenance."""
+    from pydantic import BaseModel
+
+    from polisyos.core.artifacts import ArtifactRef, CanonInfo, PutOptions
+    from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+    from polisyos.core.canon import to_canonical_bytes
+    from polisyos.runtime.quality.generation_source import _mark_canonical_profile_read
+
+    store = FileSystemCAS(tmp_path / "ref-subtype-cas")
+    ref = store.put_bytes(
+        to_canonical_bytes({"value": 1}),
+        PutOptions(
+            kind="test.generation-source-ref-subtype",
+            media_type="application/json",
+            canon=CanonInfo(),
+        ),
+    )
+
+    class ScopedArtifactRef(ArtifactRef):
+        pass
+
+    selected_ref = ScopedArtifactRef.model_validate(ref.model_dump(mode="json"))
+    profiled = read_core_json_artifact(store, selected_ref)
+
+    class Result(BaseModel):
+        value: int
+
+    marked = _mark_canonical_profile_read(Result(value=1), profiled, selected_ref)
+    provenance = marked._generation_source_read_provenance
+    assert provenance.selected_artifact_id == str(ref.artifact_id)
+    assert provenance.selected_manifest_profile_sha256 == ref.manifest_profile_sha256

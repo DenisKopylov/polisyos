@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.ic_verification import ICVerificationCertificateRef
 from polisyos.core.contracts.scientist import (
     ChampionPolicyDossierRef,
@@ -1860,8 +1860,9 @@ def _persist_model(
 
 
 def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseModel]) -> Any:
+    from polisyos.core.artifacts import load_core_json_artifact
     raw = store.get_bytes(ref)
-    payload = from_canonical_bytes(raw)
+    payload = load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     schema_version = payload.get("schema_version") if isinstance(payload, dict) else None
     model = model_cls.model_validate(payload)
     historical_projection = None

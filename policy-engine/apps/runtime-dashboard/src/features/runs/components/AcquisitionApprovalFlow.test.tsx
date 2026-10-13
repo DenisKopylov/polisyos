@@ -1,13 +1,14 @@
 import { onlineManager } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type {
-  AcquisitionDecisionRequestResponse,
-  AcquisitionExecutionResponse,
-} from "@polisyos/runtime-api-client";
 import { MemoryRouter } from "react-router-dom";
 
-import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
+import type {
+  AcquisitionDecisionRequestResponseCurrent,
+  AcquisitionExecutionResponseCurrent,
+  AcquisitionRouteProjection,
+  PendingAcquisitionRouteV11,
+} from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import {
   EpochSemanticsProvider,
@@ -112,14 +113,9 @@ function epoch(status: "current" | "revalidation_required"): EpochSemantics {
   };
 }
 
-type PendingAcquisitionRoute = Extract<
-  AcquisitionRouteProjection,
-  { qualification_status: "pending_epoch_activation" }
->;
-
 function runRoute(
-  overrides: Partial<PendingAcquisitionRoute> = {},
-): PendingAcquisitionRoute {
+  overrides: Partial<PendingAcquisitionRouteV11> = {},
+): PendingAcquisitionRouteV11 {
   return {
     authority_badge: "behavioral_fixture_not_production",
     authority_capability: "ready",
@@ -149,25 +145,26 @@ function runRoute(
     route_projection_hash: digest("r"),
     route_status: "costed_actionable",
     run_id: "run-1",
-    schema_version: "AcquisitionRouteProjection@1.0",
+    schema_version: "AcquisitionRouteProjection@1.1",
     tenant_id: "tenant-1",
-    world_growth: "no_growth",
+    world_growth: "not_established",
+    admitted_observation_delta: null,
     ...overrides,
   };
 }
 
-function requestedDecision(): AcquisitionDecisionRequestResponse {
+function requestedDecision(): AcquisitionDecisionRequestResponseCurrent {
   return {
     authority_decision_ref: digest("e"),
     human_decision_request: { required_role: "budget_owner" },
     outcome: "decision_required",
     route_id: runRoute().route_id,
     run_id: "run-1",
-    world_growth: "no_growth",
+    world_growth: "not_established",
   };
 }
 
-function acceptedExecution(): AcquisitionExecutionResponse {
+function acceptedExecution(): AcquisitionExecutionResponseCurrent {
   return {
     authority_decision_ref: requestedDecision().authority_decision_ref,
     job_id: "acquisition-job-1",
@@ -175,7 +172,7 @@ function acceptedExecution(): AcquisitionExecutionResponse {
     route_id: runRoute().route_id,
     run_id: "run-1",
     status: "accepted",
-    world_growth: "no_growth",
+    world_growth: "not_established",
   };
 }
 
@@ -377,12 +374,36 @@ describe("AcquisitionApprovalFlow", () => {
 
   it("does not misclassify reordered JSON object keys as a stale route", async () => {
     const original = runRoute();
-    const reordered = Object.fromEntries(
-      Object.entries(original).reverse(),
-    ) as AcquisitionRouteProjection;
-    reordered.replay_pins = Object.fromEntries(
-      Object.entries(original.replay_pins).reverse(),
-    ) as AcquisitionRouteProjection["replay_pins"];
+    const reordered: PendingAcquisitionRouteV11 = {
+      admitted_observation_delta: original.admitted_observation_delta,
+      world_growth: original.world_growth,
+      tenant_id: original.tenant_id,
+      schema_version: original.schema_version,
+      run_id: original.run_id,
+      route_status: original.route_status,
+      route_projection_hash: original.route_projection_hash,
+      route_id: original.route_id,
+      replay_pins: {
+        terminal_event_id: original.replay_pins.terminal_event_id,
+        source_job_id: original.replay_pins.source_job_id,
+        design_problem_ref: original.replay_pins.design_problem_ref,
+        cost_basis_hash: original.replay_pins.cost_basis_hash,
+        compiled_ref: original.replay_pins.compiled_ref,
+        compiled_content_hash: original.replay_pins.compiled_content_hash,
+      },
+      recommended_strategy: original.recommended_strategy,
+      qualification_status: original.qualification_status,
+      qualification_reason: original.qualification_reason,
+      qualification_predicate: original.qualification_predicate,
+      planner_report_hash: original.planner_report_hash,
+      planner_record_id: original.planner_record_id,
+      external_nonclosures: original.external_nonclosures,
+      execution_capability: original.execution_capability,
+      cost_basis: original.cost_basis,
+      cell_id: original.cell_id,
+      authority_capability: original.authority_capability,
+      authority_badge: original.authority_badge,
+    };
     mocks.refetchRoute.mockResolvedValue({ data: routeCapture(reordered) });
     renderFlow(original);
     const user = userEvent.setup();
@@ -398,10 +419,12 @@ describe("AcquisitionApprovalFlow", () => {
   });
 
   it("prevents double execution while one approval is in flight", async () => {
-    let release: ((value: AcquisitionExecutionResponse) => void) | undefined;
+    let release:
+      | ((value: AcquisitionExecutionResponseCurrent) => void)
+      | undefined;
     mocks.execute.mockImplementation(
       () =>
-        new Promise<AcquisitionExecutionResponse>((resolve) => {
+        new Promise<AcquisitionExecutionResponseCurrent>((resolve) => {
           release = resolve;
         }),
     );

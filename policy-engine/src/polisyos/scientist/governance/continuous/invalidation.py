@@ -127,12 +127,13 @@ def resolve_evidence_validity_event(
     ref: ArtifactRef,
 ) -> PersistedEvidenceValidityEvent:
     """Resolve exact bytes, manifest profile, and lineage for one event."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     raw = store.get_bytes(ref)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
     observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
-    event = EvidenceValidityEvent.model_validate(canon.from_canonical_bytes(raw))
+    event = EvidenceValidityEvent.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     expected_inputs = evidence_validity_event_inputs(event)
     if (
         not report.ok

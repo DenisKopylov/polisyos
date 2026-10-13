@@ -309,8 +309,8 @@ def _load_config(payload: Any) -> MetricValidationNodeConfig:
 
 
 def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls: type[Any]) -> Any:
-    payload = ctx.store.get_bytes(ref)
-    return model_cls.model_validate_json(payload)
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    return validate_core_model_json_artifact(model_cls, ctx.store, ref)
 
 
 def _resolve_observation_bundle_ref(

@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import (
     maybe_load_foundry_phase2_closure_report,
     normalize_phase2_artifact_family,
@@ -483,7 +483,8 @@ def load_decision_readiness_contract(
     ref: ArtifactRef,
 ) -> DecisionReadinessContract:
     """Load decision readiness contract."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return DecisionReadinessContract.model_validate(payload)
 
 

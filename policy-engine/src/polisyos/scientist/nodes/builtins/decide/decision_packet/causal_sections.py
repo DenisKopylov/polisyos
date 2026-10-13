@@ -7,7 +7,6 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal import (
     proof_bundle_from_transportability_result,
@@ -140,9 +139,10 @@ def _populate_causal_report(
     payload: dict[str, object],
     packet_payload: dict[str, object] | None,
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
     if report_ref is not None:
         try:
-            report_obj = from_canonical_bytes(ctx.store.get_bytes(report_ref))
+            report_obj = load_core_json_artifact(ctx.store, report_ref)
             report = CausalEffectReport.model_validate(report_obj)
             refutation_results = [
                 item.model_dump(mode="json") for item in report.refutation_results

@@ -7,7 +7,6 @@ from pathlib import Path
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceStep
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 from polisyos.fabric.world import (
@@ -26,9 +25,10 @@ from .errors import ClaimValidationError
 
 def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     """Load json artifact."""
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
     except Exception as exc:  # pragma: no cover - defensive
         raise ClaimValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):

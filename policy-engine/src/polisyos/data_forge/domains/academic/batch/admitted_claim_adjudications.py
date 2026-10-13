@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 from weakref import WeakKeyDictionary
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     load_admitted_claim_adjudication_batch,
 )
@@ -99,6 +99,7 @@ class VerifiedClaimAdjudicationRows:
 
     def for_current_subject(self, subject: Mapping[str, object]) -> dict[str, Any] | None:
         """Resolve an exact, complete current input occurrence; never join by ID alone."""
+        from polisyos.core.artifacts import load_core_json_artifact
         rows = self._read()
         claim_id = subject.get("claim_id")
         if claim_id not in rows:
@@ -113,7 +114,7 @@ class VerifiedClaimAdjudicationRows:
             raise ValueError("claim_adjudication_raw_input_binding_missing")
         store = state.store or artifacts.FileSystemCAS(state.config.claim_adjudication_cas_root)
         raw = ClaimAdjudicationInputBatch.model_validate(
-            canon.from_canonical_bytes(store.get_bytes(artifacts.ArtifactID(state.raw_input_ref)))
+            load_core_json_artifact(store, artifacts.ArtifactID(state.raw_input_ref))
         )
         expected = next(item for item in raw.items if item.claim_id == claim_id)
         if current.model_dump(mode="json") != expected.model_dump(mode="json"):

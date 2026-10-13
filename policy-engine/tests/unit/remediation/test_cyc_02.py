@@ -441,7 +441,10 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
         single_step_horizon=True,
     )
 
-    assert set(simulation.authority_blockers) == {"simulation_only_k_sim_not_world_evidence"}
+    assert set(simulation.authority_blockers) == {
+        "simulation_only_k_sim_not_world_evidence",
+        "simulation_effect_basis_not_established",
+    }
     assert simulation_evaluation_input_ref(simulation) is None
     input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
 

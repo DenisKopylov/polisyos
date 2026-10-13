@@ -1388,7 +1388,7 @@ def _read_production_json(
     producer_component: str | None = None,
 ) -> dict[str, Any]:
     """Check the exact selected bytes, manifest, and parent views before decoding."""
-    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.artifacts import load_core_json_artifact
 
     artifact_id = _production_artifact_id(ref)
     raw = store.get_bytes(ref)
@@ -1434,7 +1434,7 @@ def _read_production_json(
         or actual_parent_edges != expected_parent_edges
     ):
         raise WorkspaceInvariantError("production_case_raw_manifest_custody_drift")
-    value = from_canonical_bytes(raw)
+    value = load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     if not isinstance(value, dict):
         raise WorkspaceInvariantError("production_case_payload_not_object")
     return value
@@ -3244,9 +3244,10 @@ class WorkspaceLoop:
         manifest: WorkspaceFixtureManifest,
         dataset_envelope: ArtifactEnvelope,
     ) -> dict[str, Any]:
+        from polisyos.core.artifacts import load_core_json_artifact
         if self._artifact_store is not None:
             try:
-                return json.loads(self._artifact_store.get_bytes(dataset_envelope.payload_ref))
+                return load_core_json_artifact(self._artifact_store, dataset_envelope.payload_ref)
             except Exception:
                 logging.getLogger(__name__).debug(
                     "falling back to catalog graph after CAS dataset read failed",

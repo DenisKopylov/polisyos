@@ -29,7 +29,7 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import conflict
+from polisyos.runtime.http.errors import CANONICAL_PROFILE_REFUSAL_RESPONSES, conflict
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import scenario_target_from_bound_request
 from polisyos.runtime.http.response_policies import add_run_link_relations
@@ -76,6 +76,7 @@ _CREATE_RUN_SCENARIO_AUTHZ = require_action_permission(
     "/runs/{run_id}/scenarios",
     response_model=ScenarioListResponse,
     operation_id="list_run_scenarios",
+    responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
 )
 def list_run_scenarios(
     run_id: str,
@@ -136,6 +137,7 @@ def list_run_scenarios(
     response_model=ScenarioManifestResponse,
     operation_id="create_run_scenario",
     dependencies=[Depends(_CREATE_RUN_SCENARIO_AUTHZ)],
+    responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
 )
 def create_run_scenario(
     run_id: str,
@@ -201,6 +203,7 @@ def create_run_scenario(
     "/runs/{run_id}/metrics",
     response_model=CounterfactualMetricsResponse,
     operation_id="get_run_counterfactual_metrics",
+    responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
 )
 def get_run_counterfactual_metrics(
     run_id: str,
@@ -260,6 +263,7 @@ def get_run_counterfactual_metrics(
     "/scenarios/{scenario_id}",
     response_model=ScenarioManifestResponse,
     operation_id="get_scenario_manifest",
+    responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
 )
 def get_scenario_manifest(
     scenario_id: str,
@@ -315,6 +319,7 @@ def get_scenario_manifest(
     "/scenarios/{scenario_id}/capabilities",
     response_model=ScenarioCapabilitiesResponse,
     operation_id="get_scenario_capabilities",
+    responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
 )
 def get_scenario_capabilities(
     scenario_id: str,

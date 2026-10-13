@@ -140,9 +140,31 @@ class GatedPublicationCAS(FileSystemCAS):
         return self.published
 
 
-def context(store: FileSystemCAS, run_id: str, run_dir: Path) -> ExecutionContext:
-    bundle = build_default_registry_bundle(store)
-    run = RunContext.start(store, bundle.bundle_ref, run_id=run_id, run_dir=run_dir)
+def context(
+    store: FileSystemCAS,
+    run_id: str,
+    run_dir: Path,
+    *,
+    resume: bool = False,
+    registry_bundle: ArtifactRef | None = None,
+) -> ExecutionContext:
+    if registry_bundle is None:
+        registry_bundle = build_default_registry_bundle(
+            store,
+            return_selected_profile=True,
+        ).bundle_ref
+    if resume:
+        run = RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=registry_bundle,
+            producer=None,
+            env=None,
+            access_scope=None,
+        )
+    else:
+        run = RunContext.start(store, registry_bundle, run_id=run_id, run_dir=run_dir)
     return ExecutionContext(store=store, run=run, logger=logging.getLogger("recovery_consumer"))
 
 
@@ -168,6 +190,10 @@ def state(run_id: str, *, current: bool = False) -> ExperimentState:
     )
 
 
+class _ExpectedIncompleteRun(BaseException):
+    """Leave the real cache/checkpoint artifacts durable before finalization."""
+
+
 async def cold_setup(tmp_path: Path, seed_source: str):
     store = GatedCAS(tmp_path / "cas")
     node = RecoveryNode()
@@ -176,21 +202,34 @@ async def cold_setup(tmp_path: Path, seed_source: str):
     ctx = context(store, "R_cache_recovery", run_dir)
     hook = CASCheckpointHook(store=store, run_dir=run_dir)
     first = AsyncWorkflowExecutor(ctx, registry, checkpoint_hook=hook)
-    await first.execute(spec, state(ctx.run.run_manifest.run_id))
+    original_finalize = ctx.run.finalize
+
+    def interrupt_before_terminal(*_args, **_kwargs):
+        raise _ExpectedIncompleteRun
+
+    ctx.run.finalize = interrupt_before_terminal
+    try:
+        await first.execute(spec, state(ctx.run.run_manifest.run_id))
+    except _ExpectedIncompleteRun:
+        pass
+    else:
+        raise AssertionError("workflow unexpectedly finalized the interrupted run")
+    finally:
+        ctx.run.finalize = original_finalize
+    ctx.run.suspend_for_resume()
     resolved = resolve_latest_checkpoint(store, ctx.run.run_manifest.run_id, run_dir=run_dir)
     assert resolved is not None
     assert resolved[1].metadata.completed_nodes == ["compute"]
     refs = resolved[1].metadata.cache_entry_refs
     assert len(refs) == 1 and store.verify(refs[0].artifact_id).ok
-    # A source-issued trace input isolates startup's trace inlet from the
-    # separate native executor publication test below.
-    ctx.run.trace_path.write_text("", encoding="utf-8")
+    # The trace seed is the real, owner-bound NODE_CACHE_STORE event already
+    # emitted before process interruption; do not erase its RUN_STARTED owner.
     if seed_source == "trace":
-        ctx.run.emit("scientist.node.compute", "NODE_CACHE_STORE", outputs=refs)
         checkpoint_refs = []
     else:
         checkpoint_refs = refs
-    reopened = context(store, ctx.run.run_manifest.run_id, run_dir)
+    store = GatedCAS(tmp_path / "cas")
+    reopened = context(store, ctx.run.run_manifest.run_id, run_dir, resume=True)
     store.target = str(refs[0].artifact_id)
     executor = AsyncWorkflowExecutor(reopened, registry, checkpoint_cache_seed_refs=checkpoint_refs)
     return store, executor, node, spec, refs
@@ -274,6 +313,7 @@ async def test_cold_seed_late_read_cannot_publish_cache(tmp_path: Path, seed_sou
         store.release.set()
         helper.join(3)
         assert await asyncio.to_thread(store.finished.wait, 3)
+        executor._ctx.run.suspend_for_resume()
     # Inspect after the uncancellable worker actually exits: a naive off-loop
     # mutation of self._cache would publish here despite the earlier return.
     await asyncio.sleep(0.02)
@@ -519,10 +559,24 @@ async def test_publication_trace_requires_completed_verified_storage(
             executor._cache.get(compute_idempotency_key(node.spec, state("R_publication"))) is None
         )
     fresh = FileSystemCAS(tmp_path / "cas")
-    fresh_ctx = context(fresh, "R_publication", run_dir)
+    fresh_ctx = context(
+        fresh,
+        "R_publication",
+        run_dir,
+        resume=end == "cancel",
+        registry_bundle=ctx.run.run_manifest.registry_bundle,
+    )
     resumed = await AsyncWorkflowExecutor(fresh_ctx, registry).execute(
         spec, state("R_publication", current=True)
     )
+    if end == "cancel":
+        resumed_events = [
+            json.loads(line)
+            for line in fresh_ctx.run.trace_path.read_text().splitlines()
+        ]
+        assert sum(event["event"] == "RUN_STARTED" for event in resumed_events) == 1
+        assert sum(event["event"] == "RUN_RESUMED" for event in resumed_events) == 1
+        assert sum(event["event"] == "RUN_FINALIZED" for event in resumed_events) == 1
     assert node.calls == (1 if end == "unbounded" else 2)
     assert resumed.state.params == {
         "seed": 7,

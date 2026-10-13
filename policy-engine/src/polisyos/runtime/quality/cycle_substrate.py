@@ -2306,6 +2306,7 @@ class CycleSubstrateContextArtifactOwner:
         | CycleSubstrateContextJobArtifactV4
     ):
         """Verify a ref against the persisted job authorized by the active lease."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         if self._control_store is None:
             raise CycleSubstrateContextOwnerError(
@@ -2336,7 +2337,7 @@ class CycleSubstrateContextArtifactOwner:
             )
         try:
             artifact = parse_cycle_substrate_context_job_artifact(
-                canon.from_canonical_bytes(body)
+                load_core_json_artifact(self._store, ref, raw_payload_bytes=body)
             )
         except (TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
@@ -2384,6 +2385,7 @@ class CycleSubstrateContextArtifactOwner:
         a new execution; served N5 still calls :meth:`resolve_for_current_job`
         under the current verified worker scope.
         """
+        from polisyos.core.artifacts import load_core_json_artifact
 
         if not all(
             isinstance(value, str) and value.strip()
@@ -2410,7 +2412,7 @@ class CycleSubstrateContextArtifactOwner:
             )
         try:
             artifact = parse_cycle_substrate_context_job_artifact(
-                canon.from_canonical_bytes(body)
+                load_core_json_artifact(self._store, ref, raw_payload_bytes=body)
             )
         except (TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(

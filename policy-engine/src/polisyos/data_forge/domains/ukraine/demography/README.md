@@ -101,3 +101,14 @@ selected complete layout without donor; absence intent remains not_established.
 
 The reader
 call signatures and supported historical filesystem inputs remain available.
+
+For candidate inventory calls, scalar readers validate all present members
+against the aggregate shape contract before projecting one role. A missing
+optional donor with ``not_established`` disposition remains absent for target
+and prior reads; donor and aggregate reads still refuse it. Explicit
+``intentionally_absent`` remains distinct, and a malformed present donor is
+decoded and rejected instead of being treated as absent.
+
+### CAS JSON snapshot profile status
+
+Stage and release writers continue to preserve their existing source bytes, IDs, hashes, media types, schemas, and receipts. The selected JSON reader binds those exact bytes to the raw selected manifest. A supported declared Core profile must round-trip before a value is exposed. A profileless stage/release JSON snapshot can be parsed only as a typed candidate with `profile_absent_raw_snapshot_candidate`; the receipt keeps its exact artifact/profile identity and records producer attestation, authority, and currentness as `not_established`. A well-formed unsupported profile is carried raw-only as `declared_unknown_candidate`, without JSON decoding. Malformed-present profiles refuse. This status does not rewrite older manifests or infer historical eligibility. Parquet and opaque hash/basis bytes remain raw transport.

@@ -21,7 +21,12 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import conflict, forbidden, not_found
+from polisyos.runtime.http.errors import (
+    CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    conflict,
+    forbidden,
+    not_found,
+)
 from polisyos.runtime.http.services.debug import SimulationResultProjectionError
 
 if TYPE_CHECKING:
@@ -50,6 +55,7 @@ if router is not None:
         "/{run_id}/nodes/{alias}",
         response_model=NodeDebugResponse,
         operation_id="get_node_debug",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_node_debug(
         run_id: str,
@@ -74,6 +80,7 @@ if router is not None:
         "/{run_id}/nodes/{alias}/simulation-result",
         response_model=SimulationResultCandidateResponse,
         operation_id="get_node_simulation_result_candidate",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_node_simulation_result_candidate(
         run_id: str,
@@ -131,6 +138,7 @@ if router is not None:
         "/{run_id}/governance",
         response_model=GovernanceDebugResponse,
         operation_id="get_governance_debug",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_governance_debug(
         run_id: str,
@@ -174,6 +182,7 @@ if router is not None:
         "/{run_id}/feedback",
         response_model=RunFeedbackResponse,
         operation_id="get_run_feedback",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_feedback(
         run_id: str,
@@ -197,6 +206,7 @@ if router is not None:
         "/{run_id}/equilibria",
         response_model=RunEquilibriaResponse,
         operation_id="get_run_equilibria",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_equilibria(
         run_id: str,
@@ -220,6 +230,7 @@ if router is not None:
         "/{left_run_id}/compare/{right_run_id}",
         response_model=RunCompareResponse,
         operation_id="get_run_compare",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_compare(
         left_run_id: str,

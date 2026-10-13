@@ -214,6 +214,7 @@ def make_wdi_port_case(
         promotion_runtime=control._promotion_runtime,
         cycle_substrate_context_admission_owner=(control._cycle_substrate_context_admission_owner),
         control_store=control._control_store,
+        action_head_sink=control.acquisition_route_sink,
     )
     transport_calls = intercepted_wdi_transport(monkeypatch)
     # Only candidate generation is a fixture; every re-entry owner still runs.
@@ -304,4 +305,56 @@ def make_wdi_port_case(
         authority=authority,
         selected=selected,
         call_args=args,
+    )
+
+
+def begin_current_wdi_action(control, closure, *, job_id: str):
+    """Persist requested and executing heads for a direct-owner witness."""
+
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+    )
+
+    sink = control.acquisition_route_sink
+    action_generation = sink.resolve_action_generation(
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        source_job_id=closure.source_job_id,
+        route_id=closure.route_id,
+        job_id=job_id,
+    )
+    requested = AcquisitionActionService._phase_receipt(
+        action_generation=action_generation,
+        closure=closure,
+        job_id=job_id,
+        decision_ref=closure.route_id,
+        receipt_phase="requested",
+        predecessor_receipt_ref=None,
+        owner_receipt_refs=(),
+    )
+    requested_head = sink.persist_phase(requested)
+    executing = AcquisitionActionService._phase_receipt(
+        action_generation=action_generation,
+        closure=closure,
+        job_id=job_id,
+        decision_ref=closure.route_id,
+        receipt_phase="executing",
+        predecessor_receipt_ref=requested_head.receipt_ref,
+        owner_receipt_refs=(),
+    )
+    executing_head = sink.persist_phase(executing)
+    return SimpleNamespace(
+        action_generation=action_generation,
+        job_id=job_id,
+        requested_head=requested_head,
+        executing_head=executing_head,
+    )
+
+
+def select_current_wdi_action_outcome(control, action, result):
+    """Commit the exact owner CAS as the current ActionHead outcome."""
+
+    return control.acquisition_route_sink.persist_action_outcome_selection(
+        action.executing_head.receipt_ref, result.owner_receipt_refs
     )

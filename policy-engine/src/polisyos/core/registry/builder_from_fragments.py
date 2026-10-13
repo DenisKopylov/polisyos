@@ -9,6 +9,10 @@ from pydantic import TypeAdapter
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.protocol import (
+    _require_return_selected_profile_writer,
+    _validate_return_selected_profile,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.components import ComponentKind, ComponentRegistry, ResolvePolicy
 from polisyos.core.components.compliance import HostAbi, validate_metadata
@@ -59,8 +63,30 @@ def build_registry_bundle_from_components(
     precedence_policy: FragmentPrecedencePolicy | None = None,
     compose_policy: ComposePolicy | None = None,
     host_abi: HostAbi | None = None,
+    return_selected_profile: bool = False,
 ) -> tuple[ArtifactRef, ArtifactRef | None]:
-    """Build registry bundle from components."""
+    """Build a CAS registry bundle from validated component fragments.
+
+    Args:
+        store: Artifact store receiving the composition report and registry snapshot.
+        components_index: Component registry queried for IR fragments.
+        domain: Domain used to select fragments.
+        jurisdiction: Optional jurisdiction filter for fragment selection.
+        base_bundle: Optional in-memory base registry composition.
+        precedence_policy: Optional fragment precedence rules.
+        compose_policy: Optional fragment composition policy.
+        host_abi: Optional host ABI used when validating each component.
+        return_selected_profile: Return the exact selected profile refs for each newly
+            written registry member and the composed bundle. The default keeps legacy
+            profile selection behavior and does not upgrade existing artifacts.
+
+    Returns:
+        The bundle reference and persisted composition-report reference.
+    """
+    _validate_return_selected_profile(return_selected_profile)
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
+
     policy = precedence_policy or FragmentPrecedencePolicy()
     compose = compose_policy or ComposePolicy(mode="prefer_higher_priority")
     host = host_abi or HostAbi(versions={"ir_abi": "1.0"}, strict=True)
@@ -134,6 +160,7 @@ def build_registry_bundle_from_components(
         trust_registry=result.composed.trust or DEFAULT_TRUST_REGISTRY,
         predicate_registry=result.composed.predicates,
         privacy_registry=result.composed.privacy,
+        return_selected_profile=return_selected_profile,
     )
 
     return bundle.bundle_ref, report_ref

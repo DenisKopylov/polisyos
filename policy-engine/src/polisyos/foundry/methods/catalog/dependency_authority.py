@@ -4081,7 +4081,11 @@ def _load_cas_statement_bytes(
     store: core_artifacts.FileSystemCAS,
     record: FoundryRecordRef[DigestDomain],
 ) -> bytes:
-    return store.get_bytes(_strict_artifact_id(record))
+    artifact_id = _strict_artifact_id(record)
+    raw = store.get_bytes(artifact_id)
+    return core_artifacts.read_core_json_artifact_bytes(
+        store, artifact_id, raw_payload_bytes=raw
+    )
 
 
 class FileSystemCASFoundryBootstrapEvidencePort(FoundryBootstrapEvidencePort):

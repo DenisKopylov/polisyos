@@ -18,7 +18,7 @@ from polisyos.core.artifacts.async_store import (
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
@@ -132,8 +132,9 @@ class DeepResearchJobManager:
 
     async def resume(self, *, checkpoint_artifact_id: str) -> str:
         """Resume a failed/partial job from a CAS checkpoint artifact."""
-        payload = from_canonical_bytes(
-            await self._async_cas.get_bytes(ArtifactID.model_validate(checkpoint_artifact_id))
+        from polisyos.core.artifacts import aload_core_json_artifact
+        payload = await aload_core_json_artifact(
+            self._async_cas, ArtifactID.model_validate(checkpoint_artifact_id)
         )
         checkpoint = ResearchJobCheckpoint.model_validate(payload)
         resumed_bundle = checkpoint.bundle._validated_schema_1_1_candidate()
@@ -173,14 +174,15 @@ class DeepResearchJobManager:
 
     def get_snapshot(self, job_id: str) -> WebEvidenceBundle | None:
         """Return the latest partial/completed bundle for a job without awaiting a live task."""
+        from polisyos.core.artifacts import load_core_json_artifact
         status = self.get_status(job_id)
         if status.result_bundle is not None:
             return status.result_bundle
         checkpoint_artifact_id = status.checkpoint_artifact_id
         if not checkpoint_artifact_id:
             return None
-        payload = from_canonical_bytes(
-            self._cas.get_bytes(ArtifactID.model_validate(checkpoint_artifact_id))
+        payload = load_core_json_artifact(
+            self._cas, ArtifactID.model_validate(checkpoint_artifact_id)
         )
         checkpoint = ResearchJobCheckpoint.model_validate(payload)
         return checkpoint.bundle

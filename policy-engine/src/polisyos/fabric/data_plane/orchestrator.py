@@ -23,7 +23,7 @@ from polisyos.core.artifacts.backends.config import (
     build_artifact_store,
 )
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.cursor import PartitionCursorState
 from polisyos.core.contracts.fabric import (
     DataSnapshot,
@@ -601,9 +601,10 @@ async def _build_snapshot_from_evidence_async(
     source: str,
 ) -> DataSnapshotRef | None:
     """Build a DataSnapshot from evidence bundle artifacts in CAS."""
+    from polisyos.core.artifacts import aload_core_json_artifact
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
-    evidence_payload = from_canonical_bytes(await store.get_bytes(evidence_ref))
+    evidence_payload = await aload_core_json_artifact(store, evidence_ref)
     evidence_bundle = EvidenceBundle.model_validate(evidence_payload)
 
     if not evidence_bundle.sources:

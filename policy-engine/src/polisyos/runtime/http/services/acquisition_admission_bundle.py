@@ -12,7 +12,8 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
 from polisyos.runtime.http.authorization import ResourceBindingSource
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -232,7 +233,7 @@ class AcquisitionAdmissionBundleProducer:
             expected_run_id=self.write_context.run_id,
             expected_job_id=self.write_context.job_id,
         )
-        read_back = canon.from_canonical_bytes(self.artifact_store.get_bytes(result.cas_ref))
+        read_back = read_core_json_artifact(self.artifact_store, result.cas_ref).value
         try:
             persisted_bundle = AgentActionAdmissionBundle.model_validate(read_back)
         except (TypeError, ValueError) as exc:  # pragma: no cover - writer/readback invariant

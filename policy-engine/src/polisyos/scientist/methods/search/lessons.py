@@ -16,7 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.autotune.models import default_search_registry_root
 from polisyos.scientist.methods.search.transfer_context import (
@@ -220,8 +220,8 @@ def persist_lesson_card(
 
 def load_lesson_card(store: FileSystemCAS, ref: ArtifactRef | str) -> LessonCard:
     """Load lesson card."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-    return LessonCard.model_validate(from_canonical_bytes(store.get_bytes(artifact_id)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return LessonCard.model_validate(load_core_json_artifact(store, ref))
 
 
 def lesson_from_failure_card(
@@ -1026,10 +1026,8 @@ class LessonRegistry:
         store: FileSystemCAS,
         ref: ArtifactRef | str,
     ) -> LessonIndexSnapshot:
-        artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-        return LessonIndexSnapshot.model_validate(
-            from_canonical_bytes(store.get_bytes(artifact_id))
-        )
+        from polisyos.core.artifacts import load_core_json_artifact
+        return LessonIndexSnapshot.model_validate(load_core_json_artifact(store, ref))
 
     @staticmethod
     def _sorted_entries(snapshot: LessonIndexSnapshot) -> list[LessonIndexEntry]:

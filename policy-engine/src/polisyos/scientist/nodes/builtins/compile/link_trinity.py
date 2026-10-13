@@ -6,7 +6,6 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import put_link_report
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import load_registry_bundle_content
@@ -73,6 +72,7 @@ class LinkTrinityNode:
         return replace(self, allow_extra_params=bool(allow_extra), strict=bool(strict))
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         registry_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
         if trinity_ref is None or registry_ref is None:
@@ -86,7 +86,7 @@ class LinkTrinityNode:
             )
             return NodeOutcome(status="fail", state=state, error=error)
 
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+        payload = load_core_json_artifact(ctx.store, trinity_ref)
         bundle = TrinityBundle.model_validate(payload)
 
         registry_content = load_registry_bundle_content(ctx.store, registry_ref)

@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.scientist import (
     CalibrationValidationBundleRef,
@@ -440,9 +440,9 @@ def load_calibration_validation_bundle(
     Returns:
         Parsed `CalibrationValidationBundle`.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref.artifact_id
-    payload = from_canonical_bytes(store.get_bytes(artifact_id))
+    payload = load_core_json_artifact(store, ref)
     return CalibrationValidationBundle.model_validate(payload)
 
 

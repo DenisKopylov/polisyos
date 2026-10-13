@@ -15,10 +15,16 @@ from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
     artifact_ref_identity_key,
+)
+from polisyos.core.artifacts.canonical_profile import (
+    artifact_ref_for_manifest,
+    read_core_json_artifact,
+    read_core_manifest_profile,
 )
 from polisyos.core.contracts.control import (
     ProductionApprovalOverrideRequest,
@@ -81,6 +87,7 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import (
+    CANONICAL_PROFILE_REFUSAL_RESPONSES,
     bad_request,
     conflict,
     forbidden,
@@ -428,13 +435,14 @@ def _candidate_acquisition_history_projection(
             run_id=source_run_id,
             source_job_id=source_job_id,
         )
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return (), "acquisition_action_history_integrity_not_established"
     if not heads:
         return (), "acquisition_action_history_not_observed"
 
     from polisyos.core.artifacts import ArtifactID, ArtifactRef, artifact_ref_identity_key
-    from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionRouteLoopReceipt,
         AcquisitionRoutePhaseReceipt,
@@ -478,9 +486,10 @@ def _candidate_acquisition_history_projection(
         }.get(expected_kind)
         if expected_producer is None:
             raise ValueError("acquisition_history_artifact_kind_unsupported")
+        manifest = read_core_manifest_profile(store, ref)[0]
+        ref = artifact_ref_for_manifest(manifest)
         if not store.verify(ref).ok:
             raise ValueError("acquisition_history_artifact_integrity_not_established")
-        manifest = store.get_manifest(ref)
         schema = manifest.artifact_schema
         if (
             manifest.kind != expected_kind
@@ -516,7 +525,11 @@ def _candidate_acquisition_history_projection(
         )
         if report.cas_ref != expected_id or report.durable_event_id is None:
             raise ValueError("acquisition_history_event_binding_mismatch")
-        return from_canonical_bytes(payload_bytes), payload_bytes, report
+        return (
+            read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value,
+            payload_bytes,
+            report,
+        )
 
     def _resolve_n5_v5_source(
         input_ref: ArtifactRef,
@@ -529,10 +542,11 @@ def _candidate_acquisition_history_projection(
         if (
             input_ref.kind != "runtime.quality.candidate_simulation_n5_input"
             or input_ref.media_type != "application/json"
-            or not store.verify(input_ref).ok
         ):
             raise ValueError("acquisition_reentry_n5_input_ref_invalid")
-        manifest = store.get_manifest(input_ref)
+        manifest = read_core_manifest_profile(store, input_ref)[0]
+        if not store.verify(input_ref).ok:
+            raise ValueError("acquisition_reentry_n5_input_ref_invalid")
         if (
             manifest.artifact_schema is None
             or manifest.artifact_schema.name != "policyos.runtime.candidate_simulation.n5_input.v5"
@@ -600,7 +614,7 @@ def _candidate_acquisition_history_projection(
                     route_receipt_ref,
                     expected_kind="runtime_quality.acquisition_route_phase_receipt",
                     expected_schema="polisyos.runtime.AcquisitionRoutePhaseReceipt",
-                    expected_version="1.0",
+                    expected_version=("1.0", "1.1"),
                     expected_job_id=head.job_id,
                 )
                 receipt = AcquisitionRoutePhaseReceipt.model_validate(route_payload)
@@ -934,6 +948,8 @@ def _candidate_acquisition_history_projection(
                 )
             )
         return tuple(history_entries), None
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return (), "acquisition_action_history_integrity_not_established"
 
@@ -1096,7 +1112,6 @@ def _candidate_simulation_projection(
     control_service: Any | None = None,
 ) -> RunCandidateSimulationProjection | None:
     """Resolve the exact Core-run output and source-bound N5 child artifacts."""
-    from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.http.services.control.generation_cycle import (
         COMPILED_RECURSIVE_GENERATION_CYCLE_COST_SCHEMA_VERSION,
         COMPILED_RECURSIVE_GENERATION_CYCLE_FAILED_PARTIAL_SCHEMA_VERSION,
@@ -1140,10 +1155,10 @@ def _candidate_simulation_projection(
         )
 
     try:
+        manifest = read_core_manifest_profile(store, ref)[0]
         verification = store.verify(ref)
         if not verification.ok:
             raise ValueError("compiled_cycle_artifact_integrity_not_established")
-        manifest = store.get_manifest(ref)
         tenant_context = manifest.tenant_context
         if (
             manifest.kind != "runtime.compiled_recursive_generation_cycle"
@@ -1162,6 +1177,8 @@ def _candidate_simulation_projection(
             or manifest.byte_size != len(payload_bytes)
         ):
             raise ValueError("compiled_cycle_artifact_content_hash_mismatch")
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return _candidate_simulation_refusal(
             run_id=run_id,
@@ -1177,7 +1194,7 @@ def _candidate_simulation_projection(
         ):
             raise ValueError("compiled_cycle_artifact_schema_binding_invalid")
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            from_canonical_bytes(payload_bytes)
+            read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value
         )
         if (
             compiled.generic_cycle_simulation_handoff is not None
@@ -1196,6 +1213,8 @@ def _candidate_simulation_projection(
             or manifest.artifact_schema.version != expected_manifest_schema_version
         ):
             raise ValueError("compiled_cycle_artifact_schema_binding_invalid")
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return _candidate_simulation_refusal(
             run_id=run_id,
@@ -1262,6 +1281,8 @@ def _candidate_simulation_projection(
             n4_source_status = "resolved"
             n4_source_content_hash = root_n4_source.content_hash
             n4_source_result_status = root_n4_source.generation_result.status
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             n4_source_status = "not_established"
             n4_source_limitation_code = "n4_recursive_source_reference_not_established"
@@ -1364,6 +1385,8 @@ def _candidate_simulation_projection(
                         historical_binding_status="resolved",
                     )
                 )
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             child_profile_status = "not_established"
             child_profile_limitation_code = "n4_child_profile_reference_not_established"
@@ -1458,7 +1481,6 @@ def _candidate_simulation_projection(
         ):
             return common
         try:
-            from polisyos.core.canon import from_canonical_bytes
             from polisyos.runtime.quality.candidate_simulation import (
                 candidate_simulation_profile_ref,
             )
@@ -1468,8 +1490,8 @@ def _candidate_simulation_projection(
             from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 
             input_ref = simulation.candidate_simulation_n5_input_ref
-            input_manifest = store.get_manifest(input_ref)
-            input_payload = from_canonical_bytes(store.get_bytes(input_ref))
+            input_manifest = read_core_manifest_profile(store, input_ref)[0]
+            input_payload = read_core_json_artifact(store, input_ref).value
             if not isinstance(input_payload, dict):
                 raise ValueError("candidate_simulation_input_payload_invalid")
             input_schema = input_payload.get("schema_version")
@@ -1563,6 +1585,8 @@ def _candidate_simulation_projection(
                 "lineage_status": "resolved",
                 "lineage_limitation_code": None,
             }
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             return common
 
@@ -1576,7 +1600,7 @@ def _candidate_simulation_projection(
         expected_outcomes: tuple[str, ...] | None = None,
         embedded_result: Any = None,
     ) -> tuple[Any, tuple[str, ...]]:
-        n5_manifest = store.get_manifest(result_ref)
+        n5_manifest = read_core_manifest_profile(store, result_ref)[0]
         n5_tenant_context = n5_manifest.tenant_context
         if (
             n5_tenant_context is None
@@ -1705,6 +1729,8 @@ def _candidate_simulation_projection(
                         n8_status="value_pending_n8",
                     )
                 )
+    except CanonicalProfileRefusalError:
+        raise
     except ValidationError as exc:
         n5_ref_unresolved = True
         if _is_n5_interaction_scope_validation_error(exc):
@@ -2239,7 +2265,6 @@ def _generic_cycle_simulation_projection(
     store: Any,
 ) -> RunGenericCycleSimulationProjection | None:
     """Replay persisted generic N4-family, N5, and conditional N8 lineage."""
-    from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -2285,8 +2310,8 @@ def _generic_cycle_simulation_projection(
             limitation_code="compiled_cycle_artifact_binding_not_established",
         )
     try:
+        manifest = read_core_manifest_profile(store, ref)[0]
         verification = store.verify(ref)
-        manifest = store.get_manifest(ref)
         context = manifest.tenant_context
         payload_bytes = store.get_bytes(ref)
         expected_id = f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
@@ -2307,10 +2332,12 @@ def _generic_cycle_simulation_projection(
         ):
             raise ValueError("compiled_generic_cycle_manifest_or_content_mismatch")
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            from_canonical_bytes(payload_bytes)
+            read_core_json_artifact(store, ref, raw_payload_bytes=payload_bytes).value
         )
         if manifest.artifact_schema.version != "1.0":
             raise ValueError("compiled_generic_cycle_schema_version_mismatch")
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return _generic_cycle_simulation_refusal(
             run_id=run_id,
@@ -2436,6 +2463,8 @@ def _generic_cycle_simulation_projection(
                         recursive_cycle_checkpoint=checkpoint,
                         limitation_code=attempt.limitation_code,
                     )
+                except CanonicalProfileRefusalError:
+                    raise
                 except Exception:
                     return RunGenericCycleSimulationProjection(
                         schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v2",
@@ -2654,6 +2683,8 @@ def _generic_cycle_simulation_projection(
             )
             for row in family.children
         )
+    except CanonicalProfileRefusalError:
+        raise
     except Exception:
         return RunGenericCycleSimulationProjection(
             run_id=run_id,
@@ -2725,11 +2756,11 @@ def _generic_cycle_simulation_projection(
                 ):
                     raise ValueError("generic_n5_compiled_child_binding_mismatch")
                 input_record = GenericCycleSimulationN5InputV1.model_validate(
-                    from_canonical_bytes(store.get_bytes(input_ref))
+                    read_core_json_artifact(store, input_ref).value
                 )
                 generic_owner.resolve_n5_input(input_ref, expected=input_record)
                 execution = parse_generic_cycle_simulation_n5_execution(
-                    from_canonical_bytes(store.get_bytes(execution_ref))
+                    read_core_json_artifact(store, execution_ref).value
                 )
                 generic_owner.resolve_n5_execution(execution_ref, expected=execution)
                 request_binding_status = (
@@ -2773,7 +2804,7 @@ def _generic_cycle_simulation_projection(
                 resolved_result = None
                 blockers = tuple(simulation.authority_blockers)
                 if execution.result_ref is not None:
-                    result_manifest = store.get_manifest(execution.result_ref)
+                    result_manifest = read_core_manifest_profile(store, execution.result_ref)[0]
                     result_context = result_manifest.tenant_context
                     if (
                         result_context is None
@@ -2874,6 +2905,8 @@ def _generic_cycle_simulation_projection(
                         ),
                     )
                 )
+        except CanonicalProfileRefusalError:
+            raise
         except ValidationError as exc:
             # Keep a source-resolved but structurally incoherent current scope
             # distinct from an absent/unreadable N5 lineage.
@@ -3360,6 +3393,11 @@ def _resolve_replay_bound_paper_packet(
             str(exc),
             code=replay_conflict_code,
         ) from exc
+    except CanonicalProfileRefusalError as exc:
+        raise conflict(
+            "The selected run artifact has a malformed or byte-inconsistent canon profile",
+            code=exc.code,
+        ) from exc
     except RunPaperSourceError as exc:
         raise conflict(
             str(exc),
@@ -3717,6 +3755,7 @@ if router is not None:
         dependencies=[Depends(_GET_RUN_PAPER_AUTHZ)],
         operation_id="get_run_paper",
         summary="Get the replay-bound paper projection for one verified run",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_paper(
         run_id: str,
@@ -3766,6 +3805,7 @@ if router is not None:
         dependencies=[Depends(_GET_CASE_INSPECTION_AUTHZ)],
         operation_id="get_case_inspection",
         summary="Inspect the frozen case slot for one verified run",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_case_inspection(
         run_id: str,
@@ -3819,7 +3859,9 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return packet
 
-    @router.get("/{run_id}", response_model=RunDetailsResponse, operation_id="get_run_details")
+    @router.get("/{run_id}", response_model=RunDetailsResponse, operation_id="get_run_details",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    )
     def get_run_details(
         run_id: str,
         request: Request,
@@ -4169,7 +4211,9 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return projection
 
-    @router.get("/{run_id}/nodes", response_model=RunNodesResponse, operation_id="get_run_nodes")
+    @router.get("/{run_id}/nodes", response_model=RunNodesResponse, operation_id="get_run_nodes",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    )
     def get_run_nodes(
         run_id: str,
         request: Request,
@@ -4220,6 +4264,7 @@ if router is not None:
         "/{run_id}/lineage",
         response_model=RunLineageResponse,
         operation_id="get_run_lineage",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_lineage(
         run_id: str,
@@ -4333,6 +4378,7 @@ if router is not None:
         "/{run_id}/quantities",
         response_model=RunQuantitiesResponse,
         operation_id="get_run_quantities",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_quantities(
         run_id: str,
@@ -4368,6 +4414,12 @@ if router is not None:
         try:
             ctx.lineage.assert_run_decision_surface_allowed(run, surface="run_quantities")
             quantities, coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        except CanonicalProfileRefusalError as exc:
+            raise conflict(
+                "The run decision packet has a malformed or byte-inconsistent canon profile",
+                code=exc.code,
+                extensions={"run_id": run_id, "surface": "run_quantities"},
+            ) from exc
         except LineageSurfaceAdmissionError as exc:
             raise conflict(
                 "Run quantities blocked or downgraded by composed authority surface admission",
@@ -4406,6 +4458,7 @@ if router is not None:
         "/{run_id}/fabric-decision-data",
         response_model=FabricDecisionDataResponse,
         operation_id="get_run_fabric_decision_data",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_fabric_decision_data(
         run_id: str,
@@ -4443,6 +4496,12 @@ if router is not None:
             quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(
                 run
             )
+        except CanonicalProfileRefusalError as exc:
+            raise conflict(
+                "The run decision packet has a malformed or byte-inconsistent canon profile",
+                code=exc.code,
+                extensions={"run_id": run_id, "surface": "run_fabric_decision_data"},
+            ) from exc
         except LineageSurfaceAdmissionError as exc:
             raise conflict(
                 "Run fabric decision data blocked or downgraded by composed authority "
@@ -4561,6 +4620,7 @@ if router is not None:
         "/{run_id}/agents",
         response_model=AgentPipelineResponse,
         operation_id="get_run_agents",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_agents(
         run_id: str,
@@ -4609,6 +4669,7 @@ if router is not None:
         "/{run_id}/evidence-context",
         response_model=RunEvidenceContextResponse,
         operation_id="get_run_evidence_context",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_evidence_context(
         run_id: str,
@@ -4660,6 +4721,7 @@ if router is not None:
         "/{run_id}/workflow",
         response_model=RunWorkflowResponse,
         operation_id="get_run_workflow",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_workflow(
         run_id: str,

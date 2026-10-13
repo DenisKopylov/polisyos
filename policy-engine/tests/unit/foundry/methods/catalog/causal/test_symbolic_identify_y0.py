@@ -417,7 +417,7 @@ def test_symbolic_partial_graph_refusal_gate_removal_control(monkeypatch) -> Non
     removed_result = TransportabilityResult.model_validate(without_gate["transport_result"])
     assert removed_result.status is TransportabilityStatus.UNSUPPORTED
     assert removed_result.transport_formula is None
-    assert removed_result.unsupported_reason == "y0_trso_api_error:UnsupportedStaticADMGProfileError"
+    assert removed_result.unsupported_reason == "y0_trso_api_error:PartialGraphCompletionSemanticsError"
     assert without_gate["proof_bundle"]["proof_status"] == "oracle_needed"
     assert "negative_certificate" not in without_gate
 

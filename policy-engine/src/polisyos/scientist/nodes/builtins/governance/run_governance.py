@@ -12,7 +12,6 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics
@@ -1032,6 +1031,7 @@ def _extract_pii_scan_results(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     existing = state.params.get("pii_scan_results")
     if isinstance(existing, dict):
         return existing
@@ -1040,7 +1040,7 @@ def _extract_pii_scan_results(
     if snapshot_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref))
+        payload = load_core_json_artifact(ctx.store, snapshot_ref)
         snapshot = DataSnapshot.model_validate(payload)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(

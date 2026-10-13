@@ -10,7 +10,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import (
@@ -382,6 +382,7 @@ def _build_packet_payload(
     state: ExperimentState,
     request: _DecisionPacketBuildRequest,
 ) -> tuple[dict[str, object], GovernanceReport | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     replay_section = _build_replay_section(
         inputs_section=request.inputs_section,
         artifacts_section=request.artifacts_section,
@@ -613,7 +614,7 @@ def _build_packet_payload(
 
     if metrics_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
+            payload = load_core_json_artifact(ctx.store, metrics_ref)
             metrics = Metrics.model_validate(payload)
             packet_payload["simulation_results"] = dict(metrics.values)
         except _DECISION_PACKET_LOAD_ERRORS as exc:
@@ -666,7 +667,7 @@ def _build_packet_payload(
 
     if governance_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref))
+            payload = load_core_json_artifact(ctx.store, governance_ref)
             report = GovernanceReport.model_validate(payload)
             governance_report = report
             packet_payload["governance"] = {

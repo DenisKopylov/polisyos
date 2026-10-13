@@ -16,7 +16,7 @@ from polisyos.core.artifacts.signing import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
+from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.core.security import InTotoStatement
 from polisyos.foundry.methods.equivalence.protocol import (
     EQUIVALENCE_CERTIFICATE_KIND,
@@ -77,9 +77,11 @@ def load_equivalence_certificate(
     ref: str | ArtifactRef | ArtifactID,
 ) -> CrossBackendEquivalenceCertificate:
     """Load one persisted certificate from an artifact reference or ID string."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     artifact_id = _coerce_artifact_id(ref)
-    payload = from_canonical_bytes(store.get_bytes(artifact_id))
+    selector = ref if isinstance(ref, ArtifactRef) else artifact_id
+    payload = load_core_json_artifact(store, selector)
     if not isinstance(payload, dict):
         raise TypeError("equivalence certificate payload must be a mapping")
     return CrossBackendEquivalenceCertificate.from_dict(payload)

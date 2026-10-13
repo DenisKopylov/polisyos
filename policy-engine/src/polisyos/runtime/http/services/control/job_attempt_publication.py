@@ -641,8 +641,10 @@ class ControlJobAttemptPublicationMixin:
         )
         # This is the explicit stable-control-job -> attempt-Core join. Do not
         # encode the stable run as parent_run_id: it is not a Core parent run.
-        context.run_manifest.control_job_id = job.job_id
-        context.run_manifest.execution_profile = job.effective_execution_profile
+        context.update_manifest(
+            control_job_id=job.job_id,
+            execution_profile=job.effective_execution_profile,
+        )
         return core_run_id, context
 
     def _finish_generation_run_context(

@@ -9,6 +9,8 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import contracts
+from polisyos.core.artifacts.manifest import CanonInfo
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -1574,3 +1576,53 @@ def test_legacy_row_has_not_established_semantic_epoch(tmp_path: Path) -> None:
     finally:
         con.close()
     assert row == (legacy_id, None, "legacy_not_established")
+
+
+def test_semantic_frame_producers_bind_their_actual_codec_and_refuse_profileless_history(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "profiled-overlay-cas")
+    external_kind = "epoch.r6_external_statement_fixture"
+    external_value = {"amount": 1.25, "optional": None}
+    external_ref, _ = overlay_module._persist_external_statement(
+        artifact_store=store,
+        value=external_value,
+        kind=external_kind,
+    )
+    external_profile = CanonInfo.from_spec(
+        overlay_module.canon.CanonSpec(forbid_floats=False, exclude_none=False)
+    )
+    assert external_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(external_ref).canon == external_profile
+    assert overlay_module._load_external_statement(
+        artifact_store=store,
+        ref=external_ref,
+        expected_kind=external_kind,
+    ) == external_value
+
+    legacy_body = overlay_module.fabric_data_plane.canonical_json_bytes(external_value)
+    legacy_ref = store.put_bytes(
+        len(legacy_body).to_bytes(8, "big") + legacy_body,
+        ArtifactWriteOptions(
+            kind=external_kind,
+            media_type="application/vnd.polisyos.epoch+json",
+        ),
+    )
+    with pytest.raises(OverlayAdmissionError) as refusal:
+        overlay_module._load_external_statement(
+            artifact_store=store,
+            ref=legacy_ref,
+            expected_kind=external_kind,
+        )
+    assert refusal.value.code == "semantic_external_receipt_profile_missing"
+    assert store.get_bytes(legacy_ref.artifact_id) == len(legacy_body).to_bytes(8, "big") + legacy_body
+
+    epoch_kind = "epoch.r6_epoch_statement_fixture"
+    epoch_ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=store,
+        value={"ordinal": 4},
+        kind=epoch_kind,
+        domain="polisyos.test.r6-epoch-frame",
+    )
+    assert epoch_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(epoch_ref).canon == overlay_module.epoch_contract.epoch_canon_info()

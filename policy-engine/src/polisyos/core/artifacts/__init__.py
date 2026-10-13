@@ -7,6 +7,7 @@ this facade instead of importing private artifact internals.
 """
 
 from datetime import datetime
+from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 from ._atomic_write import (
@@ -55,6 +56,8 @@ from .protocol import (
     AUTHORITY_ENVELOPE_SCHEMA_VERSION,
     ArtifactStore,
     AsyncArtifactStore,
+    AsyncRawManifestBytesReader,
+    RawManifestBytesReader,
     SignatureVerifyingArtifactStore,
     resolve_authority_envelope_ref,
     resolve_manifest_by_profile,
@@ -81,15 +84,37 @@ from .store import FileSystemCAS, PutOptions
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
+    from .canonical_profile import (
+        aload_core_json_artifact,
+        artifact_ref_for_manifest,
+        load_core_json_artifact,
+        load_core_json_frame_records,
+        read_core_json_artifact,
+        read_core_json_artifact_bytes,
+        read_core_manifest_profile,
+        validate_core_model_json_artifact,
+    )
     from .ir_adapter import ensure_ir_artifact_store as ensure_ir_artifact_store
 
 
 def __getattr__(name: str) -> Any:
-    """Resolve optional artifact adapters without introducing package cycles."""
+    """Resolve optional adapters and profile readers without package cycles."""
     if name == "ensure_ir_artifact_store":
         from .ir_adapter import ensure_ir_artifact_store
 
         return ensure_ir_artifact_store
+    if name in {
+        "aload_core_json_artifact",
+        "artifact_ref_for_manifest",
+        "load_core_json_artifact",
+        "load_core_json_frame_records",
+        "read_core_json_artifact",
+        "read_core_json_artifact_bytes",
+        "read_core_manifest_profile",
+        "validate_core_model_json_artifact",
+    }:
+        canonical_profile = import_module(".canonical_profile", __name__)
+        return getattr(canonical_profile, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -132,6 +157,7 @@ def expected_artifact_manifest_for_write(
     )
 
 
+
 __all__ = [
     "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
     "AUTHORITY_ENVELOPE_SCHEMA_NAME",
@@ -152,6 +178,7 @@ __all__ = [
     "AsyncArtifactStore",
     "AsyncArtifactStoreAdapter",
     "AsyncFileSystemArtifactStore",
+    "AsyncRawManifestBytesReader",
     "AtomicFileDurabilityError",
     "BulkSigningReport",
     "BulkVerificationReport",
@@ -174,6 +201,7 @@ __all__ = [
     "NodeStatus",
     "ProducerInfo",
     "PutOptions",
+    "RawManifestBytesReader",
     "RegistryBundle",
     "SchemaInfo",
     "SignatureStatement",
@@ -183,8 +211,10 @@ __all__ = [
     "SigningConfig",
     "VerificationReport",
     "WarningRecord",
+    "aload_core_json_artifact",
     "artifact_manifest_profile_projection",
     "artifact_manifest_profile_sha256",
+    "artifact_ref_for_manifest",
     "artifact_ref_identity_key",
     "build_artifact_store",
     "build_cas_integrity_report",
@@ -196,8 +226,14 @@ __all__ = [
     "expected_artifact_manifest_for_write",
     "fsync_directory",
     "input_ref_from_artifact_ref",
+    "load_core_json_artifact",
+    "load_core_json_frame_records",
     "profile_bound_ref",
+    "read_core_json_artifact",
+    "read_core_json_artifact_bytes",
+    "read_core_manifest_profile",
     "resolve_authority_envelope_ref",
     "resolve_dependency_graph",
     "resolve_manifest_by_profile",
+    "validate_core_model_json_artifact",
 ]

@@ -176,11 +176,13 @@ class ControlNLJobExecutionMixin:
             N4CandidateScenarioSourceRecordV1,
             N4CandidateScenarioSourceRecordV2,
             N4CandidateScenarioSourceRecordV3,
+            _generation_source_read_result,
         )
 
         run_id = str(job.run_id or "")
         source = None
         locator = None
+        generation_source_read_provenance: dict[str, object] = {}
         source_ref = compiled.source_ref
         currentness_status = "not_established"
         limitation_code = compiled.limitation_code
@@ -194,17 +196,17 @@ class ControlNLJobExecutionMixin:
                 limitation_code = "candidate_scenario_worker_lease_not_current"
             else:
                 locator = N4CandidateScenarioSourceLocator(artifact_ref=source_ref)
-                loaded = GenerationSourceRepository(
-                    self._artifact_store
-                ).load_candidate_proposal_projection_for_served_job(
-                    locator,
-                    job_id=job.job_id,
-                    run_id=run_id,
-                    tenant_id=execution_scope.tenant_id,
-                    cell_id=execution_scope.cell_id,
-                    raw_request=str(payload.get("request") or ""),
-                    expected_design_problem=compiled.design_problem,
-                )
+                repository = GenerationSourceRepository(self._artifact_store)
+                with repository.capture_read_provenance() as read_trace:
+                    loaded = repository.load_candidate_proposal_projection_for_served_job(
+                        locator,
+                        job_id=job.job_id,
+                        run_id=run_id,
+                        tenant_id=execution_scope.tenant_id,
+                        cell_id=execution_scope.cell_id,
+                        raw_request=str(payload.get("request") or ""),
+                        expected_design_problem=compiled.design_problem,
+                    )
                 if type(loaded) not in (
                     N4CandidateScenarioSourceRecordV1,
                     N4CandidateScenarioSourceRecordV2,
@@ -212,6 +214,17 @@ class ControlNLJobExecutionMixin:
                 ):
                     raise RuntimeError("n4_candidate_scenario_projection_owner_mismatch")
                 source = loaded
+                read_result = _generation_source_read_result(source, read_trace)
+                if read_result is None:
+                    raise RuntimeError("generation_source_read_provenance_missing")
+                generation_source_read_provenance = read_result.progress_projection()
+                if (
+                    generation_source_read_provenance["selected_artifact_id"]
+                    != str(source_ref.artifact_id)
+                    or generation_source_read_provenance["selected_manifest_profile_sha256"]
+                    != source_ref.manifest_profile_sha256
+                ):
+                    raise RuntimeError("generation_source_read_selection_mismatch")
                 current = candidate_simulation_currentness_resolver() is True
                 currentness_status = "current" if current else "not_current"
                 if current:
@@ -289,6 +302,11 @@ class ControlNLJobExecutionMixin:
             "candidate_proposal_ref": (
                 locator.model_dump(mode="json") if locator is not None else None
             ),
+            **(
+                {"generation_source_read_provenance": generation_source_read_provenance}
+                if generation_source_read_provenance
+                else {}
+            ),
             "simulation_status": "not_run",
             "simulation_limitation_code": proposal_limiter,
             "n5_status": "not_run",
@@ -317,6 +335,11 @@ class ControlNLJobExecutionMixin:
                 "job_kind": job.kind,
                 "capability_manifest_ref": str(capability_manifest_ref),
                 "candidate_proposal_ref": progress["candidate_proposal_ref"],
+                **(
+                    {"generation_source_read_provenance": generation_source_read_provenance}
+                    if generation_source_read_provenance
+                    else {}
+                ),
                 "execution_band": "candidate",
                 "execution_intent_band": intent_band.value,
                 "execution_intent_limitation_code": (execution_intent_limitation),
@@ -493,6 +516,7 @@ class ControlNLJobExecutionMixin:
             GenerationSourceRepository,
             N4CandidateProposalLocator,
             N4CandidateProposalSimulationDisposition,
+            _generation_source_read_result,
         )
 
         run_id = str(job.run_id or "")
@@ -555,14 +579,26 @@ class ControlNLJobExecutionMixin:
             control_job_attempt=(job.attempt if core_run_id is not None else None),
         )
         proposal_locator = N4CandidateProposalLocator(artifact_ref=proposal_ref)
-        proposal_record = repository.load_candidate_proposal_for_served_job(
-            proposal_locator,
-            job_id=job.job_id,
-            run_id=run_id,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            raw_request=raw_request,
-        )
+        with repository.capture_read_provenance() as read_trace:
+            proposal_record = repository.load_candidate_proposal_for_served_job(
+                proposal_locator,
+                job_id=job.job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                raw_request=raw_request,
+            )
+        read_result = _generation_source_read_result(proposal_record, read_trace)
+        if read_result is None:
+            raise RuntimeError("generation_source_read_provenance_missing")
+        generation_source_read_provenance = read_result.progress_projection()
+        if (
+            generation_source_read_provenance["selected_artifact_id"]
+            != str(proposal_ref.artifact_id)
+            or generation_source_read_provenance["selected_manifest_profile_sha256"]
+            != proposal_ref.manifest_profile_sha256
+        ):
+            raise RuntimeError("generation_source_read_selection_mismatch")
         simulation_disposition_record = getattr(proposal_record, "simulation_disposition", None)
         if (
             intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
@@ -604,6 +640,7 @@ class ControlNLJobExecutionMixin:
             "stage": proposal_record.stage,
             "run_id": run_id,
             "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+            "generation_source_read_provenance": generation_source_read_provenance,
             "execution_intent_band": intent_band.value,
             "execution_intent_limitation_code": execution_intent_limitation,
             "n5_status": proposal_record.n5_status,
@@ -640,6 +677,7 @@ class ControlNLJobExecutionMixin:
                 "job_kind": job.kind,
                 "capability_manifest_ref": str(capability_manifest_ref),
                 "candidate_proposal_ref": proposal_locator.model_dump(mode="json"),
+                "generation_source_read_provenance": generation_source_read_provenance,
                 "execution_band": proposal_record.execution_band,
                 "execution_intent_band": intent_band.value,
                 "execution_intent_limitation_code": execution_intent_limitation,

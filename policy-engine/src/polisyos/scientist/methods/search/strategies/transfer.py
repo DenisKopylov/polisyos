@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
 
@@ -527,13 +527,13 @@ class TransferLearningManager:
         self, ref: ArtifactRef, expected_fingerprint: RunFingerprint
     ) -> list[dict[str, Any]]:
         """Read and identity-bind JSON history from its selected immutable CAS ref."""
+        from polisyos.core.artifacts import load_core_json_artifact
         if ref.kind != "search.transfer.history" or ref.media_type != "application/json":
             raise ValueError("Transfer history ref has an unexpected kind or media type")
         if not self._has_complete_binding_basis(expected_fingerprint):
             raise ValueError("Transfer history read requires a complete expected run fingerprint")
-        raw = self._store.get_bytes(ref)
         try:
-            data = from_canonical_bytes(raw)
+            data = load_core_json_artifact(self._store, ref)
         except (TypeError, ValueError) as exc:
             raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
         if not isinstance(data, dict):

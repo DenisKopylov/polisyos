@@ -19,7 +19,15 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import TypeAdapter
 
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    require_declared_profile,
+)
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.canonical_profile import (
+    decode_core_json_payload,
+    read_core_json_artifact,
+)
 from polisyos.runtime.http.services.public_decision_verification_contracts import (
     PUBLIC_VERIFICATION_PURPOSE,
     PUBLIC_VERIFICATION_RECORD_KIND,
@@ -160,11 +168,19 @@ class PublicDecisionVerificationService:
         except (TypeError, ValueError) as exc:
             raise PublicDecisionVerificationError("public_document_invalid") from exc
         try:
+            public_canon = artifacts.CanonInfo(
+                forbid_floats=False,
+                exclude_none=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            )
             document_ref = self._store.put_bytes(
                 document_bytes,
                 artifacts.ArtifactWriteOptions(
                     kind="runtime.public_decision_verification_document",
                     media_type="application/json",
+                    canon=public_canon,
                 ),
             )
             record_ref = self._store.put_bytes(
@@ -180,6 +196,7 @@ class PublicDecisionVerificationService:
                             artifact_id=document_ref.artifact_id, role="public_document"
                         )
                     ],
+                    canon=public_canon,
                 ),
             )
             self._store.sign_artifact(record_ref.artifact_id, signer, signer_identity=None)
@@ -338,7 +355,10 @@ class PublicDecisionVerificationService:
                 key_status=key_status,
             )
         try:
-            record = PublicDecisionVerificationRecord.model_validate_json(blob)
+            profiled_record = decode_core_json_payload(manifest_bytes, blob)
+            record = PublicDecisionVerificationRecord.model_validate(
+                require_declared_profile(profiled_record), strict=True
+            )
             manifest = artifacts.ArtifactManifest.model_validate_json(manifest_bytes)
             if (
                 record.model_fields_set != set(PublicDecisionVerificationRecord.model_fields)
@@ -357,7 +377,7 @@ class PublicDecisionVerificationService:
                 or manifest.artifact_schema.version != "1"
             ):
                 raise ValueError("signed record binding changed")
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, CanonicalProfileRefusalError):
             return self._nonreceipt(
                 record_id,
                 "record_binding_invalid",
@@ -369,8 +389,15 @@ class PublicDecisionVerificationService:
             document_bytes = self._store.get_bytes(record.public_document_digest)
             if _digest(document_bytes) != record.public_document_digest:
                 raise ValueError("document digest changed")
-            document = _PUBLIC_DOCUMENT.validate_json(document_bytes, strict=True)
-        except (OSError, TypeError, ValueError, RuntimeError):
+            profiled_document = read_core_json_artifact(
+                self._store,
+                record.public_document_digest,
+                raw_payload_bytes=document_bytes,
+            )
+            document = _PUBLIC_DOCUMENT.validate_python(
+                require_declared_profile(profiled_document), strict=True
+            )
+        except (OSError, TypeError, ValueError, RuntimeError, CanonicalProfileRefusalError):
             return self._nonreceipt(
                 record_id,
                 "public_document_binding_invalid",

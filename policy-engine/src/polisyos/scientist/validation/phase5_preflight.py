@@ -11,7 +11,6 @@ from pydantic import BaseModel
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.analytics import ExplanationBundleRef
 from polisyos.ir.governance.validation import (
     Phase5GateComponent,
@@ -1050,12 +1049,13 @@ def _ref_to_artifact_id(value: Any) -> str | None:
 
 
 def _load_ref_payload(ctx: ExecutionContext, ref_text: str) -> Any | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     store = _ctx_store(ctx)
     if store is None:
         return None
     try:
         artifact_id = ArtifactID.model_validate(str(ref_text))
-        return from_canonical_bytes(store.get_bytes(artifact_id))
+        return load_core_json_artifact(store, artifact_id)
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
 

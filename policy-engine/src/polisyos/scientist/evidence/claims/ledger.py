@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.scientist.evidence.claims.models import ClaimLedger
 
 ArtifactStore = core_artifacts.ArtifactStore
@@ -80,6 +80,7 @@ def _load_claim_ledger(store: ArtifactStore, ref: ArtifactRef) -> ClaimLedger:
     schema and canonical encoding before accepting the payload as Claim Ledger
     authority input.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
     raw = store.get_bytes(ref)
     manifest = store.get_manifest(ref)
@@ -98,7 +99,7 @@ def _load_claim_ledger(store: ArtifactStore, ref: ArtifactRef) -> ClaimLedger:
         or str(ref.artifact_id) != str(manifest.artifact_id)
     ):
         raise ValueError("claim_ledger_profile_mismatch")
-    ledger = ClaimLedger.model_validate(from_canonical_bytes(raw))
+    ledger = ClaimLedger.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if to_canonical_bytes(ledger, CanonSpec(forbid_floats=False)) != raw:
         raise ValueError("claim_ledger_canonical_mismatch")
     return ledger

@@ -13,7 +13,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
@@ -82,10 +82,9 @@ def load_actionable_side_information(
     ref: ArtifactRef | str,
 ) -> ActionableSideInformation:
     """Load actionable side information."""
-    artifact_id = (
-        ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
-    )
-    payload = from_canonical_bytes(store.get_bytes(artifact_id))
+    from polisyos.core.artifacts import load_core_json_artifact
+    selector = ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
+    payload = load_core_json_artifact(store, selector)
     return cast(
         "ActionableSideInformation",
         ActionableSideInformation.model_validate(payload),

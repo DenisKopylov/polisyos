@@ -1354,6 +1354,7 @@ def _build_search_method_run_profile(
     context: Mapping[str, Any],
 ) -> SearchMethodRunProfile | None:
     """Resolve the exact method, data, objective, and search basis for one run."""
+    from polisyos.core.artifacts import load_core_json_artifact
     evaluator = spec.benchmark_evaluator
     search_space = getattr(generator, "_search_space", None)
     context_fingerprint = getattr(generator, "_search_run_context_fingerprint", None)
@@ -1384,7 +1385,7 @@ def _build_search_method_run_profile(
             if data_snapshot_ref.manifest_profile_sha256 is None:
                 return None
             snapshot_manifest = store.get_manifest(data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(from_canonical_bytes(store.get_bytes(data_snapshot_ref)))
+            snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, data_snapshot_ref))
             data_ref = ArtifactRef.model_validate(snapshot.data_ref)
             if data_ref.manifest_profile_sha256 is None:
                 return None
@@ -1395,7 +1396,7 @@ def _build_search_method_run_profile(
                 )
             ):
                 return None
-            data_payload = from_canonical_bytes(store.get_bytes(data_ref))
+            data_payload = load_core_json_artifact(store, data_ref)
             if not isinstance(data_payload, Mapping):
                 return None
             data_sample_count = _source_sample_count(
@@ -1502,6 +1503,7 @@ def _verify_search_source_profile_receipt(
     _skip_fit_recomputation: bool = False,
 ) -> tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef] | None:
     """Fresh-read the complete candidate-grade Search → MethodJob → CAS source chain."""
+    from polisyos.core.artifacts import load_core_json_artifact
     if not isinstance(store, FileSystemCAS):
         return None
     try:
@@ -1513,7 +1515,7 @@ def _verify_search_source_profile_receipt(
             name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
         ):
             return None
-        raw_evaluation = from_canonical_bytes(reader.get_bytes(exact_evaluation_ref))
+        raw_evaluation = load_core_json_artifact(reader, exact_evaluation_ref)
         evaluation = BenchmarkEvaluation.model_validate(raw_evaluation)
         receipt_value = evaluation.metadata.get(_SEARCH_SOURCE_RECEIPT_KEY)
         if not isinstance(receipt_value, Mapping):
@@ -1610,7 +1612,7 @@ def _verify_search_source_profile_receipt(
             return None
 
         candidate_manifest = reader.get_manifest(candidate_ref)
-        candidate_payload = from_canonical_bytes(reader.get_bytes(candidate_ref))
+        candidate_payload = load_core_json_artifact(reader, candidate_ref)
         if candidate_manifest.artifact_id != candidate_ref.artifact_id or not isinstance(
             candidate_payload, Mapping
         ):
@@ -1628,7 +1630,7 @@ def _verify_search_source_profile_receipt(
         ):
             return None
         suite_manifest = reader.get_manifest(suite_ref)
-        suite_payload = from_canonical_bytes(reader.get_bytes(suite_ref))
+        suite_payload = load_core_json_artifact(reader, suite_ref)
         suite = BenchmarkSuite.model_validate(suite_payload)
         if suite_manifest.artifact_id != suite_ref.artifact_id or (
             suite.suite_id != evaluation.suite_id
@@ -1706,7 +1708,7 @@ def _verify_search_source_profile_receipt(
                 return None
             snapshot_manifest = reader.get_manifest(data_snapshot_ref)
             snapshot = DataSnapshot.model_validate(
-                from_canonical_bytes(reader.get_bytes(data_snapshot_ref))
+                load_core_json_artifact(reader, data_snapshot_ref)
             )
             if (
                 snapshot_manifest.kind != "fabric.data_snapshot"
@@ -1716,7 +1718,7 @@ def _verify_search_source_profile_receipt(
                 )
             ):
                 return None
-            data_payload = from_canonical_bytes(reader.get_bytes(data_ref))
+            data_payload = load_core_json_artifact(reader, data_ref)
             if not isinstance(data_payload, Mapping):
                 return None
             for slot_name, data_field in data_bindings.items():
@@ -1755,7 +1757,7 @@ def _verify_search_source_profile_receipt(
                 return None
 
         result_manifest = reader.get_manifest(method_result_ref)
-        result_payload = from_canonical_bytes(reader.get_bytes(method_result_ref))
+        result_payload = load_core_json_artifact(reader, method_result_ref)
         if (
             not result_manifest.kind.startswith("scientist.method_result.")
             or not _search_source_manifest_schema_matches(
@@ -1781,7 +1783,7 @@ def _verify_search_source_profile_receipt(
             return None
 
         evidence_manifest = reader.get_manifest(method_evidence_ref)
-        evidence_payload = from_canonical_bytes(reader.get_bytes(method_evidence_ref))
+        evidence_payload = load_core_json_artifact(reader, method_evidence_ref)
         if not isinstance(evidence_payload, Mapping):
             return None
         evidence_result_ref = ArtifactRef.model_validate(
@@ -1887,6 +1889,7 @@ def _method_request_matches_search_run_profile(
     run_profile: SearchMethodRunProfile,
 ) -> bool:
     """Reconcile the persisted MethodJob request and full data quantity to a run profile."""
+    from polisyos.core.artifacts import load_core_json_artifact
     basis = receipt.get("method_request_basis")
     if not isinstance(basis, Mapping):
         return False
@@ -1894,7 +1897,7 @@ def _method_request_matches_search_run_profile(
         job_spec = JobSpec.model_validate(basis.get("job_spec"))
         candidate_ref = ArtifactRef.model_validate(receipt.get("candidate_ref"))
         suite_ref = ArtifactRef.model_validate(receipt.get("suite_ref"))
-        candidate_payload = from_canonical_bytes(reader.get_bytes(candidate_ref))
+        candidate_payload = load_core_json_artifact(reader, candidate_ref)
         if not isinstance(candidate_payload, Mapping):
             return False
         expected_search_values = {
@@ -1949,7 +1952,7 @@ def _method_request_matches_search_run_profile(
             return run_profile.data_sample_count is None
         snapshot_manifest = reader.get_manifest(data_snapshot_ref)
         snapshot = DataSnapshot.model_validate(
-            from_canonical_bytes(reader.get_bytes(data_snapshot_ref))
+            load_core_json_artifact(reader, data_snapshot_ref)
         )
         if (
             snapshot_manifest.kind != "fabric.data_snapshot"
@@ -1959,7 +1962,7 @@ def _method_request_matches_search_run_profile(
             )
         ):
             return False
-        data_payload = from_canonical_bytes(reader.get_bytes(data_ref))
+        data_payload = load_core_json_artifact(reader, data_ref)
         if not isinstance(data_payload, Mapping):
             return False
         return _source_sample_count(data_payload, run_profile.data_snapshot_bindings) == (
@@ -1980,6 +1983,7 @@ def _recompute_search_gp_fit_basis(
     expected_method_run_profile: SearchMethodRunProfile,
 ) -> bool:
     """Recompute the fitted native GP from exact CAS-backed MethodJob observations."""
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         fit_basis_ref = ArtifactRef.model_validate(receipt.get("fit_basis_ref"))
         if fit_basis_ref.manifest_profile_sha256 is None:
@@ -2006,7 +2010,7 @@ def _recompute_search_gp_fit_basis(
         ):
             return False
         fit_basis = SearchGPFitBasis.model_validate(
-            from_canonical_bytes(reader.get_bytes(fit_basis_ref))
+            load_core_json_artifact(reader, fit_basis_ref)
         )
         run_profile = fit_basis.run_profile
         if (
@@ -2092,7 +2096,7 @@ def _recompute_search_gp_fit_basis(
             _, source_receipt, source_candidate_ref = verified
             source_evaluation_manifest = reader.get_manifest(source_ref)
             source_evaluation = BenchmarkEvaluation.model_validate(
-                from_canonical_bytes(reader.get_bytes(source_ref))
+                load_core_json_artifact(reader, source_ref)
             )
             if not _method_request_matches_search_run_profile(
                 reader=reader,

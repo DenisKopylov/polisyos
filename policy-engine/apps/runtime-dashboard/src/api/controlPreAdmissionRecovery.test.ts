@@ -4,7 +4,10 @@ import {
   type ControlPreAdmissionRecoveryPort,
   type ControlPreAdmissionRecoveryScope,
 } from "./controlPreAdmissionRecovery";
-import type { components } from "./types";
+import {
+  controlPreAdmissionAttemptResponseSchema,
+  type ControlPreAdmissionAttemptResponse,
+} from "./validators";
 
 const scope: ControlPreAdmissionRecoveryScope = {
   tenantId: "tenant-a",
@@ -32,18 +35,14 @@ function memoryPort(): ControlPreAdmissionRecoveryPort & {
 }
 
 function response(
-  status: components["schemas"]["ControlPreAdmissionAttemptResponse"]["status"],
+  status: ControlPreAdmissionAttemptResponse["status"],
   jobId: string | null = null,
   profile: "dev" | "research" | "governed" | "production" = "research",
-  terminalObservation:
-    | "complete"
-    | "unavailable"
-    | "not_applicable"
-    | "no_call" = "complete",
-): components["schemas"]["ControlPreAdmissionAttemptResponse"] {
+  terminalObservation: ControlPreAdmissionAttemptResponse["producer_event_observation"] = "complete",
+): ControlPreAdmissionAttemptResponse {
   const timestamp = "2026-10-12T10:00:00Z";
   const serious = profile !== "dev";
-  const statuses =
+  const statuses: ControlPreAdmissionAttemptResponse["history"][number]["event_type"][] =
     status === "started"
       ? ["started"]
       : status === "settled"
@@ -54,48 +53,53 @@ function response(
             : ["started", "admitted"]
           : terminalObservation === "complete" && serious
             ? ["started", "settled", status]
-            : ["started", status];
-  const events = statuses.map((eventType, index) => {
-    const hasSettlement =
-      statuses.includes("settled") && index >= statuses.indexOf("settled");
-    const isTerminal =
-      index === statuses.length - 1 &&
-      ["refused", "cancelled", "failed"].includes(eventType);
-    const observation = hasSettlement
-      ? "complete"
-      : isTerminal
-        ? terminalObservation
-        : "not_applicable";
-    const refs = observation === "complete" ? ["producer-event-a"] : [];
-    return {
-      event_id: `event-${eventType}-${index + 1}`,
-      sequence: index + 1,
-      event_type: eventType,
-      observed_at: timestamp,
-      producer_event_ids: refs,
-      producer_event_observation:
-        observation as components["schemas"]["ControlPreAdmissionAttemptResponse"]["producer_event_observation"],
-      producer_no_call_reason:
-        observation === "no_call" ? "provider_preflight_not_started" : null,
-      failure_code: isTerminal
-        ? observation === "no_call"
-          ? "provider_preflight_not_started"
-          : `provider_${eventType}`
-        : null,
-      job_id: index === statuses.length - 1 ? jobId : null,
-    };
-  });
-  const aggregateObservation = events.some(
-    (event) => event.producer_event_observation === "unavailable",
-  )
-    ? "unavailable"
-    : events.some((event) => event.producer_event_observation === "complete")
-      ? "complete"
-      : events.some(
-            (event) => String(event.producer_event_observation) === "no_call",
-          )
-        ? ("no_call" as components["schemas"]["ControlPreAdmissionAttemptResponse"]["producer_event_observation"])
-        : "not_applicable";
+            : status === "refused" &&
+                terminalObservation === "unavailable" &&
+                serious
+              ? ["started", "settled", status]
+              : ["started", status];
+  const events: ControlPreAdmissionAttemptResponse["history"] = statuses.map(
+    (eventType, index) => {
+      const hasSettlement =
+        statuses.includes("settled") && index >= statuses.indexOf("settled");
+      const isTerminal =
+        index === statuses.length - 1 &&
+        ["refused", "cancelled", "failed"].includes(eventType);
+      const observation: ControlPreAdmissionAttemptResponse["producer_event_observation"] =
+        isTerminal
+          ? terminalObservation
+          : hasSettlement
+            ? "complete"
+            : "not_applicable";
+      const noCallReason: ControlPreAdmissionAttemptResponse["producer_no_call_reason"] =
+        observation === "no_call" ? "provider_preflight_not_started" : null;
+      const refs =
+        hasSettlement || observation === "complete" ? ["producer-event-a"] : [];
+      return {
+        event_id: `event-${eventType}-${index + 1}`,
+        sequence: index + 1,
+        event_type: eventType,
+        observed_at: timestamp,
+        producer_event_ids: refs,
+        producer_event_observation: observation,
+        producer_no_call_reason: noCallReason,
+        failure_code: isTerminal
+          ? observation === "no_call"
+            ? "provider_preflight_not_started"
+            : `provider_${eventType}`
+          : null,
+        job_id: index === statuses.length - 1 ? jobId : null,
+      };
+    },
+  );
+  const aggregateObservation: ControlPreAdmissionAttemptResponse["producer_event_observation"] =
+    events.some((event) => event.producer_event_observation === "unavailable")
+      ? "unavailable"
+      : events.some((event) => event.producer_event_observation === "complete")
+        ? "complete"
+        : events.some((event) => event.producer_event_observation === "no_call")
+          ? "no_call"
+          : "not_applicable";
   return {
     meta: {
       generated_at: timestamp,
@@ -122,8 +126,9 @@ function response(
     run_id: "run-a",
     job_id: jobId,
     effective_execution_profile: profile,
-    producer_event_ids:
-      aggregateObservation === "complete" ? ["producer-event-a"] : [],
+    producer_event_ids: [
+      ...new Set(events.flatMap((event) => event.producer_event_ids)),
+    ].sort(),
     producer_event_observation: aggregateObservation,
     producer_no_call_reason:
       aggregateObservation === "no_call"
@@ -140,6 +145,62 @@ function response(
 }
 
 describe("control pre-admission recovery repository", () => {
+  it("normalizes producer defaults while rejecting a missing supplied call state", () => {
+    const source = response("started");
+    const {
+      failure_code: _failureCode,
+      job_id: _jobId,
+      producer_event_ids: _producerEventIds,
+      producer_no_call_reason: _producerNoCallReason,
+      history: sourceHistory,
+      ...attemptWithoutDefaults
+    } = source;
+    const [firstEvent] = sourceHistory;
+    if (!firstEvent) throw new Error("expected one start event");
+    const {
+      failure_code: _eventFailureCode,
+      job_id: _eventJobId,
+      producer_event_ids: _eventProducerEventIds,
+      producer_no_call_reason: _eventProducerNoCallReason,
+      ...eventWithoutDefaults
+    } = firstEvent;
+    const normalized = controlPreAdmissionAttemptResponseSchema.parse({
+      ...attemptWithoutDefaults,
+      history: [eventWithoutDefaults],
+    });
+
+    expect(normalized.producer_event_ids).toEqual([]);
+    expect(normalized.failure_code).toBeNull();
+    expect(normalized.job_id).toBeNull();
+    expect(normalized.producer_no_call_reason).toBeNull();
+    expect(normalized.history[0]).toMatchObject({
+      producer_event_ids: [],
+      producer_no_call_reason: null,
+      failure_code: null,
+      job_id: null,
+    });
+    expect(
+      controlPreAdmissionAttemptResponseSchema.safeParse({
+        ...attemptWithoutDefaults,
+        history: [
+          {
+            ...eventWithoutDefaults,
+            producer_event_observation: undefined,
+          },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      controlPreAdmissionAttemptResponseSchema.safeParse({
+        ...source,
+        producer_event_observation: "no_call",
+        history: source.history.map((event) => ({
+          ...event,
+          producer_event_observation: "no_call",
+        })),
+      }).success,
+    ).toBe(false);
+  });
   it("reuses the exact key across repository instances without persisting body or credentials", async () => {
     const port = memoryPort();
     const first = createControlPreAdmissionRecoveryRepository(port);
@@ -279,8 +340,11 @@ describe("control pre-admission recovery repository", () => {
       createControlPreAdmissionRecoveryRepository(memoryPort());
     const first = await repository.claim(scope, request);
     const malformed = response("refused", null, "research", "no_call");
-    malformed.producer_no_call_reason =
-      "producer_run_binding_not_established" as never;
+    Reflect.set(
+      malformed,
+      "producer_no_call_reason",
+      "producer_run_binding_not_established",
+    );
     await expect(repository.observe(scope, malformed)).rejects.toMatchObject({
       code: "control_pre_admission_recovery_history_invalid",
     });
@@ -294,7 +358,11 @@ describe("control pre-admission recovery repository", () => {
       createControlPreAdmissionRecoveryRepository(memoryPort());
     const first = await repository.claim(scope, request);
     const malformed = response("refused", null, "research", "no_call");
-    malformed.history[1].producer_no_call_reason = "invented_reason" as never;
+    Reflect.set(
+      malformed.history[1],
+      "producer_no_call_reason",
+      "invented_reason",
+    );
     await expect(repository.observe(scope, malformed)).rejects.toMatchObject({
       code: "control_pre_admission_recovery_history_invalid",
     });
@@ -389,13 +457,11 @@ describe("control pre-admission recovery repository", () => {
     ],
     [
       "purpose",
-      (value: ReturnType<typeof response>) => ({
-        ...value,
-        owner_binding: {
-          ...value.owner_binding,
-          purpose: "run.predictive_calibration.v1" as never,
-        },
-      }),
+      (value: ReturnType<typeof response>) => {
+        const ownerBinding = { ...value.owner_binding };
+        Reflect.set(ownerBinding, "purpose", "run.predictive_calibration.v1");
+        return { ...value, owner_binding: ownerBinding };
+      },
     ],
     [
       "body binding",

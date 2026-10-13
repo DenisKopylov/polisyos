@@ -1,0 +1,286 @@
+"""Shared strict reader for persisted canonical JSON profile declarations.
+
+This module owns raw-manifest parsing and byte-conformance mechanics only.
+Callers must supply the decoder and encoder from the actual public codec
+facade so Core and IR retain their distinct typed-tag sets and exception types.
+"""
+
+from __future__ import annotations
+
+import json
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, cast
+
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+
+CanonicalProfileStatus = Literal[
+    "declared_bytes_conformant",
+    "profile_absent_unqualified_candidate",
+    "declared_unknown_candidate",
+]
+CanonicalProfileDeclarationStatus = Literal["declared", "absent", "declared_unknown_candidate"]
+_VERIFIED_READ_TOKEN = object()
+
+
+class CanonicalProfileRefusalError(ValueError):
+    """A typed refusal to consume a malformed or nonconformant profile view."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+class _ProfileLike(Protocol):
+    name: str
+    version: str
+    max_depth: int
+
+
+@dataclass(frozen=True)
+class CanonicalProfileDeclaration:
+    """A complete strict profile or a truly absent declaration."""
+
+    profile: BaseModel | None
+    status: CanonicalProfileDeclarationStatus
+
+
+@dataclass(frozen=True, init=False)
+class CanonicalProfileRead:
+    """Decoded bytes with profile status and selected identity.
+
+    ``value`` is available only for a declared, byte-conformant profile. An
+    explicitly requested unqualified legacy read is candidate-only and must use
+    ``unqualified_candidate_value`` so callers cannot mistake it for verified
+    semantic input.
+    """
+
+    _decoded_value: Any
+    raw_payload_bytes: bytes
+    status: CanonicalProfileStatus
+    selected_artifact_id: str | None
+    selected_manifest_profile_sha256: str | None
+    _reader_validated: bool
+
+    def __init__(
+        self,
+        value: Any,  # noqa: ANN401
+        raw_payload_bytes: bytes,
+        status: CanonicalProfileStatus,
+        selected_artifact_id: str | None = None,
+        selected_manifest_profile_sha256: str | None = None,
+        *,
+        _validation_token: object | None = None,
+    ) -> None:
+        object.__setattr__(self, "_decoded_value", value)
+        object.__setattr__(self, "raw_payload_bytes", raw_payload_bytes)
+        object.__setattr__(self, "status", status)
+        object.__setattr__(self, "selected_artifact_id", selected_artifact_id)
+        object.__setattr__(
+            self, "selected_manifest_profile_sha256", selected_manifest_profile_sha256
+        )
+        object.__setattr__(self, "_reader_validated", _validation_token is _VERIFIED_READ_TOKEN)
+
+    @property
+    def value(self) -> Any:  # noqa: ANN401
+        """Return a value whose selected bytes matched a declared profile."""
+        if self.status != "declared_bytes_conformant" or not self._reader_validated:
+            raise CanonicalProfileRefusalError("canon_profile_not_verified")
+        return self._decoded_value
+
+    @property
+    def unqualified_candidate_value(self) -> Any:  # noqa: ANN401
+        """Return an explicitly unqualified value for candidate-only inspection."""
+        if self.status != "profile_absent_unqualified_candidate" or not self._reader_validated:
+            raise CanonicalProfileRefusalError("canon_profile_candidate_read_not_unqualified")
+        return self._decoded_value
+
+    @property
+    def raw_only_candidate_bytes(self) -> bytes:
+        """Return exact bytes for a declared but unsupported profile, without decoding."""
+        if self.status != "declared_unknown_candidate" or not self._reader_validated:
+            raise CanonicalProfileRefusalError("canon_profile_candidate_read_not_raw_only")
+        return self.raw_payload_bytes
+
+
+def require_declared_profile(read: CanonicalProfileRead) -> Any:  # noqa: ANN401
+    """Return a value only when its selected bytes matched a declared profile.
+
+    This is the shared intake guard for authority, promotion, and issuer owners.
+    An explicitly unqualified candidate read is never a substitute for that
+    verification, even when its payload happens to decode under current defaults.
+    """
+    if (
+        type(read) is not CanonicalProfileRead
+        or read.status != "declared_bytes_conformant"
+        or not read._reader_validated
+    ):
+        raise CanonicalProfileRefusalError("canon_profile_not_verified")
+    return read.value
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON object key")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> NoReturn:
+    raise ValueError(f"invalid JSON numeric constant: {value}")
+
+
+def parse_canonical_profile(
+    raw_manifest_bytes: bytes,
+    *,
+    profile_model: type[BaseModel],
+    allow_profile_absent: bool,
+) -> CanonicalProfileDeclaration:
+    """Parse and fully validate the raw selected profile before blob I/O."""
+    if type(raw_manifest_bytes) is not bytes:
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_invalid")
+    try:
+        manifest = json.loads(
+            raw_manifest_bytes,
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_json_constant,
+        )
+    except (UnicodeDecodeError, ValueError, TypeError) as exc:
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_invalid") from exc
+    if not isinstance(manifest, Mapping):
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_invalid")
+    if "canon" not in manifest:
+        if not allow_profile_absent:
+            raise CanonicalProfileRefusalError("canon_profile_absent")
+        return CanonicalProfileDeclaration(profile=None, status="absent")
+
+    raw_canon = manifest["canon"]
+    if not isinstance(raw_canon, Mapping):
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    payload = dict(raw_canon)
+    if set(profile_model.model_fields) - set(payload):
+        raise CanonicalProfileRefusalError("canon_profile_incomplete")
+    separators = payload.get("separators")
+    if type(separators) is list and len(separators) == 2 and all(
+        type(separator) is str for separator in separators
+    ):
+        payload["separators"] = tuple(separators)
+    try:
+        profile = cast("_ProfileLike", profile_model.model_validate(payload, strict=True))
+        supported = cast("_ProfileLike", profile_model())
+    except (TypeError, ValueError) as exc:
+        raise CanonicalProfileRefusalError("canon_profile_invalid") from exc
+
+    if type(profile.max_depth) is not int or profile.max_depth < 0:
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    if profile.name != supported.name or profile.version != supported.version:
+        return CanonicalProfileDeclaration(
+            profile=profile,
+            status="declared_unknown_candidate",
+        )
+    return CanonicalProfileDeclaration(profile=profile, status="declared")
+
+
+def decode_profiled_canonical_bytes(
+    raw_payload_bytes: bytes,
+    declaration: CanonicalProfileDeclaration,
+    *,
+    profile_model: type[BaseModel],
+    make_spec: Callable[[BaseModel], object],
+    decode: Callable[[bytes, int], Any],
+    encode: Callable[[Any, object], bytes],
+) -> CanonicalProfileRead:
+    """Decode and re-encode using the already validated selected declaration."""
+    if type(raw_payload_bytes) is not bytes:
+        raise CanonicalProfileRefusalError("canon_profile_payload_bytes_invalid")
+    if declaration.status == "declared_unknown_candidate":
+        return CanonicalProfileRead(
+            value=None,
+            raw_payload_bytes=raw_payload_bytes,
+            status="declared_unknown_candidate",
+            _validation_token=_VERIFIED_READ_TOKEN,
+        )
+    if declaration.profile is None:
+        default = profile_model()
+        value = decode(raw_payload_bytes, cast("_ProfileLike", default).max_depth)
+        return CanonicalProfileRead(
+            value=value,
+            raw_payload_bytes=raw_payload_bytes,
+            status="profile_absent_unqualified_candidate",
+            _validation_token=_VERIFIED_READ_TOKEN,
+        )
+
+    profile = declaration.profile
+    try:
+        value = decode(raw_payload_bytes, profile.max_depth)
+        expected_bytes = encode(value, make_spec(profile))
+    except Exception as exc:
+        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant") from exc
+    if type(expected_bytes) is not bytes or expected_bytes != raw_payload_bytes:
+        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant")
+    return CanonicalProfileRead(
+        value=value,
+        raw_payload_bytes=raw_payload_bytes,
+        status="declared_bytes_conformant",
+        _validation_token=_VERIFIED_READ_TOKEN,
+    )
+
+
+def _bind_selected_artifact_identity(
+    read: CanonicalProfileRead,
+    *,
+    artifact_id: str,
+    manifest_profile_sha256: str,
+) -> CanonicalProfileRead:
+    """Bind the verified result to the exact selected Core manifest identity."""
+    if type(read) is not CanonicalProfileRead or not read._reader_validated:
+        raise CanonicalProfileRefusalError("canon_profile_read_not_verified")
+    return CanonicalProfileRead(
+        value=read._decoded_value,
+        raw_payload_bytes=read.raw_payload_bytes,
+        status=read.status,
+        selected_artifact_id=artifact_id,
+        selected_manifest_profile_sha256=manifest_profile_sha256,
+        _validation_token=_VERIFIED_READ_TOKEN,
+    )
+
+
+def read_canonical_profiled_bytes(
+    raw_manifest_bytes: bytes,
+    raw_payload_bytes: bytes,
+    *,
+    profile_model: type[BaseModel],
+    make_spec: Callable[[BaseModel], object],
+    decode: Callable[[bytes, int], Any],
+    encode: Callable[[Any, object], bytes],
+    allow_profile_absent: bool,
+) -> CanonicalProfileRead:
+    """Parse, validate, decode, and verify a complete selected artifact view."""
+    declaration = parse_canonical_profile(
+        raw_manifest_bytes,
+        profile_model=profile_model,
+        allow_profile_absent=allow_profile_absent,
+    )
+    return decode_profiled_canonical_bytes(
+        raw_payload_bytes,
+        declaration,
+        profile_model=profile_model,
+        make_spec=make_spec,
+        decode=decode,
+        encode=encode,
+    )
+
+
+__all__ = [
+    "CanonicalProfileDeclaration",
+    "CanonicalProfileRead",
+    "CanonicalProfileRefusalError",
+    "CanonicalProfileStatus",
+    "decode_profiled_canonical_bytes",
+    "parse_canonical_profile",
+    "read_canonical_profiled_bytes",
+    "require_declared_profile",
+]

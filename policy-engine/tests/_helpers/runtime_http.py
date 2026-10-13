@@ -1598,7 +1598,7 @@ def build_runtime_api_env(
         },
         kind="scientist.workflow_spec",
     )
-    equilibrium_report_ref = _put_json(
+    equilibrium_report_ref = _put_json_raw(
         store,
         {
             "schema_version": "1.0",

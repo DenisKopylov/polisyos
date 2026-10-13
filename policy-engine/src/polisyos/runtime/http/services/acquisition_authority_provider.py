@@ -5,7 +5,9 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import canon
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.runtime.http.deployment_security import (
     RuntimeDeploymentSecurity,
     require_factory_produced_deployment_security,
@@ -369,7 +371,7 @@ class ProductionAcquisitionAuthorityProvider:
         """Reopen the exact worker decision and all authority inputs after a process restart."""
         self._require_worker_decision_verification()
         decision = AgentActionAuthorityDecision.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(decision_ref))
+            require_declared_profile(read_core_json_artifact(self._store, decision_ref))
         )
         if agent_action_content_hash(decision) != decision_ref:
             raise AgentActionAuthorityRecordingError("acquisition decision content mismatch")

@@ -587,7 +587,10 @@ def test_graph_only_cpdag_ci_is_a_typed_limitation() -> None:
 
 
 def test_partial_discovery_report_skips_graph_derived_constraint_families() -> None:
-    from polisyos.ir.analytics.causal_graph import GraphProjectionStatus, graph_projection_disposition
+    from polisyos.ir.analytics.causal_graph import (
+        GraphProjectionStatus,
+        graph_projection_disposition,
+    )
 
     graph = CausalGraphModel(
         graph_type=GraphType.PAG,

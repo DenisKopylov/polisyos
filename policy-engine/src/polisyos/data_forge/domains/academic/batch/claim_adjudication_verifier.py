@@ -16,7 +16,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts
 from polisyos.ir.analytics import (
     AdmittedClaimAdjudicationBatch,
     ClaimAdjudicationInputBatch,
@@ -185,7 +185,8 @@ class ClaimAdjudicationVerifier:
             raise ValueError("claim_adjudication_duplicate_evaluator_appointment")
 
     def _load(self, ref: str) -> object:
-        return canon.from_canonical_bytes(self._store.get_bytes(artifacts.ArtifactID(ref)))
+        from polisyos.core.artifacts import load_core_json_artifact
+        return load_core_json_artifact(self._store, artifacts.ArtifactID(ref))
 
     def _authenticate(self, receipt_ref: str, *, purpose: str) -> _Receipt:
         if not self._appointments:

@@ -1212,10 +1212,19 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
         raise PredictiveCalibrationError("predictive_calibration_association_manifest_mismatch")
     if not store.verify(ref).ok:
         raise PredictiveCalibrationError("predictive_calibration_association_integrity_failed")
-    payload = ensure_ir_artifact_store(store).get_bytes(ref)
-    association = PredictiveCalibrationAssociation.model_validate(
-        json.loads(payload.decode("utf-8"))
-    )
+    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
+    from polisyos.ir.model_layer.canon import CanonViolation
+
+    try:
+        payload, _raw_payload = _get_json_artifact_with_bytes(
+            ensure_ir_artifact_store(store),
+            ref,
+        )
+    except CanonViolation as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_association_profile_unverified"
+        ) from exc
+    association = PredictiveCalibrationAssociation.model_validate(payload)
     _validate_association_input_edges(manifest, association)
     return association
 
@@ -1422,6 +1431,7 @@ def _read_event_payload(
     record: ControlDiagnosticEventRecord,
 ) -> dict[str, Any]:
     """Read event payload and verify its append-only payload hash."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     payload = getattr(record, "payload_inline", None)
     payload_ref = getattr(record, "payload_ref", None)
@@ -1431,7 +1441,9 @@ def _read_event_payload(
         raw = store.get_bytes(ArtifactID.model_validate(payload_ref))
         payload_bytes = raw
         try:
-            payload = json.loads(raw.decode("utf-8"))
+            payload = load_core_json_artifact(
+                store, ArtifactID.model_validate(payload_ref), raw_payload_bytes=raw
+            )
         except (UnicodeDecodeError, ValueError) as exc:
             raise PredictiveCalibrationError(
                 "predictive_calibration_event_payload_invalid"

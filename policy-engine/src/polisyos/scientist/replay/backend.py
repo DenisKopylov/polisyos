@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.core.artifacts.environment import EnvironmentDiff, RiskLevel
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
     ExecuteRequest,
@@ -200,6 +199,7 @@ def load_dead_letter(
     artifact_id: ArtifactID,
 ) -> DeadLetterRecord:
     """Load one persisted dead-letter artifact."""
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         manifest = store.get_manifest(artifact_id)
     except FileNotFoundError as exc:
@@ -211,7 +211,7 @@ def load_dead_letter(
         )
 
     try:
-        payload = from_canonical_bytes(store.get_bytes(artifact_id))
+        payload = load_core_json_artifact(store, artifact_id)
     except Exception as exc:
         raise DeadLetterCorruptedError(
             f"dead-letter artifact {artifact_id} could not be decoded",

@@ -402,7 +402,8 @@ class AdaptationTransitionRuntime:
         return reference
 
     def _load[T: _CandidateRecord](self, reference: str, record_type: type[T]) -> T:
-        record = record_type.model_validate_json(self._cas.get_bytes(reference))
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+        record = validate_core_model_json_artifact(record_type, self._cas, reference)
         manifest = self._cas.get_manifest(reference)
         if (
             manifest.kind != record_type.artifact_kind

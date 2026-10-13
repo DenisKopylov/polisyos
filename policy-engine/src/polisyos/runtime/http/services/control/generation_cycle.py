@@ -11,6 +11,10 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.contracts import (
     AgentPipelineCostEvent,
     ControlJobResponse,
@@ -491,7 +495,7 @@ def _read_normative_run_disposition_v1(
             selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
         )
         raw = store.get_bytes(selected_ref)
-        manifest = store.get_manifest(selected_ref)
+        manifest = read_core_manifest_profile(store, selected_ref)[0]
     except (TypeError, ValueError, KeyError, OSError) as exc:
         raise P20NormativeChoiceError("p20_normative_outer_v1_unavailable") from exc
     if (
@@ -510,7 +514,7 @@ def _read_normative_run_disposition_v1(
     ):
         raise P20NormativeChoiceError("p20_normative_outer_v1_schema_mismatch")
     try:
-        payload = canon.from_canonical_bytes(raw)
+        payload = read_core_json_artifact(store, selected_ref, raw_payload_bytes=raw).value
         _assert_normative_run_disposition_v1_shape(payload)
         recorded = NormativeRunDisposition.model_validate(payload)
     except P20NormativeChoiceError:
@@ -569,10 +573,10 @@ def _read_normative_source(
         selected_ref.artifact_id if isinstance(selected_ref, ArtifactRef) else selected_ref
     )
     raw = store.get_bytes(selected_ref)
-    manifest = store.get_manifest(selected_ref)
+    manifest = read_core_manifest_profile(store, selected_ref)[0]
     if str(artifact_id) != f"sha256:{canon.content_hash(raw)}" or manifest.kind != kind:
         raise P20NormativeChoiceError("p20_normative_compiled_source_mismatch")
-    payload = canon.from_canonical_bytes(raw)
+    payload = read_core_json_artifact(store, selected_ref, raw_payload_bytes=raw).value
     if not isinstance(payload, dict):
         raise P20NormativeChoiceError("p20_normative_compiled_source_invalid")
     return payload

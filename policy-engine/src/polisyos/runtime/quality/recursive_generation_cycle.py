@@ -818,7 +818,8 @@ class RecursiveLeafContextOwner:
         expected_cell_id: str,
     ) -> RecursiveLeafContextCapsule:
         """Resolve historical CAS evidence and current configuration without an old lease."""
-        from polisyos.core import artifacts, canon
+        from polisyos.core import artifacts
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 
         if (
@@ -830,7 +831,9 @@ class RecursiveLeafContextOwner:
         raw = self._store.get_bytes(ref)
         if str(ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
             raise RecursiveGenerationCycleError("recursive_leaf_capsule_cas_content_mismatch")
-        capsule = RecursiveLeafContextCapsule.model_validate(canon.from_canonical_bytes(raw))
+        capsule = RecursiveLeafContextCapsule.model_validate(
+            load_core_json_artifact(self._store, ref, raw_payload_bytes=raw)
+        )
         if (capsule.node_ref, capsule.parent_ref, capsule.problem) != (
             node_ref,
             parent_ref,
@@ -1097,7 +1100,7 @@ class RecursiveLeafContextOwner:
         source_repository: GenerationSourceRepository,
     ) -> RecursiveN4ChildProfileSetV1:
         """Resolve the exact persisted set against real source and historical owners."""
-        from polisyos.core import canon
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
         from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
         from polisyos.runtime.quality.generation_source import (
@@ -1115,7 +1118,9 @@ class RecursiveLeafContextOwner:
         raw = self._store.get_bytes(ref)
         if str(ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
             raise RecursiveGenerationCycleError("recursive_n4_child_profile_set_cas_mismatch")
-        family = RecursiveN4ChildProfileSetV1.model_validate(canon.from_canonical_bytes(raw))
+        family = RecursiveN4ChildProfileSetV1.model_validate(
+            load_core_json_artifact(self._store, ref, raw_payload_bytes=raw)
+        )
         if (
             family.job_id,
             family.run_id,
@@ -1384,6 +1389,7 @@ class RecursiveLeafContextOwner:
         """Bind the N5 callback to the persisted family and exact child capsule."""
 
         def require_current() -> bool:
+            from polisyos.core.artifacts import load_core_json_artifact
             family = self.require_current_n4_child_profile_set(
                 capsule.n4_child_profile_set_ref,
                 expected_parent_handoff=parent_handoff,
@@ -1405,7 +1411,6 @@ class RecursiveLeafContextOwner:
                 raise RecursiveGenerationCycleError(
                     "recursive_generic_capsule_family_binding_mismatch"
                 )
-            from polisyos.core import canon
 
             if (
                 capsule_ref.kind != "runtime.quality.recursive_leaf_context"
@@ -1416,7 +1421,7 @@ class RecursiveLeafContextOwner:
             if str(capsule_ref.artifact_id) != "sha256:" + hashlib.sha256(body).hexdigest():
                 raise RecursiveGenerationCycleError("recursive_generic_capsule_cas_mismatch")
             replayed = RecursiveLeafContextCapsuleV2.model_validate(
-                canon.from_canonical_bytes(body)
+                load_core_json_artifact(self._store, capsule_ref, raw_payload_bytes=body)
             )
             manifest = self._store.get_manifest(capsule_ref)
             from polisyos.core.artifacts.manifest import (

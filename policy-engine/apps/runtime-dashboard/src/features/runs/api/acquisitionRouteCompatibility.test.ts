@@ -11,11 +11,14 @@ import {
   narrowAcquisitionRouteCollection,
   narrowAcquisitionRouteDetail,
 } from "./useAcquisitionRoutes";
+import {
+  acquisitionDecisionRequestResponseSchema,
+  acquisitionExecutionResponseSchema,
+} from "./acquisitionRouteValidators";
 import { narrowDepthNCycleBoardHeroProjection } from "./useDepthNCycleBoardProjection";
 
 function pendingRoute() {
   return {
-    admitted_observation_delta: 0,
     authority_badge: "behavioral_fixture_not_production",
     authority_capability: "producer_missing",
     cell_id: "cell-1",
@@ -40,9 +43,10 @@ function pendingRoute() {
     route_projection_hash: "sha256:route",
     route_status: "costed_actionable",
     run_id: "run-a",
-    schema_version: "AcquisitionRouteProjection@1.0",
+    schema_version: "AcquisitionRouteProjection@1.1",
     tenant_id: "tenant-1",
-    world_growth: "no_growth",
+    world_growth: "not_established",
+    admitted_observation_delta: null,
   };
 }
 
@@ -58,6 +62,18 @@ function activeRoute() {
   };
 }
 
+function noGrowthRoute() {
+  return {
+    ...pendingRoute(),
+    admitted_observation_delta: 0,
+    authority_badge: "native_owner_verified",
+    qualification_predicate: "independently_reconciled",
+    qualification_reason: "native_owner_readback",
+    qualification_status: "activated",
+    world_growth: "no_growth",
+  };
+}
+
 function captured(packet: unknown) {
   return {
     packet,
@@ -66,7 +82,7 @@ function captured(packet: unknown) {
 }
 
 describe("current acquisition projection compatibility", () => {
-  it.each([pendingRoute(), activeRoute()])(
+  it.each([pendingRoute(), activeRoute(), noGrowthRoute()])(
     "preserves the whole actual route posture through list and detail: $qualification_status",
     (route) => {
       const detail = captured(route);
@@ -88,6 +104,11 @@ describe("current acquisition projection compatibility", () => {
 
       const visible = presentRunAcquisitionRoute(selected.packet);
       expect(visible.qualification.status).toBe(route.qualification_predicate);
+      expect(visible.worldGrowth).toBe(
+        route.qualification_status === "pending_epoch_activation"
+          ? "not_established"
+          : route.world_growth,
+      );
       expect(visible.route.external_nonclosures).toEqual(
         route.external_nonclosures,
       );
@@ -96,8 +117,13 @@ describe("current acquisition projection compatibility", () => {
     },
   );
 
-  it("preserves the older negative representation without inventing its missing delta", () => {
-    const { admitted_observation_delta: _delta, ...legacy } = pendingRoute();
+  it("preserves a v1.0 pending packet without inventing its missing delta", () => {
+    const { admitted_observation_delta: _delta, ...current } = pendingRoute();
+    const legacy = {
+      ...current,
+      schema_version: "AcquisitionRouteProjection@1.0",
+      world_growth: "no_growth",
+    };
     const result = narrowAcquisitionRouteDetail(
       "run-a",
       "sha256:route",
@@ -105,12 +131,86 @@ describe("current acquisition projection compatibility", () => {
     );
     expect(result.packet).toEqual(legacy);
     expect(result.packet).not.toHaveProperty("admitted_observation_delta");
+    expect(presentRunAcquisitionRoute(result.packet).worldGrowth).toBe(
+      "not_established",
+    );
+  });
+
+  it("downgrades the former pending no-growth default to unknown", () => {
+    const legacy = {
+      ...pendingRoute(),
+      admitted_observation_delta: 0,
+      schema_version: "AcquisitionRouteProjection@1.0",
+      world_growth: "no_growth",
+    };
+    const result = narrowAcquisitionRouteDetail(
+      "run-a",
+      "sha256:route",
+      captured(legacy),
+    );
+    expect(presentRunAcquisitionRoute(result.packet).worldGrowth).toBe(
+      "not_established",
+    );
+  });
+
+  it("parses current and legacy decision-request responses without treating an old default as zero", () => {
+    const current = {
+      authority_decision_ref: "sha256:decision",
+      outcome: "decision_required",
+      route_id: "sha256:route",
+      run_id: "run-a",
+      world_growth: "not_established",
+    };
+    expect(acquisitionDecisionRequestResponseSchema.parse(current)).toEqual(
+      current,
+    );
+    expect(
+      acquisitionDecisionRequestResponseSchema.parse({
+        ...current,
+        world_growth: "no_growth",
+      }).world_growth,
+    ).toBe("not_established");
+    expect(() =>
+      acquisitionDecisionRequestResponseSchema.parse({
+        ...current,
+        world_growth: "admitted_delta",
+      }),
+    ).toThrow();
+  });
+
+  it("parses current and legacy accepted-job responses but rejects a measured outcome", () => {
+    const current = {
+      authority_decision_ref: "sha256:decision",
+      job_id: "job-1",
+      receipt_phase: "requested",
+      route_id: "sha256:route",
+      run_id: "run-a",
+      status: "accepted",
+      world_growth: "not_established",
+    };
+    expect(acquisitionExecutionResponseSchema.parse(current)).toEqual(current);
+    expect(
+      acquisitionExecutionResponseSchema.parse({
+        ...current,
+        world_growth: "no_growth",
+      }).world_growth,
+    ).toBe("not_established");
+    expect(() =>
+      acquisitionExecutionResponseSchema.parse({
+        ...current,
+        world_growth: "admitted_delta",
+      }),
+    ).toThrow();
   });
 
   it.each([
     { ...activeRoute(), admitted_observation_delta: 0 },
     { ...activeRoute(), admitted_observation_delta: undefined },
     { ...activeRoute(), qualification_predicate: "not_established" },
+    { ...noGrowthRoute(), admitted_observation_delta: null },
+    { ...noGrowthRoute(), admitted_observation_delta: 1 },
+    { ...activeRoute(), world_growth: "not_established" },
+    { ...pendingRoute(), admitted_observation_delta: 0 },
     { ...pendingRoute(), admitted_observation_delta: 1 },
     { ...activeRoute(), authority_badge: "publishable" },
     { ...activeRoute(), publishable: true },

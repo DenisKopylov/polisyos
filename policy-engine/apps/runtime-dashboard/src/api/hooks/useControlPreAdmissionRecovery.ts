@@ -5,14 +5,14 @@ import {
   controlPreAdmissionRecoveryRepository,
   type ControlPreAdmissionRecoveryScope,
 } from "../controlPreAdmissionRecovery";
-import type { components } from "../types";
+import type { ControlPreAdmissionAttemptResponse } from "../validators";
 import {
   fetchControlPreAdmissionAttemptByIdempotencyKey,
   fetchControlPreAdmissionAttemptStatus,
 } from "./useControlPreAdmissionAttemptStatus";
 
 export type ControlPreAdmissionRecoveryResponse =
-  components["schemas"]["ControlPreAdmissionAttemptResponse"];
+  ControlPreAdmissionAttemptResponse;
 export type ControlPreAdmissionRecoveryData = Readonly<{
   record: NonNullable<
     Awaited<ReturnType<typeof controlPreAdmissionRecoveryRepository.read>>

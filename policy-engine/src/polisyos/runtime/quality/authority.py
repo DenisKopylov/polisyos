@@ -19,8 +19,10 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_ARTIFACT_KIND,
     SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
@@ -1450,7 +1452,9 @@ def _strict_eval_safety_surface_payload(
         return True, None, "eval_safety_projection_schema_mismatch"
 
     try:
-        stored_payload = canon.from_canonical_bytes(artifact_store.get_bytes(artifact_id))
+        stored_payload = require_declared_profile(
+            read_core_json_artifact(artifact_store, artifact_id)
+        )
         projection = EvalSafetyMetricsProjection.model_validate(stored_payload)
     except (OSError, UnicodeError, ValueError):
         return True, None, "eval_safety_projection_payload_invalid"
@@ -1674,7 +1678,9 @@ def _selected_manifest_authority_payload(
         if not getattr(verification, "ok", False):
             return True, None, "selected_manifest_authority_integrity_failed"
         artifact_store.get_manifest(envelope_ref)
-        envelope_payload = canon.from_canonical_bytes(artifact_store.get_bytes(envelope_ref))
+        envelope_payload = require_declared_profile(
+            read_core_json_artifact(artifact_store, envelope_ref)
+        )
     except Exception:
         return True, None, "selected_manifest_authority_resolution_failed"
 
@@ -1703,7 +1709,9 @@ def _surface_authority_payload(
         return payload
 
     try:
-        stored_payload = canon.from_canonical_bytes(artifact_store.get_bytes(artifact_id))
+        stored_payload = require_declared_profile(
+            read_core_json_artifact(artifact_store, artifact_id)
+        )
     except Exception:
         stored_payload = None
     if isinstance(stored_payload, Mapping) and _has_payload_authority_signal(stored_payload):
@@ -1725,7 +1733,13 @@ def _surface_authority_payload(
             return payload
         artifact_store.get_manifest(envelope_ref)
         envelope_bytes = artifact_store.get_bytes(envelope_ref)
-        envelope_payload = canon.from_canonical_bytes(envelope_bytes)
+        envelope_payload = require_declared_profile(
+            read_core_json_artifact(
+                artifact_store,
+                envelope_ref,
+                raw_payload_bytes=envelope_bytes,
+            )
+        )
     except Exception:
         return payload
     if isinstance(envelope_payload, Mapping):

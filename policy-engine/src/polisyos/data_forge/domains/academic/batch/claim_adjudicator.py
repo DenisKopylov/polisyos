@@ -20,7 +20,7 @@ from polisyos.core.artifacts import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
     ClaimAdjudicationVerifier,
 )
@@ -267,6 +267,7 @@ def _validate_input_batch(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ClaimAdjudicationInputBatch:
+    from polisyos.core.artifacts import load_core_json_artifact
     manifest = store.get_manifest(ref)
     if manifest.kind != _INPUT_KIND:
         raise ValueError(f"unexpected claim-adjudication input kind: {manifest.kind}")
@@ -274,7 +275,7 @@ def _validate_input_batch(
         raise ValueError("claim-adjudication input schema mismatch")
     if manifest.producer is None or str(manifest.producer.component) != _INPUT_PRODUCER:
         raise ValueError("claim-adjudication input producer mismatch")
-    batch = ClaimAdjudicationInputBatch.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    batch = ClaimAdjudicationInputBatch.model_validate(load_core_json_artifact(store, ref))
     expected_inputs = {"extraction_source": batch.source_artifact_ref}
     if batch.retraction_artifact_ref is not None:
         expected_inputs["retraction_source"] = batch.retraction_artifact_ref
@@ -291,6 +292,7 @@ def load_admitted_claim_adjudication_batch(
     verifier: ClaimAdjudicationVerifier | None = None,
 ) -> tuple[AdmittedClaimAdjudicationBatch, ArtifactRef]:
     """Resolve and verify the sole authority-bearing adjudication receipt."""
+    from polisyos.core.artifacts import load_core_json_artifact
     active_store = _active_store(config, store)
     resolved_ref = result_ref or _read_ref(config.claim_adjudication_result_ref_path)
     manifest = active_store.get_manifest(resolved_ref)
@@ -301,7 +303,7 @@ def load_admitted_claim_adjudication_batch(
     if manifest.producer is None or str(manifest.producer.component) != _RESULT_PRODUCER:
         raise ValueError("claim-adjudication result producer mismatch")
     batch = AdmittedClaimAdjudicationBatch.model_validate(
-        from_canonical_bytes(active_store.get_bytes(resolved_ref))
+        load_core_json_artifact(active_store, resolved_ref)
     )
     actual_inputs = _strict_lineage(manifest.inputs)
     if set(actual_inputs) != {

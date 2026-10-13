@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 
 type Path = Any
 _Path = __import__("pathlib", fromlist=("Path",)).Path
@@ -604,8 +604,9 @@ def load_foundry_phase2_closure_report(
     ref: ArtifactRef,
 ) -> FoundryPhase2ClosureReport:
     """Load the canonical Phase 2 closure report from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return FoundryPhase2ClosureReport.model_validate(payload)
 
 

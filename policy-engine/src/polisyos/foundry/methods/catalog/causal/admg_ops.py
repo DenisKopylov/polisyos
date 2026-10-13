@@ -31,6 +31,7 @@ topological_order         – Kahn's algorithm (directed edges only)
 from __future__ import annotations
 
 import hashlib
+import json
 from collections import OrderedDict, deque
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -153,6 +154,32 @@ def _graph_content_cache_key(graph: CausalGraphModel) -> str:
         ) from exc
 
 
+def _canonical_snapshot_content_key(graph: CausalGraphModel) -> str:
+    """Hash a snapshot that has already passed full canonical IR validation."""
+    from pydantic import BaseModel
+
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+    if type(graph) is not CausalGraphModel:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: cache keys require a canonical graph snapshot."
+        )
+    try:
+        payload = BaseModel.model_dump(graph, mode="json")
+        encoded = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise InvalidCausalGraphProfileError(
+            "Unsupported static ADMG profile: canonical graph lacks a content identity."
+        ) from exc
+
+
 def _validate_static_adjacency_profile(graph: CausalGraphModel) -> None:
     """Validate every edge profile before a content-cache lookup."""
     from polisyos.ir.analytics.causal_graph import EdgeMark
@@ -184,13 +211,12 @@ def _get_cached_adjacency(graph: CausalGraphModel) -> CachedAdjacency:
     # bypass the current graph kind, endpoint, lag, or metadata fields.
     canonical = canonical_scalar_query_graph(graph)
     _validate_static_adjacency_profile(canonical)
-    key = _graph_content_cache_key(canonical)
+    key = _canonical_snapshot_content_key(canonical)
     cached = _ADJ_CACHE.get(key)
     if cached is not None:
-        if _graph_content_cache_key(cached.graph) != key:
-            raise InvalidCausalGraphProfileError(
-                "Unsupported static ADMG profile: canonical content digest collision."
-            )
+        # The caller was fully revalidated and hashed above. Cache values are
+        # detached canonical snapshots created under this content key, so
+        # rehashing the stored value would repeat the same O(n) canonical work.
         _ADJ_CACHE.move_to_end(key)
         return cached
 

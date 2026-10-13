@@ -12,6 +12,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    ValidationError,
     field_serializer,
     field_validator,
     model_validator,
@@ -312,66 +313,24 @@ def _resolve_reader_source(
     )
 
 
-def load_reconciled_targets(
-    root: str | Path | None = None,
+def _artifacts_from_resolved_source(
+    resolved: ResolvedDemographySource,
     *,
-    layout: _DemographyLayout | None = None,
-    source: DemographySourceRequest | None = None,
-) -> DemographyRoleProjection:
-    """Load targets as a ``DemographyRoleProjection`` implementing ``Mapping``.
-
-    The projection preserves mapping-style reads and exposes its source evidence.
-    """
-    resolved = _resolve_reader_source(
-        root, layout, source, standalone_member="targets"
-    )
-    return read_demography_role(resolved, "targets")
-
-
-def load_transition_priors(
-    root: str | Path | None = None,
-    *,
-    layout: _DemographyLayout | None = None,
-    source: DemographySourceRequest | None = None,
-) -> DemographyRoleProjection:
-    """Load priors as a ``DemographyRoleProjection`` implementing ``Mapping``.
-
-    The projection preserves mapping-style reads and exposes its source evidence.
-    """
-    resolved = _resolve_reader_source(
-        root, layout, source, standalone_member="priors"
-    )
-    return read_demography_role(resolved, "priors")
-
-
-def load_donor_pool(
-    root: str | Path | None = None,
-    *,
-    layout: _DemographyLayout | None = None,
-    source: DemographySourceRequest | None = None,
-) -> DemographyRoleProjection:
-    """Load donors as a ``DemographyRoleProjection`` implementing ``Mapping``.
-
-    The projection preserves mapping-style reads and exposes its source evidence.
-    """
-    resolved = _resolve_reader_source(
-        root, layout, source, standalone_member="donor"
-    )
-    return read_demography_role(resolved, "donor")
-
-
-def load_demography_artifacts(
-    root: str | Path | None = None,
-    *,
-    layout: _DemographyLayout | None = None,
-    source: DemographySourceRequest | None = None,
+    allow_unknown_optional_donor: bool = False,
 ) -> UkraineDemographyArtifacts:
-    """Resolve one snapshot before projecting targets, priors, and donor inputs."""
-    resolved = _resolve_reader_source(root, layout, source)
+    """Validate every present member in one resolved snapshot as a typed bundle."""
     targets = read_demography_role(resolved, "targets").payload
     priors = read_demography_role(resolved, "priors").payload
-    donor = read_demography_role(resolved, "donor").payload
-    payload = {**targets, **priors, **donor}
+    payload = {**targets, **priors}
+    unknown_optional_donor_absent = (
+        allow_unknown_optional_donor
+        and resolved.status == "candidate_only"
+        and resolved.donor_disposition == "not_established"
+        and resolved.evidence.donor_disposition == "not_established"
+        and "donor.json" not in resolved.member_bytes
+    )
+    if not unknown_optional_donor_absent:
+        payload.update(read_demography_role(resolved, "donor").payload)
     legacy_entrant_omission = "entrant_state_totals" not in payload
     if legacy_entrant_omission:
         if resolved.status != "legacy_limited":
@@ -426,8 +385,91 @@ def load_demography_artifacts(
     if resolved.evidence.source_layout is not None:
         payload["metadata"]["demography_layout"] = resolved.evidence.source_layout
     payload["source_evidence"] = resolved.evidence
-    return UkraineDemographyArtifacts.model_validate(payload)
+    try:
+        return UkraineDemographyArtifacts.model_validate(payload)
+    except ValidationError as exc:
+        if resolved.status != "candidate_only":
+            raise
+        raise SourceResolutionRefusalError(
+            "demography_bundle_invalid",
+            "candidate demographic members do not form one valid typed snapshot",
+        ) from exc
 
+
+def _read_demography_role(
+    root: str | Path | None,
+    *,
+    layout: _DemographyLayout | None,
+    source: DemographySourceRequest | None,
+    role: Literal["targets", "priors", "donor"],
+    standalone_member: Literal["targets", "priors", "donor"],
+) -> DemographyRoleProjection:
+    """Validate candidate snapshots as a whole before returning one role."""
+    resolved = _resolve_reader_source(
+        root, layout, source, standalone_member=standalone_member
+    )
+    if resolved.status == "candidate_only":
+        _artifacts_from_resolved_source(
+            resolved,
+            allow_unknown_optional_donor=role in ("targets", "priors"),
+        )
+    return read_demography_role(resolved, role)
+
+
+def load_reconciled_targets(
+    root: str | Path | None = None,
+    *,
+    layout: _DemographyLayout | None = None,
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load targets as a ``DemographyRoleProjection`` implementing ``Mapping``.
+
+    The projection preserves mapping-style reads and exposes its source evidence.
+    """
+    return _read_demography_role(
+        root, layout=layout, source=source, role="targets", standalone_member="targets"
+    )
+
+
+def load_transition_priors(
+    root: str | Path | None = None,
+    *,
+    layout: _DemographyLayout | None = None,
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load priors as a ``DemographyRoleProjection`` implementing ``Mapping``.
+
+    The projection preserves mapping-style reads and exposes its source evidence.
+    """
+    return _read_demography_role(
+        root, layout=layout, source=source, role="priors", standalone_member="priors"
+    )
+
+
+def load_donor_pool(
+    root: str | Path | None = None,
+    *,
+    layout: _DemographyLayout | None = None,
+    source: DemographySourceRequest | None = None,
+) -> DemographyRoleProjection:
+    """Load donors as a ``DemographyRoleProjection`` implementing ``Mapping``.
+
+    The projection preserves mapping-style reads and exposes its source evidence.
+    """
+    return _read_demography_role(
+        root, layout=layout, source=source, role="donor", standalone_member="donor"
+    )
+
+
+def load_demography_artifacts(
+    root: str | Path | None = None,
+    *,
+    layout: _DemographyLayout | None = None,
+    source: DemographySourceRequest | None = None,
+) -> UkraineDemographyArtifacts:
+    """Resolve and validate one complete demographic snapshot."""
+    resolved = _resolve_reader_source(root, layout, source)
+    return _artifacts_from_resolved_source(resolved)
 
 __all__ = [
     "DemographyRoleProjection",

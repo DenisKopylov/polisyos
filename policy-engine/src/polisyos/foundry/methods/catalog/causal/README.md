@@ -384,6 +384,11 @@ fully oriented endpoint row or policy label is not a selected extension.
 Static ID accepts resolved DAG and acyclic ADMG profiles; a cyclic ADMG receives
 a typed refusal at that owner. Direct scalar ID refuses M-graphs because those
 queries need the full-law owner and explicit missingness-recovery inputs. The
+M-graph recoverability owner validates its source and derives each proxy-stripped
+or substantive internal DAG/ADMG profile from the retained edge endpoint marks.
+It preserves bidirected and reverse-stored directed edges, uses the existing
+static profile and cycle validator, and typed-refuses unresolved marks rather
+than assigning PAG or guessing a completion. The source remains MGRAPH; the
 existing CausalEngine validated dynamic reduction, sigma/cyclic, and full-law
 M-graph paths retain their separate owners.
 Direct TR calls rebuild the entire typed selection diagram, require every S-node

@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..artifacts.manifest import ArtifactRef, EnvInfo, ProducerInfo
 
@@ -80,3 +80,27 @@ class RunManifest(BaseModel):
         default=None,
         description="TEE attestation artifact reference for confidential execution.",
     )
+
+
+class RunOwnerSnapshot(BaseModel):
+    """Immutable, selected-profile owner facts needed to resume an incomplete run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0.1"]
+    run_manifest: RunManifest
+    access_scope_sha256: str | None
+    previous_snapshot_ref: ArtifactRef | None
+
+    @field_validator("access_scope_sha256")
+    @classmethod
+    def _validate_scope_digest(cls, value: str | None) -> str | None:
+        """Keep absent scope explicit and reject malformed supplied digests."""
+        if value is not None and (
+            not isinstance(value, str)
+            or len(value) != 71
+            or not value.startswith("sha256:")
+            or any(char not in "0123456789abcdef" for char in value[7:])
+        ):
+            raise ValueError("access_scope_sha256 must be sha256:<64 lowercase hex>")
+        return value

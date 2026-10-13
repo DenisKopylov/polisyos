@@ -1,0 +1,55 @@
+id = "2026-10-12-e02-acquisition-growth-outcome-status"
+title = "Expose selected acquisition world-growth evidence without promoting unknown to zero"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Acquisition route v1.1 reads distinguish an unestablished outcome, a reverified zero-delta result for the selected active epoch, and a positively admitted delta. Lost-ack recovery preserves a selected zero receipt as quarantined without re-entry."
+compatibility = "Projection v1.1 carries the explicit not_established/no_growth/admitted_delta state and nullable admitted_observation_delta. Pending v1.0 no_growth defaults are presented as unknown; positive v1.0 admitted_delta remains positive. The DS15 semantic outcome grew is represented by the admitted_delta transport literal. Existing growth pointers without a receipt_kind continue to resolve as positive growth."
+change_class = "schema-openapi-abi"
+surface_classification = "public-api: additive GET /api/v1/runs/{run_id}/acquisition-routes[/{route_id}]; breaking response-literal changes on POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request and /execute"
+migration = "Read v1.0 route projections as legacy and use their explicit schema version; read v1.1 nullable/status consistency as the current GET contract. The POST decision-request and execute responses change the v1 world_growth literal from no_growth to not_established and are breaking for clients that enumerate literals. Update both decoders before deployment. Map legacy POST no_growth to unknown unless a selected zero-delta receipt is available. Regenerate the runtime OpenAPI snapshot and dashboard API types after the root source freeze. Historical AcquisitionRoutePhaseReceipt@1.0 action chains remain readable; new selections use @1.1 only when the exact owner CAS is bound by a durable event and ActionHead transition. Selector JSON and route pointers are locators, not current-outcome authority."
+api = "The current v1.1 route projection binds its tri-state world_growth value and nullable admitted_observation_delta to the selected owner receipt. The dashboard renders operator meanings in English and Ukrainian; the canonical DS15 grew state maps to the admitted_delta transport literal."
+limitations = "No status grants legal approval, publication authority, or formal closure. The zero-delta claim is limited to the selected active epoch membership and exact current route binding."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquisition-world-growth-outcome-r12"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "api: GET /api/v1/runs/{run_id}/acquisition-routes[/{route_id}]"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Route consumers can distinguish an unestablished owner outcome, a verified zero delta, and a positive admitted delta; lost-ack recovery terminalizes a selected zero outcome without re-entry; pre-execution responses remain unestablished."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquisition-world-growth-decision-request-r13"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "api: POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The unmeasured decision-request response now reports world_growth=not_established instead of the previous default no_growth. Clients that enumerate the v1 literal must update before deployment; legacy no_growth must be treated as unknown absent a verified selected-epoch receipt."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "acquisition-world-growth-execute-r13"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "api: POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The accepted-job response now reports world_growth=not_established instead of the previous default no_growth. Clients that enumerate the v1 literal must update before deployment; legacy no_growth must be treated as unknown absent a verified selected-epoch receipt."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
+runbook_docs = []

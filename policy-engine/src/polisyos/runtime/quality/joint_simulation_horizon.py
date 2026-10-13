@@ -219,6 +219,8 @@ class HorizonSpec(_StrictModel):
     def _validate_bounds(self) -> HorizonSpec:
         if self.end < self.start:
             raise ValueError("horizon_end_before_start")
+        if (self.end - self.start) % self.step:
+            raise ValueError("horizon_end_not_on_step_grid")
         return self
 
     def steps(self) -> tuple[int, ...]:
@@ -1476,6 +1478,13 @@ class JointSimulationHorizonController:
             "coupling_gate_blocked": coupling_support.gate_blocked,
             "comparator_refs": list(request.comparator_refs),
             "comparator_refs_status": "not_established",
+            "effect_basis": "outcome_minus_request_baseline_state",
+            "effect_basis_status": "not_established",
+            "physical_time_basis_status": (
+                "not_established"
+                if decision.temporal_capability == "multi_period"
+                else "not_applicable"
+            ),
             "evidence_source": (
                 "explicit_evidence_state"
                 if request.evidence_state is not None
@@ -1488,7 +1497,6 @@ class JointSimulationHorizonController:
         }
 
         if decision.decision == "selected":
-            _validate_atom_composition(selected_plan, request.intervention_atoms)
             runner = self._engine_runners().get(decision.engine_kind)
             if runner is None:
                 diagnostics["unsupported_objectives"].append(decision.objective_ref)
@@ -1588,6 +1596,10 @@ class JointSimulationHorizonController:
             interaction_sampling_issues=interaction_sampling_issues,
         )
         authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+        if trajectories:
+            authority_blockers.append("simulation_effect_basis_not_established")
+            if decision.temporal_capability == "multi_period":
+                authority_blockers.append("horizon_time_alignment_not_established")
         if interaction_evidence_issues:
             authority_blockers.append("interaction_evidence_incomplete")
         point_sampling_statuses = {
@@ -1616,6 +1628,15 @@ class JointSimulationHorizonController:
                 item.method_fqn for item in decisions if item.method_fqn is not None
             ],
             "comparator_refs_status": "not_established",
+            "effect_basis": "outcome_minus_request_baseline_state",
+            "effect_basis_status": (
+                "not_established" if trajectories else "not_applicable_no_trajectory"
+            ),
+            "physical_time_basis_status": (
+                "not_established"
+                if decision.temporal_capability == "multi_period"
+                else "not_applicable"
+            ),
             "authority_blockers": authority_blockers,
             "uncertainty_kind": "K_sim",
         }
@@ -1684,6 +1705,8 @@ class JointSimulationHorizonController:
     def _select_engine(self, request: JointSimulationRequest) -> _SelectedEngine:
         selectors = self._engine_selectors(request.world_model_record)
         decisions: list[EngineDecision] = []
+        requested_steps = request.horizon.steps()
+        requires_multi_period = len(requested_steps) > 1
         fallback_plan = request.engine_plan[0]
         for plan in request.engine_plan:
             selector = selectors.get(plan.engine_kind, self._select_registry_method_engine)
@@ -1701,6 +1724,27 @@ class JointSimulationHorizonController:
                         "coupling_composition_gate_unsupported",
                         coupling_support.blockers,
                     )
+            if (
+                decision.decision == "selected"
+                and requires_multi_period
+                and decision.temporal_capability != "multi_period"
+            ):
+                reason = (
+                    "static_engine_cannot_ground_dynamic_horizon"
+                    if decision.temporal_capability == "static"
+                    else "engine_temporal_capability_unavailable"
+                )
+                blocker = (
+                    "static_engine_temporal_capability"
+                    if decision.temporal_capability == "static"
+                    else "engine_temporal_capability_unsupported"
+                )
+                decision = _unsupported(plan, reason, (blocker,))
+            if decision.decision == "selected":
+                try:
+                    _validate_atom_composition(plan, request.intervention_atoms)
+                except JointSimulationControllerError as exc:
+                    decision = _unsupported(plan, exc.code, (exc.code,))
             decisions.append(decision)
             if decision.decision == "selected":
                 return _SelectedEngine(decision=decision, plan=plan, decisions=tuple(decisions))
@@ -2721,15 +2765,7 @@ def _validate_atom_composition(
     elif plan.engine_kind == "program_graph":
         _program_parameter_overrides(atoms, plan)
     elif plan.engine_kind == "method_registry_estimator":
-        if plan.system_dynamics_state:
-            _system_dynamics_state_for_subset(plan, atoms)
-        else:
-            _causal_assignment_writes(
-                atoms,
-                plan,
-                engine_kind=plan.engine_kind,
-                dotted_paths=True,
-            )
+        _method_state_for_subset(plan, atoms)
 
 
 def _causal_assignment_writes(
@@ -3102,7 +3138,27 @@ def _method_state_for_subset(
     if plan.system_dynamics_state:
         return _system_dynamics_state_for_subset(plan, atoms)
     if plan.coupled_state:
-        return deepcopy(plan.coupled_state)
+        state = deepcopy(plan.coupled_state)
+        writes = _causal_assignment_writes(
+            atoms,
+            plan,
+            engine_kind="method_registry_estimator",
+            dotted_paths=True,
+        )
+        for path, value in writes.items():
+            target = ".".join(path)
+            try:
+                _state_path_value(state, target)
+                _assign_path_value(state, target, float(value))
+                written = _state_path_value(state, target)
+                if float(written) != float(value):
+                    raise ValueError("method_registry_assignment_not_applied")
+            except (AttributeError, IndexError, KeyError, TypeError, ValueError) as exc:
+                raise JointSimulationControllerError(
+                    "method_registry_intervention_binding_missing",
+                    target,
+                ) from exc
+        return state
     raise JointSimulationControllerError(
         "method_registry_state_missing",
         plan.method_fqn or plan.engine_kind,
@@ -3135,7 +3191,12 @@ def _program_graph_outcomes(
 def _state_path_value(state: object, path: str) -> object:
     value = state
     for part in path.split("."):
-        value = value[part] if isinstance(value, Mapping) else getattr(value, part)
+        if isinstance(value, Mapping):
+            value = value[part]
+        elif isinstance(value, list | tuple | np.ndarray):
+            value = value[int(part)]
+        else:
+            value = getattr(value, part)
     return value
 
 

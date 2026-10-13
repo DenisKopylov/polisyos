@@ -27,7 +27,7 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.errors import CANONICAL_PROFILE_REFUSAL_RESPONSES, bad_request, not_found
 from polisyos.runtime.http.permissions import RuntimePermission
 
 if TYPE_CHECKING:
@@ -172,6 +172,7 @@ if router is not None:
         "/{analysis_id}",
         response_model=AttractorAnalysisResult,
         operation_id="get_attractor_analysis",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_attractor_analysis(
         analysis_id: str,
@@ -204,6 +205,7 @@ if router is not None:
         "/{analysis_id}/basin/{basin_id}",
         response_model=BasinMap,
         operation_id="get_analysis_basin_map",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_analysis_basin_map(
         analysis_id: str,
@@ -237,6 +239,7 @@ if router is not None:
         "/{analysis_id}/branch/{branch_id}",
         response_model=ContinuationBranch,
         operation_id="get_analysis_continuation_branch",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_analysis_continuation_branch(
         analysis_id: str,

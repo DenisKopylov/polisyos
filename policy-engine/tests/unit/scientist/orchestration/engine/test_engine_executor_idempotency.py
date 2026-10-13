@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import json
 import logging
+import multiprocessing
+import os
+from pathlib import Path
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.runtime.http.services.adapters.core_run import load_terminal_core_run_source
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.idempotency import (
@@ -207,8 +211,12 @@ class MutatingFailNode:
         )
 
 
-def _build_context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, NodeRegistry]:
-    bundle = build_default_registry_bundle(store)
+def _build_context(
+    store: FileSystemCAS, run_id: str, *, selected_registry_profile: bool = False
+) -> tuple[ExecutionContext, NodeRegistry]:
+    bundle = build_default_registry_bundle(
+        store, return_selected_profile=selected_registry_profile
+    )
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("idempotency_test"))
     registry = NodeRegistry()
@@ -218,6 +226,39 @@ def _build_context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext,
     registry.register(InvalidReplayNode())
     registry.register(AlwaysFailNode())
     return ctx, registry
+
+
+
+
+class _ExpectedRunProcessLoss(BaseException):
+    """Stop a spawned producer after node/cache effects but before RUN_FINALIZED."""
+
+
+def _produce_cached_run_then_exit_before_finalize(store_root: str, run_id: str) -> None:
+    store = FileSystemCAS(Path(store_root))
+    ctx, registry = _build_context(store, run_id, selected_registry_profile=True)
+    workflow = WorkflowSpec(
+        workflow_id="cache_resume_after_process_loss",
+        nodes=[
+            NodeInvocation(
+                alias="cached",
+                node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
+            ),
+        ],
+    )
+
+    def stop_before_finalization(*_args, **_kwargs):
+        raise _ExpectedRunProcessLoss
+
+    ctx.run.finalize = stop_before_finalization
+    try:
+        WorkflowExecutor(ctx, registry).execute(
+            workflow,
+            ExperimentState(run_id=run_id, params={"seed": 7}),
+        )
+    except _ExpectedRunProcessLoss:
+        os._exit(73)
+    os._exit(74)
 
 
 def _load_trace_events(store: FileSystemCAS, ctx: ExecutionContext) -> list[dict[str, object]]:
@@ -464,3 +505,72 @@ def test_executor_failed_node_state_is_not_committed(tmp_path) -> None:
 
     assert result.report.status == "fail"
     assert result.state.params == {"baseline": True}
+
+
+def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tmp_path) -> None:
+    CachedCounterNode.calls = 0
+    run_id = "R_process_loss_resume"
+    root = tmp_path / "cas"
+    process = multiprocessing.get_context("spawn").Process(
+        target=_produce_cached_run_then_exit_before_finalize,
+        args=(str(root), run_id),
+    )
+    process.start()
+    process.join(timeout=30)
+    if process.is_alive():
+        process.terminate()
+        process.join(timeout=5)
+    assert process.exitcode == 73
+
+    store = FileSystemCAS(root)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    run_dir = root / "runs" / run_id
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle.bundle_ref,
+        producer=None,
+        env=None,
+        access_scope=None,
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=resumed,
+        logger=logging.getLogger("idempotency_resume_test"),
+    )
+    registry = NodeRegistry()
+    registry.register(CachedCounterNode())
+    workflow = WorkflowSpec(
+        workflow_id="cache_resume_after_process_loss",
+        nodes=[
+            NodeInvocation(
+                alias="cached",
+                node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
+            ),
+        ],
+    )
+    result = WorkflowExecutor(ctx, registry).execute(
+        workflow,
+        ExperimentState(run_id=run_id, params={"seed": 7}),
+    )
+    assert result.report.status == "ok"
+    assert result.state.params["cached_counter"] == 1
+    assert CachedCounterNode.calls == 0
+    assert resumed.run_manifest.run_id == run_id
+
+    terminal = load_terminal_core_run_source(
+        store=store,
+        core_runs_root=root / "runs",
+        run_id=run_id,
+    )
+    records = [
+        json.loads(line)
+        for line in terminal.trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.get("event") == "RUN_STARTED" for record in records) == 1
+    assert sum(record.get("event") == "RUN_RESUMED" for record in records) == 1
+    assert sum(record.get("event") == "RUN_FINALIZED" for record in records) == 1
+    assert sum(record.get("event") == "NODE_CACHE_HIT" for record in records) == 1
+    assert terminal.manifest_ref.manifest_profile_sha256 is not None

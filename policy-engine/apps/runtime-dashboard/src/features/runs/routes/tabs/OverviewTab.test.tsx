@@ -2,6 +2,7 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 
 import { runDetailsSchema } from "@/api/validators";
+import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 
@@ -15,7 +16,7 @@ const overviewState = vi.hoisted(() => ({
   predictiveCalibrationMutation: {
     isPending: false,
     isError: false,
-    error: undefined,
+    error: undefined as Error | undefined,
     mutate: vi.fn(),
   },
   canCreatePredictiveCalibration: false,
@@ -95,6 +96,27 @@ vi.mock("@/features/runs/components/RunExplainabilityPanel", () => ({
 vi.mock("@/features/whatif", () => ({ ScenarioWorkbench: () => null }));
 
 import OverviewTab from "./OverviewTab";
+
+function parsedRun(candidateSimulation?: unknown): Record<string, unknown> {
+  const { run } = runDetailsSchema.parse({
+    meta: {
+      request_id: "req-overview",
+      generated_at: "2026-10-12T10:00:00Z",
+      source_kinds: ["core_run"],
+    },
+    run: {
+      run_id: "run-1",
+      source_kind: "core_run",
+      status: "failed",
+      ...(candidateSimulation === undefined
+        ? {}
+        : { candidate_simulation: candidateSimulation }),
+    },
+    temporal_scope: null,
+  });
+  return { ...run };
+}
+
 function genericCycleSimulationProjection(runId: string) {
   const ref = (kind: string, suffix: string) => ({
     artifact_id: "sha256:" + suffix.repeat(64),
@@ -128,8 +150,13 @@ function genericCycleSimulationProjection(runId: string) {
       status === "joint_simulated"
         ? ref("polisyos.runtime.joint_simulation_result", "5")
         : null;
+    const interactionEvidence = runN5InteractionEvidenceFixture();
+    interactionEvidence.numeric_interaction = "additive";
     return {
-      atom_ids: [`atom-${cycleIndex}`],
+      atom_ids:
+        status === "joint_simulated"
+          ? ["atom-a", "atom-b", "atom-c"]
+          : [`atom-${cycleIndex}`],
       authority_blockers: ["publication_not_admitted"],
       authority_purpose: "cycle_input_candidate_only",
       candidate_id: candidateId,
@@ -159,8 +186,25 @@ function genericCycleSimulationProjection(runId: string) {
           : "generic_n5_request_binding_not_established",
       n8_lineage_status:
         status === "joint_simulated" ? "resolved" : "not_established",
-      n8_status: "value_conditional",
+      n8_numeric_interaction:
+        status === "joint_simulated"
+          ? interactionEvidence.numeric_interaction
+          : null,
+      n8_numeric_interaction_basis:
+        status === "joint_simulated"
+          ? interactionEvidence.numeric_interaction_basis
+          : null,
+      n8_interaction_sampling_status:
+        status === "joint_simulated"
+          ? interactionEvidence.interaction_sampling_status
+          : null,
+      n8_status:
+        status === "joint_simulated" ? "value_conditional" : "value_pending_n8",
       n8_value_ref: resultRef?.artifact_id ?? null,
+      n5_interaction_evidence:
+        status === "joint_simulated" ? interactionEvidence : null,
+      executed_steps: status === "joint_simulated" ? [0] : [],
+      replication_seeds: status === "joint_simulated" ? [41, 42] : [],
       node_ref: "design-problem://" + digest.repeat(64),
       profile_ref: profileRef,
       profile_selection_ref: "sha256:" + "e".repeat(64),
@@ -243,8 +287,10 @@ function genericCycleSimulationProjection(runId: string) {
     source_ref: sourceRef,
   };
 }
-function parsedRunWithGenericCycleSimulation(projectionRunId = "run-1") {
-  return runDetailsSchema.parse({
+function parsedRunWithGenericCycleSimulation(
+  projectionRunId = "run-1",
+): Record<string, unknown> {
+  const { run } = runDetailsSchema.parse({
     meta: {
       request_id: "req-generic-cycle",
       generated_at: "2026-10-11T10:00:00Z",
@@ -258,7 +304,8 @@ function parsedRunWithGenericCycleSimulation(projectionRunId = "run-1") {
         genericCycleSimulationProjection(projectionRunId),
     },
     temporal_scope: null,
-  }).run;
+  });
+  return { ...run };
 }
 
 describe("OverviewTab", () => {
@@ -286,7 +333,7 @@ describe("OverviewTab", () => {
       error: undefined,
       mutate: vi.fn(),
     };
-    overviewState.run = { run_id: "run-1" };
+    overviewState.run = parsedRun();
   });
 
   it("keeps the run-bound action hidden without the existing evaluation permission", () => {
@@ -578,11 +625,7 @@ describe("OverviewTab", () => {
   });
 
   it("renders parsed generic cycle children and the retained failed sibling as candidate-only history", () => {
-    overviewState.run =
-      parsedRunWithGenericCycleSimulation() as unknown as Record<
-        string,
-        unknown
-      >;
+    overviewState.run = parsedRunWithGenericCycleSimulation();
 
     renderWithProviders(<OverviewTab />);
 
@@ -618,9 +661,7 @@ describe("OverviewTab", () => {
   });
 
   it("withholds otherwise well-shaped children when the generic projection belongs to another run", () => {
-    overviewState.run = parsedRunWithGenericCycleSimulation(
-      "run-other",
-    ) as unknown as Record<string, unknown>;
+    overviewState.run = parsedRunWithGenericCycleSimulation("run-other");
 
     renderWithProviders(<OverviewTab />);
 
@@ -761,8 +802,8 @@ describe("OverviewTab", () => {
     expect(history).toHaveTextContent(`sha256:${"a".repeat(64)}`);
   });
 
-  it("withholds malformed acquisition rows instead of trusting authority markers", () => {
-    overviewState.run.candidate_simulation = {
+  it("rejects malformed acquisition lineage before dashboard candidate rendering", () => {
+    const malformed = {
       schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
       run_id: "run-1",
       artifact_status: "resolved",
@@ -788,13 +829,26 @@ describe("OverviewTab", () => {
         },
       ],
     };
-
-    renderWithProviders(<OverviewTab />);
-
     expect(
-      screen.getByTestId("overview-acquisition-history-refused"),
-    ).toBeVisible();
-    expect(screen.queryByText("candidate-after")).not.toBeInTheDocument();
+      runDetailsSchema.safeParse({
+        meta: {
+          request_id: "req-overview",
+          generated_at: "2026-10-12T10:00:00Z",
+          source_kinds: ["core_run"],
+        },
+        run: {
+          run_id: "run-1",
+          source_kind: "core_run",
+          status: "failed",
+          candidate_simulation: malformed,
+        },
+        temporal_scope: null,
+      }).success,
+    ).toBe(false);
+
+    overviewState.run = parsedRun();
+    renderWithProviders(<OverviewTab />);
+    expect(screen.queryByTestId("overview-candidate-simulation")).toBeNull();
   });
 
   it("keeps the V2 budget frontier distinct from a root outcome", () => {
@@ -885,8 +939,8 @@ describe("OverviewTab", () => {
     );
   });
 
-  it("refuses malformed N5 observation rows", () => {
-    overviewState.run.candidate_simulation = {
+  it("rejects malformed N5 rows at the run API boundary before dashboard consumers", () => {
+    const malformed = {
       schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
       run_id: "run-1",
       artifact_status: "resolved",
@@ -898,9 +952,25 @@ describe("OverviewTab", () => {
       n5_observations: [null, { node_ref: "bad", status: "joint_simulated" }],
       recursive_cycle_checkpoint: null,
     };
+    expect(
+      runDetailsSchema.safeParse({
+        meta: {
+          request_id: "req-overview",
+          generated_at: "2026-10-12T10:00:00Z",
+          source_kinds: ["core_run"],
+        },
+        run: {
+          run_id: "run-1",
+          source_kind: "core_run",
+          status: "failed",
+          candidate_simulation: malformed,
+        },
+        temporal_scope: null,
+      }).success,
+    ).toBe(false);
+
+    overviewState.run = parsedRun();
     renderWithProviders(<OverviewTab />);
-    expect(screen.getAllByTestId("overview-simulation-refused")).toHaveLength(
-      2,
-    );
+    expect(screen.queryByTestId("overview-candidate-simulation")).toBeNull();
   });
 });

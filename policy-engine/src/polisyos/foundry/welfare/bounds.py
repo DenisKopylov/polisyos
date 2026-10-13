@@ -10,7 +10,7 @@ import numpy as np
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ObservedRange,
     ObservedRangeBundle,
@@ -57,7 +57,8 @@ def load_observed_range_bundle(
     ref: ArtifactRef | ObservedRangeBundleRef,
 ) -> ObservedRangeBundle:
     """Load an observed/calibrated range bundle."""
-    return ObservedRangeBundle.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return ObservedRangeBundle.model_validate(load_core_json_artifact(store, ref))
 
 
 def persist_welfare_bound_report(
@@ -87,7 +88,8 @@ def load_welfare_bound_report(
     ref: ArtifactRef | WelfareBoundReportRef,
 ) -> WelfareBoundReport:
     """Load a persisted welfare-bound report."""
-    return WelfareBoundReport.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return WelfareBoundReport.model_validate(load_core_json_artifact(store, ref))
 
 
 def safe_compute_mechanism_welfare_bound_report(

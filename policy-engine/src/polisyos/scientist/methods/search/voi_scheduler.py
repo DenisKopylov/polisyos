@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.selection_history import (
     MethodExecutionRecord,
     RuntimePredictor,
@@ -1364,8 +1364,9 @@ def persist_voi_run_report(
 
 def load_voi_run_report(store: Any, ref: ArtifactRef) -> VOIRunReport:
     """Load a persisted VOI run report from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return VOIRunReport.model_validate(payload)
 
 

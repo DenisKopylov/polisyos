@@ -167,6 +167,7 @@ class FileSemanticEpochHistoryRepository:
                 scratch.unlink()
 
     def _manifest(self, manifest_ref: ArtifactRef) -> tuple[SemanticEpochManifest, bytes]:
+        from polisyos.core.artifacts import load_core_json_frame_records
         report = self._artifacts.verify(manifest_ref)
         raw = self._artifacts.get_bytes(manifest_ref)
         manifest = self._artifacts.get_manifest(manifest_ref)
@@ -187,7 +188,9 @@ class FileSemanticEpochHistoryRepository:
             or len(records) != 1
         ):
             raise ValueError("semantic manifest CAS readback failed")
-        return SemanticEpochManifest.model_validate(from_canonical_bytes(records[0])), raw
+        return SemanticEpochManifest.model_validate(
+            load_core_json_frame_records(self._artifacts, manifest_ref, raw_payload_bytes=raw)[0]
+        ), raw
 
     def _validate_history_row(
         self,
@@ -371,6 +374,7 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.scope_history",
                 media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
             ),
         )
         if str(snapshot_ref.artifact_id) != snapshot_hash:
@@ -391,6 +395,7 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.history_append_receipt",
                 media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
             ),
         )
         return EpochHistoryAppendReceipt(
@@ -435,6 +440,7 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.scope_history",
                 media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
             ),
         )
         return EpochScopeHistory(

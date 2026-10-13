@@ -664,6 +664,7 @@ class NormativeValueScheduleOwner:
             self._principals[key_id] = principal
 
     def _read(self, ref: str, *, kind: str, schema: str) -> dict[str, Any]:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             artifact_id = artifacts.ArtifactID.model_validate(ref)
             raw = self._store.get_bytes(artifact_id)
@@ -675,7 +676,7 @@ class NormativeValueScheduleOwner:
                 or manifest.artifact_schema.name != kind
             ):
                 raise ValueError("content or manifest mismatch")
-            payload = canon.from_canonical_bytes(raw)
+            payload = load_core_json_artifact(self._store, artifact_id, raw_payload_bytes=raw)
             if not isinstance(payload, dict):
                 raise ValueError("artifact is not a mapping")
             manifest_schema = manifest.artifact_schema.version
@@ -724,7 +725,7 @@ class NormativeValueScheduleOwner:
         self, ref: str
     ) -> _LoadedNormativeGenerationDisposition:
         """Read a frozen v1 leaf or its v2 envelope without consulting live owners."""
-
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.generation_cycle import (
             GENERATION_CYCLE_SCHEMA_VERSION,
             GenerationCycleRun,
@@ -741,7 +742,7 @@ class NormativeValueScheduleOwner:
                 or manifest.artifact_schema.name != NORMATIVE_GENERATION_DISPOSITION_KIND
             ):
                 raise ValueError("normative generation disposition manifest mismatch")
-            payload = canon.from_canonical_bytes(raw)
+            payload = load_core_json_artifact(self._store, artifact_id, raw_payload_bytes=raw)
             if not isinstance(payload, dict):
                 raise ValueError("normative generation disposition is not a mapping")
             schema_version = manifest.artifact_schema.version

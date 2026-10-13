@@ -9,8 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
+from polisyos.core.canon import content_hash
 from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
 from polisyos.core.trace import RunTerminality, TraceRecord
@@ -425,8 +430,10 @@ def load_core_run(
                 cell_id=trace_cell_id,
             )
         else:
-            payload = from_canonical_bytes(store.get_bytes(manifest_ref))
+            payload = read_core_json_artifact(store, manifest_ref).value
             manifest = CoreRunManifest.model_validate(payload)
+    except CanonicalProfileRefusalError:
+        raise
     except Exception as exc:  # terminal authority fails closed on any store/validation failure
         logger.debug("Failed to load core run manifest %s: %s", manifest_ref, exc)
         warnings.append(f"core_run_manifest_load_failed:{type(exc).__name__}")
@@ -537,7 +544,7 @@ def load_bound_terminal_manifest(
     verification = store.verify(manifest_ref)
     if not verification.ok:
         raise ValueError("terminal run manifest failed CAS verification")
-    artifact_manifest = store.get_manifest(manifest_ref)
+    artifact_manifest = read_core_manifest_profile(store, manifest_ref)[0]
     if (
         artifact_manifest.kind != manifest_ref.kind
         or artifact_manifest.media_type != manifest_ref.media_type
@@ -554,7 +561,7 @@ def load_bound_terminal_manifest(
     manifest_bytes = store.get_bytes(manifest_ref)
     if content_hash(manifest_bytes, prefix=True) != str(manifest_ref.artifact_id):
         raise ValueError("terminal run manifest bytes do not match the bound artifact id")
-    payload = from_canonical_bytes(manifest_bytes)
+    payload = read_core_json_artifact(store, manifest_ref, raw_payload_bytes=manifest_bytes).value
     manifest = CoreRunManifest.model_validate(payload)
     if (
         manifest.run_id != run_id

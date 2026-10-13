@@ -652,14 +652,52 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
+    import json
+
+    from polisyos.core.contracts.runtime import AgentPipelineResponse
     from polisyos.scientist.orchestration.engine.budget import BudgetState
     from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
         FileBudgetLedger,
     )
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
     _forbid_real_gateway_network(monkeypatch)
+    monetary_providers: list[_MonetarySimulatedProvider] = []
+    monetary_clients: list[_CancelCacheOwnerOnce] = []
+
+    def _build_monetary_client(**kwargs: Any) -> _CancelCacheOwnerOnce:
+        model = str(kwargs["model_name"])
+        provider = _MonetarySimulatedProvider(model)
+        monetary_providers.append(provider)
+        cache = CachingLLMClient(
+            provider,
+            cache=InMemoryPromptCache(maxsize=8, default_ttl_s=30),
+            model=model,
+            ttl_s=30,
+            inflight_timeout_s=10,
+        )
+        client = _CancelCacheOwnerOnce(
+            cache,
+            provider,
+            model_name=model,
+            run_id=kwargs.get("run_id"),
+            model_variant_id=kwargs.get("model_variant_id"),
+            call_observer=kwargs.get("call_observer"),
+            tracer=kwargs.get("tracer"),
+            metrics=kwargs.get("metrics"),
+            producer_settlement_store=kwargs.get("producer_settlement_store"),
+            producer_budget_key=str(kwargs.get("producer_budget_key", "run")),
+        )
+        monetary_clients.append(client)
+        return client
+
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control.nl_pipeline.create_traced_gateway_client",
+        _build_monetary_client,
+    )
     env = build_runtime_api_env(tmp_path, include_test_client=True)
     monkeypatch.setattr(
         "polisyos.fabric.retrieval.RetrievalService.resolve",
@@ -681,6 +719,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         execution_scope = creation_payload.get("execution_scope")
         assert isinstance(execution_scope, dict)
         assert execution_scope.get("status") == "established"
+        assert execution_scope.get("actor_subject") == job.submitted_by
 
         job_response = client.get(f"/api/v1/control/jobs/{job_id}")
         assert job_response.status_code == 200, job_response.text
@@ -709,7 +748,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             job_payload=received_job.model_dump(mode="json")
         )
         assert authority_refs.get_selected_ref("security_assurance_report_ref") is None
-        completed = job
         core_run_id = str(ordinary_run["run_id"])
         runtime_context = ordinary_run["runtime_context"]
         run = ordinary_run["run"]
@@ -732,10 +770,153 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert binding.cell_id == execution_scope.get("cell_id")
         record_ids = [record.event_id for record in records]
         assert len(record_ids) == len(set(record_ids))
+        assert any(client._used for client in monetary_clients)
+        assert monetary_providers
+        actual_origins = {record.cost_origin for record in records}
+        assert actual_origins == {"reported", "estimated", "unknown", "reuse"}
+        assert all(
+            record.status == ("unknown" if record.cost_origin == "unknown" else "committed")
+            for record in records
+        )
+        assert all(
+            record.amount is None if record.cost_origin == "unknown" else record.amount is not None
+            for record in records
+        )
+        provider_event_ids = {
+            record.event_id for record in records if record.cost_origin != "reuse"
+        }
+        reuse_records = [record for record in records if record.cost_origin == "reuse"]
+        assert reuse_records
+        assert all(
+            record.amount == Decimal(0) and record.origin_event_id in provider_event_ids
+            for record in reuse_records
+        )
+        assert any(
+            record.cost_origin == "reported" and record.amount == Decimal(0) for record in records
+        )
+        assert any(
+            record.cost_origin == "estimated"
+            and record.amount is not None
+            and record.amount > Decimal(0)
+            for record in records
+        )
+        assert any(
+            record.cost_origin == "unknown" and record.amount is None for record in records
+        )
         assert details.root_artifacts
 
         ledger_path = Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
         reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+
+        # This synthetic HTTP transport exercises the configured Gateway client's local retry
+        # path. Its reported amount is a test candidate, not provider invoice evidence.
+        class _FakeResponse:
+            def __init__(self, status: int, body: str, headers: dict[str, str]) -> None:
+                self.status = status
+                self._body = body
+                self.headers = headers
+
+            async def text(self) -> str:
+                return self._body
+
+        class _AsyncResponseContext:
+            def __init__(self, response: _FakeResponse) -> None:
+                self._response = response
+
+            async def __aenter__(self) -> _FakeResponse:
+                return self._response
+
+            async def __aexit__(self, *_args: object) -> bool:
+                return False
+
+        class _RetrySession:
+            def __init__(self) -> None:
+                self.closed = False
+                self.requests: list[dict[str, Any]] = []
+                self._responses = [
+                    _FakeResponse(
+                        429,
+                        json.dumps({"error": {"code": "rate_limit_exceeded"}}),
+                        {"Retry-After": "0"},
+                    ),
+                    _FakeResponse(
+                        200,
+                        json.dumps(
+                            {
+                                "model": "provider-self-model",
+                                "provider": "provider-self-label",
+                                "choices": [
+                                    {"message": {"role": "assistant", "content": "retry completed"}}
+                                ],
+                                "usage": {
+                                    "prompt_tokens": 3,
+                                    "completion_tokens": 2,
+                                    "total_tokens": 5,
+                                    "total_cost_usd": "0.125",
+                                },
+                            }
+                        ),
+                        {"x-request-id": "synthetic-retry-success"},
+                    ),
+                ]
+
+            def post(self, *_args: object, **kwargs: Any) -> _AsyncResponseContext:
+                self.requests.append(kwargs)
+                return _AsyncResponseContext(self._responses[len(self.requests) - 1])
+
+            async def close(self) -> None:
+                self.closed = True
+
+        retry_gateway = GatewayLLMClient(
+            base_url="http://synthetic-provider.test/v1",
+            api_key="synthetic-test-key",
+            model="simulated-qwen",
+            max_retries=1,
+            provider_hint="synthetic_gateway",
+        )
+        retry_session = _RetrySession()
+        retry_gateway._session = retry_session
+        retry_observations: list[dict[str, Any]] = []
+        retry_traced_client = TracedLLMClient(
+            retry_gateway,
+            model_name="simulated-qwen",
+            run_id=str(job.run_id),
+            provider_name="synthetic_gateway",
+            call_observer=retry_observations.append,
+            producer_settlement_store=reopened,
+            producer_budget_key=f"nl-run:{job.run_id}",
+        )
+
+        async def _run_synthetic_retry() -> Any:
+            try:
+                with reopened.producer_run_binding_scope(binding):
+                    return await retry_traced_client.generate(
+                        user="Local synthetic retry candidate for the persisted run."
+                    )
+            finally:
+                await retry_gateway.aclose()
+
+        retry_response = asyncio.run(_run_synthetic_retry())
+        retry_event = retry_response.settlement.event
+        retry_ack = retry_response.settlement.ack
+        retry_idempotency_keys = [
+            str(request["headers"]["x-idempotency-key"]) for request in retry_session.requests
+        ]
+        assert len(retry_idempotency_keys) == 2
+        assert retry_idempotency_keys[0] and retry_idempotency_keys[0] == retry_idempotency_keys[1]
+        assert len(retry_observations) == 1
+        assert retry_observations[0]["event_id"] == retry_event.event_id
+        assert retry_event.cost_origin == "reported"
+        assert retry_event.amount == Decimal("0.125")
+        assert retry_event.model == "simulated-qwen"
+        assert retry_event.provider == "synthetic_gateway"
+        assert retry_ack.status == "committed"
+        assert retry_ack.durability == "ledger"
+        assert retry_ack.receipts == (retry_event.event_id,)
+        records_after_retry = reopened.list_producer_events_for_run_safe(binding)
+        assert {record.event_id for record in records_after_retry} - set(record_ids) == {
+            retry_event.event_id
+        }
 
         # This durable begin is the exact crash boundary: the provider intent
         # is written under the admitted run owner and no terminal settlement
@@ -760,41 +941,140 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert rejected_steps == []
         assert rejection == "llm_producer_control_job_owner_not_established"
 
+        selected_binding, selected_binding_note = (
+            runtime_context.debug._producer_run_binding_for_indexed_run(run)
+        )
+        assert selected_binding_note is None
+        assert selected_binding is not None
+        assert selected_binding == binding
+
+        # Same run, tenant, cell and profile; only the persisted ControlJob owner differs.
+        # Its amount aliases a real reported row, so the API must select by full ownership.
+        assert retry_event.amount is not None
+        foreign_binding = BudgetLedgerProducerRunBinding(
+            run_id=selected_binding.run_id,
+            tenant_id=selected_binding.tenant_id,
+            cell_id=selected_binding.cell_id,
+            profile_id=selected_binding.profile_id,
+            control_job_id="foreign-job",
+        )
+        foreign_event_id = "llm-provider:r3-foreign-owner-same-cost"
+        foreign_request_digest = "b" * 64
+        foreign_payload_digest = "c" * 64
+        foreign_key = f"nl-run:{foreign_binding.run_id}"
+        with reopened.producer_run_binding_scope(foreign_binding):
+            foreign_intent = reopened.begin_producer_event_safe(
+                foreign_event_id,
+                foreign_request_digest,
+                key=foreign_key,
+                model="simulated-qwen",
+                provider="synthetic_gateway",
+            )
+            foreign_record = reopened.settle_producer_event_safe(
+                foreign_event_id,
+                foreign_request_digest,
+                foreign_payload_digest,
+                key=foreign_key,
+                model="simulated-qwen",
+                provider="synthetic_gateway",
+                amount=retry_event.amount,
+                cost_origin="reported",
+            )
+        assert foreign_intent.status == "pending"
+        assert foreign_record.status == "committed"
+        assert foreign_record.amount == retry_event.amount
+        assert foreign_record.model == retry_event.model == "simulated-qwen"
+        assert foreign_record.provider == retry_event.provider == "synthetic_gateway"
+        assert foreign_record.run_binding == foreign_binding
+
         response = client.get(f"/api/v1/runs/{core_run_id}/agents")
         assert response.status_code == 200, response.text
-        pipeline = response.json()["pipeline"]
+        accepted = AgentPipelineResponse.model_validate(response.json())
+        pipeline = accepted.pipeline
         served_events = [
             event
-            for attempt in pipeline["attempts"]
-            for step in attempt["steps"]
-            for event in step.get("cost_events", [])
+            for attempt in pipeline.attempts
+            for step in attempt.steps
+            for event in step.cost_events
         ]
-        served_by_id = {event["event_id"]: event for event in served_events}
+        served_by_id = {event.event_id: event for event in served_events}
         assert len(served_by_id) == len(served_events)
-        assert set(record_ids).issubset(served_by_id)
+        owner_records = reopened.list_producer_events_for_run_safe(selected_binding)
+        owner_records_by_id = {record.event_id: record for record in owner_records}
+        assert len(owner_records_by_id) == len(owner_records)
+        assert all(record.run_binding == selected_binding for record in owner_records)
+        assert foreign_record.event_id not in owner_records_by_id
+        assert foreign_record.event_id not in served_by_id
         assert pending.event_id in served_by_id
-        for record in records:
+        assert set(served_by_id) == set(owner_records_by_id)
+        assert all(event.durability == "ledger" for event in served_events)
+        for record in owner_records:
             served_record = served_by_id[record.event_id]
-            assert served_record["origin_event_id"] == record.origin_event_id
-            assert served_record["cost_origin"] == record.cost_origin
-            assert served_record["settlement_status"] == record.status
-            assert served_record["durability"] == "ledger"
-            assert served_record["receipts"] == (
-                [record.event_id] if record.status == "committed" else []
+            assert served_record.origin_event_id == record.origin_event_id
+            assert served_record.cost_origin == record.cost_origin
+            assert served_record.settlement_status == record.status
+            assert served_record.durability == "ledger"
+            assert served_record.receipts == (
+                (record.event_id,) if record.status == "committed" else ()
             )
-            assert served_record["amount"] == (
-                str(record.amount) if record.amount is not None else None
-            )
-            assert served_record["payload_digest"] == record.payload_digest
-            assert served_record["model"] == record.model
-            assert served_record["provider"] == record.provider
+            assert served_record.amount == record.amount
+            assert served_record.payload_digest == record.payload_digest
+            assert served_record.model == record.model
+            assert served_record.provider == record.provider
         pending_view = served_by_id[pending.event_id]
-        assert pending_view["settlement_status"] == "pending"
-        assert pending_view["cost_origin"] == "unknown"
-        assert pending_view["amount"] is None
-        assert pending_view["durability"] == "ledger"
-        assert pending_view["receipts"] == []
-        assert pipeline["cost_usd"] is None
-        assert pending_view["model"] == "simulated-qwen"
+        assert pending_view.settlement_status == "pending"
+        assert pending_view.cost_origin == "unknown"
+        assert pending_view.amount is None
+        assert pending_view.durability == "ledger"
+        assert pending_view.receipts == ()
+        assert pipeline.cost_usd is None
+        expected_origin_counts: dict[str, int] = {}
+        expected_status_counts: dict[str, int] = {}
+        reported_amount = Decimal(0)
+        estimated_amount = Decimal(0)
+        known_total = Decimal(0)
+        total_is_unknown = False
+        for record in owner_records:
+            expected_origin_counts[record.cost_origin] = (
+                expected_origin_counts.get(record.cost_origin, 0) + 1
+            )
+            expected_status_counts[record.status] = (
+                expected_status_counts.get(record.status, 0) + 1
+            )
+            if record.cost_origin == "reported" and record.amount is not None:
+                reported_amount += record.amount
+            if record.cost_origin == "estimated" and record.amount is not None:
+                estimated_amount += record.amount
+            if (
+                record.cost_origin == "unknown"
+                or record.status in {"pending", "unknown"}
+                or record.amount is None
+            ):
+                total_is_unknown = True
+            elif record.cost_origin in {"reported", "estimated", "reuse"}:
+                known_total += record.amount
+        assert expected_origin_counts == dict(pipeline.cost_origin_counts)
+        assert expected_status_counts == dict(pipeline.settlement_status_counts)
+        assert pipeline.reported_cost_usd == pytest.approx(float(reported_amount), abs=1e-9)
+        assert pipeline.estimated_cost_usd == pytest.approx(float(estimated_amount), abs=1e-9)
+        if total_is_unknown:
+            assert pipeline.cost_usd is None
+        else:
+            assert pipeline.cost_usd == pytest.approx(float(known_total), abs=1e-9)
+        assert expected_origin_counts["reported"] > 0
+        assert expected_origin_counts["estimated"] > 0
+        assert expected_origin_counts["unknown"] > 0
+        assert expected_origin_counts["reuse"] > 0
+        assert any(
+            record.cost_origin == "reported" and record.amount == Decimal(0)
+            for record in owner_records
+        )
+        assert any(
+            record.cost_origin == "unknown"
+            and record.status == "unknown"
+            and record.amount is None
+            for record in owner_records
+        )
+        assert pending_view.model == "simulated-qwen"
     finally:
         close_runtime_api_env(env)

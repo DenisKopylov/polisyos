@@ -10,7 +10,6 @@ from pydantic import ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import SimulationResultRef
 from polisyos.core.contracts.lex import LegalEvaluationRequest
@@ -126,8 +125,9 @@ def _read_compliance_grade(
     state: ExperimentState,
     report_ref: ArtifactRef,
 ) -> tuple[str | None, dict[str, object] | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref))
+        payload = load_core_json_artifact(ctx.store, report_ref)
     except _LEGAL_CHECK_READ_ERRORS as exc:
         return None, emit_degraded_path(
             component="scientist.legal_check",

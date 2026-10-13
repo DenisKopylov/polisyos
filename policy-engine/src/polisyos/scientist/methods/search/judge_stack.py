@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
@@ -163,7 +163,8 @@ def load_judge_verdict(
     ref: ArtifactRef,
 ) -> JudgeVerdict:
     """Load judge verdict."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return JudgeVerdict.model_validate(payload)
 
 

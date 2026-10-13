@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 
 from .monitors import (
     DecisionValidityStatus,
@@ -191,8 +191,9 @@ def persist_incident_report(
 
 def load_incident_report(store: Any, ref: ArtifactRef) -> IncidentReport:
     """Load a persisted IncidentReport from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return IncidentReport.model_validate(payload)
 
 
@@ -248,8 +249,9 @@ def persist_withdrawal_record(
 
 def load_withdrawal_record(store: Any, ref: ArtifactRef) -> WithdrawalRecord:
     """Load a persisted WithdrawalRecord from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return WithdrawalRecord.model_validate(payload)
 
 

@@ -984,6 +984,20 @@ class WorkflowExecutor:
 
         order = _topo_sort(invocations)
         _validate_producer_state(state)
+        try:
+            return self._execute_admitted(workflow, state, invocations, order)
+        finally:
+            # If execution raised before finalization, preserve only a strict,
+            # owner-bound incomplete lifecycle for explicit resume.
+            self._ctx.run.suspend_for_resume()
+
+    def _execute_admitted(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+        invocations: dict[str, NodeInvocation],
+        order: list[str],
+    ) -> WorkflowExecutionResult:
         workflow_started = time.perf_counter()
         state = _bind_retained_workflow_input(self._ctx, state)
         _validate_required_binds(workflow.required_binds, state)

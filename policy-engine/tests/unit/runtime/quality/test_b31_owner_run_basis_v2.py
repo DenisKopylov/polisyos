@@ -686,6 +686,39 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         )
 
 
+    class _TamperedPanelProfileStore:
+        def __init__(self, delegate: Any) -> None:
+            self._delegate = delegate
+
+        def __getattr__(self, name: str) -> Any:
+            return getattr(self._delegate, name)
+
+        def get_manifest_bytes(self, selector: object) -> bytes:
+            raw_manifest = self._delegate.get_manifest_bytes(selector)
+            manifest = self._delegate.get_manifest(selector)
+            if manifest.kind != "runtime.value_owner_method_panel_input":
+                return raw_manifest
+            raw = json.loads(raw_manifest)
+            raw["canon"]["forbid_floats"] = not raw["canon"]["forbid_floats"]
+            return json.dumps(raw, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+
+    from polisyos.foundry.methods.backends import numpy_runner
+
+    def forbidden_runner_call(*_: Any, **__: Any) -> None:
+        raise AssertionError("method runner received a nonconformant selected panel")
+
+    with monkeypatch.context() as profile_context:
+        profile_context.setattr(numpy_runner.NumpyRunner, "run", forbidden_runner_call)
+        with pytest.raises(ValueError, match="ir_artifact_selected_manifest_changed"):
+            producer(
+                store=_TamperedPanelProfileStore(core_store),
+                profile=profile,
+                intent=intent,
+                selected_method_fqn=method_cases[0][0],
+                method_parameters=method_cases[0][1],
+            )
+
+
 def _selected_ref(
     *, artifact_hex: str, profile_hex: str, kind: str
 ) -> gc.ValueArtifactBindingRefV1:

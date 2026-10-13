@@ -21,7 +21,7 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import fingerprint, from_canonical_bytes
+from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
 
 if TYPE_CHECKING:
@@ -677,8 +677,9 @@ def default_store(root: Path | None = None) -> ArtifactStore:
 
 def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
     """Load json artifact."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ArtifactID(ref)
-    return from_canonical_bytes(store.get_bytes(artifact_id))
+    from polisyos.core.artifacts import load_core_json_artifact
+    selector = ref if isinstance(ref, ArtifactRef) else ArtifactID(ref)
+    return load_core_json_artifact(store, selector)
 
 
 def load_model_artifact(

@@ -13,7 +13,6 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import (
     CursorState,
     PartitionCursorState,
@@ -360,20 +359,20 @@ class CursorStore:
 
     def load_cursor(self, artifact_id: ArtifactID) -> CursorState:
         """Load cursor state from CAS by artifact ID."""
-        raw = self._store.get_bytes(artifact_id)
-        data = from_canonical_bytes(raw)
+        from polisyos.core.artifacts import load_core_json_artifact
+        data = load_core_json_artifact(self._store, artifact_id)
         return CursorState.model_validate(data)
 
     def load_stream_checkpoint(self, artifact_id: ArtifactID) -> StreamCheckpoint:
         """Load stream checkpoint from CAS by artifact ID."""
-        raw = self._store.get_bytes(artifact_id)
-        data = from_canonical_bytes(raw)
+        from polisyos.core.artifacts import load_core_json_artifact
+        data = load_core_json_artifact(self._store, artifact_id)
         return StreamCheckpoint.model_validate(data)
 
     def load_partition_state(self, artifact_id: ArtifactID) -> PartitionCursorState:
         """Load partition cursor state from CAS by artifact ID."""
-        raw = self._store.get_bytes(artifact_id)
-        data = from_canonical_bytes(raw)
+        from polisyos.core.artifacts import load_core_json_artifact
+        data = load_core_json_artifact(self._store, artifact_id)
         return PartitionCursorState.model_validate(data)
 
     def find_latest_cursor(

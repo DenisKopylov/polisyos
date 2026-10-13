@@ -18,11 +18,13 @@ store contract, schema metadata и helpers, через которые `analytics
 - **Schema metadata** — `SchemaInfo`, `CanonInfo` и `PutOptions` описывают сохраненный payload.
 - **Lineage normalization** — input refs и artifact refs нормализуются до записи.
 - **Profile-aware reads** — `get_json_artifact()` requires the store's raw
-  `get_manifest_bytes()` capability. It parses the exact selected sidecar before any IR
+  `get_raw_manifest_bytes()` capability. It parses the exact selected sidecar before any IR
   profile model can fill defaults, requires every current `CanonInfo` field, then reads
   the payload through that same artifact selector. It decodes and re-encodes under the
   declared formatting options and existing IR tag family; only an exact byte match is
-  accepted. A typed manifest Mapping alone is not raw-profile evidence. Profile-less
+  accepted. An ID-only raw reader needs no typed-manifest method; a full profile-bearing
+  selector still requires exact typed-view resolution and is never downgraded. A typed
+  manifest Mapping alone is not raw-profile evidence. Profile-less
   historical artifacts remain unsupported and require a separate compatibility decision.
   The check proves the declared profile reproduces these bytes, not which producer chose
   it. Byte-only reads cannot recover input properties that leave no byte witness—for

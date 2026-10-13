@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from typing import Literal
 
 import numpy as np
+
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
@@ -18,9 +19,8 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.core.artifacts.protocol import ArtifactStore, resolve_manifest_by_profile
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.welfare import (
     WelfareBundle,
     WelfareIntervalSemantics,
@@ -30,6 +30,7 @@ from polisyos.ir.analytics.welfare import (
     load_welfare_sample_bundle,
 )
 from polisyos.ir.artifacts import get_json_artifact
+from polisyos.ir import UncertaintyType
 from polisyos.ir.registry.refs import ArtifactRefModel, WelfareBundleRef, WelfareSampleBundleRef
 
 
@@ -251,6 +252,7 @@ def load_search_uncertainty_observation(
     expected_subject_ref: ArtifactRef,
 ) -> SearchUncertaintyObservation:
     """Resolve actual bytes and reject a stale, foreign or substituted observation."""
+    from polisyos.core.artifacts import load_core_json_artifact
     for ref, kind in (
         (observation_ref, "scientist.search.uncertainty_observation"),
         (expected_basis_ref, "scientist.search.uncertainty_basis"),
@@ -260,12 +262,12 @@ def load_search_uncertainty_observation(
         if not store.verify(ref).ok:
             raise ValueError("Search uncertainty artifact integrity failure")
     basis = SearchUncertaintyBasis.model_validate(
-        from_canonical_bytes(store.get_bytes(expected_basis_ref))
+        load_core_json_artifact(store, expected_basis_ref)
     )
     if basis.subject_ref != expected_subject_ref:
         raise ValueError("Search uncertainty basis differs from the configured candidate")
     observation = SearchUncertaintyObservation.model_validate(
-        from_canonical_bytes(store.get_bytes(observation_ref))
+        load_core_json_artifact(store, observation_ref)
     )
     if observation.basis_ref != expected_basis_ref:
         raise ValueError("Search uncertainty observation has a foreign or stale basis")
@@ -755,6 +757,7 @@ def load_source_bound_risk_observation(
     expected_candidate_ref: ArtifactRef,
 ) -> SourceBoundRiskObservation:
     """Freshly re-resolve and recompute an observation before audit projection."""
+    from polisyos.core.artifacts import load_core_json_artifact
     if observation_ref.kind != _SOURCE_BOUND_RISK_OBSERVATION_KIND:
         raise ValueError("source-bound risk observation kind mismatch")
     manifest = _source_manifest(store, observation_ref)
@@ -766,7 +769,7 @@ def load_source_bound_risk_observation(
     ):
         raise ValueError("source-bound risk observation schema mismatch")
     observation = SourceBoundRiskObservation.model_validate(
-        from_canonical_bytes(store.get_bytes(observation_ref))
+        load_core_json_artifact(store, observation_ref)
     )
     if observation.candidate_ref != expected_candidate_ref:
         raise ValueError("source-bound risk observation belongs to another candidate view")

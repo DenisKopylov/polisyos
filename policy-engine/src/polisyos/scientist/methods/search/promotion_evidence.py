@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.replay.verification import load_replay_verification_report
@@ -240,6 +240,7 @@ def _validate_benchmark_ref(
     expected_loop_id: str | None,
     expected_split: BenchmarkSplit,
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
     manifest = _require_manifest(store, ref, role=role)
     if not (
         manifest.kind == "scientist.benchmark_evaluation"
@@ -251,7 +252,7 @@ def _validate_benchmark_ref(
         )
     ):
         raise ValueError(f"PromotionEvidenceBundle {role} has unexpected kind.")
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     evaluation = BenchmarkEvaluation.model_validate(payload)
     if evaluation.candidate_ref != candidate_ref:
         raise ValueError(f"PromotionEvidenceBundle {role} belongs to another candidate.")
@@ -288,7 +289,8 @@ def load_promotion_evidence_bundle(
     ref: ArtifactRef,
 ) -> PromotionEvidenceBundle:
     """Load promotion evidence bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return PromotionEvidenceBundle.model_validate(payload)
 
 

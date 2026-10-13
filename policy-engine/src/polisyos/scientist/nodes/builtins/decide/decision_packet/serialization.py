@@ -15,7 +15,6 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyKind,
     DecisionDependencyRef,
@@ -409,11 +408,12 @@ def _load_json_payload_by_ref(
     reason: str | None = None,
     artifact_key: str | None = None,
 ) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     if not isinstance(ref_value, str) or not ref_value:
         return None
     try:
         artifact_id = ArtifactID.model_validate(ref_value)
-        payload = from_canonical_bytes(ctx.store.get_bytes(artifact_id))
+        payload = load_core_json_artifact(ctx.store, artifact_id)
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         if operation is not None and reason is not None:
             _record_decision_packet_section_degraded(

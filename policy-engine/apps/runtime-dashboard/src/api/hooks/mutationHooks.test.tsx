@@ -48,6 +48,7 @@ vi.mock("@/api/hooks/useControlPreAdmissionRecovery", () => ({
 
 import { runtimeApiClient } from "@/api/client";
 import { useCreateHumanDecision } from "@/features/runs/api/useHumanDecisions";
+import { controlPreAdmissionAttemptFixture } from "@/test/fixtures/controlPreAdmissionAttempt";
 import { createQueryHookHarness } from "@/test/queryHook";
 import {
   mockRuntimeGetSuccess,
@@ -72,6 +73,20 @@ function createMeta() {
     request_id: "req-mutation",
     source_kinds: ["core_run"],
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function idempotencyKeyFromPostCall(call: unknown): string | null {
+  if (!Array.isArray(call)) return null;
+  const options = call[1];
+  if (!isRecord(options)) return null;
+  const params = options.params;
+  if (!isRecord(params) || !isRecord(params.header)) return null;
+  const key = params.header["Idempotency-Key"];
+  return typeof key === "string" ? key : null;
 }
 
 function createRunsCache() {
@@ -221,7 +236,7 @@ describe("mutation hooks", () => {
     expect(result!.pre_admission_attempt_id).toBe("a".repeat(32));
     expect(postSpy).toHaveBeenCalledWith("/api/v1/control/runs/nl", {
       body: { nl_request: "Run a bounded policy simulation" },
-      headers: { "Idempotency-Key": "stable-launch-key" },
+      params: { header: { "Idempotency-Key": "stable-launch-key" } },
     });
   });
 
@@ -264,10 +279,10 @@ describe("mutation hooks", () => {
       result = await view.result.current.mutateAsync(input);
     });
 
-    const firstHeaders = postSpy.mock.calls[0]?.[1]?.headers;
-    const secondHeaders = postSpy.mock.calls[1]?.[1]?.headers;
-    expect(firstHeaders).toHaveProperty("Idempotency-Key");
-    expect(firstHeaders).toEqual(secondHeaders);
+    const firstHeader = idempotencyKeyFromPostCall(postSpy.mock.calls[0]);
+    const secondHeader = idempotencyKeyFromPostCall(postSpy.mock.calls[1]);
+    expect(firstHeader).toMatch(/^test-launch-key-\d+$/);
+    expect(firstHeader).toBe(secondHeader);
     expect(result!.pre_admission_attempt_id).toBe("d".repeat(32));
   });
 
@@ -300,34 +315,11 @@ describe("mutation hooks", () => {
   });
 
   it("fetches fresh actor-scoped pre-admission history by its opaque ID", async () => {
-    const attempt = {
-      attempt_id: "b".repeat(32),
-      created_at: "2026-10-12T10:00:00Z",
-      effective_execution_profile: "research",
-      failure_code: null,
-      history: [
-        {
-          event_id: "event-started",
-          event_type: "started",
-          failure_code: null,
-          job_id: null,
-          observed_at: "2026-10-12T10:00:00Z",
-          producer_event_ids: [],
-          producer_event_observation: "not_applicable",
-          producer_no_call_reason: null,
-          sequence: 1,
-        },
-      ],
-      intent_sha256: "c".repeat(64),
-      job_id: null,
-      meta: createMeta(),
-      producer_event_ids: [],
-      producer_event_observation: "not_applicable",
-      producer_no_call_reason: null,
-      run_id: "run-history",
+    const attempt = controlPreAdmissionAttemptFixture({
+      attemptId: "b".repeat(32),
+      runId: "run-history",
       status: "started",
-      updated_at: "2026-10-12T10:00:00Z",
-    };
+    });
     const getSpy = mockRuntimeGetSuccess(attempt);
     const { wrapper } = createQueryHookHarness();
     const view = renderHook(
@@ -345,34 +337,11 @@ describe("mutation hooks", () => {
   });
 
   it("looks up current attempt history by the opaque request key header", async () => {
-    const attempt = {
-      attempt_id: "e".repeat(32),
-      created_at: "2026-10-12T10:00:00Z",
-      effective_execution_profile: "research",
-      failure_code: null,
-      history: [
-        {
-          event_id: "event-settled",
-          event_type: "settled",
-          failure_code: null,
-          job_id: null,
-          observed_at: "2026-10-12T10:00:00Z",
-          producer_event_ids: ["producer-event-a"],
-          producer_event_observation: "complete",
-          producer_no_call_reason: null,
-          sequence: 2,
-        },
-      ],
-      intent_sha256: "f".repeat(64),
-      job_id: null,
-      meta: createMeta(),
-      producer_event_ids: ["producer-event-a"],
-      producer_event_observation: "complete",
-      producer_no_call_reason: null,
-      run_id: "run-key-history",
+    const attempt = controlPreAdmissionAttemptFixture({
+      attemptId: "e".repeat(32),
+      runId: "run-key-history",
       status: "settled",
-      updated_at: "2026-10-12T10:00:00Z",
-    };
+    });
     const getSpy = mockRuntimeGetSuccess(attempt);
 
     await expect(
@@ -380,7 +349,7 @@ describe("mutation hooks", () => {
     ).resolves.toMatchObject({ attempt_id: "e".repeat(32), status: "settled" });
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/control/admission-attempts/by-idempotency-key",
-      { headers: { "Idempotency-Key": "opaque-key-r215" } },
+      { params: { header: { "Idempotency-Key": "opaque-key-r215" } } },
     );
   });
 

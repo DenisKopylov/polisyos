@@ -18,7 +18,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import from_canonical_bytes as from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef
 from polisyos.foundry.methods.exceptions import StatePathTraversalError
 
@@ -141,15 +141,15 @@ def artifact_input_ref(
 
 def load_model(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str, model_cls):
     """Load model."""
-    data = store.get_bytes(ref)
-    payload = from_canonical_bytes(data)
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
 
 def load_payload(store: FileSystemCAS, ref: ArtifactRef | ArtifactID | str) -> dict[str, Any]:
     """Load payload."""
-    data = store.get_bytes(ref)
-    payload = from_canonical_bytes(data)
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     if isinstance(payload, BaseModel):
         return payload.model_dump()
     if isinstance(payload, dict):

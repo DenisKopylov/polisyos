@@ -142,6 +142,7 @@ def _read_profiled_statement(
     model: type[_StrictFrozenModel],
 ) -> _StrictFrozenModel:
     """Reload one exact frozen C4 statement without trusting its shaped ref."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     profile = c4_profile(record)
     raw = store.get_bytes(ref)
@@ -160,7 +161,7 @@ def _read_profiled_statement(
         )
     ):
         raise ValueError("claim_profiled_statement_profile_mismatch")
-    parsed = model.model_validate(from_canonical_bytes(raw))
+    parsed = model.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if c4_canonical_bytes(record, parsed) != raw:
         raise ValueError("claim_profiled_statement_canonical_mismatch")
     return parsed
@@ -1206,7 +1207,7 @@ class ClaimDependencyDenominatorResolver:
         | ClaimLifecycleBridgeNonReceipt
     ):
         """Persist the complete mapping or return the one fail-closed terminal."""
-
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.scientist.evidence.claims.audit import (
             CLAIM_LEDGER_V2_KIND,
             CLAIM_LEDGER_V2_SCHEMA_NAME,
@@ -1238,7 +1239,7 @@ class ClaimDependencyDenominatorResolver:
                 or ledger_artifact_ref.media_type != ledger_manifest.media_type
             ):
                 raise ValueError("claim_dependency_ledger_content_mismatch")
-            payload = from_canonical_bytes(ledger_raw)
+            payload = load_core_json_artifact(self.store, ledger_artifact_ref, raw_payload_bytes=ledger_raw)
             if ledger_manifest.kind == CLAIM_LEDGER_V2_KIND:
                 if ledger_manifest.artifact_schema != artifacts.SchemaInfo(
                     name=CLAIM_LEDGER_V2_SCHEMA_NAME,

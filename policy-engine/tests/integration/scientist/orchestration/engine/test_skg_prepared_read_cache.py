@@ -462,6 +462,7 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     assert receipt.authority_band == "candidate"
     assert receipt.source_snapshot_authenticity == "not_established"
     assert receipt.schema_version == "scientist.skg_cache_read_receipt.v3"
+    assert receipt.query_version == "skg-query-read.v3"
     assert receipt.read_evidence_scope == "bound_connection_query_execution_only"
     assert receipt.output_dependency == "not_established"
     assert receipt.current_source_snapshot_sha256 == receipt.original_source_snapshot_sha256

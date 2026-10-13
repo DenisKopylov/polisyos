@@ -380,12 +380,15 @@ def build_execution_context(
 
 
 def _propagate_runtime_run_metadata(ctx: ExecutionContext, state: ExperimentState) -> None:
+    updates: dict[str, object] = {}
     if state.execution_profile:
-        ctx.run.run_manifest.execution_profile = str(state.execution_profile)
+        updates["execution_profile"] = str(state.execution_profile)
     if state.control_job_id:
-        ctx.run.run_manifest.control_job_id = str(state.control_job_id)
+        updates["control_job_id"] = str(state.control_job_id)
     if state.capability_manifest_ref is not None:
-        ctx.run.run_manifest.capability_manifest_ref = state.capability_manifest_ref
+        updates["capability_manifest_ref"] = state.capability_manifest_ref
+    if updates:
+        ctx.run.update_manifest(**updates)
 
 
 def build_registry_with_builtin_nodes(

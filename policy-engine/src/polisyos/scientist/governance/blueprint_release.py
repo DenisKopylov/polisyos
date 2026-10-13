@@ -22,7 +22,10 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -34,9 +37,13 @@ from polisyos.data_forge.read_api.ukraine import (
     VerifiedUkraineReleaseArtifact,
     VerifiedUkraineReleaseArtifacts,
     VerifiedUkraineStageArtifacts,
+    UkraineJSONSnapshotStatus,
     load_verified_release_artifact_bytes,
     load_verified_release_artifacts,
+    load_verified_release_json_artifact,
+    load_verified_release_manifest_json,
     load_verified_stage_artifacts,
+    load_verified_stage_json_output,
     load_verified_stage_output_bytes,
 )
 from polisyos.foundry.validation.release_acceptance import (
@@ -257,6 +264,7 @@ class _D4ReleasePredicateContext(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     stage_receipt: VerifiedUkraineStageArtifacts | None = Field(default=None, exclude=True)
+    json_snapshot_profile_statuses: dict[str, UkraineJSONSnapshotStatus] = Field(default_factory=dict)
 
 
 class _ScientistReleasePredicateReceipt(BaseModel):
@@ -264,10 +272,10 @@ class _ScientistReleasePredicateReceipt(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.scientist.release_predicates.v1"] = (
-        "policyos.scientist.release_predicates.v1"
+    schema_version: Literal["policyos.scientist.release_predicates.v2"] = (
+        "policyos.scientist.release_predicates.v2"
     )
-    rule_version: Literal["scientist-release-predicates.v1"] = "scientist-release-predicates.v1"
+    rule_version: Literal["scientist-release-predicates.v2"] = "scientist-release-predicates.v2"
     authority_purpose: Literal["scientist_release_predicate_receipt"] = (
         "scientist_release_predicate_receipt"
     )
@@ -276,6 +284,7 @@ class _ScientistReleasePredicateReceipt(BaseModel):
         "manifest_error_scan",
         "compression_fidelity_reconciliation",
         "d4_release_eligibility",
+        "selected_json_profile_conformance",
     )
     may_not_use_for: tuple[str, ...] = (
         "release_admissibility",
@@ -283,6 +292,11 @@ class _ScientistReleasePredicateReceipt(BaseModel):
         "legal_authority",
     )
     status: Literal["admissible", "blocked"]
+    json_snapshot_profile_conformance_provenance: Literal["independently_reconciled", "not_established"]
+    manifest_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
+    compression_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
+    handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"]
+    d4_source_json_snapshot_profile_statuses: dict[str, UkraineJSONSnapshotStatus]
     manifest_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     graph_compression_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     manifest_findings_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
@@ -325,6 +339,7 @@ class _ScientistReleasePredicateReceipt(BaseModel):
             "manifest_error_scan",
             "compression_fidelity_reconciliation",
             "d4_release_eligibility",
+            "selected_json_profile_conformance",
         ):
             raise ValueError("predicate receipt must retain its exact verified scope")
         if self.may_not_use_for != (
@@ -333,9 +348,28 @@ class _ScientistReleasePredicateReceipt(BaseModel):
             "legal_authority",
         ):
             raise ValueError("predicate receipt must retain every authority denial")
+        expected_d4_json_contracts = {
+            "scientist.d4.governance_request",
+            "scientist.d4.identity_resolution_cohort",
+            "scientist.d4.calibration_splits",
+            "scientist.d5.d4_governance_request_evidence",
+        }
+        profile_conformant = (
+            self.manifest_snapshot_profile_status == "declared_bytes_conformant"
+            and self.compression_snapshot_profile_status == "declared_bytes_conformant"
+            and self.handoff_snapshot_profile_status == "declared_bytes_conformant"
+            and set(self.d4_source_json_snapshot_profile_statuses) == expected_d4_json_contracts
+            and all(status == "declared_bytes_conformant" for status in self.d4_source_json_snapshot_profile_statuses.values())
+        )
+        expected_profile_provenance = (
+            "independently_reconciled" if profile_conformant else "not_established"
+        )
+        if self.json_snapshot_profile_conformance_provenance != expected_profile_provenance:
+            raise ValueError("profile status and selected JSON conformance provenance must agree")
         expected_status = (
             "admissible"
             if self.manifest_no_errors
+            and profile_conformant
             and self.compression_status == "admissible"
             and self.d4_status == "admissible"
             else "blocked"
@@ -1409,14 +1443,15 @@ def _persist_verified_stage_receipt(
                 version="v2",
             ),
         ),
+        return_selected_profile=True,
     )
 
 
-def _load_d4_governance_request(payload: bytes) -> _UkraineD4GovernanceRequest:
+def _load_d4_governance_request(payload: bytes | _UkraineD4GovernanceRequest) -> _UkraineD4GovernanceRequest:
     """Load the producer request without treating it as a governance verdict."""
 
     try:
-        request = _UkraineD4GovernanceRequest.model_validate_json(payload)
+        request = payload if isinstance(payload, _UkraineD4GovernanceRequest) else _UkraineD4GovernanceRequest.model_validate_json(payload)
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
             f"invalid D4 governance request: {exc}"
@@ -1451,13 +1486,13 @@ def _normalize_identity_key(value: object) -> str:
 
 
 def _recompute_identity_resolution_coverage(
-    cohort_payload: bytes,
+    cohort_payload: bytes | _IdentityResolutionCohort,
     registry_payload: bytes,
 ) -> tuple[float, float]:
     """Recompute D0 cohort coverage against independently admitted registry bytes."""
 
     try:
-        cohort = _IdentityResolutionCohort.model_validate_json(cohort_payload)
+        cohort = cohort_payload if isinstance(cohort_payload, _IdentityResolutionCohort) else _IdentityResolutionCohort.model_validate_json(cohort_payload)
     except ValidationError as exc:
         raise UkraineStageArtifactVerificationError(
             f"invalid identity resolution cohort: {exc}"
@@ -1600,9 +1635,14 @@ def run_verified_ukraine_d4_governance(
         expected_stage="d4",
         required_outputs=(_UKRAINE_D4_REQUEST_OUTPUT,),
     )
-    request = _load_d4_governance_request(
-        load_verified_stage_output_bytes(store, d4_receipt, _UKRAINE_D4_REQUEST_OUTPUT)
+    d4_request_read = load_verified_stage_json_output(
+        store,
+        d4_receipt,
+        _UKRAINE_D4_REQUEST_OUTPUT,
+        model_type=_UkraineD4GovernanceRequest,
+        consumer_contract="scientist.d4.governance_request",
     )
+    request = _load_d4_governance_request(d4_request_read.value_for_candidate())
     manifests_dir = root / "manifests"
     d0_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d0_p0"],
@@ -1628,12 +1668,22 @@ def run_verified_ukraine_d4_governance(
         expected_stage="d3",
         required_outputs=("calibrated_household_cells.parquet", "labor_validation_panel.parquet"),
     )
+    cohort_read = load_verified_stage_json_output(
+        store,
+        d0_receipt,
+        _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+        model_type=_IdentityResolutionCohort,
+        consumer_contract="scientist.d4.identity_resolution_cohort",
+    )
+    splits_read = load_verified_stage_json_output(
+        store,
+        d2_receipt,
+        "calibration_splits.json",
+        model_type=dict[str, dict[str, str]],
+        consumer_contract="scientist.d4.calibration_splits",
+    )
     spending_coverage, procurement_coverage = _recompute_identity_resolution_coverage(
-        load_verified_stage_output_bytes(
-            store,
-            d0_receipt,
-            _IDENTITY_RESOLUTION_COHORT_OUTPUT,
-        ),
+        cohort_read.value_for_candidate(),
         load_verified_stage_output_bytes(
             store,
             d0_receipt,
@@ -1673,12 +1723,11 @@ def run_verified_ukraine_d4_governance(
             )
         )
     )
-    splits = json.loads(
-        load_verified_stage_output_bytes(
-            store,
-            d2_receipt,
-            "calibration_splits.json",
-        )
+    splits = splits_read.value_for_candidate()
+    source_json_snapshot_reads = (
+        d4_request_read.provenance,
+        cohort_read.provenance,
+        splits_read.provenance,
     )
 
     receipts = {
@@ -1811,11 +1860,14 @@ def run_verified_ukraine_d4_governance(
             ),
             metadata={
                 "producer_receipt_refs": {
-                    name: str(ref.artifact_id) for name, ref in receipt_refs.items()
+                    name: ref.model_dump(mode="json") for name, ref in receipt_refs.items()
                 },
                 "producer_receipt_authority_purpose": "producer_artifact_receipt",
                 "producer_receipt_may_not_use_for": list(d4_receipt.may_not_use_for),
                 "labor_proxy_promotion_recomputed": labor_promoted,
+                "ukraine_json_snapshot_profile_reads": [
+                    read.model_dump(mode="json") for read in source_json_snapshot_reads
+                ],
             },
         )
     )
@@ -1827,7 +1879,7 @@ def _verify_release_receipt_cas(
     *,
     allowed_root: Path,
     release_manifest_path: Path,
-) -> None:
+) -> dict[str, bytes]:
     """Independently enforce admitted paths, set equality, and CAS bytes."""
 
     root = allowed_root.resolve()
@@ -1894,6 +1946,7 @@ def _verify_release_receipt_cas(
                 "admitted handoff refs do not match the exact Scientist evidence contract"
             )
     manifest_bytes = store.get_bytes(receipt.manifest_ref)
+    selected_snapshot_bytes: dict[str, bytes] = {"manifest": manifest_bytes}
     if len(manifest_bytes) != receipt.manifest_size_bytes:
         raise UkraineStageArtifactVerificationError(
             "admitted release manifest size does not match the admission receipt"
@@ -1902,11 +1955,18 @@ def _verify_release_receipt_cas(
         raise UkraineStageArtifactVerificationError(
             "admitted release manifest is not content-bound in CAS"
         )
-    for artifact in receipt.evidence.values():
-        load_verified_release_artifact_bytes(store, artifact)
+    for name, artifact in receipt.evidence.items():
+        payload = load_verified_release_artifact_bytes(store, artifact)
+        if name in {
+            "d4_governance_request",
+            "d5_release_handoff_request",
+            "graph_compression_bundle",
+        }:
+            selected_snapshot_bytes[f"evidence:{name}"] = payload
     for bundle in receipt.bundle_contents.values():
         for artifact in bundle.values():
             load_verified_release_artifact_bytes(store, artifact)
+    return selected_snapshot_bytes
 
 
 def _require_release_bundle_artifact(
@@ -1939,6 +1999,11 @@ def _require_release_bundle_artifact(
 def _build_d5_release_trinity(receipt: VerifiedUkraineReleaseArtifacts) -> TrinityBundle:
     """Build the Scientist-owned candidate evaluated by Foundry and postflight."""
 
+    if receipt.handoff_snapshot_profile_status == "declared_unknown_candidate":
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_unknown_profile_raw_only",
+            "D5 handoff candidate cannot be decoded under an unsupported profile",
+        )
     facts = receipt.handoff_request.producer_facts
     return TrinityBundle(
         problem_frame=ProblemFrame(
@@ -1997,6 +2062,7 @@ def _run_d4_release_predicate(
     cas_root: Path,
 ) -> _D4ReleasePredicateContext:
     """Reload the real D4 result and its producer receipt from CAS."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     d4_manifest_path = build_root.resolve() / "manifests" / "build_run_d4.json"
     if not d4_manifest_path.is_file():
@@ -2016,14 +2082,76 @@ def _run_d4_release_predicate(
         producer_receipt_refs = bundle.metadata.get("producer_receipt_refs")
         if not isinstance(producer_receipt_refs, dict):
             raise ValueError("D4 validation bundle lacks producer receipt refs")
-        d4_stage_receipt_ref = producer_receipt_refs.get("d4")
-        if not isinstance(d4_stage_receipt_ref, str):
-            raise ValueError("D4 validation bundle lacks its D4 stage receipt ref")
-        stage_receipt = VerifiedUkraineStageArtifacts.model_validate_json(
-            store.get_bytes(d4_stage_receipt_ref)
-        )
-        if stage_receipt.stage_id != "d4":
-            raise ValueError("D4 validation bundle references a non-D4 stage receipt")
+        source_specs = {
+            "d4": (
+                "scientist.d4.governance_request",
+                _UKRAINE_D4_REQUEST_OUTPUT,
+                _UkraineD4GovernanceRequest,
+            ),
+            "d0_p0": (
+                "scientist.d4.identity_resolution_cohort",
+                _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+                _IdentityResolutionCohort,
+            ),
+            "d2": (
+                "scientist.d4.calibration_splits",
+                "calibration_splits.json",
+                dict[str, dict[str, str]],
+            ),
+        }
+        selected_receipt_refs: dict[str, ArtifactRef] = {}
+        selected_stage_receipts: dict[str, VerifiedUkraineStageArtifacts] = {}
+        source_profile_statuses: dict[str, UkraineJSONSnapshotStatus] = {}
+        for stage_id, (consumer_contract, output_name, model_type) in source_specs.items():
+            raw_ref = producer_receipt_refs.get(stage_id)
+            if not isinstance(raw_ref, dict):
+                raise ValueError(f"D4 validation bundle lacks its selected {stage_id} receipt ref")
+            receipt_ref = ArtifactRef.model_validate(raw_ref)
+            if (
+                receipt_ref.manifest_profile_sha256 is None
+                or receipt_ref.kind != "scientist.verified_producer_artifact_receipt"
+                or receipt_ref.media_type != "application/json"
+            ):
+                raise ValueError(f"D4 {stage_id} receipt lacks an exact selected Core profile")
+            stage_receipt = validate_core_model_json_artifact(
+                VerifiedUkraineStageArtifacts,
+                store,
+                receipt_ref,
+            )
+            if stage_receipt.stage_id != stage_id:
+                raise ValueError(f"D4 validation bundle references the wrong {stage_id} stage")
+            read = load_verified_stage_json_output(
+                store,
+                stage_receipt,
+                output_name,
+                model_type=model_type,
+                consumer_contract=consumer_contract,
+            )
+            if read.provenance.profile_status != "declared_unknown_candidate":
+                read.value_for_candidate()
+            selected_receipt_refs[stage_id] = receipt_ref
+            selected_stage_receipts[stage_id] = stage_receipt
+            source_profile_statuses[consumer_contract] = read.provenance.profile_status
+        d4_stage_receipt_ref = str(selected_receipt_refs["d4"].artifact_id)
+        stage_receipt = selected_stage_receipts["d4"]
+        expected_profile_contracts = {
+            "scientist.d4.governance_request",
+            "scientist.d4.identity_resolution_cohort",
+            "scientist.d4.calibration_splits",
+        }
+        if (
+            set(source_profile_statuses) != expected_profile_contracts
+            or any(status != "declared_bytes_conformant" for status in source_profile_statuses.values())
+        ):
+            return _D4ReleasePredicateContext(
+                status="not_established",
+                predicate_provenance="not_established",
+                reason="d4_json_snapshot_profile_not_conformant",
+                validation_bundle_ref=bundle_ref,
+                stage_receipt_ref=d4_stage_receipt_ref,
+                stage_receipt=stage_receipt,
+                json_snapshot_profile_statuses=source_profile_statuses,
+            )
     except Exception:
         return _D4ReleasePredicateContext(
             status="not_established",
@@ -2055,6 +2183,7 @@ def _run_d4_release_predicate(
         validation_bundle_ref=bundle_ref,
         stage_receipt_ref=d4_stage_receipt_ref,
         stage_receipt=stage_receipt,
+        json_snapshot_profile_statuses=source_profile_statuses,
     )
 
 
@@ -2089,28 +2218,100 @@ def _evaluate_release_predicates(
     store: FileSystemCAS,
     admission: VerifiedUkraineReleaseArtifacts,
     d4_context: _D4ReleasePredicateContext,
+    *,
+    selected_snapshot_bytes: dict[str, bytes] | None = None,
 ) -> _ScientistReleasePredicateReceipt:
     """Evaluate manifest, compression, and D4 predicates from admitted CAS bytes."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
-    manifest = ReleaseManifest.model_validate_json(store.get_bytes(admission.manifest_ref))
-    manifest_no_errors = not any(
-        finding.severity.strip().casefold() == "error" for finding in manifest.validation
-    )
     reasons: list[str] = []
-    if not manifest_no_errors:
-        reasons.append("producer_manifest_contains_errors")
+    manifest_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    manifest_no_errors = False
+    try:
+        manifest_read = load_verified_release_manifest_json(
+            store,
+            admission,
+            model_type=ReleaseManifest,
+            consumer_contract="scientist.d5.release_manifest_predicate",
+            raw_payload_bytes=(selected_snapshot_bytes or {}).get("manifest"),
+        )
+        manifest_profile_status = manifest_read.provenance.profile_status
+        if manifest_profile_status != "declared_unknown_candidate":
+            manifest = manifest_read.value_for_candidate()
+            manifest_no_errors = not any(
+                finding.severity.strip().casefold() == "error" for finding in manifest.validation
+            )
+    except Exception:
+        reasons.append("release_manifest_profile_or_payload_not_established")
+    if manifest_profile_status == "declared_unknown_candidate":
+        reasons.append("release_manifest_profile_unknown_raw_only")
+    if manifest_profile_status != "declared_bytes_conformant":
+        manifest_no_errors = False
+        reasons.append("release_manifest_profile_unqualified_candidate")
 
     compression_artifact = admission.evidence["graph_compression_bundle"]
+    d4_evidence_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    try:
+        d4_evidence_read = load_verified_release_json_artifact(
+            store,
+            admission.evidence["d4_governance_request"],
+            model_type=_UkraineD4GovernanceRequest,
+            consumer_contract="scientist.d5.d4_governance_request_evidence",
+            raw_payload_bytes=(selected_snapshot_bytes or {}).get(
+                "evidence:d4_governance_request"
+            ),
+        )
+        d4_evidence_status = d4_evidence_read.provenance.profile_status
+        if d4_evidence_status != "declared_unknown_candidate":
+            d4_evidence_read.value_for_candidate()
+    except Exception:
+        reasons.append("d4_release_evidence_profile_or_payload_not_established")
+    d4_snapshot_profile_statuses = dict(d4_context.json_snapshot_profile_statuses)
+    d4_snapshot_profile_statuses[
+        "scientist.d5.d4_governance_request_evidence"
+    ] = d4_evidence_status
+    handoff_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
+    try:
+        handoff_read = load_verified_release_json_artifact(
+            store,
+            admission.evidence["d5_release_handoff_request"],
+            model_type=D5ReleaseHandoffRequest,
+            consumer_contract="scientist.d5.release_handoff_request",
+            raw_payload_bytes=(selected_snapshot_bytes or {}).get(
+                "evidence:d5_release_handoff_request"
+            ),
+        )
+        handoff_profile_status = handoff_read.provenance.profile_status
+        if handoff_profile_status != "declared_unknown_candidate":
+            selected_handoff = handoff_read.value_for_candidate()
+            if selected_handoff != admission.handoff_request:
+                handoff_profile_status = "not_established"
+                reasons.append("d5_handoff_snapshot_value_mismatch")
+    except Exception:
+        reasons.append("d5_handoff_profile_or_payload_not_established")
+    if handoff_profile_status != admission.handoff_snapshot_profile_status:
+        reasons.append("d5_handoff_profile_status_witness_mismatch")
     compression_layer_count = 0
+    compression_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = "not_established"
     reconciled_degree: float | None = None
     reconciled_weight_error: float | None = None
     reconciled_overlap: float | None = None
     compression_provenance: Literal["independently_reconciled", "not_established"]
     compression_status: Literal["admissible", "blocked", "not_established"]
     try:
-        compression = _D5GraphCompressionBundle.model_validate_json(
-            load_verified_release_artifact_bytes(store, compression_artifact)
+        compression_read = load_verified_release_json_artifact(
+            store,
+            compression_artifact,
+            model_type=_D5GraphCompressionBundle,
+            consumer_contract="scientist.d5.graph_compression_bundle",
+            raw_payload_bytes=(selected_snapshot_bytes or {}).get(
+                "evidence:graph_compression_bundle"
+            ),
         )
+        compression_profile_status = compression_read.provenance.profile_status
+        if compression_profile_status == "declared_unknown_candidate":
+            raise ValueError("unsupported compression profile is raw-only")
+        compression = compression_read.value_for_candidate()
         compression_layer_count = len(compression.layers)
         if not compression.layers:
             raise ValueError("compression bundle has no layer records")
@@ -2166,12 +2367,26 @@ def _evaluate_release_predicates(
         compression_status = "not_established"
         reasons.append("compression_predicate_not_established")
 
+    if compression_profile_status != "declared_bytes_conformant":
+        compression_provenance = "not_established"
+        compression_status = "not_established"
+        reasons.append("compression_snapshot_profile_unqualified_candidate")
     if d4_context.status == "not_established":
         reasons.append("d4_governance_not_established")
     elif d4_context.status == "blocked":
         reasons.append("d4_governance_blocked")
     predicate_admissible = bool(
         manifest_no_errors
+        and manifest_profile_status == "declared_bytes_conformant"
+        and compression_profile_status == "declared_bytes_conformant"
+        and handoff_profile_status == "declared_bytes_conformant"
+        and set(d4_snapshot_profile_statuses) == {
+            "scientist.d4.governance_request",
+            "scientist.d4.identity_resolution_cohort",
+            "scientist.d4.calibration_splits",
+            "scientist.d5.d4_governance_request_evidence",
+        }
+        and all(status == "declared_bytes_conformant" for status in d4_snapshot_profile_statuses.values())
         and compression_status == "admissible"
         and d4_context.status == "admissible"
     )
@@ -2180,6 +2395,24 @@ def _evaluate_release_predicates(
         manifest_ref=str(admission.manifest_ref.artifact_id),
         graph_compression_ref=str(compression_artifact.content_ref.artifact_id),
         manifest_no_errors=manifest_no_errors,
+        json_snapshot_profile_conformance_provenance=(
+            "independently_reconciled"
+            if manifest_profile_status == "declared_bytes_conformant"
+            and compression_profile_status == "declared_bytes_conformant"
+            and handoff_profile_status == "declared_bytes_conformant"
+            and set(d4_snapshot_profile_statuses) == {
+                "scientist.d4.governance_request",
+                "scientist.d4.identity_resolution_cohort",
+                "scientist.d4.calibration_splits",
+                "scientist.d5.d4_governance_request_evidence",
+            }
+            and all(status == "declared_bytes_conformant" for status in d4_snapshot_profile_statuses.values())
+            else "not_established"
+        ),
+        manifest_snapshot_profile_status=manifest_profile_status,
+        compression_snapshot_profile_status=compression_profile_status,
+        handoff_snapshot_profile_status=admission.handoff_snapshot_profile_status,
+        d4_source_json_snapshot_profile_statuses=d4_snapshot_profile_statuses,
         compression_predicate_provenance=compression_provenance,
         compression_status=compression_status,
         compression_layer_count=compression_layer_count,
@@ -2209,6 +2442,7 @@ def run_verified_ukraine_d5_release(
     admitted CAS object, invokes Foundry only with CAS references, runs its own
     postflight, and persists both positive and blocked outcomes.
     """
+    from polisyos.core.artifacts import validate_core_model_json_artifact
 
     store = FileSystemCAS(cas_root)
     d4_context = _run_d4_release_predicate(
@@ -2222,14 +2456,19 @@ def run_verified_ukraine_d5_release(
         allowed_root=build_root,
         expected_stage="d5",
     )
-    _verify_release_receipt_cas(
+    selected_snapshot_bytes = _verify_release_receipt_cas(
         store,
         admission,
         allowed_root=build_root,
         release_manifest_path=release_manifest_path,
     )
     d4_context = _bind_d4_release_predicate(d4_context, admission)
-    predicate_receipt = _evaluate_release_predicates(store, admission, d4_context)
+    predicate_receipt = _evaluate_release_predicates(
+        store,
+        admission,
+        d4_context,
+        selected_snapshot_bytes=selected_snapshot_bytes,
+    )
     predicate_receipt_ref = store.put_json(
         predicate_receipt,
         PutOptions(
@@ -2237,7 +2476,7 @@ def run_verified_ukraine_d5_release(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.ReleasePredicateReceipt",
-                version="1.0",
+                version="2.0",
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -2273,7 +2512,7 @@ def run_verified_ukraine_d5_release(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.data_forge.ukraine.VerifiedUkraineReleaseArtifacts",
-                version="v1",
+                version="v2",
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -2311,9 +2550,7 @@ def run_verified_ukraine_d5_release(
     effective_trinity_ref = foundry_receipt.execution_artifacts.get("compiled_trinity_bundle_ref")
     registry_bundle_ref = foundry_receipt.execution_artifacts.get("registry_bundle_ref")
     if foundry_receipt.technical_passed and effective_trinity_ref and registry_bundle_ref:
-        effective_trinity = TrinityBundle.model_validate_json(
-            store.get_bytes(effective_trinity_ref)
-        )
+        effective_trinity = validate_core_model_json_artifact(TrinityBundle, store, effective_trinity_ref)
         postflight_input = {
             "run_id": "R_release_acceptance",
             "ir": effective_trinity.model_dump(mode="json"),

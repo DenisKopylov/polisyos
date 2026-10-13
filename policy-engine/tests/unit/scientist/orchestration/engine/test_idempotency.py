@@ -255,6 +255,9 @@ def test_node_cache_replays_artifact_ref_and_keeps_excluded_null_presence_bounde
     # ArtifactRef excludes a None profile from its wire form, so its transient
     # model_fields_set provenance is deliberately not represented after CAS load.
     assert "manifest_profile_sha256" not in restored_ref.model_fields_set
+    # Equality follows the ArtifactRef values despite the omitted provenance bit.
+    assert restored_ref == reference
+    assert reference == restored_ref
     # The cache validates the canonical journal record; this normalized ref is
     # still a hit on a subsequent full entry read.
     assert cache.get(key) is not None

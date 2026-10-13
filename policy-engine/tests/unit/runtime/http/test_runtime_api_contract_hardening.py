@@ -21,6 +21,9 @@ from polisyos.pdc import DecisionGrade, RunBoundDesignRecordBinding
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.acquisition_action_service import (
+    AcquisitionRouteProjection,
+)
 from polisyos.runtime.http.services.cycle_board_contracts import (
     CYCLE_BOARD_PROJECTION_RULE_VERSION,
     CYCLE_BOARD_STABLE_ADDRESS,
@@ -977,6 +980,79 @@ def test_normative_evidence_openapi_registration_removal_restores_exact_refusal(
     ]
 
 
+def _acquisition_route_projection_payload(
+    *,
+    world_growth: str,
+    admitted_observation_delta: int | None,
+    activated: bool = False,
+) -> dict[str, object]:
+    digest = "sha256:" + "a" * 64
+    return {
+        "tenant_id": "tenant",
+        "cell_id": "cell",
+        "run_id": "run",
+        "route_id": digest,
+        "route_projection_hash": digest,
+        "planner_report_hash": digest,
+        "planner_record_id": "planner-record",
+        "recommended_strategy": "targeted_primary_data_collection",
+        "cost_basis": {},
+        "replay_pins": {
+            "source_job_id": "source-job",
+            "compiled_ref": digest,
+            "compiled_content_hash": digest,
+            "terminal_event_id": "terminal-event",
+            "design_problem_ref": digest,
+            "cost_basis_hash": digest,
+        },
+        "authority_capability": "ready",
+        "execution_capability": "ready",
+        "qualification_status": "activated" if activated else "pending_epoch_activation",
+        "qualification_predicate": (
+            "independently_reconciled" if activated else "not_established"
+        ),
+        "qualification_reason": (
+            "native_owner_readback" if activated else "policy_admission_missing"
+        ),
+        "authority_badge": (
+            "native_owner_verified" if activated else "behavioral_fixture_not_production"
+        ),
+        "world_growth": world_growth,
+        "admitted_observation_delta": admitted_observation_delta,
+    }
+
+
+def test_acquisition_route_growth_status_requires_matching_owner_delta() -> None:
+    for status, delta, activated in (
+        ("not_established", None, False),
+        ("no_growth", 0, True),
+        ("admitted_delta", 2, True),
+    ):
+        AcquisitionRouteProjection.model_validate(
+            _acquisition_route_projection_payload(
+                world_growth=status,
+                admitted_observation_delta=delta,
+                activated=activated,
+            )
+        )
+    for status, delta, activated in (
+        ("not_established", 0, False),
+        ("no_growth", None, True),
+        ("no_growth", 1, True),
+        ("admitted_delta", 0, True),
+        ("admitted_delta", None, True),
+        ("no_growth", 0, False),
+    ):
+        with pytest.raises(ValueError):
+            AcquisitionRouteProjection.model_validate(
+                _acquisition_route_projection_payload(
+                    world_growth=status,
+                    admitted_observation_delta=delta,
+                    activated=activated,
+                )
+            )
+
+
 def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None:
     paths = schema["paths"]
     operations = {
@@ -1021,10 +1097,21 @@ def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None
     assert forbidden_authority_fields.isdisjoint(body["properties"])
     projection = schema["components"]["schemas"]["AcquisitionRouteProjection"]
     assert projection["properties"]["schema_version"]["const"] == (
-        "AcquisitionRouteProjection@1.0"
+        "AcquisitionRouteProjection@1.1"
     )
-    assert projection["properties"]["world_growth"]["const"] == "no_growth"
-    assert projection["properties"]["qualification_status"]["const"] == ("pending_epoch_activation")
+    model_properties = AcquisitionRouteProjection.model_json_schema()["properties"]
+    assert (
+        projection["properties"]["world_growth"]["enum"]
+        == model_properties["world_growth"]["enum"]
+    )
+    assert (
+        projection["properties"]["qualification_status"]["enum"]
+        == model_properties["qualification_status"]["enum"]
+    )
+    assert (
+        projection["properties"]["admitted_observation_delta"]
+        == model_properties["admitted_observation_delta"]
+    )
     for operation in operations.values():
         examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
         assert examples
@@ -1036,14 +1123,16 @@ def test_openapi_exposes_strict_acquisition_route_boundary_without_growth_author
 
 @pytest.mark.parametrize(
     "mutation",
-    ["facet", "schema_discriminator", "replay_pin", "operation_binding"],
+    ["facet", "growth_delta", "schema_discriminator", "replay_pin", "operation_binding"],
 )
 def test_ds15_acquisition_openapi_mutations_fail_the_semantic_contract(mutation: str) -> None:
     schema = export_runtime_openapi_schema()
     projection = schema["components"]["schemas"]["AcquisitionRouteProjection"]
     body = schema["components"]["schemas"]["AcquisitionRouteMutationRequest"]
     if mutation == "facet":
-        projection["properties"]["world_growth"]["const"] = "grew"
+        projection["properties"]["world_growth"]["enum"].remove("not_established")
+    elif mutation == "growth_delta":
+        projection["properties"]["admitted_observation_delta"]["default"] = 0
     elif mutation == "schema_discriminator":
         projection["properties"]["schema_version"]["const"] = (
             "AcquisitionRouteProjection@0.0"

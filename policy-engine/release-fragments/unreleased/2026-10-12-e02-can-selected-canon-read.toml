@@ -1,0 +1,46 @@
+id = "2026-10-12-e02-can-selected-canon-read"
+title = "Verify selected canonical profiles on semantic reads"
+type = "changed"
+component = "runtime-api"
+owner = "team-runtime"
+summary = "Core and IR semantic reads validate the exact selected raw CanonInfo profile and payload bytes before decoding; catalog epoch writers bind their actual framed codec and activation refuses profileless receipts."
+evidence = [
+  "tests/unit/common/test_canonical_profile.py",
+  "tests/unit/runtime/http/test_declared_profile_refusal.py",
+  "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+  "tests/unit/runtime/http/test_can_publicconsumer_r208_profile_guard.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "The additive canon_read_status response field distinguishes a verified declared profile from explicitly requested candidate-only unqualified inspection. Default semantic reads refuse profile absence; present malformed or byte-inconsistent Core profiles refuse projection with a typed 409. Predictive diagnostics and JSON content previews check their exact selected-byte limits before decoding; schema-view key extraction remains uncapped because it has no existing route limit. Artifact bytes and CAS hashes are unchanged. The source-derived authority import closure follows literal lazy facade providers and refuses unresolved or ambiguous dispatch. Generated public-surface inventory review remains pending; from the repository root after source freeze run cd policy-engine && uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline, then run cd policy-engine && uv run polisyos-tools architecture guardrails check and review the generated snapshot."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime HTTP API"
+migration = "No stored artifacts are rewritten or re-profiled. Existing profileless catalog receipts remain unqualified and cannot activate; regenerate downstream typed clients only after final source freeze."
+api = "Declares application/problem+json RuntimeApiProblem 409 responses on 25 Core semantic operations; R193 separately owns eight artifact operation response annotations. Raw/binary content remains exact bytes; public verification keeps its nonreceipt outcome."
+limitations = "Core and IR CanonInfo tag families remain distinct. New catalog frames attest only the serializer settings of their new bytes; they do not establish producer authority, currentness, or historical eligibility. Existing profileless frames remain unqualified. OpenAPI/client regeneration, runtime tests, API tests, and installed-wheel/native acceptance remain UNRUN pending the root acceptance wave."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-can-selected-core-canon-read"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API canonical read status and refusal behavior"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Selected Core JSON content, schema, and predictive-diagnostic reads keep profile refusals typed; explicit raw bytes and non-JSON binary/text previews retain their existing representation; predictive diagnostics enforce the exact selected-byte cap before decoding."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[ukraine_json_snapshot_reader]
+status = "candidate_only_when_profile_absent"
+unsupported_profile = "raw_only_declared_unknown_candidate"
+malformed_present = "refuse"
+producer_attestation = "not_established"
+currentness = "not_established"
+parquet_and_opaque_bytes = "preserved_raw"

@@ -361,6 +361,29 @@ class CoreToIRArtifactStoreAdapter:
             raise TypeError("Core artifact store cannot resolve a non-default manifest profile")
         return manifest
 
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactSelector,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Delegate exact raw sidecar access to the wrapped Core owner."""
+        reader = getattr(self.store, "get_raw_manifest_bytes", None)
+        if not callable(reader):
+            raise TypeError("Core artifact store must expose get_raw_manifest_bytes for IR reads")
+        selected = _coerce_core_artifact_selector(artifact_id)
+        raw = reader(
+            selected,
+            **(
+                {"manifest_profile_sha256": manifest_profile_sha256}
+                if manifest_profile_sha256 is not None
+                else {}
+            ),
+        )
+        if not isinstance(raw, bytes):
+            raise TypeError("Core get_raw_manifest_bytes() must return bytes")
+        return raw
+
     def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
         """Return the exact selected raw sidecar bytes from the wrapped Core owner."""
         reader = getattr(self.store, "get_manifest_bytes", None)

@@ -67,6 +67,7 @@ def _manifest_ref(manifest: artifacts.ArtifactManifest) -> ArtifactRef:
         artifact_id=manifest.artifact_id,
         kind=manifest.kind,
         media_type=manifest.media_type,
+        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
     )
 
 
@@ -98,6 +99,7 @@ def _read_transition_exact(
     store: ArtifactStore,
     ref: ArtifactRef,
 ) -> tuple[EpochValidityTransitionArtifact, bytes]:
+    from polisyos.core.artifacts import validate_core_model_json_artifact
     try:
         manifest = store.get_manifest(ref)
         raw = store.get_bytes(ref)
@@ -112,7 +114,9 @@ def _read_transition_exact(
             or _raw_digest(raw) != str(ref.artifact_id)
         ):
             raise ValueError("transition profile mismatch")
-        transition = EpochValidityTransitionArtifact.model_validate_json(raw)
+        transition = validate_core_model_json_artifact(
+            EpochValidityTransitionArtifact, store, ref, raw_payload_bytes=raw
+        )
         if _transition_canonical_bytes(transition) != raw:
             raise ValueError("transition bytes noncanonical")
         expected_outer = epoch_dependency_outer_denominator_ref(
@@ -138,6 +142,7 @@ def _read_snapshot_exact(
     store: ArtifactStore,
     handle: DecisionValidityEpochImpactSnapshotHandle,
 ) -> PersistedDecisionValidityEpochImpactSnapshot:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         ref = handle.snapshot_ref
         manifest = store.get_manifest(ref)
@@ -155,7 +160,7 @@ def _read_snapshot_exact(
         ):
             raise ValueError("snapshot profile mismatch")
         snapshot = DecisionValidityEpochImpactSnapshot.model_validate(
-            canon.from_canonical_bytes(raw)
+            load_core_json_artifact(store, ref, raw_payload_bytes=raw)
         )
         if (
             canon.to_canonical_bytes(snapshot.model_dump(mode="json"), _CANON_SPEC) != raw
@@ -298,6 +303,7 @@ class EpochTransitionDenominatorReconciliationReader:
         *,
         handle: EpochTransitionDenominatorReconciliationHandle,
     ) -> PersistedEpochTransitionDenominatorReconciliation:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             ref = handle.reconciliation_receipt_ref
             manifest = self._store.get_manifest(ref)
@@ -315,7 +321,7 @@ class EpochTransitionDenominatorReconciliationReader:
             ):
                 raise ValueError("receipt profile mismatch")
             receipt = EpochTransitionDenominatorReconciliationReceipt.model_validate(
-                canon.from_canonical_bytes(raw)
+                load_core_json_artifact(self._store, ref, raw_payload_bytes=raw)
             )
             if (
                 canon.to_canonical_bytes(receipt.model_dump(mode="json"), _CANON_SPEC) != raw
@@ -391,6 +397,7 @@ class EpochTransitionDenominatorReconciliationReader:
         scientist_snapshot_handle: DecisionValidityEpochImpactSnapshotHandle,
     ) -> PersistedEpochTransitionDenominatorReconciliation:
         """Scan the complete live CAS denominator for one exact candidate."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         appointed = self._require_appointment()
         transition, transition_raw = _read_transition_exact(
@@ -426,9 +433,12 @@ class EpochTransitionDenominatorReconciliationReader:
                 manifest = self._store.get_manifest(artifact_id)
                 if manifest.kind != _RECONCILIATION_KIND:
                     continue
-                raw = self._store.get_bytes(artifact_id)
                 parsed = EpochTransitionDenominatorReconciliationReceipt.model_validate(
-                    canon.from_canonical_bytes(raw)
+                    load_core_json_artifact(
+                        self._store,
+                        artifact_id,
+                        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+                    )
                 )
                 candidate = self.resolve_exact(
                     handle=EpochTransitionDenominatorReconciliationHandle(

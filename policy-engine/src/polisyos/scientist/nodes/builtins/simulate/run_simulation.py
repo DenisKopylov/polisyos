@@ -10,7 +10,6 @@ from pydantic import ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -198,6 +197,7 @@ class RunSimulationNode:
         return replace(self, exec_config=config)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         injected_metrics = ctx.metrics if ctx.metrics is not None else None
         metrics = (
             injected_metrics
@@ -333,7 +333,7 @@ class RunSimulationNode:
             artifacts.append(result.simulation_result_ref)
 
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(result.simulation_result_ref))
+                payload = load_core_json_artifact(ctx.store, result.simulation_result_ref)
                 if isinstance(payload, dict):
                     simulation_payload = dict(payload)
                 sim_result = SimulationResult.model_validate(payload)
@@ -356,6 +356,7 @@ class RunSimulationNode:
                     )
                 )
 
+        run_manifest_updates: dict[str, object] = {}
         for item in result.derived_refs:
             artifacts.append(item.ref)
             if item.role == "metrics":
@@ -366,13 +367,16 @@ class RunSimulationNode:
                 new_state.artifacts_index[ARTIFACT_CONSTRAINT_REPORT_REF] = item.ref
             elif item.role == "environment_manifest":
                 new_state.artifacts_index[ARTIFACT_ENVIRONMENT_MANIFEST_REF] = item.ref
-                ctx.run.run_manifest.environment_manifest_ref = item.ref
+                run_manifest_updates["environment_manifest_ref"] = item.ref
             elif item.role == "tee_attestation":
                 new_state.artifacts_index[ARTIFACT_TEE_ATTESTATION_REF] = item.ref
-                ctx.run.run_manifest.tee_attestation_ref = item.ref
+                run_manifest_updates["tee_attestation_ref"] = item.ref
             elif item.role == "sbom":
                 new_state.artifacts_index[ARTIFACT_SBOM_REF] = item.ref
-                ctx.run.run_manifest.sbom_ref = item.ref
+                run_manifest_updates["sbom_ref"] = item.ref
+
+        if run_manifest_updates:
+            ctx.run.update_manifest(**run_manifest_updates)
 
         if not result.ok:
             error = NodeError(

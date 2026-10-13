@@ -655,7 +655,13 @@
           "strategy": "Recommended strategy",
           "status": "Route status",
           "voi": "VOI",
-          "costedPlan": "Owner-backed costed plan"
+          "costedPlan": "Owner-backed costed plan",
+          "worldGrowth": "World growth",
+          "growthStatus": {
+            "notEstablished": "Update not established",
+            "noGrowth": "No membership added to the selected active epoch",
+            "admittedDelta": "Membership added to the selected active epoch"
+          }
         },
         "action": {
           "eyebrow": "Acquisition route motion",

@@ -11,7 +11,6 @@ from pydantic import ValidationError
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.ir.analytics.causal import CausalEffectReport
@@ -308,10 +307,11 @@ def _resolve_policy_evaluation(
 
 
 def _load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> dict[str, float]:
+    from polisyos.core.artifacts import load_core_json_artifact
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
-    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
+    payload = load_core_json_artifact(ctx.store, metrics_ref)
     metrics = Metrics.model_validate(payload)
     output: dict[str, float] = {}
     for key, value in metrics.values.items():
@@ -362,7 +362,8 @@ def _build_selection_benchmark_evaluation(
 
 
 def _load_benchmark_evaluation(ctx: ExecutionContext, ref: ArtifactRef) -> BenchmarkEvaluation:
-    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return BenchmarkEvaluation.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_distributional_report(ctx: ExecutionContext, state: ExperimentState):
@@ -375,26 +376,29 @@ def _load_distributional_report(ctx: ExecutionContext, state: ExperimentState):
 
 
 def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    return CausalEffectReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_governance_report(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport | None:
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):

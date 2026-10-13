@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import os
 import secrets
@@ -20,12 +21,13 @@ from polisyos.common.serialization import fast_json_dumps
 from ..artifacts import ManifestLifecycle
 from ..artifacts._atomic_write import AtomicFileWriter
 from ..artifacts.manifest import ArtifactRef, CanonInfo, EnvInfo, InputRef, ProducerInfo, SchemaInfo
+from ..artifacts.protocol import _require_return_selected_profile_writer
 from ..artifacts.write_contract import ArtifactWriteOptions
-from ..canon import CanonSpec, content_hash, to_canonical_bytes
+from ..canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
 from ..trace.sink import JsonlTraceSink, TraceSink
-from .manifest import RunManifest
+from .manifest import RunManifest, RunOwnerSnapshot
 
 if TYPE_CHECKING:
     from polisyos.core.security.access_scope import AccessScope
@@ -37,6 +39,19 @@ _FINALIZE_JOURNAL_SCHEMA_VERSION = "1.0"
 _FINALIZE_JOURNAL_NAME = ".finalize-journal.json"
 _FINALIZE_LOCK_NAME = ".finalize.lock"
 _RUN_FINALIZE_THREAD_LOCKS = tuple(threading.RLock() for _ in range(64))
+_RUN_ACTIVE_LOCK_NAME = ".run-active.lock"
+_RUN_OWNER_SNAPSHOT_KIND = "core.run_owner_snapshot"
+_RUN_OWNER_SNAPSHOT_SCHEMA = "polisyos.core.RunOwnerSnapshot"
+_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION = "1.0.1"
+_RUN_OWNER_SNAPSHOT_CANON = CanonSpec(exclude_none=False)
+_RUN_OWNER_SCOPE_CANON = CanonSpec(
+    name="polisyos.core.run.owner-scope",
+    version="1.0",
+    forbid_floats=False,
+    sort_keys=True,
+)
+_ACTIVE_RUN_THREAD_LOCKS: dict[Path, threading.Lock] = {}
+_ACTIVE_RUN_THREAD_LOCKS_GUARD = threading.Lock()
 
 
 class _FinalizeRecoveryError(ValueError):
@@ -86,6 +101,92 @@ def _run_finalize_lease(run_dir: Path) -> Iterator[None]:
             os.close(descriptor)
 
 
+class _RunExecutionLease:
+    """Hold one run's writer lease until finalization, suspension, or process exit."""
+
+    def __init__(self, run_dir: Path) -> None:
+        self.run_dir = run_dir
+        self._run_key: Path | None = None
+        self._thread_lock: threading.Lock | None = None
+        self._descriptor: int | None = None
+        self._fcntl: object | None = None
+
+    def acquire(self) -> None:
+        try:
+            run_key = self.run_dir.resolve(strict=True)
+            if not run_key.is_dir():
+                raise _FinalizeRecoveryError("run_execution_lease_directory_invalid")
+        except OSError as exc:
+            raise _FinalizeRecoveryError("run_execution_lease_directory_invalid") from exc
+
+        with _ACTIVE_RUN_THREAD_LOCKS_GUARD:
+            local_lock = _ACTIVE_RUN_THREAD_LOCKS.get(run_key)
+            if local_lock is None:
+                local_lock = threading.Lock()
+                _ACTIVE_RUN_THREAD_LOCKS[run_key] = local_lock
+            if not local_lock.acquire(blocking=False):
+                raise _FinalizeRecoveryError("run_execution_lease_busy")
+        self._run_key = run_key
+        self._thread_lock = local_lock
+
+        try:
+            import fcntl
+
+            nofollow = getattr(os, "O_NOFOLLOW", 0)
+            if not nofollow:
+                raise _FinalizeRecoveryError("run_execution_lease_no_follow_unavailable")
+            lock_path = run_key / _RUN_ACTIVE_LOCK_NAME
+            AtomicFileWriter.write_once(lock_path, b"", durable_parent=True)
+            flags = os.O_CREAT | os.O_RDWR | nofollow | getattr(os, "O_CLOEXEC", 0)
+            descriptor = os.open(lock_path, flags, 0o600)
+            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+                os.close(descriptor)
+                raise _FinalizeRecoveryError("run_execution_lease_file_invalid")
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as exc:
+                os.close(descriptor)
+                if exc.errno in {errno.EACCES, errno.EAGAIN}:
+                    raise _FinalizeRecoveryError("run_execution_lease_busy") from exc
+                raise _FinalizeRecoveryError("run_execution_lease_unavailable") from exc
+            self._fcntl = fcntl
+            self._descriptor = descriptor
+        except (ImportError, OSError) as exc:
+            self._release_thread_lock()
+            if isinstance(exc, _FinalizeRecoveryError):
+                raise
+            raise _FinalizeRecoveryError("run_execution_lease_unavailable") from exc
+        except Exception:
+            self._release_thread_lock()
+            raise
+
+    def _release_thread_lock(self) -> None:
+        run_key = self._run_key
+        local_lock = self._thread_lock
+        if run_key is None or local_lock is None:
+            return
+        with _ACTIVE_RUN_THREAD_LOCKS_GUARD:
+            local_lock.release()
+            if _ACTIVE_RUN_THREAD_LOCKS.get(run_key) is local_lock:
+                del _ACTIVE_RUN_THREAD_LOCKS[run_key]
+        self._run_key = None
+        self._thread_lock = None
+
+    def release(self) -> None:
+        descriptor = self._descriptor
+        fcntl = self._fcntl
+        self._descriptor = None
+        self._fcntl = None
+        try:
+            if descriptor is not None and fcntl is not None:
+                try:
+                    fcntl.flock(descriptor, fcntl.LOCK_UN)
+                finally:
+                    os.close(descriptor)
+        finally:
+            self._release_thread_lock()
+
+
 @dataclass(frozen=True)
 class _RunOwnerIdentity:
     """Lifecycle identity established by the canonical RUN_STARTED event."""
@@ -117,6 +218,269 @@ def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptio
             )
         ],
     )
+
+
+def _run_owner_snapshot_write_options(
+    snapshot: RunOwnerSnapshot,
+) -> ArtifactWriteOptions:
+    inputs = [
+        InputRef(
+            artifact_id=snapshot.run_manifest.registry_bundle.artifact_id,
+            role="registry_bundle",
+            manifest_profile_sha256=(
+                snapshot.run_manifest.registry_bundle.manifest_profile_sha256
+            ),
+        )
+    ]
+    if snapshot.previous_snapshot_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=snapshot.previous_snapshot_ref.artifact_id,
+                role="previous_owner_snapshot",
+                manifest_profile_sha256=(
+                    snapshot.previous_snapshot_ref.manifest_profile_sha256
+                ),
+            )
+        )
+    canon = _RUN_OWNER_SNAPSHOT_CANON
+    return ArtifactWriteOptions(
+        kind=_RUN_OWNER_SNAPSHOT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=_RUN_OWNER_SNAPSHOT_SCHEMA,
+            version=_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION,
+        ),
+        producer=snapshot.run_manifest.producer,
+        env=snapshot.run_manifest.env,
+        inputs=inputs,
+        canon=CanonInfo.from_spec(canon),
+    )
+
+
+def _access_scope_sha256(access_scope: AccessScope | None) -> str | None:
+    if access_scope is None:
+        return None
+    to_dict = getattr(access_scope, "to_dict", None)
+    if not callable(to_dict):
+        raise _FinalizeRecoveryError("run_owner_access_scope_not_established")
+    return content_hash(
+        to_canonical_bytes(to_dict(), _RUN_OWNER_SCOPE_CANON),
+        prefix=True,
+    )
+
+
+def _persist_run_owner_snapshot(
+    store: ArtifactStore,
+    *,
+    run_manifest: RunManifest,
+    access_scope_sha256: str | None,
+    previous_snapshot_ref: ArtifactRef | None,
+) -> ArtifactRef:
+    snapshot = RunOwnerSnapshot(
+        schema_version=_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION,
+        run_manifest=run_manifest.model_copy(deep=True),
+        access_scope_sha256=access_scope_sha256,
+        previous_snapshot_ref=previous_snapshot_ref,
+    )
+    options = _run_owner_snapshot_write_options(snapshot)
+    snapshot_ref = store.put_json(
+        snapshot,
+        options,
+        canon_spec=_RUN_OWNER_SNAPSHOT_CANON,
+        return_selected_profile=True,
+    )
+    _validate_run_owner_snapshot_ref(
+        store,
+        snapshot_ref,
+        require_registry_profile=False,
+    )
+    return snapshot_ref
+
+
+def _validate_run_owner_snapshot_ref(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    require_registry_profile: bool = True,
+) -> RunOwnerSnapshot:
+    if (
+        ref.kind != _RUN_OWNER_SNAPSHOT_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_ref_invalid")
+    try:
+        verification = store.verify(ref)
+        if not verification.ok:
+            raise _FinalizeRecoveryError("run_resume_owner_snapshot_cas_invalid")
+        payload = store.get_bytes(ref)
+        artifact_manifest = store.get_manifest(ref)
+        decoded = from_canonical_bytes(payload)
+        if not isinstance(decoded, dict):
+            raise _FinalizeRecoveryError("run_resume_owner_snapshot_payload_invalid")
+        try:
+            snapshot = RunOwnerSnapshot.model_validate(decoded)
+        except (TypeError, ValueError) as exc:
+            raise _FinalizeRecoveryError("run_resume_owner_snapshot_schema_invalid") from exc
+        expected_bytes = to_canonical_bytes(snapshot, _RUN_OWNER_SNAPSHOT_CANON)
+        if (
+            payload != expected_bytes
+            or content_hash(payload, prefix=True) != str(ref.artifact_id)
+            or content_hash(expected_bytes, prefix=True) != str(ref.artifact_id)
+        ):
+            raise _FinalizeRecoveryError("run_resume_owner_snapshot_content_mismatch")
+        options = _run_owner_snapshot_write_options(snapshot)
+        ManifestLifecycle.validate_profile(
+            artifact_manifest,
+            data_size=len(payload),
+            opts=options,
+        )
+        if artifact_manifest.inputs != options.inputs:
+            raise _FinalizeRecoveryError("run_resume_owner_snapshot_lineage_mismatch")
+        registry_ref = snapshot.run_manifest.registry_bundle
+        if require_registry_profile and registry_ref.manifest_profile_sha256 is None:
+            raise _FinalizeRecoveryError("run_resume_registry_profile_not_established")
+        if not store.verify(registry_ref).ok:
+            raise _FinalizeRecoveryError("run_resume_registry_cas_invalid")
+        store.get_manifest(registry_ref)
+    except _FinalizeRecoveryError:
+        raise
+    except (OSError, TypeError, ValueError, KeyError) as exc:
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_proof_unavailable") from exc
+    manifest = snapshot.run_manifest
+    if (
+        snapshot.schema_version != _RUN_OWNER_SNAPSHOT_SCHEMA_VERSION
+        or manifest.status != "running"
+        or manifest.finished_at is not None
+        or manifest.trace_ref is not None
+        or manifest.started_at.tzinfo is None
+        or manifest.started_at.utcoffset() is None
+        or manifest.started_at > datetime.now(UTC)
+    ):
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_state_invalid")
+    return snapshot
+
+
+def _read_incomplete_run_trace(
+    run_dir: Path,
+    *,
+    run_id: str,
+) -> tuple[list[TraceRecord], TraceRecord]:
+    if os.path.lexists(_finalize_journal_path(run_dir)):
+        raise _FinalizeRecoveryError("run_resume_finalize_journal_conflict")
+    trace_path = run_dir / "trace.jsonl"
+    try:
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+        if not getattr(os, "O_NOFOLLOW", 0):
+            raise _FinalizeRecoveryError("run_resume_trace_no_follow_unavailable")
+        descriptor = os.open(trace_path, flags)
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            raise _FinalizeRecoveryError("run_resume_trace_file_invalid")
+        with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
+            lines = handle.read().splitlines()
+    except _FinalizeRecoveryError:
+        raise
+    except (OSError, UnicodeError) as exc:
+        raise _FinalizeRecoveryError("run_resume_trace_unreadable") from exc
+    records: list[TraceRecord] = []
+    try:
+        records = [TraceRecord.model_validate_json(line) for line in lines if line.strip()]
+    except (TypeError, ValueError) as exc:
+        raise _FinalizeRecoveryError("run_resume_trace_record_invalid") from exc
+    starts = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_STARTED"
+    ]
+    if (
+        len(starts) != 1
+        or not records
+        or records[0] is not starts[0]
+        or starts[0].run_id != run_id
+        or starts[0].run_terminality is not RunTerminality.NON_TERMINAL
+    ):
+        raise _FinalizeRecoveryError("run_resume_trace_owner_fact_invalid")
+    owner = starts[0]
+    for record in records:
+        if (
+            record.run_id != owner.run_id
+            or record.tenant_id != owner.tenant_id
+            or record.cell_id != owner.cell_id
+            or record.run_terminality is RunTerminality.TERMINAL
+            or record.run_terminality is RunTerminality.NOT_ESTABLISHED
+            or (record.phase == "core" and record.event == "RUN_FINALIZED")
+        ):
+            raise _FinalizeRecoveryError("run_resume_trace_not_incomplete")
+    return records, owner
+
+
+def _run_owner_snapshot_chain(
+    store: ArtifactStore,
+    *,
+    records: list[TraceRecord],
+    started: TraceRecord,
+) -> tuple[RunOwnerSnapshot, ArtifactRef, int]:
+    if started.refs.inputs or len(started.refs.outputs) != 1:
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_ref_invalid")
+    owner_ref = started.refs.outputs[0]
+    snapshot = _validate_run_owner_snapshot_ref(store, owner_ref)
+    if snapshot.previous_snapshot_ref is not None:
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_chain_invalid")
+    if (
+        started.ts.tzinfo is None
+        or started.ts.utcoffset() is None
+        or started.ts > datetime.now(UTC)
+        or snapshot.run_manifest.started_at != started.ts
+    ):
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_time_mismatch")
+    if (
+        snapshot.run_manifest.run_id != started.run_id
+        or snapshot.run_manifest.tenant_id != started.tenant_id
+        or snapshot.run_manifest.cell_id != started.cell_id
+    ):
+        raise _FinalizeRecoveryError("run_resume_owner_snapshot_scope_mismatch")
+    if snapshot.run_manifest.inputs or snapshot.run_manifest.outputs:
+        raise _FinalizeRecoveryError("run_resume_initial_manifest_refs_invalid")
+    inputs: list[ArtifactRef] = []
+    outputs: list[ArtifactRef] = []
+    last_snapshot_index = 0
+    for index, record in enumerate(records[1:], start=1):
+        if record.event == "RUN_INPUT_ADDED":
+            if record.phase != "core" or len(record.refs.inputs) != 1 or record.refs.outputs:
+                raise _FinalizeRecoveryError("run_resume_input_event_invalid")
+            inputs.extend(record.refs.inputs)
+        elif record.event == "RUN_OUTPUT_ADDED":
+            if record.phase != "core" or len(record.refs.outputs) != 1 or record.refs.inputs:
+                raise _FinalizeRecoveryError("run_resume_output_event_invalid")
+            outputs.extend(record.refs.outputs)
+        elif record.event == "RUN_CONTEXT_SNAPSHOT":
+            if record.phase != "core" or record.refs.inputs or len(record.refs.outputs) != 1:
+                raise _FinalizeRecoveryError("run_resume_owner_snapshot_event_invalid")
+            next_ref = record.refs.outputs[0]
+            next_snapshot = _validate_run_owner_snapshot_ref(store, next_ref)
+            previous = next_snapshot.previous_snapshot_ref
+            if previous != owner_ref:
+                raise _FinalizeRecoveryError("run_resume_owner_snapshot_chain_invalid")
+            before = snapshot.run_manifest
+            after = next_snapshot.run_manifest
+            immutable_fields = (
+                "run_id", "started_at", "producer", "env", "registry_bundle",
+                "tenant_id", "cell_id", "seed", "parent_run_id", "replay_source_ref",
+            )
+            if (
+                any(getattr(before, name) != getattr(after, name) for name in immutable_fields)
+                or next_snapshot.access_scope_sha256 != snapshot.access_scope_sha256
+                or after.inputs != inputs
+                or after.outputs != outputs
+            ):
+                raise _FinalizeRecoveryError("run_resume_owner_snapshot_binding_mismatch")
+            snapshot = next_snapshot
+            owner_ref = next_ref
+            last_snapshot_index = index
+        elif record.phase == "core" and record.event in {"RUN_INPUT_ADDED", "RUN_OUTPUT_ADDED"}:
+            raise _FinalizeRecoveryError("run_resume_manifest_event_phase_invalid")
+    return snapshot, owner_ref, last_snapshot_index
 
 
 def _finalize_journal_path(run_dir: Path) -> Path:
@@ -460,6 +824,10 @@ class RunContext:
     tenant_id: str | None = None
     cell_id: str | None = None
     access_scope: AccessScope | None = None
+    _active_lease: _RunExecutionLease | None = None
+    _owner_snapshot_ref: ArtifactRef | None = None
+    _closed: bool = False
+    _suspended: bool = False
 
     @property
     def trace_path(self) -> Path | None:
@@ -479,58 +847,146 @@ class RunContext:
         cell_id: str | None = None,
         access_scope: AccessScope | None = None,
     ) -> RunContext:
+        """Start a new run, persisting its selected-profile owner before RUN_STARTED."""
+        _require_return_selected_profile_writer(store, "put_json")
         run_id = run_id or new_run_id()
         run_dir = run_dir or _default_run_dir(store, run_id)
         run_dir.mkdir(parents=True, exist_ok=True)
+        run_dir = run_dir.resolve(strict=True)
         trace_path = run_dir / "trace.jsonl"
-        trace_sink: TraceSink = JsonlTraceSink(trace_path)
-        audit_sink: _AuditTraceSink | None = None
-
-        if _audit_chain_enabled():
-            try:
-                from polisyos.core.security.audit_sink import (
-                    ChainedAuditSink,
-                    build_default_audit_backends_from_env,
-                )
-
-                chained_sink = ChainedAuditSink(
-                    chain_id=_build_audit_chain_id(run_id, tenant_id=tenant_id, cell_id=cell_id),
-                    local_path=run_dir / "audit.jsonl",
-                    backends=build_default_audit_backends_from_env(),
-                )
-                audit_sink = cast("_AuditTraceSink", chained_sink)
-            except (ImportError, RuntimeError, OSError, ValueError, TypeError) as exc:
-                logger.debug(
-                    "Failed to initialize audit chain for run %s: %s",
-                    run_id,
-                    exc,
-                )
-                audit_sink = None
-
-        ctx = cls(
-            store=store,
-            trace=trace_sink,
-            run_manifest=RunManifest(
-                run_id=run_id,
-                registry_bundle=registry_bundle,
-                producer=producer,
-                env=env,
+        active_lease = _RunExecutionLease(run_dir)
+        active_lease.acquire()
+        try:
+            if os.path.lexists(trace_path) or os.path.lexists(_finalize_journal_path(run_dir)):
+                raise _FinalizeRecoveryError("run_start_existing_lifecycle")
+            trace_sink: TraceSink = JsonlTraceSink(trace_path)
+            audit_sink = _build_run_audit_sink(
+                run_id,
+                run_dir,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
-            ),
-            _trace_path=trace_path,
-            _audit_sink=audit_sink,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            access_scope=access_scope,
-        )
-        ctx._record_ref_owner(registry_bundle, writer="RunContext.start.registry_bundle")
-        ctx._emit_record(
-            "core",
-            "RUN_STARTED",
-            run_terminality=RunTerminality.NON_TERMINAL,
-        )
-        return ctx
+            )
+            ctx = cls(
+                store=store,
+                trace=trace_sink,
+                run_manifest=RunManifest(
+                    run_id=run_id,
+                    registry_bundle=registry_bundle,
+                    producer=producer,
+                    env=env,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ),
+                _trace_path=trace_path,
+                _audit_sink=audit_sink,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                access_scope=access_scope,
+                _active_lease=active_lease,
+            )
+            ctx._record_ref_owner(registry_bundle, writer="RunContext.start.registry_bundle")
+            owner_ref = _persist_run_owner_snapshot(
+                store,
+                run_manifest=ctx.run_manifest,
+                access_scope_sha256=_access_scope_sha256(access_scope),
+                previous_snapshot_ref=None,
+            )
+            ctx._owner_snapshot_ref = owner_ref
+            ctx._emit_record(
+                "core",
+                "RUN_STARTED",
+                run_terminality=RunTerminality.NON_TERMINAL,
+                outputs=[owner_ref],
+                ts=ctx.run_manifest.started_at,
+            )
+            active_lease = None
+            return ctx
+        finally:
+            if active_lease is not None:
+                active_lease.release()
+
+    @classmethod
+    def resume(
+        cls,
+        store: ArtifactStore,
+        *,
+        run_id: str,
+        run_dir: Path,
+        registry_bundle: ArtifactRef,
+        producer: ProducerInfo | None,
+        env: EnvInfo | None,
+        access_scope: AccessScope | None,
+    ) -> RunContext:
+        """Resume one owner-bound incomplete run without emitting another RUN_STARTED."""
+        _require_return_selected_profile_writer(store, "put_json")
+        run_dir = run_dir.resolve(strict=True)
+        active_lease = _RunExecutionLease(run_dir)
+        active_lease.acquire()
+        try:
+            records, started = _read_incomplete_run_trace(run_dir, run_id=run_id)
+            snapshot, owner_ref, last_snapshot_index = _run_owner_snapshot_chain(
+                store,
+                records=records,
+                started=started,
+            )
+            manifest = snapshot.run_manifest.model_copy(deep=True)
+            if (
+                manifest.registry_bundle != registry_bundle
+                or manifest.producer != producer
+                or manifest.env != env
+                or snapshot.access_scope_sha256 != _access_scope_sha256(access_scope)
+                or (
+                    access_scope is None
+                    and (manifest.tenant_id is not None or manifest.cell_id is not None)
+                )
+                or (
+                    access_scope is not None
+                    and (
+                        manifest.tenant_id != access_scope.tenant_id
+                        or manifest.cell_id != access_scope.cell_id
+                    )
+                )
+            ):
+                raise _FinalizeRecoveryError("run_resume_owner_inputs_mismatch")
+
+            inputs = list(manifest.inputs)
+            outputs = list(manifest.outputs)
+            for record in records[last_snapshot_index + 1 :]:
+                if record.event == "RUN_INPUT_ADDED":
+                    inputs.extend(record.refs.inputs)
+                elif record.event == "RUN_OUTPUT_ADDED":
+                    outputs.extend(record.refs.outputs)
+            manifest.inputs = inputs
+            manifest.outputs = outputs
+
+            trace_path = run_dir / "trace.jsonl"
+            ctx = cls(
+                store=store,
+                trace=JsonlTraceSink(trace_path),
+                run_manifest=manifest,
+                _trace_path=trace_path,
+                _audit_sink=_build_run_audit_sink(
+                    run_id,
+                    run_dir,
+                    tenant_id=manifest.tenant_id,
+                    cell_id=manifest.cell_id,
+                ),
+                tenant_id=manifest.tenant_id,
+                cell_id=manifest.cell_id,
+                access_scope=access_scope,
+                _active_lease=active_lease,
+                _owner_snapshot_ref=owner_ref,
+            )
+            ctx._emit_record(
+                "core",
+                "RUN_RESUMED",
+                inputs=[owner_ref],
+            )
+            active_lease = None
+            return ctx
+        finally:
+            if active_lease is not None:
+                active_lease.release()
 
     def _record_ref_owner(self, ref: ArtifactRef, *, writer: str) -> None:
         if not self.tenant_id:
@@ -544,6 +1000,63 @@ class RunContext:
             cell_id=self.cell_id,
             writer=writer,
         )
+
+    def update_manifest(self, **changes: object) -> None:
+        """Persist an allowlisted run-provenance update before execution continues."""
+        allowed = {
+            "execution_profile",
+            "control_job_id",
+            "capability_manifest_ref",
+            "environment_manifest_ref",
+            "sbom_ref",
+            "tee_attestation_ref",
+        }
+        if not changes or set(changes) - allowed:
+            raise ValueError("run_manifest_update_fields_invalid")
+        if self._closed or self._owner_snapshot_ref is None:
+            raise _FinalizeRecoveryError("run_manifest_update_owner_not_active")
+        payload = self.run_manifest.model_dump(mode="python")
+        payload.update(changes)
+        updated = RunManifest.model_validate(payload)
+        if updated == self.run_manifest:
+            return
+        owner_ref = _persist_run_owner_snapshot(
+            self.store,
+            run_manifest=updated,
+            access_scope_sha256=_access_scope_sha256(self.access_scope),
+            previous_snapshot_ref=self._owner_snapshot_ref,
+        )
+        self._emit_record(
+            "core",
+            "RUN_CONTEXT_SNAPSHOT",
+            outputs=[owner_ref],
+        )
+        self.run_manifest = updated
+        self._owner_snapshot_ref = owner_ref
+
+    def suspend_for_resume(self) -> None:
+        """Release this writer without finalizing so a new context can explicitly resume."""
+        if self._active_lease is None:
+            return
+        if self._trace_path is None:
+            raise _FinalizeRecoveryError("run_suspend_trace_not_established")
+        run_dir = self._trace_path.parent
+        with _run_finalize_lease(run_dir):
+            if self._active_lease is None:
+                return
+            _read_incomplete_run_trace(
+                run_dir,
+                run_id=self.run_manifest.run_id,
+            )
+            self._suspended = True
+            self._closed = True
+            try:
+                if self._audit_sink is not None:
+                    self._audit_sink.close()
+            finally:
+                self._audit_sink = None
+                self._active_lease.release()
+                self._active_lease = None
 
     def emit(
         self,
@@ -571,10 +1084,14 @@ class RunContext:
         inputs: list[ArtifactRef] | None = None,
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
+        ts: datetime | None = None,
     ) -> None:
+        if self._closed:
+            raise _FinalizeRecoveryError("run_context_writer_closed")
         for ref in [*(inputs or []), *(outputs or [])]:
             self._record_ref_owner(ref, writer=f"RunContext.emit:{event}")
         rec = TraceRecord(
+            **({"ts": ts} if ts is not None else {}),
             run_id=self.run_manifest.run_id,
             phase=phase,
             event=event,
@@ -605,11 +1122,21 @@ class RunContext:
         *,
         errors: list[dict[str, object]] | None = None,
     ) -> ArtifactRef:
+        if self._suspended:
+            raise _FinalizeRecoveryError("run_context_suspended")
         run_dir = self._trace_path.parent if self._trace_path is not None else None
-        if run_dir is None:
-            return self._finalize_locked(run_dir, status=status, errors=errors)
-        with _run_finalize_lease(run_dir):
-            return self._finalize_locked(run_dir, status=status, errors=errors)
+        try:
+            if run_dir is None:
+                return self._finalize_locked(run_dir, status=status, errors=errors)
+            with _run_finalize_lease(run_dir):
+                if self._suspended:
+                    raise _FinalizeRecoveryError("run_context_suspended")
+                return self._finalize_locked(run_dir, status=status, errors=errors)
+        finally:
+            self._closed = True
+            if self._active_lease is not None:
+                self._active_lease.release()
+                self._active_lease = None
 
     def _finalize_locked(
         self,
@@ -721,6 +1248,34 @@ def _audit_chain_enabled() -> bool:
         "yes",
         "on",
     }
+
+
+def _build_run_audit_sink(
+    run_id: str,
+    run_dir: Path,
+    *,
+    tenant_id: str | None,
+    cell_id: str | None,
+) -> _AuditTraceSink | None:
+    if not _audit_chain_enabled():
+        return None
+    try:
+        from polisyos.core.security.audit_sink import (
+            ChainedAuditSink,
+            build_default_audit_backends_from_env,
+        )
+
+        return cast(
+            "_AuditTraceSink",
+            ChainedAuditSink(
+                chain_id=_build_audit_chain_id(run_id, tenant_id=tenant_id, cell_id=cell_id),
+                local_path=run_dir / "audit.jsonl",
+                backends=build_default_audit_backends_from_env(),
+            ),
+        )
+    except (ImportError, RuntimeError, OSError, ValueError, TypeError) as exc:
+        logger.debug("Failed to initialize audit chain for run %s: %s", run_id, exc)
+        return None
 
 
 def _default_run_dir(store: ArtifactStore, run_id: str) -> Path:

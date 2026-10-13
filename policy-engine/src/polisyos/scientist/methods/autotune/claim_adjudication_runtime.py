@@ -16,7 +16,7 @@ from polisyos.core.artifacts import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.read_api.academic import (
     ClaimAdjudicationVerifier,
 )
@@ -168,6 +168,7 @@ class ClaimAdjudicationRuntime:
 
     def admit_champion(self) -> AdmittedClaimAdjudicationChampion:
         """Replay promotion predicates instead of trusting a registry declaration."""
+        from polisyos.core.artifacts import load_core_json_artifact
         pointer = self._registry.get(CLAIM_ADJUDICATION_LOOP_ID)
         if pointer is None:
             raise ValueError("claim_adjudication_champion_missing")
@@ -185,7 +186,7 @@ class ClaimAdjudicationRuntime:
         if candidate_manifest.kind != "scientist.autotune.claim_adjudication.candidate":
             raise ValueError("claim_adjudication_candidate_kind_mismatch")
         config = ClaimAdjudicationSearchConfig.model_validate(
-            from_canonical_bytes(self._store.get_bytes(pointer.candidate_ref))
+            load_core_json_artifact(self._store, pointer.candidate_ref)
         )
         if config.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_candidate_loop_mismatch")
@@ -204,7 +205,7 @@ class ClaimAdjudicationRuntime:
         if candidate_lineage != [str(pointer.candidate_ref.artifact_id)]:
             raise ValueError("claim_adjudication_evaluation_lineage_mismatch")
         evaluation = BenchmarkEvaluation.model_validate(
-            from_canonical_bytes(self._store.get_bytes(pointer.evaluation_ref))
+            load_core_json_artifact(self._store, pointer.evaluation_ref)
         )
         if evaluation.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_evaluation_loop_mismatch")
@@ -243,6 +244,7 @@ class ClaimAdjudicationRuntime:
         )
 
     def _load_input(self, raw_input_ref: ArtifactRef) -> ClaimAdjudicationInputBatch:
+        from polisyos.core.artifacts import load_core_json_artifact
         manifest = self._store.get_manifest(raw_input_ref)
         if manifest.kind != _INPUT_KIND:
             raise ValueError("claim_adjudication_input_kind_mismatch")
@@ -251,7 +253,7 @@ class ClaimAdjudicationRuntime:
         if manifest.producer is None or _component(manifest.producer.component) != _INPUT_PRODUCER:
             raise ValueError("claim_adjudication_input_producer_mismatch")
         batch = ClaimAdjudicationInputBatch.model_validate(
-            from_canonical_bytes(self._store.get_bytes(raw_input_ref))
+            load_core_json_artifact(self._store, raw_input_ref)
         )
         lineage = {item.role: str(item.artifact_id) for item in manifest.inputs}
         if len(lineage) != len(manifest.inputs):

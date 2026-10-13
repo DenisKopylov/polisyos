@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.data_plane.temporal import utc_now
 from polisyos.fabric.io.atomic import append_text_locked, file_lock
@@ -292,13 +292,14 @@ def load_quarantine_record(
     artifact_id: str | ArtifactID,
 ) -> QuarantineRecord:
     """Load one quarantine record from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     aid = (
         artifact_id
         if isinstance(artifact_id, ArtifactID)
         else _artifact_ref_from_str(str(artifact_id))
     )
-    payload = from_canonical_bytes(store.get_bytes(aid))
+    payload = load_core_json_artifact(store, aid)
     if not isinstance(payload, dict):
         raise TypeError("quarantine record payload must be a JSON object")
     return QuarantineRecord(
@@ -324,6 +325,7 @@ def load_quarantine_payload(
     raw_payload_ref: str | None,
 ) -> Any | None:
     """Load the raw payload artifact referenced by one quarantine record."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     if not raw_payload_ref:
         return None
@@ -331,7 +333,7 @@ def load_quarantine_payload(
     manifest = store.get_manifest(aid)
     raw = store.get_bytes(aid)
     if manifest.media_type == "application/json":
-        return from_canonical_bytes(raw)
+        return load_core_json_artifact(store, aid, raw_payload_bytes=raw)
     return raw
 
 

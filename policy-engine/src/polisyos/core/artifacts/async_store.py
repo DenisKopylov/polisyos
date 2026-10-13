@@ -74,6 +74,28 @@ class AsyncArtifactStoreAdapter:
             unbounded=self.unbounded,
         )
 
+    async def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read raw selected-manifest bytes through the shared timeout policy."""
+        reader = getattr(self.store, "get_raw_manifest_bytes", None)
+        if not callable(reader):
+            raise TypeError("Artifact store must expose get_raw_manifest_bytes")
+        return cast(
+            "bytes",
+            await run_blocking_async(
+                reader,
+                artifact_id,
+                **({"manifest_profile_sha256": manifest_profile_sha256}
+                   if manifest_profile_sha256 is not None else {}),
+                timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
+            ),
+        )
+
     async def put_bytes(
         self,
         data: bytes,
@@ -178,6 +200,28 @@ class AsyncFileSystemArtifactStore:
             artifact_id,
             timeout_seconds=self.timeout_seconds,
             unbounded=self.unbounded,
+        )
+
+    async def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read raw selected-manifest bytes through the shared timeout policy."""
+        reader = getattr(self.store, "get_raw_manifest_bytes", None)
+        if not callable(reader):
+            raise TypeError("Artifact store must expose get_raw_manifest_bytes")
+        return cast(
+            "bytes",
+            await run_blocking_async(
+                reader,
+                artifact_id,
+                **({"manifest_profile_sha256": manifest_profile_sha256}
+                   if manifest_profile_sha256 is not None else {}),
+                timeout_seconds=self.timeout_seconds,
+                unbounded=self.unbounded,
+            ),
         )
 
     async def put_bytes(

@@ -578,8 +578,9 @@ def load_welfare_frontier_emission(
     ref: artifacts.ArtifactRef,
 ) -> WelfareFrontierEmission:
     """Load a persisted W8.D frontier emission bundle."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return WelfareFrontierEmission.model_validate(payload)
 
 

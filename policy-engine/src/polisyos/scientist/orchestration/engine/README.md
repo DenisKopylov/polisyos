@@ -378,34 +378,56 @@ Current journal version 1.2 requires every mutation field to be present in both
 the in-memory and persisted operation. Legacy 1.0 and 1.1 keep their existing
 narrow primitive replay rule. Unsupported or malformed operations remain cache
 misses; proof, run/key, source, scope, and currentness checks are unchanged.
-Journaled state models compare through the same original model class, the
-same model_fields_set, and recursively equal values for every field in that
-original schema. This candidate intentionally makes field presence part of the
-wrapper equality contract, so an omitted default differs from explicitly
-supplying that value; booleans also remain distinct from integers. RootModel
-values compare through their typed root. Copy-on-write and wrapper installation
-preserve model_fields_set as representation-only operations; an actual producer
-field assignment is what marks a field present. This is stricter than the
-original models' value-only equality and is a bounded compatibility change.
+Journaled state models compare by the locked Pydantic 2.12.5 value relation
+while recursively comparing the admitted model and container graph. Generic
+specializations use their generic origin; non-generic models retain their
+concrete class; and `RootModel` additionally requires the same root annotation.
+Tracked wrapper classes are constructed through the source model's Pydantic
+metaclass with a separate copy of its complete generic metadata mapping. For a
+bare generic with `origin=None` and nonempty parameters, the wrapper copy sets
+its effective origin to the original class while preserving `args` and
+`parameters`; the original metadata is unchanged. This matches Pydantic's native
+`origin or class` rule and keeps equality symmetric when either operand is a
+tracked sibling. `RootModel` retains its separate root-annotation comparison.
+The metadata copy does not relax hook-identity admission: custom generic hooks
+remain refused.
+The comparator includes private/extra slots and declared field values, ignores
+`model_fields_set` and non-field `__dict__` entries, and treats the tracking
+containers by their built-in contents. Nested model values recurse through the
+same rule; finite scalar leaves use ordinary Python equality, including
+`True == 1` in an `Any` value. Both internal `model_construct` boundaries preserve
+the admitted runtime-slot shape exactly: `None` remains `None`, and an exact
+empty built-in `dict` remains an empty `dict`. The comparator does not normalize
+those states. Copy-on-write and wrapper installation still preserve
+`model_fields_set` as provenance, and a producer field assignment still marks
+the field present. That presence is observable state, but it is not part of
+model value equality. Tracked model assignments are recorded in both scoped and
+unscoped journals: scope enforcement controls authorization, while capture stays
+active whenever a tracked view exists. Unknown attributes and model-field
+deletion are rejected because the journal represents declared-field assignments,
+not private or extra state changes.
 
 The cache persists typed operation records and canonicalizes them for replay
-validation; it does not use this wrapper equality to validate an entry. The
-ArtifactRef manifest_profile_sha256 field excludes None from its wire form, so
-the explicit-None model_fields_set bit is not restored after CAS readback. The
-cache test binds that normalization and verifies the value and repeated entry
-read remain valid; this candidate does not claim field-set provenance survives
-that existing wire projection. No cache schema or replay-version change is
-proposed. Non-empty private or extra model state remains refused at admission. The
-candidate newly refuses original models that define custom `__eq__` or
-`__ne__` hooks through the ordinary-hook admission check; the pre-candidate
-check did not reject those methods. This is a bounded input-compatibility
-change: callers that relied on journaling such models must migrate to a
-model whose ordinary equality reflects the full admitted fields, or keep
-those values outside journaled state branches. The existing typed
-`TypeError` admission refusal applies; no cache schema or journal-version
-migration is involved. These internal behaviors do not
-establish source authenticity or scientific output validity.
+validation; it does not use wrapper equality to validate an entry. The
+ArtifactRef `manifest_profile_sha256` field excludes None from its wire form, so
+the explicit-None `model_fields_set` bit is not restored after CAS readback. The
+cache test binds that normalization, checks the restored value remains equal by
+Pydantic value semantics, and verifies a repeated entry read remains valid; it
+does not claim field-set provenance survives that existing wire projection. No
+cache schema or replay-version change is proposed. Non-empty or non-canonical
+private/extra runtime state remains refused at admission. The candidate continues
+the bounded input-compatibility change introduced by R9: original models that
+define custom `__eq__` or `__ne__` hooks are refused by the ordinary-hook
+admission check. A generic Pydantic specialization is admitted only when its
+effective `__init_subclass__` hook is the exact `typing.Generic` implementation;
+generic names, origins, and parameter metadata do not authorize a custom hook.
+Custom generic hooks remain refused. Callers that relied on journaling models
+with custom equality or subclass hooks must migrate to models with ordinary
+Pydantic behavior or keep those values outside journaled state branches. The
+existing typed `TypeError` admission refusal applies; no cache schema or
+journal-version migration is involved. These internal behaviors do not establish
+source authenticity or scientific output validity.
 
 ## Last Updated
 
-- Last updated: 2026-10-12
+- Last updated: 2026-10-13

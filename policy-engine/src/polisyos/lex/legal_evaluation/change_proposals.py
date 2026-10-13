@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
 from polisyos.lex.errors import LexNotReadyError, LexValidationError
 
@@ -225,13 +224,12 @@ def propose_changes_impl(
     segment_name: str | None = None,
 ) -> list[ChangeProposalRef]:
     """Load a legal report artifact and persist any policy or instrumentation proposals it implies."""
+    from polisyos.core.artifacts import load_core_json_artifact
     del fact_log_root
     del segment_name
 
     try:
-        report_payload_raw = from_canonical_bytes(
-            cas.get_bytes(ArtifactID.model_validate(str(based_on_report_ref.artifact_id)))
-        )
+        report_payload_raw = load_core_json_artifact(cas, based_on_report_ref)
     except FileNotFoundError as exc:
         raise LexNotReadyError(
             "missing legal_report artifact",

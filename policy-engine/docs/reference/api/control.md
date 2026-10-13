@@ -265,6 +265,19 @@ Poll durable background job state.
   - `progress`
   - `submitted_at`, `started_at`, `finished_at`
 
+For completed `natural_language_run` jobs that consume a persisted N4 source,
+`progress.generation_source_read_provenance` reports the selected source read's
+`canon_read_status`, selected artifact/profile identity, and the separate
+`reader_materialized` / `producer_attestation_status: not_established` facts.
+Its `read_trace` retains each nested GenerationSourceRepository JSON read used
+by that served operation, including its own selected identity and status.
+`profile_absent_unqualified_candidate` is available only through an explicit
+candidate-only compatibility read; current and unknown selections refuse absence by
+default, and no historical eligibility is inferred. It does not imply producer
+attestation, currentness, or authority. The
+status is copied from the exact generation-source read used by the job and is
+paired with `candidate_proposal_ref`, rather than recomputed by a preview.
+
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/api/v1/control/jobs/$JOB_ID"

@@ -312,6 +312,48 @@ class CachingArtifactStore:
             )
         return self._remote.get_manifest(selected)
 
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Read the owner's exact raw sidecar without using a typed cache projection."""
+        aid, selected_profile, ref = artifact_reference_parts(artifact_id)
+        if manifest_profile_sha256 is not None:
+            if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+                raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+            if selected_profile is not None and selected_profile != manifest_profile_sha256:
+                raise ValueError("conflicting manifest profile selectors")
+            selected_profile = manifest_profile_sha256
+        selected = ref or aid
+        owners = (
+            (self._default_manifest_owner(),)
+            if self._write_through
+            else (self._local, self._remote)
+        )
+        for index, owner in enumerate(owners):
+            reader = getattr(owner, "get_raw_manifest_bytes", None)
+            if not callable(reader):
+                raise TypeError("Artifact owner must expose get_raw_manifest_bytes")
+            try:
+                raw = reader(
+                    selected,
+                    **(
+                        {"manifest_profile_sha256": selected_profile}
+                        if selected_profile is not None
+                        else {}
+                    ),
+                )
+            except (FileNotFoundError, KeyError):
+                if index + 1 < len(owners):
+                    continue
+                raise
+            if not isinstance(raw, bytes):
+                raise TypeError("Artifact owner get_raw_manifest_bytes() must return bytes")
+            return raw
+        raise FileNotFoundError(str(aid))
+
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Return raw manifest bytes from the owner that defines this view.
 

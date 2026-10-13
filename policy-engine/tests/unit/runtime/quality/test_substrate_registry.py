@@ -741,3 +741,14 @@ def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Pa
     assert selected_ref.manifest_profile_sha256 is not None
 
     assert load_substrate_registry(store, selected_ref) == registry
+
+
+def test_substrate_registry_writer_returns_selected_profile_and_reader_rejects_default_selector(tmp_path: Path) -> None:
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    store = FileSystemCAS(tmp_path / "cas")
+    selected_ref = persist_substrate_registry(store, registry)
+    assert selected_ref.manifest_profile_sha256 is not None
+
+    profileless_ref = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(SubstrateRegistryError, match="substrate_registry_profile_selector_missing"):
+        load_substrate_registry(store, profileless_ref)

@@ -2,17 +2,21 @@ from __future__ import annotations
 
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
-from datetime import UTC, datetime
+from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from threading import Barrier, Event
 from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.audit import AuditPackageAssembler
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
+from polisyos.core.run.manifest import RunOwnerSnapshot
+from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.trace import RunTerminality, TraceRecord
 from polisyos.runtime.http.services.adapters.core_run import load_core_run
 
@@ -120,7 +124,12 @@ def _wait_for_lease_event(
         )
 
     while not any(_matches(event) for event in observed_events):
-        observed_events.append(event_queue.get(timeout=30))
+        event = event_queue.get(timeout=30)
+        observed_events.append(event)
+        if actor is not None and event[1] == actor and event[2].startswith("worker_error:"):
+            pytest.fail(f"{actor} worker failed before {phase}: {event[2]}")
+        if actor is not None and event[1] == actor and event[2] == "worker_done":
+            pytest.fail(f"{actor} worker exited before observed {phase}")
     return next(event for event in observed_events if _matches(event))
 
 
@@ -199,43 +208,71 @@ def _recover_in_process(
     release_scan: Any,
     results: Any,
     bypass_lease: bool = False,
+    operation_release: Any | None = None,
 ) -> None:
     """Call the real reader/recovery path from a distinct OS process."""
-    from contextlib import AbstractContextManager, nullcontext
-    from pathlib import Path
-
-    store = FileSystemCAS(Path(store_root))
-    original_scan = run_context._trace_terminal_run_finalized_ref
-    if bypass_lease:
-        def _without_lease(_run_dir: Path) -> AbstractContextManager[None]:
-            return nullcontext()
-
-        run_context._run_finalize_lease = _without_lease
-    else:
-        import fcntl
-
-        fcntl.flock = _observed_flock(
-            Path(run_dir) / ".finalize.lock",
-            worker_id,
-            event_queue,
-            event_sequence,
-        )
-
-    def _observed_scan(trace_path: Path, *, owner: Any) -> Any:
-        snapshot = original_scan(trace_path, owner=owner)
+    try:
         _record_lease_event(
             event_queue,
             event_sequence,
             worker_id,
-            "terminal_scan",
+            "worker_entered",
         )
-        if not release_scan.wait(timeout=30):
-            raise TimeoutError("test did not release the held terminal scan")
-        return snapshot
+        from contextlib import AbstractContextManager, nullcontext
+        from pathlib import Path
 
-    run_context._trace_terminal_run_finalized_ref = _observed_scan
-    try:
+        store = FileSystemCAS(Path(store_root))
+        original_scan = run_context._trace_terminal_run_finalized_ref
+        if bypass_lease:
+            def _without_lease(_run_dir: Path) -> AbstractContextManager[None]:
+                return nullcontext()
+
+            run_context._run_finalize_lease = _without_lease
+        else:
+            import fcntl
+
+            fcntl.flock = _observed_flock(
+                Path(run_dir) / ".finalize.lock",
+                worker_id,
+                event_queue,
+                event_sequence,
+            )
+
+        def _observed_scan(trace_path: Path, *, owner: Any) -> Any:
+            snapshot = original_scan(trace_path, owner=owner)
+            _record_lease_event(
+                event_queue,
+                event_sequence,
+                worker_id,
+                "terminal_scan",
+            )
+            if not release_scan.wait(timeout=30):
+                raise TimeoutError("test did not release the held terminal scan")
+            return snapshot
+
+        run_context._trace_terminal_run_finalized_ref = _observed_scan
+        _record_lease_event(
+            event_queue,
+            event_sequence,
+            worker_id,
+            "worker_ready",
+        )
         start_barrier.wait(timeout=30)
+        if operation_release is not None:
+            _record_lease_event(
+                event_queue,
+                event_sequence,
+                worker_id,
+                "worker_waiting_for_operation",
+            )
+            if not operation_release.wait(timeout=30):
+                raise TimeoutError("test did not release the prewarmed recovery operation")
+        _record_lease_event(
+            event_queue,
+            event_sequence,
+            worker_id,
+            "worker_before_operation",
+        )
         if operation == "load":
             loaded = load_core_run(store=store, run_dir=Path(run_dir))
             results.put(
@@ -263,7 +300,21 @@ def _recover_in_process(
         else:
             raise ValueError(f"unsupported recovery test operation: {operation}")
     except Exception as exc:
+        cleanup_error: str | None = None
+        try:
+            start_barrier.abort()
+        except Exception as cleanup_exc:
+            cleanup_error = f"{type(cleanup_exc).__name__}: {cleanup_exc}"
         results.put(("error", worker_id, type(exc).__name__, str(exc)))
+        worker_error = f"worker_error:{type(exc).__name__}:{exc}"
+        if cleanup_error is not None:
+            worker_error = f"{worker_error};barrier_abort_error:{cleanup_error}"
+        _record_lease_event(
+            event_queue,
+            event_sequence,
+            worker_id,
+            worker_error,
+        )
     finally:
         _record_lease_event(
             event_queue,
@@ -271,7 +322,6 @@ def _recover_in_process(
             worker_id,
             "worker_done",
         )
-
 
 def _assert_core_and_audit_reopen(
     store: FileSystemCAS,
@@ -297,7 +347,9 @@ def _assert_core_and_audit_reopen(
     return core.manifest_ref
 
 
-def _bootstrap_registry_bundle(store: FileSystemCAS):
+def _bootstrap_registry_bundle(
+    store: FileSystemCAS, *, selected_profile: bool = False
+):
     slot_ref = store.put_json(
         {"slots": {}},
         PutOptions(kind="core.registry.slots", media_type="application/json"),
@@ -329,6 +381,7 @@ def _bootstrap_registry_bundle(store: FileSystemCAS):
     bundle_ref = store.put_json(
         bundle_payload,
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        return_selected_profile=selected_profile,
     )
     return bundle_ref
 
@@ -662,44 +715,74 @@ def test_finalize_and_reader_recovery_share_one_run_lease(
     lease_events = mp.Queue()
     event_sequence = mp.Value("i", 0)
     release_scan = mp.Event()
+    operation_release = mp.Event()
     results = mp.Queue()
     parent_events: list[tuple[int, str, str]] = []
     observed_events: list[tuple[int, str, str]] = []
     worker_ids = {"reader"}
     import fcntl
 
-    monkeypatch.setattr(
-        fcntl,
-        "flock",
-        _observed_flock(
-            run_dir / ".finalize.lock",
-            "finalizer",
-            None,
-            event_sequence,
-            parent_events=parent_events,
-        ),
+    reader_barrier = mp.Barrier(1)
+    # Keep every spawn input alive through the child lifetime. Process.start() can
+    # return before the child unpickles its args and drops the process-owned tuple.
+    reader_process_inputs = (
+        str(store.root),
+        str(run_dir),
+        "reader",
+        "load",
+        reader_barrier,
+        lease_events,
+        event_sequence,
+        release_scan,
+        results,
+        False,
+        operation_release,
     )
-    monkeypatch.setattr(store, "put_json", _blocking_put_json)
     reader = mp.Process(
         target=_recover_in_process,
-        args=(
-            str(store.root),
-            str(run_dir),
-            "reader",
-            "load",
-            mp.Barrier(1),
-            lease_events,
-            event_sequence,
-            release_scan,
-            results,
-        ),
+        args=reader_process_inputs,
     )
     release_sequence = None
+    finalize = None
     with ThreadPoolExecutor(max_workers=1) as executor:
-        finalize = executor.submit(ctx.finalize, status="ok")
         try:
-            assert finalize_entered.wait(timeout=30)
             reader.start()
+            reader_ready = _wait_for_lease_event(
+                lease_events,
+                observed_events,
+                phase="worker_ready",
+                actor="reader",
+            )
+            assert reader_ready[1] == "reader"
+            reader_waiting = _wait_for_lease_event(
+                lease_events,
+                observed_events,
+                phase="worker_waiting_for_operation",
+                actor="reader",
+            )
+            assert reader_waiting[1] == "reader"
+            monkeypatch.setattr(
+                fcntl,
+                "flock",
+                _observed_flock(
+                    run_dir / ".finalize.lock",
+                    "finalizer",
+                    None,
+                    event_sequence,
+                    parent_events=parent_events,
+                ),
+            )
+            monkeypatch.setattr(store, "put_json", _blocking_put_json)
+            finalize = executor.submit(ctx.finalize, status="ok")
+            assert finalize_entered.wait(timeout=30)
+            operation_release.set()
+            reader_before_operation = _wait_for_lease_event(
+                lease_events,
+                observed_events,
+                phase="worker_before_operation",
+                actor="reader",
+            )
+            assert reader_before_operation[1] == "reader"
             reader_claim = _wait_for_lease_event(
                 lease_events,
                 observed_events,
@@ -708,14 +791,16 @@ def test_finalize_and_reader_recovery_share_one_run_lease(
             )
             assert reader_claim[1] == "reader"
         finally:
-            release_sequence = _record_lease_event(
-                None,
-                event_sequence,
-                "parent",
-                "release_finalize",
-                parent_events=parent_events,
-            )[0]
-            release_finalize.set()
+            operation_release.set()
+            if finalize is not None:
+                release_sequence = _record_lease_event(
+                    None,
+                    event_sequence,
+                    "parent",
+                    "release_finalize",
+                    parent_events=parent_events,
+                )[0]
+                release_finalize.set()
             release_scan.set()
             if reader.pid is not None:
                 reader.join(timeout=30)
@@ -725,6 +810,7 @@ def test_finalize_and_reader_recovery_share_one_run_lease(
             if reader.exitcode == 0:
                 _collect_lease_worker_events(lease_events, observed_events, worker_ids)
             lease_events.close()
+        assert finalize is not None
         finalized_ref = finalize.result(timeout=30)
 
     assert reader.exitcode == 0
@@ -761,7 +847,6 @@ def test_finalize_and_reader_recovery_share_one_run_lease(
         output_path=tmp_path / "finalize-reader-audit.zip",
     )
     assert strict_ref == finalized_ref
-
 
 def test_concurrent_repeat_finalize_returns_the_same_terminal_ref(
     store: FileSystemCAS,
@@ -877,6 +962,7 @@ def _run_context_with_output(
         producer=producer,
         env=env_info,
         run_dir=tmp_path / "runs" / run_id,
+        run_id=run_id,
     )
     ctx.add_output(
         store.put_json(
@@ -1252,3 +1338,489 @@ def test_core_loader_refuses_terminal_manifest_bytes_that_disagree_with_journal(
     assert writes == []
     assert (ctx.trace_path.parent / ".finalize-journal.json").exists()
     assert len(_terminal_records(ctx.trace_path.parent)) == 1
+
+
+def test_run_owner_snapshot_round_trips_through_core_canonical_codec(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_owner_snapshot_core_canonical_round_trip"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    run.suspend_for_resume()
+
+    trace_path = run_dir / "trace.jsonl"
+    start = TraceRecord.model_validate_json(trace_path.read_text(encoding="utf-8").splitlines()[0])
+    assert start.event == "RUN_STARTED"
+    owner_ref = start.refs.outputs[0]
+    payload = store.get_bytes(owner_ref)
+    decoded = from_canonical_bytes(payload)
+
+    assert isinstance(decoded, dict)
+    assert decoded["schema_version"] == "1.0.1"
+    assert "access_scope_sha256" in decoded
+    assert decoded["access_scope_sha256"] is None
+    assert "previous_snapshot_ref" in decoded
+    assert decoded["previous_snapshot_ref"] is None
+    assert isinstance(decoded["run_manifest"]["started_at"], datetime)
+    snapshot = RunOwnerSnapshot.model_validate(decoded)
+    assert snapshot.run_manifest.started_at == start.ts
+    assert to_canonical_bytes(snapshot, CanonSpec(exclude_none=False)) == payload
+
+    manifest = store.get_manifest(owner_ref)
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.version == "1.0.1"
+    assert manifest.canon is not None
+    assert manifest.canon.exclude_none is False
+    assert manifest.inputs[0].artifact_id == bundle_ref.artifact_id
+    assert manifest.inputs[0].manifest_profile_sha256 == bundle_ref.manifest_profile_sha256
+    assert store.verify(owner_ref).ok
+
+
+@pytest.mark.parametrize(
+    "damage",
+    ["missing-access-scope", "missing-previous-snapshot", "legacy-r379-format"],
+)
+def test_run_owner_snapshot_refuses_missing_required_nullable_wire_fields(
+    damage: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = f"R_owner_snapshot_bad_wire_{damage}"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    run.suspend_for_resume()
+
+    trace_path = run_dir / "trace.jsonl"
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    original_ref = records[0].refs.outputs[0]
+    decoded = from_canonical_bytes(store.get_bytes(original_ref))
+    assert isinstance(decoded, dict)
+    valid_snapshot = RunOwnerSnapshot.model_validate(decoded)
+    options = run_context._run_owner_snapshot_write_options(valid_snapshot)
+    malformed = dict(decoded)
+    canon_spec = CanonSpec(exclude_none=False)
+    writer_options = options
+    if damage == "missing-access-scope":
+        malformed.pop("access_scope_sha256")
+    elif damage == "missing-previous-snapshot":
+        malformed.pop("previous_snapshot_ref")
+    else:
+        # Reproduce the exact R379 persisted profile: tagged datetime plus
+        # excluded required-null fields, old schema and old CanonInfo.
+        malformed["schema_version"] = "1.0.0"
+        # The R379 Pydantic writer omitted these required nullable keys under
+        # exclude_none=True; a raw dict would otherwise preserve explicit nulls.
+        malformed.pop("access_scope_sha256")
+        malformed.pop("previous_snapshot_ref")
+        canon_spec = CanonSpec()
+        writer_options = replace(
+            options,
+            schema=SchemaInfo(name=run_context._RUN_OWNER_SNAPSHOT_SCHEMA, version="1.0.0"),
+            canon=CanonInfo.from_spec(canon_spec),
+        )
+    malformed_ref = store.put_json(
+        malformed,
+        writer_options,
+        canon_spec=canon_spec,
+        return_selected_profile=True,
+    )
+    if damage == "legacy-r379-format":
+        legacy_manifest = store.get_manifest(malformed_ref)
+        assert legacy_manifest.artifact_schema is not None
+        assert legacy_manifest.artifact_schema.version == "1.0.0"
+        assert legacy_manifest.canon is not None and legacy_manifest.canon.exclude_none is True
+    records[0].refs.outputs = [malformed_ref]
+    trace_path.write_text(
+        "\n".join(record.model_dump_json(exclude_none=True) for record in records) + "\n",
+        encoding="utf-8",
+    )
+    before = trace_path.read_bytes()
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_snapshot_schema_invalid",
+    ):
+        RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+
+    assert trace_path.read_bytes() == before
+    assert store.verify(malformed_ref).ok
+    assert [record.event for record in _terminal_records(run_dir)] == []
+
+
+@pytest.mark.parametrize(
+    "damage",
+    ["ownerless", "profileless", "deleted-bytes", "start-time", "registry-profileless"],
+)
+def test_incomplete_resume_requires_the_exact_selected_owner_snapshot(
+    damage: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(
+        store, selected_profile=damage != "registry-profileless"
+    )
+    run_dir = tmp_path / "runs" / f"R_resume_owner_{damage}"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=f"R_resume_owner_{damage}",
+    )
+    run.suspend_for_resume()
+    trace_path = run_dir / "trace.jsonl"
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    owner = records[0]
+    assert owner.event == "RUN_STARTED"
+    owner_ref = owner.refs.outputs[0]
+    if damage == "ownerless":
+        owner.refs.outputs = []
+    elif damage == "profileless":
+        owner.refs.outputs = [
+            owner_ref.model_copy(update={"manifest_profile_sha256": None})
+        ]
+    elif damage == "deleted-bytes":
+        blob_path, _manifest_path = store._paths(owner_ref.artifact_id)
+        blob_path.unlink()
+    elif damage == "start-time":
+        owner.ts += timedelta(seconds=1)
+    else:
+        assert damage == "registry-profileless"
+    trace_path.write_text(
+        "\n".join(record.model_dump_json(exclude_none=True) for record in records) + "\n",
+        encoding="utf-8",
+    )
+    before = trace_path.read_bytes()
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match="run_resume_"):
+        RunContext.resume(
+            store,
+            run_id=run.run_manifest.run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+
+    assert trace_path.read_bytes() == before
+    assert [record.event for record in _terminal_records(run_dir)] == []
+
+
+@pytest.mark.parametrize("mismatch", ["registry", "producer", "environment", "scope"])
+def test_incomplete_resume_rejects_changed_owner_inputs(
+    mismatch: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    scope = AccessScope.for_service(
+        tenant_id="tenant-resume-owner",
+        cell_id="cell-resume-owner",
+        spiffe_id="spiffe://policyos/resume-owner",
+    )
+    run_dir = tmp_path / "runs" / f"R_resume_owner_mismatch_{mismatch}"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=f"R_resume_owner_mismatch_{mismatch}",
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        access_scope=scope,
+    )
+    run.suspend_for_resume()
+    before = (run_dir / "trace.jsonl").read_bytes()
+    resume_registry = bundle_ref
+    resume_producer = producer
+    resume_env = env_info
+    resume_scope = scope
+    if mismatch == "registry":
+        current = bundle_ref.manifest_profile_sha256
+        replacement = "0" if current is None or current[7] != "0" else "1"
+        resume_registry = bundle_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + replacement * 64}
+        )
+    elif mismatch == "producer":
+        resume_producer = producer.model_copy(
+            update={"version": f"{producer.version}-different"}
+        )
+    elif mismatch == "environment":
+        resume_env = env_info.model_copy(
+            update={"platform": f"{env_info.platform}-different"}
+        )
+    else:
+        resume_scope = AccessScope.for_service(
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            spiffe_id="spiffe://policyos/other-owner",
+        )
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_inputs_mismatch",
+    ):
+        RunContext.resume(
+            store,
+            run_id=run.run_manifest.run_id,
+            run_dir=run_dir,
+            registry_bundle=resume_registry,
+            producer=resume_producer,
+            env=resume_env,
+            access_scope=resume_scope,
+        )
+
+    assert (run_dir / "trace.jsonl").read_bytes() == before
+    assert [record.event for record in _terminal_records(run_dir)] == []
+
+
+def test_incomplete_resume_restores_versioned_manifest_and_finishes_once(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_resume_owner_snapshot_chain"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    run.update_manifest(execution_profile="profile-e02", control_job_id="job-e02")
+    output_ref = store.put_json(
+        {"result": "resume"},
+        PutOptions(kind="core.output", media_type="application/json"),
+    )
+    run.add_output(output_ref)
+    run.suspend_for_resume()
+
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        access_scope=None,
+    )
+    assert resumed.run_manifest.execution_profile == "profile-e02"
+    assert resumed.run_manifest.control_job_id == "job-e02"
+    assert resumed.run_manifest.outputs == [output_ref]
+    run_ref = resumed.finalize(status="ok")
+
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.event == "RUN_STARTED" for record in records) == 1
+    assert sum(record.event == "RUN_CONTEXT_SNAPSHOT" for record in records) == 1
+    assert sum(record.event == "RUN_RESUMED" for record in records) == 1
+    assert sum(record.event == "RUN_FINALIZED" for record in records) == 1
+    terminal = load_core_run(store=store, run_dir=run_dir)
+    assert terminal is not None
+    assert terminal.manifest_ref == run_ref
+    assert terminal.run_terminality is RunTerminality.TERMINAL
+
+
+def test_start_refuses_a_second_start_but_allows_explicit_resume(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_start_then_explicit_resume"
+    run_dir = tmp_path / "runs" / run_id
+    first = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    first.suspend_for_resume()
+    trace_path = run_dir / "trace.jsonl"
+    before = trace_path.read_bytes()
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_start_existing_lifecycle",
+    ):
+        RunContext.start(
+            store,
+            bundle_ref,
+            producer=producer,
+            env=env_info,
+            run_dir=run_dir,
+            run_id=run_id,
+        )
+
+    assert trace_path.read_bytes() == before
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        access_scope=None,
+    )
+    resumed.finalize(status="ok")
+    assert len(_terminal_records(run_dir)) == 1
+
+
+
+
+def test_start_requires_selected_profile_writer_before_creating_run_state(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    original_put_json = store.put_json
+
+    def legacy_writer(obj, opts, canon_spec=None):
+        return original_put_json(obj, opts, canon_spec)
+
+    monkeypatch.setattr(store, "put_json", legacy_writer)
+    run_dir = tmp_path / "runs" / "R_selected_profile_writer_required"
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        RunContext.start(
+            store,
+            bundle_ref,
+            producer=producer,
+            env=env_info,
+            run_dir=run_dir,
+            run_id="R_selected_profile_writer_required",
+        )
+
+    assert not run_dir.exists()
+
+
+@pytest.mark.parametrize("entry_name", ["trace.jsonl", ".finalize-journal.json"])
+def test_start_refuses_a_broken_lifecycle_symlink(
+    entry_name: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = f"R_broken_lifecycle_link_{entry_name.replace('.', '_')}"
+    run_dir = tmp_path / "runs" / run_id
+    run_dir.mkdir(parents=True)
+    entry_path = run_dir / entry_name
+    missing_target = tmp_path / "outside-target.jsonl"
+    entry_path.symlink_to(missing_target)
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_start_existing_lifecycle",
+    ):
+        RunContext.start(
+            store,
+            bundle_ref,
+            producer=producer,
+            env=env_info,
+            run_dir=run_dir,
+            run_id=run_id,
+        )
+
+    assert entry_path.is_symlink()
+    assert not missing_target.exists()
+    assert not (run_dir / "trace.jsonl").is_file()
+
+
+def test_resume_refuses_an_already_terminal_owner_snapshot(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_resume_terminal_refusal"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    run.finalize(status="ok")
+    trace_path = run_dir / "trace.jsonl"
+    before = trace_path.read_bytes()
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_trace_not_incomplete",
+    ):
+        RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+
+    assert trace_path.read_bytes() == before

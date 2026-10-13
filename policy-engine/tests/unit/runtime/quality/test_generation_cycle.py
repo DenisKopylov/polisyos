@@ -10467,6 +10467,68 @@ def test_n7_candidate_only_proposal_does_not_suppress_scope_fallback() -> None:
     )
 
 
+@pytest.mark.parametrize("artifact_role", ["program_graph", "exec_plan", "state_snapshot"])
+def test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    artifact_role: str,
+) -> None:
+    """Each semantic N5 JSON read refuses a present sidecar with its CanonInfo removed."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+        select_program_graph_view=False,
+    )
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            request = witness.port._build_joint_simulation_request(
+                candidate=witness.candidate,
+                problem=witness.problem,
+            )
+        plan = request.engine_plan[0]
+        views = world_model_artifact_views(request.world_model_record)
+        target = {
+            "program_graph": plan.program_graph_ref,
+            "exec_plan": plan.exec_plan_ref,
+            "state_snapshot": views.bound_state_snapshot_ref,
+        }[artifact_role]
+        assert target is not None
+        assert target.manifest_profile_sha256 is None
+        target_id = str(target.artifact_id)
+        original_raw_manifest = witness.store.get_raw_manifest_bytes
+        original_manifest = witness.store.get_manifest
+
+        def without_canon_raw(ref: object, *, manifest_profile_sha256: str | None = None) -> bytes:
+            raw = original_raw_manifest(ref, manifest_profile_sha256=manifest_profile_sha256)
+            artifact_id = getattr(ref, "artifact_id", ref)
+            if str(artifact_id) != target_id:
+                return raw
+            payload = json.loads(raw)
+            payload.pop("canon", None)
+            return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+        def without_canon_typed(ref: object) -> object:
+            manifest = original_manifest(ref)
+            artifact_id = getattr(ref, "artifact_id", ref)
+            if str(artifact_id) == target_id:
+                return manifest.model_copy(update={"canon": None})
+            return manifest
+
+        monkeypatch.setattr(witness.store, "get_raw_manifest_bytes", without_canon_raw)
+        monkeypatch.setattr(witness.store, "get_manifest", without_canon_typed)
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"),
+        ):
+            witness.port._bound_program_plan(request, plan)
+    finally:
+        witness.store.close()
+
+
 def test_n7_measurement_reader_requires_admitted_scope_before_supplier_reads() -> None:
     from polisyos.runtime.quality.data_forge_binding import (
         FabricMeasurementRootBindingError,

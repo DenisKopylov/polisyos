@@ -10,7 +10,6 @@ from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.execution_plan import (
     IterationState,
@@ -95,13 +94,14 @@ class RunEvaluatorNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         governance_verdict = "NEEDS_REVISION"
         governance_issues: list[dict[str, Any]] = []
         events: list[NodeEvent] = []
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
-                payload = from_canonical_bytes(ctx.store.get_bytes(governance_ref))
+                payload = load_core_json_artifact(ctx.store, governance_ref)
                 governance = GovernanceReport.model_validate(payload)
                 governance_verdict = str(governance.verdict or "NEEDS_REVISION").upper()
                 governance_issues = list(governance.issues)

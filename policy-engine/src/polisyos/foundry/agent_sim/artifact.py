@@ -29,7 +29,7 @@ from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.canon import content_hash
 from polisyos.foundry.agent_sim.distributions import GiniPopulationProfile
 from polisyos.foundry.runtime.fingerprint import (
     DeterminismTier,
@@ -710,12 +710,13 @@ def _load_payload(
     cas: ArtifactStore,
     ref: ArtifactRef | ArtifactID | str,
 ) -> dict[str, Any]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if isinstance(ref, (ArtifactRef, ArtifactID)):
         artifact_reference = ref
     else:
         artifact_reference = ArtifactID.model_validate(ref)
 
-    payload = from_canonical_bytes(cas.get_bytes(artifact_reference))
+    payload = load_core_json_artifact(cas, artifact_reference)
     if isinstance(payload, dict):
         return payload
     if hasattr(payload, "model_dump"):

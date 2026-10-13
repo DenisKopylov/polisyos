@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum, StrEnum
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, RootModel, ValidationError
@@ -21,9 +21,11 @@ from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import (
     StateMutation,
+    _completed_producer_value,
     _validate_producer_state,
     branch_state,
     canonical_state_mutation_operations,
+    mutation_journal_for_state,
     mutation_journal_from_operations,
     snapshot_state,
 )
@@ -41,6 +43,19 @@ class _BranchHolderModel(BaseModel):
 
 class _AnyHolderModel(BaseModel):
     payload: Any
+
+
+_ModelValue = TypeVar("_ModelValue")
+
+
+# These Pydantic fixtures must retain typing.Generic's canonical hook so the
+# admission and native generic-origin behavior under test remain representative.
+class _GenericEqualityModel(BaseModel, Generic[_ModelValue]):  # noqa: UP046 -- canonical Pydantic generic-hook fixture
+    value: _ModelValue
+
+
+class _AlternateGenericEqualityModel(BaseModel, Generic[_ModelValue]):  # noqa: UP046 -- canonical Pydantic generic-hook fixture
+    value: _ModelValue
 
 
 class _PolicyDomain(str, Enum):
@@ -552,6 +567,13 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     class AlternateAnyRootValue(RootModel[Any]):
         pass
 
+    class IntegerRootValue(RootModel[int]):
+        pass
+
+    # Keep the bare generic RootModel profile under the canonical typing hook.
+    class GenericRootValue(RootModel[_ModelValue], Generic[_ModelValue]):  # noqa: UP046 -- canonical Pydantic generic-hook fixture
+        pass
+
     class PayloadArtifactRef(ArtifactRef):
         payload: Any
 
@@ -562,6 +584,12 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     class CustomInequalityModel(PayloadArtifactRef):
         def __ne__(self, other: object) -> bool:
             return False
+
+    class CustomGenericEqualityModel(PayloadArtifactRef, Generic[_ModelValue]):
+        value: _ModelValue
+
+        def __init_subclass__(cls, **kwargs: Any) -> None:
+            super().__init_subclass__(**kwargs)
 
     class PrivateStateModel(PayloadArtifactRef):
         _private_value: str = PrivateAttr(default="private")
@@ -595,6 +623,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     assert reference == tracked_reference
     assert tracked_reference.model_fields_set == reference.model_fields_set
     assert tracked_reference == right.state.artifacts_index["reference"]
+    unrelated_value = object()
+    assert tracked_reference.__eq__(unrelated_value) is NotImplemented
+    assert tracked_reference.__ne__(unrelated_value) is NotImplemented
+    assert (tracked_reference == unrelated_value) is False
+    assert (tracked_reference != unrelated_value) is True
     explicitly_null_profile = PayloadArtifactRef(
         artifact_id=reference.artifact_id,
         kind=reference.kind,
@@ -604,8 +637,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     )
     assert "manifest_profile_sha256" not in reference.model_fields_set
     assert "manifest_profile_sha256" in explicitly_null_profile.model_fields_set
-    assert tracked_reference != explicitly_null_profile
-    assert explicitly_null_profile != tracked_reference
+    # Pydantic equality is value-based and ignores model_fields_set.
+    assert reference == explicitly_null_profile
+    assert explicitly_null_profile == reference
+    assert tracked_reference == explicitly_null_profile
+    assert explicitly_null_profile == tracked_reference
     assert tracked_reference != PayloadArtifactRef(
         artifact_id=reference.artifact_id,
         kind=reference.kind,
@@ -615,6 +651,135 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     )
     assert tracked_nested == reference.payload["nested"]
     assert reference.payload["nested"] == tracked_nested
+
+    # Preserve Pydantic's generic-origin rule across the tracking projection.
+    generic_int = _GenericEqualityModel[int](value=1)
+    generic_any = _GenericEqualityModel[Any](value=1)
+    generic_bare = _GenericEqualityModel(value=1)
+    bare_generic_metadata = generic_bare.__pydantic_generic_metadata__
+    assert bare_generic_metadata["origin"] is None
+    assert bare_generic_metadata["parameters"]
+    assert generic_int == generic_any
+    assert generic_any == generic_int
+    assert generic_bare == generic_int
+    assert generic_int == generic_bare
+    assert generic_bare == generic_any
+    assert generic_any == generic_bare
+    generic_ref = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=generic_int,
+    )
+    generic_state = ExperimentState(
+        run_id="R_generic_model_value_equality",
+        artifacts_index={"generic": generic_ref},
+    )
+    tracked_generic = branch_state(
+        generic_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["generic"].payload
+    assert tracked_generic == generic_any
+    assert generic_any == tracked_generic
+    source_generic_metadata = generic_int.__pydantic_generic_metadata__
+    tracked_generic_metadata = tracked_generic.__pydantic_generic_metadata__
+    assert tracked_generic_metadata is not source_generic_metadata
+    assert dict(tracked_generic_metadata) == dict(source_generic_metadata)
+
+    copied_generic = tracked_generic.model_copy()
+    assert copied_generic == generic_any
+    assert generic_any == copied_generic
+    deep_copied_generic = tracked_generic.model_copy(deep=True)
+    assert deep_copied_generic == generic_any
+    assert generic_any == deep_copied_generic
+    completed_generic = _completed_producer_value(tracked_generic)
+    assert type(completed_generic) is type(generic_int)
+    assert dict(completed_generic.__pydantic_generic_metadata__) == dict(
+        source_generic_metadata
+    )
+    assert completed_generic == generic_any
+    assert generic_any == completed_generic
+
+    # The full wrapper metadata preserves a bare class's native effective origin.
+    generic_bare_ref = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=generic_bare,
+    )
+    generic_bare_state = ExperimentState(
+        run_id="R_bare_generic_model_value_equality",
+        artifacts_index={"generic": generic_bare_ref},
+    )
+    tracked_bare_generic = branch_state(
+        generic_bare_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["generic"].payload
+    tracked_bare_metadata = tracked_bare_generic.__pydantic_generic_metadata__
+    expected_bare_metadata = dict(bare_generic_metadata)
+    expected_bare_metadata["origin"] = type(generic_bare)
+    assert tracked_bare_metadata is not bare_generic_metadata
+    assert dict(tracked_bare_metadata) == expected_bare_metadata
+    assert bare_generic_metadata["origin"] is None
+    for ordinary_generic in (generic_bare, generic_int, generic_any):
+        assert tracked_bare_generic == ordinary_generic
+        assert ordinary_generic == tracked_bare_generic
+
+    for copied_bare_generic in (
+        tracked_bare_generic.model_copy(),
+        tracked_bare_generic.model_copy(deep=True),
+    ):
+        assert type(copied_bare_generic) is type(tracked_bare_generic)
+        for ordinary_generic in (generic_bare, generic_int, generic_any):
+            assert copied_bare_generic == ordinary_generic
+            assert ordinary_generic == copied_bare_generic
+    completed_bare_generic = _completed_producer_value(tracked_bare_generic)
+    assert type(completed_bare_generic) is type(generic_bare)
+    assert dict(completed_bare_generic.__pydantic_generic_metadata__) == dict(
+        bare_generic_metadata
+    )
+    for ordinary_generic in (generic_bare, generic_int, generic_any):
+        assert completed_bare_generic == ordinary_generic
+        assert ordinary_generic == completed_bare_generic
+
+    alternate_generic = _AlternateGenericEqualityModel[Any](value=1)
+    assert generic_int != alternate_generic
+    assert tracked_generic != alternate_generic
+    assert alternate_generic != tracked_generic
+    assert generic_bare != alternate_generic
+    assert alternate_generic != generic_bare
+    assert tracked_bare_generic != alternate_generic
+    assert alternate_generic != tracked_bare_generic
+
+    # Empty built-in extra state is preserved while non-empty state stays refused.
+    empty_extra = ExtraStateModel(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=reference.payload,
+    )
+    empty_extra_state = ExperimentState(
+        run_id="R_empty_extra_model_value_equality",
+        artifacts_index={"extra": empty_extra},
+    )
+    tracked_empty_extra = branch_state(
+        empty_extra_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["extra"]
+    assert tracked_empty_extra.__pydantic_extra__ == empty_extra.__pydantic_extra__
+    assert tracked_empty_extra.__pydantic_private__ == empty_extra.__pydantic_private__
+    assert tracked_empty_extra == empty_extra
+    assert empty_extra == tracked_empty_extra
+    with pytest.raises(
+        TypeError, match="state mutation journaling requires a declared model field"
+    ):
+        tracked_empty_extra.unexpected = "not replayable"
+    assert tracked_empty_extra.__pydantic_extra__ == empty_extra.__pydantic_extra__
+
+    # Pydantic ignores non-field __dict__ entries when its field fallback runs.
+    non_field_copy = reference.model_copy()
+    non_field_copy.__dict__["engine_equality_probe"] = "ignored"
+    assert reference == non_field_copy
+    assert tracked_reference == non_field_copy
+    assert non_field_copy == tracked_reference
+
     alternate_nested = AlternateNestedModel(items=["x"], untouched={"k": ["v"]})
     assert tracked_nested != alternate_nested
     assert alternate_nested != tracked_nested
@@ -628,8 +793,106 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     assert tracked_root != alternate_type
     assert alternate_type != tracked_root
     different_bool_value = AnyRootValue(root={"flag": 1, "values": [None, False, 1, "x"]})
-    assert tracked_root != different_bool_value
-    assert different_bool_value != tracked_root
+    # Values inside Any use ordinary Python equality, where True == 1.
+    assert reference.payload["root"] == different_bool_value
+    assert tracked_root == different_bool_value
+    assert different_bool_value == tracked_root
+    int_root = IntegerRootValue(root=1)
+    any_int_root = AnyRootValue(root=1)
+    assert int_root != any_int_root
+    typed_root_ref = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=int_root,
+    )
+    typed_root_state = ExperimentState(
+        run_id="R_typed_root_annotation_equality",
+        artifacts_index={"root": typed_root_ref},
+    )
+    tracked_int_root = branch_state(
+        typed_root_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["root"].payload
+    assert tracked_int_root != any_int_root
+    assert any_int_root != tracked_int_root
+
+    # Parameterized RootModel metadata survives wrapper installation and copies.
+    parameterized_root = RootModel[int](root=1)
+    parameterized_root_ref = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=parameterized_root,
+    )
+    parameterized_root_state = ExperimentState(
+        run_id="R_parameterized_root_metadata_equality",
+        artifacts_index={"root": parameterized_root_ref},
+    )
+    tracked_parameterized_root = branch_state(
+        parameterized_root_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["root"].payload
+    source_root_metadata = parameterized_root.__pydantic_generic_metadata__
+    tracked_root_metadata = tracked_parameterized_root.__pydantic_generic_metadata__
+    assert tracked_root_metadata is not source_root_metadata
+    assert dict(tracked_root_metadata) == dict(source_root_metadata)
+    assert tracked_parameterized_root == parameterized_root
+    assert parameterized_root == tracked_parameterized_root
+    copied_parameterized_root = tracked_parameterized_root.model_copy(deep=True)
+    assert copied_parameterized_root == parameterized_root
+    assert parameterized_root == copied_parameterized_root
+    completed_parameterized_root = _completed_producer_value(tracked_parameterized_root)
+    assert type(completed_parameterized_root) is type(parameterized_root)
+    assert dict(completed_parameterized_root.__pydantic_generic_metadata__) == dict(
+        source_root_metadata
+    )
+    assert completed_parameterized_root == parameterized_root
+    assert parameterized_root == completed_parameterized_root
+
+    # Bare generic RootModel metadata gets an effective origin on the wrapper copy.
+    bare_generic_root = GenericRootValue(root=1)
+    bare_root_metadata = bare_generic_root.__pydantic_generic_metadata__
+    assert bare_root_metadata["origin"] is None
+    assert bare_root_metadata["parameters"]
+    bare_generic_root_ref = PayloadArtifactRef(
+        artifact_id=reference.artifact_id,
+        kind=reference.kind,
+        media_type=reference.media_type,
+        payload=bare_generic_root,
+    )
+    bare_generic_root_state = ExperimentState(
+        run_id="R_bare_generic_root_model_equality",
+        artifacts_index={"root": bare_generic_root_ref},
+    )
+    tracked_bare_generic_root = branch_state(
+        bare_generic_root_state, write_paths=("artifacts_index",)
+    ).state.artifacts_index["root"].payload
+    expected_bare_root_metadata = dict(bare_root_metadata)
+    expected_bare_root_metadata["origin"] = type(bare_generic_root)
+    assert tracked_bare_generic_root.__pydantic_generic_metadata__ is not bare_root_metadata
+    assert dict(tracked_bare_generic_root.__pydantic_generic_metadata__) == expected_bare_root_metadata
+    assert tracked_bare_generic_root == bare_generic_root
+    assert bare_generic_root == tracked_bare_generic_root
+
+    specialized_generic_root = GenericRootValue[int](root=1)
+    # RootModel keeps its independent root-annotation constraint.
+    assert bare_generic_root != specialized_generic_root
+    assert specialized_generic_root != bare_generic_root
+    assert tracked_bare_generic_root != specialized_generic_root
+    assert specialized_generic_root != tracked_bare_generic_root
+    for copied_bare_root in (
+        tracked_bare_generic_root.model_copy(),
+        tracked_bare_generic_root.model_copy(deep=True),
+    ):
+        assert copied_bare_root == bare_generic_root
+        assert bare_generic_root == copied_bare_root
+    completed_bare_root = _completed_producer_value(tracked_bare_generic_root)
+    assert type(completed_bare_root) is type(bare_generic_root)
+    assert dict(completed_bare_root.__pydantic_generic_metadata__) == dict(
+        bare_root_metadata
+    )
+    assert completed_bare_root == bare_generic_root
+    assert bare_generic_root == completed_bare_root
+
     changed_payload = PayloadArtifactRef(
         artifact_id=reference.artifact_id,
         kind=reference.kind,
@@ -640,8 +903,10 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
             "root": reference.payload["root"],
         },
     )
-    assert tracked_reference != changed_payload
-    assert changed_payload != tracked_reference
+    assert reference == changed_payload
+    assert changed_payload == reference
+    assert tracked_reference == changed_payload
+    assert changed_payload == tracked_reference
 
     # Drive every field declared by the actual public ArtifactRef-derived schema.
     complete_reference = PayloadArtifactRef(
@@ -659,7 +924,7 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         complete_state, write_paths=("artifacts_index",)
     ).state.artifacts_index["reference"]
     changed_payload_value = dict(reference.payload)
-    changed_payload_value["flag"] = 1
+    changed_payload_value["flag"] = "different"
     changed_values = {
         "artifact_id": IRArtifactID(f"sha256:{'d' * 64}"),
         "kind": "scientist.other_bundle",
@@ -692,49 +957,174 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         assert candidate.payload == tracked_candidate.payload
 
     tracked_reference.kind = "scientist.other_bundle"
-    assert left.journal.operations[-1].path == ("artifacts_index", "reference", "kind")
+    assert left.journal.operations[-1].path == "artifacts_index.reference.kind"
     assert reference.kind == "scientist.discovery_artifact_bundle"
 
     def candidate_state(candidate: ArtifactRef, run_id: str) -> ExperimentState:
         return ExperimentState(run_id=run_id, artifacts_index={"candidate": candidate})
 
+    # Generic metadata does not waive a custom subclass-hook refusal.
+    ordinary_model_refusal = (
+        "state mutation journaling requires ordinary BaseModel mutation/copy hooks"
+    )
+    private_or_extra_refusal = (
+        "state mutation journaling refuses private or extra model runtime state"
+    )
     invalid_refs = (
-        CustomEqualityModel(
-            artifact_id=reference.artifact_id,
-            kind=reference.kind,
-            media_type=reference.media_type,
-            payload=None,
+        (
+            CustomEqualityModel(
+                artifact_id=reference.artifact_id,
+                kind=reference.kind,
+                media_type=reference.media_type,
+                payload=None,
+            ),
+            ordinary_model_refusal,
         ),
-        CustomInequalityModel(
-            artifact_id=reference.artifact_id,
-            kind=reference.kind,
-            media_type=reference.media_type,
-            payload=None,
+        (
+            CustomInequalityModel(
+                artifact_id=reference.artifact_id,
+                kind=reference.kind,
+                media_type=reference.media_type,
+                payload=None,
+            ),
+            ordinary_model_refusal,
         ),
-        PrivateStateModel(
-            artifact_id=reference.artifact_id,
-            kind=reference.kind,
-            media_type=reference.media_type,
-            payload=None,
+        (
+            CustomGenericEqualityModel[int](
+                artifact_id=reference.artifact_id,
+                kind=reference.kind,
+                media_type=reference.media_type,
+                payload=None,
+                value=1,
+            ),
+            ordinary_model_refusal,
         ),
-        ExtraStateModel(
-            artifact_id=reference.artifact_id,
-            kind=reference.kind,
-            media_type=reference.media_type,
-            payload=None,
-            unexpected="y",
+        (
+            PrivateStateModel(
+                artifact_id=reference.artifact_id,
+                kind=reference.kind,
+                media_type=reference.media_type,
+                payload=None,
+            ),
+            ordinary_model_refusal,
+        ),
+        (
+            ExtraStateModel(
+                artifact_id=reference.artifact_id,
+                kind=reference.kind,
+                media_type=reference.media_type,
+                payload=None,
+                unexpected="y",
+            ),
+            private_or_extra_refusal,
         ),
     )
-    for ordinal, candidate in enumerate(invalid_refs):
-        if isinstance(candidate, (PrivateStateModel, ExtraStateModel)):
-            match = "private or extra model runtime state"
-        else:
-            match = "ordinary BaseModel mutation/copy hooks"
-        with pytest.raises(TypeError, match=match):
+    for ordinal, (candidate, expected_error) in enumerate(invalid_refs):
+        source = candidate_state(candidate, f"R_model_equality_refusal_{ordinal}")
+        model_values = dict.copy(object.__getattribute__(candidate, "__dict__"))
+        model_fields_set = set(candidate.model_fields_set)
+        private_state = object.__getattribute__(candidate, "__pydantic_private__")
+        private_values = None if private_state is None else dict.copy(private_state)
+        extra_state = object.__getattribute__(candidate, "__pydantic_extra__")
+        extra_values = None if extra_state is None else dict.copy(extra_state)
+
+        assert mutation_journal_for_state(source) is None
+        with pytest.raises(TypeError) as refusal:
             branch_state(
-                candidate_state(candidate, f"R_model_equality_refusal_{ordinal}"),
+                source,
                 write_paths=("artifacts_index",),
+                enforce_write_scope=True,
             )
+
+        assert str(refusal.value) == expected_error
+        assert tuple(source.artifacts_index) == ("candidate",)
+        assert source.artifacts_index["candidate"] is candidate
+        assert dict.copy(object.__getattribute__(candidate, "__dict__")) == model_values
+        assert set(candidate.model_fields_set) == model_fields_set
+        current_private = object.__getattribute__(candidate, "__pydantic_private__")
+        current_extra = object.__getattribute__(candidate, "__pydantic_extra__")
+        assert current_private == private_values
+        assert current_extra == extra_values
+        assert mutation_journal_for_state(source) is None
+
+def test_journaled_model_wrapper_preserves_exact_private_and_extra_slots() -> None:
+    class SlotStateArtifactRef(ArtifactRef):
+        model_config = ConfigDict(extra="allow")
+
+        payload: Any
+
+    def make_reference() -> SlotStateArtifactRef:
+        return SlotStateArtifactRef(
+            artifact_id=f"sha256:{'c' * 64}",
+            kind="scientist.discovery_artifact_bundle",
+            media_type="application/json",
+            payload={"basis": "runtime-slot-shape"},
+        )
+
+    references: dict[str, SlotStateArtifactRef] = {}
+    paired_keys: dict[str, tuple[str, str]] = {}
+    for pair_name, slot_name in (
+        ("private", "__pydantic_private__"),
+        ("extra", "__pydantic_extra__"),
+    ):
+        absent = make_reference()
+        empty = absent.model_copy()
+        object.__setattr__(absent, slot_name, None)
+        object.__setattr__(empty, slot_name, {})
+        assert object.__getattribute__(absent, slot_name) is None
+        empty_state = object.__getattribute__(empty, slot_name)
+        assert type(empty_state) is dict
+        assert dict.__len__(empty_state) == 0
+        # Keep the pinned native relation: absence and an empty slot are distinct.
+        assert absent != empty
+        assert empty != absent
+
+        absent_key = f"{pair_name}_absent"
+        empty_key = f"{pair_name}_empty"
+        references[absent_key] = absent
+        references[empty_key] = empty
+        paired_keys[pair_name] = (absent_key, empty_key)
+
+    branch = branch_state(
+        ExperimentState(
+            run_id="R_journaled_runtime_slot_shape",
+            artifacts_index=references,
+        ),
+        write_paths=("artifacts_index",),
+    )
+    tracked_references = branch.state.artifacts_index
+    for key, source in references.items():
+        tracked = tracked_references[key]
+        assert isinstance(tracked, SlotStateArtifactRef)
+        for slot_name in ("__pydantic_private__", "__pydantic_extra__"):
+            source_slot = object.__getattribute__(source, slot_name)
+            tracked_slot = object.__getattribute__(tracked, slot_name)
+            assert type(tracked_slot) is type(source_slot)
+            assert tracked_slot == source_slot
+        assert tracked == source
+        assert source == tracked
+
+        completed = _completed_producer_value(tracked)
+        assert type(completed) is SlotStateArtifactRef
+        for slot_name in ("__pydantic_private__", "__pydantic_extra__"):
+            source_slot = object.__getattribute__(source, slot_name)
+            completed_slot = object.__getattribute__(completed, slot_name)
+            assert type(completed_slot) is type(source_slot)
+            assert completed_slot == source_slot
+        assert completed == source
+        assert source == completed
+
+    for absent_key, empty_key in paired_keys.values():
+        tracked_absent = tracked_references[absent_key]
+        tracked_empty = tracked_references[empty_key]
+        assert tracked_absent != tracked_empty
+        assert tracked_empty != tracked_absent
+        completed_absent = _completed_producer_value(tracked_absent)
+        completed_empty = _completed_producer_value(tracked_empty)
+        assert completed_absent != completed_empty
+        assert completed_empty != completed_absent
+
+
 
 def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> None:
     class PresenceModel(BaseModel):
@@ -806,16 +1196,25 @@ def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> N
         assert tracked_record.model_fields_set == original_fields_set
         assert branch.journal.operations == []
 
-        # A real typed assignment, including an explicit None, changes presence and journals.
+        # A real typed assignment changes presence and journals even when
+        # Pydantic value equality stays true for the same explicit None value.
         tracked_record.optional_label = None
         assert "optional_label" in tracked_record.model_fields_set
         assert "optional_label" not in record.model_fields_set
         assert "wireLabel" not in tracked_record.model_fields_set
-        assert tracked_record != record
-        assert record != tracked_record
-        assert branch.journal.operations[-1].path == (
+        assert tracked_record == record
+        assert record == tracked_record
+        assignment = branch.journal.operations[-1]
+        assert assignment.path == (
             "artifacts_index.reference.payload.root.first.optional_label"
         )
+        assert assignment.operation == "set"
+        assert assignment.value is None
+        with pytest.raises(TypeError, match="model field deletion is not replayable"):
+            del tracked_record.optional_label
+        assert tracked_record.optional_label is None
+        assert "optional_label" in tracked_record.model_fields_set
+        assert len(branch.journal.operations) == 1
 
         tracked_record.items[0] = 9
         tracked_record.mapping["selected"][0] = 8
@@ -823,6 +1222,8 @@ def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> N
         assert record.mapping == {"selected": [2]}
         assert tracked_record.items == [9]
         assert tracked_record.mapping == {"selected": [8]}
+        assert tracked_record != record
+        assert record != tracked_record
         assert len(branch.journal.operations) == 3
 
 

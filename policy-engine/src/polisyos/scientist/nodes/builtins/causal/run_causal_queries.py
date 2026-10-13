@@ -154,6 +154,7 @@ def _load_bound_query_result(
     scm_ref: ArtifactRef,
 ) -> CausalQueryResult:
     """Reconcile the complete job projection and requested query against actual CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = result.method_result_ref
     if not isinstance(ref, ArtifactRef):
         raise ValueError("causal query method_result_ref is required")
@@ -176,7 +177,7 @@ def _load_bound_query_result(
     ):
         raise ValueError("causal query method result lacks original SCM input binding")
     source_bytes = ctx.store.get_bytes(ref)
-    payload = canon.from_canonical_bytes(source_bytes)
+    payload = load_core_json_artifact(ctx.store, ref, raw_payload_bytes=source_bytes)
     if not isinstance(payload, dict) or not isinstance(result.final_state, dict):
         raise ValueError("causal query method result must be an object")
     # Use the same complete runtime-to-JSON projection as the canonical job writer.

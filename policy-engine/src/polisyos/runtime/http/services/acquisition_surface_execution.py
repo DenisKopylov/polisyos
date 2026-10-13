@@ -390,7 +390,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):
                 return
-            if bridge.project_growth(closure) is not None:
+            if bridge._has_verified_admission_basis(closure):
                 return
             self._raise_attempt_exhausted()
         if any(
@@ -430,19 +430,33 @@ class WorldBankWDIAcquisitionExecutionPort:
     def execute(
         self,
         closure: VerifiedAcquisitionRouteClosure,
+        *,
+        action_phase_ref: str | None = None,
     ) -> AcquisitionOwnerExecutionResult:
         """Execute one bound attempt and admit only native, activated observation growth."""
 
         self.require_route_ready(closure)
         bridge = self._world_growth_bridge
+        if action_phase_ref is not None:
+            if bridge is None:
+                self._raise_reentry_not_admitted()
+            bridge.begin_action(closure, action_phase_ref)
         if bridge is not None and bridge.has_admission_attempt(closure):
             if bridge.has_deferred_admission(closure):
-                owner_refs, growth = bridge.resume_deferred_admission(closure)
-                return self._admission_result(closure, owner_refs, growth)
-            if bridge.project_growth(closure) is None:
+                owner_refs, growth = bridge.resume_deferred_admission(
+                    closure, action_phase_ref=action_phase_ref
+                )
+                return self._admission_result(
+                    closure, owner_refs, growth, action_phase_ref=action_phase_ref
+                )
+            if not bridge._has_verified_admission_basis(closure):
                 self._raise_attempt_exhausted()
-            owner_refs = bridge.record_measured_no_growth(closure)
-            return self._admission_result(closure, owner_refs, None)
+            owner_refs = bridge.record_measured_no_growth(
+                closure, action_phase_ref=action_phase_ref
+            )
+            return self._admission_result(
+                closure, owner_refs, None, action_phase_ref=action_phase_ref
+            )
         cas_root = self._runtime_artifact_store_root()
         binding = self.reserve_route_binding(closure)
         self._claim_reserved_binding(binding)
@@ -490,17 +504,22 @@ class WorldBankWDIAcquisitionExecutionPort:
                     target_variable=binding.target_variable,
                     evidence=evidence,
                     owner_receipt_refs=owner_receipt_refs,
+                    action_phase_ref=action_phase_ref,
                 )
             except SemanticEpochAdmissionResolutionError:
                 # Resolution absence cannot promote fetched data into admitted membership.
                 growth = None
-        return self._admission_result(closure, owner_receipt_refs, growth)
+        return self._admission_result(
+            closure, owner_receipt_refs, growth, action_phase_ref=action_phase_ref
+        )
 
     def _admission_result(
         self,
         closure: VerifiedAcquisitionRouteClosure,
         owner_receipt_refs: tuple[str, ...],
         growth: AcquisitionWorldGrowthReceipt | PersistedSemanticEpochProductionReceipt | None,
+        *,
+        action_phase_ref: str | None = None,
     ) -> AcquisitionOwnerExecutionResult:
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionOwnerExecutionResult,
@@ -517,9 +536,12 @@ class WorldBankWDIAcquisitionExecutionPort:
             if bridge is None:
                 self._raise_reentry_not_admitted()
             growth_ref = bridge.persist_growth(closure, growth)
+            scoped_refs = (*owner_receipt_refs, growth_ref)
+            if action_phase_ref is not None:
+                scoped_refs = (*scoped_refs, action_phase_ref)
             return AcquisitionOwnerExecutionResult(
                 disposition="world_committed",
-                owner_receipt_refs=(*owner_receipt_refs, growth_ref),
+                owner_receipt_refs=tuple(dict.fromkeys(scoped_refs)),
                 admitted_observation_delta=growth.admitted_observation_delta,
                 overlay_admission_receipt_ref=str(
                     growth.activation.overlay_admission_receipt_ref.artifact_id
@@ -528,29 +550,45 @@ class WorldBankWDIAcquisitionExecutionPort:
                     growth.activation.semantic_epoch_production_receipt_ref.artifact_id
                 ),
                 authority_badge="native_owner_verified",
+                action_phase_ref=action_phase_ref,
             )
+        if action_phase_ref is not None:
+            owner_receipt_refs = tuple(dict.fromkeys((*owner_receipt_refs, action_phase_ref)))
         return AcquisitionOwnerExecutionResult(
             disposition="quarantined_no_growth",
             owner_receipt_refs=owner_receipt_refs,
             admitted_observation_delta=0,
+            action_phase_ref=action_phase_ref,
         )
 
     def recover_owned_result(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        action_phase_ref: str | None = None,
     ) -> AcquisitionOwnerExecutionResult:
         """Recover only already-active native evidence; never retry a live effect."""
         bridge = self._world_growth_bridge
         if bridge is None:
             self._raise_reentry_not_admitted()
-        growth = bridge.recover_admission(closure)
-        growth_ref = bridge.persist_growth(closure, growth)
+        if action_phase_ref is None:
+            self._raise_reentry_not_admitted()
+        recovered = bridge.recover_admission(closure, action_phase_ref)
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionOwnerExecutionResult,
         )
 
+        if recovered.disposition == "quarantined_no_growth":
+            return AcquisitionOwnerExecutionResult(
+                disposition="quarantined_no_growth",
+                owner_receipt_refs=recovered.owner_receipt_refs,
+                admitted_observation_delta=0,
+                action_phase_ref=recovered.action_phase_ref,
+            )
+        growth = recovered.growth
         return AcquisitionOwnerExecutionResult(
             disposition="world_committed",
-            owner_receipt_refs=(*growth.live_evidence_refs, growth_ref),
+            owner_receipt_refs=recovered.owner_receipt_refs,
             admitted_observation_delta=growth.admitted_observation_delta,
             overlay_admission_receipt_ref=str(
                 growth.activation.overlay_admission_receipt_ref.artifact_id
@@ -559,14 +597,29 @@ class WorldBankWDIAcquisitionExecutionPort:
                 growth.activation.semantic_epoch_production_receipt_ref.artifact_id
             ),
             authority_badge="native_owner_verified",
+            action_phase_ref=recovered.action_phase_ref,
         )
 
     def project_world_growth(
         self, closure: VerifiedAcquisitionRouteClosure
     ) -> AcquisitionWorldGrowthReceipt | None:
-        """Reverify native admission for the exact route's public projection."""
+        """Reverify native admission for existing execution and re-entry flows."""
         bridge = self._world_growth_bridge
         return None if bridge is None else bridge.project_growth(closure)
+
+    def project_world_growth_outcome(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[
+        Literal["not_established", "no_growth", "admitted_delta"],
+        AcquisitionWorldGrowthReceipt | None,
+    ]:
+        """Project only a selected, reverified current growth outcome."""
+        bridge = self._world_growth_bridge
+        return (
+            ("not_established", None)
+            if bridge is None
+            else bridge.project_growth_outcome(closure)
+        )
 
     def reenter(
         self,
@@ -784,6 +837,7 @@ def build_production_world_bank_wdi_execution_port(
                 control_service._cycle_substrate_context_admission_owner
             ),
             control_store=control_service._control_store,
+            action_head_sink=control_service.acquisition_route_sink,
         )
     return WorldBankWDIAcquisitionExecutionPort(
         world_growth_bridge=world_growth_bridge,

@@ -3,10 +3,21 @@
 from __future__ import annotations
 
 import hashlib
+import json
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Never
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictStr,
+    TypeAdapter,
+    model_validator,
+)
+from typing_extensions import TypeForm  # noqa: TC002
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.data_forge.domains.ukraine.manifests import (
@@ -69,8 +80,439 @@ _EXPORTS = {
 }
 
 
+def _validate_sha256_reference(value: str) -> str:
+    """Validate the prefixed SHA-256 wire form with Core's ArtifactID owner."""
+    return str(core_artifacts.ArtifactID.model_validate(value))
+
+
+def _validate_sha256_hex(value: str) -> str:
+    """Validate a bare SHA-256 content digest with Core's canonical parser."""
+    return core_artifacts.ArtifactID.from_sha256_hex(value).hex
+
+
+# Selected references/profile digests include their canonical algorithm prefix.
+_Sha256Reference = Annotated[
+    StrictStr,
+    Field(pattern=r"^sha256:[0-9a-f]{64}$"),
+    AfterValidator(_validate_sha256_reference),
+]
+# Payload/content digests remain bare 64-hex values throughout producer receipts.
+_Sha256ContentHex = Annotated[
+    StrictStr,
+    Field(pattern=r"^[0-9a-f]{64}$"),
+    AfterValidator(_validate_sha256_hex),
+]
+
+
 class UkraineStageArtifactVerificationError(RuntimeError):
     """Raised when a Ukraine producer artifact cannot be content-bound fail closed."""
+
+
+
+
+UkraineJSONSnapshotStatus = Literal[
+    "declared_bytes_conformant",
+    "profile_absent_raw_snapshot_candidate",
+    "declared_unknown_candidate",
+]
+
+
+class UkraineJSONSnapshotRefusalError(UkraineStageArtifactVerificationError):
+    """A fail-closed refusal at the typed Ukraine JSON snapshot boundary."""
+
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        super().__init__(f"{code}: {message}")
+
+
+class UkraineJSONSnapshotProvenance(BaseModel):
+    """Recomputed selection/content facts, never producer or source authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    artifact_ref: core_artifacts.ArtifactRef
+    selected_artifact_id: _Sha256Reference
+    selected_manifest_profile_sha256: _Sha256Reference
+    content_sha256: _Sha256ContentHex
+    content_size_bytes: int = Field(ge=0)
+    artifact_kind: str = Field(min_length=1)
+    media_type: Literal["application/json"] = "application/json"
+    schema_name: str | None = None
+    schema_version: str | None = None
+    profile_status: UkraineJSONSnapshotStatus
+    consumer_contract: str = Field(min_length=1)
+    profile_selection_provenance: Literal["recomputed"] = "recomputed"
+    content_binding_provenance: Literal["recomputed"] = "recomputed"
+    schema_validation_provenance: Literal["recomputed", "not_evaluated"]
+    source_materialization: Literal[
+        "reader_materialized",
+        "raw_snapshot_candidate",
+        "raw_only_candidate",
+    ]
+    producer_attestation_status: Literal["not_established"] = "not_established"
+    currentness_provenance: Literal["not_established"] = "not_established"
+    authority_provenance: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _bind_selected_content(self) -> UkraineJSONSnapshotProvenance:
+        if self.artifact_ref.artifact_id.hex != self.content_sha256:
+            raise ValueError("snapshot content digest differs from its selected artifact ID")
+        if self.selected_artifact_id != str(self.artifact_ref.artifact_id):
+            raise ValueError("snapshot provenance selected ID differs from the artifact ref")
+        if self.artifact_ref.manifest_profile_sha256 != self.selected_manifest_profile_sha256:
+            raise ValueError("snapshot provenance profile differs from the selected artifact ref")
+        if self.profile_status == "declared_unknown_candidate":
+            if (
+                self.schema_validation_provenance != "not_evaluated"
+                or self.source_materialization != "raw_only_candidate"
+            ):
+                raise ValueError("unknown profiles may be carried raw only")
+        elif self.schema_validation_provenance != "recomputed":
+            raise ValueError("typed snapshot candidates require recomputed schema validation")
+        return self
+
+
+@dataclass(frozen=True)
+class UkraineJSONSnapshotRead[SnapshotT]:
+    """One exact CAS JSON read with a status-gated semantic value."""
+
+    provenance: UkraineJSONSnapshotProvenance
+    raw_payload_bytes: bytes
+    _candidate_value: SnapshotT | None = None
+
+    @property
+    def value(self) -> SnapshotT:
+        """Return a value only when the declared selected Core profile conforms."""
+        if (
+            self.provenance.profile_status != "declared_bytes_conformant"
+            or self._candidate_value is None
+        ):
+            raise UkraineJSONSnapshotRefusalError(
+                "ukraine_snapshot_profile_not_verified",
+                "semantic value is not declared-profile conformant",
+            )
+        return self._candidate_value
+
+    @property
+    def raw_only_candidate_bytes(self) -> bytes:
+        """Return exact bytes for an unsupported declared profile without decoding."""
+        if self.provenance.profile_status != "declared_unknown_candidate":
+            raise UkraineJSONSnapshotRefusalError(
+                "ukraine_snapshot_not_raw_only",
+                "selected profile is not an unsupported declaration",
+            )
+        return self.raw_payload_bytes
+
+    def value_for_candidate(self) -> SnapshotT:
+        """Return a typed candidate value, never an unknown-profile value."""
+        if (
+            self.provenance.profile_status == "declared_unknown_candidate"
+            or self._candidate_value is None
+        ):
+            raise UkraineJSONSnapshotRefusalError(
+                "ukraine_snapshot_unknown_profile_raw_only",
+                "unsupported profile has no decoded value",
+            )
+        return self._candidate_value
+
+
+def _reject_duplicate_snapshot_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON object key")
+        result[key] = value
+    return result
+
+
+def _reject_snapshot_json_constant(value: str) -> Never:
+    raise ValueError(f"invalid JSON numeric constant: {value}")
+
+
+def read_ukraine_json_snapshot[SnapshotT](
+    store: core_artifacts.ArtifactStore,
+    artifact_ref: core_artifacts.ArtifactRef,
+    *,
+    raw_payload_bytes: bytes,
+    expected_sha256: _Sha256ContentHex,
+    expected_size_bytes: int,
+    expected_kind: str,
+    consumer_contract: str,
+    model_type: TypeForm[SnapshotT],
+    expected_schema: tuple[str, str] | None = None,
+) -> UkraineJSONSnapshotRead[SnapshotT]:
+    """Bind one exact JSON snapshot to its selected raw manifest before typed use.
+
+    A profileless snapshot is explicitly candidate-only and never receives a
+    reader-default canonical profile. A well-formed unsupported profile is
+    raw-only: this function does not parse its JSON value. Malformed-present
+    profile metadata remains a refusal from the shared Core parser.
+    """
+    if artifact_ref.manifest_profile_sha256 is None:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_profile_selector_missing",
+            "semantic JSON reads require the exact writer-selected manifest profile",
+        )
+    try:
+        manifest, declaration = core_artifacts.read_core_manifest_profile(
+            store,
+            artifact_ref,
+            allow_profile_absent=True,
+        )
+    except FileNotFoundError as exc:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_manifest_missing", str(exc)
+        ) from exc
+    except Exception as exc:
+        code = getattr(exc, "code", "ukraine_snapshot_manifest_unavailable")
+        raise UkraineJSONSnapshotRefusalError(str(code), str(exc)) from exc
+    if manifest.artifact_id != artifact_ref.artifact_id or manifest.kind != expected_kind:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_kind_or_identity_mismatch",
+            "selected manifest differs from the receipt",
+        )
+    if manifest.media_type != "application/json":
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_media_type_mismatch",
+            "typed JSON consumer selected a non-JSON artifact",
+        )
+    actual_schema = manifest.artifact_schema
+    if expected_schema is not None and (
+        actual_schema is None
+        or actual_schema.name != expected_schema[0]
+        or actual_schema.version != expected_schema[1]
+    ):
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_schema_mismatch",
+            "selected schema differs from the consumer contract",
+        )
+    if type(raw_payload_bytes) is not bytes or type(expected_size_bytes) is not int:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_payload_invalid",
+            "payload or size has an invalid type",
+        )
+    actual_sha256 = hashlib.sha256(raw_payload_bytes).hexdigest()
+    if (
+        len(raw_payload_bytes) != expected_size_bytes
+        or actual_sha256 != expected_sha256
+        or actual_sha256 != manifest.artifact_id.hex
+    ):
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_content_binding_mismatch",
+            "selected bytes differ from the admitted content identity",
+        )
+    profile_sha256 = core_artifacts.artifact_manifest_profile_sha256(manifest)
+    selected_ref = core_artifacts.ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=profile_sha256,
+    )
+    if (
+        artifact_ref.manifest_profile_sha256 is not None
+        and artifact_ref.manifest_profile_sha256 != profile_sha256
+    ):
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_profile_selection_mismatch",
+            "receipt selected a different manifest profile",
+        )
+
+    value: SnapshotT | None = None
+    if declaration.status == "declared_unknown_candidate":
+        try:
+            read = core_artifacts.read_core_json_artifact(
+                store,
+                selected_ref,
+                raw_payload_bytes=raw_payload_bytes,
+                manifest_profile_sha256=profile_sha256,
+            )
+            if read.raw_only_candidate_bytes != raw_payload_bytes:
+                raise ValueError("raw-only Core read changed the selected payload bytes")
+        except Exception as exc:
+            code = getattr(exc, "code", "ukraine_snapshot_unknown_profile_invalid")
+            raise UkraineJSONSnapshotRefusalError(str(code), str(exc)) from exc
+        status: UkraineJSONSnapshotStatus = "declared_unknown_candidate"
+        validation_provenance: Literal["recomputed", "not_evaluated"] = "not_evaluated"
+        materialization: Literal[
+            "reader_materialized", "raw_snapshot_candidate", "raw_only_candidate"
+        ] = "raw_only_candidate"
+    elif declaration.status == "absent":
+        try:
+            json.loads(
+                raw_payload_bytes,
+                object_pairs_hook=_reject_duplicate_snapshot_keys,
+                parse_constant=_reject_snapshot_json_constant,
+            )
+            value = TypeAdapter(model_type).validate_json(raw_payload_bytes, strict=True)
+        except Exception as exc:
+            raise UkraineJSONSnapshotRefusalError(
+                "ukraine_snapshot_json_or_schema_invalid", str(exc)
+            ) from exc
+        status = "profile_absent_raw_snapshot_candidate"
+        validation_provenance = "recomputed"
+        materialization = "raw_snapshot_candidate"
+    else:
+        try:
+            read = core_artifacts.read_core_json_artifact(
+                store,
+                selected_ref,
+                raw_payload_bytes=raw_payload_bytes,
+                manifest_profile_sha256=profile_sha256,
+            )
+            if read.status != "declared_bytes_conformant":
+                raise ValueError("selected profile was not byte-conformant")
+            json.loads(
+                raw_payload_bytes,
+                object_pairs_hook=_reject_duplicate_snapshot_keys,
+                parse_constant=_reject_snapshot_json_constant,
+            )
+            value = TypeAdapter(model_type).validate_json(raw_payload_bytes, strict=True)
+        except Exception as exc:
+            code = getattr(exc, "code", "ukraine_snapshot_json_or_schema_invalid")
+            raise UkraineJSONSnapshotRefusalError(str(code), str(exc)) from exc
+        status = "declared_bytes_conformant"
+        validation_provenance = "recomputed"
+        materialization = "reader_materialized"
+
+    provenance = UkraineJSONSnapshotProvenance(
+        artifact_ref=selected_ref,
+        selected_artifact_id=f"sha256:{manifest.artifact_id.hex}",
+        selected_manifest_profile_sha256=profile_sha256,
+        content_sha256=actual_sha256,
+        content_size_bytes=len(raw_payload_bytes),
+        artifact_kind=manifest.kind,
+        schema_name=actual_schema.name if actual_schema is not None else None,
+        schema_version=actual_schema.version if actual_schema is not None else None,
+        profile_status=status,
+        consumer_contract=consumer_contract,
+        schema_validation_provenance=validation_provenance,
+        source_materialization=materialization,
+    )
+    return UkraineJSONSnapshotRead(
+        provenance=provenance,
+        raw_payload_bytes=raw_payload_bytes,
+        _candidate_value=value,
+    )
+
+
+def load_verified_stage_json_output[SnapshotT](
+    store: core_artifacts.FileSystemCAS,
+    receipt: VerifiedUkraineStageArtifacts,
+    output_name: str,
+    *,
+    model_type: TypeForm[SnapshotT],
+    consumer_contract: str,
+    expected_schema: tuple[str, str] | None = None,
+) -> UkraineJSONSnapshotRead[SnapshotT]:
+    """Read one JSON output through its exact verified stage receipt and profile."""
+    output = receipt.outputs.get(output_name)
+    if output is None:
+        raise UkraineJSONSnapshotRefusalError("ukraine_snapshot_output_missing", output_name)
+    raw = load_verified_stage_output_bytes(store, receipt, output_name)
+    return read_ukraine_json_snapshot(
+        store,
+        output.content_ref,
+        raw_payload_bytes=raw,
+        expected_sha256=output.sha256,
+        expected_size_bytes=output.size_bytes,
+        expected_kind="data_forge.ukraine.stage_output_snapshot",
+        expected_schema=expected_schema,
+        consumer_contract=consumer_contract,
+        model_type=model_type,
+    )
+
+
+def load_verified_stage_manifest_json[SnapshotT](
+    store: core_artifacts.FileSystemCAS,
+    receipt: VerifiedUkraineStageArtifacts,
+    *,
+    model_type: TypeForm[SnapshotT],
+    consumer_contract: str,
+) -> UkraineJSONSnapshotRead[SnapshotT]:
+    """Read the exact stored BuildRunManifest snapshot without a reader default."""
+    try:
+        raw = store.get_bytes(receipt.manifest_ref)
+    except Exception as exc:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_manifest_missing", str(exc)
+        ) from exc
+    return read_ukraine_json_snapshot(
+        store,
+        receipt.manifest_ref,
+        raw_payload_bytes=raw,
+        expected_sha256=receipt.manifest_sha256,
+        expected_size_bytes=len(raw),
+        expected_kind="data_forge.ukraine.stage_manifest_snapshot",
+        expected_schema=("polisyos.data_forge.ukraine.BuildRunManifest", "1.0"),
+        consumer_contract=consumer_contract,
+        model_type=model_type,
+    )
+
+
+def load_verified_release_manifest_json[SnapshotT](
+    store: core_artifacts.FileSystemCAS,
+    receipt: VerifiedUkraineReleaseArtifacts,
+    *,
+    model_type: TypeForm[SnapshotT],
+    consumer_contract: str,
+    raw_payload_bytes: bytes | None = None,
+) -> UkraineJSONSnapshotRead[SnapshotT]:
+    """Read the exact stored ReleaseManifest snapshot under its selected profile."""
+    if raw_payload_bytes is None:
+        try:
+            raw_payload_bytes = store.get_bytes(receipt.manifest_ref)
+        except Exception as exc:
+            raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_manifest_missing", str(exc)
+        ) from exc
+    return read_ukraine_json_snapshot(
+        store,
+        receipt.manifest_ref,
+        raw_payload_bytes=raw_payload_bytes,
+        expected_sha256=receipt.manifest_sha256,
+        expected_size_bytes=receipt.manifest_size_bytes,
+        expected_kind="data_forge.ukraine.release_manifest_snapshot",
+        expected_schema=("polisyos.data_forge.ukraine.ReleaseManifest", "1.0"),
+        consumer_contract=consumer_contract,
+        model_type=model_type,
+    )
+
+
+def load_verified_release_json_artifact[SnapshotT](
+    store: core_artifacts.FileSystemCAS,
+    artifact: VerifiedUkraineReleaseArtifact,
+    *,
+    model_type: TypeForm[SnapshotT],
+    consumer_contract: str,
+    expected_schema: tuple[str, str] | None = None,
+    raw_payload_bytes: bytes | None = None,
+) -> UkraineJSONSnapshotRead[SnapshotT]:
+    """Read one receipt-bound JSON release member; opaque/Parquet bytes stay raw."""
+    if artifact.content_ref.kind not in {
+        "data_forge.ukraine.release_bundle_file_snapshot",
+        "data_forge.ukraine.release_evidence_snapshot",
+        "data_forge.ukraine.release_handoff_snapshot",
+    }:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_kind_mismatch",
+            "release member is outside the typed JSON snapshot kinds",
+        )
+    raw = (
+        load_verified_release_artifact_bytes(store, artifact)
+        if raw_payload_bytes is None
+        else raw_payload_bytes
+    )
+    return read_ukraine_json_snapshot(
+        store,
+        artifact.content_ref,
+        raw_payload_bytes=raw,
+        expected_sha256=artifact.sha256,
+        expected_size_bytes=artifact.size_bytes,
+        expected_kind=artifact.content_ref.kind,
+        expected_schema=expected_schema,
+        consumer_contract=consumer_contract,
+        model_type=model_type,
+    )
 
 
 class VerifiedUkraineStageArtifact(BaseModel):
@@ -80,7 +522,7 @@ class VerifiedUkraineStageArtifact(BaseModel):
 
     source_path: str = Field(min_length=1)
     content_ref: core_artifacts.ArtifactRef
-    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    sha256: _Sha256ContentHex
     size_bytes: int = Field(ge=0)
     row_count: int | None = Field(default=None, ge=0)
     nnz: int | None = Field(default=None, ge=0)
@@ -112,7 +554,7 @@ class VerifiedUkraineStageArtifacts(BaseModel):
     finished_at: str = Field(min_length=1)
     manifest_source_path: str = Field(min_length=1)
     manifest_ref: core_artifacts.ArtifactRef
-    manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    manifest_sha256: _Sha256ContentHex
     provenance_ref: Literal["polisyos.data_forge.domains.ukraine.manifests.BuildRunManifest"] = (
         "polisyos.data_forge.domains.ukraine.manifests.BuildRunManifest"
     )
@@ -146,7 +588,7 @@ class VerifiedUkraineReleaseArtifact(BaseModel):
 
     source_path: str = Field(min_length=1)
     content_ref: core_artifacts.ArtifactRef
-    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    sha256: _Sha256ContentHex
     size_bytes: int = Field(ge=0)
 
     @model_validator(mode="after")
@@ -161,17 +603,19 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.data_forge.ukraine.verified_release.v1"] = (
-        "policyos.data_forge.ukraine.verified_release.v1"
-    )
-    verification_rule_version: Literal["ukraine-release-artifacts.v1"] = (
-        "ukraine-release-artifacts.v1"
-    )
+    schema_version: Literal[
+        "policyos.data_forge.ukraine.verified_release.v1",
+        "policyos.data_forge.ukraine.verified_release.v2",
+    ] = "policyos.data_forge.ukraine.verified_release.v2"
+    verification_rule_version: Literal[
+        "ukraine-release-artifacts.v1",
+        "ukraine-release-artifacts.v2",
+    ] = "ukraine-release-artifacts.v2"
     stage_id: Literal["d5"] = "d5"
     declared_release_root: str = Field(min_length=1)
     manifest_source_path: str = Field(min_length=1)
     manifest_ref: core_artifacts.ArtifactRef
-    manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    manifest_sha256: _Sha256ContentHex
     manifest_size_bytes: int = Field(ge=0)
     provenance_ref: Literal["polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"] = (
         "polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"
@@ -197,6 +641,9 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
         "method_validity",
     )
     handoff_request: D5ReleaseHandoffRequest
+    handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal[
+        "not_established"
+    ] = "not_established"
     bundle_contents: dict[str, dict[str, VerifiedUkraineReleaseArtifact]] = Field(
         default_factory=dict
     )
@@ -206,6 +653,20 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
     def _manifest_ref_matches_verified_hash(self) -> VerifiedUkraineReleaseArtifacts:
         if self.manifest_ref.artifact_id.hex != self.manifest_sha256:
             raise ValueError("manifest_ref does not match the verified release manifest hash")
+        versions_match = (
+            self.schema_version.endswith(".v1")
+            and self.verification_rule_version.endswith(".v1")
+        ) or (
+            self.schema_version.endswith(".v2")
+            and self.verification_rule_version.endswith(".v2")
+        )
+        if not versions_match:
+            raise ValueError("release admission receipt schema and rule versions must match")
+        if (
+            self.schema_version.endswith(".v1")
+            and self.handoff_snapshot_profile_status != "not_established"
+        ):
+            raise ValueError("legacy v1 release receipts cannot claim handoff profile status")
         if self.authoritative_for:
             raise ValueError("release admission receipt cannot declare downstream authority")
         if set(self.verified_for) != {
@@ -231,7 +692,12 @@ def load_verified_stage_artifacts(
     expected_stage: str,
     required_outputs: tuple[str, ...] = (),
 ) -> VerifiedUkraineStageArtifacts:
-    """Resolve and recompute one completed Ukraine stage manifest.
+    """Resolve one completed stage and preserve each exact admitted byte string.
+
+    CAS writes return the exact manifest profile selected by each write. This importer
+    does not canonicalize producer bytes, attach CanonInfo, or establish producer
+    attestation, source currentness, or authority. Typed JSON consumers use the shared
+    profile-aware snapshot reader after selection.
 
     Args:
         manifest_path: Producer-emitted ``BuildRunManifest`` JSON path.
@@ -324,6 +790,7 @@ def load_verified_stage_artifacts(
                 version="1.0",
             ),
         ),
+        return_selected_profile=True,
     )
     verified_outputs: dict[str, VerifiedUkraineStageArtifact] = {}
     for output_name, (output_path, output_bytes, output_record) in validated_outputs.items():
@@ -333,6 +800,7 @@ def load_verified_stage_artifacts(
                 kind="data_forge.ukraine.stage_output_snapshot",
                 media_type=_snapshot_media_type(output_path),
             ),
+            return_selected_profile=True,
         )
         verified_outputs[output_name] = VerifiedUkraineStageArtifact(
             source_path=str(output_path),
@@ -404,7 +872,7 @@ def load_verified_release_artifacts(
     allowed_root: Path,
     expected_stage: str,
 ) -> VerifiedUkraineReleaseArtifacts:
-    """Admit the exact D5 manifest, bundle files, and evidence files into CAS.
+    """Admit exact D5 source bytes and return each write-selected CAS profile.
 
     The producer's stage and release-root fields remain institutional
     declarations. Path containment, file-set completeness, hashes, sizes, and
@@ -561,6 +1029,7 @@ def load_verified_release_artifacts(
                 kind=kind,
                 media_type=_snapshot_media_type(path),
             ),
+            return_selected_profile=True,
         )
         return VerifiedUkraineReleaseArtifact(
             source_path=str(path),
@@ -579,6 +1048,7 @@ def load_verified_release_artifacts(
                 version="1.0",
             ),
         ),
+        return_selected_profile=True,
     )
     verified_bundles = {
         bundle_name: {
@@ -603,6 +1073,23 @@ def load_verified_release_artifacts(
         )
         for name, (path, payload) in verified_evidence_bytes.items()
     }
+    handoff_snapshot = verified_evidence["d5_release_handoff_request"]
+    handoff_profile_read = read_ukraine_json_snapshot(
+        store,
+        handoff_snapshot.content_ref,
+        raw_payload_bytes=handoff_bytes,
+        expected_sha256=handoff_snapshot.sha256,
+        expected_size_bytes=handoff_snapshot.size_bytes,
+        expected_kind="data_forge.ukraine.release_handoff_snapshot",
+        consumer_contract="data_forge.ukraine.d5_release_handoff_request",
+        model_type=D5ReleaseHandoffRequest,
+    )
+    selected_handoff = handoff_profile_read.value_for_candidate()
+    if selected_handoff != handoff:
+        raise UkraineJSONSnapshotRefusalError(
+            "ukraine_snapshot_handoff_candidate_mismatch",
+            "selected CAS handoff differs from the source-admitted request",
+        )
     return VerifiedUkraineReleaseArtifacts(
         stage_id="d5",
         declared_release_root=str(declared_release_root),
@@ -610,7 +1097,8 @@ def load_verified_release_artifacts(
         manifest_ref=manifest_ref,
         manifest_sha256=_sha256_bytes(manifest_bytes),
         manifest_size_bytes=len(manifest_bytes),
-        handoff_request=handoff,
+        handoff_request=selected_handoff,
+        handoff_snapshot_profile_status=handoff_profile_read.provenance.profile_status,
         bundle_contents=verified_bundles,
         evidence=verified_evidence,
     )
@@ -747,6 +1235,9 @@ __all__ = sorted(
         *_EXPORTS,
         "REAL_BACKTEST_BUNDLE_CONTRACT_FQN",
         "UkraineStageArtifactVerificationError",
+        "UkraineJSONSnapshotProvenance",
+        "UkraineJSONSnapshotRead",
+        "UkraineJSONSnapshotRefusalError",
         "VerifiedUkraineReleaseArtifact",
         "VerifiedUkraineReleaseArtifacts",
         "VerifiedUkraineStageArtifact",
@@ -754,6 +1245,11 @@ __all__ = sorted(
         "build_static_aging_state",
         "load_verified_stage_output_bytes",
         "load_verified_stage_artifacts",
+        "load_verified_stage_json_output",
+        "load_verified_stage_manifest_json",
+        "load_verified_release_manifest_json",
+        "load_verified_release_json_artifact",
+        "read_ukraine_json_snapshot",
         "load_demography_candidate_artifacts",
         "load_verified_release_artifact_bytes",
         "load_verified_release_artifacts",

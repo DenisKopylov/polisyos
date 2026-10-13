@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionTriggerRecord,
@@ -531,10 +531,11 @@ def _append_link_report_warnings(
     state: ExperimentState,
     warnings: list[str],
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
     link_report_ref = state.reports_index.get(REPORT_LINK_REPORT_REF)
     if link_report_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(link_report_ref))
+            payload = load_core_json_artifact(ctx.store, link_report_ref)
         except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
@@ -553,10 +554,11 @@ def _append_compile_report_warnings(
     state: ExperimentState,
     warnings: list[str],
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
     compile_report_ref = state.reports_index.get(REPORT_COMPILE_REPORT_REF)
     if compile_report_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(compile_report_ref))
+            payload = load_core_json_artifact(ctx.store, compile_report_ref)
         except _DECISION_PACKET_LOAD_ERRORS:
             payload = None
         if isinstance(payload, dict):
@@ -585,11 +587,12 @@ def _load_resolved_fidelity_level(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> str | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     lowered_ir_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
     if lowered_ir_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(lowered_ir_ref))
+        payload = load_core_json_artifact(ctx.store, lowered_ir_ref)
     except _DECISION_PACKET_LOAD_ERRORS:
         return None
     if not isinstance(payload, dict):

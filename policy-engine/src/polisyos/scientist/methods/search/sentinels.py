@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 
 SENTINEL_METADATA_KEY = "__sentinel__"
 _SENTINEL_SET_KIND = "scientist.search.sentinel_set"
@@ -154,8 +154,8 @@ def persist_sentinel_set(
 
 def load_sentinel_set(store: FileSystemCAS, ref: ArtifactRef | str) -> SentinelSet:
     """Load sentinel set."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-    return SentinelSet.model_validate(from_canonical_bytes(store.get_bytes(artifact_id)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return SentinelSet.model_validate(load_core_json_artifact(store, ref))
 
 
 class SentinelInjector:

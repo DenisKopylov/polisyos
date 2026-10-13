@@ -1855,6 +1855,41 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         assert "normative_disposition_ref" not in progress
         assert progress["manifest_ref"]
         assert progress["candidate_proposal_ref"]
+        read_provenance = progress["generation_source_read_provenance"]
+        selected_ref = progress["candidate_proposal_ref"]["artifact_ref"]
+        assert read_provenance["canon_read_status"] == "declared_bytes_conformant"
+        assert read_provenance["source_materialization"] == "reader_materialized"
+        assert read_provenance["producer_attestation_status"] == "not_established"
+        assert read_provenance["selected_artifact_id"] == selected_ref["artifact_id"]
+        assert read_provenance["selected_manifest_profile_sha256"] == selected_ref.get(
+            "manifest_profile_sha256"
+        )
+        assert read_provenance["read_trace"]
+        assert read_provenance["read_trace"][-1]["canon_read_status"] == (
+            read_provenance["canon_read_status"]
+        )
+        assert read_provenance["read_trace"][-1]["selected_artifact_id"] == (
+            selected_ref["artifact_id"]
+        )
+        terminal_events = service._control_store.list_diagnostic_events(  # noqa: SLF001
+            job_id=launch.job_id
+        )
+        completed_event = next(
+            (
+                item
+                for item in terminal_events
+                if item.event.phase == "job_execution"
+                and item.event.state_after == "completed"
+                and item.payload_inline is not None
+                and item.payload_inline.get("candidate_proposal_ref")
+                == progress["candidate_proposal_ref"]
+            ),
+            None,
+        )
+        assert completed_event is not None
+        assert completed_event.payload_inline["generation_source_read_provenance"] == (
+            read_provenance
+        )
         assert len(publication_calls) == 1
 
         repository = GenerationSourceRepository(service._artifact_store)

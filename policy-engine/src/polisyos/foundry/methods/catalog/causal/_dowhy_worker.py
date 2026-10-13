@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts
 
 _MAX_BYTES = 8 * 1024 * 1024
 _TIMEOUT_S = 60.0
@@ -68,12 +68,13 @@ def worker_execution_context(*, store: Any, source_ref: artifacts.ArtifactRef) -
     Yields:
         A content-resolved execution context; this function performs no writes.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = artifacts.ArtifactRef.model_validate(source_ref)
     raw = store.get_bytes(ref)
     manifest = store.get_manifest(ref)
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise WorkerBindingError("source artifact manifest/ref mismatch")
-    payload = canon.from_canonical_bytes(raw)
+    payload = load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     if not isinstance(payload, dict):
         raise WorkerBindingError("source artifact must contain a typed input object")
     if "contract_payload" in payload:

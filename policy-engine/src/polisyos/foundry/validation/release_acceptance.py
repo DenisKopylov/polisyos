@@ -12,7 +12,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -204,6 +203,10 @@ class ReleaseAcceptanceRunner:
         release_bundle_root: str,
     ) -> FoundryReleaseAcceptanceReceipt:
         """Run deterministic Foundry acceptance over immutable CAS inputs."""
+        from polisyos.core.artifacts import (
+            load_core_json_artifact,
+            validate_core_model_json_artifact,
+        )
 
         steps: list[ReleaseAcceptanceStep] = []
         try:
@@ -211,7 +214,7 @@ class ReleaseAcceptanceRunner:
             runtime_agents_bytes = self._store.get_bytes(runtime_agent_registry_ref)
             cell_registry_bytes = self._store.get_bytes(cell_registry_ref)
             trinity_bytes = self._store.get_bytes(trinity_bundle_ref)
-            trinity_bundle = TrinityBundle.model_validate_json(trinity_bytes)
+            trinity_bundle = validate_core_model_json_artifact(TrinityBundle, self._store, trinity_bundle_ref, raw_payload_bytes=trinity_bytes)
             runtime_agents = pd.read_parquet(BytesIO(runtime_agents_bytes))
             cell_registry = pd.read_parquet(BytesIO(cell_registry_bytes))
         except Exception as exc:
@@ -377,10 +380,10 @@ class ReleaseAcceptanceRunner:
         original_metrics_ref = _extract_metrics_ref(execute_result)
         replay_metrics_ref = _extract_metrics_ref(replay_execute_result)
         original_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(self._store.get_bytes(execute_result.simulation_result_ref))
+            load_core_json_artifact(self._store, execute_result.simulation_result_ref)
         ).model_dump(mode="json")
         replay_sim_payload = SimulationResult.model_validate(
-            from_canonical_bytes(self._store.get_bytes(replay_execute_result.simulation_result_ref))
+            load_core_json_artifact(self._store, replay_execute_result.simulation_result_ref)
         ).model_dump(mode="json")
         normalized_original = _normalize_simulation_payload(original_sim_payload)
         normalized_replay = _normalize_simulation_payload(replay_sim_payload)
@@ -396,10 +399,10 @@ class ReleaseAcceptanceRunner:
             original_metrics_sha = _sha256_bytes(original_metrics_bytes)
             replay_metrics_sha = _sha256_bytes(replay_metrics_bytes)
             stable_original_metrics = _stable_metrics(
-                Metrics.model_validate(from_canonical_bytes(original_metrics_bytes)).values
+                Metrics.model_validate(load_core_json_artifact(self._store, original_metrics_ref, raw_payload_bytes=original_metrics_bytes)).values
             )
             stable_replay_metrics = _stable_metrics(
-                Metrics.model_validate(from_canonical_bytes(replay_metrics_bytes)).values
+                Metrics.model_validate(load_core_json_artifact(self._store, replay_metrics_ref, raw_payload_bytes=replay_metrics_bytes)).values
             )
             metrics_exact = stable_original_metrics == stable_replay_metrics
         replay_verified = normalized_original == normalized_replay and metrics_exact

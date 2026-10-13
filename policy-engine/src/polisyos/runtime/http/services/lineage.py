@@ -10,9 +10,10 @@ from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts.runtime import (
     ArtifactLineageEdge,
     ArtifactLineageNode,
@@ -389,14 +390,15 @@ class LineageService:
 
         if decision_packet_ref is not None:
             artifact_id = ArtifactID.model_validate(str(decision_packet_ref.artifact_id))
-            payload = _load_json_artifact(self._store, artifact_id)
-            if isinstance(payload, dict):
+            profiled = read_core_json_artifact(self._store, decision_packet_ref)
+            if isinstance(profiled.value, dict):
                 quantities.extend(
                     _decision_packet_quantities(
-                        payload,
+                        profiled.value,
                         artifact_id=str(artifact_id),
                         run_started_at=run.details.started_at,
                         run_finished_at=run.details.finished_at,
+                        canon_read_status=profiled.status,
                     )
                 )
 
@@ -487,10 +489,12 @@ class LineageService:
         """Resolve the SourceContract v2 reference used by a run's decision data."""
         if run.decision_packet_ref is None:
             return DEFAULT_DECISION_SOURCE_CONTRACT
-        artifact_id = ArtifactID.model_validate(str(run.decision_packet_ref.artifact_id))
-        payload = _load_json_artifact(self._store, artifact_id)
-        if isinstance(payload, Mapping):
-            resolved = _source_contract_from_payload(payload)
+        try:
+            profiled = read_core_json_artifact(self._store, run.decision_packet_ref)
+        except (TypeError, ValueError):
+            return DEFAULT_DECISION_SOURCE_CONTRACT
+        if isinstance(profiled.value, Mapping):
+            resolved = _source_contract_from_payload(profiled.value)
             if resolved is not None:
                 return resolved
         return DEFAULT_DECISION_SOURCE_CONTRACT
@@ -826,24 +830,25 @@ def _untraced_ref(
     )
 
 
-def _verified_artifact_ref(artifact_id: str, *, label: str) -> LineageRef:
+def _verified_artifact_ref(
+    artifact_id: str,
+    *,
+    label: str,
+    canon_read_status: str | None = None,
+) -> LineageRef:
+    summary = {"source": label, "artifact": artifact_id}
+    if canon_read_status is not None:
+        summary["canon_read_status"] = canon_read_status
     return LineageRef(
         id=f"artifact:{artifact_id}",
         status="verified",
         freshness="current",
-        summary={"source": label, "artifact": artifact_id},
+        summary=summary,
         compact_summary=[
             LineageCompactSummaryItem(kind="source", label="Decision packet", id=artifact_id),
             LineageCompactSummaryItem(kind="result", label=label, id=f"artifact:{artifact_id}"),
         ],
     )
-
-
-def _load_json_artifact(store: ArtifactStore, artifact_id: ArtifactID) -> object | None:
-    try:
-        return from_canonical_bytes(store.get_bytes(artifact_id))
-    except (FileNotFoundError, TypeError, ValueError):
-        return None
 
 
 def _source_contract_snapshot_by_id() -> dict[str, SourceContract]:
@@ -906,6 +911,7 @@ def _decision_packet_quantities(
     artifact_id: str,
     run_started_at: datetime | None,
     run_finished_at: datetime | None,
+    canon_read_status: str,
 ) -> list[QuantityValue]:
     quantities: list[QuantityValue] = []
     temporal = _temporal_ref(run_started_at, run_finished_at)
@@ -923,6 +929,7 @@ def _decision_packet_quantities(
                         path=f"decision_packet.simulation_results.{metric_text}",
                         artifact_id=artifact_id,
                         time=temporal,
+                        canon_read_status=canon_read_status,
                     )
                 )
 
@@ -938,6 +945,7 @@ def _decision_packet_quantities(
                     path="decision_packet.backtest.trust_score",
                     artifact_id=artifact_id,
                     time=temporal,
+                    canon_read_status=canon_read_status,
                 )
             )
 
@@ -951,6 +959,7 @@ def _decision_packet_quantities(
                         index=index,
                         artifact_id=artifact_id,
                         time=temporal,
+                        canon_read_status=canon_read_status,
                     )
                 )
 
@@ -963,6 +972,7 @@ def _metric_comparison_quantities(
     index: int,
     artifact_id: str,
     time: TemporalRef | None,
+    canon_read_status: str,
 ) -> list[QuantityValue]:
     metric_id = str(row.get("metric_id") or f"metric_{index}")
     fields = (
@@ -988,6 +998,7 @@ def _metric_comparison_quantities(
                 path=(f"decision_packet.metric_validation_comparison_rows[{index}].{field_name}"),
                 artifact_id=artifact_id,
                 time=time,
+                canon_read_status=canon_read_status,
             )
         )
     return quantities
@@ -1001,13 +1012,18 @@ def _quantity(
     path: str,
     artifact_id: str,
     time: TemporalRef | None,
+    canon_read_status: str | None = None,
 ) -> QuantityValue:
     return QuantityValue(
         point=point,
         unit=_unit_for_metric(metric_id),
         metric_id=metric_id,
         label=label,
-        lineage=_verified_artifact_ref(artifact_id, label=path),
+        lineage=_verified_artifact_ref(
+            artifact_id,
+            label=path,
+            canon_read_status=canon_read_status,
+        ),
         time=time,
         quantity_class="decision",
     )

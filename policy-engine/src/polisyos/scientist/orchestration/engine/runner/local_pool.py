@@ -13,15 +13,6 @@ from polisyos.scientist.orchestration.engine.runner.worker_pool import (
 )
 
 _logger = logging.getLogger(__name__)
-_LOCAL_POOL_RUNTIME_ERRORS = (
-    AssertionError,
-    AttributeError,
-    LookupError,
-    OSError,
-    RuntimeError,
-    TypeError,
-    ValueError,
-)
 
 
 @dataclass(order=True)
@@ -37,7 +28,9 @@ class _QueuedSubmission:
 class LocalWorkerPool:
     """In-process worker pool backed by asyncio tasks.
 
-    Implements the ``WorkerPool`` protocol.
+    Every accepted future reaches a terminal result, exception, or cancelled
+    state. Cancelling a running future does not release its worker slot early.
+    Implements the WorkerPool protocol.
     """
 
     def __init__(self, *, max_workers: int = 4) -> None:
@@ -52,7 +45,11 @@ class LocalWorkerPool:
         self._submission_order = 0
 
     async def submit(self, task: NodeTask) -> asyncio.Future[bytes]:
-        """Submit a task for execution, returning a future for the result."""
+        """Submit a task and return a future for its terminal outcome.
+
+        Worker exceptions are delivered on the returned future. Cancelling that
+        future does not stop an already running worker or release its slot early.
+        """
         if self._shutdown:
             raise RuntimeError("Pool is shut down")
 
@@ -80,8 +77,6 @@ class LocalWorkerPool:
                     lambda: future.cancelled() or self._can_start(submission)
                 )
                 if future.cancelled():
-                    self._remove_submission(submission)
-                    self._capacity_changed.notify_all()
                     return
                 next_submission = heapq.heappop(self._queued)
                 if next_submission is not submission:
@@ -89,63 +84,50 @@ class LocalWorkerPool:
                 self._active_tasks += 1
                 active = True
 
-            try:
-                from polisyos.scientist.orchestration.engine.runner._activity_worker import (
-                    run_node_in_worker,
+            from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+                run_node_in_worker,
+            )
+
+            payload = {
+                "node_id": task.node_id,
+                "alias": task.alias,
+                "params": task.params,
+                "state_bytes": task.state_bytes,
+                "trace_carrier": task.trace_carrier,
+                "timeout_s": task.timeout_s,
+                "context_meta": task.context_meta,
+            }
+
+            if task.timeout_s is not None:
+                result = await asyncio.wait_for(
+                    run_node_in_worker(payload),
+                    timeout=task.timeout_s,
                 )
+            else:
+                result = await run_node_in_worker(payload)
 
-                payload = {
-                    "node_id": task.node_id,
-                    "alias": task.alias,
-                    "params": task.params,
-                    "state_bytes": task.state_bytes,
-                    "trace_carrier": task.trace_carrier,
-                    "timeout_s": task.timeout_s,
-                    "context_meta": task.context_meta,
-                }
-
-                if task.timeout_s is not None:
-                    result = await asyncio.wait_for(
-                        run_node_in_worker(payload),
-                        timeout=task.timeout_s,
-                    )
-                else:
-                    result = await run_node_in_worker(payload)
-
-                if not future.done():
-                    future.set_result(result)
-            except asyncio.CancelledError:
-                if not future.done():
-                    future.cancel()
-                raise
-            except _LOCAL_POOL_RUNTIME_ERRORS as exc:
-                if not future.done():
-                    future.set_exception(exc)
-            finally:
-                if active:
-                    async with self._capacity_changed:
-                        self._active_tasks -= 1
-                        active = False
-                        self._capacity_changed.notify_all()
+            if not future.done():
+                future.set_result(result)
         except asyncio.CancelledError:
-            async with self._capacity_changed:
-                self._remove_submission(submission)
-                if active:
-                    self._active_tasks -= 1
-                    active = False
-                self._capacity_changed.notify_all()
             if not future.done():
                 future.cancel()
             raise
-        except _LOCAL_POOL_RUNTIME_ERRORS as exc:
+        except Exception as exc:
+            if not future.done():
+                future.set_exception(exc)
+        except BaseException as exc:
+            # Preserve host-fatal signals on the runner task while also ensuring
+            # that the accepted caller future cannot remain pending forever.
+            if not future.done():
+                future.set_exception(exc)
+            raise
+        finally:
             async with self._capacity_changed:
                 self._remove_submission(submission)
                 if active:
                     self._active_tasks -= 1
                     active = False
                 self._capacity_changed.notify_all()
-            if not future.done():
-                future.set_exception(exc)
 
     def _can_start(self, submission: _QueuedSubmission) -> bool:
         return bool(

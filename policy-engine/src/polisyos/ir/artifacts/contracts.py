@@ -210,6 +210,10 @@ class ArtifactStore(Protocol):
 
     def get_manifest(self, artifact_id: ArtifactSelector) -> Any: ...
 
+    def get_raw_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+        """Return exact selected raw sidecar bytes before typed model construction."""
+        ...
+
     def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
         """Return the exact raw sidecar bytes for this ID or selected view."""
         ...

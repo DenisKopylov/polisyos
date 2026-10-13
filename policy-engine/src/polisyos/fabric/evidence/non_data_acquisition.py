@@ -10,7 +10,6 @@ judge these outputs without reusing this implementation as its oracle.
 
 from __future__ import annotations
 
-import json
 from collections.abc import Mapping
 from datetime import datetime
 from enum import StrEnum
@@ -307,6 +306,7 @@ class NonDataAcquisitionRuntime:
         return str(ref.artifact_id)
 
     def _resolve(self, ref: str, kind: str) -> dict[str, Any]:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             blob = self.store.get_bytes(ref)
             import hashlib
@@ -320,7 +320,7 @@ class NonDataAcquisitionRuntime:
                 or manifest.artifact_schema.version != "1"
             ):
                 raise ValueError("artifact_owner_kind_mismatch")
-            payload = json.loads(blob)
+            payload = load_core_json_artifact(self.store, ref, raw_payload_bytes=blob)
             if not isinstance(payload, dict) or canonical_json_bytes(payload) != blob:
                 raise ValueError("content_encoding_invalid")
             return payload

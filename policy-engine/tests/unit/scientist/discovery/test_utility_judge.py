@@ -17,10 +17,10 @@ from polisyos.ir.analytics.causal import (
     EstimationStatus,
 )
 from polisyos.ir.analytics.causal_discovery import (
-    CausalDiscoveryReport,
     AlgebraicAssumptionStatus,
     AlgebraicConstraintFamily,
     AlgebraicFalsificationScope,
+    CausalDiscoveryReport,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -442,7 +442,6 @@ def test_graph_derived_assumptions_remain_typed_through_candidate_shortlist(
             graph,
             None,
             status=GraphProjectionStatus.IDENTITY,
-            reason_code="source_graph_is_identity_dag",
         ),
     )
     rng = np.random.default_rng(23)
@@ -743,6 +742,37 @@ def test_transport_candidate_requiring_review_is_not_scored_as_fully_transportab
     assert warnings
 
 
+def test_current_utility_writer_persists_nullable_scope_fields_for_fresh_reader(tmp_path) -> None:
+    from polisyos.scientist.methods.discovery.utility_judge import (
+        DownstreamUtilityReport,
+        HypothesisUtilityScore,
+    )
+
+    report = DownstreamUtilityReport(
+        scores=[
+            HypothesisUtilityScore(
+                hypothesis_id="scope-not-established",
+                identification_status="identified",
+                identifiability_score=1.0,
+                stability_score=0.75,
+                composite_score=0.8,
+            )
+        ]
+    )
+    store = FileSystemCAS(tmp_path / "nullable-utility-report")
+    ref = persist_downstream_utility_report(store, report)
+    payload = utility_module.from_canonical_bytes(store.get_bytes(ref))
+    score = payload["scores"][0]
+
+    assert "graph_derived_assumption_status" in score
+    assert score["graph_derived_assumption_status"] is None
+    assert "graph_derived_scope_of_falsification" in score
+    assert score["graph_derived_scope_of_falsification"] is None
+    reopened = load_downstream_utility_report(FileSystemCAS(store.root), ref)
+    assert reopened.scores[0].graph_derived_assumption_status is None
+    assert reopened.scores[0].graph_derived_scope_of_falsification is None
+
+
 def _put_raw_downstream_utility_report(store, payload, *, manifest_version, schema_name=None):
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.store import PutOptions
@@ -771,11 +801,11 @@ def _put_raw_downstream_utility_report(store, payload, *, manifest_version, sche
 
 
 def test_exact_historical_11_scorecard_loads_as_unknown_ranking_only(tmp_path) -> None:
-    from polisyos.scientist.methods.search.artifact_minimality import ArtifactFunction
     from polisyos.scientist.methods.discovery.utility_judge import (
         DownstreamUtilityReport,
         HypothesisUtilityScore,
     )
+    from polisyos.scientist.methods.search.artifact_minimality import ArtifactFunction
 
     current = DownstreamUtilityReport(
         scores=[

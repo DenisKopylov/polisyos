@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
-import type { components } from "../types";
+import {
+  controlPreAdmissionAttemptResponseSchema,
+  type ControlPreAdmissionAttemptResponse,
+} from "../validators";
 
-export type ControlPreAdmissionAttemptResponse =
-  components["schemas"]["ControlPreAdmissionAttemptResponse"];
+export type { ControlPreAdmissionAttemptResponse } from "../validators";
 
 export async function fetchControlPreAdmissionAttemptStatus(
   attemptId: string,
@@ -23,7 +25,7 @@ export async function fetchControlPreAdmissionAttemptStatus(
       "Failed to fetch control pre-admission attempt history",
     );
   }
-  return data as ControlPreAdmissionAttemptResponse;
+  return controlPreAdmissionAttemptResponseSchema.parse(data);
 }
 
 export async function fetchControlPreAdmissionAttemptByIdempotencyKey(
@@ -31,7 +33,7 @@ export async function fetchControlPreAdmissionAttemptByIdempotencyKey(
 ): Promise<ControlPreAdmissionAttemptResponse | null> {
   const { data, error, response } = await runtimeApiClient.GET(
     "/api/v1/control/admission-attempts/by-idempotency-key",
-    { headers: { "Idempotency-Key": idempotencyKey } },
+    { params: { header: { "Idempotency-Key": idempotencyKey } } },
   );
   if (response.status === 404) return null;
   if (error || !response.ok || !data) {
@@ -41,7 +43,7 @@ export async function fetchControlPreAdmissionAttemptByIdempotencyKey(
       "Failed to recover control pre-admission attempt by request key",
     );
   }
-  return data as ControlPreAdmissionAttemptResponse;
+  return controlPreAdmissionAttemptResponseSchema.parse(data);
 }
 
 export function useControlPreAdmissionAttemptStatus(
@@ -49,7 +51,10 @@ export function useControlPreAdmissionAttemptStatus(
 ) {
   return useQuery({
     queryKey: queryKeys.controlPreAdmissionAttempt(attemptId ?? ""),
-    queryFn: () => fetchControlPreAdmissionAttemptStatus(attemptId!),
+    queryFn: () =>
+      attemptId
+        ? fetchControlPreAdmissionAttemptStatus(attemptId)
+        : Promise.resolve(null),
     enabled: Boolean(attemptId),
     refetchInterval: (query) => {
       const status = query.state.data?.status;

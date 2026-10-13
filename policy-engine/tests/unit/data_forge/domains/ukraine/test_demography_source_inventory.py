@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
@@ -10,6 +11,18 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.data_forge.domains.ukraine.builders.contracts import StageBuildResult
+from polisyos.data_forge.domains.ukraine.demography import (
+    load_demography_artifacts as load_domain_demography_artifacts,
+)
+from polisyos.data_forge.domains.ukraine.demography import (
+    load_donor_pool as load_domain_donor_pool,
+)
+from polisyos.data_forge.domains.ukraine.demography import (
+    load_reconciled_targets as load_domain_reconciled_targets,
+)
+from polisyos.data_forge.domains.ukraine.demography import (
+    load_transition_priors as load_domain_transition_priors,
+)
 from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
     InventoryBuildRequest,
     SourceFact,
@@ -125,10 +138,16 @@ def _make_candidate(
     *,
     materialized_state_ids: list[str] | None = None,
     donor_disposition: Literal["present", "intentionally_absent", "not_established"] = "present",
+    member_overrides: dict[str, dict[str, object]] | None = None,
     include_entrant_totals: bool = True,
 ) -> tuple[Path, Path, FileSystemCAS]:
     state_ids = ["state:a", "state:b"]
     materialized_state_ids = materialized_state_ids or state_ids
+    member_overrides = member_overrides or {}
+    if set(member_overrides).difference({"targets", "priors", "donor"}):
+        raise ValueError("member_overrides contains an unknown demographic role")
+    if "donor" in member_overrides and donor_disposition != "present":
+        raise ValueError("donor member overrides require a present donor role")
     build_root = tmp_path / "build"
     upstream_root = tmp_path / "upstream"
     source_dir = upstream_root / "d1-output"
@@ -142,23 +161,22 @@ def _make_candidate(
     }
     if include_entrant_totals:
         targets_payload["entrant_state_totals"] = [0.0, 0.0]
+    targets_payload.update(member_overrides.get("targets", {}))
     _write_json(targets_path, targets_payload)
-    _write_json(
-        priors_path,
-        {
-            "transition_prior_matrix": [[0.8, 0.2], [0.1, 0.9]],
-            "allowed_transition_mask": [[True, True], [False, True]],
-        },
-    )
+    priors_payload: dict[str, object] = {
+        "transition_prior_matrix": [[0.8, 0.2], [0.1, 0.9]],
+        "allowed_transition_mask": [[True, True], [False, True]],
+    }
+    priors_payload.update(member_overrides.get("priors", {}))
+    _write_json(priors_path, priors_payload)
     if donor_disposition == "present":
-        _write_json(
-            donor_path,
-            {
-                "donor_weights": [0.25, 0.75],
-                "donor_state_index": [0, 1],
-                "donor_record_index": [101, 102],
-            },
-        )
+        donor_payload: dict[str, object] = {
+            "donor_weights": [0.25, 0.75],
+            "donor_state_index": [0, 1],
+            "donor_record_index": [101, 102],
+        }
+        donor_payload.update(member_overrides.get("donor", {}))
+        _write_json(donor_path, donor_payload)
     upstream_manifest_path = upstream_root / "build_run_d1.json"
     source_outputs = [
         ArtifactRecord.from_path(targets_path),
@@ -351,6 +369,89 @@ def test_inventory_candidate_reaches_all_real_readers_and_foundry(
     )
 
 
+@pytest.mark.parametrize(
+    ("member_overrides", "expected_code"),
+    [
+        pytest.param(
+            {"targets": {"target_state_totals": [10.0]}},
+            "demography_bundle_invalid",
+            id="target-state-axis",
+        ),
+        pytest.param(
+            {"targets": {"entrant_state_totals": [0.0]}},
+            "demography_bundle_invalid",
+            id="entrant-state-axis",
+        ),
+        pytest.param(
+            {"priors": {"transition_prior_matrix": [[1.0]]}},
+            "declared_prior_axis_shape_mismatch",
+            id="prior-destination-axis",
+        ),
+        pytest.param(
+            {"priors": {"allowed_transition_mask": [[True, True]]}},
+            "demography_bundle_invalid",
+            id="prior-mask-shape",
+        ),
+        pytest.param(
+            {"donor": {"donor_state_index": [0]}},
+            "demography_bundle_invalid",
+            id="donor-state-index-length",
+        ),
+        pytest.param(
+            {"donor": {"donor_record_index": [101]}},
+            "demography_bundle_invalid",
+            id="donor-record-index-length",
+        ),
+        pytest.param(
+            {"donor": {"donor_state_index": [0, 2]}},
+            "demography_bundle_invalid",
+            id="donor-state-index-range",
+        ),
+        pytest.param(
+            {"donor": {"donor_weights": [-0.25, 1.25]}},
+            "demography_bundle_invalid",
+            id="donor-weight-domain",
+        ),
+    ],
+)
+def test_candidate_readers_refuse_malformed_present_members(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+    member_overrides: dict[str, dict[str, object]],
+    expected_code: str,
+) -> None:
+    """Every canonical reader validates all present roles against the bundle contract."""
+    manifest_path, build_root, store = _make_candidate(
+        tmp_path,
+        monkeypatch,
+        member_overrides=member_overrides,
+    )
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=build_root,
+        expected_stage=StageId.DEMOGRAPHY_SOURCE_INVENTORY.value,
+        required_outputs=("inventory.json",),
+    )
+    source = InventorySourceRequest(
+        kind="inventory",
+        stage_receipt=receipt,
+        store=store,
+    )
+    readers: tuple[Callable[..., object], ...] = (
+        load_domain_reconciled_targets,
+        load_domain_transition_priors,
+        load_domain_donor_pool,
+        load_domain_demography_artifacts,
+    )
+
+    for reader in readers:
+        with pytest.raises(SourceResolutionRefusalError) as exc_info:
+            reader(source=source)
+
+        assert exc_info.value.code == expected_code
+
+
 def test_missing_entrant_materialization_is_refused_without_zero_default(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
@@ -394,31 +495,57 @@ def test_same_shape_state_order_drift_is_rejected_by_the_real_resolver(
     assert "target state order differs from the explicit claim" in str(exc_info.value)
 
 
+@pytest.mark.parametrize("fact_name", ["source_profile", "observed_at"])
 def test_inventory_claim_tamper_without_basis_rewrite_is_rejected(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
+    fact_name: str,
 ) -> None:
-    """A changed profile claim cannot pass on the old declared generation basis."""
+    """Changed profile and time claims cannot pass on the old declared basis."""
     manifest_path, build_root, store = _make_candidate(tmp_path, monkeypatch)
     manifest = BuildRunManifest.model_validate_json(manifest_path.read_bytes())
     inventory_path = Path(manifest.outputs[0].path)
     inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
-    inventory["source_claims"]["facts"]["source_profile"]["value"] = "fixture:changed"
+    inventory["source_claims"]["facts"][fact_name]["value"] = "fixture:changed"
     inventory_path.write_text(json.dumps(inventory), encoding="utf-8")
     rewritten_manifest = manifest.model_copy(
         update={"outputs": [ArtifactRecord.from_path(inventory_path)]}
     )
     write_manifest(manifest_path, rewritten_manifest)
 
-    with pytest.raises(SourceResolutionRefusalError) as exc_info:
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=build_root,
+        expected_stage=StageId.DEMOGRAPHY_SOURCE_INVENTORY.value,
+        required_outputs=("inventory.json",),
+    )
+    source = InventorySourceRequest(
+        kind="inventory",
+        stage_receipt=receipt,
+        store=store,
+    )
+    readers: tuple[Callable[..., object], ...] = (
+        load_domain_reconciled_targets,
+        load_domain_transition_priors,
+        load_domain_donor_pool,
+        load_domain_demography_artifacts,
+    )
+    for reader in readers:
+        with pytest.raises(SourceResolutionRefusalError) as exc_info:
+            reader(source=source)
+
+        assert exc_info.value.code == "semantic_basis_mismatch"
+        assert "declared basis is" in str(exc_info.value)
+
+    with pytest.raises(SourceResolutionRefusalError) as facade_exc_info:
         load_demography_candidate_artifacts(
             manifest_path,
             store=store,
             allowed_root=build_root,
         )
 
-    assert exc_info.value.code == "semantic_basis_mismatch"
-    assert "declared basis is" in str(exc_info.value)
+    assert facade_exc_info.value.code == "semantic_basis_mismatch"
 
 
 @pytest.mark.parametrize("add_extra", [False, True])
@@ -530,24 +657,39 @@ def test_candidate_donor_absence_requires_an_explicit_disposition(
         stage_receipt=receipt,
         store=store,
     )
+    targets = load_domain_reconciled_targets(source=source)
+    priors = load_domain_transition_priors(source=source)
+    assert targets.evidence.source_status == "candidate_only"
+    assert priors.evidence.source_status == "candidate_only"
+
     if should_read:
         artifacts = load_demography_candidate_artifacts(
             manifest_path,
             store=store,
             allowed_root=build_root,
         )
-        donor = load_donor_pool(source=source)
+        donor = load_domain_donor_pool(source=source)
+        aggregate = load_domain_demography_artifacts(source=source)
 
         assert dict(donor) == {}
         assert donor.evidence.source_status == "candidate_only"
         assert donor.evidence.donor_disposition == "intentionally_absent"
         assert artifacts.donor_weights is None
+        assert aggregate.donor_weights is None
+        assert aggregate.source_evidence.donor_disposition == "intentionally_absent"
     else:
+        assert targets.evidence.donor_disposition == "not_established"
+        assert priors.evidence.donor_disposition == "not_established"
         with pytest.raises(SourceResolutionRefusalError) as exc_info:
-            load_donor_pool(source=source)
+            load_domain_donor_pool(source=source)
 
         assert exc_info.value.code == "member_not_established"
         assert str(exc_info.value) == "donor"
+        with pytest.raises(SourceResolutionRefusalError) as direct_aggregate_exc_info:
+            load_domain_demography_artifacts(source=source)
+
+        assert direct_aggregate_exc_info.value.code == "member_not_established"
+        assert str(direct_aggregate_exc_info.value) == "donor"
         with pytest.raises(SourceResolutionRefusalError) as aggregate_exc_info:
             load_demography_candidate_artifacts(
                 manifest_path,

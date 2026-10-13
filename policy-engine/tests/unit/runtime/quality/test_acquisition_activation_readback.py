@@ -42,14 +42,15 @@ def test_active_owner_readback_uses_physical_membership_and_does_not_activate_pe
         )
 
 
-def test_legacy_positive_activation_preserves_bytes_without_native_qualification(
+def test_profileless_legacy_production_receipt_cannot_activate_semantic_epoch(
     tmp_path: Path,
 ) -> None:
-    """The prior transaction grammar remains readable, without new native authority."""
+    """Historical bytes remain intact, but absence cannot create a current active state."""
     from polisyos.core import artifacts
     from polisyos.core.contracts import chronology as chronology_contract
     from polisyos.core.contracts import epoch as epoch_contract
-    from polisyos.runtime.quality import acquisition_executor, semantic_epoch
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import OverlayAdmissionError
+    from polisyos.runtime.quality import semantic_epoch
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _test_positive_production_receipt,
     )
@@ -77,43 +78,23 @@ def test_legacy_positive_activation_preserves_bytes_without_native_qualification
             ),
         }
     )
-    active = scenario.overlay.activate_semantic_epoch(
-        pending_receipt=scenario.pending,
-        production_receipt=legacy,
-        artifact_store=scenario.store,
-    )
-    reread = scenario.overlay.read_activated_semantic_epoch_admission(
-        receipt_ref=active.receipt_ref,
-        artifact_store=scenario.store,
-        passport=scenario.passport,
-        authority=scenario.authority,
-    )
-    assert reread.semantic_epoch_production_receipt_ref == ref
-    assert scenario.store.get_bytes(ref.artifact_id) == raw
-    assert legacy.chronology_projection_ref is None
-    admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
-        epoch_contract.load_verified_epoch_statement(
-            store=scenario.store,
-            ref=legacy.admitted_boundary_evidence_ref,
-            expected_kind="epoch.admitted_acquisition_boundary_evidence",
-        )
-    )
-    receipt = acquisition_executor.ActivatedSemanticEpochAdmissionReceipt(
-        passport_ref=admitted.passport_ref,
-        prepared_epoch_ref=admitted.prepared_epoch_ref,
-        pending_overlay_receipt_ref=admitted.pending_overlay_receipt_ref,
-        semantic_epoch_production_receipt_ref=ref,
-        overlay_admission_receipt_ref=active.receipt_ref,
-        native_membership_receipt_ref=admitted.native_membership_receipt_ref,
-        semantic_denominator_receipt_ref=admitted.semantic_denominator_receipt_ref,
-        semantic_projection_verification_receipt_ref=admitted.semantic_projection_verification_receipt_ref,
-        semantic_epoch_stamp=admitted.semantic_epoch_stamp,
-        activation_state="active",
-    )
-    with pytest.raises(RuntimeError):
-        acquisition_executor.resolve_activated_semantic_epoch_admission(
-            receipt=receipt,
+
+    with pytest.raises(OverlayAdmissionError) as refusal:
+        scenario.overlay.activate_semantic_epoch(
+            pending_receipt=scenario.pending,
+            production_receipt=legacy,
             artifact_store=scenario.store,
-            overlay=scenario.overlay,
-            authority=scenario.authority,
         )
+    assert refusal.value.code == "semantic_epoch_production_profile_missing"
+    assert scenario.store.get_bytes(ref.artifact_id) == raw
+
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        row = con.execute(
+            "SELECT epoch_activation_state, semantic_epoch_production_receipt_ref, "
+            "activated_overlay_receipt_ref FROM acquisition_epochs WHERE epoch_id = ?",
+            [scenario.pending.epoch_id],
+        ).fetchone()
+    finally:
+        con.close()
+    assert row == ("pending_epoch_activation", None, None)

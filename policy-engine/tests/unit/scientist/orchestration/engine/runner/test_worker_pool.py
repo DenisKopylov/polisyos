@@ -210,3 +210,176 @@ class TestLocalWorkerPool:
                     await future
 
         asyncio.run(_test())
+
+
+    def test_unlisted_worker_exceptions_settle_future_and_release_queued_sibling(self) -> None:
+        from polisyos.scientist.orchestration.engine.errors import RetryExhaustedError
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+
+        errors = (
+            RuntimeError("runtime failure"),
+            ValueError("invalid worker payload"),
+            RetryExhaustedError("retry sequence exhausted"),
+        )
+
+        def _worker_for(error, failure_started, release_failure, sibling_started):
+            async def _run_node(payload):
+                if payload["alias"] == "fails":
+                    failure_started.set()
+                    await release_failure.wait()
+                    raise error
+                sibling_started.set()
+                return b"sibling"
+
+            return _run_node
+
+        async def _wait_for_queued_sibling(pool) -> None:
+            while (await pool.current_capacity()).queue_depth != 1:
+                await asyncio.sleep(0)
+
+        async def _test() -> None:
+            for error in errors:
+                pool = LocalWorkerPool(max_workers=1)
+                failure_started = asyncio.Event()
+                release_failure = asyncio.Event()
+                sibling_started = asyncio.Event()
+                worker = _worker_for(error, failure_started, release_failure, sibling_started)
+                try:
+                    with patch(
+                        "polisyos.scientist.orchestration.engine.runner._activity_worker.run_node_in_worker",
+                        side_effect=worker,
+                    ):
+                        failed = await pool.submit(_make_task(alias="fails"))
+                        await asyncio.wait_for(failure_started.wait(), timeout=2.0)
+                        sibling = await pool.submit(_make_task(alias="sibling"))
+                        await asyncio.wait_for(_wait_for_queued_sibling(pool), timeout=2.0)
+                        release_failure.set()
+                        with pytest.raises(type(error)) as raised:
+                            await asyncio.wait_for(failed, timeout=2.0)
+                        assert raised.value is error
+                        assert await asyncio.wait_for(sibling, timeout=2.0) == b"sibling"
+                        assert sibling_started.is_set()
+                        capacity = await pool.current_capacity()
+                        assert capacity.active_tasks == 0
+                        assert capacity.queue_depth == 0
+                finally:
+                    release_failure.set()
+                    await pool.shutdown()
+
+        asyncio.run(_test())
+
+    def test_host_fatal_signal_settles_future_and_remains_visible_on_runner(self) -> None:
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+
+        class HostFatalSignal(BaseException):
+            pass
+
+        fatal = HostFatalSignal("host signal")
+        pool = LocalWorkerPool(max_workers=1)
+
+        async def _test() -> None:
+            async def _run_node(_payload):
+                raise fatal
+
+            with patch(
+                "polisyos.scientist.orchestration.engine.runner._activity_worker.run_node_in_worker",
+                side_effect=_run_node,
+            ):
+                future = await pool.submit(_make_task(alias="fatal"))
+                runner = next(iter(pool._runner_tasks))
+                with pytest.raises(HostFatalSignal) as future_error:
+                    await future
+                with pytest.raises(HostFatalSignal) as runner_error:
+                    await runner
+                assert future_error.value is fatal
+                assert runner_error.value is fatal
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == 0
+                assert capacity.queue_depth == 0
+
+        asyncio.run(_test())
+
+    def test_cancelled_caller_future_keeps_running_worker_slot_until_completion(self) -> None:
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+
+        pool = LocalWorkerPool(max_workers=1)
+
+        async def _test() -> None:
+            first_started = asyncio.Event()
+            release_first = asyncio.Event()
+            sibling_started = asyncio.Event()
+
+            async def _run_node(payload):
+                if payload["alias"] == "first":
+                    first_started.set()
+                    await release_first.wait()
+                    return b"first"
+                sibling_started.set()
+                return b"sibling"
+
+            with patch(
+                "polisyos.scientist.orchestration.engine.runner._activity_worker.run_node_in_worker",
+                side_effect=_run_node,
+            ):
+                first = await pool.submit(_make_task(alias="first"))
+                await asyncio.wait_for(first_started.wait(), timeout=2.0)
+                sibling = await pool.submit(_make_task(alias="sibling"))
+
+                async def _wait_for_queued_sibling() -> None:
+                    while (await pool.current_capacity()).queue_depth != 1:
+                        await asyncio.sleep(0)
+
+                await asyncio.wait_for(_wait_for_queued_sibling(), timeout=2.0)
+                first.cancel()
+                await asyncio.sleep(0)
+                capacity = await pool.current_capacity()
+                assert first.cancelled()
+                assert capacity.active_tasks == 1
+                assert capacity.queue_depth == 1
+                assert not sibling_started.is_set()
+
+                release_first.set()
+                assert await asyncio.wait_for(sibling, timeout=2.0) == b"sibling"
+                assert sibling_started.is_set()
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == 0
+                assert capacity.queue_depth == 0
+
+        asyncio.run(_test())
+
+    def test_nongraceful_shutdown_cancels_accepted_futures_and_releases_capacity(self) -> None:
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+
+        pool = LocalWorkerPool(max_workers=1)
+
+        async def _test() -> None:
+            first_started = asyncio.Event()
+            release_first = asyncio.Event()
+
+            async def _run_node(payload):
+                if payload["alias"] == "first":
+                    first_started.set()
+                    await release_first.wait()
+                return b"done"
+
+            with patch(
+                "polisyos.scientist.orchestration.engine.runner._activity_worker.run_node_in_worker",
+                side_effect=_run_node,
+            ):
+                active = await pool.submit(_make_task(alias="first"))
+                await asyncio.wait_for(first_started.wait(), timeout=2.0)
+                queued = await pool.submit(_make_task(alias="queued"))
+
+                async def _wait_for_queued() -> None:
+                    while (await pool.current_capacity()).queue_depth != 1:
+                        await asyncio.sleep(0)
+
+                await asyncio.wait_for(_wait_for_queued(), timeout=2.0)
+                await pool.shutdown(graceful=False)
+                assert active.cancelled()
+                assert queued.cancelled()
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == 0
+                assert capacity.queue_depth == 0
+
+        asyncio.run(_test())

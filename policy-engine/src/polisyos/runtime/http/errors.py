@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security import (
@@ -52,6 +53,18 @@ _DEFAULT_TYPE_BY_STATUS: dict[int, str] = {
     504: "https://polisyos.dev/problems/gateway-timeout",
     500: "https://polisyos.dev/problems/internal-error",
 }
+
+CANONICAL_PROFILE_REFUSAL_RESPONSES: dict[int, dict[str, Any]] = {
+    409: {
+        "description": "The selected Core canonical profile is malformed or not byte-conformant.",
+        "content": {
+            "application/problem+json": {
+                "schema": {"$ref": "#/components/schemas/RuntimeApiProblem"}
+            }
+        },
+    }
+}
+
 
 _INFRA_DETAIL_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"s3://[^\s'\"<>]+", re.IGNORECASE), "s3://[redacted]"),
@@ -606,6 +619,22 @@ def install_exception_handlers(app: Any) -> None:
             extensions=_context_extension(context),
         )
 
+    async def _handle_canonical_profile_refusal(
+        request: Any,
+        exc: CanonicalProfileRefusalError,
+    ) -> Any:
+        context = collect_error_context(request, exc)
+        return problem_response(
+            status_code=409,
+            code=exc.code,
+            detail="The selected artifact has a malformed or byte-inconsistent canon profile",
+            request_id=context.request_id,
+            instance=str(request.url.path),
+            error="conflict",
+            title="Canonical profile refusal",
+            extensions=_context_extension(context),
+        )
+
     async def _handle_key_error(request: Any, exc: KeyError) -> Any:
         context = collect_error_context(request, exc)
         payload = build_problem(
@@ -678,6 +707,7 @@ def install_exception_handlers(app: Any) -> None:
             extensions=_context_extension(context),
         )
 
+    app.add_exception_handler(CanonicalProfileRefusalError, _handle_canonical_profile_refusal)
     app.add_exception_handler(RuntimeHTTPError, _handle_runtime_http_error)
     app.add_exception_handler(RuntimeDependencyError, _handle_runtime_dependency_error)
     app.add_exception_handler(ExecutionProfileError, _handle_core_exception)

@@ -76,6 +76,15 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
   }
 
   const visible = presentRunAcquisitionRoute(props.route);
+  const worldGrowthLabel = {
+    not_established: t(
+      "pages.cycleBoard.acquisition.route.growthStatus.notEstablished",
+    ),
+    no_growth: t("pages.cycleBoard.acquisition.route.growthStatus.noGrowth"),
+    admitted_delta: t(
+      "pages.cycleBoard.acquisition.route.growthStatus.admittedDelta",
+    ),
+  }[visible.worldGrowth];
   return (
     <Card
       className="space-y-4 p-4"
@@ -115,6 +124,14 @@ export function AcquisitionRouteDetail(props: AcquisitionRouteDetailProps) {
             {t("pages.cycleBoard.acquisition.route.status")}
           </dt>
           <dd>{props.route.route_status}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold">
+            {t("pages.cycleBoard.acquisition.route.worldGrowth")}
+          </dt>
+          <dd data-testid="acquisition-route-world-growth">
+            {worldGrowthLabel}
+          </dd>
         </div>
         <div>
           <dt className="font-semibold">

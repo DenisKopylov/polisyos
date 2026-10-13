@@ -46,6 +46,7 @@ from polisyos.runtime.quality.credal_reference import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+_MISSING_FIXTURE_MARKER = object()
 
 
 def _selected_l2_profile_fixture(
@@ -448,25 +449,144 @@ def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it() 
     assert owner.reference_certificate_staleness(certificate, current).status != "current"
 
 
+@pytest.mark.parametrize(
+    "synthetic_marker",
+    [
+        pytest.param(True, id="true"),
+        pytest.param(False, id="false"),
+        pytest.param(None, id="null"),
+        pytest.param("true", id="string"),
+        pytest.param(1, id="integer"),
+        pytest.param("", id="empty-string"),
+        pytest.param(_MISSING_FIXTURE_MARKER, id="missing"),
+    ],
+)
+@pytest.mark.parametrize(
+    "fixture_scope",
+    [
+        pytest.param("candidate_only", id="nonempty"),
+        pytest.param(_MISSING_FIXTURE_MARKER, id="missing"),
+        pytest.param("", id="empty"),
+        pytest.param(" \t\n", id="whitespace"),
+        pytest.param(7, id="integer"),
+        pytest.param(["candidate_only"], id="list"),
+    ],
+)
+def test_synthetic_academic_skg_fixture_requires_exact_nonempty_scope_before_producer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    synthetic_marker: object,
+    fixture_scope: object,
+) -> None:
+    from polisyos.data_forge.domains.academic.batch import graph_builder
+    from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
+    metadata = {}
+    if synthetic_marker is not _MISSING_FIXTURE_MARKER:
+        metadata["synthetic"] = synthetic_marker
+    if fixture_scope is not _MISSING_FIXTURE_MARKER:
+        metadata["fixture_scope"] = fixture_scope
+    record = WorkRecord(
+        id="synthetic-skg-scope-boundary",
+        title="Synthetic scope boundary",
+        metadata=metadata,
+    )
+    db_path = tmp_path / "scope-boundary" / "academic-skg.duckdb"
+    db_path.parent.mkdir()
+    producer_calls = []
+    producer_result = object()
+
+    def producer_spy(**kwargs):
+        producer_calls.append(kwargs)
+        return producer_result
+
+    monkeypatch.setattr(graph_builder, "build_graph", producer_spy)
+    admitted_markers = synthetic_marker is True and fixture_scope == "candidate_only"
+    if admitted_markers:
+        assert build_synthetic_academic_skg_source(records=(record,), db_path=db_path) is (
+            producer_result
+        )
+        assert len(producer_calls) == 1
+        assert producer_calls[0]["records"] == (record,)
+        assert producer_calls[0]["db_path"] == db_path
+        return
+
+    wal_path = db_path.with_suffix(db_path.suffix + ".wal")
+    staging_path = db_path.with_suffix(db_path.suffix + ".staging")
+    staging_artifact_path = staging_path / "graph-load.sqlite"
+    db_path.write_bytes(b"preserved database bytes")
+    wal_path.write_bytes(b"preserved wal bytes")
+    staging_path.mkdir()
+    staging_artifact_path.write_bytes(b"preserved staging bytes")
+    before = {path: path.read_bytes() for path in (db_path, wal_path, staging_artifact_path)}
+    with pytest.raises(
+        ValueError,
+        match="synthetic_academic_skg_requires_explicit_synthetic_records",
+    ):
+        build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    assert producer_calls == []
+    assert {path: path.read_bytes() for path in before} == before
+
+
+@pytest.mark.parametrize("artifact", ["database", "wal", "staging"])
+def test_synthetic_academic_skg_fixture_preserves_existing_writer_artifacts(
+    tmp_path: Path,
+    artifact: str,
+) -> None:
+    from polisyos.data_forge.domains.academic.knowledge.types import WorkRecord
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
+    db_path = tmp_path / "existing-academic-skg.duckdb"
+    if artifact == "database":
+        preserved_path = db_path
+    elif artifact == "wal":
+        preserved_path = db_path.with_suffix(db_path.suffix + ".wal")
+    else:
+        preserved_path = (
+            db_path.with_suffix(db_path.suffix + ".staging") / "graph-load.sqlite"
+        )
+    preserved_path.parent.mkdir(parents=True, exist_ok=True)
+    preserved_bytes = b"preserve-existing-writer-artifact"
+    preserved_path.write_bytes(preserved_bytes)
+    record = WorkRecord(
+        id="existing-target-control",
+        title="Explicit synthetic candidate",
+        metadata={"synthetic": True, "fixture_scope": "negative_test_only"},
+    )
+
+    with pytest.raises(ValueError, match="synthetic_academic_skg_seed_target_exists"):
+        build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    assert preserved_path.read_bytes() == preserved_bytes
+
+
 def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.data_forge.domains.academic.knowledge.types import (
+        EstimateCandidate,
+        WorkRecord,
+    )
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
     db_path = tmp_path / DEFAULT_L2_SCHOLAR_KG_PATH
     db_path.parent.mkdir(parents=True)
-    with duckdb.connect(str(db_path)) as con:
-        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
-        con.execute("INSERT INTO ac_skg_versions VALUES (1)")
-        con.execute(
-            "CREATE TABLE ac_skg_variables (canonical_name VARCHAR, "
-            "approved_canonical_name VARCHAR, is_approved_canonical BOOLEAN, "
-            "resolution_method VARCHAR, resolution_confidence DOUBLE, "
-            "mention_count INTEGER, parent_name VARCHAR, approved_parent_name VARCHAR)"
-        )
-        con.execute(
-            "INSERT INTO ac_skg_variables VALUES "
-            "('cause', 'cause', TRUE, 'fixture', 0.9, 3, NULL, NULL)"
-        )
+    record = WorkRecord(
+        id="controlled-vintage-source",
+        title="Synthetic vintage-control source",
+        abstract="Synthetic fixture data; no causal or production claim.",
+        year=2026,
+        estimates=[
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="controlled_candidate_fixture",
+                variable_hint="cause",
+            )
+        ],
+        metadata={"synthetic": True, "fixture_scope": "credal_vintage_test_only"},
+    )
+    build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
     with db_path.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
 
@@ -483,7 +603,6 @@ def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
             next(registered)
     finally:
         registered.close()
-
 
 @pytest.fixture(scope="module")
 def reference() -> CredalReference:

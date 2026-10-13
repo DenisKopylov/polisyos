@@ -10,7 +10,6 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scholar import (
     FreshnessStatus,
@@ -92,6 +91,7 @@ class EnrichKnowledgeNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         if ctx.scholar is None:
             return NodeOutcome(
                 status="fail",
@@ -116,7 +116,7 @@ class EnrichKnowledgeNode:
 
         try:
             intent_ref = ResearchIntentRef.model_validate(intent_ref_raw.model_dump())
-            payload = from_canonical_bytes(ctx.store.get_bytes(intent_ref))
+            payload = load_core_json_artifact(ctx.store, intent_ref)
             if not isinstance(payload, dict):
                 raise ValueError("research_intent_ref must point to JSON object payload")
             intent = ResearchIntent.model_validate(payload)
@@ -403,7 +403,8 @@ class EnrichKnowledgeNode:
         ctx: ExecutionContext,
         bundle_ref: KnowledgeBundleRef,
     ) -> KnowledgeBundlePayloadV1:
-        payload = from_canonical_bytes(ctx.store.get_bytes(bundle_ref))
+        from polisyos.core.artifacts import load_core_json_artifact
+        payload = load_core_json_artifact(ctx.store, bundle_ref)
         if not isinstance(payload, dict):
             raise ValueError("knowledge_bundle_ref must point to JSON object payload")
         return KnowledgeBundlePayloadV1.model_validate(payload)

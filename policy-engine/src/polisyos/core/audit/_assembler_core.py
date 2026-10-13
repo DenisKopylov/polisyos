@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import shutil
 import subprocess
 import tempfile
@@ -21,7 +20,6 @@ from polisyos.core.artifacts.signing import (
     SigningConfig,
     load_signer_from_config,
 )
-from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.run.context import (
     _trace_run_started_identity,
     _trace_terminal_run_finalized_ref,
@@ -182,6 +180,7 @@ class AuditPackageAssembler:
         return _RunData(run_id=run_id, run_dir=run_dir, manifest=manifest, roots=roots)
 
     def _load_manifest_from_trace(self, run_dir: Path, run_id: str) -> RunManifest:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             recovered_ref = recover_pending_run_finalize(self._cas, run_dir)
         except ValueError as exc:
@@ -209,7 +208,9 @@ class AuditPackageAssembler:
             raise AuditAssemblyError("Core run terminal manifest reference metadata is invalid")
         try:
             payload = self._cas.get_bytes(manifest_ref)
-            manifest = RunManifest.model_validate(from_canonical_bytes(payload))
+            manifest = RunManifest.model_validate(
+                load_core_json_artifact(self._cas, manifest_ref, raw_payload_bytes=payload)
+            )
         except (OSError, ValueError, TypeError) as exc:
             raise AuditAssemblyError("Core run terminal manifest proof is unavailable") from exc
         if (
@@ -519,11 +520,12 @@ class AuditPackageAssembler:
 
 
 def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str, Any]:
+    from polisyos.core.artifacts import load_core_json_artifact
     blob = cas.get_bytes(artifact_id)
     try:
-        payload = from_canonical_bytes(blob)
+        payload = load_core_json_artifact(cas, artifact_id, raw_payload_bytes=blob)
     except (TypeError, ValueError):
-        payload = json.loads(blob.decode("utf-8"))
+        payload = load_core_json_artifact(cas, artifact_id, raw_payload_bytes=blob)
     if not isinstance(payload, dict):
         raise ValueError("artifact payload is not an object")
     return payload

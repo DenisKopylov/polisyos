@@ -24,7 +24,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
@@ -366,6 +366,7 @@ class CASRAGIndex:
         return results
 
     def build_from_cas(self, cas: FileSystemCAS, *, max_entries: int = 10_000) -> int:
+        from polisyos.core.artifacts import load_core_json_artifact
         indexed = 0
         for artifact_id in cas.iter_artifact_ids():
             if indexed >= max_entries:
@@ -377,7 +378,7 @@ class CASRAGIndex:
             if manifest.kind != "scientist.decision_packet":
                 continue
             try:
-                payload = from_canonical_bytes(cas.get_bytes(artifact_id))
+                payload = load_core_json_artifact(cas, artifact_id)
             except _RAG_ARTIFACT_LOAD_ERRORS:
                 continue
             entry = self._entry_from_decision_packet_payload(cas, payload, str(artifact_id))
@@ -393,6 +394,7 @@ class CASRAGIndex:
         payload: Any,
         decision_packet_ref: str,
     ) -> RAGCaseEntry | None:
+        from polisyos.core.artifacts import load_core_json_artifact
         if not isinstance(payload, dict):
             return None
 
@@ -414,7 +416,7 @@ class CASRAGIndex:
 
         try:
             trinity_aid = ArtifactID.model_validate(trinity_ref_str)
-            trinity_payload = from_canonical_bytes(cas.get_bytes(trinity_aid))
+            trinity_payload = load_core_json_artifact(cas, trinity_aid)
             trinity = TrinityBundle.model_validate(trinity_payload)
         except _RAG_ARTIFACT_LOAD_ERRORS:
             return None
@@ -547,15 +549,16 @@ class CASRAGIndex:
         snapshot_ref: str,
         embedder: EmbeddingBackend,
     ) -> CASRAGIndex:
+        from polisyos.core.artifacts import load_core_json_artifact
         snapshot_aid = ArtifactID.model_validate(snapshot_ref)
-        snapshot_payload = from_canonical_bytes(cas.get_bytes(snapshot_aid))
+        snapshot_payload = load_core_json_artifact(cas, snapshot_aid)
         if not isinstance(snapshot_payload, dict):
             raise ValueError("invalid rag snapshot payload")
 
         entries_ref = ArtifactID.model_validate(str(snapshot_payload["entries_ref"]))
         vectors_ref = ArtifactID.model_validate(str(snapshot_payload["vectors_ref"]))
 
-        entries_payload = from_canonical_bytes(cas.get_bytes(entries_ref))
+        entries_payload = load_core_json_artifact(cas, entries_ref)
         if not isinstance(entries_payload, dict):
             raise ValueError("invalid rag entries payload")
         raw_entries = entries_payload.get("entries", [])

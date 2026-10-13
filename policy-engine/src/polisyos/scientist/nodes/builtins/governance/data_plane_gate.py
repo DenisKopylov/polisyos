@@ -9,7 +9,6 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
@@ -93,6 +92,7 @@ class DataPlaneGateNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
         if data_snapshot_ref is None:
             error = NodeError(
@@ -103,7 +103,7 @@ class DataPlaneGateNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
+            snapshot_payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
             snapshot = DataSnapshot.model_validate(snapshot_payload)
         except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
             error = NodeError(
@@ -236,10 +236,11 @@ def _load_quality_report(
     state: ExperimentState,
     snapshot: DataSnapshot,
 ) -> tuple[Any | None, dict[str, object] | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if snapshot.quality_report_ref is None:
         return None, None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot.quality_report_ref))
+        payload = load_core_json_artifact(ctx.store, snapshot.quality_report_ref)
     except _DATA_PLANE_GATE_LOAD_ERRORS as exc:
         return None, emit_degraded_path(
             component="scientist.data_plane_gate",

@@ -390,6 +390,7 @@ def _run_cross_graph_benchmark(
 def _run_normpack_benchmark(
     config: LexBenchmarkConfig,
 ) -> tuple[dict[str, Any], dict[str, float | int]]:
+    from polisyos.core.artifacts import load_core_json_artifact
     summary_path = config.claim_exports_dir / "normative_claim_sets_summary.json"
     if not summary_path.exists():
         return {
@@ -458,7 +459,7 @@ def _run_normpack_benchmark(
     claim_set_records: list[dict[str, str]] = []
     for artifact_id in claim_set_ids:
         try:
-            payload = json.loads(cas.get_bytes(core_artifacts.ArtifactID(artifact_id)))
+            payload = load_core_json_artifact(cas, core_artifacts.ArtifactID(artifact_id))
         except Exception:
             continue
         claim_set_records.append(

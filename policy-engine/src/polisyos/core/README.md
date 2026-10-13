@@ -137,3 +137,27 @@ Epoch deployment composition imports the existing
 The repository verifies exact persisted bytes; it does not appoint a signer or
 replace independent origin/profile admission. Exact appointment verification
 helpers are available through the existing `core.security` facade.
+
+## Selected canonical-profile reads
+
+Core semantic artifact readers resolve the exact selected manifest sidecar and
+read its raw profile before consuming JSON bytes. A present malformed, partial,
+unsupported, or byte-nonconformant profile is a typed refusal; it is never
+replaced with reader defaults. The default Core semantic read refuses absence.
+A deliberate candidate-only compatibility call yields
+`profile_absent_unqualified_candidate`; `.value` then refuses, and no source-qualified
+historical eligibility is established. Core uses its own canonical codec and typed-tag
+set through `core.artifacts.canonical_profile`; IR's separate profile contract
+and exception identity remain unchanged. This is reader conformance, not signer
+appointment or producer attestation.
+
+
+### Raw manifest inspection for canonical profile readers
+
+First-party artifact stores expose the optional `RawManifestBytesReader` capability. It
+returns the exact selected sidecar bytes behind the storage owner/view boundary without
+constructing `ArtifactManifest`; a shared semantic reader then strictly parses the
+profile, resolves the typed selected manifest, and consumes the same selected payload.
+Stores without this capability cannot prove profile absence and fail closed for semantic
+JSON reads. Existing `get_manifest_bytes` behavior remains unchanged for signature and
+compatibility callers.

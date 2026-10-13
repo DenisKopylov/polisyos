@@ -6,8 +6,8 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.contracts.feedback import (
     DecisionCompareReport,
     DecisionMonitoringContract,
@@ -24,6 +24,9 @@ from polisyos.scientist.feedback.core import DecisionFeedbackService
 from polisyos.scientist.nodes.builtins.state_keys import INPUT_PARAMETER_OVERRIDE_BUNDLE_REF
 
 if TYPE_CHECKING:
+    from pydantic import BaseModel
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
 
     from .run_index import IndexedRunRecord, RunIndexService
@@ -62,7 +65,7 @@ class FeedbackService:
                 notes=["decision_packet_missing"],
             )
         packet_ref = str(run.decision_packet_ref.artifact_id)
-        packet_payload = self._load_json(packet_ref)
+        packet_payload = self._load_json(run.decision_packet_ref)
         refs = self._feedback.load_feedback_refs(packet_ref)
         monitoring_contract_ref = refs.monitoring_contract_ref or self._feedback_ref_from_packet(
             packet_payload,
@@ -124,7 +127,7 @@ class FeedbackService:
             )
             if feedback_result_ref is not None:
                 feedback_result = self._load_optional_model(
-                    str(feedback_result_ref.artifact_id),
+                    feedback_result_ref,
                     FeedbackSolveResult,
                 )
                 if (
@@ -137,10 +140,7 @@ class FeedbackService:
         if report_ref is None:
             notes.append("equilibrium_multiplicity_report_missing")
         else:
-            report = self._load_optional_model(
-                str(report_ref.artifact_id),
-                EquilibriumMultiplicityReport,
-            )
+            report = self._load_optional_model(report_ref, EquilibriumMultiplicityReport)
             if report is None:
                 notes.append("equilibrium_multiplicity_report_load_failed")
 
@@ -164,7 +164,7 @@ class FeedbackService:
         if run.decision_packet_ref is None:
             raise ValueError("decision_packet_missing")
         packet_ref = str(run.decision_packet_ref.artifact_id)
-        packet_payload = self._load_json(packet_ref)
+        packet_payload = self._load_json(run.decision_packet_ref)
         _, refs = self._feedback.evaluate_packet(
             run_id=run.run_id,
             packet_ref=packet_ref,
@@ -195,10 +195,10 @@ class FeedbackService:
         report, _ = self._feedback.compare_packets(
             left_run_id=left_run.run_id,
             left_packet_ref=left_packet_ref,
-            left_packet_payload=self._load_json(left_packet_ref),
+            left_packet_payload=self._load_json(left_run.decision_packet_ref),
             right_run_id=right_run.run_id,
             right_packet_ref=right_packet_ref,
-            right_packet_payload=self._load_json(right_packet_ref),
+            right_packet_payload=self._load_json(right_run.decision_packet_ref),
         )
         return RunCompareView(
             left_run_id=left_run.run_id,
@@ -220,7 +220,7 @@ class FeedbackService:
             raise ValueError("experiment_state_missing")
         if reissue_plan_ref is None:
             raise ValueError("reissue_plan_missing")
-        original_state = self._load_json(str(run.experiment_state_ref.artifact_id))
+        original_state = self._load_json(run.experiment_state_ref)
         plan = self._load_optional_model(reissue_plan_ref, DecisionReissuePlan)
         if plan is None:
             raise ValueError("reissue_plan_load_failed")
@@ -279,39 +279,60 @@ class FeedbackService:
             packet_payload=dict(packet_payload),
         )
 
-    def _load_optional_model(self, ref: str | None, model_cls: Any) -> Any | None:
+    def _load_optional_model(
+        self, ref: ArtifactRef | str | None, model_cls: type[BaseModel]
+    ) -> Any | None:
         if ref is None:
             return None
         try:
             return model_cls.model_validate(self._load_json(ref))
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             return None
 
-    def _load_json(self, ref: str) -> Any:
-        return from_canonical_bytes(self._store.get_bytes(ArtifactID.model_validate(ref)))
+    def _load_json(
+        self, ref: ArtifactRef | str
+    ) -> Any:
+        return read_core_json_artifact(self._store, ref).value
 
     @staticmethod
-    def _feedback_ref_from_packet(packet_payload: Mapping[str, Any], key: str) -> str | None:
+    def _feedback_ref_from_packet(
+        packet_payload: Mapping[str, Any], key: str
+    ) -> ArtifactRef | str | None:
         feedback_loop = packet_payload.get("feedback_loop")
         if not isinstance(feedback_loop, Mapping):
             return None
         value = feedback_loop.get(key)
         if isinstance(value, Mapping):
-            artifact_id = value.get("artifact_id")
-            return artifact_id if isinstance(artifact_id, str) else None
+            from polisyos.core.artifacts import ArtifactID
+            from polisyos.core.artifacts.manifest import ArtifactRef
+
+            ref_fields = {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+            present_ref_fields = ref_fields.intersection(value)
+            if not present_ref_fields:
+                return None
+            try:
+                if set(value) == {"artifact_id"}:
+                    return str(ArtifactID.model_validate(value["artifact_id"]))
+                return ArtifactRef.model_validate(value)
+            except (TypeError, ValueError) as exc:
+                raise CanonicalProfileRefusalError(
+                    "canon_profile_feedback_ref_invalid"
+                ) from exc
         if isinstance(value, str):
             return value
         return None
 
     @staticmethod
-    def _find_ref_by_kind(refs: list[Any], kind: str) -> Any | None:
+    def _find_ref_by_kind(refs: list[ArtifactRef], kind: str) -> ArtifactRef | None:
         for ref in refs:
-            if getattr(ref, "kind", None) == kind:
+            if ref.kind == kind:
                 return ref
         return None
 
 
-def _mapping_dict(value: Any) -> dict[str, Any]:
+def _mapping_dict(value: object) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         return {}
     return {str(key): item for key, item in value.items()}

@@ -11,7 +11,6 @@ import pandas as pd
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.protocol import ArtifactStore
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.quality.safety import quote_sql_identifier
 from polisyos.fabric.world.store.validate import (
     validate_claim_id,
@@ -208,9 +207,10 @@ def _is_newer_retrieval(
 
 
 def _load_json_artifact(cas: ArtifactStore, artifact_id: str) -> dict:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
         if not isinstance(payload, dict):
             raise ValueError("artifact JSON must be an object")
         return payload

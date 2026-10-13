@@ -24,7 +24,8 @@ from enum import Enum, EnumType, IntEnum, ReprEnum, StrEnum
 from inspect import getattr_static
 from math import isfinite
 from operator import index as _index
-from typing import Any, ClassVar, Literal, Self, SupportsIndex, cast
+from types import NotImplementedType
+from typing import Any, ClassVar, Generic, Literal, Self, SupportsIndex, cast
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
@@ -382,6 +383,34 @@ def snapshot_state(base_state: ExperimentState) -> ExperimentState:
     return branched
 
 
+def _preserve_model_runtime_slots(
+    source: BaseModel,
+    target: BaseModel,
+    *,
+    memo: dict[int, Any] | None = None,
+) -> None:
+    """Preserve the admitted None/empty-dict shape of Pydantic runtime slots."""
+    for name in ("__pydantic_extra__", "__pydantic_private__"):
+        runtime_state = object.__getattribute__(source, name)
+        if runtime_state is None:
+            projected_state = None
+        elif type(runtime_state) is dict and dict.__len__(runtime_state) == 0:
+            projected_state = _MISSING if memo is None else memo.get(id(runtime_state), _MISSING)
+            if projected_state is _MISSING:
+                projected_state = {}
+                if memo is not None:
+                    memo[id(runtime_state)] = projected_state
+            if type(projected_state) is not dict:
+                raise TypeError(
+                    "state mutation journaling refuses private or extra model runtime state"
+                )
+        else:
+            raise TypeError(
+                "state mutation journaling refuses private or extra model runtime state"
+            )
+        object.__setattr__(target, name, projected_state)
+
+
 def _neutral_mutable_value(value: Any, memo: dict[int, Any]) -> Any:
     """Project a settled graph into canonical models without changing its producer view.
 
@@ -405,6 +434,7 @@ def _neutral_mutable_value(value: Any, memo: dict[int, Any]) -> Any:
         memo[id(value)] = projected
         for name in original.model_fields:
             projected.__dict__[name] = _neutral_mutable_value(getattr(value, name), memo)
+        _preserve_model_runtime_slots(value, projected, memo=memo)
         return projected
     if isinstance(value, dict):
         mapping: dict[Any, Any] = {}
@@ -1135,15 +1165,16 @@ class _TrackedModelMixin(BaseModel):
     at admission; this finite profile is not a Python object sandbox.
     """
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: object) -> bool | NotImplementedType:
         # Keep model value equality separate from wrapper identity.
         if not isinstance(other, BaseModel):
-            return False
+            return NotImplemented
         return _tracked_model_values_equal(self, other)
 
-    def __ne__(self, other: object) -> bool:
+    def __ne__(self, other: object) -> bool | NotImplementedType:
         """Keep inequality as the inverse of journal-aware model equality."""
-        return not self.__eq__(other)
+        result = self.__eq__(other)
+        return NotImplemented if result is NotImplemented else not result
 
     __slots__ = (
         "_mutation_detached",
@@ -1161,7 +1192,7 @@ class _TrackedModelMixin(BaseModel):
     _mutation_detached: ClassVar[bool]
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if not self._mutation_journal.enforce_write_scope or type(self).model_config.get("frozen"):
+        if type(self).model_config.get("frozen"):
             super().__setattr__(name, value)
             return
         journal = self._mutation_journal
@@ -1186,7 +1217,7 @@ class _TrackedModelMixin(BaseModel):
         )
 
     def __delattr__(self, name: str) -> None:
-        if not self._mutation_journal.enforce_write_scope or type(self).model_config.get("frozen"):
+        if type(self).model_config.get("frozen"):
             super().__delattr__(name)
             return
         _authorize_container_mutation(self, suffixes=((name,),))
@@ -1330,19 +1361,23 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
         "model_post_init",
     )
 
-    def implementation(model: type[BaseModel], name: str) -> Any:
+    def implementation(model: Any, name: str) -> Any:
         # Compare raw MRO descriptors before binding or executing custom class
         # hooks. Builtin class-bound methods otherwise compare their receiver.
         hook = getattr_static(model, name)
         return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
 
-    if any(
-        not any(
+    for name in hooks:
+        canonical_types: tuple[Any, ...] = (BaseModel, RootModel)
+        if name == "__init_subclass__":
+            # Generic Pydantic specializations inherit this stdlib hook. Admit
+            # only the exact implementation; metadata or class names are not proof.
+            canonical_types = (*canonical_types, Generic)
+        if any(
             implementation(original, name) is implementation(canonical, name)
-            for canonical in (BaseModel, RootModel)
-        )
-        for name in hooks
-    ):
+            for canonical in canonical_types
+        ):
+            continue
         raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
     if original.model_config.get("validate_assignment"):
         decorators = getattr_static(original, "__pydantic_decorators__")
@@ -1351,179 +1386,133 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
                 "state mutation journaling requires ordinary BaseModel field-only "
                 "assignment validation; model-level assignment validators are unsupported"
             )
-    if value.__pydantic_private__ or value.__pydantic_extra__:
-        raise TypeError("state mutation journaling refuses private or extra model runtime state")
+    for name in ("__pydantic_private__", "__pydantic_extra__"):
+        runtime_state = object.__getattribute__(value, name)
+        if runtime_state is not None and (
+            type(runtime_state) is not dict or dict.__len__(runtime_state) != 0
+        ):
+            raise TypeError("state mutation journaling refuses private or extra model runtime state")
     return original
 
 
-def _tracked_model_values_equal(
-    left: BaseModel,
-    right: BaseModel,
-    *,
-    depth: int = 0,
-    left_ancestors: frozenset[int] = frozenset(),
-    right_ancestors: frozenset[int] = frozenset(),
-) -> bool:
-    # Compare the full admitted value graph, ignoring only journal wrapper types.
-    if depth > _JOURNAL_INTENT_CANON.max_depth:
-        return False
+def _tracked_model_values_equal(left: BaseModel, right: BaseModel) -> bool:
+    """Compare admitted model values using Pydantic's native value relation."""
     try:
-        left_original = _ordinary_model_type(left)
-        right_original = _ordinary_model_type(right)
-    except TypeError:
+        # Validate the complete finite graph before recursive equality can inspect it.
+        _validate_mutation_attachment(None, left)
+        _validate_mutation_attachment(None, right)
+        return _tracked_values_equal(left, right, {})
+    except (AttributeError, RecursionError, TypeError, ValueError):
         return False
-    if left_original is not right_original:
-        return False
-    left_identity = id(left)
-    right_identity = id(right)
-    if left_identity in left_ancestors or right_identity in right_ancestors:
-        return False
-    left_ancestors = left_ancestors | {left_identity}
-    right_ancestors = right_ancestors | {right_identity}
-
-    field_names = tuple(left_original.model_fields)
-    field_name_set = set(field_names)
-    left_fields_set = object.__getattribute__(left, "__pydantic_fields_set__")
-    right_fields_set = object.__getattribute__(right, "__pydantic_fields_set__")
-    if (
-        type(left_fields_set) is not set
-        or type(right_fields_set) is not set
-        or left_fields_set != right_fields_set
-        or not left_fields_set.issubset(field_name_set)
-        or not right_fields_set.issubset(field_name_set)
-    ):
-        return False
-
-    for name in ("__pydantic_extra__", "__pydantic_private__"):
-        left_state = object.__getattribute__(left, name)
-        right_state = object.__getattribute__(right, name)
-        if (left_state is None) != (right_state is None):
-            return False
-        if left_state is not None and not _tracked_values_equal(
-            left_state,
-            right_state,
-            depth=depth + 1,
-            left_ancestors=left_ancestors,
-            right_ancestors=right_ancestors,
-        ):
-            return False
-
-    # RootModel's value is its typed root, not a mapping of model fields.
-    # Compare the root recursively while preserving the usual typed distinctions.
-    if RootModel in type.__getattribute__(left_original, "__mro__"):
-        return _tracked_values_equal(
-            object.__getattribute__(left, "root"),
-            object.__getattribute__(right, "root"),
-            depth=depth + 1,
-            left_ancestors=left_ancestors,
-            right_ancestors=right_ancestors,
-        )
-
-    return all(
-        _tracked_values_equal(
-            object.__getattribute__(left, name),
-            object.__getattribute__(right, name),
-            depth=depth + 1,
-            left_ancestors=left_ancestors,
-            right_ancestors=right_ancestors,
-        )
-        for name in field_names
-    )
 
 
 def _tracked_values_equal(
     left: Any,
     right: Any,
-    *,
-    depth: int,
-    left_ancestors: frozenset[int],
-    right_ancestors: frozenset[int],
+    comparisons: dict[tuple[int, int], bool],
 ) -> bool:
-    # Distinguish equal-looking types while normalizing tracked containers.
-    if depth > _JOURNAL_INTENT_CANON.max_depth:
+    """Compare finite admitted leaves and containers without tracker metadata."""
+    if left is right:
+        return True
+    pair = (id(left), id(right))
+    if pair in comparisons:
+        return comparisons[pair]
+
+    left_model = isinstance(left, BaseModel)
+    right_model = isinstance(right, BaseModel)
+    if left_model or right_model:
+        result = (
+            left_model
+            and right_model
+            and _tracked_pydantic_models_equal(
+                cast("BaseModel", left), cast("BaseModel", right), comparisons
+            )
+        )
+    elif type(left) in {dict, _TrackedDict} or type(right) in {dict, _TrackedDict}:
+        result = (
+            type(left) in {dict, _TrackedDict}
+            and type(right) in {dict, _TrackedDict}
+            and dict.keys(left) == dict.keys(right)
+            and all(
+                _tracked_values_equal(
+                    dict.__getitem__(left, key), dict.__getitem__(right, key), comparisons
+                )
+                for key in dict.keys(left)
+            )
+        )
+    elif type(left) in {list, _TrackedList} or type(right) in {list, _TrackedList}:
+        result = (
+            type(left) in {list, _TrackedList}
+            and type(right) in {list, _TrackedList}
+            and list.__len__(left) == list.__len__(right)
+            and all(
+                _tracked_values_equal(
+                    list.__getitem__(left, index), list.__getitem__(right, index), comparisons
+                )
+                for index in range(list.__len__(left))
+            )
+        )
+    elif type(left) is tuple or type(right) is tuple:
+        result = (
+            type(left) is tuple
+            and type(right) is tuple
+            and tuple.__len__(left) == tuple.__len__(right)
+            and all(
+                _tracked_values_equal(
+                    tuple.__getitem__(left, index), tuple.__getitem__(right, index), comparisons
+                )
+                for index in range(tuple.__len__(left))
+            )
+        )
+    else:
+        leaf_result = left == right
+        result = leaf_result if type(leaf_result) is bool else False
+
+    comparisons[pair] = result
+    return result
+
+
+def _tracked_pydantic_models_equal(
+    left: BaseModel,
+    right: BaseModel,
+    comparisons: dict[tuple[int, int], bool],
+) -> bool:
+    """Mirror the pinned Pydantic model relation over tracked and source models."""
+    left_type = _ordinary_model_type(left)
+    right_type = _ordinary_model_type(right)
+    left_generic = left_type.__pydantic_generic_metadata__
+    right_generic = right_type.__pydantic_generic_metadata__
+    left_equality_type = left_generic.get("origin") or left_type
+    right_equality_type = right_generic.get("origin") or right_type
+    if left_equality_type != right_equality_type:
         return False
-    left_type = type(left)
-    right_type = type(right)
-    left_mro = type.__getattribute__(left_type, "__mro__")
-    right_mro = type.__getattribute__(right_type, "__mro__")
-    left_is_model = BaseModel in left_mro
-    right_is_model = BaseModel in right_mro
-    if left_is_model or right_is_model:
-        return left_is_model and right_is_model and _tracked_model_values_equal(
-            cast("BaseModel", left),
-            cast("BaseModel", right),
-            depth=depth,
-            left_ancestors=left_ancestors,
-            right_ancestors=right_ancestors,
-        )
 
-    if left_type in {dict, _TrackedDict} or right_type in {dict, _TrackedDict}:
-        if left_type not in {dict, _TrackedDict} or right_type not in {dict, _TrackedDict}:
-            return False
-        left_items = tuple(dict.items(left))
-        right_items = tuple(dict.items(right))
-        if any(type(key) is not str for key, _ in (*left_items, *right_items)):
-            return False
-        left_values = dict(left_items)
-        right_values = dict(right_items)
-        if left_values.keys() != right_values.keys():
-            return False
-        return all(
-            _tracked_values_equal(
-                left_values[key],
-                right_values[key],
-                depth=depth + 1,
-                left_ancestors=left_ancestors,
-                right_ancestors=right_ancestors,
-            )
-            for key in left_values
-        )
-
-    if left_type in {list, _TrackedList} or right_type in {list, _TrackedList}:
-        if left_type not in {list, _TrackedList} or right_type not in {list, _TrackedList}:
-            return False
-        left_values = tuple(list.__iter__(left))
-        right_values = tuple(list.__iter__(right))
-        return len(left_values) == len(right_values) and all(
-            _tracked_values_equal(
-                left_item,
-                right_item,
-                depth=depth + 1,
-                left_ancestors=left_ancestors,
-                right_ancestors=right_ancestors,
-            )
-            for left_item, right_item in zip(left_values, right_values, strict=True)
-        )
-
-    if left_type is tuple or right_type is tuple:
-        if left_type is not tuple or right_type is not tuple:
-            return False
-        return len(left) == len(right) and all(
-            _tracked_values_equal(
-                left_item,
-                right_item,
-                depth=depth + 1,
-                left_ancestors=left_ancestors,
-                right_ancestors=right_ancestors,
-            )
-            for left_item, right_item in zip(left, right, strict=True)
-        )
-
-    left_enum = _is_callback_free_scalar_enum(left)
-    right_enum = _is_callback_free_scalar_enum(right)
-    if left_enum or right_enum:
-        return left_enum and right_enum and left_type is right_type and left is right
-    if left_type is not right_type:
+    left_is_root = RootModel in type.__getattribute__(left_type, "__mro__")
+    right_is_root = RootModel in type.__getattribute__(right_type, "__mro__")
+    if left_is_root != right_is_root:
         return False
-    if left is None:
-        return right is None
-    if left_type in {bool, int, str, bytes, date, datetime}:
-        return left == right
-    if left_type is float:
-        return isfinite(left) and isfinite(right) and left == right
-    if left_type is Decimal:
-        return left.is_finite() and right.is_finite() and left == right
-    return False
+    if left_is_root:
+        left_root_type = left_type.__pydantic_fields__["root"].annotation
+        right_root_type = right_type.__pydantic_fields__["root"].annotation
+        if left_root_type != right_root_type:
+            return False
+
+    for name in ("__pydantic_private__", "__pydantic_extra__"):
+        left_state = object.__getattribute__(left, name)
+        right_state = object.__getattribute__(right, name)
+        if not _tracked_values_equal(left_state, right_state, comparisons):
+            return False
+
+    # Pydantic ignores model_fields_set and non-field __dict__ entries. Its
+    # missing-field fallback compares the same declared fields with a sentinel.
+    left_data = object.__getattribute__(left, "__dict__")
+    right_data = object.__getattribute__(right, "__dict__")
+    for name in left_type.__pydantic_fields__:
+        left_value = left_data.get(name, _MISSING)
+        right_value = right_data.get(name, _MISSING)
+        if not _tracked_values_equal(left_value, right_value, comparisons):
+            return False
+    return True
 
 
 def _initialize_model_tracking(
@@ -1866,16 +1855,26 @@ def _wrap_mutable_value(
         original = _ordinary_model_type(value)
         tracked = _TRACKED_MODEL_TYPES.get(original)
         if tracked is None:
-            tracked = type(
+            # Copy Pydantic's full metadata and preserve its effective generic type.
+            # A bare generic has origin=None; its effective origin is its own class.
+            generic_metadata: dict[str, Any] = dict(
+                original.__pydantic_generic_metadata__
+            )
+            if generic_metadata.get("origin") is None and generic_metadata.get("parameters"):
+                generic_metadata["origin"] = original
+            model_metaclass: Any = type(original)
+            tracked = model_metaclass(
                 f"_Journaled{original.__name__}",
                 (_TrackedModelMixin, original),
                 {"__module__": __name__, "_original_model_type": original},
+                __pydantic_generic_metadata__=generic_metadata,
             )
             _TRACKED_MODEL_TYPES[original] = tracked
         # Preserve already-validated fields without re-running constructors.
         wrapped = tracked.model_construct(
             _fields_set=set(value.__pydantic_fields_set__), **dict(_model_members(value))
         )
+        _preserve_model_runtime_slots(value, wrapped)
         _initialize_model_tracking(wrapped, path, journal)
         journal._wrapped_values[id(value)] = (value, wrapped)
         for name, child in _model_members(value):

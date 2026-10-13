@@ -9,7 +9,7 @@ from pydantic import Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec, schedule_range
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
@@ -378,7 +378,8 @@ def load_policy_candidate_schema(
     ref: ArtifactRef,
 ) -> PolicyCandidateSchema:
     """Load policy candidate schema."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return PolicyCandidateSchema.model_validate(payload)
 
 

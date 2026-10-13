@@ -174,6 +174,10 @@ def test_production_receipt_persists_a_selected_manifest_view(tmp_path: Path) ->
 
     default_receipt = persist(default_manifest_ref)
     selected_receipt = persist(selected_manifest_ref)
+    assert default_receipt.receipt_ref.manifest_profile_sha256 is not None
+    assert selected_receipt.receipt_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(default_receipt.receipt_ref).canon == epoch_contract.epoch_canon_info()
+    assert store.get_manifest(selected_receipt.receipt_ref).canon == epoch_contract.epoch_canon_info()
     assert default_receipt.receipt_ref.artifact_id != selected_receipt.receipt_ref.artifact_id
     assert default_receipt.receipt_content_hash != selected_receipt.receipt_content_hash
 

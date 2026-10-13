@@ -80,7 +80,14 @@ Boundary notes:
 - `joint_simulation_horizon.py` is the N5 candidate simulation adapter. It resolves
   simultaneous writes before invoking a selected engine. Duplicate writes merge
   only when recursively compared types and values match (including array shape
-  and dtype), so `true`, `1`, and `1.0` remain distinct assignments. It refuses missing,
+  and dtype), so `true`, `1`, and `1.0` remain distinct assignments. Before accepting
+  any engine candidate, it compares the exact validated `HorizonSpec.steps()` grid
+  with the selector's `temporal_capability`. A multi-step request requires
+  `multi_period`; static or unavailable candidates retain a typed refusal and selection
+  continues. Plan eligibility strings cannot override the requested grid. A one-point
+  request remains eligible for a static engine. This is an internal grid-capability
+  check; it does not establish a physical origin, unit, or World Model temporal binding.
+  It refuses missing,
   malformed, or non-finite selected outcomes, and projects only returned
   trajectory rows. A short non-empty trajectory is marked partial; terminal
   summary values do not fill its missing rows, and a run-level scalar without a
@@ -89,7 +96,14 @@ Boundary notes:
   steps directly, while method adapters report `matched` only when a declared
   time-step parameter equals the requested horizon step. That adapter
   comparison does not establish the consumed World Model Record's own temporal
-  alignment or confer evidence authority.
+  alignment or confer evidence authority. Persisted results label the numeric
+  outcome-minus-request-baseline subtraction and comparator refs
+  `not_established`: a caller baseline and retained ref strings do not resolve
+  a source-owned comparator/estimand pair. Multi-period results also carry
+  `horizon_time_alignment_not_established`; the integer grid is exact, but its
+  physical origin and unit are not resolved. These candidate limitations are
+  retained through N8 and the served observation. Replicate exceptions abort
+  before aggregation and CAS persistence; no partial-attempt ledger is promised.
 - Generic candidate-only N5 request custody uses a versioned Core canonical
   profile for the complete `JointSimulationRequest`. Request-binding v2 records
   the canonical profile identity and a typed digest; execution v3 persists the

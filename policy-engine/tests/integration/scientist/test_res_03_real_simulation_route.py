@@ -577,6 +577,8 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     client_lifecycle = ExitStack()
     request.addfinalizer(client_lifecycle.close)
     client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
+    run_details_response = client.get(f"/api/v1/runs/{run_id}")
+    run_summaries_response = client.get("/api/v1/runs", params={"q": run_id})
     workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
     evidence_context_response = client.get(f"/api/v1/runs/{run_id}/evidence-context")
     assert evidence_context_response.status_code == 200, evidence_context_response.text
@@ -1028,8 +1030,37 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         for entry in audit_entries
     )
 
+    assert run_details_response.status_code == 200, run_details_response.text
+    run_details = run_details_response.json()["run"]
+    assert run_details["run_id"] == run_id
+    # Preserve terminal failure; the completed simulation remains independently readable.
+    assert run_details["status"] == "fail"
+    assert run_details["has_workflow_report"] is True
+    assert run_details["workflow_report_ref"]["artifact_id"] == str(
+        workflow_report_ref.artifact_id
+    )
+
+    assert run_summaries_response.status_code == 200, run_summaries_response.text
+    run_summaries = [
+        summary
+        for summary in run_summaries_response.json()["runs"]
+        if summary["run_id"] == run_id
+    ]
+    assert len(run_summaries) == 1
+    assert run_summaries[0]["status"] == "fail"
+    assert run_summaries[0]["run_terminality"] == "terminal"
+
     assert workflow_response.status_code == 200, workflow_response.text
-    workflow_nodes = {node["alias"]: node for node in workflow_response.json()["workflow"]["nodes"]}
+    workflow_payload = workflow_response.json()["workflow"]
+    workflow_nodes = {node["alias"]: node for node in workflow_payload["nodes"]}
+    summary = workflow_payload["summary"]
+    assert summary["status"] == "fail"
+    assert summary["ok_count"] >= 1
+    assert summary["fail_count"] >= 1
+    assert summary["skip_count"] >= 1
+    assert summary["node_count"] == (
+        summary["ok_count"] + summary["fail_count"] + summary["skip_count"]
+    )
     assert workflow_nodes["run_simulation"]["status"] == "ok"
     assert str(simulation_ref.artifact_id) in workflow_nodes["run_simulation"]["artifact_ids"]
     assert workflow_nodes["later_failure"]["status"] == "fail"

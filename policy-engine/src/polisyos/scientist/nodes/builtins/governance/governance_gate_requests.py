@@ -13,7 +13,7 @@ from pydantic import BaseModel, ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactID, ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
-from polisyos.core.canon import content_hash, from_canonical_bytes
+from polisyos.core.canon import content_hash
 from polisyos.core.contracts import (
     DataSnapshot,
     DataSnapshotRef,
@@ -349,11 +349,12 @@ def _policy_summary_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> str | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+        payload = load_core_json_artifact(ctx.store, trinity_ref)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_governance",
@@ -380,11 +381,12 @@ def _simulation_results_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
+        payload = load_core_json_artifact(ctx.store, metrics_ref)
         metrics = Metrics.model_validate(payload)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
@@ -458,6 +460,7 @@ def _transport_summary_from_state(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if report_ref is None:
         status = state.params.get("transportability_status")
@@ -478,7 +481,7 @@ def _transport_summary_from_state(
         return None
 
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(report_ref))
+        payload = load_core_json_artifact(ctx.store, report_ref)
     except _GOVERNANCE_HELPER_ERRORS as exc:
         emit_degraded_path(
             component="scientist.run_governance",
@@ -786,10 +789,11 @@ def _read_replay_payload(
     contract: _ReplayArtifactContract,
     ref: ArtifactRef,
 ) -> tuple[BaseModel | None, str | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         manifest = ctx.store.get_manifest(ref)
         payload = contract.payload_model.model_validate(
-            from_canonical_bytes(ctx.store.get_bytes(ref))
+            load_core_json_artifact(ctx.store, ref)
         )
     except _GOVERNANCE_HELPER_ERRORS:
         return None, "unresolvable_ref_or_invalid_payload"
@@ -902,6 +906,7 @@ def _resolve_cached_gate_request(
     spec: _GateRequestSpec,
 ) -> tuple[GateRequest, ArtifactRef] | None:
     """Admit a cached request only when its persisted body matches current state."""
+    from polisyos.core.artifacts import load_core_json_artifact
     request = _parse_gate_request(raw_request)
     ref = _parse_gate_request_ref(raw_ref)
     if request is None or ref is None:
@@ -910,7 +915,7 @@ def _resolve_cached_gate_request(
         manifest = ctx.store.get_manifest(ref)
         if manifest.kind != "ir.gate_request":
             return None
-        persisted_payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        persisted_payload = load_core_json_artifact(ctx.store, ref)
         persisted = _parse_gate_request(persisted_payload)
         if persisted is None:
             return None

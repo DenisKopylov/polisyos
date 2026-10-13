@@ -10,7 +10,6 @@ from pydantic import ValidationError
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
@@ -44,6 +43,7 @@ class ConfidencePass(ValidatorPass):
         return 50
 
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
+        from polisyos.core.artifacts import load_core_json_artifact
         issues: list[ComplianceIssue] = []
 
         causal_ref = _resolve_causal_envelope_ref(ctx.state)
@@ -98,7 +98,7 @@ class ConfidencePass(ValidatorPass):
             envelope_refs["causal_effect"] = causal_ref
         else:
             try:
-                payload = from_canonical_bytes(store.get_bytes(sim_result_ref))
+                payload = load_core_json_artifact(store, sim_result_ref)
                 sim_result = SimulationResult.model_validate(payload)
             except (
                 AttributeError,

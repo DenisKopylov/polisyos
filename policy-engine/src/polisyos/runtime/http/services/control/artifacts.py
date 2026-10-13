@@ -11,6 +11,10 @@ from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -25,7 +29,6 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,
     content_hash,
-    from_canonical_bytes,
     to_canonical_bytes,
 )
 from polisyos.runtime.http.services import _control_contracts as _contracts
@@ -603,7 +606,7 @@ def write_runtime_authority_artifact(
         opts,
         **authority_fields,
     )
-    event_payload = from_canonical_bytes(store.get_bytes(result.diagnostic_event_ref))
+    event_payload = read_core_json_artifact(store, result.diagnostic_event_ref).value
     event = DiagnosticEvent.model_validate(event_payload)
     event_log.append(
         event,
@@ -723,11 +726,11 @@ def _existing_authority_result(
         if selected_ref is not None:
             return None
         if store.has(artifact_id):
-            default_manifest = store.get_manifest(artifact_id)
+            default_manifest = read_core_manifest_profile(store, artifact_id)[0]
             if default_manifest.authority is not None:
                 raise ValueError("existing authority identity mismatch")
         return None
-    manifest = store.get_manifest(artifact_ref)
+    manifest = read_core_manifest_profile(store, artifact_ref)[0]
     authority = manifest.authority
     if authority is None:
         return None
@@ -753,9 +756,13 @@ def _existing_authority_result(
         verification = store.verify(artifact_ref)
         envelope_ref = core_artifacts.resolve_authority_envelope_ref(store, authority)
         envelope_verification = store.verify(envelope_ref)
-        envelope_manifest = store.get_manifest(envelope_ref)
+        envelope_manifest = read_core_manifest_profile(store, envelope_ref)[0]
         envelope_payload = store.get_bytes(envelope_ref)
-        envelope = EvidenceAuthorityEnvelope.model_validate(from_canonical_bytes(envelope_payload))
+        envelope = EvidenceAuthorityEnvelope.model_validate(read_core_json_artifact(
+                                                                store,
+                                                                envelope_ref,
+                                                                raw_payload_bytes=envelope_payload,
+                                                            ).value)
         expected_envelope_opts = _authority_envelope_write_options(
             opts,
             inputs=list(expected_context.manifest_inputs),
@@ -776,10 +783,14 @@ def _existing_authority_result(
             raise ValueError("existing authority envelope manifest identity mismatch")
         diagnostic_event_ref = resolve_authority_diagnostic_event_ref(store, authority)
         diagnostic_event_id = diagnostic_event_ref.artifact_id
-        diagnostic_event_manifest = store.get_manifest(diagnostic_event_ref)
+        diagnostic_event_manifest = read_core_manifest_profile(store, diagnostic_event_ref)[0]
         diagnostic_event_payload = store.get_bytes(diagnostic_event_ref)
         diagnostic_event = DiagnosticEvent.model_validate(
-            from_canonical_bytes(diagnostic_event_payload)
+            read_core_json_artifact(
+                store,
+                diagnostic_event_ref,
+                raw_payload_bytes=diagnostic_event_payload,
+            ).value
         )
         expected_event_opts = _diagnostic_event_write_options(
             opts,
@@ -814,8 +825,8 @@ def _existing_authority_result(
             raise ValueError("existing authority identity mismatch")
         attestation_id = core_artifacts.ArtifactID.model_validate(expected_context.attestation_ref)
         attestation_verification = store.verify(attestation_id)
-        attestation_manifest = store.get_manifest(attestation_id)
-        attestation_payload = from_canonical_bytes(store.get_bytes(attestation_id))
+        attestation_manifest = read_core_manifest_profile(store, attestation_id)[0]
+        attestation_payload = read_core_json_artifact(store, attestation_id).value
     except (TypeError, ValueError) as exc:
         raise ValueError("existing authority identity mismatch") from exc
     if (

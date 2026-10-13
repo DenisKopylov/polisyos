@@ -238,6 +238,75 @@ function canonicalNumericClassification(node, sourceCode, structuralImports) {
   return null;
 }
 
+// A numeric literal inside a real Zod literal schema describes accepted wire
+// shape, not a numeric value emitted by the dashboard. Require the actual
+// imported Zod binding so local lookalikes and shadowed aliases remain guarded.
+function isImportedZodLiteralSchema(node, sourceCode) {
+  let expression = node;
+  if (
+    node.parent?.type === "UnaryExpression" &&
+    (node.parent.operator === "-" || node.parent.operator === "+")
+  ) {
+    expression = node.parent;
+  }
+
+  const call = expression.parent;
+  if (
+    call?.type !== "CallExpression" ||
+    call.arguments[0] !== expression ||
+    call.callee.type !== "MemberExpression" ||
+    propertyName(call.callee.property) !== "literal"
+  ) {
+    return false;
+  }
+
+  const receiver = call.callee.object;
+  let localName;
+  let importKind;
+  if (receiver.type === "Identifier") {
+    localName = receiver.name;
+    importKind = "named";
+  } else if (
+    receiver.type === "MemberExpression" &&
+    propertyName(receiver.property) === "z" &&
+    receiver.object.type === "Identifier"
+  ) {
+    localName = receiver.object.name;
+    importKind = "namespace";
+  } else {
+    return false;
+  }
+
+  const binding = resolvedVariable(sourceCode, call, localName);
+  return Boolean(
+    binding?.defs.some((definition) => {
+      if (definition.type !== "ImportBinding") {
+        return false;
+      }
+      const importedNode = definition.node;
+      const declaration = importedNode?.parent;
+      if (
+        declaration?.type !== "ImportDeclaration" ||
+        declaration.source?.value !== "zod" ||
+        declaration.importKind === "type" ||
+        declaration.importKind === "typeof" ||
+        importedNode.importKind === "type" ||
+        importedNode.importKind === "typeof"
+      ) {
+        return false;
+      }
+
+      if (importKind === "named") {
+        return (
+          importedNode.type === "ImportSpecifier" &&
+          propertyName(importedNode.imported) === "z"
+        );
+      }
+      return importedNode.type === "ImportNamespaceSpecifier";
+    }),
+  );
+}
+
 function isControlOrFormattingLiteral(node, sourceCode) {
   let cursor = node.parent;
   if (cursor?.type === "UnaryExpression") {
@@ -289,6 +358,9 @@ function isControlOrFormattingLiteral(node, sourceCode) {
 }
 
 function classify(node, sourceCode, filename, structuralImports) {
+  if (isImportedZodLiteralSchema(node, sourceCode)) {
+    return null;
+  }
   const canonicalClass = canonicalNumericClassification(
     node,
     sourceCode,

@@ -8,7 +8,7 @@ from typing import Any
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.methods.selection.requirements import (
     select_method_candidates_for_requirements,
 )
@@ -381,11 +381,12 @@ def _merge_ref_mappings(*values: object) -> dict[str, str]:
 
 
 def _load_json_artifact(store: object, ref_value: object) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     artifact_id = _ref_id(ref_value)
     if artifact_id is None or store is None:
         return None
     try:
-        payload = from_canonical_bytes(store.get_bytes(ArtifactID(artifact_id)))
+        payload = load_core_json_artifact(store, ArtifactID(artifact_id))
     except (AttributeError, FileNotFoundError, OSError, TypeError, ValueError):
         return None
     return _mapping(payload)

@@ -9,7 +9,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.ic_verification import (
     ICVerificationCertificateRef,
@@ -407,6 +406,7 @@ def phase3_gate_reference_blockers(
     gate: Phase3CertificateStatus | Mapping[str, Any] | None,
 ) -> list[str]:
     """Revalidate embedded Phase 3 refs before final recommendation assembly."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     if gate is None:
         return list(Phase3CertificateStatus.missing().blocking_reasons)
@@ -450,7 +450,7 @@ def phase3_gate_reference_blockers(
         else:
             try:
                 SemanticICCertificate.model_validate(
-                    from_canonical_bytes(store.get_bytes(status.semantic_ic_certificate_ref))
+                    load_core_json_artifact(store, status.semantic_ic_certificate_ref)
                 )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
                 blockers.append(_PHASE3_BLOCK_MECHANISM_CERTIFICATE_MISSING)
@@ -552,6 +552,7 @@ def _resolve_candidate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> PolicyCandidateSchema | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     payload = state.params.get("policy_candidate_schema")
     if isinstance(payload, dict):
         try:
@@ -573,7 +574,7 @@ def _resolve_candidate(
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+        payload = load_core_json_artifact(ctx.store, trinity_ref)
         return PolicyCandidateSchema.from_trinity_bundle(
             TrinityBundle.model_validate(payload),
             candidate_id=str(state.params.get("policy_candidate_id") or state.run_id),
@@ -586,6 +587,7 @@ def _resolve_welfare_bundle_ref(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> WelfareBundleRef | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = _coerce_ref(state.artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF), WelfareBundleRef)
     if ref is not None:
         return ref
@@ -593,7 +595,7 @@ def _resolve_welfare_bundle_ref(
     if sim_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(sim_ref))
+        payload = load_core_json_artifact(ctx.store, sim_ref)
         result = SimulationResult.model_validate(payload)
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
@@ -868,6 +870,7 @@ def _mechanism_family_unsupported(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> bool:
+    from polisyos.core.artifacts import load_core_json_artifact
     if (
         _pick_first_ref(
             state.artifacts_index,
@@ -895,7 +898,7 @@ def _mechanism_family_unsupported(
     for ref in report_refs:
         try:
             report = ICVerificationReport.model_validate(
-                from_canonical_bytes(ctx.store.get_bytes(ref))
+                load_core_json_artifact(ctx.store, ref)
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             continue
@@ -1064,8 +1067,9 @@ def _coerce_ref(value: Any, ref_cls):
 
 
 def _load_json_mapping(ctx: ExecutionContext, ref: ArtifactRef) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        payload = load_core_json_artifact(ctx.store, ref)
     except (OSError, RuntimeError, TypeError, ValueError):
         return None
     if isinstance(payload, Mapping):

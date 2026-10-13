@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import GraphHypothesisRef
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicConstraintReport,
@@ -606,7 +606,8 @@ def load_graph_hypothesis(
 ) -> GraphHypothesis:
     """Load a version-bound current hypothesis or an exact historical 1.0 candidate."""
     manifest = store.get_manifest(ref)
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     stored_version = _validate_graph_hypothesis_artifact_binding(ref, manifest, payload)
     hypothesis = GraphHypothesis.model_validate(payload)
     if stored_version == GRAPH_HYPOTHESIS_SCHEMA_VERSION:

@@ -206,7 +206,26 @@ def _d5_release_fixture(tmp_path: Path) -> tuple[Path, Path, Path, Path]:
     method_contract.write_text("{}\n", encoding="utf-8")
     d4_request = build_root / "calibration" / "d4" / "d4_governance_request.json"
     d4_request.parent.mkdir(parents=True)
-    d4_request.write_text('{"candidate": true}\n', encoding="utf-8")
+    d4_request.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.data_forge.ukraine.d4_governance_request.v1",
+                "authority_purpose": "producer_governance_handoff",
+                "may_not_use_for": [
+                    "governance_admissibility",
+                    "release_acceptance",
+                    "legal_intervention_compilation",
+                    "method_validity",
+                ],
+                "required_stage_manifests": {
+                    "d0_p0": "build_run_d0_p0.json",
+                    "d2": "build_run_d2.json",
+                    "d3": "build_run_d3.json",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     compression = release_root / "graph_compression_bundle.json"
     compression.write_text(
         json.dumps(
@@ -301,6 +320,36 @@ def _install_admissible_d4_result(
     d4_request = build_root / "calibration" / "d4" / "d4_governance_request.json"
     d4_manifest = build_root / "manifests" / "build_run_d4.json"
     d4_manifest.parent.mkdir(parents=True, exist_ok=True)
+    config = build_default_pipeline_config(root=build_root)
+    d0_dir = config.build_root.runtime_dir / "d0_p0"
+    d0_dir.mkdir(parents=True, exist_ok=True)
+    cohort_path = d0_dir / "identity_resolution_cohort_v1.json"
+    cohort_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
+                "rows": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    _write_completed_stage_manifest(
+        config,
+        stage_id=StageId.D0_P0,
+        outputs=[ArtifactRecord.from_path(cohort_path)],
+    )
+    d2_dir = config.build_root.calibration_dir / "d2"
+    d2_dir.mkdir(parents=True, exist_ok=True)
+    splits_path = d2_dir / "calibration_splits.json"
+    splits_path.write_text(
+        json.dumps({"validation": {"start": "2024-01-01", "end": "2024-12-31"}}),
+        encoding="utf-8",
+    )
+    _write_completed_stage_manifest(
+        config,
+        stage_id=StageId.D2,
+        outputs=[ArtifactRecord.from_path(splits_path)],
+    )
     write_manifest(
         d4_manifest,
         BuildRunManifest(
@@ -315,6 +364,20 @@ def _install_admissible_d4_result(
 
     def _admissible_d4(*, build_root, d4_manifest_path, cas_root):
         store = blueprint_release.FileSystemCAS(cas_root)
+        d0_receipt = blueprint_release.load_verified_stage_artifacts(
+            build_root / "manifests" / "build_run_d0_p0.json",
+            store=store,
+            allowed_root=build_root,
+            expected_stage="d0_p0",
+            required_outputs=("identity_resolution_cohort_v1.json",),
+        )
+        d2_receipt = blueprint_release.load_verified_stage_artifacts(
+            build_root / "manifests" / "build_run_d2.json",
+            store=store,
+            allowed_root=build_root,
+            expected_stage="d2",
+            required_outputs=("calibration_splits.json",),
+        )
         receipt = blueprint_release.load_verified_stage_artifacts(
             d4_manifest_path,
             store=store,
@@ -322,7 +385,11 @@ def _install_admissible_d4_result(
             expected_stage="d4",
             required_outputs=("d4_governance_request.json",),
         )
-        receipt_ref = blueprint_release._persist_verified_stage_receipt(store, receipt)
+        receipt_refs = {
+            "d0_p0": blueprint_release._persist_verified_stage_receipt(store, d0_receipt),
+            "d2": blueprint_release._persist_verified_stage_receipt(store, d2_receipt),
+            "d4": blueprint_release._persist_verified_stage_receipt(store, receipt),
+        }
         candidate_ref = store.put_json(
             {"candidate_id": "d4-release-candidate"},
             blueprint_release.PutOptions(
@@ -347,7 +414,20 @@ def _install_admissible_d4_result(
             status="completed",
             leaderboard_entry=leaderboard,
             metadata={
-                "producer_receipt_refs": {"d4": str(receipt_ref.artifact_id)},
+                "producer_receipt_refs": {
+                    name: ref.model_dump(mode="json") for name, ref in receipt_refs.items()
+                },
+                "ukraine_json_snapshot_profile_reads": [
+                    {
+                        "consumer_contract": consumer_contract,
+                        "profile_status": "declared_bytes_conformant",
+                    }
+                    for consumer_contract in (
+                        "scientist.d4.governance_request",
+                        "scientist.d4.identity_resolution_cohort",
+                        "scientist.d4.calibration_splits",
+                    )
+                ],
             },
         )
         bundle_ref = persist_calibration_validation_bundle(store, bundle)
@@ -609,7 +689,7 @@ def test_verified_ukraine_d4_bridge_rejects_content_drift_before_governance(tmp_
         )
 
 
-def test_verified_ukraine_d5_release_consumes_cas_and_emits_scientist_decision(
+def test_verified_ukraine_d5_release_recomputes_profileless_snapshot_refusals(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -635,9 +715,9 @@ def test_verified_ukraine_d5_release_consumes_cas_and_emits_scientist_decision(
         cas_root=build_root / "cas",
     )
 
-    assert report.passed is True
-    assert report.governance_verdict == "approve"
-    assert report.release_admissibility_status == "admissible"
+    assert report.passed is False
+    assert report.governance_verdict == "reject"
+    assert report.release_admissibility_status == "blocked"
     assert report.admission_receipt_ref
     assert report.predicate_receipt_ref
     assert report.foundry_receipt_ref
@@ -645,20 +725,34 @@ def test_verified_ukraine_d5_release_consumes_cas_and_emits_scientist_decision(
     assert report.packet_ref
     store = blueprint_release.FileSystemCAS(build_root / "cas")
     postflight = json.loads(store.get_bytes(report.postflight_receipt_ref))
-    assert postflight["status"] == "admissible"
+    assert postflight["status"] == "blocked"
     assert postflight["predicate_provenance"] == "recomputed"
     predicates = json.loads(store.get_bytes(report.predicate_receipt_ref))
     assert predicates["manifest_no_errors_provenance"] == "recomputed"
     assert predicates["compression_predicate_provenance"] == "independently_reconciled"
-    assert predicates["d4_predicate_provenance"] == "independently_reconciled"
-    assert predicates["d4_status"] == "admissible"
+    assert predicates["d4_predicate_provenance"] == "not_established"
+    assert predicates["d4_status"] == "not_established"
+    assert predicates["manifest_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    assert predicates["compression_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    assert predicates["handoff_snapshot_profile_status"] == "profile_absent_raw_snapshot_candidate"
+    assert predicates["json_snapshot_profile_conformance_provenance"] == "not_established"
+    assert set(predicates["d4_source_json_snapshot_profile_statuses"]) == {
+        "scientist.d4.governance_request",
+        "scientist.d4.identity_resolution_cohort",
+        "scientist.d4.calibration_splits",
+        "scientist.d5.d4_governance_request_evidence",
+    }
+    assert all(
+        status == "profile_absent_raw_snapshot_candidate"
+        for status in predicates["d4_source_json_snapshot_profile_statuses"].values()
+    )
     packet = json.loads(store.get_bytes(report.packet_ref))
     decision_packet = blueprint_release.ReleaseDecisionPacket.model_validate(packet)
     assert packet["admission_receipt_ref"] == report.admission_receipt_ref
     assert packet["predicate_receipt_ref"] == report.predicate_receipt_ref
     assert packet["foundry_receipt_ref"] == report.foundry_receipt_ref
     assert packet["postflight_receipt_ref"] == report.postflight_receipt_ref
-    assert packet["decision"] == "admissible"
+    assert packet["decision"] == "blocked"
     assert decision_packet.authoritative_for == ("release_admissibility",)
     assert decision_packet.may_not_use_for == (
         "publication_authorization",

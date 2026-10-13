@@ -30,7 +30,6 @@ from pydantic import (
 )
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.core import canon as core_canon
 from polisyos.core import contracts as core_contracts
 from polisyos.data_forge.read_api import catalog as catalog_api
 from polisyos.fabric.retrieval.providers import RetrievalProviders  # noqa: TC001
@@ -912,13 +911,14 @@ class N9PromotionEvidenceBridgeRepository:
         envelope: ArtifactEnvelope,
     ) -> ArtifactRef:
         """Resolve a real MeasurementRoot envelope before binding it to N9."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         resolved_envelope = self._resolve_measurement_envelope(envelope.payload_ref)
         if envelope != resolved_envelope:
             raise ValueError("measurement_root_envelope_binding_invalid")
         root = resolved_envelope.producer_roots[0]
-        payload = core_canon.from_canonical_bytes(
-            self._store.get_bytes(core_artifacts.ArtifactID(envelope.payload_ref))
+        payload = load_core_json_artifact(
+            self._store, core_artifacts.ArtifactID(envelope.payload_ref)
         )
         problem = DesignProblem.model_validate(payload["design_problem"])
         if N9DesignProblemBinding.from_problem(problem) != promotion_input.design_problem_binding:
@@ -1163,11 +1163,14 @@ class N9PromotionEvidenceBridgeRepository:
         An absent marker is retained as unknown, never asserted to establish a
         real source. Existing evidence owners still decide the source outcome.
         """
+        from polisyos.core.artifacts import load_core_json_artifact
         raw = self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
         if _raw_hash(raw) != source_artifact_id or not self._store.verify(source_artifact_id).ok:
             raise ValueError("promotion_evidence_source_content_mismatch")
         return _synthetic_evidence_payload(
-            core_canon.from_canonical_bytes(raw),
+            load_core_json_artifact(
+                self._store, core_artifacts.ArtifactID(source_artifact_id), raw_payload_bytes=raw
+            ),
             promotion_input,
         )
 
@@ -1357,12 +1360,12 @@ class N9PromotionEvidenceBridgeRepository:
         source_artifact_id: str,
         source_root_ref: ArtifactRef | None,
     ) -> tuple[dict[str, Any], ArtifactRef]:
+        from polisyos.core.artifacts import load_core_json_artifact
         envelope = self._resolve_measurement_envelope(source_artifact_id)
         if envelope.producer_roots != [source_root_ref]:
             raise ValueError("measurement_root_source_projection_mismatch")
-        payload = core_canon.from_canonical_bytes(
-            self._store.get_bytes(core_artifacts.ArtifactID(source_artifact_id))
-        )
+        selector = source_root_ref or core_artifacts.ArtifactID(source_artifact_id)
+        payload = load_core_json_artifact(self._store, selector)
         return payload, envelope.producer_roots[0]
 
     def _resolve_measurement_source_v1_history(
@@ -1371,6 +1374,7 @@ class N9PromotionEvidenceBridgeRepository:
         source_artifact_id: str,
         source_root_ref: ArtifactRef | None,
     ) -> tuple[dict[str, Any], ArtifactRef]:
+        from polisyos.core.artifacts import load_core_json_artifact
         if source_root_ref is None or source_root_ref.artifact_type != "MeasurementRoot":
             raise ValueError("measurement_root_source_ref_missing")
         artifact_id = core_artifacts.ArtifactID(source_artifact_id)
@@ -1442,7 +1446,12 @@ class N9PromotionEvidenceBridgeRepository:
                 or linked_manifest.integrity.sha256 != linked_id.hex
             ):
                 raise ValueError("measurement_root_authority_linkage_invalid")
-        payload = json.loads(raw)
+        payload = load_core_json_artifact(
+            self._store,
+            source_root_ref,
+            raw_payload_bytes=raw,
+            manifest_profile_sha256=core_artifacts.artifact_manifest_profile_sha256(manifest),
+        )
         if not isinstance(payload, dict):
             raise TypeError("measurement_root_payload_invalid")
         rows = payload.get("measurement_rows")

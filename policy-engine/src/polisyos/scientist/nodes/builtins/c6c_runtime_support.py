@@ -13,7 +13,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     LoweredIR,
     LoweredIRRef,
@@ -774,12 +774,13 @@ def _load_lowered_ir(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> LoweredIR | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     raw_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
     if raw_ref is None:
         return None
     try:
         ref = LoweredIRRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        payload = load_core_json_artifact(ctx.store, ref)
         return LoweredIR.model_validate(payload)
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(
@@ -795,12 +796,13 @@ def _load_program_graph(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> ProgramGraph | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     raw_ref = state.artifacts_index.get(ARTIFACT_PROGRAM_GRAPH_REF)
     if raw_ref is None:
         return None
     try:
         ref = ProgramGraphRef.model_validate(raw_ref.model_dump(mode="json"))
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        payload = load_core_json_artifact(ctx.store, ref)
         return ProgramGraph.model_validate(payload)
     except _RUNTIME_SUPPORT_LOAD_ERRORS as exc:
         _runtime_support_degraded(

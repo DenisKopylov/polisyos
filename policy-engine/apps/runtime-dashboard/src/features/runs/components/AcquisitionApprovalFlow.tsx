@@ -1,14 +1,14 @@
 import { onlineManager } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import type {
-  AcquisitionDecisionRequestResponse,
-  AcquisitionExecutionResponse,
-  AcquisitionRouteMutationRequest,
-} from "@polisyos/runtime-api-client";
+import type { AcquisitionRouteMutationRequest } from "@polisyos/runtime-api-client";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useControlJobStatus } from "@/api/hooks/useControlJobStatus";
-import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
+import type {
+  AcquisitionDecisionRequestResponseCurrent,
+  AcquisitionExecutionResponseCurrent,
+  AcquisitionRouteProjection,
+} from "@/features/runs/api/acquisitionRouteValidators";
 import {
   executeAcquisitionRoute,
   requestAcquisitionDecision,
@@ -132,12 +132,12 @@ export function AcquisitionApprovalFlow({
   const gateQuery = useHumanDecisionGate(route.run_id, location.search);
   const createDecision = useCreateHumanDecision(route.run_id);
   const [decision, setDecision] =
-    useState<AcquisitionDecisionRequestResponse | null>(null);
+    useState<AcquisitionDecisionRequestResponseCurrent | null>(null);
   const [humanDecision, setHumanDecision] = useState<Awaited<
     ReturnType<typeof createDecision.mutateAsync>
   > | null>(null);
   const [execution, setExecution] =
-    useState<AcquisitionExecutionResponse | null>(null);
+    useState<AcquisitionExecutionResponseCurrent | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const actionInFlight = useRef(false);

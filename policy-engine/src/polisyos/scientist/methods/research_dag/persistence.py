@@ -7,7 +7,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.research_dag.models import ResearchDAGArtifact
 
 RESEARCH_DAG_KIND = "scientist.research_dag"
@@ -75,8 +75,9 @@ def persist_research_dag(
 
 def load_research_dag(store: Any, ref: ArtifactRef) -> ResearchDAGArtifact:
     """Load a persisted research DAG from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return ResearchDAGArtifact.model_validate(payload)
 
 

@@ -693,6 +693,133 @@ def test_ordered_recovery_missingness_kind_in_factors():
     assert x_factor.proxy_variable == "X_star"
 
 
+def test_mgraph_internal_profiles_follow_resolved_endpoint_marks(monkeypatch) -> None:
+    import polisyos.foundry.methods.catalog.causal.recoverability_engine as recovery_module
+    from polisyos.foundry.methods.catalog.causal import admg_ops
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        RecoverabilityStatus,
+        _project_to_base_dag,
+        test_recoverability,
+    )
+
+    directed = make_mcar_mgraph()
+    directed_meta = extract_mgraph_metadata(directed)
+    directed_result = test_recoverability(
+        query_vars=frozenset({"X"}), graph=directed, mgraph_meta=directed_meta
+    )
+    assert directed_result.status is RecoverabilityStatus.RECOVERABLE
+    assert _project_to_base_dag(directed, directed_meta).graph_type is GraphType.DAG
+
+    reversed_edges = [
+        CausalEdge(
+            src="Y",
+            dst="X",
+            mark_src=EdgeMark.ARROW,
+            mark_dst=EdgeMark.TAIL,
+        )
+        if edge.src == "X" and edge.dst == "Y"
+        else edge
+        for edge in directed.edges
+    ]
+    reverse_stored = CausalGraphModel(
+        graph_type=GraphType.MGRAPH,
+        nodes=list(directed.nodes),
+        edges=reversed_edges,
+        discovery_method=directed.discovery_method,
+        metadata=dict(directed.metadata),
+    )
+    reverse_meta = extract_mgraph_metadata(reverse_stored)
+    reverse_profile = _project_to_base_dag(reverse_stored, reverse_meta)
+    assert reverse_profile.graph_type is GraphType.ADMG
+    assert admg_ops.extract_directed_edges(reverse_profile) == frozenset({("X", "Y")})
+    assert test_recoverability(
+        query_vars=frozenset({"X"}), graph=reverse_stored, mgraph_meta=reverse_meta
+    ).status is RecoverabilityStatus.RECOVERABLE
+
+    confounded = make_confounded_mcar_mgraph()
+    confounded_meta = extract_mgraph_metadata(confounded)
+    confounded_profile = _project_to_base_dag(confounded, confounded_meta)
+    assert confounded_profile.graph_type is GraphType.ADMG
+    assert admg_ops.extract_bidirected_edges(confounded_profile) == frozenset(
+        {frozenset({"X", "Y"})}
+    )
+    assert test_recoverability(
+        query_vars=frozenset({"X"}), graph=confounded, mgraph_meta=confounded_meta
+    ).status is RecoverabilityStatus.RECOVERABLE
+
+    # Removing the endpoint-derived type premise routes the same resolved input
+    # through the forbidden PAG boundary, which must still refuse it.
+    monkeypatch.setattr(
+        recovery_module,
+        "_resolved_static_graph_type",
+        lambda _edges: GraphType.PAG,
+    )
+    with pytest.raises(admg_ops.PartialGraphCompletionSemanticsError):
+        test_recoverability(
+            query_vars=frozenset({"X"}), graph=directed, mgraph_meta=directed_meta
+        )
+
+
+@pytest.mark.parametrize(
+    ("mark_src", "mark_dst"),
+    [
+        (EdgeMark.TAIL, EdgeMark.TAIL),
+        (EdgeMark.TAIL, EdgeMark.CIRCLE),
+        (EdgeMark.ARROW, EdgeMark.CIRCLE),
+        (EdgeMark.CIRCLE, EdgeMark.TAIL),
+        (EdgeMark.CIRCLE, EdgeMark.ARROW),
+        (EdgeMark.CIRCLE, EdgeMark.CIRCLE),
+    ],
+)
+def test_mgraph_recoverability_refuses_unresolved_internal_endpoints(
+    mark_src: EdgeMark, mark_dst: EdgeMark
+) -> None:
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        UnsupportedStaticADMGProfileError,
+    )
+    from polisyos.foundry.methods.catalog.causal.recoverability_engine import (
+        test_recoverability,
+    )
+
+    source = make_mcar_mgraph()
+    edges = [
+        CausalEdge(
+            src=edge.src,
+            dst=edge.dst,
+            mark_src=mark_src,
+            mark_dst=mark_dst,
+            lag=edge.lag,
+            sources=list(edge.sources),
+            data_confidence=edge.data_confidence,
+            literature_confidence=edge.literature_confidence,
+            llm_confidence=edge.llm_confidence,
+            expert_confidence=edge.expert_confidence,
+            simulation_confidence=edge.simulation_confidence,
+            combined_confidence=edge.combined_confidence,
+            unsupported_by_evidence=edge.unsupported_by_evidence,
+            evidence_refs=list(edge.evidence_refs),
+            p_value=edge.p_value,
+            metadata=dict(edge.metadata),
+        )
+        if edge.src == "X" and edge.dst == "Y"
+        else edge
+        for edge in source.edges
+    ]
+    malformed = CausalGraphModel(
+        graph_type=GraphType.MGRAPH,
+        nodes=list(source.nodes),
+        edges=edges,
+        discovery_method=source.discovery_method,
+        metadata=dict(source.metadata),
+    )
+    with pytest.raises(UnsupportedStaticADMGProfileError, match="unresolved endpoint marks"):
+        test_recoverability(
+            query_vars=frozenset({"X"}),
+            graph=malformed,
+            mgraph_meta=extract_mgraph_metadata(malformed),
+        )
+
+
 # ---------------------------------------------------------------------------
 # T11: full_law_identify with MCAR simple graph → IDENTIFIED
 # ---------------------------------------------------------------------------

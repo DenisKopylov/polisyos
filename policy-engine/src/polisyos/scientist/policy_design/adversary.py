@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
 from polisyos.scientist.methods.backtesting.adversarial import AdversarialGenerator
 from polisyos.scientist.methods.doe.designs import (
@@ -371,7 +371,8 @@ def load_adversarial_scenario_bundle(
     ref: ArtifactRef,
 ) -> AdversarialScenarioBundle:
     """Load adversarial scenario bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return AdversarialScenarioBundle.model_validate(payload)
 
 

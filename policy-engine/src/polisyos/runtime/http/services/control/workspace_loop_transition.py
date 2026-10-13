@@ -8,6 +8,10 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.security import TenantContextNotSetError
 from polisyos.pdc import (
@@ -1444,9 +1448,8 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         expected_kind: str,
     ) -> tuple[ArtifactManifest, Mapping[str, Any]]:
         """Admit one workflow input using its exact selected CAS view."""
-        from polisyos.core.canon import from_canonical_bytes
 
-        manifest = self._artifact_store.get_manifest(artifact_ref)
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_ref)[0]
         if manifest.kind != expected_kind:
             raise ValueError("workspace_loop_input_kind_mismatch")
         if manifest.media_type != artifact_ref.media_type:
@@ -1461,7 +1464,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
         verification = self._artifact_store.verify(artifact_ref)
         if not verification.ok:
             raise ValueError("workspace_loop_input_integrity_failed")
-        payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_ref))
+        payload = read_core_json_artifact(self._artifact_store, artifact_ref).value
         if not isinstance(payload, Mapping):
             raise ValueError("workspace_loop_input_payload_invalid")
         return manifest, payload

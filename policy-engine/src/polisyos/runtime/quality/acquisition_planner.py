@@ -4298,8 +4298,9 @@ def load_acquisition_planner_report(
     ref: artifacts.ArtifactRef,
 ) -> AcquisitionPlannerReport:
     """Load a persisted acquisition planner report from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return AcquisitionPlannerReport.model_validate(payload)
 
 

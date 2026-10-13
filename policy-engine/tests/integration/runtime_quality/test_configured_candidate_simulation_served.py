@@ -1000,6 +1000,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             artifact_ref_identity_key(observation.simulation_result_ref)
         )
         assert "simulation_only_k_sim_not_world_evidence" in (served_observation.authority_blockers)
+        assert "simulation_effect_basis_not_established" in (
+            served_observation.authority_blockers
+        )
 
         assert input_record.authority_purpose == "candidate_scenario_n5_only"
         assert isinstance(input_record.n4_source_ref, ArtifactRef)
@@ -1277,6 +1280,14 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             run_id=str(completed.run_id),
         )
         assert n5_result.uncertainty_kind == "K_sim"
+        assert n5_result.diagnostics["effect_basis_status"] == "not_established"
+        assert n5_result.diagnostics["effect_basis"] == (
+            "outcome_minus_request_baseline_state"
+        )
+        assert n5_result.diagnostics["comparator_refs_status"] == "not_established"
+        assert "simulation_effect_basis_not_established" in (
+            n5_result.promotion_ready_value_packet["authority_blockers"]
+        )
         assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
         effects = [
             point.effect[outcome_variable]
@@ -1740,6 +1751,39 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert third_job.progress["n8_status"] == "not_run"
         assert third_job.progress["n9_status"] == "not_admitted"
         assert third_job.progress["s8_status"] == "blocked"
+        scenario_read = third_job.progress["generation_source_read_provenance"]
+        selected_scenario_ref = third_job.progress["candidate_proposal_ref"]["artifact_ref"]
+        assert scenario_read["canon_read_status"] == "declared_bytes_conformant"
+        assert scenario_read["source_materialization"] == "reader_materialized"
+        assert scenario_read["producer_attestation_status"] == "not_established"
+        assert scenario_read["selected_artifact_id"] == selected_scenario_ref["artifact_id"]
+        assert scenario_read["selected_manifest_profile_sha256"] == selected_scenario_ref.get(
+            "manifest_profile_sha256"
+        )
+        assert scenario_read["read_trace"]
+        assert scenario_read["read_trace"][-1]["canon_read_status"] == (
+            scenario_read["canon_read_status"]
+        )
+        assert scenario_read["read_trace"][-1]["selected_artifact_id"] == (
+            selected_scenario_ref["artifact_id"]
+        )
+        terminal_events = service._control_store.list_diagnostic_events(
+            job_id=third_job.job_id
+        )
+        completed_event = next(
+            (
+                item
+                for item in terminal_events
+                if item.event.phase == "job_execution"
+                and item.event.state_after == "completed"
+                and item.payload_inline is not None
+                and item.payload_inline.get("candidate_proposal_ref")
+                == third_job.progress["candidate_proposal_ref"]
+            ),
+            None,
+        )
+        assert completed_event is not None
+        assert completed_event.payload_inline["generation_source_read_provenance"] == scenario_read
         assert len(n5_calls) == calls_before_nonmatch
         assert n8_owner_calls == []
         assert n9_owner_calls == []

@@ -20,6 +20,7 @@ This module provides:
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -222,6 +223,8 @@ class _SelectedViewStore(Protocol):
 
     def get_manifest(self, artifact_id: object) -> object: ...
 
+    def get_manifest_bytes(self, artifact_id: object) -> bytes: ...
+
     def verify(self, artifact_id: object) -> object: ...
 
 
@@ -364,12 +367,29 @@ def persist_ncm_spec_selected_view(
     full selected ``InputRef`` values. This IR owner serializes the NCM and
     returns the exact ref from the store without normalizing it to an ID.
     """
+    from polisyos.ir.artifacts.contracts import CanonInfo as IRCanonInfo
+    from polisyos.ir.artifacts.io import _validated_ir_canon_info
     from polisyos.ir.model_layer.canon import to_canonical_bytes
+
+    canon_spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    declared = (
+        write_options.get("canon")
+        if isinstance(write_options, Mapping)
+        else getattr(write_options, "canon", None)
+    )
+    model_dump = getattr(declared, "model_dump", None)
+    if callable(model_dump):
+        declared = model_dump(mode="python")
+    if not isinstance(declared, Mapping):
+        raise ValueError("ncm_selected_view_canon_profile_required")
+    profile = _validated_ir_canon_info(declared)
+    if profile != IRCanonInfo.from_spec(canon_spec):
+        raise ValueError("ncm_selected_view_canon_profile_mismatch")
 
     checked = NCMSpec.model_validate(ncm_spec.model_dump(mode="python"))
     body = to_canonical_bytes(
         checked.model_dump(mode="json"),
-        CanonSpec(forbid_floats=False, exclude_none=False),
+        canon_spec,
     )
     ref = store.put_bytes(body, write_options)
     if (
@@ -402,6 +422,9 @@ def load_ncm_spec_selected_view(
     verification = store.verify(ref)
     if getattr(verification, "ok", False) is not True:
         raise ValueError("ncm_selected_view_integrity_failed")
+    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
+
+    payload, body = _get_json_artifact_with_bytes(store, ref)
     manifest = store.get_manifest(ref)
     schema = getattr(manifest, "artifact_schema", None)
     tenant_context = getattr(manifest, "tenant_context", None)
@@ -425,12 +448,8 @@ def load_ncm_spec_selected_view(
         != expected_declaration_ref.manifest_profile_sha256
     ):
         raise ValueError("ncm_selected_view_declaration_lineage_mismatch")
-    body = store.get_bytes(ref)
     if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
         raise ValueError("ncm_selected_view_content_mismatch")
-    from polisyos.ir.model_layer.canon import from_canonical_bytes
-
-    payload = from_canonical_bytes(body)
     return NCMSpec.model_validate(payload)
 
 

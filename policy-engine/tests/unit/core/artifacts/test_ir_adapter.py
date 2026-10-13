@@ -726,6 +726,29 @@ def test_ir_reader_accepts_raw_canonical_manifest_bytes_without_byte_mutation(tm
     assert core_store.get_bytes(ref.artifact_id) == persisted_bytes
 
 
+
+def test_ir_raw_only_reader_refuses_unresolvable_profiled_selector_before_payload(tmp_path) -> None:
+    """ID-only raw reads remain supported; a full selected view cannot be downgraded."""
+    core_store = FileSystemCAS(tmp_path / ".polisyos")
+    ir_store = _ensure_ir_artifact_store(core_store)
+    ref_payload = put_json_artifact(
+        ir_store,
+        {"amount": Decimal("12.30")},
+        kind="test.ir-reader-selected-ref",
+        schema_name="test.ir-reader-selected-ref",
+        schema_version="1.0",
+        return_selected_profile=True,
+    )
+    ref = CoreArtifactRef.model_validate(ref_payload)
+    manifest = core_store.get_manifest_bytes(ref)
+    reader = _RawManifestReader(core_store, manifest)
+
+    with pytest.raises(IRCanonViolation, match="ir_artifact_selected_manifest_unavailable"):
+        get_json_artifact(_ensure_ir_artifact_store(reader), ref)
+    assert reader.manifest_reads == 1
+    assert reader.byte_reads == 0
+
+
 def test_ir_reader_uses_nondefault_persisted_depth_through_existing_g_producer(tmp_path) -> None:
     """A depth-129 Mapping is read using the persisted supported profile."""
     core_store = FileSystemCAS(tmp_path / ".polisyos")
@@ -846,14 +869,18 @@ def test_default_ir_artifact_reopens_as_typed_backtest_report(tmp_path) -> None:
     ref = persist_backtest_report(ensure_ir_artifact_store(FileSystemCAS(root)), report)
     fresh = FileSystemCAS(root)
     exact_bytes = fresh.get_bytes(str(ref.artifact_id))
-    reader = _RawManifestReader(fresh, fresh.get_manifest_bytes(str(ref.artifact_id)))
+    fresh_ir_store = _ensure_ir_artifact_store(fresh)
+    assert ref.manifest_profile_sha256 is not None
+    selected_manifest = fresh_ir_store.get_manifest(ref)
+    assert selected_manifest.canon == CoreCanonInfo.from_spec(
+        CoreCanonSpec(forbid_floats=False)
+    )
 
-    loaded = load_backtest_report(_ensure_ir_artifact_store(reader), ref)
+    loaded = load_backtest_report(fresh_ir_store, ref)
 
     assert isinstance(loaded, BacktestReport)
     assert loaded.report_id == report.report_id
     assert loaded.n_scenarios == 0
-    assert reader.manifest_reads == reader.byte_reads == 1
     assert fresh.get_bytes(str(ref.artifact_id)) == exact_bytes
 
 

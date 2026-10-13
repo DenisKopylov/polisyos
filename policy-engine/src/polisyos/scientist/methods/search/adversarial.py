@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef
 from polisyos.ir.world.ids import stable_world_id_from_canon
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
@@ -827,7 +827,8 @@ def load_platform_meta_evaluation_report(
     ref: PlatformMetaEvaluationReportRef | ArtifactRef,
 ) -> PlatformMetaEvaluationReport:
     """Load platform meta evaluation report."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return PlatformMetaEvaluationReport.model_validate(payload)
 
 

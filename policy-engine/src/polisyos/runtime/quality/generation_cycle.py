@@ -61,6 +61,10 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactTenantContextInfo,
     artifact_ref_identity_key,
@@ -315,6 +319,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
 _SIMULATION_AUTHORITY_LIMITATIONS = frozenset(
     {
         "simulation_only_k_sim_not_world_evidence",
+        "simulation_effect_basis_not_established",
         *WORLD_STATE_CONSUMPTION_AUTHORITY_LIMITATIONS,
     }
 )
@@ -1153,7 +1158,7 @@ def load_joint_simulation_result(
     ):
         _joint_simulation_result_integrity_error("artifact_reference_contract_mismatch")
     try:
-        manifest = store.get_manifest(resolved_ref)
+        manifest = read_core_manifest_profile(store, resolved_ref)[0]
     except (FileNotFoundError, ArtifactOwnershipError) as exc:
         raise GenerationCycleError(
             "joint_simulation_result_unavailable",
@@ -1217,7 +1222,11 @@ def load_joint_simulation_result(
     ):
         _joint_simulation_result_integrity_error("CAS artifact integrity invalid")
     try:
-        payload = from_canonical_bytes(payload_bytes)
+        payload = read_core_json_artifact(
+            store,
+            resolved_ref,
+            raw_payload_bytes=payload_bytes,
+        ).value
     except (TypeError, ValueError) as exc:
         _joint_simulation_result_integrity_error("artifact_payload_not_canonical", exc)
     if not isinstance(payload, Mapping):
@@ -3645,6 +3654,7 @@ class JointSimulationPort:
         plan: EnginePlan,
     ) -> tuple[EnginePlan, WorldStateConsumptionRecord]:
         """Bind one selectable graph plan to the WMR through the tenant store."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         if self._artifact_store is None:
             raise WorldModelRecordError("n5_runtime_store_not_established")
@@ -3721,12 +3731,12 @@ class JointSimulationPort:
         ):
             raise WorldModelRecordError("n5_program_artifact_profile_invalid")
         loaded_graph = ProgramGraph.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(graph_ref))
+            load_core_json_artifact(self._artifact_store, graph_ref)
         )
         if loaded_graph.schema_version != "0.2":
             raise WorldModelRecordError("n5_program_graph_payload_version_invalid")
         loaded_plan = ExecPlan.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(exec_plan_ref))
+            load_core_json_artifact(self._artifact_store, exec_plan_ref)
         )
         if loaded_plan.program_ref != graph_ref:
             raise WorldModelRecordError("n5_exec_plan_program_graph_mismatch")
@@ -3804,7 +3814,7 @@ class JointSimulationPort:
         if not self._artifact_store.verify(snapshot_ref).ok:
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
         snapshot = StateSnapshot.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(snapshot_ref))
+            load_core_json_artifact(self._artifact_store, snapshot_ref)
         )
         supported_snapshot_schemas = {"2.1": "2.1.0", "2.2": "2.2.0"}
         expected_snapshot_schema = supported_snapshot_schemas.get(snapshot.schema_version)
@@ -6276,6 +6286,7 @@ def _generic_n5_observation_refusal(
     artifact_store: ArtifactStore,
 ) -> str | None:
     """Reconcile a generic N5 observation with its persisted input/execution."""
+    from polisyos.core.artifacts import load_core_json_artifact
     generic_refs = (
         simulation.generic_n4_source_ref,
         simulation.generic_context_job_ref,
@@ -6307,11 +6318,11 @@ def _generic_n5_observation_refusal(
 
         owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=artifact_store)
         execution = parse_generic_cycle_simulation_n5_execution(
-            from_canonical_bytes(artifact_store.get_bytes(execution_ref))
+            load_core_json_artifact(artifact_store, execution_ref)
         )
         owner.resolve_n5_execution(execution_ref, expected=execution)
         input_record = GenericCycleSimulationN5InputV1.model_validate(
-            from_canonical_bytes(artifact_store.get_bytes(input_ref))
+            load_core_json_artifact(artifact_store, input_ref)
         )
         owner.resolve_n5_input(input_ref, expected=input_record)
     except (
@@ -8242,8 +8253,8 @@ class GenerationCycleController:
         canonical measurement-root resolver as an additional replay check;
         the strict CAS checks remain the bounded offline contract.
         """
-
         from polisyos.core import artifacts
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.fabric import FabricFetchReceipt
         from polisyos.runtime.quality.data_forge_binding import (
             FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
@@ -8268,7 +8279,11 @@ class GenerationCycleController:
                 raise ValueError("measurement root envelope identity mismatch")
 
             payload_raw = store.get_bytes(measurement_payload_ref)
-            payload = FabricMeasurementRootPayload.model_validate(from_canonical_bytes(payload_raw))
+            payload = FabricMeasurementRootPayload.model_validate(
+                load_core_json_artifact(
+                    store, measurement_payload_ref, raw_payload_bytes=payload_raw
+                )
+            )
             if payload.design_problem.model_dump(mode="json") != problem.model_dump(mode="json"):
                 raise ValueError("measurement root design problem is not the active problem")
             from polisyos.data_requirement import DataRequirementSpec
@@ -8375,7 +8390,7 @@ class GenerationCycleController:
                 raise ValueError("measurement_root_authority_envelope_integrity_invalid")
             store.get_manifest(authority_envelope_ref)
             emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-                from_canonical_bytes(store.get_bytes(authority_envelope_ref))
+                load_core_json_artifact(store, authority_envelope_ref)
             )
             opts, identity = _measurement_root_authority_configuration(
                 payload.model_dump(mode="json"),
@@ -8465,8 +8480,9 @@ class GenerationCycleController:
 
             from polisyos.core.contracts import DataSnapshot
 
-            snapshot_raw = store.get_bytes(data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(from_canonical_bytes(snapshot_raw))
+            snapshot = DataSnapshot.model_validate(
+                load_core_json_artifact(store, data_snapshot_ref)
+            )
             if snapshot.data_ref != payload.payload_ref or snapshot.stats.get("snapshot_id") != str(
                 payload.payload_ref.artifact_id
             ):
@@ -8566,8 +8582,8 @@ class GenerationCycleController:
         target_world_slots: tuple[str, ...],
     ) -> None:
         """Bind the loaded registry to this receipt's actual owner write."""
-
         from polisyos.core import artifacts
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.substrate_registry import (
             SubstrateRegistration,
             build_substrate_registry_entry,
@@ -8726,7 +8742,7 @@ class GenerationCycleController:
             from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
 
             root_payload_obj = FabricMeasurementRootPayload.model_validate(
-                from_canonical_bytes(store.get_bytes(artifacts.ArtifactID(root_payload_ref)))
+                load_core_json_artifact(store, artifacts.ArtifactID(root_payload_ref))
             )
             expected_registry_inputs.extend(
                 [
@@ -9828,6 +9844,7 @@ class GenerationCycleController:
         cycle_index: int,
     ) -> SimulationPortObservation:
         """Run N5 only from the exact persisted generic profile and N4 source."""
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import (
             cycle_job_design_problem_ref,
         )
@@ -9950,7 +9967,7 @@ class GenerationCycleController:
             )
 
             input_record = GenericCycleSimulationN5InputV1.model_validate(
-                from_canonical_bytes(self._artifact_store.get_bytes(input_ref))
+                load_core_json_artifact(self._artifact_store, input_ref)
             )
             if currentness() is not True:
                 raise ValueError("generic_cycle_simulation_worker_lease_not_current")
@@ -15814,9 +15831,6 @@ def _produce_value_owner_method_run_basis(
     from polisyos.ir.model_layer.canon import (
         CanonSpec as IRCanonSpec,
     )
-    from polisyos.ir.model_layer.canon import (
-        from_canonical_bytes as from_ir_canonical_bytes,
-    )
     from polisyos.runtime.quality.generation_cycle import (
         ValueOwnerMethodRunnerRequestV1,
     )
@@ -15875,9 +15889,13 @@ def _produce_value_owner_method_run_basis(
         return_selected_profile=True,
     )
     panel_ref = _value_artifact_ref(panel_ref_raw)
-    runner_input_bytes = ir_store.get_bytes(panel_ref.model_dump(mode="python"))
+    from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
+
+    panel_payload, runner_input_bytes = _get_json_artifact_with_bytes(
+        ir_store,
+        panel_ref.model_dump(mode="python"),
+    )
     input_sha256 = "sha256:" + hashlib.sha256(runner_input_bytes).hexdigest()
-    panel_payload = from_ir_canonical_bytes(runner_input_bytes)
     if not isinstance(panel_payload, Mapping):
         raise ValueError("value_owner_method_runner_input_invalid")
     from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData

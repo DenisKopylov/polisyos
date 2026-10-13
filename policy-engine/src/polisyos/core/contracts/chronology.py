@@ -981,6 +981,7 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
         owner_qualified_candidate: OwnerQualifiedNativeCandidate,
     ) -> PersistedApplicablePredicateDenominator | ApplicablePredicateDenominatorArtifactFailure:
         """Persist/reload an owner-qualified denominator through the live store."""
+        from polisyos.core.artifacts import load_core_json_frame_records
         denominator_hash = _denominator_content_hash(statement)
         candidate = owner_qualified_candidate.candidate
         owner_relation = owner_qualified_candidate.owner_relation_verification
@@ -1064,7 +1065,9 @@ class ChronologyApplicablePredicateDenominatorArtifacts:
             records = _split_framed_records(observed_bytes)
             if len(records) != 1:
                 raise ValueError("denominator artifact has the wrong frame count")
-            raw_reloaded = json.loads(records[0])
+            raw_reloaded = load_core_json_frame_records(
+                self._store, observed_ref, raw_payload_bytes=observed_bytes
+            )[0]
             if not isinstance(raw_reloaded, dict):
                 raise ValueError("denominator artifact is not a canonical mapping")
             if _canonical_raw_bytes(raw_reloaded) != records[0]:

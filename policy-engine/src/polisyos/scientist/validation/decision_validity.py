@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Concatenate, TypeVar, cast
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.timestamps import to_iso_utc, utc_now
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -1029,11 +1030,19 @@ class DecisionValidityService:
         try:
             report = self._store.verify(evidence.receipt_artifact_ref)
             raw = self._store.get_bytes(evidence.receipt_artifact_ref)
-            parsed = EpochValidityBatchReceipt.model_validate(from_canonical_bytes(raw))
+            parsed = EpochValidityBatchReceipt.model_validate(read_core_json_artifact(
+                                                                  self._store,
+                                                                  evidence.receipt_artifact_ref,
+                                                                  raw_payload_bytes=raw,
+                                                              ).value)
             completion_report = self._store.verify(parsed.completion_receipt_ref)
             completion_raw = self._store.get_bytes(parsed.completion_receipt_ref)
             completion = EpochValidityBatchCompletionStatement.model_validate(
-                from_canonical_bytes(completion_raw)
+                read_core_json_artifact(
+                    self._store,
+                    parsed.completion_receipt_ref,
+                    raw_payload_bytes=completion_raw,
+                ).value
             )
             transition_report = self._store.verify(parsed.transition_artifact_ref)
             transition_raw = self._store.get_bytes(parsed.transition_artifact_ref)
@@ -1434,7 +1443,11 @@ class DecisionValidityService:
             ):
                 raise ValueError("snapshot manifest mismatch")
             snapshot = DecisionValidityEpochImpactSnapshot.model_validate(
-                from_canonical_bytes(snapshot_bytes)
+                read_core_json_artifact(
+                    self._store,
+                    snapshot_ref,
+                    raw_payload_bytes=snapshot_bytes,
+                ).value
             )
             if (
                 to_canonical_bytes(
@@ -2260,13 +2273,13 @@ class DecisionValidityService:
 
     def _load_packet_payload(self, packet_ref: str) -> dict[str, Any]:
         artifact_id = ArtifactID.model_validate(packet_ref)
-        payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+        payload = read_core_json_artifact(self._store, artifact_id).value
         return payload if isinstance(payload, dict) else {}
 
     def _load_evaluation(self, evaluation_ref: str) -> DecisionValidityEvaluation | None:
         try:
             artifact_id = ArtifactID.model_validate(evaluation_ref)
-            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            payload = read_core_json_artifact(self._store, artifact_id).value
         except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS:
             return None
         if not isinstance(payload, dict):
@@ -2282,7 +2295,7 @@ class DecisionValidityService:
     ) -> DecisionMonitoringContract | None:
         try:
             artifact_id = ArtifactID.model_validate(monitoring_contract_ref)
-            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            payload = read_core_json_artifact(self._store, artifact_id).value
         except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS:
             return None
         if not isinstance(payload, dict):

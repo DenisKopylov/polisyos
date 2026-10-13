@@ -12,6 +12,10 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.control import DecisionValidityEventRequest, PolicyFlags
@@ -196,10 +200,9 @@ class ControlJobScopeAdmissionMixin:
 
     def _load_payload_ref(self, payload_ref: str, *, kind: str) -> dict[str, Any]:
         from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
-        from polisyos.core.canon import from_canonical_bytes
 
         declared_ref = _make_artifact_ref(payload_ref, kind=kind)
-        manifest = self._artifact_store.get_manifest(declared_ref)
+        manifest = read_core_manifest_profile(self._artifact_store, declared_ref)[0]
         if manifest.kind != kind or manifest.media_type != "application/json":
             raise RuntimeError("Control job payload manifest does not match its owner kind")
         selected_ref = ArtifactRef(
@@ -211,7 +214,7 @@ class ControlJobScopeAdmissionMixin:
         verification = self._artifact_store.verify(selected_ref)
         if not verification.ok:
             raise RuntimeError("Control job payload failed selected-profile verification")
-        payload = from_canonical_bytes(self._artifact_store.get_bytes(selected_ref))
+        payload = read_core_json_artifact(self._artifact_store, selected_ref).value
         if not isinstance(payload, dict):
             raise RuntimeError("Control job payload must decode to a JSON object")
         return dict(payload)

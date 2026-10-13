@@ -13,7 +13,6 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.ic_verification import (
     ICNegativeCertificate,
     ICNegativeCertificateRef,
@@ -164,7 +163,8 @@ def _resolve_policy_input(
     store: ArtifactStore,
     request: ICVerificationRequest,
 ) -> tuple[PolicySpec, str]:
-    payload = from_canonical_bytes(store.get_bytes(request.input_ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, request.input_ref)
     if request.input_ref.kind == "ir.trinity_bundle":
         bundle = TrinityBundle.model_validate(payload)
         return bundle.policy_spec, str(request.input_ref.artifact_id)

@@ -41,6 +41,13 @@ NodeStatus = Literal["ok", "skip", "fail", "unknown"]
 AgentPipelineCostOrigin = Literal["reported", "estimated", "reuse", "unknown"]
 AgentPipelineSettlementStatus = Literal["pending", "committed", "unknown", "unmanaged"]
 PreviewMode = Literal["json", "text", "binary"]
+CanonReadStatus = Literal[
+    "not_applicable",
+    "not_evaluated",
+    "declared_bytes_conformant",
+    "profile_absent_unqualified_candidate",
+    "declared_unknown_candidate",
+]
 VerificationStatus = Literal["verified", "pending", "disputed", "untraced"]
 LineageFreshness = Literal["current", "stale", "unknown"]
 DisputeStatus = Literal["none", "disputed", "under_review", "resolved"]
@@ -4129,6 +4136,7 @@ class PredictiveCoverageDiagnosticPreview(BaseModel):
     ]
     assessment: Literal["limited"]
     source_materialization: Literal["reader_materialized"]
+    canon_read_status: CanonReadStatus
     producer_attestation_status: Literal["not_established"]
     s10_metric_mapping_status: Literal["not_established"]
     s10_threshold_status: Literal["not_established"]
@@ -4152,6 +4160,7 @@ class ArtifactContentPreview(BaseModel):
     kind: str
     media_type: str
     mode: PreviewMode
+    canon_read_status: CanonReadStatus
     size_bytes: int = Field(ge=0)
     max_bytes: int = Field(ge=1)
     truncated: bool = False
@@ -4214,6 +4223,7 @@ class ArtifactSchemaView(BaseModel):
     manifest_profile_sha256: str | None = None
     kind: str
     media_type: str
+    canon_read_status: CanonReadStatus
     schema_name: str | None = None
     schema_version: str | None = None
     top_level_keys: list[str] = Field(default_factory=list)
@@ -4610,6 +4620,7 @@ __all__ = [
     "BureaucraticRenderRequest",
     "BureaucraticRenderResponse",
     "BureaucraticTemplateRef",
+    "CanonReadStatus",
     "ComparabilityReport",
     "ComparabilityStatus",
     "CompareCandidate",

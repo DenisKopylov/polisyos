@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -111,8 +109,8 @@ def load_provenance_graph(
     Raises:
         ValueError: If stable_id verification fails
     """
-    payload = store.get_bytes(ArtifactID.model_validate(ref.artifact_id))
-    data = json.loads(payload.decode("utf-8"))
+    from polisyos.core.artifacts import load_core_json_artifact
+    data = load_core_json_artifact(store, ArtifactID.model_validate(ref.artifact_id))
     graph = ProvenanceCoreGraph.from_dict(data)
 
     computed_stable_id = graph.compute_stable_id()

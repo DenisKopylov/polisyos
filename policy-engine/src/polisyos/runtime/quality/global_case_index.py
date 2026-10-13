@@ -86,6 +86,7 @@ class GlobalCaseIndexProducer:
 
     def produce(self) -> tuple[artifacts.ArtifactRef, GlobalCaseIndexSnapshot]:
         """Verify the complete visible binding set and persist its candidate snapshot."""
+        from polisyos.core.artifacts import validate_core_model_json_artifact
         try:
             tenant_id = get_current_tenant_id()
             cell_id = get_current_cell_id()
@@ -137,7 +138,9 @@ class GlobalCaseIndexProducer:
                 ref.artifact_id
             ):
                 raise GlobalCaseIndexError("case_index_snapshot_integrity_failed")
-            reloaded = GlobalCaseIndexSnapshot.model_validate_json(payload)
+            reloaded = validate_core_model_json_artifact(
+                GlobalCaseIndexSnapshot, store, ref, raw_payload_bytes=payload
+            )
             if reloaded != snapshot:
                 raise GlobalCaseIndexError("case_index_snapshot_readback_mismatch")
             return ref, reloaded
@@ -162,6 +165,7 @@ def _verified_payload(
     version: str,
 ) -> object:
     """Resolve bytes, exact schema and producer provenance at one intake."""
+    from polisyos.core.artifacts import load_core_json_artifact
     manifest = store.get_manifest(artifact_id)
     if (
         manifest.kind != kind
@@ -174,7 +178,7 @@ def _verified_payload(
     payload = store.get_bytes(artifact_id)
     if canon.content_hash(payload, prefix=True) != str(artifact_id):
         raise GlobalCaseIndexError("case_index_source_content_mismatch")
-    return canon.from_canonical_bytes(payload)
+    return load_core_json_artifact(store, artifact_id, raw_payload_bytes=payload)
 
 
 def _resolve_entry(

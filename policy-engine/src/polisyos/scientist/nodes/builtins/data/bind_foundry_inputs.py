@@ -10,7 +10,6 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import FoundryInputBindingRule
 from polisyos.foundry.data_plane import (
@@ -364,11 +363,12 @@ def _check_model_spec_consistency(
     state: ExperimentState,
     effective_data_snapshot_hex: str,
 ) -> dict[str, str] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+        payload = load_core_json_artifact(ctx.store, trinity_ref)
         trinity = TrinityBundle.model_validate(payload)
     except _BINDING_LOAD_ERRORS:
         logger.debug(

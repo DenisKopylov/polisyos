@@ -10,7 +10,6 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import FoundryInputBindings, SimulationResult, StateSnapshotRef
@@ -274,6 +273,7 @@ class RunDistributionalAnalysisNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         sim_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if sim_result_ref is None:
             return NodeOutcome(
@@ -288,7 +288,7 @@ class RunDistributionalAnalysisNode:
             )
 
         try:
-            sim_payload = from_canonical_bytes(ctx.store.get_bytes(sim_result_ref))
+            sim_payload = load_core_json_artifact(ctx.store, sim_result_ref)
             sim_result = SimulationResult.model_validate(sim_payload)
         except _DISTRIBUTIONAL_LOAD_ERRORS as exc:
             return NodeOutcome(
@@ -585,6 +585,7 @@ def _resolve_baseline_snapshot_ref(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> StateSnapshotRef | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     explicit = state.inputs.get(INPUT_STATE_SNAPSHOT_REF)
     if explicit is not None:
         try:
@@ -595,7 +596,7 @@ def _resolve_baseline_snapshot_ref(
     input_bindings_ref = state.inputs.get(INPUT_INPUT_BINDINGS_REF)
     if input_bindings_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(input_bindings_ref))
+            payload = load_core_json_artifact(ctx.store, input_bindings_ref)
             bindings = FoundryInputBindings.model_validate(payload)
             return bindings.bound_state_snapshot_ref
         except _DISTRIBUTIONAL_LOAD_ERRORS:
@@ -605,7 +606,7 @@ def _resolve_baseline_snapshot_ref(
     if data_snapshot_ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
+        payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
         snapshot = DataSnapshot.model_validate(payload)
     except _DISTRIBUTIONAL_LOAD_ERRORS:
         return None

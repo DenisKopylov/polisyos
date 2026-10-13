@@ -19,7 +19,8 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
-from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.control import (
     DataNeed,
     DataResolveRequest,
@@ -2355,7 +2356,7 @@ class NaturalLanguageRunMixin:
                 if not artifact_id:
                     return None
                 try:
-                    payload = from_canonical_bytes(store.get_bytes(artifact_id))
+                    payload = read_core_json_artifact(store, artifact_id).value
                 except (OSError, RuntimeError, TypeError, ValueError):
                     return None
                 return dict(payload) if isinstance(payload, Mapping) else None
@@ -3763,9 +3764,10 @@ class NaturalLanguageRunMixin:
                     result.diagnostic_event_ref.manifest_profile_sha256
                 )
                 authority_envelope_ref = str(result.authority_envelope_ref.artifact_id)
-                authority_envelope = from_canonical_bytes(
-                    store.get_bytes(result.authority_envelope_ref)
-                )
+                authority_envelope = read_core_json_artifact(
+                                         store,
+                                         result.authority_envelope_ref,
+                                     ).value
                 event_summary = {
                     "event_name": f"{report_key}.persisted",
                     "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
@@ -7659,9 +7661,10 @@ class NaturalLanguageRunMixin:
                         artifact_id=workflow_report_id,
                         kind="scientist.workflow_report",
                     )
-                    workflow_report = from_canonical_bytes(
-                        self._artifact_store.get_bytes(workflow_report_artifact_ref)
-                    )
+                    workflow_report = read_core_json_artifact(
+                                          self._artifact_store,
+                                          workflow_report_artifact_ref,
+                                      ).value
                     if isinstance(workflow_report, Mapping):
                         workflow_status = str(workflow_report.get("status") or "")
                         if workflow_status and workflow_status != "ok":

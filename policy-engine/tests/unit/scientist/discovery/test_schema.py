@@ -234,10 +234,34 @@ def _nested_model_field_targets(
         return targets
     if isinstance(value, (set, frozenset)):
         targets = []
-        for index, item in enumerate(value):
-            targets.extend(_nested_model_field_targets(item, (*path, ("index", index))))
+        for item in value:
+            targets.extend(_nested_model_field_targets(item, (*path, ("member", item))))
         return targets
     return []
+
+
+def _nested_value_at_path(value: object, path: tuple[object, ...]) -> object:
+    current = value
+    for kind, key in path:
+        if kind == "field":
+            current = object.__getattribute__(current, "__dict__")[key]
+        elif kind == "index":
+            if isinstance(current, list):
+                current = list.__getitem__(current, key)
+            elif isinstance(current, tuple):
+                current = tuple.__getitem__(current, key)
+            else:
+                raise AssertionError("index path does not reference a list or tuple")
+        elif kind == "key":
+            current = dict.__getitem__(current, key)
+        elif kind == "member":
+            matches = [item for item in current if item is key or item == key]
+            if len(matches) != 1:
+                raise AssertionError("set member path is not uniquely resolvable")
+            current = matches[0]
+        else:
+            raise AssertionError(f"unsupported nested path component: {kind!r}")
+    return current
 
 
 def _replace_nested_value(
@@ -403,11 +427,10 @@ def test_writer_revalidates_every_declared_nested_model_field_before_cas_write(
     targets = _nested_model_field_targets(hypothesis)
     assert targets
 
-    for model_path, field_name, model in targets:
-        forged_model = model.model_copy(update={field_name: object()})
-        forged_hypothesis = _replace_nested_value(
-            hypothesis, model_path, forged_model
-        )
+    for model_path, field_name, _model in targets:
+        forged_hypothesis = hypothesis.model_copy(deep=True)
+        forged_model = _nested_value_at_path(forged_hypothesis, model_path)
+        object.__setattr__(forged_model, field_name, object())
         with pytest.raises(ValueError):
             persist_graph_hypothesis(store, forged_hypothesis)
         after_files = sorted(

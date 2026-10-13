@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.canonical_profile import require_declared_profile
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
@@ -38,7 +40,10 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
-    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthConfig
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthConfig,
+        AcquisitionWorldGrowthReceipt,
+    )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
 
     from .control_plane_store import (
@@ -89,7 +94,7 @@ class AcquisitionRouteProjection(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["AcquisitionRouteProjection@1.0"] = "AcquisitionRouteProjection@1.0"
+    schema_version: Literal["AcquisitionRouteProjection@1.1"] = "AcquisitionRouteProjection@1.1"
     tenant_id: str
     cell_id: str
     run_id: str
@@ -112,8 +117,10 @@ class AcquisitionRouteProjection(BaseModel):
     qualification_reason: Literal["policy_admission_missing", "native_owner_readback"] = (
         "policy_admission_missing"
     )
-    world_growth: Literal["no_growth", "admitted_delta"] = "no_growth"
-    admitted_observation_delta: int = Field(default=0, ge=0)
+    world_growth: Literal["not_established", "no_growth", "admitted_delta"] = (
+        "not_established"
+    )
+    admitted_observation_delta: int | None = Field(default=None, ge=0)
     authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
         "behavioral_fixture_not_production"
     )
@@ -123,6 +130,33 @@ class AcquisitionRouteProjection(BaseModel):
         "deterministic_admission_bundle:producer_missing",
         "non_fixture_n13b_owner_port:bridge_missing",
     )
+
+    @model_validator(mode="after")
+    def _growth_outcome_matches_evidence(self) -> AcquisitionRouteProjection:
+        pending = (
+            self.qualification_status == "pending_epoch_activation"
+            and self.qualification_predicate == "not_established"
+            and self.qualification_reason == "policy_admission_missing"
+        )
+        admitted = (
+            self.qualification_status == "activated"
+            and self.qualification_predicate == "independently_reconciled"
+            and self.qualification_reason == "native_owner_readback"
+            and self.authority_badge == "native_owner_verified"
+        )
+        if self.world_growth == "not_established":
+            if not pending or self.admitted_observation_delta is not None:
+                raise ValueError("acquisition_world_growth_status_delta_mismatch")
+        elif self.world_growth == "no_growth":
+            if not admitted or self.admitted_observation_delta != 0:
+                raise ValueError("acquisition_world_growth_status_delta_mismatch")
+        elif (
+            not admitted
+            or self.admitted_observation_delta is None
+            or self.admitted_observation_delta <= 0
+        ):
+            raise ValueError("acquisition_world_growth_status_delta_mismatch")
+        return self
 
 
 class AcquisitionRouteListResponse(BaseModel):
@@ -144,7 +178,7 @@ class AcquisitionDecisionRequestResponse(BaseModel):
     authority_decision_ref: str = Field(pattern=_SHA256_PATTERN)
     outcome: Literal["decision_required", "decision_available"]
     human_decision_request: dict[str, object] | None = None
-    world_growth: Literal["no_growth"] = "no_growth"
+    world_growth: Literal["not_established"] = "not_established"
 
 
 class AcquisitionExecutionResponse(BaseModel):
@@ -158,7 +192,7 @@ class AcquisitionExecutionResponse(BaseModel):
     authority_decision_ref: str = Field(pattern=_SHA256_PATTERN)
     status: Literal["accepted"] = "accepted"
     receipt_phase: Literal["requested"] = "requested"
-    world_growth: Literal["no_growth"] = "no_growth"
+    world_growth: Literal["not_established"] = "not_established"
 
 
 class AcquisitionOwnerExecutionResult(BaseModel):
@@ -180,6 +214,7 @@ class AcquisitionOwnerExecutionResult(BaseModel):
     authority_badge: Literal["behavioral_fixture_not_production", "native_owner_verified"] = (
         "behavioral_fixture_not_production"
     )
+    action_phase_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
 
     @model_validator(mode="after")
     def _world_commit_requires_active_owner_evidence(self) -> AcquisitionOwnerExecutionResult:
@@ -198,6 +233,11 @@ class AcquisitionOwnerExecutionResult(BaseModel):
             raise ValueError("quarantine_cannot_claim_world_growth")
         if any(not ref.startswith("sha256:") for ref in self.owner_receipt_refs):
             raise ValueError("owner_receipt_ref_invalid")
+        if (
+            self.action_phase_ref is not None
+            and self.action_phase_ref not in self.owner_receipt_refs
+        ):
+            raise ValueError("owner_action_phase_ref_missing")
         return self
 
 
@@ -207,7 +247,23 @@ class AcquisitionExecutionPort(Protocol):
     def execute(
         self,
         closure: VerifiedAcquisitionRouteClosure,
+        *,
+        action_phase_ref: str | None = None,
     ) -> AcquisitionOwnerExecutionResult: ...
+
+    def recover_owned_result(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        action_phase_ref: str | None = None,
+    ) -> AcquisitionOwnerExecutionResult: ...
+
+    def project_world_growth_outcome(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> tuple[
+        Literal["not_established", "no_growth", "admitted_delta"],
+        AcquisitionWorldGrowthReceipt | None,
+    ]: ...
 
     def reenter(
         self,
@@ -447,6 +503,7 @@ class AcquisitionActionService:
         elif head.job_id != job_id or head.receipt_phase not in {
             "requested",
             "executing",
+            "outcome_selected",
             "world_committed_reentry_pending",
             "terminal",
         }:
@@ -543,21 +600,100 @@ class AcquisitionActionService:
             )
             self._consume_movement(terminal.receipt_ref)
             return self._terminal_progress(terminal)
-        if head.receipt_phase == "executing" and self._production_execution_bridge_installed():
-            # A lost acknowledgement may hide an already committed native effect.
-            # Recovery cannot invoke the connector or consume authority again.
-            result = self._production_execution_port.recover_owned_result(closure)
+        if (
+            head.receipt_phase in {"executing", "outcome_selected"}
+            and self._production_execution_bridge_installed()
+        ):
+            # Recovery reads the already-owned outcome. It never replays the provider effect.
+            action_phase_ref = (
+                head.receipt_ref
+                if head.receipt_phase == "executing"
+                else head.predecessor_receipt_ref
+            )
+            if action_phase_ref is None:
+                raise AcquisitionActionServiceError("acquisition_executing_head_missing")
+            current = sink.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+            )
+            if (
+                current is None
+                or current.head != head
+                or current.executing_phase_ref != action_phase_ref
+                or current.executing_phase is None
+            ):
+                raise AcquisitionActionServiceError("acquisition_executing_head_changed")
+            current_phase = current.executing_phase
+            if (
+                current_phase.receipt_phase != "executing"
+                or current_phase.action_generation != action_generation
+                or current_phase.job_id != job.job_id
+                or current_phase.tenant_id != closure.tenant_id
+                or current_phase.cell_id != closure.cell_id
+                or current_phase.run_id != closure.run_id
+                or current_phase.source_job_id != closure.source_job_id
+                or current_phase.route_id != closure.route_id
+                or current_phase.compiled_ref != closure.compiled_ref
+                or current_phase.planner_report_hash
+                != agent_action_content_hash(closure.planner_report)
+                or current_phase.cost_basis_hash != closure.cost_basis_hash
+            ):
+                raise AcquisitionActionServiceError("acquisition_executing_head_unverified")
+            result = self._production_execution_port.recover_owned_result(
+                closure, action_phase_ref=action_phase_ref
+            )
+            if (
+                result.action_phase_ref != action_phase_ref
+                or action_phase_ref not in result.owner_receipt_refs
+            ):
+                raise AcquisitionActionServiceError(
+                    "acquisition_owner_recovery_scope_mismatch"
+                )
+            still_current = sink.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+            )
+            if still_current is None or still_current.head != current.head:
+                raise AcquisitionActionServiceError("acquisition_executing_head_changed")
+            selected_head = sink.persist_action_outcome_selection(
+                action_phase_ref, result.owner_receipt_refs
+            )
+            if (
+                selected_head.receipt_phase != "outcome_selected"
+                or selected_head.predecessor_receipt_ref != action_phase_ref
+            ):
+                raise AcquisitionActionServiceError("acquisition_action_selection_missing")
+            if result.disposition == "quarantined_no_growth":
+                terminal = self._terminal_receipt(
+                    action_generation=action_generation,
+                    closure=closure,
+                    job_id=job.job_id,
+                    decision_ref=decision_ref,
+                    predecessor_receipt_ref=selected_head.receipt_ref,
+                    owner_receipt_refs=result.owner_receipt_refs,
+                )
+                terminal_head = sink.persist_terminal(terminal)
+                self._consume_movement(terminal_head.receipt_ref)
+                return self._terminal_progress(terminal_head)
             pending = self._phase_receipt(
                 action_generation=action_generation,
                 closure=closure,
                 job_id=job.job_id,
                 decision_ref=decision_ref,
                 receipt_phase="world_committed_reentry_pending",
-                predecessor_receipt_ref=head.receipt_ref,
+                predecessor_receipt_ref=selected_head.receipt_ref,
                 owner_receipt_refs=result.owner_receipt_refs,
             )
             terminal = persist_world_commit_and_reenter(
-                sink=sink, pending_receipt=pending, reentry=lambda: port.reenter(closure, result)
+                sink=sink,
+                pending_receipt=pending,
+                reentry=lambda: port.reenter(closure, result),
             )
             self._consume_movement(terminal.receipt_ref)
             return self._terminal_progress(terminal)
@@ -576,7 +712,21 @@ class AcquisitionActionService:
         result_holder: list[AcquisitionOwnerExecutionResult] = []
 
         def _effect(_invocation: OperationInvocationRecord) -> object:
-            result = AcquisitionOwnerExecutionResult.model_validate(port.execute(closure))
+            if self._production_execution_bridge_installed():
+                result = AcquisitionOwnerExecutionResult.model_validate(
+                    port.execute(
+                        closure, action_phase_ref=executing_head.receipt_ref
+                    )
+                )
+                if (
+                    result.action_phase_ref != executing_head.receipt_ref
+                    or executing_head.receipt_ref not in result.owner_receipt_refs
+                ):
+                    raise AcquisitionActionServiceError(
+                        "acquisition_owner_execution_scope_mismatch"
+                    )
+            else:
+                result = AcquisitionOwnerExecutionResult.model_validate(port.execute(closure))
             result_holder.append(result)
             return result
 
@@ -597,13 +747,31 @@ class AcquisitionActionService:
         if len(result_holder) != 1:
             raise AcquisitionActionServiceError("acquisition_owner_result_missing")
         result = result_holder[0]
+        outcome_predecessor_ref = executing_head.receipt_ref
+        if self._production_execution_bridge_installed():
+            if (
+                result.action_phase_ref != executing_head.receipt_ref
+                or executing_head.receipt_ref not in result.owner_receipt_refs
+            ):
+                raise AcquisitionActionServiceError(
+                    "acquisition_owner_execution_scope_mismatch"
+                )
+            selected_head = sink.persist_action_outcome_selection(
+                executing_head.receipt_ref, result.owner_receipt_refs
+            )
+            if (
+                selected_head.receipt_phase != "outcome_selected"
+                or selected_head.predecessor_receipt_ref != executing_head.receipt_ref
+            ):
+                raise AcquisitionActionServiceError("acquisition_action_selection_missing")
+            outcome_predecessor_ref = selected_head.receipt_ref
         if result.disposition == "quarantined_no_growth":
             terminal = self._terminal_receipt(
                 action_generation=action_generation,
                 closure=closure,
                 job_id=job.job_id,
                 decision_ref=decision_ref,
-                predecessor_receipt_ref=executing_head.receipt_ref,
+                predecessor_receipt_ref=outcome_predecessor_ref,
                 owner_receipt_refs=result.owner_receipt_refs,
             )
             terminal_head = sink.persist_terminal(terminal)
@@ -615,7 +783,7 @@ class AcquisitionActionService:
             job_id=job.job_id,
             decision_ref=decision_ref,
             receipt_phase="world_committed_reentry_pending",
-            predecessor_receipt_ref=executing_head.receipt_ref,
+            predecessor_receipt_ref=outcome_predecessor_ref,
             owner_receipt_refs=result.owner_receipt_refs,
         )
         terminal = persist_world_commit_and_reenter(
@@ -660,13 +828,16 @@ class AcquisitionActionService:
         )
 
         execution_bridge_installed = self._production_execution_bridge_installed()
+        growth_status: Literal["not_established", "no_growth", "admitted_delta"] = (
+            "not_established"
+        )
+        growth = None
         try:
             execution_ready = self._production_execution_bridge_ready(closure)
-            growth = (
-                self._production_execution_port.project_world_growth(closure)
-                if execution_bridge_installed
-                else None
-            )
+            if execution_bridge_installed:
+                growth_status, growth = (
+                    self._production_execution_port.project_world_growth_outcome(closure)
+                )
         except (SemanticEpochAdmissionResolutionError, ValueError, OSError) as exc:
             raise AcquisitionActionServiceError("acquisition_native_admission_unverified") from exc
         authority_nonclosures = getattr(
@@ -702,8 +873,16 @@ class AcquisitionActionService:
             qualification_reason="native_owner_readback"
             if growth is not None
             else "policy_admission_missing",
-            world_growth="admitted_delta" if growth is not None else "no_growth",
-            admitted_observation_delta=0 if growth is None else growth.admitted_observation_delta,
+            world_growth=growth_status,
+            admitted_observation_delta=(
+                None
+                if growth_status == "not_established"
+                else (
+                    0
+                    if growth_status == "no_growth"
+                    else growth.admitted_observation_delta
+                )
+            ),
             authority_badge="native_owner_verified"
             if growth is not None
             else "behavioral_fixture_not_production",
@@ -910,10 +1089,10 @@ class AcquisitionActionService:
 
     def _read_phase_receipt(self, ref: str) -> AcquisitionRoutePhaseReceipt:
         try:
-            from polisyos.core import canon
-
             return AcquisitionRoutePhaseReceipt.model_validate(
-                canon.from_canonical_bytes(self.control_service._artifact_store.get_bytes(ref))
+                require_declared_profile(
+                    read_core_json_artifact(self.control_service._artifact_store, ref)
+                )
             )
         except Exception as exc:
             raise AcquisitionActionServiceError("acquisition_phase_readback_failed") from exc

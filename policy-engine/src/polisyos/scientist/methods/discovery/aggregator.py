@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import EdgeConfidenceMatrixRef
 from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.schema import (
@@ -260,7 +260,8 @@ def load_edge_confidence_matrix(
     ref: EdgeConfidenceMatrixRef,
 ) -> EdgeConfidenceMatrix:
     """Load edge confidence matrix."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return EdgeConfidenceMatrix.model_validate(payload)
 
 

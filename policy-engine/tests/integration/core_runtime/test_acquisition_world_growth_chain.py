@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import uuid
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -34,7 +35,11 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run,
 )
 from tests._helpers import controlled_candidate_profile as cycle_fixtures
-from tests._helpers.acquisition_chain import make_wdi_port_case
+from tests._helpers.acquisition_chain import (
+    begin_current_wdi_action,
+    make_wdi_port_case,
+    select_current_wdi_action_outcome,
+)
 from tests._helpers.acquisition_production import (
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
@@ -200,10 +205,18 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
     assert quarantined.admitted_observation_delta == 0
     case.appoint_native_policy()
     case.port.prepare_route_execution(closure)
-    committed = case.port.execute(closure)
+    action = begin_current_wdi_action(
+        control, closure, job_id=f"direct-bridge-action-{uuid.uuid4().hex}"
+    )
+    committed = case.port.execute(
+        closure, action_phase_ref=action.executing_head.receipt_ref
+    )
     assert committed.disposition == "world_committed"
     assert committed.admitted_observation_delta == 1
     assert case.bridge.artifact_store is control._artifact_store
+    assert case.port.project_world_growth_outcome(closure) == ("not_established", None)
+    selected_head = select_current_wdi_action_outcome(control, action, committed)
+    assert selected_head.receipt_phase == "outcome_selected"
 
     reentry_ref = case.bridge.resume(closure, committed.owner_receipt_refs)
     reentry = AcquisitionOverlayReentryReceipt.model_validate(
@@ -354,10 +367,18 @@ async def test_revised_cycle_basis_survives_served_native_admission_and_reentry(
     assert quarantined.disposition == "quarantined_no_growth"
     case.appoint_native_policy()
     case.port.prepare_route_execution(closure)
-    committed = case.port.execute(closure)
+    action = begin_current_wdi_action(
+        control, closure, job_id=f"direct-bridge-action-{uuid.uuid4().hex}"
+    )
+    committed = case.port.execute(
+        closure, action_phase_ref=action.executing_head.receipt_ref
+    )
     assert committed.disposition == "world_committed"
     assert committed.admitted_observation_delta == 1
     assert case.bridge.artifact_store is control._artifact_store
+    assert case.port.project_world_growth_outcome(closure) == ("not_established", None)
+    selected_head = select_current_wdi_action_outcome(control, action, committed)
+    assert selected_head.receipt_phase == "outcome_selected"
 
     reentry_ref = case.bridge.resume(closure, committed.owner_receipt_refs)
     reentry = AcquisitionOverlayReentryReceipt.model_validate(
@@ -543,7 +564,10 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     assert tuple(case.transport_calls) == fetched
     case.appoint_native_policy()
     case.port.prepare_route_execution(closure)
-    result = case.port.execute(closure)
+    action_job_id = f"direct-owner-action-{uuid.uuid4().hex}"
+    action = begin_current_wdi_action(control, closure, job_id=action_job_id)
+    executing_head = action.executing_head
+    result = case.port.execute(closure, action_phase_ref=executing_head.receipt_ref)
     assert result.disposition == "world_committed"
     assert tuple(case.transport_calls) == fetched
     assert all(control._artifact_store.get_bytes(ref) == raw for ref, raw in original_bytes.items())
@@ -553,9 +577,51 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     before = tuple(case.transport_calls)
     # Lose only the post-activation acknowledgement; recover from native owner bytes.
     case.bridge._growth_pointer(case.selected).unlink()
-    assert case.port.recover_owned_result(closure) == result
+    with pytest.raises(AcquisitionActionServiceError, match="acquisition_live_evidence_not_admitted"):
+        case.port.recover_owned_result(closure)
+    assert case.port.recover_owned_result(
+        closure, action_phase_ref=executing_head.receipt_ref
+    ) == result
+    tampered_closure = closure.model_copy(
+        update={"compiled_ref": "sha256:" + "0" * 64}
+    )
+    with pytest.raises(ValueError, match="acquisition_action_phase_source_binding_mismatch"):
+        case.port.recover_owned_result(
+            tampered_closure, action_phase_ref=executing_head.receipt_ref
+        )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthConfig,
+    )
+
+    changed_selection = case.selected.model_copy(
+        update={"epoch_id": case.selected.epoch_id + 1}
+    )
+    changed_config = case.bridge.config.model_copy(update={"routes": (changed_selection,)})
+    changed_epoch_bridge = type(case.bridge)(
+        config=changed_config,
+        repo_root=case.bridge.repo_root,
+        runtime_root=case.bridge.runtime_root,
+        authority=case.bridge.authority,
+        artifact_store=control._artifact_store,
+        event_log=case.bridge.event_log,
+        epoch_deployment=case.bridge.epoch_deployment,
+        promotion_runtime=case.bridge.promotion_runtime,
+        cycle_substrate_context_admission_owner=(
+            case.bridge.cycle_substrate_context_admission_owner
+        ),
+        control_store=case.bridge.control_store,
+    )
+    assert type(changed_config) is AcquisitionWorldGrowthConfig
+    with pytest.raises(ValueError, match="acquisition_world_growth_case_mismatch"):
+        changed_epoch_bridge.recover_admission(closure, executing_head.receipt_ref)
     assert tuple(case.transport_calls) == before
-    assert case.port.project_world_growth(closure).admitted_observation_delta == 1
+    assert case.port.project_world_growth_outcome(closure) == ("not_established", None)
+    selected_head = select_current_wdi_action_outcome(control, action, result)
+    assert selected_head.receipt_phase == "outcome_selected"
+    growth_status, selected_growth = case.port.project_world_growth_outcome(closure)
+    assert growth_status == "admitted_delta"
+    assert selected_growth is not None
+    assert selected_growth.admitted_observation_delta == 1
     ref = case.port.reenter(closure, result)
     receipt = AcquisitionOverlayReentryReceipt.model_validate(
         canon.from_canonical_bytes(control._artifact_store.get_bytes(ref))
@@ -565,7 +631,9 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     assert receipt.new_cycle.cycle_index == closure.source_cycle.cycle_index + 1
     before = tuple(case.transport_calls)
     assert case.port.resume_reentry(closure, result.owner_receipt_refs) == ref
-    assert case.port.recover_owned_result(closure) == result
+    assert case.port.recover_owned_result(
+        closure, action_phase_ref=executing_head.receipt_ref
+    ) == result
     assert tuple(case.transport_calls) == before
     growth_refs = tuple(
         ref
@@ -590,7 +658,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     assert no_growth.admitted_observation_delta == 0
     assert no_growth.overlay_admission_receipt_ref is None
     assert no_growth.post_epoch_event_ref is None
-    assert set(no_growth.owner_receipt_refs) == set(result.owner_receipt_refs) | {
+    assert set(no_growth.owner_receipt_refs) == set(result.owner_receipt_refs) | {attempt_ref} | {
         ref
         for ref in no_growth.owner_receipt_refs
         if control._artifact_store.get_manifest(ref).kind
@@ -1426,3 +1494,82 @@ async def test_deferred_admission_refuses_unknown_outcome_and_missing_negative(
         blob.write_bytes(raw)
     assert tuple(case.transport_calls) == fetched
     assert case.bridge.has_deferred_admission(closure)
+
+@pytest.mark.asyncio
+async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_intact(
+    tmp_path, monkeypatch, request
+):
+    """A wrong schema cannot pass while the live action/CAS/event markers stay intact."""
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthReceipt,
+    )
+
+    served = await _run_actual_wdi_admits_delta_and_reenters_same_case(
+        tmp_path,
+        monkeypatch,
+        request,
+        guarded_cas=False,
+    )
+    control = served.control
+    closure = served.closure
+    sink = control.acquisition_route_sink
+    snapshot = sink.current_action_outcome(
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        source_job_id=closure.source_job_id,
+        route_id=closure.route_id,
+    )
+    assert snapshot is not None
+    assert snapshot.selection_phase is not None
+    assert snapshot.selection_phase_ref is not None
+    assert len(snapshot.selection_phase.owner_receipt_refs) == 1
+    growth_ref = snapshot.selection_phase.owner_receipt_refs[0]
+    owner_manifest = control._artifact_store.get_manifest(growth_ref)
+    assert owner_manifest.kind == "runtime_quality.acquisition_world_growth_receipt"
+    assert owner_manifest.artifact_schema is not None
+    assert (
+        owner_manifest.artifact_schema.name
+        == AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME
+    )
+    assert owner_manifest.artifact_schema.version == "1.1"
+    sink.verify_action_head(snapshot.head)
+
+    import polisyos.runtime.http.services.control.run_lifecycle as run_lifecycle_module
+
+    read_manifest = run_lifecycle_module.read_core_manifest_profile
+    forged_manifests = []
+
+    def wrong_schema_only(store, ref):
+        manifest, *remaining = read_manifest(store, ref)
+        if ref != growth_ref:
+            return (manifest, *remaining)
+        assert manifest.artifact_schema is not None
+        wrong_schema = manifest.artifact_schema.model_copy(
+            update={"name": "polisyos.runtime.AcquisitionWorldGrowthReceipt"}
+        )
+        forged = manifest.model_copy(update={"artifact_schema": wrong_schema})
+        forged_manifests.append(forged)
+        return (forged, *remaining)
+
+    with monkeypatch.context() as forged_readback:
+        forged_readback.setattr(
+            run_lifecycle_module, "read_core_manifest_profile", wrong_schema_only
+        )
+        with pytest.raises(
+            ValueError, match="acquisition_action_owner_receipt_binding_mismatch"
+        ):
+            sink.verify_action_head(snapshot.head)
+
+    assert len(forged_manifests) == 1
+    assert (
+        forged_manifests[0].model_copy(
+            update={"artifact_schema": owner_manifest.artifact_schema}
+        )
+        == owner_manifest
+    )
+    sink.verify_action_head(snapshot.head)
+    assert (
+        control._artifact_store.get_manifest(growth_ref).artifact_schema.name
+        == AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME
+    )

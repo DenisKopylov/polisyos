@@ -14,7 +14,9 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, final
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.pdc import (
     AuthorityBoundary,
     Layer2ReadinessModel,
@@ -1097,7 +1099,7 @@ class AgentActionAuthorityGateway:
                 self._artifact_store,
                 self._event_log,
                 payload,
-                _decision_write_options(input_refs),
+                _decision_write_options(input_refs, canon_spec),
                 **self._decision_authority_fields(
                     decision=decision,
                     input_refs=input_refs,
@@ -1118,7 +1120,9 @@ class AgentActionAuthorityGateway:
                 expected_job_id=self._write_context.job_id,
             )
             loaded = AgentActionAuthorityDecision.model_validate(
-                canon.from_canonical_bytes(self._artifact_store.get_bytes(expected_ref))
+                require_declared_profile(
+                    read_core_json_artifact(self._artifact_store, expected_ref)
+                )
             )
             if loaded != decision:
                 raise ValueError("persisted decision content mismatch")
@@ -1163,7 +1167,13 @@ class AgentActionAuthorityGateway:
             if decision_ref != f"sha256:{payload_sha256}":
                 raise ValueError("decision artifact identity mismatch")
             decision = AgentActionAuthorityDecision.model_validate(
-                canon.from_canonical_bytes(payload_bytes)
+                require_declared_profile(
+                    read_core_json_artifact(
+                        self._artifact_store,
+                        artifact_id,
+                        raw_payload_bytes=payload_bytes,
+                    )
+                )
             )
             manifest = self._artifact_store.get_manifest(artifact_id)
             schema = manifest.artifact_schema
@@ -1301,7 +1311,7 @@ class AgentActionAuthorityGateway:
                 raise ValueError("decision receipt is not bound to the supplied decision")
             artifact_id = artifacts.ArtifactID.model_validate(decision_ref)
             loaded = AgentActionAuthorityDecision.model_validate(
-                canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                require_declared_profile(read_core_json_artifact(self._artifact_store, artifact_id))
             )
             if loaded != persisted.decision:
                 raise ValueError("persisted decision bytes differ from the supplied decision")
@@ -1381,7 +1391,9 @@ class AgentActionAuthorityGateway:
                 raise ValueError("artifact signer identity mismatch")
             if report.durable_event_id is None:
                 raise ValueError("artifact has no durable event")
-            payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            payload = require_declared_profile(
+                read_core_json_artifact(self._artifact_store, artifact_id)
+            )
         except Exception as exc:
             raise AgentActionAuthorityOwnerResolutionError(
                 f"{failure_prefix}_authority_unverified"
@@ -2413,6 +2425,7 @@ def _decision_authority_boundary() -> AuthorityBoundary:
 
 def _decision_write_options(
     input_refs: tuple[str, ...],
+    canon_spec: canon.CanonSpec,
 ) -> artifacts.ArtifactWriteOptions:
     return artifacts.ArtifactWriteOptions(
         kind=AGENT_ACTION_DECISION_ARTIFACT_KIND,
@@ -2425,6 +2438,7 @@ def _decision_write_options(
             component="polisyos.runtime.quality.agent_action_authority",
             version="2026.08.19+gy-pa2",
         ),
+        canon=artifacts.CanonInfo.from_spec(canon_spec),
         governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
         inputs=[
             artifacts.InputRef(

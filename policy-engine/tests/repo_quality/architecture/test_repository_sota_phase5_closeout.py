@@ -548,7 +548,7 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
 
     complexity = _read_toml("architecture/exceptions/complexity.toml")
     assert complexity["complexity_exceptions"]["status"] == "active"
-    for exception in complexity["exception"]:
+    for exception in complexity.get("exception", []):
         path = exception["path"]
         assert "*" not in path and "?" not in path and "[" not in path
         assert (REPO_ROOT / path).exists(), path
@@ -580,6 +580,38 @@ def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> No
         assert _contract_path_exists(shim["target_path"]), shim["id"]
         if shim["type"] == "wrapper_only":
             assert _contract_path_exists(shim["source_path"]), shim["id"]
+
+
+def test_complexity_checker_accepts_empty_registry_and_rejects_malformed_row(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    original_read_toml = repository_sota_closeout._read_toml
+    complexity: dict[str, Any] = {"complexity_exceptions": {"status": "active"}}
+
+    def read_toml(path: str) -> dict[str, Any]:
+        if path == "architecture/exceptions/complexity.toml":
+            return complexity
+        return original_read_toml(path)
+
+    monkeypatch.setattr(repository_sota_closeout, "_read_toml", read_toml)
+
+    assert repository_sota_closeout._check_complexity_exceptions() == []
+
+    complexity["exception"] = [
+        {
+            "path": "src/polisyos/core/contracts/runtime.py",
+            "expires": "not-a-date",
+        }
+    ]
+    findings = repository_sota_closeout._check_complexity_exceptions()
+    messages = {finding.message for finding in findings}
+    assert "src/polisyos/core/contracts/runtime.py missing `owner`" in messages
+    assert "src/polisyos/core/contracts/runtime.py missing `reason`" in messages
+    assert "src/polisyos/core/contracts/runtime.py missing `remediation`" in messages
+    assert "src/polisyos/core/contracts/runtime.py missing issue/ADR reference" in messages
+    assert "src/polisyos/core/contracts/runtime.py has invalid `expires`" in messages
 
 
 @pytest.mark.parametrize(

@@ -12,7 +12,7 @@ import jax.numpy as jnp
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -176,10 +176,11 @@ def prepare_trivial_feedback_config(
     exec_plan_ref: ArtifactRef,
 ) -> FeedbackConfigRef:
     """Persist a minimal feedback config that endogenizes the income-tax rate."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    exec_plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(exec_plan_ref)))
+    exec_plan = ExecPlan.model_validate(load_core_json_artifact(store, exec_plan_ref))
     program_graph = ProgramGraph.model_validate(
-        from_canonical_bytes(store.get_bytes(exec_plan.program_ref))
+        load_core_json_artifact(store, exec_plan.program_ref)
     )
     income_tax_node = next(
         (node.node_id for node in program_graph.nodes if node.mechanism_type == "income_tax"),
@@ -242,9 +243,10 @@ def prepare_trivial_multiplicity_config(
     exec_plan_ref: ArtifactRef,
 ) -> FeedbackConfigRef:
     """Persist the quickstart feedback config with multiplicity discovery enabled."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     feedback_ref = prepare_trivial_feedback_config(store, exec_plan_ref=exec_plan_ref)
-    config = FeedbackConfig.model_validate(from_canonical_bytes(store.get_bytes(feedback_ref)))
+    config = FeedbackConfig.model_validate(load_core_json_artifact(store, feedback_ref))
     multiplicity_config = config.model_copy(
         update={
             "solver": config.solver.model_copy(

@@ -389,11 +389,10 @@ class PersistentMemoryStore:
 
     def load_index(self, index_ref: ArtifactRef) -> None:
         """Restore the index from CAS."""
-        import json
+        from polisyos.core.artifacts import load_core_json_artifact
 
         with self._lock:
-            raw = self._store.get_bytes(index_ref)
-            self._index = MemoryIndex.model_validate(json.loads(raw))
+            self._index = MemoryIndex.model_validate(load_core_json_artifact(self._store, index_ref))
             self._hydrate_index_metadata()
             self._refresh_content_hashes()
 
@@ -679,11 +678,10 @@ class PersistentMemoryStore:
         }
 
     def _load_memory_entry(self, idx_entry: MemoryIndexEntry) -> MemoryEntry | None:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
-            import json
 
-            raw = self._store.get_bytes(idx_entry.artifact_ref)
-            return MemoryEntry.model_validate(json.loads(raw))
+            return MemoryEntry.model_validate(load_core_json_artifact(self._store, idx_entry.artifact_ref))
         except Exception:
             return None
 

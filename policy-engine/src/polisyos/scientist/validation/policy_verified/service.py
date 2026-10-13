@@ -14,7 +14,6 @@ from pydantic import ValidationError
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scholar import ResearchIntent, ResearchIntentRef
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.ir.analytics.cross_graph import (
@@ -597,6 +596,7 @@ def build_verified_policy_report(
 
 
 def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     if raw_ref is None:
         return None
     try:
@@ -606,7 +606,7 @@ def _load_research_intent(store: FileSystemCAS, raw_ref: Any) -> ResearchIntent 
     except _POLICY_VERIFIED_MODEL_ERRORS:
         return None
     try:
-        payload = from_canonical_bytes(store.get_bytes(ref))
+        payload = load_core_json_artifact(store, ref)
     except _POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS:
         return None
     try:
@@ -702,12 +702,13 @@ def _load_cross_graph_profile(
     store: FileSystemCAS,
     state: ExperimentState,
 ) -> CrossGraphEvidenceProfile | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     raw_ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
     if raw_ref is None:
         return None
     try:
         return CrossGraphEvidenceProfile.model_validate(
-            from_canonical_bytes(store.get_bytes(raw_ref))
+            load_core_json_artifact(store, raw_ref)
         )
     except (*_POLICY_VERIFIED_ARTIFACT_LOAD_ERRORS, *_POLICY_VERIFIED_MODEL_ERRORS):
         return None

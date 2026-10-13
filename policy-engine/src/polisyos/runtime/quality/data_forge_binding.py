@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon, scan_secret_and_pii
 from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
@@ -1136,13 +1137,21 @@ def resolve_fabric_measurement_root(
         execution_scope_binding
     )
 
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
 
     active_providers = providers or resolve_retrieval_providers()
     artifact_id = artifacts.ArtifactID(source_artifact_id)
     raw = store.get_bytes(artifact_id)
     manifest = store.get_manifest(artifact_id)
-    payload = FabricMeasurementRootPayload.model_validate(canon.from_canonical_bytes(raw))
+    payload = FabricMeasurementRootPayload.model_validate(
+        load_core_json_artifact(
+            store,
+            artifact_id,
+            raw_payload_bytes=raw,
+            manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+        )
+    )
     expected_inputs = [
         artifacts.InputRef(artifact_id=payload.fetch_receipt_ref.artifact_id, role="fabric_fetch")
     ]
@@ -1204,7 +1213,7 @@ def resolve_fabric_measurement_root(
         raise ValueError("measurement_root_authority_envelope_integrity_invalid")
     store.get_manifest(authority_envelope_ref)
     emitted_authority = EvidenceAuthorityEnvelope.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(authority_envelope_ref))
+        load_core_json_artifact(store, authority_envelope_ref)
     )
     opts, identity = _measurement_root_authority_configuration(
         payload.model_dump(mode="json"),
@@ -1454,6 +1463,15 @@ def _read_validated_measurement_snapshot_artifact(
         or manifest.inputs != list(expected_inputs)
     ):
         raise FabricMeasurementRootBindingError("measurement_root_snapshot_custody_invalid")
+    if expected_media_type == "application/json":
+        try:
+            artifacts.read_core_json_artifact_bytes(
+                store, artifact_ref, raw_payload_bytes=raw
+            )
+        except CanonicalProfileRefusalError as exc:
+            raise FabricMeasurementRootBindingError(
+                "measurement_root_snapshot_profile_unverified"
+            ) from exc
     return raw
 
 
@@ -1617,6 +1635,8 @@ def resolve_measurement_root_evidence(
     Fabric fetch, payload, and catalog owners have revalidated the chain.
     """
 
+    from polisyos.core.artifacts import load_core_json_artifact
+
     execution_scope_binding = _require_measurement_root_execution_binding(
         execution_scope_binding
     )
@@ -1631,10 +1651,9 @@ def resolve_measurement_root_evidence(
         raise FabricMeasurementRootBindingError("measurement_root_envelope_invalid")
     try:
         payload_artifact_id = artifacts.ArtifactID(measurement_root.payload_ref)
-        payload_bytes = store.get_bytes(payload_artifact_id)
         payload_manifest = store.get_manifest(payload_artifact_id)
         payload = FabricMeasurementRootPayload.model_validate(
-            canon.from_canonical_bytes(payload_bytes)
+            load_core_json_artifact(store, payload_artifact_id)
         )
         measurement_root_payload_ref = artifacts.ArtifactRef(
             artifact_id=payload_artifact_id,
@@ -2069,6 +2088,10 @@ def verify_recorded_panel_method_input(
     binding_receipt_ref: artifacts.ArtifactRef,
 ) -> RecordedPanelMethodInput:
     """Resolve and rederive the complete panel before granting measured-input custody."""
+    from polisyos.core.artifacts import (
+        load_core_json_artifact,
+        validate_core_model_json_artifact,
+    )
     try:
         binding_receipt_ref = artifacts.ArtifactRef.model_validate(
             binding_receipt_ref.model_dump(mode="python")
@@ -2089,8 +2112,8 @@ def verify_recorded_panel_method_input(
             )
         ):
             raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
-        receipt = RecordedPanelBindingReceipt.model_validate_json(
-            store.get_bytes(binding_receipt_ref),
+        receipt = validate_core_model_json_artifact(
+            RecordedPanelBindingReceipt, store, binding_receipt_ref
         )
         if binding_manifest.inputs != [
             artifacts.InputRef(
@@ -2118,7 +2141,7 @@ def verify_recorded_panel_method_input(
             )
         ):
             raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
-        actual_payload = canon.from_canonical_bytes(store.get_bytes(receipt.observational_data_ref))
+        actual_payload = load_core_json_artifact(store, receipt.observational_data_ref)
         expected_payload = ObservationMethodInputEnvelope(
             contract_target=_RECORDED_PANEL_TARGET,
             contract_payload=payload,

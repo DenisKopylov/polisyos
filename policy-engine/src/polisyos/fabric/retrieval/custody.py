@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon, scan_secret_and_pii
 from polisyos.core.contracts.control import FetchPlan
@@ -206,6 +207,7 @@ def _put_json(
             schema=core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION),
             producer=_PRODUCER,
             inputs=inputs,
+            canon=core_artifacts.CanonInfo.from_spec(_CANON),
         ),
     )
 
@@ -302,6 +304,13 @@ def _read(
         or (inputs is not None and manifest.inputs != inputs)
     ):
         raise FabricFetchCustodyError("fabric_fetch_manifest_mismatch")
+    if media_type == _JSON:
+        try:
+            core_artifacts.read_core_json_artifact_bytes(
+                store, checked, raw_payload_bytes=data
+            )
+        except CanonicalProfileRefusalError as exc:
+            raise FabricFetchCustodyError("fabric_fetch_profile_unverified") from exc
     return data
 
 

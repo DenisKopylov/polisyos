@@ -23,16 +23,14 @@ export type RunLaunchWithAdmissionAttempt = RunLaunchResponse & {
 };
 
 async function launchNlRun(
-  input: NaturalLanguageRunLaunchRequest,
+  body: NaturalLanguageRunRequest,
+  idempotencyKey: string,
 ): Promise<RunLaunchWithAdmissionAttempt> {
-  const { idempotencyKey, ...body } = input;
   const { data, error, response } = await runtimeApiClient.POST(
     "/api/v1/control/runs/nl",
     {
       body,
-      headers: idempotencyKey
-        ? { "Idempotency-Key": idempotencyKey }
-        : undefined,
+      params: { header: { "Idempotency-Key": idempotencyKey } },
     },
   );
   if (error || !response.ok || !data) {
@@ -41,15 +39,16 @@ async function launchNlRun(
       error,
       "Failed to launch natural-language run",
     );
-    const errorPayload =
-      typeof error === "object" && error !== null
-        ? (error as { pre_admission_attempt_id?: unknown })
+    const payloadAttemptId =
+      typeof error === "object" &&
+      error !== null &&
+      "pre_admission_attempt_id" in error &&
+      typeof error.pre_admission_attempt_id === "string"
+        ? error.pre_admission_attempt_id
         : null;
     const attemptId =
       response.headers.get("X-Control-Admission-Attempt-ID") ??
-      (typeof errorPayload?.pre_admission_attempt_id === "string"
-        ? errorPayload.pre_admission_attempt_id
-        : null);
+      payloadAttemptId;
     if (attemptId !== null) {
       Object.assign(launchError, { preAdmissionAttemptId: attemptId });
     } else if (
@@ -61,7 +60,7 @@ async function launchNlRun(
   }
   const attemptId = response.headers.get("X-Control-Admission-Attempt-ID");
   return {
-    ...(data as RunLaunchResponse),
+    ...data,
     ...(attemptId ? { pre_admission_attempt_id: attemptId } : {}),
   };
 }
@@ -69,7 +68,10 @@ async function launchNlRun(
 export function useLaunchNlRun(scope: ControlPreAdmissionRecoveryScope | null) {
   const queryClient = useQueryClient();
   const recovery = useControlPreAdmissionRecovery(scope);
-  const mutation = useControlPlaneMutation({
+  const mutation = useControlPlaneMutation<
+    RunLaunchWithAdmissionAttempt,
+    NaturalLanguageRunLaunchRequest
+  >({
     blockWhenOffline: true,
     errorToast: {
       title: "Natural-language launch failed",
@@ -90,10 +92,7 @@ export function useLaunchNlRun(scope: ControlPreAdmissionRecoveryScope | null) {
       const stableIdempotencyKey = record.idempotencyKey;
       const recoveryQueryKey = queryKeys.controlPreAdmissionRecovery(scope);
       try {
-        const result = await launchNlRun({
-          ...body,
-          idempotencyKey: stableIdempotencyKey,
-        });
+        const result = await launchNlRun(body, stableIdempotencyKey);
         if (result.pre_admission_attempt_id) {
           await controlPreAdmissionRecoveryRepository.rememberAttemptId(
             scope,
@@ -106,9 +105,8 @@ export function useLaunchNlRun(scope: ControlPreAdmissionRecoveryScope | null) {
           typeof error === "object" &&
           error !== null &&
           "preAdmissionAttemptId" in error &&
-          typeof (error as { preAdmissionAttemptId?: unknown })
-            .preAdmissionAttemptId === "string"
-            ? (error as { preAdmissionAttemptId: string }).preAdmissionAttemptId
+          typeof error.preAdmissionAttemptId === "string"
+            ? error.preAdmissionAttemptId
             : null;
         if (attemptId) {
           await controlPreAdmissionRecoveryRepository.rememberAttemptId(
@@ -119,8 +117,7 @@ export function useLaunchNlRun(scope: ControlPreAdmissionRecoveryScope | null) {
           typeof error === "object" &&
           error !== null &&
           "preAdmissionNoAttempt" in error &&
-          (error as { preAdmissionNoAttempt?: unknown })
-            .preAdmissionNoAttempt === true
+          error.preAdmissionNoAttempt === true
         ) {
           await controlPreAdmissionRecoveryRepository.releaseKnownNoAttempt(
             scope,

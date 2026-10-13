@@ -124,3 +124,59 @@ def test_registry_loader_resolves_selected_top_level_bundle_without_fallback(tmp
     )
     with pytest.raises(ArtifactOwnershipError):
         load_registry_bundle_content(owner_store, unheld_ref)
+
+
+def test_registry_builder_rejects_a_profileless_selected_write(
+    tmp_path, monkeypatch
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    original_put_json = store.put_json
+
+    def profileless_writer(obj, opts, canon_spec=None, *, return_selected_profile=False):
+        return original_put_json(obj, opts, canon_spec)
+
+    monkeypatch.setattr(store, "put_json", profileless_writer)
+    with pytest.raises(ValueError, match="registry_selected_profile_not_returned"):
+        build_default_registry_bundle(store, return_selected_profile=True)
+
+
+def test_registry_bundle_can_return_selected_profiles_for_owner_resume(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
+
+    refs = [
+        bundle.bundle_ref,
+        bundle.slot_registry,
+        bundle.merge_registry,
+        bundle.mechanism_registry,
+        bundle.constraint_registry,
+        bundle.selector_field_registry,
+        bundle.metric_registry,
+        bundle.units_registry,
+        bundle.trust_registry,
+        bundle.predicate_registry,
+        bundle.privacy_registry,
+    ]
+    assert all(ref is None or ref.manifest_profile_sha256 is not None for ref in refs)
+    assert store.verify(bundle.bundle_ref).ok
+    manifest = store.get_manifest(bundle.bundle_ref)
+    payload = load_registry_bundle_payload(store, bundle.bundle_ref)
+    assert payload.slot_registry == bundle.slot_registry
+    assert payload.merge_registry == bundle.merge_registry
+    for role, ref in [
+        ("slot_registry", bundle.slot_registry),
+        ("merge_registry", bundle.merge_registry),
+        ("constraint_registry", bundle.constraint_registry),
+        ("mechanism_registry", bundle.mechanism_registry),
+        ("selector_field_registry", bundle.selector_field_registry),
+        ("metric_registry", bundle.metric_registry),
+        ("units_registry", bundle.units_registry),
+        ("trust_registry", bundle.trust_registry),
+        ("predicate_registry", bundle.predicate_registry),
+        ("privacy_registry", bundle.privacy_registry),
+    ]:
+        if ref is None:
+            continue
+        member = next(item for item in manifest.inputs if item.role == role)
+        assert member.artifact_id == ref.artifact_id
+        assert member.manifest_profile_sha256 == ref.manifest_profile_sha256

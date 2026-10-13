@@ -14,7 +14,7 @@ from polisyos.core.artifacts import (
     SchemaInfo,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DiscoveryArtifactBundleRef, Metrics, PriorKnowledgeBundleRef
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
 from polisyos.ir.analytics import CausalEffectReport
@@ -300,10 +300,11 @@ def _load_simulation_metrics_impl(
     ctx: ExecutionContext, state: ExperimentState
 ) -> dict[str, float]:
     """Load simulation metrics."""
+    from polisyos.core.artifacts import load_core_json_artifact
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
-    payload = from_canonical_bytes(ctx.store.get_bytes(metrics_ref))
+    payload = load_core_json_artifact(ctx.store, metrics_ref)
     metrics = Metrics.model_validate(payload)
     output: dict[str, float] = {}
     for key, value in metrics.values.items():
@@ -333,20 +334,22 @@ def _load_causal_report_impl(
     ctx: ExecutionContext, state: ExperimentState
 ) -> CausalEffectReport | None:
     """Load causal report."""
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
-    return CausalEffectReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    return CausalEffectReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_governance_report_impl(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
     """Load governance report."""
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_cross_graph_profile_impl(ctx: ExecutionContext, state: ExperimentState):
@@ -437,7 +440,8 @@ def _load_benchmark_evaluation_impl(
     ref: ArtifactRef,
 ) -> BenchmarkEvaluation:
     """Load benchmark evaluation."""
-    return BenchmarkEvaluation.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return BenchmarkEvaluation.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _load_governance_report_from_ref_impl(
@@ -445,7 +449,8 @@ def _load_governance_report_from_ref_impl(
     ref: ArtifactRef,
 ) -> GovernanceReport:
     """Load governance report from ref."""
-    return GovernanceReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _merge_proxy_boundary_into_latent_bundle_impl(
@@ -502,6 +507,7 @@ def _load_ambiguity_certificate_impl(
     artifact_ref_parser: Callable[[Any], ArtifactRef | None],
 ) -> AmbiguityCertificate | None:
     """Load the first valid ambiguity certificate from runtime params or artifacts."""
+    from polisyos.core.artifacts import load_core_json_artifact
     for key in ("ambiguity_certificate", "moment_dro_certificate"):
         certificate = parse_certificate(state.params.get(key))
         if certificate is not None:
@@ -524,7 +530,7 @@ def _load_ambiguity_certificate_impl(
         if ref is None:
             continue
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+            payload = load_core_json_artifact(ctx.store, ref)
         except _POLICY_RUNTIME_LOAD_ERRORS:
             continue
         certificate = parse_certificate(payload)

@@ -9,7 +9,7 @@ change_class = "persisted-artifact-format"
 surface_classification = "public_stable: versioned polisyos.ir.analytics artifacts; internal graph-admission implementation"
 migration = "Readers preserve historical source graphs and fail closed when a prior resolved graph cannot be reproduced from the complete source payload. Only unversioned input mappings and manifest-bound schema-1.0 GraphHypothesis payloads without the disposition use the historical adapter; the latter are upgraded only by exact profile recomputation and remain typed unsupported when unresolved. Current GraphHypothesis writes require payload and manifest schema 1.1 to match, and mismatches or missing current versions are rejected before analysis. Schema-1.1 payloads must include the disposition. Regenerate and review the IR schema snapshots and public-surface inventory before release."
 api = "The canonical causal-graph module exports GraphProjectionDisposition, GraphProjectionStatus, graph_for_analysis, graph_content_sha256, and project_graph_to_dag. Existing package facade exports, high-level method identities, and Foundry registration names are unchanged; no generated HTTP client contract changes."
-limitations = "This change does not establish graph truth, complete PAG/CPDAG identification semantics, completion-set probability, empirical calibration, or publication authority. Unknown or unresolved endpoint profiles remain unsupported. Runtime, generated-schema, and public-surface inventory verification are pending root-owned validation."
+limitations = "This change does not establish graph truth, complete PAG/CPDAG identification semantics, completion-set probability, empirical calibration, or publication authority. Unknown or unresolved endpoint profiles remain unsupported in scalar admission; the M-graph recovery owner derives internal static subgraphs from actual resolved marks and typed-refuses unresolved endpoints. Current 1.2 utility/prior writers persist nullable scope fields explicitly as JSON null when scope is not established, preserving the strict reader contract. Runtime, generated-schema, and public-surface inventory verification are pending root-owned validation."
 evidence = [
   "tests/unit/remediation/test_grf_03.py",
   "tests/unit/foundry/methods/catalog/causal/test_constraint_discovery.py",
@@ -17,6 +17,8 @@ evidence = [
   "tests/unit/ir/test_causal_discovery_contract.py",
   "tests/unit/ir/test_transportability_contract.py",
   "tests/unit/foundry/methods/catalog/causal/test_symbolic_identify_y0.py",
+  "tests/unit/foundry/methods/catalog/causal/test_missing_data.py",
+  "tests/unit/scientist/discovery/test_priors.py",
   "tests/unit/ir/test_causal_graph_cache_rows.py",
   "tests/unit/scientist/discovery/test_schema.py",
   "tests/unit/scientist/discovery/test_utility_judge.py",
@@ -52,7 +54,7 @@ surface = "public CausalEngine and direct Foundry ID calls; internal canonical g
 owner = "team-foundry"
 version_owner = "team-foundry"
 deprecation_window = "not_applicable"
-release_note = "Direct scalar ID and TR entry points consume detached snapshots of the complete graph and typed selection diagram; PAG/CPDAG source tags remain a typed limitation until completion semantics are adjudicated. Static ID refuses cyclic ADMGs and M-graphs without full-law inputs; TR requires each S-node target in the base graph, and the validated dynamic-reduction, sigma/cyclic, temporal, and full-law routes retain their separate owners."
+release_note = "Direct scalar ID and TR entry points consume detached snapshots of the complete graph and typed selection diagram; PAG/CPDAG source tags remain a typed limitation until completion semantics are adjudicated. Static ID refuses cyclic ADMGs and M-graphs without full-law inputs; the dedicated M-graph recoverability route derives proxy-stripped DAG/ADMG subgraphs only from resolved endpoint marks and refuses unsupported marks. TR requires each S-node target in the base graph, and the validated dynamic-reduction, sigma/cyclic, temporal, and full-law routes retain their separate owners."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["docs/reference/ir/analytics.md", "src/polisyos/foundry/methods/catalog/causal/README.md"]
 runbook_docs = []
@@ -78,7 +80,7 @@ surface = "DownstreamUtilityReport and GraphPriorBundle schema 1.2; HypothesisUt
 owner = "team-scientist"
 version_owner = "team-scientist"
 deprecation_window = "not_applicable"
-release_note = "Current DownstreamUtilityReport 1.2 scorecards derive unknown assumption status and ranking-only falsification scope from typed constraint-family evidence, persisted constraint references, or hydrated previews, and GraphPriorBundle 1.2 carries that status through per-hypothesis evidence into emitted cross-graph needs. Exact historical 1.1 utility and prior artifacts remain labeled 1.1 and are read as routing-only with unknown scope. Neither path authorizes publication or protected promotion."
+release_note = "Current DownstreamUtilityReport 1.2 scorecards derive unknown assumption status and ranking-only falsification scope from typed constraint-family evidence, persisted constraint references, or hydrated previews, and GraphPriorBundle 1.2 carries that status through per-hypothesis evidence into emitted cross-graph needs. The writers persist the nullable status/scope pair explicitly as JSON null when scope is not established, so current strict readers receive the declared 1.2 fields. Exact historical 1.1 utility and prior artifacts remain labeled 1.1 and are read as routing-only with unknown scope. Neither path authorizes publication or protected promotion."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["docs/reference/ir/analytics.md", "docs/reference/scientist/causal-graph-intake.md"]
 runbook_docs = []

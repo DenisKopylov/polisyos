@@ -143,17 +143,25 @@ def _persist(
 ) -> ArtifactRef:
     return store.put_bytes(
         to_canonical_bytes(value.model_dump(mode="json"), _CANON),
-        ArtifactWriteOptions(kind=kind, media_type="application/json", schema=schema),
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=schema,
+            canon=core_artifacts.CanonInfo.from_spec(_CANON),
+        ),
     )
 
 
 def _read(store: FileSystemCAS, ref: ArtifactRef, *, kind: str, schema: SchemaInfo) -> bytes:
-    return _read_exact_artifact(
+    raw = _read_exact_artifact(
         store=store,
         ref=ref,
         expected_kind=kind,
         expected_media_type="application/json",
         expected_schema=schema,
+    )
+    return core_artifacts.read_core_json_artifact_bytes(
+        store, ref, raw_payload_bytes=raw
     )
 
 

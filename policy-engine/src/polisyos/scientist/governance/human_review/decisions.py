@@ -7,7 +7,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.governance.human_review.models import (
     HumanReviewDecision,
     HumanReviewPacket,
@@ -79,8 +79,9 @@ def persist_review_decision(
 
 def load_review_decision(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewDecision:
     """Load a persisted human-review decision from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    return HumanReviewDecision.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    return HumanReviewDecision.model_validate(load_core_json_artifact(store, ref))
 
 
 def human_review_status(

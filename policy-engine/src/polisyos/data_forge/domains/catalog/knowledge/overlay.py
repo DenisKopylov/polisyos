@@ -40,6 +40,7 @@ DEFAULT_ACQUISITION_OVERLAY_PATH = Path(
     "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
 )
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_OVERLAY_EXTERNAL_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _BASELINE_UNION_TABLES = (
     "ds_datasets",
     "ds_distributions",
@@ -634,7 +635,9 @@ class _ArtifactStore(Protocol):
 
     def verify(self, artifact_id: ArtifactID) -> object: ...
 
-    def put_bytes(self, data: bytes, opts: object) -> ArtifactRef: ...
+    def put_bytes(
+        self, data: bytes, opts: object, *, return_selected_profile: bool = False
+    ) -> ArtifactRef: ...
 
 
 class _CanonicalAuthority(Protocol):
@@ -713,8 +716,9 @@ class _SemanticEpochProductionReceipt(Protocol):
 
 
 def _overlay_statement_payload(value: BaseModel | dict[str, object]) -> bytes:
+    """Frame new external statements with their declared Core JSON codec."""
     mapping = _model_json(value) if isinstance(value, BaseModel) else value
-    canonical = fabric_data_plane.canonical_json_bytes(mapping)
+    canonical = canon.to_canonical_bytes(mapping, _OVERLAY_EXTERNAL_CANON)
     return len(canonical).to_bytes(8, "big") + canonical
 
 
@@ -723,16 +727,52 @@ def _overlay_statement_content_hash(value: BaseModel | dict[str, object]) -> str
     return content_sha256(mapping)
 
 
+def _load_profiled_framed_statement(
+    *,
+    artifact_store: _ArtifactStore,
+    ref: ArtifactRef,
+    expected_kind: str,
+    raw_payload_bytes: bytes | None = None,
+) -> dict[str, object]:
+    """Return one mapping only after the exact Core frame profile conforms."""
+    if ref.manifest_profile_sha256 is None:
+        raise OverlayAdmissionError("semantic_external_receipt_profile_missing", expected_kind)
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import load_core_json_frame_records
+
+    try:
+        records = load_core_json_frame_records(
+            artifact_store,
+            ref,
+            raw_payload_bytes=raw_payload_bytes,
+        )
+    except CanonicalProfileRefusalError as exc:
+        raise OverlayAdmissionError(
+            "semantic_external_receipt_profile_unverified",
+            f"{expected_kind}: {exc}",
+        ) from exc
+    if len(records) != 1 or not isinstance(records[0], dict):
+        raise OverlayAdmissionError(
+            "semantic_external_receipt_frame_not_one_mapping",
+            expected_kind,
+        )
+    return records[0]
+
+
 def _persist_external_statement(
     *, artifact_store: _ArtifactStore, value: BaseModel | dict[str, object], kind: str
 ) -> tuple[ArtifactRef, str]:
-    payload = _overlay_statement_payload(value)
+    mapping = _model_json(value) if isinstance(value, BaseModel) else value
+    payload = _overlay_statement_payload(mapping)
+    expected_canon = artifacts.CanonInfo.from_spec(_OVERLAY_EXTERNAL_CANON)
     ref = artifact_store.put_bytes(
         payload,
         artifacts.PutOptions(
             kind=kind,
             media_type="application/vnd.polisyos.epoch+json",
+            canon=expected_canon,
         ),
+        return_selected_profile=True,
     )
     report = artifact_store.verify(ref)
     manifest = artifact_store.get_manifest(ref)
@@ -741,11 +781,20 @@ def _persist_external_statement(
         not bool(getattr(report, "ok", False))
         or readback != payload
         or str(ref.artifact_id) != f"sha256:{hashlib.sha256(payload).hexdigest()}"
+        or ref.manifest_profile_sha256 is None
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
         or getattr(manifest, "kind", None) != kind
         or getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json"
+        or getattr(manifest, "canon", None) != expected_canon
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed", kind)
+    if _load_profiled_framed_statement(
+        artifact_store=artifact_store,
+        ref=ref,
+        expected_kind=kind,
+        raw_payload_bytes=readback,
+    ) != mapping:
+        raise OverlayAdmissionError("semantic_external_receipt_profile_readback_mismatch", kind)
     return ref, _overlay_statement_content_hash(value)
 
 
@@ -756,27 +805,42 @@ def _persist_epoch_statement(
     kind: str,
     domain: str,
 ) -> tuple[ArtifactRef, str]:
-    """Copy one owner-canonical epoch statement into CAS and read it back."""
+    """Copy one owner-canonical epoch statement into CAS with its exact profile."""
 
     canonical = epoch_contract.canonical_epoch_bytes(value)
     payload = len(canonical).to_bytes(8, "big") + canonical
+    expected_canon = epoch_contract.epoch_canon_info()
     ref = artifact_store.put_bytes(
         payload,
         artifacts.PutOptions(
             kind=kind,
             media_type="application/vnd.polisyos.epoch+json",
+            canon=expected_canon,
         ),
+        return_selected_profile=True,
     )
     report = artifact_store.verify(ref)
     manifest = artifact_store.get_manifest(ref)
+    readback = artifact_store.get_bytes(ref)
     if (
         not bool(getattr(report, "ok", False))
-        or artifact_store.get_bytes(ref) != payload
+        or readback != payload
+        or ref.manifest_profile_sha256 is None
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
         or getattr(manifest, "kind", None) != kind
         or getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json"
+        or getattr(manifest, "canon", None) != expected_canon
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed", kind)
+    expected_mapping = _model_json(value) if isinstance(value, BaseModel) else value
+    observed_mapping = _load_profiled_framed_statement(
+        artifact_store=artifact_store,
+        ref=ref,
+        expected_kind=kind,
+        raw_payload_bytes=readback,
+    )
+    if observed_mapping != expected_mapping:
+        raise OverlayAdmissionError("semantic_external_receipt_profile_readback_mismatch", kind)
     return ref, _semantic_content_hash(domain=domain, value=value)
 
 
@@ -866,6 +930,8 @@ def _load_external_statement(
 ) -> dict[str, object]:
     if ref.kind != expected_kind or ref.media_type != "application/vnd.polisyos.epoch+json":
         raise OverlayAdmissionError("semantic_external_receipt_profile_mismatch")
+    if ref.manifest_profile_sha256 is None:
+        raise OverlayAdmissionError("semantic_external_receipt_profile_missing", expected_kind)
     report = artifact_store.verify(ref)
     manifest = artifact_store.get_manifest(ref)
     payload = artifact_store.get_bytes(ref)
@@ -874,10 +940,22 @@ def _load_external_statement(
         or str(ref.artifact_id) != f"sha256:{hashlib.sha256(payload).hexdigest()}"
         or getattr(manifest, "artifact_id", None) != ref.artifact_id
         or getattr(manifest, "kind", None) != expected_kind
-        or getattr(manifest, "media_type", None) != "application/vnd.polisyos.epoch+json"
+        or (
+            getattr(manifest, "media_type", None)
+            != "application/vnd.polisyos.epoch+json"
+        )
+        or (
+            getattr(manifest, "canon", None)
+            != artifacts.CanonInfo.from_spec(_OVERLAY_EXTERNAL_CANON)
+        )
     ):
         raise OverlayAdmissionError("semantic_external_receipt_readback_failed")
-    return _single_framed_json(payload)
+    return _load_profiled_framed_statement(
+        artifact_store=artifact_store,
+        ref=ref,
+        expected_kind=expected_kind,
+        raw_payload_bytes=payload,
+    )
 
 
 def _single_framed_json(payload: bytes) -> dict[str, object]:
@@ -893,6 +971,15 @@ def _single_framed_json(payload: bytes) -> dict[str, object]:
     if not isinstance(value, dict):
         raise OverlayAdmissionError("semantic_receipt_not_mapping")
     return value
+
+
+def _same_artifact_content_identity(left: ArtifactRef, right: ArtifactRef) -> bool:
+    """Compare content identity while allowing the CAS copy to add its selected profile."""
+    return (
+        left.artifact_id == right.artifact_id
+        and left.kind == right.kind
+        and left.media_type == right.media_type
+    )
 
 
 def _artifact_ref_for_payload(*, payload: bytes, kind: str) -> ArtifactRef:
@@ -1576,6 +1663,8 @@ class CatalogAcquisitionOverlay:
         if _enum_value(production_receipt.status) not in {"appended", "no_change"}:
             raise OverlayAdmissionError("semantic_epoch_production_not_positive")
         production_ref = production_receipt.receipt_ref
+        if production_ref.manifest_profile_sha256 is None:
+            raise OverlayAdmissionError("semantic_epoch_production_profile_missing")
         if not artifact_store.has(production_ref):
             raise OverlayAdmissionError("semantic_epoch_production_receipt_missing")
         production_report = artifact_store.verify(production_ref)
@@ -1586,13 +1675,19 @@ class CatalogAcquisitionOverlay:
             or production_manifest.artifact_id != production_ref.artifact_id
             or production_manifest.kind != production_ref.kind
             or production_manifest.media_type != production_ref.media_type
+            or production_manifest.canon != epoch_contract.epoch_canon_info()
             or production_ref.kind != "epoch.production_receipt"
             or production_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
             or f"sha256:{hashlib.sha256(production_raw).hexdigest()}"
             != str(production_ref.artifact_id)
         ):
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
-        persisted = _single_framed_json(production_raw)
+        persisted = _load_profiled_framed_statement(
+            artifact_store=artifact_store,
+            ref=production_ref,
+            expected_kind="epoch.production_receipt",
+            raw_payload_bytes=production_raw,
+        )
         expected = production_receipt.statement_projection()
         if persisted != expected:
             raise OverlayAdmissionError("semantic_epoch_production_receipt_drift")
@@ -2736,9 +2831,9 @@ class CatalogAcquisitionOverlay:
             kind="epoch.acquisition_passport_snapshot",
         )
         if (
-            native_member_ref != member.native_member_ref
+            not _same_artifact_content_identity(native_member_ref, member.native_member_ref)
             or native_member_hash != member.native_member_content_hash
-            or passport_ref != member.passport_ref
+            or not _same_artifact_content_identity(passport_ref, member.passport_ref)
             or passport_hash != member.passport_content_hash
         ):
             raise OverlayAdmissionError("admitted_native_member_cas_copy_drift")

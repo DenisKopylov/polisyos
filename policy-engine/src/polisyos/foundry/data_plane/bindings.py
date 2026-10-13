@@ -29,7 +29,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
@@ -168,6 +168,7 @@ class UkraineFoundryIntakeResult:
     stage_receipt_refs: dict[str, ArtifactRef]
     method_input_bundle_ref: ArtifactRef
     receipt_ref: ArtifactRef
+    source_snapshot_profile_reads: dict[str, read_api.ukraine.UkraineJSONSnapshotProvenance]
 
 
 class _UkraineMethodInputContract(BaseModel):
@@ -178,6 +179,7 @@ class _UkraineMethodInputContract(BaseModel):
     contract_id: str
     artifact_ref: ArtifactRef
     stage_receipt_ref: ArtifactRef
+    source_snapshot_profile: read_api.ukraine.UkraineJSONSnapshotProvenance
     consumption_state: Literal[
         "exercised_workflow_consumer",
         "selectable_unselected",
@@ -203,6 +205,7 @@ class _UkraineMethodInputBundle(BaseModel):
         ...,
     ] = ("governance_admissibility", "method_validity")
     contracts: dict[str, _UkraineMethodInputContract]
+    source_snapshot_profile_reads: dict[str, read_api.ukraine.UkraineJSONSnapshotProvenance]
 
 
 def load_ukraine_foundry_intake(
@@ -274,10 +277,13 @@ def load_ukraine_foundry_intake(
     except Exception as exc:
         raise ValueError(f"Ukraine intake receipt verification failed: {exc}") from exc
 
+    json_snapshot_profile_reads: dict[str, read_api.ukraine.UkraineJSONSnapshotProvenance] = {}
     runtime_bundle = _load_verified_json_output(
         store,
         receipts["d0_p0"],
         "runtime_bundle_manifest.json",
+        json_snapshot_profile_reads=json_snapshot_profile_reads,
+        consumer_contract="foundry.ukraine.runtime_bundle_manifest",
     )
     data_snapshot_id = runtime_bundle.get("data_snapshot_artifact_id")
     if not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip():
@@ -326,6 +332,8 @@ def load_ukraine_foundry_intake(
                     store,
                     receipts[stage_id],
                     output_name,
+                    json_snapshot_profile_reads=json_snapshot_profile_reads,
+                    consumer_contract=f"foundry.ukraine.method_input.{contract_name}",
                 ),
             )
         except Exception as exc:
@@ -336,12 +344,15 @@ def load_ukraine_foundry_intake(
             "source_path": output.source_path,
             "content_ref": str(output.content_ref.artifact_id),
             "sha256": output.sha256,
+            "source_snapshot_profile": json_snapshot_profile_reads[f"{stage_id}:{output_name}"].model_dump(mode="json"),
         }
 
     proxy_identification_bundle = _load_verified_json_output(
         store,
         receipts["d1"],
         "proxy_identification_bundle_v1.json",
+        json_snapshot_profile_reads=json_snapshot_profile_reads,
+        consumer_contract="foundry.ukraine.proxy_identification_bundle",
     )
     if not proxy_identification_bundle.get("proxy_channels"):
         raise ValueError("Ukraine proxy-identification bundle has no proxy_channels")
@@ -405,6 +416,7 @@ def load_ukraine_foundry_intake(
             contract_id=str(model_type.contract_id),
             artifact_ref=contract_ref,
             stage_receipt_ref=stage_receipt_refs[stage_id],
+            source_snapshot_profile=json_snapshot_profile_reads[f"{stage_id}:{output_name}"],
             consumption_state=(
                 "exercised_workflow_consumer"
                 if is_panel_consumer
@@ -418,7 +430,10 @@ def load_ukraine_foundry_intake(
             ),
         )
 
-    method_input_bundle = _UkraineMethodInputBundle(contracts=method_input_contracts)
+    method_input_bundle = _UkraineMethodInputBundle(
+        contracts=method_input_contracts,
+        source_snapshot_profile_reads=json_snapshot_profile_reads,
+    )
     method_input_bundle_ref = store.put_json(
         method_input_bundle,
         PutOptions(
@@ -455,7 +470,15 @@ def load_ukraine_foundry_intake(
             stage_id: receipt.model_dump(mode="json") for stage_id, receipt in receipts.items()
         },
         "validated_contracts": validated_contracts,
+        "source_snapshot_profile_reads": {
+            key: value.model_dump(mode="json")
+            for key, value in sorted(json_snapshot_profile_reads.items())
+        },
         "method_input_bundle_ref": method_input_bundle_ref.model_dump(mode="json"),
+        "json_snapshot_profile_reads": {
+            key: value.model_dump(mode="json")
+            for key, value in sorted(json_snapshot_profile_reads.items())
+        },
         "proxy_identification_bundle": {
             "source_path": receipts["d1"]
             .outputs["proxy_identification_bundle_v1.json"]
@@ -498,6 +521,7 @@ def load_ukraine_foundry_intake(
         stage_receipt_refs=stage_receipt_refs,
         method_input_bundle_ref=method_input_bundle_ref,
         receipt_ref=receipt_ref,
+        source_snapshot_profile_reads=json_snapshot_profile_reads,
     )
 
 
@@ -505,21 +529,23 @@ def _load_verified_json_output(
     store: FileSystemCAS,
     receipt: Any,
     output_name: str,
+    *,
+    json_snapshot_profile_reads: dict[str, read_api.ukraine.UkraineJSONSnapshotProvenance],
+    consumer_contract: str,
 ) -> dict[str, Any]:
-    """Load one receipt-bound JSON producer output as an object."""
-
-    try:
-        output_bytes = read_api.ukraine.load_verified_stage_output_bytes(
-            store,
-            receipt,
-            output_name,
-        )
-        payload = json.loads(output_bytes)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise ValueError(f"invalid JSON output {output_name}: {exc}") from exc
-    if not isinstance(payload, dict):
+    """Load one JSON output through the shared status-gated snapshot reader."""
+    read = read_api.ukraine.load_verified_stage_json_output(
+        store,
+        receipt,
+        output_name,
+        model_type=dict[str, Any],
+        consumer_contract=consumer_contract,
+    )
+    json_snapshot_profile_reads[f"{receipt.stage_id}:{output_name}"] = read.provenance
+    value = read.value_for_candidate()
+    if not isinstance(value, dict):
         raise ValueError(f"JSON output {output_name} must be an object")
-    return payload
+    return value
 
 
 def build_input_bindings(
@@ -735,8 +761,9 @@ def load_input_bindings(
     Returns:
         Parsed `FoundryInputBindings` model.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return FoundryInputBindings.model_validate(payload)
 
 
@@ -875,8 +902,9 @@ def inject_feedback_state(
 
 
 def _load_data_snapshot(store: FileSystemCAS, data_snapshot_ref: ArtifactRef) -> DataSnapshot:
+    from polisyos.core.artifacts import load_core_json_artifact
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
-    payload = from_canonical_bytes(store.get_bytes(data_snapshot_ref))
+    payload = load_core_json_artifact(store, data_snapshot_ref)
     return DataSnapshot.model_validate(payload)
 
 
@@ -993,6 +1021,7 @@ def _decode_arrow_binding_payload(payload: bytes) -> dict[str, Any]:
 
 
 def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
+    from polisyos.core.artifacts import load_core_json_artifact
     data_ref = snapshot.data_ref
     manifest = _reconcile_artifact_ref(store, data_ref, label="data snapshot payload")
     if data_ref.kind == "foundry.state_snapshot":
@@ -1001,7 +1030,7 @@ def _load_binding_payload(store: FileSystemCAS, snapshot: DataSnapshot) -> Any:
         return {}
     payload = store.get_bytes(data_ref)
     if manifest.media_type == _JSON_MEDIA_TYPE:
-        return from_canonical_bytes(payload)
+        return load_core_json_artifact(store, data_ref, raw_payload_bytes=payload)
     if manifest.media_type == _ARROW_MEDIA_TYPE:
         return _decode_arrow_binding_payload(payload)
     raise ValueError(f"unsupported data snapshot payload media type: {manifest.media_type}")

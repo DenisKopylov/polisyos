@@ -14,8 +14,8 @@ from typing import Annotated, Any, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts import ArtifactID, ArtifactRef
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, CanonInfo
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
 Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)]
 
@@ -81,6 +81,11 @@ def _raw(value: Any) -> Any:
     return value
 
 
+def epoch_canon_info() -> CanonInfo:
+    """Return manifest metadata for the canonical epoch codec."""
+    return CanonInfo.from_spec(_CANON)
+
+
 def canonical_epoch_bytes(value: BaseModel | dict[str, Any]) -> bytes:
     """Return canonical JSON bytes for an explicitly typed epoch value."""
 
@@ -112,6 +117,7 @@ def load_verified_epoch_statement(
     from independently re-read bytes after CAS, manifest-profile, frame-count and
     content-address checks all agree.
     """
+    from polisyos.core.artifacts import load_core_json_frame_records
 
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
         raise ValueError("epoch statement reference profile differs")
@@ -130,7 +136,7 @@ def load_verified_epoch_statement(
     size = int.from_bytes(payload[:8], "big")
     if size != len(payload) - 8:
         raise ValueError("epoch statement frame denominator differs from one")
-    decoded = from_canonical_bytes(payload[8:])
+    decoded = load_core_json_frame_records(store, ref, raw_payload_bytes=payload)[0]
     if not isinstance(decoded, dict):
         raise ValueError("epoch statement payload is not a mapping")
     return {str(key): value for key, value in decoded.items()}
@@ -989,6 +995,7 @@ __all__ = [
     "acquisition_semantic_candidate_bytes",
     "acquisition_semantic_candidate_content_hash",
     "canonical_epoch_bytes",
+    "epoch_canon_info",
     "epoch_query_context_ref",
     "epoch_semantic_content_hash",
     "load_verified_epoch_statement",

@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
-from polisyos.core.canon import CanonSpec, CanonViolation, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.scientist.methods.backtesting.adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
@@ -278,9 +278,10 @@ def _load_stress_test_report(
     ctx: ExecutionContext,
     ref: ArtifactRef | None,
 ) -> StressTestReport | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     if ref is None:
         return None
-    return StressTestReport.model_validate(from_canonical_bytes(ctx.store.get_bytes(ref)))
+    return StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
 def _find_non_finite_projection_values(value: Any) -> list[dict[str, str]]:

@@ -655,7 +655,13 @@
           "strategy": "Рекомендована strategy",
           "status": "Статус route",
           "voi": "VOI",
-          "costedPlan": "Costed plan, підтверджений owner"
+          "costedPlan": "Costed plan, підтверджений owner",
+          "worldGrowth": "Зміна моделі",
+          "growthStatus": {
+            "notEstablished": "Оновлення не встановлено",
+            "noGrowth": "До вибраної активної епохи не додано учасників",
+            "admittedDelta": "До вибраної активної епохи додано учасників"
+          }
         },
         "action": {
           "eyebrow": "Рух acquisition route",

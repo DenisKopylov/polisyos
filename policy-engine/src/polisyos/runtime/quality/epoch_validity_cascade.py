@@ -288,6 +288,7 @@ def _read_model(
     kind: str | None = None,
     profile_record: str | None = None,
 ) -> _StrictModel:
+    from polisyos.core.artifacts import load_core_json_artifact
     if (kind is None) == (profile_record is None):
         raise ValueError("exactly_one_chronology_read_profile_required")
     if profile_record is not None:
@@ -335,7 +336,7 @@ def _read_model(
         )
     ):
         raise ValueError("chronology_artifact_readback_mismatch")
-    value = model.model_validate(canon.from_canonical_bytes(raw))
+    value = model.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if profile_record is not None and c4_canonical_bytes(profile_record, value) != raw:
         raise ValueError("chronology_artifact_canonical_profile_mismatch")
     return value
@@ -539,6 +540,7 @@ def resolve_advisory_perturbation_event(
     ref: ArtifactRef,
 ) -> AdvisoryPerturbationEvent:
     """Resolve exact advisory bytes and reject profile or canonical drift."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     raw = store.get_bytes(ref)
     report = store.verify(ref)
@@ -559,7 +561,9 @@ def resolve_advisory_perturbation_event(
         or manifest.canon != artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
     ):
         raise ValueError("epoch advisory event artifact profile mismatch")
-    advisory = AdvisoryPerturbationEvent.model_validate(canon.from_canonical_bytes(raw))
+    advisory = AdvisoryPerturbationEvent.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    )
     if _canonical_bytes(advisory) != raw:
         raise ValueError("epoch advisory event canonical bytes mismatch")
     return advisory
@@ -1028,6 +1032,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         self,
         receipt_ref: ArtifactRef,
     ) -> SemanticEpochProductionReceipt:
+        from polisyos.core.artifacts import load_core_json_frame_records
         if (
             receipt_ref.kind != "epoch.production_receipt"
             or receipt_ref.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
@@ -1051,7 +1056,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
             raise ValueError("epoch transition receipt CAS readback failed")
         try:
             receipt = SemanticEpochProductionReceipt.model_validate(
-                canon.from_canonical_bytes(records[0])
+                load_core_json_frame_records(self._artifacts, receipt_ref, raw_payload_bytes=raw)[0]
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("epoch transition receipt CAS readback failed") from exc
@@ -1081,6 +1086,7 @@ class FileSemanticEpochTransitionHistoryAdapter:
         self,
         manifest_ref: ArtifactRef,
     ) -> SemanticEpochManifest:
+        from polisyos.core.artifacts import load_core_json_frame_records
         if (
             manifest_ref.kind != "epoch.semantic_manifest"
             or manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
@@ -1103,7 +1109,11 @@ class FileSemanticEpochTransitionHistoryAdapter:
         ):
             raise ValueError("epoch transition semantic manifest CAS readback failed")
         try:
-            manifest = SemanticEpochManifest.model_validate(canon.from_canonical_bytes(records[0]))
+            manifest = SemanticEpochManifest.model_validate(
+                load_core_json_frame_records(
+                    self._artifacts, manifest_ref, raw_payload_bytes=raw
+                )[0]
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("epoch transition semantic manifest CAS readback failed") from exc
         expected_raw = core_contracts.chronology._frame_record(
@@ -2293,6 +2303,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
     def _verify_design_problem_binding(
         self, statement: PromotionOwnerQueryContextStatement
     ) -> None:
+        from polisyos.core.artifacts import load_core_json_artifact
         ref = statement.design_problem_binding_ref
         if ref.kind != "runtime.design_problem" or ref.media_type != "application/json":
             raise ValueError("promotion_design_problem_profile_mismatch")
@@ -2305,7 +2316,9 @@ class ArtifactPromotionOwnerQueryContextRepository:
             or manifest.media_type != ref.media_type
         ):
             raise ValueError("promotion_design_problem_readback_mismatch")
-        problem = DesignProblem.model_validate(canon.from_canonical_bytes(raw))
+        problem = DesignProblem.model_validate(
+            load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
+        )
         if (
             _semantic_hash("runtime.design_problem", problem)
             != statement.design_problem_binding_content_hash
@@ -2333,6 +2346,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
         authority_purpose: str,
         expected_verifier_provenance_ref: ArtifactRef,
     ) -> None:
+        from polisyos.core.artifacts import load_core_json_artifact
         if isinstance(evidence, EpochPromotionQueryEvidence):
             profile_record = "epoch_query_evidence"
             context_domain = "polisyos.promotion-query.semantic-epoch.context.v1"
@@ -2357,7 +2371,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
             raise ValueError("promotion_query_family_substitution")
         raw = self._artifacts.get_bytes(ref)
         manifest = self._artifacts.get_manifest(ref)
-        observed_payload = canon.from_canonical_bytes(raw)
+        observed_payload = load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
         if not isinstance(observed_payload, dict):
             raise ValueError("promotion_query_context_binding_mismatch")
         if isinstance(evidence, EpochPromotionQueryEvidence):
@@ -2910,6 +2924,7 @@ class ArtifactEpochValidityN9EvidenceResolver:
         | core_contracts.decision_validity.EpochValidityGateNonReceipt
     ):
         """Rebuild handles from the projection and re-read every owner artifact."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         admission = core_contracts.decision_validity.PreN9AdmittedCandidate(
             aggregate_context_ref=projection.owner_query_context_ref,
@@ -2929,8 +2944,9 @@ class ArtifactEpochValidityN9EvidenceResolver:
             )
             if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
                 raise ValueError("epoch_validity_aggregate_unresolved")
-            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
-            problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
+            problem = DesignProblem.model_validate(
+                load_core_json_artifact(self._store, aggregate.statement.design_problem_binding_ref)
+            )
             if gy_content_hash(problem.model_dump(mode="json")) != expected_problem_content_hash:
                 raise ValueError("epoch_validity_design_problem_binding_mismatch")
             resolved = self.resolve_verified(

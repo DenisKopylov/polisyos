@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
 from polisyos.ir.analytics import ClaimVocabularyAxisStatus
 from polisyos.ir.analytics.causal_discovery import (
@@ -331,8 +331,12 @@ def persist_graph_prior_bundle(
 ) -> GraphPriorBundleRef:
     """Persist the graph-prior bundle assembled before discovery execution begins."""
     current_bundle = _revalidate_current_graph_prior_bundle(bundle)
+    payload = current_bundle.model_dump(mode="json")
+    for evidence in payload["hypothesis_identification"].values():
+        evidence.setdefault("graph_derived_assumption_status", None)
+        evidence.setdefault("graph_derived_scope_of_falsification", None)
     ref = store.put_json(
-        current_bundle,
+        payload,
         PutOptions(
             kind="scientist.graph_prior_bundle",
             media_type="application/json",
@@ -356,7 +360,8 @@ def load_graph_prior_bundle(
     if ref.manifest_profile_sha256 is None:
         raise ValueError("graph prior bundle manifest profile is missing")
     manifest = store.get_manifest(ref)
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     stored_version = _validate_graph_prior_artifact_binding(ref, manifest, payload)
     if stored_version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION:
         payload = _adapt_historical_v1_1_graph_prior_payload(payload)
@@ -524,7 +529,8 @@ def load_prior_knowledge_bundle(
     ref: PriorKnowledgeBundleRef,
 ) -> PriorKnowledgeBundle:
     """Load prior knowledge bundle."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return PriorKnowledgeBundle.model_validate(payload)
 
 

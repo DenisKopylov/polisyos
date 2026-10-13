@@ -21,7 +21,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.contracts import EpochPerturbationClass
 
 CONTINUOUS_GOVERNANCE_FLAG = "scientist.best_in_class.wave2.phase2_6.continuous_governance"
@@ -281,6 +281,7 @@ def resolve_governance_monitor_event(
     ref: ArtifactRef,
 ) -> PersistedGovernanceMonitorEvent:
     """Resolve exact bytes, manifest profile, and semantic model for one event ref."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     raw = store.get_bytes(ref)
     report = store.verify(ref)
@@ -302,7 +303,7 @@ def resolve_governance_monitor_event(
         or manifest.canon != CanonInfo.from_spec(CanonSpec(forbid_floats=False))
     ):
         raise ValueError("governance monitor event artifact profile mismatch")
-    event = GovernanceMonitorEvent.model_validate(from_canonical_bytes(raw))
+    event = GovernanceMonitorEvent.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if to_canonical_bytes(event, CanonSpec(forbid_floats=False)) != raw:
         raise ValueError("governance monitor event canonical bytes mismatch")
     return PersistedGovernanceMonitorEvent(
@@ -449,6 +450,7 @@ def emit_governance_lifecycle_evidence(
     points at the immutable report body, while the diagnostic event and authority
     envelope are persisted as sibling CAS sidecars linked by refs.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
     _validate_lifecycle_decision(
         lifecycle_decision=lifecycle_decision,
@@ -599,12 +601,8 @@ def emit_governance_lifecycle_evidence(
         **authority_fields,
     )
     report_ref_value = str(result.cas_ref.artifact_id)
-    diagnostic_payload = from_canonical_bytes(
-        store.get_bytes(result.diagnostic_event_ref)
-    )
-    authority_payload = from_canonical_bytes(
-        store.get_bytes(result.authority_envelope_ref)
-    )
+    diagnostic_payload = load_core_json_artifact(store, result.diagnostic_event_ref)
+    authority_payload = load_core_json_artifact(store, result.authority_envelope_ref)
 
     return GovernanceLifecycleEvidence(
         lifecycle_decision=lifecycle_decision,

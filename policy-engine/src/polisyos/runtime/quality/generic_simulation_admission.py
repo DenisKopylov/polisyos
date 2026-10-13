@@ -1339,6 +1339,7 @@ class GenericCycleSimulationAdmissionOwner:
         cell_id: str,
     ) -> GenericCycleSimulationProfileV1:
         """Resolve the exact persisted server profile and its whole manifest scope."""
+        from polisyos.core.artifacts import load_core_json_artifact
         configured = self._profiles.get(expected_profile.profile_id)
         if configured != expected_profile:
             raise CycleSubstrateContextOwnerError(
@@ -1358,7 +1359,7 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_profile_manifest_binding_mismatch"
             )
         profile = GenericCycleSimulationProfileV1.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         if profile != configured:
             raise CycleSubstrateContextOwnerError(
@@ -1377,6 +1378,7 @@ class GenericCycleSimulationAdmissionOwner:
         cell_id: str,
     ) -> GenericCycleSimulationProfileV1:
         """Verify a historical configured profile without claiming it is current."""
+        from polisyos.core.artifacts import load_core_json_artifact
         if type(expected_profile) is not GenericCycleSimulationProfileV1:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_historical_profile_untyped"
@@ -1395,7 +1397,7 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_historical_profile_manifest_mismatch"
             )
         profile = GenericCycleSimulationProfileV1.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         if profile != expected_profile:
             raise CycleSubstrateContextOwnerError(
@@ -1413,6 +1415,7 @@ class GenericCycleSimulationAdmissionOwner:
         context_owner: CycleSubstrateContextArtifactOwner,
     ) -> GenericCycleSimulationChildProfileFamilyV1:
         """Resolve the whole current child-profile tuple against its parent lease."""
+        from polisyos.core.artifacts import load_core_json_artifact
         if type(parent_handoff) is not GenericCycleSimulationContextHandoffV1:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_child_family_parent_untyped"
@@ -1452,7 +1455,7 @@ class GenericCycleSimulationAdmissionOwner:
         self._verify_json_artifact(ref, expected_kind=_CHILD_PROFILE_FAMILY_KIND)
         try:
             family = GenericCycleSimulationChildProfileFamilyV1.model_validate(
-                canon.from_canonical_bytes(self._store.get_bytes(ref))
+                load_core_json_artifact(self._store, ref)
             )
         except (TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
@@ -1513,6 +1516,7 @@ class GenericCycleSimulationAdmissionOwner:
         expected_parent_problem: DesignProblem,
     ) -> GenericCycleSimulationChildProfileFamilyV1:
         """Read a past family without treating its configured tuple as current."""
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import (
             CycleSubstrateContextArtifactOwner,
         )
@@ -1534,7 +1538,7 @@ class GenericCycleSimulationAdmissionOwner:
         self._verify_json_artifact(ref, expected_kind=_CHILD_PROFILE_FAMILY_KIND)
         try:
             family = GenericCycleSimulationChildProfileFamilyV1.model_validate(
-                canon.from_canonical_bytes(self._store.get_bytes(ref))
+                load_core_json_artifact(self._store, ref)
             )
         except (TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
@@ -1587,7 +1591,7 @@ class GenericCycleSimulationAdmissionOwner:
             self._verify_json_artifact(member.profile_ref, expected_kind=_PROFILE_KIND)
             try:
                 child_profile = GenericCycleSimulationProfileV1.model_validate(
-                    canon.from_canonical_bytes(self._store.get_bytes(member.profile_ref))
+                    load_core_json_artifact(self._store, member.profile_ref)
                 )
             except (TypeError, ValueError) as exc:
                 raise CycleSubstrateContextOwnerError(
@@ -1647,6 +1651,7 @@ class GenericCycleSimulationAdmissionOwner:
         cell_id: str,
         verified_nl_job_scope: VerifiedNLJobScope,
     ) -> ArtifactRef:
+        from polisyos.core.artifacts import load_core_json_artifact
         self._require_scope(
             job_id=job_id,
             run_id=run_id,
@@ -1703,7 +1708,7 @@ class GenericCycleSimulationAdmissionOwner:
         )
         self._verify_json_artifact(ref, expected_kind=_CHILD_PROFILE_FAMILY_KIND)
         persisted = GenericCycleSimulationChildProfileFamilyV1.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         manifest = self._store.get_manifest(ref)
         if persisted != family or not self._manifest_matches_child_profile_family(
@@ -1816,6 +1821,7 @@ class GenericCycleSimulationAdmissionOwner:
         expected: GenericCycleSimulationN5InputV1,
     ) -> GenericCycleSimulationN5InputV1:
         """Resolve exact selected N5 bytes and the complete owner manifest."""
+        from polisyos.core.artifacts import load_core_json_artifact
         if type(expected) is not GenericCycleSimulationN5InputV1:
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_input_untyped")
         self._verify_json_artifact(ref, expected_kind=_N5_INPUT_KIND)
@@ -1825,7 +1831,7 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_n5_input_manifest_mismatch"
             )
         record = GenericCycleSimulationN5InputV1.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         if record != expected:
             raise CycleSubstrateContextOwnerError(
@@ -1849,6 +1855,7 @@ class GenericCycleSimulationAdmissionOwner:
         limitation_code: str | None = None,
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
+        from polisyos.core.artifacts import load_core_json_artifact
         self.resolve_n5_input(input_ref, expected=input_record)
         if status == "joint_simulated" and (result_ref is None or request_binding is None):
             raise CycleSubstrateContextOwnerError(
@@ -1930,7 +1937,7 @@ class GenericCycleSimulationAdmissionOwner:
         self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
         manifest = self._store.get_manifest(ref)
         persisted = parse_generic_cycle_simulation_n5_execution(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         if not self._manifest_matches_record(manifest, ref, options) or persisted != record:
             raise CycleSubstrateContextOwnerError(
@@ -1946,6 +1953,7 @@ class GenericCycleSimulationAdmissionOwner:
         expected: GenericCycleSimulationN5ExecutionRecord,
     ) -> GenericCycleSimulationN5ExecutionRecord:
         """Resolve the complete selected result/input manifest and bytes."""
+        from polisyos.core.artifacts import load_core_json_artifact
         if type(expected) not in {
             GenericCycleSimulationN5ExecutionV1,
             GenericCycleSimulationN5ExecutionV2,
@@ -1961,12 +1969,12 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_n5_execution_manifest_mismatch"
             )
         record = parse_generic_cycle_simulation_n5_execution(
-            canon.from_canonical_bytes(self._store.get_bytes(ref))
+            load_core_json_artifact(self._store, ref)
         )
         input_ref = record.input_ref
         self._verify_json_artifact(input_ref, expected_kind=_N5_INPUT_KIND)
         input_record = GenericCycleSimulationN5InputV1.model_validate(
-            canon.from_canonical_bytes(self._store.get_bytes(input_ref))
+            load_core_json_artifact(self._store, input_ref)
         )
         self.resolve_n5_input(input_ref, expected=input_record)
         source, source_candidate, source_context, port = self._replay_n5_execution_sources(

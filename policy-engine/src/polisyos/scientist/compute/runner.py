@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import threading
 from collections.abc import Mapping
@@ -530,11 +529,11 @@ def _load_input_refs(
     *,
     store_factory: Callable[[Path], ArtifactStore] | None = None,
 ) -> Any:
+    from polisyos.core.artifacts import load_core_json_artifact
     store = (store_factory or _build_store)(cas_root)
     loaded: dict[str, Any] = {}
     for slot_name, ref in input_refs.items():
-        payload = store.get_bytes(ref)
-        loaded[slot_name] = json.loads(payload.decode("utf-8"))
+        loaded[slot_name] = load_core_json_artifact(store, ref)
     return loaded
 
 

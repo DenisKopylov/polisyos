@@ -7,11 +7,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.decision_validity import (
     DecisionTriggerRecord,
     DecisionTriggerType,
@@ -836,7 +837,7 @@ class DecisionFeedbackService:
         )
 
     def _load_json(self, ref: str) -> object:
-        return from_canonical_bytes(self._store.get_bytes(ArtifactID.model_validate(ref)))
+        return read_core_json_artifact(self._store, ArtifactID.model_validate(ref)).value
 
     def _load_model(self, ref: str, model_cls):
         return model_cls.model_validate(self._load_json(ref))

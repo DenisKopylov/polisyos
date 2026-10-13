@@ -13,7 +13,7 @@ from pydantic import ValidationError
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry import (
@@ -472,6 +472,7 @@ def _run_primary_causal_job(
     Resolving a CAS source here establishes numerical input identity, not
     evaluation permission, identification or real-world provenance.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     source = _to_core_artifact_ref(state.observational_data_ref)
     if source is None:
         raise ValueError("primary causal job requires its actual observational source")
@@ -504,7 +505,7 @@ def _run_primary_causal_job(
             if result.method_result_ref is None:
                 raise ValueError("selected DoWhy job has no persisted result")
             _reconcile_selected_causal_output(ctx=ctx, result=result)
-            saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+            saved = load_core_json_artifact(ctx.store, result.method_result_ref)
             report = CausalEffectReport.model_validate(saved["report"])
             offered = CausalEffectReport.model_validate(result.final_state["report"])
             if report.model_dump(mode="json") != offered.model_dump(mode="json"):
@@ -581,9 +582,10 @@ def _verify_selected_tmle_projection(
 
 def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:
     """Read the canonical method artifact before consuming its peer projection."""
+    from polisyos.core.artifacts import load_core_json_artifact
     if result.method_result_ref is None:
         raise ValueError("selected causal job has no persisted result")
-    saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+    saved = load_core_json_artifact(ctx.store, result.method_result_ref)
     report = CausalEffectReport.model_validate(saved["report"])
     offered = CausalEffectReport.model_validate(result.final_state["report"])
     if report.model_dump(mode="json") != offered.model_dump(mode="json"):
@@ -677,11 +679,12 @@ def _load_observational_data(
     | GraphCausalData
     | GraphCausalDataV1
 ):
+    from polisyos.core.artifacts import load_core_json_artifact
     if state.observational_data_ref is None:
         raise ValueError("observational_data_ref is required for causal evaluation")
     ref = _to_core_artifact_ref(state.observational_data_ref)
     assert ref is not None
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+    payload = load_core_json_artifact(ctx.store, ref)
     manifest = ctx.store.get_manifest(ref)
     envelope_fields = ObservationMethodInputEnvelope.model_fields
     schema_namespace = envelope_fields["schema_version"].default.rsplit(".", 1)[0] + "."
@@ -780,13 +783,14 @@ def _output_identity(value: object) -> str:
 def _load_output_contract_json(
     ctx: ExecutionContext, ref: core_artifacts.ArtifactRef
 ) -> dict[str, Any]:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = core_artifacts.ArtifactRef.model_validate(ref)
     if not ctx.store.verify(ref).ok:
         raise ValueError("output_contract_cas_integrity_failed")
     manifest = ctx.store.get_manifest(ref)
     if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
         raise ValueError("output_contract_ref_identity_mismatch")
-    payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+    payload = load_core_json_artifact(ctx.store, ref)
     if not isinstance(payload, dict):
         raise ValueError("output_contract_source_object_required")
     return payload

@@ -642,12 +642,13 @@ def resolve_public_signature_population(
     governed_record_ids: tuple[str, ...] = (),
 ) -> PersistedPublicSignaturePopulation:
     """Resolve a snapshot and reject manifest, input, or canonical-byte drift."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     raw = store.get_bytes(ref)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
     snapshot = PublicSignaturePopulationSnapshot.model_validate(
-        core_canon.from_canonical_bytes(raw)
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     )
     if (
         not report.ok
@@ -714,6 +715,7 @@ def persist_published_signature_custody_scan(
     scan: PublishedSignatureCustodyScan,
 ) -> PersistedPublishedSignatureCustodyScan:
     """Persist and read back one custody result, including explicit nonreceipts."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     ref = store.put_json(
         scan,
@@ -731,7 +733,7 @@ def persist_published_signature_custody_scan(
     raw = store.get_bytes(ref)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
-    persisted = PublishedSignatureCustodyScan.model_validate(core_canon.from_canonical_bytes(raw))
+    persisted = PublishedSignatureCustodyScan.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if (
         not report.ok
         or persisted != scan

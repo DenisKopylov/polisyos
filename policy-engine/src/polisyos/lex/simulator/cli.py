@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.loading.norm_pack import NormPack
 
 if TYPE_CHECKING:
@@ -17,13 +16,14 @@ if TYPE_CHECKING:
 
 def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
     """Load norm pack."""
+    from polisyos.core.artifacts import load_core_json_artifact
     path = Path(ref_or_path)
     if path.exists():
         payload = json.loads(path.read_text(encoding="utf-8"))
         return NormPack.model_validate(payload)
 
     artifact_id = ArtifactID.model_validate(ref_or_path)
-    payload = from_canonical_bytes(cas.get_bytes(artifact_id))
+    payload = load_core_json_artifact(cas, artifact_id)
     return NormPack.model_validate(payload)
 
 

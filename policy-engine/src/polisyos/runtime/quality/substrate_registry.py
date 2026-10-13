@@ -79,12 +79,6 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
-class _ArtifactRefLike(Protocol):
-    """Minimal artifact-ref surface needed by S0 persistence helpers."""
-
-    artifact_id: object
-
-
 class _SubstrateRegistryStore(Protocol):
     """Minimal CAS store facade used without importing core internals directly."""
 
@@ -93,7 +87,8 @@ class _SubstrateRegistryStore(Protocol):
         payload: object,
         opts: object,
         canon_spec: object | None = None,
-    ) -> _ArtifactRefLike:
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         """Persist JSON and return an artifact ref."""
         ...
 
@@ -1401,13 +1396,13 @@ def persist_substrate_registry(
     registry: SubstrateRegistry,
     *,
     inputs: Sequence[object] | None = None,
-) -> _ArtifactRefLike:
+) -> ArtifactRef:
     """Persist a substrate registry as a typed CAS artifact."""
 
     artifacts = core.artifacts
     canon = core.canon
     validated = SubstrateRegistry.model_validate(registry.model_dump(mode="json"))
-    return store.put_json(
+    selected_ref = store.put_json(
         validated,
         artifacts.PutOptions(
             kind=SUBSTRATE_REGISTRY_ARTIFACT_KIND,
@@ -1419,12 +1414,19 @@ def persist_substrate_registry(
             inputs=list(inputs or []),
         ),
         canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    if (
+        not isinstance(selected_ref, artifacts.ArtifactRef)
+        or selected_ref.manifest_profile_sha256 is None
+    ):
+        raise SubstrateRegistryError("substrate_registry_write_profile_not_selected")
+    return selected_ref
 
 
 def load_substrate_registry(
     store: _SubstrateRegistryStore,
-    ref: _ArtifactRefLike | str,
+    ref: ArtifactRef | ArtifactID | str,
     *,
     expected_inputs: Sequence[object] | None = None,
 ) -> SubstrateRegistry:
@@ -1435,9 +1437,22 @@ def load_substrate_registry(
         read_ref = ref
     else:
         read_ref = ArtifactID.model_validate(ref)
-    manifest = store.get_manifest(read_ref)
-    if isinstance(ref, artifacts.ArtifactRef) and ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND:
+    if (
+        not isinstance(read_ref, artifacts.ArtifactRef)
+        or read_ref.manifest_profile_sha256 is None
+    ):
+        raise SubstrateRegistryError("substrate_registry_profile_selector_missing")
+    if (
+        read_ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
+        or read_ref.media_type != "application/json"
+    ):
         raise SubstrateRegistryError("substrate_registry_ref_kind_invalid")
+    try:
+        loaded = artifacts.validate_core_model_json_artifact(SubstrateRegistry, store, read_ref)
+    except Exception as exc:
+        code = getattr(exc, "code", "substrate_registry_profile_or_content_invalid")
+        raise SubstrateRegistryError(str(code), str(exc)) from exc
+    manifest = store.get_manifest(read_ref)
     if (
         manifest.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
         or manifest.media_type != "application/json"
@@ -1458,8 +1473,7 @@ def load_substrate_registry(
         )
         if actual_inputs != expected:
             raise SubstrateRegistryError("substrate_registry_manifest_inputs_mismatch")
-    payload = core.canon.from_canonical_bytes(store.get_bytes(read_ref))
-    return SubstrateRegistry.model_validate(payload)
+    return loaded
 
 
 def substrate_entry_content_hash(entry: SubstrateRegistryEntry) -> str:

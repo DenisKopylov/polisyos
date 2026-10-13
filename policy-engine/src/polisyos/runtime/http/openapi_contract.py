@@ -2070,7 +2070,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "routes": [],
     },
     "get_run_acquisition_route": {
-        "schema_version": "AcquisitionRouteProjection@1.0",
+        "schema_version": "AcquisitionRouteProjection@1.1",
         "tenant_id": "tenant-a",
         "cell_id": "cell-a",
         "run_id": "run-ds15",
@@ -2094,7 +2094,8 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "qualification_status": "pending_epoch_activation",
         "qualification_predicate": "not_established",
         "qualification_reason": "policy_admission_missing",
-        "world_growth": "no_growth",
+        "world_growth": "not_established",
+        "admitted_observation_delta": None,
         "authority_badge": "behavioral_fixture_not_production",
         "external_nonclosures": [
             "fresh_positive_production_route:absent/unallocated",
@@ -2109,7 +2110,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "authority_decision_ref": "sha256:" + "1" * 64,
         "outcome": "decision_required",
         "human_decision_request": {"request_ref": "pdc://human-decision/ds15"},
-        "world_growth": "no_growth",
+        "world_growth": "not_established",
     },
     "execute_run_acquisition_route": {
         "run_id": "run-ds15",
@@ -2118,7 +2119,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
         "authority_decision_ref": "sha256:" + "1" * 64,
         "status": "accepted",
         "receipt_phase": "requested",
-        "world_growth": "no_growth",
+        "world_growth": "not_established",
     },
     "create_run_human_decision": _HUMAN_DECISION_CREATE_SAMPLE,
     "get_run_authority_values": {

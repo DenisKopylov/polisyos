@@ -21,7 +21,6 @@ import jax
 import jax.numpy as jnp
 
 from polisyos.core.artifacts import ArtifactRef, ArtifactStore
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,
@@ -846,6 +845,7 @@ class EconomicsTrainingAdapter:
         profile_descriptor: TrainingProfileDescriptor,
     ) -> None:
         """Verify the selected descriptor survives the typed CAS write/read path."""
+        from polisyos.core.artifacts import load_core_json_artifact
         manifest = artifact_store.get_manifest(manifest_ref)
         schema = manifest.artifact_schema
         if (
@@ -859,7 +859,7 @@ class EconomicsTrainingAdapter:
                 "training_artifact_profile_readback_mismatch",
                 "The stored Economics policy manifest did not retain its selected profile schema.",
             )
-        payload = from_canonical_bytes(artifact_store.get_bytes(manifest_ref))
+        payload = load_core_json_artifact(artifact_store, manifest_ref)
         if (
             not isinstance(payload, dict)
             or payload.get("schema_version") != "1.1"

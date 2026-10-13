@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, TypeVar
 from pydantic import Field, field_validator
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.errors import LexValidationError
 from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
@@ -95,9 +94,10 @@ def load_json_artifact[E: Exception](
     read_error_prefix: str | None = None,
 ) -> dict:
     """Load a JSON-object artifact with caller-selected error semantics."""
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
     except Exception as exc:
         if not wrap_read_errors:
             raise

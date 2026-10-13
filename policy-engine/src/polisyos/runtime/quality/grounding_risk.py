@@ -242,6 +242,7 @@ class GroundingRunBudget:
         )
 
     def _read_chain(self) -> list[tuple[str, _AdmissionEvent]]:
+        from polisyos.core.artifacts import validate_core_model_json_artifact
         if self._root is None or self._store is None:
             raise GroundingRiskStateError("grounding_run_persistence_missing")
         rows: list[tuple[str, _AdmissionEvent]] = []
@@ -269,7 +270,7 @@ class GroundingRunBudget:
             report = self._store.verify(artifact_id)
             if not report.ok:
                 raise GroundingRiskStateError("grounding_run_artifact_integrity_invalid")
-            row = _AdmissionEvent.model_validate_json(self._store.get_bytes(artifact_id))
+            row = validate_core_model_json_artifact(_AdmissionEvent, self._store, artifact_id)
             if row.run_id != self.run_id or row.synthetic != self._synthetic:
                 raise GroundingRiskStateError("grounding_run_artifact_scope_invalid")
             if row.binding_key != gy_content_hash(

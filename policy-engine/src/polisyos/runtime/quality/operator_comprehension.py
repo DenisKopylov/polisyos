@@ -19,7 +19,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.canon import (
     CanonSpec,
-    from_canonical_bytes,
     from_canonical_obj,
     to_canonical_bytes,
 )
@@ -525,11 +524,12 @@ def read_instrument_result(
     event_id: str,
 ) -> ComprehensionResult:
     """Resolve the persisted event and content before returning its candidate projection."""
+    from polisyos.core.artifacts import load_core_json_artifact
     rows = event_log.list_events(event_id=event_id)
     if len(rows) != 1 or not rows[0].payload_ref:
         raise ValueError("instrument_event_unresolved")
     record = rows[0]
-    payload = from_canonical_bytes(event_log.artifact_store.get_bytes(record.payload_ref))
+    payload = load_core_json_artifact(event_log.artifact_store, record.payload_ref)
     result = recompute_instrument_payload(payload)
     if record.event.state_after != result.result:
         raise ValueError("instrument_event_recompute_mismatch")

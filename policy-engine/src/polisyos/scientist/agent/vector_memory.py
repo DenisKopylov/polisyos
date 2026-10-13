@@ -219,10 +219,9 @@ class VectorMemoryStore:
 
     def load_from_artifact(self, store: ArtifactStore, ref: ArtifactRef) -> None:
         """Load the index + metadata from the artifact store."""
-        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.core.artifacts import load_core_json_artifact
 
-        bundle_bytes = store.get_bytes(ref)
-        bundle = from_canonical_bytes(bundle_bytes)
+        bundle = load_core_json_artifact(store, ref)
         if not isinstance(bundle, dict):
             raise ValueError("Vector memory bundle must be a canonical object")
 

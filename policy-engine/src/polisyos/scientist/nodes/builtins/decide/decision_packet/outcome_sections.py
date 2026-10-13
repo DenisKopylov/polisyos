@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 
 from polisyos.core.artifacts import ArtifactRef, InputRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
     DistributionalReportRef,
     SimulationResult,
@@ -581,13 +580,14 @@ def _build_welfare_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     bundle_ref = artifacts_index.get(ARTIFACT_WELFARE_BUNDLE_REF)
     if bundle_ref is None:
         sim_result_ref = artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if sim_result_ref is not None:
             try:
                 sim_result = SimulationResult.model_validate(
-                    from_canonical_bytes(ctx.store.get_bytes(sim_result_ref))
+                    load_core_json_artifact(ctx.store, sim_result_ref)
                 )
                 if sim_result.welfare_bundle_ref is not None:
                     bundle_ref = sim_result.welfare_bundle_ref
@@ -790,6 +790,7 @@ def _build_econometrics_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     result_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_RESULT_REF)
     evidence_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_EVIDENCE_REF)
     envelope_ref = artifacts_index.get(ARTIFACT_ECONOMETRIC_ENVELOPE_REF)
@@ -804,7 +805,7 @@ def _build_econometrics_section(
 
     if result_ref is not None:
         try:
-            result_obj = from_canonical_bytes(ctx.store.get_bytes(result_ref))
+            result_obj = load_core_json_artifact(ctx.store, result_ref)
             if isinstance(result_obj, dict):
                 payload["result"] = result_obj.get("result", result_obj)
                 if "envelope" in result_obj:

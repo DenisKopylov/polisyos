@@ -16,7 +16,6 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.contracts.foundry import (
     CompileRequest,
@@ -54,8 +53,9 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
         `program_graph`, `exec_plan`, `link_report`, `slot_layout`, and
         `treasury_plan` refs when compilation succeeds.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     policy_ref = request.policy_ref
-    payload = from_canonical_bytes(store.get_bytes(policy_ref))
+    payload = load_core_json_artifact(store, policy_ref)
     bundle = TrinityBundle.model_validate(payload)
 
     registry_bundle_ref = _resolve_registry_bundle_ref(

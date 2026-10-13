@@ -7,7 +7,6 @@ receipt, and binds both states to one prospective protected action.
 
 from __future__ import annotations
 
-import json
 import re
 from enum import StrEnum
 from typing import Literal, Self
@@ -506,6 +505,7 @@ def _resolve_witnesses(
     owner_scope_key: str,
     protected_action_id: str,
 ) -> tuple[str, ...]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if (
         not isinstance(refs, tuple)
         or any(not isinstance(ref, str) for ref in refs)
@@ -553,7 +553,7 @@ def _resolve_witnesses(
         ):
             raise ValueError("coverage_witness_verifier_provenance_invalid")
         receipt = CoverageWitnessVerificationReceipt.model_validate(
-            json.loads(store.get_bytes(ref))
+            load_core_json_artifact(store, ref)
         )
         if (
             receipt.assessment_key != assessment_key
@@ -585,7 +585,11 @@ def _resolve_witnesses(
         resolved_source_hash = canon.content_hash(source_bytes, prefix=True)
         if receipt.source_content_hash != resolved_source_hash:
             raise ValueError("coverage_witness_source_content_hash_mismatch")
-        source = CoverageWitnessSourceArtifact.model_validate(json.loads(source_bytes))
+        source = CoverageWitnessSourceArtifact.model_validate(
+            load_core_json_artifact(
+                store, receipt.source_artifact_ref, raw_payload_bytes=source_bytes
+            )
+        )
         source_signature = store.verify_signature(
             receipt.source_artifact_ref,
             verifier,

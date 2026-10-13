@@ -65,7 +65,12 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 - `__init__.py` owns the public lazy facade.
 - `serialization.py`, `timestamps.py`, and `async_tools.py` are the shared
-  helper surfaces used across packages.
+  helper surfaces used across packages. `canonical_profile.py` is an internal,
+  storage-agnostic helper: it parses the exact raw selected manifest, distinguishes
+  a missing declaration from malformed-present data, and applies caller-supplied
+  codecs to verify declared payload bytes. The caller keeps its own typed tags and
+  exceptions. The helper establishes reader consistency only, not writer identity
+  or producer authority, and is not exported through the Common facade.
 - `config.py`, `jax_env.py`, and `env_parsing.py` are early-process bootstrap
   helpers; keep domain behavior out of them.
 - `migrations/` owns package-local migration manifest helpers.

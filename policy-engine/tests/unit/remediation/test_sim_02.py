@@ -64,6 +64,13 @@ from tests.unit.runtime.quality.test_joint_simulation_horizon import (
 )
 
 
+def _single_step_ncm_request() -> JointSimulationRequest:
+    """Build a request whose static NCM matches its one-point horizon."""
+    return _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
+    )
+
+
 def _request_with_same_target_assignments(
     *,
     left_value: float,
@@ -72,7 +79,9 @@ def _request_with_same_target_assignments(
     policy_domain: str = "fiscal_credit",
 ) -> JointSimulationRequest:
     """Build an NCM request whose two atoms target the same world variable."""
-    request = _request(policy_domain=policy_domain)
+    request = _request(policy_domain=policy_domain).model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
+    )
     world_record_ref = request.world_model_record.world_model_record_id
     atoms = (
         _atom(
@@ -241,7 +250,9 @@ def test_ncm_selected_outcome_missing_or_nonfinite_fails_closed(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
-    request = _request().model_copy(update={"selected_outcomes": selected_outcomes})
+    request = _single_step_ncm_request().model_copy(
+        update={"selected_outcomes": selected_outcomes}
+    )
 
     with pytest.raises(JointSimulationControllerError) as raised:
         JointSimulationHorizonController().run(request)
@@ -268,7 +279,7 @@ def test_ncm_explicit_zero_is_preserved_as_a_real_outcome(
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
 
-    result = JointSimulationHorizonController().run(_request())
+    result = JointSimulationHorizonController().run(_single_step_ncm_request())
 
     joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
     assert joint.points[0].outcomes == {"firm_survival": 0.0}
@@ -299,7 +310,7 @@ def test_ncm_malformed_result_is_typed(
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fake_pure_step))
 
     with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(_request())
+        JointSimulationHorizonController().run(_single_step_ncm_request())
 
     assert raised.value.code == expected_code
 
@@ -402,12 +413,135 @@ def _short_trajectory_request(method_fqn: str) -> JointSimulationRequest:
                     engine_kind="method_registry_estimator",
                     objective_ref="objective://sim02-short-trajectory",
                     method_fqn=method_fqn,
-                    variable_map={"stock0": "stock:0"},
+                    variable_map={
+                        "agents.income": "queue_length",
+                        "government.balance": "queue_length",
+                        "stock0": "stock:0",
+                    },
                     coupled_state={"queue_length": 0.0},
                 ),
             ),
         }
     )
+
+
+def _method_registry_write_request(
+    method_fqn: str,
+    *,
+    left_value: float,
+    right_value: float,
+    reverse: bool = False,
+) -> JointSimulationRequest:
+    """Build a selected method-registry request with one shared state target."""
+    request = _request()
+    world_ref = request.world_model_record.world_model_record_id
+    atoms = (
+        _atom(
+            intervention_id="income_subsidy",
+            causal_variable="agents.income",
+            engine_variable="queue_length",
+            value=left_value,
+            world_model_record_ref=world_ref,
+        ),
+        _atom(
+            intervention_id="balance_grant",
+            causal_variable="government.balance",
+            engine_variable="queue_length",
+            value=right_value,
+            world_model_record_ref=world_ref,
+        ),
+    )
+    if reverse:
+        atoms = tuple(reversed(atoms))
+    plan = EnginePlan(
+        engine_kind="method_registry_estimator",
+        objective_ref="objective://sim02-method-registry-writes",
+        method_fqn=method_fqn,
+        variable_map={
+            "agents.income": "queue_length",
+            "government.balance": "queue_length",
+            "stock0": "stock:0",
+        },
+        coupled_state={"queue_length": 0.0},
+    )
+    return request.model_copy(
+        update={
+            "intervention_atoms": atoms,
+            "selected_outcomes": ("stock0",),
+            "baseline_state": {"stock0": 0.0},
+            "horizon": HorizonSpec(start=0, end=0, step=1),
+            "engine_plan": (plan,),
+        }
+    )
+
+
+@pytest.mark.parametrize("reverse", [False, True], ids=("left-right", "right-left"))
+def test_method_registry_conflict_is_rejected_before_runner(
+    monkeypatch: pytest.MonkeyPatch,
+    reverse: bool,
+) -> None:
+    """B20: registry methods reject conflicting writes before any invocation."""
+    registry = MethodRegistry._create_fresh()
+    method_fqn = registry.register(_ShortTrajectoryMethod)
+    calls: list[object] = []
+
+    def observed(state: Any, params: Any) -> dict[str, Any]:
+        calls.append(state)
+        return {"result": {"trajectory": [[float(state["queue_length"])]]}}
+
+    monkeypatch.setattr(_ShortTrajectoryMethod, "pure_step", staticmethod(observed))
+    request = _method_registry_write_request(
+        method_fqn,
+        left_value=1.0,
+        right_value=2.0,
+        reverse=reverse,
+    )
+
+    with pytest.raises(JointSimulationControllerError) as raised:
+        JointSimulationHorizonController(method_registry=registry).run(request)
+
+    assert raised.value.code == "intervention_assignment_conflict"
+    assert calls == []
+
+
+def test_method_registry_equal_writes_are_applied_to_runner_state_in_both_orders(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """B20: equal duplicate writes reach the selected method's consumed state."""
+    registry = MethodRegistry._create_fresh()
+    method_fqn = registry.register(_ShortTrajectoryMethod)
+    seen: list[float] = []
+
+    def echo_state(state: Any, params: Any) -> dict[str, Any]:
+        del params
+        value = float(state["queue_length"])
+        seen.append(value)
+        return {"result": {"trajectory": [[value]]}}
+
+    monkeypatch.setattr(_ShortTrajectoryMethod, "pure_step", staticmethod(echo_state))
+    outputs = []
+    for reverse in (False, True):
+        request = _method_registry_write_request(
+            method_fqn,
+            left_value=4.0,
+            right_value=4.0,
+            reverse=reverse,
+        )
+        result = JointSimulationHorizonController(method_registry=registry).run(request)
+        ids = tuple(atom.intervention_id for atom in request.intervention_atoms)
+        joint = result.trajectory_for("joint", ids)
+        outputs.append(joint.points[0].outcomes["stock0"])
+        assert joint.points[0].outcomes["stock0"] == 4.0
+    assert outputs == [4.0, 4.0]
+    assert seen and set(seen) == {4.0}
+
+
+def test_horizon_grid_rejects_a_truncated_requested_endpoint() -> None:
+    """B22: the producer cannot silently omit an off-grid requested endpoint."""
+    with pytest.raises(ValueError, match="horizon_end_not_on_step_grid"):
+        HorizonSpec(start=0, end=5, step=2)
+
+    assert HorizonSpec(start=1, end=5, step=2).steps() == (1, 3, 5)
 
 
 def test_short_trajectory_is_not_silently_extended_by_final_value() -> None:
@@ -1155,6 +1289,10 @@ def test_non_unit_horizon_step_aligns_real_stockflow_rows() -> None:
     assert [point.outcomes["stock1"] for point in joint.points] == [0.0, 2.0, 4.0]
     assert joint.diagnostics["time_alignment_status"] == "matched"
     assert joint.diagnostics["effective_method_time_step"] == 2.0
+    assert result.diagnostics["physical_time_basis_status"] == "not_established"
+    assert "horizon_time_alignment_not_established" in (
+        result.promotion_ready_value_packet["authority_blockers"]
+    )
 
 
 def test_configured_stockflow_step_mismatch_remains_visible() -> None:

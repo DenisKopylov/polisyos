@@ -58,6 +58,7 @@ Main ref families:
 - `provenance.py`
 - `bounded_liveness.py`
 - `chronology.py` (re-exported from the admitted `polisyos.core` root facade)
+- `epoch.py` also publishes `epoch_canon_info()` so epoch-frame producers persist the profile of the exact canonical codec.
 - `decision_validity.py` (including the typed epoch-batch intake and pre-N9 gate evidence)
 - `policy_design_case_projection.py`
 - `runtime.py` also exposes `UniversalPolicyDesignCase` and `UniversalAuthorityProfile`

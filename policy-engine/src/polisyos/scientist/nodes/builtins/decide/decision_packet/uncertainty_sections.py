@@ -6,7 +6,6 @@ from collections.abc import Mapping
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import DataSnapshot, SimulationResult, UncertaintyEnvelopeRef
 from polisyos.ir.analytics.uncertainty import (
     load_simulation_result_uncertainty_admission,
@@ -33,6 +32,7 @@ def _build_uncertainty_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object]:
+    from polisyos.core.artifacts import load_core_json_artifact
     envelope_refs: set[str] = set()
     legacy_bounds_refs: set[str] = set()
     output_envelope_refs: dict[str, str] = {}
@@ -41,7 +41,7 @@ def _build_uncertainty_section(
     data_snapshot_ref = state_inputs.get(INPUT_DATA_SNAPSHOT_REF)
     if data_snapshot_ref is not None:
         try:
-            payload = from_canonical_bytes(ctx.store.get_bytes(data_snapshot_ref))
+            payload = load_core_json_artifact(ctx.store, data_snapshot_ref)
             snapshot = DataSnapshot.model_validate(payload)
             if snapshot.uncertainty_envelope_ref is not None:
                 envelope_refs.add(str(snapshot.uncertainty_envelope_ref.artifact_id))
@@ -63,7 +63,7 @@ def _build_uncertainty_section(
     if simulation_result_ref is not None:
         try:
             simulation_result_selector_ref = normalize_artifact_ref(simulation_result_ref)
-            payload = from_canonical_bytes(ctx.store.get_bytes(simulation_result_ref))
+            payload = load_core_json_artifact(ctx.store, simulation_result_ref)
             sim_result = SimulationResult.model_validate(payload)
             if sim_result.uncertainty_envelopes:
                 for metric_id, ref in sim_result.uncertainty_envelopes.items():

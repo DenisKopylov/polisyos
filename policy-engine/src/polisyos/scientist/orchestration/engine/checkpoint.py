@@ -34,7 +34,7 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security import (
     get_current_access_scope_or_none,
@@ -2175,8 +2175,8 @@ def load_checkpoint_head(run_dir: Path) -> CheckpointHead | None:
 
 def load_checkpoint(store: ArtifactStore, checkpoint_ref: ArtifactRef) -> CheckpointArtifact:
     """Load checkpoint."""
-    raw = store.get_bytes(checkpoint_ref)
-    payload = from_canonical_bytes(raw)
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, checkpoint_ref)
     return CheckpointArtifact.model_validate(payload)
 
 

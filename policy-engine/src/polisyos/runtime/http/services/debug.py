@@ -14,11 +14,15 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import resolve_manifest_by_profile
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import SimulationResult
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
@@ -52,6 +56,8 @@ from polisyos.core.trace import TraceRecord
 from polisyos.ir.analytics import (
     DataViewRequest as AnalyticsDataViewRequest,
 )
+from polisyos.ir.artifacts.io import get_json_artifact as get_ir_json_artifact
+from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.model_layer.queries import (
     DataViewRequest as QueryDataViewRequest,
 )
@@ -373,14 +379,14 @@ class DebugService:
             )
 
         try:
-            verification = self._store.verify(requested_id)
+            verification = self._store.verify(state_ref)
             if not verification.ok:
                 raise SimulationResultProjectionError(
                     "simulation_result_integrity_failed",
                     "The persisted simulation result failed CAS integrity verification",
                 )
-            manifest = self._store.get_manifest(requested_id)
-            payload_bytes = self._store.get_bytes(requested_id)
+            manifest = read_core_manifest_profile(self._store, state_ref)[0]
+            payload_bytes = self._store.get_bytes(state_ref)
         except SimulationResultProjectionError:
             raise
         except (
@@ -432,7 +438,10 @@ class DebugService:
             )
 
         try:
-            simulation_result = SimulationResult.model_validate(from_canonical_bytes(payload_bytes))
+            profiled = read_core_json_artifact(
+                self._store, state_ref, raw_payload_bytes=payload_bytes
+            )
+            simulation_result = SimulationResult.model_validate(profiled.value)
         except (TypeError, ValueError, ValidationError, UnicodeDecodeError) as exc:
             raise SimulationResultProjectionError(
                 "simulation_result_payload_invalid",
@@ -448,11 +457,7 @@ class DebugService:
             run_id=run.run_id,
             node_alias=alias,
             node_id=record.node_id,
-            artifact_ref=ArtifactRef(
-                artifact_id=requested_id,
-                kind=manifest.kind,
-                media_type=manifest.media_type,
-            ),
+            artifact_ref=state_ref,
             simulation_result=simulation_result,
             notes=[
                 "candidate_reference_only",
@@ -1591,7 +1596,7 @@ class DebugService:
                     "simulation_result_binding_integrity_failed",
                     "A persisted workflow binding artifact failed CAS integrity verification",
                 )
-            manifest = self._store.get_manifest(ref)
+            manifest = read_core_manifest_profile(self._store, ref)[0]
             schema = manifest.artifact_schema
             if (
                 manifest.kind != expected_kind
@@ -1617,7 +1622,7 @@ class DebugService:
                     "A persisted workflow binding artifact has an unexpected tenant or cell",
                 )
             manifest_schema_version = schema.version
-            payload = from_canonical_bytes(self._store.get_bytes(ref))
+            payload = read_core_json_artifact(self._store, ref).value
         except SimulationResultProjectionError:
             raise
         except (
@@ -1653,7 +1658,7 @@ class DebugService:
         if ref is None:
             return {}
         try:
-            payload = from_canonical_bytes(self._store.get_bytes(ref))
+            payload = read_core_json_artifact(self._store, ref).value
         except (FileNotFoundError, OSError, TypeError, ValueError, UnicodeDecodeError) as exc:
             logger.debug("Failed to load JSON artifact %s: %s", ref.artifact_id, exc)
             return {}
@@ -1681,7 +1686,7 @@ class DebugService:
             verification = self._store.verify(ref)
             if not verification.ok:
                 raise ValueError("compiled_cycle_integrity_not_established")
-            manifest = self._store.get_manifest(ref)
+            manifest = read_core_manifest_profile(self._store, ref)[0]
             tenant_context = manifest.tenant_context
             if (
                 manifest.kind != ref.kind
@@ -1708,9 +1713,10 @@ class DebugService:
                 CompiledRecursiveGenerationCycleRun,
             )
 
-            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-                from_canonical_bytes(payload_bytes)
-            )
+            profiled = read_core_json_artifact(self._store, ref, raw_payload_bytes=payload_bytes)
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(profiled.value)
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             return [], "compiled_cycle_preflight_cost_events_not_established"
 
@@ -1790,7 +1796,7 @@ class DebugService:
             verification = self._store.verify(ref)
             if not verification.ok:
                 raise ValueError("n4_candidate_proposal_integrity_not_established")
-            manifest = self._store.get_manifest(ref)
+            manifest = read_core_manifest_profile(self._store, ref)[0]
             if (
                 manifest.kind != ref.kind
                 or manifest.media_type != "application/json"
@@ -1817,9 +1823,8 @@ class DebugService:
                 _has_n4_candidate_proposal_v3_owner_profile,
             )
 
-            proposal = N4CandidateProposalRecordV3.model_validate(
-                from_canonical_bytes(payload_bytes)
-            )
+            profiled = read_core_json_artifact(self._store, ref, raw_payload_bytes=payload_bytes)
+            proposal = N4CandidateProposalRecordV3.model_validate(profiled.value)
             if (
                 proposal.core_run_id != run.run_id
                 or proposal.job_id != run.details.control_job_id
@@ -1829,6 +1834,8 @@ class DebugService:
                 or not _has_n4_candidate_proposal_v3_owner_profile(manifest, proposal)
             ):
                 raise ValueError("n4_candidate_proposal_core_run_binding_mismatch")
+        except CanonicalProfileRefusalError:
+            raise
         except Exception:
             return [], "n4_candidate_proposal_cost_events_not_established"
 
@@ -3060,9 +3067,9 @@ def _workflow_data_view_request_profile_origin(
             media_type="application/json",
         )
         verification = store.verify(payload_ref)
-        manifest = store.get_manifest(payload_ref)
+        manifest = read_core_manifest_profile(store, payload_ref)[0]
         schema = manifest.artifact_schema
-        payload = from_canonical_bytes(store.get_bytes(payload_ref))
+        payload = read_core_json_artifact(store, payload_ref).value
     except FileNotFoundError, OSError, PermissionError, RuntimeError, TypeError, ValueError:
         return not_established
     if (
@@ -3193,7 +3200,9 @@ def _data_view_request_ref_from_snapshot(
     if schema is None or schema.name != "polisyos.ir.DataViewRequest" or schema.version != "1.0":
         return None, "data_view_request_schema_not_supported"
     try:
-        request_payload = from_canonical_bytes(store.get_bytes(edge.artifact_id))
+        request_payload = get_ir_json_artifact(store, selected_request_ref)
+    except CanonViolation:
+        return None, "data_view_request_profile_not_established"
     except (FileNotFoundError, TypeError, ValueError):
         return None, "data_view_request_payload_unavailable"
     if not isinstance(request_payload, dict):

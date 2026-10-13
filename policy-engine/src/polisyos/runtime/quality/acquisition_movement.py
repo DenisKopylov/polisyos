@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon, contracts, security
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
@@ -211,13 +212,14 @@ class AcquisitionMovementService:
     def _put(
         self, value: BaseModel | dict[str, object], kind: str, *, owner_input: bool = False
     ) -> artifacts.ArtifactRef:
+        from polisyos.core.artifacts import load_core_json_artifact
         payload = value.model_dump(mode="json") if isinstance(value, BaseModel) else value
         ref = self._store.put_json(
             payload,
             artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
             canon_spec=canon.CanonSpec(forbid_floats=False),
         )
-        if canon.from_canonical_bytes(self._store.get_bytes(str(ref.artifact_id))) != payload:
+        if load_core_json_artifact(self._store, ref) != payload:
             raise ValueError("movement_persistence_readback_failed")
         if owner_input and self._evidence_owner._state().store is not None:
             with self._evidence_owner.composition_scope(runtime_artifact_store=self._store):
@@ -230,8 +232,16 @@ class AcquisitionMovementService:
         raw = self._store.get_bytes(ref)
         if security.raw_content_hash(raw) != ref:
             raise ValueError("movement_source_hash_mismatch")
-        if kind is not None and self._store.get_manifest(ref).kind != kind:
-            raise ValueError("movement_source_kind_mismatch")
+        if kind is not None:
+            manifest = self._store.get_manifest(ref)
+            if manifest.kind != kind:
+                raise ValueError("movement_source_kind_mismatch")
+            try:
+                artifacts.read_core_json_artifact_bytes(
+                    self._store, ref, raw_payload_bytes=raw
+                )
+            except CanonicalProfileRefusalError as exc:
+                raise ValueError("movement_source_profile_unverified") from exc
         return raw
 
     def _supplier(self, ref: str) -> AcquisitionRouteLoopReceipt:
@@ -270,52 +280,34 @@ class AcquisitionMovementService:
         )
         if head is None or head.receipt_ref != ref or head.receipt_phase != "terminal":
             raise ValueError("supplier_terminal_head_not_current")
-        identity_names = (
-            "tenant_id",
-            "cell_id",
-            "run_id",
-            "source_job_id",
-            "route_id",
-            "action_generation",
-            "job_id",
-            "compiled_ref",
-            "planner_report_hash",
-            "cost_basis_hash",
-            "decision_ref",
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            AcquisitionRouteLoopAuthoritySink,
         )
+
+        action_snapshot = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=self._store,
+            event_log=self._events,
+            control_store=self._control_store,
+        ).verify_action_head(head)
+        if action_snapshot.head != head or action_snapshot.latest_receipt != supplier:
+            raise ValueError("supplier_action_head_chain_unverified")
+        phase_chain = action_snapshot.phase_chain
+        if (
+            not phase_chain
+            or phase_chain[-1].receipt_ref != head.receipt_ref
+            or phase_chain[-1].receipt != supplier
+        ):
+            raise ValueError("supplier_action_head_chain_unverified")
         phase_refs = []
-        predecessor = supplier.predecessor_receipt_ref
-        previous_time = supplier.generated_at
-        for phase_name in ("world_committed_reentry_pending", "executing", "requested"):
-            phase = AcquisitionRoutePhaseReceipt.model_validate(
-                canon.from_canonical_bytes(
-                    self._read(predecessor, "runtime_quality.acquisition_route_phase_receipt")
-                )
-            )
-            reconcile_authority_ref(
-                artifact_store=self._store,
-                event_log=self._events,
-                cas_ref=predecessor,
-                expected_tenant_id=supplier.tenant_id,
-                expected_cell_id=supplier.cell_id,
-                expected_run_id=supplier.run_id,
-                expected_job_id=supplier.job_id,
-            )
-            if (
-                phase.receipt_phase != phase_name
-                or phase.generated_at > previous_time
-                or any(getattr(phase, name) != getattr(supplier, name) for name in identity_names)
-                or (
-                    phase_name == "world_committed_reentry_pending"
-                    and phase.owner_receipt_refs != supplier.owner_receipt_refs
-                )
-            ):
-                raise ValueError("supplier_phase_chain_mismatch")
-            phase_refs.append(predecessor)
-            predecessor = phase.predecessor_receipt_ref
-            previous_time = phase.generated_at
-        if predecessor is not None:
-            raise ValueError("supplier_phase_chain_incomplete")
+        for item in phase_chain[:-1]:
+            if not isinstance(item.receipt, AcquisitionRoutePhaseReceipt):
+                raise ValueError("supplier_phase_chain_unverified")
+            phase_refs.append(item.receipt_ref)
+        if (
+            action_snapshot.selection_phase_ref is not None
+            and action_snapshot.selection_phase_ref not in phase_refs
+        ):
+            raise ValueError("supplier_selection_phase_missing")
         core_source_resolver = self._core_source_resolver
         if core_source_resolver is None:
             raise ValueError("acquisition_core_source_resolver_not_composed")

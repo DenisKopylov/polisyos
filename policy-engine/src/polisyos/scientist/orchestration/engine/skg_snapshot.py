@@ -149,6 +149,7 @@ def load_retained_skg_snapshot(
     ref: ArtifactRef,
 ) -> RetainedSKGSnapshot:
     """Read the exact descriptor and verify its complete retained byte closure."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
     store = _require_retained_skg_read_store(store)
     if ref.manifest_profile_sha256 is None:
         raise RetainedSKGSnapshotError("retained_skg_descriptor_profile_required")
@@ -162,7 +163,7 @@ def load_retained_skg_snapshot(
         != (_SNAPSHOT_KIND, _VERSION)
     ):
         raise RetainedSKGSnapshotError("retained_skg_descriptor_type_mismatch")
-    snapshot = RetainedSKGSnapshot.model_validate_json(store.get_bytes(ref))
+    snapshot = validate_core_model_json_artifact(RetainedSKGSnapshot, store, ref)
     expected_inputs = [
         input_ref_from_artifact_ref(chunk.ref, role=f"source_chunk:{index}")
         for index, chunk in enumerate(snapshot.chunks)

@@ -9,9 +9,12 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.artifacts import artifact_manifest_profile_sha256
+from polisyos.core.artifacts import ArtifactManifest, artifact_manifest_profile_sha256
+from polisyos.core.artifacts.canonical_profile import (
+    artifact_ref_for_manifest,
+    read_core_json_artifact,
+)
 from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     ApiMeta,
     BureaucraticAuthorship,
@@ -69,9 +72,11 @@ class BureaucraticRenderingService:
         self,
         packet_id: ArtifactID,
         request: BureaucraticRenderRequest,
+        *,
+        manifest: ArtifactManifest | None = None,
     ) -> BureaucraticDocument:
-        """Render one artifact payload into a canonical bureaucratic document AST."""
-        manifest = (
+        """Render one exact selected artifact view into a bureaucratic AST."""
+        manifest = manifest or (
             resolve_manifest_by_profile(
                 self._store,
                 packet_id,
@@ -80,7 +85,7 @@ class BureaucraticRenderingService:
             if request.manifest_profile_sha256 is not None
             else self._store.get_manifest(packet_id)
         )
-        payload = _load_json_payload(self._store, packet_id)
+        payload, canon_read_status = _load_json_payload(self._store, manifest)
         template = _template_for(
             genre=request.genre,
             jurisdiction=request.jurisdiction,
@@ -130,6 +135,7 @@ class BureaucraticRenderingService:
                 "source_manifest_profile_sha256": artifact_manifest_profile_sha256(
                     manifest
                 ),
+                "canon_read_status": canon_read_status,
                 "template_id": template.id,
                 "draft_disclaimer": DRAFT_WATERMARK,
                 "legal_review_status": template.legal_review_status,
@@ -143,9 +149,10 @@ class BureaucraticRenderingService:
         *,
         export_format: BureaucraticExportFormat,
         meta: ApiMeta,
+        manifest: ArtifactManifest | None = None,
     ) -> BureaucraticExportResponse:
-        """Build a deterministic export packet from the same canonical AST."""
-        document = self.render_document(packet_id, request)
+        """Build a deterministic export packet from the same selected-view AST."""
+        document = self.render_document(packet_id, request, manifest=manifest)
         html = render_document_html(document)
         content_type = _EXPORT_CONTENT_TYPES[export_format]
         filename = _export_filename(document, export_format)
@@ -176,6 +183,7 @@ class BureaucraticRenderingService:
                 "source_manifest_profile_sha256": document.metadata.get(
                     "source_manifest_profile_sha256"
                 ),
+                "canon_read_status": document.metadata.get("canon_read_status"),
                 "parity_source": "bureaucratic_document_ast",
             },
         )
@@ -193,6 +201,7 @@ def render_document_html(document: BureaucraticDocument) -> str:
         "template-id": document.template.id,
         "template-version": document.template.version,
         "watermark": document.watermark,
+        "canon-read-status": document.metadata.get("canon_read_status", "not_evaluated"),
     }
     meta_tags = "\n".join(
         f'<meta name="polisyos:{escape(key)}" content="{escape(str(value))}">'
@@ -228,11 +237,15 @@ def render_document_html(document: BureaucraticDocument) -> str:
 </html>"""
 
 
-def _load_json_payload(store: ArtifactStore, packet_id: ArtifactID) -> dict[str, Any]:
-    payload = from_canonical_bytes(store.get_bytes(packet_id))
-    if isinstance(payload, dict):
-        return payload
-    return {"payload": payload}
+def _load_json_payload(
+    store: ArtifactStore,
+    manifest: ArtifactManifest,
+) -> tuple[dict[str, Any], str]:
+    """Read the exact selected packet under its declared canonical profile."""
+    profiled = read_core_json_artifact(store, artifact_ref_for_manifest(manifest))
+    if isinstance(profiled.value, dict):
+        return profiled.value, profiled.status
+    return {"payload": profiled.value}, profiled.status
 
 
 def _template_for(
@@ -648,6 +661,7 @@ def _pdf_print_packet(document: BureaucraticDocument, html: str) -> str:
         "%PDF-1.4\n"
         f"% PolicyOS deterministic print-source packet for {document.id}\n"
         f"% Watermark: {document.watermark}\n"
+        f"% Canon-read status: {document.metadata.get('canon_read_status', 'not_evaluated')}\n"
         f"% HTML-SHA256: {digest}\n"
         "% Generate final PDF through the browser print pipeline "
         "to preserve accessible HTML parity.\n"
@@ -658,7 +672,9 @@ def _docx_source_packet(document: BureaucraticDocument, html: str) -> str:
     digest = sha256(html.encode("utf-8")).hexdigest()
     return (
         f"PolicyOS DOCX source packet\nDocument: {document.id}\n"
-        f"Watermark: {document.watermark}\nHTML-SHA256: {digest}\n"
+        f"Watermark: {document.watermark}\n"
+        f"Canon-read status: {document.metadata.get('canon_read_status', 'not_evaluated')}\n"
+        f"HTML-SHA256: {digest}\n"
         "The frontend DOCX exporter consumes the same BureaucraticDocumentAST.\n"
     )
 

@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -88,8 +88,8 @@ class ReplayStore:
 
     def load_record_session(self, artifact_id: Any) -> RecordSession:
         """Load a RecordSession from CAS by artifact ID."""
-        raw = self._store.get_bytes(artifact_id)
-        data = from_canonical_bytes(raw)
+        from polisyos.core.artifacts import load_core_json_artifact
+        data = load_core_json_artifact(self._store, artifact_id)
         return RecordSession.from_dict(data)
 
     def build_replay_fixture_dir(

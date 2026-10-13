@@ -251,6 +251,28 @@ class GCSArtifactStore:
             raise
         return bytes(raw), manifest
 
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        """Return exact selected sidecar bytes before typed manifest parsing."""
+        aid, selected_profile, _ref = artifact_reference_parts(artifact_id)
+        if manifest_profile_sha256 is not None:
+            if re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_profile_sha256) is None:
+                raise ValueError("manifest_profile_sha256 must be sha256:<64 lowercase hex>")
+            if selected_profile is not None and selected_profile != manifest_profile_sha256:
+                raise ValueError("conflicting manifest profile selectors")
+            selected_profile = manifest_profile_sha256
+        cache_suffix = self._manifest_cache_suffix(selected_profile)
+        cached = self._cache_read(aid, cache_suffix)
+        if cached is not None:
+            return bytes(cached)
+        raw = self._get_object_bytes(self._manifest_key(aid, selected_profile))
+        self._cache_write(aid, cache_suffix, raw)
+        return bytes(raw)
+
     def get_manifest_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         """Return the validated original manifest sidecar bytes for a view."""
         raw, _manifest = self._load_manifest(artifact_id)

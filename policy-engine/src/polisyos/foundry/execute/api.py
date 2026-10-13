@@ -21,7 +21,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     EquilibriumMultiplicityReport,
@@ -337,7 +337,8 @@ def _load_model[ModelT: BaseModel](
     model_cls: type[ModelT],
 ) -> ModelT:
     """Deserialize a CAS JSON artifact into the requested Pydantic model."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
 
@@ -984,6 +985,7 @@ def _evaluate_welfare_bound_requirement(
     request: ExecuteRequest,
     derived_refs: list[DerivedArtifact],
 ) -> list[str]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if not request.welfare_bound_required:
         return []
     if request.welfare_bound_mode not in {"ex_ante", "ex_post", "both"}:
@@ -996,7 +998,7 @@ def _evaluate_welfare_bound_requirement(
 
     failures: list[str] = []
     for ref in report_refs:
-        payload = from_canonical_bytes(store.get_bytes(ref))
+        payload = load_core_json_artifact(store, ref)
         status = str(payload.get("status", "")).strip().lower()
         if status == "ok":
             continue

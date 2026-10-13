@@ -8,7 +8,7 @@ from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.governance.human_review.audit import make_audit_event
 from polisyos.scientist.governance.human_review.models import (
     FundamentalRightsChecklist,
@@ -157,8 +157,9 @@ def persist_review_packet(
 
 def load_review_packet(store: FileSystemCAS, ref: ArtifactRef) -> HumanReviewPacket:
     """Load a persisted human-review packet from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    return HumanReviewPacket.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    return HumanReviewPacket.model_validate(load_core_json_artifact(store, ref))
 
 
 def review_packet_summary(packet: HumanReviewPacket) -> dict[str, Any]:

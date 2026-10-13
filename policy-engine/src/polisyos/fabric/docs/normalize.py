@@ -16,7 +16,6 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.backends import BackendDispatcher, BackendNotAvailableError
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_meta_facts,
@@ -101,9 +100,10 @@ def _normalize_text(text: str, options: DocNormalizeOptions) -> str:
 
 
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
     except Exception as exc:  # pragma: no cover - defensive
         raise DocValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):

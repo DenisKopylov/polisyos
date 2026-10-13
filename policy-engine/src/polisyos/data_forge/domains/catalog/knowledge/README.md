@@ -48,7 +48,10 @@ transportability layer over the dataset catalog built by the batch pipeline.
   membership relation for every baseline-union table, and exposes rows only
   after a separately persisted production receipt activates the pending
   admission. Legacy/null stamps and incomplete physical membership remain
-  audit-visible but fail closed for read visibility and positive chronology.
+  audit-visible but fail closed for read visibility and positive chronology. New framed
+  semantic receipts persist the exact profile of their Core serializer, and activation
+  re-reads that selected profile and payload before writing an active state. Existing
+  profileless frames are not upgraded or activated by reader materialization.
 
 ## Public API
 

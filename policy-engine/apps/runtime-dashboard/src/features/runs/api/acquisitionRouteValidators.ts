@@ -32,40 +32,100 @@ const acquisitionRouteBaseSchema = z
     route_projection_hash: z.string().min(1),
     route_status: z.literal("costed_actionable"),
     run_id: z.string().min(1),
-    schema_version: z.literal("AcquisitionRouteProjection@1.0"),
     tenant_id: z.string().min(1),
   })
   .strict();
 
-// This nongenerated adapter owns the current route wire shape until the
+const acquisitionRouteV10BaseSchema = acquisitionRouteBaseSchema.extend({
+  schema_version: z.literal("AcquisitionRouteProjection@1.0"),
+});
+const acquisitionRouteV11BaseSchema = acquisitionRouteBaseSchema.extend({
+  schema_version: z.literal("AcquisitionRouteProjection@1.1"),
+});
+
+// v1.0 preserves the old pending default. The presenter treats it as unknown;
+// the old field did not prove a measured zero. v1.1 requires the explicit tri-state.
+const acquisitionRouteV10PendingSchema = acquisitionRouteV10BaseSchema.extend({
+  admitted_observation_delta: z.literal(0).optional(),
+  authority_badge: z.literal("behavioral_fixture_not_production"),
+  qualification_predicate: z.literal("not_established"),
+  qualification_reason: z.literal("policy_admission_missing"),
+  qualification_status: z.literal("pending_epoch_activation"),
+  world_growth: z.literal("no_growth"),
+});
+const acquisitionRouteV10ActiveSchema = acquisitionRouteV10BaseSchema.extend({
+  admitted_observation_delta: z.number().int().positive(),
+  authority_badge: z.literal("native_owner_verified"),
+  qualification_predicate: z.literal("independently_reconciled"),
+  qualification_reason: z.literal("native_owner_readback"),
+  qualification_status: z.literal("activated"),
+  world_growth: z.literal("admitted_delta"),
+});
+const acquisitionRouteV11PendingSchema = acquisitionRouteV11BaseSchema.extend({
+  admitted_observation_delta: z.null(),
+  authority_badge: z.literal("behavioral_fixture_not_production"),
+  qualification_predicate: z.literal("not_established"),
+  qualification_reason: z.literal("policy_admission_missing"),
+  qualification_status: z.literal("pending_epoch_activation"),
+  world_growth: z.literal("not_established"),
+});
+const acquisitionRouteV11NoGrowthSchema = acquisitionRouteV11BaseSchema.extend({
+  admitted_observation_delta: z.literal(0),
+  authority_badge: z.literal("native_owner_verified"),
+  qualification_predicate: z.literal("independently_reconciled"),
+  qualification_reason: z.literal("native_owner_readback"),
+  qualification_status: z.literal("activated"),
+  world_growth: z.literal("no_growth"),
+});
+const acquisitionRouteV11GrowthSchema = acquisitionRouteV11BaseSchema.extend({
+  admitted_observation_delta: z.number().int().positive(),
+  authority_badge: z.literal("native_owner_verified"),
+  qualification_predicate: z.literal("independently_reconciled"),
+  qualification_reason: z.literal("native_owner_readback"),
+  qualification_status: z.literal("activated"),
+  world_growth: z.literal("admitted_delta"),
+});
+
+// This nongenerated adapter owns the versioned route wire shape until the
 // canonical client is regenerated. Native qualification never supplies the
 // independently owned action-authority capability.
-export const acquisitionRouteProjectionSchema = z.discriminatedUnion(
-  "qualification_status",
-  [
-    acquisitionRouteBaseSchema.extend({
-      // Preserve older negative packets without manufacturing an absent count.
-      // eslint-disable-next-line policyos/quantity-must-be-wrapped -- Wire-schema zero discriminator, not a rendered decision quantity.
-      admitted_observation_delta: z.literal(0).optional(),
-      authority_badge: z.literal("behavioral_fixture_not_production"),
-      qualification_predicate: z.literal("not_established"),
-      qualification_reason: z.literal("policy_admission_missing"),
-      qualification_status: z.literal("pending_epoch_activation"),
-      world_growth: z.literal("no_growth"),
-    }),
-    acquisitionRouteBaseSchema.extend({
-      admitted_observation_delta: z.number().int().positive(),
-      authority_badge: z.literal("native_owner_verified"),
-      qualification_predicate: z.literal("independently_reconciled"),
-      qualification_reason: z.literal("native_owner_readback"),
-      qualification_status: z.literal("activated"),
-      world_growth: z.literal("admitted_delta"),
-    }),
-  ],
-);
+export const acquisitionRouteProjectionSchema = z.union([
+  acquisitionRouteV10PendingSchema,
+  acquisitionRouteV10ActiveSchema,
+  acquisitionRouteV11PendingSchema,
+  acquisitionRouteV11NoGrowthSchema,
+  acquisitionRouteV11GrowthSchema,
+]);
 
 export type AcquisitionRouteProjection = z.infer<
   typeof acquisitionRouteProjectionSchema
+>;
+
+export type PendingAcquisitionRouteV11 = Extract<
+  AcquisitionRouteProjection,
+  {
+    schema_version: "AcquisitionRouteProjection@1.1";
+    qualification_status: "pending_epoch_activation";
+    world_growth: "not_established";
+  }
+>;
+
+export type NoGrowthAcquisitionRouteV11 = Extract<
+  AcquisitionRouteProjection,
+  {
+    schema_version: "AcquisitionRouteProjection@1.1";
+    qualification_status: "activated";
+    world_growth: "no_growth";
+  }
+>;
+
+export type AdmittedDeltaAcquisitionRouteV11 = Extract<
+  AcquisitionRouteProjection,
+  {
+    schema_version: "AcquisitionRouteProjection@1.1";
+    qualification_status: "activated";
+    world_growth: "admitted_delta";
+  }
 >;
 
 export const acquisitionRouteListResponseSchema = z
@@ -285,30 +345,62 @@ export const acquisitionGrowthPacketSchema: z.ZodType = z
   })
   .strict();
 
-export const acquisitionDecisionRequestResponseSchema: z.ZodType<AcquisitionDecisionRequestResponse> =
-  z
-    .object({
-      authority_decision_ref: z.string().min(1),
-      human_decision_request: z
-        .record(z.string(), z.unknown())
-        .nullable()
-        .optional(),
-      outcome: z.enum(["decision_required", "decision_available"]),
-      route_id: z.string().min(1),
-      run_id: z.string().min(1),
-      world_growth: z.literal("no_growth"),
-    })
-    .strict();
+export type AcquisitionDecisionRequestResponseCurrent = Omit<
+  AcquisitionDecisionRequestResponse,
+  "world_growth"
+> & { world_growth: "not_established" };
+export type AcquisitionExecutionResponseCurrent = Omit<
+  AcquisitionExecutionResponse,
+  "world_growth"
+> & { world_growth: "not_established" };
 
-export const acquisitionExecutionResponseSchema: z.ZodType<AcquisitionExecutionResponse> =
-  z
-    .object({
-      authority_decision_ref: z.string().min(1),
-      job_id: z.string().min(1),
-      receipt_phase: z.literal("requested"),
-      route_id: z.string().min(1),
-      run_id: z.string().min(1),
-      status: z.literal("accepted"),
-      world_growth: z.literal("no_growth"),
-    })
-    .strict();
+function normalizeLegacyPreExecutionOutcome(value: unknown): unknown {
+  if (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    "world_growth" in value &&
+    value.world_growth === "no_growth"
+  ) {
+    return { ...value, world_growth: "not_established" };
+  }
+  return value;
+}
+
+const acquisitionDecisionRequestResponseCurrentSchema = z
+  .object({
+    authority_decision_ref: z.string().min(1),
+    human_decision_request: z
+      .record(z.string(), z.unknown())
+      .nullable()
+      .optional(),
+    outcome: z.enum(["decision_required", "decision_available"]),
+    route_id: z.string().min(1),
+    run_id: z.string().min(1),
+    world_growth: z.literal("not_established"),
+  })
+  .strict();
+
+const acquisitionExecutionResponseCurrentSchema = z
+  .object({
+    authority_decision_ref: z.string().min(1),
+    job_id: z.string().min(1),
+    receipt_phase: z.literal("requested"),
+    route_id: z.string().min(1),
+    run_id: z.string().min(1),
+    status: z.literal("accepted"),
+    world_growth: z.literal("not_established"),
+  })
+  .strict();
+
+export const acquisitionDecisionRequestResponseSchema: z.ZodType<AcquisitionDecisionRequestResponseCurrent> =
+  z.preprocess(
+    normalizeLegacyPreExecutionOutcome,
+    acquisitionDecisionRequestResponseCurrentSchema,
+  );
+
+export const acquisitionExecutionResponseSchema: z.ZodType<AcquisitionExecutionResponseCurrent> =
+  z.preprocess(
+    normalizeLegacyPreExecutionOutcome,
+    acquisitionExecutionResponseCurrentSchema,
+  );

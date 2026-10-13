@@ -2010,6 +2010,7 @@ class ConfidenceLedgerSession:
         root_ref: str,
     ) -> dict[str, set[str]]:
         """Replay the scope WAL and reconcile shared CAS once per session."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         refs = self._replay_scope_journal_locked()
         if self._cas_reconciled:
@@ -2047,7 +2048,7 @@ class ConfidenceLedgerSession:
             if not report.ok:
                 raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
             try:
-                payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                payload = load_core_json_artifact(self._artifact_store, artifact_id)
             except (OSError, ValueError, TypeError) as exc:
                 raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
             if not isinstance(payload, Mapping) or payload.get("scope_id") != root.scope_id:
@@ -2693,6 +2694,7 @@ class ConfidenceLedgerSession:
 
     def _prior_scope_artifact_exists(self) -> bool:
         """Find an older chain even when mutable pointers and anchors were removed."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         for artifact_id in self._artifact_store.iter_artifact_ids():
             try:
@@ -2712,7 +2714,7 @@ class ConfidenceLedgerSession:
             ):
                 continue
             try:
-                payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                payload = load_core_json_artifact(self._artifact_store, artifact_id)
             except (OSError, ValueError, TypeError):
                 continue
             if isinstance(payload, Mapping) and payload.get("scope_id") == (
@@ -2723,6 +2725,7 @@ class ConfidenceLedgerSession:
 
     def _scope_root_artifact_exists(self) -> bool:
         """Return whether immutable CAS contains any root for this scope."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         for artifact_id in self._artifact_store.iter_artifact_ids():
             try:
@@ -2736,7 +2739,7 @@ class ConfidenceLedgerSession:
             ):
                 continue
             try:
-                payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                payload = load_core_json_artifact(self._artifact_store, artifact_id)
             except (OSError, ValueError, TypeError):
                 continue
             if (
@@ -3147,6 +3150,7 @@ class ConfidenceLedgerSession:
         return ConfidenceLedgerReceipt.model_validate(payload)
 
     def _read_cas_json(self, artifact_ref: str, schema: artifacts.SchemaInfo) -> object:
+        from polisyos.core.artifacts import load_core_json_artifact
         report = self._artifact_store.verify(artifact_ref)
         if not report.ok:
             raise ConfidenceLedgerError("ledger_cas_integrity_invalid", report.error)
@@ -3154,7 +3158,7 @@ class ConfidenceLedgerSession:
         if manifest.artifact_schema != schema or manifest.producer != _LEDGER_PRODUCER:
             raise ConfidenceLedgerError("ledger_cas_manifest_invalid")
         try:
-            return canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_ref))
+            return load_core_json_artifact(self._artifact_store, artifact_ref)
         except (OSError, ValueError, TypeError) as exc:
             raise ConfidenceLedgerError("ledger_cas_payload_invalid", str(exc)) from exc
 
@@ -4788,6 +4792,31 @@ def _deployment_relative_paths_from_closure(
     return (Path("pyproject.toml"), Path("uv.lock"), *source_paths)
 
 
+@dataclass(frozen=True, slots=True)
+class _LiteralModuleGetattrProviderIndex:
+    """Index literal PEP 562 providers found in one parsed source module."""
+
+    providers_by_export: Mapping[str, frozenset[str]]
+    invalid_exports: frozenset[str]
+
+
+@dataclass(slots=True)
+class _AuthorityImportClosureSourceIndex:
+    """Cache source parses and PEP 562 indexes for one closure computation."""
+
+    parsed_by_content: dict[bytes, ast.Module]
+    providers_by_content: dict[bytes, _LiteralModuleGetattrProviderIndex]
+
+    def parse(self, content: bytes, *, filename: str) -> ast.Module:
+        """Parse exact source bytes once within the current closure computation."""
+
+        tree = self.parsed_by_content.get(content)
+        if tree is None:
+            tree = ast.parse(content, filename=filename)
+            self.parsed_by_content[content] = tree
+        return tree
+
+
 def _resolve_authority_import_closure(
     repo_root: Path,
     entry_module: str | Iterable[str],
@@ -4807,6 +4836,7 @@ def _resolve_authority_import_closure(
     pending = {entry_module} if isinstance(entry_module, str) else set(entry_module)
     allowed_roots = {"polisyos", *(("tools",) if include_tools else ())}
     directory_entries: dict[Path, frozenset[str]] = {}
+    source_index = _AuthorityImportClosureSourceIndex({}, {})
 
     @functools.cache
     def resolve_source(module_name: str) -> Path | None:
@@ -4830,7 +4860,8 @@ def _resolve_authority_import_closure(
         resolved[module_name] = relative
         package = module_name if relative.name == "__init__.py" else module_name.rpartition(".")[0]
         try:
-            tree = ast.parse((repo_root / relative).read_bytes(), filename=relative.as_posix())
+            source_bytes = (repo_root / relative).read_bytes()
+            tree = source_index.parse(source_bytes, filename=relative.as_posix())
         except (OSError, SyntaxError) as exc:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -4870,6 +4901,7 @@ def _resolve_authority_import_closure(
                         base,
                         alias.name,
                         directory_entries=directory_entries,
+                        source_index=source_index,
                     )
                     if (
                         provider is not None
@@ -4924,6 +4956,7 @@ def _literal_module_getattr_provider(
     export_name: str,
     *,
     directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex | None = None,
 ) -> str | None:
     """Resolve one literal PEP 562 re-export provider without importing it."""
 
@@ -4934,68 +4967,427 @@ def _literal_module_getattr_provider(
     )
     if relative is None:
         return None
+    if source_index is None:
+        source_index = _AuthorityImportClosureSourceIndex({}, {})
     try:
-        tree = ast.parse((repo_root / relative).read_bytes(), filename=relative.as_posix())
+        source_bytes = (repo_root / relative).read_bytes()
+        tree = source_index.parse(source_bytes, filename=relative.as_posix())
     except (OSError, SyntaxError) as exc:
         raise ConfidenceLedgerError(
             "canonical_loaded_runtime_mismatch",
             relative.as_posix(),
         ) from exc
+    provider_index = source_index.providers_by_content.get(source_bytes)
+    if provider_index is None:
+        provider_index = _literal_module_getattr_provider_index(tree)
+        source_index.providers_by_content[source_bytes] = provider_index
+    if export_name in provider_index.invalid_exports or "*" in provider_index.invalid_exports:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"non-literal repository re-export: {module_name}.{export_name}",
+        )
+    providers = provider_index.providers_by_export.get(export_name, frozenset())
+    if len(providers) > 1:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous repository re-export: {module_name}.{export_name}",
+        )
+    provider = next(iter(providers), None)
+    if provider is not None and provider.startswith("."):
+        try:
+            provider = importlib.util.resolve_name(provider, module_name)
+        except (ImportError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous relative repository re-export: {module_name}.{export_name}",
+            ) from exc
+    return provider
+
+
+def _source_scope_nodes(
+    nodes: Iterable[ast.AST], *, descend_into_ifs: bool = True
+) -> Iterable[ast.AST]:
+    """Walk one executable scope while excluding nested declarations."""
+
+    pending = list(reversed(tuple(nodes)))
+    while pending:
+        node = pending.pop()
+        yield node
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            continue
+        if isinstance(node, ast.If) and _is_type_checking_test(node.test):
+            children = node.orelse
+        elif isinstance(node, ast.If) and not descend_into_ifs:
+            children = ()
+        else:
+            children = tuple(ast.iter_child_nodes(node))
+        pending.extend(reversed(children))
+
+
+def _source_scope_bound_names(nodes: Iterable[ast.AST]) -> frozenset[str]:
+    """Return names bound in a source scope, excluding nested definition bodies."""
+
+    bound: set[str] = set()
+    for node in _source_scope_nodes(nodes):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            bound.add(node.id)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bound.add(node.name)
+        elif isinstance(node, ast.Import):
+            bound.update(alias.asname or alias.name.partition(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            bound.update(alias.asname or alias.name for alias in node.names if alias.name != "*")
+        elif isinstance(node, (ast.Global, ast.Nonlocal)):
+            bound.update(node.names)
+    return frozenset(bound)
+
+
+def _literal_builtin_name_unshadowed(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    name: str,
+) -> bool:
+    """Prove a name still denotes its builtin in both module and function scope."""
+
+    parameters = {
+        arg.arg for arg in (
+            *function.args.posonlyargs,
+            *function.args.args,
+            *function.args.kwonlyargs,
+        )
+    }
+    if function.args.vararg is not None:
+        parameters.add(function.args.vararg.arg)
+    if function.args.kwarg is not None:
+        parameters.add(function.args.kwarg.arg)
+    return bool(
+        name not in _source_scope_bound_names(tree.body)
+        and name not in _source_scope_bound_names(function.body)
+        and name not in parameters
+    )
+
+
+def _literal_getattr_dispatch_names(test: ast.expr, parameter_name: str) -> frozenset[str]:
+    """Return names selected by a literal equality or membership guard."""
+
+    if not isinstance(test, ast.Compare) or len(test.ops) != 1 or len(test.comparators) != 1:
+        return frozenset()
+    left, right, operator = test.left, test.comparators[0], test.ops[0]
+    if isinstance(operator, ast.Eq):
+        if (
+            isinstance(left, ast.Name)
+            and left.id == parameter_name
+            and isinstance(right, ast.Constant)
+            and isinstance(right.value, str)
+        ):
+            return frozenset({right.value})
+        if (
+            isinstance(right, ast.Name)
+            and right.id == parameter_name
+            and isinstance(left, ast.Constant)
+            and isinstance(left.value, str)
+        ):
+            return frozenset({left.value})
+        return frozenset()
+    if (
+        isinstance(operator, ast.In)
+        and isinstance(left, ast.Name)
+        and left.id == parameter_name
+        and isinstance(right, (ast.List, ast.Set, ast.Tuple))
+        and all(
+            isinstance(item, ast.Constant) and isinstance(item.value, str)
+            for item in right.elts
+        )
+    ):
+        return frozenset(item.value for item in right.elts)
+    return frozenset()
+
+
+def _literal_import_helper_bindings(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> tuple[frozenset[str], frozenset[str]]:
+    """Find unconditional module-scope importlib aliases without local shadows."""
+
+    functions: set[str] = set()
+    modules: set[str] = set()
+    module_import_counts: dict[str, int] = {}
+    for node in _source_scope_nodes(tree.body):
+        if isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                bound_name = alias.asname or alias.name
+                module_import_counts[bound_name] = module_import_counts.get(bound_name, 0) + 1
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                bound_name = alias.asname or alias.name.partition(".")[0]
+                module_import_counts[bound_name] = module_import_counts.get(bound_name, 0) + 1
+
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.module == "importlib":
+            functions.update(
+                alias.asname or alias.name for alias in node.names
+                if alias.name == "import_module"
+            )
+        elif isinstance(node, ast.Import):
+            modules.update(
+                alias.asname or "importlib" for alias in node.names
+                if alias.name == "importlib"
+            )
+
+    module_stores = {
+        node.id for node in _source_scope_nodes(tree.body)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+    }
+    local_stores = {
+        node.id for node in _source_scope_nodes(function.body)
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+    }
+    local_imports: set[str] = set()
+    for node in _source_scope_nodes(function.body):
+        if isinstance(node, ast.Import):
+            local_imports.update(
+                alias.asname or alias.name.partition(".")[0] for alias in node.names
+            )
+        elif isinstance(node, ast.ImportFrom):
+            local_imports.update(
+                alias.asname or alias.name for alias in node.names if alias.name != "*"
+            )
+    parameters = {
+        arg.arg for arg in (
+            *function.args.posonlyargs,
+            *function.args.args,
+            *function.args.kwonlyargs,
+        )
+    }
+    if function.args.vararg is not None:
+        parameters.add(function.args.vararg.arg)
+    if function.args.kwarg is not None:
+        parameters.add(function.args.kwarg.arg)
+    shadows = module_stores | local_stores | local_imports | parameters
+    for alias in functions | modules:
+        if module_import_counts.get(alias) != 1 or alias in shadows:
+            functions.discard(alias)
+            modules.discard(alias)
+    return frozenset(functions), frozenset(modules)
+
+
+def _literal_source_module_target(
+    call: ast.Call,
+    imported_functions: frozenset[str],
+    imported_modules: frozenset[str],
+    *,
+    builtin_import_unshadowed: bool,
+) -> tuple[bool, str | None]:
+    """Resolve a declared literal importlib or absolute __import__ target."""
+
+    function = call.func
+    imported_function = isinstance(function, ast.Name) and function.id in imported_functions
+    imported_module_function = (
+        isinstance(function, ast.Attribute)
+        and function.attr == "import_module"
+        and isinstance(function.value, ast.Name)
+        and function.value.id in imported_modules
+    )
+    builtin_import = (
+        builtin_import_unshadowed
+        and isinstance(function, ast.Name)
+        and function.id == "__import__"
+    )
+    if not (imported_function or imported_module_function or builtin_import):
+        return False, None
+    if not call.args or not isinstance(call.args[0], ast.Constant):
+        return True, None
+    target = call.args[0].value
+    if not isinstance(target, str):
+        return True, None
+    if target.startswith("."):
+        package = call.args[1] if len(call.args) > 1 else None
+        valid_package = isinstance(package, ast.Name) and package.id in {"__name__", "__package__"}
+        if not (imported_function or imported_module_function) or not valid_package:
+            return True, None
+    return True, target
+
+
+def _simple_assignment(node: ast.AST) -> tuple[str, ast.expr] | None:
+    """Return one simple assignment binding, excluding destructuring."""
+
+    if (
+        isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+    ):
+        return node.targets[0].id, node.value
+    if (
+        isinstance(node, ast.AnnAssign)
+        and isinstance(node.target, ast.Name)
+        and node.value is not None
+    ):
+        return node.target.id, node.value
+    return None
+
+
+def _dynamic_getattr_name(node: ast.AST, parameter_name: str) -> bool:
+    """Return whether getattr reads the PEP 562 name argument."""
+
+    return bool(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "getattr"
+        and len(node.args) >= 2
+        and isinstance(node.args[1], ast.Name)
+        and node.args[1].id == parameter_name
+    )
+
+
+def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGetattrProviderIndex:
+    """Index literal dictionaries and guarded source-declared lazy providers."""
+
     mapping_names: set[str] = set()
+    functions: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     for statement in tree.body:
-        if not (
+        if (
             isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
             and statement.name == "__getattr__"
             and statement.args.args
         ):
-            continue
-        parameter_name = statement.args.args[0].arg
-        for node in ast.walk(statement):
-            if (
-                isinstance(node, ast.Subscript)
+            functions.append(statement)
+            parameter = statement.args.args[0].arg
+            mapping_names.update(
+                node.value.id for node in ast.walk(statement)
+                if isinstance(node, ast.Subscript)
                 and isinstance(node.value, ast.Name)
                 and isinstance(node.slice, ast.Name)
-                and node.slice.id == parameter_name
-            ):
-                mapping_names.add(node.value.id)
-    providers: set[str] = set()
+                and node.slice.id == parameter
+            )
+
+    providers: dict[str, set[str]] = {}
+    invalid: set[str] = set()
     for statement in tree.body:
-        target: ast.expr | None = None
-        value: ast.expr | None = None
         if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
-            target = statement.targets[0]
-            value = statement.value
+            target, value = statement.targets[0], statement.value
         elif isinstance(statement, ast.AnnAssign):
-            target = statement.target
-            value = statement.value
+            target, value = statement.target, statement.value
+        else:
+            continue
         if not (
             isinstance(target, ast.Name)
             and target.id in mapping_names
             and isinstance(value, ast.Dict)
         ):
             continue
-        for key, provider_row in zip(value.keys, value.values, strict=True):
+        for key, row in zip(value.keys, value.values, strict=True):
             if not (
                 isinstance(key, ast.Constant)
-                and key.value == export_name
-                and isinstance(provider_row, (ast.Tuple, ast.List))
-                and provider_row.elts
+                and isinstance(key.value, str)
+                and isinstance(row, (ast.Tuple, ast.List))
+                and row.elts
             ):
                 continue
-            provider = provider_row.elts[0]
-            if not (isinstance(provider, ast.Constant) and isinstance(provider.value, str)):
-                raise ConfidenceLedgerError(
-                    "canonical_loaded_runtime_mismatch",
-                    f"non-literal repository re-export: {module_name}.{export_name}",
-                )
-            providers.add(provider.value)
-    if len(providers) > 1:
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"ambiguous repository re-export: {module_name}.{export_name}",
-        )
-    return next(iter(providers), None)
+            module = row.elts[0]
+            if isinstance(module, ast.Constant) and isinstance(module.value, str):
+                providers.setdefault(key.value, set()).add(module.value)
+            else:
+                invalid.add(key.value)
 
+    for function in functions:
+        parameter = function.args.args[0].arg
+        imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
+        builtin_getattr_unshadowed = _literal_builtin_name_unshadowed(tree, function, "getattr")
+        builtin_import_unshadowed = _literal_builtin_name_unshadowed(tree, function, "__import__")
+        nodes = tuple(_source_scope_nodes(function.body))
+        lookups = tuple(node for node in nodes if _dynamic_getattr_name(node, parameter))
+        calls_getattr = any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "getattr"
+            for node in nodes
+        )
+        calls_import = any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "__import__"
+            for node in nodes
+        )
+        if mapping_names and (
+            (calls_getattr and not builtin_getattr_unshadowed)
+            or (calls_import and not builtin_import_unshadowed)
+        ):
+            invalid.add("*")
+        if (
+            (calls_getattr and not builtin_getattr_unshadowed)
+            or (calls_import and not builtin_import_unshadowed)
+        ):
+            invalid.add("*")
+        if lookups and not builtin_getattr_unshadowed:
+            invalid.add("*")
+            continue
+        handled: set[int] = set()
+        for branch in nodes:
+            if not isinstance(branch, ast.If):
+                continue
+            branch_lookups = tuple(
+                node for node in _source_scope_nodes(branch.body, descend_into_ifs=False)
+                if _dynamic_getattr_name(node, parameter)
+            )
+            if not branch_lookups:
+                continue
+            handled.update(id(node) for node in branch_lookups)
+            names = _literal_getattr_dispatch_names(branch.test, parameter)
+            if not names:
+                invalid.add("*")
+                continue
+            module_vars = {
+                call.args[0].id for call in branch_lookups if isinstance(call.args[0], ast.Name)
+            }
+            by_var: dict[str, set[str]] = {}
+            invalid_vars: set[str] = set()
+            for node in branch.body:
+                binding = _simple_assignment(node)
+                if binding is None or binding[0] not in module_vars:
+                    continue
+                variable, value = binding
+                if not isinstance(value, ast.Call):
+                    invalid_vars.add(variable)
+                    continue
+                recognized, module = _literal_source_module_target(
+                    value,
+                    imported_functions,
+                    imported_modules,
+                    builtin_import_unshadowed=builtin_import_unshadowed,
+                )
+                if not recognized or module is None:
+                    invalid_vars.add(variable)
+                    continue
+                by_var.setdefault(variable, set()).add(module)
+            for call in branch_lookups:
+                expr = call.args[0]
+                module = None
+                if isinstance(expr, ast.Name):
+                    possible = by_var.get(expr.id, set())
+                    if expr.id not in invalid_vars and len(possible) == 1:
+                        module = next(iter(possible))
+                elif isinstance(expr, ast.Call):
+                    recognized, module = _literal_source_module_target(
+                        expr,
+                        imported_functions,
+                        imported_modules,
+                        builtin_import_unshadowed=builtin_import_unshadowed,
+                    )
+                    if not recognized:
+                        module = None
+                if module is None:
+                    invalid.update(names)
+                else:
+                    for name in names:
+                        providers.setdefault(name, set()).add(module)
+        if any(id(call) not in handled for call in lookups):
+            invalid.add("*")
+    return _LiteralModuleGetattrProviderIndex(
+        providers_by_export=types.MappingProxyType(
+            {name: frozenset(modules) for name, modules in providers.items()}
+        ),
+        invalid_exports=frozenset(invalid),
+    )
 
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
     """Walk declarations that can execute, excluding typing-only import arms."""

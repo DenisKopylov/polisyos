@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.lex import ComplianceIssue
 from polisyos.core.contracts.scientist import GovernanceAccountabilityArtifactRef
 from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
@@ -619,10 +619,10 @@ def load_governance_accountability_artifact(
     ref: ArtifactRef | GovernanceAccountabilityArtifactRef,
 ) -> GovernanceAccountabilityArtifact:
     """Load a persisted accountability artifact."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref.artifact_id
     return GovernanceAccountabilityArtifact.model_validate(
-        from_canonical_bytes(store.get_bytes(artifact_id))
+        load_core_json_artifact(store, ref)
     )
 
 

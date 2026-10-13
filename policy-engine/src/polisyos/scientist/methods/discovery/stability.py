@@ -274,7 +274,8 @@ def load_bootstrap_stability_report(
     ref: BootstrapStabilityReportRef,
 ) -> BootstrapStabilityReport:
     """Load bootstrap stability report."""
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return BootstrapStabilityReport.model_validate(payload)
 
 

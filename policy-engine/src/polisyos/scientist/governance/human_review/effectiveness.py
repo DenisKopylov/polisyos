@@ -359,9 +359,10 @@ def load_review_effectiveness_report(
     Returns:
         Validated review-effectiveness report.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
     return ReviewEffectivenessReport.model_validate(
-        canon.from_canonical_bytes(store.get_bytes(ref))
+        load_core_json_artifact(store, ref)
     )
 
 

@@ -31,6 +31,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.ir import api as ir_api
 
@@ -1070,8 +1071,15 @@ def _canonical_bytes(payload: object) -> bytes:
     return canon.to_canonical_bytes(payload, _CANON_SPEC)
 
 
-def _canonical_payload(raw: bytes) -> dict[str, object]:
-    value = canon.from_canonical_bytes(raw)
+def _canonical_payload(
+    raw: bytes, *, store: artifacts.FileSystemCAS, selector: artifacts.ArtifactRef
+) -> dict[str, object]:
+    try:
+        value = artifacts.load_core_json_artifact(
+            store, selector, raw_payload_bytes=raw
+        )
+    except CanonicalProfileRefusalError as exc:
+        raise ValueError("canonical artifact profile is unavailable") from exc
     if not isinstance(value, Mapping):
         raise ValueError("canonical artifact payload is not a mapping")
     return dict(value)
@@ -1312,6 +1320,7 @@ def _load_source(
     *,
     refusal_code: DerivationRefusalCode,
 ) -> SourceSeries:
+    from polisyos.core.artifacts import load_core_json_artifact
     current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(
@@ -1319,7 +1328,7 @@ def _load_source(
             f"{projection.artifact_id}: complete manifest projection",
         )
     try:
-        payload = canon.from_canonical_bytes(store.get_bytes(_projection_ref(projection)))
+        payload = load_core_json_artifact(store, _projection_ref(projection))
         source = SourceSeries.model_validate(payload)
     except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
@@ -1383,6 +1392,7 @@ def _load_transform_family_registry_artifact(
     *,
     refusal_code: DerivationRefusalCode,
 ) -> TransformFamilyRegistry:
+    from polisyos.core.artifacts import load_core_json_artifact
     current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(
@@ -1398,7 +1408,7 @@ def _load_transform_family_registry_artifact(
         refusal_code=refusal_code,
     )
     try:
-        payload = canon.from_canonical_bytes(store.get_bytes(_projection_ref(projection)))
+        payload = load_core_json_artifact(store, _projection_ref(projection))
         registry = TransformFamilyRegistry.model_validate(payload)
     except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(refusal_code, str(projection.artifact_id)) from exc
@@ -2079,6 +2089,7 @@ def consume_certified_derivation(
     consumer_method_id: str,
 ) -> CertifiedDerivationConsumption:
     """Recompute a certificate graph before exposing values to one consumer."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     if not consumer_method_id.strip():
         raise ValueError("consumer_method_id must be non-empty")
@@ -2088,7 +2099,7 @@ def consume_certified_derivation(
             "certificate ref carries the wrong artifact kind",
         )
     try:
-        payload = canon.from_canonical_bytes(store.get_bytes(certificate_ref))
+        payload = load_core_json_artifact(store, certificate_ref)
     except (OSError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise DerivationRefusalError(
             DerivationRefusalCode.CERTIFICATE_DRIFT,
@@ -2223,7 +2234,9 @@ def _read_derivation_recipe_artifact(
     if recipe_ref.kind != DERIVATION_RECIPE_KIND or recipe_ref.media_type != "application/json":
         raise _epoch_recompute_refusal("derivation recipe artifact profile mismatch")
     try:
-        recipe = DerivationRecipe.model_validate(_canonical_payload(store.get_bytes(recipe_ref)))
+        recipe = DerivationRecipe.model_validate(
+            _canonical_payload(store.get_bytes(recipe_ref), store=store, selector=recipe_ref)
+        )
     except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("derivation recipe artifact readback failed") from exc
     _verify_cached_artifact(
@@ -2255,7 +2268,7 @@ def _read_epoch_validity_transition(
         raw = store.get_bytes(transition_ref)
         manifest = store.get_manifest(transition_ref)
         transition = epoch_cascade.EpochValidityTransitionArtifact.model_validate(
-            _canonical_payload(raw)
+            _canonical_payload(raw, store=store, selector=transition_ref)
         )
     except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("epoch transition artifact readback failed") from exc
@@ -2383,7 +2396,9 @@ def _build_epoch_inheritance_recompute_receipt(
     )
     try:
         certificate = DerivationCertificate.model_validate(
-            _canonical_payload(store.get_bytes(certificate_ref))
+            _canonical_payload(
+                store.get_bytes(certificate_ref), store=store, selector=certificate_ref
+            )
         )
     except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("derivation certificate readback failed") from exc
@@ -2516,7 +2531,7 @@ def read_epoch_inheritance_recompute_receipt(
         raise _epoch_recompute_refusal("epoch recompute receipt profile mismatch")
     try:
         receipt = EpochInheritanceRecomputeReceipt.model_validate(
-            _canonical_payload(store.get_bytes(receipt_ref))
+            _canonical_payload(store.get_bytes(receipt_ref), store=store, selector=receipt_ref)
         )
     except (OSError, TypeError, ValueError, artifacts.ArtifactOwnershipError) as exc:
         raise _epoch_recompute_refusal("epoch recompute receipt readback failed") from exc

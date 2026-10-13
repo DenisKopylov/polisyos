@@ -7,15 +7,21 @@ protected candidate, replace a missing producer, or promote a synthetic source.
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Callable, Mapping, Sequence
-from contextlib import suppress
-from dataclasses import fields
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager, suppress
+from contextvars import ContextVar, Token
+from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.canonical_profile import (
+    CanonicalProfileRead,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactSameInputClosureInfo,
@@ -44,6 +50,7 @@ from polisyos.runtime.quality.cycle_substrate import (
 from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
+    from polisyos.common.canonical_profile import CanonicalProfileStatus
     from polisyos.runtime.quality.credal_reference import CredalReference
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
@@ -103,6 +110,7 @@ def _source_write_options() -> artifacts.ArtifactWriteOptions:
         media_type="application/json",
         schema=artifacts.SchemaInfo(name=SOURCE_SCHEMA, version="1.0"),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
     )
 
 
@@ -125,6 +133,7 @@ def _candidate_simulation_write_options(
         media_type="application/json",
         schema=artifacts.SchemaInfo(name=schema_name, version=schema_version),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
         inputs=list(input_refs),
         tenant_context=ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id),
         same_input_closure=ArtifactSameInputClosureInfo(
@@ -157,6 +166,7 @@ def _candidate_scenario_source_write_options(
             version="1.0",
         ),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
         inputs=[
             input_ref_from_artifact_ref(
                 context_job_ref,
@@ -190,6 +200,7 @@ def _candidate_scenario_source_v2_write_options(
             version="2.0",
         ),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
         inputs=[
             input_ref_from_artifact_ref(
                 source.context_job_ref,
@@ -248,6 +259,7 @@ def _candidate_scenario_source_v3_write_options(
             version="3.0",
         ),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
         inputs=refs,
         tenant_context=ArtifactTenantContextInfo(
             tenant_id=source.tenant_id,
@@ -277,6 +289,7 @@ def _n4_candidate_proposal_write_options() -> artifacts.ArtifactWriteOptions:
         media_type="application/json",
         schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_SCHEMA, version="1.0"),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
     )
 
 
@@ -286,6 +299,7 @@ def _n4_candidate_proposal_v2_write_options() -> artifacts.ArtifactWriteOptions:
         media_type="application/json",
         schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_V2_SCHEMA, version="2.0"),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
     )
 
 
@@ -297,6 +311,7 @@ def _n4_candidate_proposal_v3_write_options(
         media_type="application/json",
         schema=artifacts.SchemaInfo(name=N4_CANDIDATE_PROPOSAL_V3_SCHEMA, version="3.0"),
         producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_SOURCE_CANON),
         tenant_context=ArtifactTenantContextInfo(
             tenant_id=record.tenant_id,
             cell_id=record.cell_id,
@@ -362,8 +377,103 @@ def _ref_selects_manifest(ref: ArtifactRef, manifest: artifacts.ArtifactManifest
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _GenerationSourceReadProvenance:
+    """Typed, non-authoritative provenance for one exact selected Core read."""
+
+    canon_read_status: CanonicalProfileStatus
+    source_materialization: Literal["reader_materialized"]
+    producer_attestation_status: Literal["not_established"]
+    selected_artifact_id: str | None
+    selected_manifest_profile_sha256: str | None
+
+    def progress_projection(self) -> dict[str, str | None]:
+        """Return the read facts for the durable served-job progress surface."""
+        return {
+            "canon_read_status": self.canon_read_status,
+            "source_materialization": self.source_materialization,
+            "producer_attestation_status": self.producer_attestation_status,
+            "selected_artifact_id": self.selected_artifact_id,
+            "selected_manifest_profile_sha256": self.selected_manifest_profile_sha256,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class _GenerationSourceReadOutcome[T]:
+    """Bind the typed value to every selected read used by its repository call."""
+
+    value: T
+    provenance: _GenerationSourceReadProvenance
+    read_trace: tuple[_GenerationSourceReadProvenance, ...]
+
+    def progress_projection(self) -> dict[str, object]:
+        """Project the exact selected read chain without adding authority claims."""
+        return {
+            **self.provenance.progress_projection(),
+            "read_trace": [item.progress_projection() for item in self.read_trace],
+        }
+
+
+_GENERATION_SOURCE_READ_TRACE: ContextVar[list[_GenerationSourceReadProvenance] | None] = (
+    ContextVar("generation_source_read_trace", default=None)
+)
+
+
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+def _mark_canonical_profile_read[T](
+    record: T,
+    profile_read: CanonicalProfileRead,
+    selector: ArtifactRef | str,
+) -> T:
+    """Bind selected reader status to a returned model outside its persisted fields."""
+    if not isinstance(record, BaseModel):
+        raise TypeError("generation_source_read_result_requires_typed_model")
+    if isinstance(selector, ArtifactRef):
+        artifact_id = profile_read.selected_artifact_id or str(selector.artifact_id)
+        profile_sha256 = (
+            profile_read.selected_manifest_profile_sha256
+            or selector.manifest_profile_sha256
+        )
+    elif isinstance(selector, str):
+        artifact_id = profile_read.selected_artifact_id or selector
+        profile_sha256 = profile_read.selected_manifest_profile_sha256
+    else:
+        artifact_id = profile_read.selected_artifact_id
+        profile_sha256 = profile_read.selected_manifest_profile_sha256
+    provenance = _GenerationSourceReadProvenance(
+        canon_read_status=profile_read.status,
+        source_materialization="reader_materialized",
+        producer_attestation_status="not_established",
+        selected_artifact_id=artifact_id,
+        selected_manifest_profile_sha256=profile_sha256,
+    )
+    # Pydantic's declared fields, equality identity, and canonical bytes stay unchanged.
+    object.__setattr__(record, "_generation_source_read_provenance", provenance)
+    trace = _GENERATION_SOURCE_READ_TRACE.get()
+    if trace is not None:
+        trace.append(provenance)
+    return record
+
+
+def _generation_source_read_result[T](
+    record: T,
+    read_trace: Sequence[_GenerationSourceReadProvenance] | None = None,
+) -> _GenerationSourceReadOutcome[T] | None:
+    """Expose a typed view of this read and its nested repository read chain."""
+    provenance = getattr(record, "_generation_source_read_provenance", None)
+    if not isinstance(provenance, _GenerationSourceReadProvenance):
+        return None
+    trace = tuple(read_trace) if read_trace is not None else (provenance,)
+    if not trace or trace[-1] != provenance:
+        return None
+    return _GenerationSourceReadOutcome(
+        value=record,
+        provenance=provenance,
+        read_trace=trace,
+    )
 
 
 class N4CandidateProposalRecord(_StrictModel):
@@ -1355,6 +1465,20 @@ class GenerationSourceRepository:
     def __init__(self, store: artifacts.ArtifactStore) -> None:
         self.store = store
 
+    @contextmanager
+    def capture_read_provenance(
+        self,
+    ) -> Iterator[list[_GenerationSourceReadProvenance]]:
+        """Capture every selected-profile result consumed by one synchronous read path."""
+        trace: list[_GenerationSourceReadProvenance] = []
+        token: Token[list[_GenerationSourceReadProvenance] | None] = (
+            _GENERATION_SOURCE_READ_TRACE.set(trace)
+        )
+        try:
+            yield trace
+        finally:
+            _GENERATION_SOURCE_READ_TRACE.reset(token)
+
     def persist_candidate_model_declaration(
         self,
         *,
@@ -1395,9 +1519,10 @@ class GenerationSourceRepository:
         """Replay one selected or default declaration view with its owner profile."""
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_model_declaration_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_model_declaration_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_model_declaration_selected_view_mismatch")
         body = self.store.get_bytes(ref)
@@ -1405,8 +1530,12 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_model_declaration_content_mismatch")
         try:
             record = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+                    (profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )).value
+                )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_model_declaration_invalid") from exc
         if (
@@ -1435,6 +1564,7 @@ class GenerationSourceRepository:
             or record.profile_config_ref != candidate_simulation_profile_ref(expected_profile)
         ):
             raise ValueError("candidate_simulation_model_declaration_profile_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def persist_candidate_ncm_selected_view(
@@ -1535,9 +1665,10 @@ class GenerationSourceRepository:
         """Replay selected source, context, declaration, and NCM exact views."""
         if not isinstance(ref, ArtifactRef):
             raise ValueError("n4_candidate_scenario_source_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("n4_candidate_scenario_source_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
         body = self.store.get_bytes(ref)
@@ -1545,8 +1676,12 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV2.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+                    (profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )).value
+                )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_v2_invalid") from exc
         if (
@@ -1652,6 +1787,7 @@ class GenerationSourceRepository:
         expected_ncm_spec = candidate_ncm_spec_from_declaration(declaration)
         if ncm_spec.model_dump(mode="json") != expected_ncm_spec.model_dump(mode="json"):
             raise ValueError("n4_candidate_scenario_source_v2_ncm_declaration_mismatch")
+        source = _mark_canonical_profile_read(source, profile_read, ref)
         return source
 
     def create_candidate_scenario_source_v3(
@@ -1732,9 +1868,10 @@ class GenerationSourceRepository:
         ref_key = artifact_ref_identity_key(ref)
         if ref_key in _visited_refs:
             raise ValueError("n4_candidate_scenario_source_v3_origin_cycle")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("n4_candidate_scenario_source_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
         body = self.store.get_bytes(ref)
@@ -1742,8 +1879,12 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV3.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+                    (profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )).value
+                )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_v3_invalid") from exc
         if (
@@ -1809,6 +1950,7 @@ class GenerationSourceRepository:
                 or origin.world_model_record_hash == source.world_model_record_hash
             ):
                 raise ValueError("n4_candidate_scenario_source_v3_origin_binding_mismatch")
+        source = _mark_canonical_profile_read(source, profile_read, ref)
         return source
 
     def load_candidate_scenario_source_for_n5(
@@ -1821,7 +1963,10 @@ class GenerationSourceRepository:
         expected_cell_id: str,
     ) -> N4CandidateScenarioSourceRecord:
         """Dispatch a scenario source by its persisted manifest schema version."""
-        manifest = self.store.get_manifest(ref)
+        # Parse the selected raw profile before a manifest-only lookup can hide a
+        # malformed-present sidecar as a generic absence or schema failure. The
+        # selected payload is still decoded and conformance-checked by its owner.
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         schema = manifest.artifact_schema
         if schema is None:
             raise ValueError("n4_candidate_scenario_source_manifest_mismatch")
@@ -1978,9 +2123,10 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("n4_candidate_scenario_source_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("n4_candidate_scenario_source_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("n4_candidate_scenario_source_selected_view_mismatch")
         body = self.store.get_bytes(ref)
@@ -1989,8 +2135,12 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV1.model_validate(
-                canon.from_canonical_bytes(body)
-            )
+                    (profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )).value
+                )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_record_invalid") from exc
         if (
@@ -2060,6 +2210,7 @@ class GenerationSourceRepository:
             != context_job.context.intervention_substrate.content_hash
         ):
             raise ValueError("n4_candidate_scenario_source_context_binding_mismatch")
+        source = _mark_canonical_profile_read(source, profile_read, ref)
         return source
 
     def persist_candidate_simulation_input_v3(self, *, input_record: object) -> ArtifactRef:
@@ -2547,14 +2698,19 @@ class GenerationSourceRepository:
             CandidateSimulationN5InputV2,
         )
 
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v2_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != ref:
             raise ValueError("candidate_simulation_v2_cas_content_mismatch")
         try:
-            payload = canon.from_canonical_bytes(body)
+            payload = (
+                profile_read := read_core_json_artifact(
+                    self.store, ref, raw_payload_bytes=body
+                )
+            ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV2.model_validate(payload)
             elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
@@ -2684,6 +2840,7 @@ class GenerationSourceRepository:
             )
             if result.receipt.payload_hash != record.n5_result_content_hash:
                 raise ValueError("candidate_simulation_v2_result_hash_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def _load_candidate_simulation_input_v2(self, ref: str) -> object:
@@ -2693,9 +2850,10 @@ class GenerationSourceRepository:
             CandidateSimulationN5InputV2,
         )
 
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v2_input_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         body = self.store.get_bytes(ref)
         if (
             "sha256:" + hashlib.sha256(body).hexdigest() != ref
@@ -2706,7 +2864,13 @@ class GenerationSourceRepository:
             or manifest.artifact_schema.version != "2.0"
         ):
             raise ValueError("candidate_simulation_v2_input_manifest_mismatch")
-        record = CandidateSimulationN5InputV2.model_validate(canon.from_canonical_bytes(body))
+        record = CandidateSimulationN5InputV2.model_validate(
+            (profile_read := read_core_json_artifact(
+                self.store,
+                ref,
+                raw_payload_bytes=body,
+            )).value
+        )
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
             schema_name=record.schema_version,
@@ -2719,6 +2883,7 @@ class GenerationSourceRepository:
         )
         if not _has_owner_profile(manifest, options):
             raise ValueError("candidate_simulation_v2_input_owner_profile_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def resolve_candidate_simulation_v3(
@@ -2741,9 +2906,10 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v3_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v3_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_v3_selected_view_mismatch")
         body = self.store.get_bytes(ref)
@@ -2751,7 +2917,11 @@ class GenerationSourceRepository:
         if "sha256:" + hashlib.sha256(body).hexdigest() != artifact_id:
             raise ValueError("candidate_simulation_v3_cas_content_mismatch")
         try:
-            payload = canon.from_canonical_bytes(body)
+            payload = (
+                profile_read := read_core_json_artifact(
+                    self.store, ref, raw_payload_bytes=body
+                )
+            ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV3.model_validate(payload)
             elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
@@ -2909,6 +3079,7 @@ class GenerationSourceRepository:
                 or record.n5_result_ref.kind != JOINT_SIMULATION_RESULT_ARTIFACT_KIND
             ):
                 raise ValueError("candidate_simulation_v3_result_hash_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def resolve_candidate_simulation_v4(
@@ -2931,16 +3102,21 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v4_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v4_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_v4_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
             raise ValueError("candidate_simulation_v4_cas_content_mismatch")
         try:
-            payload = canon.from_canonical_bytes(body)
+            payload = (
+                profile_read := read_core_json_artifact(
+                    self.store, ref, raw_payload_bytes=body
+                )
+            ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV4.model_validate(payload)
             elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
@@ -3091,6 +3267,7 @@ class GenerationSourceRepository:
             current_lease_resolver is None or not current_lease_resolver(record)
         ):
             raise ValueError("candidate_simulation_v4_current_lease_not_established")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def resolve_candidate_simulation_v5(
@@ -3114,16 +3291,21 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v5_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v5_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_v5_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
             raise ValueError("candidate_simulation_v5_cas_content_mismatch")
         try:
-            payload = canon.from_canonical_bytes(body)
+            payload = (
+                profile_read := read_core_json_artifact(
+                    self.store, ref, raw_payload_bytes=body
+                )
+            ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV5.model_validate(payload)
             elif manifest.kind == _CANDIDATE_SIMULATION_EXECUTION_KIND:
@@ -3289,6 +3471,7 @@ class GenerationSourceRepository:
             current_lease_resolver is None or not current_lease_resolver(record)
         ):
             raise ValueError("candidate_simulation_v5_current_lease_not_established")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def _load_candidate_simulation_input_v5(self, ref: ArtifactRef) -> object:
@@ -3297,20 +3480,37 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v5_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v5_input_cas_integrity_failed")
         body = self.store.get_bytes(ref)
         try:
-            record = CandidateSimulationN5InputV5.model_validate(canon.from_canonical_bytes(body))
+            record = CandidateSimulationN5InputV5.model_validate(
+                (profile_read := read_core_json_artifact(
+                    self.store,
+                    ref,
+                    raw_payload_bytes=body,
+                )).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v5_input_invalid") from exc
-        return self.resolve_candidate_simulation_v5(
+        resolved = self.resolve_candidate_simulation_v5(
             ref=ref,
             expected_run_id=record.run_id,
             expected_job_id=record.job_id,
             expected_tenant_id=record.tenant_id,
             expected_cell_id=record.cell_id,
         )
+        resolved_read = _generation_source_read_result(resolved)
+        if (
+            resolved_read is None
+            or resolved_read.provenance.canon_read_status != profile_read.status
+            or resolved_read.provenance.selected_artifact_id != str(ref.artifact_id)
+            or resolved_read.provenance.selected_manifest_profile_sha256
+            != ref.manifest_profile_sha256
+        ):
+            raise ValueError("candidate_simulation_v5_input_read_outcome_mismatch")
+        return _mark_canonical_profile_read(resolved, profile_read, ref)
 
     def _load_candidate_simulation_input_v4(self, ref: ArtifactRef) -> object:
         """Load one v4 input only after the shared resolver replays its lineage."""
@@ -3321,23 +3521,40 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v4_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v4_input_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_v4_input_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         try:
-            record = CandidateSimulationN5InputV4.model_validate(canon.from_canonical_bytes(body))
+            record = CandidateSimulationN5InputV4.model_validate(
+                (profile_read := read_core_json_artifact(
+                    self.store,
+                    ref,
+                    raw_payload_bytes=body,
+                )).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v4_input_invalid") from exc
-        return self.resolve_candidate_simulation_v4(
+        resolved = self.resolve_candidate_simulation_v4(
             ref=ref,
             expected_run_id=record.run_id,
             expected_job_id=record.job_id,
             expected_tenant_id=record.tenant_id,
             expected_cell_id=record.cell_id,
         )
+        resolved_read = _generation_source_read_result(resolved)
+        if (
+            resolved_read is None
+            or resolved_read.provenance.canon_read_status != profile_read.status
+            or resolved_read.provenance.selected_artifact_id != str(ref.artifact_id)
+            or resolved_read.provenance.selected_manifest_profile_sha256
+            != ref.manifest_profile_sha256
+        ):
+            raise ValueError("candidate_simulation_v4_input_read_outcome_mismatch")
+        return _mark_canonical_profile_read(resolved, profile_read, ref)
 
     def _load_candidate_simulation_input_v3(self, ref: ArtifactRef) -> object:
         """Load one exact typed N5 input view through its persistence owner."""
@@ -3348,15 +3565,22 @@ class GenerationSourceRepository:
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v3_selected_ref_required")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_simulation_v3_input_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_simulation_v3_input_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
             raise ValueError("candidate_simulation_v3_input_cas_content_mismatch")
-        record = CandidateSimulationN5InputV3.model_validate(canon.from_canonical_bytes(body))
+        record = CandidateSimulationN5InputV3.model_validate(
+            (profile_read := read_core_json_artifact(
+                self.store,
+                ref,
+                raw_payload_bytes=body,
+            )).value
+        )
         if (
             manifest.kind != _CANDIDATE_SIMULATION_INPUT_KIND
             or manifest.media_type != "application/json"
@@ -3396,6 +3620,7 @@ class GenerationSourceRepository:
             )
         ):
             raise ValueError("candidate_simulation_v3_input_selected_view_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def persist_candidate_proposal(
@@ -3505,21 +3730,19 @@ class GenerationSourceRepository:
             else N4CandidateProposalLocator.model_validate(ref)
         )
         artifact_ref = locator.artifact_ref
-        # Core's selector-aware API accepts the canonical ref. Keep a narrow
-        # compatibility path while this slice is replayed on the pre-R9 base,
-        # whose refs cannot express a selected manifest view.
-        selected_ref: artifacts.ArtifactID | artifacts.ArtifactRef = (
-            artifact_ref
-            if "manifest_profile_sha256" in artifacts.ArtifactRef.model_fields
-            else artifact_ref.artifact_id
-        )
+        # Preserve the exact manifest-profile selection through every Core read.
+        selected_ref = artifact_ref
+        # Parse the raw selected profile before integrity/manifest readers can
+        # collapse a malformed-present sidecar into a generic manifest failure.
+        read_core_manifest_profile(self.store, selected_ref)
         if not self.store.verify(selected_ref).ok:
             raise ValueError("n4_candidate_proposal_cas_integrity_failed")
+        profile_read = read_core_json_artifact(self.store, selected_ref)
         manifest = self.store.get_manifest(selected_ref)
-        body = self.store.get_bytes(selected_ref)
+        body = profile_read.raw_payload_bytes
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(artifact_ref.artifact_id):
             raise ValueError("n4_candidate_proposal_cas_content_mismatch")
-        payload = canon.from_canonical_bytes(body)
+        payload = profile_read.value
         schema_name = (
             manifest.artifact_schema.name if manifest.artifact_schema is not None else None
         )
@@ -3537,6 +3760,7 @@ class GenerationSourceRepository:
                 raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
         else:
             raise ValueError("n4_candidate_proposal_owner_profile_mismatch")
+        artifact = _mark_canonical_profile_read(artifact, profile_read, selected_ref)
         expected = {
             "job_id": job_id,
             "run_id": run_id,
@@ -3831,15 +4055,20 @@ class GenerationSourceRepository:
         ):
             raise ValueError("generation_source_generic_child_family_input_ref_invalid")
         artifact_id = str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
+        # Establish malformed-present versus absent before `verify` or the typed
+        # manifest accessor can reject the selected sidecar generically.
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("generation_source_cas_integrity_failed")
+        profile_read = read_core_json_artifact(self.store, ref)
         manifest = self.store.get_manifest(ref)
         if isinstance(ref, ArtifactRef) and not _ref_selects_manifest(ref, manifest):
             raise ValueError("generation_source_selected_view_mismatch")
-        body = self.store.get_bytes(ref)
+        body = profile_read.raw_payload_bytes
         if "sha256:" + hashlib.sha256(body).hexdigest() != artifact_id:
             raise ValueError("generation_source_cas_content_mismatch")
-        artifact = GenerationSourceHandoff.model_validate(canon.from_canonical_bytes(body))
+        artifact = GenerationSourceHandoff.model_validate(profile_read.value)
+        artifact = _mark_canonical_profile_read(artifact, profile_read, ref)
         if artifact.run_id != run_id:
             raise ValueError("generation_source_run_mismatch")
         generic_source_inputs = ()
@@ -4041,16 +4270,23 @@ class GenerationSourceRepository:
         """Reopen the exact source, owner manifest, and candidate-only attempt."""
         if type(ref) is not ArtifactRef or ref.kind != CREDAL_SOURCE_ATTEMPT_KIND:
             raise ValueError("candidate_credal_source_attempt_selected_ref_invalid")
+        read_core_manifest_profile(self.store, ref)
         if not self.store.verify(ref).ok:
             raise ValueError("candidate_credal_source_attempt_cas_integrity_failed")
-        manifest = self.store.get_manifest(ref)
+        manifest = read_core_manifest_profile(self.store, ref)[0]
         if not _ref_selects_manifest(ref, manifest):
             raise ValueError("candidate_credal_source_attempt_selected_view_mismatch")
         body = self.store.get_bytes(ref)
         if f"sha256:{hashlib.sha256(body).hexdigest()}" != str(ref.artifact_id):
             raise ValueError("candidate_credal_source_attempt_cas_content_mismatch")
         try:
-            record = CandidateCredalSourceAttemptV1.model_validate(canon.from_canonical_bytes(body))
+            record = CandidateCredalSourceAttemptV1.model_validate(
+                (profile_read := read_core_json_artifact(
+                    self.store,
+                    ref,
+                    raw_payload_bytes=body,
+                )).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_credal_source_attempt_payload_invalid") from exc
         source = self.load(
@@ -4112,6 +4348,7 @@ class GenerationSourceRepository:
         )
         if not _has_owner_profile(manifest, options):
             raise ValueError("candidate_credal_source_attempt_owner_profile_mismatch")
+        record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
     def resolve(

@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.loading.norm_pack import NormPack, NormRule
@@ -98,8 +97,9 @@ def _load_model_from_cas(
     model: type[PolicySpec] | type[SimulationResult] | type[Metrics] | type[NormPack],
     role: str,
 ) -> PolicySpec | SimulationResult | Metrics | NormPack:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
-        payload = from_canonical_bytes(cas.get_bytes(ArtifactID.model_validate(artifact_id)))
+        payload = load_core_json_artifact(cas, ArtifactID.model_validate(artifact_id))
     except FileNotFoundError as exc:
         raise LexNotReadyError(
             f"missing required artifact for {role}: {artifact_id}",

@@ -675,7 +675,9 @@ def validate_adapter_semantic_preservation(
         )
         try:
             core_ref = store.put_json(deepcopy(payload), opts, canon_spec=_CANON)
-            binding, raw, manifest = _read_binding(store, core_ref, output_key)
+            binding, raw, manifest = _read_binding(
+                store, core_ref, output_key, require_profiled_json=True
+            )
             outputs.append(binding)
             after = _preservation_surface(
                 "runtime.cas",
@@ -778,7 +780,11 @@ def _input_fact(state: object, path: str) -> dict[str, Any]:
 
 
 def _read_binding(
-    store: core_artifacts.ArtifactStore, ref: object, path: str
+    store: core_artifacts.ArtifactStore,
+    ref: object,
+    path: str,
+    *,
+    require_profiled_json: bool = False,
 ) -> tuple[AdapterArtifactByteBinding, bytes, core_artifacts.ArtifactManifest]:
     typed = core_artifacts.ArtifactRef.model_validate(ref)
     raw = store.get_bytes(typed)
@@ -792,6 +798,12 @@ def _read_binding(
         or manifest.integrity.sha256 != digest.removeprefix("sha256:")
     ):
         raise ValueError("artifact_byte_or_manifest_identity_mismatch")
+    if require_profiled_json:
+        if typed.media_type != "application/json":
+            raise ValueError("profiled_semantic_read_requires_json_media_type")
+        core_artifacts.read_core_json_artifact_bytes(
+            store, typed, raw_payload_bytes=raw
+        )
     return (
         AdapterArtifactByteBinding(
             path=path,

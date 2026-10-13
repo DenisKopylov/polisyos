@@ -2,17 +2,17 @@ import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphPriorBundleRef
 from polisyos.ir.analytics.causal_discovery import (
     AlgebraicAssumptionStatus,
     AlgebraicFalsificationScope,
 )
-from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
     EdgeConfidenceMatrix,
 )
+from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBuilder,
     GraphPriorBundle,
@@ -96,7 +96,13 @@ def test_graph_prior_bundle_round_trip_preserves_contract(tmp_path) -> None:
     bundle = GraphPriorBuilder().build(matrix, _utility_report())
 
     ref = persist_graph_prior_bundle(store, bundle)
-    loaded = load_graph_prior_bundle(store, ref)
+    payload = from_canonical_bytes(store.get_bytes(ref))
+    evidence = payload["hypothesis_identification"]["pc_main"]
+    assert "graph_derived_assumption_status" in evidence
+    assert evidence["graph_derived_assumption_status"] is None
+    assert "graph_derived_scope_of_falsification" in evidence
+    assert evidence["graph_derived_scope_of_falsification"] is None
+    loaded = load_graph_prior_bundle(FileSystemCAS(store.root), ref)
 
     assert ref.kind == "scientist.graph_prior_bundle"
     assert loaded == bundle

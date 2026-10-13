@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.execution_plan import (
     ExecutionPlan,
@@ -84,6 +83,7 @@ class RunPreflightNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         plan_ref = _resolve_execution_plan_ref(state)
         snapshot_ref = state.artifacts_index.get(ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF)
         if plan_ref is None or snapshot_ref is None:
@@ -97,8 +97,8 @@ class RunPreflightNode:
             return NodeOutcome(status="fail", state=state, error=error)
 
         try:
-            plan_payload = from_canonical_bytes(ctx.store.get_bytes(plan_ref))
-            snapshot_payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref))
+            plan_payload = load_core_json_artifact(ctx.store, plan_ref)
+            snapshot_payload = load_core_json_artifact(ctx.store, snapshot_ref)
             plan = ExecutionPlan.model_validate(plan_payload)
             snapshot = MethodCatalogSnapshot.model_validate(snapshot_payload)
         except _PREFLIGHT_INPUT_LOAD_ERRORS as exc:

@@ -9,7 +9,6 @@ from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import profile_bound_ref
-from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef, DataViewRequestRef
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -113,8 +112,9 @@ def _read_snapshot_pii_summary(
     ctx: ExecutionContext,
     snapshot_ref: DataSnapshotRef,
 ) -> dict[str, Any] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(snapshot_ref))
+        payload = load_core_json_artifact(ctx.store, snapshot_ref)
         snapshot = DataSnapshot.model_validate(payload)
     except _DATA_SNAPSHOT_RUNTIME_ERRORS as exc:
         emit_degraded_path(

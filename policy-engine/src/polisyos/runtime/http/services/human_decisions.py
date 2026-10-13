@@ -853,6 +853,7 @@ class HumanDecisionAuthoritySinkProtocol(Protocol):
     def has_artifact(self, artifact_ref: str) -> bool: ...
 
     def get_artifact_bytes(self, artifact_ref: str) -> bytes: ...
+    def get_artifact_json(self, artifact_ref: str) -> Any: ...  # noqa: ANN401
 
     def get_artifact_manifest(self, artifact_ref: str) -> artifacts.ArtifactManifest: ...
 
@@ -1575,7 +1576,7 @@ class HumanDecisionService:
         ):
             raise HumanDecisionPersistenceError("exposure-session custody signature did not verify")
         loaded = HumanDecisionExposureSession.model_validate(
-            canon.from_canonical_bytes(self._sink.get_artifact_bytes(session_ref))
+            self._sink.get_artifact_json(session_ref)
         )
         if loaded != session:
             raise HumanDecisionPersistenceError("exposure-session canonical readback changed")
@@ -1837,7 +1838,7 @@ class HumanDecisionService:
                     signature_verified = True
                     self._assert_record_manifest(record_ref)
                     loaded = HumanDecisionRecord.model_validate(
-                        canon.from_canonical_bytes(self._sink.get_artifact_bytes(record_ref))
+                        self._sink.get_artifact_json(record_ref)
                     )
                     if loaded != record:
                         raise ValueError("human-decision record canonical readback changed")
@@ -2237,7 +2238,7 @@ class HumanDecisionService:
                 "production approval custody signature did not verify"
             )
         loaded = ProductionApprovalPacket.model_validate(
-            canon.from_canonical_bytes(self._sink.get_artifact_bytes(written_ref))
+            self._sink.get_artifact_json(written_ref)
         )
         if loaded != packet:
             raise HumanDecisionPersistenceError("production approval packet readback changed")
@@ -3585,7 +3586,7 @@ class HumanDecisionService:
             )
         try:
             model = model_type.model_validate(
-                canon.from_canonical_bytes(self._sink.get_artifact_bytes(ref))
+                self._sink.get_artifact_json(ref)
             )
         except (TypeError, ValueError) as exc:
             raise _ResolutionIssueError(

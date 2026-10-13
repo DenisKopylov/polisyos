@@ -17,7 +17,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
     ActiveDisambiguationPlanRef,
     BootstrapStabilityReportRef,
@@ -988,7 +988,8 @@ def _load_model(
     ref: ArtifactRef,
     model_cls: type[BaseModel],
 ) -> Any:
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
 

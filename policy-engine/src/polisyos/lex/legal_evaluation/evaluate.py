@@ -10,7 +10,6 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.contracts.lex import (
     ChangeProposalRef,
@@ -97,9 +96,10 @@ def _load_trinity_bundle_refs(
     cas: FileSystemCAS,
     trinity_bundle_ref: Any,
 ) -> tuple[PolicySpecRef, ModelSpecRef | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     artifact_id = str(trinity_bundle_ref.artifact_id)
     try:
-        payload = from_canonical_bytes(cas.get_bytes(ArtifactID.model_validate(artifact_id)))
+        payload = load_core_json_artifact(cas, trinity_bundle_ref)
     except FileNotFoundError as exc:
         raise LexNotReadyError(
             "missing trinity_bundle artifact",

@@ -361,11 +361,13 @@ class FoundryMethodOutputConsumer:
                 store,
                 state.artifacts_index[ARTIFACT_CAUSAL_METHOD_RESULT_REF],
                 "method_result",
+                require_profiled_json=True,
             )
             evidence_binding, evidence_raw, evidence_manifest = _read_binding(
                 store,
                 state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF],
                 "method_evidence",
+                require_profiled_json=True,
             )
             root_binding, _, root_manifest = _read_binding(store, root, "recorded_observations")
             if root_manifest.artifact_schema is None:
@@ -936,11 +938,26 @@ class ConstraintStoreIngestor:
         def read(
             ref: dict[str, Any], role: str
         ) -> tuple[core_artifacts.ArtifactRef, bytes, ArtifactManifest]:
-            manifest = ArtifactManifest.model_validate(self._store.get_manifest(ref["artifact_id"]))
-            typed = core_artifacts.ArtifactRef(
-                artifact_id=ref["artifact_id"], kind=manifest.kind, media_type=manifest.media_type
+            selected_profile = ref.get("manifest_profile_sha256")
+            manifest = (
+                resolve_manifest_by_profile(
+                    self._store, ref["artifact_id"], selected_profile
+                )
+                if selected_profile is not None
+                else ArtifactManifest.model_validate(
+                    self._store.get_manifest(ref["artifact_id"])
+                )
             )
-            binding, raw, manifest = _read_binding(self._store, typed, role)
+            typed = core_artifacts.ArtifactRef(
+                artifact_id=ref["artifact_id"],
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                manifest_profile_sha256=selected_profile,
+            )
+            require_profiled_json = role in {"method_evidence", "method_result"}
+            binding, raw, manifest = _read_binding(
+                self._store, typed, role, require_profiled_json=require_profiled_json
+            )
             if binding.content_hash != ref["content_hash"]:
                 raise ValueError("constraint_method_ref_content_mismatch")
             return typed, raw, manifest
@@ -1477,10 +1494,15 @@ def _verified_method_input_refs(
         selected = core_artifacts.ArtifactRef.model_validate(state.inputs[selected_key])
         if inputs.get("ukraine_selected_method_contract") != selected:
             raise ValueError("foundry_selected_contract_lineage_mismatch")
-        _, raw, _ = _read_binding(store, selected, "selected_method_contract")
+        _, raw, _ = _read_binding(
+            store, selected, "selected_method_contract", require_profiled_json=True
+        )
+        selected_payload = core_artifacts.load_core_json_artifact(
+            store, selected, raw_payload_bytes=raw
+        )
         selected_input = materialize_method_contract(
             contract_target=bound.contract_target,
-            contract_payload=from_canonical_bytes(raw),
+            contract_payload=selected_payload,
         )
         if selected_input.model_dump(mode="json") != bound.contract_payload:
             raise ValueError("foundry_selected_contract_content_mismatch")
@@ -1548,7 +1570,12 @@ def _verify_method_replay(
             ("result", execution.exec_artifacts.result_ref, result_raw, result_manifest),
             ("evidence", execution.exec_artifacts.evidence_ref, evidence_raw, evidence_manifest),
         ):
-            _, actual_raw, actual_manifest = _read_binding(replay_store, ref, f"replay_{name}")
+            _, actual_raw, actual_manifest = _read_binding(
+                replay_store,
+                ref,
+                f"replay_{name}",
+                require_profiled_json=(name in {"result", "evidence"}),
+            )
             if actual_manifest.byte_size != len(actual_raw) or expected_manifest.byte_size != len(
                 expected_raw
             ):

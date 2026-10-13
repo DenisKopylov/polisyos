@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 
 from .monitors import (
     DecisionValidityStatus,
@@ -115,8 +115,9 @@ def persist_validity_report(
 
 def load_validity_report(store: Any, ref: ArtifactRef) -> DecisionValidityReport:
     """Load a persisted DecisionValidityReport from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return DecisionValidityReport.model_validate(payload)
 
 

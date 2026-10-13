@@ -13,7 +13,6 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyKind,
@@ -412,11 +411,12 @@ def _build_web_evidence_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = artifacts_index.get(ARTIFACT_WEB_EVIDENCE_BUNDLE_REF)
     if ref is None:
         return None
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(ref))
+        payload = load_core_json_artifact(ctx.store, ref)
         bundle = WebEvidenceBundle.model_validate(payload)
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _record_decision_packet_section_degraded(
@@ -608,12 +608,13 @@ def _build_policy_summary(
     ctx: ExecutionContext,
     state_inputs: dict[str, ArtifactRef],
 ) -> tuple[str, int]:
+    from polisyos.core.artifacts import load_core_json_artifact
     trinity_ref = state_inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return "N/A", 0
 
     try:
-        payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+        payload = load_core_json_artifact(ctx.store, trinity_ref)
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         _decision_packet_degraded(
             operation="load_policy_summary_trinity_bundle",

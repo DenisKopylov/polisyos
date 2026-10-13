@@ -840,6 +840,7 @@ _MODULE_SYMBOLS[".epoch"] = (
     "acquisition_semantic_candidate_bytes",
     "acquisition_semantic_candidate_content_hash",
     "canonical_epoch_bytes",
+    "epoch_canon_info",
     "epoch_query_context_ref",
     "epoch_semantic_content_hash",
     "load_verified_epoch_statement",

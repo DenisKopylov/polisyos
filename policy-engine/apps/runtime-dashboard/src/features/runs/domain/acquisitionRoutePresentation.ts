@@ -215,6 +215,7 @@ export type VisibleRunAcquisitionRoute = Readonly<{
   }>;
   route: AcquisitionRouteProjection;
   strategy: string;
+  worldGrowth: AcquisitionRouteProjection["world_growth"];
   voiAvailability: "not_established";
 }>;
 
@@ -236,6 +237,10 @@ export function presentRunAcquisitionRoute(
     }),
     route,
     strategy: route.recommended_strategy,
+    worldGrowth:
+      route.qualification_status === "pending_epoch_activation"
+        ? "not_established"
+        : route.world_growth,
     voiAvailability: "not_established",
   });
 }

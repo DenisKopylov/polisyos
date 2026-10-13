@@ -173,6 +173,11 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     tmp_path.mkdir(parents=True, exist_ok=True)
 
     from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.data_forge.domains.academic.knowledge.types import (
+        EstimateCandidate,
+        WorkRecord,
+    )
+    from polisyos.data_forge.read_api.academic import SKGQuery
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
@@ -197,9 +202,11 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
     from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
     from polisyos.runtime.quality.world_model_record import (
         BranchMode,
+        SkgCausalPriorRef,
         WorldModelLimitations,
         build_world_model_record,
     )
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
     from tests.unit.runtime.quality import test_world_model_record as wmr_fixture
 
     snapshot_id = "served-wdi-controlled-candidate-base"
@@ -212,6 +219,54 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         registry_bundle.bundle_ref,
     )
     wmr_fixture._write_fabric_world_snapshot(tmp_path, snapshot_id=snapshot_id)
+    # Use the canonical batch producer, then validate the exact selected source
+    # through the prepared reader consumed by the real credal-reference path.
+    selected_skg_root = tmp_path / "controlled-candidate-source"
+    selected_skg_root.mkdir(parents=True, exist_ok=True)
+    selected_skg_db_path = selected_skg_root / "academic-skg.duckdb"
+    selected_skg_record = WorkRecord(
+        id="served-controlled-candidate-skg",
+        title="Synthetic candidate source fixture",
+        abstract="Synthetic fixture data; no causal or production claim.",
+        year=2026,
+        estimates=[
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="controlled_candidate_fixture",
+                variable_hint="government.balance",
+            ),
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="controlled_candidate_fixture",
+                variable_hint="global.tax_rate",
+            ),
+        ],
+        metadata={"synthetic": True, "fixture_scope": "served_candidate_only"},
+    )
+    build_synthetic_academic_skg_source(
+        records=(selected_skg_record,),
+        db_path=selected_skg_db_path,
+    )
+    prepared_skg = SKGQuery.prepare_read(
+        db_path=selected_skg_db_path,
+        index_dir=selected_skg_root / "index",
+    )
+    try:
+        selected_skg_rows = prepared_skg.read_credal_source_rows()
+        selected_skg_version_id = int(selected_skg_rows.version_id)
+        selected_skg_snapshot_ref = prepared_skg.source_snapshot_ref
+        selected_variables = {row.canonical_name for row in selected_skg_rows.variables}
+        if not {"government.balance", "global.tax_rate"}.issubset(selected_variables):
+            raise AssertionError("served_controlled_skg_producer_variables_missing")
+        if selected_skg_rows.causal_edges:
+            raise AssertionError("served_controlled_candidate_fixture_claimed_causal_edges")
+    finally:
+        prepared_skg.close()
+    skg_causal_prior_ref = SkgCausalPriorRef(
+        skg_snapshot_ref=selected_skg_snapshot_ref,
+        skg_version_id=str(selected_skg_version_id),
+        source_data_snapshot_id=snapshot_id,
+    )
     base_world = build_world_model_record(
         store,
         fabric_world_ref=wmr_fixture._fabric_ref(tmp_path, snapshot_id=snapshot_id),
@@ -220,7 +275,7 @@ def _served_wdi_candidate_profile(*, tmp_path, store, problem):
         ),
         data_snapshot_ref=base_data_snapshot_ref,
         model_spec=model_spec,
-        skg_causal_prior_ref=wmr_fixture._skg_ref(tmp_path, snapshot_id=snapshot_id),
+        skg_causal_prior_ref=skg_causal_prior_ref,
         substrate_registry=substrate_registry,
         region_or_jurisdiction=problem.jurisdiction_time.region,
         population_scope="served_controlled_candidate_fixture",
@@ -2300,6 +2355,420 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             action_payload = canon.from_canonical_bytes(
                 _within_fixture_owner(control._artifact_store.get_bytes, action_job.payload_ref)
             )
+            action_service = container.acquisition_action_service
+            assert action_service is not None
+            third_closure = action_service._resolve(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=run_id,
+            )
+            action_generation = action_service._action_generation(
+                third_closure, third_job_id
+            )
+            requested_phase = action_service._phase_receipt(
+                action_generation=action_generation,
+                closure=third_closure,
+                job_id=third_job_id,
+                decision_ref=str(action_payload["decision_ref"]),
+                receipt_phase="requested",
+                predecessor_receipt_ref=None,
+                owner_receipt_refs=(),
+            )
+            action_sink = control.acquisition_route_sink
+            requested_head = action_sink.get_head(requested_phase)
+            assert requested_head is not None
+            assert requested_head.receipt_phase == "requested"
+            executing_phase = action_service._phase_receipt(
+                action_generation=action_generation,
+                closure=third_closure,
+                job_id=third_job_id,
+                decision_ref=str(action_payload["decision_ref"]),
+                receipt_phase="executing",
+                predecessor_receipt_ref=requested_head.receipt_ref,
+                owner_receipt_refs=(),
+            )
+            executing_head = action_sink.persist_phase(executing_phase)
+            bridge = cases[-1].bridge
+            with pytest.raises(ValueError, match="acquisition_action_phase_head_binding_mismatch"):
+                bridge.begin_action(third_closure, requested_head.receipt_ref)
+            selected_route = bridge.selection(third_closure)
+            assert selected_route is not None
+            selected_pointer = bridge._growth_pointer(selected_route, create=False)
+            previous_kind, previous_ref = bridge._read_outcome_pointer(selected_pointer)
+            assert previous_kind == "runtime_quality.acquisition_world_growth_receipt"
+            assert previous_ref == prior_growth_ref
+            with pytest.raises(ValueError, match="acquisition_owner_outcome_not_established"):
+                bridge.recover_admission(third_closure, executing_head.receipt_ref)
+            assert bridge._read_outcome_pointer(selected_pointer) == (
+                "runtime_quality.acquisition_world_growth_receipt",
+                prior_growth_ref,
+            )
+            bridge.begin_action(third_closure, executing_head.receipt_ref)
+
+            # Crash after the immutable current-action no-growth CAS is prepared,
+            # but before its route pointer replaces the previous positive receipt.
+            original_write_pointer = bridge._write_pointer
+
+            def crash_before_route_pointer(pointer, receipt_ref, *, receipt_kind=None):
+                if receipt_kind == "runtime_quality.acquisition_world_growth_no_growth_receipt":
+                    raise OSError("simulated_loss_before_route_pointer_replace")
+                return original_write_pointer(pointer, receipt_ref, receipt_kind=receipt_kind)
+
+            monkeypatch.setattr(bridge, "_write_pointer", crash_before_route_pointer)
+            with pytest.raises(OSError, match="simulated_loss_before_route_pointer_replace"):
+                bridge.record_measured_no_growth(
+                    third_closure, action_phase_ref=executing_head.receipt_ref
+                )
+            monkeypatch.setattr(bridge, "_write_pointer", original_write_pointer)
+            still_positive_kind, still_positive_ref = bridge._read_outcome_pointer(selected_pointer)
+            assert (still_positive_kind, still_positive_ref) == (
+                "runtime_quality.acquisition_world_growth_receipt",
+                prior_growth_ref,
+            )
+            selector_path, prepared_selector = bridge._read_action_selector(
+                third_closure, selected_route, executing_head.receipt_ref
+            )
+            assert selector_path.exists()
+            assert prepared_selector.state == "prepared"
+            assert prepared_selector.receipt_kind == (
+                "runtime_quality.acquisition_world_growth_no_growth_receipt"
+            )
+            assert prepared_selector.receipt_ref is not None
+            assert not cases[-1].transport_calls
+
+            # The latest action is prepared, but the route pointer still names the old positive.
+            # Both public readers must report an unresolved current outcome, not that old delta.
+            route_read_headers = {
+                "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
+                "X-Tenant-ID": TENANT,
+            }
+            route_collection_path = f"/api/v1/runs/{run_id}/acquisition-routes"
+            stale_pointer_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in stale_pointer_reads), [
+                response.text for response in stale_pointer_reads
+            ]
+            assert stale_pointer_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert stale_pointer_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] is None
+            assert stale_pointer_reads[1].json()["world_growth"] == "not_established"
+            assert stale_pointer_reads[1].json()["admitted_observation_delta"] is None
+            assert bridge._has_verified_admission_basis(third_closure)
+
+            # Recovery can replace the route pointer before it marks the selector selected.
+            # That mixed state is still not a current outcome for either public reader.
+            original_select_action_outcome = bridge._select_action_outcome
+
+            def crash_after_route_pointer(*args, **kwargs):
+                raise OSError("simulated_loss_before_action_selector_select")
+
+            monkeypatch.setattr(bridge, "_select_action_outcome", crash_after_route_pointer)
+            with pytest.raises(OSError, match="simulated_loss_before_action_selector_select"):
+                bridge.recover_admission(third_closure, executing_head.receipt_ref)
+            monkeypatch.setattr(bridge, "_select_action_outcome", original_select_action_outcome)
+            assert bridge._read_outcome_pointer(selected_pointer) == (
+                "runtime_quality.acquisition_world_growth_no_growth_receipt",
+                prepared_selector.receipt_ref,
+            )
+            _prepared_path, pointer_prepared_selector = bridge._read_action_selector(
+                third_closure, selected_route, executing_head.receipt_ref
+            )
+            assert pointer_prepared_selector.state == "prepared"
+            pointer_replaced_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in pointer_replaced_reads), [
+                response.text for response in pointer_replaced_reads
+            ]
+            assert pointer_replaced_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert pointer_replaced_reads[1].json()["world_growth"] == "not_established"
+
+            # A state-only selector rewrite has the same route, executing phase,
+            # and owner CAS but no durable producer transition.
+            selector_bytes_before_forgery = selector_path.read_bytes()
+            selector_before_forgery = json.loads(selector_bytes_before_forgery)
+            assert selector_before_forgery["state"] == "prepared"
+            state_only_forgery = dict(selector_before_forgery)
+            state_only_forgery["state"] = "selected"
+            assert {
+                key: value for key, value in state_only_forgery.items() if key != "state"
+            } == {
+                key: value for key, value in selector_before_forgery.items() if key != "state"
+            }
+            try:
+                selector_path.write_text(json.dumps(state_only_forgery, sort_keys=True) + "\n")
+                state_only_forgery_reads = (
+                    client.get(route_collection_path, headers=route_read_headers),
+                    client.get(path, headers=route_read_headers),
+                )
+            finally:
+                selector_path.write_bytes(selector_bytes_before_forgery)
+            assert all(response.status_code == 200 for response in state_only_forgery_reads), [
+                response.text for response in state_only_forgery_reads
+            ]
+            assert state_only_forgery_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert state_only_forgery_reads[1].json()["world_growth"] == "not_established"
+            assert state_only_forgery_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] is None
+            assert state_only_forgery_reads[1].json()["admitted_observation_delta"] is None
+            assert bridge._has_verified_admission_basis(third_closure)
+
+            # Independent adapters and overlapping readers use the same durable head and owner lock.
+            from concurrent.futures import ThreadPoolExecutor
+
+            with TestClient(app()) as reopened_client:
+                reopened_reads = (
+                    reopened_client.get(route_collection_path, headers=route_read_headers),
+                    reopened_client.get(path, headers=route_read_headers),
+                )
+                assert all(response.status_code == 200 for response in reopened_reads), [
+                    response.text for response in reopened_reads
+                ]
+                assert reopened_reads[0].json()["routes"][0]["world_growth"] == (
+                    "not_established"
+                )
+                assert reopened_reads[1].json()["world_growth"] == "not_established"
+
+            with ThreadPoolExecutor(max_workers=2) as readers:
+                concurrent_reads = tuple(
+                    readers.map(
+                        lambda route_path: client.get(
+                            route_path, headers=route_read_headers
+                        ),
+                        (route_collection_path, path),
+                    )
+                )
+            assert all(response.status_code == 200 for response in concurrent_reads), [
+                response.text for response in concurrent_reads
+            ]
+            assert concurrent_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert concurrent_reads[1].json()["world_growth"] == "not_established"
+
+            # The producer commits selection through the existing ActionHead and event
+            # chain. A durable event without its ActionHead transition remains unknown.
+            recovered_current = bridge.recover_admission(
+                third_closure, executing_head.receipt_ref
+            )
+            with monkeypatch.context() as selection_crash:
+                def fail_action_head_advance(**_kwargs):
+                    raise OSError("simulated_loss_after_selection_event")
+
+                selection_crash.setattr(
+                    action_sink._control_store,  # noqa: SLF001
+                    "advance_acquisition_action_head",
+                    fail_action_head_advance,
+                )
+                with pytest.raises(OSError, match="simulated_loss_after_selection_event"):
+                    action_sink.persist_action_outcome_selection(
+                        executing_head.receipt_ref, recovered_current.owner_receipt_refs
+                    )
+            orphan_selection_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in orphan_selection_reads), [
+                response.text for response in orphan_selection_reads
+            ]
+            assert orphan_selection_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert orphan_selection_reads[1].json()["world_growth"] == "not_established"
+            assert orphan_selection_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] is None
+            assert orphan_selection_reads[1].json()["admitted_observation_delta"] is None
+
+            # Reopen the exact event-before-head gap from the existing owner event.
+            selected_head = action_sink.persist_action_outcome_selection(
+                executing_head.receipt_ref, recovered_current.owner_receipt_refs
+            )
+            assert selected_head.receipt_phase == "outcome_selected"
+            assert selected_head.predecessor_receipt_ref == executing_head.receipt_ref
+            selected_snapshot = action_sink.current_action_outcome(
+                tenant_id=third_closure.tenant_id,
+                cell_id=third_closure.cell_id,
+                run_id=third_closure.run_id,
+                source_job_id=third_closure.source_job_id,
+                route_id=third_closure.route_id,
+            )
+            assert selected_snapshot is not None
+            assert selected_snapshot.head == selected_head
+            assert selected_snapshot.executing_phase_ref == executing_head.receipt_ref
+            assert selected_snapshot.selection_phase_ref == selected_head.receipt_ref
+            selection_phase = selected_snapshot.selection_phase
+            assert selection_phase is not None
+            assert selection_phase.schema_version == "AcquisitionRoutePhaseReceipt@1.1"
+            assert selection_phase.receipt_phase == "outcome_selected"
+            assert selection_phase.predecessor_receipt_ref == executing_head.receipt_ref
+            assert selection_phase.owner_receipt_refs == (prepared_selector.receipt_ref,)
+            selection_events = action_sink._event_log.list_events(  # noqa: SLF001
+                event_id=selected_head.durable_event_id,
+                run_id=third_closure.run_id,
+                job_id=third_job_id,
+                limit=100,
+            )
+            assert len(selection_events) == 1
+            selection_event = selection_events[0].event
+            assert selection_event.payload_ref == selected_head.receipt_ref
+            assert selection_event.input_refs == tuple(
+                sorted((executing_head.receipt_ref, prepared_selector.receipt_ref))
+            )
+            assert selection_event.state_before == "executing"
+            assert selection_event.state_after == "outcome_selected"
+            with TestClient(app()) as selected_reopen:
+                selected_reopened_reads = (
+                    selected_reopen.get(route_collection_path, headers=route_read_headers),
+                    selected_reopen.get(path, headers=route_read_headers),
+                )
+                assert all(response.status_code == 200 for response in selected_reopened_reads), [
+                    response.text for response in selected_reopened_reads
+                ]
+                assert selected_reopened_reads[0].json()["routes"][0]["world_growth"] == (
+                    "no_growth"
+                )
+                assert selected_reopened_reads[1].json()["world_growth"] == "no_growth"
+
+            # A current selected receipt is safe to project before its action head becomes terminal.
+            selected_before_terminal_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(
+                response.status_code == 200 for response in selected_before_terminal_reads
+            ), [response.text for response in selected_before_terminal_reads]
+            assert selected_before_terminal_reads[0].json()["routes"][0]["world_growth"] == (
+                "no_growth"
+            )
+            assert selected_before_terminal_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] == 0
+            assert selected_before_terminal_reads[1].json()["world_growth"] == "no_growth"
+            assert selected_before_terminal_reads[1].json()["admitted_observation_delta"] == 0
+
+            # Keep the selected route pointer and selector intact while the current-head
+            # reader observes no ActionHead. Neither public projection may promote that
+            # historical pointer into a current outcome.
+            selected_pointer_value = bridge._read_outcome_pointer(selected_pointer)
+            selected_selector_value = json.loads(selector_path.read_text())
+            original_list_action_heads = control._control_store.list_acquisition_action_heads
+
+            def hide_current_action_head(**scope):
+                if (
+                    scope.get("tenant_id") == third_closure.tenant_id
+                    and scope.get("cell_id") == third_closure.cell_id
+                    and scope.get("run_id") == third_closure.run_id
+                    and scope.get("source_job_id") == third_closure.source_job_id
+                    and scope.get("route_id") == selected_route.route_id
+                ):
+                    return ()
+                return original_list_action_heads(**scope)
+
+            with monkeypatch.context() as no_current_head:
+                no_current_head.setattr(
+                    control._control_store,
+                    "list_acquisition_action_heads",
+                    hide_current_action_head,
+                )
+                no_head_reads = (
+                    client.get(route_collection_path, headers=route_read_headers),
+                    client.get(path, headers=route_read_headers),
+                )
+            assert all(response.status_code == 200 for response in no_head_reads), [
+                response.text for response in no_head_reads
+            ]
+            assert no_head_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert no_head_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] is None
+            assert no_head_reads[1].json()["world_growth"] == "not_established"
+            assert no_head_reads[1].json()["admitted_observation_delta"] is None
+            assert bridge._read_outcome_pointer(selected_pointer) == selected_pointer_value
+            assert json.loads(selector_path.read_text()) == selected_selector_value
+
+            # A valid legacy receipt without ActionHead linkage remains historical evidence.
+            _legacy_no_growth, legacy_growth, _legacy_admitted = bridge._verified_no_growth(
+                third_closure, selected_pointer_value[1]
+            )
+            legacy_growth = legacy_growth.model_copy(update={"action_phase_ref": None})
+            assert legacy_growth.action_phase_ref is None
+            try:
+                bridge.persist_growth(third_closure, legacy_growth)
+                with monkeypatch.context() as no_legacy_current_head:
+                    no_legacy_current_head.setattr(
+                        control._control_store,
+                        "list_acquisition_action_heads",
+                        hide_current_action_head,
+                    )
+                    legacy_no_head_reads = (
+                        client.get(route_collection_path, headers=route_read_headers),
+                        client.get(path, headers=route_read_headers),
+                    )
+                    assert bridge.project_growth(third_closure) is None
+            finally:
+                bridge._write_pointer(
+                    selected_pointer,
+                    selected_pointer_value[1],
+                    receipt_kind=selected_pointer_value[0],
+                )
+            assert all(response.status_code == 200 for response in legacy_no_head_reads), [
+                response.text for response in legacy_no_head_reads
+            ]
+            assert legacy_no_head_reads[0].json()["routes"][0]["world_growth"] == (
+                "not_established"
+            )
+            assert legacy_no_head_reads[0].json()["routes"][0][
+                "admitted_observation_delta"
+            ] is None
+            assert legacy_no_head_reads[1].json()["world_growth"] == "not_established"
+            assert legacy_no_head_reads[1].json()["admitted_observation_delta"] is None
+            assert bridge._read_outcome_pointer(selected_pointer) == selected_pointer_value
+
+            selected_selector_bytes = selector_path.read_bytes()
+            selector_path.unlink()
+            removed_selector_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in removed_selector_reads), [
+                response.text for response in removed_selector_reads
+            ]
+            assert removed_selector_reads[0].json()["routes"][0]["world_growth"] == "no_growth"
+            assert removed_selector_reads[0].json()["routes"][0]["admitted_observation_delta"] == 0
+            assert removed_selector_reads[1].json()["world_growth"] == "no_growth"
+            assert removed_selector_reads[1].json()["admitted_observation_delta"] == 0
+            selector_path.write_bytes(selected_selector_bytes)
+
+            tampered_selector = json.loads(selected_selector_bytes)
+            tampered_selector["receipt_ref"] = "sha256:" + "f" * 64
+            selector_path.write_text(json.dumps(tampered_selector, sort_keys=True) + "\n")
+            tampered_selector_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in tampered_selector_reads), [
+                response.text for response in tampered_selector_reads
+            ]
+            assert tampered_selector_reads[0].json()["routes"][0]["world_growth"] == "no_growth"
+            assert tampered_selector_reads[0].json()["routes"][0]["admitted_observation_delta"] == 0
+            assert tampered_selector_reads[1].json()["world_growth"] == "no_growth"
+            assert tampered_selector_reads[1].json()["admitted_observation_delta"] == 0
+            selector_path.write_bytes(selected_selector_bytes)
+
             third_decision = authority.AgentActionAuthorityDecision.model_validate(
                 canon.from_canonical_bytes(
                     _within_fixture_owner(
@@ -2327,9 +2796,21 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             third_terminal_ref = third_progress["terminal_receipt_ref"]
             third_terminal = _read_owned_terminal(control._artifact_store, third_terminal_ref)
             assert third_terminal.action_generation == 3
+            assert third_terminal.predecessor_receipt_ref == selected_head.receipt_ref
             assert third_terminal.terminal_outcome == "quarantined_no_growth"
             assert third_terminal.reentry_receipt_ref is None
             assert not cases[-1].transport_calls
+            terminal_reads = (
+                client.get(route_collection_path, headers=route_read_headers),
+                client.get(path, headers=route_read_headers),
+            )
+            assert all(response.status_code == 200 for response in terminal_reads), [
+                response.text for response in terminal_reads
+            ]
+            assert terminal_reads[0].json()["routes"][0]["world_growth"] == "no_growth"
+            assert terminal_reads[0].json()["routes"][0]["admitted_observation_delta"] == 0
+            assert terminal_reads[1].json()["world_growth"] == "no_growth"
+            assert terminal_reads[1].json()["admitted_observation_delta"] == 0
 
             from polisyos.runtime.quality.acquisition_world_growth import (
                 AcquisitionWorldGrowthAttempt,
@@ -2352,6 +2833,7 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
             assert no_growth_manifest.artifact_schema.name == (
                 "polisyos.runtime.AcquisitionWorldGrowthNoGrowthReceipt"
             )
+            assert no_growth_manifest.artifact_schema.version == "1.1"
             no_growth = AcquisitionWorldGrowthNoGrowthReceipt.model_validate(
                 _within_fixture_owner(
                     cases[-1].bridge._read,
@@ -2360,6 +2842,9 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 )
             )
             assert no_growth.growth_receipt_ref == prior_growth_ref
+            assert no_growth.action_phase_ref == executing_head.receipt_ref
+            assert executing_head.receipt_ref in third_terminal.owner_receipt_refs
+            assert no_growth_ref == prepared_selector.receipt_ref
             assert no_growth.admitted_observation_delta == 0
             assert no_growth.before == no_growth.after
             assert (
@@ -2392,6 +2877,65 @@ def test_served_acquisition_selects_committed_human_authority_and_reopens_worker
                 expected_job_id=closure.source_job_id,
             )
             assert no_growth_scope.durable_event_id is not None
+
+            route_growth_response = client.get(
+                route_collection_path, headers=route_read_headers
+            )
+            assert route_growth_response.status_code == 200, route_growth_response.text
+            selected_growth = route_growth_response.json()["routes"][0]
+            assert selected_growth["world_growth"] == "no_growth"
+            assert selected_growth["admitted_observation_delta"] == 0
+
+            growth_pointer = cases[-1].bridge._growth_pointer(
+                no_growth.selection, create=False
+            )
+            original_growth_pointer = growth_pointer.read_bytes()
+            attempt_pointer = growth_pointer.with_suffix(".attempt.json")
+            assert attempt_pointer.exists()
+            try:
+                growth_pointer.write_text(
+                    json.dumps(
+                        {
+                            "receipt_kind": (
+                                "runtime_quality.acquisition_world_growth_no_growth_receipt"
+                            ),
+                            "receipt_ref": prior_growth_ref,
+                        }
+                    )
+                    + "\n"
+                )
+                forged_no_growth = client.get(
+                    route_collection_path, headers=route_read_headers
+                )
+                assert forged_no_growth.status_code == 200, forged_no_growth.text
+                assert forged_no_growth.json()["routes"][0]["world_growth"] == "no_growth"
+                assert forged_no_growth.json()["routes"][0]["admitted_observation_delta"] == 0
+            finally:
+                growth_pointer.write_bytes(original_growth_pointer)
+
+            try:
+                growth_pointer.unlink()
+                assert attempt_pointer.exists()
+                assert _within_fixture_owner(
+                    control._artifact_store.get_bytes, no_growth_ref
+                )
+                unknown_growth = client.get(
+                    route_collection_path, headers=route_read_headers
+                )
+                assert unknown_growth.status_code == 200, unknown_growth.text
+                unknown_route = unknown_growth.json()["routes"][0]
+                assert unknown_route["world_growth"] == "no_growth"
+                assert unknown_route["admitted_observation_delta"] == 0
+                assert prior_growth_ref in third_terminal.owner_receipt_refs
+            finally:
+                growth_pointer.write_bytes(original_growth_pointer)
+
+            restored_growth = client.get(
+                route_collection_path, headers=route_read_headers
+            )
+            assert restored_growth.status_code == 200, restored_growth.text
+            assert restored_growth.json()["routes"][0]["world_growth"] == "no_growth"
+            assert restored_growth.json()["routes"][0]["admitted_observation_delta"] == 0
 
             third_history_response = client.get(history_path, headers=history_headers)
             assert third_history_response.status_code == 200, third_history_response.text

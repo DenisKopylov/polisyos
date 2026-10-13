@@ -481,12 +481,13 @@ def data_availability_positive_control(scratch: Path) -> tuple[bool, bool]:
     required_assignments = {0, 1}
 
     def available(ref: str | None) -> bool:
+        from polisyos.core.artifacts import load_core_json_artifact
         if ref is None:
             return False
         raw = store.get_bytes(ref)
         if ref != "sha256:" + hashlib.sha256(raw).hexdigest():
             return False
-        observations = json.loads(raw)
+        observations = load_core_json_artifact(store, ref, raw_payload_bytes=raw)
         if observations.get("subject") != "synthetic:data-availability":
             return False
         records = observations.get("observations", [])

@@ -20,7 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.data_forge.read_api.academic import SKGQuery
@@ -920,6 +920,7 @@ def _resolve_search_candidate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> PolicyCandidateSchema | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     explicit = _coerce_policy_candidate(state.params.get("policy_candidate_schema"))
     lex_bundle = _coerce_lex_bundle(state.params.get("lex_policy_bundle_input"))
     adapter = HierarchicalPolicySearchAdapter()
@@ -943,7 +944,7 @@ def _resolve_search_candidate(
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
-    payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+    payload = load_core_json_artifact(ctx.store, trinity_ref)
     bundle = TrinityBundle.model_validate(payload)
     return PolicyCandidateSchema.from_trinity_bundle(bundle)
 

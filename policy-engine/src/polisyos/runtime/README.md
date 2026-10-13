@@ -211,3 +211,32 @@ resolves child modules before lazily forwarding public names to the existing
 - [Calibration ledger](../../../docs/reference/runtime/calibration-ledger.md)
 
 - Last updated: 2026-05-24
+
+## Selected artifact profile verification
+
+Runtime HTTP semantic artifact views use one Core profile reader for predictive
+coverage diagnostics, JSON content previews, schema views, bureaucratic render
+and export, and run quantity/fabric lineage projections. Each view resolves one
+exact `ArtifactRef`, verifies the present raw manifest profile against the same
+bytes with the Core codec, and reports `canon_read_status`; a present invalid or
+nonconformant profile returns a typed conflict. Raw byte negotiation preserves
+the existing byte-serving boundary and does not claim semantic conformance.
+This reader verifies the selected bytes and declared settings; it does not prove
+which profile a historical producer chose.
+
+
+Selected-profile refusals are declared as typed `application/problem+json` 409 responses
+on the analysis operations `get_attractor_analysis`, `get_analysis_basin_map`, and
+`get_analysis_continuation_branch`; scenario operations `list_run_scenarios`,
+`create_run_scenario`, `get_run_counterfactual_metrics`, `get_scenario_manifest`, and
+`get_scenario_capabilities`; run/debug operations `get_run_paper`, `get_case_inspection`,
+`get_run_details`, `get_run_nodes`, `get_run_lineage`, `get_run_quantities`,
+`get_run_fabric_decision_data`, `get_run_agents`, `get_run_evidence_context`,
+`get_run_workflow`, `get_node_debug`, `get_node_simulation_result_candidate`,
+`get_governance_debug`, `get_run_feedback`, `get_run_equilibria`, and `get_run_compare`;
+and `issue_public_decision_record`. The selected-artifact read routes and response schema
+are owned by the R193 artifact-surface change. `verify_public_decision_record` continues to
+return its typed nonreceipt result for an unverifiable record. Regenerate the OpenAPI and
+runtime clients from `schemas/runtime_api_v1.openapi.json`; the R210 source packet records
+those outputs as UNRUN under the current compute hold. Reader-default compatibility remains
+explicitly non-attesting for legacy profileless artifacts.

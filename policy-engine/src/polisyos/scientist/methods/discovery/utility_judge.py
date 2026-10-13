@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import DownstreamUtilityReportRef
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.id_engine import (
@@ -453,8 +453,12 @@ def persist_downstream_utility_report(
 ) -> DownstreamUtilityReportRef:
     """Persist the downstream-utility report that ranks hypotheses by decision usefulness."""
     current_report = _revalidate_current_downstream_utility_report(report)
+    payload = current_report.model_dump(mode="json")
+    for score in payload["scores"]:
+        score.setdefault("graph_derived_assumption_status", None)
+        score.setdefault("graph_derived_scope_of_falsification", None)
     ref = store.put_json(
-        current_report,
+        payload,
         PutOptions(
             kind="scientist.downstream_utility_report",
             media_type="application/json",
@@ -476,7 +480,8 @@ def load_downstream_utility_report(
 ) -> DownstreamUtilityReport:
     """Load a manifest-bound current report or an exact bounded historical scorecard."""
     manifest = store.get_manifest(ref)
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     stored_version = _validate_downstream_utility_artifact_binding(
         ref, manifest, payload
     )

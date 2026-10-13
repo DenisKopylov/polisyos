@@ -2,6 +2,7 @@ import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import type { z } from "zod";
 
 import type { components } from "./types";
+import { runN5InteractionEvidenceFixture as n5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import {
   humanDecisionGateResponseSchema,
   humanDecisionReviewEffectivenessSchema,
@@ -169,52 +170,6 @@ function runDetailsPayload(label: string) {
   };
 }
 
-function n5InteractionEvidenceFixture() {
-  const pairSummary = {
-    status: "estimated",
-    replicate_count: 2,
-    seeds: [41, 42],
-    samples: [
-      { seed: 41, value: 0 },
-      { seed: 42, value: 0 },
-    ],
-    mean: 0,
-    standard_error: 0,
-  };
-  const residualSummary = {
-    status: "estimated",
-    replicate_count: 2,
-    seeds: [41, 42],
-    samples: [
-      { seed: 41, value: 1 },
-      { seed: 42, value: -1 },
-    ],
-    mean: 0,
-    standard_error: 1,
-  };
-  return {
-    schema_version: "policyos.runtime.joint_simulation_horizon.v4",
-    numeric_interaction: "unsupported",
-    numeric_interaction_basis: "finite_checked_model_point_estimate_only",
-    interaction_sampling_status: "estimated",
-    interaction_terms: ["atom-a|atom-b", "atom-a|atom-c", "atom-b|atom-c"].map(
-      (pair) => ({
-        atom_ids: pair.split("|"),
-        outcome: "outcome-a",
-        by_step: { "0": 0 },
-        replication_sampling_by_step: { "0": pairSummary },
-      }),
-    ),
-    higher_order_residuals: { "outcome-a": { "0": 0 } },
-    higher_order_residual_sampling: {
-      "outcome-a": { "0": residualSummary },
-    },
-    checked_interaction_orders: [1, 2, 3],
-    authority_purpose: "candidate_checked_model_only",
-    publication_authority: false,
-  };
-}
-
 function parentJointCandidateSimulationProjection(runId: string) {
   const artifactRef = (kind: string, digit: string) => ({
     artifact_id: `sha256:${digit.repeat(64)}`,
@@ -233,7 +188,7 @@ function parentJointCandidateSimulationProjection(runId: string) {
   const parentFrameRef = `sha256:${"d".repeat(64)}`;
   const evidence = n5InteractionEvidenceFixture();
   evidence.numeric_interaction = "additive";
-  const interactionPairs = [
+  const interactionPairs: Array<[string, string]> = [
     ["atom-a", "atom-b"],
     ["atom-a", "atom-c"],
     ["atom-b", "atom-c"],
@@ -798,18 +753,38 @@ describe("runtime API validators", () => {
     );
   });
 
-  it("keeps an additive point estimate pending without the complete parent atom source basis", () => {
+  it("keeps additive evidence pending when parent coupling scope is absent", () => {
     const payload = runDetailsPayload("projection only");
     const run = mutableRecord(payload.run);
     const projection =
       parentJointCandidateSimulationProjection("run-parent-n8");
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    observation.n8_authority_blockers = [
+      "parent_joint_coupling_evidence_not_established",
+    ];
+    observation.n8_joint_outcome_units = {};
+    observation.n8_joint_parent_atom_ids = [];
+    observation.n8_joint_parent_atom_content_hashes = [];
+    observation.n8_parent_child_refs = [];
+    observation.n8_parent_child_source_bindings = [];
+    observation.n8_joint_scope_status = "not_established";
+    observation.n8_joint_scope_limitation_code =
+      "parent_joint_coupling_evidence_not_established";
+    observation.n8_joint_value_limitation_code = null;
     run.candidate_simulation = projection;
 
     const parsed = runDetailsSchema.parse(payload);
     expect(parsed.run.candidate_simulation?.n5_observations[0]).toMatchObject({
       n8_numeric_interaction: "additive",
       n8_status: "value_pending_n8",
-      n8_joint_value_limitation_code: "joint_interaction_rule_not_established",
+      n8_joint_scope_status: "not_established",
+      n8_joint_scope_limitation_code:
+        "parent_joint_coupling_evidence_not_established",
+      n8_joint_value_limitation_code: null,
+      n8_candidate_joint_selection_status: "resolved",
       n8_candidate_member_basis: "hypothetical_all_unique_n4_source_members",
       n8_source_candidate_relationship: "alternatives",
       n8_policy_composition_status: "not_established",
@@ -878,23 +853,6 @@ describe("runtime API validators", () => {
       mean: 0,
       standard_error: 1,
     });
-
-    const legacySelection = mutableRecord(
-      parentJointCandidateSimulationProjection("run-parent-n8"),
-    );
-    const legacyObservation = firstMutableRecord(
-      legacySelection.n5_observations,
-      "n5_observations",
-    );
-    legacyObservation.n8_candidate_member_basis = "not_established";
-    legacyObservation.n8_source_candidate_relationship = "not_established";
-    legacyObservation.n8_policy_composition_limitation_code =
-      "legacy_selection_receipt_has_no_composition_basis";
-    legacyObservation.n8_child_to_parent_refinement_limitation_code =
-      "legacy_selection_receipt_has_no_refinement_basis";
-    const legacyPayload = runDetailsPayload("projection only");
-    mutableRecord(legacyPayload.run).candidate_simulation = legacySelection;
-    expect(runDetailsSchema.safeParse(legacyPayload).success).toBe(true);
 
     const removedCandidateBasis = mutableRecord(
       parentJointCandidateSimulationProjection("run-parent-n8"),
@@ -1006,6 +964,161 @@ describe("runtime API validators", () => {
     expect(runDetailsSchema.safeParse(removedResidualPayload).success).toBe(
       false,
     );
+  });
+
+  it("retains historical parent selection identities while coupling scope remains unestablished", () => {
+    const selection = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const observation = firstMutableRecord(
+      selection.n5_observations,
+      "n5_observations",
+    );
+    const selectedAtomIds = structuredClone(
+      observation.n8_candidate_parent_atom_ids,
+    );
+    const selectedChildRefs = structuredClone(
+      observation.n8_candidate_parent_child_refs,
+    );
+    observation.n8_authority_blockers = [
+      "parent_joint_coupling_evidence_not_established",
+    ];
+    observation.n8_joint_outcome_units = {};
+    observation.n8_joint_parent_atom_ids = [];
+    observation.n8_joint_parent_atom_content_hashes = [];
+    observation.n8_parent_child_refs = [];
+    observation.n8_parent_child_source_bindings = [];
+    observation.n8_joint_scope_status = "not_established";
+    observation.n8_joint_scope_limitation_code =
+      "parent_joint_coupling_evidence_not_established";
+    observation.n8_joint_value_limitation_code = null;
+    observation.n8_candidate_member_basis = "not_established";
+    observation.n8_source_candidate_relationship = "not_established";
+    observation.n8_policy_composition_limitation_code =
+      "legacy_selection_receipt_has_no_composition_basis";
+    observation.n8_child_to_parent_refinement_limitation_code =
+      "legacy_selection_receipt_has_no_refinement_basis";
+
+    const payload = runDetailsPayload("projection only");
+    mutableRecord(payload.run).candidate_simulation = selection;
+    const admitted =
+      runDetailsSchema.parse(payload).run.candidate_simulation
+        ?.n5_observations[0];
+
+    expect(admitted).toMatchObject({
+      n8_candidate_joint_selection_status: "resolved",
+      n8_candidate_member_basis: "not_established",
+      n8_source_candidate_relationship: "not_established",
+      n8_policy_composition_status: "not_established",
+      n8_policy_composition_limitation_code:
+        "legacy_selection_receipt_has_no_composition_basis",
+      n8_child_to_parent_refinement_status: "not_established",
+      n8_child_to_parent_refinement_limitation_code:
+        "legacy_selection_receipt_has_no_refinement_basis",
+      n8_joint_scope_status: "not_established",
+      n8_joint_scope_limitation_code:
+        "parent_joint_coupling_evidence_not_established",
+      n8_status: "value_pending_n8",
+    });
+    expect(admitted?.n8_candidate_parent_atom_ids).toEqual(selectedAtomIds);
+    expect(admitted?.n8_candidate_parent_child_refs).toEqual(selectedChildRefs);
+    expect(admitted?.n8_joint_parent_atom_ids).toEqual([]);
+    expect(admitted?.n8_parent_child_source_bindings).toEqual([]);
+  });
+
+  it("leaves an incomplete selected parent basis pending without inventing identities", () => {
+    const projection = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    observation.n8_authority_blockers = [
+      "parent_joint_selected_child_program_not_established",
+    ];
+    observation.n8_status = "value_pending_n8";
+    observation.n8_joint_scope_status = "not_established";
+    observation.n8_joint_scope_limitation_code =
+      "parent_joint_selected_child_program_not_established";
+    observation.n8_joint_value_limitation_code = null;
+    observation.n8_joint_request_content_hash = null;
+    observation.n8_joint_world_model_record_ref = null;
+    observation.n8_joint_outcome_units = {};
+    observation.n8_joint_parent_atom_ids = [];
+    observation.n8_joint_parent_atom_content_hashes = [];
+    observation.n8_parent_child_refs = [];
+    observation.n8_parent_child_source_bindings = [];
+    observation.n8_candidate_joint_selection_status = "not_established";
+    observation.n8_candidate_joint_selection_content_hash = null;
+    observation.n8_candidate_parent_atom_ids = [];
+    observation.n8_candidate_parent_atom_content_hashes = [];
+    observation.n8_candidate_parent_intervention_ids = [];
+    observation.n8_candidate_parent_child_refs = [];
+    observation.n8_candidate_joint_selection_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+    observation.n8_candidate_member_basis = "not_established";
+    observation.n8_source_candidate_relationship = "not_established";
+    observation.n8_policy_composition_status = "not_established";
+    observation.n8_policy_composition_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+    observation.n8_child_to_parent_refinement_status = "not_established";
+    observation.n8_child_to_parent_refinement_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+
+    const payload = runDetailsPayload("projection only");
+    mutableRecord(payload.run).candidate_simulation = projection;
+    const parsed = runDetailsSchema.parse(payload);
+    const admitted = parsed.run.candidate_simulation?.n5_observations[0];
+
+    expect(admitted).toMatchObject({
+      n8_candidate_joint_selection_status: "not_established",
+      n8_candidate_joint_selection_content_hash: null,
+      n8_candidate_parent_atom_ids: [],
+      n8_candidate_parent_atom_content_hashes: [],
+      n8_joint_scope_status: "not_established",
+      n8_status: "value_pending_n8",
+    });
+  });
+
+  it("requires full Core ArtifactRef metadata at the run projection boundary", () => {
+    const reference = {
+      artifact_id: "sha256:" + "a".repeat(64),
+      kind: "ir.model_spec",
+      media_type: "application/json",
+    };
+    const completePayload = runDetailsPayload("projection only");
+    mutableRecord(completePayload.run).root_artifacts = [reference];
+    expect(runDetailsSchema.parse(completePayload).run.root_artifacts).toEqual([
+      reference,
+    ]);
+
+    const missingKindPayload = runDetailsPayload("projection only");
+    mutableRecord(missingKindPayload.run).root_artifacts = [
+      { artifact_id: reference.artifact_id, media_type: reference.media_type },
+    ];
+    expect(runDetailsSchema.safeParse(missingKindPayload).success).toBe(false);
+
+    const missingMediaTypePayload = runDetailsPayload("projection only");
+    mutableRecord(missingMediaTypePayload.run).root_input_artifacts = [
+      { artifact_id: reference.artifact_id, kind: "fabric.data_snapshot" },
+    ];
+    expect(runDetailsSchema.safeParse(missingMediaTypePayload).success).toBe(
+      false,
+    );
+
+    const missingCandidateMetadata = mutableRecord(
+      parentJointCandidateSimulationProjection("run-parent-n8"),
+    );
+    const observation = firstMutableRecord(
+      missingCandidateMetadata.n5_observations,
+      "n5_observations",
+    );
+    observation.n4_source_ref = { artifact_id: reference.artifact_id };
+    const candidatePayload = runDetailsPayload("projection only");
+    mutableRecord(candidatePayload.run).candidate_simulation =
+      missingCandidateMetadata;
+    expect(runDetailsSchema.safeParse(candidatePayload).success).toBe(false);
   });
 
   it("keeps an absent generic cycle field absent instead of synthesizing a projection", () => {

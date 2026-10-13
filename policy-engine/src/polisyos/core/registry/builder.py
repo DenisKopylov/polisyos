@@ -10,6 +10,10 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import (
+    _require_return_selected_profile_writer,
+    _validate_return_selected_profile,
+)
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.kernel import (
@@ -48,16 +52,21 @@ def _put_registry(
     kind: str,
     schema_name: str,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    return store.put_json(
-        obj,
-        ArtifactWriteOptions(
-            kind=kind,
-            media_type="application/json",
-            schema=_schema_info(schema_name, obj),
-            inputs=inputs,
-        ),
+    options = ArtifactWriteOptions(
+        kind=kind,
+        media_type="application/json",
+        schema=_schema_info(schema_name, obj),
+        inputs=inputs,
     )
+    if not return_selected_profile:
+        # Preserve the legacy store-adapter call shape for default writes.
+        return store.put_json(obj, options)
+    ref = store.put_json(obj, options, return_selected_profile=True)
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("registry_selected_profile_not_returned")
+    return ref
 
 
 def build_registry_bundle(
@@ -73,6 +82,7 @@ def build_registry_bundle(
     trust_registry: BaseModel | dict[str, object] | None = None,
     predicate_registry: BaseModel | dict[str, object] | None = None,
     privacy_registry: BaseModel | dict[str, object] | None = None,
+    return_selected_profile: bool = False,
 ) -> RegistryBundle:
     """Persist one composed registry snapshot and return its bundle references.
 
@@ -89,34 +99,43 @@ def build_registry_bundle(
         trust_registry: Optional trust registry artifact input.
         predicate_registry: Optional predicate registry artifact input.
         privacy_registry: Optional privacy policy registry artifact input.
+        return_selected_profile: Return the exact selected CAS profiles for the bundle and members.
 
     Returns:
         `RegistryBundle` containing the bundle artifact ref plus all member
         artifact refs used to reconstruct lineage.
     """
+    _validate_return_selected_profile(return_selected_profile)
+    if return_selected_profile:
+        _require_return_selected_profile_writer(store, "put_json")
+
     slot_ref = _put_registry(
         store,
         obj=slot_registry,
         kind="ir.slot_registry",
         schema_name="polisyos.ir.kernel.SlotRegistry",
+        return_selected_profile=return_selected_profile,
     )
     merge_ref = _put_registry(
         store,
         obj=merge_registry,
         kind="ir.merge_rule_registry",
         schema_name="polisyos.ir.kernel.MergeRuleRegistry",
+        return_selected_profile=return_selected_profile,
     )
     mech_ref = _put_registry(
         store,
         obj=mechanism_registry,
         kind="ir.mechanism_registry",
         schema_name="polisyos.ir.kernel.MechanismTypeRegistry",
+        return_selected_profile=return_selected_profile,
     )
     constraint_ref = _put_registry(
         store,
         obj=constraint_registry,
         kind="ir.constraint_registry",
         schema_name="polisyos.ir.kernel.ConstraintRegistry",
+        return_selected_profile=return_selected_profile,
     )
 
     selector_field_ref = None
@@ -126,6 +145,7 @@ def build_registry_bundle(
             obj=selector_field_registry,
             kind="ir.selector_field_registry",
             schema_name="polisyos.ir.kernel.SelectorFieldRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     metric_ref = None
@@ -135,6 +155,7 @@ def build_registry_bundle(
             obj=metric_registry,
             kind="ir.metric_registry",
             schema_name="polisyos.ir.kernel.MetricRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     units_ref = None
@@ -144,6 +165,7 @@ def build_registry_bundle(
             obj=units_registry,
             kind="ir.units_registry",
             schema_name="polisyos.ir.kernel.UnitsRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     trust_ref = None
@@ -153,6 +175,7 @@ def build_registry_bundle(
             obj=trust_registry,
             kind="ir.trust_registry",
             schema_name="polisyos.ir.kernel.TrustRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     predicate_ref = None
@@ -162,6 +185,7 @@ def build_registry_bundle(
             obj=predicate_registry,
             kind="ir.predicate_registry",
             schema_name="polisyos.ir.model_layer.predicate.PredicateRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     privacy_ref = None
@@ -171,6 +195,7 @@ def build_registry_bundle(
             obj=privacy_registry,
             kind="ir.privacy_registry",
             schema_name="polisyos.ir.model_layer.predicate.PrivacyPolicyRegistry",
+            return_selected_profile=return_selected_profile,
         )
 
     payload = RegistryBundlePayload(
@@ -215,13 +240,28 @@ def build_registry_bundle(
         kind="core.registry_bundle",
         schema_name="polisyos.core.RegistryBundlePayload",
         inputs=inputs,
+        return_selected_profile=return_selected_profile,
     )
 
     return RegistryBundle(bundle_ref=bundle_ref, **payload.model_dump())
 
 
-def build_default_registry_bundle(store: ArtifactStore) -> RegistryBundle:
-    """Persist the built-in IR kernel registries as one default bundle snapshot."""
+def build_default_registry_bundle(
+    store: ArtifactStore,
+    *,
+    return_selected_profile: bool = False,
+) -> RegistryBundle:
+    """Persist the built-in IR kernel registries as one default bundle snapshot.
+
+    Args:
+        store: Artifact store where the registry snapshot will be written.
+        return_selected_profile: Return the exact profile selected by each new write
+            for the bundle and all registry members. The default preserves legacy
+            profile selection behavior and does not upgrade existing artifacts.
+
+    Returns:
+        The typed registry bundle and its member references.
+    """
     return build_registry_bundle(
         store,
         slot_registry=DEFAULT_SLOT_REGISTRY,
@@ -231,4 +271,5 @@ def build_default_registry_bundle(store: ArtifactStore) -> RegistryBundle:
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         metric_registry=DEFAULT_METRIC_REGISTRY,
         units_registry=DEFAULT_UNITS_REGISTRY,
+        return_selected_profile=return_selected_profile,
     )

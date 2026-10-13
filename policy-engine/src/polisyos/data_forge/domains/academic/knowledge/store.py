@@ -1144,6 +1144,23 @@ class ScholarKnowledgeStore:
         self._con.close()
 
 
+_CAUSAL_CLAIM_RESULTS_V2_QUERY = (
+    "SELECT c.*, w.title AS __work_title, w.year AS __work_year "
+    "FROM ac_causal_claims c LEFT JOIN ac_works w ON c.work_id = w.id "
+    "ORDER BY c.id"
+)
+
+
+def _preflight_causal_claim_results_v2(
+    connection: duckdb.DuckDBPyConnection,
+) -> None:
+    """Validate the complete curated-claim projection before source rows are read."""
+    store = ScholarKnowledgeStore._from_connection(connection)
+    schema = store._claim_table_schema("ac_causal_claims")
+    if schema not in {"legacy_v1", "explicit_v2"}:
+        raise ClaimTableSchemaError(f"unsupported curated claim schema: {schema}")
+
+
 def load_causal_claim_results_v2(db_path: Path) -> Iterator[CausalClaimResultV2]:
     """Stream all curated claim projections from a read-only database path."""
     connection = duckdb.connect(str(db_path), read_only=True)
@@ -1161,11 +1178,7 @@ def iter_causal_claim_results_v2(
     schema = store._claim_table_schema("ac_causal_claims")
     if schema not in {"legacy_v1", "explicit_v2"}:
         raise ClaimTableSchemaError(f"unsupported curated claim schema: {schema}")
-    result = connection.execute(
-        "SELECT c.*, w.title AS __work_title, w.year AS __work_year "
-        "FROM ac_causal_claims c LEFT JOIN ac_works w ON c.work_id = w.id "
-        "ORDER BY c.id"
-    )
+    result = connection.execute(_CAUSAL_CLAIM_RESULTS_V2_QUERY)
     columns = [str(item[0]) for item in result.description]
     while True:
         batch = result.fetchmany(256)

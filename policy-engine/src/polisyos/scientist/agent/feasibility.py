@@ -13,7 +13,6 @@ import numpy as np
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import StateSnapshot
 from polisyos.ir.governance.selector_expr import (
@@ -227,6 +226,7 @@ class StateSnapshotFeasibilityProbe:
         )
 
     def _load_state_for_snapshot(self, data_snapshot_ref: str) -> Any:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             from polisyos.foundry.execute import SnapshotStateLayoutError
             from polisyos.foundry.execute.executor import load_state_snapshot
@@ -236,7 +236,7 @@ class StateSnapshotFeasibilityProbe:
             _ = exc
 
         data_snapshot_id = ArtifactID.model_validate(data_snapshot_ref)
-        payload = from_canonical_bytes(self._cas.get_bytes(data_snapshot_id))
+        payload = load_core_json_artifact(self._cas, data_snapshot_id)
         snapshot = DataSnapshot.model_validate(payload)
 
         state_ref = snapshot.data_ref
@@ -255,7 +255,8 @@ class StateSnapshotFeasibilityProbe:
         return self._load_raw_state_snapshot(state_ref.artifact_id)
 
     def _load_raw_state_snapshot(self, snapshot_artifact_id: str | ArtifactID) -> Any:
-        snapshot_payload = from_canonical_bytes(self._cas.get_bytes(snapshot_artifact_id))
+        from polisyos.core.artifacts import load_core_json_artifact
+        snapshot_payload = load_core_json_artifact(self._cas, snapshot_artifact_id)
         snapshot = StateSnapshot.model_validate(snapshot_payload)
         blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref)))
         flat = {key: np.asarray(blob[key]) for key in blob.files}

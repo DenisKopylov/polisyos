@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Any, Literal, Protocol, cast
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, model_validator
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord, BuildRunManifest
@@ -27,10 +27,15 @@ from polisyos.data_forge.kernel.io.generation_basis import (
     compare_generation_basis,
 )
 from polisyos.data_forge.read_api.ukraine import (
+    UkraineJSONSnapshotProvenance,
+    UkraineJSONSnapshotRefusalError,
     VerifiedUkraineStageArtifact,
     VerifiedUkraineStageArtifacts,
     load_verified_stage_artifacts,
+    load_verified_stage_json_output,
+    load_verified_stage_manifest_json,
     load_verified_stage_output_bytes,
+    read_ukraine_json_snapshot,
 )
 
 SOURCE_INVENTORY_STAGE_ID = "demography_source_inventory"
@@ -284,6 +289,7 @@ class DemographySourceEvidence(StrictFrozenModel):
     donor_disposition: Literal["present", "intentionally_absent", "not_established"]
     compatibility_notes: list[StrictStr]
     source_claims: SourceSemanticClaims | None
+    json_snapshot_profile_reads: list[UkraineJSONSnapshotProvenance] = Field(default_factory=list)
 
 
 class InventorySourceRequest(StrictFrozenModel):
@@ -330,6 +336,7 @@ class ResolvedDemographySource:
     status: Literal["candidate_only", "legacy_limited"]
     source_identity: str
     member_bytes: dict[str, bytes]
+    member_json_values: dict[str, dict[str, Any]]
     evidence: DemographySourceEvidence
     donor_disposition: Literal["present", "intentionally_absent", "not_established"]
 
@@ -427,17 +434,17 @@ def _selected_upstream_receipt(
     except Exception as exc:
         raise SourceResolutionRefusalError("upstream_stage_unverified", str(exc)) from exc
     try:
-        source_manifest_bytes = store.get_bytes(receipt.manifest_ref)
-    except Exception as exc:
-        raise SourceResolutionRefusalError("upstream_manifest_unreadable", str(exc)) from exc
-    if _sha256(source_manifest_bytes) != receipt.manifest_sha256:
-        raise SourceResolutionRefusalError(
-            "upstream_manifest_hash_mismatch", "manifest bytes differ"
+        source_manifest_read = load_verified_stage_manifest_json(
+            store,
+            receipt,
+            model_type=BuildRunManifest,
+            consumer_contract="demography_inventory.upstream_manifest_generation_basis",
         )
-    try:
-        source_manifest = BuildRunManifest.model_validate_json(source_manifest_bytes)
+        source_manifest_bytes = source_manifest_read.raw_payload_bytes
+        source_manifest = source_manifest_read.value_for_candidate()
     except Exception as exc:
-        raise SourceResolutionRefusalError("upstream_manifest_malformed", str(exc)) from exc
+        code = getattr(exc, "code", "upstream_manifest_profile_or_content_invalid")
+        raise SourceResolutionRefusalError(str(code), str(exc)) from exc
     if (
         source_manifest.stage_id.value != receipt.stage_id
         or source_manifest.run_id != receipt.run_id
@@ -593,7 +600,7 @@ def _source_manifest_from_receipt(
     receipt: VerifiedUkraineStageArtifacts,
     *,
     store: core_artifacts.FileSystemCAS,
-) -> tuple[BuildRunManifest, bytes]:
+) -> tuple[BuildRunManifest, bytes, UkraineJSONSnapshotProvenance]:
     try:
         raw = store.get_bytes(receipt.manifest_ref)
     except Exception as exc:
@@ -603,7 +610,18 @@ def _source_manifest_from_receipt(
             "upstream_manifest_hash_mismatch", "manifest bytes differ"
         )
     try:
-        manifest = BuildRunManifest.model_validate_json(raw)
+        manifest_read = read_ukraine_json_snapshot(
+            store,
+            receipt.manifest_ref,
+            raw_payload_bytes=raw,
+            expected_sha256=receipt.manifest_sha256,
+            expected_size_bytes=len(raw),
+            expected_kind="data_forge.ukraine.stage_manifest_snapshot",
+            expected_schema=("polisyos.data_forge.ukraine.BuildRunManifest", "1.0"),
+            consumer_contract="demography_inventory.source_manifest",
+            model_type=BuildRunManifest,
+        )
+        manifest = manifest_read.value_for_candidate()
     except Exception as exc:
         raise SourceResolutionRefusalError("upstream_manifest_malformed", str(exc)) from exc
     if (
@@ -614,16 +632,16 @@ def _source_manifest_from_receipt(
         raise SourceResolutionRefusalError(
             "upstream_manifest_identity_mismatch", "verified receipt differs from manifest"
         )
-    return manifest, raw
+    return manifest, raw, manifest_read.provenance
 
 
 def _check_claimed_cross_member_consistency(
     envelope: DemographyInventoryEnvelope,
-    member_bytes: Mapping[str, bytes],
+    member_json_values: Mapping[str, dict[str, Any]],
 ) -> None:
     """Recompute only explicit cross-member equalities; do not infer source truth."""
-    targets = _read_json_object(member_bytes["targets"], role="targets")
-    priors = _read_json_object(member_bytes["priors"], role="priors")
+    targets = member_json_values["targets"]
+    priors = member_json_values["priors"]
     ordered_states = envelope.source_claims.facts["ordered_state_ids"].value
     target_state_ids = targets.get("state_ids")
     if (
@@ -673,7 +691,12 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
         raise SourceResolutionRefusalError(
             "inventory_stage_outputs_unexpected", "inventory stage must expose inventory.json only"
         )
-    inventory_manifest, _ = _source_manifest_from_receipt(receipt, store=request.store)
+    (
+        inventory_manifest,
+        _inventory_manifest_bytes,
+        inventory_manifest_read,
+    ) = _source_manifest_from_receipt(receipt, store=request.store)
+    json_snapshot_profile_reads = [inventory_manifest_read]
     inventory_record = [
         item for item in inventory_manifest.outputs if Path(item.path).name == "inventory.json"
     ]
@@ -688,19 +711,33 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
             "inventory_manifest_record_mismatch", "inventory output differs from its stage manifest"
         )
     try:
-        inventory_bytes = load_verified_stage_output_bytes(
-            request.store, receipt, "inventory.json"
+        inventory_read = load_verified_stage_json_output(
+            request.store,
+            receipt,
+            "inventory.json",
+            model_type=DemographyInventoryEnvelope,
+            consumer_contract="demography_inventory.candidate_envelope",
         )
+        envelope = inventory_read.value_for_candidate()
+        inventory_bytes = inventory_read.raw_payload_bytes
+        json_snapshot_profile_reads.append(inventory_read.provenance)
     except Exception as exc:
-        raise SourceResolutionRefusalError("inventory_output_unreadable", str(exc)) from exc
-    try:
-        envelope = DemographyInventoryEnvelope.model_validate_json(inventory_bytes)
-    except Exception as exc:
-        raise SourceResolutionRefusalError("inventory_malformed", str(exc)) from exc
-    source_manifest, source_manifest_bytes = _source_manifest_from_receipt(
+        malformed_model = isinstance(exc, ValidationError) or (
+            isinstance(exc, UkraineJSONSnapshotRefusalError)
+            and isinstance(exc.__cause__, ValidationError)
+        )
+        code = (
+            "inventory_malformed"
+            if malformed_model
+            else "inventory_profile_or_payload_refused"
+        )
+        raise SourceResolutionRefusalError(code, str(exc)) from exc
+    source_manifest, source_manifest_bytes, source_manifest_read = _source_manifest_from_receipt(
         envelope.source_stage_receipt, store=request.store
     )
+    json_snapshot_profile_reads.append(source_manifest_read)
     member_bytes: dict[str, bytes] = {}
+    member_json_values: dict[str, dict[str, Any]] = {}
     expected_stage_inputs: list[ArtifactRecord] = []
     for member in envelope.members:
         output_name = member.source_output_name
@@ -729,11 +766,20 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
             )
         expected_stage_inputs.append(record)
         try:
-            raw = load_verified_stage_output_bytes(
-                request.store, envelope.source_stage_receipt, output_name
+            member_read = load_verified_stage_json_output(
+                request.store,
+                envelope.source_stage_receipt,
+                output_name,
+                model_type=dict[str, Any],
+                consumer_contract=f"demography_inventory.source_member.{member.role}",
             )
+            raw = member_read.raw_payload_bytes
+            member_json_values[member.role] = member_read.value_for_candidate()
+            json_snapshot_profile_reads.append(member_read.provenance)
         except Exception as exc:
-            raise SourceResolutionRefusalError("source_member_unreadable", output_name) from exc
+            raise SourceResolutionRefusalError(
+                "source_member_profile_or_payload_refused", output_name
+            ) from exc
         if _sha256(raw) != member.sha256 or len(raw) != member.size_bytes:
             raise SourceResolutionRefusalError("source_member_content_mismatch", output_name)
         member_bytes[member.role] = raw
@@ -750,7 +796,7 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
             "inventory_stage_input_membership_mismatch",
             "candidate stage inputs differ from all selected producer outputs",
         )
-    _check_claimed_cross_member_consistency(envelope, member_bytes)
+    _check_claimed_cross_member_consistency(envelope, member_json_values)
     current_basis = _basis_for(
         claims=envelope.source_claims,
         receipt=envelope.source_stage_receipt,
@@ -786,11 +832,13 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
         donor_disposition=envelope.donor_disposition,
         compatibility_notes=[],
         source_claims=envelope.source_claims,
+        json_snapshot_profile_reads=json_snapshot_profile_reads,
     )
     return ResolvedDemographySource(
         status="candidate_only",
         source_identity=evidence.source_identity,
         member_bytes={f"{role}.json": raw for role, raw in member_bytes.items()},
+        member_json_values=member_json_values,
         evidence=evidence,
         donor_disposition=envelope.donor_disposition,
     )
@@ -869,11 +917,13 @@ def _resolve_historical_layout(
         donor_disposition="present" if "donor.json" in member_bytes else "not_established",
         compatibility_notes=compatibility_notes,
         source_claims=None,
+        json_snapshot_profile_reads=[],
     )
     return ResolvedDemographySource(
         status="legacy_limited",
         source_identity=evidence.source_identity,
         member_bytes=member_bytes,
+        member_json_values={},
         evidence=evidence,
         donor_disposition=evidence.donor_disposition,
     )
@@ -909,12 +959,12 @@ def read_demography_role(
             payload = {}
         else:
             raise SourceResolutionRefusalError("member_not_established", role)
+    elif resolved.status == "candidate_only":
+        payload = resolved.member_json_values.get(role)
+        if payload is None:
+            raise SourceResolutionRefusalError("member_profile_value_not_established", role)
     else:
-        payload = _read_json_object(
-            raw,
-            role=role,
-            typed_errors=resolved.status == "candidate_only",
-        )
+        payload = _read_json_object(raw, role=role, typed_errors=False)
     return DemographyRoleProjection(role=role, payload=payload, evidence=resolved.evidence)
 
 

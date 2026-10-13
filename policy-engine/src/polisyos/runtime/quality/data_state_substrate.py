@@ -37,7 +37,7 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
@@ -624,6 +624,7 @@ def materialize_acquired_observation_snapshot(
         DataStateSubstrateError: If the base snapshot, selected row, candidate
             mapping, or transaction time cannot be verified.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.contracts import FoundryInputBindingRule
     from polisyos.data_forge.read_api.catalog import (
         ActivatedAcquisitionObservationProjection,
@@ -688,7 +689,7 @@ def materialize_acquired_observation_snapshot(
         ):
             raise DataStateSubstrateError("acquisition_base_snapshot_manifest_invalid")
         base_snapshot = DataSnapshot.model_validate(
-            from_canonical_bytes(store.get_bytes(base_data_snapshot_ref))
+            load_core_json_artifact(store, base_data_snapshot_ref)
         )
         snapshot_stats = base_snapshot.stats
         base_snapshot_id = (
@@ -701,7 +702,7 @@ def materialize_acquired_observation_snapshot(
         base_payload_manifest = store.get_manifest(base_snapshot.data_ref)
         if base_payload_manifest.media_type != "application/json":
             raise DataStateSubstrateError("acquisition_base_payload_not_json")
-        raw_payload = from_canonical_bytes(store.get_bytes(base_snapshot.data_ref))
+        raw_payload = load_core_json_artifact(store, base_snapshot.data_ref)
     except DataStateSubstrateError:
         raise
     except Exception as exc:
@@ -913,6 +914,7 @@ def build_acquired_observation_candidate_world(
     current causal evidence. Fabric facts use unknown valid time and the
     supplied transaction time only for the snapshot transaction.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.foundry.data_plane.bindings import load_input_bindings
     from polisyos.ir.model_layer.model_spec import ModelSpec
 
@@ -929,7 +931,7 @@ def build_acquired_observation_candidate_world(
     model_manifest = store.get_manifest(base_model_ref)
     if model_manifest.kind != "ir.model_spec" or not store.verify(base_model_ref).ok:
         raise DataStateSubstrateError("acquisition_base_model_spec_unverified")
-    model_spec = ModelSpec.model_validate(from_canonical_bytes(store.get_bytes(base_model_ref)))
+    model_spec = ModelSpec.model_validate(load_core_json_artifact(store, base_model_ref))
     if (
         gy_content_hash(model_spec.model_dump(mode="json"))
         != base.simulation_model_ref.model_spec_hash

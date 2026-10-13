@@ -14,7 +14,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import (
     DataSnapshot,
     DataSnapshotRef,
@@ -117,8 +117,9 @@ class DefaultFabricPort:
                 minimum runtime execution tier.
             ValueError: If the request does not identify a dataset.
         """
+        from polisyos.core.artifacts import load_core_json_artifact
         request_ref = profile_bound_ref(store, request_ref)
-        payload = from_canonical_bytes(store.get_bytes(request_ref))
+        payload = load_core_json_artifact(store, request_ref)
         query_request = _parse_query_request(payload)
 
         dataset_id = _resolve_dataset_id(query_request)

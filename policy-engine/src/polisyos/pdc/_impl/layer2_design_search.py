@@ -1590,8 +1590,9 @@ def load_s2_search_ledger(
     artifact_ref: artifacts.ArtifactRef,
 ) -> SearchLedger:
     """Load a persisted S2 SearchLedger from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = canon.from_canonical_bytes(store.get_bytes(artifact_ref))
+    payload = load_core_json_artifact(store, artifact_ref)
     return SearchLedger.model_validate(payload)
 
 

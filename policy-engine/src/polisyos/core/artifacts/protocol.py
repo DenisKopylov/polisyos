@@ -57,6 +57,30 @@ def _require_return_selected_profile_writer(store: object, method_name: str) -> 
 
 
 @runtime_checkable
+class RawManifestBytesReader(Protocol):
+    """Optional capability for reading the selected raw manifest sidecar safely."""
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes: ...
+
+
+@runtime_checkable
+class AsyncRawManifestBytesReader(Protocol):
+    """Optional async capability for exact selected sidecar bytes."""
+
+    async def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes: ...
+
+
+@runtime_checkable
 class ArtifactStore(Protocol):
     """Minimal content-addressable store interface.
 

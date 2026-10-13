@@ -5,7 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.pdc import (
     S2_DESIGN_SEARCH_SCHEMA_VERSION,
     DesignRecordV0,
@@ -60,7 +62,7 @@ class RunBoundDesignRecordResolver:
                 run_id=run_id,
             )
             return self._resolve_source(source)
-        except RunPaperSourceError:
+        except (RunPaperSourceError, CanonicalProfileRefusalError):
             raise
         except Exception as exc:
             raise RunPaperSourceError(str(exc)) from exc
@@ -174,7 +176,11 @@ class RunBoundDesignRecordResolver:
             payload_bytes = self._store.get_bytes(artifact_ref)
             if canon.content_hash(payload_bytes, prefix=True) != str(artifact_ref.artifact_id):
                 raise ValueError("resolved bytes do not match their content address")
-            return canon.from_canonical_bytes(payload_bytes)
+            return read_core_json_artifact(
+                self._store, artifact_ref, raw_payload_bytes=payload_bytes
+            ).value
+        except CanonicalProfileRefusalError:
+            raise
         except Exception as exc:
             raise RunPaperSourceError(f"{role} bytes are invalid") from exc
 

@@ -236,6 +236,7 @@ def resolve_effective_seed(
     default: int = 0,
 ) -> SeedResolution:
     """Resolve the replay seed from packet metadata, run records, or ExecPlan."""
+    from polisyos.core.artifacts import load_core_json_artifact
     replay_block = payload.get("replay")
     if isinstance(replay_block, dict):
         replay_seed = replay_block.get("effective_seed")
@@ -257,7 +258,7 @@ def resolve_effective_seed(
         exec_plan_ref = try_parse_artifact_id(artifacts.get("exec_plan_ref"))
         if exec_plan_ref is not None:
             try:
-                plan_payload = from_canonical_bytes(store.get_bytes(exec_plan_ref))
+                plan_payload = load_core_json_artifact(store, exec_plan_ref)
                 plan = ExecPlan.model_validate(plan_payload)
                 posture = resolve_execution_posture(plan, None)
                 return SeedResolution(value=posture.seed, source=posture.seed_source)
@@ -276,12 +277,13 @@ def compare_current_environment(
     Missing manifests or decode failures are treated as soft failures and return
     an empty diff list after debug logging.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
     inputs = _dict_section(payload, "inputs")
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
     if env_ref is None:
         return []
     try:
-        original_payload = from_canonical_bytes(store.get_bytes(env_ref))
+        original_payload = load_core_json_artifact(store, env_ref)
         original_env = EnvironmentManifest.model_validate(original_payload)
         current_env = capture_environment(include_git=False, include_dependencies=True)
         return compare_environments(original_env, current_env)
@@ -512,7 +514,8 @@ def _load_artifact_payload_for_diff(
     store: ArtifactStore,
     ref: ArtifactRef,
 ) -> dict[str, Any]:
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     if isinstance(payload, dict):
         return payload
     return {"value": payload}
@@ -726,7 +729,8 @@ def verify_replay(
 
 
 def _load_packet_payload(store: ArtifactStore, packet_ref: ArtifactID) -> dict[str, Any]:
-    payload = from_canonical_bytes(store.get_bytes(packet_ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, packet_ref)
     if not isinstance(payload, dict):
         raise ValueError(f"DecisionPacket payload must be object, got: {type(payload).__name__}")
     return payload
@@ -857,9 +861,10 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
 
 
 def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, float | int | str]:
-    sim_payload = from_canonical_bytes(store.get_bytes(sim_ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    sim_payload = load_core_json_artifact(store, sim_ref)
     simulation_result = SimulationResult.model_validate(sim_payload)
-    metrics_payload = from_canonical_bytes(store.get_bytes(simulation_result.metrics_ref))
+    metrics_payload = load_core_json_artifact(store, simulation_result.metrics_ref)
     metrics = Metrics.model_validate(metrics_payload)
     return dict(metrics.values)
 

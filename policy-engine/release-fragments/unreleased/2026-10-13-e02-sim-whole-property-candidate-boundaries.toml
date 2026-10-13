@@ -1,0 +1,28 @@
+id = "2026-10-13-e02-sim-whole-property-candidate-boundaries"
+title = "Admit SIM candidates only after full write composition and expose unresolved bases"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "N5 validates write composition and actual requested-grid support before accepting an engine plan, applies method-registry writes to the exact copied state passed to the runner, rejects off-grid endpoints, and persists explicit candidate-only comparator and physical-time limitations."
+evidence = [
+  "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/README.md",
+  "tests/unit/remediation/test_sim_01.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+  "tests/unit/remediation/test_sim_02.py",
+  "tests/unit/remediation/test_sim_03.py",
+  "tests/unit/remediation/test_cyc_02.py",
+  "tests/unit/remediation/test_acq_01.py",
+  "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+]
+compatibility = "No public request/result DTO shape or CAS schema version changes. Existing numeric outcome-minus-baseline values remain available as candidate diagnostics, with a typed limitation carried into N8 and fresh GET."
+change_class = "runtime-candidate-admission"
+surface_classification = "public: existing N5 candidate result, CAS, N8 observation and run-details projection; no new field in generated API schemas"
+migration = "No historical CAS objects are rewritten. New result payloads carry additive diagnostic keys and an additive candidate-only authority limitation."
+api = "Per-plan atom composition and actual requested-grid support are checked before selection proceeds to a runner. Every engine kind uses its selector-derived temporal capability; a multi-step request rejects a static or unsupported candidate and continues to the next plan, independent of eligibility strings. Method-registry direct effects are applied to a validated copy of the selected state, which is the same kind of state consumed by pure_step. HorizonSpec rejects endpoints not reached by its declared integer step. The persisted result labels comparator and physical time bases not_established and serves the limitation through the existing observation path."
+limitations = "The authored tests cover shared actual-grid admission, candidate fallback, static one-point support, state consumption, discrete-grid coverage, candidate persistence and fresh GET behavior; runtime execution is pending. Comparator refs and estimand are not resolved against a source owner; numeric subtraction is not a causal effect. Horizon origin/unit/source binding remains not_established, IID/Sobol law and per-seed failure-attempt custody are not established, and an exception aborts before aggregation/CAS without a partial attempt ledger. No external law, current source authority, G adjudication, or formal B07/B19/B20/B21/B22 closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

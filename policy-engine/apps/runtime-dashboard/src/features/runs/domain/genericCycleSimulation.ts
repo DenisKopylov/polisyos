@@ -1,7 +1,8 @@
-import type { components } from "@/api/types";
+import type { RunDetailsView } from "@/api/validators";
 
-export type RunGenericCycleSimulationProjection =
-  components["schemas"]["RunGenericCycleSimulationProjection"];
+export type RunGenericCycleSimulationProjection = NonNullable<
+  RunDetailsView["generic_cycle_simulation"]
+>;
 
 export type GenericCycleSimulationPresentation =
   | Readonly<{ kind: "absent" }>

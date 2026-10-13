@@ -24,7 +24,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.cache import LRUCache
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.security import (
     get_current_access_scope_or_none,
     get_current_cell_id,
@@ -479,8 +479,9 @@ class NodeResultCache:
         deadline_monotonic: float | None = None,
     ) -> tuple[NodeCacheEntry, NodeOutcome, bool]:
         """Decode one entry, verify its custody, and check its replay proof."""
+        from polisyos.core.artifacts import load_core_json_artifact
         self._check_deadline(deadline_monotonic)
-        payload = from_canonical_bytes(self._store.get_bytes(entry_ref))
+        payload = load_core_json_artifact(self._store, entry_ref)
         self._check_deadline(deadline_monotonic)
         entry = NodeCacheEntry.model_validate(payload)
         self._check_deadline(deadline_monotonic)
@@ -498,7 +499,7 @@ class NodeResultCache:
             decoded = decode_node_outcome(entry.outcome_payload)
         elif entry.outcome_ref is not None:
             self._check_deadline(deadline_monotonic)
-            offered = from_canonical_bytes(self._store.get_bytes(entry.outcome_ref))
+            offered = load_core_json_artifact(self._store, entry.outcome_ref)
             decoded = decode_node_outcome(offered)
             if isinstance(decoded, OutputAwareNodeOutcome):
                 self._verify_output_aware_cache_artifact(

@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.cold_start import BurnInRunReport
 from polisyos.scientist.methods.search.lessons import (
     LessonIndexSnapshot,
@@ -243,9 +243,9 @@ def load_funnel_calibration_report(
     ref: ArtifactRef | str,
 ) -> FunnelCalibrationReport:
     """Load funnel calibration report."""
-    artifact_id = ref.artifact_id if isinstance(ref, ArtifactRef) else ref
+    from polisyos.core.artifacts import load_core_json_artifact
     return FunnelCalibrationReport.model_validate(
-        from_canonical_bytes(store.get_bytes(artifact_id))
+        load_core_json_artifact(store, ref)
     )
 
 

@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.scientist.methods.search.funnel.types import (
     DegradationMode,
     FunnelCostOrigin,
@@ -991,6 +991,7 @@ class FunnelOrchestrator:
         stage_level: int,
     ) -> None:
         """Fresh-read and bind a native work packet before projecting its reference."""
+        from polisyos.core.artifacts import load_core_json_artifact
         ref = result.executed_work_packet_ref
         if ref is None:
             return
@@ -1012,18 +1013,18 @@ class FunnelOrchestrator:
         expected_candidate = ticket.context.get("policy_candidate_schema")
         try:
             packet = FunnelExecutedWorkPacket.model_validate(
-                from_canonical_bytes(store.get_bytes(ref))
+                load_core_json_artifact(store, ref)
             )
             packet_manifest = store.get_manifest(ref)
             result_manifest = store.get_manifest(packet.source_result_ref)
             actual_candidate_bytes = store.get_bytes(packet.candidate_ref)
-            candidate_payload = from_canonical_bytes(actual_candidate_bytes)
+            candidate_payload = load_core_json_artifact(store, packet.candidate_ref, raw_payload_bytes=actual_candidate_bytes)
             expected_candidate_bytes = (
                 to_canonical_bytes(expected_candidate, CanonSpec(forbid_floats=False))
                 if expected_candidate is not None
                 else None
             )
-            source_result_payload = from_canonical_bytes(store.get_bytes(packet.source_result_ref))
+            source_result_payload = load_core_json_artifact(store, packet.source_result_ref)
             packet_inputs = {item.role: str(item.artifact_id) for item in packet_manifest.inputs}
             result_candidate_inputs = {
                 str(item.artifact_id) for item in result_manifest.inputs if item.role == "candidate"

@@ -12,6 +12,10 @@ from pydantic import BaseModel, ConfigDict
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (
@@ -574,7 +578,7 @@ class EvaluationSafetyPersistenceService:
         )
         selected_id = str(artifact_id)
         read_attempts.append(f"cas_manifest:{selected_id}")
-        manifest = self._artifact_store.get_manifest(selected_ref)
+        manifest = read_core_manifest_profile(self._artifact_store, selected_ref)[0]
         inputs_read.append(f"cas_manifest:{selected_id}")
         read_attempts.append(f"cas_bytes:{selected_id}")
         raw = self._artifact_store.get_bytes(selected_ref)
@@ -596,7 +600,11 @@ class EvaluationSafetyPersistenceService:
             or schema_version not in allowed_schema_versions
         ):
             raise ValueError("promotion_source_artifact_binding_mismatch")
-        payload = canon.from_canonical_bytes(raw)
+        payload = read_core_json_artifact(
+                      self._artifact_store,
+                      selected_ref,
+                      raw_payload_bytes=raw,
+                  ).value
         if (
             schema_version == "1.0"
             and kind == "runtime.control_job_payload.natural_language_run"
@@ -1124,7 +1132,7 @@ class EvaluationSafetyPersistenceService:
         for artifact_id in self._artifact_store.iter_artifact_ids():
             typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
             try:
-                manifest = self._artifact_store.get_manifest(typed_id)
+                manifest = read_core_manifest_profile(self._artifact_store, typed_id)[0]
             except (OSError, TypeError, ValueError) as exc:
                 raise ValueError("eval_safety_selection_not_established") from exc
             schema = manifest.artifact_schema
@@ -1154,7 +1162,11 @@ class EvaluationSafetyPersistenceService:
                 )
                 payload = self._artifact_store.get_bytes(typed_id)
                 decision = EvaluationSafetyDecisionEvent.model_validate(
-                    canon.from_canonical_bytes(payload)
+                    read_core_json_artifact(
+                        self._artifact_store,
+                        typed_id,
+                        raw_payload_bytes=payload,
+                    ).value
                 )
                 selected_ref = selected_ref.model_copy(
                     update={"content_hash": decision.content_hash}
@@ -1184,14 +1196,20 @@ class EvaluationSafetyPersistenceService:
                 ):
                     raise ValueError("eval_safety_decision_producer_mismatch")
                 reconciled.append((selected_ref, rebuilt))
-                event_authority = self._artifact_store.get_manifest(typed_id).authority
+                event_authority = read_core_manifest_profile(
+                                      self._artifact_store,
+                                      typed_id,
+                                  )[0].authority
                 if event_authority is None:
                     raise ValueError("eval_safety_diagnostic_event_linkage_missing")
                 selected_event_ref = resolve_authority_diagnostic_event_ref(
                     self._artifact_store,
                     event_authority,
                 )
-                event_manifest = self._artifact_store.get_manifest(selected_event_ref)
+                event_manifest = read_core_manifest_profile(
+                                     self._artifact_store,
+                                     selected_event_ref,
+                                 )[0]
                 event_refs.append(
                     EvalSafetyArtifactRef(
                         artifact_id=str(event_manifest.artifact_id),
@@ -1489,7 +1507,7 @@ class EvaluationSafetyPersistenceService:
         artifact_id: core_artifacts.ArtifactID,
         identity: EvaluationSafetyArtifactIdentity,
     ) -> bool:
-        manifest = self._artifact_store.get_manifest(artifact_id)
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
         authority = manifest.authority
         if authority is None:
             return False
@@ -1502,7 +1520,7 @@ class EvaluationSafetyPersistenceService:
             if not verification.ok:
                 return False
             envelope = EvidenceAuthorityEnvelope.model_validate(
-                canon.from_canonical_bytes(self._artifact_store.get_bytes(envelope_ref))
+                read_core_json_artifact(self._artifact_store, envelope_ref).value
             )
         except (FileNotFoundError, TypeError, ValueError):
             return False
@@ -1536,7 +1554,7 @@ class EvaluationSafetyPersistenceService:
         verification = self._artifact_store.verify(artifact_id)
         if not verification.ok:
             raise ValueError("eval_safety_cas_readback_failed")
-        manifest = self._artifact_store.get_manifest(artifact_id)
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
         schema = manifest.artifact_schema
         if (
             manifest.kind != identity.kind
@@ -1555,7 +1573,7 @@ class EvaluationSafetyPersistenceService:
             cas_ref=str(artifact_id),
         )
         result = model_type.model_validate(
-            canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            read_core_json_artifact(self._artifact_store, artifact_id).value
         )
         embedded_hash = getattr(result, "content_hash", None)
         expected_hash = embedded_hash if isinstance(embedded_hash, str) else str(artifact_id)
@@ -1641,7 +1659,7 @@ class EvaluationSafetyPersistenceService:
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES[key]
         if artifact_type is not None or schema_ref is not None:
             verification = self._artifact_store.verify(typed_id)
-            manifest = self._artifact_store.get_manifest(typed_id)
+            manifest = read_core_manifest_profile(self._artifact_store, typed_id)[0]
             manifest_schema = manifest.artifact_schema
             if (
                 not verification.ok
@@ -1681,7 +1699,7 @@ class EvaluationSafetyPersistenceService:
                 "metrics_projection": EvalSafetyMetricsProjection,
             }
             parsed = model_types[key].model_validate(
-                canon.from_canonical_bytes(self._artifact_store.get_bytes(typed_id))
+                read_core_json_artifact(self._artifact_store, typed_id).value
             )
             embedded_hash = getattr(parsed, "content_hash", None)
             expected_semantic_hash = (
@@ -1845,7 +1863,10 @@ class EvaluationSafetyAdmissionVerifier:
         nodes: list[EvalSafetyCertificateRevisionNode] = []
         for artifact_id in self._persistence_service._artifact_store.iter_artifact_ids():
             typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
-            manifest = self._persistence_service._artifact_store.get_manifest(typed_id)
+            manifest = read_core_manifest_profile(
+                           self._persistence_service._artifact_store,
+                           typed_id,
+                       )[0]
             schema = manifest.artifact_schema
             if (
                 manifest.kind != identity.kind
@@ -1855,9 +1876,7 @@ class EvaluationSafetyAdmissionVerifier:
             ):
                 continue
             raw = EvalSafetyCertificateRevision.model_validate(
-                canon.from_canonical_bytes(
-                    self._persistence_service._artifact_store.get_bytes(typed_id)
-                )
+                read_core_json_artifact(self._persistence_service._artifact_store, typed_id).value
             )
             if raw.revision_lineage_id != certificate.revision_lineage_id:
                 continue

@@ -20,7 +20,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     ExecPlan,
     ExecuteRequest,
@@ -248,10 +248,11 @@ def identifiability_diagnostic(
     real persisted replays; its Jacobian-only basis is local and non-gating.
     This profile requires inline moments/center and zero bootstrap/profile reps.
     """
+    from polisyos.core.artifacts import load_core_json_artifact
 
     sim_ref = SimulationResultRef.model_validate(simulation_result_ref.model_dump(mode="python"))
     simulation_result = (
-        SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(sim_ref)))
+        SimulationResult.model_validate(load_core_json_artifact(store, sim_ref))
         if response_slots is not None
         else _load_model(store, sim_ref, SimulationResult)
     )
@@ -396,8 +397,9 @@ def load_identifiability_diagnostic_result(
     ref: IdentifiabilityDiagnosticRef,
 ) -> IdentifiabilityDiagnosticResult:
     """Load a persisted aggregate-moment identifiability sidecar from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     result = IdentifiabilityDiagnosticResult.model_validate(payload)
     return result.model_copy(update={"diagnostic_ref": ref})
 
@@ -1161,8 +1163,9 @@ def _resolve_float_mapping(
     *,
     label: str,
 ) -> dict[str, float]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if isinstance(bundle, ArtifactRef):
-        payload = from_canonical_bytes(store.get_bytes(bundle))
+        payload = load_core_json_artifact(store, bundle)
         if isinstance(payload, Mapping) and isinstance(payload.get("values"), Mapping):
             payload = payload["values"]
     else:
@@ -1187,6 +1190,7 @@ def _resolve_parameter_center(
     simulation_result_ref: SimulationResultRef,
     parameter_center: Mapping[str, Any] | ArtifactRef | None,
 ) -> dict[str, float]:
+    from polisyos.core.artifacts import load_core_json_artifact
     if parameter_center is None:
         manifest = store.get_manifest(simulation_result_ref)
         bundle_input = next(
@@ -1202,7 +1206,7 @@ def _resolve_parameter_center(
         parameter_center = ParameterOverrideBundleRef(artifact_id=bundle_input.artifact_id)
 
     if isinstance(parameter_center, ArtifactRef):
-        payload = from_canonical_bytes(store.get_bytes(parameter_center))
+        payload = load_core_json_artifact(store, parameter_center)
         if isinstance(payload, Mapping) and "overrides" in payload:
             bundle = ParameterOverrideBundle.model_validate(payload)
             return _flatten_parameter_overrides(bundle.overrides)
@@ -1315,7 +1319,8 @@ def _load_model[ModelT: BaseModel](
     ref: ArtifactRef,
     model_cls: type[ModelT],
 ) -> ModelT:
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
 
@@ -1391,7 +1396,8 @@ def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
 
 def _response_snapshot_inputs(store: FileSystemCAS, ref: ArtifactRef) -> dict[str, ArtifactRef]:
     """Resolve the finite, maintained current StateSnapshot leaf contract."""
-    snapshot = StateSnapshot.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, ref))
     manifest = store.get_manifest(ref)
     if snapshot.schema_version != "2.2" or manifest.artifact_schema != SchemaInfo(
         name="polisyos.core.StateSnapshot", version="2.2.0"
@@ -1427,6 +1433,7 @@ def _response_context(
     names: tuple[str, ...],
     config: IdentifiabilityDiagnosticConfig,
 ) -> tuple[_ResponseBasis, SimulationResult, FoundryInputBindingsRef, FeedbackConfigRef | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
 
     if config.bootstrap_reps or config.profile_grid_size or not config.persist_sensitivity_matrix:
@@ -1437,7 +1444,7 @@ def _response_context(
         raise ValueError("response slots must match the unique ordered moment axis")
     if not center or len(set(center)) != len(center):
         raise ValueError("response parameter axis must be nonempty and unique")
-    source = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source_ref)))
+    source = SimulationResult.model_validate(load_core_json_artifact(store, source_ref))
     manifest = store.get_manifest(source_ref)
     roles = [item.role for item in manifest.inputs]
     if len(set(roles)) != len(roles):
@@ -1449,7 +1456,7 @@ def _response_context(
         _response_input_ref(store, item).model_dump(mode="python")
     )
     bindings = FoundryInputBindings.model_validate(
-        from_canonical_bytes(store.get_bytes(bindings_ref))
+        load_core_json_artifact(store, bindings_ref)
     )
     feedback = _find_input(manifest.inputs, "input.feedback_config_ref")
     feedback_ref = (
@@ -1459,8 +1466,8 @@ def _response_context(
             _response_input_ref(store, feedback).model_dump(mode="python")
         )
     )
-    plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(source.exec_plan_ref)))
-    program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
+    plan = ExecPlan.model_validate(load_core_json_artifact(store, source.exec_plan_ref))
+    program = ProgramGraph.model_validate(load_core_json_artifact(store, plan.program_ref))
     registry = load_registry_bundle_content(store, bindings.registry_bundle_ref)
     registry_payload = load_registry_bundle_payload(store, bindings.registry_bundle_ref)
     if registry.units_registry is None:
@@ -1540,7 +1547,8 @@ def _response_context(
 
 
 def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult:
-    replay = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    from polisyos.core.artifacts import load_core_json_artifact
+    replay = SimulationResult.model_validate(load_core_json_artifact(store, ref))
     manifest = store.get_manifest(ref)
     updates = {}
     # Legacy SimulationResult fields may carry bare refs even when its native
@@ -1679,7 +1687,8 @@ def _load_execute_response_matrix(
     Internal companion for an upstream adapter; it issues no scientific authority.
     The caller supplies the expected source, axes, units contract, and seed/config.
     """
-    payload = from_canonical_bytes(store.get_bytes(matrix_ref))
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, matrix_ref)
     basis = _ResponseBasis.model_validate(payload.get("response_basis"))
     expected, source, bindings_ref, feedback_ref = _response_context(
         store, source_ref, response_slots, parameter_center, tuple(response_slots), config
@@ -1734,7 +1743,7 @@ def _load_execute_response_matrix(
         ) != record.request.model_dump(mode="json"):
             raise ValueError("response replay request identity mismatch")
         request = ExecuteRequest.model_validate(
-            from_canonical_bytes(store.get_bytes(record.request.ref))
+            load_core_json_artifact(store, record.request.ref)
         )
         expected_request = ExecuteRequest(
             exec_plan_ref=source.exec_plan_ref,
@@ -1749,7 +1758,7 @@ def _load_execute_response_matrix(
         if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
             raise ValueError("response replay request/config differs from its declared basis")
         override = ParameterOverrideBundle.model_validate(
-            from_canonical_bytes(store.get_bytes(record.override.ref))
+            load_core_json_artifact(store, record.override.ref)
         )
         if _flatten_parameter_overrides(override.overrides) != theta:
             raise ValueError("response replay override differs from finite-difference point")

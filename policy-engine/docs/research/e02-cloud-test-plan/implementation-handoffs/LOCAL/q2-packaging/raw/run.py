@@ -37,6 +37,10 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
     "policy-engine/architecture/production_quality/",
     "policy-engine/workers/dowhy-014/",
 )
+INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r3.py"
+INSTALLED_ORIGIN_GATE_SHA256 = "36d687a9812ebbe5b7a6167daf4da5d71e4d75f2d390eb5b5b559b3058cfe44d"
+HATCHLING_INPUT_INVENTORY_PATH = HERE / "hatchling-1.27.0-input-inventory-r3.json"
+HATCHLING_INPUT_INVENTORY_SHA256 = "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
 
 
 class WaveFailure(RuntimeError):
@@ -91,6 +95,16 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def load_installed_origin_gate() -> tuple[bytes, dict[str, Any]]:
+    """Load the hash-bound stdlib gate for build preflight and isolated proof."""
+    gate_bytes = _read_regular_without_symlink_components(INSTALLED_ORIGIN_GATE_PATH, "Q2 installed-origin gate")[1]
+    if sha256_bytes(gate_bytes) != INSTALLED_ORIGIN_GATE_SHA256:
+        raise WaveFailure("Q2 installed-origin gate source differs from its frozen hash")
+    namespace: dict[str, Any] = {"__name__": "e02_q2_installed_origin_gate_r3"}
+    exec(compile(gate_bytes, str(INSTALLED_ORIGIN_GATE_PATH), "exec"), namespace)
+    return gate_bytes, namespace
 
 
 def _read_regular_without_symlink_components(
@@ -1054,12 +1068,14 @@ def installed_runtime_proof(
     profile: str,
     env: dict[str, str],
     log_dir: Path,
+    origin_gate_source: bytes,
 ) -> dict[str, Any]:
     expected = {
         asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets
     }
-    code = """import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
+    code = origin_gate_source.decode("utf-8") + "\n" + """import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
 from pathlib import Path
+from typing import get_args
 purelib=Path(sysconfig.get_paths()["purelib"]).resolve()
 prefix=Path(sys.prefix).resolve()
 source=Path(os.environ["E02_SOURCE_ROOT"]).resolve()
@@ -1073,6 +1089,7 @@ assert not any(p and any(Path(p).resolve()==root or Path(p).resolve().is_relativ
 normalized_sys_path=[Path(p).resolve() for p in sys.path]
 assert normalized_sys_path.index(purelib)<normalized_sys_path.index(dependency_site),sys.path
 assets=json.loads(Path(os.environ["E02_ASSET_EXPECTED_JSON"]).read_text())
+profile=os.environ["E02_PROFILE_NAME"]
 import polisyos, tools
 from polisyos.data_forge.domains.catalog import _resources
 from polisyos.foundry.methods.catalog import dependency_authority
@@ -1080,27 +1097,69 @@ from polisyos.foundry.methods.catalog.causal import _dowhy_worker
 module_origins={name:str(Path(module.__file__).resolve()) for name,module in sys.modules.copy().items() if (name=="polisyos" or name.startswith("polisyos.") or name=="tools" or name.startswith("tools.")) and getattr(module,"__file__",None)}
 assert module_origins
 assert all(Path(origin).is_relative_to(purelib) for origin in module_origins.values()), module_origins
-asset_rows={}
-for target,expected in assets.items():
-    path=purelib/target
-    data=path.read_bytes()
-    observed={"bytes":len(data),"sha256":hashlib.sha256(data).hexdigest()}
-    assert (
-        type(expected.get("bytes")) is int
-        and observed["bytes"] == expected["bytes"]
-    ), (target, observed, expected)
-    assert observed["sha256"]==expected["sha256"],(target,observed,expected)
-    asset_rows[target]={**observed,"installed_path":str(path)}
 assert Path(_resources.__file__).resolve().is_relative_to(purelib)
 assert Path(dependency_authority.__file__).resolve().is_relative_to(purelib)
 assert Path(_dowhy_worker.__file__).resolve().is_relative_to(purelib)
-registry_path=Path(dependency_authority._DIGEST_REGISTRY_PATH).resolve()
-assert registry_path==Path(dependency_authority._PACKAGED_DIGEST_REGISTRY_PATH).resolve()
-registry_bytes=registry_path.read_bytes()
-assert hashlib.sha256(registry_bytes).hexdigest()==assets["polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"]["sha256"]
-registry=dependency_authority.load_digest_domain_registry(registry_path)
-assert registry.statement.domains
-print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__).resolve()),"tools_origin":str(Path(tools.__file__).resolve()),"module_origins":module_origins,"assets":asset_rows},sort_keys=True))
+def resolve_selected_installed_readers(
+    profile: str,
+    purelib: Path,
+    assets: dict[str, dict[str, Any]],
+    resources_module: Any,
+    authority_module: Any,
+    worker_module: Any,
+) -> dict[str, Path]:
+    # Resolve every typed reader and bind it to the selected installed targets.
+    if not profile:
+        raise AssertionError("installed profile label is required")
+    catalog_targets = {
+        target.rsplit("/", 1)[-1]: target
+        for target in assets
+        if target.startswith("polisyos/data_forge/domains/catalog/_resources/")
+    }
+    catalog_names = tuple(get_args(resources_module.CatalogDefaultResource))
+    assert set(catalog_targets) == set(catalog_names), (profile, catalog_targets, catalog_names)
+    reader_paths: dict[str, Path] = {}
+    for name in catalog_names:
+        actual = Path(resources_module.catalog_default_resource_path(name)).resolve(strict=True)
+        expected_path = (purelib / catalog_targets[name]).resolve(strict=True)
+        assert actual == expected_path, (profile, name, actual, expected_path)
+        reader_paths[f"{profile}:catalog-default:{name}"] = actual
+    registry_path = Path(authority_module._DIGEST_REGISTRY_PATH).resolve(strict=True)
+    packaged_registry_path = Path(authority_module._PACKAGED_DIGEST_REGISTRY_PATH).resolve(strict=True)
+    assert registry_path == packaged_registry_path, (profile, registry_path, packaged_registry_path)
+    registry = authority_module.load_digest_domain_registry(registry_path)
+    assert registry.statement.domains, profile
+    registry_target = "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+    expected_registry = (purelib / registry_target).resolve(strict=True)
+    assert registry_path == expected_registry, (profile, registry_path, expected_registry)
+    reader_paths[f"{profile}:dependency-authority:digest-registry"] = registry_path
+    profile_targets = [target for target in assets if "/_dowhy_profile/" in target]
+    assert profile_targets, profile
+    profile_dirs = {(purelib / Path(target).parent).resolve(strict=True) for target in profile_targets}
+    assert len(profile_dirs) == 1, (profile, profile_dirs)
+    worker_directory = Path(worker_module._worker_directory()).resolve(strict=True)
+    expected_worker_directory = next(iter(profile_dirs))
+    assert worker_directory == expected_worker_directory, (profile, worker_directory, expected_worker_directory)
+    reader_paths[f"{profile}:dowhy-worker:profile-directory"] = worker_directory
+    return reader_paths
+
+
+def verify_selected_installed_resources(
+    profile: str,
+    purelib: Path,
+    assets: dict[str, dict[str, Any]],
+    resources_module: Any,
+    authority_module: Any,
+    worker_module: Any,
+) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
+    # Verify the whole manifest and every canonical reader result at one boundary.
+    reader_paths = resolve_selected_installed_readers(
+        profile, purelib, assets, resources_module, authority_module, worker_module
+    )
+    return verify_installed_resources(purelib, assets, reader_paths)
+
+asset_rows,reader_rows=verify_selected_installed_resources(profile,purelib,assets,_resources,dependency_authority,_dowhy_worker)
+print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__).resolve()),"tools_origin":str(Path(tools.__file__).resolve()),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
 """
     child_env = clean_child_env()
     child_env.update(
@@ -1109,6 +1168,7 @@ print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(pureli
             "E02_LIVE_PRODUCT_ROOT": str(live_product),
             "E02_DEPENDENCY_SITE": str(app_dependency_site),
             "E02_ASSET_EXPECTED_JSON": str(run_root / "asset-targets-expected.json"),
+            "E02_PROFILE_NAME": profile,
         }
     )
     json_write(run_root / "asset-targets-expected.json", expected)
@@ -1119,6 +1179,8 @@ print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(pureli
         log_stem=log_dir / f"{profile}-installed-runtime-proof",
     )
     proof = json.loads(result.stdout)
+    if proof.get("profile") != profile:
+        raise WaveFailure("installed proof reported the wrong profile")
     if Path(proof["purelib"]).resolve() != purelib.resolve():
         raise WaveFailure(f"installed proof used unexpected purelib: {proof['purelib']}")
     proof_assets = proof.get("assets")
@@ -2019,6 +2081,14 @@ def run_wave(args: argparse.Namespace) -> Path:
         dependency_site = Path(app_info["purelib"]).resolve()
         receipt["uv"] = {"executable": str(Path(uv).resolve()), "version": uv_version}
         receipt["app_build_interpreter"] = app_info
+        origin_gate_source, origin_gate_namespace = load_installed_origin_gate()
+        receipt["installed_origin_gate_sha256"] = INSTALLED_ORIGIN_GATE_SHA256
+        receipt["hatchling_input_snapshot"] = origin_gate_namespace["verify_hatchling_distribution"](
+            dependency_site,
+            Path(app_info["prefix"]),
+            HATCHLING_INPUT_INVENTORY_PATH,
+            HATCHLING_INPUT_INVENTORY_SHA256,
+        )
         receipt["tooling_note"] = (
             "Observed uv version is recorded above; repository guidance cites uv 0.9.21. "
             "The runner does not silently substitute the documented version."
@@ -2221,6 +2291,7 @@ def run_wave(args: argparse.Namespace) -> Path:
                 name,
                 env,
                 output,
+                origin_gate_source,
             )
             worker_test_env = clean_child_env()
             worker_test_env.update(

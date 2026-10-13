@@ -340,8 +340,9 @@ def load_social_weight_provenance(
     ref: artifacts.ArtifactRef,
 ) -> SocialWeightProvenance:
     """Load a persisted social-weight provenance record."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return SocialWeightProvenance.model_validate(payload)
 
 

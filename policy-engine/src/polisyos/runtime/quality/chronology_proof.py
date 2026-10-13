@@ -426,6 +426,7 @@ class _ChronologyPersistenceOwner:
         This recorder preserves the family owner's result verbatim. It grants
         no predicates, selects no policy and creates no native authority head.
         """
+        from polisyos.core.artifacts import load_core_json_frame_records
         if not self._registry._owner_is_current(self):
             return None
         query = reconciliation.owner_context.query
@@ -495,7 +496,7 @@ class _ChronologyPersistenceOwner:
             if len(records) != 1:
                 return None
             parsed = contract.NativeChronologyProjectionStatement.model_validate(
-                core_canon.from_canonical_bytes(records[0])
+                load_core_json_frame_records(self._store, ref, raw_payload_bytes=reloaded)[0]
             )
             if parsed != statement:
                 return None

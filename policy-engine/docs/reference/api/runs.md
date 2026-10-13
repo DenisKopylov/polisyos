@@ -397,3 +397,47 @@ The response distinguishes observed holdout hit rate from nominal confidence met
 
 
 A served acquisition re-entry using receipt schema v3 appends a continued `GenerationCycleRun` and records its N6/N9 result in the run-details acquisition history. For same-candidate re-entry, the typed history binds the prior and selected N4/N5 refs, preserves the profile selection identity with separate prior/current profile content hashes, and requires the exact selected target baseline to change. Current occurrences and fronts are projected from the continued run. The history remains candidate-only and does not confer publication authority. Historical v1/v2 re-entry receipts remain readable without this projection.
+
+## Selected profile status in quantity and fabric views
+
+`GET /api/v1/runs/{run_id}/quantities` and
+`GET /api/v1/runs/{run_id}/fabric-decision-data` resolve the run's exact
+`decision_packet_ref` before projecting source-contract or quantity data. The
+Core reader checks a present raw manifest profile against the same selected
+bytes; malformed declarations and declared-profile mismatches return HTTP `409`
+with a typed `canon_profile_*` refusal. Quantity inventory reports
+`canon_read_status` for this read. An absent profile is refused by default. Only explicit candidate-only compatibility
+reads return `profile_absent_unqualified_candidate`; this does not establish historical
+eligibility or producer attestation.
+The current acquisition-route projection v1.1 reports `world_growth` from the
+selected route's reverified owner receipt. `not_established` means no current
+selected outcome receipt has established a result; `admitted_observation_delta`
+is null. `no_growth` requires a current typed zero-delta receipt bound to the
+active selected epoch, its original admission and attempt, and the route's
+tenant, cell, run and source job; its delta is 0. `admitted_delta` requires the
+current positive admission receipt and reports its positive delta. In the
+canonical DS15 criterion, that positive outcome is named `grew`; the transport
+literal `admitted_delta` is its wire representation, not a distinct semantic
+state. Decision-request and accepted-job responses remain `not_established`
+because those stages have not measured the owner outcome. A recovered selected
+zero receipt terminates as quarantined without re-entry. These candidate-level
+observations describe selected membership only; they do not establish legal
+approval, publication authority, or whole-model closure.
+
+The POST responses from `/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request`
+and `/execute` also now return `world_growth="not_established"`. Their previous
+v1 response models defaulted this field to `no_growth` before any owner outcome
+was measured. This literal change is breaking for v1 clients that enumerate the
+old value. Update both response decoders to accept `not_established`; when reading
+legacy `no_growth` from an older server, treat it as unknown unless a selected,
+verified zero-delta receipt is available. Coordinate this response change with
+all consumers before deployment; the GET projection's v1.1 migration does not
+make either POST response additive.
+
+The v1.1 projection versions the explicit tri-state and nullable delta. The
+dashboard continues to read v1.0 packets: pending `no_growth` (with or without
+a zero default) is presented as `not_established`, because the older wire shape
+did not bind that value to a measured zero receipt. Positive v1.0
+`admitted_delta` remains a positive selected outcome. New server responses use
+v1.1; generated OpenAPI and dashboard types are regenerated from the frozen
+source after the source review.

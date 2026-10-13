@@ -12,10 +12,16 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts
+from polisyos.core.artifacts.canonical_profile import (
+    artifact_ref_for_manifest,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.contracts.runtime import (
     CounterfactualMetric,
     LineageCompactSummaryItem,
@@ -253,15 +259,6 @@ class ScenarioRepository:
             self._load_head_locked(head)
 
     def _load_head_locked(self, head: ScenarioHeadRecord) -> ScenarioManifest:
-        cached = self._by_id.get(head.scenario_id)
-        if (
-            cached is not None
-            and self._artifact_by_id.get(head.scenario_id) == head.artifact_ref
-            and cached.baseline_run_id == head.baseline_run_id
-            and cached.revision == head.revision
-            and cached.manifest_hash == head.manifest_hash
-        ):
-            return cached
         if self._store is None:
             raise service_unavailable(
                 "Scenario artifact storage is unavailable",
@@ -269,9 +266,12 @@ class ScenarioRepository:
             )
         try:
             artifact_id = artifacts.ArtifactID.model_validate(head.artifact_ref)
-            sidecar = self._store.get_manifest(artifact_id)
-            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            sidecar, _declaration = read_core_manifest_profile(self._store, artifact_id)
+            selected_ref = artifact_ref_for_manifest(sidecar)
+            payload = read_core_json_artifact(self._store, selected_ref).value
             scenario = ScenarioManifest.model_validate(payload)
+        except CanonicalProfileRefusalError:
+            raise
         except Exception as exc:
             raise service_unavailable(
                 "The authoritative scenario head cannot be resolved",
@@ -313,10 +313,13 @@ class ScenarioRepository:
             return
         for artifact_id in artifact_ids:
             try:
-                manifest_sidecar = self._store.get_manifest(artifact_id)
+                manifest_sidecar, _declaration = read_core_manifest_profile(
+                    self._store, artifact_id
+                )
                 if manifest_sidecar.kind != _SCENARIO_ARTIFACT_KIND:
                     continue
-                payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+                selected_ref = artifact_ref_for_manifest(manifest_sidecar)
+                payload = read_core_json_artifact(self._store, selected_ref).value
                 scenario = ScenarioManifest.model_validate(payload)
             except (ValidationError, ValueError, TypeError, OSError):
                 continue

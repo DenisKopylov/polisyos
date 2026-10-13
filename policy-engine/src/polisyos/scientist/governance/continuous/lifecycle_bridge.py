@@ -860,8 +860,9 @@ def load_lifecycle_bridge_result(
     ref: ArtifactRef,
 ) -> LifecycleBridgeResult:
     """Load a persisted lifecycle bridge result from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = canon.from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return LifecycleBridgeResult.model_validate(payload)
 
 

@@ -1,7 +1,5 @@
 import {
   RuntimeApiClient,
-  type AcquisitionDecisionRequestResponse,
-  type AcquisitionExecutionResponse,
   type AcquisitionRouteMutationRequest,
 } from "@polisyos/runtime-api-client";
 
@@ -11,6 +9,8 @@ import {
   acquisitionGrowthPacketSchema,
   acquisitionRouteListResponseSchema,
   acquisitionRouteProjectionSchema,
+  type AcquisitionDecisionRequestResponseCurrent,
+  type AcquisitionExecutionResponseCurrent,
   type AcquisitionRouteListResponse,
   type AcquisitionRouteProjection,
 } from "@/features/runs/api/acquisitionRouteValidators";
@@ -230,7 +230,7 @@ export async function requestAcquisitionDecision(
   runId: string,
   routeId: string,
   body: AcquisitionRouteMutationRequest,
-): Promise<AcquisitionDecisionRequestResponse> {
+): Promise<AcquisitionDecisionRequestResponseCurrent> {
   const response = await captureRuntimeResponse((client) =>
     client.requestRunAcquisitionDecision({
       body,
@@ -245,7 +245,7 @@ export async function executeAcquisitionRoute(
   runId: string,
   routeId: string,
   body: AcquisitionRouteMutationRequest,
-): Promise<AcquisitionExecutionResponse> {
+): Promise<AcquisitionExecutionResponseCurrent> {
   const response = await captureRuntimeResponse((client) =>
     client.executeRunAcquisitionRoute({
       body,

@@ -61,6 +61,34 @@ tester.run("quantity-must-be-wrapped", rule, {
       `,
       filename: "src/features/example/View.tsx",
     },
+    {
+      name: "accepts a Zod literal schema through an aliased named import",
+      code: `
+        import { z as schema } from "zod";
+        const route = schema.object({
+          admitted_observation_delta: schema.literal(0),
+        });
+      `,
+      filename: "src/features/example/View.tsx",
+    },
+    {
+      name: "resolves a Zod schema import declared after its use",
+      code: `
+        const confidenceScore = schema.literal(0);
+        import { z as schema } from "zod";
+      `,
+      filename: "src/features/example/View.tsx",
+    },
+    {
+      name: "accepts a Zod literal schema through an aliased namespace import",
+      code: `
+        import * as zodApi from "zod";
+        const route = zodApi.z.object({
+          admitted_observation_delta: zodApi.z.literal(0),
+        });
+      `,
+      filename: "src/features/example/View.tsx",
+    },
   ],
   invalid: [
     {
@@ -125,6 +153,40 @@ tester.run("quantity-must-be-wrapped", rule, {
           const geometry = (value) => value;
           return <rect x={geometry(-24)} />;
         }
+      `,
+      filename: "src/features/example/View.tsx",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a locally named fake Zod literal",
+      code: `
+        const z = { literal: (value) => value };
+        const delta = z.literal(0);
+      `,
+      filename: "src/features/example/View.tsx",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "rejects a shadowed alias even when a real Zod import exists",
+      code: `
+        import { z as schema } from "zod";
+        function candidateDelta() {
+          const schema = { literal: (value) => value };
+          const delta = schema.literal(0);
+          return delta;
+        }
+      `,
+      filename: "src/features/example/View.tsx",
+      errors: [{ messageId: "decision" }],
+    },
+    {
+      name: "exempts only the Zod schema field and keeps its decision sibling guarded",
+      code: `
+        import { z } from "zod";
+        const route = z.object({
+          admitted_observation_delta: z.literal(0),
+        });
+        const confidenceScore = 0;
       `,
       filename: "src/features/example/View.tsx",
       errors: [{ messageId: "decision" }],

@@ -73,6 +73,84 @@ class RecoverabilityResult:
     algorithm_version: str = "recover_v1"
 
 
+def _canonical_mgraph_source(graph: CausalGraphModel) -> CausalGraphModel:
+    """Revalidate the declared M-graph before creating internal static views."""
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        UnsupportedStaticADMGProfileError,
+        canonical_causal_graph_snapshot,
+    )
+    from polisyos.ir.analytics.causal_graph import GraphType
+
+    canonical = canonical_causal_graph_snapshot(graph)
+    if canonical.graph_type is not GraphType.MGRAPH:
+        raise UnsupportedStaticADMGProfileError(
+            "M-graph recoverability requires a declared MGRAPH source; "
+            f"received {canonical.graph_type.value!r}.",
+            graph_type_label=canonical.graph_type.value,
+        )
+    return canonical
+
+
+def _resolved_static_graph_type(edges: list[Any]) -> Any:
+    """Derive a DAG/ADMG type from fully oriented endpoint marks only."""
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        UnsupportedStaticADMGProfileError,
+    )
+    from polisyos.ir.analytics.causal_graph import EdgeMark, GraphType
+
+    needs_admg = False
+    for edge in edges:
+        marks = (edge.mark_src, edge.mark_dst)
+        if marks == (EdgeMark.TAIL, EdgeMark.ARROW):
+            continue
+        if marks in {
+            (EdgeMark.ARROW, EdgeMark.TAIL),
+            (EdgeMark.ARROW, EdgeMark.ARROW),
+        }:
+            needs_admg = True
+            continue
+        raise UnsupportedStaticADMGProfileError(
+            "M-graph recoverability cannot derive a static graph from unresolved "
+            f"endpoint marks ({edge.mark_src.value}, {edge.mark_dst.value}) "
+            f"on {edge.src!r}–{edge.dst!r}.",
+            graph_type_label="mgraph",
+        )
+    return GraphType.ADMG if needs_admg else GraphType.DAG
+
+
+def _build_resolved_static_subgraph(
+    *,
+    schema_version: str,
+    nodes: list[str],
+    edges: list[Any],
+    discovery_method: str,
+) -> CausalGraphModel:
+    """Construct and validate an internal DAG/ADMG from the retained endpoints."""
+    from polisyos.foundry.methods.catalog.causal.admg_ops import (
+        InvalidCausalGraphProfileError,
+        UnsupportedStaticADMGProfileError,
+        _validate_static_id_graph,
+    )
+    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+
+    graph_type = _resolved_static_graph_type(edges)
+    try:
+        candidate = CausalGraphModel(
+            schema_version=schema_version,
+            graph_type=graph_type,
+            nodes=nodes,
+            edges=edges,
+            discovery_method=discovery_method,
+        )
+        return _validate_static_id_graph(candidate)
+    except UnsupportedStaticADMGProfileError:
+        raise
+    except (TypeError, ValueError) as exc:
+        raise InvalidCausalGraphProfileError(
+            "M-graph recoverability derived an invalid static graph profile."
+        ) from exc
+
+
 # ---------------------------------------------------------------------------
 # Algorithm 1: Recoverability Test  (Mohan & Pearl 2021, Theorem 1)
 # ---------------------------------------------------------------------------
@@ -112,7 +190,8 @@ def test_recoverability(
     """
     from polisyos.foundry.methods.catalog.causal.admg_ops import descendants
     from polisyos.foundry.methods.catalog.causal.id_engine import ProofStep
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
+
+    canonical_graph = _canonical_mgraph_source(graph)
 
     trace: list[str] = []
     steps: list[ProofStep] = []
@@ -124,13 +203,17 @@ def test_recoverability(
     # We construct a PAG-type graph so validation doesn't enforce MGRAPH naming
     # contracts (which are no longer satisfied after stripping *_star nodes).
     proxy_names: frozenset[str] = frozenset(pn.proxy_name for pn in mgraph_meta.proxy_nodes)
-    kept_nodes = [n for n in graph.nodes if n not in proxy_names]
-    kept_edges = [e for e in graph.edges if e.src not in proxy_names and e.dst not in proxy_names]
-    g_no_proxies = CausalGraphModel(
-        graph_type=GraphType.PAG,  # PAG allows any edge marks; no naming contract
+    kept_nodes = [node for node in canonical_graph.nodes if node not in proxy_names]
+    kept_edges = [
+        edge
+        for edge in canonical_graph.edges
+        if edge.src not in proxy_names and edge.dst not in proxy_names
+    ]
+    g_no_proxies = _build_resolved_static_subgraph(
+        schema_version=canonical_graph.schema_version,
         nodes=kept_nodes,
         edges=kept_edges,
-        discovery_method=graph.discovery_method,
+        discovery_method=canonical_graph.discovery_method,
     )
 
     trace.append(
@@ -203,7 +286,7 @@ def test_recoverability(
 
     # All variables pass — build recovery estimand
     trace.append("test_recoverability: RECOVERABLE — building ordered recovery estimand")
-    estimand = ordered_recovery(graph=graph, mgraph_meta=mgraph_meta)
+    estimand = ordered_recovery(graph=canonical_graph, mgraph_meta=mgraph_meta)
     return RecoverabilityResult(
         status=RecoverabilityStatus.RECOVERABLE,
         query_variables=query_vars,
@@ -256,26 +339,18 @@ def ordered_recovery(
     """
     from polisyos.foundry.methods.catalog.causal.admg_ops import topological_order
     from polisyos.foundry.methods.catalog.causal.id_engine import ProofStep
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
     from polisyos.ir.analytics.estimand import (
         EstimandAST,
         ProductNode,
         RecoveredDistNode,
     )
 
+    graph = _canonical_mgraph_source(graph)
     subst_set = set(mgraph_meta.substantive_vars)
-    # Build a DAG of substantive variables only for topological ordering.
-    # Use ADMG type to allow bidirected edges; DAG type would reject them.
-    kept_nodes = [n for n in graph.nodes if n in subst_set]
-    kept_edges = [e for e in graph.edges if e.src in subst_set and e.dst in subst_set]
-    from polisyos.ir.analytics.causal_graph import EdgeMark
-
-    has_bidirected = any(
-        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW for e in kept_edges
-    )
-    subst_graph_type = GraphType.ADMG if has_bidirected else GraphType.DAG
-    g_subst = CausalGraphModel(
-        graph_type=subst_graph_type,
+    kept_nodes = [node for node in graph.nodes if node in subst_set]
+    kept_edges = [edge for edge in graph.edges if edge.src in subst_set and edge.dst in subst_set]
+    g_subst = _build_resolved_static_subgraph(
+        schema_version=graph.schema_version,
         nodes=kept_nodes,
         edges=kept_edges,
         discovery_method=graph.discovery_method,
@@ -362,29 +437,21 @@ def _project_to_base_dag(
     Strips all R_* and *_star nodes and their incident edges, leaving only
     the causal structure among the full-data variables V.
 
-    Returns a CausalGraphModel with graph_type=DAG if there are no bidirected
-    edges, or graph_type=ADMG if bidirected (latent-confounder) edges exist
-    among the substantive variables.
+    Returns a validated DAG when all retained edges are stored tail-to-arrow,
+    or a validated ADMG when bidirected or reverse-stored directed edges are
+    present. The profile is derived from actual endpoint marks; unresolved
+    endpoints are typed-refused.
 
     Note: we construct the result directly (not via induced_subgraph) because
     induced_subgraph preserves the MGRAPH graph_type which would fail validation
     when the R-node / proxy-node naming contract is no longer satisfied.
     """
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
-
+    graph = _canonical_mgraph_source(graph)
     subst_set = set(mgraph_meta.substantive_vars)
-    kept_nodes = [n for n in graph.nodes if n in subst_set]
-    kept_edges = [e for e in graph.edges if e.src in subst_set and e.dst in subst_set]
-
-    # Choose graph_type based on whether bidirected edges exist
-    has_bidirected = any(
-        e.mark_src is EdgeMark.ARROW and e.mark_dst is EdgeMark.ARROW for e in kept_edges
-    )
-    target_type = GraphType.ADMG if has_bidirected else GraphType.DAG
-
-    return CausalGraphModel(
+    kept_nodes = [node for node in graph.nodes if node in subst_set]
+    kept_edges = [edge for edge in graph.edges if edge.src in subst_set and edge.dst in subst_set]
+    return _build_resolved_static_subgraph(
         schema_version=graph.schema_version,
-        graph_type=target_type,
         nodes=kept_nodes,
         edges=kept_edges,
         discovery_method=graph.discovery_method,

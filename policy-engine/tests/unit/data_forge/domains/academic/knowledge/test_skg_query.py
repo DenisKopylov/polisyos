@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import hashlib
 import json
 
 import duckdb
 import pytest
 
 from polisyos.data_forge.domains.academic.knowledge import skg_query
-from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
+from polisyos.data_forge.domains.academic.knowledge.skg_query import (
+    PreparedSKGReadSchemaError,
+    SKGQuery,
+)
 from polisyos.data_forge.domains.academic.knowledge.skg_store import ensure_skg_schema
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 
@@ -1193,6 +1197,7 @@ def test_prepared_read_exposes_typed_credal_rows_on_bound_source(tmp_path) -> No
         marker = prepared.query_execution_marker()
         snapshot = prepared.read_credal_source_rows()
         assert snapshot.version_id == 7
+        assert prepared.query_version == "skg-query-read.v3"
         assert snapshot.source_snapshot_ref == prepared.source_snapshot_ref
         assert snapshot.source_snapshot_sha256 == prepared.source_snapshot_sha256
         assert prepared.matches_path(db_path)
@@ -1216,6 +1221,70 @@ def test_prepared_read_exposes_typed_credal_rows_on_bound_source(tmp_path) -> No
 
     with pytest.raises(RuntimeError, match="prepared_skg_read_closed"):
         prepared.read_credal_source_rows()
+
+
+def test_prepared_read_refuses_first_missing_credal_relation_before_row_reads(tmp_path) -> None:
+    db_path = tmp_path / "incomplete-credal-source.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
+        con.execute("INSERT INTO ac_skg_versions VALUES (7)")
+    with db_path.open("rb") as stream:
+        original_digest = hashlib.file_digest(stream, "sha256").hexdigest()
+
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        marker = prepared.query_execution_marker()
+        with pytest.raises(PreparedSKGReadSchemaError) as raised:
+            prepared.read_credal_source_rows()
+        assert raised.value.code == "prepared_skg_read_query_basis_invalid"
+        assert raised.value.query_id == "variables"
+        assert prepared.query_fingerprints_since(marker) == ()
+    finally:
+        prepared.close()
+    with db_path.open("rb") as stream:
+        assert hashlib.file_digest(stream, "sha256").hexdigest() == original_digest
+
+
+@pytest.mark.parametrize(
+    ("replacement_sql", "expected_query_id"),
+    [
+        (("DROP TABLE ac_skg_moderation_edges",), "moderation_edges"),
+        (
+            (
+                "DROP TABLE ac_skg_moderation_edges",
+                "CREATE TABLE ac_skg_moderation_edges (moderation_id VARCHAR)",
+            ),
+            "moderation_edges",
+        ),
+        (("DROP TABLE ac_works",), "causal_claim_results_v2"),
+    ],
+    ids=("missing-late-table", "missing-late-column", "missing-claim-join-table"),
+)
+def test_prepared_read_refuses_late_credal_query_schema_before_row_reads(
+    tmp_path,
+    replacement_sql: tuple[str, ...],
+    expected_query_id: str,
+) -> None:
+    db_path = tmp_path / "late-incomplete-credal-source.duckdb"
+    _seed_credal_read_source(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        for statement in replacement_sql:
+            con.execute(statement)
+    with db_path.open("rb") as stream:
+        original_digest = hashlib.file_digest(stream, "sha256").hexdigest()
+
+    prepared = SKGQuery.prepare_read(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        marker = prepared.query_execution_marker()
+        with pytest.raises(PreparedSKGReadSchemaError) as raised:
+            prepared.read_credal_source_rows()
+        assert raised.value.code == "prepared_skg_read_query_basis_invalid"
+        assert raised.value.query_id == expected_query_id
+        assert prepared.query_fingerprints_since(marker) == ()
+    finally:
+        prepared.close()
+    with db_path.open("rb") as stream:
+        assert hashlib.file_digest(stream, "sha256").hexdigest() == original_digest
 
 
 def test_prepared_read_refuses_source_generation_change_during_typed_read(

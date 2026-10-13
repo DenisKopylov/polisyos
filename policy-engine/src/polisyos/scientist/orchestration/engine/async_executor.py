@@ -225,6 +225,20 @@ class AsyncWorkflowExecutor:
                 ),
             )
 
+        try:
+            return await self._execute_admitted(workflow, state, invocations)
+        finally:
+            # An unhandled exception or cancellation leaves an incomplete,
+            # owner-bound trace that an explicit RunContext.resume can reopen.
+            # Normal finalization already released the lease, making this a no-op.
+            self._ctx.run.suspend_for_resume()
+
+    async def _execute_admitted(
+        self,
+        workflow: WorkflowSpec,
+        state: ExperimentState,
+        invocations: dict[str, NodeInvocation],
+    ) -> WorkflowExecutionResult:
         tiers = topo_sort_tiers(invocations)
         self._require_atomic_tier_checkpoint(tiers)
         seed_owner = object()

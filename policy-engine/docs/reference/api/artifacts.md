@@ -333,3 +333,45 @@ conditional-response handling, so an authority refusal is not converted into a
 `put_bytes()` and `put_json()` keep their historical ID/default-view result by default. A producer that must retain the exact manifest selected by its own write can pass the strict `return_selected_profile=True` keyword. The returned profile is computed inside the write operation and selects that immutable sidecar after later sibling writes. Stores that do not implement this result capability refuse; they do not synthesize the profile from a later default-manifest read.
 
 An opted-in store must accept `return_selected_profile` as an explicit keyword parameter. Positional-only and variadic catch-all signatures are refused before a write; a parameter name alone does not establish this capability.
+
+## Selected canonical-profile verification
+
+Semantic JSON reads resolve the selected manifest sidecar and validate its raw
+`canon` profile before consuming the artifact bytes. When the profile is
+present, Core decodes and re-encodes those same selected bytes with the declared
+settings. A malformed/incomplete/unsupported declaration or a byte mismatch
+returns HTTP `409` with a typed `canon_profile_*` refusal; it is not treated as a
+missing profile and reader defaults are not substituted. The response models
+for predictive-coverage diagnostics, JSON content previews, and schema views
+include `canon_read_status` (`declared_bytes_conformant`,
+`profile_absent_unqualified_candidate`, `declared_unknown_candidate`, `not_evaluated`, or `not_applicable`).
+
+Core semantic reads refuse an absent profile by default. A caller that explicitly
+opts into candidate-only compatibility receives `profile_absent_unqualified_candidate`;
+that status is `not_established` for historical eligibility and producer intent, and
+its decoded value cannot enter authority, promotion, or issuer consumers. No source
+currently supplies the original proof needed to authorize a historical profileless
+semantic read. Raw content
+negotiation continues to serve the exact selected bytes through its existing
+raw-response and authority gates without decoding them. Render and export
+materialize the selected semantic view and retain its `canon_read_status` in the
+HTML response metadata and PDF/DOCX output packet. Predictive diagnostic
+reports are likewise reader-materialized and never raw-byte responses.
+
+
+## Typed refusal for malformed selected profiles
+
+The manifest and semantic JSON surfaces validate the raw selected sidecar before typed
+manifest admission. If a present `canon` profile is malformed, incomplete, unsupported,
+or inconsistent with the selected payload bytes, the operation returns HTTP 409 as
+`application/problem+json` with the `RuntimeApiProblem` schema. Default semantic reads
+refuse absence. Only an explicit candidate-only call can inspect profileless bytes, and
+that result neither proves historical eligibility nor attests the producer. The API
+documents the refusal only on operations that execute these selected semantic reads.
+Binary/raw-content responses continue to preserve the selected payload bytes.
+
+Artifact-inspector semantic views keep profile refusals typed across the whole service family: malformed, unsupported, default-absent, or nonconformant JSON is not returned as text, an empty schema, or an invalid-source diagnostic. Explicit raw content and download responses retain the exact selected bytes under their existing ownership and integrity checks. An application/octet-stream preview remains binary even when its bytes happen to be valid UTF-8; UTF-8 text rendering is limited to text media types.
+
+Predictive coverage diagnostics enforce the source-byte limit on the exact selected payload before Core canonical decoding. Manifest byte-size metadata is a preliminary hint; the decision uses the retrieved content length. Oversized inputs remain refused without semantic parsing.
+
+JSON content previews enforce the normalized preview byte limit against the exact selected payload before Core decoding; manifest byte_size is only a hint. The predictive-coverage diagnostic uses its existing 2,000,000-byte source limit. Schema-view top-level-key inspection has no existing payload cap and remains explicitly uncapped; this change does not claim that route is resource-bounded. Oversized JSON previews remain truncated binary previews without semantic parsing.

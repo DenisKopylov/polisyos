@@ -118,7 +118,9 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["AcquisitionRoutePhaseReceipt@1.0"] = "AcquisitionRoutePhaseReceipt@1.0"
+    schema_version: Literal[
+        "AcquisitionRoutePhaseReceipt@1.0", "AcquisitionRoutePhaseReceipt@1.1"
+    ] = "AcquisitionRoutePhaseReceipt@1.0"
     receipt_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
     cell_id: str = Field(min_length=1)
@@ -135,6 +137,7 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
     receipt_phase: Literal[
         "requested",
         "executing",
+        "outcome_selected",
         "world_committed_reentry_pending",
     ]
     recovery_state: Literal["none", "reentry_recovery_required"]
@@ -150,6 +153,7 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
         expected = {
             "requested": ("requested", "none"),
             "executing": ("executing", "none"),
+            "outcome_selected": ("executing", "none"),
             "world_committed_reentry_pending": (
                 "world_committed",
                 "reentry_recovery_required",
@@ -161,6 +165,14 @@ class AcquisitionRoutePhaseReceipt(BaseModel):
             raise ValueError("requested_phase_cannot_have_predecessor")
         if self.receipt_phase != "requested" and self.predecessor_receipt_ref is None:
             raise ValueError("acquisition_route_phase_predecessor_missing")
+        if self.receipt_phase == "outcome_selected":
+            if (
+                self.schema_version != "AcquisitionRoutePhaseReceipt@1.1"
+                or len(self.owner_receipt_refs) != 1
+            ):
+                raise ValueError("acquisition_action_selection_binding_invalid")
+        elif self.schema_version != "AcquisitionRoutePhaseReceipt@1.0":
+            raise ValueError("acquisition_route_phase_schema_version_mismatch")
         if self.receipt_phase == "world_committed_reentry_pending" and not self.owner_receipt_refs:
             raise ValueError("world_commit_owner_receipt_missing")
         return self
@@ -504,6 +516,7 @@ class AcquisitionRouteLoop:
         expected_kind: str,
         expected_schema_name: str,
     ) -> object:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             selected_ref = ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
             artifact_id = (
@@ -524,7 +537,9 @@ class AcquisitionRouteLoop:
                 or schema.version != "1.0"
             ):
                 raise ValueError("artifact manifest mismatch")
-            return canon.from_canonical_bytes(blob)
+            return load_core_json_artifact(
+                self._artifact_store, selected_ref, raw_payload_bytes=blob
+            )
         except Exception as exc:
             raise AcquisitionRouteClosureError("source_artifact_unverified") from exc
 

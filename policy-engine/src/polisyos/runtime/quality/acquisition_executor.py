@@ -955,6 +955,7 @@ def _execute_authorized_live_acquisition(
     cache_namespace: str | None,
 ) -> LiveSourceExecutionEvidence:
     """Execute and independently reopen one already-authorized live carrier."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
     entry = resolved.entry
     attempt_id = authorization.attempt_id
@@ -1053,10 +1054,10 @@ def _execute_authorized_live_acquisition(
     if baseline_after_sha256 is None:  # pragma: no cover - finally assigns or raises
         raise LiveAcquisitionExecutionError("live_baseline_identity_drift")
     snapshot = DataSnapshot.model_validate(
-        from_canonical_bytes(store.get_bytes(ingestion_result.data_snapshot_ref))
+        load_core_json_artifact(store, ingestion_result.data_snapshot_ref)
     )
     evidence_bundle = EvidenceBundle.model_validate(
-        from_canonical_bytes(store.get_bytes(ingestion_result.evidence_bundle_ref))
+        load_core_json_artifact(store, ingestion_result.evidence_bundle_ref)
     )
     if snapshot.evidence_ref != ingestion_result.evidence_bundle_ref:
         raise LiveAcquisitionExecutionError(
@@ -2112,6 +2113,7 @@ def resolve_activated_semantic_epoch_admission(
     chronology = contracts.chronology
 
     def read(ref: ArtifactRef, model: type[BaseModel]) -> BaseModel:
+        from polisyos.core.artifacts import load_core_json_frame_records
         raw = artifact_store.get_bytes(ref)
         manifest = artifact_store.get_manifest(ref)
         if (
@@ -2126,7 +2128,9 @@ def resolve_activated_semantic_epoch_admission(
             frames = chronology._split_framed_records(raw)
             if len(frames) != 1:
                 raise ValueError("activation production receipt frame denominator differs")
-            production = model.model_validate(from_canonical_bytes(frames[0]))
+            production = model.model_validate(
+                load_core_json_frame_records(artifact_store, ref, raw_payload_bytes=raw)[0]
+            )
             expected_raw = chronology._frame_record(
                 epoch_contract.canonical_epoch_bytes(production.statement_projection())
             )

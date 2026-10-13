@@ -7,7 +7,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts, canon
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.runtime.http.errors import bad_request, forbidden
 
 _CONTEXT_KIND = "runtime.production_approval.scorecard.v1"
@@ -119,7 +121,7 @@ def _load_scorecard_artifact(
     try:
         artifact_id = artifacts.ArtifactID.model_validate(ref)
         manifest = store.get_manifest(artifact_id)
-        payload = canon.from_canonical_bytes(store.get_bytes(artifact_id))
+        payload = require_declared_profile(read_core_json_artifact(store, artifact_id))
     except artifacts.ArtifactOwnershipError as exc:
         raise forbidden(
             "The quality scorecard belongs to a different tenant",

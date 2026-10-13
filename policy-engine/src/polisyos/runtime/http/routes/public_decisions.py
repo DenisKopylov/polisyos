@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict
 
+from polisyos.common.canonical_profile import (
+    CanonicalProfileRefusalError,
+    require_declared_profile,
+)
 from polisyos.core import artifacts  # Pydantic resolves the public DTO at runtime.
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,
@@ -20,6 +24,7 @@ from polisyos.runtime.http.dependencies import (
     enforce_run_tenant_access,
     get_runtime_api_context,
 )
+from polisyos.runtime.http.errors import CANONICAL_PROFILE_REFUSAL_RESPONSES
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.public_decision_verification import (
     PublicDecisionVerificationError,
@@ -129,7 +134,7 @@ def verify_public_decision_record(
     ),
     status_code=201,
     operation_id="issue_public_decision_record",
-    responses={
+    responses={**({
         201: {
             "content": {
                 "application/json": {
@@ -140,7 +145,7 @@ def verify_public_decision_record(
                 }
             }
         }
-    },
+    }), **CANONICAL_PROFILE_REFUSAL_RESPONSES},
     dependencies=[Depends(_ISSUE_AUTHZ)],
 )
 def issue_public_decision_record(
@@ -168,6 +173,11 @@ def issue_public_decision_record(
     enforce_run_tenant_access(request, ctx=ctx, run=run)
     if run.decision_packet_ref is None:
         raise HTTPException(status_code=409, detail="decision_packet_not_established")
+    try:
+        packet_read = read_core_json_artifact(ctx.store, run.decision_packet_ref)
+        packet = require_declared_profile(packet_read)
+    except CanonicalProfileRefusalError as exc:
+        raise HTTPException(status_code=409, detail=exc.code) from exc
     if publication_class != "verification_report_only":
         owner = _service(request).governed_owner
         if owner is None:
@@ -203,7 +213,6 @@ def issue_public_decision_record(
         except GovernedPublicRecordError as exc:
             raise HTTPException(status_code=409, detail=exc.code) from exc
     try:
-        packet = json.loads(ctx.store.get_bytes(run.decision_packet_ref))
         if not isinstance(packet, dict):
             raise ValueError("decision packet must be an object")
         issued_at = datetime.now(UTC)

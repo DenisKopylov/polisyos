@@ -17,7 +17,6 @@ from polisyos.core.artifacts import (
     profile_bound_ref,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
@@ -172,6 +171,8 @@ class CompileCrossGraphEvidenceNode:
         return SKGQuery.prepare_read(db_path=db_path, index_dir=index_dir)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
+
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         config_payload = state.params.get("cross_graph_evidence_config")
         evidence_sources = normalize_evidence_sources_config(state.params, config_payload)
@@ -327,7 +328,7 @@ class CompileCrossGraphEvidenceNode:
                         index_dir=index_dir,
                     )
                     prepared_read = owned_prepared_read
-                payload = from_canonical_bytes(ctx.store.get_bytes(trinity_ref))
+                payload = load_core_json_artifact(ctx.store, trinity_ref)
                 bundle = TrinityBundle.model_validate(payload)
                 literature_prior = (
                     load_literature_causal_prior(

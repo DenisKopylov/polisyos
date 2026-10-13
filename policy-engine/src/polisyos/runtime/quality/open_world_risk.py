@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Literal, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core import artifacts, canon
+from polisyos.core import artifacts
 from polisyos.core import contracts as core_contracts
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -765,6 +765,7 @@ class OpenWorldRiskVectorArtifactRepository:
         expected_ordinal: int,
     ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt:
         """Rebind one verified vector to the full owner-held generation denominator."""
+        from polisyos.core.artifacts import load_core_json_artifact
 
         verified = self.resolve_verified(
             vector_artifact_ref=gate.vector_artifact_ref,
@@ -788,8 +789,9 @@ class OpenWorldRiskVectorArtifactRepository:
             if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
                 raise ValueError(aggregate.code)
             member = contexts.resolve_bound_member(bound_member_ref=gate.bound_member_ref)
-            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
-            problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
+            problem = DesignProblem.model_validate(
+                load_core_json_artifact(self._store, aggregate.statement.design_problem_binding_ref)
+            )
             owner_contexts = aggregate.statement.ordered_candidate_contexts
             if (
                 problem.model_dump(mode="json") != expected_problem.model_dump(mode="json")
@@ -852,6 +854,7 @@ class BoundProblemDeclaredScopeManifestProvider:
     def resolve_complete_manifest(
         self, *, member: PersistedBoundPromotionCandidateContext
     ) -> DeclaredScopeManifest | OpenWorldRiskProductionNonReceipt:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             aggregate = self._contexts.resolve_verified(
                 context_ref=member.statement.aggregate_context_ref
@@ -869,8 +872,9 @@ class BoundProblemDeclaredScopeManifestProvider:
             occurrence = self._contexts.resolve_occurrence(
                 occurrence_ref=member.statement.candidate_occurrence_ref
             )
-            problem_raw = self._store.get_bytes(aggregate.statement.design_problem_binding_ref)
-            problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
+            problem = DesignProblem.model_validate(
+                load_core_json_artifact(self._store, aggregate.statement.design_problem_binding_ref)
+            )
             model_value = problem.model_spec_ref or "declared_absent"
             calibration_value = occurrence.candidate_summary.value_ref or "declared_absent"
             obligation_denominator = tuple(item.value for item in PromotionObligationClass)

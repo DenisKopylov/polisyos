@@ -9,9 +9,14 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
+from polisyos.core.artifacts.canonical_profile import (
+    artifact_ref_for_manifest,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisProvenance,
     AttractorAnalysisResult,
@@ -585,7 +590,7 @@ def attach_abm_bifurcation_report_ref(
     """Persist an exact Phase-4 ``ABMResult`` with bifurcation report populated."""
 
     simulation_result = SimulationResult.model_validate(
-        from_canonical_bytes(store.get_bytes(simulation_result_ref))
+        read_core_json_artifact(store, simulation_result_ref).value
     )
     analysis = load_attractor_analysis_result(store, attractor_analysis_ref)
     abm_result = build_abm_result_from_simulation(
@@ -628,7 +633,9 @@ def load_attractor_analysis_result(
 ) -> AttractorAnalysisResult:
     """Load an attractor-analysis result from CAS."""
 
-    return AttractorAnalysisResult.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected = AttractorAnalysisResultRef.model_validate(artifact_ref_for_manifest(manifest))
+    return AttractorAnalysisResult.model_validate(read_core_json_artifact(store, selected).value)
 
 
 def persist_basin_map(
@@ -655,7 +662,9 @@ def persist_basin_map(
 def load_basin_map(store: FileSystemCAS, ref: BasinMapRef) -> BasinMap:
     """Load a basin-map sidecar from CAS."""
 
-    return BasinMap.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected = BasinMapRef.model_validate(artifact_ref_for_manifest(manifest))
+    return BasinMap.model_validate(read_core_json_artifact(store, selected).value)
 
 
 def persist_continuation_branch(
@@ -685,7 +694,9 @@ def load_continuation_branch(
 ) -> ContinuationBranch:
     """Load a continuation branch sidecar from CAS."""
 
-    return ContinuationBranch.model_validate(from_canonical_bytes(store.get_bytes(ref)))
+    manifest, _declaration = read_core_manifest_profile(store, ref)
+    selected = ContinuationBranchRef.model_validate(artifact_ref_for_manifest(manifest))
+    return ContinuationBranch.model_validate(read_core_json_artifact(store, selected).value)
 
 
 def _validate_positive_controls(

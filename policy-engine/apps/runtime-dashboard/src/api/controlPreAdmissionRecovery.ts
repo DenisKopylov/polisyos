@@ -3,7 +3,7 @@ import {
   openOfflineDb,
 } from "@/app/offline/db";
 import { API_BASE_URL } from "@/shared/lib/constants";
-import type { components } from "./types";
+import type { ControlPreAdmissionAttemptResponse } from "./validators";
 
 export type ControlPreAdmissionRecoveryScope = Readonly<{
   tenantId: string;
@@ -11,8 +11,7 @@ export type ControlPreAdmissionRecoveryScope = Readonly<{
   userId: string;
 }>;
 
-export type ControlPreAdmissionAttemptResponse =
-  components["schemas"]["ControlPreAdmissionAttemptResponse"];
+export type { ControlPreAdmissionAttemptResponse } from "./validators";
 
 export type ControlPreAdmissionRecoveryRecord = Readonly<{
   scopeKey: string;
@@ -48,12 +47,11 @@ export class ControlPreAdmissionRecoveryError extends Error {
   }
 }
 
-type ControlPreAdmissionAttemptResponse =
-  components["schemas"]["ControlPreAdmissionAttemptResponse"];
 type ProducerObservation =
   ControlPreAdmissionAttemptResponse["producer_event_observation"];
-type NoCallReason = NonNullable<
-  ControlPreAdmissionAttemptResponse["producer_no_call_reason"]
+type NoCallReason = Exclude<
+  ControlPreAdmissionAttemptResponse["producer_no_call_reason"],
+  null
 >;
 
 const STATUS_VALUES = new Set([
@@ -463,7 +461,7 @@ function validateAttemptEvidence(
         started: ["settled", "refused", "cancelled", "failed"],
         settled: ["admitted", "refused", "cancelled", "failed"],
       };
-      const possible =
+      const possible: readonly string[] =
         previousStatus === "started" && profile === "dev"
           ? [...allowed.started, "admitted"]
           : (allowed[previousStatus ?? ""] ?? []);

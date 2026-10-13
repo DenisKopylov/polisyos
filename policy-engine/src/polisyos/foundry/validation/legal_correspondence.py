@@ -219,6 +219,7 @@ def _load(
     epoch: str,
     model: type[_StrictModel],
 ) -> Any:
+    from polisyos.core.artifacts import load_core_json_artifact
     manifest = store.get_manifest(ref)
     if (
         ref.kind != kind
@@ -232,7 +233,9 @@ def _load(
     # Do not trust an ArtifactStore implementation to validate a supplied ref.
     if canon.content_hash(payload, prefix=True) != str(ref.artifact_id):
         raise ValueError("legal_subject_source_content_mismatch")
-    return model.model_validate(canon.from_canonical_bytes(payload))
+    return model.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=payload)
+    )
 
 
 def _ancestry(
@@ -257,27 +260,41 @@ def _ancestry(
             for child in value:
                 inspect_json(child)
 
-    def visit(artifact_id: artifacts.ArtifactID) -> None:
+    def visit(selector: artifacts.ArtifactID | artifacts.ArtifactRef) -> None:
+        from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
+
+        artifact_id = selector.artifact_id if isinstance(selector, artifacts.ArtifactRef) else selector
         key = str(artifact_id)
         if key in active:
             raise ValueError("legal_subject_source_circular")
         if key in seen:
             return
         active.add(key)
-        manifest = store.get_manifest(artifact_id)
-        raw = store.get_bytes(artifact_id)
+        manifest = store.get_manifest(selector)
+        selected_ref = artifact_ref_for_manifest(manifest)
+        raw = store.get_bytes(selected_ref)
         if canon.content_hash(raw, prefix=True) != key:
             raise ValueError("legal_subject_source_content_mismatch")
         if manifest.media_type == "application/json":
-            inspect_json(canon.from_canonical_bytes(raw))
+            inspect_json(load_core_json_artifact(store, selected_ref, raw_payload_bytes=raw))
         if manifest.producer is not None:
             producers.add(str(manifest.producer.component))
         for item in manifest.inputs:
-            visit(item.artifact_id)
+            if item.manifest_profile_sha256 is None:
+                child_ref: artifacts.ArtifactID | artifacts.ArtifactRef = item.artifact_id
+            else:
+                resolver = getattr(store, "get_manifest_by_profile", None)
+                if not callable(resolver):
+                    raise ValueError("legal_subject_input_profile_unavailable")
+                child_manifest = resolver(item.artifact_id, item.manifest_profile_sha256)
+                child_ref = artifact_ref_for_manifest(child_manifest)
+                if child_ref.manifest_profile_sha256 != item.manifest_profile_sha256:
+                    raise ValueError("legal_subject_input_profile_mismatch")
+            visit(child_ref)
         active.remove(key)
         seen.add(key)
 
-    visit(ref.artifact_id)
+    visit(ref)
     return seen, producers, synthetic
 
 

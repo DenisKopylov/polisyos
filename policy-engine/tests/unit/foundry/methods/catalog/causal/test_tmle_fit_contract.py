@@ -446,3 +446,168 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
             await pool.shutdown()
 
     asyncio.run(run())
+
+
+def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    """A real native failure releases its shared slot without losing sibling folds."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.scientist.orchestration.engine import registry
+    from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+    from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        deserialize_outcome,
+        serialize_state,
+    )
+    from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    with pytest.raises(ValueError, match="max_workers must be >= 1"):
+        LocalWorkerPool(max_workers=0)
+
+    release_failed_fold = threading.Event()
+    current_study = threading.local()
+    lock = threading.Lock()
+    active = peak = 0
+    calls: list[tuple[str, int, int]] = []
+    native = core._fit_crossfit_fold
+
+    class StudyNode:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.tests.tmle_pool_failure@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                capabilities=Capability.SCIENTIST_NODE,
+                abi_targets={},
+            ),
+            state_reads=["params"],
+            state_writes=["artifacts_index"],
+            produces=["tmle_result"],
+        )
+
+        def execute(self, ctx, state):
+            current_study.run_id = state.run_id
+            try:
+                x, a, y = _dgp(seed=state.params["study_seed"], n=120)
+                result = TMLEEstimator.pure_step(
+                    {"X": x, "treatment": a, "outcome": y},
+                    _params(__disable_shared_nuisance_cache=True),
+                )["result"]
+            finally:
+                del current_study.run_id
+
+            if state.params.get("fail_after_fit"):
+                raise RuntimeError("study failed after all native folds")
+            ref = ctx.store.put_json(
+                result,
+                PutOptions(kind="test.tmle_result", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            state.artifacts_index["tmle_result"] = ref
+            return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+    node = StudyNode()
+    monkeypatch.setattr(registry, "discover_nodes", lambda actual: actual.register(node))
+
+    async def run() -> None:
+        nonlocal active, peak
+        loop = asyncio.get_running_loop()
+        failed_fold = asyncio.Event()
+
+        def observe(**kwargs):
+            nonlocal active, peak
+            run_id = current_study.run_id
+            with lock:
+                active += 1
+                peak = max(peak, active)
+                calls.append((run_id, kwargs["rep_seed"], kwargs["fold_id"]))
+            if run_id == "study-fails" and kwargs["rep_seed"] == 1015 and kwargs["fold_id"] == 2:
+                loop.call_soon_threadsafe(failed_fold.set)
+                assert release_failed_fold.wait(timeout=20), "failure boundary was not released"
+            try:
+                return native(**kwargs)
+            finally:
+                with lock:
+                    active -= 1
+
+        monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        pool = LocalWorkerPool(max_workers=1)
+        try:
+            tasks = []
+            for run_id, seed, fail_after_fit, priority in (
+                ("study-fails", 71, True, 1),
+                ("study-survives", 72, False, 0),
+            ):
+                state = ExperimentState(
+                    run_id=run_id,
+                    params={"study_seed": seed, "fail_after_fit": fail_after_fit},
+                )
+                tasks.append(
+                    await pool.submit(
+                        NodeTask(
+                            node_id=str(node.spec.metadata.component_id),
+                            alias=run_id,
+                            params={},
+                            state_bytes=serialize_state(state),
+                            trace_carrier={},
+                            context_meta={
+                                "run_id": run_id,
+                                "store_backend": "filesystem",
+                                "store_root": str(tmp_path / "cas"),
+                            },
+                            priority=priority,
+                        )
+                    )
+                )
+
+            await asyncio.wait_for(failed_fold.wait(), timeout=20)
+            capacity = await pool.current_capacity()
+            assert capacity.total_workers == 1
+            assert capacity.active_tasks == 1
+            assert capacity.queue_depth == 1
+            release_failed_fold.set()
+
+            with pytest.raises(RuntimeError, match="study failed after all native folds"):
+                await asyncio.wait_for(tasks[0], timeout=60)
+            surviving_bytes = await asyncio.wait_for(tasks[1], timeout=60)
+            capacity = await pool.current_capacity()
+            assert capacity.active_tasks == 0
+            assert capacity.queue_depth == 0
+            assert peak == 1
+
+            expected = [(18, fold) for fold in range(3)] + [(1015, fold) for fold in range(3)]
+            by_study = {
+                run_id: [(seed, fold) for observed_id, seed, fold in calls if observed_id == run_id]
+                for run_id in ("study-fails", "study-survives")
+            }
+            assert by_study == {"study-fails": expected, "study-survives": expected}
+            assert len(calls) == 12
+
+            outcome = deserialize_outcome(surviving_bytes)
+            assert outcome.status == "ok"
+            assert outcome.state.run_id == "study-survives"
+            ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
+            payload = json.loads(FileSystemCAS(tmp_path / "cas").get_bytes(ref))
+            assert payload["targeting_summary"]["converged"]
+            splits = payload["nuisance_diagnostics"]["split_manifest"]
+            assert [(repeat["seed"], [fold["fold"] for fold in repeat["folds"]]) for repeat in splits] == [
+                (18, [0, 1, 2]),
+                (1015, [0, 1, 2]),
+            ]
+            for repeat in splits:
+                held_out = [index for fold in repeat["folds"] for index in fold["test_indices"]]
+                assert sorted(held_out) == list(range(120))
+            assert (
+                payload["nuisance_diagnostics"]["execution_policy"]["effective_fold_workers"]
+                == 1
+            )
+        finally:
+            release_failed_fold.set()
+            await pool.shutdown()
+
+    asyncio.run(run())

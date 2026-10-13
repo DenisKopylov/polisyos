@@ -214,6 +214,7 @@ class FileEpochTransitionOriginOwner:
         kind: str,
         media_type: str,
     ) -> Model:
+        from polisyos.core.artifacts import load_core_json_frame_records
         raw = self._artifacts.get_bytes(ref)
         manifest = self._artifacts.get_manifest(ref)
         frames = contracts.chronology._split_framed_records(raw)
@@ -230,7 +231,9 @@ class FileEpochTransitionOriginOwner:
             or len(frames) != 1
         ):
             raise ValueError("epoch_origin_retained_source_mismatch")
-        value = model.model_validate(canon.from_canonical_bytes(frames[0]))
+        value = model.model_validate(
+            load_core_json_frame_records(self._artifacts, ref, raw_payload_bytes=raw)[0]
+        )
         statement = (
             value.statement_projection()
             if isinstance(value, SemanticEpochProductionReceipt)

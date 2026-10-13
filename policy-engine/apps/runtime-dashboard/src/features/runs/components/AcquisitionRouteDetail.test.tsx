@@ -1,13 +1,17 @@
 import { render, screen, within } from "@testing-library/react";
 import type { StructuralRouteProjection } from "@polisyos/runtime-api-client";
 
-import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
+import type {
+  AdmittedDeltaAcquisitionRouteV11,
+  NoGrowthAcquisitionRouteV11,
+  PendingAcquisitionRouteV11,
+} from "@/features/runs/api/acquisitionRouteValidators";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 import { Button } from "@polisyos/atlas-ui";
 
 import { AcquisitionRouteDetail } from "./AcquisitionRouteDetail";
 
-function runRoute(): AcquisitionRouteProjection {
+function runRoute(): PendingAcquisitionRouteV11 {
   return {
     authority_badge: "behavioral_fixture_not_production",
     authority_capability: "ready",
@@ -38,24 +42,52 @@ function runRoute(): AcquisitionRouteProjection {
     route_projection_hash: "sha256:route",
     route_status: "costed_actionable",
     run_id: "run-1",
-    schema_version: "AcquisitionRouteProjection@1.0",
+    schema_version: "AcquisitionRouteProjection@1.1",
     tenant_id: "tenant-1",
+    world_growth: "not_established",
+    admitted_observation_delta: null,
+  };
+}
+
+function noGrowthRoute(): NoGrowthAcquisitionRouteV11 {
+  return {
+    ...runRoute(),
+    admitted_observation_delta: 0,
+    authority_badge: "native_owner_verified",
+    qualification_predicate: "independently_reconciled",
+    qualification_reason: "native_owner_readback",
+    qualification_status: "activated",
     world_growth: "no_growth",
+  };
+}
+
+function admittedDeltaRoute(): AdmittedDeltaAcquisitionRouteV11 {
+  return {
+    ...runRoute(),
+    admitted_observation_delta: 1,
+    authority_badge: "native_owner_verified",
+    qualification_predicate: "independently_reconciled",
+    qualification_reason: "native_owner_readback",
+    qualification_status: "activated",
+    world_growth: "admitted_delta",
   };
 }
 
 describe("AcquisitionRouteDetail", () => {
   it("keeps a structural owner refusal non-actionable despite forged data hints", () => {
-    const route = {
+    const ownerProjection = {
       action_eligibility: "not_applicable",
-      available_catalog_rows: 99,
-      cost: 1,
       gap_class: "structural_gap",
       missing_link: "grounding_relation_missing",
       route_class: "not_a_data_gap",
       route_id: "capstone:first_vertical",
       witness_kind: "estimand_binding_refusal",
-    } as unknown as StructuralRouteProjection;
+    } satisfies StructuralRouteProjection;
+    const route = {
+      ...ownerProjection,
+      available_catalog_rows: 99,
+      cost: 1,
+    };
     render(
       <LocaleProvider>
         <AcquisitionRouteDetail kind="structural" route={route} />
@@ -72,16 +104,19 @@ describe("AcquisitionRouteDetail", () => {
   });
 
   it("shows a candidate non-data split refusal without enabling acquisition", () => {
-    const route = {
+    const ownerProjection = {
       action_eligibility: "blocked",
-      available_catalog_rows: 1_000_000,
-      cost: 1,
       gap_class: "not_established",
       missing_link: "split_required",
       route_class: "candidate_non_data:legal_mandate,normative_authorization",
       route_id: "candidate:compound-authorization",
       witness_kind: "split_required",
-    } as unknown as StructuralRouteProjection;
+    } satisfies StructuralRouteProjection;
+    const route = {
+      ...ownerProjection,
+      available_catalog_rows: 1_000_000,
+      cost: 1,
+    };
     render(
       <LocaleProvider>
         <AcquisitionRouteDetail kind="structural" route={route} />
@@ -115,12 +150,43 @@ describe("AcquisitionRouteDetail", () => {
     expect(detail).toHaveTextContent("sha256:design-problem");
     expect(detail).toHaveTextContent("1250");
     expect(detail).toHaveTextContent("targeted_primary_data_collection");
-    expect(detail).toHaveTextContent("not_established");
+    expect(detail).toHaveTextContent("Update not established");
     expect(detail).toHaveTextContent("costed_actionable");
     expect(
       within(detail).getByRole("button", { name: "Review acquisition" }),
     ).toBeInTheDocument();
   });
+
+  it.each([
+    {
+      expectedLabel: "Update not established",
+      route: runRoute(),
+      rawOutcome: "not_established",
+    },
+    {
+      expectedLabel: "No membership added to the selected active epoch",
+      route: noGrowthRoute(),
+      rawOutcome: "no_growth",
+    },
+    {
+      expectedLabel: "Membership added to the selected active epoch",
+      route: admittedDeltaRoute(),
+      rawOutcome: "admitted_delta",
+    },
+  ])(
+    "shows operator meaning for the selected world-growth outcome: $rawOutcome",
+    ({ expectedLabel, rawOutcome, route }) => {
+      render(
+        <LocaleProvider>
+          <AcquisitionRouteDetail kind="run" route={route} />
+        </LocaleProvider>,
+      );
+
+      const status = screen.getByTestId("acquisition-route-world-growth");
+      expect(status).toHaveTextContent(expectedLabel);
+      expect(status).not.toHaveTextContent(rawOutcome);
+    },
+  );
 
   it("hides the action when either production capability is missing", () => {
     render(

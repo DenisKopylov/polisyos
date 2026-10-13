@@ -12,7 +12,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes, truncated_hash
+from polisyos.core.canon import truncated_hash
 
 logger = get_logger(__name__)
 
@@ -213,8 +213,9 @@ class FailurePatternIndex:
 
     @classmethod
     def load(cls, cas: FileSystemCAS, artifact_id: str) -> FailurePatternIndex:
+        from polisyos.core.artifacts import load_core_json_artifact
         aid = ArtifactID.model_validate(artifact_id)
-        payload = from_canonical_bytes(cas.get_bytes(aid))
+        payload = load_core_json_artifact(cas, aid)
         if not isinstance(payload, dict):
             return cls()
         entries_payload = payload.get("entries", [])

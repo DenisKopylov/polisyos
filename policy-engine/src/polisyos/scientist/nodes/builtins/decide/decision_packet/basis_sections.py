@@ -7,7 +7,6 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
     DataSnapshot,
     DecisionBasisSection,
@@ -97,12 +96,13 @@ def _build_aux_artifact_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     ref = artifacts_index.get(key)
     if ref is None:
         return None
     payload: dict[str, object] = {"ref": str(ref.artifact_id)}
     try:
-        artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref))
+        artifact_obj = load_core_json_artifact(ctx.store, ref)
         if isinstance(artifact_obj, dict):
             payload["content"] = artifact_obj
         else:
@@ -126,10 +126,11 @@ def _build_sensitivity_section(
     *,
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
+    from polisyos.core.artifacts import load_core_json_artifact
     canonical_ref = artifacts_index.get(ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF)
     if canonical_ref is not None:
         try:
-            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(canonical_ref))
+            artifact_obj = load_core_json_artifact(ctx.store, canonical_ref)
             return {
                 "ref": str(canonical_ref.artifact_id),
                 "sensitivity_analysis_bundle_ref": str(canonical_ref.artifact_id),
@@ -164,7 +165,7 @@ def _build_sensitivity_section(
             artifact_key=ARTIFACT_SENSITIVITY_RESULT_REF,
         )
         try:
-            artifact_obj = from_canonical_bytes(ctx.store.get_bytes(ref))
+            artifact_obj = load_core_json_artifact(ctx.store, ref)
             if isinstance(artifact_obj, dict):
                 payload["content"] = artifact_obj
         except _DECISION_PACKET_LOAD_ERRORS as fallback_exc:

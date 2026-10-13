@@ -383,6 +383,7 @@ class CapabilityPurposeBindingVerifier:
         evaluated_at: datetime,
     ) -> CapabilityPurposeBindingVerification:
         """Verify detached signature, producer manifest, bytes, scope, and expiry."""
+        from polisyos.core.artifacts import validate_core_model_json_artifact
         try:
             artifact_id = core.artifacts.ArtifactID.model_validate(binding_ref)
             signature = self._artifact_store.get_signature(artifact_id)
@@ -427,8 +428,8 @@ class CapabilityPurposeBindingVerifier:
                 raise CapabilityPurposeBindingResolutionError(
                     "owner_binding_manifest_invalid"
                 )
-            binding = OwnerSignedCapabilityPurposeBinding.model_validate_json(
-                self._artifact_store.get_bytes(artifact_id)
+            binding = validate_core_model_json_artifact(
+                OwnerSignedCapabilityPurposeBinding, self._artifact_store, artifact_id
             )
         except CapabilityPurposeBindingResolutionError:
             raise

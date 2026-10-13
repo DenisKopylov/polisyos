@@ -112,6 +112,7 @@ class EpochInheritanceRecomputeProjectionReader:
         authority_purpose: str,
     ) -> _EpochRecomputeResolution:
         """Resolve one transition's exact recompute rows without claiming it is head."""
+        from polisyos.core.artifacts import validate_core_model_json_artifact
 
         verified: list[
             tuple[
@@ -136,8 +137,8 @@ class EpochInheritanceRecomputeProjectionReader:
                 media_type=manifest.media_type,
             )
             try:
-                receipt = EpochInheritanceRecomputeReceipt.model_validate_json(
-                    self._artifact_store.get_bytes(artifact_id)
+                receipt = validate_core_model_json_artifact(
+                    EpochInheritanceRecomputeReceipt, self._artifact_store, artifact_id
                 )
             except (OSError, TypeError, ValueError) as exc:
                 raise DerivationRefusalError(
@@ -163,8 +164,10 @@ class EpochInheritanceRecomputeProjectionReader:
                 certificate_ref=receipt.certificate_artifact_ref,
             )
             try:
-                transition = EpochValidityTransitionArtifact.model_validate_json(
-                    self._artifact_store.get_bytes(receipt.transition_artifact_ref)
+                transition = validate_core_model_json_artifact(
+                    EpochValidityTransitionArtifact,
+                    self._artifact_store,
+                    receipt.transition_artifact_ref,
                 )
             except (OSError, TypeError, ValueError) as exc:
                 raise DerivationRefusalError(

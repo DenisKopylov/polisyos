@@ -19,7 +19,6 @@ from polisyos.core.artifacts.signing import (
     compute_key_id,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon.canon_json import from_canonical_bytes
 from polisyos.core.contracts.provenance import (
     ActivityType,
     AgentType,
@@ -237,12 +236,12 @@ def build_merged_provenance(
 
 
 def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str, Any]:
-    blob = cas.get_bytes(artifact_id)
+    from polisyos.core.artifacts import load_core_json_artifact
     try:
-        payload = from_canonical_bytes(blob)
+        payload = load_core_json_artifact(cas, artifact_id)
     except (TypeError, ValueError) as exc:
         logger.debug("Failed to parse canonical payload for %s: %s", artifact_id, exc)
-        payload = json.loads(blob.decode("utf-8"))
+        payload = load_core_json_artifact(cas, artifact_id)
     if not isinstance(payload, dict):
         raise ValueError("artifact payload is not an object")
     return payload

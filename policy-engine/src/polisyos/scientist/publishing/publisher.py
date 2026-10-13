@@ -17,7 +17,7 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.evidence.claims.export import (
     ClaimExportAudience,
     ClaimLedgerExport,
@@ -474,8 +474,9 @@ def persist_decision_grade_export(
 
 def load_decision_grade_export(store: Any, ref: ArtifactRef) -> DecisionGradeExport:
     """Load a persisted decision-grade export from CAS."""
+    from polisyos.core.artifacts import load_core_json_artifact
 
-    payload = from_canonical_bytes(store.get_bytes(ref))
+    payload = load_core_json_artifact(store, ref)
     return DecisionGradeExport.model_validate(payload)
 
 

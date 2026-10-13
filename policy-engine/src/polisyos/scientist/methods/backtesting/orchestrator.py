@@ -32,7 +32,6 @@ from polisyos.core.artifacts.ir_adapter import (
     build_ir_artifact_store,
     ensure_ir_artifact_store,
 )
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import (
     CompileRequest,
     CompileResult,
@@ -161,8 +160,9 @@ class _BacktestReplicaFoundryPort:
 
     def execute(self, store: Any, request: ExecuteRequest) -> ExecuteResult:
         """Execute a copied request bound to the masked view and this replica seed."""
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
-            bindings_payload = from_canonical_bytes(store.get_bytes(request.input_bindings_ref))
+            bindings_payload = load_core_json_artifact(store, request.input_bindings_ref)
             bindings = FoundryInputBindings.model_validate(bindings_payload)
             actual_snapshot_ref = DataSnapshotRef.model_validate(
                 bindings.data_snapshot_ref.model_dump(mode="python")
@@ -568,9 +568,10 @@ class BacktestOrchestrator:
         )
 
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
+        from polisyos.core.artifacts import load_core_json_artifact
         if plan.historical_data_ref:
             artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
-            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            payload = load_core_json_artifact(self._store, artifact_id)
             if not isinstance(payload, dict):
                 raise ValueError(
                     f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}"
@@ -611,6 +612,7 @@ class BacktestOrchestrator:
         plan: HistoricalValidationPlan,
         masked_data: dict[str, Any],
     ) -> dict[str, Any]:
+        from polisyos.core.artifacts import load_core_json_artifact
         warnings: list[str] = []
         if plan.scientist_state is None:
             reason = "scientist_state_missing"
@@ -698,7 +700,7 @@ class BacktestOrchestrator:
                 if not isinstance(raw_workflow_ref, Mapping):
                     raise ValueError("scientist_workflow_report_ref_missing")
                 workflow_report_ref = CoreArtifactRef.model_validate(dict(raw_workflow_ref))
-                workflow_report = from_canonical_bytes(self._store.get_bytes(workflow_report_ref))
+                workflow_report = load_core_json_artifact(self._store, workflow_report_ref)
                 if not isinstance(workflow_report, Mapping):
                     raise ValueError("scientist_workflow_report_payload_invalid")
                 if workflow_report.get("run_id") != run_id:
@@ -735,9 +737,7 @@ class BacktestOrchestrator:
                 if simulation_result_ref is None:
                     raise ValueError("foundry_simulation_result_ref_missing")
 
-                simulation_payload = from_canonical_bytes(
-                    self._store.get_bytes(simulation_result_ref)
-                )
+                simulation_payload = load_core_json_artifact(self._store, simulation_result_ref)
                 simulation_result = SimulationResult.model_validate(simulation_payload)
                 if artifact_ref_identity_key(simulation_result.exec_plan_ref) != (
                     artifact_ref_identity_key(replica_foundry.request.exec_plan_ref)
@@ -762,7 +762,7 @@ class BacktestOrchestrator:
                     simulation_result.metrics_ref
                 ):
                     raise ValueError("scientist_metrics_simulation_result_mismatch")
-                metrics_payload = from_canonical_bytes(self._store.get_bytes(metrics_ref))
+                metrics_payload = load_core_json_artifact(self._store, metrics_ref)
                 if not isinstance(metrics_payload, Mapping):
                     raise ValueError("scientist_metrics_payload_not_object")
 
@@ -910,7 +910,7 @@ class BacktestOrchestrator:
         if isinstance(metrics_ref_payload, dict) and metrics_ref_payload.get("artifact_id"):
             try:
                 artifact_id = ArtifactID.model_validate(metrics_ref_payload["artifact_id"])
-                metrics_payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+                metrics_payload = load_core_json_artifact(self._store, artifact_id)
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
                     for metric in plan.target_metrics:
@@ -982,6 +982,7 @@ class BacktestOrchestrator:
         artifacts: dict[str, Any],
         plan: HistoricalValidationPlan,
     ) -> tuple[dict[str, list[tuple[float, float]]], dict[str, Any], tuple[str, ...]]:
+        from polisyos.core.artifacts import load_core_json_artifact
         if "simulation_result_ref" not in artifacts:
             return {}, {}, ()
         sim_ref_payload = artifacts["simulation_result_ref"]
@@ -998,7 +999,7 @@ class BacktestOrchestrator:
         except (TypeError, ValueError):
             return {}, {}, ("simulation_result_ref_malformed",)
         try:
-            sim_payload = from_canonical_bytes(self._store.get_bytes(simulation_result_ref))
+            sim_payload = load_core_json_artifact(self._store, simulation_result_ref)
         except Exception as exc:
             return {}, {}, (f"simulation_result_unavailable:{type(exc).__name__}",)
         if not isinstance(sim_payload, Mapping):

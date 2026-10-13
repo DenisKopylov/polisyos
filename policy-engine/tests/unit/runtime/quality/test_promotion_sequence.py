@@ -239,14 +239,23 @@ importlib.import_module = _without_cp_sat
         "tests/unit/runtime/quality/test_promotion_sequence.py::"
         "test_production_n9_port_persists_effect_but_refuses_contract_only_cg2"
     )
-    result = subprocess.run(  # noqa: S603 - lock-bound pytest with a local probe plugin.
-        [sys.executable, "-m", "pytest", node_id, "-q", "-rs"],
-        cwd=REPO_ROOT,
-        env=environment,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
+    timeout_seconds = 120.0
+    try:
+        result = subprocess.run(  # noqa: S603 - local pytest probe plugin.
+            [sys.executable, "-m", "pytest", node_id, "-q", "-rs"],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired as error:
+        pytest.fail(
+            "actual CP-SAT prerequisite collection exceeded "
+            f"{timeout_seconds:g}s; stdout={error.stdout!r}; stderr={error.stderr!r}",
+            pytrace=False,
+        )
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert result.stdout.splitlines()[0].startswith("s")

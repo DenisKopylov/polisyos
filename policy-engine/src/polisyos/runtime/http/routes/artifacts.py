@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactIntegrityError,
     ArtifactManifest,
@@ -15,6 +16,7 @@ from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
     resolve_manifest_by_profile,
 )
+from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
     ArtifactBatchRequest,
@@ -109,6 +111,19 @@ def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
     )
 
 
+def _canonical_profile_conflict(
+    exc: CanonicalProfileRefusalError,
+    *,
+    artifact_ref_or_route: str,
+) -> Exception:
+    """Map a non-downgradable codec-profile refusal to the HTTP conflict contract."""
+    return conflict(
+        "The selected artifact canon profile is malformed or does not reproduce its bytes",
+        code=exc.code,
+        extensions={"artifact_ref_or_route": artifact_ref_or_route},
+    )
+
+
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
 
@@ -173,7 +188,7 @@ if router is not None:
                 artifact_id=str(parsed_id),
             )
             try:
-                manifest = ctx.store.get_manifest(parsed_id)
+                manifest, _declaration = read_core_manifest_profile(ctx.store, parsed_id)
                 _ensure_surface_admission_allowed(
                     manifest.model_dump(mode="json"),
                     artifact_ref_or_route=f"cas-manifest://{parsed_id}",
@@ -376,6 +391,8 @@ if router is not None:
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(exc, artifact_ref_or_route=route_ref) from exc
         except ArtifactIntegrityError as exc:
             raise conflict(
                 "The selected predictive report failed CAS integrity verification",
@@ -456,23 +473,84 @@ if router is not None:
             kind="runtime.artifact_content",
             artifact_id=str(parsed_id),
         )
+        route_ref = f"/api/v1/artifacts/{parsed_id}/content"
         try:
-            manifest = _resolve_artifact_manifest(
+            raw_manifest = _resolve_raw_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
             )
-            payload = ctx.store.get_bytes(_artifact_ref_for_manifest(manifest))
-            _ensure_surface_admission_allowed(
-                payload,
-                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
-                surface="artifact",
-                scope="raw artifact content/download routes",
-                artifact_store=ctx.store,
-                artifact_id=parsed_id,
-                artifact_ref=_artifact_ref_for_manifest(manifest),
-                require_cas_integrity=True,
+            raw_representation = _prefers_raw_representation(
+                request,
+                media_type=raw_manifest.media_type,
             )
+            manifest = (
+                raw_manifest
+                if raw_representation
+                else _resolve_artifact_manifest(
+                    ctx.store,
+                    parsed_id,
+                    manifest_profile_sha256,
+                )
+            )
+            selected_ref = _artifact_ref_for_manifest(manifest)
+            selected_profile = artifact_manifest_profile_sha256(manifest)
+            etag = build_artifact_etag(
+                str(parsed_id),
+                manifest.integrity.sha256,
+                "content",
+                selected_profile or "unqualified",
+            )
+            if raw_representation:
+                payload = ctx.store.get_bytes(selected_ref)
+                _ensure_surface_admission_allowed(
+                    payload,
+                    artifact_ref_or_route=route_ref,
+                    surface="artifact",
+                    scope="raw artifact content/download routes",
+                    artifact_store=ctx.store,
+                    artifact_id=parsed_id,
+                    artifact_ref=selected_ref,
+                    require_cas_integrity=True,
+                )
+                not_modified = build_not_modified_response(
+                    request.headers,
+                    etag=etag,
+                    last_modified=manifest.created_at,
+                    profile_selected=manifest_profile_sha256 is not None,
+                )
+                if not_modified is not None:
+                    add_artifact_link_relations(
+                        not_modified,
+                        artifact_id=str(parsed_id),
+                        manifest_profile_sha256=selected_profile,
+                    )
+                    return not_modified
+                raw_response = Response(content=payload, media_type=manifest.media_type)
+                set_artifact_view_headers(
+                    raw_response,
+                    etag=etag,
+                    last_modified=manifest.created_at,
+                    profile_selected=manifest_profile_sha256 is not None,
+                )
+                raw_response.headers["X-Manifest-Profile-SHA256"] = (
+                    selected_profile or "unqualified"
+                )
+                add_artifact_link_relations(
+                    raw_response,
+                    artifact_id=str(parsed_id),
+                    manifest_profile_sha256=selected_profile,
+                )
+                filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
+                raw_response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
+                record_data_access_audit(
+                    request,
+                    resource_id=str(parsed_id),
+                    tenant_id=tenant_id,
+                    metadata={"max_bytes": max_bytes, "representation": "raw"},
+                )
+                return raw_response
+
             view = ctx.artifacts.get_content_preview(
                 parsed_id,
                 max_bytes=max_bytes,
@@ -481,73 +559,31 @@ if router is not None:
                     ctx.allow_candidate_predictive_diagnostic_surface
                 ),
             )
-        except FileNotFoundError as exc:
-            raise not_found(str(exc), code="artifact_not_found") from exc
-        except ArtifactSurfaceAdmissionError as exc:
-            raise _artifact_surface_admission_conflict(
-                exc,
-                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
-            ) from exc
-        etag = build_artifact_etag(
-            str(parsed_id),
-            manifest.integrity.sha256,
-            "content",
-            view.manifest_profile_sha256 or "unqualified",
-        )
-        not_modified = build_not_modified_response(
-            request.headers,
-            etag=etag,
-            last_modified=manifest.created_at,
-            profile_selected=manifest_profile_sha256 is not None,
-        )
-        if not_modified is not None:
-            add_artifact_link_relations(
-                not_modified,
-                artifact_id=str(parsed_id),
-                manifest_profile_sha256=view.manifest_profile_sha256,
-            )
-            return not_modified
-        if _prefers_raw_representation(request, media_type=manifest.media_type):
-            _ensure_surface_admission_allowed(
-                payload,
-                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
-                surface="artifact",
-                scope="raw artifact content/download routes",
-                artifact_store=ctx.store,
-                artifact_id=parsed_id,
-                artifact_ref=_artifact_ref_for_manifest(manifest),
-                require_cas_integrity=True,
-            )
-            raw_response = Response(
-                content=payload,
-                media_type=manifest.media_type,
-            )
-            set_artifact_view_headers(
-                raw_response,
+            not_modified = build_not_modified_response(
+                request.headers,
                 etag=etag,
                 last_modified=manifest.created_at,
                 profile_selected=manifest_profile_sha256 is not None,
             )
-            raw_response.headers["X-Manifest-Profile-SHA256"] = (
-                view.manifest_profile_sha256 or "unqualified"
-            )
-            add_artifact_link_relations(
-                raw_response,
-                artifact_id=str(parsed_id),
-                manifest_profile_sha256=view.manifest_profile_sha256,
-            )
-            filename = _artifact_filename(str(parsed_id), manifest.kind, manifest.media_type)
-            raw_response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
-            record_data_access_audit(
-                request,
-                resource_id=str(parsed_id),
-                tenant_id=tenant_id,
-                metadata={"max_bytes": max_bytes, "representation": "raw"},
-            )
-            return raw_response
+            if not_modified is not None:
+                add_artifact_link_relations(
+                    not_modified,
+                    artifact_id=str(parsed_id),
+                    manifest_profile_sha256=view.manifest_profile_sha256,
+                )
+                return not_modified
+        except FileNotFoundError as exc:
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(exc, artifact_ref_or_route=route_ref) from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=route_ref,
+            ) from exc
         _ensure_surface_admission_allowed(
             view.model_dump(mode="json"),
-            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
+            artifact_ref_or_route=route_ref,
             surface="dashboard",
             scope="raw artifact content/download routes",
             artifact_store=ctx.store,
@@ -728,6 +764,11 @@ if router is not None:
             schema_view = ctx.artifacts.get_schema_view(parsed_id, manifest=manifest)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
+            ) from exc
         except ArtifactSurfaceAdmissionError as exc:
             raise _artifact_surface_admission_conflict(
                 exc,
@@ -828,9 +869,16 @@ if router is not None:
                 artifact_ref=selected_ref,
                 require_cas_integrity=True,
             )
-            document = ctx.bureaucratic_rendering.render_document(parsed_id, body)
+            document = ctx.bureaucratic_rendering.render_document(
+                parsed_id, body, manifest=selected_manifest
+            )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
+            ) from exc
         _ensure_surface_admission_allowed(
             document.model_dump(mode="json"),
             artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
@@ -948,9 +996,15 @@ if router is not None:
                 render_request,
                 export_format=format,
                 meta=build_meta(request),
+                manifest=selected_manifest,
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except CanonicalProfileRefusalError as exc:
+            raise _canonical_profile_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
+            ) from exc
         _ensure_surface_admission_allowed(
             export.model_dump(mode="json"),
             artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
@@ -1031,7 +1085,7 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
-            manifest = _resolve_artifact_manifest(
+            manifest = _resolve_raw_artifact_manifest(
                 ctx.store,
                 parsed_id,
                 manifest_profile_sha256,
@@ -1147,7 +1201,9 @@ def _resolve_artifact_manifest(
     """
     if manifest_profile_sha256 is None:
         try:
-            default_manifest = store.get_manifest(artifact_id)
+            default_manifest, _declaration = read_core_manifest_profile(store, artifact_id)
+        except CanonicalProfileRefusalError:
+            raise
         except ArtifactIntegrityError as exc:
             raise conflict(
                 "The selected artifact failed CAS integrity verification",
@@ -1184,6 +1240,49 @@ def _resolve_artifact_manifest(
             ) from exc
 
     try:
+        read_core_manifest_profile(
+            store,
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+        return resolve_manifest_by_profile(
+            store,
+            artifact_id,
+            manifest_profile_sha256,
+        )
+    except FileNotFoundError as exc:
+        if not store.has(artifact_id):
+            raise not_found(str(exc), code="artifact_not_found") from exc
+        raise not_found(
+            "Selected artifact manifest profile is unavailable",
+            code="artifact_manifest_profile_not_found",
+        ) from exc
+    except ArtifactIntegrityError as exc:
+        raise conflict(
+            "The selected artifact failed CAS integrity verification",
+            code="artifact_integrity_failed",
+        ) from exc
+    except (ArtifactOwnershipError, TypeError, ValueError) as exc:
+        raise not_found(
+            "Selected artifact manifest profile is unavailable",
+            code="artifact_manifest_profile_not_found",
+        ) from exc
+
+
+def _resolve_raw_artifact_manifest(
+    store: ArtifactStore,
+    artifact_id: ArtifactID,
+    manifest_profile_sha256: str | None,
+) -> ArtifactManifest:
+    """Resolve metadata for an exact-byte response without semantic profile admission.
+
+    Raw bytes remain content-addressed and surface-admission checked. This resolver
+    retains the existing typed storage-view identity and media metadata, but does not
+    claim that the selected CanonInfo proves semantic re-encoding of the payload.
+    """
+    try:
+        if manifest_profile_sha256 is None:
+            return store.get_manifest(artifact_id)
         return resolve_manifest_by_profile(
             store,
             artifact_id,

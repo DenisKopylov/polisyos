@@ -6,7 +6,10 @@ from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import BaseModel
 
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.artifacts.canonical_profile import (
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisRequest,
     AttractorAnalysisResult,
@@ -129,7 +132,7 @@ class AttractorAnalysisService:
     ) -> tuple[AttractorAnalysisResult, AttractorAnalysisResultRef]:
         """Load a persisted attractor-analysis result."""
 
-        manifest = self._store.get_manifest(artifact_id)
+        manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.attractor_analysis_result":
             raise ValueError("artifact is not a foundry.attractor_analysis_result")
         ref = AttractorAnalysisResultRef(
@@ -146,7 +149,7 @@ class AttractorAnalysisService:
     def load_basin_map(self, artifact_id: ArtifactID) -> tuple[BasinMap, BasinMapRef]:
         """Load a basin-map sidecar artifact."""
 
-        manifest = self._store.get_manifest(artifact_id)
+        manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.basin_map":
             raise ValueError("artifact is not a foundry.basin_map")
         ref = BasinMapRef(artifact_id=artifact_id, media_type=manifest.media_type)
@@ -163,14 +166,14 @@ class AttractorAnalysisService:
     ) -> tuple[ContinuationBranch, ContinuationBranchRef]:
         """Load a continuation-branch sidecar artifact."""
 
-        manifest = self._store.get_manifest(artifact_id)
+        manifest, _declaration = read_core_manifest_profile(self._store, artifact_id)
         if manifest.kind != "foundry.continuation_branch":
             raise ValueError("artifact is not a foundry.continuation_branch")
         ref = ContinuationBranchRef(artifact_id=artifact_id, media_type=manifest.media_type)
         return load_continuation_branch(self._store, ref), ref
 
     def _load_model(self, ref: ArtifactRef, model: type[_ModelT]) -> _ModelT:
-        payload = from_canonical_bytes(self._store.get_bytes(ref))
+        payload = read_core_json_artifact(self._store, ref).value
         return model.model_validate(payload)
 
     @staticmethod

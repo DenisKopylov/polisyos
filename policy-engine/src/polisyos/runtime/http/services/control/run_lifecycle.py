@@ -11,10 +11,16 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, run
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.canonical_profile import (
+    artifact_ref_for_manifest,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
     ArtifactManifest,
@@ -26,7 +32,6 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import (
     CanonSpec,
-    from_canonical_bytes,
 )
 from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
@@ -516,6 +521,38 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
+@dataclass(frozen=True)
+class VerifiedAcquisitionActionPhase:
+    """One CAS-bound receipt and its exact durable producer event."""
+
+    receipt_ref: str
+    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    durable_event_id: str
+    event: DiagnosticEvent
+
+
+@dataclass(frozen=True)
+class VerifiedAcquisitionActionOutcome:
+    """Snapshot a latest action head and its complete verified phase chain."""
+
+    head: AcquisitionActionHeadRecord
+    latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt
+    executing_phase_ref: str | None
+    executing_phase: AcquisitionRoutePhaseReceipt | None
+    selection_phase_ref: str | None
+    selection_phase: AcquisitionRoutePhaseReceipt | None
+    phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
+
+
+def _require_action_selection_phase_receipt(
+    receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+) -> AcquisitionRoutePhaseReceipt:
+    """Refuse a durable replay unless it resolved to the expected phase type."""
+    if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
+        raise ValueError("acquisition_action_selection_replay_conflict")
+    return receipt
+
+
 class AcquisitionRouteLoopAuthoritySink:
     """Persist and advance verified acquisition route phase heads."""
 
@@ -590,43 +627,145 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_generation_not_reopenable")
         return latest.action_generation + 1
 
-    def _verified_generation_head(
+    def current_action_outcome(
         self,
-        head: AcquisitionActionHeadRecord,
-    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt:
-        """Resolve the typed owner receipt and reconcile its exact durable event."""
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+    ) -> VerifiedAcquisitionActionOutcome | None:
+        """Read one newest action only while its complete durable chain remains current."""
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": source_job_id,
+            "route_id": route_id,
+        }
+        heads = self._control_store.list_acquisition_action_heads(**scope)
+        if not heads:
+            return None
+        generations = tuple(head.action_generation for head in heads)
+        if len(generations) != len(set(generations)):
+            raise ValueError("acquisition_action_generation_ambiguous")
+        latest = max(heads, key=lambda head: head.action_generation)
+        if (
+            latest.tenant_id,
+            latest.cell_id,
+            latest.run_id,
+            latest.source_job_id,
+            latest.route_id,
+        ) != (tenant_id, cell_id, run_id, source_job_id, route_id):
+            raise ValueError("acquisition_action_scope_mismatch")
+        snapshot = self.verify_action_head(latest)
+        current_heads = self._control_store.list_acquisition_action_heads(**scope)
+        current_generations = tuple(head.action_generation for head in current_heads)
+        if (
+            not current_heads
+            or len(current_generations) != len(set(current_generations))
+            or max(current_heads, key=lambda head: head.action_generation) != latest
+        ):
+            raise ValueError("acquisition_action_current_head_changed")
+        return snapshot
 
-        report = reconcile_authority_ref(
-            artifact_store=self._artifact_store,
-            event_log=self._event_log,
-            cas_ref=head.receipt_ref,
-            expected_tenant_id=head.tenant_id,
-            expected_cell_id=head.cell_id,
-            expected_run_id=head.run_id,
-            expected_job_id=head.job_id,
-        )
-        manifest = self._artifact_store.get_manifest(head.receipt_ref)
-        if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
-            receipt_type = AcquisitionRouteLoopReceipt
-            schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
-        elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
-            receipt_type = AcquisitionRoutePhaseReceipt
-            schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
-        else:
-            raise ValueError("acquisition_action_head_receipt_kind_invalid")
-        receipt = receipt_type.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(head.receipt_ref))
-        )
-        schema = manifest.artifact_schema
+    @staticmethod
+    def _allowed_predecessor_phases(
+        receipt: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    ) -> frozenset[str] | None:
+        """Return the finite ActionHead predecessor relation for one receipt."""
+        if isinstance(receipt, AcquisitionRouteLoopReceipt):
+            if receipt.terminal_outcome == "reentry_completed":
+                return frozenset({"world_committed_reentry_pending"})
+            return frozenset({"executing", "outcome_selected"})
+        return {
+            "requested": frozenset(),
+            "executing": frozenset({"requested"}),
+            "outcome_selected": frozenset({"executing"}),
+            "world_committed_reentry_pending": frozenset(
+                {"executing", "outcome_selected"}
+            ),
+        }.get(receipt.receipt_phase)
+
+    def _verified_action_phase_chain(
+        self, head: AcquisitionActionHeadRecord
+    ) -> tuple[VerifiedAcquisitionActionPhase, ...]:
+        """Resolve every CAS/event predecessor to the unique requested root."""
+        newest_first: list[VerifiedAcquisitionActionPhase] = []
+        seen_refs: set[str] = set()
+        current_ref: str | None = head.receipt_ref
+        while current_ref is not None:
+            if current_ref in seen_refs:
+                raise ValueError("acquisition_action_phase_chain_cycle")
+            seen_refs.add(current_ref)
+            current = self._read_verified_action_phase(current_ref)
+            newest_first.append(current)
+            current_ref = current.receipt.predecessor_receipt_ref
+        chain = tuple(reversed(newest_first))
+        if not chain or len(chain) != head.head_generation:
+            raise ValueError("acquisition_action_phase_chain_generation_mismatch")
+
+        identity = chain[0].receipt
+        seen_phases: set[str] = set()
+        previous: VerifiedAcquisitionActionPhase | None = None
+        for current in chain:
+            receipt = current.receipt
+            phase_name = (
+                "terminal"
+                if isinstance(receipt, AcquisitionRouteLoopReceipt)
+                else receipt.receipt_phase
+            )
+            if phase_name in seen_phases:
+                raise ValueError("acquisition_action_phase_chain_duplicate_phase")
+            seen_phases.add(phase_name)
+            if not self._same_action_identity(identity, receipt):
+                raise ValueError("acquisition_action_phase_chain_identity_mismatch")
+            if previous is None:
+                if (
+                    not isinstance(receipt, AcquisitionRoutePhaseReceipt)
+                    or receipt.receipt_phase != "requested"
+                    or receipt.predecessor_receipt_ref is not None
+                    or current.event.state_before is not None
+                ):
+                    raise ValueError("acquisition_action_phase_chain_requested_root_invalid")
+            else:
+                previous_receipt = previous.receipt
+                previous_name = (
+                    "terminal"
+                    if isinstance(previous_receipt, AcquisitionRouteLoopReceipt)
+                    else previous_receipt.receipt_phase
+                )
+                allowed = self._allowed_predecessor_phases(receipt)
+                if (
+                    allowed is None
+                    or previous_name not in allowed
+                    or receipt.predecessor_receipt_ref != previous.receipt_ref
+                    or current.event.state_before != previous_name
+                    or receipt.generated_at < previous_receipt.generated_at
+                ):
+                    raise ValueError("acquisition_action_phase_chain_transition_invalid")
+                if (
+                    isinstance(receipt, AcquisitionRoutePhaseReceipt)
+                    and receipt.receipt_phase == "outcome_selected"
+                    and (
+                        not isinstance(previous_receipt, AcquisitionRoutePhaseReceipt)
+                        or previous_receipt.receipt_phase != "executing"
+                    )
+                ):
+                    raise ValueError("acquisition_action_selection_predecessor_invalid")
+            if current.event.state_after != phase_name:
+                raise ValueError("acquisition_action_phase_chain_event_state_mismatch")
+            previous = current
+
+        latest = chain[-1]
+        latest_receipt = latest.receipt
         if (
             head.receipt_ref != head.receipt_sha256
-            or report.durable_event_id != head.durable_event_id
-            or schema is None
-            or schema.name != schema_name
-            or schema.version != "1.0"
-            or manifest.producer.component != "polisyos.runtime.acquisition_route_loop"
+            or latest.receipt_ref != head.receipt_ref
+            or latest.durable_event_id != head.durable_event_id
             or any(
-                getattr(receipt, field) != getattr(head, field)
+                getattr(latest_receipt, field) != getattr(head, field)
                 for field in (
                     "tenant_id",
                     "cell_id",
@@ -643,7 +782,568 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         ):
             raise ValueError("acquisition_action_head_binding_mismatch")
-        return receipt
+
+        executing = next(
+            (
+                item
+                for item in chain
+                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                and item.receipt.receipt_phase == "executing"
+            ),
+            None,
+        )
+        selection = next(
+            (
+                item
+                for item in chain
+                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                and item.receipt.receipt_phase == "outcome_selected"
+            ),
+            None,
+        )
+        if selection is not None:
+            later_phases = chain[chain.index(selection) + 1 :]
+            if executing is None or any(
+                not set(selection.receipt.owner_receipt_refs).issubset(
+                    set(item.receipt.owner_receipt_refs)
+                )
+                for item in later_phases
+            ):
+                raise ValueError("acquisition_action_selection_owner_chain_mismatch")
+            self._verified_current_action_outcome_ref(
+                executing.receipt,
+                executing.receipt_ref,
+                selection.receipt.owner_receipt_refs,
+            )
+        if isinstance(latest_receipt, AcquisitionRouteLoopReceipt):
+            if latest_receipt.terminal_outcome == "reentry_completed":
+                if (
+                    len(chain) < 2
+                    or not isinstance(chain[-2].receipt, AcquisitionRoutePhaseReceipt)
+                    or chain[-2].receipt.receipt_phase
+                    != "world_committed_reentry_pending"
+                    or chain[-2].receipt.owner_receipt_refs
+                    != latest_receipt.owner_receipt_refs
+                ):
+                    raise ValueError("acquisition_action_terminal_owner_chain_mismatch")
+            elif selection is not None and not set(
+                selection.receipt.owner_receipt_refs
+            ).issubset(set(latest_receipt.owner_receipt_refs)):
+                raise ValueError("acquisition_action_terminal_owner_chain_mismatch")
+        return chain
+
+    @staticmethod
+    def _same_action_identity(
+        left: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+        right: AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt,
+    ) -> bool:
+        return all(
+            getattr(left, field) == getattr(right, field)
+            for field in (
+                "tenant_id",
+                "cell_id",
+                "run_id",
+                "source_job_id",
+                "route_id",
+                "action_generation",
+                "job_id",
+                "compiled_ref",
+                "planner_report_hash",
+                "cost_basis_hash",
+                "decision_ref",
+            )
+        )
+
+    def _read_verified_action_phase(
+        self, receipt_ref: str
+    ) -> VerifiedAcquisitionActionPhase:
+        """Resolve exact receipt bytes and verify its complete producer-event binding."""
+        if (
+            not receipt_ref.startswith("sha256:")
+            or len(receipt_ref) != 71
+            or any(character not in "0123456789abcdef" for character in receipt_ref[7:])
+        ):
+            raise ValueError("acquisition_action_head_receipt_ref_invalid")
+        payload = self._artifact_store.get_bytes(receipt_ref)
+        if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
+            raise ValueError("acquisition_action_head_receipt_hash_mismatch")
+        manifest = read_core_manifest_profile(self._artifact_store, receipt_ref)[0]
+        if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
+            receipt_type = AcquisitionRouteLoopReceipt
+            schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+        elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
+            receipt_type = AcquisitionRoutePhaseReceipt
+            schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+        else:
+            raise ValueError("acquisition_action_head_receipt_kind_invalid")
+        receipt = receipt_type.model_validate(
+            read_core_json_artifact(
+                self._artifact_store,
+                artifact_ref_for_manifest(manifest),
+                raw_payload_bytes=payload,
+            ).value
+        )
+        schema = manifest.artifact_schema
+        tenant = manifest.tenant_context
+        closure = manifest.same_input_closure
+        producer = manifest.producer
+        if (
+            schema is None
+            or schema.name != schema_name
+            or schema.version != receipt.schema_version.rsplit("@", 1)[-1]
+            or manifest.media_type != "application/json"
+            or producer is None
+            or producer.component != "polisyos.runtime.acquisition_route_loop"
+            or producer.version != "2026.08.28+ds15-c02"
+            or tenant is None
+            or tenant.tenant_id != receipt.tenant_id
+            or tenant.cell_id != receipt.cell_id
+            or closure is None
+            or closure.closure_id != f"acquisition-route:{receipt.receipt_id}"
+            or closure.status != "closed"
+            or closure.run_id != receipt.run_id
+            or closure.job_id != receipt.job_id
+            or closure.tenant_id != receipt.tenant_id
+            or closure.cell_id != receipt.cell_id
+            or closure.closure_sha256 != receipt.route_id
+        ):
+            raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=receipt_ref,
+            expected_tenant_id=receipt.tenant_id,
+            expected_cell_id=receipt.cell_id,
+            expected_run_id=receipt.run_id,
+            expected_job_id=receipt.job_id,
+        )
+        if report.durable_event_id is None or manifest.authority is None:
+            raise ValueError("acquisition_action_head_receipt_event_missing")
+        event_ref = resolve_authority_diagnostic_event_ref(
+            self._artifact_store, manifest.authority
+        )
+        event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
+        selected_event_ref = artifact_ref_for_manifest(event_manifest)
+        event_schema = event_manifest.artifact_schema
+        if (
+            event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+            or event_schema is None
+            or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+            or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+        ):
+            raise ValueError("acquisition_action_phase_event_schema_invalid")
+        event_payload = self._artifact_store.get_bytes(selected_event_ref)
+        event_ref_text = str(event_ref.artifact_id)
+        if "sha256:" + hashlib.sha256(event_payload).hexdigest() != event_ref_text:
+            raise ValueError("acquisition_action_phase_event_hash_mismatch")
+        event = DiagnosticEvent.model_validate(
+            read_core_json_artifact(
+                self._artifact_store,
+                selected_event_ref,
+                raw_payload_bytes=event_payload,
+            ).value
+        )
+        expected_inputs = tuple(
+            sorted(
+                {
+                    *(
+                        ()
+                        if receipt.predecessor_receipt_ref is None
+                        else (receipt.predecessor_receipt_ref,)
+                    ),
+                    *receipt.owner_receipt_refs,
+                }
+            )
+        )
+        expected_event_type = (
+            "polisyos.runtime.acquisition.route_loop.v1"
+            if isinstance(receipt, AcquisitionRouteLoopReceipt)
+            else "polisyos.runtime.acquisition.route_phase.v1"
+        )
+        expected_blocking = (
+            "blocking"
+            if receipt.recovery_state == "reentry_recovery_required"
+            else "non_blocking"
+        )
+        records = self._event_log.list_events(
+            event_id=event.event_id,
+            run_id=receipt.run_id,
+            job_id=receipt.job_id,
+            limit=100,
+        )
+        if (
+            report.durable_event_id != event.event_id
+            or len(records) != 1
+            or records[0].event != event
+            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+            or event.event_type != expected_event_type
+            or event.event_subject
+            != f"run/{receipt.run_id}/job/{receipt.job_id}/acquisition/{receipt.receipt_phase}"
+            or event.event_time != receipt.generated_at
+            or event.trace_id != f"trace-{receipt.job_id}"
+            or event.span_id != f"span-{receipt.receipt_phase}"
+            or event.parent_span_id is not None
+            or event.run_id != receipt.run_id
+            or event.job_id != receipt.job_id
+            or event.tenant_id != receipt.tenant_id
+            or event.cell_id != receipt.cell_id
+            or event.producer_component != "polisyos.runtime.acquisition_route_loop"
+            or event.producer_version != "2026.08.28+ds15-c02"
+            or event.execution_profile != "governed"
+            or event.phase != "acquisition_route_loop"
+            or event.state_after != receipt.receipt_phase
+            or event.payload_ref != receipt_ref
+            or event.artifact_refs != (receipt_ref,)
+            or event.input_refs != expected_inputs
+            or closure.evidence_input_refs != expected_inputs
+            or event.blocking_status != expected_blocking
+        ):
+            raise ValueError("acquisition_action_phase_event_binding_mismatch")
+        return VerifiedAcquisitionActionPhase(
+            receipt_ref=receipt_ref,
+            receipt=receipt,
+            durable_event_id=event.event_id,
+            event=event,
+        )
+
+    def _verified_receipt_ref(
+        self, receipt_ref: str
+    ) -> tuple[AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt, str]:
+        """Retain the receipt reader API while enforcing the full event binding."""
+        verified = self._read_verified_action_phase(receipt_ref)
+        return verified.receipt, verified.durable_event_id
+
+    def _verified_generation_head(
+        self,
+        head: AcquisitionActionHeadRecord,
+    ) -> AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt:
+        """Verify the whole generation before using its terminal or current receipt."""
+        return self.verify_action_head(head).latest_receipt
+
+    def _verified_current_action_outcome_ref(
+        self,
+        executing: AcquisitionRoutePhaseReceipt,
+        executing_ref: str,
+        owner_receipt_refs: tuple[str, ...],
+    ) -> str:
+        """Resolve exactly one current action outcome CAS from the full owner receipt set."""
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthNoGrowthReceipt,
+            AcquisitionWorldGrowthReceipt,
+        )
+
+        kinds = {
+            "runtime_quality.acquisition_world_growth_receipt": (
+                AcquisitionWorldGrowthReceipt,
+                AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME,
+            ),
+            "runtime_quality.acquisition_world_growth_no_growth_receipt": (
+                AcquisitionWorldGrowthNoGrowthReceipt,
+                "polisyos.runtime.AcquisitionWorldGrowthNoGrowthReceipt",
+            ),
+        }
+        matches: list[str] = []
+        for ref in owner_receipt_refs:
+            if (
+                not ref.startswith("sha256:")
+                or len(ref) != 71
+                or any(character not in "0123456789abcdef" for character in ref[7:])
+            ):
+                raise ValueError("acquisition_action_owner_receipt_ref_invalid")
+            manifest = read_core_manifest_profile(self._artifact_store, ref)[0]
+            expected = kinds.get(manifest.kind)
+            if expected is None:
+                continue
+            receipt_type, schema_name = expected
+            payload = self._artifact_store.get_bytes(ref)
+            if "sha256:" + hashlib.sha256(payload).hexdigest() != ref:
+                raise ValueError("acquisition_action_owner_receipt_hash_mismatch")
+            receipt = receipt_type.model_validate(
+            read_core_json_artifact(
+                self._artifact_store,
+                artifact_ref_for_manifest(manifest),
+                raw_payload_bytes=payload,
+            ).value
+        )
+            if receipt.action_phase_ref != executing_ref:
+                continue
+            schema = manifest.artifact_schema
+            if (
+                schema is None
+                or schema.name != schema_name
+                or schema.version != "1.1"
+                or receipt.schema_version != f"{schema_name.rsplit('.', 1)[-1]}@1.1"
+                or manifest.producer is None
+                or manifest.producer.component != "polisyos.runtime.acquisition_world_growth"
+                or manifest.media_type != "application/json"
+                or manifest.tenant_context is None
+                or manifest.tenant_context.tenant_id != executing.tenant_id
+                or manifest.tenant_context.cell_id != executing.cell_id
+                or receipt.selection.tenant_id != executing.tenant_id
+                or receipt.selection.cell_id != executing.cell_id
+                or receipt.selection.run_id != executing.run_id
+                or receipt.selection.route_id != executing.route_id
+            ):
+                raise ValueError("acquisition_action_owner_receipt_binding_mismatch")
+            report = reconcile_authority_ref(
+                artifact_store=self._artifact_store,
+                event_log=self._event_log,
+                cas_ref=ref,
+                expected_tenant_id=executing.tenant_id,
+                expected_cell_id=executing.cell_id,
+                expected_run_id=executing.run_id,
+                expected_job_id=executing.source_job_id,
+            )
+            if report.durable_event_id is None:
+                raise ValueError("acquisition_action_owner_receipt_event_missing")
+            matches.append(ref)
+        if len(matches) != 1:
+            raise ValueError("acquisition_action_owner_outcome_missing_or_ambiguous")
+        return matches[0]
+
+
+    def _existing_action_selection_event(
+        self, expected: AcquisitionRoutePhaseReceipt, event_id: str
+    ) -> tuple[str, str] | None:
+        records = self._event_log.list_events(
+            event_id=event_id,
+            run_id=expected.run_id,
+            job_id=expected.job_id,
+            limit=100,
+        )
+        if not records:
+            return None
+        if len(records) != 1 or records[0].event.event_id != event_id:
+            raise ValueError("acquisition_action_selection_event_ambiguous")
+        ref = records[0].event.payload_ref
+        if not ref:
+            raise ValueError("acquisition_action_selection_event_ambiguous")
+        receipt, durable_id = self._verified_receipt_ref(ref)
+        expected_receipt = expected.model_copy(update={"generated_at": receipt.generated_at})
+        if (
+            not isinstance(receipt, AcquisitionRoutePhaseReceipt)
+            or receipt != expected_receipt
+            or durable_id != event_id
+        ):
+            raise ValueError("acquisition_action_selection_replay_conflict")
+        return ref, durable_id
+
+
+    def _advance_existing_action_selection(
+        self,
+        receipt: AcquisitionRoutePhaseReceipt,
+        receipt_ref: str,
+        durable_event_id: str,
+    ) -> AcquisitionActionHeadRecord:
+        current = self.get_head(receipt)
+        if current is not None and current.receipt_ref == receipt_ref:
+            if self._verified_generation_head(current) != receipt:
+                raise ValueError("acquisition_action_selection_head_binding_mismatch")
+            return current
+        if (
+            current is None
+            or current.receipt_ref != receipt.predecessor_receipt_ref
+            or current.receipt_phase != "executing"
+        ):
+            raise ValueError("acquisition_action_selection_predecessor_conflict")
+        head = self._control_store.advance_acquisition_action_head(
+            tenant_id=receipt.tenant_id,
+            cell_id=receipt.cell_id,
+            run_id=receipt.run_id,
+            source_job_id=receipt.source_job_id,
+            route_id=receipt.route_id,
+            action_generation=receipt.action_generation,
+            expected_head_generation=current.head_generation,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id=durable_event_id,
+            coarse_phase=receipt.coarse_phase,
+            receipt_phase=receipt.receipt_phase,
+            recovery_state=receipt.recovery_state,
+            job_id=receipt.job_id,
+            predecessor_receipt_ref=receipt.predecessor_receipt_ref,
+        )
+        if self.get_head(receipt) != head:
+            raise RuntimeError("acquisition_action_selection_head_readback_failed")
+        verified = self.verify_action_head(head)
+        if (
+            verified.selection_phase_ref != head.receipt_ref
+            or verified.selection_phase is None
+            or verified.selection_phase.predecessor_receipt_ref
+            != receipt.predecessor_receipt_ref
+        ):
+            raise RuntimeError("acquisition_action_selection_chain_readback_failed")
+        return head
+
+
+    def persist_action_outcome_selection(
+        self,
+        action_phase_ref: str,
+        owner_receipt_refs: tuple[str, ...],
+    ) -> AcquisitionActionHeadRecord:
+        """Persist selection of one verified owner CAS as a durable action-head transition."""
+        executing, _ = self._verified_receipt_ref(action_phase_ref)
+        if (
+            not isinstance(executing, AcquisitionRoutePhaseReceipt)
+            or executing.receipt_phase != "executing"
+        ):
+            raise ValueError("acquisition_action_selection_executing_phase_invalid")
+        scope = {
+            "tenant_id": executing.tenant_id,
+            "cell_id": executing.cell_id,
+            "run_id": executing.run_id,
+            "source_job_id": executing.source_job_id,
+            "route_id": executing.route_id,
+        }
+        snapshot = self.current_action_outcome(**scope)
+        if (
+            snapshot is None
+            or snapshot.executing_phase_ref != action_phase_ref
+            or snapshot.executing_phase != executing
+        ):
+            raise ValueError("acquisition_action_selection_executing_head_changed")
+        outcome_ref = self._verified_current_action_outcome_ref(
+            executing, action_phase_ref, owner_receipt_refs
+        )
+        if snapshot.selection_phase is not None:
+            selection = snapshot.selection_phase
+            if (
+                selection.predecessor_receipt_ref != action_phase_ref
+                or selection.owner_receipt_refs != (outcome_ref,)
+                or snapshot.selection_phase_ref is None
+            ):
+                raise ValueError("acquisition_action_selection_replay_conflict")
+            return snapshot.head
+        if (
+            snapshot.head.receipt_ref != action_phase_ref
+            or snapshot.head.receipt_phase != "executing"
+        ):
+            raise ValueError("acquisition_action_selection_executing_head_changed")
+        identity = "\0".join(
+            (
+                executing.tenant_id,
+                executing.cell_id,
+                executing.run_id,
+                executing.source_job_id,
+                executing.route_id,
+                str(executing.action_generation),
+                executing.job_id,
+                action_phase_ref,
+                outcome_ref,
+            )
+        )
+        digest = hashlib.sha256(identity.encode()).hexdigest()
+        suffix = f"outcome_selected_{digest[:24]}"
+        selection = AcquisitionRoutePhaseReceipt(
+            schema_version="AcquisitionRoutePhaseReceipt@1.1",
+            receipt_id=f"{executing.job_id}.outcome-selected.{digest[:24]}",
+            tenant_id=executing.tenant_id,
+            cell_id=executing.cell_id,
+            run_id=executing.run_id,
+            source_job_id=executing.source_job_id,
+            route_id=executing.route_id,
+            action_generation=executing.action_generation,
+            job_id=executing.job_id,
+            compiled_ref=executing.compiled_ref,
+            planner_report_hash=executing.planner_report_hash,
+            cost_basis_hash=executing.cost_basis_hash,
+            decision_ref=executing.decision_ref,
+            coarse_phase="executing",
+            receipt_phase="outcome_selected",
+            recovery_state="none",
+            predecessor_receipt_ref=action_phase_ref,
+            owner_receipt_refs=(outcome_ref,),
+            generated_at=datetime.now(UTC),
+        )
+        event_id = f"evt_acquisition_{executing.action_generation}_{suffix}"
+        existing = self._existing_action_selection_event(selection, event_id)
+        if existing is None:
+            try:
+                head = self._persist_receipt(
+                    selection,
+                    artifact_kind="runtime_quality.acquisition_route_phase_receipt",
+                    schema_name="polisyos.runtime.AcquisitionRoutePhaseReceipt",
+                    event_type="polisyos.runtime.acquisition.route_phase.v1",
+                    event_suffix=suffix,
+                    receipt_type=AcquisitionRoutePhaseReceipt,
+                    receipt_label="phase",
+                )
+            except Exception:
+                existing = self._existing_action_selection_event(selection, event_id)
+                if existing is None:
+                    raise
+                existing_receipt, _ = self._verified_receipt_ref(existing[0])
+                phase_receipt = _require_action_selection_phase_receipt(existing_receipt)
+                head = self._advance_existing_action_selection(phase_receipt, *existing)
+        else:
+            existing_receipt, _ = self._verified_receipt_ref(existing[0])
+            phase_receipt = _require_action_selection_phase_receipt(existing_receipt)
+            head = self._advance_existing_action_selection(phase_receipt, *existing)
+        after = self.current_action_outcome(**scope)
+        if (
+            after is None
+            or after.selection_phase is None
+            or after.selection_phase_ref != head.receipt_ref
+            or after.selection_phase.predecessor_receipt_ref != action_phase_ref
+            or after.selection_phase.owner_receipt_refs != (outcome_ref,)
+        ):
+            raise RuntimeError("acquisition_action_selection_readback_failed")
+        return head
+
+
+    def verify_action_head(
+        self, head: AcquisitionActionHeadRecord
+    ) -> VerifiedAcquisitionActionOutcome:
+        """Verify the exact head, every receipt/event ancestor, and a fresh head read."""
+        current = self._control_store.get_acquisition_action_head(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+            action_generation=head.action_generation,
+        )
+        if current != head:
+            raise ValueError("acquisition_action_generation_head_changed")
+        phase_chain = self._verified_action_phase_chain(head)
+        latest = phase_chain[-1]
+        executing = next(
+            (
+                item
+                for item in phase_chain
+                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                and item.receipt.receipt_phase == "executing"
+            ),
+            None,
+        )
+        selection = next(
+            (
+                item
+                for item in phase_chain
+                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                and item.receipt.receipt_phase == "outcome_selected"
+            ),
+            None,
+        )
+        current = self._control_store.get_acquisition_action_head(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+            action_generation=head.action_generation,
+        )
+        if current != head:
+            raise ValueError("acquisition_action_generation_head_changed")
+        return VerifiedAcquisitionActionOutcome(
+            head=head,
+            latest_receipt=latest.receipt,
+            executing_phase_ref=None if executing is None else executing.receipt_ref,
+            executing_phase=None if executing is None else executing.receipt,
+            selection_phase_ref=None if selection is None else selection.receipt_ref,
+            selection_phase=None if selection is None else selection.receipt,
+            phase_chain=phase_chain,
+        )
 
     def persist_phase(
         self,
@@ -697,12 +1397,18 @@ class AcquisitionRouteLoopAuthoritySink:
             current is not None and typed.predecessor_receipt_ref != current.receipt_ref
         ):
             raise ValueError("acquisition_action_predecessor_conflict")
+        if current is not None:
+            previous = self.verify_action_head(current)
+            if not self._same_action_identity(typed, previous.latest_receipt):
+                raise ValueError("acquisition_action_predecessor_identity_mismatch")
         payload = typed.model_dump(mode="json")
         canon_spec = CanonSpec(forbid_floats=False)
         generated_at = typed.generated_at.isoformat()
-        input_refs = (
-            (typed.predecessor_receipt_ref,) if typed.predecessor_receipt_ref is not None else ()
-        )
+        input_ref_set = set()
+        if typed.predecessor_receipt_ref is not None:
+            input_ref_set.add(typed.predecessor_receipt_ref)
+        input_ref_set.update(typed.owner_receipt_refs)
+        input_refs = tuple(sorted(input_ref_set))
         result = write_runtime_authority_artifact(
             self._artifact_store,
             self._event_log,
@@ -712,7 +1418,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 media_type="application/json",
                 schema=SchemaInfo(
                     name=schema_name,
-                    version="1.0",
+                    version=typed.schema_version.rsplit("@", 1)[-1],
                 ),
                 producer=ProducerInfo(
                     component="polisyos.runtime.acquisition_route_loop",
@@ -792,9 +1498,9 @@ class AcquisitionRouteLoopAuthoritySink:
             expected_job_id=typed.job_id,
         )
         loaded = receipt_type.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(receipt_ref))
+            read_core_json_artifact(self._artifact_store, receipt_ref).value
         )
-        manifest = self._artifact_store.get_manifest(receipt_ref)
+        manifest = read_core_manifest_profile(self._artifact_store, receipt_ref)[0]
         schema = manifest.artifact_schema
         if (
             loaded != typed
@@ -802,7 +1508,7 @@ class AcquisitionRouteLoopAuthoritySink:
             or manifest.kind != artifact_kind
             or schema is None
             or schema.name != schema_name
-            or schema.version != "1.0"
+            or schema.version != typed.schema_version.rsplit("@", 1)[-1]
         ):
             raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
         head = self._control_store.advance_acquisition_action_head(
@@ -824,6 +1530,9 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if self.get_head(typed) != head:
             raise RuntimeError("acquisition_action_head_readback_failed")
+        verified = self.verify_action_head(head)
+        if verified.latest_receipt != typed:
+            raise RuntimeError("acquisition_action_chain_readback_failed")
         return head
 
 
@@ -1031,7 +1740,7 @@ class HumanDecisionAuthoritySink:
         if report.durable_event_id != reservation.durable_event_id:
             raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
         record = HumanDecisionRecord.model_validate(
-            from_canonical_bytes(self.get_artifact_bytes(reservation.record_ref))
+            read_core_json_artifact(self._artifact_store, reservation.record_ref).value
         )
         if (
             record.schema_version != HUMAN_DECISION_RECORD_V2
@@ -1088,7 +1797,9 @@ class HumanDecisionAuthoritySink:
                 matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
                 for artifact_id in self._artifact_store.iter_artifact_ids():
                     try:
-                        manifest = self._artifact_store.get_manifest(artifact_id)
+                        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+                    except CanonicalProfileRefusalError:
+                        raise
                     except Exception as exc:
                         raise RuntimeError(
                             "human-decision recovery CAS manifest scan failed"
@@ -1096,7 +1807,9 @@ class HumanDecisionAuthoritySink:
                     if manifest.kind != "runtime_quality.agent_action_human_decision":
                         continue
                     try:
-                        payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                        payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+                    except CanonicalProfileRefusalError:
+                        raise
                     except Exception as exc:
                         raise RuntimeError("human-decision recovery CAS readback failed") from exc
                     if not isinstance(payload, Mapping):
@@ -1152,7 +1865,7 @@ class HumanDecisionAuthoritySink:
                     self._artifact_store,
                     authority,
                 )
-                event_manifest = self._artifact_store.get_manifest(event_ref)
+                event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
                 event_schema = event_manifest.artifact_schema
                 if (
                     event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
@@ -1163,7 +1876,7 @@ class HumanDecisionAuthoritySink:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 try:
                     event = DiagnosticEvent.model_validate(
-                        from_canonical_bytes(self._artifact_store.get_bytes(event_ref))
+                        read_core_json_artifact(self._artifact_store, event_ref).value
                     )
                 except (TypeError, ValueError) as exc:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
@@ -1224,13 +1937,17 @@ class HumanDecisionAuthoritySink:
             raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
         for artifact_id in self._artifact_store.iter_artifact_ids():
             try:
-                manifest = self._artifact_store.get_manifest(artifact_id)
+                manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+            except CanonicalProfileRefusalError:
+                raise
             except Exception as exc:
                 raise RuntimeError("human-decision reconciliation CAS scan failed") from exc
             if manifest.kind != "runtime_quality.agent_action_human_decision":
                 continue
             try:
-                payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+            except CanonicalProfileRefusalError:
+                raise
             except Exception as exc:
                 raise RuntimeError("human-decision reconciliation readback failed") from exc
             if not isinstance(payload, Mapping):
@@ -1302,12 +2019,12 @@ class HumanDecisionAuthoritySink:
             expected_job_id=expected_job_id,
         )
         artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
-        manifest = self._artifact_store.get_manifest(artifact_id)
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
         authority = manifest.authority
         if authority is None:
             raise ValueError("human-decision authority manifest linkage is absent")
         event_id = resolve_authority_diagnostic_event_ref(self._artifact_store, authority)
-        event_manifest = self._artifact_store.get_manifest(event_id)
+        event_manifest = read_core_manifest_profile(self._artifact_store, event_id)[0]
         event_schema = event_manifest.artifact_schema
         if (
             event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
@@ -1317,7 +2034,7 @@ class HumanDecisionAuthoritySink:
         ):
             raise ValueError("human-decision diagnostic event artifact changed")
         event = DiagnosticEvent.model_validate(
-            from_canonical_bytes(self._artifact_store.get_bytes(event_id))
+            read_core_json_artifact(self._artifact_store, event_id).value
         )
         durable_records = self._event_log.list_events(
             event_id=event.event_id,
@@ -1342,6 +2059,11 @@ class HumanDecisionAuthoritySink:
         """Return exact CAS bytes for verification and model readback."""
 
         return self._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(artifact_ref))
+
+    def get_artifact_json(self, artifact_ref: str) -> Any:  # noqa: ANN401
+        """Decode one exact Core JSON view through the shared profile guard."""
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        return read_core_json_artifact(self._artifact_store, artifact_id).value
 
     def get_artifact_manifest(self, artifact_ref: str) -> ArtifactManifest:
         """Return the exact CAS manifest for schema admission."""

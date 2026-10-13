@@ -27,3 +27,12 @@ builders/loaders used by deterministic runtime paths.
 - Last updated: 2026-04-03
 - The package tree still centers on `base.py`, `generic.py`, `builder.py`, `builder_from_fragments.py`, and `loader.py`.
 - Registry bundles remain the handoff layer between component discovery and runtime registries.
+
+
+## Selected profile references
+
+The registry builders accept `return_selected_profile=True` when a caller needs to
+persist the exact profile selected by the CAS writer for a newly written bundle and each
+member. The default remains `False`, preserving existing caller and store-adapter
+behavior. Enabling the option does not promote profileless historical references; rebuild
+through the producer and use the newly returned typed references.

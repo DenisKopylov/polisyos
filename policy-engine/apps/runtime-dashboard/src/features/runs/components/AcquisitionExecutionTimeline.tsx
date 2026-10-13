@@ -1,19 +1,19 @@
-import type {
-  AcquisitionDecisionRequestResponse,
-  AcquisitionExecutionResponse,
-  AcquisitionGrowthPayload,
-} from "@polisyos/runtime-api-client";
+import type { AcquisitionGrowthPayload } from "@polisyos/runtime-api-client";
 
 import type { ControlJobResponse } from "@/api/hooks/useControlJobStatus";
-import type { AcquisitionRouteProjection } from "@/features/runs/api/acquisitionRouteValidators";
+import type {
+  AcquisitionDecisionRequestResponseCurrent,
+  AcquisitionExecutionResponseCurrent,
+  AcquisitionRouteProjection,
+} from "@/features/runs/api/acquisitionRouteValidators";
 import type { HumanDecisionCreateReceipt } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
 import { Badge, Card } from "@polisyos/atlas-ui";
 
 export type AcquisitionExecutionTimelineProps = Readonly<{
-  decision?: AcquisitionDecisionRequestResponse | null;
-  execution?: AcquisitionExecutionResponse | null;
+  decision?: AcquisitionDecisionRequestResponseCurrent | null;
+  execution?: AcquisitionExecutionResponseCurrent | null;
   growthHistory?: AcquisitionGrowthPayload["n13b_history"] | null;
   humanDecision?: HumanDecisionCreateReceipt | null;
   job?: ControlJobResponse | null;

@@ -38,9 +38,10 @@ describe("AcquisitionExecutionTimeline accessibility", () => {
       route_projection_hash: hash,
       route_status: "costed_actionable",
       run_id: "run-1",
-      schema_version: "AcquisitionRouteProjection@1.0",
+      schema_version: "AcquisitionRouteProjection@1.1",
       tenant_id: "tenant-1",
-      world_growth: "no_growth",
+      world_growth: "not_established",
+      admitted_observation_delta: null,
     } satisfies AcquisitionRouteProjection;
     const { container } = render(
       <LocaleProvider>

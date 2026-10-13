@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -200,14 +201,28 @@ def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
     head = sink.persist_phase(executing)
     if terminal_outcome is None:
         return head
+    terminal_base = executing
+    terminal_predecessor = head
+    if terminal_outcome == "reentry_completed":
+        terminal_base = executing.model_copy(
+            update={
+                "receipt_id": "receipt-world-committed-reentry-pending",
+                "receipt_phase": "world_committed_reentry_pending",
+                "coarse_phase": "world_committed",
+                "recovery_state": "reentry_recovery_required",
+                "predecessor_receipt_ref": head.receipt_ref,
+                "owner_receipt_refs": ("sha256:" + "f" * 64,),
+            }
+        )
+        terminal_predecessor = sink.persist_phase(terminal_base)
     terminal = AcquisitionRouteLoopReceipt.model_validate(
         {
-            **executing.model_dump(exclude={"schema_version"}),
+            **terminal_base.model_dump(exclude={"schema_version"}),
             "receipt_id": "receipt-terminal",
             "receipt_phase": "terminal",
             "coarse_phase": "terminal",
             "recovery_state": "complete",
-            "predecessor_receipt_ref": head.receipt_ref,
+            "predecessor_receipt_ref": terminal_predecessor.receipt_ref,
             "terminal_outcome": terminal_outcome,
             "owner_receipt_refs": ("sha256:" + "f" * 64,),
             "reentry_receipt_ref": (
@@ -349,3 +364,168 @@ def test_action_generation_refuses_same_job_in_multiple_generations(generation_o
     _persist_generation(sink, generation=2, job_id="first-job")
     with pytest.raises(ValueError, match="acquisition_action_job_generation_ambiguous"):
         sink.resolve_action_generation(**_generation_identity(), job_id="first-job")
+
+
+def test_current_action_outcome_uses_latest_generation_after_store_reopen(
+    tmp_path: Path,
+) -> None:
+    control_path = tmp_path / "control.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=control_path)
+    cas = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", cell_id="cell-a")
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=cas,
+        event_log=RuntimeDiagnosticEventLog(store=store, artifact_store=cas),
+        control_store=store,
+    )
+    requested = sink.persist_phase(
+        _receipt(
+            receipt_phase="requested",
+            coarse_phase="requested",
+            recovery_state="none",
+            predecessor_receipt_ref=None,
+        )
+    )
+    executing = sink.persist_phase(
+        _receipt(
+            receipt_phase="executing",
+            coarse_phase="executing",
+            recovery_state="none",
+            predecessor_receipt_ref=requested.receipt_ref,
+        )
+    )
+    scope = {
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "run_id": "run-a",
+        "source_job_id": "job-source",
+        "route_id": "sha256:" + "a" * 64,
+    }
+    active = sink.current_action_outcome(**scope)
+    assert active is not None
+    assert active.head.action_generation == 1
+    assert active.latest_receipt.receipt_phase == "executing"
+    assert active.executing_phase_ref == executing.receipt_ref
+    assert active.executing_phase == _receipt(
+        receipt_phase="executing",
+        coarse_phase="executing",
+        recovery_state="none",
+        predecessor_receipt_ref=requested.receipt_ref,
+    )
+    assert tuple(item.receipt.receipt_phase for item in active.phase_chain) == (
+        "requested",
+        "executing",
+    )
+    assert tuple(item.durable_event_id for item in active.phase_chain) == (
+        requested.durable_event_id,
+        executing.durable_event_id,
+    )
+
+    next_generation = _receipt(
+        receipt_phase="requested",
+        coarse_phase="requested",
+        recovery_state="none",
+        predecessor_receipt_ref=None,
+    ).model_copy(
+        update={
+            "receipt_id": "receipt-generation-two-requested",
+            "job_id": "job-acquisition-two",
+            "action_generation": 2,
+        }
+    )
+    sink.persist_phase(next_generation)
+    unrelated_source = next_generation.model_copy(
+        update={
+            "receipt_id": "receipt-other-source-requested",
+            "job_id": "job-other-source",
+            "source_job_id": "other-source",
+            "action_generation": 99,
+        }
+    )
+    sink.persist_phase(unrelated_source)
+
+    latest = sink.current_action_outcome(**scope)
+    assert latest is not None
+    assert latest.head.action_generation == 2
+    assert latest.latest_receipt == next_generation
+    assert latest.executing_phase_ref is None
+    assert latest.executing_phase is None
+
+    reopened_store = ControlPlaneStore(backend="sqlite", sqlite_path=control_path)
+    reopened_sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=cas,
+        event_log=RuntimeDiagnosticEventLog(
+            store=reopened_store, artifact_store=cas
+        ),
+        control_store=reopened_store,
+    )
+    reopened = reopened_sink.current_action_outcome(**scope)
+    assert reopened == latest
+
+
+def test_current_action_outcome_rejects_a_missing_requested_ancestor(
+    generation_owner, monkeypatch
+) -> None:
+    sink, store, cas = generation_owner
+    requested = sink.persist_phase(
+        _receipt(
+            receipt_phase="requested",
+            coarse_phase="requested",
+            recovery_state="none",
+            predecessor_receipt_ref=None,
+        )
+    )
+    executing = AcquisitionRoutePhaseReceipt.model_validate(
+        {
+            **_receipt(
+                receipt_phase="executing",
+                coarse_phase="executing",
+                recovery_state="none",
+                predecessor_receipt_ref=requested.receipt_ref,
+            ).model_dump(),
+            "receipt_id": "receipt-current-executing",
+        }
+    )
+    current = sink.persist_phase(executing)
+    original_get_bytes = cas.get_bytes
+
+    def missing_requested(ref):
+        if str(ref) == requested.receipt_ref:
+            raise OSError("requested ancestor unavailable")
+        return original_get_bytes(ref)
+
+    monkeypatch.setattr(cas, "get_bytes", missing_requested)
+    with pytest.raises(OSError, match="requested ancestor unavailable"):
+        sink.current_action_outcome(**_generation_identity())
+    assert store.get_acquisition_action_head(
+        **_generation_identity(), action_generation=1
+    ) == current
+
+
+def test_current_action_outcome_rejects_forged_event_input_refs(
+    generation_owner, monkeypatch
+) -> None:
+    sink, _store, _cas = generation_owner
+    current = _persist_generation(sink, generation=1, job_id="first-job")
+    event_log = sink._event_log
+    original_list_events = event_log.list_events
+
+    def forged_inputs(**kwargs):
+        records = original_list_events(**kwargs)
+        if not any(record.event.event_id == current.durable_event_id for record in records):
+            return records
+        return [
+            replace(
+                record,
+                event=record.event.model_copy(
+                    update={"input_refs": ("sha256:" + "f" * 64,)}
+                ),
+            )
+            if record.event.event_id == current.durable_event_id
+            else record
+            for record in records
+        ]
+
+    monkeypatch.setattr(event_log, "list_events", forged_inputs)
+    with pytest.raises(ValueError):
+        sink.current_action_outcome(**_generation_identity())
+

@@ -12,7 +12,6 @@ from pydantic import BaseModel, ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef, InputRef
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
@@ -186,6 +185,7 @@ def _selected_ref(ref: Any, *, kind: str) -> ArtifactRef:
 
 
 def _resolve_typed_source(ctx: ExecutionContext, ref: Any, *, kind: str, model: Any) -> Any:
+    from polisyos.core.artifacts import load_core_json_artifact
     typed_ref = _selected_ref(ref, kind=kind)
     manifest = ctx.store.get_manifest(typed_ref)
     if (
@@ -195,7 +195,7 @@ def _resolve_typed_source(ctx: ExecutionContext, ref: Any, *, kind: str, model: 
     ):
         raise ValueError("Source reference has incompatible actual manifest/schema")
     # Pass the whole selected ref: CAS checks the actual bytes and manifest view.
-    value = model.model_validate(from_canonical_bytes(ctx.store.get_bytes(typed_ref)))
+    value = model.model_validate(load_core_json_artifact(ctx.store, typed_ref))
     if value.schema_version != manifest.artifact_schema.version:
         raise ValueError("Source body version differs from actual manifest schema version")
     return value
@@ -212,6 +212,7 @@ def _resolve_graph_ref(ctx: ExecutionContext, ref: Any) -> CausalGraphModel:
 def _load_data_graph(
     ctx: ExecutionContext, state: ExperimentState
 ) -> tuple[CausalGraphModel | None, Any | None]:
+    from polisyos.core.artifacts import load_core_json_artifact
     supplied = "data_causal_graph" in state.params
     graph = _extract_graph(state.params["data_causal_graph"]) if supplied else None
     method_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_METHOD_RESULT_REF)
@@ -224,7 +225,7 @@ def _load_data_graph(
             or manifest.artifact_schema.version != "0.1.0"
         ):
             raise ValueError("Data graph method reference has incompatible actual manifest/schema")
-        actual = _extract_graph(from_canonical_bytes(ctx.store.get_bytes(method_ref)))
+        actual = _extract_graph(load_core_json_artifact(ctx.store, method_ref))
         if graph is not None and graph != actual:
             raise ValueError("Supplied data graph differs from current method-result CAS content")
         return actual, method_ref
@@ -678,6 +679,7 @@ class ReconcileCausalGraphNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        from polisyos.core.artifacts import load_core_json_artifact
         query_preservation_queries = _parse_query_preservation_queries(
             state.params.get("query_preservation_queries")
         )
@@ -998,7 +1000,7 @@ class ReconcileCausalGraphNode:
                 if manifest.kind != "ir.literature_causal_prior":
                     raise ValueError("Supplied literature prior has incompatible actual manifest")
                 literature_prior = LiteratureCausalPrior.model_validate(
-                    from_canonical_bytes(ctx.store.get_bytes(literature_prior_ref))
+                    load_core_json_artifact(ctx.store, literature_prior_ref)
                 )
             except _RECONCILE_LOAD_ERRORS as exc:
                 return NodeOutcome(

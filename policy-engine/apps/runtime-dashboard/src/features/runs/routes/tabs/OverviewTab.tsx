@@ -10,6 +10,7 @@ import {
   useRunPredictiveCalibration,
 } from "@/api/hooks/useRunPredictiveCalibration";
 import type { components } from "@/api/types";
+import type { RunArtifactRef, RunDetailsView } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
@@ -395,41 +396,18 @@ function isArtifactRef(value: unknown, kind: string): boolean {
   );
 }
 
-function CandidateSimulationPanel({ run }: { run: unknown }) {
+function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
   const { t } = useI18n();
-  const record = asRecord(run);
-  const projection = asRecord(record?.candidate_simulation);
-  const values = Array.isArray(projection?.n5_observations)
-    ? projection.n5_observations
-    : [];
-  const checkpoint = asRecord(projection?.recursive_cycle_checkpoint);
-  const failedBranches = Array.isArray(checkpoint?.failed_branches)
-    ? checkpoint.failed_branches
-    : [];
-  const acquisitionHistory = Array.isArray(projection?.acquisition_history)
-    ? projection.acquisition_history
-    : [];
-  const checkpointVersion = checkpoint?.schema_version;
-  const checkpointKnown =
-    checkpoint !== null &&
-    (checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v1" ||
-      checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v2") &&
-    checkpoint.status === "partial" &&
-    checkpoint.publication_authority === false &&
-    checkpoint.root_n9_status === "not_run" &&
-    (checkpointVersion === "policyos.runtime.recursive_cycle_checkpoint.v1"
-      ? typeof checkpoint.budget_stop_node_ref === "string" &&
-        failedBranches.length === 0
-      : checkpoint.budget_stop_node_ref == null && failedBranches.length > 0);
-  if (projection === null) {
+  const projection = run.candidate_simulation;
+  const values = projection?.n5_observations ?? [];
+  const checkpoint = projection?.recursive_cycle_checkpoint ?? null;
+  const failedBranches = checkpoint?.failed_branches ?? [];
+  const acquisitionHistory = projection?.acquisition_history ?? [];
+  const checkpointKnown = checkpoint !== null;
+  if (projection == null) {
     return null;
   }
-  const projectionKnown =
-    projection.schema_version ===
-      "policyos.runtime.run_candidate_simulation_projection.v1" &&
-    projection.run_id === record?.run_id &&
-    projection.authority_purpose === "candidate_observation_only" &&
-    projection.publication_authority === false;
+  const projectionKnown = projection.run_id === run.run_id;
   return (
     <Card className="space-y-4" data-testid="overview-candidate-simulation">
       <h4>{t("pages.runs.candidateSimulation.title")}</h4>
@@ -958,10 +936,9 @@ function GenericCycleSimulationPanel({
   );
 }
 
-type RunArtifactRef = components["schemas"]["ArtifactRef-Output"];
 type PredictiveCalibrationRequest =
   components["schemas"]["PredictiveCalibrationRequest"];
-type RunDetailsPayload = components["schemas"]["RunDetails"];
+type RunDetailsPayload = RunDetailsView;
 
 function fullRunArtifactRefKey(ref: RunArtifactRef): string {
   return JSON.stringify([
@@ -994,16 +971,18 @@ function PredictiveCalibrationPanel({
     useState<PredictiveCalibrationRequest | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const candidateSourceRefs = (run.candidate_simulation?.n5_observations ?? [])
-    .filter(
-      (observation) =>
-        observation.status === "joint_simulated" &&
-        observation.lineage_status === "resolved" &&
-        observation.n4_source_ref?.kind ===
-          "runtime.quality.n4_candidate_scenario_source" &&
-        Boolean(observation.n4_source_ref.manifest_profile_sha256),
-    )
-    .map((observation) => observation.n4_source_ref as RunArtifactRef);
+  const candidateSourceRefs = (
+    run.candidate_simulation?.n5_observations ?? []
+  ).flatMap((observation): RunArtifactRef[] => {
+    const ref = observation.n4_source_ref;
+    return observation.status === "joint_simulated" &&
+      observation.lineage_status === "resolved" &&
+      ref?.kind === "runtime.quality.n4_candidate_scenario_source" &&
+      ref.media_type === "application/json" &&
+      Boolean(ref.manifest_profile_sha256)
+      ? [ref]
+      : [];
+  });
   const rootInputs = (run.root_input_artifacts ?? []).filter((ref) =>
     Boolean(ref.manifest_profile_sha256),
   );

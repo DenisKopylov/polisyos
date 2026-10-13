@@ -1037,6 +1037,7 @@ def _persist_history_view(
         ArtifactWriteOptions(
             kind="epoch.scope_history",
             media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
         ),
     )
     if _raw_cas_hash(artifacts.get_bytes(ref)) != str(ref.artifact_id):
@@ -1349,12 +1350,14 @@ class PersistedSemanticEpochProductionReceipt(SemanticEpochProductionReceipt):
 def _persist_model(
     *, store: ArtifactStore, value: BaseModel, kind: str, inputs: list[InputRef] | None = None
 ) -> tuple[ArtifactRef, Digest]:
+    from polisyos.core.artifacts import load_core_json_frame_records
     raw = chronology_contract._frame_record(epoch_contract.canonical_epoch_bytes(value))
     ref = store.put_bytes(
         raw,
         ArtifactWriteOptions(
             kind=kind,
             media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
             inputs=inputs,
         ),
     )
@@ -1371,7 +1374,9 @@ def _persist_model(
         or len(records) != 1
     ):
         raise RuntimeError("semantic epoch artifact CAS readback failed")
-    reparsed = value.__class__.model_validate(from_canonical_bytes(records[0]))
+    reparsed = value.__class__.model_validate(
+        load_core_json_frame_records(store, ref, raw_payload_bytes=readback)[0]
+    )
     if reparsed != value:
         raise RuntimeError("semantic epoch artifact changed after CAS readback")
     return ref, _model_hash(kind.encode() + b"\0", value)
@@ -1381,6 +1386,7 @@ def persist_semantic_epoch_production_receipt(
     *, store: ArtifactStore, receipt: SemanticEpochProductionReceipt
 ) -> PersistedSemanticEpochProductionReceipt:
     """Persist and reread one exact production receipt without self-reference."""
+    from polisyos.core.artifacts import load_core_json_frame_records
 
     # Current writes keep the v1 explicit-null field. Historical reads use
     # model_fields_set to preserve an absent field from older receipt bytes.
@@ -1407,8 +1413,10 @@ def persist_semantic_epoch_production_receipt(
         ArtifactWriteOptions(
             kind="epoch.production_receipt",
             media_type="application/vnd.polisyos.epoch-production-receipt+json",
+            canon=epoch_contract.epoch_canon_info(),
             inputs=inputs,
         ),
+        return_selected_profile=True,
     )
     report = store.verify(receipt_ref)
     readback = store.get_bytes(receipt_ref)
@@ -1420,11 +1428,18 @@ def persist_semantic_epoch_production_receipt(
         or manifest.artifact_id != receipt_ref.artifact_id
         or manifest.kind != "epoch.production_receipt"
         or manifest.media_type != "application/vnd.polisyos.epoch-production-receipt+json"
+        or manifest.canon != epoch_contract.epoch_canon_info()
+        or receipt_ref.manifest_profile_sha256 is None
         or manifest.inputs != inputs
         or len(records) != 1
     ):
         raise RuntimeError("epoch production receipt frame denominator differs from one")
-    if SemanticEpochProductionReceipt.model_validate(from_canonical_bytes(records[0])) != receipt:
+    if (
+        SemanticEpochProductionReceipt.model_validate(
+            load_core_json_frame_records(store, receipt_ref, raw_payload_bytes=readback)[0]
+        )
+        != receipt
+    ):
         raise RuntimeError("epoch production receipt changed after CAS readback")
     return PersistedSemanticEpochProductionReceipt(
         **statement,
@@ -1994,6 +2009,7 @@ class ArtifactSemanticFacetProvider:
         owner_batches: tuple[EpochBoundaryOwnerBatch, ...],
         query: EpochResolutionQuery,
     ) -> tuple[SemanticFacetValue, ...]:
+        from polisyos.core.artifacts import load_core_json_artifact
         del owner_batches, query
         expected = tuple(row.source_binding_ref for row in registry.registrations)
         if set(expected) != set(self._source_refs):
@@ -2008,7 +2024,7 @@ class ArtifactSemanticFacetProvider:
             if not report.ok or _raw_cas_hash(raw) != str(ref.artifact_id):
                 raise ValueError("semantic facet source failed CAS verification")
             try:
-                decoded = json.loads(raw)
+                decoded = load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
             except (UnicodeDecodeError, json.JSONDecodeError):
                 decoded = None
             if isinstance(decoded, dict) and "semantic_value" in decoded:
@@ -2481,6 +2497,7 @@ class SemanticEpochService:
         self, *, query: EpochResolutionQuery
     ) -> PersistedSemanticEpochProductionReceipt:
         """Resolve complete owner inputs, append native history, and persist C2 proof."""
+        from polisyos.core.artifacts import load_core_json_frame_records
 
         self._require_resolution_components()
         try:
@@ -2497,11 +2514,7 @@ class SemanticEpochService:
                 facet_values=facets,
                 prior_manifests=tuple(
                     SemanticEpochManifest.model_validate(
-                        from_canonical_bytes(
-                            chronology_contract._split_framed_records(
-                                self._artifact_store.get_bytes(row.manifest_ref)
-                            )[0]
-                        )
+                        load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
                     )
                     for row in history.entries
                 ),
@@ -2522,6 +2535,7 @@ class SemanticEpochService:
         boundary_candidate_refs: Mapping[str, tuple[ArtifactRef, ...]],
     ) -> PreparedSemanticEpoch:
         """Persist a stable candidate/stamp without moving a native head."""
+        from polisyos.core.artifacts import load_core_json_frame_records
 
         self._require_resolution_components()
         batches, facets = self._collect(
@@ -2540,11 +2554,7 @@ class SemanticEpochService:
             facet_values=facets,
             prior_manifests=tuple(
                 SemanticEpochManifest.model_validate(
-                    from_canonical_bytes(
-                        chronology_contract._split_framed_records(
-                            self._artifact_store.get_bytes(row.manifest_ref)
-                        )[0]
-                    )
+                    load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
                 )
                 for row in history.entries
             ),
@@ -2628,6 +2638,7 @@ class SemanticEpochService:
             ArtifactWriteOptions(
                 kind="epoch.prepared",
                 media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
                 inputs=[
                     artifacts.input_ref_from_artifact_ref(
                         manifest_ref, role="semantic_manifest"
@@ -2695,12 +2706,14 @@ class SemanticEpochService:
         admitted_boundary_evidence_ref: ArtifactRef,
     ) -> PersistedSemanticEpochProductionReceipt:
         """Re-enumerate owner state and append only the admitted stable candidate."""
+        from polisyos.core.artifacts import load_core_json_frame_records
 
         self._require_resolution_components()
         prepared_for_failure: PreparedSemanticEpoch | None = None
         try:
 
             def load_mapping(ref: ArtifactRef, *, kind: str) -> dict[str, object]:
+                from polisyos.core.artifacts import load_core_json_frame_records
                 report = self._artifact_store.verify(ref)
                 payload = self._artifact_store.get_bytes(ref)
                 manifest = self._artifact_store.get_manifest(ref)
@@ -2716,7 +2729,9 @@ class SemanticEpochService:
                     or len(records) != 1
                 ):
                     raise ValueError("admitted acquisition artifact readback differs")
-                mapping = from_canonical_bytes(records[0])
+                mapping = load_core_json_frame_records(
+                    self._artifact_store, ref, raw_payload_bytes=payload
+                )[0]
                 if not isinstance(mapping, dict):
                     raise ValueError("admitted acquisition artifact is not a mapping")
                 return mapping
@@ -2919,11 +2934,7 @@ class SemanticEpochService:
                 facet_values=facets,
                 prior_manifests=tuple(
                     SemanticEpochManifest.model_validate(
-                        from_canonical_bytes(
-                            chronology_contract._split_framed_records(
-                                self._artifact_store.get_bytes(row.manifest_ref)
-                            )[0]
-                        )
+                        load_core_json_frame_records(self._artifact_store, row.manifest_ref)[0]
                     )
                     for row in history.entries
                 ),

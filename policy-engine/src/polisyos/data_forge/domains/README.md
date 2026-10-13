@@ -14,6 +14,13 @@ The stable runtime import surface is `polisyos.data_forge.read_api`. Domain
 packages are build-time implementation unless registered through
 `polisyos.data_forge_domains`.
 
+Ukraine's historical build-time domain exports remain available through
+`polisyos.data_forge.domains.ukraine`; the compatibility package resolves
+them lazily to their existing provider modules. Importing
+`polisyos.data_forge.read_api.ukraine` therefore does not initialize the
+demography source-inventory pipeline. The canonical runtime interface
+remains `polisyos.data_forge.read_api.ukraine`.
+
 ## Internal Layout
 
 | Path | Role |

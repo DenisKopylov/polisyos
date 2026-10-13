@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.kernel import (
     ConstraintRegistry,
     MechanismTypeRegistry,
@@ -54,8 +53,8 @@ def _load_model[ModelT: BaseModel](
     ref: ArtifactRef | ArtifactID | str,
     model_cls: type[ModelT],
 ) -> ModelT:
-    data = store.get_bytes(_store_read_ref(ref))
-    payload = from_canonical_bytes(data)
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, _store_read_ref(ref))
     return model_cls.model_validate(payload)
 
 
@@ -79,8 +78,8 @@ def load_registry_bundle_payload(
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load only the bundle payload graph without dereferencing member registries."""
-    data = store.get_bytes(_store_read_ref(bundle_ref))
-    payload = from_canonical_bytes(data)
+    from polisyos.core.artifacts import load_core_json_artifact
+    payload = load_core_json_artifact(store, _store_read_ref(bundle_ref))
     return RegistryBundlePayload.model_validate(payload)
 
 

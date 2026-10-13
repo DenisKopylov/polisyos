@@ -9,7 +9,6 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.loading.norm_pack import NormPack
 
 _NORM_PACK_LOAD_ERRORS = (
@@ -98,9 +97,10 @@ class CASNormPackLoader:
         return self._load_from_cas(artifact_ref)
 
     def _load_from_cas(self, artifact_id: str) -> NormPack | None:
+        from polisyos.core.artifacts import load_core_json_artifact
         try:
             aid = ArtifactID.model_validate(artifact_id)
-            payload = from_canonical_bytes(self._cas.get_bytes(aid))
+            payload = load_core_json_artifact(self._cas, aid)
             return NormPack.model_validate(payload)
         except _NORM_PACK_LOAD_ERRORS:
             return None

@@ -611,8 +611,12 @@ def _program_graph_plan(
 
 
 def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt() -> None:
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
+    )
+    result = JointSimulationHorizonController().run(request)
 
+    assert request.horizon.steps() == (0,)
     assert result.uncertainty_kind == "K_sim"
     assert result.world_credal_state_after == result.world_credal_state_before
     authority_blockers = result.promotion_ready_value_packet["authority_blockers"]
@@ -620,9 +624,8 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert "interaction_evidence_incomplete" in authority_blockers
     assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
     assert result.feedback_classification.checked_interaction_orders == ()
-    assert any(
-        issue.startswith("horizon_incomplete:")
-        for issue in result.diagnostics["interaction_evidence_issues"]
+    assert "horizon_incomplete:requested_steps_uncovered" not in (
+        result.diagnostics["interaction_evidence_issues"]
     )
     assert result.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
     assert result.engine_decisions[0].decision == "selected"
@@ -712,7 +715,10 @@ def test_joint_simulation_v4_result_replays_byte_exactly_with_interaction_summar
         persist_joint_simulation_result,
     )
 
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
+    )
+    result = JointSimulationHorizonController().run(request)
     assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
     assert result.state_consumption is None
 
@@ -754,7 +760,9 @@ def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> 
         build_content_bound_simulation_receipt,
     )
 
-    request = _request().model_copy(update={"replications": 2})
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+    )
     result = JointSimulationHorizonController().run(request)
     payload = result.content_bound_payload()
     assert payload["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
@@ -858,7 +866,9 @@ def test_n5_fresh_cas_reader_rejects_forged_replicate_mean(tmp_path: Path) -> No
     )
 
     result = JointSimulationHorizonController().run(
-        _request().model_copy(update={"replications": 2})
+        _request().model_copy(
+            update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+        )
     )
     forged = result.content_bound_payload()
     point = forged["trajectories"][0]["points"][0]
@@ -903,7 +913,9 @@ def test_layer3_raw_replication_validator_fails_closed_on_malformed_metric_map()
     )
 
     result = JointSimulationHorizonController().run(
-        _request().model_copy(update={"replications": 2})
+        _request().model_copy(
+            update={"horizon": HorizonSpec(start=0, end=0, step=1), "replications": 2}
+        )
     )
     projection = _replication_sampling_projection(result)
     assert projection["schema_version"] == "policyos.runtime.joint_simulation_horizon.v4"
@@ -1015,7 +1027,12 @@ def test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt() ->
 
 
 def test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation() -> None:
-    request = _request().model_copy(update={"coupling_graph": _coupling_graph("feedback")})
+    request = _request().model_copy(
+        update={
+            "coupling_graph": _coupling_graph("feedback"),
+            "horizon": HorizonSpec(start=0, end=0, step=1),
+        }
+    )
 
     result = JointSimulationHorizonController.for_contract_testing(disable_coupling_gate=True).run(
         request
@@ -1631,7 +1648,10 @@ def test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_intera
 
 
 def test_receipt_verification_fails_for_fabricated_stub_refs() -> None:
-    result = JointSimulationHorizonController().run(_request())
+    request = _request().model_copy(
+        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
+    )
+    result = JointSimulationHorizonController().run(request)
     fabricated = result.receipt.model_copy(
         update={
             "trajectory_hash": _ref("e"),

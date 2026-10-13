@@ -12,6 +12,11 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from _helpers.run_lifecycle import (
+    assert_one_resumed_terminal_lifecycle,
+    interrupt_before_finalize_async,
+    resume_same_run,
+)
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -117,9 +122,7 @@ class GatedPublicationCAS(FileSystemCAS):
         return_selected_profile: bool = False,
     ) -> ArtifactRef:
         if opts.kind != "scientist.node_cache_entry":
-            return super().put_bytes(
-                data, opts, return_selected_profile=return_selected_profile
-            )
+            return super().put_bytes(data, opts, return_selected_profile=return_selected_profile)
         self.entered.set()
         if self.corrupt_destination:
             blob, _manifest = self._paths(ArtifactID.from_sha256_hex(content_hash(data)))
@@ -145,26 +148,17 @@ def context(
     run_id: str,
     run_dir: Path,
     *,
-    resume: bool = False,
-    registry_bundle: ArtifactRef | None = None,
+    resume_from: RunContext | None = None,
 ) -> ExecutionContext:
-    if registry_bundle is None:
+    if resume_from is None:
         registry_bundle = build_default_registry_bundle(
             store,
             return_selected_profile=True,
         ).bundle_ref
-    if resume:
-        run = RunContext.resume(
-            store,
-            run_id=run_id,
-            run_dir=run_dir,
-            registry_bundle=registry_bundle,
-            producer=None,
-            env=None,
-            access_scope=None,
-        )
-    else:
         run = RunContext.start(store, registry_bundle, run_id=run_id, run_dir=run_dir)
+    else:
+        assert resume_from.run_manifest.run_id == run_id
+        run = resume_same_run(store, resume_from)
     return ExecutionContext(store=store, run=run, logger=logging.getLogger("recovery_consumer"))
 
 
@@ -330,15 +324,17 @@ async def test_successful_native_publication_restores_trace_hit_after_reopen(tmp
     spec, registry = workflow(node)
     run_dir = tmp_path / "run"
     first_ctx = context(store, "R_trace_reopen", run_dir)
-    await AsyncWorkflowExecutor(first_ctx, registry).execute(spec, state("R_trace_reopen"))
-    events = [json.loads(line) for line in first_ctx.run.trace_path.read_text().splitlines()]
-    publications = [event for event in events if event["event"] == "NODE_CACHE_STORE"]
+    cold_events = await interrupt_before_finalize_async(
+        first_ctx.run,
+        lambda: AsyncWorkflowExecutor(first_ctx, registry).execute(spec, state("R_trace_reopen")),
+    )
+    publications = [event for event in cold_events if event["event"] == "NODE_CACHE_STORE"]
     assert len(publications) == 1
     entry_ref = ArtifactRef.model_validate(publications[0]["refs"]["outputs"][0])
     assert store.verify(entry_ref.artifact_id).ok
     # A new store and execution context consume the trace's actual CAS bytes.
     fresh_store = FileSystemCAS(tmp_path / "cas")
-    fresh_ctx = context(fresh_store, "R_trace_reopen", run_dir)
+    fresh_ctx = context(fresh_store, "R_trace_reopen", run_dir, resume_from=first_ctx.run)
     second = await AsyncWorkflowExecutor(fresh_ctx, registry).execute(
         spec, state("R_trace_reopen", current=True)
     )
@@ -355,6 +351,8 @@ async def test_successful_native_publication_restores_trace_hit_after_reopen(tmp
     assert cache.load_entry(entry_ref)
     key = compute_idempotency_key(node.spec, state("R_trace_reopen", current=True))
     assert cache.get(key) is not None
+    events = assert_one_resumed_terminal_lifecycle(fresh_ctx.run)
+    assert sum(event.get("event") == "NODE_CACHE_HIT" for event in events) == 1
 
 
 @pytest.mark.parametrize("seed_source", ["trace", "checkpoint"])
@@ -527,7 +525,15 @@ async def test_publication_trace_requires_completed_verified_storage(
     if end == "unbounded":
         monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", 0.1)
     loop = asyncio.get_running_loop()
-    task = asyncio.create_task(executor.execute(spec, state("R_publication")))
+    if end == "cancel":
+        task = asyncio.create_task(executor.execute(spec, state("R_publication")))
+    else:
+        task = asyncio.create_task(
+            interrupt_before_finalize_async(
+                ctx.run,
+                lambda: executor.execute(spec, state("R_publication")),
+            )
+        )
 
     def release():
         assert store.entered.wait(3)
@@ -543,8 +549,7 @@ async def test_publication_trace_requires_completed_verified_storage(
             with pytest.raises(asyncio.CancelledError):
                 await task
         else:
-            result = await task
-            assert result.report.status == "ok"
+            await task
     finally:
         store.release.set()
         helper.join(3)
@@ -559,24 +564,11 @@ async def test_publication_trace_requires_completed_verified_storage(
             executor._cache.get(compute_idempotency_key(node.spec, state("R_publication"))) is None
         )
     fresh = FileSystemCAS(tmp_path / "cas")
-    fresh_ctx = context(
-        fresh,
-        "R_publication",
-        run_dir,
-        resume=end == "cancel",
-        registry_bundle=ctx.run.run_manifest.registry_bundle,
-    )
+    fresh_ctx = context(fresh, "R_publication", run_dir, resume_from=ctx.run)
     resumed = await AsyncWorkflowExecutor(fresh_ctx, registry).execute(
         spec, state("R_publication", current=True)
     )
-    if end == "cancel":
-        resumed_events = [
-            json.loads(line)
-            for line in fresh_ctx.run.trace_path.read_text().splitlines()
-        ]
-        assert sum(event["event"] == "RUN_STARTED" for event in resumed_events) == 1
-        assert sum(event["event"] == "RUN_RESUMED" for event in resumed_events) == 1
-        assert sum(event["event"] == "RUN_FINALIZED" for event in resumed_events) == 1
+    resumed_events = assert_one_resumed_terminal_lifecycle(fresh_ctx.run)
     assert node.calls == (1 if end == "unbounded" else 2)
     assert resumed.state.params == {
         "seed": 7,

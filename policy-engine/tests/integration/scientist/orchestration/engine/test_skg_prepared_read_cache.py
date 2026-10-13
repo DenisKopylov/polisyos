@@ -14,6 +14,11 @@ from typing import Any
 
 import duckdb
 import pytest
+from _helpers.run_lifecycle import (
+    assert_one_resumed_terminal_lifecycle,
+    interrupt_before_finalize,
+    resume_same_run,
+)
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts import input_ref_from_artifact_ref, profile_bound_ref
@@ -180,16 +185,24 @@ def _build_run_context(
     *,
     tenant_id: str | None = None,
     cell_id: str | None = None,
+    resume_from: ExecutionContext | None = None,
+    selected_registry_profile: bool = False,
 ) -> tuple[ExecutionContext, NodeRegistry]:
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        registry_bundle = build_default_registry_bundle(store)
-        run = RunContext.start(
-            store=store,
-            registry_bundle=registry_bundle.bundle_ref,
-            run_id=run_id,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-        )
+        if resume_from is None:
+            registry_bundle = build_default_registry_bundle(
+                store, return_selected_profile=selected_registry_profile
+            )
+            run = RunContext.start(
+                store=store,
+                registry_bundle=registry_bundle.bundle_ref,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+        else:
+            assert resume_from.run.run_manifest.run_id == run_id
+            run = resume_same_run(store, resume_from.run)
     context = ExecutionContext(
         store=store,
         run=run,
@@ -1584,12 +1597,31 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
     monkeypatch.setattr(executor_module, "compute_idempotency_key", original_binding_free_key)
 
     workflow = _workflow()
-    ctx_first, registry_first = _build_run_context(store, initial_state.run_id)
-    first = WorkflowExecutor(ctx_first, registry_first).execute(workflow, initial_state)
-    assert _resolved_value(store, first.state) == 1.4
+    ctx_first, registry_first = _build_run_context(
+        store, initial_state.run_id, selected_registry_profile=True
+    )
+    cold_events = interrupt_before_finalize(
+        ctx_first.run,
+        lambda: _execute_workflow(ctx_first, registry_first, workflow, initial_state),
+    )
+    cache_store_event = next(
+        event for event in cold_events if event.get("event") == "NODE_CACHE_STORE"
+    )
+    cache_entry_ref = ArtifactRef.model_validate(cache_store_event["refs"]["outputs"][0])
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        cache_entry = NodeCacheEntry.model_validate(
+            from_canonical_bytes(store.get_bytes(cache_entry_ref.artifact_id))
+        )
+        first_cache = NodeResultCache(store, run_id=initial_state.run_id)
+        assert first_cache.load_entry(cache_entry_ref)
+        first_outcome = first_cache.get(cache_entry.idempotency_key)
+    assert first_outcome is not None
+    assert _resolved_value(store, first_outcome.state) == 1.4
 
     _set_skg_value(db_path, 3.1)
-    ctx_second, registry_second = _build_run_context(store, initial_state.run_id)
+    ctx_second, registry_second = _build_run_context(
+        store, initial_state.run_id, resume_from=ctx_first
+    )
     second_trace_start = _trace_event_count(ctx_second)
     second = WorkflowExecutor(ctx_second, registry_second).execute(workflow, initial_state)
 
@@ -1599,3 +1631,4 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
         event.get("event") == "NODE_CACHE_HIT"
         for event in _trace_events(ctx_second, start_line=second_trace_start)
     )
+    assert_one_resumed_terminal_lifecycle(ctx_second.run)

@@ -3,8 +3,17 @@ from __future__ import annotations
 import json
 import logging
 import multiprocessing
-import os
-from pathlib import Path
+
+from _helpers.process_run_lifecycle import (
+    _CACHED_SPEC,
+    CachedCounterNode,
+    produce_cached_run_then_exit_before_finalize,
+)
+from _helpers.run_lifecycle import (
+    assert_one_resumed_terminal_lifecycle,
+    interrupt_before_finalize,
+    resume_same_run,
+)
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -23,22 +32,6 @@ from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
-
-_CACHED_METADATA = ComponentMetadata(
-    component_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
-    kind=ComponentKind.SCIENTIST_NODE,
-    abi_targets={"world_abi": "1.x"},
-    display_name="Cached Counter",
-    description="Test node for idempotency cache recovery",
-    tags=["test"],
-    capabilities=Capability.SCIENTIST_NODE,
-)
-
-_CACHED_SPEC = NodeSpec(
-    metadata=_CACHED_METADATA,
-    state_reads=["params.seed"],
-    state_writes=["params.cached_counter"],
-)
 
 _BROAD_CACHED_METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_broad_cached_counter@1.0.0"),
@@ -122,20 +115,6 @@ _MUTATING_FAIL_SPEC = NodeSpec(
 )
 
 
-class CachedCounterNode:
-    calls = 0
-
-    @property
-    def spec(self) -> NodeSpec:
-        return _CACHED_SPEC
-
-    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        CachedCounterNode.calls += 1
-        new_state = state.model_copy(deep=True)
-        new_state.params["cached_counter"] = CachedCounterNode.calls
-        return NodeOutcome(status="ok", state=new_state)
-
-
 class BroadCachedCounterNode:
     calls = 0
 
@@ -212,12 +191,20 @@ class MutatingFailNode:
 
 
 def _build_context(
-    store: FileSystemCAS, run_id: str, *, selected_registry_profile: bool = False
+    store: FileSystemCAS,
+    run_id: str,
+    *,
+    selected_registry_profile: bool = True,
+    resume_from: ExecutionContext | None = None,
 ) -> tuple[ExecutionContext, NodeRegistry]:
-    bundle = build_default_registry_bundle(
-        store, return_selected_profile=selected_registry_profile
-    )
-    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
+    if resume_from is None:
+        bundle = build_default_registry_bundle(
+            store, return_selected_profile=selected_registry_profile
+        )
+        run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
+    else:
+        assert resume_from.run.run_manifest.run_id == run_id
+        run = resume_same_run(store, resume_from.run)
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("idempotency_test"))
     registry = NodeRegistry()
     registry.register(CachedCounterNode())
@@ -226,39 +213,6 @@ def _build_context(
     registry.register(InvalidReplayNode())
     registry.register(AlwaysFailNode())
     return ctx, registry
-
-
-
-
-class _ExpectedRunProcessLoss(BaseException):
-    """Stop a spawned producer after node/cache effects but before RUN_FINALIZED."""
-
-
-def _produce_cached_run_then_exit_before_finalize(store_root: str, run_id: str) -> None:
-    store = FileSystemCAS(Path(store_root))
-    ctx, registry = _build_context(store, run_id, selected_registry_profile=True)
-    workflow = WorkflowSpec(
-        workflow_id="cache_resume_after_process_loss",
-        nodes=[
-            NodeInvocation(
-                alias="cached",
-                node_id=ComponentId.parse("scientist.node_cached_counter@1.0.0"),
-            ),
-        ],
-    )
-
-    def stop_before_finalization(*_args, **_kwargs):
-        raise _ExpectedRunProcessLoss
-
-    ctx.run.finalize = stop_before_finalization
-    try:
-        WorkflowExecutor(ctx, registry).execute(
-            workflow,
-            ExperimentState(run_id=run_id, params={"seed": 7}),
-        )
-    except _ExpectedRunProcessLoss:
-        os._exit(73)
-    os._exit(74)
 
 
 def _load_trace_events(store: FileSystemCAS, ctx: ExecutionContext) -> list[dict[str, object]]:
@@ -283,18 +237,20 @@ def test_executor_cache_hit_after_restart_same_run_id(tmp_path) -> None:
     initial_state = ExperimentState(run_id="R_cache_restart", params={"seed": 7})
 
     ctx_a, registry_a = _build_context(store, "R_cache_restart")
-    result_a = WorkflowExecutor(ctx_a, registry_a).execute(workflow, initial_state)
-    assert result_a.report.status == "ok"
+    cold_events = interrupt_before_finalize(
+        ctx_a.run,
+        lambda: WorkflowExecutor(ctx_a, registry_a).execute(workflow, initial_state),
+    )
     assert CachedCounterNode.calls == 1
-    assert result_a.state.params["cached_counter"] == 1
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
-    ctx_b, registry_b = _build_context(store, "R_cache_restart")
+    ctx_b, registry_b = _build_context(store, "R_cache_restart", resume_from=ctx_a)
     result_b = WorkflowExecutor(ctx_b, registry_b).execute(workflow, initial_state)
     assert result_b.report.status == "ok"
     assert CachedCounterNode.calls == 1
     assert result_b.state.params["cached_counter"] == 1
 
-    events = _load_trace_events(store, ctx_b)
+    events = assert_one_resumed_terminal_lifecycle(ctx_b.run)
     hit_events = [evt for evt in events if evt.get("event") == "NODE_CACHE_HIT"]
     assert len(hit_events) == 1
 
@@ -315,17 +271,20 @@ def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
     )
 
     ctx_a, registry_a = _build_context(store, "R_broad_cache_replay")
-    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
-        workflow,
-        ExperimentState(
-            run_id="R_broad_cache_replay",
-            params={"seed": 7, "unrelated": "old"},
+    cold_events = interrupt_before_finalize(
+        ctx_a.run,
+        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
+            workflow,
+            ExperimentState(
+                run_id="R_broad_cache_replay",
+                params={"seed": 7, "unrelated": "old"},
+            ),
         ),
     )
-    assert result_a.report.status == "ok"
     assert BroadCachedCounterNode.calls == 1
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
-    ctx_b, registry_b = _build_context(store, "R_broad_cache_replay")
+    ctx_b, registry_b = _build_context(store, "R_broad_cache_replay", resume_from=ctx_a)
     result_b = WorkflowExecutor(ctx_b, registry_b).execute(
         workflow,
         ExperimentState(
@@ -338,6 +297,7 @@ def test_executor_cache_hit_preserves_unrelated_current_state(tmp_path) -> None:
     assert BroadCachedCounterNode.calls == 1
     assert result_b.state.params["unrelated"] == "new"
     assert result_b.state.params["cached_counter"] == 1
+    assert_one_resumed_terminal_lifecycle(ctx_b.run)
 
 
 # Production mutation caught: a cache hit must replay a declared top-level
@@ -356,14 +316,17 @@ def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:
     )
 
     ctx_a, registry_a = _build_context(store, "R_top_level_ref_cache")
-    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
-        workflow,
-        ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
+    cold_events = interrupt_before_finalize(
+        ctx_a.run,
+        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
+            workflow,
+            ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
+        ),
     )
-    assert result_a.report.status == "ok"
-    assert result_a.state.preflight_report_ref == _TOP_LEVEL_REF
+    assert TopLevelRefNode.calls == 1
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
-    ctx_b, registry_b = _build_context(store, "R_top_level_ref_cache")
+    ctx_b, registry_b = _build_context(store, "R_top_level_ref_cache", resume_from=ctx_a)
     result_b = WorkflowExecutor(ctx_b, registry_b).execute(
         workflow,
         ExperimentState(run_id="R_top_level_ref_cache", params={"seed": 7}),
@@ -372,6 +335,7 @@ def test_executor_cache_hit_replays_top_level_ref_write(tmp_path) -> None:
     assert result_b.report.status == "ok"
     assert TopLevelRefNode.calls == 1
     assert result_b.state.preflight_report_ref == _TOP_LEVEL_REF
+    assert_one_resumed_terminal_lifecycle(ctx_b.run)
 
 
 def test_cache_rejects_boolean_integer_alias_in_live_mutation_journal(tmp_path) -> None:
@@ -414,17 +378,20 @@ def test_executor_reexecutes_when_cached_replay_target_is_incompatible(tmp_path)
     )
 
     ctx_a, registry_a = _build_context(store, "R_invalid_replay_target")
-    result_a = WorkflowExecutor(ctx_a, registry_a).execute(
-        workflow,
-        ExperimentState(
-            run_id="R_invalid_replay_target",
-            params={"seed": 7, "items": ["cached", "removed"]},
+    cold_events = interrupt_before_finalize(
+        ctx_a.run,
+        lambda: WorkflowExecutor(ctx_a, registry_a).execute(
+            workflow,
+            ExperimentState(
+                run_id="R_invalid_replay_target",
+                params={"seed": 7, "items": ["cached", "removed"]},
+            ),
         ),
     )
-    assert result_a.report.status == "ok"
-    assert result_a.state.params["items"] == ["cached"]
+    assert InvalidReplayNode.calls == 1
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
-    ctx_b, registry_b = _build_context(store, "R_invalid_replay_target")
+    ctx_b, registry_b = _build_context(store, "R_invalid_replay_target", resume_from=ctx_a)
     result_b = WorkflowExecutor(ctx_b, registry_b).execute(
         workflow,
         ExperimentState(
@@ -436,6 +403,7 @@ def test_executor_reexecutes_when_cached_replay_target_is_incompatible(tmp_path)
     assert result_b.report.status == "ok"
     assert InvalidReplayNode.calls == 2
     assert result_b.state.params["reexecuted"] is True
+    assert_one_resumed_terminal_lifecycle(ctx_b.run)
 
 
 def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path) -> None:
@@ -460,12 +428,15 @@ def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path)
     initial_state = ExperimentState(run_id="R_cache_resume", params={"seed": 42})
 
     ctx_a, registry_a = _build_context(store, "R_cache_resume")
-    result_a = WorkflowExecutor(ctx_a, registry_a).execute(workflow, initial_state)
-    assert result_a.report.status == "fail"
+    cold_events = interrupt_before_finalize(
+        ctx_a.run,
+        lambda: WorkflowExecutor(ctx_a, registry_a).execute(workflow, initial_state),
+    )
     assert CachedCounterNode.calls == 1
     assert AlwaysFailNode.calls == 1
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in cold_events) == 1
 
-    ctx_b, registry_b = _build_context(store, "R_cache_resume")
+    ctx_b, registry_b = _build_context(store, "R_cache_resume", resume_from=ctx_a)
     result_b = WorkflowExecutor(ctx_b, registry_b).execute(workflow, initial_state)
     assert result_b.report.status == "fail"
     assert CachedCounterNode.calls == 1
@@ -475,7 +446,7 @@ def test_executor_resume_retries_failed_node_and_reuses_cached_ok_node(tmp_path)
     failing_record = next(rec for rec in result_b.report.nodes if rec.alias == "failing")
     assert cached_record.status == "ok"
     assert failing_record.status == "fail"
-    events = _load_trace_events(store, ctx_b)
+    events = assert_one_resumed_terminal_lifecycle(ctx_b.run)
     assert any(evt.get("event") == "NODE_CACHE_HIT" for evt in events)
 
 
@@ -512,7 +483,7 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
     run_id = "R_process_loss_resume"
     root = tmp_path / "cas"
     process = multiprocessing.get_context("spawn").Process(
-        target=_produce_cached_run_then_exit_before_finalize,
+        target=produce_cached_run_then_exit_before_finalize,
         args=(str(root), run_id),
     )
     process.start()
@@ -521,6 +492,17 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
         process.terminate()
         process.join(timeout=5)
     assert process.exitcode == 73
+
+    child_trace = root / "runs" / run_id / "trace.jsonl"
+    child_events = [
+        json.loads(line)
+        for line in child_trace.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(event.get("event") == "RUN_STARTED" for event in child_events) == 1
+    assert sum(event.get("event") == "RUN_RESUMED" for event in child_events) == 0
+    assert sum(event.get("event") == "RUN_FINALIZED" for event in child_events) == 0
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in child_events) == 1
 
     store = FileSystemCAS(root)
     bundle = build_default_registry_bundle(store, return_selected_profile=True)
@@ -569,8 +551,6 @@ def test_incomplete_process_run_resumes_same_cache_and_one_terminal_lifecycle(tm
         for line in terminal.trace_path.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    assert sum(record.get("event") == "RUN_STARTED" for record in records) == 1
-    assert sum(record.get("event") == "RUN_RESUMED" for record in records) == 1
-    assert sum(record.get("event") == "RUN_FINALIZED" for record in records) == 1
+    assert_one_resumed_terminal_lifecycle(resumed)
     assert sum(record.get("event") == "NODE_CACHE_HIT" for record in records) == 1
     assert terminal.manifest_ref.manifest_profile_sha256 is not None

@@ -1,0 +1,114 @@
+"""Lifecycle-preserving helpers for cache recovery tests."""
+
+from __future__ import annotations
+
+import json
+from collections.abc import Awaitable, Callable
+
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.run.context import RunContext
+
+
+class ExpectedRunInterruption(BaseException):
+    """Stop immediately before terminal publication to exercise explicit resume."""
+
+
+def run_trace_events(run: RunContext) -> list[dict[str, object]]:
+    """Read the append-only lifecycle trace currently owned by ``run``."""
+    assert run.trace_path is not None
+    return [
+        json.loads(line)
+        for line in run.trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def _assert_interrupted(events: list[dict[str, object]], *, expected_resumes: int = 0) -> None:
+    assert sum(event.get("event") == "RUN_STARTED" for event in events) == 1
+    assert sum(event.get("event") == "RUN_RESUMED" for event in events) == expected_resumes
+    assert sum(event.get("event") == "RUN_FINALIZED" for event in events) == 0
+
+
+def interrupt_before_finalize(
+    run: RunContext, execute: Callable[[], object], *, expected_resumes: int = 0
+) -> list[dict[str, object]]:
+    """Execute the real workflow, stopping only at its terminal publication boundary."""
+    original_finalize = run.finalize
+    attempts = 0
+
+    def interrupt(*_args: object, **_kwargs: object) -> None:
+        nonlocal attempts
+        attempts += 1
+        raise ExpectedRunInterruption
+
+    run.finalize = interrupt
+    try:
+        try:
+            execute()
+        except ExpectedRunInterruption:
+            pass
+        else:
+            raise AssertionError("workflow did not reach terminal publication")
+    finally:
+        run.finalize = original_finalize
+    assert attempts == 1
+    events = run_trace_events(run)
+    _assert_interrupted(events, expected_resumes=expected_resumes)
+    return events
+
+
+async def interrupt_before_finalize_async(
+    run: RunContext,
+    execute: Callable[[], Awaitable[object]],
+    *,
+    expected_resumes: int = 0,
+) -> list[dict[str, object]]:
+    """Async counterpart that preserves executor cancellation and suspend behavior."""
+    original_finalize = run.finalize
+    attempts = 0
+
+    def interrupt(*_args: object, **_kwargs: object) -> None:
+        nonlocal attempts
+        attempts += 1
+        raise ExpectedRunInterruption
+
+    run.finalize = interrupt
+    try:
+        try:
+            await execute()
+        except ExpectedRunInterruption:
+            pass
+        else:
+            raise AssertionError("async workflow did not reach terminal publication")
+    finally:
+        run.finalize = original_finalize
+    assert attempts == 1
+    events = run_trace_events(run)
+    _assert_interrupted(events, expected_resumes=expected_resumes)
+    return events
+
+
+def resume_same_run(store: FileSystemCAS, previous: RunContext) -> RunContext:
+    """Resume the exact owner-bound incomplete run with its persisted inputs."""
+    assert previous.trace_path is not None
+    manifest = previous.run_manifest
+    return RunContext.resume(
+        store,
+        run_id=manifest.run_id,
+        run_dir=previous.trace_path.parent,
+        registry_bundle=manifest.registry_bundle,
+        producer=manifest.producer,
+        env=manifest.env,
+        access_scope=previous.access_scope,
+    )
+
+
+def assert_one_resumed_terminal_lifecycle(
+    run: RunContext, *, expected_resumes: int = 1
+) -> list[dict[str, object]]:
+    """Pin one start, the expected resumes, and one terminal event for this run ID."""
+    events = run_trace_events(run)
+    assert sum(event.get("event") == "RUN_STARTED" for event in events) == 1
+    assert sum(event.get("event") == "RUN_RESUMED" for event in events) == expected_resumes
+    assert sum(event.get("event") == "RUN_FINALIZED" for event in events) == 1
+    return events

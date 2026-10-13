@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from tests._helpers.ukraine_foundry_intake import _ukraine_intake_manifests
 
 from polisyos.core.artifacts.manifest import (
     InputRef,
@@ -29,6 +28,7 @@ from polisyos.foundry.data_plane.bindings import (
 )
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+from tests._helpers.ukraine_foundry_intake import _ukraine_intake_manifests
 
 _HOUSEHOLD_VALUE_OUTER_SET = ValueOuterSet.interval_box(
     coordinates=(

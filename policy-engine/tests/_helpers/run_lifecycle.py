@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 from collections.abc import Awaitable, Callable
+from pathlib import Path
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.run.context import RunContext
 
@@ -88,6 +90,29 @@ async def interrupt_before_finalize_async(
     return events
 
 
+def interrupt_and_suspend_before_finalize(
+    run: RunContext, execute: Callable[[], object], *, expected_resumes: int = 0
+) -> list[dict[str, object]]:
+    """Leave one genuinely incomplete run paused after real workflow effects."""
+    events = interrupt_before_finalize(run, execute, expected_resumes=expected_resumes)
+    run.suspend_for_resume()
+    assert run._suspended and run._active_lease is None
+    return events
+
+
+async def interrupt_and_suspend_before_finalize_async(
+    run: RunContext,
+    execute: Callable[[], Awaitable[object]],
+    *,
+    expected_resumes: int = 0,
+) -> list[dict[str, object]]:
+    """Async counterpart that explicitly releases the incomplete run for resume."""
+    events = await interrupt_before_finalize_async(run, execute, expected_resumes=expected_resumes)
+    run.suspend_for_resume()
+    assert run._suspended and run._active_lease is None
+    return events
+
+
 def resume_same_run(store: FileSystemCAS, previous: RunContext) -> RunContext:
     """Resume the exact owner-bound incomplete run with its persisted inputs."""
     assert previous.trace_path is not None
@@ -101,6 +126,47 @@ def resume_same_run(store: FileSystemCAS, previous: RunContext) -> RunContext:
         env=manifest.env,
         access_scope=previous.access_scope,
     )
+
+
+def start_or_resume_run(
+    store: FileSystemCAS,
+    *,
+    run_id: str,
+    registry_bundle: ArtifactRef | None = None,
+    run_dir: Path | None = None,
+    resume_from: RunContext | None = None,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+) -> RunContext:
+    """Start a new owner or resume only its explicitly paused nonterminal lifecycle."""
+    if resume_from is None:
+        if registry_bundle is None:
+            raise AssertionError("a new run requires its selected registry owner")
+        return RunContext.start(
+            store,
+            registry_bundle,
+            run_id=run_id,
+            run_dir=run_dir,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+
+    if registry_bundle is not None:
+        raise AssertionError("resume must use the prior persisted registry owner")
+    if resume_from.run_manifest.run_id != run_id:
+        raise AssertionError("resume must keep the exact run identity")
+    if resume_from.trace_path is None:
+        raise AssertionError("resume requires the prior trace owner")
+    if run_dir is not None and run_dir.resolve() != resume_from.trace_path.parent.resolve():
+        raise AssertionError("resume must keep the exact run directory")
+    if not resume_from._suspended or resume_from._active_lease is not None:
+        raise AssertionError("resume requires an explicit nonterminal suspension")
+    events = run_trace_events(resume_from)
+    _assert_interrupted(
+        events,
+        expected_resumes=sum(event.get("event") == "RUN_RESUMED" for event in events),
+    )
+    return resume_same_run(store, resume_from)
 
 
 def assert_one_resumed_terminal_lifecycle(

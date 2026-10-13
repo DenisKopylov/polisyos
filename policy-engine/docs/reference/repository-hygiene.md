@@ -152,7 +152,7 @@ ratchet entry in this status board and
 | ratcheted | `src/polisyos/calibration`, `src/polisyos/foundry/agent_sim/world` | `workspace lint-fast` with explicit Ruff per-file ignores | Historical annotation/import-line debt is ledgered in `pyproject.toml`. |
 | ratcheted | `tools/lib`, `tools/devx/**`, `tools/ops_runners/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
 | ratcheted | `tests/**` support and smoke suites | `workspace lint-fast` with test-specific Ruff policy | Tests keep looser security/assert/type-import policy while source surfaces tighten first. |
-| phase8-limited | `benchmarks/**`, `tools/research/benchmarks/**`, `tools/research/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract and stays outside strict `lint-fast` Ruff. |
+| phase8-limited | `benchmarks/**`, `tools/research/benchmarks/**`, `tools/research/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract; nested `benchmarks` directories under `src/polisyos` or `tests` remain in `lint-fast`. |
 | pending | Full removal of Ruff ratchet entries | Directory-by-directory owner work | New debt must be added only as a named ratchet entry with owner context. |
 
 ## Mypy Policy

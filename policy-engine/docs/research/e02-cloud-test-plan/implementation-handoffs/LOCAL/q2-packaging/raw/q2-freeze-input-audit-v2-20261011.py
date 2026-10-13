@@ -857,10 +857,13 @@ def self_test() -> dict[str, Any]:
     baseline = {"tests/unit/test_source.py::test_baseline"}
     selected = {"tests/unit/test_consumer.py::test_consumes_bound_artifact"}
     actual = baseline | selected
+    expected_assets = [
+        {"source": "x", "wheel": "pkg/_resources/x", "bytes": 1, "sha256": "a" * 64}
+    ]
     template: dict[str, Any] = {
         "current_primary_suite": {
             "selected_node_ids": sorted(actual),
-            "selected_node_count": 2,
+            "selected_node_count": len(actual),
             "selected_node_ids_sha256": canonical_ids_sha256(actual),
         },
         "additional_installed_consumers": {
@@ -870,50 +873,74 @@ def self_test() -> dict[str, Any]:
             }
         },
         "candidate_baseline": {
-            "force_include_assets": [
-                {"source": "x", "wheel": "pkg/_resources/x", "bytes": 1, "sha256": "a" * 64}
-            ]
+            "force_include_count": len(expected_assets),
+            "force_include_assets": expected_assets,
         },
     }
-    validate_recomputed_ids(template, actual)
+    # Prove the unmodified fixture is valid before any drift control runs.
+    validate_recomputed_ids(template, actual, expected_assets)
 
-    cases: dict[str, bool] = {}
-    expanded_actual = actual | {"tests/unit/test_registry.py::test_registry[missing]", "tests/unit/test_registry.py::test_registry[unreadable]", "tests/unit/test_registry.py::test_registry[corrupt]"}
+    cases: dict[str, bool] = {
+        "baseline-validates-before-drift": True,
+        "force-include-count-derived-from-asset-list": (
+            template["candidate_baseline"]["force_include_count"] == len(expected_assets)
+        ),
+    }
+    expanded_actual = actual | {
+        "tests/unit/test_registry.py::test_registry[missing]",
+        "tests/unit/test_registry.py::test_registry[unreadable]",
+        "tests/unit/test_registry.py::test_registry[corrupt]",
+    }
     expanded_manifest = copy.deepcopy(template)
     expanded_suite = expanded_manifest["current_primary_suite"]
     expanded_suite["selected_node_ids"] = sorted(expanded_actual)
     expanded_suite["selected_node_count"] = len(expanded_actual)
     expanded_suite["selected_node_ids_sha256"] = canonical_ids_sha256(expanded_actual)
-    validate_recomputed_ids(expanded_manifest, expanded_actual, template["candidate_baseline"]["force_include_assets"])
-    cases["count-derived-from-complete-variable-collection"] = expanded_suite["selected_node_count"] == len(expanded_actual) and len(expanded_actual) != len(actual)
-    for name, mutate in (
+    validate_recomputed_ids(expanded_manifest, expanded_actual, expected_assets)
+    cases["count-derived-from-complete-variable-collection"] = expanded_suite[
+        "selected_node_count"
+    ] == len(expanded_actual) and len(expanded_actual) != len(actual)
+    for name, expected_failure, mutate in (
         (
             "corrupt-count-mismatch",
-            lambda value: value["current_primary_suite"].update(selected_node_count=3),
+            "selected_node_count does not equal the declared ID list length",
+            lambda value: value["current_primary_suite"].update(
+                selected_node_count=len(actual) + 1
+            ),
         ),
         (
             "float-count-alias",
-            lambda value: value["current_primary_suite"].update(selected_node_count=2.0),
+            "selected_node_count does not equal the declared ID list length",
+            lambda value: value["current_primary_suite"].update(
+                selected_node_count=float(len(actual))
+            ),
         ),
         (
             "boolean-count-alias",
+            "selected_node_count does not equal the declared ID list length",
             lambda value: value["current_primary_suite"].update(selected_node_count=True),
         ),
         (
             "string-count-alias",
-            lambda value: value["current_primary_suite"].update(selected_node_count="2"),
+            "selected_node_count does not equal the declared ID list length",
+            lambda value: value["current_primary_suite"].update(
+                selected_node_count=str(len(actual))
+            ),
         ),
         (
             "negative-count",
+            "selected_node_count does not equal the declared ID list length",
             lambda value: value["current_primary_suite"].update(selected_node_count=-1),
         ),
         (
             "corrupt-digest",
+            "selected_node_ids_sha256 does not recompute from the ID list",
             lambda value: value["current_primary_suite"].update(selected_node_ids_sha256="0" * 64),
         ),
-        # Leave the selector marker and the independently collected source IDs untouched.
+        # Keep the selector marker, but remove one independently collected ID.
         (
             "remove-selected-id-with-marker-preserved",
+            "declared node IDs differ from actual source collection",
             lambda value: value["current_primary_suite"].update(
                 selected_node_ids=sorted(baseline),
                 selected_node_count=len(baseline),
@@ -921,18 +948,27 @@ def self_test() -> dict[str, Any]:
             ),
         ),
         (
+            "force-include-count-mismatch",
+            "manifest force-include resources differ from frozen hatch.toml and source bytes",
+            lambda value: value["candidate_baseline"].update(
+                force_include_count=len(expected_assets) + 1
+            ),
+        ),
+        (
             "remove-config-derived-resource-with-map-preserved",
-            lambda value: value["candidate_baseline"].update(force_include_assets=[]),
+            "manifest force-include resources differ from frozen hatch.toml and source bytes",
+            lambda value: value["candidate_baseline"].update(
+                force_include_assets=[],
+                force_include_count=len(expected_assets),
+            ),
         ),
     ):
         candidate = copy.deepcopy(template)
         mutate(candidate)
         try:
-            validate_recomputed_ids(
-                candidate, actual, template["candidate_baseline"]["force_include_assets"]
-            )
-        except AuditFailure:
-            cases[name] = True
+            validate_recomputed_ids(candidate, actual, expected_assets)
+        except AuditFailure as error:
+            cases[name] = str(error).startswith(expected_failure)
         else:
             cases[name] = False
     if not all(cases.values()):

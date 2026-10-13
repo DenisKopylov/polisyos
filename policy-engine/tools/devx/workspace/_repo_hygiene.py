@@ -26,6 +26,12 @@ PHASE8_LIMITED_PYTHON_SCOPE: tuple[str, ...] = (
     "tools/research/demos",
     "tools/research",
 )
+# Ruff treats a slashless exclusion as a match on any path component. Anchor each
+# Phase 8 tree so nested src/polisyos/**/benchmarks and tests/**/benchmarks stay in
+# the authored lint contract.
+PHASE8_LIMITED_PYTHON_RUFF_EXCLUDES: tuple[str, ...] = tuple(
+    f"{path}/**" for path in PHASE8_LIMITED_PYTHON_SCOPE
+)
 AUTHORED_PYTHON_LINT_SCOPE: tuple[str, ...] = tuple(
     path for path in AUTHORED_PYTHON_FORMAT_SCOPE if path not in PHASE8_LIMITED_PYTHON_SCOPE
 )
@@ -36,12 +42,7 @@ PYTHON_BASE_LAYERS: tuple[tuple[str, str, str], ...] = (
     ("ir", "src/polisyos/ir", "tests/unit/ir"),
     ("core", "src/polisyos/core", "tests/unit/core"),
 )
-BENCHMARK_RESEARCH_SCOPE: tuple[str, ...] = (
-    "benchmarks",
-    "tools/research/benchmarks",
-    "tools/research/demos",
-    "tools/research",
-)
+BENCHMARK_RESEARCH_SCOPE: tuple[str, ...] = PHASE8_LIMITED_PYTHON_SCOPE
 REGO_SCOPE: tuple[str, ...] = (
     "ops/policy/policies",
     "ops/cloud/helm/polisyos-cell/policies",

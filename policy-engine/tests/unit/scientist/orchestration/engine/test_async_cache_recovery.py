@@ -14,8 +14,8 @@ from pathlib import Path
 import pytest
 from _helpers.run_lifecycle import (
     assert_one_resumed_terminal_lifecycle,
-    interrupt_before_finalize_async,
-    resume_same_run,
+    interrupt_and_suspend_before_finalize_async,
+    start_or_resume_run,
 )
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -150,15 +150,18 @@ def context(
     *,
     resume_from: RunContext | None = None,
 ) -> ExecutionContext:
-    if resume_from is None:
-        registry_bundle = build_default_registry_bundle(
-            store,
-            return_selected_profile=True,
-        ).bundle_ref
-        run = RunContext.start(store, registry_bundle, run_id=run_id, run_dir=run_dir)
-    else:
-        assert resume_from.run_manifest.run_id == run_id
-        run = resume_same_run(store, resume_from)
+    registry_bundle = (
+        build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+        if resume_from is None
+        else None
+    )
+    run = start_or_resume_run(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=registry_bundle,
+        resume_from=resume_from,
+    )
     return ExecutionContext(store=store, run=run, logger=logging.getLogger("recovery_consumer"))
 
 
@@ -223,7 +226,7 @@ async def cold_setup(tmp_path: Path, seed_source: str):
     else:
         checkpoint_refs = refs
     store = GatedCAS(tmp_path / "cas")
-    reopened = context(store, ctx.run.run_manifest.run_id, run_dir, resume=True)
+    reopened = context(store, ctx.run.run_manifest.run_id, run_dir, resume_from=ctx.run)
     store.target = str(refs[0].artifact_id)
     executor = AsyncWorkflowExecutor(reopened, registry, checkpoint_cache_seed_refs=checkpoint_refs)
     return store, executor, node, spec, refs
@@ -324,7 +327,7 @@ async def test_successful_native_publication_restores_trace_hit_after_reopen(tmp
     spec, registry = workflow(node)
     run_dir = tmp_path / "run"
     first_ctx = context(store, "R_trace_reopen", run_dir)
-    cold_events = await interrupt_before_finalize_async(
+    cold_events = await interrupt_and_suspend_before_finalize_async(
         first_ctx.run,
         lambda: AsyncWorkflowExecutor(first_ctx, registry).execute(spec, state("R_trace_reopen")),
     )
@@ -529,7 +532,7 @@ async def test_publication_trace_requires_completed_verified_storage(
         task = asyncio.create_task(executor.execute(spec, state("R_publication")))
     else:
         task = asyncio.create_task(
-            interrupt_before_finalize_async(
+            interrupt_and_suspend_before_finalize_async(
                 ctx.run,
                 lambda: executor.execute(spec, state("R_publication")),
             )
@@ -563,6 +566,7 @@ async def test_publication_trace_requires_completed_verified_storage(
         assert (
             executor._cache.get(compute_idempotency_key(node.spec, state("R_publication"))) is None
         )
+    ctx.run.suspend_for_resume()
     fresh = FileSystemCAS(tmp_path / "cas")
     fresh_ctx = context(fresh, "R_publication", run_dir, resume_from=ctx.run)
     resumed = await AsyncWorkflowExecutor(fresh_ctx, registry).execute(

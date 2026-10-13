@@ -781,9 +781,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert candidate_artifact_ref.get("manifest_profile_sha256") is not None
         proposal_read = progress["generation_source_read_provenance"]
         assert proposal_read["selected_artifact_id"] == candidate_artifact_ref["artifact_id"]
-        assert proposal_read["selected_manifest_profile_sha256"] == candidate_artifact_ref[
-            "manifest_profile_sha256"
-        ]
+        assert (
+            proposal_read["selected_manifest_profile_sha256"]
+            == candidate_artifact_ref["manifest_profile_sha256"]
+        )
         assert proposal_read["source_materialization"] == "reader_materialized"
         assert proposal_read["producer_attestation_status"] == "not_established"
         assert progress["n5_status"] == "not_run"
@@ -849,9 +850,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             and record.amount > Decimal(0)
             for record in records
         )
-        assert any(
-            record.cost_origin == "unknown" and record.amount is None for record in records
-        )
+        assert any(record.cost_origin == "unknown" and record.amount is None for record in records)
         assert details.root_artifacts
 
         ledger_path = Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
@@ -979,7 +978,83 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
                 provider="simulated_gateway",
             )
         assert pending.status == "pending" and pending.amount is None
-        runtime_context.debug.bind_producer_settlement_store(reopened)
+
+        # Exercise a real TTL cache producer after the ordinary route has issued
+        # this exact run binding. Expiry must create a second provider settlement,
+        # then survive a fresh reader of the same durable ledger.
+        expiry_provider = _MonetarySimulatedProvider("simulated-qwen")
+        expiry_cache = InMemoryPromptCache(maxsize=8, default_ttl_s=0.5)
+        expiry_cached_client = CachingLLMClient(
+            expiry_provider,
+            cache=expiry_cache,
+            model="simulated-qwen",
+            ttl_s=0.5,
+            inflight_timeout_s=10,
+        )
+        expiry_traced_client = TracedLLMClient(
+            expiry_cached_client,
+            model_name="simulated-qwen",
+            run_id=str(job.run_id),
+            provider_name="simulated_gateway",
+            producer_settlement_store=reopened,
+            producer_budget_key=f"nl-run:{job.run_id}",
+        )
+
+        async def _run_cache_expiry() -> tuple[Any, Any, Any]:
+            with reopened.producer_run_binding_scope(binding):
+                request = {"user": "R3 TTL expiry witness for the selected ordinary run."}
+                first = await expiry_traced_client.generate(**request)
+                reuse = await expiry_traced_client.generate(**request)
+                await asyncio.sleep(0.6)
+                expired = await expiry_traced_client.generate(**request)
+            return first, reuse, expired
+
+        expiry_first, expiry_reuse, expiry_second_provider = asyncio.run(_run_cache_expiry())
+        expiry_first_event = expiry_first.settlement.event
+        expiry_reuse_event = expiry_reuse.settlement.event
+        expiry_second_event = expiry_second_provider.settlement.event
+        assert expiry_provider.calls == 2
+        expiry_stats = expiry_cache.stats()
+        assert expiry_stats["hits"] == 1
+        assert expiry_stats["misses"] == 2
+        assert expiry_stats["expired"] == 1
+        assert expiry_stats["puts"] == 2
+        assert expiry_first_event.cost_origin == "reported"
+        assert expiry_first_event.amount == Decimal(0)
+        assert expiry_reuse_event.cost_origin == "reuse"
+        assert expiry_reuse_event.amount == Decimal(0)
+        assert expiry_reuse_event.origin_event_id == expiry_first_event.event_id
+        assert expiry_second_event.cost_origin == "estimated"
+        assert expiry_second_event.amount is not None
+        assert expiry_second_event.amount > Decimal(0)
+        assert expiry_second_event.event_id != expiry_first_event.event_id
+        assert expiry_second_event.request_digest == expiry_first_event.request_digest
+        assert expiry_first_event.model == expiry_second_event.model == "simulated-qwen"
+        assert expiry_first_event.provider == expiry_second_event.provider == "simulated_gateway"
+        assert all(
+            response.settlement.ack.status == "committed"
+            and response.settlement.ack.durability == "ledger"
+            for response in (expiry_first, expiry_reuse, expiry_second_provider)
+        )
+        expiry_event_ids = {
+            expiry_first_event.event_id,
+            expiry_reuse_event.event_id,
+            expiry_second_event.event_id,
+        }
+        assert len(expiry_event_ids) == 3
+        expiry_rows = reopened.list_producer_events_for_run_safe(binding)
+        expiry_rows_by_id = {row.event_id: row for row in expiry_rows}
+        assert expiry_event_ids <= set(expiry_rows_by_id)
+        assert all(
+            expiry_rows_by_id[event_id].run_binding == binding for event_id in expiry_event_ids
+        )
+
+        fresh_reader = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        assert fresh_reader is not reopened
+        assert fresh_reader.settlement_owner_identity == reopened.settlement_owner_identity
+        fresh_rows = fresh_reader.list_producer_events_for_run_safe(binding)
+        assert expiry_event_ids <= {row.event_id for row in fresh_rows}
+        runtime_context.debug.bind_producer_settlement_store(fresh_reader)
         tampered_run = replace(
             run,
             details=run.details.model_copy(update={"control_job_id": "foreign-job"}),
@@ -1048,7 +1123,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         ]
         served_by_id = {event.event_id: event for event in served_events}
         assert len(served_by_id) == len(served_events)
-        owner_records = reopened.list_producer_events_for_run_safe(selected_binding)
+        owner_records = fresh_reader.list_producer_events_for_run_safe(selected_binding)
         owner_records_by_id = {record.event_id: record for record in owner_records}
         assert len(owner_records_by_id) == len(owner_records)
         assert all(record.run_binding == selected_binding for record in owner_records)
@@ -1087,9 +1162,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             expected_origin_counts[record.cost_origin] = (
                 expected_origin_counts.get(record.cost_origin, 0) + 1
             )
-            expected_status_counts[record.status] = (
-                expected_status_counts.get(record.status, 0) + 1
-            )
+            expected_status_counts[record.status] = expected_status_counts.get(record.status, 0) + 1
             if record.cost_origin == "reported" and record.amount is not None:
                 reported_amount += record.amount
             if record.cost_origin == "estimated" and record.amount is not None:
@@ -1119,9 +1192,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             for record in owner_records
         )
         assert any(
-            record.cost_origin == "unknown"
-            and record.status == "unknown"
-            and record.amount is None
+            record.cost_origin == "unknown" and record.status == "unknown" and record.amount is None
             for record in owner_records
         )
         assert pending_view.model == "simulated-qwen"

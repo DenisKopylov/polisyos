@@ -84,6 +84,11 @@ rejects duplicate IDs, malformed routes, and unresolved handlers.
 | `uv run polisyos-tools workspace verify --backend-only --skip-doctor`                                                   | Прогнать быстрый backend-only gate после локальных правок.                            | `conceptual` (может занять заметное время)  |
 | `uv run polisyos-tools workspace ci-parity --skip-browser`                                                              | Прогнать umbrella parity pass с docs checks по умолчанию.                             | `conceptual` (тяжёлый агрегирующий gate)    |
 
+`lint-fast` keeps every authored Python file under `src/polisyos/**` and
+`tests/**` in its normal Ruff scope. Its Phase 8 exclusions are rooted at their
+workspace paths, so nested directories named `benchmarks` remain linted there;
+the separate `benchmark-surfaces` gate owns the declared Phase 8 roots.
+
 ## Test And Verification
 
 | Command                                                                                                                                    | What it verifies                                                                      | Status         |

@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import argparse
 
-from ._common import run_command
+from ._common import CommandSpec, run_command
 from ._repo_hygiene import (
     AUTHORED_PYTHON_LINT_SCOPE,
-    PHASE8_LIMITED_PYTHON_SCOPE,
+    PHASE8_LIMITED_PYTHON_RUFF_EXCLUDES,
     ensure_executable,
     frontend_npm_runs,
     pre_commit_hook,
@@ -36,19 +36,27 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _authored_python_ruff_check() -> CommandSpec:
+    """Build the strict authored-Python Ruff check with path-rooted Phase 8 exclusions."""
+
+    phase8_excludes = tuple(
+        arg
+        for pattern in PHASE8_LIMITED_PYTHON_RUFF_EXCLUDES
+        for arg in ("--extend-exclude", pattern)
+    )
+    return uv_run(
+        "ruff check",
+        "ruff",
+        "check",
+        *phase8_excludes,
+        *AUTHORED_PYTHON_LINT_SCOPE,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
-    phase8_excludes = tuple(
-        arg for path in PHASE8_LIMITED_PYTHON_SCOPE for arg in ("--extend-exclude", path)
-    )
     commands = [
-        uv_run(
-            "ruff check",
-            "ruff",
-            "check",
-            *phase8_excludes,
-            *AUTHORED_PYTHON_LINT_SCOPE,
-        ),
+        _authored_python_ruff_check(),
         pre_commit_hook("yamllint", label="yamllint authored YAML"),
         pre_commit_hook("shellcheck", label="shellcheck authored shell"),
         pre_commit_hook("actionlint", label="actionlint workflows"),

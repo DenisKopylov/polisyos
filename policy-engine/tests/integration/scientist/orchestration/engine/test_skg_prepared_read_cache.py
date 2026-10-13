@@ -16,8 +16,8 @@ import duckdb
 import pytest
 from _helpers.run_lifecycle import (
     assert_one_resumed_terminal_lifecycle,
-    interrupt_before_finalize,
-    resume_same_run,
+    interrupt_and_suspend_before_finalize,
+    start_or_resume_run,
 )
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -28,7 +28,6 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.domains.academic.knowledge.skg_query import (
     PreparedSKGRead,
@@ -84,7 +83,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor, WorkflowReport
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeCacheEntry,
     NodeResultCache,
@@ -189,20 +188,21 @@ def _build_run_context(
     selected_registry_profile: bool = False,
 ) -> tuple[ExecutionContext, NodeRegistry]:
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        if resume_from is None:
-            registry_bundle = build_default_registry_bundle(
+        registry_bundle = (
+            build_default_registry_bundle(
                 store, return_selected_profile=selected_registry_profile
-            )
-            run = RunContext.start(
-                store=store,
-                registry_bundle=registry_bundle.bundle_ref,
-                run_id=run_id,
-                tenant_id=tenant_id,
-                cell_id=cell_id,
-            )
-        else:
-            assert resume_from.run.run_manifest.run_id == run_id
-            run = resume_same_run(store, resume_from.run)
+            ).bundle_ref
+            if resume_from is None
+            else None
+        )
+        run = start_or_resume_run(
+            store,
+            run_id=run_id,
+            registry_bundle=registry_bundle,
+            resume_from=None if resume_from is None else resume_from.run,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
     context = ExecutionContext(
         store=store,
         run=run,
@@ -261,6 +261,48 @@ def _execute_workflow(
 ):
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         return WorkflowExecutor(context, registry).execute(workflow, state)
+
+
+def _workflow_result_from_events(
+    context: ExecutionContext, events: list[dict[str, Any]]
+) -> tuple[WorkflowReport, ExperimentState]:
+    """Read the actual persisted workflow outputs before an interrupted terminal boundary."""
+    refs = [
+        ArtifactRef.model_validate(raw_ref)
+        for event in events
+        if event.get("event") == "RUN_OUTPUT_ADDED"
+        for raw_ref in event.get("refs", {}).get("outputs", [])
+    ]
+    report_ref = next(ref for ref in reversed(refs) if ref.kind == "scientist.workflow_report")
+    state_ref = next(ref for ref in reversed(refs) if ref.kind == "scientist.experiment_state")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        report = WorkflowReport.model_validate(
+            from_canonical_bytes(context.store.get_bytes(report_ref.artifact_id))
+        )
+        state = ExperimentState.model_validate(
+            from_canonical_bytes(context.store.get_bytes(state_ref.artifact_id))
+        )
+    return report, state
+
+
+def _execute_workflow_and_suspend(
+    context: ExecutionContext,
+    registry: NodeRegistry,
+    workflow: WorkflowSpec,
+    state: ExperimentState,
+    *,
+    expected_resumes: int,
+) -> tuple[WorkflowReport, ExperimentState, list[dict[str, object]]]:
+    """Run real consumers, retain their CAS outputs, and pause before terminal publication."""
+    start_line = _trace_event_count(context)
+    interrupt_and_suspend_before_finalize(
+        context.run,
+        lambda: _execute_workflow(context, registry, workflow, state),
+        expected_resumes=expected_resumes,
+    )
+    events = _trace_events(context, start_line=start_line)
+    report, result_state = _workflow_result_from_events(context, events)
+    return report, result_state, events
 
 
 def _trinity_bundle() -> TrinityBundle:
@@ -423,13 +465,17 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     )
     workflow = _workflow()
 
-    ctx_first, registry_first = _build_run_context(store, initial_state.run_id)
-    first = _execute_workflow(ctx_first, registry_first, workflow, initial_state)
-    first_value = _resolved_value(store, first.state)
-    assert first.report.status == "ok"
+    ctx_first, registry_first = _build_run_context(
+        store, initial_state.run_id, selected_registry_profile=True
+    )
+    first_report, first_state, first_events = _execute_workflow_and_suspend(
+        ctx_first, registry_first, workflow, initial_state, expected_resumes=0
+    )
+    first_value = _resolved_value(store, first_state)
+    assert first_report.status == "ok"
     assert first_value == 1.4
     cache_store_event = next(
-        event for event in _trace_events(ctx_first) if event.get("event") == "NODE_CACHE_STORE"
+        event for event in first_events if event.get("event") == "NODE_CACHE_STORE"
     )
     cache_entry_ref = ArtifactRef.model_validate(cache_store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -450,21 +496,18 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     query_fingerprints = json.loads(origin_attrs["connection_query_fingerprints_json"])
     assert query_fingerprints
 
-    ctx_hit, registry_hit = _build_run_context(store, initial_state.run_id)
-    hit_trace_start = _trace_event_count(ctx_hit)
-    hit = _execute_workflow(ctx_hit, registry_hit, workflow, initial_state)
+    ctx_hit, registry_hit = _build_run_context(store, initial_state.run_id, resume_from=ctx_first)
+    hit_report, hit_state, hit_events = _execute_workflow_and_suspend(
+        ctx_hit, registry_hit, workflow, initial_state, expected_resumes=1
+    )
 
-    assert hit.report.status == "ok"
-    assert _resolved_value(store, hit.state) == first_value
-    hit_events = [
-        event
-        for event in _trace_events(ctx_hit, start_line=hit_trace_start)
-        if event.get("event") == "NODE_CACHE_HIT"
-    ]
+    assert hit_report.status == "ok"
+    assert _resolved_value(store, hit_state) == first_value
+    hit_events = [event for event in hit_events if event.get("event") == "NODE_CACHE_HIT"]
     assert len(hit_events) == 1
     receipt_refs = [
         ref
-        for ref in hit.report.nodes[0].artifacts
+        for ref in hit_report.nodes[0].artifacts
         if ref.kind == "scientist.skg_cache_read_receipt"
     ]
     assert len(receipt_refs) == 1
@@ -494,31 +537,35 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
         foreign_store.get_bytes(receipt_refs[0].artifact_id)
 
     _set_unrelated_value(db_path, 2)
-    ctx_unrelated, registry_unrelated = _build_run_context(store, initial_state.run_id)
-    unrelated_trace_start = _trace_event_count(ctx_unrelated)
-    unrelated = _execute_workflow(
+    ctx_unrelated, registry_unrelated = _build_run_context(
+        store, initial_state.run_id, resume_from=ctx_hit
+    )
+    unrelated_report, unrelated_state, unrelated_events = _execute_workflow_and_suspend(
         ctx_unrelated,
         registry_unrelated,
         workflow,
         initial_state,
+        expected_resumes=2,
     )
 
-    assert unrelated.report.status == "ok"
-    assert _resolved_value(store, unrelated.state) == first_value
-    unrelated_events = _trace_events(ctx_unrelated, start_line=unrelated_trace_start)
+    assert unrelated_report.status == "ok"
+    assert _resolved_value(store, unrelated_state) == first_value
     assert not any(event.get("event") == "NODE_CACHE_HIT" for event in unrelated_events)
     assert sum(event.get("event") == "NODE_CACHE_STORE" for event in unrelated_events) == 1
 
     _set_skg_value(db_path, 2.6)
-    ctx_changed, registry_changed = _build_run_context(store, initial_state.run_id)
+    ctx_changed, registry_changed = _build_run_context(
+        store, initial_state.run_id, resume_from=ctx_unrelated
+    )
     changed_trace_start = _trace_event_count(ctx_changed)
-    changed = _execute_workflow(ctx_changed, registry_changed, workflow, unrelated.state)
+    changed = _execute_workflow(ctx_changed, registry_changed, workflow, unrelated_state)
 
     assert changed.report.status == "ok"
     assert _resolved_value(store, changed.state) == 2.6
     changed_events = _trace_events(ctx_changed, start_line=changed_trace_start)
     assert not any(event.get("event") == "NODE_CACHE_HIT" for event in changed_events)
     assert sum(event.get("event") == "NODE_CACHE_STORE" for event in changed_events) == 1
+    assert_one_resumed_terminal_lifecycle(ctx_changed.run, expected_resumes=3)
 
 
 def test_workflow_executor_scopes_constant_query_as_execution_only(
@@ -555,13 +602,15 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     monkeypatch.setattr(ResolveParametersNode, "execute", execute_constant_query)
     monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", lambda *_args: True)
 
-    first_context, first_registry = _build_run_context(store, state.run_id)
-    first = _execute_workflow(first_context, first_registry, _workflow(), state)
-    assert first.report.status == "ok"
-    assert observed == [1]
-    store_event = next(
-        event for event in _trace_events(first_context) if event.get("event") == "NODE_CACHE_STORE"
+    first_context, first_registry = _build_run_context(
+        store, state.run_id, selected_registry_profile=True
     )
+    first_report, _first_state, first_events = _execute_workflow_and_suspend(
+        first_context, first_registry, _workflow(), state, expected_resumes=0
+    )
+    assert first_report.status == "ok"
+    assert observed == [1]
+    store_event = next(event for event in first_events if event.get("event") == "NODE_CACHE_STORE")
     cache_entry_ref = ArtifactRef.model_validate(store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         cache_entry = NodeCacheEntry.model_validate(
@@ -579,10 +628,11 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     assert origin.attrs["read_evidence_scope"] == "bound_connection_query_execution_only"
     assert origin.attrs["output_dependency"] == "not_established"
 
-    hit_context, hit_registry = _build_run_context(store, state.run_id)
+    hit_context, hit_registry = _build_run_context(store, state.run_id, resume_from=first_context)
     hit = _execute_workflow(hit_context, hit_registry, _workflow(), state)
     assert hit.report.status == "ok"
     assert observed == [1]
+    assert_one_resumed_terminal_lifecycle(hit_context.run)
     receipt_refs = [
         ref
         for ref in hit.report.nodes[0].artifacts
@@ -698,19 +748,21 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
             "skg_db_path": str(db_path),
         },
     )
-    context, registry = _build_run_context(store, state.run_id)
+    context, registry = _build_run_context(store, state.run_id, selected_registry_profile=True)
     writes_before_warmup = tuple(underlying_store_write_calls)
-    warmup = _execute_workflow(context, registry, _workflow(), state)
+    warmup_report, warmup_state, warmup_events = _execute_workflow_and_suspend(
+        context, registry, _workflow(), state, expected_resumes=0
+    )
     warmup_write_delta = tuple(underlying_store_write_calls)[len(writes_before_warmup) :]
-    assert warmup.report.status == "ok"
-    assert _resolved_value(store, warmup.state) == 1.4
+    assert warmup_report.status == "ok"
+    assert _resolved_value(store, warmup_state) == 1.4
 
     warmup_store_event = next(
-        event for event in _trace_events(context) if event.get("event") == "NODE_CACHE_STORE"
+        event for event in warmup_events if event.get("event") == "NODE_CACHE_STORE"
     )
     source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
     warmup_bundle_ref = ArtifactRef.model_validate(
-        warmup.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        warmup_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
     )
     assert any(method == "put_bytes" for method, _ref in warmup_write_delta)
     assert any(
@@ -743,6 +795,7 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
         stale_outcome = prior_cache.get(unbound_key)
         assert stale_outcome is not None
         assert _resolved_value(store, stale_outcome.state) == 1.4
+    context, registry = _build_run_context(store, state.run_id, resume_from=context)
     context.run.emit(
         "scientist.node.resolve",
         "NODE_CACHE_STORE",
@@ -862,6 +915,7 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
     assert len(prepared_reads) == 1
     assert close_calls == prepared_reads
     assert prepared_reads[0]._closed is True
+    assert_one_resumed_terminal_lifecycle(context.run)
 
 
 @pytest.mark.skipif(
@@ -909,13 +963,16 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         state.run_id,
         tenant_id="tenant-a",
         cell_id="cell-a",
+        selected_registry_profile=True,
     )
-    warmup = _execute_workflow(context, registry, _workflow(), state)
-    assert warmup.report.status == "ok"
-    assert _resolved_value(store, warmup.state) == 1.4
+    warmup_report, warmup_state, warmup_events = _execute_workflow_and_suspend(
+        context, registry, _workflow(), state, expected_resumes=0
+    )
+    assert warmup_report.status == "ok"
+    assert _resolved_value(store, warmup_state) == 1.4
 
     warmup_store_event = next(
-        event for event in _trace_events(context) if event.get("event") == "NODE_CACHE_STORE"
+        event for event in warmup_events if event.get("event") == "NODE_CACHE_STORE"
     )
     source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -940,6 +997,7 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         stale_outcome = prior_cache.get(unbound_key)
         assert stale_outcome is not None
         assert _resolved_value(store, stale_outcome.state) == 1.4
+    context, registry = _build_run_context(store, state.run_id, resume_from=context)
     context.run.emit(
         "scientist.node.resolve",
         "NODE_CACHE_STORE",
@@ -1179,6 +1237,7 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
     assert race_worker_closes[0]["alive_before_close"] is False
     assert race_worker_closes[0]["closed_after"] is True
     assert _file_sha256(race_materialization) == after
+    assert_one_resumed_terminal_lifecycle(context.run)
 
 
 def test_spawn_timeout_refuses_live_prepared_read_before_child_start(
@@ -1600,7 +1659,7 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
     ctx_first, registry_first = _build_run_context(
         store, initial_state.run_id, selected_registry_profile=True
     )
-    cold_events = interrupt_before_finalize(
+    cold_events = interrupt_and_suspend_before_finalize(
         ctx_first.run,
         lambda: _execute_workflow(ctx_first, registry_first, workflow, initial_state),
     )

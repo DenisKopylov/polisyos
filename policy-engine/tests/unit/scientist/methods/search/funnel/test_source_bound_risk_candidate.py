@@ -82,6 +82,8 @@ from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestr
 from polisyos.scientist.methods.search.funnel.types import FunnelStageResult
 from polisyos.scientist.methods.search.uncertainty import (
     SourceBoundRiskObservation,
+    _source_identity_relation,
+    _source_refs_equal,
     load_source_bound_risk_observation,
     persist_source_bound_risk_observation,
 )
@@ -587,6 +589,39 @@ def _manifest_edge(store: FileSystemCAS, ref: ArtifactRef, role: str) -> InputRe
 
 def _ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
     return (str(ref.artifact_id), ref.kind, ref.media_type, ref.manifest_profile_sha256)
+
+
+def test_source_ref_identity_uses_all_fields_not_pydantic_subclass() -> None:
+    selected_profile = f"sha256:{'b' * 64}"
+    base_ref = ArtifactRef(
+        artifact_id=f"sha256:{'a' * 64}",
+        kind="foundry.execution_input_basis",
+        media_type="application/json",
+        manifest_profile_sha256=selected_profile,
+    )
+    typed_ref = FoundryExecutionInputBasisRef.model_validate(base_ref.model_dump(mode="python"))
+    assert type(typed_ref) is FoundryExecutionInputBasisRef
+    assert _source_refs_equal(base_ref, typed_ref)
+
+    def changed_ref(**updates: Any) -> ArtifactRef:
+        return ArtifactRef.model_validate({**base_ref.model_dump(mode="python"), **updates})
+
+    assert not _source_refs_equal(base_ref, changed_ref(artifact_id=f"sha256:{'c' * 64}"))
+    assert not _source_refs_equal(base_ref, changed_ref(kind="foundry.other"))
+    assert not _source_refs_equal(base_ref, changed_ref(media_type="application/cbor"))
+    assert not _source_refs_equal(
+        base_ref, changed_ref(manifest_profile_sha256=f"sha256:{'d' * 64}")
+    )
+    assert not _source_refs_equal(base_ref, changed_ref(manifest_profile_sha256=None))
+    assert _source_identity_relation(base_ref, typed_ref) == "same_selected_ref"
+    assert (
+        _source_identity_relation(
+            base_ref, changed_ref(manifest_profile_sha256=f"sha256:{'d' * 64}")
+        )
+        == "same_artifact_id_different_profile"
+    )
+    with pytest.raises(ValueError, match="same profile but differ in kind or media type"):
+        _source_identity_relation(base_ref, changed_ref(kind="foundry.other"))
 
 
 def _assert_parent_edges(

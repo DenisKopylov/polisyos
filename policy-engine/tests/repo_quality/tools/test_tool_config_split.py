@@ -94,6 +94,26 @@ def _normalize_ruff_paths(value: str, *, product_root: Path, git_root: Path) -> 
     return value.replace(str(product_root), "<PRODUCT>").replace(str(git_root), "<WORKSPACE>")
 
 
+def _ruff_diagnostic_signature(output: str) -> list[tuple[str, str, int, int, int, int]]:
+    """Compare lint findings without treating caller-relative filenames as semantic."""
+
+    signatures: list[tuple[str, str, int, int, int, int]] = []
+    for item in json.loads(output):
+        location = item["location"]
+        end = item.get("end_location") or {}
+        signatures.append(
+            (
+                item["code"],
+                item["message"],
+                location["row"],
+                location["column"],
+                end.get("row", 0),
+                end.get("column", 0),
+            )
+        )
+    return sorted(signatures)
+
+
 def test_phase5_5_tool_config_split_roots_are_policy_stubs() -> None:
     mypy = (REPO_ROOT / "mypy.ini").read_text(encoding="utf-8")
     ruff = (REPO_ROOT / "ruff.toml").read_text(encoding="utf-8")
@@ -103,6 +123,768 @@ def test_phase5_5_tool_config_split_roots_are_policy_stubs() -> None:
     assert "[mypy-" not in mypy
     assert f'extend = "{manifest["generated_config"]}"' in ruff
     assert "INHERIT: architecture/tooling/mkdocs/generated.yml" in mkdocs
+
+
+@pytest.mark.parametrize(
+    ("pattern", "prefix", "expected"),
+    [
+        ("tests/**", "policy-engine/workers/unit", "policy-engine/workers/unit/tests/**"),
+        ("./tests/**", "policy-engine/workers/unit", "policy-engine/workers/unit/tests/**"),
+        ("/srv/tests/**", "policy-engine", "/srv/tests/**"),
+        ("tests/**", "", "tests/**"),
+    ],
+)
+def test_ruff_pattern_prefix_preserves_root_relative_glob_semantics(
+    pattern: str, prefix: str, expected: str
+) -> None:
+    assert tool_configs._ruff_pattern_for_prefix(pattern, prefix) == expected
+
+
+@pytest.mark.parametrize(
+    ("pattern", "expected"),
+    [
+        ("tests/**", "policy-engine/workers/unit-a/tests/**"),
+        ("tests/test_*.py", "policy-engine/workers/unit-a/tests/test_*.py"),
+        ("**/tests/**", "policy-engine/workers/unit-a/**/tests/**"),
+    ],
+)
+def test_nested_ruff_matcher_projection_stays_inside_its_selected_config_scope(
+    pattern: str, expected: str
+) -> None:
+    assert (
+        tool_configs._ruff_nested_pattern_for_prefix(
+            pattern, "policy-engine/workers/unit-a", config_path=Path("workers/unit-a/.ruff.toml")
+        )
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    "project_relative",
+    [
+        "workers/unit*",
+        "workers/unit?",
+        "workers/unit[ab]",
+        "workers/unit{a,b}",
+        "workers/unit}",
+        r"workers/unit\pair",
+    ],
+)
+def test_nested_ruff_scope_prefix_rejects_glob_metacharacters_and_backslashes(
+    project_relative: str,
+) -> None:
+    with pytest.raises(ValueError, match="literal workspace-root Ruff glob"):
+        tool_configs._ruff_scope_prefix_for_nested_config(
+            "policy-engine",
+            project_relative,
+            config_path=Path(project_relative) / ".ruff.toml",
+        )
+
+
+@pytest.mark.parametrize(
+    "pattern",
+    [
+        "../shared/tests/**",
+        "!tests/**",
+        "!../shared/tests/**",
+        "../../tests/**",
+        "foo/../../shared/tests/**",
+        "**/../../shared/tests/**",
+        "/shared/tests/**",
+        r"..\shared\tests\**",
+        "{unit-a,../shared}/tests/**",
+        "tests/[ab]/**",
+        "tests/?.py",
+        "tests/{unit,other}/**",
+        "tests//nested/**",
+        "tests/./nested/**",
+        "tests/**/../shared/**",
+        "tests/foo**/bar.py",
+    ],
+)
+def test_nested_ruff_matcher_projection_rejects_uncontained_or_unrepresentable_patterns(
+    pattern: str,
+) -> None:
+    with pytest.raises(ValueError, match="selected config scope"):
+        tool_configs._ruff_nested_pattern_for_prefix(
+            pattern, "policy-engine/workers/unit-a", config_path=Path("workers/unit-a/.ruff.toml")
+        )
+
+
+def test_workspace_renderer_discovers_selected_ruff_config_and_both_ignore_maps() -> None:
+    manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+    config_filenames = manifest["workspace_nested_ruff_config_filenames"]
+    assert config_filenames == [".ruff.toml", "ruff.toml", "pyproject.toml"]
+
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-config-discovery-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        root = Path(temporary_directory)
+        precedence = root / "precedence"
+        ruff_only = root / "ruff-only"
+        pyproject_only = root / "pyproject-only"
+        for project in (precedence, ruff_only, pyproject_only):
+            project.mkdir()
+
+        (precedence / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = ["../../../ruff.toml"]\n'
+            '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["PT001"]\n',
+            encoding="utf-8",
+        )
+        (precedence / "ruff.toml").write_text(
+            'extend = "../../../ruff.toml"\n[lint.per-file-ignores]\n"tests/**" = ["ANN"]\n',
+            encoding="utf-8",
+        )
+        (precedence / ".ruff.toml").write_text(
+            'extend = "../../../ruff.toml"\n'
+            '[lint.per-file-ignores]\n"tests/**" = ["S101"]\n'
+            '[lint.extend-per-file-ignores]\n"tests/**" = ["T201", "S101"]\n',
+            encoding="utf-8",
+        )
+        (ruff_only / "ruff.toml").write_text(
+            'extend = "../../../ruff.toml"\n'
+            '[lint.extend-per-file-ignores]\n"tests/**" = ["PT011"]\n',
+            encoding="utf-8",
+        )
+        (pyproject_only / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../../../ruff.toml"\n'
+            '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["E501"]\n',
+            encoding="utf-8",
+        )
+
+        root_fragments = [
+            tool_configs._read_ruff_per_file_ignore_fragment(
+                REPO_ROOT, fragment, project_root_prefix=manifest["workspace_root_prefix"]
+            )
+            for fragment in manifest["per_file_ignore_fragments"]
+        ]
+        root_ignores = tomllib.loads("[lint.per-file-ignores]\n" + "\n".join(root_fragments))[
+            "lint"
+        ]["per-file-ignores"]
+        fragments = tool_configs._read_nested_ruff_per_file_ignore_fragments(
+            REPO_ROOT,
+            config_filenames=config_filenames,
+            product_root_config=REPO_ROOT / manifest["root_config"],
+            workspace_root_prefix=manifest["workspace_root_prefix"],
+            root_per_file_ignore_patterns=tuple(root_ignores),
+        )
+        projected = tomllib.loads("[lint.per-file-ignores]\n" + "\n".join(fragments))["lint"][
+            "per-file-ignores"
+        ]
+
+        def matcher(project: Path) -> str:
+            relative = project.relative_to(REPO_ROOT).as_posix()
+            return f"policy-engine/{relative}/tests/**"
+
+        precedence_matcher = matcher(precedence)
+        assert projected[precedence_matcher] == ["S101", "T201"]
+        assert projected[matcher(ruff_only)] == ["PT011"]
+        assert projected[matcher(pyproject_only)] == ["E501"]
+        assert projected["policy-engine/workers/dowhy-014/tests/**"] == [
+            "ANN",
+            "S101",
+            "T201",
+            "PT011",
+            "PT018",
+            "E501",
+        ]
+        assert "PT001" not in projected[precedence_matcher]
+        assert "ANN" not in projected[precedence_matcher]
+
+
+def test_workspace_renderer_discovers_config_omitted_from_git_file_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-config-filesystem-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        project = Path(temporary_directory) / "filesystem-config"
+        project.mkdir()
+        config = project / ".ruff.toml"
+        config.write_text(
+            'extend = "../../../ruff.toml"\n[lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        relative = project.relative_to(REPO_ROOT).as_posix()
+        input_paths = (
+            f"workers/dowhy-014/tests/test_worker.py\0{relative}/tests/test_probe.py\0"
+        ).encode()
+
+        def list_source_inputs(
+            *args: object, **kwargs: object
+        ) -> subprocess.CompletedProcess[bytes]:
+            command = kwargs.get("args", args[0] if args else [])
+            return subprocess.CompletedProcess(command, 0, stdout=input_paths, stderr=b"")
+
+        monkeypatch.setattr(tool_configs.subprocess, "run", list_source_inputs)
+        fragments = tool_configs._read_nested_ruff_per_file_ignore_fragments(
+            REPO_ROOT,
+            config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+            product_root_config=REPO_ROOT / "ruff.toml",
+            workspace_root_prefix="policy-engine",
+            root_per_file_ignore_patterns=(),
+        )
+        projected = tomllib.loads("[lint.per-file-ignores]\n" + "\n".join(fragments))["lint"][
+            "per-file-ignores"
+        ]
+
+        assert projected[f"policy-engine/{relative}/tests/**"] == ["S101"]
+
+
+@pytest.mark.parametrize(
+    ("config_text", "message"),
+    [
+        ('[tool.ruff.lint]\nper-file-ignores = "S101"\n', "per-file-ignores must be a TOML table"),
+        (
+            '[tool.ruff.lint]\nextend-per-file-ignores = "T201"\n',
+            "extend-per-file-ignores must be a TOML table",
+        ),
+        (
+            '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["S101", 1]\n',
+            "invalid Ruff rules",
+        ),
+    ],
+)
+def test_workspace_renderer_rejects_malformed_nested_ignore_fields(
+    config_text: str, message: str
+) -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-invalid-ignore-map-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        project = Path(temporary_directory) / "invalid-map"
+        project.mkdir()
+        (project / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../../../ruff.toml"\n' + config_text,
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match=message):
+            tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                REPO_ROOT,
+                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                product_root_config=REPO_ROOT / "ruff.toml",
+                workspace_root_prefix="policy-engine",
+                root_per_file_ignore_patterns=(),
+            )
+
+
+@pytest.mark.parametrize("extend_value", ['["../../../ruff.toml"]', "7", '""'])
+def test_workspace_renderer_rejects_non_string_nested_ruff_extend(
+    extend_value: str,
+) -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-invalid-extend-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        project = Path(temporary_directory) / "invalid"
+        project.mkdir()
+        (project / "pyproject.toml").write_text(
+            f"[tool.ruff]\nextend = {extend_value}\n", encoding="utf-8"
+        )
+        with pytest.raises(ValueError, match="extend must be a string path"):
+            tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                REPO_ROOT,
+                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                product_root_config=REPO_ROOT / "ruff.toml",
+                workspace_root_prefix="policy-engine",
+                root_per_file_ignore_patterns=(),
+            )
+
+
+def test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes() -> None:
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-config-boundary-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        root = Path(temporary_directory)
+        local = root / "local-only"
+        local.mkdir()
+        (local / "pyproject.toml").write_text(
+            '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="must directly extend"):
+            tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                REPO_ROOT,
+                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                product_root_config=REPO_ROOT / "ruff.toml",
+                workspace_root_prefix="policy-engine",
+                root_per_file_ignore_patterns=(),
+            )
+
+        overlapping = root / "overlap"
+        overlapping.mkdir()
+        (overlapping / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../../../ruff.toml"\n'
+            '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="may overlap its scope"):
+            tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                REPO_ROOT,
+                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                product_root_config=REPO_ROOT / "ruff.toml",
+                workspace_root_prefix="policy-engine",
+                root_per_file_ignore_patterns=("policy-engine/workers/**",),
+            )
+
+        parent = root / "parent"
+        child = parent / "children"
+        child.mkdir(parents=True)
+        (parent / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../../../ruff.toml"\n'
+            '[tool.ruff.lint.extend-per-file-ignores]\n"children/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        (child / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../../../../ruff.toml"\n',
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="scopes overlap"):
+            tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                REPO_ROOT,
+                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                product_root_config=REPO_ROOT / "ruff.toml",
+                workspace_root_prefix="policy-engine",
+                root_per_file_ignore_patterns=(),
+            )
+
+
+@pytest.mark.parametrize(
+    ("selected_ignore", "expected_codes", "lower_ruff_codes", "lower_pyproject_codes"),
+    [
+        (
+            '[lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
+            ["T201"],
+            ["T201"],
+            ["T201"],
+        ),
+        (
+            '[lint.extend-per-file-ignores]\n"tests/**" = ["T201"]\n',
+            ["S101"],
+            ["S101"],
+            ["S101"],
+        ),
+        (
+            '[lint.per-file-ignores]\n"tests/**" = ["S101"]\n'
+            '[lint.extend-per-file-ignores]\n"tests/**" = ["T201"]\n',
+            [],
+            ["S101"],
+            ["T201"],
+        ),
+    ],
+)
+def test_nested_ruff_discovery_projection_matches_real_diagnostics_and_removal_probe(
+    selected_ignore: str,
+    expected_codes: list[str],
+    lower_ruff_codes: list[str],
+    lower_pyproject_codes: list[str],
+) -> None:
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT, text=True
+        ).strip()
+    )
+    product_prefix = REPO_ROOT.relative_to(git_root).as_posix()
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-nested-runtime-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        fixture_root = Path(temporary_directory)
+        project = fixture_root / "project"
+        tests = project / "tests"
+        tests.mkdir(parents=True)
+        root_config = fixture_root / "ruff.toml"
+        root_config.write_text('[lint]\nselect = ["S101", "T201"]\n', encoding="utf-8")
+        (project / ".ruff.toml").write_text(
+            'extend = "../ruff.toml"\n' + selected_ignore, encoding="utf-8"
+        )
+        (project / "ruff.toml").write_text(
+            'extend = "../ruff.toml"\n'
+            f'[lint.per-file-ignores]\n"tests/**" = {json.dumps(lower_ruff_codes)}\n',
+            encoding="utf-8",
+        )
+        (project / "pyproject.toml").write_text(
+            '[tool.ruff]\nextend = "../ruff.toml"\n'
+            "[tool.ruff.lint.per-file-ignores]\n"
+            f'"tests/**" = {json.dumps(lower_pyproject_codes)}\n',
+            encoding="utf-8",
+        )
+        probe = tests / "test_probe.py"
+        probe.write_text(
+            "def test_probe(value):\n    assert value\n    print(value)\n",
+            encoding="utf-8",
+        )
+
+        fixture_relative = fixture_root.relative_to(REPO_ROOT).as_posix()
+        workspace_prefix = f"{product_prefix}/{fixture_relative}"
+        manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+        fragments = tool_configs._read_nested_ruff_per_file_ignore_fragments(
+            fixture_root,
+            config_filenames=manifest["workspace_nested_ruff_config_filenames"],
+            product_root_config=root_config,
+            workspace_root_prefix=workspace_prefix,
+            root_per_file_ignore_patterns=(),
+        )
+        assert len(fragments) == 1
+        assert (project / ".ruff.toml").is_file()
+        workspace_target = f"{product_prefix}/{fixture_relative}/project/tests/test_probe.py"
+        product_target = "tests/test_probe.py"
+        workspace_settings = '[lint]\nselect = ["S101", "T201"]\n'
+        if fragments:
+            workspace_settings += "[lint.per-file-ignores]\n" + "\n".join(fragments)
+
+        def run_ruff(
+            cwd: Path, target: str, *, config: Path | None = None
+        ) -> subprocess.CompletedProcess[str]:
+            command = [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--no-cache",
+                "--output-format=json",
+                "--select",
+                "S101,T201",
+            ]
+            if config is not None:
+                command.extend(["--config", str(config)])
+            command.append(target)
+            return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+
+        product = run_ruff(project, product_target)
+        assert product.returncode in {0, 1}, product.stdout + product.stderr
+        product_codes = sorted(item["code"] for item in json.loads(product.stdout))
+        assert product_codes == expected_codes
+
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            prefix=".ruff-workspace-probe-",
+            suffix=".toml",
+            dir=git_root,
+            delete=False,
+        ) as workspace_file:
+            workspace_file.write(workspace_settings)
+            workspace_config = Path(workspace_file.name)
+        try:
+            workspace = run_ruff(git_root, workspace_target, config=workspace_config)
+            assert workspace.returncode in {0, 1}, workspace.stdout + workspace.stderr
+            workspace_codes = sorted(item["code"] for item in json.loads(workspace.stdout))
+            assert workspace_codes == expected_codes
+            assert _ruff_diagnostic_signature(product.stdout) == _ruff_diagnostic_signature(
+                workspace.stdout
+            )
+
+            # Keep the nested config markers present while removing their projected rules.
+            workspace_config.write_text(
+                "# Nested source config markers remain; projection is intentionally removed.\n"
+                '[lint]\nselect = ["S101", "T201"]\n',
+                encoding="utf-8",
+            )
+            without_projection = run_ruff(git_root, workspace_target, config=workspace_config)
+            assert without_projection.returncode in {0, 1}
+            assert sorted(item["code"] for item in json.loads(without_projection.stdout)) != (
+                expected_codes
+            )
+        finally:
+            workspace_config.unlink(missing_ok=True)
+
+
+def test_nested_ruff_escape_is_rejected_after_real_sibling_consumer_falsifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT, text=True
+        ).strip()
+    )
+    product_prefix = REPO_ROOT.relative_to(git_root).as_posix()
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-config-scope-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        fixture_root = Path(temporary_directory)
+        unit_a = fixture_root / "unit-a"
+        shared = fixture_root / "shared"
+        sibling_tests = shared / "tests"
+        unit_a.mkdir()
+        sibling_tests.mkdir(parents=True)
+        unit_probe = unit_a / "probe.py"
+        unit_probe.write_text("def test_probe():\n    assert True\n", encoding="utf-8")
+        unit_config = unit_a / ".ruff.toml"
+        unit_config.write_text(
+            'extend = "../../../ruff.toml"\n'
+            '[lint.per-file-ignores]\n"../shared/tests/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        sibling_config = shared / ".ruff.toml"
+        sibling_config.write_text('[lint]\nselect = ["S101"]\n', encoding="utf-8")
+        probe = sibling_tests / "test_probe.py"
+        probe.write_text("def test_probe():\n    assert True\n", encoding="utf-8")
+
+        fixture_relative = fixture_root.relative_to(REPO_ROOT).as_posix()
+        selected_scope = f"{product_prefix}/{fixture_relative}/unit-a"
+        workspace_unit_target = f"{product_prefix}/{fixture_relative}/unit-a/probe.py"
+        workspace_sibling_target = f"{product_prefix}/{fixture_relative}/shared/tests/test_probe.py"
+        projected_escape = tool_configs._ruff_pattern_for_prefix(
+            "../shared/tests/**", selected_scope
+        )
+        assert projected_escape == (f"{product_prefix}/{fixture_relative}/shared/tests/**")
+
+        def run_ruff(
+            cwd: Path, target: str, *, config: Path | None = None
+        ) -> subprocess.CompletedProcess[str]:
+            command = [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--no-cache",
+                "--output-format=json",
+                "--select",
+                "S101",
+            ]
+            if config is not None:
+                command.extend(["--config", str(config)])
+            command.append(target)
+            return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+
+        product_unit = run_ruff(unit_a, "probe.py")
+        assert product_unit.returncode in {0, 1}, product_unit.stdout + product_unit.stderr
+        product_unit_codes = sorted(item["code"] for item in json.loads(product_unit.stdout))
+        assert product_unit_codes == ["S101"]
+
+        product_sibling = run_ruff(shared, "tests/test_probe.py")
+        assert product_sibling.returncode in {0, 1}, product_sibling.stdout + product_sibling.stderr
+        product_sibling_codes = sorted(item["code"] for item in json.loads(product_sibling.stdout))
+        assert product_sibling_codes == ["S101"]
+        assert '"../shared/tests/**" = ["S101"]' in unit_config.read_text(encoding="utf-8")
+        assert sibling_config.is_file()
+
+        workspace_settings = (
+            '[lint]\nselect = ["S101"]\n'
+            "[lint.per-file-ignores]\n"
+            f'{json.dumps(projected_escape)} = ["S101"]\n'
+        )
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            prefix=".ruff-sibling-scope-probe-",
+            suffix=".toml",
+            dir=git_root,
+            delete=False,
+        ) as workspace_file:
+            workspace_file.write(workspace_settings)
+            workspace_config = Path(workspace_file.name)
+        try:
+            workspace_unit = run_ruff(git_root, workspace_unit_target, config=workspace_config)
+            assert workspace_unit.returncode in {0, 1}, (
+                workspace_unit.stdout + workspace_unit.stderr
+            )
+            workspace_unit_codes = sorted(
+                item["code"] for item in json.loads(workspace_unit.stdout)
+            )
+            assert workspace_unit_codes == product_unit_codes
+
+            workspace_sibling = run_ruff(
+                git_root, workspace_sibling_target, config=workspace_config
+            )
+            assert workspace_sibling.returncode in {0, 1}, (
+                workspace_sibling.stdout + workspace_sibling.stderr
+            )
+            workspace_sibling_codes = sorted(
+                item["code"] for item in json.loads(workspace_sibling.stdout)
+            )
+            assert workspace_sibling_codes == []
+
+            manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+            listed_configs = b"unit-a/.ruff.toml\0shared/.ruff.toml\0"
+
+            def list_fixture_configs(
+                *args: object, **kwargs: object
+            ) -> subprocess.CompletedProcess[bytes]:
+                command = kwargs.get("args", args[0] if args else [])
+                return subprocess.CompletedProcess(command, 0, stdout=listed_configs, stderr=b"")
+
+            monkeypatch.setattr(tool_configs.subprocess, "run", list_fixture_configs)
+            with pytest.raises(ValueError, match="selected config scope"):
+                tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                    fixture_root,
+                    config_filenames=manifest["workspace_nested_ruff_config_filenames"],
+                    product_root_config=REPO_ROOT / manifest["root_config"],
+                    workspace_root_prefix=f"{product_prefix}/{fixture_relative}",
+                    root_per_file_ignore_patterns=(),
+                )
+        finally:
+            workspace_config.unlink(missing_ok=True)
+
+
+def test_nested_ruff_glob_scope_is_rejected_after_real_sibling_consumer_falsifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT, text=True
+        ).strip()
+    )
+    product_prefix = REPO_ROOT.relative_to(git_root).as_posix()
+    with tempfile.TemporaryDirectory(
+        prefix="ruff-config-prefix-glob-", dir=REPO_ROOT / "workers"
+    ) as temporary_directory:
+        fixture_root = Path(temporary_directory)
+        selected = fixture_root / "unit[ab]"
+        sibling = fixture_root / "unitb"
+        selected_tests = selected / "tests"
+        sibling_tests = sibling / "tests"
+        selected_tests.mkdir(parents=True)
+        sibling_tests.mkdir(parents=True)
+        source = "def test_probe():\n    assert True\n"
+        (selected_tests / "test_probe.py").write_text(source, encoding="utf-8")
+        (sibling_tests / "test_probe.py").write_text(source, encoding="utf-8")
+        selected_config = selected / ".ruff.toml"
+        selected_config.write_text(
+            'extend = "../../../ruff.toml"\n[lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
+            encoding="utf-8",
+        )
+        sibling_config = sibling / ".ruff.toml"
+        sibling_config.write_text('[lint]\nselect = ["S101"]\n', encoding="utf-8")
+
+        def run_ruff(cwd: Path, target: str, *, config: Path | None = None):
+            command = [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--no-cache",
+                "--output-format=json",
+                "--select",
+                "S101",
+            ]
+            if config is not None:
+                command.extend(["--config", str(config)])
+            command.append(target)
+            return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+
+        selected_result = run_ruff(selected, "tests/test_probe.py")
+        assert selected_result.returncode in {0, 1}, selected_result.stdout + selected_result.stderr
+        selected_codes = sorted(item["code"] for item in json.loads(selected_result.stdout))
+        assert selected_codes == []
+
+        sibling_result = run_ruff(sibling, "tests/test_probe.py")
+        assert sibling_result.returncode in {0, 1}, sibling_result.stdout + sibling_result.stderr
+        sibling_codes = sorted(item["code"] for item in json.loads(sibling_result.stdout))
+        assert sibling_codes == ["S101"]
+
+        fixture_relative = fixture_root.relative_to(REPO_ROOT).as_posix()
+        scope_prefix = f"{product_prefix}/{fixture_relative}"
+        unsafe_pattern = f"{scope_prefix}/unit[ab]/tests/**"
+        workspace_selected_target = (
+            f"{unsafe_pattern.removesuffix('/tests/**')}/tests/test_probe.py"
+        )
+        workspace_sibling_target = f"{product_prefix}/{fixture_relative}/unitb/tests/test_probe.py"
+        workspace_settings = (
+            '[lint]\nselect = ["S101"]\n'
+            "[lint.per-file-ignores]\n"
+            f'{json.dumps(unsafe_pattern)} = ["S101"]\n'
+        )
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            prefix=".ruff-prefix-glob-probe-",
+            suffix=".toml",
+            dir=git_root,
+            delete=False,
+        ) as workspace_file:
+            workspace_file.write(workspace_settings)
+            workspace_config = Path(workspace_file.name)
+        try:
+            workspace_selected = run_ruff(
+                git_root, workspace_selected_target, config=workspace_config
+            )
+            assert workspace_selected.returncode in {0, 1}, (
+                workspace_selected.stdout + workspace_selected.stderr
+            )
+            workspace_selected_codes = sorted(
+                item["code"] for item in json.loads(workspace_selected.stdout)
+            )
+            assert workspace_selected_codes == ["S101"]
+            assert workspace_selected_codes != selected_codes
+
+            workspace_sibling = run_ruff(
+                git_root, workspace_sibling_target, config=workspace_config
+            )
+            assert workspace_sibling.returncode in {0, 1}, (
+                workspace_sibling.stdout + workspace_sibling.stderr
+            )
+            assert json.loads(workspace_sibling.stdout) == []
+
+            manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+            monkeypatch.setattr(
+                tool_configs,
+                "_workspace_paths_named",
+                lambda *_args, **_kwargs: [Path("unit[ab]/.ruff.toml"), Path("unitb/.ruff.toml")],
+            )
+            assert '"tests/**" = ["S101"]' in selected_config.read_text(encoding="utf-8")
+            assert sibling_config.is_file()
+            with pytest.raises(ValueError, match="literal workspace-root Ruff glob"):
+                tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                    fixture_root,
+                    config_filenames=manifest["workspace_nested_ruff_config_filenames"],
+                    product_root_config=REPO_ROOT / manifest["root_config"],
+                    workspace_root_prefix=scope_prefix,
+                    root_per_file_ignore_patterns=(),
+                )
+
+            def without_prefix_guard(
+                workspace_root_prefix: str, project_relative: str, *, config_path: Path
+            ) -> str:
+                return f"{workspace_root_prefix}/{project_relative}"
+
+            monkeypatch.setattr(
+                tool_configs, "_ruff_scope_prefix_for_nested_config", without_prefix_guard
+            )
+            fragments = tool_configs._read_nested_ruff_per_file_ignore_fragments(
+                fixture_root,
+                config_filenames=manifest["workspace_nested_ruff_config_filenames"],
+                product_root_config=REPO_ROOT / manifest["root_config"],
+                workspace_root_prefix=scope_prefix,
+                root_per_file_ignore_patterns=(),
+            )
+            projected = tomllib.loads("[lint.per-file-ignores]\n" + "\n".join(fragments))["lint"][
+                "per-file-ignores"
+            ]
+            assert unsafe_pattern in projected
+            assert projected[unsafe_pattern] == ["S101"]
+        finally:
+            workspace_config.unlink(missing_ok=True)
+
+
+def test_workspace_generated_config_drift_rejects_a_corrupt_nested_ignore(tmp_path: Path) -> None:
+    manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+    generated = next(
+        item
+        for item in tool_configs.render_files(REPO_ROOT)
+        if item.relative_path == manifest["workspace_root_generated_config"]
+    )
+    rule = (
+        '"policy-engine/workers/dowhy-014/tests/**" = '
+        '["ANN", "S101", "T201", "PT011", "PT018", "E501"]'
+    )
+    assert rule in generated.content
+    corrupted_content = generated.content.replace(rule, rule.replace(', "T201"', ""), 1)
+    assert corrupted_content != generated.content
+    corrupted_path = tmp_path / "workspace_root.toml"
+    corrupted_path.write_text(corrupted_content, encoding="utf-8")
+
+    findings = tool_configs.check_drift(
+        (
+            tool_configs.RenderedFile(
+                path=corrupted_path,
+                content=generated.content,
+                repo_root=tmp_path,
+            ),
+        )
+    )
+
+    assert len(findings) == 1
+    assert findings[0]["message"] == "generated config is stale"
+    assert "policy-engine/workers/dowhy-014/tests/**" in findings[0]["diff"]
 
 
 def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
@@ -182,7 +964,12 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
         for matcher, value in workspace_per_file_ignores.items()
     }
-    assert normalized_workspace_ignores == normalized_product_ignores
+    assert normalized_workspace_ignores == normalized_product_ignores | {
+        "<PRODUCT>/workers/dowhy-014/tests/**": (
+            False,
+            ("ANN", "S101", "T201", "PT011", "PT018", "E501"),
+        )
+    }
     assert normalized_product_ignores
     assert comparable_product_settings["cache_dir"] == '"<PRODUCT>/_cache/ruff"'
     assert comparable_product_settings["file_resolver.include"]
@@ -222,6 +1009,20 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
     }
     assert product_files
     assert workspace_files == product_files
+
+    nested_worker_target = "workers/dowhy-014/tests/test_worker.py"
+    product_worker = run_ruff(REPO_ROOT, None, "--output-format=json", nested_worker_target)
+    workspace_worker = run_ruff(
+        git_root,
+        pre_commit_config,
+        "--output-format=json",
+        f"{product_prefix}/{nested_worker_target}",
+    )
+    assert product_worker.returncode == 0, product_worker.stdout + product_worker.stderr
+    assert workspace_worker.returncode == 0, workspace_worker.stdout + workspace_worker.stderr
+    assert _ruff_diagnostic_signature(product_worker.stdout) == _ruff_diagnostic_signature(
+        workspace_worker.stdout
+    )
 
     product_import_sort = run_ruff(
         REPO_ROOT, None, "--no-cache", "--diff", "--select", "I001", product_target
@@ -305,6 +1106,14 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
         f"{product_prefix}/{pattern}": codes for pattern, codes in source_per_file_ignores.items()
     }
     assert product_per_file_ignores == source_per_file_ignores
+    expected_workspace_ignores[f"{product_prefix}/workers/dowhy-014/tests/**"] = [
+        "ANN",
+        "S101",
+        "T201",
+        "PT011",
+        "PT018",
+        "E501",
+    ]
     assert workspace_per_file_ignores == expected_workspace_ignores
 
     def run_ruff(
@@ -466,7 +1275,11 @@ def test_phase5_5_dead_override_report_covers_both_generated_ruff_roots() -> Non
     assert len(expected_subjects) == 239
     assert rule_pair_count == 741
     assert {entry.subject for entry in product_entries} == expected_subjects
-    assert {entry.subject for entry in workspace_entries} == expected_subjects
+    assert {entry.subject for entry in workspace_entries} == expected_subjects | {
+        "workers/dowhy-014/tests/**"
+    }
+    assert len(product_entries) == 239
+    assert len(workspace_entries) == 240
 
     product_report = dead_overrides.build_report(
         REPO_ROOT,
@@ -476,8 +1289,9 @@ def test_phase5_5_dead_override_report_covers_both_generated_ruff_roots() -> Non
         REPO_ROOT,
         ruff_config=manifest["workspace_root_generated_config"],
     )
+    assert product_report["summary"]["ruff_override_count"] == 239
+    assert workspace_report["summary"]["ruff_override_count"] == 240
     for report in (product_report, workspace_report):
-        assert report["summary"]["ruff_override_count"] == 239
         assert report["summary"]["stale_ruff_override_count"] == 0
         assert report["summary"]["missing_metadata_count"] == 0
 

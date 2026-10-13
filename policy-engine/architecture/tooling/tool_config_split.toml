@@ -28,9 +28,10 @@ base_config = "architecture/tooling/ruff/base.toml"
 generated_config = "ruff.generated.toml"
 workspace_root_generated_config = "architecture/tooling/ruff/workspace_root.toml"
 workspace_root_prefix = "policy-engine"
+workspace_nested_ruff_config_filenames = [".ruff.toml", "ruff.toml", "pyproject.toml"]
 workspace_root_path_settings = ["cache-dir", "src"]
 workspace_root_pattern_settings = ["include", "exclude", "extend-include", "extend-exclude"]
-root_policy = "Product-root discovery and explicit product callers use the root-colocated generated config; Git-workspace-root callers use workspace_root_generated_config directly."
+root_policy = "Product-root discovery and explicit product callers use the root-colocated generated config; Git-workspace-root callers use workspace_root_generated_config directly. Nested discovery follows Ruff filename precedence and projects only direct product-root per-file-ignore maps with literal selected-config path components and positive relative matchers made from literal segments, *, or complete-component **. Path glob metacharacters, backslashes, negative or otherwise unrepresentable matchers, malformed maps, unsupported local/indirect maps, and overlapping overrides fail closed. Other nested Ruff settings remain local and are not projected."
 per_file_ignore_fragments = [
   "architecture/tooling/ruff/per-file-ignores/10-tests-ir.toml",
   "architecture/tooling/ruff/per-file-ignores/20-core.toml",

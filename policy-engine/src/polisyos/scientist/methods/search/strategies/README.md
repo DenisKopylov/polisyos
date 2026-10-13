@@ -61,3 +61,10 @@ Cold-start Sobol index и adaptive single-candidate acquisition planning пол�
 представления одинаковых разрешённых записей дают согласованный план. Batch
 сохраняет существующий fixed qEI путь; current-request iteration и full-refit
 counters не меняют своего прежнего значения от warm-history count.
+
+
+### Кэш истории transfer
+
+TransferLearningManager удерживает в LRU только проверенные canonical bytes истории. Ключ связывает полный ArtifactRef (artifact ID, kind, media type и выбранный manifest profile) с полной идентичностью запуска. При каждом попадании кэш повторно проверяет выбранный CAS profile и digest байтов, затем заново декодирует запись; изменяемые Evaluation и вложенные значения между чтениями не разделяются.
+
+Кэш ограничен 128 записями и 32 MiB суммарной длины сохранённых payload bytes (len(raw_payload_bytes)). Это граница retained payload, а не оценка RSS или Python overhead. История больше лимита читается и проверяется, но не сохраняется в кэше. Eviction не удаляет CAS-артефакт и не меняет возможность прочитать старый точный ref. Новые записи индекса сохраняют profile hash, возвращённый тем же CAS write; у прежних строк индекса без него остаётся profileless compatibility ref, который всё равно проходит канонический reader.

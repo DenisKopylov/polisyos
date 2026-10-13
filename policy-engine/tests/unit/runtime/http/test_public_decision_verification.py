@@ -11,12 +11,17 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts.canonical_profile import (
+    decode_core_json_payload,
+    read_core_json_artifact,
+)
 from polisyos.runtime.http.services.public_decision_verification import (
     PublicDecisionVerificationError,
     PublicDecisionVerificationService,
     PublicDecisionVerificationTrustedKey,
+    _public_canonical_bytes,
 )
 from polisyos.runtime.http.services.public_decision_verification_contracts import (
     PublicDecisionVerificationRecord,
@@ -137,7 +142,34 @@ def test_issued_record_authenticates_exact_document_without_decision_authority(i
     assert set(result.dimensions.model_dump().values()) == {"not_established"}
     assert result.reason_codes == ("promoted_public_record_not_established",)
     assert result.public_document_digest == _entry(kwargs, record_id)["public_document_digest"]
+    admitted_record = read_core_json_artifact(kwargs["store"], _record_artifact(kwargs, record_id))
+    assert admitted_record.status == "declared_bytes_conformant"
+    record = PublicDecisionVerificationRecord.model_validate(
+        require_declared_profile(admitted_record), strict=True
+    )
+    assert type(record.issued_at) is datetime
+    assert record.issued_at == result.issued_at == ISSUED_AT
     assert "verified" not in result.model_dump()
+
+
+def test_json_mode_record_bytes_do_not_satisfy_strict_datetime_typing(issued_service):
+    _, kwargs, _, record_id, _ = issued_service
+    artifact_id = _record_artifact(kwargs, record_id)
+    manifest_bytes = kwargs["store"].get_manifest_bytes(artifact_id)
+    admitted_record = read_core_json_artifact(kwargs["store"], artifact_id)
+    record = PublicDecisionVerificationRecord.model_validate(
+        require_declared_profile(admitted_record), strict=True
+    )
+
+    json_mode_bytes = _public_canonical_bytes(record.model_dump(mode="json"))
+    json_mode_read = decode_core_json_payload(manifest_bytes, json_mode_bytes)
+
+    assert json_mode_read.status == "declared_bytes_conformant"
+    json_mode_value = require_declared_profile(json_mode_read)
+    assert type(json_mode_value["issued_at"]) is str
+    with pytest.raises(ValidationError) as exc_info:
+        PublicDecisionVerificationRecord.model_validate(json_mode_value, strict=True)
+    assert any(error["loc"] == ("issued_at",) for error in exc_info.value.errors())
 
 
 def test_persisted_index_survives_new_service_and_reads_never_resign(issued_service):

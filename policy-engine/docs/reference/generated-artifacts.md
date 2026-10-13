@@ -1068,7 +1068,7 @@ uv run python tools/quality/validation/architecture_report_only_contracts.py --r
 
 - Family id: `tool-config-split-generated-configs`
 - Lifecycle: `generated_committed`
-- Source of truth: architecture/tooling/tool_config_split.toml and architecture/tooling/{mypy,ruff,mkdocs}/** source fragments
+- Source of truth: architecture/tooling/tool_config_split.toml, architecture/tooling/static_analysis_overrides.toml, architecture/tooling/{mypy,ruff,mkdocs}/** source fragments, and per-file-ignore maps in selected nested Ruff configs that directly extend the product root with literal config path components and supported positive relative matchers
 - Generator: uv run polisyos-tools workspace tool-configs
 - Verifier: uv run polisyos-tools workspace tool-configs --check
 - Promotion target: committed generated operational tool configs

@@ -78,6 +78,28 @@ def _profiled_json_store(tmp_path, payload: object):
     return store, ref, raw
 
 
+def _raw_profiled_json_store(root, payload: object, spec: CanonSpec):
+    """Persist raw JSON under Core profile wire settings without normalizing its tags."""
+    raw = json.dumps(
+        payload,
+        sort_keys=spec.sort_keys,
+        separators=spec.separators,
+        ensure_ascii=spec.ensure_ascii,
+        allow_nan=False,
+    ).encode("utf-8")
+    store = FileSystemCAS(root)
+    ref = store.put_bytes(
+        raw,
+        PutOptions(
+            kind="test.selected_profile.raw-json",
+            media_type="application/json",
+            canon=CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    return store, ref, raw
+
+
 def test_core_json_facade_returns_only_profile_conformant_selected_values(tmp_path) -> None:
     store, ref, raw = _profiled_json_store(tmp_path, {"value": 7})
 
@@ -410,22 +432,29 @@ def test_selected_core_reader_refuses_nonnormal_reserved_tags_before_typed_adapt
     tmp_path, tagged_value
 ) -> None:
     spec = CanonSpec(forbid_floats=False, exclude_none=False)
-    raw = to_canonical_bytes({"opaque": tagged_value}, spec)
-    root = tmp_path / "nonnormal-tag-cas"
-    store = FileSystemCAS(root)
-    selected_ref = store.put_bytes(
-        raw,
-        PutOptions(
-            kind="test.selected_profile.nonnormal-tag",
-            media_type="application/json",
-            canon=CanonInfo.from_spec(spec),
-        ),
-        return_selected_profile=True,
-    )
+    payload = {"opaque": tagged_value}
 
-    # This is the raw profile gate, before any declared Pydantic model adapter.
-    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_payload_nonconformant"):
-        read_core_json_artifact(FileSystemCAS(root), selected_ref)
+    # The public Core writer rejects aliases whose decoded values re-encode differently.
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_payload_nonconformant",
+    ):
+        to_canonical_bytes(payload, spec)
+
+    # This generic raw control preserves the JSON mapping while binding the actual
+    # CoreCanonInfo flags, so the reader refusal is about payload conformance only.
+    root = tmp_path / "nonnormal-tag-cas"
+    store, selected_ref, raw = _raw_profiled_json_store(root, payload, spec)
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert store.get_bytes(selected_ref) == raw
+
+    fresh_reader = FileSystemCAS(root)
+    assert fresh_reader.get_bytes(selected_ref) == raw
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_payload_nonconformant",
+    ):
+        read_core_json_artifact(fresh_reader, selected_ref)
 
 
 class _TaggedAmountOne(BaseModel):

@@ -1152,7 +1152,7 @@ generator = "uv run polisyos-tools workspace tool-configs"
 verifier = "uv run polisyos-tools workspace tool-configs --check"
 promotion_target = "committed generated operational tool configs"
 stale_output_behavior = "fail"
-source_of_truth = "architecture/tooling/tool_config_split.toml and architecture/tooling/{mypy,ruff,mkdocs}/** source fragments"
+source_of_truth = "architecture/tooling/tool_config_split.toml, architecture/tooling/static_analysis_overrides.toml, architecture/tooling/{mypy,ruff,mkdocs}/** source fragments, and per-file-ignore maps in selected nested Ruff configs that directly extend the product root with literal config path components and supported positive relative matchers"
 outputs = [
   "architecture/tooling/mypy/generated.ini",
   "ruff.generated.toml",

@@ -14,6 +14,7 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    artifact_ref_identity_key,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
 )
@@ -284,14 +285,14 @@ def load_search_uncertainty_observation(
     basis = SearchUncertaintyBasis.model_validate(
         load_core_json_artifact(store, expected_basis_ref)
     )
-    if basis.subject_ref != expected_subject_ref:
+    if not _source_refs_equal(basis.subject_ref, expected_subject_ref):
         raise ValueError("Search uncertainty basis differs from the configured candidate")
     observation = SearchUncertaintyObservation.model_validate(
         load_core_json_artifact(store, observation_ref)
     )
-    if observation.basis_ref != expected_basis_ref:
+    if not _source_refs_equal(observation.basis_ref, expected_basis_ref):
         raise ValueError("Search uncertainty observation has a foreign or stale basis")
-    if observation.producer_ref != basis.producer_ref:
+    if not _source_refs_equal(observation.producer_ref, basis.producer_ref):
         raise ValueError("Search uncertainty observation has a foreign producer")
     if observation.envelope != expected_envelope:
         raise ValueError("Search uncertainty observation differs from the stage envelope")
@@ -404,6 +405,16 @@ def _source_core_ref(ref: ArtifactRef | ArtifactRefModel) -> ArtifactRef:
     if isinstance(ref, ArtifactRef):
         return ref
     return ArtifactRef.model_validate(ref.model_dump(mode="python"))
+
+
+def _source_refs_equal(
+    left: ArtifactRef | ArtifactRefModel,
+    right: ArtifactRef | ArtifactRefModel,
+) -> bool:
+    """Compare complete selected identities independent of DTO subclass."""
+    return artifact_ref_identity_key(_source_core_ref(left)) == artifact_ref_identity_key(
+        _source_core_ref(right)
+    )
 
 
 def _source_typed_json_model[SourceModelT: BaseModel](
@@ -543,7 +554,7 @@ def _source_child_manifest(
     if not _source_ref_matches_edge(ref, edge):
         raise ValueError(f"source-bound risk {role} profile differs from its parent edge")
     resolved_ref, child_manifest = _source_manifest_for_edge(store, edge)
-    if resolved_ref != ref:
+    if not _source_refs_equal(resolved_ref, ref):
         raise ValueError(f"source-bound risk {role} ref differs from its selected child")
     return child_manifest
 
@@ -573,7 +584,7 @@ def _verify_data_snapshot_source_edges(
         if len(edges) != 1:
             raise ValueError(f"source-bound risk DataSnapshot requires one {role} edge")
         selected_ref, _ = _source_manifest_for_edge(store, edges[0], require_selected=True)
-        if selected_ref != _source_core_ref(raw_ref):
+        if not _source_refs_equal(selected_ref, _source_core_ref(raw_ref)):
             raise ValueError(f"source-bound risk DataSnapshot {role} edge differs from payload")
 
 
@@ -765,11 +776,15 @@ def _source_identity_relation(
 ) -> Literal["same_selected_ref", "same_artifact_id_different_profile", "different_artifact_id"]:
     left_ref = _source_core_ref(left)
     right_ref = _source_core_ref(right)
-    if left_ref.artifact_id != right_ref.artifact_id:
+    left_key = artifact_ref_identity_key(left_ref)
+    right_key = artifact_ref_identity_key(right_ref)
+    if left_key == right_key:
+        return "same_selected_ref"
+    if left_key[0] != right_key[0]:
         return "different_artifact_id"
-    if left_ref.manifest_profile_sha256 != right_ref.manifest_profile_sha256:
+    if left_key[3] != right_key[3]:
         return "same_artifact_id_different_profile"
-    return "same_selected_ref"
+    raise ValueError("source-bound risk refs share a profile but differ in kind or media type")
 
 
 def _source_inventory_for_basis(
@@ -870,44 +885,56 @@ def _recompute_execution_source(
     if basis.request.return_selected_profile is not True:
         raise ValueError("source-bound risk execution basis was not produced with selected refs")
     if (
-        _source_core_ref(basis.exec_plan_ref) != _source_core_ref(simulation_result.exec_plan_ref)
-        or _source_core_ref(basis.request.exec_plan_ref) != _source_core_ref(basis.exec_plan_ref)
-        or _source_core_ref(basis.request.input_bindings_ref)
-        != _source_core_ref(basis.input_bindings_ref)
-        or _source_core_ref(basis.request.registry_bundle_ref)
-        != _source_core_ref(basis.runtime_registry_ref)
-        or _source_core_ref(basis.candidate_ref) != candidate_ref
+        not _source_refs_equal(
+            _source_core_ref(basis.exec_plan_ref), _source_core_ref(simulation_result.exec_plan_ref)
+        )
+        or not _source_refs_equal(
+            _source_core_ref(basis.request.exec_plan_ref), _source_core_ref(basis.exec_plan_ref)
+        )
+        or not _source_refs_equal(
+            _source_core_ref(basis.request.input_bindings_ref),
+            _source_core_ref(basis.input_bindings_ref),
+        )
+        or not _source_refs_equal(
+            _source_core_ref(basis.request.registry_bundle_ref),
+            _source_core_ref(basis.runtime_registry_ref),
+        )
+        or not _source_refs_equal(_source_core_ref(basis.candidate_ref), candidate_ref)
     ):
         raise ValueError("source-bound risk execution basis request refs disagree")
     # The ProgramGraph ref is reached from the actual ExecPlan payload, not inferred from IDs.
     exec_plan = _source_typed_json_model(store, ExecPlan, basis.exec_plan_ref)
     graph_ref = _source_core_ref(exec_plan.program_ref)
-    if graph_ref != _source_core_ref(basis.program_graph_ref):
+    if not _source_refs_equal(graph_ref, _source_core_ref(basis.program_graph_ref)):
         raise ValueError("source-bound risk execution basis graph differs from ExecPlan")
     graph = _source_typed_json_model(store, ProgramGraph, graph_ref)
     exec_plan_manifest = _source_manifest(store, basis.exec_plan_ref)
     graph_manifest = _source_manifest(store, graph_ref)
     trinity_ref = _source_core_ref(basis.trinity_bundle_ref)
-    if _source_core_ref(graph.ir_ref) != trinity_ref:
+    if not _source_refs_equal(_source_core_ref(graph.ir_ref), trinity_ref):
         raise ValueError(
             "source-bound risk execution basis Trinity source differs from ProgramGraph"
         )
-    if (
+    if not _source_refs_equal(
         _source_ref_from_parent_edge(
             store, exec_plan_manifest, "program_graph", expected_kind="foundry.program_graph"
-        )
-        != graph_ref
+        ),
+        graph_ref,
     ):
         raise ValueError("source-bound risk ExecPlan manifest names another ProgramGraph")
-    if (
-        _source_ref_from_parent_edge(store, graph_manifest, "ir", expected_kind="ir.trinity_bundle")
-        != trinity_ref
+    if not _source_refs_equal(
+        _source_ref_from_parent_edge(
+            store, graph_manifest, "ir", expected_kind="ir.trinity_bundle"
+        ),
+        trinity_ref,
     ):
         raise ValueError("source-bound risk ProgramGraph manifest names another Trinity source")
     compile_registry_from_graph = _source_ref_from_parent_edge(
         store, graph_manifest, "registry_bundle", expected_kind="core.registry_bundle"
     )
-    if compile_registry_from_graph != _source_core_ref(basis.compile_registry_ref):
+    if not _source_refs_equal(
+        compile_registry_from_graph, _source_core_ref(basis.compile_registry_ref)
+    ):
         raise ValueError("source-bound risk compile registry differs from ProgramGraph")
     trinity_manifest = _source_manifest(store, trinity_ref)
     trinity_candidate_ref = _source_ref_from_parent_edge(
@@ -916,35 +943,50 @@ def _recompute_execution_source(
         "policy_candidate",
         expected_kind="scientist.policy_design.candidate",
     )
-    if trinity_candidate_ref != candidate_ref:
+    if not _source_refs_equal(trinity_candidate_ref, candidate_ref):
         raise ValueError("source-bound risk Trinity source names another candidate")
     trinity = _source_typed_json_model(store, TrinityBundle, trinity_ref)
     bindings = _source_typed_json_model(store, FoundryInputBindings, basis.input_bindings_ref)
     binding_manifest = _source_manifest(store, basis.input_bindings_ref)
     if (
-        _source_core_ref(bindings.data_snapshot_ref) != _source_core_ref(basis.data_snapshot_ref)
-        or _source_core_ref(bindings.bound_state_snapshot_ref)
-        != _source_core_ref(basis.bound_state_snapshot_ref)
-        or _source_core_ref(bindings.registry_bundle_ref)
-        != _source_core_ref(basis.binding_registry_ref)
-        or _source_ref_from_parent_edge(
-            store, binding_manifest, "input.data_snapshot_ref", expected_kind="fabric.data_snapshot"
+        not _source_refs_equal(
+            _source_core_ref(bindings.data_snapshot_ref), _source_core_ref(basis.data_snapshot_ref)
         )
-        != _source_core_ref(basis.data_snapshot_ref)
-        or _source_ref_from_parent_edge(
-            store,
-            binding_manifest,
-            "input.registry_bundle_ref",
-            expected_kind="core.registry_bundle",
+        or not _source_refs_equal(
+            _source_core_ref(bindings.bound_state_snapshot_ref),
+            _source_core_ref(basis.bound_state_snapshot_ref),
         )
-        != _source_core_ref(basis.binding_registry_ref)
-        or _source_ref_from_parent_edge(
-            store,
-            binding_manifest,
-            "artifact.bound_state_snapshot_ref",
-            expected_kind="foundry.state_snapshot",
+        or not _source_refs_equal(
+            _source_core_ref(bindings.registry_bundle_ref),
+            _source_core_ref(basis.binding_registry_ref),
         )
-        != _source_core_ref(basis.bound_state_snapshot_ref)
+        or not _source_refs_equal(
+            _source_ref_from_parent_edge(
+                store,
+                binding_manifest,
+                "input.data_snapshot_ref",
+                expected_kind="fabric.data_snapshot",
+            ),
+            _source_core_ref(basis.data_snapshot_ref),
+        )
+        or not _source_refs_equal(
+            _source_ref_from_parent_edge(
+                store,
+                binding_manifest,
+                "input.registry_bundle_ref",
+                expected_kind="core.registry_bundle",
+            ),
+            _source_core_ref(basis.binding_registry_ref),
+        )
+        or not _source_refs_equal(
+            _source_ref_from_parent_edge(
+                store,
+                binding_manifest,
+                "artifact.bound_state_snapshot_ref",
+                expected_kind="foundry.state_snapshot",
+            ),
+            _source_core_ref(basis.bound_state_snapshot_ref),
+        )
     ):
         raise ValueError("source-bound risk execution basis bindings disagree")
     for registry_ref, declared_members in (
@@ -957,8 +999,9 @@ def _recompute_execution_source(
             raise ValueError(
                 "source-bound risk registry bundle payload differs from selected members"
             )
-    if _source_core_ref(basis.runtime_registry_ref) != _source_core_ref(
-        basis.request.registry_bundle_ref
+    if not _source_refs_equal(
+        _source_core_ref(basis.runtime_registry_ref),
+        _source_core_ref(basis.request.registry_bundle_ref),
     ):
         raise ValueError("source-bound risk runtime registry differs from ExecuteRequest")
     if set(basis.request_fields_set) - set(basis.request.model_fields):
@@ -1036,7 +1079,9 @@ def _recompute_execution_source(
         raise ValueError("source-bound risk ModelSpec snapshot ID differs from candidate edge")
     if str(trinity.model_spec.registry_bundle_ref) != str(candidate_registry_ref.artifact_id):
         raise ValueError("source-bound risk ModelSpec registry ID differs from candidate edge")
-    if _source_core_ref(basis.candidate_data_snapshot_ref) != candidate_data_ref:
+    if not _source_refs_equal(
+        _source_core_ref(basis.candidate_data_snapshot_ref), candidate_data_ref
+    ):
         raise ValueError("source-bound risk basis candidate snapshot differs from candidate edge")
     candidate_snapshot_payload = _source_typed_json_model(
         store, DataSnapshot, basis.candidate_data_snapshot_ref
@@ -1044,9 +1089,13 @@ def _recompute_execution_source(
     _verify_data_snapshot_source_edges(
         store, basis.candidate_data_snapshot_ref, candidate_snapshot_payload
     )
-    if _source_core_ref(basis.candidate_registry_bundle_ref) != candidate_registry_ref:
+    if not _source_refs_equal(
+        _source_core_ref(basis.candidate_registry_bundle_ref), candidate_registry_ref
+    ):
         raise ValueError("source-bound risk basis candidate registry differs from candidate edge")
-    if _source_core_ref(basis.data_snapshot_ref) != _source_core_ref(bindings.data_snapshot_ref):
+    if not _source_refs_equal(
+        _source_core_ref(basis.data_snapshot_ref), _source_core_ref(bindings.data_snapshot_ref)
+    ):
         raise ValueError("source-bound risk runtime DataSnapshot differs from bindings")
     for role, ref in (
         ("metrics", simulation_result.metrics_ref),
@@ -1063,11 +1112,16 @@ def _recompute_execution_source(
         expected_model=StateDelta,
     )
     delta = _source_typed_json_model(store, StateDelta, delta_ref)
-    if _source_core_ref(delta.base_ref) != _source_core_ref(basis.base_state_snapshot_ref):
+    if not _source_refs_equal(
+        _source_core_ref(delta.base_ref), _source_core_ref(basis.base_state_snapshot_ref)
+    ):
         raise ValueError("source-bound risk StateDelta base differs from observed execution basis")
-    if _source_ref_from_parent_edge(
-        store, simulation_manifest, "exec_plan", expected_kind="foundry.exec_plan"
-    ) != _source_core_ref(basis.exec_plan_ref):
+    if not _source_refs_equal(
+        _source_ref_from_parent_edge(
+            store, simulation_manifest, "exec_plan", expected_kind="foundry.exec_plan"
+        ),
+        _source_core_ref(basis.exec_plan_ref),
+    ):
         raise ValueError("source-bound risk SimulationResult ExecPlan differs from basis")
     metrics_ref = _source_core_ref(simulation_result.metrics_ref)
     metrics_manifest = _source_manifest(store, metrics_ref)
@@ -1162,7 +1216,7 @@ def _build_source_bound_risk_observation(
     if bundle.policy_ref is None:
         raise ValueError("welfare bundle has no policy scope claim")
     policy_ref = _source_core_ref(bundle.policy_ref)
-    if policy_ref != candidate_ref:
+    if not _source_refs_equal(policy_ref, candidate_ref):
         raise ValueError("welfare bundle policy claim differs from the selected candidate")
     policy_manifest = _source_child_manifest(
         store, welfare_manifest, role="policy_scope_claim", ref=policy_ref
@@ -1513,7 +1567,7 @@ def load_source_bound_risk_observation(
     observation = SourceBoundRiskObservation.model_validate(
         load_core_json_artifact(store, observation_ref)
     )
-    if observation.candidate_ref != expected_candidate_ref:
+    if not _source_refs_equal(observation.candidate_ref, expected_candidate_ref):
         raise ValueError("source-bound risk observation belongs to another candidate view")
     expected, expected_inputs = _build_source_bound_risk_observation(
         store,

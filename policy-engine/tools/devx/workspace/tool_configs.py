@@ -7,7 +7,9 @@ import argparse
 import difflib
 import json
 import os
+import posixpath
 import re
+import subprocess
 import sys
 import tomllib
 from collections.abc import Sequence
@@ -125,6 +127,24 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
         )
         for path in config["per_file_ignore_fragments"]
     ]
+    try:
+        root_workspace_ignores = tomllib.loads(
+            "[lint.per-file-ignores]\n" + "\n".join(workspace_root_fragments)
+        )["lint"]["per-file-ignores"]
+    except tomllib.TOMLDecodeError as error:
+        raise ValueError(f"workspace-root Ruff ignore fragments conflict: {error}") from error
+    nested_fragments = _read_nested_ruff_per_file_ignore_fragments(
+        repo_root,
+        config_filenames=config["workspace_nested_ruff_config_filenames"],
+        product_root_config=repo_root / config["root_config"],
+        workspace_root_prefix=workspace_root_prefix,
+        root_per_file_ignore_patterns=tuple(root_workspace_ignores),
+    )
+    all_workspace_fragments = [*workspace_root_fragments, *nested_fragments]
+    try:
+        tomllib.loads("[lint.per-file-ignores]\n" + "\n".join(all_workspace_fragments))
+    except tomllib.TOMLDecodeError as error:
+        raise ValueError(f"workspace-root Ruff ignore matchers conflict: {error}") from error
     workspace_root_settings = _render_workspace_root_settings(
         product_root_settings,
         path_settings=config["workspace_root_path_settings"],
@@ -141,7 +161,7 @@ def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
             f"extend = {json.dumps(workspace_extend)}\n",
             workspace_root_settings,
             "[lint.per-file-ignores]\n",
-            *workspace_root_fragments,
+            *all_workspace_fragments,
         ]
     )
     return (
@@ -269,15 +289,302 @@ def _read_ruff_per_file_ignore_fragment(
     return "\n".join(rendered_lines) + ("\n" if fragment.endswith("\n") else "")
 
 
-def _ruff_pattern_for_prefix(pattern: str, prefix: str) -> str:
-    """Render a product-root-relative Ruff pattern below the caller's project root."""
+_RUFF_CONFIG_PRECEDENCE = (".ruff.toml", "ruff.toml", "pyproject.toml")
+_RUFF_PER_FILE_IGNORE_FIELDS = ("per-file-ignores", "extend-per-file-ignores")
+_RUFF_GLOB_META = frozenset("*?[]{}")
+_RUFF_UNSUPPORTED_NESTED_PATTERN_META = frozenset("?[]{}")
+
+
+def _ruff_scope_prefix_for_nested_config(
+    workspace_root_prefix: str,
+    project_relative: str,
+    *,
+    config_path: Path,
+) -> str:
+    """Return a literal scope path Ruff cannot reinterpret as a broader glob."""
+
+    prefix = posixpath.join(workspace_root_prefix, project_relative)
+    normalized = posixpath.normpath(prefix)
+    components = prefix.split("/")
+    if (
+        not workspace_root_prefix
+        or not project_relative
+        or prefix.startswith(("/", "!"))
+        or "\\" in prefix
+        or any(character in prefix for character in _RUFF_GLOB_META)
+        or any(component in {"", ".", ".."} for component in components)
+        or normalized != prefix
+    ):
+        raise ValueError(
+            f"nested Ruff config {config_path}: selected config scope {normalized!r} "
+            "cannot be represented as a literal workspace-root Ruff glob"
+        )
+    return normalized
+
+
+def _read_nested_ruff_per_file_ignore_fragments(
+    repo_root: Path,
+    *,
+    config_filenames: Sequence[str],
+    product_root_config: Path,
+    workspace_root_prefix: str,
+    root_per_file_ignore_patterns: Sequence[str],
+) -> list[str]:
+    """Project supported nested direct-extender ignore rules into workspace-root terms."""
+
+    if tuple(config_filenames) != _RUFF_CONFIG_PRECEDENCE:
+        raise ValueError(
+            "nested Ruff config filenames must follow Ruff precedence: "
+            + ", ".join(_RUFF_CONFIG_PRECEDENCE)
+        )
+    root = repo_root.resolve(strict=False)
+    product_config = product_root_config.resolve(strict=False)
+    candidates_by_directory: dict[Path, dict[str, Path]] = {}
+    for relative_path in _workspace_paths_named(repo_root, config_filenames):
+        candidates_by_directory.setdefault(relative_path.parent, {})[relative_path.name] = (
+            relative_path
+        )
+
+    scopes: list[dict[str, Any]] = []
+    output: list[str] = []
+    for relative_directory in sorted(candidates_by_directory, key=lambda item: item.as_posix()):
+        selected: tuple[Path, dict[str, Any]] | None = None
+        for filename in config_filenames:
+            relative_path = candidates_by_directory[relative_directory].get(filename)
+            if relative_path is None:
+                continue
+            path = repo_root / relative_path
+            try:
+                document = tomllib.loads(path.read_text(encoding="utf-8"))
+            except (OSError, tomllib.TOMLDecodeError) as error:
+                raise ValueError(f"cannot read nested Ruff config {path}: {error}") from error
+            if filename == "pyproject.toml":
+                tool = document.get("tool", {})
+                if not isinstance(tool, dict):
+                    continue
+                ruff = tool.get("ruff")
+                if ruff is None:
+                    continue
+            else:
+                ruff = document
+            if not isinstance(ruff, dict):
+                raise ValueError(f"nested Ruff config {path}: Ruff settings must be a TOML table")
+            selected = (path, ruff)
+            break
+        if selected is None:
+            continue
+
+        path, ruff = selected
+        if path.resolve(strict=False) == product_config:
+            continue
+        project_root = path.parent.resolve(strict=False)
+        try:
+            project_relative = project_root.relative_to(root).as_posix()
+        except ValueError as error:
+            raise ValueError(f"nested Ruff config escapes product root: {path}") from error
+        if not project_relative:
+            continue
+        prefix = _ruff_scope_prefix_for_nested_config(
+            workspace_root_prefix, project_relative, config_path=path
+        )
+        lint = ruff.get("lint", {})
+        if not isinstance(lint, dict):
+            raise ValueError(f"nested Ruff config {path}: lint settings must be a TOML table")
+
+        merged_ignores: dict[str, list[str]] = {}
+        present_fields: set[str] = set()
+        for field in _RUFF_PER_FILE_IGNORE_FIELDS:
+            if field not in lint:
+                continue
+            present_fields.add(field)
+            values = lint[field]
+            if not isinstance(values, dict):
+                raise ValueError(f"nested Ruff config {path}: lint.{field} must be a TOML table")
+            for pattern, codes in values.items():
+                if not isinstance(pattern, str) or not pattern:
+                    raise ValueError(f"nested Ruff config {path}: matcher must be non-empty text")
+                if not isinstance(codes, list) or any(not isinstance(code, str) for code in codes):
+                    raise ValueError(f"invalid Ruff rules for {pattern!r} in {path}")
+                combined = merged_ignores.setdefault(pattern, [])
+                combined.extend(code for code in codes if code not in combined)
+
+        if "extend" in ruff:
+            extend = ruff["extend"]
+            if not isinstance(extend, str) or not extend.strip():
+                raise ValueError(f"nested Ruff config {path}: extend must be a string path")
+            expanded = os.path.expanduser(os.path.expandvars(extend))
+            if re.search(r"\$(?:[A-Za-z_][A-Za-z0-9_]*|\{[^}]+\})", expanded):
+                raise ValueError(
+                    f"nested Ruff config {path}: extend contains an unresolved variable"
+                )
+            extended_path = Path(expanded)
+            if not extended_path.is_absolute():
+                extended_path = path.parent / extended_path
+            resolved_extend = extended_path.resolve(strict=False)
+        else:
+            resolved_extend = None
+        direct_extender = resolved_extend == product_config
+
+        if not direct_extender:
+            if resolved_extend is not None and resolved_extend.is_relative_to(root):
+                raise ValueError(
+                    f"nested Ruff config {path}: only direct extension of the "
+                    "product root is supported"
+                )
+            if present_fields:
+                raise ValueError(
+                    f"nested Ruff config {path}: per-file ignore rules must directly extend "
+                    "the product Ruff root"
+                )
+            if any(
+                _ruff_matcher_may_overlap_prefix(pattern, prefix)
+                for pattern in root_per_file_ignore_patterns
+            ):
+                raise ValueError(
+                    f"nested Ruff config {path}: local config may override product-root "
+                    "per-file ignores in its scope"
+                )
+            scopes.append({"prefix": prefix, "patterns": ()})
+            continue
+
+        if "per-file-ignores" in present_fields and any(
+            _ruff_matcher_may_overlap_prefix(pattern, prefix)
+            for pattern in root_per_file_ignore_patterns
+        ):
+            raise ValueError(
+                f"nested Ruff config {path}: child per-file-ignores replaces inherited "
+                "rules that may overlap its scope"
+            )
+
+        rendered_ignores: dict[str, list[str]] = {}
+        for pattern, codes in sorted(merged_ignores.items()):
+            rendered_pattern = _ruff_nested_pattern_for_prefix(pattern, prefix, config_path=path)
+            rendered_codes = rendered_ignores.setdefault(rendered_pattern, [])
+            rendered_codes.extend(code for code in codes if code not in rendered_codes)
+        scopes.append(
+            {
+                "prefix": prefix,
+                "patterns": tuple(pattern for pattern, codes in rendered_ignores.items() if codes),
+            }
+        )
+        if not rendered_ignores:
+            continue
+        rows = [f"# Projected from {path.relative_to(repo_root).as_posix()} nested Ruff config."]
+        for pattern, codes in sorted(rendered_ignores.items()):
+            rows.append(f"{json.dumps(pattern)} = {_format_ruff_value(codes)}")
+        output.append("\n".join(rows) + "\n")
+
+    for parent in scopes:
+        for child in scopes:
+            if parent is child or not child["prefix"].startswith(parent["prefix"] + "/"):
+                continue
+            if any(
+                _ruff_matcher_may_overlap_prefix(pattern, child["prefix"])
+                for pattern in parent["patterns"]
+            ):
+                raise ValueError(
+                    "nested Ruff config scopes overlap a projected parent per-file ignore; "
+                    "the current projection cannot preserve nearest-config precedence"
+                )
+    return output
+
+
+def _workspace_paths_named(repo_root: Path, filenames: Sequence[str]) -> list[Path]:
+    """Enumerate tracked and unignored untracked workspace paths with named config files."""
+
+    if not filenames or any(Path(name).name != name for name in filenames):
+        raise ValueError("nested Ruff config filenames must be non-empty basenames")
+    result = subprocess.run(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode:
+        detail = result.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"cannot enumerate workspace configs below {repo_root}: {detail}")
+    listed_paths = (Path(item) for item in result.stdout.decode("utf-8").split("\0") if item)
+    directories = {Path(".")}
+    for listed_path in listed_paths:
+        directory = listed_path.parent
+        while True:
+            directories.add(directory)
+            if directory == Path("."):
+                break
+            directory = directory.parent
+    config_paths = []
+    for directory in sorted(directories, key=lambda item: item.as_posix()):
+        for filename in filenames:
+            relative_path = directory / filename
+            if (repo_root / relative_path).is_file():
+                config_paths.append(relative_path)
+    return sorted(set(config_paths), key=lambda item: item.as_posix())
+
+
+def _ruff_matcher_may_overlap_prefix(pattern: str, prefix: str) -> bool:
+    """Conservatively detect whether a Ruff glob could match beneath a config boundary."""
 
     negated = pattern.startswith("!")
     subject = pattern[1:] if negated else pattern
-    if subject.startswith(("/", "./", "../")):
+    if subject.startswith("/"):
+        return True
+    normalized = posixpath.normpath(subject)
+    matcher_parts = tuple(part for part in normalized.split("/") if part not in {"", "."})
+    prefix_parts = tuple(
+        part for part in posixpath.normpath(prefix).split("/") if part not in {"", "."}
+    )
+    for matcher_part, prefix_part in zip(matcher_parts, prefix_parts, strict=False):
+        if matcher_part == "**" or any(character in matcher_part for character in _RUFF_GLOB_META):
+            return True
+        if matcher_part != prefix_part:
+            return False
+    return True
+
+
+def _ruff_pattern_for_prefix(pattern: str, prefix: str) -> str:
+    """Render a Ruff glob below another invocation root without changing path meaning."""
+
+    negated = pattern.startswith("!")
+    subject = pattern[1:] if negated else pattern
+    if not prefix or prefix == "." or subject.startswith("/"):
         return pattern
-    rendered = f"{prefix}/{subject}" if prefix not in {"", "."} else subject
+    rendered = posixpath.normpath(posixpath.join(prefix, subject))
     return f"!{rendered}" if negated else rendered
+
+
+def _ruff_nested_pattern_for_prefix(pattern: str, prefix: str, *, config_path: Path) -> str:
+    """Project supported positive relative globs inside one selected config scope.
+
+    The bounded grammar accepts literal path segments and ``*`` wildcards; ``**`` is
+    supported only as a complete path component. Negative, brace, character-class,
+    question-mark, backslash, absolute, and parent-traversal forms are refused because
+    one workspace-root map cannot preserve their selected-config boundary here.
+    """
+
+    scope = posixpath.normpath(prefix)
+    components = pattern.split("/")
+    unsupported = (
+        not pattern
+        or pattern.startswith(("!", "/"))
+        or "\\" in pattern
+        or any(character in pattern for character in _RUFF_UNSUPPORTED_NESTED_PATTERN_META)
+        or any(component in {"", ".", ".."} for component in components)
+        or any("**" in component and component != "**" for component in components)
+    )
+    if unsupported:
+        raise ValueError(
+            f"nested Ruff config {config_path}: per-file matcher {pattern!r} "
+            f"cannot be represented within selected config scope {scope!r}"
+        )
+
+    rendered = _ruff_pattern_for_prefix(pattern, prefix)
+    normalized = posixpath.normpath(rendered)
+    if normalized != scope and not normalized.startswith(scope + "/"):
+        raise ValueError(
+            f"nested Ruff config {config_path}: per-file matcher {pattern!r} "
+            f"cannot be represented within selected config scope {scope!r}"
+        )
+    return rendered
 
 
 def _ensure_trailing_newline(content: str) -> str:

@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import logging
 import math
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.types import Evaluation, EvaluationStatus
@@ -75,10 +76,14 @@ class TransferLearningManager:
         Vector memory store for run similarity search.
     """
 
+    _MAX_HISTORY_CACHE_ENTRIES = 128
+    _MAX_HISTORY_CACHE_BYTES = 32 * 1024 * 1024
+
     def __init__(self, store: ArtifactStore, index: VectorMemoryStore) -> None:
         self._store = store
         self._index = index
-        self._eval_cache: dict[str, list[dict[str, Any]]] = {}
+        self._eval_cache: OrderedDict[str, bytes] = OrderedDict()
+        self._eval_cache_bytes = 0
 
     def register_run(
         self,
@@ -125,6 +130,7 @@ class TransferLearningManager:
                 media_type="application/json",
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
         # Index the run in vector memory
@@ -143,6 +149,7 @@ class TransferLearningManager:
                     "objective_directions": fingerprint.objective_directions,
                     "best_score": fingerprint.best_score,
                     "artifact_id": ref.artifact_id,
+                    "manifest_profile_sha256": ref.manifest_profile_sha256,
                 },
             )
 
@@ -359,16 +366,24 @@ class TransferLearningManager:
 
     @classmethod
     def _history_cache_key(cls, history_ref: ArtifactRef, run_fingerprint: RunFingerprint) -> str:
-        """Key cached rows by both immutable address and their complete expected identity."""
-        identity_hash = fingerprint(
-            cls._identity_payload(run_fingerprint),
+        """Bind cache entries to the full selected ref and complete run identity."""
+        artifact_id, kind, media_type, profile_sha256 = artifact_ref_identity_key(history_ref)
+        return fingerprint(
+            {
+                "artifact_ref": {
+                    "artifact_id": artifact_id,
+                    "kind": kind,
+                    "media_type": media_type,
+                    "manifest_profile_sha256": profile_sha256,
+                },
+                "run_identity": cls._identity_payload(run_fingerprint),
+            },
             canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
         )
-        return f"{history_ref.artifact_id}:{identity_hash}"
 
     @staticmethod
     def _history_ref_from_metadata(meta: dict[str, Any]) -> ArtifactRef | None:
-        """Convert indexed history metadata into a typed immutable reference."""
+        """Convert indexed history metadata into its exact typed immutable reference."""
         artifact_id = meta.get("artifact_id")
         if artifact_id is None:
             return None
@@ -377,6 +392,7 @@ class TransferLearningManager:
                 artifact_id=artifact_id,
                 kind="search.transfer.history",
                 media_type="application/json",
+                manifest_profile_sha256=meta.get("manifest_profile_sha256"),
             )
         except (TypeError, ValueError):
             return None
@@ -472,11 +488,10 @@ class TransferLearningManager:
         self,
         source: RunFingerprint | str,
     ) -> list[dict[str, Any]]:
-        """Load persisted evaluations from an exact snapshot reference.
+        """Load evaluations from a verified, exact immutable history reference.
 
-        The string form is retained for legacy callers and old in-memory cache
-        entries.  Discovery results carry ``history_ref`` and never use the
-        ANN fallback, so changing ``top_k`` cannot change addressability.
+        Legacy callers without a reference resolve the current indexed reference, then
+        use the same full-reference byte cache as direct snapshot callers.
         """
         if isinstance(source, RunFingerprint):
             run_id = source.run_id
@@ -486,54 +501,124 @@ class TransferLearningManager:
             run_id = source
             history_ref = None
             expected_fingerprint = None
+
         if history_ref is not None:
             if expected_fingerprint is None or not self._has_complete_binding_basis(
                 expected_fingerprint
             ):
                 raise ValueError("exact history ref requires a complete expected run fingerprint")
             cache_key = self._history_cache_key(history_ref, expected_fingerprint)
-        else:
-            cache_key = run_id
-        if cache_key in self._eval_cache:
-            return list(self._eval_cache[cache_key])
-        if history_ref is not None:
-            evals = self._read_history(history_ref, expected_fingerprint)
-            self._eval_cache[cache_key] = evals
-            return list(evals)
+            cached_bytes = self._cached_history_bytes(cache_key)
+            if cached_bytes is not None:
+                try:
+                    rows, _ = self._read_history(
+                        history_ref,
+                        expected_fingerprint,
+                        raw_payload_bytes=cached_bytes,
+                    )
+                except ValueError:
+                    self._discard_cached_history(cache_key)
+                    raise
+                return rows
+            rows, raw_payload_bytes = self._read_history(history_ref, expected_fingerprint)
+            self._remember_history_bytes(cache_key, raw_payload_bytes)
+            return rows
 
-        # Legacy callers may only have a run id. Resolve an indexed ref and apply
-        # the same complete binding and content check as the direct path.
+        # Legacy callers may only have a run id. Resolve the selected ref and apply
+        # the complete binding and Core profile checks before serving any cached bytes.
         results = self._index.query([0.0] * self._index.dim, top_k=1000)
         for key, _, meta in results:
             if key != run_id:
                 continue
-            history_ref = self._history_ref_from_metadata(meta)
-            if history_ref is None:
+            selected_ref = self._history_ref_from_metadata(meta)
+            if selected_ref is None:
                 continue
             try:
-                indexed_fingerprint = self._fingerprint_from_index_metadata(key, meta, history_ref)
+                indexed_fingerprint = self._fingerprint_from_index_metadata(
+                    key,
+                    meta,
+                    selected_ref,
+                )
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"Invalid indexed transfer history for {run_id}: {exc}") from exc
             if expected_fingerprint is not None and not self._binding_matches(
-                expected_fingerprint, indexed_fingerprint
+                expected_fingerprint,
+                indexed_fingerprint,
             ):
                 continue
-            evals = self._read_history(history_ref, indexed_fingerprint)
-            self._eval_cache[self._history_cache_key(history_ref, indexed_fingerprint)] = evals
-            return list(evals)
+            cache_key = self._history_cache_key(selected_ref, indexed_fingerprint)
+            cached_bytes = self._cached_history_bytes(cache_key)
+            if cached_bytes is not None:
+                try:
+                    rows, _ = self._read_history(
+                        selected_ref,
+                        indexed_fingerprint,
+                        raw_payload_bytes=cached_bytes,
+                    )
+                except ValueError:
+                    self._discard_cached_history(cache_key)
+                    raise
+                return rows
+            rows, raw_payload_bytes = self._read_history(selected_ref, indexed_fingerprint)
+            self._remember_history_bytes(cache_key, raw_payload_bytes)
+            return rows
         return []
 
+    def _cached_history_bytes(self, key: str) -> bytes | None:
+        """Return one immutable LRU payload without exposing cached decoded objects."""
+        payload = self._eval_cache.get(key)
+        if payload is None:
+            return None
+        if type(payload) is not bytes:
+            self._discard_cached_history(key)
+            raise ValueError("transfer history cache payload is not immutable bytes")
+        self._eval_cache.move_to_end(key)
+        return payload
+
+    def _discard_cached_history(self, key: str) -> None:
+        """Remove one cached payload and maintain the exact retained-byte counter."""
+        payload = self._eval_cache.pop(key, None)
+        if payload is not None:
+            self._eval_cache_bytes -= len(payload)
+
+    def _remember_history_bytes(self, key: str, payload: bytes) -> None:
+        """Retain verified canonical payload bytes within the declared LRU budget."""
+        if type(payload) is not bytes:
+            raise TypeError("transfer history cache accepts only immutable bytes")
+        self._discard_cached_history(key)
+        if len(payload) > self._MAX_HISTORY_CACHE_BYTES:
+            return
+        self._eval_cache[key] = payload
+        self._eval_cache_bytes += len(payload)
+        while (
+            len(self._eval_cache) > self._MAX_HISTORY_CACHE_ENTRIES
+            or self._eval_cache_bytes > self._MAX_HISTORY_CACHE_BYTES
+        ):
+            _, evicted = self._eval_cache.popitem(last=False)
+            self._eval_cache_bytes -= len(evicted)
+
     def _read_history(
-        self, ref: ArtifactRef, expected_fingerprint: RunFingerprint
-    ) -> list[dict[str, Any]]:
-        """Read and identity-bind JSON history from its selected immutable CAS ref."""
-        from polisyos.core.artifacts import load_core_json_artifact
+        self,
+        ref: ArtifactRef,
+        expected_fingerprint: RunFingerprint,
+        *,
+        raw_payload_bytes: bytes | None = None,
+    ) -> tuple[list[dict[str, Any]], bytes]:
+        """Verify the selected Core bytes and bind their complete history identity."""
+        from polisyos.core.artifacts import read_core_json_artifact
+
         if ref.kind != "search.transfer.history" or ref.media_type != "application/json":
             raise ValueError("Transfer history ref has an unexpected kind or media type")
         if not self._has_complete_binding_basis(expected_fingerprint):
             raise ValueError("Transfer history read requires a complete expected run fingerprint")
         try:
-            data = load_core_json_artifact(self._store, ref)
+            read = read_core_json_artifact(
+                self._store,
+                ref,
+                raw_payload_bytes=raw_payload_bytes,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            data = read.value
         except (TypeError, ValueError) as exc:
             raise ValueError(f"Malformed transfer history artifact {ref.artifact_id}") from exc
         if not isinstance(data, dict):
@@ -567,7 +652,9 @@ class TransferLearningManager:
             ]
             field = mismatched[0] if mismatched else "identity"
             raise ValueError(f"Transfer history {field} does not match its selected index entry")
-        evals = data.get("evaluations")
-        if not isinstance(evals, list) or any(not isinstance(row, dict) for row in evals):
+        evaluations = data.get("evaluations")
+        if not isinstance(evaluations, list) or any(
+            not isinstance(row, dict) for row in evaluations
+        ):
             raise ValueError(f"Transfer history artifact {ref.artifact_id} has invalid evaluations")
-        return list(evals)
+        return list(evaluations), read.raw_payload_bytes

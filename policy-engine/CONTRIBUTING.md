@@ -56,8 +56,15 @@ System notes:
   edit the fragments declared in `architecture/tooling/tool_config_split.toml`. From
   `policy-engine/`, Ruff auto-discovers this product config. A caller from the Git root must
   use `policy-engine/architecture/tooling/ruff/workspace_root.toml` so source roots and
-  path-based settings resolve under the product directory. `pyproject.toml` declares Ruff
-  as a lint dependency but contains no Ruff settings.
+  path-based settings resolve under the product directory. Ruff discovers `pyproject.toml`,
+  `ruff.toml`, and `.ruff.toml`, with the nearest config winning and .ruff.toml taking
+  precedence over ruff.toml and then pyproject.toml. The workspace generator projects
+  per-file-ignore maps from direct product-root extenders only when the selected config path has
+  literal path components and each positive relative matcher uses literal segments, `*`, or
+  complete-component `**`. Path glob metacharacters, backslashes, negative or otherwise
+  unrepresentable matchers, malformed maps, indirect/local maps, and overlapping child overrides
+  fail closed; other nested Ruff settings remain local and outside workspace-root projection.
+  The product-root pyproject.toml only declares Ruff as a lint dependency.
 - The shared policy uses `line-length = 100`, `target-version = "py314"`, and rule prefixes
   `E`, `F`, `I`, `B`, `T20`, `N`, `UP`, `S`, `PT`, `SIM`, `RUF`, `ANN`, `C4`, and `TCH`;
   package-specific per-file ignores come from the split fragments.

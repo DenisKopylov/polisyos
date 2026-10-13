@@ -190,7 +190,7 @@ class PublicDecisionVerificationService:
                 ),
             )
             record_ref = self._store.put_bytes(
-                _public_canonical_bytes(record.model_dump(mode="json")),
+                _public_canonical_bytes(record),
                 artifacts.ArtifactWriteOptions(
                     kind=PUBLIC_VERIFICATION_RECORD_KIND,
                     media_type="application/json",

@@ -735,3 +735,6 @@ src = ["policy-engine", "policy-engine/src"]
 "policy-engine/tools/registry.py" = ["E501"]
 "policy-engine/tools/*" = ["T201"]
 "policy-engine/tools/**" = ["T201"]
+
+# Projected from workers/dowhy-014/pyproject.toml nested Ruff config.
+"policy-engine/workers/dowhy-014/tests/**" = ["ANN", "S101", "T201", "PT011", "PT018", "E501"]

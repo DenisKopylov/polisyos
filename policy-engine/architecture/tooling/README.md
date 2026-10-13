@@ -3,7 +3,7 @@
 Source fragments for Repository Best-in-Class Phase 5.5.
 
 - `mypy/base.ini` is the root policy surface; package debt lives in grouped override fragments and is assembled into `mypy/generated.ini` for commands that need historical suppressions.
-- `ruff/base.toml` holds base rules; per-file ignores live under `ruff/per-file-ignores/` and are covered by `architecture/tooling/static_analysis_overrides.toml` owner/sunset metadata.
+- `ruff/base.toml` holds base rules; shared per-file ignores live under `ruff/per-file-ignores/` and are covered by `architecture/tooling/static_analysis_overrides.toml` owner/sunset metadata. The workspace-root config follows Ruff discovery precedence for nested `pyproject.toml`, `ruff.toml`, and `.ruff.toml` files. It projects per-file-ignore maps only from direct product-root extensions with literal selected-config path components and positive relative matchers made from literal segments, `*`, or complete-component `**`. It fails closed on path glob metacharacters, backslashes, negative or otherwise unrepresentable matchers, malformed maps, unsupported local/indirect maps, or overlapping override scopes. Other nested Ruff settings remain local and are not projected into the single workspace-root config.
 - `mkdocs/` keeps the site base, publication exclusions, and nav sections reviewable in small fragments; `mkdocs.yml` inherits the generated config.
 
 Regenerate and verify with:

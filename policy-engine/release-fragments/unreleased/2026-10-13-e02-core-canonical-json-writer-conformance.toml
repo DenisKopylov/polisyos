@@ -3,7 +3,7 @@ title = "Require Core canonical encodings to round-trip under their selected pro
 type = "fixed"
 component = "core"
 owner = "team-runtime"
-summary = "Core canonical JSON encoding refuses reserved typed-tag mappings that do not reproduce the same bytes under the selected decoder and encoder; the public-decision writer now emits its declared Core profile."
+summary = "Core refuses non-round-tripping reserved typed tags; public-decision records preserve typed datetime values required by strict readers."
 evidence = [
   "src/polisyos/core/canon/canon_json.py",
   "tests/unit/core/phase0/test_canon_json.py",
@@ -11,11 +11,11 @@ evidence = [
   "src/polisyos/runtime/http/services/public_decision_verification.py",
   "tests/unit/runtime/http/test_public_decision_verification.py",
 ]
-compatibility = "Supported Core values and their declared profile remain unchanged. Direct callers that supplied recognized but noncanonical typed-tag mappings now receive a typed refusal before Core writers can persist them. Public-decision finite-float records use the Core typed-float wire form required by their existing profile."
-change_class = "Core canonical-encoding refusal boundary"
+compatibility = "Supported Core values and their declared profile remain unchanged. Direct callers that supplied recognized but noncanonical typed-tag mappings now receive a typed refusal before Core writers can persist them. Public-decision finite floats retain Core typed encoding, while record datetimes remain typed; JSON-mode datetime strings can be byte-conformant but fail the strict record DTO."
+change_class = "Core canonical-encoding refusal and public-decision typed-record preservation"
 surface_classification = "Core canonical encoder and existing public-decision verification report writer; no generated DTO or schema change."
-migration = "No CAS history is rewritten. Previously persisted bytes that fail the declared Core round-trip remain refused. New public-decision writes use the exact declared Core profile; the verification report remains distinct from publication or decision authority."
-api = "to_canonical_bytes verifies every emitted Core byte string by exact decode/re-encode under the same CanonSpec, preserving CanonViolation handling and exposing the existing profile refusal code. Public-decision artifacts use that encoder and matching CanonInfo; the filesystem issuance index remains ordinary JSON outside CAS."
+migration = "No CAS history is rewritten. Existing JSON-mode datetime strings remain refused by the strict record DTO even when their bytes conform to Core. New public-decision writes retain typed aware datetimes; the verification report remains distinct from publication or decision authority."
+api = "to_canonical_bytes verifies every emitted Core byte string by exact decode/re-encode under the same CanonSpec, preserving CanonViolation handling and exposing the existing profile refusal code. Public-decision records pass typed models through that encoder so strict fresh readers recover aware datetimes; the filesystem issuance index remains ordinary JSON outside CAS."
 limitations = "The IR codec and arbitrary put_bytes payloads remain separate. Core CanonInfo does not identify a codec family, so generic put_bytes does not infer or parse JSON; in-repository Core-profile producers use the Core encoder or must use an explicitly declared Core JSON writer. No issuer, currentness, or decision authority is introduced."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
@@ -30,7 +30,7 @@ surface = "polisyos.core.canon.to_canonical_bytes and existing public-decision v
 owner = "team-runtime"
 version_owner = "team-runtime"
 deprecation_window = "not_applicable"
-release_note = "Core encoding now admits only bytes that round-trip under the same declared Core profile. Public-decision document and report writes use that Core encoder, including typed finite-float encoding; arbitrary byte writes and IR remain unchanged."
+release_note = "Core encoding now admits only bytes that round-trip under the same declared Core profile. Public-decision document and report writes use that Core encoder, including typed finite-float and datetime encoding needed by strict DTO reads; arbitrary byte writes and IR remain unchanged."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/runtime/http/services/README.md"]
 runbook_docs = []

@@ -194,6 +194,24 @@ def registry_with_methods(
     return registry
 
 
+def test_method_composer_preserves_explicit_empty_registry(
+    tax_method: type,
+) -> None:
+    """An injected empty registry must govern actual method resolution."""
+
+    fallback_registry = MethodRegistry.get_instance()
+    fallback_registry.register(tax_method)
+    assert fallback_registry.get_entry(tax_method.signature.fqn) is not None
+    explicit_registry = MethodRegistry._create_fresh()
+    assert len(explicit_registry) == 0
+
+    composer = MethodComposer(registry=explicit_registry)
+    with pytest.raises(MethodNotFoundError):
+        composer.add(tax_method.signature.fqn)
+
+    assert explicit_registry.get_entry(tax_method.signature.fqn) is None
+
+
 # =============================================================================
 # CompositionDAG Tests
 # =============================================================================

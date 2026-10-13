@@ -451,7 +451,7 @@ class FoundryHotReloader:
     def _registry_or_default(self) -> Any:
         from polisyos.foundry.methods.selection.registry import get_registry
 
-        return self._registry or get_registry()
+        return self._registry if self._registry is not None else get_registry()
 
     @staticmethod
     def _path_to_module_name(path: Path) -> str | None:

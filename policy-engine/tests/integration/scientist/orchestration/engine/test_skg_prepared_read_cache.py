@@ -657,8 +657,11 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
             *args,
             _method_name=method_name,
             _original_store_write=original_store_write,
+            return_selected_profile: bool = False,
             **kwargs,
         ):
+            if _method_name in {"put_bytes", "put_json"}:
+                kwargs["return_selected_profile"] = return_selected_profile
             call_index = len(underlying_store_write_calls)
             underlying_store_write_calls.append((_method_name, None))
             result = _original_store_write(*args, **kwargs)

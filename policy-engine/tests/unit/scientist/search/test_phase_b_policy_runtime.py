@@ -819,7 +819,7 @@ def test_pareto_registry_keeps_missing_axis_typed_unassessed(tmp_path) -> None:
     projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     voi_snapshot = registry.to_voi_snapshot("loop")
 
-    assert snapshot.schema_version == "2.0"
+    assert snapshot.schema_version == "3.0"
     assert view.status == "partial"
     assert view.input_count == 8
     assert view.assessed_count == 1
@@ -1129,7 +1129,7 @@ def test_platform_meta_eval_only_blocks_when_report_is_attached() -> None:
     )
 
 
-def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path) -> None:
+def test_promotion_coordinator_persists_readiness_and_requires_canonical_n9(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
@@ -1194,7 +1194,8 @@ def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path)
         judge_input=bundle,
     )
 
-    assert result.promotion_decision.promoted is True
+    assert result.promotion_decision.promoted is False
+    assert result.promotion_decision.reason == "canonical_n9_promotion_sequence_required"
     assert result.judge_verdict_ref is not None
     assert result.readiness_contract.readiness_level == DecisionReadiness.DEPLOYMENT_READY
     assert result.readiness_ref is not None
@@ -1209,18 +1210,10 @@ def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path)
     assert result.judge_verdict.per_judge["statistical"].violations == []
     assert result.judge_verdict.per_judge["reproducibility"].metrics["replay_match"] == 1.0
 
-    pointer = registry.get("policy_loop")
-    assert pointer is not None
-    assert pointer.metadata["decision_readiness"]["readiness_level"] == "deployment_ready"
-    assert pointer.metadata["judge_verdict_ref"]["artifact_id"] == str(
-        result.judge_verdict_ref.artifact_id
-    )
-    assert pointer.metadata["decision_readiness_ref"]["artifact_id"] == str(
-        result.readiness_ref.artifact_id
-    )
+    assert registry.get("policy_loop") is None
 
 
-def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_path) -> None:
+def test_missing_prior_knowledge_caps_readiness_before_canonical_n9_refusal(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
@@ -1284,8 +1277,10 @@ def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_p
         judge_input=bundle,
     )
 
-    assert result.promotion_decision.promoted is True
+    assert result.promotion_decision.promoted is False
+    assert result.promotion_decision.reason == "canonical_n9_promotion_sequence_required"
     assert result.readiness_contract.readiness_level == DecisionReadiness.SIMULATION_READY
+    assert registry.get("policy_loop") is None
     assert result.readiness_contract.metadata["actual_evidence_depth"] == "single_study"
     assert result.readiness_contract.metadata["prior_knowledge_status"] == "missing"
     assert result.readiness_contract.metadata["evidence_support_summary"]["available"] is False
@@ -2207,7 +2202,7 @@ def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path) -> 
     assert metadata["dp_effect_interval"] == [-0.12, -0.03]
 
 
-def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_path) -> None:
+def test_promotion_coordinator_publishes_canonical_n9_refusal_to_voi_scheduler(tmp_path) -> None:
     class _Scheduler:
         def __init__(self) -> None:
             self.calls: list[dict[str, object]] = []
@@ -2281,9 +2276,12 @@ def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_
         judge_input=bundle,
     )
 
-    assert result.promotion_decision.promoted is True
+    assert result.promotion_decision.promoted is False
+    assert result.promotion_decision.reason == "canonical_n9_promotion_sequence_required"
     assert scheduler.calls
     assert scheduler.calls[0]["candidate_id"] == candidate.candidate_id
+    assert scheduler.calls[0]["promoted"] is False
+    assert registry.get("policy_loop") is None
 
 
 def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
@@ -2335,19 +2333,28 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
     assert result.pareto_projection.candidate_frontier_hashes
     assert result.pareto_projection.unassessed_candidate_hashes
 
+    persisted = registry.get_snapshot(controller._search_id)
+    assert persisted.loop_id == controller._search_id
+    assert persisted.entries
+    assert registry.as_legacy_frontier_payload(controller._search_id) == result.pareto_front
+
 
 def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_valid(
     tmp_path,
 ) -> None:
     """Exercise ObjectiveStack, controller state, durable frontier, and seed consumer."""
     candidate = _candidate()
+    candidate_seed_payload = {
+        "candidate_id": candidate.candidate_id,
+        "metadata": {"domain": candidate.trinity_bundle.problem_frame.domain.value},
+    }
     stack = ObjectiveStack()
     registry = ParetoRegistry(root=tmp_path / "valid-pareto")
 
     class StaticGenerator:
         def generate(self, history, current_best, context):
             del history, current_best, context
-            return {"candidate_id": candidate.candidate_id}
+            return dict(candidate_seed_payload)
 
     def typed_stage_b(candidate_payload, context):
         del candidate_payload, context
@@ -2395,21 +2402,25 @@ def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_
         valid_result.history[0].policy_evaluation.model_dump(mode="json")
     )
     assert persisted_entry.candidate_id == candidate.candidate_id
-    assert persisted_entry.seed_payload == {"candidate_id": candidate.candidate_id}
+    assert persisted_entry.seed_payload == candidate_seed_payload
+    assert persisted_entry.domain == "fiscal"
 
     target_context = TransferContext(
         task_family=persisted_entry.task_family,
         domain=persisted_entry.domain,
         run_id="next-candidate-search",
     )
+    assert target_context.tenant_hash is None
     transferred = valid_reopened.get_seed_bundle(target_context)
     assert len(transferred.entries) == 1
     assert transferred.entries[0].candidate_id == candidate.candidate_id
     assert transferred.entries[0].seed_only is True
     assert transferred.entries[0].provenance_weight > 0.0
+    foreign_tenant_context = target_context.model_copy(update={"tenant_hash": "foreign-tenant"})
+    assert valid_reopened.get_seed_bundle(foreign_tenant_context).entries == []
     warm_starts = valid_reopened.build_warm_start_evaluations(target_context)
     assert len(warm_starts) == 1
-    assert warm_starts[0]["candidate"] == {"candidate_id": candidate.candidate_id}
+    assert warm_starts[0]["candidate"] == candidate_seed_payload
     assert warm_starts[0]["metadata"]["seed_only"] is True
     assert warm_starts[0]["stage_b_result"]["policy_evaluation"]["candidate_id"] == (
         candidate.candidate_id
@@ -2432,7 +2443,7 @@ def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_
     )
     received_result = receiving_controller.run(initial_context={})
     assert received_result.telemetry["training_evaluations"] == 1
-    assert received_result.history[0].candidate == {"candidate_id": candidate.candidate_id}
+    assert received_result.history[0].candidate == candidate_seed_payload
     received_stage_b = received_result.history[0].stage_b_result
     assert received_stage_b is not None
     assert received_stage_b["policy_evaluation"]["candidate_id"] == candidate.candidate_id
@@ -2593,7 +2604,8 @@ def test_search_controller_persists_pareto_membership_for_fresh_reader(
     infeasible = history_by_id["infeasible"].policy_evaluation
     assert infeasible is not None
     assert infeasible.feasible is False
-    assert "verdict_reject" in infeasible.blocking_reasons
+    assert "governance:verdict_reject" in infeasible.blocking_reasons
+    assert "verdict_reject" not in infeasible.blocking_reasons
 
     fresh_reader = ParetoRegistry(root=registry_root)
     snapshot = fresh_reader.get_snapshot(result.search_id)

@@ -845,6 +845,12 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert corrupted_resolution.reason_code == "report_summary_reconciliation_failed"
     assert corrupted_resolution.robustness_score is None
 
+    missing_candidate_component_resolution = resolve_stress_score_components(
+        store, top_one.score_components, expected_candidate_ref=None
+    )
+    assert missing_candidate_component_resolution.status == "unbound"
+    assert missing_candidate_component_resolution.reason_code == "current_candidate_ref_missing"
+    assert missing_candidate_component_resolution.robustness_score is None
     _, missing_candidate_resolution = resolve_stress_report_artifact(
         store, top_one_ref, expected_candidate_ref=None
     )
@@ -904,13 +910,36 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             return_selected_profile=True,
         )
 
-    _, wrong_plan_resolution = resolve_stress_report_artifact(
-        store,
-        persist_report_for_basis(wrong_plan_basis_ref),
-        expected_candidate_ref=candidate_ref,
+    def assert_basis_refusal(
+        ref: ArtifactRef,
+        *,
+        component_status: str,
+        component_reason: str,
+        report_ref: ArtifactRef | None = None,
+    ) -> None:
+        selected_component = component.model_copy(update={"outcome_basis_ref": ref})
+        component_resolution = resolve_stress_score_components(
+            store, [selected_component], expected_candidate_ref=candidate_ref
+        )
+        assert component_resolution.status == component_status
+        assert component_resolution.reason_code == component_reason
+        assert component_resolution.robustness_score is None
+
+        selected_report_ref = (
+            report_ref if report_ref is not None else persist_report_for_basis(ref)
+        )
+        _, report_resolution = resolve_stress_report_artifact(
+            store, selected_report_ref, expected_candidate_ref=candidate_ref
+        )
+        assert report_resolution.status == "invalid"
+        assert report_resolution.reason_code == "score_claim_without_resolved_basis"
+        assert report_resolution.robustness_score is None
+
+    assert_basis_refusal(
+        wrong_plan_basis_ref,
+        component_status="invalid",
+        component_reason="adversarial_plan_unreadable",
     )
-    assert wrong_plan_resolution.status == "invalid"
-    assert wrong_plan_resolution.reason_code == "adversarial_plan_unreadable"
     wrong_basis_schema_ref = store.put_json(
         basis_payload,
         PutOptions(
@@ -933,13 +962,11 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         wrong_basis_schema_ref.manifest_profile_sha256
         != component.outcome_basis_ref.manifest_profile_sha256
     )
-    _, wrong_basis_resolution = resolve_stress_report_artifact(
-        store,
-        persist_report_for_basis(wrong_basis_schema_ref),
-        expected_candidate_ref=candidate_ref,
+    assert_basis_refusal(
+        wrong_basis_schema_ref,
+        component_status="invalid",
+        component_reason="outcome_basis_unreadable",
     )
-    assert wrong_basis_resolution.status == "invalid"
-    assert wrong_basis_resolution.reason_code == "outcome_basis_unreadable"
     stale_profile_basis = basis.model_copy(
         update={"plan_ref": plan_ref.model_copy(update={"manifest_profile_sha256": None})}
     )
@@ -957,13 +984,11 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    _, stale_profile_resolution = resolve_stress_report_artifact(
-        store,
-        persist_report_for_basis(stale_profile_basis_ref),
-        expected_candidate_ref=candidate_ref,
+    assert_basis_refusal(
+        stale_profile_basis_ref,
+        component_status="unbound",
+        component_reason="adversarial_plan_profile_missing",
     )
-    assert stale_profile_resolution.status == "unbound"
-    assert stale_profile_resolution.reason_code == "adversarial_plan_profile_missing"
     forged_basis = basis.model_copy(
         update={
             "outcomes": [
@@ -1001,11 +1026,12 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-    _, forged_roster_resolution = resolve_stress_report_artifact(
-        store, forged_report_ref, expected_candidate_ref=candidate_ref
+    assert_basis_refusal(
+        forged_basis_ref,
+        component_status="invalid",
+        component_reason="plan_outcome_roster_mismatch",
+        report_ref=forged_report_ref,
     )
-    assert forged_roster_resolution.status == "invalid"
-    assert forged_roster_resolution.reason_code == "plan_outcome_roster_mismatch"
 
     partial_basis = basis.model_copy(update={"outcomes": basis.outcomes[:1], "complete": False})
     partial_basis_ref = store.put_json(
@@ -1044,6 +1070,12 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    partial_component_resolution = resolve_stress_score_components(
+        store, [partial_component], expected_candidate_ref=candidate_ref
+    )
+    assert partial_component_resolution.status == "partial"
+    assert partial_component_resolution.reason_code == "expected_occurrence_rows_incomplete"
+    assert partial_component_resolution.robustness_score is None
     _, partial_resolution = resolve_stress_report_artifact(
         store, partial_report_ref, expected_candidate_ref=candidate_ref
     )

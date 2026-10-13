@@ -912,11 +912,13 @@ async def prepare_generic_n4_served_replay(
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
-    Controlled-overlay mode retains the existing altered-fixture controls. The
-    original-second-capture mode replays the pinned source bytes unchanged and
-    requires the producer to preserve all three dispositions under the min-three
-    diversity gate before deriving its two semantic child groups. Neither mode
-    establishes institutional authority, authenticity, or currentness.
+    Controlled-overlay mode retains the existing altered-fixture controls. Both
+    modes pass replay bytes through a separately identified current-schema test
+    parent whose complete lever set is resolved through the existing controlled
+    slot map. The original-second-capture mode leaves its pinned source bytes
+    unchanged and preserves all three dispositions under the min-three diversity
+    gate. Historical parent scope remains not established; neither mode establishes
+    institutional authority, authenticity, or currentness.
     """
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context

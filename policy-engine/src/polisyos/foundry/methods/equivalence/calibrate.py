@@ -131,7 +131,7 @@ def calibrate_backend_pair_detailed(
 ) -> CalibrationResult:
     """Run one battery through two backends and synthesize a certificate."""
 
-    reg = registry or get_registry()
+    reg = registry if registry is not None else get_registry()
     method_class = reg.get(method_fqn)
     signature = method_class.signature
     source_runner = _runner_for_backend(source_backend, registry=reg)

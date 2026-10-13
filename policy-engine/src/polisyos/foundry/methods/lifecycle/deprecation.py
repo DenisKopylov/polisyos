@@ -218,7 +218,7 @@ def tag_deprecated_in_registry(
     """
     from polisyos.foundry.methods.selection.registry import get_registry
 
-    reg = registry or get_registry()
+    reg = registry if registry is not None else get_registry()
     entry = reg.get_entry(fqn)
     if entry is None:
         return False
@@ -315,7 +315,7 @@ class DeprecationAudit:
         """Build a ``DeprecationAuditReport`` from the live registry."""
         from polisyos.foundry.methods.selection.registry import get_registry
 
-        reg = registry or get_registry()
+        reg = registry if registry is not None else get_registry()
         entries: list[DeprecationAuditEntry] = []
 
         for reg_entry in reg.list_all():

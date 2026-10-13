@@ -172,7 +172,7 @@ class RayChainExecutor:
                 "and call ray.init() before executing."
             )
 
-        reg = self._registry or MethodRegistry.get_instance()
+        reg = self._registry if self._registry is not None else MethodRegistry.get_instance()
 
         # Get level partition from the DAG.
         levels = chain.dag.compute_parallel_levels()

@@ -355,7 +355,7 @@ class CheckpointingChainExecutor:
         -------
         ChainExecutionResult
         """
-        reg = self._registry or get_registry()
+        reg = self._registry if self._registry is not None else get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
 
@@ -854,15 +854,17 @@ def _iter_array_paths(value: Any, path: tuple[str, ...] = ()):
 
 def _legacy_sidecar_names(state: Mapping[str, Any], stem: str) -> dict[tuple[str, ...], str]:
     """Build the historical flat names used by first-generation checkpoints."""
-    return {
-        path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)
-    }
+    return {path: f"{stem}_{'_'.join(path)}.npy" for path in _iter_array_paths(state)}
 
 
 def _encoded_sidecar_name(stem: str, path: tuple[str, ...]) -> str:
-    encoded = base64.urlsafe_b64encode(
-        json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
-    ).decode("ascii").rstrip("=")
+    encoded = (
+        base64.urlsafe_b64encode(
+            json.dumps(list(path), ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+        )
+        .decode("ascii")
+        .rstrip("=")
+    )
     return f"{stem}__{encoded}.npy"
 
 
@@ -889,11 +891,7 @@ def _serialise_state(
     legacy_values = list(legacy_names.values())
     use_encoded = force_encoded or len(legacy_values) != len(set(legacy_values))
     sidecar_names = {
-        path: (
-            _encoded_sidecar_name(stem, path)
-            if use_encoded
-            else legacy_name
-        )
+        path: (_encoded_sidecar_name(stem, path) if use_encoded else legacy_name)
         for path, legacy_name in legacy_names.items()
     }
     sidecars: dict[str, np.ndarray] = {}
@@ -911,9 +909,7 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
-            return {
-                key: encode(child, path + (str(key),)) for key, child in value.items()
-            }
+            return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]
         try:
@@ -941,9 +937,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
         try:
             array = np.load(sidecar_path, allow_pickle=False)
         except (EOFError, OSError, ValueError) as exc:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar is unreadable: {sidecar_path}"
-            ) from exc
+            raise CheckpointLoadError(f"Checkpoint sidecar is unreadable: {sidecar_path}") from exc
         if not isinstance(array, np.ndarray):
             raise CheckpointLoadError(f"Checkpoint sidecar is not a NumPy array: {sidecar_path}")
         expected_shape = payload.get("__npy_shape__")
@@ -958,9 +952,7 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
                 f"Checkpoint sidecar content binding is missing: {sidecar_path}"
             )
         if list(array.shape) != expected_shape or array.dtype.str != expected_dtype:
-            raise CheckpointLoadError(
-                f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}"
-            )
+            raise CheckpointLoadError(f"Checkpoint sidecar shape or dtype mismatch: {sidecar_path}")
         if _array_content_digest(array) != expected_digest:
             raise CheckpointLoadError(f"Checkpoint sidecar content mismatch: {sidecar_path}")
         return array

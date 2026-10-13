@@ -199,21 +199,23 @@ def test_source_reconciliation_accepts_real_rows_and_keeps_legacy_candidate_untr
 
 
 def test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric_set_gaps() -> None:
+    from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+
     valid_zero = _report([0.0, 0.0, 0.0])
-    payload = valid_zero.model_dump(mode="python")
-    payload["scenarios"][0]["outcome_comparisons"][0]["y_pred"] += 1.0
-    payload["scenarios"][0]["outcome_comparisons"][0]["absolute_error"] = 1.0
-    payload["scenarios"][0]["outcome_comparisons"][0]["relative_error"] = 0.1
-    payload["scenarios"][0]["mape"] = 10.0 / 3.0
-    payload["scenarios"][0]["percentage_error_sum"] = 10.0
-    payload["scenarios"][0]["percentage_error_count"] = 3
-    payload["overall_mape"] = 10.0 / 3.0
-    payload["scenarios"][0]["mae"] = 1.0 / 3.0
-    payload["scenarios"][0]["rmse"] = math.sqrt(1.0 / 3.0)
-    payload["scenarios"][0]["absolute_error_sum"] = 1.0
-    payload["scenarios"][0]["squared_error_sum"] = 1.0
-    payload["overall_mae"] = 1.0 / 3.0
-    payload["overall_rmse"] = math.sqrt(1.0 / 3.0)
+    source_flipped = _report([1.0, 0.0, 0.0])
+    producer = BacktestOrchestrator.__new__(BacktestOrchestrator)
+    _, produced_diagnostics, _ = producer._detect_systematic_biases(source_flipped.scenarios)
+    assert len(produced_diagnostics) == 1
+
+    # Keep the actual producer's source-bound count, mean, magnitude, scope, direction,
+    # and statistical result. Only retain the old exact-zero status to isolate the
+    # BacktestReport source/status guard from stale summary-data rejection.
+    payload = source_flipped.model_dump(mode="python")
+    payload["metric_diagnostics"] = [
+        produced_diagnostics[0].model_copy(
+            update={"status": valid_zero.metric_diagnostics[0].status}
+        )
+    ]
     with pytest.raises(
         ValidationError, match="nonzero source residuals cannot be marked exact_zero"
     ):

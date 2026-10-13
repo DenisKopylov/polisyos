@@ -66,6 +66,29 @@ def _project_value_outer_set(
     )
 
 
+def _candidate_transport_context_without_graph() -> cycle_substrate.TransportContextEvidence:
+    """Build the valid optional-graph shape emitted by the typed context owner."""
+
+    return cycle_substrate.TransportContextEvidence(
+        status="candidate_context_only_not_transport_authority",
+        source_context_id="source",
+        target_context_id="target",
+        source_profile_content_hash="sha256:" + "a" * 64,
+        target_profile_content_hash="sha256:" + "b" * 64,
+        substrate_input_content_hash="sha256:" + "c" * 64,
+        context_binding_hash="sha256:" + "f" * 64,
+        covariates=(
+            cycle_substrate.TransportCovariateObservation(
+                canonical_var="income",
+                source_value=1.0,
+                target_value=2.0,
+                source_row_content_hash="sha256:" + "d" * 64,
+                target_row_content_hash="sha256:" + "e" * 64,
+            ),
+        ),
+    )
+
+
 def _seed_emp01_catalog(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -359,32 +382,25 @@ def test_empty_selected_profile_returns_no_profile_before_unit_binding(
     )
 
 
-def test_identification_set_and_statistical_uncertainty_remain_separate() -> None:
-    """Point identification must not erase a non-zero native statistical interval."""
+def test_report_only_interval_requires_owner_run_basis() -> None:
+    """A method report alone cannot separate identification from sampling uncertainty."""
 
-    value_set = _project_value_outer_set(confidence_interval=(1.0, 10.0))
-
-    assert value_set.identification_status == "point"
-    assert value_set.lower == (4.0,)
-    assert value_set.upper == (4.0,)
-    assert getattr(value_set, "statistical_lower", None) == (1.0,)
-    assert getattr(value_set, "statistical_upper", None) == (10.0,)
+    with pytest.raises(
+        ValueError, match="foundry_method_refused_value:owner_method_run_basis_missing"
+    ):
+        _project_value_outer_set(confidence_interval=(1.0, 10.0))
 
 
-def test_asymmetric_interval_is_preserved_by_value_projection() -> None:
-    """Proxy projection must not replace an asymmetric native interval with a symmetric guess."""
+def test_unbound_asymmetric_interval_cannot_use_transport_receipt_as_run_basis() -> None:
+    """A transport receipt does not bind an otherwise unowned estimator report."""
 
-    value_set = _project_value_outer_set(
-        confidence_interval=(1.0, 10.0),
-        forecast_tier="transported_limited",
-    )
-
-    assert value_set.identification_status == "proxy"
-    assert value_set.lower == (1.0,)
-    assert value_set.upper == (10.0,)
-    assert getattr(value_set, "statistical_lower", None) == (1.0,)
-    assert getattr(value_set, "statistical_upper", None) == (10.0,)
-    assert value_set.lower != (0.0,)
+    with pytest.raises(
+        ValueError, match="foundry_method_refused_value:owner_method_run_basis_missing"
+    ):
+        _project_value_outer_set(
+            confidence_interval=(1.0, 10.0),
+            forecast_tier="transported_limited",
+        )
 
 
 def test_selection_diagram_requires_verified_causal_artifact(
@@ -405,19 +421,7 @@ def test_selection_diagram_requires_verified_causal_artifact(
         world_model_record_id="world_model_record_emp01",
         content_hash="sha256:" + "c" * 64,
     )
-    transport_context = SimpleNamespace(
-        source_context_id="source",
-        target_context_id="target",
-        covariates=(
-            SimpleNamespace(
-                canonical_var="income",
-                source_value=1.0,
-                target_value=2.0,
-                source_row_content_hash="sha256:" + "d" * 64,
-                target_row_content_hash="sha256:" + "e" * 64,
-            ),
-        ),
-    )
+    transport_context = _candidate_transport_context_without_graph()
     bound_context = SimpleNamespace(
         design_problem_ref=generation_cycle.gy_content_hash(problem.model_dump(mode="json")),
         domain=problem.domain,
@@ -489,19 +493,7 @@ def test_raw_graph_without_artifact_bridge_fails_closed(
             },
         }
     )
-    transport_context = SimpleNamespace(
-        source_context_id="source",
-        target_context_id="target",
-        covariates=(
-            SimpleNamespace(
-                canonical_var="income",
-                source_value=1.0,
-                target_value=2.0,
-                source_row_content_hash="sha256:" + "d" * 64,
-                target_row_content_hash="sha256:" + "e" * 64,
-            ),
-        ),
-    )
+    transport_context = _candidate_transport_context_without_graph()
     bound_context = SimpleNamespace(
         design_problem_ref=problem_ref,
         domain=problem.domain,

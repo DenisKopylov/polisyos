@@ -43,6 +43,10 @@ from polisyos.scientist.methods.discovery.utility_judge import (
     HypothesisUtilityScore,
 )
 from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferScopeRefusedError,
+)
 
 
 def _persist_calibration_candidate(store: FileSystemCAS) -> ArtifactRef:
@@ -254,7 +258,8 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     tmp_path,
     cas_store,
 ) -> None:
-    registry = LessonRegistry(root=tmp_path / "registry" / "lessons", store=cas_store)
+    lesson_root = tmp_path / "registry" / "lessons"
+    registry = LessonRegistry(root=lesson_root, store=cas_store)
     runner = CalibrationValidationRunner(cas_store)
     candidate_ref = _persist_calibration_candidate(cas_store)
     result = runner.run(
@@ -336,8 +341,17 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
 
     card = load_lesson_card(cas_store, result.bundle.lesson_card_ref)
     assert card.stage_name == "calibration_validation"
-    hits = registry.query(LessonQuery(source_run_id="R_c5b_full", limit=5))
-    assert any(hit.lesson_id == card.lesson_id for hit in hits)
+    assert card.domain == "general"
+
+    declared_target = TransferContext(task_family="policy", domain="general", run_id="R_c5b_full")
+    for supplied_domain in ("finance", ""):
+        malformed_declaration = card.model_copy(update={"domain": supplied_domain})
+        with pytest.raises(TransferScopeRefusedError):
+            registry.record_local(malformed_declaration, context=declared_target)
+
+    fresh_registry = LessonRegistry(root=lesson_root, store=cas_store)
+    hits = fresh_registry.query(LessonQuery(domain="general", source_run_id="R_c5b_full", limit=5))
+    assert any(hit.lesson_id == card.lesson_id and hit.domain == "general" for hit in hits)
 
 
 def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_and_interference(

@@ -194,7 +194,7 @@ class AsyncChainExecutor:
             completed ``ChainExecutionResult`` in ``partial_result`` while
             preserving the terminal failure and exact ``node_errors``.
         """
-        reg = self._registry or get_registry()
+        reg = self._registry if self._registry is not None else get_registry()
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_map = params_map or {}
 

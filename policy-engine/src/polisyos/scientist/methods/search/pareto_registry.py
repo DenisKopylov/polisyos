@@ -8,9 +8,9 @@ from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, PromotionPolicy
@@ -24,10 +24,21 @@ from polisyos.scientist.methods.search.contracts import (
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
+    TransferPathBinding,
     TransferPolicy,
+    TransferScopeRefusal,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
+    TransferSourceScope,
+    TransferTenantScopeStatus,
     build_transfer_hop,
     compute_provenance_weight,
+    decode_transfer_scope_path,
+    make_transfer_scope_refusal,
     resolve_transfer_context,
+    tenant_partition,
+    transfer_scope_path_parts,
+    transfer_scope_refusal,
 )
 from polisyos.scientist.methods.search.voi_scheduler import ParetoSnapshot
 from polisyos.scientist.policy_design.objectives import (
@@ -68,6 +79,7 @@ class ParetoRegistryEntry(BaseModel):
     evaluation: PolicyEvaluationVector
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
+    source_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     seed_payload: dict[str, Any] | None = None
     seed_only: bool = False
     provenance_weight: float = Field(default=1.0, ge=0.0, le=1.0)
@@ -85,10 +97,11 @@ class ParetoRegistrySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "2.0", "2.1", "3.0"] = "3.0"
     loop_id: str = Field(min_length=1)
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
+    source_scope: TransferSourceScope | None = None
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     entries: dict[str, ParetoRegistryEntry] = Field(default_factory=dict)
     frontiers: dict[str, list[str]] = Field(default_factory=dict)
@@ -196,7 +209,7 @@ class ParetoRegistrySnapshot(BaseModel):
             unassessed_uses_occurrences = False
             if normalized_unassessed is not None:
                 normalized_unassessed_hashes, unassessed_uses_occurrences = normalized_unassessed
-                if self.schema_version == "2.0" and (
+                if self.schema_version in {"2.0", "3.0"} and (
                     catalog_frontier_uses_occurrences or unassessed_uses_occurrences
                 ):
                     accepted_input_counts.add(eligible_occurrence_count)
@@ -302,6 +315,11 @@ class ParetoSeedBundle(BaseModel):
     entries: list[ParetoRegistryEntry] = Field(default_factory=list)
     seed_domains: list[str] = Field(default_factory=list)
     cross_domain_seed_count: int = 0
+    scope_refusals: list[TransferScopeRefusal] = Field(default_factory=list)
+
+
+def _scope_refusal(path: Path, reason: TransferScopeRefusalReason) -> TransferScopeRefusal:
+    return make_transfer_scope_refusal(path, reason)
 
 
 class ParetoRegistry:
@@ -316,11 +334,62 @@ class ParetoRegistry:
         self._root = (root or default_search_registry_root() / "policy_pareto").resolve()
         self._transfer_policy = transfer_policy or TransferPolicy()
 
-    def get_snapshot(self, loop_id: str) -> ParetoRegistrySnapshot:
+    def get_snapshot(
+        self,
+        loop_id: str,
+        *,
+        transfer_context: TransferContext | None = None,
+    ) -> ParetoRegistrySnapshot:
         path = self._snapshot_path(loop_id)
         if not path.exists():
-            return ParetoRegistrySnapshot(loop_id=loop_id)
-        return ParetoRegistrySnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+            active_context = resolve_transfer_context(
+                transfer_context=transfer_context, run_id=loop_id
+            )
+            return ParetoRegistrySnapshot(
+                loop_id=loop_id,
+                task_family=active_context.task_family,
+                domain=active_context.domain,
+                source_scope=TransferSourceScope.from_context(active_context),
+            )
+        try:
+            snapshot = self._load_snapshot(path)
+        except (ValueError, ValidationError):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)]
+            ) from None
+        scope = snapshot.source_scope
+        if scope is None:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.SOURCE_BINDING_MISSING)]
+            )
+        if snapshot.task_family != scope.task_family or snapshot.domain != scope.domain:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        if any(
+            entry.task_family != scope.task_family
+            or entry.domain != scope.domain
+            or entry.source_scope_status != scope.tenant_scope_status
+            for entry in snapshot.entries.values()
+        ):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
+            )
+        active_context = resolve_transfer_context(
+            transfer_context=transfer_context,
+            task_family=scope.task_family,
+            domain=scope.domain,
+            run_id=loop_id,
+        )
+        expected_scope = TransferSourceScope.from_context(active_context)
+        if expected_scope != scope:
+            reason = (
+                TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+                if expected_scope.tenant_hash != scope.tenant_hash
+                else TransferScopeRefusalReason.PATH_BODY_MISMATCH
+            )
+            raise TransferScopeRefusedError([_scope_refusal(path, reason)])
+        return snapshot
 
     def get_frontier(
         self,
@@ -328,8 +397,9 @@ class ParetoRegistry:
         view: ParetoView = ParetoView.GLOBAL_FEASIBLE,
         *,
         policy_family: str | None = None,
+        transfer_context: TransferContext | None = None,
     ) -> list[ParetoRegistryEntry]:
-        snapshot = self.get_snapshot(loop_id)
+        snapshot = self.get_snapshot(loop_id, transfer_context=transfer_context)
         view_key = _view_key(view, policy_family=policy_family)
         return [
             snapshot.entries[candidate_hash]
@@ -359,15 +429,26 @@ class ParetoRegistry:
         objective_basis_by_view: dict[str, ParetoBasisScope] | None = None,
     ) -> FrontierDelta:
         evaluation = _normalize_policy_evaluation_vector(evaluation)
-        active_context = transfer_context or resolve_transfer_context(
+        active_context = resolve_transfer_context(
+            transfer_context=transfer_context,
             candidate=seed_payload,
-            task_family=task_family or "policy",
+            task_family=task_family,
             domain=domain,
             run_id=loop_id,
         )
-        snapshot = self.get_snapshot(loop_id)
+        snapshot = self.get_snapshot(loop_id, transfer_context=active_context)
         if objective_basis_by_view:
             snapshot.objective_basis_by_view.update(objective_basis_by_view)
+        expected_scope = TransferSourceScope.from_context(active_context)
+        if snapshot.entries and snapshot.source_scope != expected_scope:
+            reason = (
+                TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+                if snapshot.source_scope is None
+                else TransferScopeRefusalReason.PATH_BODY_MISMATCH
+            )
+            raise TransferScopeRefusedError([_scope_refusal(self._snapshot_path(loop_id), reason)])
+        snapshot.schema_version = "3.0"
+        snapshot.source_scope = expected_scope
         snapshot.task_family = active_context.task_family
         snapshot.domain = active_context.domain
         prior_views = set(
@@ -389,6 +470,7 @@ class ParetoRegistry:
             evaluation=evaluation,
             task_family=active_context.task_family,
             domain=active_context.domain,
+            source_scope_status=active_context.tenant_scope_status,
             seed_payload=seed_payload,
             seed_only=seed_only,
             provenance_weight=provenance_weight,
@@ -416,22 +498,83 @@ class ParetoRegistry:
         transfer_context: TransferContext | None = None,
         snapshot: ParetoRegistrySnapshot | None = None,
     ) -> ParetoRegistrySnapshot:
-        local_snapshot = snapshot or self.get_snapshot(loop_id)
-        active_context = transfer_context or resolve_transfer_context(
+        local_snapshot = snapshot or self.get_snapshot(loop_id, transfer_context=transfer_context)
+        active_context = resolve_transfer_context(
+            transfer_context=transfer_context,
             task_family=local_snapshot.task_family,
             domain=local_snapshot.domain,
             run_id=loop_id,
         )
+        expected_scope = TransferSourceScope.from_context(active_context)
+        if local_snapshot.source_scope is None and local_snapshot.entries:
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        self._snapshot_path(loop_id),
+                        TransferScopeRefusalReason.SOURCE_BINDING_MISSING,
+                    )
+                ]
+            )
+        if (
+            local_snapshot.source_scope is not None
+            and local_snapshot.source_scope != expected_scope
+        ):
+            reason = (
+                TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+                if local_snapshot.source_scope.tenant_hash != expected_scope.tenant_hash
+                else TransferScopeRefusalReason.PATH_BODY_MISMATCH
+            )
+            raise TransferScopeRefusedError([_scope_refusal(self._snapshot_path(loop_id), reason)])
+        if local_snapshot.source_scope is not None and (
+            local_snapshot.task_family != expected_scope.task_family
+            or local_snapshot.domain != expected_scope.domain
+        ):
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        self._snapshot_path(loop_id), TransferScopeRefusalReason.PATH_BODY_MISMATCH
+                    )
+                ]
+            )
+        if any(
+            entry.task_family != expected_scope.task_family
+            or entry.domain != expected_scope.domain
+            or entry.source_scope_status != expected_scope.tenant_scope_status
+            for entry in local_snapshot.entries.values()
+        ):
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        self._snapshot_path(loop_id),
+                        TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH,
+                    )
+                ]
+            )
+        local_snapshot.source_scope = expected_scope
+        local_snapshot.schema_version = "3.0"
         catalog_path = self._catalog_path(active_context)
         existing_catalog = (
             self._load_snapshot(catalog_path)
             if catalog_path.exists()
             else ParetoRegistrySnapshot(
+                schema_version="3.0",
                 loop_id=f"catalog::{active_context.task_family}:{active_context.domain}",
                 task_family=active_context.task_family,
                 domain=active_context.domain,
+                source_scope=expected_scope,
             )
         )
+        if existing_catalog.entries and existing_catalog.source_scope != expected_scope:
+            reason = (
+                TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+                if existing_catalog.source_scope is None
+                else TransferScopeRefusalReason.PATH_BODY_MISMATCH
+            )
+            raise TransferScopeRefusedError([_scope_refusal(catalog_path, reason)])
+        if existing_catalog.source_scope not in (None, expected_scope):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(catalog_path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
         frontier_hashes = local_snapshot.frontiers.get(ParetoView.GLOBAL_FEASIBLE.value, [])
         catalog_entries = {
             key: value
@@ -491,10 +634,11 @@ class ParetoRegistry:
             unassessed_candidate_hashes=catalog_candidate_hashes,
         )
         catalog = ParetoRegistrySnapshot(
-            schema_version="2.1",
+            schema_version="3.0",
             loop_id=existing_catalog.loop_id,
             task_family=active_context.task_family,
             domain=active_context.domain,
+            source_scope=expected_scope,
             updated_at=datetime.now(UTC),
             entries=catalog_entries,
             frontiers={ParetoView.GLOBAL_FEASIBLE.value: catalog_candidate_hashes},
@@ -510,9 +654,45 @@ class ParetoRegistry:
         *,
         max_seeds: int = 5,
     ) -> ParetoSeedBundle:
+        target_context = resolve_transfer_context(transfer_context=target_context)
         candidates: list[tuple[int, float, datetime, ParetoRegistryEntry]] = []
-        for namespace_context, path in self._iter_catalog_paths():
-            snapshot = self._load_snapshot(path)
+        scope_refusals: list[TransferScopeRefusal] = []
+        for path_binding, path in self._iter_catalog_paths():
+            if path_binding.status != "bound":
+                reason = (
+                    TransferScopeRefusalReason.LEGACY_PATH_UNBOUND
+                    if path_binding.status == "legacy_unbound"
+                    else TransferScopeRefusalReason.MALFORMED_PATH
+                )
+                scope_refusals.append(_scope_refusal(path, reason))
+                continue
+            try:
+                snapshot = self._load_snapshot(path)
+            except (ValueError, ValidationError):
+                scope_refusals.append(
+                    _scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)
+                )
+                continue
+            refusal = transfer_scope_refusal(path_binding, snapshot.source_scope, path)
+            if refusal is not None:
+                scope_refusals.append(refusal)
+                continue
+            source_scope = snapshot.source_scope
+            assert source_scope is not None
+            if (
+                snapshot.task_family != source_scope.task_family
+                or snapshot.domain != source_scope.domain
+                or any(
+                    entry.task_family != source_scope.task_family
+                    or entry.domain != source_scope.domain
+                    or entry.source_scope_status != source_scope.tenant_scope_status
+                    for entry in snapshot.entries.values()
+                )
+            ):
+                scope_refusals.append(
+                    _scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)
+                )
+                continue
             catalog_identities = {
                 entry_key: _catalog_entry_identity(snapshot, entry_key, entry)
                 for entry_key, entry in snapshot.entries.items()
@@ -527,12 +707,38 @@ class ParetoRegistry:
                     continue
                 if entry.task_family != target_context.task_family or not entry.evaluation.feasible:
                     continue
-                source_context = TransferContext(
-                    task_family=entry.task_family,
-                    domain=entry.domain,
-                    run_id=entry.source_loop_id or snapshot.loop_id,
-                    tenant_hash=namespace_context.tenant_hash,
+                source_context = source_scope.context(
+                    run_id=entry.source_loop_id or snapshot.loop_id
                 )
+                if source_context.tenant_scope_status is not target_context.tenant_scope_status:
+                    reason = (
+                        TransferScopeRefusalReason.TENANT_SCOPE_UNKNOWN
+                        if TransferTenantScopeStatus.UNKNOWN
+                        in {source_context.tenant_scope_status, target_context.tenant_scope_status}
+                        else TransferScopeRefusalReason.TENANT_SCOPE_STATUS_MISMATCH
+                    )
+                    scope_refusals.append(_scope_refusal(path, reason))
+                    continue
+                cross_tenant_allowed = (
+                    self._transfer_policy.allow_cross_tenant
+                    and self._transfer_policy.allow_cross_domain
+                    and target_context.cross_tenant_opt_in
+                    and source_context.tenant_scope_status
+                    is TransferTenantScopeStatus.AUTHENTICATED
+                    and target_context.tenant_scope_status
+                    is TransferTenantScopeStatus.AUTHENTICATED
+                )
+                if (
+                    source_context.tenant_hash != target_context.tenant_hash
+                    and not cross_tenant_allowed
+                ):
+                    scope_refusals.append(
+                        _scope_refusal(
+                            path,
+                            TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED,
+                        )
+                    )
+                    continue
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
@@ -577,10 +783,20 @@ class ParetoRegistry:
             ),
             reverse=True,
         )
-        selected = [entry for _, _, _, entry in candidates[: max(1, int(max_seeds))]]
+        blocking_refusals = [
+            refusal
+            for refusal in scope_refusals
+            if refusal.reason is not TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+        ]
+        selected = (
+            []
+            if blocking_refusals
+            else [entry for _, _, _, entry in candidates[: max(1, int(max_seeds))]]
+        )
         return ParetoSeedBundle(
             target_context=target_context,
             entries=selected,
+            scope_refusals=scope_refusals,
             seed_domains=sorted({entry.domain for entry in selected}),
             cross_domain_seed_count=sum(
                 1 for entry in selected if entry.domain != target_context.domain
@@ -615,13 +831,19 @@ class ParetoRegistry:
                         "seed_domain": entry.domain,
                         "provenance_weight": entry.provenance_weight,
                         "seed_only": True,
+                        "source_scope_status": entry.source_scope_status.value,
                     },
                 }
             )
         return warm_starts
 
-    def to_voi_snapshot(self, loop_id: str) -> ParetoSnapshot:
-        snapshot = self.get_snapshot(loop_id)
+    def to_voi_snapshot(
+        self,
+        loop_id: str,
+        *,
+        transfer_context: TransferContext | None = None,
+    ) -> ParetoSnapshot:
+        snapshot = self.get_snapshot(loop_id, transfer_context=transfer_context)
         projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
         frontier = set(projection.ranked_frontier_hashes)
         unassessed = set(projection.unassessed_candidate_hashes)
@@ -672,8 +894,13 @@ class ParetoRegistry:
             assessment_status=assessment_status,
         )
 
-    def as_legacy_frontier_payload(self, loop_id: str) -> list[dict[str, Any]]:
-        snapshot = self.get_snapshot(loop_id)
+    def as_legacy_frontier_payload(
+        self,
+        loop_id: str,
+        *,
+        transfer_context: TransferContext | None = None,
+    ) -> list[dict[str, Any]]:
+        snapshot = self.get_snapshot(loop_id, transfer_context=transfer_context)
         projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
         payload: list[dict[str, Any]] = []
         for candidate_hash in projection.ranked_frontier_hashes:
@@ -790,10 +1017,11 @@ class ParetoRegistry:
             available_hypervolume[view_key] = value
 
         return ParetoRegistrySnapshot(
-            schema_version="2.0",
+            schema_version="3.0",
             loop_id=snapshot.loop_id,
             task_family=snapshot.task_family,
             domain=snapshot.domain,
+            source_scope=snapshot.source_scope,
             updated_at=datetime.now(UTC),
             entries=updated_entries,
             frontiers=frontiers,
@@ -916,9 +1144,7 @@ class ParetoRegistry:
         return (
             self._root
             / "catalog"
-            / context.tenant_partition
-            / context.task_family_slug
-            / context.domain_slug
+            / Path(*transfer_scope_path_parts(context))
             / "pareto_registry.json"
         )
 
@@ -971,30 +1197,23 @@ class ParetoRegistry:
             tmp_path = Path(tmp.name)
         tmp_path.replace(path)
 
-    def _iter_catalog_paths(self) -> list[tuple[TransferContext, Path]]:
-        paths = sorted(self._root.glob("catalog/*/*/*/pareto_registry.json"))
-        contexts: list[tuple[TransferContext, Path]] = []
+    def _iter_catalog_paths(self) -> list[tuple[TransferPathBinding, Path]]:
+        catalog_root = self._root / "catalog"
+        paths = sorted(catalog_root.rglob("pareto_registry.json"))
+        result: list[tuple[TransferPathBinding, Path]] = []
         for path in paths:
-            try:
-                tenant_partition, task_family, domain = path.parts[-4:-1]
-            except ValueError:
-                continue
-            contexts.append(
-                (
-                    TransferContext(
-                        task_family=task_family,
-                        domain=domain,
-                        run_id="catalog_scan",
-                        tenant_hash=tenant_partition,
-                    ),
-                    path,
-                )
-            )
-        return contexts
+            parts = path.relative_to(catalog_root).parts[:-1]
+            result.append((decode_transfer_scope_path(parts), path))
+        return result
 
     @staticmethod
     def _load_snapshot(path: Path) -> ParetoRegistrySnapshot:
-        return ParetoRegistrySnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        try:
+            return ParetoRegistrySnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        except (ValueError, ValidationError):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)]
+            ) from None
 
 
 def _benchmark_eval(
@@ -1086,7 +1305,7 @@ def _catalog_projection_hashes(
         if candidate_hash not in eligible:
             return None
         normalized.append(candidate_hash)
-    if len(set(normalized)) != len(normalized) and snapshot.schema_version != "2.0":
+    if len(set(normalized)) != len(normalized) and snapshot.schema_version not in {"2.0", "3.0"}:
         return None
     return tuple(sorted(set(normalized))), used_occurrence_keys
 

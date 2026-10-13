@@ -217,7 +217,7 @@ class MethodSandbox:
         if self._method_class is None:
             from polisyos.foundry.methods.selection.registry import get_registry
 
-            reg = self._registry or get_registry()
+            reg = self._registry if self._registry is not None else get_registry()
             self._method_class = reg.get(self.fqn)
         return self._method_class
 

@@ -49,6 +49,8 @@ class LessonRegistryContract(Protocol):
 
     def query_with_transfer(self, query: Any, *, target_context: Any) -> list[Any]: ...
 
+    def find_transfer_candidates(self, query: Any, *, target_context: Any) -> Any: ...
+
 
 class BenchmarkRegistryContract(Protocol):
     """Protocol for resolving benchmark assets by split, run, and suite identifier."""

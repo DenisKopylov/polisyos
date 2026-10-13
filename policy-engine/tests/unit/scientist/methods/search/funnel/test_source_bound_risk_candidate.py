@@ -55,6 +55,8 @@ from polisyos.foundry.data_plane import build_input_bindings, load_input_binding
 from polisyos.foundry.data_plane.bindings import load_ukraine_foundry_intake
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
+from polisyos.foundry.methods.catalog.simulation.dynamics import build_abm_result_from_simulation
+from polisyos.ir.analytics.phase4_dynamics import load_abm_result, persist_abm_result
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
@@ -1452,6 +1454,60 @@ def source_pair(foundry_source):
 @pytest.fixture(scope="module")
 def source_bundle(source_pair):
     return source_pair[0]
+
+
+def test_actual_foundry_basis_ref_survives_abm_ir_cas_roundtrip(
+    foundry_source: _FoundrySource,
+) -> None:
+    source = foundry_source
+    assert source.execution_input_basis_ref is not None
+    assert source.execution_input_basis_ref.manifest_profile_sha256 is not None
+    assert source.store.verify(source.execution_input_basis_ref).ok
+
+    simulation = SimulationResult.model_validate(
+        _get_json_artifact(source.store, source.simulation_result_ref)
+    )
+    assert simulation.execution_input_basis_ref is not None
+    produced_basis_ref = _producer_output_ref(
+        simulation.execution_input_basis_ref,
+        FoundryExecutionInputBasisRef,
+        expected_kind="foundry.execution_input_basis",
+    )
+    assert _ref_key(produced_basis_ref) == _ref_key(source.execution_input_basis_ref)
+    basis = FoundryExecutionInputBasis.model_validate(
+        _get_json_artifact(source.store, produced_basis_ref)
+    )
+    assert basis.execution_mode == "single_step"
+
+    abm_result = build_abm_result_from_simulation(simulation)
+    assert abm_result.execution_input_basis_ref is not None
+    converted_basis_ref = ArtifactRef.model_validate(
+        abm_result.execution_input_basis_ref.model_dump(mode="python")
+    )
+    assert _ref_key(converted_basis_ref) == _ref_key(produced_basis_ref)
+
+    ir_store = ensure_ir_artifact_store(source.store)
+    abm_ref = persist_abm_result(
+        ir_store,
+        abm_result,
+        inputs=[_input_edge(produced_basis_ref, role="execution_input_basis")],
+    )
+    fresh_abm_result = load_abm_result(ir_store, abm_ref)
+    assert fresh_abm_result == abm_result
+    assert fresh_abm_result.execution_input_basis_ref is not None
+    fresh_basis_ref = ArtifactRef.model_validate(
+        fresh_abm_result.execution_input_basis_ref.model_dump(mode="python")
+    )
+    assert _ref_key(fresh_basis_ref) == _ref_key(produced_basis_ref)
+
+    abm_core_ref = ArtifactRef.model_validate(abm_ref.model_dump(mode="python"))
+    abm_manifest = source.store.get_manifest(abm_core_ref)
+    basis_edges = [edge for edge in abm_manifest.inputs if edge.role == "execution_input_basis"]
+    assert len(basis_edges) == 1
+    assert (str(basis_edges[0].artifact_id), basis_edges[0].manifest_profile_sha256) == (
+        str(produced_basis_ref.artifact_id),
+        produced_basis_ref.manifest_profile_sha256,
+    )
 
 
 def test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer(

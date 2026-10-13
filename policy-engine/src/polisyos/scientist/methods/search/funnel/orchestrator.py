@@ -332,9 +332,7 @@ class FunnelOrchestrator:
                     )
                 )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                logger.info(
-                    "Candidate welfare observation withheld: %s", type(exc).__name__
-                )
+                logger.info("Candidate welfare observation withheld: %s", type(exc).__name__)
         self._tickets[ticket.ticket_id] = ticket
         self._latest_ticket_by_candidate[candidate_hash] = ticket.ticket_id
         self._latest_ticket_by_context[continuation_key] = ticket.ticket_id
@@ -592,18 +590,14 @@ class FunnelOrchestrator:
                     outcome_stage_results[level] = final_result
                     break
 
-        welfare_observation_ref = resolved_ticket.context.get(
-            "welfare_candidate_observation_ref"
-        )
+        welfare_observation_ref = resolved_ticket.context.get("welfare_candidate_observation_ref")
         if (
             store is not None
             and isinstance(subject_ref, ArtifactRef)
             and isinstance(welfare_observation_ref, ArtifactRef)
         ):
             try:
-                load_source_bound_risk_observation(
-                    store, welfare_observation_ref, subject_ref
-                )
+                load_source_bound_risk_observation(store, welfare_observation_ref, subject_ref)
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
                 logger.info(
                     "Candidate welfare observation readback withheld: %s", type(exc).__name__
@@ -954,7 +948,9 @@ class FunnelOrchestrator:
         transfer_context = resolve_transfer_context(
             candidate=ticket.candidate,
             context=context,
-            run_id=str(context.get("source_run_id") or context.get("run_id") or ticket.ticket_id),
+            fallback_run_id=str(
+                context.get("source_run_id") or context.get("run_id") or ticket.ticket_id
+            ),
         )
         context["_funnel_ticket_id"] = ticket.ticket_id
         input_transfer_context = ticket.context.get("transfer_context")
@@ -992,6 +988,7 @@ class FunnelOrchestrator:
     ) -> None:
         """Fresh-read and bind a native work packet before projecting its reference."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         ref = result.executed_work_packet_ref
         if ref is None:
             return
@@ -1012,13 +1009,13 @@ class FunnelOrchestrator:
         expected_candidate_ref = ticket.context.get("policy_candidate_ref")
         expected_candidate = ticket.context.get("policy_candidate_schema")
         try:
-            packet = FunnelExecutedWorkPacket.model_validate(
-                load_core_json_artifact(store, ref)
-            )
+            packet = FunnelExecutedWorkPacket.model_validate(load_core_json_artifact(store, ref))
             packet_manifest = store.get_manifest(ref)
             result_manifest = store.get_manifest(packet.source_result_ref)
             actual_candidate_bytes = store.get_bytes(packet.candidate_ref)
-            candidate_payload = load_core_json_artifact(store, packet.candidate_ref, raw_payload_bytes=actual_candidate_bytes)
+            candidate_payload = load_core_json_artifact(
+                store, packet.candidate_ref, raw_payload_bytes=actual_candidate_bytes
+            )
             expected_candidate_bytes = (
                 to_canonical_bytes(expected_candidate, CanonSpec(forbid_floats=False))
                 if expected_candidate is not None
@@ -1302,7 +1299,7 @@ class FunnelOrchestrator:
         transfer_context = resolve_transfer_context(
             candidate=ticket.candidate,
             context=ticket.context,
-            run_id=str(
+            fallback_run_id=str(
                 ticket.context.get("source_run_id")
                 or ticket.context.get("run_id")
                 or ticket.ticket_id
@@ -1363,8 +1360,9 @@ class FunnelOrchestrator:
         transfer_context = resolve_transfer_context(
             candidate=ticket.candidate,
             context=ticket.context,
-            run_id=source_run_id,
+            fallback_run_id=source_run_id,
         )
+        source_run_id = transfer_context.run_id
         tags = self._candidate_tags(ticket.candidate)
         if ticket.final_action == "reject":
             for level, result in sorted(ticket.stage_results.items()):

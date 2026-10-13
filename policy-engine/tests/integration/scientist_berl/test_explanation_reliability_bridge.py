@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
 from math import sqrt
@@ -505,9 +506,13 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
     from polisyos.berl import (
         ExplanationOrchestrator,
         ExplanationRequest,
+        load_explanation_bundle,
         persist_explanation_bundle,
     )
+    from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.ir.artifacts import get_json_artifact
+    from polisyos.ir.model_layer.canon import CanonViolation
     from polisyos.runtime.quality.explanation_reliability import (
         build_berl_warrant_reliability_record,
         evaluate_warrant_berl_reliability,
@@ -540,6 +545,13 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
         ("marginal_interventional", "kernel_shap_marginal"),
         ("conditional_observational", "kernel_shap_conditional"),
     )
+
+    def manifest_reader_for(manifest: object) -> Callable[[object], object]:
+        def read_manifest(_selector: object) -> object:
+            return manifest
+
+        return read_manifest
+
     for profile, method_id in cases:
         request = ExplanationRequest(
             prediction_id=f"prediction-{profile}",
@@ -558,6 +570,54 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
         )
         bundle = producer.explain(model, request)
         ref = persist_explanation_bundle(store, bundle)
+        fresh_store = FileSystemCAS(tmp_path)
+        loaded = load_explanation_bundle(fresh_store, ref)
+        assert loaded.bundle_id == bundle.bundle_id
+        assert loaded.prediction.prediction_id == request.prediction_id
+        assert loaded.model.model_hash == request.model_hash
+        assert loaded.feature_context.feature_schema_version == request.feature_schema_version
+        assert (
+            loaded.assumptions.feature_dependence_policy.primary
+            == request.feature_dependence_policy
+        )
+        assert loaded.methods[0].requested_method_id == method_id
+
+        ir_store = ensure_ir_artifact_store(store)
+        raw_before = ir_store.get_bytes(ref)
+        selected_manifest_before = ir_store.get_manifest_bytes(ref)
+        missing_typed_manifest = SimpleNamespace(
+            get_bytes=ir_store.get_bytes,
+            get_manifest_bytes=ir_store.get_manifest_bytes,
+        )
+        with pytest.raises(
+            CanonViolation,
+            match="ir_artifact_selected_manifest_unavailable",
+        ):
+            get_json_artifact(missing_typed_manifest, ref)
+
+        mismatched_manifest = ir_store.get_manifest(ref).model_copy(
+            update={"kind": "scientist.other"}
+        )
+        mismatched_typed_manifest = SimpleNamespace(
+            get_bytes=ir_store.get_bytes,
+            get_manifest_bytes=ir_store.get_manifest_bytes,
+            get_manifest=manifest_reader_for(mismatched_manifest),
+        )
+        with pytest.raises(
+            CanonViolation,
+            match="ir_artifact_selected_manifest_changed",
+        ):
+            get_json_artifact(mismatched_typed_manifest, ref)
+        with pytest.raises(
+            ValueError,
+            match="explanation_bundle_manifest_contract_mismatch",
+        ):
+            load_explanation_bundle(mismatched_typed_manifest, ref)
+        with pytest.raises(TypeError, match="does not support selected BERL reads"):
+            load_explanation_bundle(missing_typed_manifest, ref)
+        assert ir_store.get_bytes(ref) == raw_before
+        assert ir_store.get_manifest_bytes(ref) == selected_manifest_before
+
         subject = {
             "prediction_id": request.prediction_id,
             "model_hash": request.model_hash,
@@ -569,7 +629,7 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             warrant_id="warrant-rho08",
             explanation_bundle_ref=ref.model_dump_json(),
             validation_thresholds={"max_p95_infidelity_upper_bound": 0.05},
-            explanation_bundle=bundle.model_dump(mode="json"),
+            explanation_bundle=loaded.model_dump(mode="json"),
             expected_explanation_subject=subject,
         )
         case = {"warrant_reliability_records": [record]}
@@ -623,7 +683,7 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             if component.name == "explanation"
         )
         if profile == "marginal_interventional":
-            values = {item.feature: item.value for item in bundle.methods[0].attributions}
+            values = {item.feature: item.value for item in loaded.methods[0].attributions}
             assert values == pytest.approx({"x1": 1.0, "x2": 0.0})
             assert any(
                 issue.code == "policy_design_warrant_berl_subject_context_not_established"
@@ -639,8 +699,8 @@ def test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_
             }
             assert phase5_explanation.status == "pass"
         else:
-            assert bundle.methods[0].scope == "diagnostic"
-            assert bundle.methods[0].attributions == []
+            assert loaded.methods[0].scope == "diagnostic"
+            assert loaded.methods[0].attributions == []
             assert any(
                 "conditional_feature_law_unverified" in issue.message for issue in runtime.issues
             )

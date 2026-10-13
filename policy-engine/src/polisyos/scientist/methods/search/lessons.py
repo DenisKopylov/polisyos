@@ -9,10 +9,10 @@ from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any
+from typing import Any, Literal, cast
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -22,18 +22,28 @@ from polisyos.scientist.methods.autotune.models import default_search_registry_r
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
+    TransferPathBinding,
     TransferPolicy,
+    TransferScopeRefusal,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
+    TransferSourceScope,
+    TransferTenantScopeStatus,
     build_transfer_hop,
     compute_provenance_weight,
+    decode_transfer_scope_path,
+    make_transfer_scope_refusal,
     resolve_transfer_context,
+    transfer_scope_path_parts,
+    transfer_scope_refusal,
 )
 
 _LESSON_CARD_KIND = "scientist.search.lesson_card"
 _LESSON_INDEX_KIND = "scientist.search.lesson_index"
-_LESSON_CARD_SCHEMA = SchemaInfo(name="polisyos.scientist.search.LessonCard", version="1.0")
+_LESSON_CARD_SCHEMA = SchemaInfo(name="polisyos.scientist.search.LessonCard", version="2.0")
 _LESSON_INDEX_SCHEMA = SchemaInfo(
     name="polisyos.scientist.search.LessonIndexSnapshot",
-    version="1.0",
+    version="3.0",
 )
 _WHITESPACE_RE = re.compile(r"\s+")
 
@@ -60,7 +70,7 @@ class LessonCard(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     lesson_id: str = Field(default_factory=lambda: uuid4().hex)
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "2.0"] = "2.0"
     kind: LessonKind
     summary: str = Field(min_length=1)
     failure_type: str = Field(min_length=1)
@@ -79,6 +89,7 @@ class LessonCard(BaseModel):
     origin_run_id: str | None = None
     origin_domain: str | None = None
     origin_tenant_hash: str | None = None
+    origin_tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     tags: list[str] = Field(default_factory=list)
     remediation_hint: str | None = None
     mutation_hints: list[str] = Field(default_factory=list)
@@ -139,6 +150,7 @@ class LessonIndexEntry(BaseModel):
     origin_run_id: str | None = None
     origin_domain: str | None = None
     origin_tenant_hash: str | None = None
+    origin_tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     remediation_hint: str | None = None
 
 
@@ -147,11 +159,22 @@ class LessonIndexSnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "3.0"] = "3.0"
     snapshot_created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
+    source_scope: TransferSourceScope | None = None
     entries: list[LessonIndexEntry] = Field(default_factory=list)
+
+
+class LessonTransferBundle(BaseModel):
+    """Transfer candidates paired with source-scope refusals from the same scan."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidates: list[LessonCard] = Field(default_factory=list)
+    scope_refusals: list[TransferScopeRefusal] = Field(default_factory=list)
+    target_tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
 
 
 class LessonPattern(BaseModel):
@@ -171,6 +194,7 @@ class LessonPattern(BaseModel):
     trust_level: LessonTrustLevel
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
+    origin_tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     provenance_weight: float = Field(default=1.0, ge=0.0, le=1.0)
     tags: list[str] = Field(default_factory=list)
     remediation_hint: str | None = None
@@ -199,6 +223,53 @@ def _normalized_signature(card: LessonCard) -> str:
     return material[:1024]
 
 
+def _search_source_refusal(ref: ArtifactRef | str) -> TransferScopeRefusedError:
+    """Build a typed refusal for a source artifact that fails schema admission."""
+    return TransferScopeRefusedError(
+        [
+            make_transfer_scope_refusal(
+                Path(str(ref)), TransferScopeRefusalReason.INVALID_SOURCE_BODY
+            )
+        ]
+    )
+
+
+def _load_profiled_search_artifact(
+    store: FileSystemCAS,
+    ref: ArtifactRef | str,
+    *,
+    kind: str,
+    schema_name: str,
+    supported_versions: frozenset[str],
+    model_type: type[BaseModel],
+) -> BaseModel:
+    """Load one exact selected manifest and require its schema to match the body."""
+    from polisyos.core.artifacts import (
+        artifact_ref_for_manifest,
+        load_core_json_artifact,
+        read_core_manifest_profile,
+    )
+
+    try:
+        manifest, _ = read_core_manifest_profile(store, ref)
+        declared_schema = manifest.artifact_schema
+        if (
+            manifest.kind != kind
+            or manifest.media_type != "application/json"
+            or declared_schema is None
+            or declared_schema.name != schema_name
+            or declared_schema.version not in supported_versions
+        ):
+            raise ValueError("search_artifact_manifest_schema_mismatch")
+        selected_ref = artifact_ref_for_manifest(manifest)
+        model = model_type.model_validate(load_core_json_artifact(store, selected_ref))
+        if getattr(model, "schema_version", None) != declared_schema.version:
+            raise ValueError("search_artifact_payload_schema_mismatch")
+    except (ValidationError, TypeError, ValueError):
+        raise _search_source_refusal(ref) from None
+    return model
+
+
 def persist_lesson_card(
     store: FileSystemCAS,
     card: LessonCard,
@@ -206,8 +277,11 @@ def persist_lesson_card(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a reusable lesson card captured from failures, governance issues, or successful runs."""
+    card_data = card.model_dump(mode="python")
+    card_data["schema_version"] = "2.0"
+    current_card = LessonCard.model_validate(card_data)
     return store.put_json(
-        card,
+        current_card,
         PutOptions(
             kind=_LESSON_CARD_KIND,
             media_type="application/json",
@@ -219,9 +293,18 @@ def persist_lesson_card(
 
 
 def load_lesson_card(store: FileSystemCAS, ref: ArtifactRef | str) -> LessonCard:
-    """Load lesson card."""
-    from polisyos.core.artifacts import load_core_json_artifact
-    return LessonCard.model_validate(load_core_json_artifact(store, ref))
+    """Load a lesson card only when its exact manifest and body schemas agree."""
+    return cast(
+        "LessonCard",
+        _load_profiled_search_artifact(
+            store,
+            ref,
+            kind=_LESSON_CARD_KIND,
+            schema_name=_LESSON_CARD_SCHEMA.name,
+            supported_versions=frozenset({"1.0", "2.0"}),
+            model_type=LessonCard,
+        ),
+    )
 
 
 def lesson_from_failure_card(
@@ -245,7 +328,9 @@ def lesson_from_failure_card(
     metadata = {"judge_name": failure_card.judge_name, "severity": severity}
     metadata.update(failure_card.metadata)
     anti_patterns = [failure_card.failure_type]
-    context = transfer_context or resolve_transfer_context(run_id=source_run_id)
+    context = resolve_transfer_context(
+        transfer_context=transfer_context, fallback_run_id=source_run_id
+    )
     return LessonCard(
         kind=LessonKind.FAILURE,
         summary=failure_card.description,
@@ -291,7 +376,9 @@ def success_lesson_from_outcome(
     objective_value = float(getattr(final_result, "objective_value", 0.0) or 0.0)
     final_action = str(getattr(outcome, "final_action", "complete"))
     candidate_hash = str(getattr(outcome, "candidate_hash", "unknown"))
-    context = transfer_context or resolve_transfer_context(run_id=source_run_id)
+    context = resolve_transfer_context(
+        transfer_context=transfer_context, fallback_run_id=source_run_id
+    )
     return LessonCard(
         kind=LessonKind.SUCCESS,
         summary=(
@@ -316,6 +403,16 @@ def success_lesson_from_outcome(
         trace_refs=list(trace_refs or []),
         metadata={"final_action": final_action},
     )
+
+
+def _legacy_tenant_partition(tenant_hash: str | None) -> str:
+    """Reproduce the pre-v2 locator only to detect, never to trust, old data."""
+    normalized = (tenant_hash or "global").strip().lower() or "unknown"
+    return re.sub(r"[^a-z0-9_.-]+", "_", normalized)
+
+
+def _scope_refusal(path: Path, reason: TransferScopeRefusalReason) -> TransferScopeRefusal:
+    return make_transfer_scope_refusal(path, reason)
 
 
 class LessonRegistry:
@@ -344,11 +441,12 @@ class LessonRegistry:
         *,
         context: TransferContext | None = None,
     ) -> ArtifactRef:
-        target = context or resolve_transfer_context(
-            task_family=card.task_family,
-            domain=card.domain,
-            run_id=card.source_run_id,
-            tenant_hash=card.origin_tenant_hash,
+        target = resolve_transfer_context(
+            transfer_context=context,
+            task_family=(card.task_family if "task_family" in card.model_fields_set else None),
+            domain=card.domain if "domain" in card.model_fields_set else None,
+            # source_run_id describes the source card, not a declared target run.
+            fallback_run_id=card.source_run_id if context is None else None,
         )
         normalized_card = self._normalize_card(card, target_context=target)
         card_ref = persist_lesson_card(self._store, normalized_card)
@@ -390,11 +488,13 @@ class LessonRegistry:
                     origin_run_id=normalized_card.origin_run_id,
                     origin_domain=normalized_card.origin_domain,
                     origin_tenant_hash=normalized_card.origin_tenant_hash,
+                    origin_tenant_scope_status=normalized_card.origin_tenant_scope_status,
                     remediation_hint=normalized_card.remediation_hint,
                 )
             )
         else:
             existing.artifact_ref = card_ref
+            existing.lesson_id = normalized_card.lesson_id
             existing.occurrence_count += 1
             existing.last_seen = max(existing.last_seen, now)
             existing.last_accessed_at = max(
@@ -418,8 +518,11 @@ class LessonRegistry:
             existing.origin_run_id = existing.origin_run_id or normalized_card.origin_run_id
             existing.origin_domain = existing.origin_domain or normalized_card.origin_domain
             existing.origin_tenant_hash = (
-                existing.origin_tenant_hash or normalized_card.origin_tenant_hash
+                existing.origin_tenant_hash
+                if existing.origin_tenant_hash is not None
+                else normalized_card.origin_tenant_hash
             )
+            existing.origin_tenant_scope_status = normalized_card.origin_tenant_scope_status
             existing.transfer_chain = (
                 list(existing.transfer_chain)
                 if existing.transfer_chain
@@ -438,14 +541,15 @@ class LessonRegistry:
         return card_ref
 
     def query(self, context: LessonQuery) -> list[LessonCard]:
-        if self._should_aggregate_local_query(context):
-            return self._query_local_aggregated(context)
         target = resolve_transfer_context(
             task_family=context.task_family,
             domain=context.domain,
-            run_id=context.source_run_id or "unknown",
+            fallback_run_id=context.source_run_id or "unknown",
             tenant_hash=context.tenant_hash,
+            tenant_hash_is_explicit="tenant_hash" in context.model_fields_set,
         )
+        if self._should_aggregate_local_query(context):
+            return self._query_local_aggregated(context, target_context=target)
         return self._query_local(context, target_context=target)
 
     def query_with_transfer(
@@ -455,24 +559,45 @@ class LessonRegistry:
         target_context: TransferContext | None = None,
         policy: TransferPolicy | None = None,
     ) -> list[LessonCard]:
-        active_target = target_context or resolve_transfer_context(
-            task_family=context.task_family,
-            domain=context.domain,
-            run_id=context.source_run_id or "unknown",
-        )
+        if target_context is not None:
+            # Query task/domain/run fields select source cards; target_context is
+            # the target declaration. tenant_hash selects the namespace because
+            # LessonQuery has no separate tenant-card predicate.
+            active_target = resolve_transfer_context(
+                transfer_context=target_context,
+                tenant_hash=context.tenant_hash,
+                tenant_hash_is_explicit="tenant_hash" in context.model_fields_set,
+            )
+        else:
+            active_target = resolve_transfer_context(
+                task_family=context.task_family,
+                domain=context.domain,
+                fallback_run_id="unknown",
+                tenant_hash=context.tenant_hash,
+                tenant_hash_is_explicit="tenant_hash" in context.model_fields_set,
+            )
         if self._should_use_aggregated_local_transfer_lookup(context, active_target):
-            results = self._query_local_aggregated(context)
+            results = self._query_local_aggregated(context, target_context=active_target)
             return results[: context.limit]
 
         results = self._query_local(context, target_context=active_target)
         if len(results) >= context.limit:
             return results[: context.limit]
 
-        for candidate in self.find_transfer_candidates(
+        transfer_bundle = self._find_transfer_candidates(
             context,
             target_context=active_target,
             policy=policy,
-        ):
+            candidate_limit=None,
+        )
+        blocking_refusals = [
+            refusal
+            for refusal in transfer_bundle.scope_refusals
+            if refusal.reason is not TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+        ]
+        if blocking_refusals:
+            raise TransferScopeRefusedError(blocking_refusals)
+        for candidate in transfer_bundle.candidates:
             materialized = self.materialize_transfer(
                 candidate,
                 target_context=active_target,
@@ -492,26 +617,115 @@ class LessonRegistry:
         *,
         target_context: TransferContext,
         policy: TransferPolicy | None = None,
-    ) -> list[LessonCard]:
+    ) -> LessonTransferBundle:
+        """Return up to the requested number of ordered source candidates."""
+        return self._find_transfer_candidates(
+            context,
+            target_context=target_context,
+            policy=policy,
+            candidate_limit=context.limit,
+        )
+
+    def _find_transfer_candidates(
+        self,
+        context: LessonQuery,
+        *,
+        target_context: TransferContext,
+        policy: TransferPolicy | None = None,
+        candidate_limit: int | None,
+    ) -> LessonTransferBundle:
+        """Select source candidates, optionally retaining the complete set.
+
+        A final query defers its result quota until projected trust and
+        confidence are recomputed. Direct candidate inspection remains bounded
+        by the caller's query limit.
+        """
         matches: list[tuple[float, datetime, LessonCard]] = []
+        scope_refusals: list[TransferScopeRefusal] = []
+        target_context = resolve_transfer_context(transfer_context=target_context)
         active_policy = policy or self._transfer_policy
         target_path = self._index_path_for_context(target_context)
-        for namespace_context, path in self._iter_index_paths():
+        for path_binding, path in self._iter_index_paths():
             if path == target_path:
                 continue
-            snapshot = self._load_index_file(path)
+            if path_binding.status != "bound":
+                reason = (
+                    TransferScopeRefusalReason.LEGACY_PATH_UNBOUND
+                    if path_binding.status == "legacy_unbound"
+                    else TransferScopeRefusalReason.MALFORMED_PATH
+                )
+                scope_refusals.append(_scope_refusal(path, reason))
+                continue
+            try:
+                snapshot = self._load_index_file(path)
+            except (ValueError, ValidationError):
+                scope_refusals.append(
+                    _scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)
+                )
+                continue
+            refusal = transfer_scope_refusal(path_binding, snapshot.source_scope, path)
+            if refusal is not None:
+                scope_refusals.append(refusal)
+                continue
+            source_scope = snapshot.source_scope
+            assert source_scope is not None
+            if any(
+                entry.task_family != source_scope.task_family
+                or entry.domain != source_scope.domain
+                or entry.origin_tenant_hash != source_scope.tenant_hash
+                or entry.origin_tenant_scope_status != source_scope.tenant_scope_status
+                for entry in snapshot.entries
+            ):
+                scope_refusals.append(
+                    _scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)
+                )
+                continue
             for entry in self._sorted_entries(snapshot):
                 if entry.invalidated:
                     continue
                 if not self._entry_matches(entry, context):
                     continue
-                source_context = TransferContext(
-                    task_family=entry.task_family,
-                    domain=entry.domain,
-                    run_id=entry.origin_run_id or entry.lesson_id,
-                    tenant_hash=namespace_context.tenant_hash,
+                source_context = source_scope.context(run_id=entry.origin_run_id or entry.lesson_id)
+                if source_context.tenant_scope_status is not target_context.tenant_scope_status:
+                    reason = (
+                        TransferScopeRefusalReason.TENANT_SCOPE_UNKNOWN
+                        if TransferTenantScopeStatus.UNKNOWN
+                        in {source_context.tenant_scope_status, target_context.tenant_scope_status}
+                        else TransferScopeRefusalReason.TENANT_SCOPE_STATUS_MISMATCH
+                    )
+                    scope_refusals.append(_scope_refusal(path, reason))
+                    continue
+                cross_tenant_allowed = (
+                    active_policy.allow_cross_tenant
+                    and active_policy.allow_cross_domain
+                    and target_context.cross_tenant_opt_in
+                    and source_context.tenant_scope_status
+                    is TransferTenantScopeStatus.AUTHENTICATED
+                    and target_context.tenant_scope_status
+                    is TransferTenantScopeStatus.AUTHENTICATED
                 )
+                if (
+                    source_context.tenant_hash != target_context.tenant_hash
+                    and not cross_tenant_allowed
+                ):
+                    scope_refusals.append(
+                        _scope_refusal(
+                            path,
+                            TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED,
+                        )
+                    )
+                    continue
                 card = load_lesson_card(self._store, entry.artifact_ref)
+                if (
+                    card.task_family != source_scope.task_family
+                    or card.domain != source_scope.domain
+                    or card.origin_tenant_hash != source_scope.tenant_hash
+                    or card.origin_tenant_scope_status != source_scope.tenant_scope_status
+                ):
+                    scope_refusals.append(
+                        _scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)
+                    )
+                    continue
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
@@ -529,7 +743,19 @@ class LessonRegistry:
                 matches.append((weight, entry.last_seen, normalized))
 
         matches.sort(key=lambda item: (item[0], item[1].timestamp()), reverse=True)
-        return [card for _, _, card in matches[: context.limit]]
+        blocking_refusals = [
+            refusal
+            for refusal in scope_refusals
+            if refusal.reason is not TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+        ]
+        candidates = [card for _, _, card in matches]
+        if candidate_limit is not None:
+            candidates = candidates[:candidate_limit]
+        return LessonTransferBundle(
+            candidates=[] if blocking_refusals else candidates,
+            scope_refusals=scope_refusals,
+            target_tenant_scope_status=target_context.tenant_scope_status,
+        )
 
     def materialize_transfer(
         self,
@@ -539,13 +765,20 @@ class LessonRegistry:
         query: LessonQuery | None = None,
         policy: TransferPolicy | None = None,
     ) -> LessonCard | None:
+        # Source provenance is verified from the stored source record; it is not
+        # an additional declaration of the destination TransferContext.
+        target_context = resolve_transfer_context(transfer_context=target_context)
         active_policy = policy or self._transfer_policy
-        source_context = TransferContext(
-            task_family=card.task_family,
-            domain=card.domain,
-            run_id=card.origin_run_id or card.source_run_id,
-            tenant_hash=card.origin_tenant_hash,
-        )
+        source_scope = self._verified_source_scope_for_card(card)
+        if source_scope is None:
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        Path(card.lesson_id), TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+                    )
+                ]
+            )
+        source_context = source_scope.context(run_id=card.origin_run_id or card.source_run_id)
         weight = compute_provenance_weight(
             source_context,
             target_context,
@@ -588,7 +821,7 @@ class LessonRegistry:
             ),
             target_context=target_context,
         )
-        if query is not None and not self._matches_query(materialized, query):
+        if query is not None and not self._matches_materialized_transfer(materialized, query):
             return None
         self.record_local(materialized, context=target_context)
         return materialized
@@ -618,6 +851,7 @@ class LessonRegistry:
                     trust_level=entry.trust_level,
                     task_family=entry.task_family,
                     domain=entry.domain,
+                    origin_tenant_scope_status=entry.origin_tenant_scope_status,
                     provenance_weight=entry.provenance_weight,
                     tags=list(entry.tags),
                     remediation_hint=entry.remediation_hint,
@@ -631,15 +865,17 @@ class LessonRegistry:
 
     def invalidate(self, lesson_id: str, reason: str) -> bool:
         matched = False
-        for _, path in self._iter_index_paths():
-            snapshot = self._load_index_file(path)
+        for path_binding, path in self._iter_index_paths():
+            snapshot = self._load_scoped_index(path_binding, path)
             for entry in snapshot.entries:
                 if entry.lesson_id != lesson_id:
                     continue
                 entry.invalidated = True
                 entry.invalidation_reason = reason
                 matched = True
-                self._persist_index(snapshot, path=path)
+                scope = snapshot.source_scope
+                assert scope is not None
+                self._persist_index(snapshot, context=scope.context(), path=path)
                 break
             if matched:
                 break
@@ -649,8 +885,13 @@ class LessonRegistry:
         active_ttl = max(1, int(ttl_days or self._transfer_policy.ttl_days))
         archive_cutoff = datetime.now(UTC) - timedelta(days=active_ttl * 2)
         removed = 0
-        for namespace_context, path in self._iter_index_paths():
-            snapshot = self._load_index_file(path)
+        for path_binding, path in self._iter_index_paths():
+            snapshot = self._load_scoped_index(path_binding, path)
+            namespace_context = snapshot.source_scope.context() if snapshot.source_scope else None
+            if namespace_context is None:
+                raise TransferScopeRefusedError(
+                    [_scope_refusal(path, TransferScopeRefusalReason.LEGACY_PATH_UNBOUND)]
+                )
             before = len(snapshot.entries)
             snapshot.entries = [
                 self._demoted_entry(entry, ttl_days=active_ttl)
@@ -672,15 +913,45 @@ class LessonRegistry:
         context: TransferContext | None = None,
     ) -> LessonIndexSnapshot:
         if context is None:
-            return self._aggregate_local_snapshot()
-        active_context = context or resolve_transfer_context()
+            active_context = resolve_transfer_context()
+            return self._aggregate_local_snapshot(target_context=active_context)
+        active_context = resolve_transfer_context(transfer_context=context)
         path = self._index_path_for_context(active_context)
+        legacy_path = self._legacy_index_path_for_context(active_context)
+        if legacy_path.exists():
+            raise TransferScopeRefusedError(
+                [_scope_refusal(legacy_path, TransferScopeRefusalReason.LEGACY_PATH_UNBOUND)]
+            )
+        expected_scope = TransferSourceScope.from_context(active_context)
         if not path.exists():
             return LessonIndexSnapshot(
+                schema_version="3.0",
                 task_family=active_context.task_family,
                 domain=active_context.domain,
+                source_scope=expected_scope,
             )
-        return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+        try:
+            snapshot = self._load_index_file(path)
+        except (ValueError, ValidationError):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)]
+            ) from None
+        binding = decode_transfer_scope_path(path.relative_to(self._root).parts[:-1])
+        refusal = transfer_scope_refusal(binding, snapshot.source_scope, path)
+        if refusal is not None:
+            raise TransferScopeRefusedError([refusal])
+        if snapshot.source_scope != expected_scope:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        if (
+            snapshot.task_family != expected_scope.task_family
+            or snapshot.domain != expected_scope.domain
+        ):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        return snapshot
 
     def _query_local(
         self,
@@ -697,7 +968,7 @@ class LessonRegistry:
                 continue
             if not self._entry_matches(entry, query):
                 continue
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, source_context=target_context)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
@@ -709,7 +980,12 @@ class LessonRegistry:
             self._persist_index(snapshot, context=target_context)
         return results
 
-    def _query_local_aggregated(self, query: LessonQuery) -> list[LessonCard]:
+    def _query_local_aggregated(
+        self,
+        query: LessonQuery,
+        *,
+        target_context: TransferContext,
+    ) -> list[LessonCard]:
         now = datetime.now(UTC)
         candidates: list[
             tuple[
@@ -719,8 +995,20 @@ class LessonRegistry:
                 TransferContext,
             ]
         ] = []
-        for namespace_context, path in self._iter_index_paths():
-            snapshot = self._load_index_file(path)
+        for path_binding, path in self._iter_index_paths():
+            snapshot = self._load_scoped_index(path_binding, path)
+            namespace_context = snapshot.source_scope.context() if snapshot.source_scope else None
+            if namespace_context is None:
+                raise TransferScopeRefusedError(
+                    [_scope_refusal(path, TransferScopeRefusalReason.LEGACY_PATH_UNBOUND)]
+                )
+            scope = snapshot.source_scope
+            assert scope is not None
+            if (
+                scope.tenant_hash != target_context.tenant_hash
+                or scope.tenant_scope_status is not target_context.tenant_scope_status
+            ):
+                continue
             for entry in snapshot.entries:
                 if entry.invalidated:
                     continue
@@ -745,7 +1033,7 @@ class LessonRegistry:
             tuple[str, str, str], tuple[LessonIndexSnapshot, TransferContext]
         ] = {}
         for _, entry, snapshot, namespace_context in sorted(candidates, key=lambda item: item[0]):
-            card = self._materialize_query_card(entry, now=now)
+            card = self._materialize_query_card(entry, now=now, source_context=namespace_context)
             if not self._matches_query(card, query):
                 continue
             results.append(card)
@@ -764,10 +1052,27 @@ class LessonRegistry:
             self._persist_index(snapshot, context=namespace_context)
         return results
 
-    def _aggregate_local_snapshot(self) -> LessonIndexSnapshot:
-        snapshots = [self._load_index_file(path) for _, path in self._iter_index_paths()]
+    def _aggregate_local_snapshot(
+        self,
+        *,
+        target_context: TransferContext,
+    ) -> LessonIndexSnapshot:
+        snapshots: list[LessonIndexSnapshot] = []
+        for binding, path in self._iter_index_paths():
+            snapshot = self._load_scoped_index(binding, path)
+            scope = snapshot.source_scope
+            assert scope is not None
+            if (
+                scope.tenant_hash == target_context.tenant_hash
+                and scope.tenant_scope_status is target_context.tenant_scope_status
+            ):
+                snapshots.append(snapshot)
         if not snapshots:
-            return LessonIndexSnapshot()
+            return LessonIndexSnapshot(
+                schema_version="3.0",
+                task_family=target_context.task_family,
+                domain=target_context.domain,
+            )
         task_families = {snapshot.task_family for snapshot in snapshots if snapshot.task_family}
         domains = {snapshot.domain for snapshot in snapshots if snapshot.domain}
         latest_created_at = max(snapshot.snapshot_created_at for snapshot in snapshots)
@@ -784,7 +1089,7 @@ class LessonRegistry:
             (
                 query.domain,
                 query.source_run_id,
-                query.tenant_hash,
+                "tenant_hash" in query.model_fields_set,
             )
         )
 
@@ -810,18 +1115,34 @@ class LessonRegistry:
         )
 
     @staticmethod
+    def _matches_materialized_transfer(
+        record: LessonCard,
+        query: LessonQuery,
+    ) -> bool:
+        """Apply effective result filters after source selection.
+
+        Source identity and content selectors are checked against the
+        original card before projection. The materialized result can
+        change trust; these predicates govern its effective quality.
+        """
+        if query.trust_levels and record.trust_level not in set(query.trust_levels):
+            return False
+        return float(record.confidence) >= float(query.min_confidence)
+
+    @staticmethod
     def _matches_query(
         record: LessonCard | LessonIndexEntry,
         query: LessonQuery,
         *,
         include_trust: bool = True,
     ) -> bool:
-        """Apply one query predicate to an index entry or effective lesson card.
+        """Apply query predicates to the record at the current pipeline stage.
 
         Index entries skip source-run and trust checks because the index does
         not own the effective card status and transfer may change trust. The
-        same predicate is then applied to the effective card before it is
-        persisted or returned.
+        domain predicate follows the record being evaluated: a source record
+        before projection, or a persisted target record on a local read.
+        origin_domain remains provenance and never replaces the record domain.
         """
 
         if query.failure_type and record.failure_type != query.failure_type:
@@ -839,8 +1160,10 @@ class LessonRegistry:
         if query.source_run_id and isinstance(record, LessonCard):
             if record.source_run_id != query.source_run_id:
                 return False
-        if include_trust and query.trust_levels and record.trust_level not in set(
-            query.trust_levels
+        if (
+            include_trust
+            and query.trust_levels
+            and record.trust_level not in set(query.trust_levels)
         ):
             return False
         if float(record.confidence) < float(query.min_confidence):
@@ -857,9 +1180,28 @@ class LessonRegistry:
         entry: LessonIndexEntry,
         *,
         now: datetime,
+        source_context: TransferContext,
     ) -> LessonCard:
         card = load_lesson_card(self._store, entry.artifact_ref)
-        normalized = self._normalize_card(card)
+        if (
+            entry.task_family != source_context.task_family
+            or entry.domain != source_context.domain
+            or entry.origin_tenant_hash != source_context.tenant_hash
+            or entry.origin_tenant_scope_status is not source_context.tenant_scope_status
+            or card.task_family != entry.task_family
+            or card.domain != entry.domain
+            or card.origin_tenant_hash != entry.origin_tenant_hash
+            or card.origin_tenant_scope_status is not entry.origin_tenant_scope_status
+        ):
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        Path(str(entry.artifact_ref)),
+                        TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH,
+                    )
+                ]
+            )
+        normalized = self._normalize_card(card, target_context=source_context)
         evidence_anchor = self._evidence_anchor(entry, normalized)
         age = max(timedelta(), now - evidence_anchor)
         trust_level = normalized.trust_level
@@ -876,18 +1218,86 @@ class LessonRegistry:
             }
         )
 
+    def _verified_source_scope_for_card(
+        self,
+        candidate: LessonCard,
+    ) -> TransferSourceScope | None:
+        """Resolve a candidate to one unambiguous persisted source scope."""
+
+        candidate_payload = candidate.model_dump(mode="json")
+        for derived_field in ("provenance_weight", "last_accessed_at", "trust_level", "confidence"):
+            candidate_payload.pop(derived_field, None)
+        matches: list[TransferSourceScope] = []
+        for binding, path in self._iter_index_paths():
+            if binding.status != "bound":
+                continue
+            snapshot = self._load_scoped_index(binding, path)
+            scope = snapshot.source_scope
+            if scope is None:
+                continue
+            for entry in snapshot.entries:
+                if entry.invalidated or entry.lesson_id != candidate.lesson_id:
+                    continue
+                if (
+                    entry.task_family != candidate.task_family
+                    or entry.domain != candidate.domain
+                    or entry.origin_run_id != candidate.origin_run_id
+                    or entry.origin_domain != candidate.origin_domain
+                    or entry.origin_tenant_hash != candidate.origin_tenant_hash
+                    or entry.origin_tenant_scope_status is not candidate.origin_tenant_scope_status
+                ):
+                    continue
+                stored = load_lesson_card(self._store, entry.artifact_ref)
+                stored_payload = stored.model_dump(mode="json")
+                for derived_field in (
+                    "provenance_weight",
+                    "last_accessed_at",
+                    "trust_level",
+                    "confidence",
+                ):
+                    stored_payload.pop(derived_field, None)
+                if stored_payload != candidate_payload:
+                    continue
+                if candidate.trust_level == stored.trust_level:
+                    if candidate.confidence > stored.confidence:
+                        continue
+                elif (
+                    candidate.trust_level is not LessonTrustLevel.LOW_CONFIDENCE
+                    or candidate.confidence > min(stored.confidence, 0.5)
+                ):
+                    continue
+                if (
+                    stored.task_family != scope.task_family
+                    or stored.domain != scope.domain
+                    or stored.origin_tenant_hash != scope.tenant_hash
+                    or stored.origin_tenant_scope_status is not scope.tenant_scope_status
+                ):
+                    raise TransferScopeRefusedError(
+                        [_scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
+                    )
+                matches.append(scope)
+        if not matches:
+            return None
+        source_scope = matches[0]
+        return source_scope if all(item == source_scope for item in matches[1:]) else None
+
     def _normalize_card(
         self,
         card: LessonCard,
         *,
         target_context: TransferContext | None = None,
     ) -> LessonCard:
-        active_context = target_context or resolve_transfer_context(
-            task_family=card.task_family,
-            domain=card.domain,
-            run_id=card.source_run_id,
-            tenant_hash=card.origin_tenant_hash,
-        )
+        if target_context is None:
+            active_context = resolve_transfer_context(
+                task_family=card.task_family,
+                domain=card.domain,
+                fallback_run_id=card.source_run_id,
+                tenant_hash=card.origin_tenant_hash,
+                tenant_hash_is_explicit=card.origin_tenant_hash is not None,
+            )
+        else:
+            # The card remains the source record; its run is not a target declaration.
+            active_context = resolve_transfer_context(transfer_context=target_context)
         update: dict[str, Any] = {
             "task_family": (
                 active_context.task_family
@@ -905,7 +1315,8 @@ class LessonRegistry:
                 or (card.domain if target_context is None else active_context.domain)
                 or active_context.domain
             ),
-            "origin_tenant_hash": card.origin_tenant_hash or active_context.tenant_hash,
+            "origin_tenant_hash": active_context.tenant_hash,
+            "origin_tenant_scope_status": active_context.tenant_scope_status,
             "provenance_weight": float(card.provenance_weight or 1.0),
         }
         if card.trust_level is LessonTrustLevel.LOCAL:
@@ -945,34 +1356,25 @@ class LessonRegistry:
         return max(entry.last_seen, card.created_at)
 
     def _index_path_for_context(self, context: TransferContext) -> Path:
+        return self._root.joinpath(*transfer_scope_path_parts(context), "index.json")
+
+    def _legacy_index_path_for_context(self, context: TransferContext) -> Path:
         return (
             self._root
-            / context.tenant_partition
+            / _legacy_tenant_partition(context.tenant_hash)
             / context.task_family_slug
             / context.domain_slug
             / "index.json"
         )
 
-    def _iter_index_paths(self) -> list[tuple[TransferContext, Path]]:
-        paths = sorted(self._root.glob("*/*/*/index.json"))
-        contexts: list[tuple[TransferContext, Path]] = []
+    def _iter_index_paths(self) -> list[tuple[TransferPathBinding, Path]]:
+        paths = sorted(self._root.rglob("index.json"))
+        result: list[tuple[TransferPathBinding, Path]] = []
         for path in paths:
-            try:
-                tenant_partition, task_family, domain = path.parts[-4:-1]
-            except ValueError:
-                continue
-            contexts.append(
-                (
-                    TransferContext(
-                        task_family=task_family,
-                        domain=domain,
-                        run_id="namespace_scan",
-                        tenant_hash=tenant_partition,
-                    ),
-                    path,
-                )
+            result.append(
+                (decode_transfer_scope_path(path.relative_to(self._root).parts[:-1]), path)
             )
-        return contexts
+        return result
 
     def _persist_index(
         self,
@@ -981,13 +1383,65 @@ class LessonRegistry:
         context: TransferContext | None = None,
         path: Path | None = None,
     ) -> None:
-        active_context = context or resolve_transfer_context(
-            task_family=snapshot.task_family,
-            domain=snapshot.domain,
+        active_context = context or (
+            snapshot.source_scope.context()
+            if snapshot.source_scope is not None
+            else resolve_transfer_context(
+                task_family=snapshot.task_family,
+                domain=snapshot.domain,
+            )
         )
+        expected_scope = TransferSourceScope.from_context(active_context)
+        if snapshot.source_scope is None and snapshot.entries:
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        path or self._index_path_for_context(active_context),
+                        TransferScopeRefusalReason.SOURCE_BINDING_MISSING,
+                    )
+                ]
+            )
+        if snapshot.source_scope is not None and snapshot.source_scope != expected_scope:
+            reason = (
+                TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+                if snapshot.source_scope.tenant_hash != expected_scope.tenant_hash
+                else TransferScopeRefusalReason.PATH_BODY_MISMATCH
+            )
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path or self._index_path_for_context(active_context), reason)]
+            )
+        if snapshot.source_scope is not None and (
+            snapshot.task_family != expected_scope.task_family
+            or snapshot.domain != expected_scope.domain
+        ):
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        path or self._index_path_for_context(active_context),
+                        TransferScopeRefusalReason.PATH_BODY_MISMATCH,
+                    )
+                ]
+            )
+        snapshot.schema_version = "3.0"
+        snapshot.source_scope = expected_scope
         snapshot.snapshot_created_at = datetime.now(UTC)
         snapshot.task_family = snapshot.task_family or active_context.task_family
         snapshot.domain = snapshot.domain or active_context.domain
+        if any(
+            entry.task_family != expected_scope.task_family
+            or entry.domain != expected_scope.domain
+            or entry.origin_tenant_hash != expected_scope.tenant_hash
+            or entry.origin_tenant_scope_status != expected_scope.tenant_scope_status
+            for entry in snapshot.entries
+        ):
+            raise TransferScopeRefusedError(
+                [
+                    _scope_refusal(
+                        path or self._index_path_for_context(active_context),
+                        TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH,
+                    )
+                ]
+            )
         self._write_index_file(snapshot, path=path or self._index_path_for_context(active_context))
         self._last_snapshot_ref = self._store.put_json(
             snapshot,
@@ -1016,6 +1470,36 @@ class LessonRegistry:
             tmp_path = Path(tmp.name)
         os.replace(tmp_path, path)
 
+    def _load_scoped_index(
+        self, path_binding: TransferPathBinding, path: Path
+    ) -> LessonIndexSnapshot:
+        try:
+            snapshot = self._load_index_file(path)
+        except (ValueError, ValidationError):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.INVALID_SOURCE_BODY)]
+            ) from None
+        refusal = transfer_scope_refusal(path_binding, snapshot.source_scope, path)
+        if refusal is not None:
+            raise TransferScopeRefusedError([refusal])
+        scope = snapshot.source_scope
+        assert scope is not None
+        if snapshot.task_family != scope.task_family or snapshot.domain != scope.domain:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        if any(
+            entry.task_family != scope.task_family
+            or entry.domain != scope.domain
+            or entry.origin_tenant_hash != scope.tenant_hash
+            or entry.origin_tenant_scope_status != scope.tenant_scope_status
+            for entry in snapshot.entries
+        ):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(path, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
+            )
+        return snapshot
+
     @staticmethod
     def _load_index_file(path: Path) -> LessonIndexSnapshot:
         return LessonIndexSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
@@ -1026,8 +1510,37 @@ class LessonRegistry:
         store: FileSystemCAS,
         ref: ArtifactRef | str,
     ) -> LessonIndexSnapshot:
-        from polisyos.core.artifacts import load_core_json_artifact
-        return LessonIndexSnapshot.model_validate(load_core_json_artifact(store, ref))
+        snapshot = cast(
+            "LessonIndexSnapshot",
+            _load_profiled_search_artifact(
+                store,
+                ref,
+                kind=_LESSON_INDEX_KIND,
+                schema_name=_LESSON_INDEX_SCHEMA.name,
+                supported_versions=frozenset({"1.0", "3.0"}),
+                model_type=LessonIndexSnapshot,
+            ),
+        )
+        scope = snapshot.source_scope
+        if scope is None:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.SOURCE_BINDING_MISSING)]
+            )
+        if snapshot.task_family != scope.task_family or snapshot.domain != scope.domain:
+            raise TransferScopeRefusedError(
+                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        if any(
+            entry.task_family != scope.task_family
+            or entry.domain != scope.domain
+            or entry.origin_tenant_hash != scope.tenant_hash
+            or entry.origin_tenant_scope_status != scope.tenant_scope_status
+            for entry in snapshot.entries
+        ):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
+            )
+        return snapshot
 
     @staticmethod
     def _sorted_entries(snapshot: LessonIndexSnapshot) -> list[LessonIndexEntry]:
@@ -1051,6 +1564,7 @@ __all__ = [
     "LessonQuery",
     "LessonRegistry",
     "LessonTrustLevel",
+    "LessonTransferBundle",
     "lesson_from_failure_card",
     "load_lesson_card",
     "persist_lesson_card",

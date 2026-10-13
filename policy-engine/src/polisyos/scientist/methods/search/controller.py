@@ -2446,7 +2446,9 @@ class SearchController:
                 )
                 transfer_context = None
             else:
-                transfer_context = resolve_transfer_context(candidate=candidate)
+                transfer_context = resolve_transfer_context(
+                    candidate=candidate, fallback_run_id=self._search_id
+                )
             candidate_hash = self._policy_candidate_hash(
                 candidate=candidate,
                 policy_evaluation=policy_evaluation,
@@ -2473,10 +2475,12 @@ class SearchController:
             )
             from polisyos.scientist.methods.search.pareto_registry import ParetoView
 
-            self._run_state.pareto_projection = registry.get_snapshot(self._search_id).project_view(
-                ParetoView.GLOBAL_FEASIBLE
+            self._run_state.pareto_projection = registry.get_snapshot(
+                self._search_id, transfer_context=transfer_context
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
+            self._pareto_front = registry.as_legacy_frontier_payload(
+                self._search_id, transfer_context=transfer_context
             )
-            self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 
         if objective_details:

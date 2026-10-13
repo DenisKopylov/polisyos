@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, TypeVar, cast
 
 from polisyos.berl.contracts.explanation_bundle import (
     EXPLANATION_BUNDLE_SCHEMA_VERSION,
@@ -31,6 +31,8 @@ if TYPE_CHECKING:
 
 from pydantic import ValidationError
 
+_ReadResult = TypeVar("_ReadResult")
+
 _EXPLANATION_BUNDLE_KIND = "scientist.explanation_bundle"
 _EXPLANATION_BUNDLE_SCHEMA_NAME = explanation_bundle_schema_id()
 
@@ -53,11 +55,14 @@ class _SelectedViewReadAdapter:
     def get_manifest_bytes(self, selector: ArtifactSelector) -> bytes:
         return self._read(self._store.get_manifest_bytes, selector)
 
+    def get_manifest(self, selector: ArtifactSelector) -> object:
+        return self._read(self._store.get_manifest, selector)
+
     @staticmethod
     def _read(
-        reader: Callable[[ArtifactSelector], bytes],
+        reader: Callable[[ArtifactSelector], _ReadResult],
         selector: ArtifactSelector,
-    ) -> bytes:
+    ) -> _ReadResult:
         try:
             return reader(selector)
         except (FileNotFoundError, TypeError, ValueError, MemoryError):

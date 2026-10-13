@@ -3388,7 +3388,8 @@ def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
     assert receipt.false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] == 1
 
 
-def test_partial_value_outer_set_width_tracks_real_did_interval() -> None:
+def test_report_only_did_interval_requires_owner_method_run_basis() -> None:
+    """A transport label cannot promote a report-only CI to identified value bounds."""
     world = _world_record()
     report = CausalEffectReport(
         method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
@@ -3419,23 +3420,21 @@ def test_partial_value_outer_set_width_tracks_real_did_interval() -> None:
         calibration_record_ref="s10://did-width",
     )
 
-    value_set = _value_outer_set_from_foundry_result(
-        method_result=SimpleNamespace(output={"report": report}),
-        transport_receipt=transport,
-        calibration_receipt=calibration,
-        world_record=world,
-        data_trust=DataTrust(
-            tier="unit",
-            trust_cap=1.0,
-            trust_multiplier=1.0,
-            authority_ref="test",
-        ),
-    )
-
-    assert value_set.identification_status == "partial"
-    assert value_set.lower == (8.0,)
-    assert value_set.upper == (12.0,)
-    assert value_set.width == (4.0,)
+    with pytest.raises(
+        ValueError, match="foundry_method_refused_value:owner_method_run_basis_missing"
+    ):
+        _value_outer_set_from_foundry_result(
+            method_result=SimpleNamespace(output={"report": report}),
+            transport_receipt=transport,
+            calibration_receipt=calibration,
+            world_record=world,
+            data_trust=DataTrust(
+                tier="unit",
+                trust_cap=1.0,
+                trust_multiplier=1.0,
+                authority_ref="test",
+            ),
+        )
 
 
 def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:

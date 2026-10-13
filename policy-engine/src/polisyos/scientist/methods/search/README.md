@@ -41,6 +41,20 @@ registry update contract. An empty mapping preserves observed/unknown basis beha
 against named axes requires an explicit declared scope. This declaration describes the chosen
 comparison basis and does not prove that the basis is complete or authoritative.
 
+## Transfer source-scope binding
+
+LessonCard advances to schema 2.0, LessonIndexSnapshot and ParetoRegistrySnapshot to 3.0, and TransferSourceScope to 2.0. New lesson and Pareto transfer records use v3 namespaces whose full scope digest includes authenticated, unknown, or explicitly unscoped status. The persisted typed body carries the same status and fresh readers recompute the path/body binding before transfer. Existing v2 namespaces lack that status and remain legacy-unbound; they are not reinterpreted or rewritten. A missing binding is never inferred to mean unscoped. The locator binds bytes and scope fields but does not establish independent source authority.
+
+A live request AccessScope is reconciled with every supplied tenant hash at producer and fresh-consumer boundaries. A routed tenant without AccessScope, and an omitted tenant, remain unknown. Only an explicit tenant_scope_status=declared_unscoped declaration represents an unscoped source. Unknown-to-unknown matches remain candidate-only and carry the unknown status on both the source row and returned artifact; unknown cannot join an authenticated or declared-unscoped source, and cannot authorize cross-tenant opt-in. A lesson card's origin_tenant_hash is data, not owner proof: writers bind records to the explicit source TransferContext or active caller context.
+
+## Transfer schema and request-scope admission
+
+New LessonCard writes use payload and manifest schema 2.0; exact historical 1.0 cards remain readable, and a later write emits 2.0. LessonIndexSnapshot and ParetoRegistrySnapshot new writes use schema 3.0. The Pareto parser recognizes historical 1.0, 2.0, and 2.1 forms plus current 3.0; an unknown version is a typed invalid-source refusal. Recognition does not establish source identity: active get_snapshot reads refuse unbound historical snapshots with SOURCE_BINDING_MISSING, and catalog transfer withholds them before returning seeds. LessonIndex 1.0 is also schema-recognized, but its active reader refuses a snapshot without source_scope. No reader infers source identity from a locator or unbound body. CAS lesson readers resolve the selected manifest profile, then require its kind, media type, schema name, and version to match the typed payload. A declaration/body mismatch is refused before transfer use.
+
+Only an absent context or an explicit null nested transfer_context means no nested scope was supplied. A malformed present context, nested scope, status, or cross-tenant flag is refused as INVALID_REQUEST_SCOPE; string truthiness and fallback defaults do not turn malformed data into an unknown candidate scope. Unknown remains candidate-only and does not establish ownership or cross-tenant authority. The shared intake reconciles every supplied task family, domain, run identifier, tenant hash, scope status, cross-tenant opt-in, and timestamp across outer mappings, nested/typed contexts, and explicit caller keywords before selecting a context or candidate fallback. Typed-context defaults that are absent from model_fields_set are fallback values, not declarations; contradictory present values and malformed present values are refused.
+
+A tenant hash is a non-empty identity. Empty or whitespace-only strings are rejected by the typed context, source-scope body, resolver, and partition helper. Explicit None remains the unscoped partition and distinct from every valid hash; this does not establish cross-tenant authority.
+
 ## Pareto Assessment Projection (B111)
 
 The registry's typed `view_assessments` supplies assessment status for each
@@ -93,7 +107,7 @@ uv run pytest tests/unit/scientist/search/test_controller_api.py tests/unit/scie
 
 ## Last Updated
 
-- Last updated: 2026-10-12
+- Last updated: 2026-10-13
 
 ## Configured uncertainty observation intake
 
@@ -256,3 +270,8 @@ The selected-source identity check covers the full typed DTO quantity: each sour
 For this candidate-source path, the fresh reader also reconciles each selected DataSnapshot's data_ref and optional uncertainty_envelope_ref to one exact selected manifest edge. New Ukraine runtime snapshots persist their payload profile and data_ref edge. Existing snapshots without those edges remain readable by general artifact consumers but are withheld from this source-bound candidate observation; there is no historical backfill. A same-bytes, different-profile snapshot remains candidate-only only when its own source edges still match its typed payload.
 
 When a welfare producer receives feedback_uncomposed, it persists the measurement with the actual feedback-result edge and without an execution-basis edge. The source-bound consumer still withholds that observation because the typed execution status has no composed single-step basis. This does not change risk meaning, refinement, units, valid time/currentness, or authority: each remains not_established. When `ExecuteRequest.return_selected_profile` is true, the nested feedback-result ref preserves the exact profile returned by the CAS producer write; the default remains false and legacy feedback artifacts are not backfilled.
+
+
+### Declared scope and fallback identities
+
+`resolve_transfer_context` reconciles present scope declarations from typed contexts, mappings, and explicit arguments. `fallback_run_id` is used only if no run ID was declared; it cannot override or conflict with a present value. `LessonQuery` predicates are evaluated against the record at each pipeline stage: local reads match the persisted record's current namespace, while transfer source selection applies the same content and scope predicates before projection. A typed `target_context` selects the destination; `origin_domain` remains source provenance and never substitutes for a persisted target record's `domain`. `task_family` must match the transfer contract and `source_run_id` remains source provenance. `query_with_transfer` recomputes effective trust and confidence before charging its final `limit`; a rejected high-ranked candidate cannot hide a later eligible result. Direct `find_transfer_candidates` calls remain capped as raw candidate inspection. A present `tenant_hash` query selector is reconciled with the target context and a conflict refuses. When the legacy optional target is omitted, a source run ID is never promoted to the target run. SearchController binds its current search ID as the target-run fallback; an actually declared conflicting run remains a refusal.

@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core import artifacts
 from polisyos.ir.analytics import (
@@ -35,6 +35,28 @@ from .claim_adjudication_policy import (
 
 class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+
+
+class _ClaimAdjudicationModelRefusalError(ValueError):
+    """Carry a stable domain refusal code through Pydantic validation."""
+
+    code: str
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+def _claim_adjudication_refusal_from_validation_error(
+    exc: ValidationError,
+) -> _ClaimAdjudicationModelRefusalError | None:
+    """Return only a sole, explicitly typed domain refusal from Pydantic errors."""
+    errors = exc.errors(include_url=False)
+    if len(errors) != 1:
+        return None
+    context = errors[0].get("ctx")
+    refusal = context.get("error") if isinstance(context, dict) else None
+    return refusal if isinstance(refusal, _ClaimAdjudicationModelRefusalError) else None
 
 
 class ClaimEvaluatorAppointment(_Strict):
@@ -219,7 +241,9 @@ class _PromotionBasis(_Strict):
     @model_validator(mode="after")
     def _explicit_predecessor(self) -> _PromotionBasis:
         if (self.transition == "genesis") != (self.previous_pointer is None):
-            raise ValueError("claim_adjudication_promotion_basis_inconsistent")
+            raise _ClaimAdjudicationModelRefusalError(
+                "claim_adjudication_promotion_basis_inconsistent"
+            )
         return self
 
 
@@ -231,9 +255,13 @@ class _ClaimChampionEnvelope(_Strict):
     @model_validator(mode="after")
     def _pointer_is_claim_transition(self) -> _ClaimChampionEnvelope:
         if self.pointer.get("loop_id") != "claim_adjudication":
-            raise ValueError("claim_adjudication_champion_envelope_pointer_invalid")
+            raise _ClaimAdjudicationModelRefusalError(
+                "claim_adjudication_champion_envelope_pointer_invalid"
+            )
         if self.promotion_basis.current_pointer_sha256 != _pointer_hash(self.pointer):
-            raise ValueError("claim_adjudication_promotion_basis_pointer_mismatch")
+            raise _ClaimAdjudicationModelRefusalError(
+                "claim_adjudication_promotion_basis_pointer_mismatch"
+            )
         return self
 
 
@@ -416,7 +444,13 @@ def _read_claim_champion_document(
         isinstance(document, dict)
         and document.get("schema_version") == "claim-champion-envelope.v1"
     ):
-        envelope = _ClaimChampionEnvelope.model_validate(document)
+        try:
+            envelope = _ClaimChampionEnvelope.model_validate(document)
+        except ValidationError as exc:
+            refusal = _claim_adjudication_refusal_from_validation_error(exc)
+            if refusal is not None:
+                raise refusal from exc
+            raise
         return envelope.pointer, envelope.promotion_basis
     if not isinstance(document, dict):
         raise ValueError("claim_adjudication_champion_pointer_invalid")
@@ -439,7 +473,13 @@ def read_claim_promotion_predecessor(
         path = registry_root / "claim_adjudication" / "promotion_basis.json"
         if not path.exists():
             raise ValueError("claim_adjudication_promotion_basis_missing")
-        basis = _PromotionBasis.model_validate_json(path.read_bytes())
+        try:
+            basis = _PromotionBasis.model_validate_json(path.read_bytes())
+        except ValidationError as exc:
+            refusal = _claim_adjudication_refusal_from_validation_error(exc)
+            if refusal is not None:
+                raise refusal from exc
+            raise
         if basis.current_pointer_sha256 != _pointer_hash(current_pointer):
             raise ValueError("claim_adjudication_promotion_basis_pointer_mismatch")
     return _validate_predecessor(basis, store=store)

@@ -625,7 +625,10 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert result.diagnostics["interaction_sampling_issues"] == []
     assert result.diagnostics["requested_replications"] == 1
     assert len(result.diagnostics["replication_seeds"]) == 1
-    assert result.feedback_classification.checked_interaction_orders == ()
+    # Checked orders describe complete model-scope coverage; one draw remains noninferential.
+    assert result.feedback_classification.checked_interaction_orders == tuple(
+        range(1, len(request.intervention_atoms) + 1)
+    )
     assert result.feedback_classification.interaction_sampling_status == (
         "standard_error_not_estimated"
     )
@@ -1164,10 +1167,19 @@ def test_joint_simulation_engine_fallback_is_ordered_and_fresh_cas_bound(
             close()
 
 
+@pytest.mark.parametrize(
+    "candidate_order",
+    [
+        ("method_registry_estimator", "system_dynamics"),
+        ("system_dynamics", "method_registry_estimator"),
+    ],
+    ids=("incompatible-first", "system-dynamics-first"),
+)
 def test_joint_simulation_all_incompatible_candidates_persist_explicit_refusal(
     tmp_path: Path,
+    candidate_order: tuple[str, ...],
 ) -> None:
-    """Persist every tried rejection; the fresh numerical reader refuses no-run output."""
+    """Persist each ordered rejection; fresh numerical readers refuse no-run output."""
 
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.generation_cycle import (
@@ -1177,27 +1189,35 @@ def test_joint_simulation_all_incompatible_candidates_persist_explicit_refusal(
     )
 
     registry = MethodRegistry._create_fresh()
-    request = _shared_resource_stock_flow_fallback_request(
-        candidate_order=("method_registry_estimator", "system_dynamics")
-    )
-    incomplete_system_dynamics = request.engine_plan[1].model_copy(
+    assert len(registry) == 0
+    request = _shared_resource_stock_flow_fallback_request(candidate_order=candidate_order)
+    plans_by_kind = {plan.engine_kind: plan for plan in request.engine_plan}
+    system_dynamics_plan = plans_by_kind["system_dynamics"]
+    plans_by_kind["system_dynamics"] = system_dynamics_plan.model_copy(
         update={"system_dynamics_state": {"initial_stocks": [10.0, 0.0]}}
     )
     request = request.model_copy(
-        update={"engine_plan": (request.engine_plan[0], incomplete_system_dynamics)}
+        update={"engine_plan": tuple(plans_by_kind[kind] for kind in candidate_order)}
     )
     result = JointSimulationHorizonController(method_registry=registry).run(request)
 
-    assert [(item.engine_kind, item.decision, item.reason) for item in result.engine_decisions] == (
-        (
-            "method_registry_estimator",
-            "unsupported",
-            "coupling_composition_gate_unsupported",
-        ),
-        ("system_dynamics", "unsupported", "system_dynamics_state_missing"),
+    expected_reasons = {
+        "method_registry_estimator": "coupling_composition_gate_unsupported",
+        "system_dynamics": "system_dynamics_state_missing",
+    }
+    actual_trace = tuple(
+        (item.engine_kind, item.decision, item.reason) for item in result.engine_decisions
     )
-    assert "unsupported_coupling_class:shared_resource" in result.engine_decisions[0].blockers
-    assert "flow_matrix_missing" in result.engine_decisions[1].blockers
+    assert actual_trace == tuple(
+        (kind, "unsupported", expected_reasons[kind]) for kind in candidate_order
+    )
+    decisions_by_kind = {item.engine_kind: item for item in result.engine_decisions}
+    assert (
+        "unsupported_coupling_class:shared_resource"
+        in decisions_by_kind["method_registry_estimator"].blockers
+    )
+    assert "flow_matrix_missing" in decisions_by_kind["system_dynamics"].blockers
+    assert registry.get_entry("simulation.system_dynamics.stock_flow@1.0.0") is not None
     assert result.diagnostics["engine_run_claimed"] is False
     assert result.trajectories == ()
     assert result.receipt.trajectory_count == 0
@@ -1209,8 +1229,7 @@ def test_joint_simulation_all_incompatible_candidates_persist_explicit_refusal(
         result_ref = persist_joint_simulation_result(result, store=store)
         persisted = from_canonical_bytes(store.get_bytes(result_ref))
         assert [item["reason"] for item in persisted["diagnostics"]["unsupported_reasons"]] == [
-            "coupling_composition_gate_unsupported",
-            "system_dynamics_state_missing",
+            expected_reasons[kind] for kind in candidate_order
         ]
         with pytest.raises(
             GenerationCycleError, match="joint_simulation_result_trajectory_missing"

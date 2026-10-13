@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 from copy import deepcopy
 from pathlib import Path
 
@@ -41,8 +42,10 @@ _TYPED_SIMULATION_REF_KINDS = (
 )
 
 
-def _artifact_id(char: str) -> str:
-    return f"sha256:{char * 64}"
+def _artifact_id(label: str) -> str:
+    """Return a deterministic SHA-shaped ID for test labels, not backing artifact bytes."""
+    digest = hashlib.sha256(label.encode("utf-8")).hexdigest()
+    return f"sha256:{digest}"
 
 
 def _ref(char: str, kind: str, *, media_type: str = "application/json") -> dict[str, str]:

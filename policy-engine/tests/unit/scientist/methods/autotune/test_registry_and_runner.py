@@ -5,12 +5,23 @@ import threading
 import pytest
 from pydantic import ConfigDict, Field
 
-from polisyos.core.artifacts import PutOptions, WarningRecord
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactManifest,
+    ArtifactStore,
+    ArtifactWriteOptions,
+    PutOptions,
+    RawManifestBytesReader,
+    VerificationReport,
+    WarningRecord,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -203,29 +214,105 @@ def test_default_store_uses_storage_factory(tmp_path, monkeypatch) -> None:
     assert seen["config"].root == str(tmp_path / ".polisyos")
 
 
-def test_autotune_persistence_helpers_accept_protocol_backed_store(tmp_path) -> None:
+class _ArtifactStoreProtocolFacade:
+    """Test facade implementing the complete synchronous ArtifactStore contract."""
+
+    def __init__(self, store: FileSystemCAS) -> None:
+        self._store = store
+
+    def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+        return self._store.has(artifact_id)
+
+    def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+        return self._store.get_bytes(artifact_id)
+
+    def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+        return self._store.get_manifest(artifact_id)
+
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        return self._store.put_bytes(
+            data,
+            opts,
+            return_selected_profile=return_selected_profile,
+        )
+
+    def put_json(
+        self,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        return self._store.put_json(
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+        return self._store.verify(artifact_id)
+
+    def iter_artifact_ids(self) -> list[ArtifactID]:
+        return self._store.iter_artifact_ids()
+
+
+class _RawManifestArtifactStoreProtocolFacade(_ArtifactStoreProtocolFacade):
+    """ArtifactStore facade with the optional selected raw-manifest reader."""
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes:
+        return self._store.get_raw_manifest_bytes(
+            artifact_id,
+            manifest_profile_sha256=manifest_profile_sha256,
+        )
+
+
+def test_autotune_persistence_helpers_accept_raw_manifest_protocol_store(tmp_path) -> None:
     backing_store = FileSystemCAS(tmp_path / ".polisyos")
+    proxy = _RawManifestArtifactStoreProtocolFacade(backing_store)
+    assert isinstance(proxy, ArtifactStore)
+    assert isinstance(proxy, RawManifestBytesReader)
 
-    class _ArtifactStoreProxy:
-        def __init__(self, store: FileSystemCAS) -> None:
-            self._store = store
-
-        def get_bytes(self, artifact_id):
-            return self._store.get_bytes(artifact_id)
-
-        def put_json(self, obj, opts, *, canon_spec=None, return_selected_profile=False):
-            return self._store.put_json(
-                obj,
-                opts,
-                canon_spec=canon_spec,
-                return_selected_profile=return_selected_profile,
-            )
-
-    proxy = _ArtifactStoreProxy(backing_store)
-    ref = persist_mutation_artifact(proxy, DummyMutationConfig(value=5))
+    ref = persist_mutation_artifact(
+        proxy,
+        DummyMutationConfig(value=5),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
     loaded = load_model_artifact(proxy, ref, DummyMutationConfig)
 
     assert loaded.value == 5
+
+
+def test_autotune_model_load_refuses_protocol_store_without_raw_manifest_reader(tmp_path) -> None:
+    backing_store = FileSystemCAS(tmp_path / ".polisyos")
+    proxy = _ArtifactStoreProtocolFacade(backing_store)
+    assert isinstance(proxy, ArtifactStore)
+    assert not isinstance(proxy, RawManifestBytesReader)
+
+    ref = persist_mutation_artifact(
+        proxy,
+        DummyMutationConfig(value=5),
+        return_selected_profile=True,
+    )
+    assert ref.manifest_profile_sha256 is not None
+    assert proxy.has(ref)
+    with pytest.raises(CanonicalProfileRefusalError) as exc_info:
+        load_model_artifact(proxy, ref, DummyMutationConfig)
+
+    assert exc_info.value.code == "canon_profile_raw_manifest_unavailable"
 
 
 def test_search_loop_runner_promotes_and_runtime_loader_reads_champion(tmp_path) -> None:

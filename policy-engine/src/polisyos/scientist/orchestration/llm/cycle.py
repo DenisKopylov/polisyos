@@ -104,7 +104,10 @@ def preflight_execution_plan(
 ) -> PreflightReport:
     """Preflight execution plan helper."""
     diagnostics: list[PreflightDiagnostic] = []
-    registry = registry or (registry_provider or MethodRegistry.get_instance)()
+    if registry is None:
+        registry = (
+            registry_provider() if registry_provider is not None else MethodRegistry.get_instance()
+        )
 
     available = {entry.fqn for entry in catalog.entries}
     catalog_entries = {entry.fqn: entry for entry in catalog.entries}

@@ -10,7 +10,11 @@ import textwrap
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    input_ref_from_artifact_ref,
+    load_core_json_artifact,
+)
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
     claim_promotion_policy,
@@ -413,8 +417,8 @@ def test_protected_predecessor_requires_resolved_selected_source_chain(tmp_path,
             first.suite_ref,
             warning_code="tests.claim_adjudication.alternate-predecessor-suite-edge",
         )
-        candidate_payload = ClaimAdjudicationSearchConfig.model_validate_json(
-            store.get_bytes(first.candidate_ref)
+        candidate_payload = ClaimAdjudicationSearchConfig.model_validate(
+            load_core_json_artifact(store, first.candidate_ref)
         )
         alternate_candidate_ref = persist_mutation_artifact(
             store,
@@ -430,8 +434,8 @@ def test_protected_predecessor_requires_resolved_selected_source_chain(tmp_path,
         )
         assert store.get_bytes(alternate_candidate_ref) == store.get_bytes(first.candidate_ref)
 
-        original_evaluation = BenchmarkEvaluation.model_validate_json(
-            store.get_bytes(first.evaluation_ref)
+        original_evaluation = BenchmarkEvaluation.model_validate(
+            load_core_json_artifact(store, first.evaluation_ref)
         )
         alternate_evaluation_payload = {
             **original_evaluation.model_dump(mode="json"),
@@ -532,6 +536,32 @@ def test_protected_predecessor_requires_resolved_selected_source_chain(tmp_path,
             == "claim_adjudication_predecessor_manifest_lineage_mismatch"
         )
     assert state_path.read_bytes() == mutated_bytes
+
+
+def test_legacy_sidecar_preserves_typed_basis_refusal(tmp_path) -> None:
+    claim_dir = tmp_path / "registry" / "claim_adjudication"
+    claim_dir.mkdir(parents=True)
+    pointer = {"loop_id": "claim_adjudication"}
+    (claim_dir / "champion.json").write_text(json.dumps(pointer), encoding="utf-8")
+    (claim_dir / "promotion_basis.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "claim-promotion-basis.v1",
+                "transition": "genesis",
+                "current_pointer_sha256": "a" * 64,
+                "previous_pointer": {"loop_id": "claim_adjudication"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"^claim_adjudication_promotion_basis_inconsistent$",
+    ) as exc_info:
+        read_claim_promotion_predecessor(tmp_path / "registry", pointer)
+
+    assert str(exc_info.value) == "claim_adjudication_promotion_basis_inconsistent"
 
 
 def test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused(tmp_path):

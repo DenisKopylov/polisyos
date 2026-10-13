@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import hashlib
 import shutil
 import uuid
@@ -134,6 +135,235 @@ def test_two_child_recording_lineage_tracks_selected_recorded_source() -> None:
 
 
 @pytest.mark.integration
+def test_original_capture_uses_a_complete_controlled_parent_scope() -> None:
+    """Resolve the full controlled parent without claiming the recording had one."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.design_problem import DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
+    from tests._helpers.controlled_candidate_profile import (
+        _current_compiler_problem,
+        _resolve_controlled_parent_slot,
+    )
+    from tests._helpers.generic_n4_served_replay import (
+        _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
+        _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    recordings = n4_contract._load_recordings(REPO_ROOT)
+    matches = [
+        row
+        for row in recordings
+        if row.get("recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    ]
+    assert len(matches) == 1
+    recording = matches[0]
+    assert recording.get("recording_content_hash") == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    reconstructed = n4_contract._design_problem(recording)
+    controlled = _current_compiler_problem(recording)
+    scope = controlled.runtime_hints.get("n4_controlled_parent_scope")
+    assert isinstance(scope, dict)
+    assert scope.get("purpose") == "controlled_test_fixture_only"
+    assert scope.get("scope_status") == "declared_controlled_fixture"
+    assert scope.get("historical_scope_status") == "not_established"
+    assert scope.get("source_recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    assert scope.get("source_recording_content_hash") == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    scope_ref = scope.get("parent_scope_ref")
+    assert isinstance(scope_ref, str) and scope_ref.startswith("sha256:")
+    assert controlled.design_problem_id == (
+        "controlled_n4_parent_" + scope_ref.removeprefix("sha256:")[:24]
+    )
+    assert controlled.design_problem_id != recording["design_problem_id"]
+
+    # Independently recompute every field consumed by the scope identity.
+    source_levers = tuple(reconstructed.candidate_lever_space.candidate_levers)
+    resolved_levers = tuple(
+        lever.model_copy(update={"target_slot": _resolve_controlled_parent_slot(lever.target_slot)})
+        for lever in source_levers
+    )
+    expected_constraints = [
+        constraint.model_copy(
+            update={
+                "description": "All proposals remain candidate-only.",
+                "source_text": "all proposals remain candidate-only",
+            }
+        )
+        if constraint.constraint_id == "no_authority_without_a"
+        else constraint
+        for constraint in reconstructed.constraints
+    ]
+    basis_problem = reconstructed.model_copy(
+        update={
+            "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+            "constraints": expected_constraints,
+        }
+    )
+    expected_resolution_rows = [
+        {
+            "lever_id": source.lever_id,
+            "operator_kind": source.operator_kind,
+            "instrument": source.instrument,
+            "source_target_slot": source.target_slot,
+            "resolved_target_slot": resolved.target_slot,
+        }
+        for source, resolved in zip(source_levers, resolved_levers, strict=True)
+    ]
+    expected_scope_basis = {
+        "schema_version": "controlled_n4_parent_scope_v1",
+        "source_recording_id": _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
+        "source_recording_content_hash": _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
+        "reconstructed_problem": basis_problem.model_dump(mode="json"),
+        "allowed_operator_kinds": list(basis_problem.candidate_lever_space.allowed_operator_kinds),
+        "resolved_candidate_levers": [lever.model_dump(mode="json") for lever in resolved_levers],
+        "lever_slot_resolutions": expected_resolution_rows,
+    }
+    expected_scope_ref = gy_content_hash(expected_scope_basis)
+    assert scope_ref == expected_scope_ref
+
+    # Mutate one full-basis field while retaining the selected source identity
+    # and fixture markers. The identity from the unchanged basis must not match.
+    corrupted_scope_basis = copy.deepcopy(expected_scope_basis)
+    original_basis_slot = corrupted_scope_basis["resolved_candidate_levers"][0]["target_slot"]
+    replacement_basis_slot = next(
+        row["resolved_target_slot"]
+        for row in expected_resolution_rows
+        if row["resolved_target_slot"] != original_basis_slot
+    )
+    corrupted_scope_basis["resolved_candidate_levers"][0]["target_slot"] = replacement_basis_slot
+    corrupted_scope_ref = gy_content_hash(corrupted_scope_basis)
+    assert corrupted_scope_ref != scope_ref
+    assert controlled.design_problem_id == (
+        "controlled_n4_parent_" + scope_ref.removeprefix("sha256:")[:24]
+    )
+    assert controlled.design_problem_id != (
+        "controlled_n4_parent_" + corrupted_scope_ref.removeprefix("sha256:")[:24]
+    )
+
+    # Exercise the actual helper with a different, valid synthetic source row.
+    mutated_recording = copy.deepcopy(recording)
+    mutated_recording["recording_id"] = "controlled_n4_scope_digest_mutation"
+    mutated_recording["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in mutated_recording.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(mutated_recording)
+    mutated_controlled = _current_compiler_problem(mutated_recording)
+    mutated_scope = mutated_controlled.runtime_hints.get("n4_controlled_parent_scope")
+    assert isinstance(mutated_scope, dict)
+    assert mutated_scope.get("purpose") == "controlled_test_fixture_only"
+    assert mutated_scope.get("scope_status") == "declared_controlled_fixture"
+    assert mutated_scope.get("historical_scope_status") == "not_established"
+    assert mutated_scope.get("source_recording_id") == mutated_recording["recording_id"]
+    assert (
+        mutated_scope.get("source_recording_content_hash")
+        == mutated_recording["recording_content_hash"]
+    )
+    assert mutated_scope.get("parent_scope_ref") != scope_ref
+    assert mutated_controlled.design_problem_id != controlled.design_problem_id
+
+    # Slot canonicalization changes only the complete declared slot set and the
+    # derived controlled-parent identity; every premise and lever remains present.
+    for field in (
+        "problem_statement",
+        "domain",
+        "nl_provenance",
+        "authority_profile",
+        "jurisdiction_time",
+        "objectives",
+        "stakeholders",
+        "outcome_of_interest",
+        "evidence_acquisition_needs",
+    ):
+        assert getattr(controlled, field) == getattr(reconstructed, field)
+    assert len(controlled.constraints) == len(reconstructed.constraints) == 1
+    assert controlled.constraints[0].constraint_id == reconstructed.constraints[0].constraint_id
+    assert controlled.constraints[0].admissibility_basis == (
+        reconstructed.constraints[0].admissibility_basis
+    )
+    assert controlled.constraints[0].description == "All proposals remain candidate-only."
+    assert controlled.constraints[0].source_text == "all proposals remain candidate-only"
+    before = tuple(reconstructed.candidate_lever_space.candidate_levers)
+    after = tuple(controlled.candidate_lever_space.candidate_levers)
+    assert len(before) == len(after) == 5
+    assert controlled.candidate_lever_space.allowed_operator_kinds == (
+        reconstructed.candidate_lever_space.allowed_operator_kinds
+    )
+    assert tuple(
+        (lever.lever_id, lever.operator_kind, lever.instrument) for lever in after
+    ) == tuple((lever.lever_id, lever.operator_kind, lever.instrument) for lever in before)
+    expected_lever_pairs = {
+        ("budget_allocation_multiplier", "government.balance"),
+        ("income_tax", "agents.income"),
+        ("labor_market", "agents.is_employed"),
+        ("procurement_shock_intensity", "cells.distress_score"),
+        ("tax_relief_rate", "global.tax_rate"),
+    }
+    observed_lever_pairs = {(lever.operator_kind, lever.target_slot) for lever in after}
+    assert observed_lever_pairs == expected_lever_pairs
+    assert all(lever.target_slot in DEFAULT_SLOT_REGISTRY.slots for lever in after)
+    expected_resolution_rows = [
+        {
+            "lever_id": source.lever_id,
+            "operator_kind": source.operator_kind,
+            "instrument": source.instrument,
+            "source_target_slot": source.target_slot,
+            "resolved_target_slot": resolved.target_slot,
+        }
+        for source, resolved in zip(before, after, strict=True)
+    ]
+    assert scope.get("lever_slot_resolutions") == expected_resolution_rows
+
+    responses = recording.get("responses")
+    assert isinstance(responses, list)
+    drafts = [
+        row.get("parsed")
+        for row in responses
+        if isinstance(row, dict)
+        and row.get("role") == "draft"
+        and isinstance(row.get("parsed"), dict)
+    ]
+    assert len(drafts) == 1
+    interventions = drafts[0].get("interventions")
+    assert isinstance(interventions, list) and len(interventions) == 3
+    recorded_atom_pairs = tuple(
+        sorted(
+            (
+                str(item.get("mechanism_type")),
+                str(item.get("parameters", {}).get("target_world_slot")),
+            )
+            for item in interventions
+            if isinstance(item, dict) and isinstance(item.get("parameters"), dict)
+        )
+    )
+    assert recorded_atom_pairs == tuple(
+        sorted(
+            (
+                ("tax_relief_rate", "global.tax_rate"),
+                ("procurement_shock_intensity", "cells.distress_score"),
+                ("credit_guarantee", "agents.access_to_credit"),
+            )
+        )
+    )
+    assert tuple(sorted(set(recorded_atom_pairs) & observed_lever_pairs)) == tuple(
+        sorted(
+            {
+                ("tax_relief_rate", "global.tax_rate"),
+                ("procurement_shock_intensity", "cells.distress_score"),
+            }
+        )
+    )
+    assert tuple(pair for pair in recorded_atom_pairs if pair not in observed_lever_pairs) == (
+        ("credit_guarantee", "agents.access_to_credit"),
+    )
+    with pytest.raises(
+        ValueError,
+        match="controlled_n4_parent_slot_alias_not_established",
+    ):
+        _resolve_controlled_parent_slot("agents.unregistered_controlled_alias")
+
+
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_original_second_capture_serves_two_meaningful_children_through_fresh_get(
     tmp_path: Path,
@@ -144,6 +374,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
     from polisyos.runtime.quality.cycle_substrate import (
@@ -151,7 +382,12 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         cycle_job_profile_selection_ref,
         generic_n4_child_profile_selection_ref,
     )
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationError,
+        derive_n4_candidate_child_problems,
+    )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -162,6 +398,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
 
     tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     cell_id = "cell-v2-original-n4-capture"
+    served_worker_phase_probe("fixture_prepare.start")
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
@@ -170,8 +407,10 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         cell_id=cell_id,
         recording_mode="original_second_capture",
         child_count=2,
+        phase_callback=served_worker_phase_probe,
     )
     prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    served_worker_phase_probe("fixture_prepare.complete")
 
     canonical_recording = next(
         item
@@ -181,6 +420,13 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     assert prepared.recording == canonical_recording
     assert prepared.source_recording_id == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
     assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    assert prepared.recorded_problem.design_problem_id.startswith("controlled_n4_parent_")
+    controlled_scope = prepared.recorded_problem.runtime_hints["n4_controlled_parent_scope"]
+    assert controlled_scope["historical_scope_status"] == "not_established"
+    assert controlled_scope["source_recording_id"] == prepared.source_recording_id
+    assert controlled_scope["source_recording_content_hash"] == (
+        prepared.source_recording_content_hash
+    )
     prepared_problem_snapshot = prepared.recorded_problem.model_dump(mode="json")
     prepared_problem_ref = cycle_job_design_problem_ref(prepared.recorded_problem)
 
@@ -211,6 +457,139 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         "gy_n4.msme_working_capital_guarantee": "unknown_blocked",
     }
     assert len(preflight_result.candidates) == 2
+
+    # Reuse the actual admitted candidates, but test them against a distinct
+    # controlled parent that omits exactly their first matching declared lever.
+    assert (
+        len(
+            derive_n4_candidate_child_problems(
+                prepared.recorded_problem, preflight_result, model_id=prepared.model_id
+            )
+        )
+        == 2
+    )
+    selected_candidate = preflight_result.candidates[0]
+    selected_operator = selected_candidate.atom.operator_kind.trinity_kind
+    if hasattr(selected_operator, "value"):
+        selected_operator = selected_operator.value
+    selected_targets = set(selected_candidate.atom.target_world_slots)
+    matching_parent_levers = tuple(
+        lever
+        for lever in prepared.recorded_problem.candidate_lever_space.candidate_levers
+        if lever.operator_kind == selected_operator and lever.target_slot in selected_targets
+    )
+    assert matching_parent_levers
+    assert {lever.target_slot for lever in matching_parent_levers} == selected_targets
+    retained_parent_levers = tuple(
+        lever
+        for lever in prepared.recorded_problem.candidate_lever_space.candidate_levers
+        if lever not in matching_parent_levers
+    )
+    assert retained_parent_levers
+    assert len(retained_parent_levers) + len(matching_parent_levers) == len(
+        prepared.recorded_problem.candidate_lever_space.candidate_levers
+    )
+    original_scope = prepared.recorded_problem.runtime_hints.get("n4_controlled_parent_scope")
+    assert isinstance(original_scope, dict)
+    assert original_scope.get("historical_scope_status") == "not_established"
+
+    guard_parent_payload = prepared.recorded_problem.model_dump(mode="json")
+    guard_parent_payload["candidate_lever_space"] = (
+        prepared.recorded_problem.candidate_lever_space.model_copy(
+            update={"candidate_levers": retained_parent_levers}
+        ).model_dump(mode="json")
+    )
+    guard_runtime_hints = dict(prepared.recorded_problem.runtime_hints)
+    guard_runtime_hints.pop("n4_controlled_parent_scope", None)
+    guard_parent_payload["runtime_hints"] = guard_runtime_hints
+    guard_parent_payload["design_problem_id"] = "controlled_n4_guard_probe_pending"
+    guard_scope_basis_ref = gy_content_hash(
+        {
+            "schema_version": "controlled_n4_declared_lever_guard_probe_v1",
+            "source_recording_id": prepared.source_recording_id,
+            "source_recording_content_hash": prepared.source_recording_content_hash,
+            "source_parent_scope_ref": original_scope["parent_scope_ref"],
+            "omitted_declared_levers": [
+                lever.model_dump(mode="json") for lever in matching_parent_levers
+            ],
+            "parent_without_probe_identity": guard_parent_payload,
+        }
+    )
+    guard_parent_id = (
+        "controlled_n4_guard_probe_" + guard_scope_basis_ref.removeprefix("sha256:")[:24]
+    )
+    guard_scope = dict(original_scope)
+    guard_scope.update(
+        {
+            "parent_problem_id": guard_parent_id,
+            "parent_scope_ref": guard_scope_basis_ref,
+            "historical_scope_status": "not_established",
+            "guard_probe_kind": "single_declared_lever_omission",
+        }
+    )
+    guard_runtime_hints["n4_controlled_parent_scope"] = guard_scope
+    guard_parent_payload["design_problem_id"] = guard_parent_id
+    guard_parent_payload["runtime_hints"] = guard_runtime_hints
+    guard_parent = type(prepared.recorded_problem).model_validate(guard_parent_payload)
+    assert guard_parent.candidate_lever_space.allowed_operator_kinds == (
+        prepared.recorded_problem.candidate_lever_space.allowed_operator_kinds
+    )
+    assert len(guard_parent.candidate_lever_space.candidate_levers) == (
+        len(prepared.recorded_problem.candidate_lever_space.candidate_levers)
+        - len(matching_parent_levers)
+    )
+    assert (
+        guard_parent.runtime_hints["n4_controlled_parent_scope"]["historical_scope_status"]
+        == "not_established"
+    )
+    guard_parent_ref = gy_content_hash(guard_parent.model_dump(mode="json"))
+
+    rebound_candidates = []
+    rebound_atoms_by_candidate_id = {}
+    for generated_candidate in preflight_result.candidates:
+        rebound_atom_basis = generated_candidate.atom.model_copy(
+            update={"problem_frame_ref": guard_parent_ref}
+        )
+        rebound_atom_hash = intervention_atom_content_hash(rebound_atom_basis)
+        rebound_atom_payload = generated_candidate.atom.model_dump(mode="python")
+        rebound_atom_payload.update(
+            {
+                "problem_frame_ref": guard_parent_ref,
+                "atom_id": "atom_" + rebound_atom_hash.removeprefix("sha256:")[:16],
+                "content_hash": rebound_atom_hash,
+            }
+        )
+        rebound_atom = type(generated_candidate.atom).model_validate(rebound_atom_payload)
+        rebound_provenance = generated_candidate.provenance.model_copy(
+            update={"content_hash": rebound_atom_hash}
+        )
+        rebound_candidate = generated_candidate.model_copy(
+            update={"atom": rebound_atom, "provenance": rebound_provenance}
+        )
+        rebound_candidates.append(rebound_candidate)
+        rebound_atoms_by_candidate_id[rebound_candidate.candidate_id] = rebound_atom
+
+    guard_result_payload = preflight_result.model_dump(mode="python")
+    guard_result_payload["design_problem_ref"] = guard_parent_ref
+    guard_result_payload["candidates"] = tuple(rebound_candidates)
+    for disposition in guard_result_payload["grounding_dispositions"]:
+        rebound_atom = rebound_atoms_by_candidate_id.get(disposition.get("candidate_id"))
+        if rebound_atom is not None:
+            disposition["identified_atom_id"] = rebound_atom.atom_id
+            disposition["shadow_atom_content_hash"] = rebound_atom.content_hash
+    guard_result = type(preflight_result).model_validate(guard_result_payload)
+    assert guard_result.status == "generated"
+    assert len(guard_result.candidates) == len(preflight_result.candidates) == 2
+    assert {row.candidate_id for row in guard_result.candidates} == {
+        row.candidate_id for row in preflight_result.candidates
+    }
+    assert all(row.atom.problem_frame_ref == guard_parent_ref for row in guard_result.candidates)
+    served_worker_phase_probe("n4.declared_lever_guard_negative.start")
+    with pytest.raises(DesignGenerationError) as guard_refusal:
+        derive_n4_candidate_child_problems(guard_parent, guard_result, model_id=prepared.model_id)
+    assert guard_refusal.value.code == "n4_recursive_child_declared_lever_semantics_missing"
+    served_worker_phase_probe("n4.declared_lever_guard_negative.complete")
+
     assert len(prepared.children) == 2
     assert len(prepared.generic_child_profiles) == 2
     expected_profile_node_pairs: dict[str, str] = {}
@@ -270,8 +649,13 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         "persist_ref",
         observe_persisted_parent_result,
     )
+    served_worker_phase_probe("app_create.start")
     app = create_runtime_api_app(**prepared.app_kwargs)
+    served_worker_phase_probe("app_create.complete")
+    served_worker_phase_probe("testclient_lifespan.start")
     with TestClient(app) as client:
+        served_worker_phase_probe("testclient_lifespan.ready")
+        served_worker_phase_probe("control_post.start")
         response = client.post(
             "/api/v1/control/runs/nl",
             headers={"Idempotency-Key": uuid.uuid4().hex},
@@ -279,18 +663,27 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         )
         assert response.status_code == 200, response.text
         accepted = response.json()
+        served_worker_phase_probe("control_post.accepted", job_id=str(accepted.get("job_id")))
         assert accepted.get("status") == "accepted"
         service = app.state._control_service
+        served_worker_phase_probe("worker_dispatch.start", job_id=str(accepted["job_id"]))
         dispatched = dispatch_one_control_job(
             store=service._control_store,
             handler=service._process_control_job,
             expected_job_id=accepted["job_id"],
         )
+        served_worker_phase_probe("worker_dispatch.complete", job_id=str(accepted["job_id"]))
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
         run_id = str(job.progress["core_run_id"])
+        served_worker_phase_probe(
+            "fresh_run_get.start", job_id=str(accepted["job_id"]), run_id=run_id
+        )
         get_response = client.get(f"/api/v1/runs/{run_id}")
+        served_worker_phase_probe(
+            "fresh_run_get.complete", job_id=str(accepted["job_id"]), run_id=run_id
+        )
         assert get_response.status_code == 200, get_response.text
         run = get_response.json()["run"]
         projection = run["generic_cycle_simulation"]
@@ -357,6 +750,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         assert checkpoint["budget_stop_node_ref"] is None
         assert checkpoint["failed_branches"] == []
         assert expected_child_node_refs.issubset(set(checkpoint["completed_design_refs"]))
+    served_worker_phase_probe("testclient_lifespan.shutdown.complete")
 
 
 @pytest.mark.integration
@@ -1232,6 +1626,7 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
 ) -> None:
     """Delete N5 bytes at its writer boundary while retaining the persisted run refs."""
     pytest.importorskip("fastapi.testclient")
@@ -1247,6 +1642,7 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
         _DeterministicSpanSupportClient,
     )
 
+    served_worker_phase_probe("fixture_prepare.start")
     prepared = await prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
@@ -1255,8 +1651,10 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
         cell_id="cell-v2-n5-writer-removal",
         recording_mode="original_second_capture",
         child_count=2,
+        phase_callback=served_worker_phase_probe,
     )
     prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    served_worker_phase_probe("fixture_prepare.complete")
     original_compiler = generation_cycle_service.build_design_problem_from_nl_request
 
     async def run_real_compiler(**kwargs: Any):
@@ -1268,8 +1666,12 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
         "build_design_problem_from_nl_request",
         run_real_compiler,
     )
+    served_worker_phase_probe("app_create.start")
     app = create_runtime_api_app(**prepared.app_kwargs)
+    served_worker_phase_probe("app_create.complete")
+    served_worker_phase_probe("testclient_lifespan.start")
     with TestClient(app) as client:
+        served_worker_phase_probe("testclient_lifespan.ready")
         receipt = await run_n4_control_worker_and_get(
             client=client,
             app=app,
@@ -1278,7 +1680,9 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
             expected_failure_code="v6_controlled_second_n4_child_failure",
             exercise_projection_controls=False,
             remove_n5_writer=True,
+            phase_callback=served_worker_phase_probe,
         )
+    served_worker_phase_probe("testclient_lifespan.shutdown.complete")
 
     assert receipt.accepted_payload["status"] == "accepted"
     assert receipt.job_state == "completed"

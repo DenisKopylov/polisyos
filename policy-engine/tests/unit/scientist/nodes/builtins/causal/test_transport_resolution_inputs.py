@@ -8,6 +8,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import DatasetRegistry
 from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
@@ -155,7 +156,7 @@ def test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreig
     artifact_ref_factory,
 ) -> None:
     graph = _causal_graph()
-    graph_ref = persist_causal_graph_model(execution_context.store, graph)
+    graph_ref = persist_causal_graph_model(ensure_ir_artifact_store(execution_context.store), graph)
     graph_state = minimal_state.model_copy(
         update={"artifacts_index": {ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref}}
     )
@@ -458,9 +459,7 @@ def test_surrogate_profile_intake_preserves_absent_null_and_malformed_values() -
         graph,
     )
     malformed = _resolve_transport_execution_inputs(
-        ExperimentState(
-            run_id="profile-malformed", params={"surrogate_data_profile": raw_profile}
-        ),
+        ExperimentState(run_id="profile-malformed", params={"surrogate_data_profile": raw_profile}),
         report,
         graph,
     )

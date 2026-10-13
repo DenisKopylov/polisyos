@@ -425,8 +425,7 @@ class FrozenCompositionDAG:
     def compute_parallel_levels(self) -> list[list[UUID]]:
         """Partition the frozen effective DAG into executable levels."""
         in_degree = {
-            node_id: len(self.predecessors.get(node_id, frozenset()))
-            for node_id in self.nodes
+            node_id: len(self.predecessors.get(node_id, frozenset())) for node_id in self.nodes
         }
         levels: list[list[UUID]] = []
         ready: list[UUID] = [node_id for node_id, degree in in_degree.items() if degree == 0]
@@ -483,7 +482,7 @@ class MethodComposer:
         registry: MethodRegistry | None = None,
         linker: SlotLinker | None = None,
     ) -> None:
-        self._registry = registry or MethodRegistry.get_instance()
+        self._registry = registry if registry is not None else MethodRegistry.get_instance()
         self._linker = linker or SlotLinker()
         self._dag = CompositionDAG()
 

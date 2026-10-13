@@ -293,16 +293,16 @@ class JointSimulationRequest(_StrictModel):
         default=None,
         exclude_if=lambda value: value is None,
     )
-    composition_limitation_code: Literal[
-        "n4_source_candidates_are_alternatives_not_authored_compound_design"
-    ] | None = Field(default=None, exclude_if=lambda value: value is None)
+    composition_limitation_code: (
+        Literal["n4_source_candidates_are_alternatives_not_authored_compound_design"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
     child_to_parent_refinement_status: Literal["not_established"] | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )
-    child_to_parent_refinement_limitation_code: Literal[
-        "child_to_parent_refinement_rule_not_established"
-    ] | None = Field(default=None, exclude_if=lambda value: value is None)
+    child_to_parent_refinement_limitation_code: (
+        Literal["child_to_parent_refinement_rule_not_established"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
 
     @field_validator("intervention_atoms")
     @classmethod
@@ -648,6 +648,7 @@ def _higher_order_residuals(
         coverage=coverage,
     )
 
+
 def _checked_interaction_orders(
     request: JointSimulationRequest,
     coverage: _InteractionCoverage,
@@ -778,6 +779,7 @@ def _atom_subsets_from_ids(
         + [("pairwise", pair) for pair in itertools.combinations(normalized, 2)]
         + [("joint", normalized)]
     )
+
 
 def _replication_seeds(request: JointSimulationRequest) -> tuple[int, ...]:
     """Derive one deterministic, distinct seed for every requested replicate."""
@@ -1068,9 +1070,9 @@ class JointSimulationResult(_StrictModel):
     interaction_terms: tuple[InteractionTerm, ...]
     feedback_classification: FeedbackClassification
     higher_order_residuals: dict[str, dict[int, float]] = Field(default_factory=dict)
-    higher_order_residual_sampling: dict[
-        str, dict[int, ReplicationSamplingSummary]
-    ] = Field(default_factory=dict)
+    higher_order_residual_sampling: dict[str, dict[int, ReplicationSamplingSummary]] = Field(
+        default_factory=dict
+    )
     uncertainty_kind: Literal["K_sim"] = "K_sim"
     world_credal_state_before: dict[str, Any] = Field(default_factory=dict)
     world_credal_state_after: dict[str, Any] = Field(default_factory=dict)
@@ -1388,7 +1390,9 @@ class JointSimulationHorizonController:
     ) -> None:
         if policy is not None and not isinstance(policy, JointSimulationControllerPolicy):
             raise TypeError("policy must be a JointSimulationControllerPolicy")
-        self._registry = method_registry or MethodRegistry.get_instance()
+        self._registry = (
+            method_registry if method_registry is not None else MethodRegistry.get_instance()
+        )
         self.policy = policy or JointSimulationControllerPolicy()
         self._settings = _RuntimeSettings()
 
@@ -1453,9 +1457,7 @@ class JointSimulationHorizonController:
         marginal_effects: dict[str, dict[int, dict[str, float]]] = {}
         interaction_terms: tuple[InteractionTerm, ...] = ()
         higher_order_residuals: dict[str, dict[int, float]] = {}
-        higher_order_residual_sampling: dict[
-            str, dict[int, ReplicationSamplingSummary]
-        ] = {}
+        higher_order_residual_sampling: dict[str, dict[int, ReplicationSamplingSummary]] = {}
         checked_interaction_orders: tuple[int, ...] = ()
         interaction_evidence_issues: tuple[str, ...] = ()
         interaction_sampling_issues: tuple[str, ...] = ()
@@ -3456,10 +3458,7 @@ def _paired_replication_summary(
     seeds = tuple(expected_seeds)
     if not seeds or base_scope not in sample_maps:
         return None
-    if any(
-        samples is None or set(samples) != set(seeds)
-        for samples in sample_maps.values()
-    ):
+    if any(samples is None or set(samples) != set(seeds) for samples in sample_maps.values()):
         return None
     typed_maps = {scope: samples for scope, samples in sample_maps.items() if samples is not None}
     derived_samples: list[ReplicationSample] = []
@@ -3571,8 +3570,7 @@ def _interaction_terms_from_fields(
                         sampling_by_step[step] = summary
                     elif sampling_issues is not None:
                         sampling_issues.append(
-                            f"pairwise_sampling_not_established:{outcome}:{step}:"
-                            + ",".join(pair)
+                            f"pairwise_sampling_not_established:{outcome}:{step}:" + ",".join(pair)
                         )
             if by_step:
                 terms.append(
@@ -3598,8 +3596,7 @@ def _higher_order_residuals_from_fields(
     if len(normalized_atoms) < 3 or coverage.issues:
         return {}
     individual = {
-        atom_id: coverage.by_scope.get(("individual", (atom_id,)))
-        for atom_id in normalized_atoms
+        atom_id: coverage.by_scope.get(("individual", (atom_id,))) for atom_id in normalized_atoms
     }
     pairs = tuple(itertools.combinations(normalized_atoms, 2))
     pairwise = {pair: coverage.by_scope.get(("pairwise", pair)) for pair in pairs}
@@ -3667,8 +3664,7 @@ def _higher_order_residual_sampling_from_fields(
     if coverage.issues:
         return {}, ("interaction_evidence_incomplete",)
     individual = {
-        atom_id: coverage.by_scope.get(("individual", (atom_id,)))
-        for atom_id in normalized_atoms
+        atom_id: coverage.by_scope.get(("individual", (atom_id,))) for atom_id in normalized_atoms
     }
     pairs = tuple(itertools.combinations(normalized_atoms, 2))
     pairwise = {pair: coverage.by_scope.get(("pairwise", pair)) for pair in pairs}
@@ -3738,6 +3734,7 @@ def _higher_order_residual_sampling_from_fields(
             output[outcome] = by_step
     return output, tuple(sorted(set(issues)))
 
+
 def _interaction_sampling_status(
     interaction_terms: (
         Mapping[tuple[tuple[str, ...], str], Mapping[int, ReplicationSamplingSummary]]
@@ -3751,9 +3748,7 @@ def _interaction_sampling_status(
     summaries: list[ReplicationSamplingSummary] = []
     if isinstance(interaction_terms, Mapping):
         summaries.extend(
-            summary
-            for by_step in interaction_terms.values()
-            for summary in by_step.values()
+            summary for by_step in interaction_terms.values() for summary in by_step.values()
         )
     else:
         summaries.extend(
@@ -3847,13 +3842,12 @@ def _recompute_result_interaction_sampling(
         coverage.issues,
     )
 
+
 def _numeric_interaction_classification(
     *,
     interaction_terms: Sequence[InteractionTerm],
     higher_order_residuals: Mapping[str, Mapping[int, float]],
-    higher_order_residual_sampling: Mapping[
-        str, Mapping[int, ReplicationSamplingSummary]
-    ],
+    higher_order_residual_sampling: Mapping[str, Mapping[int, ReplicationSamplingSummary]],
     sampling_status: Literal["estimated", "standard_error_not_estimated", "not_established"],
     sampling_issues: Sequence[str],
     interaction_evidence_issues: Sequence[str],
@@ -3864,8 +3858,10 @@ def _numeric_interaction_classification(
 
     if not interaction_required and sampling_status == "estimated" and not sampling_issues:
         return "none"
-    if sampling_status != "estimated" or sampling_issues or _sampling_variation_observed(
-        interaction_terms, higher_order_residual_sampling
+    if (
+        sampling_status != "estimated"
+        or sampling_issues
+        or _sampling_variation_observed(interaction_terms, higher_order_residual_sampling)
     ):
         return "unsupported"
     any_nonzero = any(
@@ -3893,9 +3889,7 @@ def _feedback_classification(
     decision_blockers: Sequence[str] = (),
     interaction_evidence_issues: Sequence[str] = (),
     aggregate_order_three_plus: bool = False,
-    higher_order_residual_sampling: Mapping[
-        str, Mapping[int, ReplicationSamplingSummary]
-    ] = {},
+    higher_order_residual_sampling: Mapping[str, Mapping[int, ReplicationSamplingSummary]] = {},
     interaction_sampling_status: Literal[
         "estimated", "standard_error_not_estimated", "not_established"
     ] = "not_established",
@@ -3997,6 +3991,7 @@ def _feedback_classification(
         general_equilibrium=coupling_support.general_equilibrium,
         limitations=tuple(dict.fromkeys((*limitations, *evidence_limitations))),
     )
+
 
 def _contract_testing_fabricated_interactions(
     interaction_terms: Sequence[InteractionTerm],

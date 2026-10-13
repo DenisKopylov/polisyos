@@ -25,6 +25,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
 )
 from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
@@ -764,3 +765,19 @@ class TestFunnelOrchestrator:
         assert any(
             card.failure_type == "benchmark_split_type_mismatch" for card in outcome.failure_cards
         )
+
+    def test_ticket_fallback_does_not_override_declared_transfer_run(self) -> None:
+        stage = _make_stage(0, "L0")
+        orchestrator = FunnelOrchestrator([stage])
+        declared = TransferContext(
+            task_family="policy", domain="fiscal", run_id="source-declared-run"
+        )
+
+        ticket = orchestrator.submit(
+            {"candidate_id": "candidate-a"}, {"transfer_context": declared}
+        )
+        orchestrator.advance(ticket, target_level=0)
+
+        stage_context = stage.evaluate.call_args.args[1]
+        assert stage_context["transfer_context"].run_id == "source-declared-run"
+        assert stage_context["policy_runtime_work_identity"]["run_id"] == "source-declared-run"

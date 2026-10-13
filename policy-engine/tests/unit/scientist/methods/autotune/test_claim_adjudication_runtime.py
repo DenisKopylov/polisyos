@@ -305,7 +305,7 @@ async def test_evaluation_candidate_mismatch_blocks_admission(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
+async def test_unbound_false_guardrail_pointer_is_refused(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
@@ -323,11 +323,15 @@ async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
         evaluation.model_copy(update={"guardrails": guardrails}),
         inputs=[input_ref_from_artifact_ref(evidence.suite_ref, role="benchmark_suite")],
     )
+    # The candidate evaluation fails a guardrail, but this pointer is not the
+    # evaluation committed by the promotion basis. Refuse it before consuming
+    # the candidate's guardrail result.
     tamper_pointer(
         tmp_path / "registry",
         "claim_adjudication",
         pointer.model_copy(update={"evaluation_ref": rejected_ref}),
     )
+    client = _FakeClient(_positive_candidate())
 
     outcome = await ClaimAdjudicationRuntime(
         store=store,
@@ -337,12 +341,13 @@ async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
         execution_receipt_ref=evidence.execution_receipt_ref,
     ).adjudicate(
         raw_ref,
-        client=_FakeClient(_positive_candidate()),
+        client=client,
         model="fake-model",
     )
 
     assert outcome.status == "blocked"
     assert outcome.blockers == ("claim_adjudication_promotion_basis_pointer_mismatch",)
+    assert client.calls == 0
 
 
 @pytest.mark.asyncio

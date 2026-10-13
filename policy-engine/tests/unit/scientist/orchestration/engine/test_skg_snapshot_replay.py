@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import duckdb
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactIntegrityError,
@@ -147,15 +148,6 @@ def _captured(tmp_path: Path) -> tuple[Path, FileSystemCAS, ArtifactRef]:
     return source, store, ref
 
 
-def _exact_written_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
-    manifest = store.get_manifest(ref)
-    selected = ref.model_copy(
-        update={"manifest_profile_sha256": artifact_manifest_profile_sha256(manifest)}
-    )
-    store.get_manifest(selected)
-    return selected
-
-
 def test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks(tmp_path: Path) -> None:
     _, store, ref = _captured(tmp_path)
     snapshot = load_retained_skg_snapshot(store, ref)
@@ -165,6 +157,108 @@ def test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks(tmp_
             store.get_manifest(selected)
         )
         assert store.verify(selected).ok
+    descriptor_manifest = json.loads(
+        store.get_raw_manifest_bytes(ref, manifest_profile_sha256=ref.manifest_profile_sha256)
+    )
+    assert isinstance(descriptor_manifest.get("canon"), dict)
+
+
+def test_attempt_facade_persists_selected_source_for_a_fresh_reader(tmp_path: Path) -> None:
+    source = tmp_path / "live.duckdb"
+    _seed(source, 1.25)
+    store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+    authority = retry_module._AttemptAuthority(None)
+    facade = retry_module._AttemptFacade(
+        store,
+        authority,
+        write_methods=frozenset({"put_bytes", "put_json"}),
+        raise_on_revoked_write=True,
+    )
+    prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+    try:
+        assert _value(prepared) == 1.25
+        ref = retain_prepared_skg_read(facade, prepared)
+    finally:
+        prepared.close()
+    assert prepared._closed is True
+    assert ref.manifest_profile_sha256 is not None
+    raw_manifest = json.loads(
+        store.get_raw_manifest_bytes(ref, manifest_profile_sha256=ref.manifest_profile_sha256)
+    )
+    assert isinstance(raw_manifest.get("canon"), dict)
+
+    fresh_store = FileSystemCAS(store.root, ownership_enforced=False)
+    replay = prepare_retained_skg_read(
+        fresh_store,
+        ref,
+        directory=tmp_path / "fresh-reader",
+        index_dir=tmp_path,
+    )
+    try:
+        assert _value(replay) == 1.25
+        assert replay.source_generation_matches()
+    finally:
+        replay.close()
+    assert replay._closed is True
+
+    before = set(store.iter_artifact_ids())
+    authority.revoke()
+    with pytest.raises(retry_module._AttemptWriteDeniedError):
+        facade.put_bytes(b"late-write", object(), return_selected_profile=True)
+    assert set(store.iter_artifact_ids()) == before
+
+
+def test_named_but_inert_selected_profile_writer_is_refused(tmp_path: Path) -> None:
+    class _InertSelectedProfileCAS(FileSystemCAS):
+        def __init__(self, root: Path) -> None:
+            super().__init__(root, ownership_enforced=False)
+            self.return_selected_profile_calls: list[bool] = []
+            self.returned_refs: list[ArtifactRef] = []
+
+        def put_json(
+            self,
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: Any = None,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.return_selected_profile_calls.append(return_selected_profile)
+            ref = super().put_json(
+                obj,
+                opts,
+                canon_spec,
+                return_selected_profile=False,
+            )
+            self.returned_refs.append(ref)
+            return ref
+
+    source = tmp_path / "live.duckdb"
+    _seed(source, 1.25)
+    store = _InertSelectedProfileCAS(tmp_path / "cas")
+    authority = retry_module._AttemptAuthority(None)
+    facade = retry_module._AttemptFacade(
+        store,
+        authority,
+        write_methods=frozenset({"put_bytes", "put_json"}),
+        raise_on_revoked_write=True,
+    )
+    prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+    try:
+        with pytest.raises(
+            RetainedSKGSnapshotError,
+            match="retained_skg_selected_written_ref_required",
+        ):
+            retain_prepared_skg_read(facade, prepared)
+    finally:
+        prepared.close()
+
+    assert store.return_selected_profile_calls == [True]
+    assert len(store.returned_refs) == 1
+    returned = store.returned_refs[0]
+    assert returned.manifest_profile_sha256 is None
+    raw_manifest = json.loads(store.get_raw_manifest_bytes(returned))
+    assert isinstance(raw_manifest.get("canon"), dict)
 
 
 def test_selected_snapshot_reader_accepts_revocable_attempt_read_facade(tmp_path: Path) -> None:
@@ -190,6 +284,35 @@ def test_descriptor_without_selected_profile_is_refused(tmp_path: Path) -> None:
     legacy_selector = ref.model_copy(update={"manifest_profile_sha256": None})
     with pytest.raises(RetainedSKGSnapshotError, match="descriptor_profile_required"):
         load_retained_skg_snapshot(store, legacy_selector)
+
+
+def test_descriptor_with_malformed_present_profile_refuses_before_payload_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Malformed-present CanonInfo remains a strict pre-payload refusal."""
+    _, store, ref = _captured(tmp_path)
+    original_raw_reader = store.get_raw_manifest_bytes
+    original_payload_reader = store.get_bytes
+    payload_reads: list[object] = []
+
+    def malformed_raw_manifest(
+        selector: object, *, manifest_profile_sha256: str | None = None
+    ) -> bytes:
+        raw_manifest = json.loads(
+            original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
+        )
+        raw_manifest["canon"] = {"name": 7}
+        return json.dumps(raw_manifest, sort_keys=True, separators=(",", ":")).encode()
+
+    def record_payload_read(*args: Any, **kwargs: Any) -> bytes:
+        payload_reads.append(args[0] if args else None)
+        return original_payload_reader(*args, **kwargs)
+
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", malformed_raw_manifest)
+    monkeypatch.setattr(store, "get_bytes", record_payload_read)
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_raw_manifest_invalid"):
+        load_retained_skg_snapshot(store, ref)
+    assert payload_reads == []
 
 
 @pytest.mark.parametrize("fault", ["missing", "corrupt"])
@@ -367,11 +490,11 @@ def test_missing_or_corrupt_selected_descriptor_never_reads_live_source(tmp_path
         ),
         inputs=manifest.inputs,
     )
-    wrong = store.put_bytes(
-        snapshot.model_copy(update={"source_sha256": "0" * 64}).model_dump_json().encode(),
+    wrong = store.put_json(
+        snapshot.model_copy(update={"source_sha256": "0" * 64}).model_dump(mode="json"),
         options,
+        return_selected_profile=True,
     )
-    wrong = _exact_written_ref(store, wrong)
     with pytest.raises(RetainedSKGSnapshotError, match="retained_skg_retained_digest_mismatch"):
         prepare_retained_skg_read(store, wrong, directory=tmp_path / "bad", index_dir=tmp_path)
     with pytest.raises((ValueError, FileNotFoundError)):
@@ -1613,8 +1736,8 @@ def test_invalid_explicit_workflow_snapshot_refuses_before_real_selector_body(
         else:
             snapshot = load_retained_skg_snapshot(store, ref)
             manifest = store.get_manifest(ref)
-            invalid = store.put_bytes(
-                snapshot.model_copy(update={"source_sha256": "0" * 64}).model_dump_json().encode(),
+            invalid = store.put_json(
+                snapshot.model_copy(update={"source_sha256": "0" * 64}).model_dump(mode="json"),
                 ArtifactWriteOptions(
                     kind=ref.kind,
                     media_type=ref.media_type,
@@ -1622,8 +1745,8 @@ def test_invalid_explicit_workflow_snapshot_refuses_before_real_selector_body(
                     producer=manifest.producer,
                     inputs=manifest.inputs,
                 ),
+                return_selected_profile=True,
             )
-            invalid = _exact_written_ref(store, invalid)
         replay_state = state.model_copy(update={"inputs": {SNAPSHOT_INPUT_KEY: invalid}})
         registry = NodeRegistry()
         registry.register(ObservedSelector())

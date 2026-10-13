@@ -17,6 +17,7 @@ import base64
 import contextvars
 import ctypes
 import dataclasses
+import inspect
 import json
 import logging
 import multiprocessing as mp
@@ -482,6 +483,24 @@ def _new_attempt_authority(
     )
 
 
+def _has_selected_profile_writer_api(operation: Any) -> bool:
+    """Check the wrapped call shape needed to forward Core's selected-profile keyword.
+
+    This is only an API-routing check. The producer must still validate the
+    writer's returned ArtifactRef and the consumer must verify the persisted view.
+    """
+    if not callable(operation):
+        return False
+    try:
+        parameter = inspect.signature(operation).parameters.get("return_selected_profile")
+    except (TypeError, ValueError):
+        return False
+    return parameter is not None and parameter.kind in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.KEYWORD_ONLY,
+    )
+
+
 class _AttemptFacade:
     """Delegate reads while gating the named mutating methods."""
 
@@ -497,6 +516,58 @@ class _AttemptFacade:
         self._authority = authority
         self._write_methods = write_methods
         self._raise_on_revoked_write = raise_on_revoked_write
+        # Preserve the named Core API only when the target can receive it. This
+        # does not prove the target honors the option; selected refs are checked
+        # at the producer/consumer boundary.
+        for name in ("put_bytes", "put_json"):
+            operation = getattr(target, name, None)
+            if not _has_selected_profile_writer_api(operation):
+                setattr(self, name, self.__getattr__(name) if callable(operation) else None)
+
+    def _invoke_store_write(self, name: str, *args: Any, **kwargs: Any) -> Any:
+        operation = getattr(self._target, name)
+        if name not in self._write_methods:
+            return operation(*args, **kwargs)
+        invoke = (
+            self._authority.invoke_persistent_write
+            if self._raise_on_revoked_write
+            else self._authority.invoke
+        )
+        return invoke(
+            operation,
+            *(_unwrap_manifest_value(arg) for arg in args),
+            **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
+        )
+
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        """Write bytes through the attempt gate with the Core writer signature."""
+        call_options: dict[str, Any] = {}
+        if return_selected_profile is not False:
+            call_options["return_selected_profile"] = return_selected_profile
+        return self._invoke_store_write("put_bytes", data, opts, **call_options)
+
+    def put_json(
+        self,
+        obj: object,
+        opts: PutOptions,
+        canon_spec: Any = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        """Write JSON through the attempt gate with the Core writer signature."""
+        args: tuple[Any, ...] = (obj, opts)
+        if canon_spec is not None:
+            args += (canon_spec,)
+        call_options: dict[str, Any] = {}
+        if return_selected_profile is not False:
+            call_options["return_selected_profile"] = return_selected_profile
+        return self._invoke_store_write("put_json", *args, **call_options)
 
     def __getattr__(self, name: str) -> Any:
         value = getattr(self._target, name)

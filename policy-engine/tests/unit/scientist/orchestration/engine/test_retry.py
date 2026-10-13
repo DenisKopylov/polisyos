@@ -311,7 +311,6 @@ class TestExecuteWithRetrySync:
         store_views = (attempt.store, attempt.run.store)
         assert store_views[0] is store_views[1]
         assert store_views[0]._target is store
-
         for view in store_views:
             assert view.put_bytes(b"bytes", object(), return_selected_profile=True) is ref
             assert view.put_json({"value": 1}, object(), return_selected_profile=True) is ref
@@ -601,6 +600,30 @@ class TestExecuteWithRetrySync:
         assert run_audit.emit_calls
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
+
+    def test_attempt_facade_does_not_claim_selected_writer_for_legacy_target(self):
+        from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+
+        class _LegacyStore:
+            def __init__(self) -> None:
+                self.calls: list[tuple[object, ...]] = []
+
+            def put_json(self, obj: object, opts: object, canon_spec: object = None) -> object:
+                self.calls.append((obj, opts, canon_spec))
+                return object()
+
+        store = _LegacyStore()
+        facade = retry_module._AttemptFacade(
+            store,
+            retry_module._AttemptAuthority(None),
+            write_methods=frozenset({"put_json"}),
+        )
+
+        with pytest.raises(
+            NotImplementedError, match="artifact_store_return_selected_profile_unsupported"
+        ):
+            _require_return_selected_profile_writer(facade, "put_json")
+        assert store.calls == []
 
     def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state, monkeypatch):
         class _RecordingStore:

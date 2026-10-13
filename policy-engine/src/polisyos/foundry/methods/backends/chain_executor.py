@@ -441,9 +441,7 @@ def _collect_node_inputs(
         bound_inputs=bound_inputs,
         fallback_state=current_context,
     )
-    _validate_materialized_input_slots(
-        signature=signature, materialized_state=materialized_state
-    )
+    _validate_materialized_input_slots(signature=signature, materialized_state=materialized_state)
     return method_class, materialized_state, signature, combined_params
 
 
@@ -670,7 +668,7 @@ def _execute_sequential_chain(
     dispatcher: MethodDispatcher | None = None,
     fx_rate_provider: FxRateProvider | None = None,
 ) -> ChainExecutionResult:
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     disp = dispatcher or MethodDispatcher.get_instance()
 
     node_order = list(chain.execution_order)
@@ -935,7 +933,7 @@ def _execute_async_chain(
     from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
 
     params_per_node = params_per_node or {}
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     disp = dispatcher or MethodDispatcher.get_instance()
     executor = AsyncChainExecutor(registry=reg, dispatcher=disp)
     try:
@@ -971,7 +969,7 @@ async def execute_heterogeneous_chain_async(
     """Execute heterogeneous chain async."""
     from polisyos.foundry.methods.backends.async_chain_executor import AsyncChainExecutor
 
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     disp = dispatcher or MethodDispatcher.get_instance()
     executor = AsyncChainExecutor(registry=reg, dispatcher=disp)
     return await executor.execute(

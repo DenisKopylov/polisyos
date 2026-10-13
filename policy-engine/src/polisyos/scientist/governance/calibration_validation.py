@@ -924,7 +924,9 @@ class CalibrationValidationLessonPublisher:
                 "governance_verdict": bundle.governance_verdict,
             },
         )
-        lesson_context = resolve_transfer_context(run_id=bundle_input.run_id, task_family="policy")
+        lesson_context = resolve_transfer_context(
+            run_id=bundle_input.run_id, task_family="policy", domain="general"
+        )
         return registry.record_local(card, context=lesson_context)
 
 

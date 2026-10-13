@@ -360,9 +360,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         )
         report = load_causal_effect_report(
             ir_store,
-            CausalEffectReportRef.model_validate(
-                basis.report_ref.model_dump(mode="python")
-            ),
+            CausalEffectReportRef.model_validate(basis.report_ref.model_dump(mode="python")),
         )
         projected_interval = report.to_value_uncertainty(
             estimand=estimand,
@@ -674,9 +672,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
 
     missing_basis_ref_payload = basis_refs[0].model_dump(mode="json")
     missing_basis_ref_payload["artifact_id"] = "sha256:" + "f" * 64
-    missing_basis_ref = gc.ValueArtifactBindingRefV1.model_validate(
-        missing_basis_ref_payload
-    )
+    missing_basis_ref = gc.ValueArtifactBindingRefV1.model_validate(missing_basis_ref_payload)
     with pytest.raises((ValueError, OSError, KeyError)):
         consumer(
             store=ir_store,
@@ -684,7 +680,6 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
             world_record=world,
             data_trust=trust,
         )
-
 
     class _TamperedPanelProfileStore:
         def __init__(self, delegate: Any) -> None:
@@ -700,7 +695,9 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
                 return raw_manifest
             raw = json.loads(raw_manifest)
             raw["canon"]["forbid_floats"] = not raw["canon"]["forbid_floats"]
-            return json.dumps(raw, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+            return json.dumps(
+                raw, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            ).encode()
 
     from polisyos.foundry.methods.backends import numpy_runner
 
@@ -708,7 +705,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         raise AssertionError("method runner received a nonconformant selected panel")
 
     with monkeypatch.context() as profile_context:
-        profile_context.setattr(numpy_runner.NumpyRunner, "run", forbidden_runner_call)
+        profile_context.setattr(numpy_runner.NumpyRunner, "execute", forbidden_runner_call)
         with pytest.raises(ValueError, match="ir_artifact_selected_manifest_changed"):
             producer(
                 store=_TamperedPanelProfileStore(core_store),

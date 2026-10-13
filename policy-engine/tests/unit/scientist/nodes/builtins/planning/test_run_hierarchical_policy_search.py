@@ -46,6 +46,10 @@ from polisyos.scientist.methods.search.strategies.transfer import (
     TransferLearningManager,
 )
 from polisyos.scientist.methods.search.strategies.types import Evaluation
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferScopeRefusedError,
+    resolve_transfer_context,
+)
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     ARTIFACT_POLICY_FRONTIER_REPORT_REF,
     HierarchicalPolicySearchAdapter,
@@ -874,3 +878,26 @@ def test_absent_candidate_transfer_intent_preserves_missing_candidate_skip(
 
     assert outcome.status == "skip"
     resolve_candidate.assert_called_once()
+
+
+def test_hierarchical_producer_scope_fields_reconcile_from_emitted_context() -> None:
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        _bundle(), candidate_id="hierarchical-domain-candidate"
+    )
+    runtime_context = HierarchicalPolicySearchAdapter().build_runtime_context(
+        candidate,
+        loop_id="hierarchical-domain-run",
+        metadata={"domain": "fiscal"},
+    )
+    emitted_scope = runtime_context["policy_search_context"]
+    assert emitted_scope["task_family"] == emitted_scope["policy_family"]
+    assert emitted_scope["domain"] == "fiscal"
+
+    resolved = resolve_transfer_context(context=runtime_context)
+    assert resolved.task_family == emitted_scope["task_family"]
+    assert resolved.domain == emitted_scope["domain"]
+
+    for field_name, conflicting_value in (("task_family", "discovery"), ("domain", "labor")):
+        conflicting = {**runtime_context, field_name: conflicting_value}
+        with pytest.raises(TransferScopeRefusedError):
+            resolve_transfer_context(context=conflicting)

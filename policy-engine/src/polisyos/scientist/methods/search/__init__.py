@@ -39,6 +39,7 @@ from polisyos.scientist.methods.search.lessons import (
     LessonPattern,
     LessonQuery,
     LessonRegistry,
+    LessonTransferBundle,
     LessonTrustLevel,
     lesson_from_failure_card,
     load_lesson_card,
@@ -99,7 +100,13 @@ from polisyos.scientist.methods.search.stopping import (
 from polisyos.scientist.methods.search.transfer_context import (
     TransferAuditHop,
     TransferContext,
+    TransferPathBinding,
     TransferPolicy,
+    TransferScopeRefusal,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
+    TransferSourceScope,
+    TransferTenantScopeStatus,
 )
 
 _LAZY_EXPORT_MODULES: dict[str, str] = {
@@ -185,6 +192,7 @@ __all__ = [
     "LessonRegistry",
     "LessonRegistryContract",
     "LessonTrustLevel",
+    "LessonTransferBundle",
     "MaxIterations",
     "MaxWallTime",
     "NegatedCompositeObjective",
@@ -234,7 +242,13 @@ __all__ = [
     "TellResult",
     "TransferAuditHop",
     "TransferContext",
+    "TransferPathBinding",
     "TransferPolicy",
+    "TransferTenantScopeStatus",
+    "TransferScopeRefusal",
+    "TransferScopeRefusalReason",
+    "TransferScopeRefusedError",
+    "TransferSourceScope",
     "VOIModelSnapshot",
     "VOIModelStatus",
     "VOIObservation",
@@ -274,6 +288,7 @@ __all__ = [
 ]
 
 __all__.extend(name for name in _LAZY_EXPORT_MODULES if name not in __all__)
+
 
 def __getattr__(name: str) -> Any:
     """Resolve heavy or cyclic search exports lazily from their owning modules."""

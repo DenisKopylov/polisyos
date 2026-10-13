@@ -404,8 +404,6 @@ class MethodScoreTraceEntry:
     runnable: bool
 
 
-
-
 class MethodRouteConstraint(BaseModel):
     """Candidate routing constraint projected by an observation-manifest owner.
 
@@ -498,9 +496,10 @@ class InputContractMethodSelection(BaseModel):
     def _reconcile_candidate_population(self) -> InputContractMethodSelection:
         if self.denominator != tuple(sorted(set(self.denominator))):
             raise ValueError("input_contract_method_denominator_not_canonical")
-        if self.denominator_established and tuple(
-            row.method_fqn for row in self.candidates
-        ) != self.denominator:
+        if (
+            self.denominator_established
+            and tuple(row.method_fqn for row in self.candidates) != self.denominator
+        ):
             raise ValueError("input_contract_method_candidate_population_mismatch")
         eligible = {row.method_fqn for row in self.candidates if row.disposition == "eligible"}
         if len(self.ranked_method_fqns) != len(set(self.ranked_method_fqns)) or not set(
@@ -543,13 +542,15 @@ def select_method_for_input_contract(
     if not contract_id.strip() or not outputs or any(not slot.strip() for slot in outputs):
         raise ValueError("input_contract_method_search_contract_invalid")
     effective_criteria = criteria or MethodSelectionCriteria()
-    context_hash = _method_selection_receipt_content_hash({
-        "input_contract_id": contract_id,
-        "required_output_slots": outputs,
-        "requested_method_fqn": requested_method_fqn,
-        "criteria": asdict(effective_criteria),
-        "selection_context": dict(selection_context),
-    })
+    context_hash = _method_selection_receipt_content_hash(
+        {
+            "input_contract_id": contract_id,
+            "required_output_slots": outputs,
+            "requested_method_fqn": requested_method_fqn,
+            "criteria": asdict(effective_criteria),
+            "selection_context": dict(selection_context),
+        }
+    )
     denominator: tuple[str, ...] = ()
     rows: list[InputContractMethodCandidate] = []
     catalog_hash = None
@@ -561,17 +562,22 @@ def select_method_for_input_contract(
 
     def refusal(*codes: str, established: bool = False) -> InputContractMethodSelection:
         return InputContractMethodSelection(
-            status="blocked", input_contract_id=contract_id,
-            required_output_slots=outputs, requested_method_fqn=requested_method_fqn,
+            status="blocked",
+            input_contract_id=contract_id,
+            required_output_slots=outputs,
+            requested_method_fqn=requested_method_fqn,
             denominator_established=established and bootstrap_error is None,
             denominator=denominator,
             registry_bridge_errors=bridge_errors,
             registry_discovery_errors=discovery_errors,
             registry_bootstrap_error=bootstrap_error,
-            candidates=tuple(rows), catalog_content_hash=catalog_hash,
+            candidates=tuple(rows),
+            catalog_content_hash=catalog_hash,
             ranked_method_fqns=ranked_fqns,
             context_content_hash=context_hash,
-            blockers=tuple(dict.fromkeys((*codes, *([bootstrap_error] if bootstrap_error else [])))),
+            blockers=tuple(
+                dict.fromkeys((*codes, *([bootstrap_error] if bootstrap_error else [])))
+            ),
         )
 
     reg = registry if registry is not None else MethodRegistry.get_instance()
@@ -582,7 +588,9 @@ def select_method_for_input_contract(
         bootstrap_report = ensure_all_methods_registered(reg)
         if not isinstance(bootstrap_report, FoundryExtensionRegistryReport):
             raise TypeError("foundry_registry_bootstrap_report_unreadable")
-        bridge_errors = tuple((error.component_id, error.message) for error in bootstrap_report.errors)
+        bridge_errors = tuple(
+            (error.component_id, error.message) for error in bootstrap_report.errors
+        )
         discovery_errors = tuple(bootstrap_report.discovery_errors)
         if not bootstrap_report.success:
             bootstrap_error = "input_contract_method_registry_intake_incomplete"
@@ -632,21 +640,29 @@ def select_method_for_input_contract(
                 declared_outputs = {slot.name for slot in actual_signature.output_slots}
                 reasons.extend(
                     f"required_output_slot_missing:{slot}"
-                    for slot in outputs if slot not in declared_outputs
+                    for slot in outputs
+                    if slot not in declared_outputs
                 )
             except Exception as exc:
-                rows.append(InputContractMethodCandidate(
-                    method_fqn=signature.fqn, signature_digest=digest,
-                    callable_ref=callable_ref, disposition="unreadable",
-                    reasons=(f"{type(exc).__name__}:{exc}",),
-                ))
+                rows.append(
+                    InputContractMethodCandidate(
+                        method_fqn=signature.fqn,
+                        signature_digest=digest,
+                        callable_ref=callable_ref,
+                        disposition="unreadable",
+                        reasons=(f"{type(exc).__name__}:{exc}",),
+                    )
+                )
                 continue
-            rows.append(InputContractMethodCandidate(
-                method_fqn=signature.fqn, signature_digest=digest,
-                callable_ref=callable_ref,
-                disposition="ineligible" if reasons else "eligible",
-                reasons=tuple(reasons),
-            ))
+            rows.append(
+                InputContractMethodCandidate(
+                    method_fqn=signature.fqn,
+                    signature_digest=digest,
+                    callable_ref=callable_ref,
+                    disposition="ineligible" if reasons else "eligible",
+                    reasons=tuple(reasons),
+                )
+            )
         if any(row.disposition == "unreadable" for row in rows):
             return refusal("input_contract_method_member_unreadable", established=True)
         if bootstrap_error is not None:
@@ -669,25 +685,34 @@ def select_method_for_input_contract(
             != tuple(row.signature_digest for row in rows)
         ):
             return refusal("input_contract_method_catalog_denominator_drift", established=True)
-        catalog_hash = _method_selection_receipt_content_hash({
-            "entries": [entry.model_dump(mode="json") for entry in catalog.entries],
-        })
+        catalog_hash = _method_selection_receipt_content_hash(
+            {
+                "entries": [entry.model_dump(mode="json") for entry in catalog.entries],
+            }
+        )
         by_fqn = {entry.fqn: entry for entry in catalog.entries}
         rows = [
             InputContractMethodCandidate(
                 **{
                     **row.model_dump(),
                     "disposition": "ineligible",
-                    "reasons": (*row.reasons, "method_not_runnable", *by_fqn[row.method_fqn].disabled_reasons),
+                    "reasons": (
+                        *row.reasons,
+                        "method_not_runnable",
+                        *by_fqn[row.method_fqn].disabled_reasons,
+                    ),
                 },
-            ) if not by_fqn[row.method_fqn].runnable else row
+            )
+            if not by_fqn[row.method_fqn].runnable
+            else row
             for row in rows
         ]
         eligible = {row.method_fqn for row in rows if row.disposition == "eligible"}
         try:
             ranked = rank_method_catalog_entries(
                 (entry for entry in catalog.entries if entry.fqn in eligible),
-                effective_criteria, limit=None,
+                effective_criteria,
+                limit=None,
             )
         except Exception as exc:
             return refusal(
@@ -698,10 +723,15 @@ def select_method_for_input_contract(
         # Advisor preferences may reject otherwise compatible entries. Preserve
         # each identity and classify that rejection instead of losing the member.
         rows = [
-            InputContractMethodCandidate(**{
-                **row.model_dump(), "disposition": "ineligible",
-                "reasons": (*row.reasons, "advisor_criteria_rejected"),
-            }) if row.disposition == "eligible" and row.method_fqn not in ranked_fqns else row
+            InputContractMethodCandidate(
+                **{
+                    **row.model_dump(),
+                    "disposition": "ineligible",
+                    "reasons": (*row.reasons, "advisor_criteria_rejected"),
+                }
+            )
+            if row.disposition == "eligible" and row.method_fqn not in ranked_fqns
+            else row
             for row in rows
         ]
         if requested_method_fqn is not None:
@@ -715,11 +745,17 @@ def select_method_for_input_contract(
         else:
             return refusal("input_contract_method_no_eligible_candidate", established=True)
         return InputContractMethodSelection(
-            status="selected", input_contract_id=contract_id,
-            required_output_slots=outputs, requested_method_fqn=requested_method_fqn,
-            selected_method_fqn=selected, denominator_established=True,
-            denominator=denominator, candidates=tuple(rows), ranked_method_fqns=ranked_fqns,
-            catalog_content_hash=catalog_hash, context_content_hash=context_hash,
+            status="selected",
+            input_contract_id=contract_id,
+            required_output_slots=outputs,
+            requested_method_fqn=requested_method_fqn,
+            selected_method_fqn=selected,
+            denominator_established=True,
+            denominator=denominator,
+            candidates=tuple(rows),
+            ranked_method_fqns=ranked_fqns,
+            catalog_content_hash=catalog_hash,
+            context_content_hash=context_hash,
         )
 
 
@@ -740,8 +776,6 @@ def _validated_route_constraint(
         if not method_accepts_input_contract(method, validated.target_contract_id):
             raise ValueError("value_method_route_contract_mismatch")
     return validated
-
-
 
 
 @dataclass(frozen=True, slots=True)
@@ -1121,7 +1155,7 @@ def method_selection_context_hash(
     """
 
     _manifest_targets(observation_to_contract_manifest)
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     from polisyos.foundry.methods import ensure_all_methods_registered
 
     ensure_all_methods_registered(reg)
@@ -1224,7 +1258,7 @@ def select_value_method_for_problem(
             code=str(exc),
             reason="Only explicit flat advisory hints are accepted; source manifests require their owner projection.",
         )
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     try:
         from polisyos.foundry.methods import ensure_all_methods_registered
 
@@ -1460,8 +1494,7 @@ def _catalog_entry_is_value_method(
         return False
     try:
         catalog_capabilities = tuple(
-            NativeValueProjectionCapability.model_validate(raw)
-            for raw in raw_capabilities
+            NativeValueProjectionCapability.model_validate(raw) for raw in raw_capabilities
         )
     except Exception:
         return False
@@ -1476,13 +1509,9 @@ def _catalog_entry_is_value_method(
         slot = output_slots.get(capability.output_slot)
         if slot is None or slot.get("contract_id") != capability.contract_id:
             return False
-        if "value_uncertainty_projection" not in tuple(
-            slot.get("contract_capabilities", ())
-        ):
+        if "value_uncertainty_projection" not in tuple(slot.get("contract_capabilities", ())):
             return False
-        if slot.get("contract_owner") != (
-            f"{capability.owner_module}:{capability.owner_qualname}"
-        ):
+        if slot.get("contract_owner") != (f"{capability.owner_module}:{capability.owner_qualname}"):
             return False
     return True
 
@@ -1605,8 +1634,6 @@ def _build_registry_requested_value_method_selection_receipt(
     )
 
 
-
-
 def _value_method_advisor_query(
     *,
     candidate: object,
@@ -1681,10 +1708,13 @@ def _value_family_prefixes(*, candidate: object, problem: object) -> tuple[str, 
     prefixes: list[str] = []
     if "posterior" in tokens or any(token.startswith("bayes") for token in tokens):
         prefixes.append("bayesian")
-    if (
-        {"panel", "did", "causal", "transport", "transportability"} & tokens
-        or "difference in differences" in signal
-    ):
+    if {
+        "panel",
+        "did",
+        "causal",
+        "transport",
+        "transportability",
+    } & tokens or "difference in differences" in signal:
         prefixes.append("causal")
     if any(token.startswith("optimiz") for token in tokens) or "welfare" in tokens:
         prefixes.append("optimization")
@@ -1907,9 +1937,9 @@ def _method_entry_meets_hard_selection_criteria(
         return False
     if (criteria.runnable_only or query_runnable_only) and not entry.runnable:
         return False
-    if criteria.required_data_modalities and not set(
-        criteria.required_data_modalities
-    ).issubset(set(entry.data_modalities)):
+    if criteria.required_data_modalities and not set(criteria.required_data_modalities).issubset(
+        set(entry.data_modalities)
+    ):
         return False
     if criteria.minimum_fidelity_tier is not None:
         required_rank = _FIDELITY_ORDER.get(criteria.minimum_fidelity_tier, -1)
@@ -3197,7 +3227,7 @@ def suggest_adapter_methods(
     exclude_fqns: Sequence[str] = (),
 ) -> list[MethodCatalogEntry]:
     """Find runnable adapter methods that can bridge source and target signatures."""
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     source_sig = source_signature or _signature_for_fqn(reg, source_fqn)
     target_sig = target_signature or _signature_for_fqn(reg, target_fqn)
     if source_sig is None or target_sig is None:
@@ -3255,7 +3285,7 @@ def suggest_plan_node_alternatives(
     if not candidates:
         return []
 
-    reg = registry or MethodRegistry.get_instance()
+    reg = registry if registry is not None else MethodRegistry.get_instance()
     node_by_id = {item.node_id: item for item in plan_nodes}
     downstream_nodes = tuple(
         item for item in plan_nodes if node.node_id in set(item.depends_on or [])

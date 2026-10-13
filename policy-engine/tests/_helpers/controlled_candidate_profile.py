@@ -259,12 +259,29 @@ class ControlledCandidateGateway:
         n4_contract._validate_recording_fixture(recording)  # type: ignore[arg-type]
 
 
-def _current_compiler_problem(recording: dict[str, object]):
-    """Build honest current-schema compiler arguments without rewriting replay bytes."""
+def _resolve_controlled_parent_slot(slot_id: str) -> str:
+    """Resolve a test-parent alias using the existing controlled slot map."""
 
-    historical = n4_contract._design_problem(recording)
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
+    if canonical_id not in DEFAULT_SLOT_REGISTRY.slots:
+        raise ValueError("controlled_n4_parent_slot_alias_not_established:" + slot_id)
+    return canonical_id
+
+
+def _current_compiler_problem(recording: dict[str, object]):
+    """Build a controlled current-schema parent without rewriting replay bytes.
+
+    The selected recording supplies response bytes only; its historical problem
+    scope remains unestablished and is never reused as the controlled parent identity.
+    All callers receive this test fixture parent rather than an implied historical
+    parent scope.
+    """
+
+    reconstructed = n4_contract._design_problem(recording)
     source_text = "all proposals remain candidate-only"
-    assert source_text in historical.nl_provenance.raw_request
+    assert source_text in reconstructed.nl_provenance.raw_request
     constraints = [
         constraint.model_copy(
             update={
@@ -274,12 +291,74 @@ def _current_compiler_problem(recording: dict[str, object]):
         )
         if constraint.constraint_id == "no_authority_without_a"
         else constraint
-        for constraint in historical.constraints
+        for constraint in reconstructed.constraints
     ]
-    return historical.model_copy(
+    problem = reconstructed.model_copy(
         update={
             "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
             "constraints": constraints,
+        }
+    )
+    recording_id = recording.get("recording_id")
+    content_hash = recording.get("recording_content_hash")
+    if not isinstance(recording_id, str) or not recording_id:
+        raise ValueError("controlled_n4_parent_source_recording_id_missing")
+    if not isinstance(content_hash, str) or not content_hash:
+        raise ValueError("controlled_n4_parent_source_recording_hash_missing")
+
+    source_levers = tuple(problem.candidate_lever_space.candidate_levers)
+    resolved_levers = []
+    lever_slot_resolutions: list[dict[str, str]] = []
+    for lever in source_levers:
+        canonical_slot = _resolve_controlled_parent_slot(lever.target_slot)
+        resolved_levers.append(lever.model_copy(update={"target_slot": canonical_slot}))
+        lever_slot_resolutions.append(
+            {
+                "lever_id": lever.lever_id,
+                "operator_kind": lever.operator_kind,
+                "instrument": lever.instrument,
+                "source_target_slot": lever.target_slot,
+                "resolved_target_slot": canonical_slot,
+            }
+        )
+    if len(resolved_levers) != len(source_levers) or not resolved_levers:
+        raise ValueError("controlled_n4_parent_lever_set_incomplete")
+
+    scope_ref = gy_content_hash(
+        {
+            "schema_version": "controlled_n4_parent_scope_v1",
+            "source_recording_id": recording_id,
+            "source_recording_content_hash": content_hash,
+            "reconstructed_problem": problem.model_dump(mode="json"),
+            "allowed_operator_kinds": list(problem.candidate_lever_space.allowed_operator_kinds),
+            "resolved_candidate_levers": [
+                lever.model_dump(mode="json") for lever in resolved_levers
+            ],
+            "lever_slot_resolutions": lever_slot_resolutions,
+        }
+    )
+    controlled_problem_id = "controlled_n4_parent_" + scope_ref.removeprefix("sha256:")[:24]
+    scope_declaration = {
+        "purpose": "controlled_test_fixture_only",
+        "scope_status": "declared_controlled_fixture",
+        "historical_scope_status": "not_established",
+        "source_recording_id": recording_id,
+        "source_recording_content_hash": content_hash,
+        "reconstructed_problem_id": problem.design_problem_id,
+        "parent_problem_id": controlled_problem_id,
+        "parent_scope_ref": scope_ref,
+        "lever_slot_resolutions": lever_slot_resolutions,
+    }
+    return problem.model_copy(
+        update={
+            "design_problem_id": controlled_problem_id,
+            "candidate_lever_space": problem.candidate_lever_space.model_copy(
+                update={"candidate_levers": resolved_levers}
+            ),
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "n4_controlled_parent_scope": scope_declaration,
+            },
         }
     )
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 from decimal import Decimal
 from pathlib import Path
@@ -9,6 +10,11 @@ import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.security import (
+    AccessScope,
+    reset_current_access_scope,
+    set_current_access_scope,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -20,7 +26,14 @@ from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistrySnapshot,
     ParetoView,
 )
-from polisyos.scientist.methods.search.transfer_context import TransferContext
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
+    TransferTenantScopeStatus,
+    anonymize_tenant_id,
+    resolve_transfer_context,
+)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -254,7 +267,7 @@ def test_partial_registry_persists_status_withholds_rank_and_keeps_candidate_see
         transfer_context=source,
         objective_basis_by_view={ParetoView.GLOBAL_FEASIBLE.value: declared_basis},
     )
-    complete_snapshot = registry.get_snapshot(source.run_id)
+    complete_snapshot = registry.get_snapshot(source.run_id, transfer_context=source)
     assert complete_snapshot.view_assessments[ParetoView.GLOBAL_FEASIBLE.value].status == "complete"
     assert ParetoView.GLOBAL_FEASIBLE.value in complete_snapshot.hypervolume_by_view
 
@@ -272,7 +285,7 @@ def test_partial_registry_persists_status_withholds_rank_and_keeps_candidate_see
     )
 
     fresh_reader = ParetoRegistry(registry_root)
-    snapshot = fresh_reader.get_snapshot(source.run_id)
+    snapshot = fresh_reader.get_snapshot(source.run_id, transfer_context=source)
     projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
     assessment = projection.assessment
     assert assessment.status == "partial"
@@ -290,7 +303,7 @@ def test_partial_registry_persists_status_withholds_rank_and_keeps_candidate_see
     catalog_entry_ids = tuple(sorted(catalog.entries))
     assert len(catalog_entry_ids) == 1
     catalog_entry_id = catalog_entry_ids[0]
-    assert catalog.schema_version == "2.1"
+    assert catalog.schema_version == "3.0"
     assert catalog.entries[catalog_entry_id].candidate_hash == measured_hash
     assert catalog.entries[catalog_entry_id].source_loop_id == source.run_id
     assert catalog_projection.assessment.status == "basis_limited"
@@ -306,6 +319,137 @@ def test_partial_registry_persists_status_withholds_rank_and_keeps_candidate_see
     seed_bundle = fresh_reader.get_seed_bundle(target, max_seeds=3)
     assert [entry.candidate_hash for entry in seed_bundle.entries] == [measured_hash]
     assert all(entry.seed_only for entry in seed_bundle.entries)
+
+
+@pytest.mark.parametrize("unknown_version", ["0.9", "3.1", "4.0", "9.9"])
+def test_pareto_fresh_reader_refuses_unknown_persisted_schema(
+    tmp_path: Path, unknown_version: str
+) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+    path = registry._snapshot_path("unknown-schema")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": unknown_version,
+                "loop_id": "unknown-schema",
+                "task_family": "policy",
+                "domain": "fiscal",
+                "entries": {},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TransferScopeRefusedError) as captured:
+        registry.get_snapshot("unknown-schema")
+
+    assert captured.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_SOURCE_BODY
+
+
+def test_pareto_writer_refuses_malformed_context_before_persist(tmp_path) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+    candidate = _candidate()
+
+    with pytest.raises(TransferScopeRefusedError) as captured:
+        registry.update(
+            "loop-invalid",
+            candidate_hash=candidate.candidate_hash(),
+            evaluation=_evaluation_vector(candidate),
+            transfer_context=[],  # type: ignore[arg-type]
+        )
+
+    assert captured.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
+    assert list((tmp_path / "registry").rglob("*.json")) == []
+
+
+def test_pareto_consumer_refuses_malformed_context_before_catalog_scan(tmp_path) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+
+    with pytest.raises(TransferScopeRefusedError) as captured:
+        registry.get_seed_bundle({"tenant_hash": []})  # type: ignore[arg-type]
+
+    assert captured.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
+
+
+def _publish_source_for_legacy_reader_test(
+    registry: ParetoRegistry, source: TransferContext
+) -> None:
+    candidate = _candidate()
+    registry.update(
+        source.run_id,
+        candidate_hash=candidate.candidate_hash(),
+        evaluation=_evaluation_vector(candidate),
+        candidate_id=candidate.candidate_id,
+        policy_family="core_family",
+        seed_payload=candidate.model_dump(mode="json"),
+        transfer_context=source,
+    )
+
+
+@pytest.mark.parametrize("legacy_version", ["1.0", "2.0", "2.1"])
+def test_pareto_parser_recognizes_but_fresh_reader_refuses_unbound_history(
+    tmp_path: Path, legacy_version: str
+) -> None:
+    registry_root = tmp_path / "registry"
+    registry = ParetoRegistry(registry_root)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="legacy-run",
+        tenant_hash="tenant-a",
+    )
+    _publish_source_for_legacy_reader_test(registry, source)
+    snapshot_path = registry._snapshot_path(source.run_id)
+    payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    assert payload["source_scope"]["tenant_hash"] == "tenant-a"
+    payload.pop("source_scope")
+    payload["schema_version"] = legacy_version
+    snapshot_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    parsed = registry._load_snapshot(snapshot_path)
+    assert parsed.schema_version == legacy_version
+    assert parsed.source_scope is None
+
+    fresh_reader = ParetoRegistry(registry_root)
+    with pytest.raises(TransferScopeRefusedError) as refused:
+        fresh_reader.get_snapshot(source.run_id, transfer_context=source)
+    assert refused.value.refusals[0].reason is TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+
+
+def test_pareto_fresh_seed_reader_withholds_unbound_historical_catalog(tmp_path: Path) -> None:
+    registry_root = tmp_path / "registry"
+    registry = ParetoRegistry(registry_root)
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="catalog-source",
+        tenant_hash="tenant-a",
+    )
+    _publish_source_for_legacy_reader_test(registry, source)
+    target = TransferContext(
+        task_family="policy",
+        domain="labor",
+        run_id="fresh-target",
+        tenant_hash="tenant-a",
+    )
+    valid_control = ParetoRegistry(registry_root).get_seed_bundle(target)
+    assert valid_control.entries
+
+    catalog_path = registry._catalog_path(source)
+    payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    assert payload["entries"]
+    assert payload["source_scope"]["tenant_hash"] == "tenant-a"
+    payload.pop("source_scope")
+    payload["schema_version"] = "2.1"
+    catalog_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    bundle = ParetoRegistry(registry_root).get_seed_bundle(target)
+    assert not bundle.entries
+    assert any(
+        refusal.reason is TransferScopeRefusalReason.SOURCE_BINDING_MISSING
+        for refusal in bundle.scope_refusals
+    )
 
 
 def test_catalog_projection_and_seed_preserve_source_occurrence_identity(tmp_path: Path) -> None:
@@ -472,9 +616,228 @@ def test_catalog_projection_and_seed_preserve_source_occurrence_identity(tmp_pat
     assert scope_projection.assessment.status == "legacy_limited"
     assert scope_projection.candidate_frontier_hashes == ()
     scope_seeds = scope_reader.get_seed_bundle(target, max_seeds=10)
-    assert {entry.source_loop_id for entry in scope_seeds.entries} == {
-        source.run_id for source in source_contexts if source.run_id != scope_source.run_id
-    }
+    assert scope_seeds.entries == []
+    assert any(
+        refusal.reason is TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH
+        for refusal in scope_seeds.scope_refusals
+    )
+
+
+def test_versioned_pareto_scope_keeps_none_global_and_foreign_distinct(tmp_path: Path) -> None:
+    root = tmp_path / "registry"
+    registry = ParetoRegistry(root)
+    candidate = _candidate()
+    evaluation = _evaluation_vector(candidate)
+    sources = [
+        TransferContext(task_family="policy", domain="fiscal", run_id=f"run-{i}", tenant_hash=value)
+        for i, value in enumerate((None, "", "global", "tenant-b", "x" * 300))
+    ]
+    for source in sources:
+        registry.update(
+            source.run_id,
+            candidate_hash=f"{candidate.candidate_hash()}-{source.run_id}",
+            evaluation=evaluation.model_copy(update={"candidate_id": source.run_id}),
+            seed_payload=candidate.model_dump(mode="json"),
+            transfer_context=source,
+        )
+    fresh = ParetoRegistry(root)
+    partitions = {source.tenant_hash: fresh._catalog_path(source) for source in sources}
+    assert len(set(partitions.values())) == 5
+    for index, source in enumerate(sources):
+        isolated = ParetoRegistry(tmp_path / f"isolated-{index}")
+        isolated.update(
+            source.run_id,
+            candidate_hash=f"{candidate.candidate_hash()}-{source.run_id}",
+            evaluation=evaluation.model_copy(update={"candidate_id": source.run_id}),
+            seed_payload=candidate.model_dump(mode="json"),
+            transfer_context=source,
+        )
+        bundle = ParetoRegistry(tmp_path / f"isolated-{index}").get_seed_bundle(
+            TransferContext(
+                task_family="policy",
+                domain="labor",
+                run_id="target",
+                tenant_hash=source.tenant_hash,
+            )
+        )
+        assert not bundle.scope_refusals
+        assert bundle.entries
+        assert all(entry.source_loop_id == source.run_id for entry in bundle.entries)
+    mixed = fresh.get_seed_bundle(
+        TransferContext(
+            task_family="policy", domain="labor", run_id="target-none", tenant_hash=None
+        )
+    )
+    assert mixed.entries
+    assert {entry.source_loop_id for entry in mixed.entries} == {"run-0"}
+    assert any(
+        item.reason is TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+        for item in mixed.scope_refusals
+    )
+    refused = fresh.get_seed_bundle(
+        TransferContext(
+            task_family="policy",
+            domain="fiscal",
+            run_id="target-unknown",
+            tenant_hash="not-present",
+        )
+    )
+    assert refused.entries == []
+    assert any(
+        item.reason is TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+        for item in refused.scope_refusals
+    )
+
+
+def test_pareto_writer_and_fresh_reader_reconcile_access_scope(tmp_path) -> None:
+    registry = ParetoRegistry(tmp_path / "registry")
+    candidate = _candidate()
+    expected = anonymize_tenant_id("tenant-a")
+    access = AccessScope.for_service(
+        tenant_id="tenant-a",
+        cell_id=None,
+        spiffe_id="spiffe://test/search",
+    )
+    token = set_current_access_scope(access)
+    try:
+        source = resolve_transfer_context(
+            transfer_context=TransferContext(
+                task_family="policy",
+                domain="fiscal",
+                run_id="authenticated-source",
+                tenant_hash=expected,
+            )
+        )
+        registry.update(
+            source.run_id,
+            candidate_hash=candidate.candidate_hash(),
+            evaluation=_evaluation_vector(candidate),
+            seed_payload=candidate.model_dump(mode="json"),
+            transfer_context=source,
+        )
+        snapshot = registry.get_snapshot(source.run_id, transfer_context=source)
+        assert snapshot.source_scope is not None
+        assert snapshot.source_scope.tenant_scope_status is TransferTenantScopeStatus.AUTHENTICATED
+        assert (
+            next(iter(snapshot.entries.values())).source_scope_status
+            is TransferTenantScopeStatus.AUTHENTICATED
+        )
+        tampered = snapshot.model_copy(deep=True)
+        next(
+            iter(tampered.entries.values())
+        ).source_scope_status = TransferTenantScopeStatus.UNKNOWN
+        with pytest.raises(TransferScopeRefusedError) as row_mismatch:
+            registry.publish_transfer_surface(
+                source.run_id,
+                transfer_context=source,
+                snapshot=tampered,
+            )
+        assert (
+            row_mismatch.value.refusals[0].reason is TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH
+        )
+    finally:
+        reset_current_access_scope(token)
+
+    wrong_access = AccessScope.for_service(
+        tenant_id="tenant-b",
+        cell_id=None,
+        spiffe_id="spiffe://test/search",
+    )
+    wrong_token = set_current_access_scope(wrong_access)
+    try:
+        with pytest.raises(TransferScopeRefusedError) as mismatch:
+            registry.get_seed_bundle(
+                TransferContext(
+                    task_family="policy",
+                    domain="fiscal",
+                    run_id="foreign-reader",
+                    tenant_hash=expected,
+                )
+            )
+        assert (
+            mismatch.value.refusals[0].reason
+            is TransferScopeRefusalReason.AUTHENTICATED_SCOPE_MISMATCH
+        )
+    finally:
+        reset_current_access_scope(wrong_token)
+
+
+def test_pareto_local_loop_id_reads_require_the_matching_tenant(tmp_path: Path) -> None:
+    registry = ParetoRegistry(tmp_path / "local")
+    candidate = _candidate()
+    source = TransferContext(
+        task_family="policy", domain="fiscal", run_id="loop-1", tenant_hash="tenant-a"
+    )
+    registry.update(
+        source.run_id,
+        candidate_hash=candidate.candidate_hash(),
+        evaluation=_evaluation_vector(candidate),
+        transfer_context=source,
+    )
+    fresh = ParetoRegistry(tmp_path / "local")
+    assert fresh.get_frontier("loop-1", transfer_context=source)
+    with pytest.raises(TransferScopeRefusedError):
+        fresh.get_frontier(
+            "loop-1",
+            transfer_context=TransferContext(
+                task_family="policy", domain="fiscal", run_id="reader", tenant_hash="tenant-b"
+            ),
+        )
+
+
+def test_pareto_fresh_reader_refuses_path_body_mismatch_and_legacy_namespace(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "registry"
+    registry = ParetoRegistry(root)
+    candidate = _candidate()
+    source = TransferContext(
+        task_family="policy", domain="fiscal", run_id="source", tenant_hash="global"
+    )
+    registry.update(
+        source.run_id,
+        candidate_hash=candidate.candidate_hash(),
+        evaluation=_evaluation_vector(candidate),
+        seed_payload=candidate.model_dump(mode="json"),
+        transfer_context=source,
+    )
+    catalog_path = registry._catalog_path(source)
+    payload = json.loads(catalog_path.read_text())
+    payload["source_scope"]["tenant_hash"] = None
+    catalog_path.write_text(json.dumps(payload))
+    fresh = ParetoRegistry(root).get_seed_bundle(source.model_copy(update={"run_id": "target"}))
+    assert fresh.entries == []
+    assert fresh.scope_refusals[0].reason is TransferScopeRefusalReason.PATH_BODY_MISMATCH
+
+    legacy_root = tmp_path / "legacy"
+    legacy_registry = ParetoRegistry(legacy_root)
+    legacy_path = legacy_root / "catalog" / "global" / "policy" / "fiscal" / "pareto_registry.json"
+    legacy_path.parent.mkdir(parents=True)
+    legacy_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "2.1",
+                "loop_id": "catalog::policy:fiscal",
+                "task_family": "policy",
+                "domain": "fiscal",
+                "entries": {},
+            }
+        )
+    )
+    malformed_path = legacy_root / "catalog" / "v2" / "not-a-digest" / "pareto_registry.json"
+    malformed_path.parent.mkdir(parents=True)
+    malformed_path.write_text("{}")
+    legacy = ParetoRegistry(legacy_root).get_seed_bundle(
+        TransferContext(task_family="policy", domain="fiscal", run_id="target", tenant_hash=None)
+    )
+    assert legacy.entries == []
+    assert any(
+        item.reason is TransferScopeRefusalReason.LEGACY_PATH_UNBOUND
+        for item in legacy.scope_refusals
+    )
+    assert any(
+        item.reason is TransferScopeRefusalReason.MALFORMED_PATH for item in legacy.scope_refusals
+    )
 
 
 @pytest.mark.parametrize(
@@ -525,7 +888,12 @@ def test_registry_refuses_non_finite_metrics_before_persisted_json(
         )
 
     assert snapshot_path.read_bytes() == prior_bytes
-    persisted = ParetoRegistry(registry_root).get_snapshot("loop-finite")
+    persisted = ParetoRegistry(registry_root).get_snapshot(
+        "loop-finite",
+        transfer_context=TransferContext(
+            task_family="policy", domain="fiscal", run_id="loop-finite", tenant_hash="tenant-a"
+        ),
+    )
     assert set(persisted.entries) == {candidate_hash}
 
 
@@ -540,3 +908,30 @@ def test_registry_refuses_non_finite_hypervolume_before_file_creation(tmp_path: 
         ParetoRegistry._write_json(path, snapshot)
 
     assert not path.exists()
+
+
+def test_update_uses_typed_task_scope_and_rejects_empty_declaration(tmp_path) -> None:
+    candidate = _candidate()
+    registry = ParetoRegistry(tmp_path / "registry")
+    declared = TransferContext(task_family="discovery", domain="fiscal", run_id="loop-discovery")
+
+    registry.update(
+        "loop-discovery",
+        candidate_hash=candidate.candidate_hash(),
+        evaluation=_evaluation_vector(candidate),
+        seed_payload=candidate.model_dump(mode="json"),
+        transfer_context=declared,
+    )
+    assert registry.get_snapshot("loop-discovery").task_family == "discovery"
+
+    with pytest.raises(TransferScopeRefusedError):
+        registry.update(
+            "loop-invalid",
+            candidate_hash=candidate.candidate_hash(),
+            evaluation=_evaluation_vector(candidate),
+            seed_payload=candidate.model_dump(mode="json"),
+            task_family="",
+            transfer_context=TransferContext(
+                task_family="policy", domain="fiscal", run_id="loop-invalid"
+            ),
+        )

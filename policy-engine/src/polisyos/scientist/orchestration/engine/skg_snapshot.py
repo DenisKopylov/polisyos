@@ -24,10 +24,8 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactWriteOptions,
     AtomicFileDurabilityError,
-    FileSystemCAS,
     ProducerInfo,
     SchemaInfo,
-    artifact_manifest_profile_sha256,
     ensure_directory_durable,
     fsync_directory,
     input_ref_from_artifact_ref,
@@ -37,6 +35,8 @@ from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.data_forge.read_api.academic import SKGQuery
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon.canon_json import CanonSpec
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -48,6 +48,13 @@ class _RetainedSKGReadStore(Protocol):
     """Verified CAS member-read capabilities needed to reopen one selected source."""
 
     def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest: ...
+
+    def get_raw_manifest_bytes(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        *,
+        manifest_profile_sha256: str | None = None,
+    ) -> bytes: ...
 
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes: ...
 
@@ -63,7 +70,34 @@ class _RetainedSKGReadStore(Protocol):
     ) -> Any: ...
 
 
-_RETAINED_SKG_READ_METHODS = ("get_manifest", "get_bytes", "open_member", "copy_member_to")
+class _RetainedSKGStore(_RetainedSKGReadStore, Protocol):
+    """Selected-profile CAS capabilities used by capture and strict replay."""
+
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: PutOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef: ...
+
+    def put_json(
+        self,
+        obj: object,
+        opts: PutOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef: ...
+
+
+_RETAINED_SKG_READ_METHODS = (
+    "get_manifest",
+    "get_raw_manifest_bytes",
+    "get_bytes",
+    "open_member",
+    "copy_member_to",
+)
 _SNAPSHOT_KIND = "scientist.skg_source_snapshot"
 _CHUNK_KIND = "scientist.skg_source_chunk"
 _VERSION: Literal["1.0"] = "1.0"
@@ -127,21 +161,25 @@ def _require_retained_skg_read_store(store: object) -> _RetainedSKGReadStore:
     return cast("_RetainedSKGReadStore", store)
 
 
-def _select_written_ref(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactRef:
-    """Bind the producer's actual manifest view through the canonical CAS profile."""
+def _require_selected_written_ref(
+    store: _RetainedSKGStore,
+    ref: ArtifactRef,
+    *,
+    kind: str,
+    media_type: str,
+) -> ArtifactRef:
+    """Accept only the exact selected reference returned by this producer write."""
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise RetainedSKGSnapshotError("retained_skg_selected_written_ref_required")
     manifest = store.get_manifest(ref)
-    if manifest.kind != ref.kind or manifest.media_type != ref.media_type:
+    if (
+        ref.kind != kind
+        or ref.media_type != media_type
+        or manifest.kind != kind
+        or manifest.media_type != media_type
+    ):
         raise RetainedSKGSnapshotError("retained_skg_written_ref_type_mismatch")
-    selected = ArtifactRef(
-        artifact_id=ref.artifact_id,
-        kind=ref.kind,
-        media_type=ref.media_type,
-        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
-    )
-    # A default/unbound put can return no profile. Require its actual immutable
-    # selected sidecar, rather than treating that legacy selector as a full view.
-    store.get_manifest(selected)
-    return selected
+    return ref
 
 
 def load_retained_skg_snapshot(
@@ -150,6 +188,7 @@ def load_retained_skg_snapshot(
 ) -> RetainedSKGSnapshot:
     """Read the exact descriptor and verify its complete retained byte closure."""
     from polisyos.core.artifacts import validate_core_model_json_artifact
+
     store = _require_retained_skg_read_store(store)
     if ref.manifest_profile_sha256 is None:
         raise RetainedSKGSnapshotError("retained_skg_descriptor_profile_required")
@@ -196,7 +235,7 @@ def load_retained_skg_snapshot(
 
 
 def retain_prepared_skg_read(
-    store: FileSystemCAS,
+    store: _RetainedSKGStore,
     prepared: PreparedSKGRead,
     *,
     existing_ref: ArtifactRef | None = None,
@@ -243,8 +282,14 @@ def retain_prepared_skg_read(
             chunk_ref = store.put_bytes(
                 payload,
                 _write_options(_CHUNK_KIND, "application/octet-stream"),
+                return_selected_profile=True,
             )
-            chunk_ref = _select_written_ref(store, chunk_ref)
+            chunk_ref = _require_selected_written_ref(
+                store,
+                chunk_ref,
+                kind=_CHUNK_KIND,
+                media_type="application/octet-stream",
+            )
             chunks.append(_SnapshotChunk(ref=chunk_ref, byte_size=len(payload)))
         if _file_identity(os.fstat(source.fileno())) != prepared.source_file_identity:
             raise RetainedSKGSnapshotError("retained_skg_source_changed")
@@ -270,8 +315,17 @@ def retain_prepared_skg_read(
             for index, chunk in enumerate(chunks)
         ],
     )
-    ref = store.put_bytes(snapshot.model_dump_json().encode("utf-8"), options)
-    ref = _select_written_ref(store, ref)
+    ref = store.put_json(
+        snapshot.model_dump(mode="json"),
+        options,
+        return_selected_profile=True,
+    )
+    ref = _require_selected_written_ref(
+        store,
+        ref,
+        kind=_SNAPSHOT_KIND,
+        media_type="application/json",
+    )
     if not prepared.source_generation_matches():
         raise RetainedSKGSnapshotError("retained_skg_source_changed_after_publication")
     return ref

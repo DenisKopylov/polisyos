@@ -564,6 +564,9 @@ class HierarchicalSearchCoordinator:
         result.telemetry["constraint_names"] = sorted(objective_spec.constraint_extractors)
         if seed_bundle is not None:
             result.telemetry["frontier_seed_count"] = len(seed_bundle.entries)
+            result.telemetry["frontier_scope_refusals"] = [
+                refusal.model_dump(mode="json") for refusal in seed_bundle.scope_refusals
+            ]
             result.telemetry["seed_domains"] = list(seed_bundle.seed_domains)
             result.telemetry["cross_domain_seed_count"] = seed_bundle.cross_domain_seed_count
         if self._pareto_registry is not None:
@@ -588,10 +591,12 @@ class HierarchicalSearchCoordinator:
                         "parent_structure_hash": structure.metadata.get("parent_structure_hash"),
                     },
                 )
-            result.pareto_front = self._pareto_registry.as_legacy_frontier_payload(loop_id)
-            result.pareto_projection = self._pareto_registry.get_snapshot(loop_id).project_view(
-                ParetoView.GLOBAL_FEASIBLE
+            result.pareto_front = self._pareto_registry.as_legacy_frontier_payload(
+                loop_id, transfer_context=transfer_context
             )
+            result.pareto_projection = self._pareto_registry.get_snapshot(
+                loop_id, transfer_context=transfer_context
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
         return result
 
     def run_narrative_search(
@@ -646,6 +651,11 @@ class HierarchicalSearchCoordinator:
     ) -> HierarchicalSearchResult:
         if candidate_only_seed_evaluations and stage_b_evaluator is None:
             raise ValueError("candidate-only transfer requires a policy Stage B evaluator")
+        transfer_context = resolve_transfer_context(
+            candidate=candidate,
+            context=initial_context or {},
+            run_id=loop_id,
+        )
         state = HierarchicalSearchState(current_level=PolicySearchLevel.STRUCTURE)
         structures = self.generate_structure_candidates(
             candidate,
@@ -692,10 +702,12 @@ class HierarchicalSearchCoordinator:
         shared_frontier: list[dict[str, Any]] = []
         pareto_projection = None
         if self._pareto_registry is not None:
-            shared_frontier = self._pareto_registry.as_legacy_frontier_payload(loop_id)
-            pareto_projection = self._pareto_registry.get_snapshot(loop_id).project_view(
-                ParetoView.GLOBAL_FEASIBLE
+            shared_frontier = self._pareto_registry.as_legacy_frontier_payload(
+                loop_id, transfer_context=transfer_context
             )
+            pareto_projection = self._pareto_registry.get_snapshot(
+                loop_id, transfer_context=transfer_context
+            ).project_view(ParetoView.GLOBAL_FEASIBLE)
         return HierarchicalSearchResult(
             state=state,
             shared_frontier=shared_frontier,
@@ -746,7 +758,7 @@ class HierarchicalSearchCoordinator:
         if self._pareto_registry is None:
             return []
         target_context = resolve_transfer_context(
-            candidate=candidate, run_id=candidate.candidate_id
+            candidate=candidate, fallback_run_id=candidate.candidate_id
         )
         bundle = self._pareto_registry.get_seed_bundle(
             target_context,

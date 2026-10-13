@@ -49,6 +49,16 @@ PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3.py --prof
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.py --output-dir docs/reports
 ```
 
+## Отфильтрованные запуски snapshots
+
+Фильтр --models задаёт scope выбора, но canonical module manifest всегда перечисляет полный активный registry этого модуля.
+
+- Генерация в schemas/snapshots допускает фильтр только тогда, когда для каждого выбранного модуля выбраны все его registry entries. Попытка записать один snapshot в canonical каталог останавливается до записи; для частичного preview передайте отдельный --output-dir.
+- Проверка canonical каталога с фильтром проверяет все entries выбранных модулей и их полный manifest. Она не означает full-registry check, если выбраны не все модули; команда без --models проверяет весь registry.
+- При отдельном --output-dir генерация и проверка остаются в scope выбранных entries. Такие preview-запуски не записывают и не проверяют глобальные generated IR reference pages.
+- Результат печатает selection scope и число проверенных entries относительно полного registry, чтобы partial preview нельзя было принять за full acceptance.
+- Canonical scope определяется по физической identity каталога: существующие пути сравниваются средствами filesystem (включая case- и symlink-aliases), отсутствующие — через identity ближайшего существующего предка и весь unresolved suffix. Если оба пути отсутствуют под одним физическим предком, но их suffix различается, генератор возвращает UNRUN вместо предположения, что это отдельный preview. Создайте отдельный preview-каталог заранее или выберите путь под другим существующим предком.
+
 ## Известные ограничения
 
 - В кодовой базе отсутствуют `polisyos.fabric.udf.*` и `polisyos.fabric.io.graph_store`; поэтому `check_udf_perf.py` сейчас не соответствует текущей структуре `src/polisyos`.

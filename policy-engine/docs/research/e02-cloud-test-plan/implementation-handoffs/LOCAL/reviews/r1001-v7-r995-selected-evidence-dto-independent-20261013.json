@@ -1,0 +1,54 @@
+{
+  "candidate": {
+    "decision_sha256": "856b5da7ea0fee84a9148f7f880541ddf1fdfd2161f486b5c6cdeaba9221ca32",
+    "manifest_path": "raw/r995-v7-selected-record-empirical-ref-dto-bridge-20261013/manifest.json",
+    "manifest_sha256": "c2b6885bb39b9d4cd6572f2186621c38fa181ff16ef67f51195ce542d895b25b",
+    "patch_path": "raw/r995-v7-selected-record-empirical-ref-dto-bridge-20261013/candidate.patch",
+    "patch_sha256": "c55177a606611b02a60abce7d3c62f9d23e57202d61033a9a635cab263544274"
+  },
+  "checks": {
+    "git_apply_check": "PASS; exact patch checked all five paths; no application performed",
+    "in_memory_postimage_reconstruction": "PASS; all five hashes equal manifest postimages",
+    "preimage_binding": "PASS; all five current worktree bytes and HEAD blobs equal manifest preimages",
+    "ruff": "not independently rerun; manifest records clean format and zero new diagnostics",
+    "runtime_or_pytest": "UNRUN as assigned",
+    "stdlib_ast": "PASS; all five reconstructed postimages parse"
+  },
+  "closure_ids": [],
+  "disposition": "GO for focused root-owned native replay only",
+  "frame_note": "Three of five target paths appear in R997 physical_postimages; two omitted paths were independently bound to current HEAD blobs and exact manifest preimages.",
+  "mechanism": {
+    "consumer_adapter": "normalize_artifact_ref(ref) -> EmpiricalCalibrationEvidenceRef.model_validate(mapping); exact public identity/kind/media/profile is preserved; profileless remains None.",
+    "consumer_quantity": [
+      "POST S10 evidence resolver",
+      "fresh GET run-binding evidence load",
+      "S10 recomputation evidence load",
+      "S10 recomputation evidence resolver"
+    ],
+    "negative_controls": [
+      "profileless is not synthesized",
+      "wrong evidence kind refused",
+      "existing wrong-run GET/event integrity/idempotency controls remain"
+    ],
+    "producer": "put_json_artifact(return_selected_profile=True) returns the selected profile from the actual write and rejects unsupported/missing profile; no later default-view inference."
+  },
+  "p37": {
+    "issuer_authority_currentness": "not_established; no claim or status is upgraded.",
+    "selected_profile": "recomputed by the producer\u2019s selected-view write and checked by the store/IR read path; this binds a view only."
+  },
+  "p40": "SAME_CLASS_DEEPER; the candidate widens the bridge to the producer and all four consumers.",
+  "review_id": "r1001-v7-r995-selected-evidence-dto-independent-20261013",
+  "scope_limit": "Candidate source/static review only; root must run focused native replay before acceptance.",
+  "source_base": {
+    "frame_path": "root-author-source-frame-r997-20261013.json",
+    "frame_sha256": "4239fe24bfec79884e33feae0d1aa887780d943737eeac2eb86023b929cd3da0",
+    "head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "tree_and_index": "1b52a38c1f5869928426f2090d8230d6ca78eec6"
+  },
+  "trigger": {
+    "junit_sha256": "c8f790182ffcb333b3c35c7e352e8952feb2553bf26d8b0480e6b09146477540",
+    "observed": "R992: 39 passed, 1 failed; fresh GET returned 400 when a Core ArtifactRef was validated directly as the IR evidence DTO",
+    "receipt_sha256": "8bde03705af8cbe802bff855ca0cff11ffd87b2c8ea9de777d31959d48384479",
+    "stdout_sha256": "c5731ca1d977c5f00971db912a963244d99cdfd769efd4f2cdba1d8ab3db81f0"
+  }
+}

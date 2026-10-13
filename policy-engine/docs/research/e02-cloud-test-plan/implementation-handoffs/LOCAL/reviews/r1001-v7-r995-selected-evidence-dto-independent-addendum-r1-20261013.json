@@ -1,0 +1,9 @@
+{
+  "closure_ids": [],
+  "disposition_delta": "none; source-semantic GO remains bounded to focused root-owned replay",
+  "qualifies_review_path": "r1001-v7-r995-selected-evidence-dto-independent-20261013.md",
+  "qualifies_review_sha256": "1cbe1e7d6c7a31b73eccc274cf1cc2aa68cd677e74a981d678c9ae9a85c3ef23",
+  "required_canonical_check": "Run Ruff with product cwd/configured ruff.toml and path-relative stdin for each of the five candidate postimages.",
+  "review_id": "r1001-v7-r995-selected-evidence-dto-independent-addendum-r1-20261013",
+  "ruff_status": "pending canonical root check; author manifest receipt is not relied on as a canonical quality pass"
+}

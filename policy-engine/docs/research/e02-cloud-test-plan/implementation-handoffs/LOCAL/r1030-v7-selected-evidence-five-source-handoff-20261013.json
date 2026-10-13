@@ -1,0 +1,234 @@
+{
+  "slice": "R995/R1008 reviewed empirical producer/profile and role-specific ref consumers",
+  "author_role": "candidate author; independent G acceptance/publication/adjudication pending",
+  "slice_base": {
+    "head": "300ef5a5c093fb97b8612987fca539d4371982cd",
+    "tree": "e0e8e0962ef44e154ae086673fbbda1bfe98e655",
+    "parents": [
+      "ff1f401a3429205dadc6b1fd4299243ba3aaf417"
+    ]
+  },
+  "candidate": {
+    "head": "b5dd2956cdda5ee320b96428d1fdbcc05dda522f",
+    "tree": "8c5dc685cf7d6106cb2e1e3a59a3eae193111afe",
+    "parents": [
+      "300ef5a5c093fb97b8612987fca539d4371982cd"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "before_sha256": "ccc80391221004561e863e12bee87503a71f290ce716eb342f0df5665946fbe4",
+      "postimage_sha256": "99c11c8e2e706ed66c0e084cbc38af666d18a9a9c31c9769985cf64e2c55dc91",
+      "bytes": 67753
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "before_sha256": "f838611be291ab3c0c27a0ca31d2449c1678428b32b5e98f19d5b45552c29423",
+      "postimage_sha256": "abf9a874ff757dd99d31a9ef81cdd31eb0e5321b0e5b81575cda86d776011aad",
+      "bytes": 68861
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py",
+      "before_sha256": "2c2e6f855715bc27773a7da685ddffdfbfcef7a27a2d4edb5f70d9f6846f5f4c",
+      "postimage_sha256": "e99f73f1a233b88149323bb16ec54f52cabaf2a03ca6398155378637ad684da5",
+      "bytes": 16044
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "before_sha256": "00ec0f489f52200c2c42a231a6515b75f59646a6f3836f9d7b95af03978e6c7d",
+      "postimage_sha256": "2d3b45e1d4ed498b0fbae4ef94259e4065626432432d13d350ad0ab73a0becff",
+      "bytes": 238179
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py",
+      "before_sha256": "351c466fd0e1c128fd4f97ed3a4a823f28dae64be62160c847e779b7dd038979",
+      "postimage_sha256": "2e90fc2b4ade93671aa49542287e094427ff9bf5fb2b5e1dc65e47d9f9dff5ca",
+      "bytes": 3629
+    }
+  ],
+  "footprint_count": 5,
+  "independent_reviews": {
+    "reviews/r1001-v7-r995-selected-evidence-dto-independent-20261013.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1001-v7-r995-selected-evidence-dto-independent-20261013.md",
+      "sha256": "1cbe1e7d6c7a31b73eccc274cf1cc2aa68cd677e74a981d678c9ae9a85c3ef23"
+    },
+    "reviews/r1001-v7-r995-selected-evidence-dto-independent-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1001-v7-r995-selected-evidence-dto-independent-20261013.json",
+      "sha256": "59d91a1580a0f029d79f1a0c73d74e22c3034bef658ea6ba668a1b26b2038184"
+    },
+    "reviews/r1001-v7-r995-selected-evidence-dto-independent-addendum-r1-20261013.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1001-v7-r995-selected-evidence-dto-independent-addendum-r1-20261013.md",
+      "sha256": "d2634a6aff9bfa1199fe67754ed99141b4516ff1c3a861f80b9fc4af548ac6d0"
+    },
+    "reviews/r1001-v7-r995-selected-evidence-dto-independent-addendum-r1-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1001-v7-r995-selected-evidence-dto-independent-addendum-r1-20261013.json",
+      "sha256": "50b12b4b93c633778612a4a135d20ea89b09b4db6a42eed10a5d7b5a3bdd985b"
+    },
+    "reviews/r1011-v7-r1008-import-independent-20261013.md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1011-v7-r1008-import-independent-20261013.md",
+      "sha256": "959f784047ae279f4301dacc87ecdcebb9bfa786ef4cd305e6ebc4804109412e"
+    },
+    "reviews/r1011-v7-r1008-import-independent-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1011-v7-r1008-import-independent-20261013.json",
+      "sha256": "d2f7a012adbe7b99eef45db9f2ebb6459ca4907d16315f075fa1f34e41e69c8d"
+    }
+  },
+  "source_frames": {
+    "root-author-source-frame-r1023-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1023-20261013.json",
+      "sha256": "63da6d607ffe6d2998f90559d7f7a44926171f946fe0ec1174b7bc51328be1f1"
+    },
+    "root-author-source-frame-r1029-20261013.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1029-20261013.json",
+      "sha256": "914ba892154e3b381d9fcfd42955b0e3c080aebb79aede604c6c21cc698cd555"
+    }
+  },
+  "selected_input_profile_backend": {
+    "input": "controlled source-bound deterministic runtime/ForecastOwner fixtures from real test; not live production",
+    "backend": "locked numpy forecast bridge, Torch cpu threads1/interops1; effective profile in deciding output",
+    "profiles": "exact selected manifest returned by actual empirical evidence producer write; missing profile remains None and cannot become attestation",
+    "external_facts": "issuer/source time/population/counterfactual remain not_established; candidate assessment limited predictive_only"
+  },
+  "source_bound_command_full_deciding_output": {
+    "command.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/command.json",
+      "sha256": "aea367d6d1a9244d676842a9922df1563d46a93554533e7901c1b772288e5f01"
+    },
+    "stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/stdout.txt",
+      "sha256": "634bd40cbf217e9ae9ed2453bd3c9fa7d64dc82af0d8f2b368999104f1678357"
+    },
+    "stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/junit.xml",
+      "sha256": "2f2961eb072906c7741a5966c28b45f35491d270937fe7362e98e29425c319c4"
+    },
+    "module-origins.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/module-origins.json",
+      "sha256": "834bdba8f8cf807af8a34fdedb9e0283b0339931aa7477ccaf6c93f25f309fd3"
+    },
+    "progress.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-post-event-fresh-get-actual-r1024-20261013/progress.json",
+      "sha256": "f799779b05cd9070261d39ee32dbdc386dee08cdd365ef58679781c78cd340ca"
+    }
+  },
+  "native_outcomes": {
+    "pass": 11,
+    "fail": 1,
+    "error": 0,
+    "skip": 0
+  },
+  "source_boundary": {
+    "capture_inputs": 6213,
+    "stable": true,
+    "module_origins": 1745,
+    "foreign_product_modules": 0,
+    "plugin_input_limitation": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02_progress_failure_r559_20261013.py": {
+        "sha256": "86884219e8b527c721a4feaf9e318a4548ecbdb5a03d1e25c6a33053e9e9533d",
+        "qualification": "read back against previously admitted exact plugin; absent from this run capture denominator; not a before-after receipt"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5_single_thread_pytest_r315_20261012.py": {
+        "sha256": "01c495d29c9dc230faa7fe2b495d9d0dc76c8761cd030148f439af41a6a2dcbc",
+        "qualification": "read back against previously admitted exact plugin; absent from this run capture denominator; not a before-after receipt"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02_runtime_module_origins_r792_20261013.py": {
+        "sha256": "142b872b6b1f3de58755a3ef2c12361960910654546610a299fa6ce6eec1fcbb",
+        "qualification": "read back against previously admitted exact plugin; absent from this run capture denominator; not a before-after receipt"
+      }
+    }
+  },
+  "real_chain": "ordinary POST -> ForecastOwner -> persisted evidence selected-profile ref -> persisted publication event and completed intent -> association/ref-bound HTTP intake -> fresh GET refusal at nested ForecastCalibrationRecord Core/IR DTO seam",
+  "adversarial_removal_controls": {
+    "run_root": "alternate selected-profile source POST422 and foreign-run GET409 before authority projection",
+    "disabled_surface": "owner not called, no event/intent/CAS mutations; actual case reaches assertions before failed GET",
+    "negative_ref_controls": "all exact-field preservation/missing-profile no-synthesis/wrong-kind adapter cases and FRC02 source/time binding refusal tests pass",
+    "removal": "new whole-chain property-removal controls pending R1027; do not upgrade 11PASS to property closure"
+  },
+  "consumer_surface": "actual HTTP TestClient source-bound instance plus fresh owner CAS reader and S10 bridge; browser/installed/archive consumers UNRUN for this delta",
+  "limitations": [
+    "fresh GET 400 at nested ForecastCalibrationRecord.empirical_evidence_ref; completed-intent retry after this boundary UNRUN",
+    "second same DTO-ref class escape widened to R1027 whole producer/intake/nested-record/cache/recompute quantity before further repair",
+    "full V7 original B16/B32/LA-051 criteria not established by these 12 tests",
+    "native repository gates/Q2/Linux/composed full replay/authentic closeout still pending; no new G checkpoint accepted"
+  ],
+  "decision_pointers": [
+    "decisions/n9-pre001b-profileless-reference-g-choice-r703-20261013.md (separate held historical selector semantics)"
+  ],
+  "proposal_fields": [
+    {
+      "id": "B16",
+      "outcome": "open",
+      "scope": "bounded empirical selected-ref producer and four direct consumer seams implemented/tested; whole-property fresh GET incomplete",
+      "next_check": "R1027 full nested forecast Core/IR ref-boundary source and independent review, then exact same source-bound POST/event/fresh GET/intent replay with negative controls"
+    },
+    {
+      "id": "B32",
+      "outcome": "open",
+      "scope": "bounded empirical selected-ref producer and four direct consumer seams implemented/tested; whole-property fresh GET incomplete",
+      "next_check": "R1027 full nested forecast Core/IR ref-boundary source and independent review, then exact same source-bound POST/event/fresh GET/intent replay with negative controls"
+    },
+    {
+      "id": "LA-051",
+      "outcome": "open",
+      "scope": "bounded empirical selected-ref producer and four direct consumer seams implemented/tested; whole-property fresh GET incomplete",
+      "next_check": "R1027 full nested forecast Core/IR ref-boundary source and independent review, then exact same source-bound POST/event/fresh GET/intent replay with negative controls"
+    }
+  ],
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "G_accepted_checkpoint": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "scope": "bounded CAN/C10/C11/DFK prior G101PASS7SKIP only"
+  },
+  "delivery": {
+    "remote300_checkpoint_proof": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/own-topic-source-receipt-push-r1018-20261013/remote-source-receipt-readback.json",
+      "sha256": "d3b7b865f1c5a93c3ee8e90116615913f4001afdbf5b825606006267bc0519df",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "current_candidate_push": "not yet performed at packet creation; receipt-only commit will precede own-topic push; never future own receipt SHA"
+  },
+  "retained_raw_evidence": {
+    "raw/reviewed-v7-selected-evidence-composed-r1021-20261013/composition.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-v7-selected-evidence-composed-r1021-20261013/composition.json",
+      "sha256": "9c10a672459268518d82b2e8c0c61074309540e1f350f635499d7c6b35361be6",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/reviewed-v7-selected-evidence-composed-r1021-20261013/application-readback.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-v7-selected-evidence-composed-r1021-20261013/application-readback.json",
+      "sha256": "7b27575c3d6ddc954db6323b9832aed035c7ba5f19a49ca36c9f28d342568ef4",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/reviewed-v7-selected-evidence-composed-r1021-20261013/root-native-quality.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-v7-selected-evidence-composed-r1021-20261013/root-native-quality.json",
+      "sha256": "6e0cd1314a286caf2e4aedb3dfd48a9c0ec2429a192c7b83bffd70b0aa01ec9b",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/v7-selected-evidence-source-commit-r1028-20261013/source-commit-readback.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-source-commit-r1028-20261013/source-commit-readback.json",
+      "sha256": "7d52ca0eb01ddce0d2d8efabe1b868e87e1d1d9e555947b479e5bd3f50db8ec9",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/v7-selected-evidence-source-commit-r1028-20261013/stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-source-commit-r1028-20261013/stdout.txt",
+      "sha256": "b6657686ac8e0c70068ec49a0414d30b542f340aa493e7ffc70d1cf725bd2bfd",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/v7-selected-evidence-source-commit-r1028-20261013/stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v7-selected-evidence-source-commit-r1028-20261013/stderr.txt",
+      "sha256": "37f076c1cdb1bb55cd04ad7018e3708f918db039a45ed03037864ac8d729c865",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    },
+    "raw/own-topic-source-receipt-push-r1018-20261013/remote-source-receipt-readback.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/own-topic-source-receipt-push-r1018-20261013/remote-source-receipt-readback.json",
+      "sha256": "d3b7b865f1c5a93c3ee8e90116615913f4001afdbf5b825606006267bc0519df",
+      "availability": "retained ignored raw on local author host; no source dump committed"
+    }
+  }
+}

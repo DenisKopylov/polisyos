@@ -1,0 +1,44 @@
+{
+  "candidate": {
+    "manifest_path": "raw/r1008-v7-empirical-ref-test-import-companion-20261013/manifest.json",
+    "manifest_sha256": "b5226761d8dde51e1db33a964ccedcb03d418f1974d7fe8e291488c9951dcb02",
+    "patch_path": "raw/r1008-v7-empirical-ref-test-import-companion-20261013/candidate.patch",
+    "patch_sha256": "929015c7ac8e03e72115b33331bef11f8dc314027b0661482130740653871abd",
+    "post_sha256": "2e90fc2b4ade93671aa49542287e094427ff9bf5fb2b5e1dc65e47d9f9dff5ca",
+    "pre_sha256": "5e5582b9b580d16c22d45799252cb7614920dff7ae0ab067752d4aabb6a9480e",
+    "target": "policy-engine/tests/unit/runtime/http/test_predictive_calibration_profile_boundary.py"
+  },
+  "closure_ids": [],
+  "composition": {
+    "base_composition_path": "raw/reviewed-v7-selected-evidence-dto-composition-r1007-20261013/composition.json",
+    "base_composition_sha256": "fbb762e2406e6098c19b9383671f5205f31af44f0e034449e34b59433bb61e3e",
+    "r1001_review_sha256": "1cbe1e7d6c7a31b73eccc274cf1cc2aa68cd677e74a981d678c9ae9a85c3ef23",
+    "r1007_net_patch_sha256": "999ef58e18a1c81860b669c6b0e989b1755d58d3a0d243d7fb220ed4e9e248e8",
+    "r995_patch_sha256": "c55177a606611b02a60abce7d3c62f9d23e57202d61033a9a635cab263544274"
+  },
+  "delta_review": {
+    "description": "One blank line added between pytest and first polisyos import; no semantic/test statement changes.",
+    "import_bindings_equal": true,
+    "in_memory_stack": "R995 five-path outputs matched R1007 composition; R1008 applied to the R995 target overlay and matched exact postimage.",
+    "non_import_ast_equal": true,
+    "product_files_written": false
+  },
+  "disposition": "GO for focused root-owned native replay after R995 then R1008 composition",
+  "p40": "same reviewed integration; this is a one-file formatting companion with no new runtime-property claim.",
+  "review_id": "r1011-v7-r1008-import-independent-20261013",
+  "ruff": {
+    "check_exit": 0,
+    "check_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "check_stdout": "[]",
+    "check_stdout_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "cwd": "policy-engine",
+    "format_exit": 0,
+    "format_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "format_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtime_or_pytest": "UNRUN"
+  },
+  "source_base": {
+    "head": "ff1f401a3429205dadc6b1fd4299243ba3aaf417",
+    "tree_and_index": "1b52a38c1f5869928426f2090d8230d6ca78eec6"
+  }
+}

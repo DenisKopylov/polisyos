@@ -1,0 +1,75 @@
+{
+  "review_id": "R1333",
+  "verdict": "GO_FOR_ROOT_COMPOSITION_AND_FOCUSED_RUNTIME_VERIFICATION",
+  "scope": "independent read-only review of R1330 cumulative candidate; runtime tests were not run",
+  "source": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+    "source_frame": "LOCAL/root-author-source-frame-r1306-r2-20261014.json@cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92"
+  },
+  "candidate": {
+    "packet": "LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/candidate-r1330.patch",
+    "patch_sha256": "8830908125f3a1eff9cc201396d1241ca67bb7d413f29dc397cf1bfc056f4a2e",
+    "manifest": "LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/manifest-r1330.json",
+    "manifest_sha256": "04ed9e36c99a0b0e1007897a357624aceadf3ddc24fa885400852d480a9f5ea8",
+    "decision": "LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/decision-r1330.md",
+    "decision_sha256": "eaa1a6c0f96983e8c643e7cd113f298acb42b92cf7d8c7089cb50741a8ed5508",
+    "candidate_status": "virtual_author_candidate_only_unapplied",
+    "cumulative_path_count": 16,
+    "r1316_unchanged_postimages": 15,
+    "only_changed_path_from_r1316": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py"
+  },
+  "predecessor_bindings": {
+    "R1316_patch_sha256": "564e8e652411723ade8dd9eaf482a3f895742884151a9fb4ccc4c1f11ac4c629",
+    "R1316_manifest_sha256": "2a775e7ff19779e9140827e82d5c071273ce27e28c9a85e322a75675ea4a3de6",
+    "R1323_review_markdown_sha256": "e533084fb86ed7e9c86ec34948767c841fd1c4e4e30c346535048fa4555fe071",
+    "R1323_review_json_sha256": "3a558bdbba7d192e59d1a9ba52314244b96d963ec27a5c9b3626e66870c5ce12",
+    "R1323_addendum_markdown_sha256": "5c09bc9714e38be5daafdaef8369c1d8e8ffe88e86190b9c987ce5f213e5a3dc",
+    "R1323_addendum_json_sha256": "dd8a488be9fcd62c715905e4cc49c64d00616e39778b8761ddc2fc0da08ef2c8"
+  },
+  "validation": {
+    "git_apply_check": {
+      "exit_code": 0,
+      "paths_checked": 16,
+      "meaning": "hunk applicability only"
+    },
+    "independent_in_memory_replay": {
+      "physical_preimages_exact": 16,
+      "HEAD_preimages_exact": 16,
+      "manifest_postimages_exact": 16,
+      "python_ast": "15/15 PASS"
+    },
+    "runtime_pytest_ruff_native_installed_consumer_checks": "UNRUN",
+    "source_tests_index_git_history_writes": false
+  },
+  "countermodel": {
+    "test": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py::test_transfer_query_keeps_source_run_filter_separate_from_target",
+    "corrected_virtual_lines": "1560-1585",
+    "isolated_registry": "tmp_path/source-only",
+    "source_records_written": 1,
+    "source_domains_asserted": ["fiscal"],
+    "labor_destination_snapshot_asserted_empty_before_query": true,
+    "query_domain": "labor",
+    "target_domain": "energy",
+    "all_other_matching_source_selectors": true,
+    "source_derived_expected_result": [],
+    "removal_control": "without the source-domain predicate, the fiscal card is admitted and eligible for same-tenant cross-domain projection into energy",
+    "prior_positive_and_quota_controls_preserved": true
+  },
+  "P37": {
+    "source_namespace_and_domain": "recomputed from stored entries/cards under candidate mechanism; exact fixture populations asserted",
+    "external_source_authority_tenant_identity_and_G_domain_axis": "not_established"
+  },
+  "P38": {
+    "property": "a source-domain query rejects mismatched persisted source records before projection",
+    "implementation": "candidate filters source entries/cards by current domain before materialization",
+    "divergent_case": "R1323's labor negative reused a persisted labor target card; R1330 isolates one fiscal source and asserts labor absent before querying"
+  },
+  "P40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "disposition": "R1330 fixes the contradictory source namespace fixture; no product mechanism changed from R1316"
+  },
+  "closure_ids": []
+}

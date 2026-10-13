@@ -1,0 +1,65 @@
+{
+  "schema": "e02.local.source36.handoff_addendum.v1",
+  "source_checkpoint": {
+    "candidate": "35356748a873037f67f0198f2d0b99a9bd09cf94",
+    "tree": "733ec0727f819d7f9990cd9e22d2efa927d92617",
+    "parents": [
+      "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7"
+    ],
+    "slice_base": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7"
+  },
+  "supersedes_only_stated_fields_of": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source36-reviewed-composition-implementation-handoff-r1346-20261014.json",
+    "sha256": "c3743acaa2b79b0a04fc00868834f99ffd85841f574585a4d1e73052e382e5ee"
+  },
+  "correction": {
+    "R1338": "independent composition/style review GO was completed before implementation commit; earlier handoff pending label is stale",
+    "canonical_full_ABI_check": "R1350 full 106/106 check now completed; generation remains separate and no output mutation was needed"
+  },
+  "independent_composition_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1338-r1337-reviewed-composition-style-delta-independent-20261014.json",
+    "sha256": "4384e61673c6e7151d94d254e5a596725cf9168bcca51b851918f250a34bcc37"
+  },
+  "native_full_abi_check": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-canonical-full-106-schema-check-actual-r1350-20261014/command.json",
+      "sha256": "793cae2a66c10dd06a6e957789b721187c4c726eb2b97cc906fb7e7e48a504bf"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-canonical-full-106-schema-check-actual-r1350-20261014/stdout.txt",
+      "sha256": "a3822b983c3d2bead87be86d83767ae0ffc78ccae61b1505f603ecf3e36dce4d"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-canonical-full-106-schema-check-actual-r1350-20261014/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "exit_code": 0,
+    "wall_seconds": 8.350204791990109,
+    "input_paths": 7084,
+    "all_captured_inputs_stable": true,
+    "deciding_output": "ABI schema snapshot check passed (106 models, scope=full, registry=106/106, scan_mode=full)\n",
+    "scope": "full ABI registry schema content recomputation; not full repository/native/installed consumer acceptance"
+  },
+  "ruff_root_diagnostic": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-canonical-ruff-root-diagnostic-actual-r1351-20261014/command.json",
+      "sha256": "dad6b79a815f6f2331a5e32b44f5c439487f9c4e02f3bdafa338e9a4b334fe00"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-canonical-ruff-root-diagnostic-actual-r1351-20261014/stdout.txt",
+      "sha256": "5a0b181cf6435187e8cae53ed5ee8678260eb54a0b503fed863854cbdc9556bb"
+    },
+    "exit_code": 1,
+    "wall_seconds": 0.5312102909665555,
+    "scope": "diagnostic ruff check . from product root; canonical invocation/full actual Ruff input denominator not yet established by R1352",
+    "diagnostics": 37965,
+    "diagnostic_files": 1083,
+    "source_capture_paths": 6951,
+    "capture_is_not_full_ruff_input_denominator": true,
+    "P41": "not_established",
+    "repair_route": "R1352 canonical scope/config diagnosis; no blanket waiver or mass import fixes"
+  },
+  "remaining_native": "ordinary POST/N5/CAS/freshGET, meaningful N4 runtime, full composed replay, native SOTA and installed consumers UNRUN for Source36",
+  "closure_ids": [],
+  "proposal_closures": []
+}

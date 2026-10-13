@@ -1,0 +1,83 @@
+{
+  "review_id": "R1312-R1288-R1",
+  "review_kind": "independent_read_only_static_review",
+  "verdict": "GO_FOR_ROOT_SOURCE_APPLICATION; NATIVE_ACCEPTANCE_UNRUN",
+  "authority": "review evidence only; not applied-source acceptance, G acceptance, or formal closure",
+  "closure_ids": [],
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b",
+    "source_frame": "LOCAL/root-author-source-frame-r1267-20261014.json@a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+    "known_later_receipt_only_advance": {
+      "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+      "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+      "source_frame": "LOCAL/root-author-source-frame-r1306-20261014.json@b87c7b5fe6bb4f56efa87f020784be72873c88d87fc5f76faa6fa4d5edf2bddb",
+      "source_implementation_head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+      "target_preimages_reverified_after_advance": true
+    }
+  },
+  "candidate": {
+    "patch": "LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/proposal.patch@6fae3cea8005da489901946bcb1864fd679f78052ca99dff55b9e2b762a6e776",
+    "manifest": "LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/manifest.json@c76f73e369f59f29a69da4c4f330c66c14debd4b3f7ce90569d9fd0122f9f86e",
+    "decision": "LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/decision.md@e7daeb89600e6136342e27fa7c8b022503575a126a0ba6306f3d6cb1488fab8f",
+    "exact_source_path_count": 3,
+    "source_paths": [
+      "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "policy-engine/tests/repo_quality/tools/test_diagnostics_phase3.py",
+      "policy-engine/tools/quality/diagnostics/README.md"
+    ],
+    "preimages_match": true,
+    "git_apply_check_exit": 0,
+    "in_memory_reconstruction_postimages_match_manifest": true,
+    "python_postimages_stdlib_ast_parse": "PASS"
+  },
+  "property": {
+    "guarded": "whether the selected output directory is the canonical schema snapshot directory by physical filesystem identity, independent of argument spelling",
+    "implementation": "samefile for existing directories; nearest-existing-directory samefile plus complete unresolved suffix for missing destinations; ambiguous equal-depth sibling suffixes fail closed",
+    "prewrite_boundary": "identity and canonical selection occur before entry resolution, cache access/setup, reference-page callback, and output writes",
+    "p38_witness": {
+      "paths": ["policy-engine/schemas/snapshots", "policy-engine/schemas/Snapshots"],
+      "resolved_equal": false,
+      "samefile": true,
+      "device_inode_both": [16777231, 175366069]
+    }
+  },
+  "static_findings": [],
+  "bounded_limitation": "Two absent sibling destinations with differently spelled equal-depth suffixes below the same physical ancestor remain ambiguous and return UNRUN. A caller can pre-create a separate preview directory or choose a destination below a distinct existing parent. The proposed preview control uses an existing canonical directory and a missing sibling preview path.",
+  "controls_in_candidate_not_run": [
+    "partial canonical refusal before resolver/cache/reference/write with whole-tree byte snapshots",
+    "symlink and conditional case alias matrix across default, --output-dir, deprecated directory, and deprecated JSON-parent output",
+    "ABI-key, priority, and FQN selector coverage",
+    "missing destination under symlink/case-alias ancestor",
+    "ambiguous missing-sibling fail-closed behavior",
+    "reference-page callback observed for canonical paths and absent for preview paths",
+    "filtered canonical check fails on corrupted sibling schema",
+    "filtered canonical check fails after manifest-row removal and content_hash recomputation",
+    "preview selected-schema corruption fails content check",
+    "complete 106-entry canonical generator --check"
+  ],
+  "verification": {
+    "tests_run": false,
+    "ruff_run": false,
+    "generator_run": false,
+    "native_gate_run": false,
+    "database_touched": false,
+    "source_or_index_written": false,
+    "remaining_required": [
+      "requalify exact preimages and apply at Root source boundary",
+      "run focused mirrored tests and Ruff",
+      "run full canonical 106-entry generator --check and preserve complete output",
+      "run sibling-schema corruption and recomputed manifest-row removal controls against applied source",
+      "run selected-preview content and zero-reference-callback controls against applied source"
+    ]
+  },
+  "pattern_buckets": {
+    "P29": "behavioral callback/resolver counts and full byte snapshots are present in candidate tests",
+    "P35": "complete registry denominator remains source-bound to the R1273 census",
+    "P38": "physical identity replaces resolved-string equality",
+    "P39": "one mechanism path plus two required companions",
+    "P40": "same class, second finding; widened across physical aliases and CLI output forms"
+  }
+}

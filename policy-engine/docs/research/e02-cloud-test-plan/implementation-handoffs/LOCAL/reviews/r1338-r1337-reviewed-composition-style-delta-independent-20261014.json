@@ -1,0 +1,187 @@
+{
+  "review_id": "R1338-R1337-R2-COMPOSITION-STYLE",
+  "review_kind": "independent_read_only_composition_and_style_delta_review",
+  "verdict": "GO_FOR_ROOT_APPLICATION_AND_FOCUSED_COMPOSED_REPLAY; RUNTIME_NATIVE_ACCEPTANCE_UNRUN",
+  "authority": "composition/style review only; not applied-source acceptance, G acceptance, or formal closure",
+  "closure_ids": [],
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7"
+  },
+  "composition": {
+    "composition_json": "LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/composition.json@b626a8173177846c05e173f1b537f7f2511e2ea3102f810e38965ab446ea0cab",
+    "net_patch": "LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/net.patch@a347fc2e3ff725bf55c5a4fecf3cdbb1bff969fac9a769aed777df486ccb645a",
+    "ordered_stages": [
+      "R1281",
+      "R1301",
+      "R1294",
+      "R1288-r1",
+      "R1284-r2",
+      "R1283",
+      "R1290-r3",
+      "R1322-r4",
+      "R1296",
+      "R1321-r3",
+      "R1330",
+      "R1336-style"
+    ],
+    "stage_count": 12,
+    "stage_path_entries": 68,
+    "unique_final_paths": 55,
+    "overlap_count": 13,
+    "overlaps": [
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+        "sequence": [
+          "R1281",
+          "R1284-r2"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/chain_executor.py",
+        "sequence": [
+          "R1283",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+        "sequence": [
+          "R1283",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+        "sequence": [
+          "R1283",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "sequence": [
+          "R1283",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "sequence": [
+          "R1283",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+        "sequence": [
+          "R1290-r3",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_diagnostics_phase3.py",
+        "sequence": [
+          "R1288-r1",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+        "sequence": [
+          "R1296",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+        "sequence": [
+          "R1296",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "sequence": [
+          "R1290-r3",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "sequence": [
+          "R1290-r3",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      },
+      {
+        "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+        "sequence": [
+          "R1288-r1",
+          "R1336-style"
+        ],
+        "preimage_equals_prior_postimage": true
+      }
+    ],
+    "all_stage_preimages_and_postimages_match": true,
+    "current_final_preimages_match": true,
+    "in_memory_net_reproduces_all_final_postimages": true,
+    "git_apply_check_whitespace_error_exit": 0,
+    "candidate_applied": false
+  },
+  "style": {
+    "patch": "LOCAL/raw/r1336-reviewed-composition-canonical-style-20261014/style.patch@26446d2431b7b4c746419a4892ce4adea1c2d9cc60a7c13b7e7b26a587bca251",
+    "manifest": "LOCAL/raw/r1336-reviewed-composition-canonical-style-20261014/manifest.json@5a0f2e68fa37bb106357f5ee23360d8088e277af5b3efe28e18c95d708f5b068",
+    "changed_paths": 12,
+    "ast_unchanged_paths": 11,
+    "sole_ast_delta": {
+      "path": "policy-engine/tests/repo_quality/tools/test_diagnostics_phase3.py",
+      "rule": "RUF005 explicit list construction",
+      "before": "before_reference_calls + [True]",
+      "after": "[*before_reference_calls, True]",
+      "operand_provenance": "before_reference_calls = list(reference_doc_calls)",
+      "property_effect": "none; preserves the existing concrete-list expectation plus True; test-only"
+    }
+  },
+  "quality_receipt": {
+    "path": "LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/root-quality-r1093.json@aca28b77d61a8df472305151f7576c889ecc25c3577837dae3f75e2860e4955c",
+    "composition_sha_bound": true,
+    "records": 106,
+    "all_exit_codes_zero": true,
+    "all_result_hashes_match_final_postimages": true,
+    "runtime_verification": "UNRUN",
+    "r1311_ruff_block_resolved_for_exact_test_composer_postimage": "cb9f10c05a57f87cafe382f04bc255ccd8e0499833e1ac5492d39fcc72baf5e7",
+    "receipt_was_rerun_by_reviewer": false
+  },
+  "preserved_holds": [
+    "R1304 ABM3 namespace/publication/migration choice unresolved",
+    "R1312 bounded ambiguous differently-spelled missing-sibling destinations remain UNRUN",
+    "R1311 ambient registry_scope interaction control and runtime/native acceptance remain pending",
+    "R1308 does not close B31, B33, or B214",
+    "R1329 root instrumented run required; N4-V2 remains not_established",
+    "R1310 does not establish Prepared-B or package/profile closure",
+    "R1333 claims no external tenant/issuer authority or G domain-axis decision",
+    "R1295, R1298, R1313, and R1331 runtime/native work remains pending"
+  ],
+  "verification": {
+    "product_import": false,
+    "pytest_or_native_run": false,
+    "source_or_git_index_history_written": false,
+    "database_or_production_input_accessed": false,
+    "closure_ids": []
+  }
+}

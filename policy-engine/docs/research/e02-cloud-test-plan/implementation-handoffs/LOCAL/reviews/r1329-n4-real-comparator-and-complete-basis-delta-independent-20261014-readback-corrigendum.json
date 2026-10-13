@@ -1,0 +1,59 @@
+{
+  "corrigendum_id": "R1329-readback-corrigendum",
+  "corrects_readback_of": {
+    "markdown_path": "reviews/r1329-n4-real-comparator-and-complete-basis-delta-independent-20261014.md",
+    "markdown_sha256": "813711d1caf845bc86471e0f2755c8eec6afc0c74c1b9ab0f4e0775681316589",
+    "json_path": "reviews/r1329-n4-real-comparator-and-complete-basis-delta-independent-20261014.json",
+    "json_sha256": "47d4702bd6d6193ff5cf5c81813a277c1b3a45b4e181645312c8582286cfe455",
+    "json_bytes": 6285,
+    "parse_error": {
+      "type": "JSONDecodeError",
+      "message": "Extra data: line 108 column 2 (char 6283)",
+      "line": 108,
+      "column": 2,
+      "position": 6283
+    },
+    "invalid_suffix_hex": "5c6e",
+    "invalid_suffix_repr": "b'\\\\n'",
+    "corrective_action": "No overwrite. This append-only companion records the readback defect and independently verified review facts."
+  },
+  "review_result": "QUALIFIED_GO_TO_ROOT_INSTRUMENTED_FOCUSED_REPLAY",
+  "source_frame": {
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1306-r2-20261014.json",
+    "frame_sha256": "cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92"
+  },
+  "packet": {
+    "candidate_sha256": "5dc255724c503b74bd829cafd2776c520b52801cda88feda28b92e3bff0ba814",
+    "delta_sha256": "9f0f3777fa70152f6931fb5daba2425189ff88ba268e5c604bee31a57c8f2cd7",
+    "manifest_sha256": "02eca171d9bba0f5f0407128d2aca18bfe4fd112bf534e66d0f6c423083cdcb8",
+    "composition": "R1272 full candidate plus R1322 delta reconstructed in memory byte-equals cumulative R1322 candidate; all three postimage hashes/byte counts match the manifest."
+  },
+  "semantic_status": {
+    "R1314_F1": "Addressed for the direct declared-lever comparator: positive original result derives two children; typed re-bound probe parent reaches the real derive function and asserts the exact refusal code.",
+    "R1314_F2": "Addressed in candidate: full scope basis is independently reconstructed and hashed; slot-basis and validated synthetic source-ID mutations alter scope identity.",
+    "R1314_F3": "Instrumentation added; replay pending. Historical failure/incomplete/unstarted states are not passes.",
+    "candidate_id_limit": "Probe preserves original candidate_id values while rebinding atom identity and other consumed fields. The current guard does not consume candidate_id; no producer-identity claim is made.",
+    "historical_scope_status": "not_established",
+    "N4_V2_acceptance": "not_established",
+    "G_or_authority_semantics": "No law, authority, currentness, or G acceptance decision is made."
+  },
+  "independent_checks": {
+    "current_preimage_hashes": "PASS all three",
+    "in_memory_patch_composition": "PASS full R1272 plus R1322 delta matches cumulative R1322 candidate",
+    "postimage_hashes_and_bytes": "PASS all three exact manifest values",
+    "git_apply_check": "PASS all three paths, non-mutating",
+    "stdlib_ast": "PASS all three virtual postimages",
+    "product_tests_or_imports": "NOT RUN",
+    "runtime_or_native": "NOT RUN",
+    "source_index_git_mutation": "NONE"
+  },
+  "mechanism_denominator": {
+    "paths": 3,
+    "python_test_or_helper_files": 3,
+    "product_source_files": 0
+  },
+  "p40_bucket": "SAME_N4_SOURCE_TO_CHILD_DECLARED_LEVER_CLASS_ONE_LEVEL_DEEPER",
+  "closure_ids": []
+}

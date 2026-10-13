@@ -1,0 +1,93 @@
+{
+  "authority": "independent read-only source review; no formal acceptance or closure",
+  "class": "P12 selected-profile producer to persisted sidecar to strict reader/cache bridge",
+  "closure_ids": [],
+  "finding_bucket": "SAME_CLASS_DEEPER",
+  "out_of_scope": [
+    "R1289 run-start/execution-lease failures",
+    "scientific source authority",
+    "global Prepared-B or G acceptance"
+  ],
+  "pattern_pass": {
+    "P12": "targeted",
+    "P29": "behavioral negative and fresh reader controls",
+    "P32": "actual CAS producer/consumer resolution",
+    "P37": "selected ref/profile is re-resolved before consumption",
+    "P38": "no source-level proxy escape found on the concrete FileSystemCAS path",
+    "P40": "same class deeper; full reviewed chain; no second escape",
+    "P41": "a746 base; zero changed-path intersection against receipt-only source commit"
+  },
+  "property_findings": [
+    "Writer now requests selected profile on every source chunk and the JSON descriptor; it returns the exact writer ArtifactRef rather than reconstructing a selector from a later read.",
+    "The actual selected sidecar is resolved and kind/media checked; strict Core JSON read verifies raw/typed profile, descriptor schema/lineage, selected chunk schemas/sizes and complete source bytes/digest.",
+    "Facade signature inspection is only routing. Real CAS plus fresh-reader and named-but-inert negative tests exercise actual behavior; legacy API refuses before writing.",
+    "The executor is the only external production caller and restricts this path to FileSystemCAS; no cache-key or executor change is included.",
+    "Operational source replay remains candidate evidence only; source authenticity and scientific output dependency are not established."
+  ],
+  "proposal": {
+    "decision_sha256": "83395a4839f02e52b25419b049cd7d5365c83de204a675c1274d5512213efad2",
+    "denominator": {
+      "apply_check": "pass",
+      "configured_ruff": "not run",
+      "in_memory_pre_post_hash_reconstruction": "all five match manifest",
+      "production_py": 2,
+      "pyi": 0,
+      "runtime_tests": "not run",
+      "stdlib_ast_postimages": "all five parse",
+      "test_py": 3,
+      "total_paths": 5
+    },
+    "manifest_sha256": "b137aba5df82ded6d6917426f9704664a6cf90700645ad1cdcdce5a69ac9c176",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/proposal.patch",
+    "paths": {
+      "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": {
+        "post_sha256": "75ce04e34998709e2e36b6961efad4bb29f6f2e5fde89580e1ea6d31ec8a7cfa",
+        "pre_sha256": "d3b4c6524c6a0c7e64154d03e021944861b3626466e506771ac295a005cb4c39",
+        "role": "production facade writer API routing"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py": {
+        "post_sha256": "c87e0cd7181c217328d672319e289ddeee3cbcd46a61f639d212f4f817dec3ec",
+        "pre_sha256": "50ea8fcaa2756169747110dbc85a273738b13aa1fa0a11ef2a53a35f1a0c6e8a",
+        "role": "selected source write and strict replay reader"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": {
+        "post_sha256": "64114b3b330a9fe9f78033de92fa97b1003d787c87f2907a8774001d904a6ec8",
+        "pre_sha256": "e7b3fe412c27c722f83b16159d73024aad1f7e7b99e2590e3029fe0bcd53ae92",
+        "role": "integration observer preserves the real writer keyword"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": {
+        "post_sha256": "5436fafcf519d379330e08932300d373ea495a302abe542bd7aef8ff4c568f65",
+        "pre_sha256": "83e3feaea2e88dade3fcadb5a8798f0180f58da36e9224de0cec6aa959ddee86",
+        "role": "legacy facade preflight refusal"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py": {
+        "post_sha256": "4ff10e8c01a84449721da697b6c0601b890f64063e65979a0a08ffe5fe742d6b",
+        "pre_sha256": "a1b387778c248e5e424d23e23f6a6f33ca66e4398900e4dee1b5729674c82528",
+        "role": "fresh reader, inert writer, malformed-profile controls"
+      }
+    },
+    "sha256": "046644ea1d3c8b48258a6d33f81318e0da9b29f51f7e698247ec9b60c87a6c15",
+    "status": "virtual_source_proposal_not_applied"
+  },
+  "required_native_wave": [
+    "Configured product Ruff check and format after composition.",
+    "Run test_skg_snapshot_replay.py, test_retry.py, and test_skg_prepared_read_cache.py on composed source.",
+    "Confirm same-path mutation miss then stable hit, NODE_CACHE_STORE/HIT receipts, fresh selected reader, inert/legacy refusal, malformed-profile pre-payload refusal, timeout/revocation behavior, and exactly-once worker close."
+  ],
+  "review_id": "R1310",
+  "reviewer_writes": "only these new LOCAL/reviews artifacts; no source, tests, index, history, DB, or runtime mutation",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_paths_match_slice_base": true,
+    "current_head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "current_source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1306-r2-20261014.json",
+    "current_source_frame_sha256": "cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92",
+    "current_tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+    "slice_base_head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "slice_base_tree": "1355896e91789026d21396d2b087c63827ab251b",
+    "source_frame_is_receipt_only": true,
+    "source_frame_mismatches": 0,
+    "source_frame_paths": 590
+  },
+  "verdict": "GO for root composition and focused native consumer wave only"
+}

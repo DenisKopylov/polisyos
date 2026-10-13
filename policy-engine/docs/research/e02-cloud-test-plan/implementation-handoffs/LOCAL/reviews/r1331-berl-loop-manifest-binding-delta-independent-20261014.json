@@ -1,0 +1,56 @@
+{
+  "review_id": "R1331-R1321-R3-DELTA",
+  "review_kind": "independent_read_only_delta_review",
+  "verdict": "GO_FOR_ROOT_APPLICATION_OF_R1321_R3_CUMULATIVE_CANDIDATE; FOCUSED_RUNTIME_NATIVE_ACCEPTANCE_UNRUN",
+  "authority": "review evidence only; not applied-source acceptance, G acceptance, or formal closure",
+  "closure_ids": [],
+  "workspace": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+    "source_frame": "LOCAL/root-author-source-frame-r1306-r2-20261014.json@cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723d3e7bf8d2864dc9d92"
+  },
+  "candidate": {
+    "r3_patch": "LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/candidate.patch@efa6f054b7e0476add6151dadc354b6bb00655b55d448731a84feaa76ad2a935",
+    "r3_manifest": "LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/manifest.json@710493ce7c6d143f1ad8da7217f8b7af76a482243a66d2b512910429187e694e",
+    "r3_decision": "LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/decision.md@95394115023ac6956b174b260446c5658df142bb4d1400aa667689db5c69c194",
+    "r2_comparison_patch": "LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r2-20261014/candidate.patch@3ba7b793de81662dcce8cf94fc7c61bd7f57f16322e041e6803d00d1da740e97",
+    "source_paths": [
+      "policy-engine/src/polisyos/berl/persistence.py",
+      "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+      "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py"
+    ],
+    "preimages_match_manifest": true,
+    "git_apply_check_whitespace_error_exit": 0,
+    "r2_and_r3_in_memory_postimages_match_manifests": true,
+    "r2_to_r3_delta_paths": [
+      "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+    ],
+    "unchanged_between_r2_and_r3": [
+      "policy-engine/src/polisyos/berl/persistence.py",
+      "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py"
+    ]
+  },
+  "delta_assessment": {
+    "reported_issue": "B023 loop-variable capture in mismatched-manifest callback construction",
+    "change": "typed manifest_reader_for(manifest) closure binds each explicit manifest argument; callback no longer reads the loop variable",
+    "production_semantics_changed": false,
+    "runtime_failure_independently_reproduced": false,
+    "static_delta_review": "GO; callback binding repair is valid and R2 mechanisms are unchanged"
+  },
+  "verification": {
+    "ruff": "author manifest records Ruff 0.14.10 check and format success on all three postimages; not independently rerun in this review",
+    "pytest_or_native_run": false,
+    "product_import": false,
+    "source_index_history_cas_or_run_data_written": false,
+    "required_next_checks": [
+      "root applies the full R3 cumulative patch against the exact base after requalifying preimages",
+      "run the R1325 focused tests and required native verification against applied source"
+    ]
+  },
+  "pattern_buckets": {
+    "P40": "same loop callback-capture class repaired by explicit-argument factory rather than suppression or per-case workaround",
+    "P29_P31_P38": "prior R1325 producer/consumer, shared-adapter, and selected-manifest controls are unchanged by this delta"
+  }
+}

@@ -1,0 +1,25 @@
+# R1310 — independent R1290 R3 selected-profile/cache bridge review
+
+**Disposition:** GO for root composition and the focused native wave over these five paths. This is not a package/profile run, a Prepared-B closure, or governance acceptance. `closure_ids=[]`.
+
+## Source and packet binding
+
+Reviewed in `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos` on branch `codex/e02-unified-local-20261009`, HEAD `a02f4f8920c60e02e745ba91bbed9ab9524fcbe7`, tree/index `da829953b1c170f3bc69420059dc7d1af4fb06f7`. Current source frame `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1306-r2-20261014.json` has SHA-256 `cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92` and 590 source paths. The five candidate preimages match their recorded hashes at this current frame; the tracked paths have no working-tree diff. The candidate also passes `git apply --check` against this source state.
+
+Candidate packet: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/proposal.patch` SHA-256 `046644ea1d3c8b48258a6d33f81318e0da9b29f51f7e698247ec9b60c87a6c15`; manifest `.../manifest.json` SHA-256 `b137aba5df82ded6d6917426f9704664a6cf90700645ad1cdcdce5a69ac9c176`; author decision `.../decision.md` SHA-256 `83395a4839f02e52b25419b049cd7d5365c83de204a675c1274d5512213efad2`. It is a five-path, unapplied proposal: two mechanism files and three mandatory test companions. No source, index, or Git state was changed for this review.
+
+## Property review
+
+The changed source closes one P12 selected-profile producer-to-consumer handshake across the attempt facade, CAS writer, raw manifest profile, and retained-source reader. The facade exposes the named `return_selected_profile` writer shape only when the wrapped writer has that explicit supported parameter. When supported, its typed methods still route through `_AttemptAuthority` and preserve revocation; they forward the selected-profile request rather than bypassing the attempt gate. A legacy target is routed through the old guarded call shape, which Core preflight rejects before a write.
+
+`retain_prepared_skg_read` now asks the producer write for the actual selected ref on each chunk and the descriptor. It rejects a missing selected profile and verifies returned ref/manifest kind and media type through the selected ref. It does not synthesize a profile hash by rereading the default manifest. The descriptor is written as Core JSON, and the selected raw-manifest reader is part of the retained-store protocol. On intake, Core's strict raw-profile validation precedes typed decode and payload access; the retained reader checks descriptor schema, exact ordered chunk lineage, each selected chunk's type/media/schema/size, and the reconstructed bytes' total and digest. The proposed fresh-reader test reopens through a new `FileSystemCAS` instance and validates the queryable prepared source.
+
+The negative controls exercise behavior rather than declarations: a legacy writer fails Core's named-capability preflight without writing; a writer that accepts the keyword but returns a profileless ref is rejected even though its raw manifest contains canonical metadata; a malformed-present raw profile is refused before payload reads; and a revoked facade cannot persist a late write. These controls would fail if the selected-ref check or strict raw-profile reader were removed while the surrounding names remained. The integration observer now explicitly accepts and forwards the option that its earlier generic wrapper masked.
+
+The patch leaves cache-key/executor logic unchanged. The existing integration suite remains the required witness for same-path source mutation, stable-byte reuse, `NODE_CACHE_STORE` publication, fresh readers, and exactly-once closure. The five-file patch spans `retry.py`, `skg_snapshot.py`, the retry and snapshot replay unit tests, and the prepared-read cache integration test; this is the complete declared mechanism plus mandatory companions, not a claim that the tests passed here.
+
+## Limits and decision
+
+P40 bucket: `SAME_CLASS_DEEPER` for the P12 selected-profile handshake. The earlier profileless and attempt-facade escapes are addressed at the shared producer/facade/reader path; this review found no second escape requiring another per-call-site step. The positive contract is bounded to the existing local `FileSystemCAS` retained-source path. The proposal does not claim source authenticity, external writer conformance, cache-key redesign, authority, or formal workflow closure.
+
+No imports, product tests, configured Ruff, native execution, package builds, or installed profiles were run. Root should compose the exact five preimages and run the focused retry/snapshot/cache suites plus configured Ruff on the composed source before admitting this engineering change. Q2 and Prepared-B remain `verification_missing`; `G_acceptance=false`.

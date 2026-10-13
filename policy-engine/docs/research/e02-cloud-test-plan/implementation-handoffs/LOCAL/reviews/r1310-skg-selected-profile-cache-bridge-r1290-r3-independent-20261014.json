@@ -1,0 +1,63 @@
+{
+  "review_id": "r1310-skg-selected-profile-cache-bridge-r1290-r3-independent-20261014",
+  "disposition": "GO_FOR_ROOT_COMPOSITION_AND_FOCUSED_NATIVE_WAVE",
+  "status": "independent_static_review_only",
+  "closure_ids": [],
+  "source": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1306-r2-20261014.json",
+    "frame_sha256": "cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92",
+    "frame_path_count": 590,
+    "candidate_preimages_match_current_source": true,
+    "tracked_candidate_paths_clean": true,
+    "git_apply_check": "pass"
+  },
+  "candidate": {
+    "proposal_id": "r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014",
+    "patch": "proposal.patch",
+    "patch_sha256": "046644ea1d3c8b48258a6d33f81318e0da9b29f51f7e698247ec9b60c87a6c15",
+    "manifest_sha256": "b137aba5df82ded6d6917426f9704664a6cf90700645ad1cdcdce5a69ac9c176",
+    "author_decision_sha256": "83395a4839f02e52b25419b049cd7d5365c83de204a675c1274d5512213efad2",
+    "virtual_only": true,
+    "paths": {
+      "mechanism": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py"
+      ],
+      "mandatory_companions": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py"
+      ]
+    }
+  },
+  "property": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "P12 selected-profile producer-to-consumer handshake across attempt facade, CAS write, raw profile sidecar, and retained-source reader",
+    "writer_api_shape_is_not_proof": true,
+    "actual_selected_ref_checked": true,
+    "raw_profile_checked_before_payload": true,
+    "descriptor_and_chunk_lineage_and_digest_checked": true,
+    "fresh_reader_positive": true,
+    "legacy_writer_negative_no_write": true,
+    "named_but_inert_writer_negative": true,
+    "malformed_profile_pre_payload_negative": true,
+    "revoked_late_write_negative": true,
+    "cache_key_or_executor_logic_changed": false,
+    "second_same_class_escape_found": false
+  },
+  "verification_limits": {
+    "imports_or_runtime_execution": "not run",
+    "product_tests": "not run",
+    "configured_ruff": "not run",
+    "package_or_installed_profiles": "not run",
+    "root_focused_native_wave_required": true,
+    "g_acceptance": false,
+    "workflow_or_source_authority_closure": false
+  },
+  "pattern_ids": ["P12", "P29", "P32", "P37", "P38", "P40", "P41"]
+}

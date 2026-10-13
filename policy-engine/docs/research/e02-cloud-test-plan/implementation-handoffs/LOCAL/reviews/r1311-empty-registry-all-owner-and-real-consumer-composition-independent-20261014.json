@@ -1,0 +1,107 @@
+{
+  "candidate": {
+    "all_preimages_match_current_source": true,
+    "candidate_paths": 14,
+    "git_apply_check": "PASS",
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014/manifest.json",
+    "manifest_sha256": "9258f7de83e535823ed33df7fbe8e1545c4e8752f034c0b6d33bb258d5212d57",
+    "original_base_head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "patch_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014/candidate.patch",
+    "patch_sha256": "7cabf6f097b5231aedf677f74ceec20ccb955b332712e2a844c7c3dee14f252d",
+    "source_mechanism_paths": 12,
+    "test_companions": 2
+  },
+  "census": {
+    "candidate_removes_all_MethodRegistry_object_fallbacks": true,
+    "classification": {
+      "MethodRegistry_object_fallback": 18,
+      "PluginRegistry_fallback": 4,
+      "callable_provider_default": 2,
+      "nonfallback_validation_gate": 1
+    },
+    "parse_errors": 0,
+    "registry_shaped_or_nodes": 25,
+    "result_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1311-methodregistry-census-20261014/census.json",
+    "result_sha256": "6bbc6a27ee5eef8ef7b12195a1a329ae415628a708014fdd4aa3be820ff5441e",
+    "script_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1311-methodregistry-census-20261014/census.py",
+    "script_sha256": "d369458fe8ca7ad04a093a365a147ef596406edc9f5b9df8355290b1ccaf0636",
+    "tracked_source_denominator": {
+      "py": 2761,
+      "pyi": 5,
+      "total": 2766
+    }
+  },
+  "closure_ids": [],
+  "commands_and_actions": {
+    "git_apply_check": "PASS",
+    "git_or_index_mutations": 0,
+    "native_selector": "UNRUN by reviewer; root owns native execution",
+    "product_source_writes": 0,
+    "pytest": "NOT_RUN",
+    "read_only_ast_census": "PASS; complete tracked .py/.pyi denominator; no product imports",
+    "ruff": "Not rerun; candidate manifest output reviewed"
+  },
+  "criteria": [
+    {
+      "evidence": "All 18 MethodRegistry fallback sinks use explicit None checks in candidate.",
+      "property": "Only None selects the default; supplied empty registry remains selected",
+      "status": "source_review_GO"
+    },
+    {
+      "evidence": "Joint-simulation fallback integration test covers selected engine, local registration, trajectory, CAS persistence, and fresh read.",
+      "property": "Real caller registration, invocation, persistence, and fresh read use the injected registry",
+      "status": "present_in_candidate_controls"
+    },
+    {
+      "evidence": "Composer test seeds singleton only and expects MethodNotFoundError through actual add call.",
+      "property": "Fallback-only method does not leak into explicitly empty registry consumer",
+      "status": "present_in_candidate_control"
+    },
+    {
+      "evidence": "Cycle provider call stays inside registry-is-None branch.",
+      "property": "Deferred provider lookup is preserved",
+      "status": "source_review_GO"
+    },
+    {
+      "evidence": "Test keeps standard_error_not_estimated, interaction_sampling_not_established, and authority blockers.",
+      "property": "One-replication status is not promoted to inferential support",
+      "status": "preserved"
+    },
+    {
+      "evidence": "No new test combines registry_scope with a distinct injected empty registry on a get_registry-based consumer; source uses explicit None semantics.",
+      "property": "Context-local registry_scope ambient fallback has a dedicated explicit-empty control",
+      "status": "not_exercised"
+    }
+  ],
+  "current_source_qualification": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1306-r2-20261014.json",
+    "frame_sha256": "cf7bbc6d742ace36a33cb1077dbbeb2effc377da7ef723e3d7bf8d2864dc9d92",
+    "head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "source_bytes_match_candidate_base": true,
+    "tree": "da829953b1c170f3bc69420059dc7d1af4fb06f7"
+  },
+  "findings": [
+    {
+      "blocking_for_composition": true,
+      "direction": "Format the companion and regenerate/re-hash the virtual candidate.",
+      "evidence": "Candidate manifest Ruff record: check pass; base format exit 0; candidate format exit 1.",
+      "id": "R1311-F1",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "severity": "low",
+      "type": "formatting"
+    }
+  ],
+  "pattern_pass": {
+    "P29": "semantic tests call real consumer paths",
+    "P33": "reversed candidate order and typed refusal controls included",
+    "P40": "same class, widened to all 18 MethodRegistry fallback sinks"
+  },
+  "review_id": "R1311",
+  "title": "Independent whole-class review of R1283 explicit-empty MethodRegistry handling",
+  "verdict": {
+    "candidate_composition": "BLOCKED_BY_NEW_RUFF_FORMAT_FAILURE",
+    "runtime_native": "UNRUN",
+    "source_semantics": "GO"
+  }
+}

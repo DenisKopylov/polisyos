@@ -1,0 +1,144 @@
+{
+  "schema_version": "e02.independent-review.v1",
+  "task": "R1308 independent review of R1296 owner-run-basis and graph-intake test candidate",
+  "review_date": "2026-10-14",
+  "decision": "go_limited_for_test_correction; not_original_criterion_closure",
+  "closure_ids": [],
+  "review_scope": "Read-only source-bound review of the frozen four-test R1296 patch against the retained R1292 failures and original B31, B33, and B214 criterion occurrences. No product imports, pytest, native execution, database writes, or source edits were performed.",
+  "source_basis": {
+    "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "head": "a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d",
+    "tree": "1355896e91789026d21396d2b087c63827ab251b",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1267-20261014.json",
+      "sha256": "a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803",
+      "source_path_count": 590
+    },
+    "tracked_source_bindings_verified": 6,
+    "worktree_note": "Tracked source hashes bound by the candidate manifest matched this frame. The checkout has existing untracked LOCAL/research artifacts; they were not used as candidate input or modified by this review."
+  },
+  "candidate": {
+    "status": "virtual_unapplied",
+    "patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/candidate.patch",
+      "sha256": "31bb712b1db9f406ccb39bd617ddc8ee88345ed287351557ab3cfa3d92e7fab5",
+      "bytes": 8890
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/manifest.json",
+      "sha256": "84a815398ff35c2b4f1021dc060640710d762686fecb628372a8ea3e84368c88"
+    },
+    "decision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/decision.md",
+      "sha256": "4e18b7c89ea3548cd71f0146549b4bb3822e1d99528da3ac8929713f7022a5ca"
+    },
+    "paths": 4,
+    "candidate_postimages_reconstructed_in_memory": 4,
+    "candidate_postimage_manifest_matches": 4,
+    "candidate_python_ast_parses": 4,
+    "production_source_paths_changed": 0
+  },
+  "retained_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-s2-s3-source35-first-corrected-batch-actual-r1292-20261014/full-nonpass-case-outputs.json",
+    "sha256": "2307ac73c1a62bdbf71c7d2fb881784bf347e12f087be536fbd118e13a2c1ba7",
+    "summary": {
+      "targets": 21,
+      "cases": 596,
+      "passed": 589,
+      "failed": 7,
+      "errors": 0,
+      "skipped": 0,
+      "source_inputs": 6588,
+      "wall_seconds": 34.332391
+    },
+    "interpretation": "This is the pre-candidate deciding wave. Its seven failures remain failures in that historical receipt; this review does not re-label them as passes."
+  },
+  "criterion_bindings": [
+    {
+      "id": "B31",
+      "original": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:593-606",
+      "original_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "coverage_occurrence_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+      "current_status": "not_adjudicated; historical held; capability absent/unallocated",
+      "property": "Keep identification bounds distinct from native statistical/model uncertainty for the same estimand and unit; retain nonzero/asymmetric uncertainty; do not invent proxy width; compare methods on a common estimand coordinate."
+    },
+    {
+      "id": "B33",
+      "original": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:621-634",
+      "original_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "coverage_occurrence_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+      "current_status": "not_adjudicated; historical partial; bridge_missing",
+      "property": "A graph/selection diagram must come from a named or explicitly conditional causal model, not be inferred as a certificate from variable names and measured context deltas."
+    },
+    {
+      "id": "B214",
+      "original": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md:5218-5229",
+      "original_file_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "coverage_occurrence_sha256": "48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad",
+      "current_status": "not_adjudicated; historical partial",
+      "property": "Preserve known edge direction; do not introduce cycles in DAG projection; distinguish unknown/equivalence-class edges and show downstream DAG consumers use a sound extension."
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1296-R1292-seven-failure-correction",
+      "classification": "same class across report-only projections plus distinct test-boundary defects; not seven production defects",
+      "result": "candidate is semantically sound for correcting these test expectations/seams, subject to root replay",
+      "evidence": [
+        "The two EMP-01 report-only tests and the value-gate partial-width test call _value_outer_set_from_foundry_result with a CausalEffectReport but no owner run-basis; current source at generation_cycle.py:13767-13788 deliberately raises owner_method_run_basis_missing. Transport/calibration receipt labels do not create the missing run coordinate or identification bounds.",
+        "The previous partial-width expectation copied confidence_interval [8,12] into partial identification bounds and width 4. That is not a valid B31 positive; R1296 changes it to the expected typed/refusal error.",
+        "The B31 tamper test monkeypatched nonexistent NumpyRunner.run. Current runner exposes execute at numpy_runner.py:51. Candidate changes only the hook target to execute, so the actual selected method path can reach the intended mutation guard.",
+        "TransportContextEvidence is a strict typed DTO with optional causal_graph_ref defaulting to None (cycle_substrate.py:749ff). Candidate replaces incomplete SimpleNamespace fixtures with a typed unselected-graph context while retaining raw-hint/no-bridge refusal. The separate graph resolver test uses the public Core-to-IR ensure_ir_artifact_store bridge and retains valid DAG ref resolution plus foreign-kind rejection.",
+        "Current _build_candidate_selection_diagram checks a present graph ref by profile binding, schema/content read, and query-node membership; with no graph ref, it refuses rather than deriving topology from names/deltas (generation_cycle.py:12538-12664)."
+      ],
+      "scope_limit": "These are test corrections, not a production source repair or B31/B33/B214 closure. The missing-ref context case is absence, not a malformed-present selected graph; the foreign-kind resolver case is one negative, not the full B33/B214 property matrix."
+    },
+    {
+      "id": "B31-owner-basis-positive-survives-but-is-candidate-only",
+      "classification": "meaningful controlled positive exists; bounded to point-identification fixture and native statistical uncertainty",
+      "result": "not only refusal; does not establish full B31 acceptance",
+      "evidence": [
+        "Unchanged test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis builds typed profile, owner assignment, explicit ATT estimand (query id, outcome, treatment/exposure, population, horizon, unit, target role), content-bound intent, and candidate-fixture-only DataTrust. It uses two registry FQNs (DID and Synthetic Control), invokes the shared real producer which loads selected refs, calls MethodRegistry and NumpyRunner.execute, persists report/execution receipt/run basis, and reads the basis/report through a fresh CAS consumer.",
+        "The test checks selected manifest refs, successful native report, matching estimand, non-heuristic/non-gate-eligible native interval, fixture-only/non-production basis, equal point identification lower/upper (2.125), statistical endpoints preserved separately from projected report CI, same coordinate across different methods, and at least one asymmetric native interval. FoundryValuePort is exercised for DID; the second method calls the same producer directly, so it is two actual native method executions but not two independent FoundryValuePort orchestration runs.",
+        "Source _value_estimand_coordinate hashes all EstimandSpec dataclass fields; producer and consumer validate profile/outcome/unit/assignment/request/report/basis lineage and exact panel bytes. The separate test currently binds one unit only; no unit-change/rescaling metamorphic control is present."
+      ],
+      "residuals": [
+        "The producer's fixture identification bounds are assigned as 2.125/2.125, not produced by an identification algorithm. This tests point-set versus CI representation, not a genuine nonzero partial-identification set.",
+        "No positive owner-basis producer with nonzero identification width is demonstrated. The old width-4 assertion was invalid because it used a statistical CI as ID bounds; its removal is correct and must not be reported as partial-ID support.",
+        "There is a source-level same-coordinate binding over subject/population/horizon/unit fields, but the test does not vary those fields to prove distinct coordinates, and it does not test unit conversion/rescaling consistency."
+      ]
+    },
+    {
+      "id": "B33-graph-source-property-not-closed",
+      "classification": "same criteria remain outside this test-only patch",
+      "result": "no B33 closure",
+      "evidence": [
+        "The two EMP-01 replacements correct fixture type and preserve the no-verified-graph refusal. They do not produce a selected causal graph from a named model nor compare same variable names under different graph topologies.",
+        "The transport-resolution CAS test now writes through ensure_ir_artifact_store and proves one valid typed DAG ref resolves while a foreign-kind ref does not. It does not demonstrate that a selection diagram's structure was source-owned or that a graph-profile is semantically adequate for the transport query."
+      ]
+    },
+    {
+      "id": "B214-projection-property-not-closed",
+      "classification": "same criteria remain outside this test-only patch",
+      "result": "no B214 closure",
+      "evidence": [
+        "The changed transport-resolution test does not call graph projection or inspect oriented endpoints, extension acyclicity, equivalence-class preservation, or a downstream DAG consumer.",
+        "Its new Core-to-IR adapter call is an API-boundary correction only; the B214 criterion's known-reversed-edge and cyclic-CPDAG examples remain unaddressed in this patch."
+      ]
+    }
+  ],
+  "verification": {
+    "executed": "Read-only source/criterion inspection; manifest preimage and six source-hash comparison; in-memory unified-diff reconstruction with SHA-256/byte-size checks for each postimage; Python AST parse of four reconstructed postimages.",
+    "results": "4/4 preimages match; 6/6 source bindings match; 4/4 reconstructed candidate postimages match manifest and parse.",
+    "pytest_or_native": "not_run (parent instructed no native/runtime execution for this review)",
+    "imports": "not_run",
+    "git_source_writes": "none",
+    "commands": "git status -sb; git rev-parse HEAD; git rev-parse HEAD^{tree}; rg/sed read-only source inspection; Python standard-library readers/parser/hash reconstruction."
+  },
+  "pattern_review": {
+    "relevant": "P05, P10, P29, P31, P32, P33, P38, P40",
+    "observed": "P38/P32: report/receipt presence had been treated as a value axis without owner-basis content binding; candidate correctly keeps that path refused. P29/P33: one successful test cannot establish production authority or general graph semantics. P31/P40: the three report-only expectations share one missing-owner-basis class; the candidate widens correction across all three rather than adding a value-shape exception.",
+    "acceptance": "Root may compose the four test corrections after independent review and should replay them on the current composed source. Keep original criterion statuses held/not adjudicated and closure_ids empty; any positive claim remains candidate-fixture scope."
+  },
+  "report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1308-owner-method-basis-and-original-value-properties-independent-20261014.md"
+}

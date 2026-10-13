@@ -1,0 +1,35 @@
+# R1308 independent review: owner-run basis and original value/graph properties
+
+**Decision:** GO-limited for root composition of the four test corrections, but not as B31, B33, or B214 closure. `closure_ids: []`. The candidate remains virtual and unapplied.
+
+## Bound artifact and verification
+
+The review is bound to HEAD `a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d`, tree `1355896e91789026d21396d2b087c63827ab251b`, and source frame [`root-author-source-frame-r1267-20261014.json`](../root-author-source-frame-r1267-20261014.json) SHA-256 `a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803`. The candidate is [`candidate.patch`](../raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/candidate.patch) SHA-256 `31bb712b1db9f406ccb39bd617ddc8ee88345ed287351557ab3cfa3d92e7fab5`; its manifest is SHA-256 `84a815398ff35c2b4f1021dc060640710d762686fecb628372a8ea3e84368c88`.
+
+I reconstructed the four postimages in memory from the frozen patch. Their byte sizes and SHA-256 values match the manifest, and all four parse with Python AST. All four preimages match the candidate base, and the six source bindings match current source. No source edits or runtime tests were performed. The checkout contains pre-existing untracked LOCAL artifacts; this review did not modify them.
+
+R1292 is the actual pre-candidate wave at [`full-nonpass-case-outputs.json`](../raw/s1-s2-s3-source35-first-corrected-batch-actual-r1292-20261014/full-nonpass-case-outputs.json) SHA-256 `2307ac73c1a62bdbf71c7d2fb881784bf347e12f087be536fbd118e13a2c1ba7`: 21 targets, 596 cases, 589 passed, 7 failed, 0 errors, 0 skipped, 6,588 source inputs, 34.332391 seconds. The seven old failures remain failures in that receipt; this review does not retroactively convert them into passes.
+
+## Why the test corrections are sound
+
+Three old expectations projected a report-only `CausalEffectReport` into a `ValueOuterSet` without a producer-owned owner-method run basis. The current `_value_outer_set_from_foundry_result` explicitly refuses such inputs with `owner_method_run_basis_missing`; a transport status or a native confidence interval cannot supply the missing owner coordinate or identification bounds. In particular, the former width-4 example copied a statistical confidence interval `[8, 12]` into partial-identification bounds. Replacing that expectation with fail-closed refusal is correct.
+
+The owner-basis positive is still present and meaningful. The existing `test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis` constructs a candidate-only profile, assignment, intent, and explicit ATT estimand; runs the registered DID and Synthetic Control methods through the real producer and `NumpyRunner.execute`; persists report, execution receipt, and run-basis artifacts; then resolves them through a fresh CAS consumer. It asserts fixture-only/non-production scope, a point identification set at `2.125`, preservation of native statistical endpoints separately, common coordinates across different methods, and at least one asymmetric native interval. The test routes DID through `FoundryValuePort`; the Synthetic Control case calls the shared producer directly. Thus the positive is not only a refusal, though it is not two independent `FoundryValuePort` orchestration runs. The candidate fixes the tamper test’s monkeypatch target from nonexistent `NumpyRunner.run` to the actual `execute` method, allowing that existing positive to reach its real runner path.
+
+This remains a controlled fixture, not authority or an empirical identification result. Its identification bounds are assignment-supplied and point-valued (`2.125/2.125`); there is no producer-owned positive with nonzero identification width. The removed width-4 assertion did not establish partial identification because it reused the statistical CI. The positive binds the estimand payload, including outcome, treatment/exposure, population, horizon, and unit, and checks that the methods share one coordinate. It varies none of those scope fields and has no unit-conversion/rescaling control. So it supports separation of point-ID bounds from native uncertainty, including an asymmetric CI, but not full B31 acceptance.
+
+## Original criterion disposition
+
+- **B31, original `B_r19` lines 593–606**, criterion occurrence SHA-256 `9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f`: still held/not adjudicated. The report-only refusals are appropriate; the surviving point-ID positive is useful; partial-ID width and unit-change behavior remain unproved.
+- **B33, original lines 621–634**, occurrence SHA-256 `8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03`: no closure. The EMP-01 changes repair invalid `SimpleNamespace` mocks by using the strict typed `TransportContextEvidence` DTO with the optional graph ref absent. The raw graph-hint case still refuses without a verified ref. The separate transport resolver test writes through `ensure_ir_artifact_store`, resolves a valid typed DAG ref, and rejects a foreign-kind ref. None of these establishes that a selected diagram came from a named causal model, or distinguishes two graph topologies with the same names. A malformed-present selected graph is also not exercised by these missing-ref fixtures.
+- **B214, original lines 5218–5229**, occurrence SHA-256 `48c1311f230c5c8f4886013cf47fec75931cde810c20feee8889c9d820dcb1ad`: no closure. The Core-to-IR adapter change is an API-boundary correction only; the changed test does not exercise reversed known directions, sound acyclic extension, equivalence-class preservation, or a downstream DAG consumer.
+
+These bindings match the current `closure-decisions/coverage.json` (SHA-256 `97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01`) and original task denominator in `TASKS.json` (SHA-256 `a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c`). No formal criterion closure is asserted.
+
+## P40 and next gate
+
+The repeated report-only failures are one missing-owner-basis class, and R1296 updates all three expectations together. The runner API mismatch, invalid context mocks, and Core/IR store mismatch are separate test-boundary defects. This is not another per-call-site production patch. The correct disposition is GO-limited for composition of this exact four-test correction, followed by the root’s current-source replay. Keep B31 partial-identification support, B33 graph-source adequacy, and B214 projection semantics open.
+
+Relevant patterns: P05/P10/P32 for authority and content binding; P29/P33 for evidence from real producer paths rather than fixture form; P31/P40 for correcting the shared class; P38 for distinguishing true owner-basis evidence from report/receipt labels.
+
+**Execution boundary:** read-only source, test, and criterion inspection; in-memory patch reconstruction/hash/AST validation only. No product imports, pytest, native method execution, database writes, source writes, commits, or closure IDs.

@@ -1,0 +1,375 @@
+{
+  "authority": "Implementation handoff and bounded verification record only; not G acceptance, global E02 freeze, or formal criterion closure.",
+  "closure_ids": [],
+  "created_on": "2026-10-14",
+  "formal_closure_ids": [],
+  "fresh_native_evidence": {
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/command.json",
+      "sha256": "0df547efd328d3f434e6b12e73aaa44a89d6bbcfcf87de4eb6a58c2822eb72ec"
+    },
+    "exit_code": 0,
+    "input_map": {
+      "architecture_inputs_included": true,
+      "before_after_maps_identical": true,
+      "note": "The complete path list is in the cited command artifact; this is not a test-case or Source36 implementation-path denominator.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/command.json",
+      "path_entries": 6951,
+      "sha256": "0df547efd328d3f434e6b12e73aaa44a89d6bbcfcf87de4eb6a58c2822eb72ec"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/junit.xml",
+      "sha256": "84ba7126cacc181bf498e49d2a403f27207e80bde8cbc32b52159a65c34657bf"
+    },
+    "limits": [
+      "This run does not exercise all 55 implementation paths or the full composed consumer set.",
+      "Canonical full ABI regeneration/check is still UNRUN.",
+      "Ordinary N5 POST, CAS/fresh-GET, long N4, and other Source36 runtime contours are UNRUN."
+    ],
+    "module_origins": {
+      "loaded_product_modules": 1524,
+      "outside_selected_source_root": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/module-origins.json",
+      "sha256": "6032b1ce7e8821daa5b9e3984e9e6d8558a88d88849dc66723efd6be502ffd6f"
+    },
+    "packet_dir": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014",
+    "progress": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/progress.json",
+      "sha256": "eb93a68ba1d790270aea19e2a60bcf1a965750afb85cec2534c73085b0ccf288"
+    },
+    "runtime_environment": {
+      "inter_op_threads": 1,
+      "intra_op_threads": 1,
+      "numerical_profile": "cpu_single_thread",
+      "pydantic": "2.12.5",
+      "pydantic_core": "2.41.5",
+      "python": "3.14.3",
+      "torch": "2.10.0"
+    },
+    "scope": [
+      "diagnostics schema-generator identity/prewrite behavior controls",
+      "N4 selected-record lineage and controlled-parent scope-basis guards"
+    ],
+    "status": "Limited focused native run completed; composed Source36 full runtime wave remains UNRUN. This is not a complete verification of the 55-path implementation.",
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source36-minimal-generator-and-n4-real-guards-actual-r1347-20261014/stdout.txt",
+      "sha256": "3015f8183025b6de15d60b45b7bb631cbd22b6ca905cd89110bc5db7a427392a"
+    },
+    "test_file_denominator": [
+      "tests/repo_quality/tools/test_diagnostics_phase3.py (full module)",
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py (two named tests only)"
+    ],
+    "test_results": {
+      "collected": 38,
+      "errors": 0,
+      "failed": 0,
+      "passed": 38,
+      "skipped": 0
+    },
+    "wall_seconds": 24.704487250070088
+  },
+  "mechanism_review_refs": {
+    "independent_composition_review": "R1338 pending; no independent whole-Source36 acceptance is claimed here.",
+    "packets": [
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/decision.md",
+          "sha256": "31cf7f2536f50345222d0b3fc2e01f6aa1eaaeb4ae7acaecfd8c028198ecb5b5"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/manifest.json",
+          "sha256": "316f37f57b273587e1598e3efa4e4d69f9d7b21907fedd8fb7bce67a0dc55063"
+        },
+        "packet": "r1281-protected-source35-canonical-fixture-and-intake-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1281-protected-source35-canonical-fixture-and-intake-successor-20261014/candidate.patch",
+          "sha256": "94e8969d05a57277c709eb4cf31b8dafa3305304ba40fc94a53454d01824fa87"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1301-abm-fixture-identity-factory-and-whole-ref-call-set-successor-20261014/decision.md",
+          "sha256": "2d43d699aa470c2c1c8c8cd35c93e30b609bcf803031c316301ee2e73bdd3d75"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1301-abm-fixture-identity-factory-and-whole-ref-call-set-successor-20261014/manifest.json",
+          "sha256": "8ad2938ea25bfa6ced3ad0a32d00d731b6915253b6cd2be838fc207e346e5ece"
+        },
+        "packet": "r1301-abm-fixture-identity-factory-and-whole-ref-call-set-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1301-abm-fixture-identity-factory-and-whole-ref-call-set-successor-20261014/proposal.patch",
+          "sha256": "beb9fd0b7c6b44a2afa72bbded3003a4797260bf7f88c7df95f95dfd8b3a62e2"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1294-stress-whole-component-report-refusal-oracle-successor-20261014/decision.md",
+          "sha256": "e5d5a5d5016d306e199e628d1f5fb3659713f9e7d3b5cbd9d84181b2314a81e3"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1294-stress-whole-component-report-refusal-oracle-successor-20261014/manifest.json",
+          "sha256": "834f6a6375bd6a3fdac84f35159907b29b5d84ba97a75fc2cac69640d722d7d0"
+        },
+        "packet": "r1294-stress-whole-component-report-refusal-oracle-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1294-stress-whole-component-report-refusal-oracle-successor-20261014/candidate.patch",
+          "sha256": "a5e49676d0d0b73cf3b0e83ed13a6943ac11377ff62cde11353f1b48fe984234"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/decision.md",
+          "sha256": "e7daeb89600e6136342e27fa7c8b022503575a126a0ba6306f3d6cb1488fab8f"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/manifest.json",
+          "sha256": "c76f73e369f59f29a69da4c4f330c66c14debd4b3f7ce90569d9fd0122f9f86e"
+        },
+        "packet": "r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1288-schema-directory-identity-and-prewrite-behavior-successor-r1-20261014/proposal.patch",
+          "sha256": "6fae3cea8005da489901946bcb1864fd679f78052ca99dff55b9e2b762a6e776"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1284-autotune-typed-refusal-and-protocol-profile-consumer-successor-r2-20261014/decision.md",
+          "sha256": "aa2368d2e2540bd790c30d6e14e443edb8a67043257ef1393a2de926d086da53"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1284-autotune-typed-refusal-and-protocol-profile-consumer-successor-r2-20261014/manifest.json",
+          "sha256": "79984d18345d0eb2f08fe47b01e0e50be8ee51bbc5371a85714ea526190fe6d8"
+        },
+        "packet": "r1284-autotune-typed-refusal-and-protocol-profile-consumer-successor-r2-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1284-autotune-typed-refusal-and-protocol-profile-consumer-successor-r2-20261014/proposal.patch",
+          "sha256": "c80a8ea216a2e8feae1c3cfa32f49ba1f5b4795318987f27e3e7324a91784eb3"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014/decision.md",
+          "sha256": "f92c17ee80c336eb4a06907992c0c36a9ecbded4f37f82829c9ed852c58fc12a"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014/manifest.json",
+          "sha256": "9258f7de83e535823ed33df7fbe8e1545c4e8752f034c0b6d33bb258d5212d57"
+        },
+        "packet": "r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1283-joint-simulation-registry-order-and-typed-refusal-successor-20261014/candidate.patch",
+          "sha256": "7cabf6f097b5231aedf677f74ceec20ccb955b332712e2a844c7c3dee14f252d"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/decision.md",
+          "sha256": "83395a4839f02e52b25419b049cd7d5365c83de204a675c1274d5512213efad2"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/manifest.json",
+          "sha256": "b137aba5df82ded6d6917426f9704664a6cf90700645ad1cdcdce5a69ac9c176"
+        },
+        "packet": "r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1290-skg-selected-profile-and-cache-bridge-structural-successor-r3-20261014/proposal.patch",
+          "sha256": "046644ea1d3c8b48258a6d33f81318e0da9b29f51f7e698247ec9b60c87a6c15"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1322-n4-real-declared-lever-guard-and-basis-recompute-successor-r4-20261014/decision.md",
+          "sha256": "878de79f48f5b9c4cccd1847343806db67fc20d14100ff9acb9d427ade2af3d7"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1322-n4-real-declared-lever-guard-and-basis-recompute-successor-r4-20261014/manifest.json",
+          "sha256": "02eca171d9bba0f5f0407128d2aca18bfe4fd112bf534e66d0f6c423083cdcb8"
+        },
+        "packet": "r1322-n4-real-declared-lever-guard-and-basis-recompute-successor-r4-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1322-n4-real-declared-lever-guard-and-basis-recompute-successor-r4-20261014/candidate.patch",
+          "sha256": "5dc255724c503b74bd829cafd2776c520b52801cda88feda28b92e3bff0ba814"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/decision.md",
+          "sha256": "4e18b7c89ea3548cd71f0146549b4bb3822e1d99528da3ac8929713f7022a5ca"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/manifest.json",
+          "sha256": "84a815398ff35c2b4f1021dc060640710d762686fecb628372a8ea3e84368c88"
+        },
+        "packet": "r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/candidate.patch",
+          "sha256": "31bb712b1db9f406ccb39bd617ddc8ee88345ed287351557ab3cfa3d92e7fab5"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/decision.md",
+          "sha256": "95394115023ac6956b174b260446c5658df142bb4d1400aa667689db5c69c194"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/manifest.json",
+          "sha256": "710493ce7c6d143f1ad8da7217f8b7af76a482243a66d2b512910429187e694e"
+        },
+        "packet": "r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1321-berl-selected-manifest-adapter-and-backtest-producer-basis-successor-r3-20261014/candidate.patch",
+          "sha256": "efa6f054b7e0476add6151dadc354b6bb00655b55d448731a84feaa76ad2a935"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/decision-r1330.md",
+          "sha256": "eaa1a6c0f96983e8c643e7cd113f298acb42b92cf7d8c7089cb50741a8ed5508"
+        },
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/manifest-r1330.json",
+          "sha256": "04ed9e36c99a0b0e1007897a357624aceadf3ddc24fa885400852d480a9f5ea8"
+        },
+        "packet": "r1330-transfer-source-namespace-countermodel-successor-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1330-transfer-source-namespace-countermodel-successor-20261014/candidate-r1330.patch",
+          "sha256": "8830908125f3a1eff9cc201396d1241ca67bb7d413f29dc397cf1bfc056f4a2e"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      },
+      {
+        "author_decision": null,
+        "manifest": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1336-reviewed-composition-canonical-style-20261014/manifest.json",
+          "sha256": "5a0f2e68fa37bb106357f5ee23360d8088e277af5b3efe28e18c95d708f5b068"
+        },
+        "packet": "r1336-reviewed-composition-canonical-style-20261014",
+        "proposal_patch": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1336-reviewed-composition-canonical-style-20261014/style.patch",
+          "sha256": "26446d2431b7b4c746419a4892ce4adea1c2d9cc60a7c13b7e7b26a587bca251"
+        },
+        "qualification": "prior mechanism packet; its stated scope and disposition remain local and are not a Source36 whole-property acceptance"
+      }
+    ],
+    "qualification": "Immutable mechanism-packet patch, manifest, and author decision references carried by the reviewed composition. Their individual scopes and limits remain in force; they do not collectively establish whole-property acceptance."
+  },
+  "open_boundaries": {
+    "author_proposals": "Remain candidate-scoped and limited pending whole-property verification; this handoff promotes none to authority or criterion closure.",
+    "controlled_n4_history": "not_established",
+    "external_law_issuer_currentness_and_production_authority": "not_established; no external or institutional facts are inferred from candidate fixtures or local runtime evidence.",
+    "pending_work": [
+      {
+        "item": "lifecycle R4",
+        "status": "pending"
+      },
+      {
+        "item": "V3 R1335",
+        "status": "pending"
+      },
+      {
+        "item": "Q2 R1324",
+        "status": "pending"
+      }
+    ],
+    "production_academic_skg_errors": "Five recorded errors retained; no reclassification or confidence upgrade is made by this receipt."
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Independent R1338 composition review, canonical ABI regen/check, and remaining focused composed native/property controls; none is replaced by this handoff.",
+    "existing_anti_patterns": "The cited mechanism packets document candidate/refusal, declared-basis, report/consumer, profile and fixture-proxy risks; this receipt adds no new adjudication and converts no local candidate predicate into authority.",
+    "register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P14",
+      "P15",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40"
+    ],
+    "target_pattern": "Reuse selected typed producers, persisted artifacts, explicit bridges and fresh consumers; verify source-bound behavior and preserve unknown/limited status."
+  },
+  "receipt_id": "r1346-source36-reviewed-composition-implementation-handoff-20261014",
+  "source_checkpoint": {
+    "branch": "codex/e02-unified-local-20261009",
+    "committed_byte_readback": {
+      "all_physical_and_head_bytes_match": true,
+      "implementation_path_count": 55,
+      "index_clean_at_readback": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/committed-source36-byte-readback.json",
+      "sha256": "71223b015193b0ab458a7f51c9656f65d96fe31260c646584ffea594811a4b06",
+      "tracked_clean_at_readback": true
+    },
+    "composition": {
+      "net_patch_sha256": "a347fc2e3ff725bf55c5a4fecf3cdbb1bff969fac9a769aed777df486ccb645a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/composition.json",
+      "product_writes": false,
+      "scope_pointer": "/final",
+      "sha256": "b626a8173177846c05e173f1b537f7f2511e2ea3102f810e38965ab446ea0cab"
+    },
+    "exact_implementation_footprint": {
+      "committed_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/committed-source36-byte-readback.json",
+        "sha256": "71223b015193b0ab458a7f51c9656f65d96fe31260c646584ffea594811a4b06"
+      },
+      "complete_path_preimage_postimage_sha256_and_size_denominator": {
+        "json_pointer": "/final",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/composition.json",
+        "sha256": "b626a8173177846c05e173f1b537f7f2511e2ea3102f810e38965ab446ea0cab"
+      },
+      "count": 55
+    },
+    "full_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1345-20261014.json",
+      "physical_source_paths_as_recorded": 617,
+      "scope_note": "The 617-entry physical source-frame map is not the denominator of the R1347 native test run.",
+      "sha256": "b0e3c42afbf644fb367b0417a70db6635ed030fa43c85e958d56c69aae6ba845"
+    },
+    "head": "35356748a873037f67f0198f2d0b99a9bd09cf94",
+    "implementation_commit": "35356748a873037f67f0198f2d0b99a9bd09cf94",
+    "parent_and_slice_base": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "source_status": "Committed Source36 implementation boundary; root remains sole product writer; tracked source and index were clean before this receipt was written.",
+    "tree": "733ec0727f819d7f9990cd9e22d2efa927d92617"
+  },
+  "static_quality": {
+    "base_head": "a02f4f8920c60e02e745ba91bbed9ab9524fcbe7",
+    "composition_sha256": "b626a8173177846c05e173f1b537f7f2511e2ea3102f810e38965ab446ea0cab",
+    "gate": "Ruff check and format check on exact precommit composed Python postimages.",
+    "implementation_python_path_count": 53,
+    "implementation_total_path_count": 55,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1337-r2-reviewed-composition-styled-20261014/root-quality-r1093.json",
+    "per_python_path_checks": [
+      "ruff check",
+      "ruff format --check"
+    ],
+    "result_count": 106,
+    "result_distribution": {
+      "exit_0": 106,
+      "nonzero": 0
+    },
+    "result_input_hashes_match_committed_postimages": true,
+    "runtime_verification_in_static_packet": "UNRUN",
+    "sha256": "aca28b77d61a8df472305151f7576c889ecc25c3577837dae3f75e2860e4955c"
+  }
+}

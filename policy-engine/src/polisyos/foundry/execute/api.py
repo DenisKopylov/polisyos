@@ -1616,7 +1616,10 @@ def _persist_feedback_result(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=request.return_selected_profile,
     )
+    if request.return_selected_profile:
+        return FeedbackResultRef.model_validate(ref.model_dump(mode="python"))
     return FeedbackResultRef(artifact_id=ref.artifact_id)
 
 

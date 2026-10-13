@@ -22,7 +22,12 @@ from typing import TYPE_CHECKING, Any, BinaryIO, Literal
 from pydantic import ValidationError
 
 from ..canon import content_hash
-from ..canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
+from ..canon.canon_json import (
+    CanonSpec,
+    CanonViolation,
+    _validate_core_json_payload_conformance,
+    to_canonical_bytes,
+)
 from ..observability import get_metrics, get_tracer
 from ..observability.config import is_hpc_observability_enabled
 from . import _atomic_write as _atomic_write_module
@@ -2550,6 +2555,7 @@ class FileSystemCAS:
         canon_spec = canon_spec or CanonSpec()
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
+        _validate_core_json_payload_conformance(data, canon_spec)
         opts2 = PutOptions(
             kind=opts.kind,
             media_type="application/json",

@@ -5,6 +5,7 @@ from types import ModuleType
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
@@ -122,6 +123,42 @@ def test_gcs_store_refuses_canon_spec_mismatch_before_upload() -> None:
             canon_spec=CoreCanonSpec(exclude_none=False),
         )
 
+    assert bucket.objects == {}
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param(
+            {"value": {"_type": "bytes_hex", "value": "00ff"}},
+            id="recognized-bytes-alias",
+        ),
+        pytest.param(
+            {"value": {"_type": "float_hex", "value": "0x1.4000000000000p+0"}},
+            id="recognized-float-alias",
+        ),
+    ],
+)
+def test_gcs_store_refuses_nonconformant_json_profile_before_upload(
+    payload: dict[str, object],
+) -> None:
+    store = GCSArtifactStore(bucket="test-bucket")
+    bucket = _FakeBucket()
+    store._bucket = bucket
+    spec = CoreCanonSpec(forbid_floats=False, exclude_none=False)
+
+    with pytest.raises(CanonicalProfileRefusalError) as refusal:
+        store.put_json(
+            payload,
+            PutOptions(
+                kind="test.core-json-profile-nonconformant",
+                media_type="application/json",
+                canon=CoreCanonInfo.from_spec(spec),
+            ),
+            canon_spec=spec,
+        )
+
+    assert refusal.value.code == "canon_profile_payload_nonconformant"
     assert bucket.objects == {}
 
 

@@ -195,6 +195,26 @@ policy; the durable-owner reference remains the write-through result.
 
 A published view is one whose manifest has a non-null stage in the durable owner transaction intent that completed. This includes recovery of an earlier pending intent and does not claim that the current invocation wrote the bytes. A reused view was admitted as an exact existing owner view or had no manifest stage in the completed owner transaction. When integrity verification is requested, the importer invokes the real verifier for staged members and exact reused views; the returned verified-ref set contains only successful verifier results. With verification disabled, that set is empty. These fields report local CAS state, not external custody, signature trust, provenance authority, or production currentness.
 
+### Profiled Core JSON writes
+
+ArtifactStore.put_json binds the supplied CanonInfo to the selected Core
+CanonSpec, serializes with the Core codec, and verifies the emitted bytes by
+decoding and re-encoding them with that same codec before any backend write.
+Nonconformant declared bytes are refused with
+CanonicalProfileRefusalError("canon_profile_payload_nonconformant"). This
+preflight applies whether or not return_selected_profile is requested.
+FileSystemCAS, GCS, and S3 share the rule; cache, namespace, and async facades
+inherit it by delegation. Native bytes and finite floats remain supported when
+the spec permits them. Recognized tag forms that decode but do not re-encode to
+the same bytes, such as bytes_hex and float_hex, are refused rather than
+persisted as unreadable profiled JSON.
+
+put_bytes remains byte-preserving and does not infer JSON from arbitrary
+payloads. load_core_json_frame_records applies the same conformance primitive
+to each length-prefixed record. Core artifacts exposes a frame reader but no
+matching frame writer; domain-owned frame producers remain responsible for
+serializing records under the declared Core profile before calling put_bytes.
+
 ### Profiled Core JSON reads
 
 Use `load_core_json_artifact` or `validate_core_model_json_artifact` for semantic JSON values. These resolve the selected manifest, require a complete supported `CanonInfo`, and verify that the exact selected bytes round-trip under the Core codec before returning a value. The typed reader adapts the decoded value only through the requested Pydantic field schema, preserves Core-native tags, and performs terminal model validation with strict mode. Its union bridge reads direct model choices from Pydantic CoreSchema, selects a model only from a unique declared Literal tag or a unique required-key/extra-policy shape, and leaves final union-mode selection and validators to one terminal model validation. It supports both Core Python-mode writes and JSON-mode model dumps without changing the IR tag contract; unresolved ambiguous model mappings receive no inferred branch. `read_core_json_artifact_bytes` applies the same admission while preserving the original bytes for a downstream typed decoder. `load_core_json_frame_records` applies that check to every length-prefixed record after verifying the complete stored payload identity. Async callers use `aload_core_json_artifact`. Missing or malformed profiles are refusals; the Core-only tag policy remains separate from the IR codec facade.

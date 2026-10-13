@@ -37,7 +37,7 @@ from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
-from polisyos.ir.artifacts import InputRef, put_json_artifact
+from polisyos.ir.artifacts import InputRef, normalize_artifact_ref, put_json_artifact
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.runtime.http.services.run_operation_idempotency import (
     RuntimeOperationIntentClaim,
@@ -71,6 +71,13 @@ _ASSOCIATION_EVENT_SCHEMA_VERSION = "1.0"
 _METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
 _METHOD_REF, _METHOD_VERSION = _METHOD_FQN.rsplit("@", maxsplit=1)
 _logger = logging.getLogger(__name__)
+
+
+def _as_ir_artifact_ref(ref: ArtifactRef) -> ArtifactRefModel:
+    """Adapt a selected Core reference without dropping its manifest profile."""
+    return ArtifactRefModel.model_validate(normalize_artifact_ref(ref))
+
+
 class _ControlJob(Protocol):
     """Control-job identity used to bind diagnostic writes to a completed run."""
 
@@ -165,9 +172,9 @@ class PredictiveCalibrationAssociation(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal[
+    schema_version: Literal["polisyos.runtime.predictive_calibration_association.v2"] = (
         "polisyos.runtime.predictive_calibration_association.v2"
-    ] = "polisyos.runtime.predictive_calibration_association.v2"
+    )
     event_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1, max_length=120)
     request_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -346,14 +353,14 @@ def produce_run_predictive_calibration(
         )
 
         try:
-            candidate_source = (
-                GenerationSourceRepository(store).load_candidate_scenario_source_for_n5(
+            candidate_source = GenerationSourceRepository(
+                store
+            ).load_candidate_scenario_source_for_n5(
                 request.candidate_source_ref,
                 expected_run_id=control_run_id,
                 expected_job_id=job_id,
                 expected_tenant_id=tenant_id,
-                    expected_cell_id=cell_id,
-                )
+                expected_cell_id=cell_id,
             )
         except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
             raise PredictiveCalibrationError(
@@ -381,7 +388,9 @@ def produce_run_predictive_calibration(
             _core_input(request.observed_source_ref, "observed_source"),
         )
         owner_request = ForecastOwnerRequest(
-            observed_source_ref=DataSnapshotRef.model_validate(request.observed_source_ref.model_dump()),
+            observed_source_ref=DataSnapshotRef.model_validate(
+                request.observed_source_ref.model_dump()
+            ),
             split=request.split,
             target_metric=request.target_metric.strip(),
             method_fqn=_METHOD_FQN,
@@ -389,11 +398,11 @@ def produce_run_predictive_calibration(
             report_id=report_id,
             calibration_rule=CalibrationRuleBinding(
                 rule_id=CALIBRATION_RULE_ID,
-                artifact_ref=ArtifactRefModel.model_validate(request.calibration_rule_ref),
+                artifact_ref=_as_ir_artifact_ref(request.calibration_rule_ref),
             ),
             temporal_roles=request.temporal_roles,
-            model_spec_ref=request.model_spec_ref,
-            policy_spec_ref=request.policy_spec_ref,
+            model_spec_ref=_as_ir_artifact_ref(request.model_spec_ref),
+            policy_spec_ref=_as_ir_artifact_ref(request.policy_spec_ref),
             manifest_inputs=run_inputs,
             seed=request.seed,
         )
@@ -803,10 +812,9 @@ def _claim_result_matches(
         stored_ref = ArtifactRef.model_validate(json.loads(stored_json))
     except (TypeError, ValueError, json.JSONDecodeError):
         return False
-    return (
-        artifact_ref_identity_key(stored_ref) == artifact_ref_identity_key(ref)
-        and stored_ref.model_dump(mode="json") == ref.model_dump(mode="json")
-    )
+    return artifact_ref_identity_key(stored_ref) == artifact_ref_identity_key(
+        ref
+    ) and stored_ref.model_dump(mode="json") == ref.model_dump(mode="json")
 
 
 def _load_existing_intent(
@@ -873,9 +881,7 @@ def _load_existing_intent(
     if payload.get("intent_id") != intent_id or payload.get("request_sha256") != request_sha256:
         raise PredictiveCalibrationError("predictive_calibration_intent_conflict")
     if legacy_scope_unverifiable:
-        raise PredictiveCalibrationError(
-            "predictive_calibration_legacy_intent_scope_unverifiable"
-        )
+        raise PredictiveCalibrationError("predictive_calibration_legacy_intent_scope_unverifiable")
     try:
         association_ref = ArtifactRef.model_validate(payload.get("association_ref"))
     except (TypeError, ValueError) as exc:
@@ -1248,8 +1254,7 @@ def _validate_association_input_edges(
         )
     }
     actual = {
-        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
-        for item in manifest.inputs
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in manifest.inputs
     }
     if not expected.issubset(actual):
         raise PredictiveCalibrationError("predictive_calibration_association_edges_mismatch")
@@ -1272,11 +1277,9 @@ def _validate_current_run_binding(
         job_id=_required_text(getattr(run_details, "control_job_id", None), "control_job_id"),
         run_manifest_ref=run_manifest_ref,
     )
-    if (
-        association.control_run_id != control_run_id
-        or artifact_ref_identity_key(association.run_manifest_ref)
-        != artifact_ref_identity_key(run_manifest_ref)
-    ):
+    if association.control_run_id != control_run_id or artifact_ref_identity_key(
+        association.run_manifest_ref
+    ) != artifact_ref_identity_key(run_manifest_ref):
         raise PredictiveCalibrationError("predictive_calibration_run_manifest_mismatch")
     if (
         association.run_id != getattr(run_details, "run_id", None)
@@ -1315,7 +1318,7 @@ def _validate_current_run_binding(
     )
     report = load_backtest_report(
         ensure_ir_artifact_store(store),
-        ArtifactRefModel.model_validate(association.backtest_report_ref),
+        _as_ir_artifact_ref(association.backtest_report_ref),
     )
     evidence = load_empirical_calibration_evidence(
         store,
@@ -1370,7 +1373,7 @@ def _recompute_s10(
         raise PredictiveCalibrationError("predictive_calibration_candidate_context_incomplete")
     report = report or load_backtest_report(
         ensure_ir_artifact_store(store),
-        ArtifactRefModel.model_validate(association.backtest_report_ref),
+        _as_ir_artifact_ref(association.backtest_report_ref),
     )
     evidence = evidence or load_empirical_calibration_evidence(
         store,
@@ -1394,6 +1397,7 @@ def _recompute_s10(
             },
         }
     }
+
     def resolver(ref: object) -> object:
         return load_empirical_calibration_evidence(
             store,
@@ -1547,8 +1551,7 @@ def _require_run_root_ref(
     role: str,
 ) -> None:
     if not any(
-        artifact_ref_identity_key(reference) == artifact_ref_identity_key(item)
-        for item in roots
+        artifact_ref_identity_key(reference) == artifact_ref_identity_key(item) for item in roots
     ):
         raise PredictiveCalibrationError(
             f"predictive_calibration_{role}_not_run_root",

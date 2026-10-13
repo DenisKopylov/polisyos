@@ -127,7 +127,12 @@ class ArtifactStore(Protocol):
         *,
         return_selected_profile: bool = False,
     ) -> ArtifactRef:  # pragma: no cover - protocol
-        """Persist JSON, optionally returning the exact profile selected by this write."""
+        """Persist Core JSON after declared-profile byte conformance succeeds.
+
+        Implementations must decode and re-encode the emitted bytes with the
+        selected Core profile before backend mutation. The return flag controls
+        only the selector returned to the caller; it never disables this check.
+        """
         ...
 
     # -- integrity -----------------------------------------------------

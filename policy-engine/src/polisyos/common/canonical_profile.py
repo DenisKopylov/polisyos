@@ -1,8 +1,8 @@
-"""Shared strict reader for persisted canonical JSON profile declarations.
+"""Shared strict profile-conformance mechanics for persisted JSON.
 
-This module owns raw-manifest parsing and byte-conformance mechanics only.
-Callers must supply the decoder and encoder from the actual public codec
-facade so Core and IR retain their distinct typed-tag sets and exception types.
+This module owns raw-manifest parsing and byte-conformance mechanics. Callers
+supply the decoder and encoder from the actual public codec facade so Core and
+IR retain their distinct typed-tag sets and exception types.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, TypeVar, cast
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
@@ -22,6 +22,7 @@ CanonicalProfileStatus = Literal[
 ]
 CanonicalProfileDeclarationStatus = Literal["declared", "absent", "declared_unknown_candidate"]
 _VERIFIED_READ_TOKEN = object()
+_T = TypeVar("_T")
 
 
 class CanonicalProfileRefusalError(ValueError):
@@ -164,8 +165,10 @@ def parse_canonical_profile(
     if set(profile_model.model_fields) - set(payload):
         raise CanonicalProfileRefusalError("canon_profile_incomplete")
     separators = payload.get("separators")
-    if type(separators) is list and len(separators) == 2 and all(
-        type(separator) is str for separator in separators
+    if (
+        type(separators) is list
+        and len(separators) == 2
+        and all(type(separator) is str for separator in separators)
     ):
         payload["separators"] = tuple(separators)
     try:
@@ -182,6 +185,27 @@ def parse_canonical_profile(
             status="declared_unknown_candidate",
         )
     return CanonicalProfileDeclaration(profile=profile, status="declared")
+
+
+def _decode_and_reencode_profiled_bytes(
+    raw_payload_bytes: bytes,
+    *,
+    max_depth: int,
+    spec: object,
+    decode: Callable[[bytes, int], _T],
+    encode: Callable[[_T, object], bytes],
+) -> _T:
+    """Decode and re-encode bytes under one profile, requiring exact identity."""
+    if type(raw_payload_bytes) is not bytes:
+        raise CanonicalProfileRefusalError("canon_profile_payload_bytes_invalid")
+    try:
+        value = decode(raw_payload_bytes, max_depth)
+        expected_bytes = encode(value, spec)
+    except Exception as exc:
+        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant") from exc
+    if type(expected_bytes) is not bytes or expected_bytes != raw_payload_bytes:
+        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant")
+    return value
 
 
 def decode_profiled_canonical_bytes(
@@ -214,13 +238,13 @@ def decode_profiled_canonical_bytes(
         )
 
     profile = declaration.profile
-    try:
-        value = decode(raw_payload_bytes, profile.max_depth)
-        expected_bytes = encode(value, make_spec(profile))
-    except Exception as exc:
-        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant") from exc
-    if type(expected_bytes) is not bytes or expected_bytes != raw_payload_bytes:
-        raise CanonicalProfileRefusalError("canon_profile_payload_nonconformant")
+    value = _decode_and_reencode_profiled_bytes(
+        raw_payload_bytes,
+        max_depth=profile.max_depth,
+        spec=make_spec(profile),
+        decode=decode,
+        encode=encode,
+    )
     return CanonicalProfileRead(
         value=value,
         raw_payload_bytes=raw_payload_bytes,

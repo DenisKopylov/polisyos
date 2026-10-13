@@ -4618,13 +4618,13 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 created = owner_future.result(timeout=360)
         assert created.status_code == 201, created.text
         assert len(owner_requests) == 1
+        assert owner_requests[0].model_spec_ref.model_dump(mode="json") == selected["ir.model_spec"]
         assert (
-            getattr(owner_requests[0].model_spec_ref, "manifest_profile_sha256", None)
-            == (selected["ir.model_spec"]["manifest_profile_sha256"])
+            owner_requests[0].policy_spec_ref.model_dump(mode="json") == selected["ir.policy_spec"]
         )
         assert (
-            getattr(owner_requests[0].policy_spec_ref, "manifest_profile_sha256", None)
-            == (selected["ir.policy_spec"]["manifest_profile_sha256"])
+            owner_requests[0].calibration_rule.artifact_ref.model_dump(mode="json")
+            == selected["ir.forecast_calibration_rule"]
         )
         result = created.json()
         association = result["association"]

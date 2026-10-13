@@ -3161,6 +3161,7 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
 
     from polisyos.data_forge.domains.ukraine.manifests import HouseholdDiagnosticPanelBasis
     from polisyos.data_forge.read_api.ukraine import read_ukraine_json_snapshot
+    from polisyos.ir.analytics.backtest import load_backtest_report
     from polisyos.scientist.governance.backtest_matrix import BacktestMatrixResult
     from polisyos.scientist.governance.calibration_validation import (
         CalibrationValidationBundle,
@@ -3325,6 +3326,8 @@ def test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read
         and producer_diagnostic.p_value is None
     )
     assert report.trust_eligible is False and report.trust_score is None
+    # Profile-only variants must reuse the exact payload emitted by the producer.
+    report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     core_report_ref = ArtifactRef.model_validate(report_ref.model_dump(mode="python"))
     bundle = CalibrationValidationBundle(
         schema_version="1.1",
@@ -4205,11 +4208,13 @@ def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
         artifact_id=str(result.bundle_ref.artifact_id),
         kind="scientist.calibration_validation_bundle",
         media_type="application/json",
+        manifest_profile_sha256=result.bundle_ref.manifest_profile_sha256,
     )
     btref = ArtifactRef(
         artifact_id=str(report_ref.artifact_id),
         kind="ir.backtest_report",
         media_type="application/json",
+        manifest_profile_sha256=report_ref.manifest_profile_sha256,
     )
     state = ExperimentState(
         run_id="s1-packet",

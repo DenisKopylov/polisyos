@@ -8,7 +8,12 @@ import threading
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.canon import content_hash
-from polisyos.core.canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
+from polisyos.core.canon.canon_json import (
+    CanonSpec,
+    CanonViolation,
+    _validate_core_json_payload_conformance,
+    to_canonical_bytes,
+)
 from polisyos.core.observability import get_metrics
 
 from .._integrity_ops import (
@@ -430,6 +435,7 @@ class GCSArtifactStore:
         canon_spec = canon_spec or CanonSpec()
         canon = _canon_info_for_spec(canon_spec, opts.canon, violation_type=CanonViolation)
         data = to_canonical_bytes(obj, canon_spec)
+        _validate_core_json_payload_conformance(data, canon_spec)
         opts2 = PutOptions(
             kind=opts.kind,
             media_type="application/json",

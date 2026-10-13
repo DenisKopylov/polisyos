@@ -17,6 +17,7 @@ from polisyos.common.canonical import (
 from polisyos.common.canonical import (
     to_canonical_bytes as _to_canonical_bytes,
 )
+from polisyos.common.canonical_profile import _decode_and_reencode_profiled_bytes
 
 _CANONICAL_TYPES = frozenset(
     {
@@ -69,6 +70,17 @@ def from_canonical_bytes(data: bytes, *, max_depth: int = 128) -> Any:
         max_depth=max_depth,
         violation_type=CanonViolation,
         canonical_types=_CANONICAL_TYPES,
+    )
+
+
+def _validate_core_json_payload_conformance(data: bytes, spec: CanonSpec) -> None:
+    """Require Core JSON bytes to round-trip under their declared profile."""
+    _decode_and_reencode_profiled_bytes(
+        data,
+        max_depth=spec.max_depth,
+        spec=spec,
+        decode=lambda payload, max_depth: from_canonical_bytes(payload, max_depth=max_depth),
+        encode=lambda value, _selected_spec: to_canonical_bytes(value, spec),
     )
 
 

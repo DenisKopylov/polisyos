@@ -85,6 +85,9 @@ from polisyos.scientist.methods.search.uncertainty import (
     load_source_bound_risk_observation,
     persist_source_bound_risk_observation,
 )
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope as SearchUncertaintyEnvelope,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import maybe_artifact_ref
 from polisyos.scientist.nodes.builtins.simulate.propagate_welfare import PropagateWelfareNode
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -239,7 +242,7 @@ class _RoutingStage:
             is_promising=True,
             stage_name="candidate_observation_test",
             duration_seconds=0.0,
-            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            uncertainty_envelope=SearchUncertaintyEnvelope.unknown(),
             compute_cost_usd=0.01,
             compute_cost_origin="reported",
             fidelity_level=1,
@@ -919,7 +922,12 @@ def _build_feedback_uncomposed_execution(source: _FoundrySource) -> _FoundrySour
     result_manifest = _selected_manifest(store, result_ref)[1]
     assert not any(edge.role == "execution_input_basis" for edge in result_manifest.inputs)
     feedback_edge = _manifest_edge(store, result_ref, "artifact.feedback_result_ref")
-    assert feedback_edge.artifact_id == result.feedback_result_ref.artifact_id
+    assert result.feedback_result_ref.manifest_profile_sha256 is not None
+    assert (feedback_edge.artifact_id, feedback_edge.manifest_profile_sha256) == (
+        result.feedback_result_ref.artifact_id,
+        result.feedback_result_ref.manifest_profile_sha256,
+    )
+    _selected_manifest(store, result.feedback_result_ref)
     metrics_ref = _producer_output_ref(
         result.metrics_ref, MetricsRef, expected_kind="foundry.metrics"
     )
@@ -1334,7 +1342,7 @@ def _benchmark_funnel_context(
         evidence_ref=candidate_ref,
         calibration_report=None,
         simulation_metrics=None,
-        uncertainty_envelope=UncertaintyEnvelope.unknown(),
+        uncertainty_envelope=SearchUncertaintyEnvelope.unknown(),
         uncertainty_basis_ref=None,
         selection_evaluation=None,
         hidden_holdout=None,
@@ -1970,6 +1978,9 @@ def test_nonconformant_selected_core_profile_is_withheld_with_source_markers_int
         for edge in simulation_manifest.inputs
     ]
     assert sum(edge.role == "metrics" for edge in simulation_manifest.inputs) == 1
+    assert [edge for edge in simulation_inputs if edge.role != "metrics"] == [
+        edge for edge in simulation_manifest.inputs if edge.role != "metrics"
+    ]
     forged_simulation_ref = store.put_json(
         forged_simulation,
         PutOptions(
@@ -1984,12 +1995,27 @@ def test_nonconformant_selected_core_profile_is_withheld_with_source_markers_int
     forged_welfare_inputs = [
         _input_edge(forged_simulation_ref, role="simulation_result")
         if edge.role == "simulation_result"
+        else _input_edge(false_profile_metrics_ref, role="metrics")
+        if edge.role == "metrics"
         else edge
         for edge in welfare_manifest.inputs
     ]
     assert sum(edge.role == "simulation_result" for edge in welfare_manifest.inputs) == 1
+    assert sum(edge.role == "metrics" for edge in welfare_manifest.inputs) == 1
+    assert [
+        edge for edge in forged_welfare_inputs if edge.role not in {"simulation_result", "metrics"}
+    ] == [
+        edge
+        for edge in welfare_manifest.inputs
+        if edge.role not in {"simulation_result", "metrics"}
+    ]
     forged_welfare_ref = _persist_welfare_bundle_view(store, bundle, forged_welfare_inputs)
-    _assert_real_mixed_nested_monte_carlo_source(store, forged_welfare_ref)
+    assert _ref_key(
+        _selected_ref_from_edge(store, _manifest_edge(store, forged_simulation_ref, "metrics"))
+    ) == _ref_key(false_profile_metrics_ref)
+    assert _ref_key(
+        _selected_ref_from_edge(store, _manifest_edge(store, forged_welfare_ref, "metrics"))
+    ) == _ref_key(false_profile_metrics_ref)
 
     outcome = _funnel_outcome(store, candidate_ref, forged_welfare_ref)
 

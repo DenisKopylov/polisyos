@@ -14,6 +14,7 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.manifest import ArtifactManifest
@@ -1135,6 +1136,7 @@ def _build_source_bound_risk_observation(
     welfare_bundle_ref: ArtifactRef,
 ) -> tuple[SourceBoundRiskObservation, list[InputRef]]:
     """Recompute a candidate-only welfare observation from its existing CAS sources."""
+    ir_store = ensure_ir_artifact_store(store)
     if candidate_ref.kind != "scientist.policy_design.candidate":
         raise ValueError("source-bound risk requires the selected policy candidate ref")
     candidate_manifest = _source_manifest(store, candidate_ref)
@@ -1152,7 +1154,7 @@ def _build_source_bound_risk_observation(
     ):
         raise ValueError("source-bound risk welfare bundle schema mismatch")
     bundle = load_welfare_bundle(
-        store, WelfareBundleRef.model_validate(welfare_ref.model_dump(mode="python"))
+        ir_store, WelfareBundleRef.model_validate(welfare_ref.model_dump(mode="python"))
     )
     if bundle.schema_version != welfare_manifest.artifact_schema.version:
         raise ValueError("source-bound risk welfare schema version differs from its content")
@@ -1180,7 +1182,7 @@ def _build_source_bound_risk_observation(
         or weights_manifest.artifact_schema.version != "1.0"
     ):
         raise ValueError("welfare weight source schema mismatch")
-    weight_payload = get_json_artifact(store, weights_ref)
+    weight_payload = get_json_artifact(ir_store, weights_ref)
     if not isinstance(weight_payload, Mapping):
         raise ValueError("welfare weight source payload is not an object")
 
@@ -1220,12 +1222,12 @@ def _build_source_bound_risk_observation(
     ):
         raise ValueError("welfare sample bundle schema mismatch")
 
-    method_payload = get_json_artifact(store, method_ref)
+    method_payload = get_json_artifact(ir_store, method_ref)
     method_config = PropagationConfig.model_validate(method_payload, strict=True)
     sample_bundle = load_welfare_sample_bundle(
-        store, WelfareSampleBundleRef.model_validate(sample_ref.model_dump(mode="python"))
+        ir_store, WelfareSampleBundleRef.model_validate(sample_ref.model_dump(mode="python"))
     )
-    report_payload = get_json_artifact(store, report_ref)
+    report_payload = get_json_artifact(ir_store, report_ref)
     if not isinstance(report_payload, Mapping):
         raise ValueError("welfare propagation report payload is not an object")
     if report_manifest.artifact_schema.version != report_payload.get("schema_version"):

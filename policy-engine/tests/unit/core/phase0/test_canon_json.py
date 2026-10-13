@@ -6,7 +6,14 @@ from decimal import Decimal
 
 import pytest
 
-from polisyos.core.canon.canon_json import CanonSpec, CanonViolation, to_canonical_bytes
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.canon import canon_json
+from polisyos.core.canon.canon_json import (
+    CanonSpec,
+    CanonViolation,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 
 
 def test_canonical_bytes_stable_for_key_order():
@@ -23,6 +30,73 @@ def test_canonical_bytes_stable_for_key_order():
 def test_float_forbidden():
     with pytest.raises(CanonViolation):
         to_canonical_bytes({"x": 0.1})
+
+
+@pytest.mark.parametrize(
+    ("payload", "spec"),
+    [
+        pytest.param(
+            {"value": {"_type": "bytes_hex", "value": "00ff"}},
+            CanonSpec(),
+            id="bytes-alias",
+        ),
+        pytest.param(
+            {"value": {"_type": "float_hex", "value": "0x1.4000000000000p+0"}},
+            CanonSpec(forbid_floats=False),
+            id="float-alias",
+        ),
+    ],
+)
+def test_canonical_encoder_refuses_nonconformant_tag_aliases(
+    payload: dict[str, object],
+    spec: CanonSpec,
+) -> None:
+    with pytest.raises(CanonViolation) as refusal:
+        to_canonical_bytes(payload, spec)
+
+    assert isinstance(refusal.value, CanonicalProfileRefusalError)
+    assert refusal.value.code == "canon_profile_payload_nonconformant"
+
+
+def test_canonical_encoder_preserves_native_values_under_selected_profile() -> None:
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    payload = {"binary": b"\x00\xff", "ratio": 1.25, "optional": None}
+
+    encoded = to_canonical_bytes(payload, spec)
+    decoded = from_canonical_bytes(encoded)
+
+    assert decoded == payload
+    assert to_canonical_bytes(decoded, spec) == encoded
+
+
+@pytest.mark.parametrize(
+    ("value", "spec"),
+    [
+        pytest.param(None, CanonSpec(exclude_none=False), id="null-scalar"),
+        pytest.param(b"\x00\xff", CanonSpec(), id="native-bytes"),
+        pytest.param(1.25, CanonSpec(forbid_floats=False), id="finite-float"),
+    ],
+)
+def test_core_encoder_round_trips_direct_values(value: object, spec: CanonSpec) -> None:
+    encoded = to_canonical_bytes(value, spec)
+    decoded = from_canonical_bytes(encoded)
+
+    assert decoded == value
+    assert type(decoded) is type(value)
+    assert to_canonical_bytes(decoded, spec) == encoded
+
+
+def test_core_profile_validator_uses_private_raw_encoder(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = CanonSpec(forbid_floats=False, exclude_none=False)
+    encoded = to_canonical_bytes({"binary": b"\x00\xff", "ratio": 1.25}, spec)
+
+    def reject_public_reentry(*_args: object, **_kwargs: object) -> bytes:
+        raise AssertionError("profile validation must not re-enter the public encoder")
+
+    monkeypatch.setattr(canon_json, "to_canonical_bytes", reject_public_reentry)
+    canon_json._validate_core_json_payload_conformance(encoded, spec)
 
 
 def test_nan_inf_forbidden_if_float_enabled():

@@ -207,7 +207,11 @@ FileSystemCAS, GCS, and S3 share the rule; cache, namespace, and async facades
 inherit it by delegation. Native bytes and finite floats remain supported when
 the spec permits them. Recognized tag forms that decode but do not re-encode to
 the same bytes, such as bytes_hex and float_hex, are refused rather than
-persisted as unreadable profiled JSON.
+persisted as unreadable profiled JSON. The public Core encoder applies this
+round-trip check before returning bytes, so direct and framed Core producers
+inherit the same admission before they call put_bytes. A refused encoding is
+both a Core CanonViolation and a CanonicalProfileRefusalError carrying the
+profile refusal code.
 
 put_bytes remains byte-preserving and does not infer JSON from arbitrary
 payloads. load_core_json_frame_records applies the same conformance primitive

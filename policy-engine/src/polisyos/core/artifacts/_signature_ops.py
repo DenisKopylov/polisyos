@@ -35,8 +35,11 @@ class IntegrityVerificationReport(Protocol):
 class VerifiedArtifactSnapshot(Protocol):
     """Minimal immutable bytes/manifest view consumed by signing helpers."""
 
-    data: bytes
-    manifest_bytes: bytes
+    @property
+    def data(self) -> bytes: ...
+
+    @property
+    def manifest_bytes(self) -> bytes: ...
 
 
 def _pending_window(max_workers: int, requested: int | None) -> int:
@@ -303,10 +306,7 @@ def sign_all_artifacts(
         pending_window=pending_window,
         cancel_event=cancel_event,
     )
-    details = [
-        result
-        for _index, result in sorted(indexed, key=lambda item: item[0])
-    ]
+    details = [result for _index, result in sorted(indexed, key=lambda item: item[0])]
     if cancelled:
         details.append(
             ArtifactSigningResult(
@@ -328,11 +328,7 @@ def sign_all_artifacts(
     skipped = sum(1 for item in details if item.status == "skipped")
     errors = sum(1 for item in details if item.status == "error")
     return BulkSigningReport(
-        total=(
-            length_hint
-            if length_hint is not None and not source_failed
-            else len(details)
-        ),
+        total=(length_hint if length_hint is not None and not source_failed else len(details)),
         signed=signed,
         skipped=skipped,
         errors=errors,
@@ -369,10 +365,7 @@ def verify_all_signatures(
         pending_window=pending_window,
         cancel_event=cancel_event,
     )
-    details = [
-        result
-        for _index, result in sorted(indexed, key=lambda item: item[0])
-    ]
+    details = [result for _index, result in sorted(indexed, key=lambda item: item[0])]
     if cancelled:
         details.append(
             SignatureVerificationResult(
@@ -397,11 +390,7 @@ def verify_all_signatures(
     revoked = sum(1 for item in details if item.status == SignatureVerificationStatus.REVOKED)
     errors = sum(1 for item in details if item.status == SignatureVerificationStatus.ERROR)
     return BulkVerificationReport(
-        total=(
-            length_hint
-            if length_hint is not None and not source_failed
-            else len(details)
-        ),
+        total=(length_hint if length_hint is not None and not source_failed else len(details)),
         valid=valid,
         unsigned=unsigned,
         invalid=invalid,

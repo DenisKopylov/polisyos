@@ -16,6 +16,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods.causal import PanelObservationalData
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
@@ -56,36 +57,49 @@ if TYPE_CHECKING:
 
 
 def test_build_worker_context_reconstructs_run_and_registry_bundle(tmp_path: Path) -> None:
-    with tenant_scope(None, tenant_id="tenant-1", cell_id="cell-1"):
-        ctx = _build_worker_context(
-            {
-                "run_id": "worker-run-1",
-                "tenant_id": "tenant-1",
-                "cell_id": "cell-1",
-                "store_config": {
-                    "backend": "filesystem",
-                    "root": str(tmp_path / "shared-cas"),
-                },
-                "depth": 3,
-                "workflow_id": "scientist_default",
-                "runner_backend": "ray",
-                "trace_id": "0" * 32,
-                "span_id": "1" * 16,
-                "registry_bundle_ref": {
-                    "artifact_id": "sha256:" + "c" * 64,
-                    "kind": "core.registry_bundle",
-                    "media_type": "application/json",
-                },
-            }
-        )
+    store_root = tmp_path / "shared-cas"
+    registry_store = FileSystemCAS(
+        store_root,
+        tenant_id="tenant-1",
+        cell_id="cell-1",
+    )
+    registry_bundle_ref = build_default_registry_bundle(
+        registry_store,
+        return_selected_profile=True,
+    ).bundle_ref
+    ctx: ClaimCapableExecutionContext | None = None
+    try:
+        with tenant_scope(None, tenant_id="tenant-1", cell_id="cell-1"):
+            ctx = _build_worker_context(
+                {
+                    "run_id": "worker-run-1",
+                    "tenant_id": "tenant-1",
+                    "cell_id": "cell-1",
+                    "store_config": {
+                        "backend": "filesystem",
+                        "root": str(store_root),
+                    },
+                    "depth": 3,
+                    "workflow_id": "scientist_default",
+                    "runner_backend": "ray",
+                    "trace_id": "0" * 32,
+                    "span_id": "1" * 16,
+                    "registry_bundle_ref": registry_bundle_ref.model_dump(mode="json"),
+                }
+            )
 
-    assert ctx.depth == 3
-    assert ctx.run.run_manifest.run_id == "worker-run-1"
-    assert ctx.run.tenant_id == "tenant-1"
-    assert ctx.run.cell_id == "cell-1"
-    assert str(ctx.run.run_manifest.registry_bundle.artifact_id) == "sha256:" + "c" * 64
-    assert isinstance(ctx, ClaimCapableExecutionContext)
-    assert ctx.claim_ledger_owner is not None
+        assert ctx is not None
+        assert ctx.depth == 3
+        assert ctx.run.run_manifest.run_id == "worker-run-1"
+        assert ctx.run.tenant_id == "tenant-1"
+        assert ctx.run.cell_id == "cell-1"
+        assert ctx.run.run_manifest.registry_bundle == registry_bundle_ref
+        assert ctx.store.verify(registry_bundle_ref).ok
+        assert isinstance(ctx, ClaimCapableExecutionContext)
+        assert ctx.claim_ledger_owner is not None
+    finally:
+        if ctx is not None:
+            ctx.run.suspend_for_resume()
 
 
 def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:

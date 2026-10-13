@@ -79,6 +79,13 @@ projections. Route handlers should stay thin and delegate behavior here.
   remains immutable. Pending, positive, corrupt, or unknown-effect state cannot
   authorize a fresh fetch or overlapping effect.
 
+- **Public-decision verification reports** - `PublicDecisionVerificationService`
+  serializes retained documents and signed reports with the Core encoder under
+  the exact profile declared in their manifests. Finite floats therefore use
+  Core's typed representation and pass strict fresh reads. A valid report
+  authenticates its retained report bytes only; it does not confer publication
+  or decision authority.
+
 ## Public API
 
 - `ArtifactInspectorService`

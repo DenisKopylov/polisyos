@@ -11,6 +11,7 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
@@ -228,24 +229,30 @@ class TestSerializeContextMeta:
 
     def test_uses_run_manifest_for_real_run_context(self, tmp_path: Path) -> None:
         store = FileSystemCAS(tmp_path)
-        registry_bundle = ArtifactRef(
-            artifact_id="sha256:" + "b" * 64,
-            kind="core.registry_bundle",
-            media_type="application/json",
-        )
-        run = RunContext.start(
-            store=store,
-            registry_bundle=registry_bundle,
-            run_id="real-run",
-            tenant_id="tenant-a",
-            cell_id="cell-a",
-        )
-        ctx = _FakeCtx(depth=2, run=run)
-        meta = serialize_context_meta(ctx)
-        assert meta["run_id"] == "real-run"
-        assert meta["tenant_id"] == "tenant-a"
-        assert meta["cell_id"] == "cell-a"
-        assert meta["registry_bundle_ref"]["artifact_id"] == "sha256:" + "b" * 64
+        registry_bundle_ref = build_default_registry_bundle(
+            store,
+            return_selected_profile=True,
+        ).bundle_ref
+        run: RunContext | None = None
+        try:
+            run = RunContext.start(
+                store=store,
+                registry_bundle=registry_bundle_ref,
+                run_id="real-run",
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+            )
+            ctx = _FakeCtx(depth=2, run=run)
+            meta = serialize_context_meta(ctx)
+            assert meta["run_id"] == "real-run"
+            assert meta["tenant_id"] == "tenant-a"
+            assert meta["cell_id"] == "cell-a"
+            assert meta["registry_bundle_ref"]["artifact_id"] == str(
+                registry_bundle_ref.artifact_id
+            )
+        finally:
+            if run is not None:
+                run.suspend_for_resume()
 
     def test_extracts_trace_ids_when_present(self, monkeypatch) -> None:
         ctx = _FakeCtx(depth=1, run=_FakeRun())

@@ -1,0 +1,19 @@
+id = "2026-10-13-e02-gcs-selected-raw-manifest"
+title = "Repair cold-cache selected GCS manifest reads"
+type = "fixed"
+component = "core-artifact-store"
+owner = "team-policyos-runtime"
+summary = "GCS raw-manifest reads now fetch the exact selected sidecar on a cache miss."
+evidence = [
+  "src/polisyos/core/artifacts/backends/gcs_store.py",
+  "tests/unit/core/artifacts/backends/test_gcs_store.py",
+]
+compatibility = "No API or persisted artifact-format change; selected manifest bytes remain exact."
+change_class = "internal"
+migration = "No migration required."
+api = "Existing selected raw-manifest reads now work on a cold cache."
+limitations = "The candidate test uses a fake GCS provider; deployed-cloud integration remains unrun."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

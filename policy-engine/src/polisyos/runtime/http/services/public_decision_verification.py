@@ -51,6 +51,13 @@ if TYPE_CHECKING:
 
 _RECORD_ID = re.compile(r"pvr_[A-Za-z0-9_-]{32}\Z")
 _PUBLIC_DOCUMENT = TypeAdapter(dict[str, PublicDecisionJsonValue])
+_PUBLIC_CANON_SPEC = canon.CanonSpec(
+    forbid_floats=False,
+    exclude_none=False,
+    sort_keys=True,
+    separators=(",", ":"),
+    ensure_ascii=False,
+)
 
 
 class PublicDecisionVerificationError(RuntimeError):
@@ -89,6 +96,11 @@ def _json_bytes(value: object) -> bytes:
     return json.dumps(
         value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
     ).encode("utf-8")
+
+
+def _public_canonical_bytes(value: object) -> bytes:
+    """Serialize public report artifacts with the profile recorded in their manifest."""
+    return canon.to_canonical_bytes(value, _PUBLIC_CANON_SPEC)
 
 
 def _digest(payload: bytes) -> str:
@@ -155,7 +167,7 @@ class PublicDecisionVerificationService:
             raise PublicDecisionVerificationError("verification_issuer_not_configured")
         try:
             document = _PUBLIC_DOCUMENT.validate_python(dict(public_document), strict=True)
-            document_bytes = _json_bytes(document)
+            document_bytes = _public_canonical_bytes(document)
             record = PublicDecisionVerificationRecord(
                 record_id=f"pvr_{secrets.token_urlsafe(24)}",
                 decision_id=decision_id,
@@ -168,13 +180,7 @@ class PublicDecisionVerificationService:
         except (TypeError, ValueError) as exc:
             raise PublicDecisionVerificationError("public_document_invalid") from exc
         try:
-            public_canon = artifacts.CanonInfo(
-                forbid_floats=False,
-                exclude_none=False,
-                sort_keys=True,
-                separators=(",", ":"),
-                ensure_ascii=False,
-            )
+            public_canon = artifacts.CanonInfo.from_spec(_PUBLIC_CANON_SPEC)
             document_ref = self._store.put_bytes(
                 document_bytes,
                 artifacts.ArtifactWriteOptions(
@@ -184,7 +190,7 @@ class PublicDecisionVerificationService:
                 ),
             )
             record_ref = self._store.put_bytes(
-                _json_bytes(record.model_dump(mode="json")),
+                _public_canonical_bytes(record.model_dump(mode="json")),
                 artifacts.ArtifactWriteOptions(
                     kind=PUBLIC_VERIFICATION_RECORD_KIND,
                     media_type="application/json",

@@ -12,6 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import artifacts
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.runtime.http.services.public_decision_verification import (
     PublicDecisionVerificationError,
     PublicDecisionVerificationService,
@@ -125,6 +126,10 @@ def test_issued_record_authenticates_exact_document_without_decision_authority(i
     assert result.cryptographic_signature == "valid"
     assert result.report_key_status == "trusted"
     assert result.public_document == document
+    admitted_document = read_core_json_artifact(kwargs["store"], result.public_document_digest)
+    assert admitted_document.status == "declared_bytes_conformant"
+    assert admitted_document.value == document
+    assert type(admitted_document.value["score"]) is float
     assert result.decision_id == "decision-1"
     assert result.issuer_id == "policyos-verifier"
     assert result.issued_at == ISSUED_AT

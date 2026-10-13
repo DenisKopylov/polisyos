@@ -211,16 +211,24 @@ def _iter_directory_members(
 class CASMemberReceipt(Protocol):
     """Verified digest and size for one owner-streamed CAS member."""
 
-    member: str
-    sha256: str
-    byte_size: int
+    @property
+    def member(self) -> str: ...
+
+    @property
+    def sha256(self) -> str: ...
+
+    @property
+    def byte_size(self) -> int: ...
 
 
 class CASMemberStream(Protocol):
     """Bounded read surface for one CAS member while its owner lease is held."""
 
-    size: int
-    receipt: CASMemberReceipt
+    @property
+    def size(self) -> int: ...
+
+    @property
+    def receipt(self) -> CASMemberReceipt: ...
 
     def read(self, size: int = -1) -> bytes: ...
 

@@ -9,6 +9,7 @@ from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
 from polisyos.core.artifacts.backends.gcs_store import GCSArtifactStore
+from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import CanonInfo as CoreCanonInfo
 from polisyos.core.artifacts.manifest import ProducerInfo
@@ -160,6 +161,54 @@ def test_gcs_store_refuses_nonconformant_json_profile_before_upload(
 
     assert refusal.value.code == "canon_profile_payload_nonconformant"
     assert bucket.objects == {}
+
+
+def test_gcs_selected_raw_manifest_cold_cache_uses_exact_view_and_reader() -> None:
+    bucket = _FakeBucket()
+    spec = CoreCanonSpec(sort_keys=False)
+    options = PutOptions(
+        kind="test.gcs_selected_raw_manifest",
+        media_type="application/json",
+        canon=CoreCanonInfo.from_spec(spec),
+    )
+    payload = {"second": 2, "first": 1}
+    writer = GCSArtifactStore(bucket="test-bucket")
+    writer._bucket = bucket
+    selected_ref = writer.put_json(
+        payload,
+        options,
+        canon_spec=spec,
+        return_selected_profile=True,
+    )
+
+    profile_sha256 = selected_ref.manifest_profile_sha256
+    assert profile_sha256 is not None
+    selected_key = writer._manifest_key(selected_ref.artifact_id, profile_sha256)
+    assert selected_key != writer._manifest_key(selected_ref.artifact_id)
+    selected_bytes = bucket.objects[selected_key]
+
+    reader = GCSArtifactStore(bucket="test-bucket")
+    reader._bucket = bucket
+    reads_before = len(bucket.download_calls)
+    with pytest.raises(ValueError, match="manifest_profile_sha256 must be"):
+        reader.get_raw_manifest_bytes(
+            selected_ref.artifact_id,
+            manifest_profile_sha256="malformed-profile",
+        )
+    assert len(bucket.download_calls) == reads_before
+
+    raw = reader.get_raw_manifest_bytes(
+        selected_ref.artifact_id,
+        manifest_profile_sha256=profile_sha256,
+    )
+    assert raw == selected_bytes
+    assert bucket.download_calls[reads_before:] == [selected_key]
+
+    read = read_core_json_artifact(reader, selected_ref)
+    assert read.status == "declared_bytes_conformant"
+    assert read.value == payload
+    assert read.selected_artifact_id == str(selected_ref.artifact_id)
+    assert read.selected_manifest_profile_sha256 == profile_sha256
 
 
 def test_gcs_store_get_bytes_rehashes_blob_on_read() -> None:

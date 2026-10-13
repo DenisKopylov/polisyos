@@ -1,0 +1,36 @@
+id = "2026-10-13-e02-core-canonical-json-writer-conformance"
+title = "Require Core canonical encodings to round-trip under their selected profile"
+type = "fixed"
+component = "core"
+owner = "team-runtime"
+summary = "Core canonical JSON encoding refuses reserved typed-tag mappings that do not reproduce the same bytes under the selected decoder and encoder; the public-decision writer now emits its declared Core profile."
+evidence = [
+  "src/polisyos/core/canon/canon_json.py",
+  "tests/unit/core/phase0/test_canon_json.py",
+  "tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+  "src/polisyos/runtime/http/services/public_decision_verification.py",
+  "tests/unit/runtime/http/test_public_decision_verification.py",
+]
+compatibility = "Supported Core values and their declared profile remain unchanged. Direct callers that supplied recognized but noncanonical typed-tag mappings now receive a typed refusal before Core writers can persist them. Public-decision finite-float records use the Core typed-float wire form required by their existing profile."
+change_class = "Core canonical-encoding refusal boundary"
+surface_classification = "Core canonical encoder and existing public-decision verification report writer; no generated DTO or schema change."
+migration = "No CAS history is rewritten. Previously persisted bytes that fail the declared Core round-trip remain refused. New public-decision writes use the exact declared Core profile; the verification report remains distinct from publication or decision authority."
+api = "to_canonical_bytes verifies every emitted Core byte string by exact decode/re-encode under the same CanonSpec, preserving CanonViolation handling and exposing the existing profile refusal code. Public-decision artifacts use that encoder and matching CanonInfo; the filesystem issuance index remains ordinary JSON outside CAS."
+limitations = "The IR codec and arbitrary put_bytes payloads remain separate. Core CanonInfo does not identify a codec family, so generic put_bytes does not infer or parse JSON; in-repository Core-profile producers use the Core encoder or must use an explicitly declared Core JSON writer. No issuer, currentness, or decision authority is introduced."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-canonical-json-output-roundtrip"
+change_class = "behavioral-refusal-boundary"
+impact = "Reject nonconformant Core canonical output before it is persisted by Core-profile producers"
+surface = "polisyos.core.canon.to_canonical_bytes and existing public-decision verification report artifacts"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Core encoding now admits only bytes that round-trip under the same declared Core profile. Public-decision document and report writes use that Core encoder, including typed finite-float encoding; arbitrary byte writes and IR remain unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/artifacts/README.md", "src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []

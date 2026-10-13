@@ -17,7 +17,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, BinaryIO, Literal
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    BinaryIO,
+    Literal,
+    ParamSpec,
+    TypedDict,
+    TypeVar,
+    overload,
+)
 
 from pydantic import ValidationError
 
@@ -150,11 +159,32 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
 
     from ..observability import MetricsRegistry, PolicyOSTracer
+    from ._transfer_ops import CASMemberStream
     from .backends.config import ArtifactStoreConfig
 
 
 PutOptions = ArtifactWriteOptions
 ArtifactMemberKind = Literal["blob", "manifest", "signature"]
+_TransactionalParams = ParamSpec("_TransactionalParams")
+_TransactionalResult = TypeVar("_TransactionalResult")
+
+
+class _ResolvedOwner(TypedDict):
+    """One owner identity resolved from a concrete tenant scope."""
+
+    tenant_id: str
+    cell_id: str | None
+
+
+def _artifact_member_kind(member: str) -> ArtifactMemberKind:
+    """Map the transfer helper's string domain onto the guarded CAS members."""
+    if member == "blob":
+        return "blob"
+    if member == "manifest":
+        return "manifest"
+    if member == "signature":
+        return "signature"
+    raise ValueError("cas_member_kind_invalid")
 
 
 @dataclass
@@ -381,37 +411,49 @@ def _transactional_read(
     *,
     profile_argument_index: int | None = None,
     signature_surface: bool = False,
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+) -> Callable[
+    [Callable[_TransactionalParams, _TransactionalResult]],
+    Callable[_TransactionalParams, _TransactionalResult],
+]:
     """Hold a shared artifact lease across an entire public CAS read."""
 
-    def decorate(method: Callable[..., Any]) -> Callable[..., Any]:
+    def decorate(
+        method: Callable[_TransactionalParams, _TransactionalResult],
+    ) -> Callable[_TransactionalParams, _TransactionalResult]:
         @wraps(method)
         def wrapped(
-            self: FileSystemCAS,
-            artifact_id: ArtifactID | ArtifactRef | str,
-            *args: Any,
-            **kwargs: Any,
-        ) -> Any:
+            *args: _TransactionalParams.args,
+            **kwargs: _TransactionalParams.kwargs,
+        ) -> _TransactionalResult:
+            store_value: object = args[0] if args else kwargs.get("self")
+            selector_value: object = args[1] if len(args) > 1 else kwargs.get("artifact_id")
+            if not isinstance(store_value, FileSystemCAS):
+                raise TypeError("transactional CAS read requires a FileSystemCAS receiver")
+            if not isinstance(selector_value, (ArtifactID, ArtifactRef, str)):
+                raise TypeError("transactional CAS read requires an artifact selector")
+            store = store_value
+            artifact_id = selector_value
             aid, profile_sha256, _ref = _artifact_reference(artifact_id)
             if profile_argument_index is not None:
-                profile_sha256 = kwargs.get(
+                profile_position = profile_argument_index + 2
+                requested_profile: object = kwargs.get(
                     "manifest_profile_sha256",
-                    args[profile_argument_index]
-                    if len(args) > profile_argument_index
-                    else profile_sha256,
+                    args[profile_position] if len(args) > profile_position else profile_sha256,
                 )
-            with self._coordinator.artifact_lease(aid, exclusive=False):
-                self._ownership_index.require_no_pending_transaction(
+                if requested_profile is None or isinstance(requested_profile, str):
+                    profile_sha256 = requested_profile
+            with store._coordinator.artifact_lease(aid, exclusive=False):
+                store._ownership_index.require_no_pending_transaction(
                     aid,
                     manifest_profile_sha256=profile_sha256,
                     signature_profile=(profile_sha256 or "default") if signature_surface else None,
                 )
                 operation_token = _PUBLIC_READ_OPERATION.set(method.__name__)
                 try:
-                    result = method(self, artifact_id, *args, **kwargs)
+                    result = method(*args, **kwargs)
                 finally:
                     _PUBLIC_READ_OPERATION.reset(operation_token)
-                self._capture_public_read_operation(method.__name__, artifact_id)
+                store._capture_public_read_operation(method.__name__, artifact_id)
                 return result
 
         return wrapped
@@ -900,6 +942,24 @@ class FileSystemCAS:
         recorder = getattr(self._metrics, "record_artifact_integrity_failure", None)
         if callable(recorder):
             recorder(backend="filesystem", reason=reason)
+
+    @overload
+    def _resolve_owner(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        required: Literal[True],
+    ) -> tuple[str, str | None]: ...
+
+    @overload
+    def _resolve_owner(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cell_id: str | None = None,
+        required: bool,
+    ) -> tuple[str | None, str | None]: ...
 
     def _resolve_owner(
         self,
@@ -1567,7 +1627,7 @@ class FileSystemCAS:
         signature_bytes: bytes,
         artifact_id: ArtifactID,
         signature_selector: str,
-        owner: dict[str, str | None] | None,
+        owner: _ResolvedOwner | None,
         lease: _ArtifactTransactionLease,
     ) -> None:
         """Resume only an exact selected-view signature request."""
@@ -1653,7 +1713,7 @@ class FileSystemCAS:
             cell_id: str | None = None
             if self._ownership_enforced:
                 tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            owner = (
+            owner: _ResolvedOwner | None = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
                 else None
@@ -1716,8 +1776,8 @@ class FileSystemCAS:
 
             claims = self._ownership_index._transaction_claims_for(
                 aid,
-                tenant_id=tenant_id if owner is not None else None,
-                cell_id=cell_id,
+                tenant_id=owner["tenant_id"] if owner is not None else None,
+                cell_id=owner["cell_id"] if owner is not None else None,
                 manifest_profile_sha256=self._manifests.profile_sha256(manifest),
             )
             if owner is None and self._ownership_index.has_any_tenant_claim(aid):
@@ -2055,7 +2115,7 @@ class FileSystemCAS:
         opts: PutOptions,
         artifact_id: ArtifactID,
         sha: str,
-        owner: dict[str, str | None] | None,
+        owner: _ResolvedOwner | None,
         lease: _ArtifactTransactionLease,
     ) -> tuple[bool, str | None, str]:
         """Resume an exact write and return both compatibility and selected profiles."""
@@ -2230,7 +2290,7 @@ class FileSystemCAS:
             cell_id: str | None = None
             if self._ownership_enforced:
                 tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            owner = (
+            owner: _ResolvedOwner | None = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
                 else None
@@ -2277,8 +2337,8 @@ class FileSystemCAS:
             if owner is not None:
                 default_owner_admitted = self._ownership_index.is_owned_by(
                     aid,
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
+                    tenant_id=owner["tenant_id"],
+                    cell_id=owner["cell_id"],
                 )
                 skip_default_manifest = not default_owner_admitted and (
                     default_manifest_path.exists()
@@ -2878,7 +2938,7 @@ class FileSystemCAS:
     @staticmethod
     def _require_bound_context_for_owner(
         context: ArtifactTenantContextInfo | None,
-        owner: dict[str, str | None] | None,
+        owner: _ResolvedOwner | None,
         *,
         require_bound: bool = False,
     ) -> None:
@@ -2886,8 +2946,6 @@ class FileSystemCAS:
         if owner is None:
             return
         tenant_id = owner["tenant_id"]
-        if tenant_id is None:
-            raise ArtifactOwnershipError("Scoped CAS owner has no concrete tenant")
         if context is None:
             if require_bound:
                 raise ArtifactOwnershipError(
@@ -2902,14 +2960,11 @@ class FileSystemCAS:
     def _require_import_input_owners(
         self,
         source_by_artifact: dict[str, dict[str, Any]],
-        owner: dict[str, str | None] | None,
+        owner: _ResolvedOwner | None,
     ) -> None:
         """Resolve every imported lineage ref against an existing or incoming exact view."""
         if not self._ownership_enforced:
             return
-        tenant_id = owner["tenant_id"] if owner is not None else None
-        if owner is not None and tenant_id is None:
-            raise ArtifactOwnershipError("Scoped import owner has no concrete tenant")
         for source_info in source_by_artifact.values():
             for source_view in source_info["source_views"]:
                 for raw_input_ref in source_view["manifest"].inputs:
@@ -2930,14 +2985,14 @@ class FileSystemCAS:
                     if self._ownership_index.has_any_tenant_claim(input_id):
                         self._ownership_index.require_blob_reader(
                             input_id,
-                            tenant_id=tenant_id,
+                            tenant_id=owner["tenant_id"],
                             cell_id=owner["cell_id"],
                             operation=f"import input:{input_ref.role}",
                         )
                         if input_ref.manifest_profile_sha256 is None:
                             self._ownership_index.require_owner(
                                 input_id,
-                                tenant_id=tenant_id,
+                                tenant_id=owner["tenant_id"],
                                 cell_id=owner["cell_id"],
                                 operation=f"import input manifest:{input_ref.role}",
                             )
@@ -2945,7 +3000,7 @@ class FileSystemCAS:
                             self._ownership_index.require_view_owner(
                                 input_id,
                                 input_ref.manifest_profile_sha256,
-                                tenant_id=tenant_id,
+                                tenant_id=owner["tenant_id"],
                                 cell_id=owner["cell_id"],
                                 operation=f"import input manifest:{input_ref.role}",
                             )
@@ -3042,7 +3097,7 @@ class FileSystemCAS:
             parsed[value] = views
 
         with self._coordinator.artifact_leases(lock_ids.values(), exclusive=True):
-            owner: dict[str, str | None] | None = None
+            owner: _ResolvedOwner | None = None
             if self._ownership_enforced:
                 tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
                 if tenant_id is not None:
@@ -3343,7 +3398,7 @@ class FileSystemCAS:
             cell_id: str | None = None
             if self._ownership_enforced:
                 tenant_id, cell_id = self._resolve_owner(required=self._ownership_requires_scope)
-            owner = (
+            owner: _ResolvedOwner | None = (
                 {"tenant_id": tenant_id, "cell_id": cell_id}
                 if self._ownership_enforced and tenant_id is not None
                 else None
@@ -3646,7 +3701,7 @@ class FileSystemCAS:
                     prior is not None
                     and self._ownership_index._committed_intent_matches_current_state(prior)
                 )
-                if committed_prior:
+                if prior is not None and committed_prior:
                     self._ownership_index.remove_transaction_intent(
                         artifact_id,
                         lease=leases[artifact_id.hex],
@@ -4289,10 +4344,18 @@ class FileSystemCAS:
 
         def member_name(request: ArtifactID | ArtifactRef, member: str) -> str:
             aid, profile_sha256, _ref = _artifact_reference(request)
-            return self._member_name(aid, member, profile_sha256)
+            return self._member_name(aid, _artifact_member_kind(member), profile_sha256)
+
+        @contextmanager
+        def open_member_for_export(
+            request: ArtifactID | ArtifactRef,
+            member: str,
+        ) -> Iterator[CASMemberStream]:
+            with self.open_member(request, _artifact_member_kind(member)) as stream:
+                yield stream
 
         return _export_subgraph(
-            open_member=self.open_member,
+            open_member=open_member_for_export,
             member_name=member_name,
             artifact_ids=artifact_ids,
             target=target,

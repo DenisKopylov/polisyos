@@ -1359,7 +1359,9 @@ def _benchmark_funnel_context(
         selection_vector_ref=candidate_ref,
         selection_ref=candidate_ref,
     )
-    return build_runtime_funnel_context(session)
+    build_runtime_funnel_context(session)
+    assert isinstance(session.funnel_context, dict)
+    return session.funnel_context
 
 
 @pytest.fixture(scope="module")

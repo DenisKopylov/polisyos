@@ -432,7 +432,6 @@ def produce_run_predictive_calibration(
         )
         context = _build_empirical_context(
             reference_payloads,
-            report_id=report_id,
             model_spec_ref=owner_result.model_spec_ref,
             policy_spec_ref=owner_result.policy_spec_ref,
             threshold=request.calibration_threshold,
@@ -1064,7 +1063,6 @@ def _persist_evidence_role_refs(
 def _build_empirical_context(
     refs: Mapping[str, EvidenceArtifactRef],
     *,
-    report_id: str,
     model_spec_ref: ArtifactRefModel | None,
     policy_spec_ref: ArtifactRefModel | None,
     threshold: float,
@@ -1096,7 +1094,7 @@ def _build_empirical_context(
         data_valid_time=temporal_roles.data_valid_time,
         calibration_window_start=temporal_roles.calibration_window_start,
         calibration_window_end=temporal_roles.calibration_window_end,
-        evidence_origin=f"run-bound candidate report {report_id}",
+        evidence_origin="run-bound candidate report",
     )
 
 

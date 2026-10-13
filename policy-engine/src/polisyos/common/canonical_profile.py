@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, TypeVar, runtime_checkable
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
@@ -33,10 +33,29 @@ class CanonicalProfileRefusalError(ValueError):
         super().__init__(code)
 
 
+@runtime_checkable
 class _ProfileLike(Protocol):
-    name: str
-    version: str
-    max_depth: int
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def version(self) -> str: ...
+
+    @property
+    def max_depth(self) -> int: ...
+
+
+def _profile_fields(profile: BaseModel) -> _ProfileLike:
+    """Require the typed fields used by the canonical profile bridge."""
+    if not isinstance(profile, _ProfileLike):
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    if (
+        type(profile.name) is not str
+        or type(profile.version) is not str
+        or type(profile.max_depth) is not int
+    ):
+        raise CanonicalProfileRefusalError("canon_profile_invalid")
+    return profile
 
 
 @dataclass(frozen=True)
@@ -172,19 +191,20 @@ def parse_canonical_profile(
     ):
         payload["separators"] = tuple(separators)
     try:
-        profile = cast("_ProfileLike", profile_model.model_validate(payload, strict=True))
-        supported = cast("_ProfileLike", profile_model())
+        parsed_profile = profile_model.model_validate(payload, strict=True)
+        profile = _profile_fields(parsed_profile)
+        supported = _profile_fields(profile_model())
     except (TypeError, ValueError) as exc:
         raise CanonicalProfileRefusalError("canon_profile_invalid") from exc
 
-    if type(profile.max_depth) is not int or profile.max_depth < 0:
+    if profile.max_depth < 0:
         raise CanonicalProfileRefusalError("canon_profile_invalid")
     if profile.name != supported.name or profile.version != supported.version:
         return CanonicalProfileDeclaration(
-            profile=profile,
+            profile=parsed_profile,
             status="declared_unknown_candidate",
         )
-    return CanonicalProfileDeclaration(profile=profile, status="declared")
+    return CanonicalProfileDeclaration(profile=parsed_profile, status="declared")
 
 
 def _decode_and_reencode_profiled_bytes(
@@ -228,8 +248,8 @@ def decode_profiled_canonical_bytes(
             _validation_token=_VERIFIED_READ_TOKEN,
         )
     if declaration.profile is None:
-        default = profile_model()
-        value = decode(raw_payload_bytes, cast("_ProfileLike", default).max_depth)
+        default = _profile_fields(profile_model())
+        value = decode(raw_payload_bytes, default.max_depth)
         return CanonicalProfileRead(
             value=value,
             raw_payload_bytes=raw_payload_bytes,
@@ -238,9 +258,10 @@ def decode_profiled_canonical_bytes(
         )
 
     profile = declaration.profile
+    profile_fields = _profile_fields(profile)
     value = _decode_and_reencode_profiled_bytes(
         raw_payload_bytes,
-        max_depth=profile.max_depth,
+        max_depth=profile_fields.max_depth,
         spec=make_spec(profile),
         decode=decode,
         encode=encode,

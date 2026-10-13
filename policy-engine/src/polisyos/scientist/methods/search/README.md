@@ -182,6 +182,11 @@ or history is backfilled. Other welfare
 methods remain outside this adapter. Existing `audit_refs` and artifact
 content routes are reused.
 
+The source-bound observation builder adapts the caller's Core store once with
+`ensure_ir_artifact_store` before the IR welfare, weight, method, report, and
+sample reads. Core manifest/source verification continues against the original
+store, and the selected typed refs pass unchanged through the adapter.
+
 
 ## Selected-profile CAN source intake (B161 S1)
 

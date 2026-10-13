@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 import re
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.canon import content_hash
 from polisyos.core.canon.canon_json import (
@@ -48,6 +48,15 @@ if TYPE_CHECKING:
 
 def _default_metrics() -> MetricsRegistry:
     return get_metrics()
+
+
+class _GCSBlobBytesReader(Protocol):
+    """Typed bytes-read seam for the lazily loaded GCS SDK blob."""
+
+    @property
+    def name(self) -> str: ...
+
+    def download_as_bytes(self) -> bytes: ...
 
 
 class GCSArtifactStore:
@@ -274,7 +283,9 @@ class GCSArtifactStore:
         cached = self._cache_read(aid, cache_suffix)
         if cached is not None:
             return bytes(cached)
-        raw = self._get_object_bytes(self._manifest_key(aid, selected_profile))
+        raw = self._download_blob_bytes(
+            self._gcs_bucket().blob(self._manifest_key(aid, selected_profile))
+        )
         self._cache_write(aid, cache_suffix, raw)
         return bytes(raw)
 
@@ -339,7 +350,7 @@ class GCSArtifactStore:
             self._confirm_bucket_exists()
         return exists
 
-    def _download_blob_bytes(self, blob: Any) -> bytes:
+    def _download_blob_bytes(self, blob: _GCSBlobBytesReader) -> bytes:
         """Normalize object absence only after the configured bucket is verified."""
         try:
             return blob.download_as_bytes()

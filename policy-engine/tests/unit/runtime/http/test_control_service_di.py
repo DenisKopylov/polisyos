@@ -4185,9 +4185,14 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     from dataclasses import replace
     from typing import cast
 
+    from polisyos.calibration.forecast_bridge import (
+        EmpiricalCalibrationEvidenceRef,
+        load_empirical_calibration_evidence,
+    )
     from polisyos.core.artifacts import PutOptions
     from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.backtest import BacktestReportRef, load_backtest_report
     from polisyos.runtime.http import dev_identity_middleware
     from polisyos.runtime.http.services import predictive_calibration as calibration_service
     from polisyos.runtime.http.services.predictive_calibration import (
@@ -4196,6 +4201,28 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     )
     from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
     from tests.unit.remediation.test_frc_02_owner import _rule, _source, _spec
+
+    def assert_persisted_evidence_identity(store: Any, stored_association: dict[str, Any]) -> None:
+        ir_store = _ensure_ir_artifact_store(store)
+        report_ref = BacktestReportRef.model_validate(stored_association["backtest_report_ref"])
+        report = load_backtest_report(ir_store, report_ref)
+        evidence = load_empirical_calibration_evidence(
+            ir_store,
+            EmpiricalCalibrationEvidenceRef.model_validate(
+                stored_association["empirical_evidence_ref"]
+            ),
+        )
+
+        assert len("run-bound candidate report ") + len(report.report_id) > 120
+        assert evidence.evidence_origin == "run-bound candidate report"
+        assert evidence.report_id == report.report_id
+        assert evidence.report_ref == report_ref
+        assert (
+            evidence.report_ref.model_dump(mode="json") == stored_association["backtest_report_ref"]
+        )
+        assert evidence.report_ref.manifest_profile_sha256 is not None
+        assert report.metadata["run_binding"]["run_id"] == core_run_id
+        assert report.metadata["run_binding"]["intent_id"] == stored_association["intent_id"]
 
     captured_inputs: list[ArtifactRef] = []
 
@@ -4693,6 +4720,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert reopened_result["association_ref"] == association_ref
         assert reopened_result["association"] == association
         assert reopened_result["association"]["run_manifest_ref"] == run["manifest_ref"]
+        assert_persisted_evidence_identity(
+            fresh_app.state.runtime_api_ctx.store,
+            reopened_result["association"],
+        )
 
         replay = client.post(
             f"/api/v1/runs/{core_run_id}/predictive-calibration",
@@ -4908,6 +4939,10 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         assert comparison_reopened.status_code == 200, comparison_reopened.text
         comparison_reopened_result = comparison_reopened.json()
+        assert_persisted_evidence_identity(
+            comparison_reader.state.runtime_api_ctx.store,
+            comparison_reopened_result["association"],
+        )
     assert (
         comparison_reopened_result["association_ref"] == comparison_post_result["association_ref"]
     )

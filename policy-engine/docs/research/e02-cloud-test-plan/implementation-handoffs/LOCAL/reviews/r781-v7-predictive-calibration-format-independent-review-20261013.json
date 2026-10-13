@@ -1,0 +1,44 @@
+{
+  "review": "R781 independent style-only review of V7 R780 formatter delta",
+  "decision": "GO",
+  "scope": "One-file formatter-only delta from exact R779 overlay; this is not V7 semantic acceptance.",
+  "source_frame": {
+    "path": "LOCAL/root-author-source-frame-r762-20261013.json",
+    "sha256": "2ad52258496488a6df94b37fd5838a34a18ab401e6b78fd13687df81d0f26a53",
+    "head": "14683576597938efc1b01b7e2eeb8fe80b175721",
+    "tree": "1e42d6cd15661ca8b22d3ed27c5191eff0ac06dd",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "r779": {
+    "composition_sha256": "a8141fbd35a736317cdfc4642d37177944c936a59b79dfb2347c2e4ab75e45bc",
+    "net_patch_sha256": "4b82b170a3f66f4678a0d54c598fb3c999d40044f33099798be963a1cc2751ec"
+  },
+  "r780": {
+    "patch_sha256": "fd579a1af925d80169370d553f18ecf1d556e50396f3ca387add21291afa9d03",
+    "manifest_sha256": "b85c163371e5db7b5ee83daf31a3b4a87bed31dd04758ab9088a6a158e5064da"
+  },
+  "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+  "physical_preimage_sha256": "51b450514f0458915b119a07a38b8adc41a7e325fffa5dbf941067bda73e130a",
+  "r779_pre_format_sha256": "7d8cf94e38f8c17947b8a21b51e34f674515459785fa5ba5f3e22b4c1118d7cd",
+  "r780_post_format_sha256": "f8073438f8b9fda0c557325b9fc9bb0d58ed0760a166dc7e83cdcea5b54505fc",
+  "validation": {
+    "patch_applied_in_memory_to_exact_r779_overlay": true,
+    "matches_r780_overlay": true,
+    "full_code_ast_equal": true,
+    "import_binding_multiset_equal": true,
+    "type_ignore_count_before_after": 0,
+    "type_ignore_attachment_equal": true,
+    "ruff_config": "policy-engine/ruff.toml; --no-cache; actual stdin filename src/polisyos/runtime/http/services/predictive_calibration.py",
+    "r779_pre_format_ruff_check_exit": 0,
+    "r779_pre_format_format_check_exit": 1,
+    "r780_post_format_ruff_check_exit": 0,
+    "r780_post_format_format_check_exit": 0,
+    "r780_lint_stdout": "[]",
+    "r780_lint_stderr": "",
+    "r780_format_stdout": "",
+    "r780_format_stderr": "",
+    "product_source_changed": false,
+    "imports_or_runtime_or_tests_run": false
+  },
+  "closure_ids": []
+}

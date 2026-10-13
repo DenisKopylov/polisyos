@@ -1,0 +1,278 @@
+{
+  "schema": "E02 LOCAL exact-slice author handoff",
+  "slice": "R798 reviewed Core/S1/V7 implementation checkpoint",
+  "authority": "Root author candidate; independent G acceptance/integration publication/formal adjudication pending",
+  "slice_base_sha": "14683576597938efc1b01b7e2eeb8fe80b175721",
+  "slice_base_tree_sha": "1e42d6cd15661ca8b22d3ed27c5191eff0ac06dd",
+  "candidate_sha": "0fd114ac818c76fb5288bfda59e5dc3b30152cf9",
+  "candidate_tree_sha": "8df03c7a4191f7fab6b24b5fd600f7d0ded9a018",
+  "candidate_parents": [
+    "14683576597938efc1b01b7e2eeb8fe80b175721"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b161-source-bound-risk-observation.toml",
+      "sha256": "6ebda91cf54190af2affd7ac50fa24d8b7edbb1fed685292b0302ca0cd0e4d61",
+      "bytes": 7195
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "sha256": "092a54765d941cc9b6cd1b22618e174262713efe07d46be9cf68cfe3af23efcf",
+      "bytes": 11435
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c",
+      "bytes": 18797
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+      "sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc",
+      "bytes": 18503
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+      "sha256": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50",
+      "bytes": 19957
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7",
+      "bytes": 12651
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc",
+      "bytes": 194183
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d",
+      "bytes": 2539
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+      "sha256": "09ef10d7e44e36e34613618549534e95f7205a2bdc150bd0cea52f89851462d9",
+      "bytes": 64255
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "sha256": "f8073438f8b9fda0c557325b9fc9bb0d58ed0760a166dc7e83cdcea5b54505fc",
+      "bytes": 68672
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "sha256": "848c19346bd5a9823a89a5763be370d9a14a11fd4b9813733adfcd1f1dabe927",
+      "bytes": 15691
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b",
+      "bytes": 16186
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "sha256": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+      "bytes": 19278
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72",
+      "bytes": 4098
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "sha256": "68d82b990e12fcc0d40502076b9ee418ca05ea2f2739756398bcccc2a3aeea97",
+      "bytes": 232363
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "sha256": "07655cec70f5dfac4ca86e71cc268666d0e6e87af8388cbcec852a0c54a168a0",
+      "bytes": 121922
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "sha256": "25a60b8e13d242e4aa35eeac016ba7674156c4f1b75fc4e397fa513ffe3b5b97",
+      "bytes": 194283
+    }
+  ],
+  "source_frame_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r799-20261013.json",
+  "source_frame_sha256": "b190fbabdb496ffe6076a74af552495c78a30e13ea6810698b36f7373b85e0fd",
+  "full502_qualified_paths_re_read_from_candidate": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-core-s1-v7-native-source-commit-r798-20261013/full-qualified-source-branch-readback.json",
+    "sha256": "e66bb92648c784ee7146a8c21f50740f603a7783aa8550eedaffadd8a99d68dd",
+    "head_objects": 502,
+    "missing": 0,
+    "different_bytes": 0
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/core-json-producer-r715-independent-delta-review-r757-20261013.md",
+      "sha256": "283a8e9be89f1f3b02a0947455ad19b3a279ce678faf75f8d2abd99eaab35ea0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/core-json-producer-r715-independent-delta-review-r757-20261013.json",
+      "sha256": "63997475c21124f8c68d5b8f6a8b00a97d5b301148589aa70a415ee34a9306fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/s1-r748-c5b-source-ref-fixture-independent-review-r755-20261013.md",
+      "sha256": "483af6400350a5b60654dc808d913ba6b1a648eb55b1d0be6bb6341eb6517dc8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/s1-r748-c5b-source-ref-fixture-independent-review-r755-20261013.json",
+      "sha256": "f582c199dfdcfd0abb0a6a7b062df2c944a7c559de8e21195401f338ef0e5b37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b161-r767-r763-feedback-selected-profile-independent-review-20261013.md",
+      "sha256": "0d63c1c43dadaedfb2de684d4e117a902bb4c6aff140e18a5bb53ac169b06d7d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b161-r767-r763-feedback-selected-profile-independent-review-20261013.json",
+      "sha256": "07ca1e030b0838ecfa51ad825d5e4c80a4519b70803d1fefb80dfff9b66c908e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/v7-r754-r5-independent-r766-20261013.md",
+      "sha256": "d97ab312c610f0f16c1bd0208efdac28e81cc5b872c02b2b57962825e46d0107"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/v7-r754-r5-independent-r766-20261013.json",
+      "sha256": "582d21aeb7ec90c19e3f9bdd0767d62a3d728c2f973610487b332e0f19a890a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r776-core-producer-root-product-format-independent-review-20261013.md",
+      "sha256": "0646dac337b24241aee1ad5e049389ae02c84a649980f127381a568c33e46fee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r776-core-producer-root-product-format-independent-review-20261013.json",
+      "sha256": "c4e9aa2d47627fa119a820faa1b0df90f13117ce1c4c7ac1ba59ed92c0418d42"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r781-v7-predictive-calibration-format-independent-review-20261013.md",
+      "sha256": "73cdfb59ad25d932d1d706bf9ae4d2efd22a841766046509d415ccf8e2cc96a8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r781-v7-predictive-calibration-format-independent-review-20261013.json",
+      "sha256": "08a896e05ac953083c6b9cf6cb06b4fe054c2750e505cbad9b680b52c28012f6"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "existing locked macOS Python3.14 local venv; numerical threads1",
+    "Core_profiles": "actual Core CanonInfo/CanonSpec v0.2; default float refusal plus explicit finite-float spec and selected manifest views",
+    "inputs": "controlled source-bound fixtures in exact selected tests; no production manifest/descriptors/hash edits",
+    "GCS_S3": "fake provider transports used for pre-persistence refusal; no authentic cloud integration claim",
+    "HTTP": "explicit shared controlled fixture DB with distinct API-app/store objects and real ForecastOwner method; controlled witness not live production currentness",
+    "artifact_identity": "full artifact ID/kind/media/selected manifest-profile digest preserved across Core and IR facade boundaries"
+  },
+  "source_bound_checks": [
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/focused-composed-consumer-boundary-r787-20261013.json",
+      "sha256": "709f02b3fa3429a5f8221db26266d1a7a7869449f93313389248cbe8659f4e67",
+      "counts": {
+        "total": 195,
+        "PASS": 187,
+        "FAIL": 8,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_frame": "root-author-source-frame-r785-20261013.json",
+      "wall_seconds": 48.41947916697245,
+      "source_input_denominator": 6215,
+      "deciding_raw_refs_in_receipt": true
+    },
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/prepared-b-defining-baseline-all13-deciding-r793-20261013.json",
+      "sha256": "380d5614982364568a1dcc8c37d9c07c01e879bd7659e36d7efa886aba7a0710",
+      "counts": {
+        "total": 326,
+        "PASS": 314,
+        "FAIL": 12,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_frame": "root-author-source-frame-r785-20261013.json",
+      "wall_seconds": 51.72441187500954,
+      "source_input_denominator": 6216,
+      "deciding_raw_refs_in_receipt": true
+    }
+  ],
+  "source_run_to_candidate_qualification": "R787/R793 ran under HEAD146 plus exact R785 source postimages; R799 implementation metadata checkpoint preserves all502 Source hashes; no currentcandidate runtime rerun asserted",
+  "native_hook": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-core-s1-v7-native-source-commit-r798-20261013/command.json",
+    "stdout_sha256": "6798dd12fb7280e4599b851327ab943c2b930a034b7d75f5c9b2bd0fedce4cd3",
+    "stderr_sha256": "96300e8dacff9b29b16d595270f2905dca1e96b5df3c14e419b0ef0da8b1bc8f",
+    "scope": "frontend precommit commands SKIP/no matching files; no Python/native-green assertion"
+  },
+  "real_chains": [
+    {
+      "mechanism": "Core JSON profile conformance",
+      "path": "actual filesystem/GCS/S3 producer and async/delegate facade→bytes+selected manifest→fresh Core reader",
+      "observed": "123 Core cases PASS in R787; producer refusal leaves backend unchanged; raw put_bytes/frame producers not yet covered"
+    },
+    {
+      "mechanism": "B161 selected feedback profile and actual search fixture",
+      "path": "Foundry execution basis→feedback result selected ref→welfare/source risk candidate→fresh funnel consumer",
+      "observed": "64 S1 cases PASS/7 FAIL; remaining Core→IR store bridge and negative-control defects recorded separately; original refinement/risk semantics not established"
+    },
+    {
+      "mechanism": "C5b source report binding",
+      "path": "real BacktestOrchestrator→exact persisted report bytes/view→C5b→fresh decision packet",
+      "observed": "positive chain reached; two late adversarial-control fixtures FAIL, no B172/B173 closure"
+    },
+    {
+      "mechanism": "V7 Core→IR selected refs",
+      "path": "ordinary HTTP POST and owner-bound inputs→real ForecastOwner method→empirical context→GET/readback/retry consumers",
+      "observed": "actual owner/method reached; DTO evidence_origin length FAIL after production execution; later paired outcomes/fresh readback remain unrun"
+    },
+    {
+      "mechanism": "Prepared-B whole affected contour replay",
+      "path": "exact protected defining baseline/current source→all13 contours+producer baseline→reopen/cache/native worker",
+      "observed": "314PASS12FAIL;10 lifecycle choices held forG,2 invalid registry fixtures repair queued; this is not B61/B148 whole-property or removal proof"
+    }
+  ],
+  "adversarial_controls": "Complete deciding outputs and removal/refusal outcomes retained by exact raw refs in R787/R793; rejected profile/tag controls precede persistence, exact ref identity/foreign context/retry controls preserved. Remaining late controls must be replayed after fixes.",
+  "limitations": [
+    "Not a global Source/input/backend freeze",
+    "No formal closures or G acceptance",
+    "Core domain-owned put_bytes/frame conformance residual42sites/19modules under R777→R797 pending independent review",
+    "Focused strict-mypy17 diagnostics repair R791 pending independent review/current runtime; no inherited-red claim",
+    "R788/R789/R790/R796 successors pending review/application/native replay",
+    "Canonical regeneration/drift/nativeSOTA13/installed3wheel+rebuilt-sdist/archive consumers and Linux7 remain UNRUN at this checkpoint",
+    "Authentic issuer/custody/currentness/law/refinement/calibration facts remain individually not_established"
+  ],
+  "decision_pointers": [
+    "R448 completed same-run-ID lifecycle G choice; newR793/R796 distinguishing evidence",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/n9-pre001b-profileless-reference-g-choice-r703-20261013.md"
+  ],
+  "proposal_fields": [
+    {
+      "finding_id": "B161",
+      "author_proposal": "limited_source_candidate_chain; original whole-property not established",
+      "next_check": "R789 five IR reads via existing adapter +R790controls actualcomposedwave; no inferred refinement"
+    },
+    {
+      "finding_id": "B172",
+      "author_proposal": "open; positive diagnostic surfaced, late control stillFAIL",
+      "next_check": "R790 exactselected sourcebytes/profiles andmarker-preservingstatisticalrefusal"
+    },
+    {
+      "finding_id": "B173",
+      "author_proposal": "open; no statistical diagnostic promotion/closure",
+      "next_check": "R790 malformed-supplied diagnostic typedrefusal with real fresh consumer"
+    },
+    {
+      "finding_id": "B61",
+      "author_proposal": "limited currentR1 support; whole-property/open G choice",
+      "next_check": "samecandidate source-qualified cache witness/removal andR448 decision"
+    },
+    {
+      "finding_id": "B148",
+      "author_proposal": "open whole-property; composed affected replay not closure",
+      "next_check": "actual prepublication producer-custody admission/refusal/removal witness"
+    }
+  ],
+  "closure_ids": [],
+  "formal_closure_ids": [],
+  "raw_availability": "Full deciding command/stdout/stderr/JUnit/origin evidence retained in ignored LOCAL/raw in own checkout on this Mac; exact paths@sha in cited receipts; no copied tracked source dumps",
+  "next_check": "Batch independently reviewed blocking successors, new explicit source/profile/input freeze, composed actual replay and whole canonical/native/installed/Linux/authentic closeout queue"
+}

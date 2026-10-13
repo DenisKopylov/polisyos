@@ -1,0 +1,113 @@
+{
+  "closure_ids": [],
+  "decision": "GO_R748_TO_FOCUSED_ROOT_NATIVE_WAVE",
+  "decision_basis": {
+    "authority_limits": [
+      "Test-fixture-only source values.",
+      "Report remains candidate diagnostic evidence with trust/promotion false.",
+      "No external custody, coverage, currentness, calibration authority, or final signoff established.",
+      "B172/B173 remain open.",
+      "Exact duplicate producer selector pairs remain unsupported."
+    ],
+    "positive_packet_ref_repair": {
+      "backtest_ref_profile": "Copies report_ref.manifest_profile_sha256",
+      "c5b_ref_profile": "Copies result.bundle_ref.manifest_profile_sha256",
+      "consumer_identity": "Actual direct/nested identity includes canonical artifact ID, kind, media type, and selected manifest profile.",
+      "decision": "GO",
+      "virtual_lines": [
+        4207,
+        4213
+      ]
+    },
+    "preserved_controls": [
+      "same-ID/different-profile source controls",
+      "missing, foreign, unregistered, and malformed source-provenance controls",
+      "duplicate source-edge and legacy controls",
+      "marker-retaining refusal controls",
+      "full report/C5b source-edge multiset comparison",
+      "one-position repeated-role mutation with untouched sibling assertion"
+    ],
+    "report_payload_repair": {
+      "actual_producer_behavior": "run_with_ref persists report bytes before setting cas_artifact_id on the returned in-memory object.",
+      "candidate_repair": "Reloads the exact selected report_ref through existing load_backtest_report before producing profile-only manifest variants.",
+      "decision": "GO",
+      "reader_behavior": "load_backtest_report calls get_json_artifact and validates the decoded stored report; it does not add or overwrite cas_artifact_id from the ref.",
+      "retained_positive_assertions": [
+        "candidate-B report variant has same artifact ID as source report",
+        "candidate-B report variant has a different selected manifest profile",
+        "selected report bytes equal the producer-persisted report bytes"
+      ],
+      "virtual_line": 3330
+    }
+  },
+  "p40": {
+    "bounded_residual": "Exact duplicate (artifact_id, role) pairs are still rejected and are explicitly outside the candidate claim.",
+    "bucket": "SAME_CLASS_DEEPER",
+    "class": "Actual selected-source and profile binding through the producer, persistence, and fresh decision-packet consumer."
+  },
+  "packet": {
+    "diff": {
+      "added_lines": 5,
+      "files": 1,
+      "removed_lines": 0
+    },
+    "manifest_sha256": "4806b19af4d7dcfdb4a4df1e667994796516c0377d3f946d33ffb0567e114240",
+    "net_patch_sha256": "307d2f77905780a36436f96ff8d3ab642724819f3eed14042eefc2f575005e60",
+    "packet_id": "s1-r748-c5b-real-source-ref-fixture-virtual-r2-20261013",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-r748-c5b-real-source-ref-fixture-virtual-r2-20261013",
+    "physical_preimage_bytes": 193910,
+    "physical_preimage_sha256": "afadd936b0ea50e288fd63e64f46281ad80c348dcff7066be8feb8d703426ae8",
+    "target_path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+    "virtual_postimage_bytes": 194283,
+    "virtual_postimage_sha256": "25a60b8e13d242e4aa35eeac016ba7674156c4f1b75fc4e397fa513ffe3b5b97"
+  },
+  "r745_context": {
+    "junit_sha256": "1fb8d535fb8156e1a8cad35386c130544dc6252901d34e17090eb6751debd910",
+    "packet_binding_mismatch_reason": "decision_packet_backtest_report_binding_mismatch",
+    "re_persisted_return_object": {
+      "artifact_id": "sha256:5b4d3733d9527b6b16b33cec8d9d3897d9da75338ec3b7c5c2c393192848d3e3",
+      "bytes": 5749,
+      "cas_artifact_id_value": "sha256:bee4393f2caf27071ba1cf156806f224f15d48e2e4bde3e1d08cd5244de774de",
+      "payload_sha256": "5b4d3733d9527b6b16b33cec8d9d3897d9da75338ec3b7c5c2c393192848d3e3"
+    },
+    "stdout_sha256": "6aa7e44c0d02b57465faa25a8582cfe34c926542e4bb39ebf445087f22dafe8",
+    "stored_source_report": {
+      "artifact_id": "sha256:bee4393f2caf27071ba1cf156806f224f15d48e2e4bde3e1d08cd5244de774de",
+      "bytes": 5680,
+      "cas_artifact_id_value": null,
+      "payload_sha256": "bee4393f2caf27071ba1cf156806f224f15d48e2e4bde3e1d08cd5244de774de"
+    }
+  },
+  "review_artifact": {
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/s1-r748-c5b-source-ref-fixture-independent-review-r755-20261013.md",
+    "markdown_sha256": "483af6400350a5b60654dc808d913ba6b1a648eb55b1d0be6bb6341eb6517dc8"
+  },
+  "review_id": "R755",
+  "scope": "Independent read-only delta review of the R748 test-only C5b source-ref fixture repair against the current physical R727 postimage; no product imports, runtime tests, source/index writes, or Git mutations.",
+  "source_bindings": {
+    "policy-engine/src/polisyos/core/artifacts/manifest.py": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+    "policy-engine/src/polisyos/ir/analytics/backtest.py": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd",
+    "policy-engine/src/polisyos/ir/artifacts/io.py": "fb5c5dc34023c3e8056d2555c736156342c61515b795049f3fad95fddc8d646d",
+    "policy-engine/src/polisyos/scientist/governance/calibration_validation.py": "8c9eb7e183bfec9f17508195f34f40a8e17e51163362105fc79dee179de98d05",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py": "f18dab7330f3a979f58670f856986ba3938bbf209eee9076af8322979351e3e7",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py": "e6799bc06f7ad5ee88db2ff57b61ad323653a22b509cdd1a91902de3b749d4f4"
+  },
+  "verification": {
+    "git_apply_check_whitespace_error": "passed",
+    "in_memory_postimage_reconstruction": "matched 194283 bytes and declared SHA",
+    "product_imports": "not run per scope",
+    "ruff_check_packet_receipt": "exit 0; retained stdout says All checks passed!",
+    "ruff_format_check_packet_receipt": "exit 0; retained output says no changes required",
+    "runtime_tests": "not run per root instruction",
+    "source_index_git_writes": "none",
+    "stdlib_ast_parse_virtual_postimage": "passed"
+  },
+  "workspace": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r752-20261013.json",
+    "current_source_frame_sha256": "a139743c1f9d965ab5b0cd8e284938f722c5729955d17b7b8aa10060df7ccfea",
+    "head": "9e90b725395723789c5bac428c772c199a835cea",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tree": "e94e85fb2db3dbc4b96424698f019cf827341a14"
+  }
+}

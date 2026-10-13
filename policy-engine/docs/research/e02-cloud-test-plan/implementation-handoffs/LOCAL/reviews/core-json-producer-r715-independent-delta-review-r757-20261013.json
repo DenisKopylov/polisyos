@@ -1,0 +1,171 @@
+{
+  "artifact": "Independent read-only R715 delta review",
+  "candidate": {
+    "current_preimage_and_virtual_postimage_readback": {
+      "policy-engine/src/polisyos/common/canonical_profile.py": {
+        "current_sha256": "30c4ef9b64656cce57b4cc0d6eb264a284fddb1489d4529c743979d5b42f1bf8",
+        "matches_preimage": true,
+        "postimage_sha256": "d183d7484270485706998b6cb9bd6595205a72d9cf84aa0879c2dd58c69189f1",
+        "preimage_sha256": "30c4ef9b64656cce57b4cc0d6eb264a284fddb1489d4529c743979d5b42f1bf8",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "d183d7484270485706998b6cb9bd6595205a72d9cf84aa0879c2dd58c69189f1"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "current_sha256": "08476bf0237f569a82ae6d11e96f151ed63752968aafefa84a4da2a2f4af55c1",
+        "matches_preimage": true,
+        "postimage_sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c",
+        "preimage_sha256": "08476bf0237f569a82ae6d11e96f151ed63752968aafefa84a4da2a2f4af55c1",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c"
+      },
+      "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py": {
+        "current_sha256": "995004a2178bd71d1d232b6015a18d52a0ee0d9be82a7ec88fd7a705a4fcf005",
+        "matches_preimage": true,
+        "postimage_sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc",
+        "preimage_sha256": "995004a2178bd71d1d232b6015a18d52a0ee0d9be82a7ec88fd7a705a4fcf005",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc"
+      },
+      "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py": {
+        "current_sha256": "3d767c867bb9260b4762630d8f9e301ee49652de497808fa5eaa91049fa00a9c",
+        "matches_preimage": true,
+        "postimage_sha256": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50",
+        "preimage_sha256": "3d767c867bb9260b4762630d8f9e301ee49652de497808fa5eaa91049fa00a9c",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50"
+      },
+      "policy-engine/src/polisyos/core/artifacts/protocol.py": {
+        "current_sha256": "bf1123f9c625b5f7524b831b637be4e49fe7182825ec0f7c29d0364ddf2915e2",
+        "matches_preimage": true,
+        "postimage_sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7",
+        "preimage_sha256": "bf1123f9c625b5f7524b831b637be4e49fe7182825ec0f7c29d0364ddf2915e2",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7"
+      },
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "current_sha256": "1d190680df97e33f26036c61fac7a319bf625d9b9e93088b329ef797257f9504",
+        "matches_preimage": true,
+        "postimage_sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc",
+        "preimage_sha256": "1d190680df97e33f26036c61fac7a319bf625d9b9e93088b329ef797257f9504",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc"
+      },
+      "policy-engine/src/polisyos/core/canon/canon_json.py": {
+        "current_sha256": "5ef0eea584ca56817c04be37590b2cd015ab1f6f8f2b176e9b76217bdc674dd0",
+        "matches_preimage": true,
+        "postimage_sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d",
+        "preimage_sha256": "5ef0eea584ca56817c04be37590b2cd015ab1f6f8f2b176e9b76217bdc674dd0",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d"
+      },
+      "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py": {
+        "current_sha256": "f71f18999c0a2abdd0387157ccad8f11fb9258815a8843c4c83456dce130cd35",
+        "matches_preimage": true,
+        "postimage_sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b",
+        "preimage_sha256": "f71f18999c0a2abdd0387157ccad8f11fb9258815a8843c4c83456dce130cd35",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b"
+      },
+      "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py": {
+        "current_sha256": "f7c7a7055f949353f5ce2673b45b6a7884dca316bafe0998203c4e37b9994410",
+        "matches_preimage": true,
+        "postimage_sha256": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+        "preimage_sha256": "f7c7a7055f949353f5ce2673b45b6a7884dca316bafe0998203c4e37b9994410",
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df"
+      },
+      "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py": {
+        "current_sha256": null,
+        "matches_preimage": true,
+        "postimage_sha256": "5e68db797cfc7f44a59e1828248e1ed43bc3ce1fe8751d3b9c06b206fdab108f",
+        "preimage_sha256": null,
+        "virtual_postimage_matches_manifest": true,
+        "virtual_postimage_sha256": "5e68db797cfc7f44a59e1828248e1ed43bc3ce1fe8751d3b9c06b206fdab108f"
+      }
+    },
+    "footprint_count": 10,
+    "git_apply_check_exit_code": 0,
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-core-json-producer-conformance-r715-ruff-type-successor-20261013/manifest.json",
+    "manifest_sha256": "bc37b05288f82a97dedc0b7c879d102192cff297a3828ffcb1f128ccdf6aa2a5",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-core-json-producer-conformance-r715-ruff-type-successor-20261013/candidate.patch",
+    "patch_sha256": "febe20bd679385e564ae0dcbd5fe42b38c9400b0343c442fa463e27c919cc189",
+    "preimages_match_r714": true,
+    "r714_r715_changed_postimages": {
+      "policy-engine/src/polisyos/common/canonical_profile.py": {
+        "r714": "e5a89a52c947b4e2b6bc94e549b57db786c7cf0178addb232248bad3cf18ef4d",
+        "r715": "d183d7484270485706998b6cb9bd6595205a72d9cf84aa0879c2dd58c69189f1"
+      },
+      "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py": {
+        "r714": "6adfaa9a33329d87d292e17f42a4c6a14a46688bbe8ef83dbc904f6ab22af47e",
+        "r715": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc"
+      },
+      "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py": {
+        "r714": "a3e61d511d32e308fe499eb7b72f6f17feab2c7f5bf9a060de99204f8c1f47ce",
+        "r715": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50"
+      },
+      "policy-engine/src/polisyos/core/artifacts/store.py": {
+        "r714": "1d24418fe18d158b8068c1d4b8c5c073c66e04d304f752691e27398138495586",
+        "r715": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc"
+      },
+      "policy-engine/src/polisyos/core/canon/canon_json.py": {
+        "r714": "8738862237dc05b0ad535c43e1404de6da6e0db0a4f9eabf1b0981957a007d31",
+        "r715": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d"
+      }
+    },
+    "r714_r715_same_postimages": [
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py"
+    ],
+    "status": "candidate-only, unapplied"
+  },
+  "classification": "SAME_CLASS_STATIC_QUALITY_SUCCESSOR; no new semantic finding",
+  "closure_ids": [],
+  "delta_summary": [
+    "generic TypeVar _T for shared decoded value",
+    "Core wrapper renamed to private _validate_core_json_payload_conformance",
+    "three writer import/call spelling updates",
+    "configured import ordering and shared module docstring only"
+  ],
+  "mypy": {
+    "P41_inherited_status": "not_established: all 5 changed mechanism paths overlap the full 5-file mypy input denominator",
+    "baseline_diagnostic_count": 17,
+    "baseline_exit_code": 1,
+    "baseline_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-core-json-producer-conformance-r715-ruff-type-successor-20261013/mypy-baseline-results.json",
+    "baseline_receipt_sha256": "d28908dc1aa7734797042ec4e91e4c18c0b6f258e8d3826dc6452c67fb704a8a",
+    "candidate_diagnostic_count": 17,
+    "candidate_exit_code": 1,
+    "candidate_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-core-json-producer-conformance-r715-ruff-type-successor-20261013/mypy-results-r2.json",
+    "candidate_receipt_sha256": "0de223fb4d15113f515c07935d5ca60f428bec2bd66f99e1fd1d663d15df3c5d",
+    "green": false,
+    "same_normalized_diagnostic_multiset": true
+  },
+  "report_markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/core-json-producer-r715-independent-delta-review-r757-20261013.md",
+  "report_markdown_sha256": "283a8e9be89f1f3b02a0947455ad19b3a279ce678faf75f8d2abd99eaab35ea0",
+  "ruff": {
+    "all_file_returncodes_zero": true,
+    "exit_code": 0,
+    "files": 9,
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-core-json-producer-conformance-r715-ruff-type-successor-20261013/ruff-results-r2.json",
+    "receipt_sha256": "f10147d96bc27efed98f8f88e4c9cac111a08ed38fde8a90a54df8ef21bd440a"
+  },
+  "scope": "R714 whole semantic review remains applicable; R715 delta does not change producers/consumers, exact conformance property, test set, Core-vs-IR codec separation, or bounded put_bytes residual.",
+  "source_frame": {
+    "head": "9e90b725395723789c5bac428c772c199a835cea",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r752-20261013.json",
+    "sha256": "a139743c1f9d965ab5b0cd8e284938f722c5729955d17b7b8aa10060df7ccfea",
+    "source_path_count": 498,
+    "target_intersections": [
+      "policy-engine/src/polisyos/common/canonical_profile.py",
+      "policy-engine/src/polisyos/core/artifacts/README.md",
+      "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+      "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+      "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "policy-engine/src/polisyos/core/artifacts/store.py"
+    ],
+    "tree": "e94e85fb2db3dbc4b96424698f019cf827341a14"
+  },
+  "verdict": "GO_FOCUSED_NATIVE_WAVE"
+}

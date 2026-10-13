@@ -1,0 +1,123 @@
+{
+  "review": "R776 independent style-only review of Core producer R774 format delta / R775 composition",
+  "decision": "GO",
+  "scope": "Ten Python files and one README in the final overlay; R774 changes only canonical_profile.py and test_core_json_producer_conformance.py; no semantic rereview",
+  "source_frame": {
+    "path": "LOCAL/root-author-source-frame-r762-20261013.json",
+    "sha256": "2ad52258496488a6df94b37fd5838a34a18ab401e6b78fd13687df81d0f26a53",
+    "head": "14683576597938efc1b01b7e2eeb8fe80b175721",
+    "tree": "1e42d6cd15661ca8b22d3ed27c5191eff0ac06dd",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "r774_delta": {
+    "patch_sha256": "d55c2371cdd3fa9933dbe07c346f2503a34ea9c9639bf8e8c0986ee4dafe5989",
+    "manifest_sha256": "f5b92de950a321a7edc0a041e1ee7e918b27acccd22b5477a4a69b0bc9fa377d"
+  },
+  "r775_composition": {
+    "composition_sha256": "cd75dd9615f00f94115d1b4429cf35153a047551cb7cc397eb170103ceeb21c9",
+    "net_patch_sha256": "06184c194e791efe53a6d10deb0e768e8fdd38fe48ba91fe20f12e5d8a0ee166",
+    "reconstructed_from_exact_physical_preimages_in_memory": true,
+    "matches_all_supplied_final_overlays": true
+  },
+  "python_files": [
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "r773_sha256": "d183d7484270485706998b6cb9bd6595205a72d9cf84aa0879c2dd58c69189f1",
+      "final_sha256": "092a54765d941cc9b6cd1b22618e174262713efe07d46be9cf68cfe3af23efcf",
+      "r774_changed": true,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/gcs_store.py",
+      "r773_sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc",
+      "final_sha256": "9bc3b2af4f745a20456c292a269141681a119aa37d53ef262265559a8df659cc",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/s3_store.py",
+      "r773_sha256": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50",
+      "final_sha256": "2afd59c4cbb510d9d960a382e499d6e8b2eb7804f6908915ef69646504a2ae50",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "r773_sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7",
+      "final_sha256": "d09b1ac58fc22c3411aedb94f550a44ca7c6f17658e406fee73e92979a5819b7",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "r773_sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc",
+      "final_sha256": "14d566375bd39076d9572cb577a52f0d899122b911a4b2de94d65824141368dc",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "r773_sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d",
+      "final_sha256": "49a3886c444a18bd91b27df75cef089c64289a65db885479c7e78c429a9b640d",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_gcs_store.py",
+      "r773_sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b",
+      "final_sha256": "bd0f5dba61ce5cd8a83cd5d5ab694b668d5ef3c0f8e08beb5dfac600cb3a9c3b",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/backends/test_s3_store.py",
+      "r773_sha256": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+      "final_sha256": "a9a77a1b26cbb2f9915f957b18d5fb7a7c7176c83542c47c76c975507bf4c7df",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "r773_sha256": "5e68db797cfc7f44a59e1828248e1ed43bc3ce1fe8751d3b9c06b206fdab108f",
+      "final_sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72",
+      "r774_changed": true,
+      "physical_path_absent_before_overlay": true,
+      "type_ignore_count": 0
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+      "r773_sha256": "25a60b8e13d242e4aa35eeac016ba7674156c4f1b75fc4e397fa513ffe3b5b97",
+      "final_sha256": "25a60b8e13d242e4aa35eeac016ba7674156c4f1b75fc4e397fa513ffe3b5b97",
+      "r774_changed": false,
+      "type_ignore_count": 0
+    }
+  ],
+  "readme": {
+    "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+    "r773_sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c",
+    "final_sha256": "8c5d613ca8e662000470aa630f06cc05c4137eff1bb795100688acc2443a2b1c",
+    "byte_identical_r773_to_final": true
+  },
+  "validation": {
+    "all_10_python_non_import_ast_equal_r773_to_final": true,
+    "all_10_python_import_binding_multisets_equal": true,
+    "all_10_python_type_ignore_attachments_equal": true,
+    "all_10_python_type_ignore_count": 0,
+    "all_10_final_ruff_check_exit": 0,
+    "all_10_final_ruff_format_check_exit": 0,
+    "configured_ruff": "policy-engine/ruff.toml, --no-cache, actual per-file --stdin-filename; final Ruff check stdout was [] and format check stdout/stderr empty for every Python path.",
+    "pre_delta_changed_file_baseline": {
+      "canonical_profile.py": {
+        "ruff_check": 0,
+        "format_check": 1
+      },
+      "test_core_json_producer_conformance.py": {
+        "ruff_check": 0,
+        "format_check": 1
+      }
+    },
+    "product_or_index_writes": false,
+    "imports_runtime_or_tests_run": false
+  },
+  "closure_ids": []
+}

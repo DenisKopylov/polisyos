@@ -1,0 +1,155 @@
+{
+  "authority": "Root author native deciding receipt; G acceptance and whole-property closure pending",
+  "source_frame": "root-author-source-frame-r785-20261013.json",
+  "source_frame_sha256": "99369df772a40d470cf7c09b4b8a1e9ab3c00711f86487d9f3a3de7ba4d7c71d",
+  "actual_entry_sha": "14683576597938efc1b01b7e2eeb8fe80b175721",
+  "selected_backend": "existing locked local macOS Python3.14; one numerical thread",
+  "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-defining-baseline-and-all13-actual-r793-20261013/command.json",
+  "command_sha256": "b52010b001aacd50154bb2a45b2a63aa62e9b04934e2f0398929affb24663e24",
+  "stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-defining-baseline-and-all13-actual-r793-20261013/stdout.txt",
+  "stdout_sha256": "b9d2bfb55483228ac15c2ce99c36d441bcf94bd6028d96511a1820144aad4b99",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-defining-baseline-and-all13-actual-r793-20261013/junit.xml",
+  "junit_sha256": "666b66f1d803b56f1985acd895b49efefd769bffa3d5becba864d40f7481b659",
+  "module_origins_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-defining-baseline-and-all13-actual-r793-20261013/module-origins.json",
+  "module_origins_sha256": "73726e580f8617d5d91af56e8a921286f892920823bd9de3ee9cfb8744be3dee",
+  "loaded_modules": 1560,
+  "outside_source_root": 0,
+  "wall_seconds": 51.72441187500954,
+  "complete_input_denominator": 6216,
+  "before_after_equal": true,
+  "counts": {
+    "total": 326,
+    "PASS": 314,
+    "FAIL": 12,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "scope": "defining Prepared-B producer baseline and all13 affected contours; dedicated LA033/B13/B61/B74/B148 whole-property/removal paths remain separate",
+  "failures": [
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_native_state_cache_semantics::test_async_cache_replays_typed_artifact_ref_mutation_from_cas",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py:110: in test_async_cache_replays_typed_artifact_ref_mutation_from_cas",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_native_state_cache_semantics::test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py:157: in test_five_distinct_presence_inputs_reopen_and_replay_only_their_native_result",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency::test_executor_cache_hit_after_restart_same_run_id",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:291: in test_executor_cache_hit_after_restart_same_run_id",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:220: in _build_context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency::test_executor_cache_hit_preserves_unrelated_current_state",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:328: in test_executor_cache_hit_preserves_unrelated_current_state",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:220: in _build_context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency::test_executor_cache_hit_replays_top_level_ref_write",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:366: in test_executor_cache_hit_replays_top_level_ref_write",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:220: in _build_context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency::test_executor_reexecutes_when_cached_replay_target_is_incompatible",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:427: in test_executor_reexecutes_when_cached_replay_target_is_incompatible",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:220: in _build_context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_engine_executor_idempotency::test_executor_resume_retries_failed_node_and_reuses_cached_ok_node",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:468: in test_executor_resume_retries_failed_node_and_reuses_cached_ok_node",
+        "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py:220: in _build_context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery::test_successful_native_publication_restores_trace_hit_after_reopen",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:341: in test_successful_native_publication_restores_trace_hit_after_reopen",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:167: in context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery::test_publication_trace_requires_completed_verified_storage[unbounded]",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:562: in test_publication_trace_requires_completed_verified_storage",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:167: in context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.test_async_cache_recovery::test_publication_trace_requires_completed_verified_storage[corrupt_destination]",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:562: in test_publication_trace_requires_completed_verified_storage",
+        "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py:167: in context",
+        "src/polisyos/core/run/context.py:861: in start",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_start_existing_lifecycle"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.runner.test_activity_worker::test_build_worker_context_reconstructs_run_and_registry_bundle",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_resume_registry_cas_invalid",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py:60: in test_build_worker_context_reconstructs_run_and_registry_bundle",
+        "src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:504: in _build_worker_context",
+        "src/polisyos/core/run/context.py:888: in start",
+        "src/polisyos/core/run/context.py:292: in _persist_run_owner_snapshot",
+        "src/polisyos/core/run/context.py:344: in _validate_run_owner_snapshot_ref",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_resume_registry_cas_invalid"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.orchestration.engine.runner.test_serialization.TestSerializeContextMeta::test_uses_run_manifest_for_real_run_context",
+      "message": "polisyos.core.run.context._FinalizeRecoveryError: run_resume_registry_cas_invalid",
+      "deciding_lines": [
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py:236: in test_uses_run_manifest_for_real_run_context",
+        "src/polisyos/core/run/context.py:888: in start",
+        "src/polisyos/core/run/context.py:292: in _persist_run_owner_snapshot",
+        "src/polisyos/core/run/context.py:344: in _validate_run_owner_snapshot_ref",
+        "E   polisyos.core.run.context._FinalizeRecoveryError: run_resume_registry_cas_invalid"
+      ]
+    }
+  ],
+  "G_choice": "R448 pending; 10 repeated-start lifecycle refusals require distinguishing existing supported resume from completed-run semantics; no UUID/ledger reset substitution",
+  "next_check": "R796 exact existing API/registry-fixture analysis then independent review and affected source replay; fullcleanSourcefreeze acceptance stillpending",
+  "closure_ids": []
+}

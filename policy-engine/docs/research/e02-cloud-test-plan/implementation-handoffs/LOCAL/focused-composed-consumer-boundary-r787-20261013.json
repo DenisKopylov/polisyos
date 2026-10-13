@@ -1,0 +1,117 @@
+{
+  "authority": "Root author native deciding receipt, not G acceptance",
+  "source_frame": "root-author-source-frame-r785-20261013.json",
+  "source_frame_sha256": "99369df772a40d470cf7c09b4b8a1e9ab3c00711f86487d9f3a3de7ba4d7c71d",
+  "head": "14683576597938efc1b01b7e2eeb8fe80b175721",
+  "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-core-s1-v7-real-consumers-actual-r787-20261013/command.json",
+  "command_sha256": "7e6d5be9a05322c73013e3ea820ff9941ff672f36b19987edbf5af2baa8c4862",
+  "deciding_stdout_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-core-s1-v7-real-consumers-actual-r787-20261013/stdout.txt",
+  "deciding_stdout_sha256": "e9d7c98427cf64c82a26e8b8192d6ae08174fbaa34c9c24b24c0d4f8a1395433",
+  "junit_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-core-s1-v7-real-consumers-actual-r787-20261013/junit.xml",
+  "junit_sha256": "74f617439c8e4fb61996970a0ea0113070e5327c2aff1ecce63423586860b436",
+  "wall_seconds": 48.41947916697245,
+  "complete_input_paths": 6215,
+  "before_after_identical": true,
+  "counts": {
+    "total": 195,
+    "PASS": 187,
+    "FAIL": 8,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "failures": [
+    {
+      "test": "tests.unit.scientist.nodes.test_decision_packet_node_v3::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+      "message": "AssertionError: assert 'candidate_so...tch:candidate' == 'candidate_so...ble:candidate'\n  \n  - candidate_source_manifest_profile_unavailable:candidate\n  + candidate_source_input_edge_mismatch:candidate",
+      "deciding_lines": [
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py:3725: ",
+        "E           AssertionError: assert 'candidate_so...tch:candidate' == 'candidate_so...ble:candidate'",
+        "E             ",
+        "E             - candidate_source_manifest_profile_unavailable:candidate",
+        "E             + candidate_source_input_edge_mismatch:candidate",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py:3501: AssertionError"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.nodes.test_decision_packet_node_v3::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+      "message": "polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON",
+      "deciding_lines": [
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py:4304: ",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py:4279: in assert_residuals_survive_statistical_refusal",
+        "src/polisyos/core/artifacts/store.py:2557: in put_json",
+        "src/polisyos/core/canon/canon_json.py:47: in to_canonical_bytes",
+        "src/polisyos/common/canonical.py:232: in to_canonical_bytes",
+        "src/polisyos/common/canonical.py:200: in _canonicalize_obj",
+        "src/polisyos/common/canonical.py:108: in _canonicalize_mapping",
+        "src/polisyos/common/canonical.py:210: in _canonicalize_obj",
+        "src/polisyos/common/canonical.py:200: in _canonicalize_obj",
+        "src/polisyos/common/canonical.py:108: in _canonicalize_mapping",
+        "src/polisyos/common/canonical.py:210: in _canonicalize_obj",
+        "src/polisyos/common/canonical.py:200: in _canonicalize_obj",
+        "src/polisyos/common/canonical.py:108: in _canonicalize_mapping",
+        "src/polisyos/common/canonical.py:193: in _canonicalize_obj",
+        "E       polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON",
+        "src/polisyos/common/canonical.py:67: CanonViolation"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate::test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+      "message": "TypeError: 'NoneType' object is not subscriptable",
+      "deciding_lines": [
+        "E       TypeError: 'NoneType' object is not subscriptable",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:1391: TypeError"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate::test_valid_foreign_data_snapshot_stays_candidate_only_and_never_becomes_refinement",
+      "message": "StopIteration",
+      "deciding_lines": [
+        "E       StopIteration",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:1836: StopIteration"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate::test_actual_feedback_source_is_uncomposed_and_fresh_consumer_withholds_it",
+      "message": "AttributeError: 'dict' object has no attribute 'hex'",
+      "deciding_lines": [
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:1867: ",
+        "src/polisyos/scientist/methods/search/uncertainty.py:1470: in persist_source_bound_risk_observation",
+        "src/polisyos/scientist/methods/search/uncertainty.py:1154: in _build_source_bound_risk_observation",
+        "src/polisyos/ir/analytics/welfare.py:549: in load_welfare_bundle",
+        "src/polisyos/ir/artifacts/io.py:294: in get_json_artifact",
+        "src/polisyos/ir/artifacts/io.py:176: in _get_json_artifact_with_bytes",
+        "src/polisyos/core/artifacts/store.py:403: in wrapped",
+        "E       AttributeError: 'dict' object has no attribute 'hex'",
+        "src/polisyos/core/artifacts/ownership.py:239: AttributeError"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate::test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_only",
+      "message": "StopIteration",
+      "deciding_lines": [
+        "E       StopIteration",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:1894: StopIteration"
+      ]
+    },
+    {
+      "test": "tests.unit.scientist.methods.search.funnel.test_source_bound_risk_candidate::test_fresh_reader_rejects_changed_count_while_candidate_markers_remain",
+      "message": "StopIteration",
+      "deciding_lines": [
+        "E       StopIteration",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:2818: StopIteration"
+      ]
+    },
+    {
+      "test": "tests.unit.runtime.http.test_control_service_di::test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+      "message": "AssertionError: {\"type\":\"https://polisyos.dev/problems/bad-request\",\"title\":\"Bad request\",\"status\":400,\"detail\":\"1 validation error for EmpiricalCalibrationContext\\nevidence_origin\\n  String should have at most 120 characters [type=string_too_long, input_value='run-bound candidate repo...30f07b51ea02e6f537b8f74', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.12/v/string_too_long\",\"code\":\"bad_request\",\"instance\":\"/api/v1/runs/control-91aae8a7e3fd9d883cf68d18d6c422168633f8f2950369a75717257574011374/predictive-calibration\",\"request_id\":\"8aad71f360444b37924e569f1c9ca2da\",\"error\":\"bad_request\",\"status_code\":400,\"context\":{\"request_id\":\"8aad71f360444b37924e569f1c9ca2da\",\"tenant\":\"tenant-fixture\",\"run_id\":\"control-91aae8a7e3fd9d883cf68d18d6c422168633f8f2950369a75717257574011374\"}}\nassert 400 == 201\n +  where 400 = <Response [400 Bad Request]>.status_code",
+      "deciding_lines": [
+        "E           AssertionError: {\"type\":\"https://polisyos.dev/problems/bad-request\",\"title\":\"Bad request\",\"status\":400,\"detail\":\"1 validation error for EmpiricalCalibrationContext\\nevidence_origin\\n  String should have at most 120 characters [type=string_too_long, input_value='run-bound candidate repo...30f07b51ea02e6f537b8f74', input_type=str]\\n    For further information visit https://errors.pydantic.dev/2.12/v/string_too_long\",\"code\":\"bad_request\",\"instance\":\"/api/v1/runs/control-91aae8a7e3fd9d883cf68d18d6c422168633f8f2950369a75717257574011374/predictive-calibration\",\"request_id\":\"8aad71f360444b37924e569f1c9ca2da\",\"error\":\"bad_request\",\"status_code\":400,\"context\":{\"request_id\":\"8aad71f360444b37924e569f1c9ca2da\",\"tenant\":\"tenant-fixture\",\"run_id\":\"control-91aae8a7e3fd9d883cf68d18d6c422168633f8f2950369a75717257574011374\"}}",
+        "E           assert 400 == 201",
+        "E            +  where 400 = <Response [400 Bad Request]>.status_code",
+        "tests/unit/runtime/http/test_control_service_di.py:4619: AssertionError"
+      ]
+    }
+  ],
+  "scope": "8 Core module paths +3 S1 module paths +1 realHTTP paired calibration case; no external authority/currentness/calibration/refinement closure",
+  "closure_ids": []
+}

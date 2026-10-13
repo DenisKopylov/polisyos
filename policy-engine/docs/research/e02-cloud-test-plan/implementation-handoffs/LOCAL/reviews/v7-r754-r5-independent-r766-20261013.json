@@ -1,0 +1,72 @@
+{
+  "P40": "SAME_CLASS_DEEPER: R753 exposed the Core-to-IR conversion failure at the owner intake; R754-r5 widens a shared strict adapter over the complete five-site source set instead of accumulating per-instance conversions.",
+  "artifacts": {
+    "R753_failure_junit": {
+      "path": "LOCAL/raw/v7-paired-real-owner-http-shared-context-actual-r753-20261013/junit.xml",
+      "sha256": "be1417bdf7173ceb1d3fd2eb0f243ce3c6cb7880c4fd8e36ae681a28ac89fd4c"
+    },
+    "R753_failure_stdout": {
+      "path": "LOCAL/raw/v7-paired-real-owner-http-shared-context-actual-r753-20261013/stdout.txt",
+      "sha256": "bb52001aab6a9a2b3f24565f0f3ba406ab0ae42ef81bd95d45dc460fd96b85dd"
+    },
+    "manifest": {
+      "path": "LOCAL/raw/v7-core-ir-artifact-ref-boundary-author-r754-r5-20261013/manifest.json",
+      "sha256": "ce87a2059d902d2d0d1b1749ae571510f4f6915789b8e6cdfc4716193b21cabc"
+    },
+    "patch": {
+      "path": "LOCAL/raw/v7-core-ir-artifact-ref-boundary-author-r754-r5-20261013/candidate-r754-r5.patch",
+      "sha256": "79faec38e70d400999f701be8d81e59c21af1e7c6472e619338b92aa460d91e9"
+    }
+  },
+  "candidate": "V7 R754-r5",
+  "checks": {
+    "AST": "PASS (both virtual postimages parsed with stdlib ast)",
+    "git_apply_check": "PASS (git apply --check --verbose; source remains virtual/unapplied)",
+    "native_or_runtime_test": "UNRUN by this reviewer; root must run the focused actual HTTP witness before claiming behavioral pass",
+    "product_imports": "NOT RUN",
+    "ruff": "PASS (repository .venv Ruff, config enabled, --stdin-filename src/... and tests/... respectively; both All checks passed)",
+    "virtual_postimages": "PASS (both reconstructed in memory; hashes equal manifest proposed postimages)"
+  },
+  "closure_ids": [],
+  "decision": "GO_FOCUSED_NATIVE_WAVE",
+  "findings": [
+    {
+      "severity": "deciding-positive",
+      "text": "The actual R753 witness is a 400 Pydantic bad request carrying input_type=ArtifactRef before ForecastOwner.run. The current source has three direct ArtifactRefModel.model_validate(CoreRef) sites plus two Core refs passed as ForecastOwnerRequest selectors. R754-r5 replaces all five with one private adapter that calls the already-exported strict normalize_artifact_ref and then ArtifactRefModel.model_validate; candidate postimage hashes match the manifest."
+    },
+    {
+      "severity": "deciding-positive",
+      "text": "The adapter preserves artifact_id, kind, media_type, and manifest_profile_sha256 via the current strict schema. normalize_artifact_ref is already exported by polisyos.ir.artifacts and its existing tests cover selected-profile preservation and refusal of undeclared selectors; no public alias/schema/DTO companion is needed."
+    },
+    {
+      "severity": "deciding-positive",
+      "text": "The end-to-end test now compares complete JSON selector values for model, policy, and calibration-rule refs at real ForecastOwner intake. The unchanged test contains 14 actual HTTP requests (4 GET, 10 POST; including ThreadPoolExecutor.submit(client.post)) across 6 new_reader_app consumers and retains viewer/profileless/unrooted/disabled/no-write, duplicate-intent, exact-retry, conflict, tamper-integrity, legacy refusal, and changed-heldout-outcome/reopen controls. The patch changes only these assertions in the test."
+    },
+    {
+      "severity": "bounded-residual",
+      "text": "The second report conversion in _recompute_s10(report=None) is patched, but the current source has exactly one _recompute_s10 caller and it passes report and evidence. The existing fresh GET exercises the first report load, not that optional fallback. This is an unreachable/currently-unused fallback seam rather than a defect in the shared adapter; if a caller is introduced, the smallest falsifier is to exercise report=None against the real selected CAS profile and prove that the selected report is loaded."
+    }
+  ],
+  "limitations": [
+    "This GO authorizes only the focused native/runtime verification wave; it is not a merge decision or an authority/calibration/currentness closure.",
+    "The test still represents controlled fixture identity and predictive-only grading; external authority remains not established."
+  ],
+  "review_id": "R766",
+  "scope": "Independent virtual delta review only; no source/index/Git changes and no product imports or runtime tests.",
+  "source_frame": {
+    "head": "14683576597938efc1b01b7e2eeb8fe80b175721",
+    "path": "LOCAL/root-author-source-frame-r762-20261013.json",
+    "sha256": "2ad52258496488a6df94b37fd5838a34a18ab401e6b78fd13687df81d0f26a53",
+    "tree": "1e42d6cd15661ca8b22d3ed27c5191eff0ac06dd"
+  },
+  "source_preimages": {
+    "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py": {
+      "sha256": "51b450514f0458915b119a07a38b8adc41a7e325fffa5dbf941067bda73e130a",
+      "virtual_postimage_sha256": "7d8cf94e38f8c17947b8a21b51e34f674515459785fa5ba5f3e22b4c1118d7cd"
+    },
+    "policy-engine/tests/unit/runtime/http/test_control_service_di.py": {
+      "sha256": "18d9f7e79e59c6d726df92b187dad09ceb1cf0b171fff57a53c9ec38faef9241",
+      "virtual_postimage_sha256": "68d82b990e12fcc0d40502076b9ee418ca05ea2f2739756398bcccc2a3aeea97"
+    }
+  }
+}

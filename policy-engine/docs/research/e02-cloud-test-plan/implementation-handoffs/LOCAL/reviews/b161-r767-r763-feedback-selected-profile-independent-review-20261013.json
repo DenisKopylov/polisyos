@@ -1,0 +1,68 @@
+{
+  "basis": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r762-20261013.json",
+    "frame_sha256": "2ad52258496488a6df94b37fd5838a34a18ab401e6b78fd13687df81d0f26a53",
+    "head": "14683576597938efc1b01b7e2eeb8fe80b175721",
+    "tree": "1e42d6cd15661ca8b22d3ed27c5191eff0ac06dd"
+  },
+  "candidate": {
+    "manifest_sha256": "a98c64784c9dbbf1665e663c68d10fb9222880a46132ee1e51e35c35e692598e",
+    "packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b161-r763-feedback-selected-profile-and-consumer-negative-virtual-v1-20261013",
+    "patch_bytes": 12310,
+    "patch_sha256": "54c2bb097273bd8edc3a9ba5a357fedf1ed39fe8bbaddd262208db1b2a227d1e"
+  },
+  "closure_ids": [],
+  "decision": "GO_TO_ROOT_OWNED_MATERIALIZATION_AND_CONTROLLED_AFFECTED_CONSUMER_REPLAY",
+  "findings": [
+    {
+      "bucket": "NEW_CLASS",
+      "finding": "The fixture called .unknown() on the IR analytics uncertainty DTO; the added SearchUncertaintyEnvelope alias targets the real search factory and leaves IR DTO use intact.",
+      "status": "RESOLVED_IN_VIRTUAL_DELTA"
+    },
+    {
+      "bucket": "SAME_CLASS_DEEPER",
+      "finding": "The nested feedback-result writer lost the selected CAS profile and the wrong-profile control covered only one Metrics consumer. R763 forwards the opt-in, preserves the typed ref when true, retains the false default behavior, and rebinds both actual Metrics edges before invoking the fresh consumer.",
+      "status": "RESOLVED_IN_VIRTUAL_DELTA; RUNTIME_UNRUN"
+    },
+    {
+      "bucket": "FORMATTER_CONFIGURATION",
+      "finding": "The R758 isolated formatter concern does not reproduce under the product Ruff configuration on exact virtual postimages.",
+      "status": "RESOLVED"
+    }
+  ],
+  "formal_acceptance": false,
+  "markdown_report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/b161-r767-r763-feedback-selected-profile-independent-review-20261013.md",
+  "markdown_report_sha256": "0d63c1c43dadaedfb2de684d4e117a902bb4c6aff140e18a5bb53ac169b06d7d",
+  "preimage_postimage_review": {
+    "all_preimages_match_checkout_and_HEAD": true,
+    "all_virtual_postimages_match_manifest": true,
+    "changed_paths": [
+      "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b161-source-bound-risk-observation.toml",
+      "policy-engine/src/polisyos/foundry/execute/api.py"
+    ],
+    "footprint_paths": 8,
+    "git_apply_check": "PASS",
+    "product_tree_modified": false,
+    "unchanged_source_chain_paths": [
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_node.py"
+    ]
+  },
+  "residual": "B161 external semantics and formal acceptance remain not established; closure_ids is empty.",
+  "review_id": "B161-R767",
+  "verification": {
+    "composed_native_replay": "UNRUN; root-owned",
+    "product_imports": "UNRUN",
+    "pytest": "UNRUN",
+    "python_ast": "PASS 6/6 virtual Python postimages",
+    "ruff_check": "PASS 6/6 via policy-engine/.venv/bin/python -m ruff check --stdin-filename <product-relative-path> - from policy-engine/",
+    "ruff_format": "PASS 6/6 via policy-engine/.venv/bin/python -m ruff format --check --stdin-filename <product-relative-path> - from policy-engine/",
+    "ruff_version": "0.14.10",
+    "runtime_or_CAS": "UNRUN"
+  }
+}

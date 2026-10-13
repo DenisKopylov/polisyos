@@ -1,0 +1,45 @@
+{
+  "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+  "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e",
+  "source_frame_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+  "source_frame_sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b",
+  "batch": {
+    "id": "simulation-selection-and-horizon",
+    "criteria": [
+      "B07",
+      "B19",
+      "B20",
+      "B21",
+      "B22"
+    ],
+    "cwd": "policy-engine",
+    "argv_prefix": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "requires": "Run with the already-provisioned supported Python environment; do not install or create an environment.",
+    "selectors": [
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_fresh_cas_reader_rejects_forged_replicate_mean",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_v4_sampling_and_interaction_summaries_are_recomputed_and_required",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_refuses_conflicting_shared_slot_before_execution",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction",
+      "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles"
+    ],
+    "not_run_here": true
+  },
+  "source_bound_inputs": {
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313",
+    "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f",
+    "policy-engine/src/polisyos/ir/analytics/uncertainty.py": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+  },
+  "source_delta_scope": "R1172 13changedpaths separate; complete batch criterion paths matched current bytes to R1125 frozen targets",
+  "selected_inputs": "Existing controlled real NCM/coupled-engine horizon, requests, CAS and fresh-reader fixtures; no factual calibration/law/supplier/currentness claim",
+  "backend": "supported reuse .venv Python3.14.3; CPU singlethreadTorch2.10.0; actual producer/query paths; Rootheavy_slot=1",
+  "wall_budget_seconds": 300,
+  "closure_ids": []
+}

@@ -1,0 +1,123 @@
+{
+  "review_id": "R1187",
+  "packet_id": "R1176",
+  "decision": "GO_FOR_FOCUSED_NATIVE_GROUNDING_AND_REPLAY_WAVE_ONLY",
+  "bucket": "SAME_CLASS_DEEPER",
+  "formal_closure_ids": [],
+  "target": {
+    "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1176-grounding-typed-snapshot-consumer-repair-20261013/candidate.patch",
+    "candidate_sha256": "45cc65c14deeab5919a60eedf0f4a63e647e70025021da9861c5daa0507ba039",
+    "manifest_sha256": "b44a6efb4a06c72b7acf64dfabb877b8be2eb6f048a890ebd41e480572b90bc1",
+    "source_frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+    "source_frame_sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b",
+    "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "surface": {
+    "changed_path_count": 6,
+    "file_type_counts": {
+      ".py": 5,
+      ".md": 1
+    },
+    "preimages_current_and_matched": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "bytes": 57938,
+        "sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da",
+        "match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "bytes": 111557,
+        "sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a",
+        "match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "bytes": 111934,
+        "sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520",
+        "match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "bytes": 297014,
+        "sha256": "b5bb577dba18c806452dd55924bbeaab4204367558f81427b0541518dd9f577f",
+        "match": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "bytes": 39446,
+        "sha256": "d6e533ed45a2e109cf268b2cf91dd7dae326a0c5acab4778e43639f824ee646a",
+        "match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "bytes": 63455,
+        "sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197",
+        "match": true
+      }
+    ],
+    "git_apply_check_exit_code": 0,
+    "tracked_worktree_changes_before_review": "",
+    "staged_path_list_before_review": ""
+  },
+  "baseline": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/failure-classification-input.json",
+    "sha256": "ba67a51c9f3aaba841b224f31be193285e046945721e4ca991477d323caf2693",
+    "total_cases": 216,
+    "classified_fail_or_error_records": 63,
+    "grounding_failures": 55,
+    "grounding_setup_errors_separate": 5,
+    "search_or_stress_failures_separate": 3,
+    "root_cause_counts": {
+      "mappingproxy_serialization": 50,
+      "strict_profile_input": 3,
+      "list_lookup_comparison": 1,
+      "masked_expected_refusal": 1
+    }
+  },
+  "evidence": [
+    {
+      "property": "CG1 consumes immutable lookup values while strict MechanisticSignature DTO serialization receives builtin containers.",
+      "source": "grounding_relation._reference_atoms_from_cg0: parameter_domain is read from the frozen lookup tree; the candidate recursively materializes that selected domain before placing it in x_do/params.",
+      "result": "The 50 R1175 mappingproxy serialization failures and the single refusal assertion previously masked by that exception have a direct source-level repair. No solver, status, relation, transition, or authority rule changes."
+    },
+    {
+      "property": "Strict selected-source profile validation reuses the owner-captured JSON projection.",
+      "source": "credal_reference_l2_source_profile passes _json_ready(selected_source_profile) to the existing strict CredalReferenceSourceProfile model; its denominator and content_hash validation remain in place.",
+      "result": "Addresses the three R1175 strict-wrapper input failures without model_construct, validator relaxation, or producer/currentness claims."
+    },
+    {
+      "property": "N9 JSON replay DTO receives the existing edge owner payload projection.",
+      "source": "_CredalEdgeReplayRecord.from_edge now validates edge.to_payload(); the DTO retains its existing field schema, literal status and content-hash checks. The changed contract test executes JSON dump, validate, and to_reference round-trip.",
+      "result": "Appropriate boundary for serialized replay and preserves the edge-owned captured wire representation."
+    },
+    {
+      "property": "List-origin values remain immutable but compare by list value.",
+      "source": "_FrozenReferenceList is tuple-backed, unhashable, and compares against lists; the test adds equality assertions while retaining append and base list mutation-descriptor refusal plus captured-hash stability assertions.",
+      "result": "Addresses the one observed list comparison without exposing mutation or changing captured wire arrays."
+    },
+    {
+      "property": "Fallback wire, hash, FTS and completion-kind contracts stay stable.",
+      "source": "Capture wire construction and six CompletionKind variants are unchanged; typed boundary copies read only captured lookup/wire state. README documents this split.",
+      "result": "No candidate changes to source selection, statuses, authority, hashes, FTS inputs, or confidence vintage."
+    }
+  ],
+  "coverage_gap": {
+    "severity": "non_blocking_for_scoped_native_run; required_before_formal_closeout",
+    "detail": "The modified N9 replay round-trip uses the contract checker’s synthetic reference with flat owner/source/synthetic provenance. Its completion payload is nested, but completion.to_payload already used the canonical projector before this patch. Thus the test does not itself falsify restoration of the old shallow dict(edge.provenance) path for nested MappingProxy provenance. Add a focused rich-provenance replay case or identify an existing native case that exercises it before treating that companion as behaviorally closed.",
+    "classification": "P29/P33 verification specificity within SAME_CLASS_DEEPER; implementation boundary is correct by source inspection."
+  },
+  "checks": {
+    "git_apply_check": "PASS, read-only check mode",
+    "author_static_receipt": "Configured Ruff and AST pass receipts are present in static-checks.json; not independently rerun on virtual postimages.",
+    "product_imports": "NOT_RUN by assignment",
+    "pytest": "NOT_RUN by assignment",
+    "native_runtime": "NOT_RUN by assignment; root owns focused wave"
+  },
+  "limitations": [
+    "This review authorizes only the focused root Grounding and replay native wave; it is not a full acceptance or closure claim.",
+    "The five confidence-vintage/currentness fixture setup errors and three Search/Stress failures in the R1175 capture remain separate and are not repaired or reclassified here."
+  ]
+}

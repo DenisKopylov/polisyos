@@ -1,0 +1,91 @@
+{
+  "base": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "tracked_source_diff": "empty",
+    "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e"
+  },
+  "candidate": {
+    "decision_sha256": "9a3fab3ccabd7ae037f84c7f62e5adae0a44d6ded3d68e2874fb66ad5e5d93a8",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1178-stress-whole-selected-basis-consumer-controls-20261013",
+    "manifest_sha256": "5633d0b1ddb045c4ec0e78d82c0a21f8b7b71b893d295bcdb3935d8da87cdf74",
+    "patch_sha256": "8d7f10b927e897ac7702a484890693f9ad7dd4395c915b633bf32cb5b22f8d33",
+    "static_checks_sha256": "3695d0b5343b9cbad112fa33852293adb7201973e878e4a5e98ce184182bc55e"
+  },
+  "changed_paths": [
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "postimage_bytes": 39738,
+      "postimage_sha256": "fc3e4612ed80411382393029a42447c47e19d70f012f732dddd0bc33e3b81c79",
+      "preimage_bytes": 39616,
+      "preimage_sha256": "6cf89a868b14df21e9a98d599f22061386699fafb070e4cdc12c9f35f3941ea0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "postimage_bytes": 33387,
+      "postimage_sha256": "b23d3392b62a5d537a88a73d3e7c9063daeb5c8edffc9b82968bb3f24d7fc2d2",
+      "preimage_bytes": 31999,
+      "preimage_sha256": "d1ce5d1b358dbd35dddc51a6ea68124ea92473dfa324598a24006a6ce9c88bf6"
+    }
+  ],
+  "closure_ids": [],
+  "decision": "GO",
+  "decision_scope": "Root narrow native replay of the two affected stress test modules only; not repository acceptance or formal closure",
+  "limitations": [
+    "No pytest/native/database/product-import run",
+    "GO only for narrow root native replay; no closure or acceptance claim"
+  ],
+  "p40": "SAME_CLASS_DEEPER; widened the negative-control assertions across wrapper conversion and complete selected-input sequence, including duplicate occurrence.",
+  "pattern_pass": {
+    "P29": "full consumer negative and full manifest edge behavior are asserted",
+    "P37": "missing expected candidate degrades available-score claim to invalid",
+    "P38": "actual full ordered selected edges and cardinality are tested",
+    "P40": "SAME_CLASS_DEEPER and widened to relevant output quantity",
+    "P41": "two preimages match R1172-bound base"
+  },
+  "prior_native_evidence": {
+    "independent_xml_counts": {
+      "cases": 216,
+      "errors": 5,
+      "failures": 58,
+      "passed": 153,
+      "skipped": 0
+    },
+    "packet_summary_mismatch": "R1178 manifest says 5 skipped; XML records 5 errors and 0 skipped. Nonblocking for narrow replay; correct before aggregate citation.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/junit.xml",
+    "scope": "prior source only",
+    "sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101",
+    "targeted_cases_are_failures": true
+  },
+  "review_id": "R1181",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+    "sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b"
+  },
+  "source_references": {
+    "failure_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca",
+    "input_ref_model": "policy-engine/src/polisyos/core/artifacts/manifest.py@3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+    "runtime_benchmarks": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py@423bcb88d77f3d3f281154ba7dcb851f77015688e8dcf1b21983450ebea90610",
+    "runtime_reporting": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py@7879df0172c2cf466e9a8272872d41af468f45876877d3a96e1035a21ef57fdc",
+    "stress_report": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py@486ac9b7530ae1a9eb7a274db3f7ec8b397dd00a2af1b261ffc599d2e92dcf04"
+  },
+  "verification": {
+    "ast_parse": "2/2 passed",
+    "patch_applied": false,
+    "preimage_postimage_hashes_match_manifest": true,
+    "product_imports": false,
+    "product_ruff": "4/4 stdin check and format-check passed",
+    "pytest_native": "UNRUN",
+    "ruff_version": "0.14.10",
+    "source_or_index_writes": false,
+    "virtual_postimages_reconstructed_without_apply": true
+  },
+  "verified_properties": [
+    "Missing expected candidate context on an available-score report resolves to invalid/score_claim_without_resolved_basis with no robustness score.",
+    "Direct noncanonical legacy candidate kind remains a separate unbound/current_candidate_ref_not_canonical control.",
+    "Normal D4 output manifest full ordered InputRef sequence includes candidate, two supplemental refs, then all selected outcome-basis refs.",
+    "Duplicate D4 occurrence full InputRef sequence preserves both repeated supplemental refs and repeated basis refs; duplicate component ID remains invalid.",
+    "Top-k, finite denominator, mixed outcome, lineage, source schema, and Level-5 controls remain unchanged."
+  ],
+  "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+}

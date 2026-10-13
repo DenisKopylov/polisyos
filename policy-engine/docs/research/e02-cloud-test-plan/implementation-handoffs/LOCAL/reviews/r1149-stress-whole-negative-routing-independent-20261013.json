@@ -1,0 +1,86 @@
+{
+  "candidate": {
+    "decision_sha256": "95e60e987d8579156c85417ffbeffac02581cb5e2cad4e6d4d6a3675bbb7f497",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1145-stress-whole-negative-control-routing-20261013/manifest.json",
+    "manifest_sha256": "7e2681e1491eaa6e85a0ae3a1a33f3f59a8c199c9b8bb5b9143b5caf4945c0e5",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1145-stress-whole-negative-control-routing-20261013/delta.patch",
+    "patch_sha256": "f902c97dade7297de4e43349d5477c788f9b9c0edf8ddb1605e9822cc0e55728"
+  },
+  "candidate_source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1141-20261013.json",
+    "sha256": "1484c711f50c356b3707b1d76b98371dfa5ecf01048aa859055bb0768a953fff"
+  },
+  "changed_paths": [
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "postimage_bytes": 39616,
+      "postimage_sha256": "6cf89a868b14df21e9a98d599f22061386699fafb070e4cdc12c9f35f3941ea0",
+      "preimage_bytes": 39333,
+      "preimage_sha256": "d39ae3e08528cb2d7771ffb820cd723cc1b2d9bdf963e981ccdfc46e5b55cd3b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "postimage_bytes": 31999,
+      "postimage_sha256": "d1ce5d1b358dbd35dddc51a6ea68124ea92473dfa324598a24006a6ce9c88bf6",
+      "preimage_bytes": 31999,
+      "preimage_sha256": "cc9072f1cf1452496a872592c4bdcaff430e732e51630a04d442fc6ca561fb38"
+    }
+  ],
+  "closure_ids": [],
+  "current_base": {
+    "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "tracked_source_diff": "empty",
+    "tree": "d65d5ba135001d29968734cb0bace6fe50a572b8"
+  },
+  "decision": "GO",
+  "decision_scope": "Root narrow native replay of the two reviewed test modules only; not repository acceptance or formal closure",
+  "limitations": [
+    "No pytest/native replay or product imports",
+    "GO permits narrow native replay only; no acceptance or closure is claimed"
+  ],
+  "p40": "SAME_CLASS_DEEPER than R1143; widened relevant negative-control coverage across wrapper lineage, direct selected-schema, and direct kind guards.",
+  "pattern_pass": {
+    "P29": "behavioral top-k and consumer assertions remain",
+    "P37": "resolver-layer predicates and statuses remain distinct",
+    "P38": "exact lineage, selected schema, and direct kind are tested at their actual boundaries",
+    "P40": "same class widened to relevant three-branch negative-control path",
+    "P41": "current tracked source preimages match frozen source frame"
+  },
+  "prior_native_input": {
+    "counts": {
+      "cases": 180,
+      "failed": 26,
+      "passed": 152,
+      "skipped": 2
+    },
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/junit.xml",
+    "scope": "prior source only",
+    "sha256": "eeed6c0665d3b78683bb71649cc638509ed1959fba51729a441bc2c80623f325"
+  },
+  "review_id": "R1149",
+  "source_references": {
+    "failure_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca",
+    "policy_candidate_schema": "policy-engine/src/polisyos/scientist/policy_design/schema.py@1bad099a0d3bcf4961b196a8dd5524b080beada5eeae269ca0a5358cf4ec021f",
+    "runtime_reporting": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py@7879df0172c2cf466e9a8272872d41af468f45876877d3a96e1035a21ef57fdc",
+    "stress_report": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py@486ac9b7530ae1a9eb7a274db3f7ec8b397dd00a2af1b261ffc599d2e92dcf04"
+  },
+  "verification": {
+    "ast_parse": "2/2 passed",
+    "patch_applied": false,
+    "preimage_postimage_hashes_match_manifest": true,
+    "product_imports": false,
+    "product_ruff": "4/4 stdin check and format-check passed",
+    "pytest_native": "UNRUN",
+    "source_or_index_writes": false,
+    "virtual_postimages_reconstructed_without_apply": true
+  },
+  "verified_properties": [
+    "Same selected canonical candidate body reused for alternate write; artifact ID equal and selected profile SHA differs.",
+    "Wrapper report-lineage check precedes direct score resolution; expected invalid/stress_report_lineage_mismatch/no score is exact.",
+    "Direct selected-schema negative expects invalid/current_candidate_manifest_invalid.",
+    "Direct legacy-kind negative expects unbound/current_candidate_ref_not_canonical.",
+    "D4 selected-profile wrong-schema negative expects selected_source_schema_name_mismatch; subsequent Level-5 invalid check remains.",
+    "All top-k, occurrence-denominator, recomputed-score, mixed-outcome, and Level-5 controls remain in complete virtual postimages."
+  ],
+  "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+}

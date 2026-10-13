@@ -1,0 +1,102 @@
+{
+  "artifact_type": "immutable factual addendum",
+  "closure_ids": [],
+  "current_readback": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+    "source_frame_sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b",
+    "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e"
+  },
+  "disposition": "R1155 BLOCK retained; R1138 not accepted; no native/runtime acceptance claimed.",
+  "failure_denominator_correction": {
+    "classification_basis": {
+      "protected": "claim-adjudication, admitted-claim, compute runner, and autotune test module families",
+      "search": "test_search_loop module",
+      "stress": "test_adversarial and test_phase_d4_runtime_integration modules"
+    },
+    "complete_input": {
+      "file_type": "JSON list",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/failure-classification-input.json",
+      "rows": 26,
+      "sha256": "54212b284c50f23ead48311f413ff09f1e42e9abc73d6c5e66407ec9429a2fd7"
+    },
+    "correction": "R1155 previously described 14 protected plus 12 Search; the complete input classifies as 14 protected, 2 stress, 10 Search.",
+    "counts": {
+      "protected": 14,
+      "search": 10,
+      "stress": 2,
+      "sum": 26
+    },
+    "junit_companion": {
+      "failures": 26,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/junit.xml",
+      "sha256": "eeed6c0665d3b78683bb71649cc638509ed1959fba51729a441bc2c80623f325",
+      "skipped": 2,
+      "tests": 180
+    }
+  },
+  "original_review": {
+    "json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1155-protected-native-selected-source-repair-independent-20261013.json",
+    "json_sha256": "9bc57f494d8db0d765cbbe041a907a8611657a6c99f0f757eaf5719a1f8ba63f",
+    "markdown": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1155-protected-native-selected-source-repair-independent-20261013.md",
+    "markdown_sha256": "e2d5134151a2630e36f6c5e12991ec7119fe50fcbfb8d67cab3e7c2500c2d9d9",
+    "unchanged": true
+  },
+  "review_id": "R1169",
+  "scope": "Correct two factual descriptions in R1155 without changing its semantic review or disposition.",
+  "toolchain_qualification": {
+    "corrected_interpretation": "The two UP042 diagnostics are from host Ruff 0.15.0. The exact R1138 models.py bytes passed locked Ruff 0.14.10; the 42-pass receipt covers all 21 R1160 composition Python outputs, not byte-identical coverage of all nine R1138 R2 Python postimages. No native acceptance is implied.",
+    "host_ruff_version_output": "ruff 0.15.0",
+    "locked_ruff": {
+      "line": 5471,
+      "locked_interpreter_version_output": "ruff 0.14.10",
+      "uv_lock": "policy-engine/uv.lock",
+      "uv_lock_sha256": "63a394b509071b4125419b7304860d15a53a2e65e148adca6eee043be6315740",
+      "version": "0.14.10"
+    },
+    "r1138_r2_manifest": {
+      "changed_files": 11,
+      "exact_hash_matches_in_r1160_quality": 4,
+      "exact_models_py_postimage_passed_locked_check_and_format": true,
+      "patch_sha256": "30b7563abbd0b8af992aaedba87f6465468ce70ef3523ca7ca29394321c1dd72",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1138-protected-selected-source-real-native-boundary-repair-r2-20261013/manifest.json",
+      "python_postimages": 9,
+      "qualification_head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+      "sha256": "73d317f4316087fc3698fc7eb103c4f33ee8a94e609c8f185c3cb63ec01e4a7c"
+    },
+    "r1158_format_readback": {
+      "ast_mismatches": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1158-composed-native-failure-repair-root-format-20261013/root-format-readback.json",
+      "python_paths": 13,
+      "r1138_test_postimages_reformatted": 5,
+      "sha256": "c4c5632dbd8d6abf9efb2d95138f71f5144cc915db870c82c42f859d6e0bb401"
+    },
+    "r1160_composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1160-native-repair-and-grounding-composition-20261013/composition.json",
+      "postimages": 24,
+      "python_postimages": 21,
+      "qualification_head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+      "sha256": "50f26196913bc721aab7244cf33f1484186da8093a812f65edec8d2e31ccd641"
+    },
+    "r1160_quality_receipt": {
+      "all_exit_codes_zero": true,
+      "all_paths_match_composition_python_postimages": true,
+      "composition_sha256": "50f26196913bc721aab7244cf33f1484186da8093a812f65edec8d2e31ccd641",
+      "distinct_paths": 21,
+      "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+      "invocations": 42,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1160-native-repair-and-grounding-composition-20261013/root-quality-r1093.json",
+      "ruff_check_passes": 21,
+      "ruff_format_passes": 21,
+      "runtime_verification": "UNRUN",
+      "sha256": "d4fd00f2f8f9af11fa0069cdc0da1368265eca875a7d769ba1b1a73b6433ba48"
+    }
+  },
+  "verification": {
+    "new_json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1169-r1155-toolchain-and-failure-denominator-addendum-20261013.json",
+    "new_markdown": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1169-r1155-toolchain-and-failure-denominator-addendum-20261013.md",
+    "product_imports_tests_native_runs": 0,
+    "source_index_git_writes": 0
+  }
+}

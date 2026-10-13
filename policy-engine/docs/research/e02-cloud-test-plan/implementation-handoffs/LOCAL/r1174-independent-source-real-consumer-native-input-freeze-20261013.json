@@ -1,0 +1,60 @@
+{
+  "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+  "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+    "sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b",
+    "source_paths": 574
+  },
+  "scope": "Reviewed Source13 Search/stress/Grounding; exact real native GP and DR consumer cases enabled. Whole protected11 repair withheld R1155. Not final global freeze or whole-ID closure.",
+  "reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1149-stress-whole-negative-routing-independent-20261013.json",
+      "sha256": "44c299f9270b7aa3484741b331e67c5990944b4a52ebd65e8496ffd074789cf2"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1150-search-durable-provider-current-delta-independent-20261013.json",
+      "sha256": "a91c0930920fc516854425c6ad65710d15cc83f0c0f61584a21328f7ef0e5e30"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1152-grounding-single-materialization-independent-20261013.json",
+      "sha256": "f5fc831072d6e7d5718952aca109311aad0311632d1a501225def6df4c36f066"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1159-composed-native-repair-root-format-independent-20261013.json",
+      "sha256": "b08ec66d56ef61e397cba3e41eaa2630efa2538525395d60b24cce8d3469d99c"
+    }
+  ],
+  "test_targets": [
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/runtime/quality/test_credal_reference.py",
+    "tests/unit/runtime/quality/test_grounding_bind.py",
+    "tests/unit/runtime/quality/test_grounding_relation.py",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+  ],
+  "backend_profile": {
+    "pydantic": "2.12.5",
+    "pydantic-core": "2.41.5",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "scipy": "1.16.3",
+    "numpy": "2.3.5",
+    "ruff": "0.14.10",
+    "pytest": "9.0.2",
+    "duckdb": "1.4.3"
+  },
+  "numerical_profile": {
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+    "heavy_slots": 1
+  },
+  "selected_inputs": "Repository genuine producers with controlled CAS, synthetic fixtures and selected profile/context; no live production custody/currentness/permission claim",
+  "wall_budget_seconds": 300,
+  "closure_ids": []
+}

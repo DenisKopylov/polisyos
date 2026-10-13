@@ -1,0 +1,181 @@
+{
+  "blocking_finding": {
+    "candidate_line": 824,
+    "candidate_path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "effect": "The added test cannot currently provide a passing positive witness and must be corrected before root native execution.",
+    "finding": "The positive path compares merged_state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] directly with graph_ref. The left side is normalized as core.artifacts.manifest.ArtifactRef because ExperimentState.artifacts_index is dict[str, ArtifactRef] and the outcome is deserialized through that model. persist_causal_graph_model returns ir.registry.refs.CausalGraphModelRef, a distinct Mapping-compatible BaseModel that is not a subclass of the Core ArtifactRef. Pydantic model equality is type-sensitive, so same artifact fields across these two classes compare unequal and this assertion will fail in the otherwise successful candidate test.",
+    "id": "R1168-F1",
+    "minimal_repair": "Compare full reference identity after normalization: artifact_id, kind, media_type, and manifest_profile_sha256 (or normalize both via the existing artifact-ref identity helper). Do not compare only the artifact ID because selected profile is load-bearing.",
+    "severity": "blocking"
+  },
+  "candidate_packet": {
+    "decision": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1153-prepared-b-portable-timeout-wire-20261013/decision.md",
+      "sha256": "fe2c2ade9eac61f51b4b3d78452f609726f8dbc4fe61ccdee8b83be2d7acafda"
+    },
+    "manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1153-prepared-b-portable-timeout-wire-20261013/manifest.json",
+      "sha256": "9415e9db81070d3fb8c73656f3fd6461faa99f9f2f408da231fb6e06af7c0d88"
+    },
+    "mechanism_path_count": 1,
+    "mechanism_paths": [
+      {
+        "candidate_postimage_sha256": "b53430446c4b6dc5b613be5d29186e7ebc248a287a68c7f02812027457af7f93",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "preimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7"
+      }
+    ],
+    "patch": {
+      "bytes": 11872,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1153-prepared-b-portable-timeout-wire-20261013/candidate.patch",
+      "sha256": "3c852b49fa58801715bf0f1e4e42be0526417255128369054e5ccd79bf8c5c0b"
+    },
+    "preimage_inventory": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1153-prepared-b-portable-timeout-wire-20261013/preimage.json",
+      "sha256": "b45b26f28dd89909ec8c03f29c9a1b7a597603238cb20bcd3b5d5fb4883427a3"
+    },
+    "read_only_dependencies": [
+      {
+        "bytes": 94683,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "sha256": "d3b4c6524c6a0c7e64154d03e021944861b3626466e506771ac295a005cb4c39"
+      },
+      {
+        "bytes": 29415,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+        "sha256": "296dcc2af4f74f0cdb8f205ccfc2a7dd6e466b39ecde464588073283a890ef9f"
+      },
+      {
+        "bytes": 2114,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+        "sha256": "301d3db17b628a3048ab97b61fe4c6082fe730267a61026f248d2acb39fbf05d"
+      },
+      {
+        "bytes": 37967,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+        "sha256": "f2e9048c32a28acee19fcfea3ad8b7476a552be1c2b9f28f33d5231303513077"
+      },
+      {
+        "bytes": 7094,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/state_merge.py",
+        "sha256": "9cc1d5702723f0dc26c43ecaf229b01af28b3ebfbe6a0aaae2c45fd952ac3433"
+      },
+      {
+        "bytes": 23943,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+        "sha256": "7cbd92c9afd24a40deb483bbe9f6ff6a66357662ded1d79f2765346aab39239b"
+      },
+      {
+        "bytes": 72211,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "sha256": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626"
+      },
+      {
+        "bytes": 3803,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f"
+      },
+      {
+        "bytes": 49070,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "sha256": "1a0addac958a12edd34b380b8a8176222dc2f871d8ffe669594d8a241f6e59e2"
+      },
+      {
+        "bytes": 200684,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb"
+      },
+      {
+        "bytes": 9979,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/core/registry/builder.py",
+        "sha256": "72305d4a3c31559ccc5ac2e8092ce9af465c7850943a424494fa7bd2b2d31739"
+      },
+      {
+        "bytes": 42172,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+      },
+      {
+        "bytes": 24025,
+        "matches_current": true,
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "sha256": "1079fabb7e87d728863e904d45f8019bd78c7fbcc9f7dd9c9c1d6519de955f43"
+      }
+    ],
+    "read_only_dependency_count": 13,
+    "reconstruction": {
+      "matches_manifest": true,
+      "method": "stdlib in-memory unified-diff reconstruction from git show candidate-base:path",
+      "postimage_bytes": 41261,
+      "postimage_sha256": "b53430446c4b6dc5b613be5d29186e7ebc248a287a68c7f02812027457af7f93",
+      "preimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7"
+    }
+  },
+  "closure_ids": [],
+  "native_execution": "UNRUN; root-owned focused execution remains required after correction",
+  "nonblocking_observation": {
+    "candidate_line": 837,
+    "candidate_path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "finding": "outcome_snapshot aliases operation_envelope[\"outcome\"], so the subsequent equality assertion is tautological and would not detect accidental mutation of the snapshot.",
+    "recommendation": "Capture a deep copy or canonical JSON bytes/digest before clearing state_mutations and compare the preserved outcome after the edit. The current edit visibly assigns only state_mutations, and the downstream merge divergence is meaningful, so this is not the blocker."
+  },
+  "pattern_pass": {
+    "P29": "Candidate exercises actual producer, wire, consumer, and remove-property control rather than checking markers alone.",
+    "P35": "The author declares 17 existing and 18 candidate top-level test definitions in the single target module; this is a one-test delta, not a module-suite result.",
+    "P37_P38": "The actual route is selected through the real bounded retry API, and the previous timeout=None proxy is removed; the test measures journal replay through that route. The typed-ref comparator is a separate test-oracle defect.",
+    "P40_bucket": "SAME_CLASS_DEEPER for the timeout-wire capability: one complete producer\u2192typed IPC\u2192consumer witness, not another projection-level test. The found cross-type test assertion is a new fixture/oracle defect within that witness, not a second production-path escape.",
+    "P41": "Current source is qualified against the R1172 frame and exact current preimages; no historical native result is attributed to this candidate."
+  },
+  "property_review": {
+    "bounded_limitations": [
+      "Only the currently admitted ResolveParametersNode path is exercised; it emits set mutations, not deletes. Delete replay over the Darwin spawn route remains untested; existing generic wire set/delete coverage is outside that route.",
+      "No actual runtime/process execution or pytest was performed in this independent review; author-reported AST/Ruff/formatter/apply-check outputs are not an independent native receipt.",
+      "No claim is made about B61 cache-source identity, same-reader cache freshness, old-byte replayability, or formal closure; the candidate is a runner timeout-wire witness only."
+    ],
+    "implementation": "The candidate constructs a real FileSystemCAS, selected-profile default registry bundle, RunContext and ExecutionContext; persists a real CausalGraphModelRef; seeds a DuckDB SKG fixture; invokes the canonical zero-field frozen ResolveParametersNode via execute_with_retry_sync(timeout_s=30.0); serializes its returned journaled NodeOutcome; and calls merge_tier_outcomes with the node declared writes against a receiver copy changed after producer state creation.",
+    "negative_controls": "The candidate changes no existing no-fallback, unsupported-node/context, revocation, or generic set/delete tests. Its new canonical node is accepted by the current closed admission checks; the existing refusal controls remain separate.",
+    "positive_and_removal_controls": "Positive assertions require a real journal set for params.phase15_runtime_backend_used, declared-write containment, changed receiver application, bundle-ref propagation, and preservation of receiver_only. Removal mutates only state_mutations to [] while retaining both schema markers and the outcome object, then asserts the old receiver value remains and the bundle ref is absent. Because merge uses a present-but-empty journal rather than falling back to the state snapshot, this is a meaningful operation-body removal control.",
+    "property": "A declared mutation produced by the admitted bounded timeout worker survives the actual typed process task/result wire and is replayed by the real tier consumer into a changed receiver while preserving unrelated receiver changes. Removing only the operation sidecar, with typed envelope markers and the complete outcome value preserved, must make the receiver diverge.",
+    "timeout_path": "On Darwin, this node is in the closed _SPAWN_TIMEOUT_NODE_IDS set and the zero-field frozen dataclass compares equal to a freshly discovered canonical instance; the 30-second deadline makes execute_with_retry_sync select the timed process path, _build_spawn_timeout_task produces the typed NodeTask, child execution returns serialized NodeOutcome through the worker result channel, and parent deserialization preserves the journal. The test does not exercise timeout expiration/failure semantics."
+  },
+  "repository": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_base_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1151-20261013.json",
+      "sha256": "12e262d19976b9a2ca4642cbe228f89e671dbfe09c957fb23ae058e8c4d84213"
+    },
+    "candidate_base_head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "candidate_base_tree": "d65d5ba135001d29968734cb0bace6fe50a572b8",
+    "current_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "current_source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+      "physical_source_path_count": 574,
+      "sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b"
+    },
+    "current_tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e",
+    "qualification": "Root-provided R1172 frame qualifies the expected source advance: current target preimage and all 13 declared read-only dependencies match the packet; current target is also byte-identical to the candidate base commit. This is not a blanket claim over unrelated R1 paths or a native result.",
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "review_id": "R1168",
+  "reviewed_at": "2026-10-13T22:27:16+03:00",
+  "reviewer_validation": {
+    "ast_ruff_pytest_native": "UNRUN by reviewer under the read-only/no-import/no-test scope.",
+    "current_preimage_and_dependencies": "PASS; target preimage plus all 13 declared read-only dependency hashes match current source state.",
+    "in_memory_reconstruction": "PASS; exact target postimage hash matches manifest.",
+    "static_source_review": "BLOCK due R1168-F1; timeout route and semantic control are otherwise statically coherent."
+  },
+  "schema": "policyos.e02.prepared_b.r1168_timeout_wire_candidate_review.v1",
+  "verdict": "BLOCK"
+}

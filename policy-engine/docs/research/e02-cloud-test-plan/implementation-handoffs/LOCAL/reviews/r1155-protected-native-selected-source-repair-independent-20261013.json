@@ -1,0 +1,190 @@
+{
+  "candidate": "R1138 protected selected-source real-native boundary repair R2",
+  "candidate_inputs": {
+    "base_head": "23d3bebf41654e3b152702887b58974cedab0af3",
+    "base_tree": "ea093fb460650eeefb2248e2744677d46b823762",
+    "current_preimages_match": true,
+    "decision": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1138-protected-selected-source-real-native-boundary-repair-r2-20261013/decision.md",
+    "decision_sha256": "58f68bbb1bc7ddc0e7155bc0f7ee37621218b2960b43bbe0b8d2bee16dba8bf1",
+    "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1138-protected-selected-source-real-native-boundary-repair-r2-20261013/manifest.json",
+    "manifest_sha256": "73d317f4316087fc3698fc7eb103c4f33ee8a94e609c8f185c3cb63ec01e4a7c",
+    "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1138-protected-selected-source-real-native-boundary-repair-r2-20261013/candidate.patch",
+    "patch_sha256": "30b7563abbd0b8af992aaedba87f6465468ce70ef3523ca7ca29394321c1dd72",
+    "r2_delta": "one Ruff import-order correction in _claim_evidence.py; other ten postimages equal R1",
+    "static_validation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1138-protected-selected-source-real-native-boundary-repair-r2-20261013/static-validation.json",
+    "static_validation_sha256": "edf24287e5d9e168e13f379d8c22ee41a107af933cdabf26d9ec3eb4160e2cb9"
+  },
+  "closure_ids": [],
+  "disposition": "BLOCK",
+  "findings": [
+    {
+      "actual_gate": "R2 _validate_predecessor validates metadata keys, policy/split, nonblank suite_id, ArtifactRef shape/non-null profile, kind and media only.",
+      "class": "same selected-source/predecessor binding class, deeper basis predecessor edge",
+      "divergent_case": "All required metadata markers remain correct while suite_ref is syntactically valid with a non-null 64-hex profile that is nonexistent, or resolves to suite payload with a different suite_id. Shape gate is green without source evidence.",
+      "evidence": [
+        "Candidate patch hunk claim_adjudication_verifier.py around lines 241-263.",
+        "read_claim_promotion_predecessor only returns the validated previous_pointer; callers are registry.py ChampionRegistry.get and _consider_promotion_locked, plus claim_adjudication_verifier.py replay_champion.",
+        "registry.py _promotion_binding_failure does resolve the incoming/current suite and _consider_promotion_locked matches the immediate current pointer ref, but neither resolves basis.previous_pointer.metadata.suite_ref.",
+        "claim_adjudication_verifier.py replay resolves current suite_ref at lines 486-507 and 538-548; older predecessor suite_ref is not read while candidate/metrics are consumed at lines 558-577."
+      ],
+      "falsifier_test": "Retain all four metadata keys and policy/split markers; mutate only suite_ref to a nonexistent selected ref and separately to a real mismatched-suite payload; require refusal before protected replay/promotion. Remove source resolver while keeping markers and require test failure.",
+      "id": "R1155-F1",
+      "minimum_closure": "Resolve each predecessor ref at the existing protected consumers by artifact ID plus selected profile; compare full ref and selected manifest identity; decode exact Core payload and bind suite_id/version plus schema/producer/kind/media before verified-predecessor use. Preserve profileless history as history-only.",
+      "property": "A suite ref used to admit a promotion predecessor resolves by exact selected profile and its content suite_id/version agrees with the predecessor metadata.",
+      "severity": "blocking"
+    },
+    {
+      "actual_gate": "models.py returns 2 UP042 findings for MetricDirection and BenchmarkSplit; same findings are in preimage and postimage.",
+      "class": "configured static quality result",
+      "evidence": [
+        "static-validation.json SHA edf24287e5d9e168e13f379d8c22ee41a107af933cdabf26d9ec3eb4160e2cb9; source definitions models.py:67,74."
+      ],
+      "id": "R1155-F2",
+      "ownership": "Root-owned; not inherited/green under P41 because models.py intersects this candidate.",
+      "property": "Candidate changed Python paths pass configured Ruff.",
+      "severity": "quality-debt"
+    }
+  ],
+  "footprint": {
+    "file_type_denominator": {
+      "markdown": 1,
+      "python": 9,
+      "toml": 1
+    },
+    "path_count": 11,
+    "paths": {
+      "policy-engine/release-fragments/unreleased/2026-10-13-e02-b116-b117-registry-profile-atomicity.toml": {
+        "candidate_postimage_bytes": 2539,
+        "candidate_postimage_sha256": "9c396826aebbb2e511f7220c3363265b5033273b551c533815fea6a83279aebb",
+        "current_preimage_bytes": 2014,
+        "current_preimage_sha256": "a2547194f5075bbd6ed5e1e2b2d6f5113f40323932fa7950d9f9c0d18d527db0",
+        "file_type": "toml",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py": {
+        "candidate_postimage_bytes": 36332,
+        "candidate_postimage_sha256": "7606650871f669999895bce183ccd410e2db97eed0ca37625b4fd8c2399709f4",
+        "current_preimage_bytes": 35341,
+        "current_preimage_sha256": "e1110f7701d23fd29fdfd38dedb5269068d999531e979e302b2c272f4f8baccc",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/src/polisyos/scientist/methods/autotune/README.md": {
+        "candidate_postimage_bytes": 16920,
+        "candidate_postimage_sha256": "009099ba8ce49d15c7a0944e78e8778564a90abf082b94167d3ad52d41534371",
+        "current_preimage_bytes": 16365,
+        "current_preimage_sha256": "fe1bea1b5e5e316d31b7047cac407d2f7829209f87a3955c94e854300f05f4b2",
+        "file_type": "markdown",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+        "candidate_postimage_bytes": 36530,
+        "candidate_postimage_sha256": "8fd5866e0d10adb2bc89b11e19598e5acd661d5ab3e8dd44c1e3a7619472845e",
+        "current_preimage_bytes": 36219,
+        "current_preimage_sha256": "09821711c754c9f70dd45be0779833b7da226df5327a6aa4c25c168711d17a61",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/_claim_evidence.py": {
+        "candidate_postimage_bytes": 15110,
+        "candidate_postimage_sha256": "42d28e4d8240b4ca77d8e2e16b69b71fc8ba47176d486b508f63592772bebb07",
+        "current_preimage_bytes": 14244,
+        "current_preimage_sha256": "37194bb22c3153202251e62323e88493f246a6d9ed0de8eaacc0d01578f14971",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py": {
+        "candidate_postimage_bytes": 10281,
+        "candidate_postimage_sha256": "371c9f29dc33f29158be20540fed9776ca491c7b18c3c19dd3300a1966d0b3dd",
+        "current_preimage_bytes": 10309,
+        "current_preimage_sha256": "c70e47f2da7ae9de46e6c6fc5d407881af2375e0235dab508fbec04f4d522187",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py": {
+        "candidate_postimage_bytes": 22910,
+        "candidate_postimage_sha256": "754594428845f61f06bd8e74d4f85964088568ceedc088495c3823be098f8a22",
+        "current_preimage_bytes": 22237,
+        "current_preimage_sha256": "2db21984303c7f992653a26e95215b8ad09b6d2056c787d79d97ee5089bff0bc",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py": {
+        "candidate_postimage_bytes": 25268,
+        "candidate_postimage_sha256": "2681e9a56202960e3fc4a6b3f370c7380e058690295b12c1421745f7857b30f8",
+        "current_preimage_bytes": 24978,
+        "current_preimage_sha256": "36107842f135f1aaec4a5bfbd5f96ed001551c46cf59b98fa04abce2c5461923",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py": {
+        "candidate_postimage_bytes": 18181,
+        "candidate_postimage_sha256": "e1739bb21a0b11ba405bb3da8f02f9640b5d3ad59e2d117b79bacd7ccb1b6152",
+        "current_preimage_bytes": 18092,
+        "current_preimage_sha256": "01dd84a0102348b3af39fed8916e8780d164f18065079dde13a872497758daf1",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py": {
+        "candidate_postimage_bytes": 22747,
+        "candidate_postimage_sha256": "855624a9f2584ad0fc61f270caa24cde8fcd60e6ae8ac58fbad74e410b154e0a",
+        "current_preimage_bytes": 22657,
+        "current_preimage_sha256": "3a07df70f4d02dfc17520f6e5b90f085971e0d2590c4b83c275cab5c926140a9",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      },
+      "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py": {
+        "candidate_postimage_bytes": 33398,
+        "candidate_postimage_sha256": "2f457f0e68296952317ddd02c83c0c6abec95e99c9bbf423139ffd24621d88f2",
+        "current_preimage_bytes": 30461,
+        "current_preimage_sha256": "928dd955695c1963679b9901e6ac83d38aa1a52bb6bd49f4f03f44a1cf569258",
+        "file_type": "python",
+        "preimage_matches_current_head": true
+      }
+    }
+  },
+  "go_scope": "none pending predecessor source-binding repair; this review is not a G acceptance or closure",
+  "p40_bucket": "SAME_CLASS_DEEPER: selected-source/predecessor binding (B116/B117 chain)",
+  "positive_review": {
+    "fixture_quality": "The selected view now varies warning metadata only; source producer and artifact ID remain equal. Refusal/no-result assertions remain.",
+    "generic_profile_conflict_guard": "Source-level GO: after same artifact-ID binding, two non-null unequal profile hashes are rejected; generic profileless edge can still be upgraded from producer ref.",
+    "immediate_predecessor_suite_binding": "Source-level GO before successor emission: selected incoming suite is Core-loaded; suite_id/version and candidate/evaluation suite edges are checked; current pointer full selected identity and suite metadata are matched to the resolved input.",
+    "tested_actual_roles": [
+      "candidate",
+      "method_result",
+      "method_evidence",
+      "execution_work_packet",
+      "search_gp_fit_basis"
+    ]
+  },
+  "repository": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1151-20261013.json",
+    "source_frame_sha256": "12e262d19976b9a2ca4642cbe228f89e671dbfe09c957fb23ae058e8c4d84213",
+    "tree": "d65d5ba135001d29968734cb0bace6fe50a572b8"
+  },
+  "review_id": "R1155",
+  "verification_limits": {
+    "earlier_r1136_context": {
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-stress-protected-source-edges-search-emission-actual-r1136-20261013/failure-classification-input.json",
+      "protected_class_failures": 14,
+      "separate_search_failures": 12,
+      "sha256": "54212b284c50f23ead48311f413ff09f1e42e9abc73d6c5e66407ec9429a2fd7",
+      "test_denominator": {
+        "failed": 26,
+        "skipped": 2,
+        "total": 180
+      },
+      "this_review_closes_baseline": false
+    },
+    "external_receipt_issuer": "producer_missing",
+    "index_git_mutations": "none",
+    "native_process_race_crash": "UNRUN",
+    "product_imports": "NOT_RUN",
+    "production_surface": "surface_out_of_scope",
+    "pytest": "UNRUN",
+    "source_mutations": "none"
+  }
+}

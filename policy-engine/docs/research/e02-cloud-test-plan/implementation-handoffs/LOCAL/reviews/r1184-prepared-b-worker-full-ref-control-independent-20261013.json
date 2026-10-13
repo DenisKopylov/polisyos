@@ -1,0 +1,164 @@
+{
+  "closure_ids": [],
+  "delta_assessment": {
+    "p40_bucket": "SAME_CLASS_DEEPER: the prior timeout-wire gap is addressed by one complete producer-to-typed-IPC-to-consumer witness; these changes correct the witness comparator and snapshot control without widening production scope or adding another projection test.",
+    "r1168_finding_1": {
+      "assessment": "The producer returns ir.registry.refs.CausalGraphModelRef. The test now constructs a Core ArtifactRef with artifact_id, kind, media_type, and manifest_profile_sha256 explicitly copied, then compares artifact_ref_identity_key for both Core refs. The existing helper includes exactly those four fields; selected profile is preserved and neither normalized away nor defaulted.",
+      "location": "candidate postimage lines 828-838",
+      "status": "CORRECTED"
+    },
+    "r1168_finding_2": {
+      "assessment": "The full outcome object is captured as a canonical JSON string before state_mutations is replaced. The later serialization is independent of the mutated mapping and checks the complete outcome payload remains equal.",
+      "location": "candidate postimage lines 852-862",
+      "status": "CORRECTED"
+    },
+    "scope": "test-only successor over the previously reviewed one-test R1153 candidate; one target module, no production source/API/schema/config changes, no additional test definition",
+    "scope_verdict": "GO for root-owned focused native execution of test_canonical_timeout_worker_replays_operations_into_changed_receiver only, followed by the existing required broader R1 batch if root chooses. This is not a test pass or closure.",
+    "timeout_wire_property": {
+      "admission": "ResolveParametersNode is in the closed spawn allowlist and its frozen zero-field dataclass instance compares equal to a fresh canonical instance.",
+      "assessment": "Unchanged and statically coherent: real FileSystemCAS, RunContext, default selected-profile registry bundle, DuckDB SKG source and ResolveParametersNode run through execute_with_retry_sync(timeout_s=30.0). The admitted canonical node reaches the real bounded process route; Darwin uses typed NodeTask, child result channel and parent deserialization. The actual journaled NodeOutcome is passed to merge_tier_outcomes against a receiver changed after dispatch; removing only the sidecar retains schema markers/outcome snapshot and makes receiver state diverge.",
+      "negative_controls": "No existing unsupported-input/no-fallback, parent-revocation, or generic set/delete tests are removed or weakened.",
+      "scoped_limitations": [
+        "Native/Darwin process execution and pytest remain unrun.",
+        "The witness proves admitted set-mutation replay only; Darwin delete-operation replay is not claimed.",
+        "A 30-second deadline selects the timed-worker route; the test does not exercise actual deadline expiration or timeout failure semantics.",
+        "The test is not evidence for B61 source identity, same-reader cache freshness, historical old-byte replayability, Prepared B full-suite acceptance, or formal closure."
+      ]
+    }
+  },
+  "input_artifacts": {
+    "prior_r1168_review": {
+      "json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1168-prepared-b-portable-timeout-wire-independent-20261013.json",
+      "json_sha256": "5399f1c2b00f65cb5153520fd986c443d821f1b34a207599e654d1e046bc7702",
+      "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1168-prepared-b-portable-timeout-wire-independent-20261013.md",
+      "markdown_sha256": "68af7dd82f922abb3e8310b4457d9a3153f347581c5733dd7618e4aad6731574"
+    },
+    "r1153_base_candidate": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1153-prepared-b-portable-timeout-wire-20261013/candidate.patch",
+      "sha256": "3c852b49fa58801715bf0f1e4e42be0526417255128369054e5ccd79bf8c5c0b"
+    },
+    "r1179_candidate_patch": {
+      "bytes": 12706,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1179-prepared-b-worker-full-ref-control-20261013/candidate.patch",
+      "sha256": "cf854b4e70a10059e8d4f56e0eb627cd535b3ccf9f93cab8b108442461136a32"
+    },
+    "r1179_decision": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1179-prepared-b-worker-full-ref-control-20261013/decision.md",
+      "sha256": "6d7fa7a00268cb237702bda10bc96bb124df5902795a9b458c884e78ad8a8bd5"
+    },
+    "r1179_manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1179-prepared-b-worker-full-ref-control-20261013/manifest.json",
+      "sha256": "d67ee1f5cb804e2fc6ab9edd766645ea451cbfda24fa5dc8d7f2d87b1d6ff10b"
+    },
+    "r1179_successor_delta": {
+      "bytes": 3038,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1179-prepared-b-worker-full-ref-control-20261013/r1153-successor-delta.patch",
+      "sha256": "c1097cd817ab99f90bae0d181a663f412abaf895afb81c196491a7011451d7ee"
+    }
+  },
+  "native_execution": "UNRUN; root-owned focused execution remains pending",
+  "reconstruction": {
+    "ast_parse": "PASS (stdlib ast.parse; no product imports)",
+    "cumulative_postimage_bytes": 41982,
+    "cumulative_postimage_sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+    "method": "stdlib unified-diff reconstruction from git show of R1179 base; successor delta independently applied to in-memory R1153 postimage",
+    "preimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+    "r1153_postimage_sha256": "b53430446c4b6dc5b613be5d29186e7ebc248a287a68c7f02812027457af7f93",
+    "successor_delta_postimage_sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+    "target_path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+    "top_level_test_functions": {
+      "postimage": 18,
+      "preimage": 17,
+      "successor_added": 0
+    },
+    "two_reconstruction_paths_equal": true
+  },
+  "repository": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "qualification": "R1172 is the exact current source frame. The sole mechanism-path preimage and all 16 listed read-only dependencies match current bytes.",
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+      "physical_source_path_count": 574,
+      "sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b"
+    },
+    "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e"
+  },
+  "review_id": "R1184",
+  "reviewed_at": "2026-10-13T22:35:18+03:00",
+  "reviewed_current_dependencies": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "sha256": "d3b4c6524c6a0c7e64154d03e021944861b3626466e506771ac295a005cb4c39"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "sha256": "296dcc2af4f74f0cdb8f205ccfc2a7dd6e466b39ecde464588073283a890ef9f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/worker_pool.py",
+      "sha256": "301d3db17b628a3048ab97b61fe4c6082fe730267a61026f248d2acb39fbf05d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "sha256": "f2e9048c32a28acee19fcfea3ad8b7476a552be1c2b9f28f33d5231303513077"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/state_merge.py",
+      "sha256": "9cc1d5702723f0dc26c43ecaf229b01af28b3ebfbe6a0aaae2c45fd952ac3433"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "sha256": "7cbd92c9afd24a40deb483bbe9f6ff6a66357662ded1d79f2765346aab39239b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "sha256": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "sha256": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/run/context.py",
+      "sha256": "1a0addac958a12edd34b380b8a8176222dc2f871d8ffe669594d8a241f6e59e2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "220175d9166865b45257ed8643ac3c18c06914a1d822a82d4794a7a4bcc4bddb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/builder.py",
+      "sha256": "72305d4a3c31559ccc5ac2e8092ce9af465c7850943a424494fa7bd2b2d31739"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "sha256": "1079fabb7e87d728863e904d45f8019bd78c7fbcc9f7dd9c9c1d6519de955f43"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+      "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+    }
+  ],
+  "reviewer_validation": {
+    "cumulative_and_delta_reconstruction": "PASS: both exact candidate paths produce SHA 2ed9d2ce\u2026b242.",
+    "current_frame_and_source_hashes": "PASS: target preimage plus all 16 declared read-only dependencies match R1172/current bytes.",
+    "ruff_or_pytest_or_product_imports_or_native_spawn": "UNRUN by reviewer; no heavy/runtime execution performed.",
+    "static_delta_review": "PASS: both R1168 issues are corrected without weakening the wire removal control or changing the selected-profile identity contract."
+  },
+  "schema": "policyos.e02.prepared_b.r1184_timeout_wire_successor_review.v1",
+  "verdict": "GO_SCOPED"
+}

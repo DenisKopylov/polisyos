@@ -1,0 +1,104 @@
+{
+  "artifact": "r1159-composed-native-repair-root-format-independent-20261013",
+  "review_type": "independent composition and formatter delta review",
+  "verdict": "GO_R1165_THIRTEEN_PATHS_FOR_ROOT_APPLY_AND_FOCUSED_NATIVE_REPLAY",
+  "withheld": "R1160 24-path composition and its R1158 15-path predecessor remain withheld because they include the entire R1138 protected 11-path mechanism blocked by R1155.",
+  "closure_ids": [],
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "tree": "d65d5ba135001d29968734cb0bace6fe50a572b8",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1151-20261013.json",
+    "frame_sha256": "12e262d19976b9a2ca4642cbe228f89e671dbfe09c957fb23ae058e8c4d84213",
+    "physical_source_paths": 568,
+    "preimage_check": "all 13 R1165 file hashes match the current source; 7 are represented in the frame map and match, 6 grounding targets are absent from that map but match direct current preimages and the R1152-qualified R1147 input."
+  },
+  "selected_candidate": {
+    "composition_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1165-independent-search-stress-grounding-source-20261013/composition.json",
+    "composition_sha256": "85ea5330e1834da2058c41d199e14e68cb5fc5b19febb34aa063b6bacc4cd33d",
+    "net_patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1165-independent-search-stress-grounding-source-20261013/net.patch",
+    "net_patch_sha256": "7f6770458ae920b34fb3df91d8d8db2899341939b11ac77f3dcc61c14467e4c5",
+    "path_count": 13,
+    "paths": [
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "policy-engine/src/polisyos/runtime/quality/grounding_active_controller.py",
+      "policy-engine/src/polisyos/runtime/quality/grounding_bind.py",
+      "policy-engine/src/polisyos/runtime/quality/grounding_phrasing_defense.py",
+      "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "policy-engine/tests/unit/runtime/quality/test_grounding_bind.py",
+      "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py",
+      "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+    ],
+    "mechanisms": [
+      {
+        "name": "Search prompt admission",
+        "paths": 2,
+        "prior_independent_review": "R1150 GO; the two formatter-changed postimages are AST-equal to reviewed preformat candidate."
+      },
+      {
+        "name": "Stress negative-control routing",
+        "paths": 2,
+        "prior_independent_review": "R1149 GO."
+      },
+      {
+        "name": "Grounding immutable snapshot materialization",
+        "paths": 9,
+        "prior_independent_review": "R1152 GO; exact selected postimages retained."
+      }
+    ],
+    "exact_subset_of_r1160": true,
+    "same_postimages": true,
+    "disjoint_from_protected_11": true
+  },
+  "withheld_protected_mechanism": {
+    "candidate": "R1138 R2 selected-source/predecessor repair, 11 paths",
+    "independent_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1155-protected-native-selected-source-repair-independent-20261013.md",
+    "independent_review_sha256": "e2d5134151a2630e36f6c5e12991ec7119fe50fcbfb8d67cab3e7c2500c2d9d9",
+    "json_sha256": "9bc57f494d8db0d765cbbe041a907a8611657a6c99f0f757eaf5719a1f8ba63f",
+    "disposition": "BLOCK",
+    "reason": "The nested previous_pointer suite ref is accepted by metadata shape and ref syntax without resolving selected bytes and binding decoded suite_id/version to predecessor metadata.",
+    "scope_decision": "withhold all 11 protected paths; no partial repair admitted."
+  },
+  "formatter_review": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "p41": "not inherited; Root-owned formatter reds intersect the current source slice and are repaired here.",
+    "preformat_candidate": "R1157 composed 15-path candidate",
+    "formatted_composition": "R1158 net candidate",
+    "python_ast_comparisons": 13,
+    "python_ast_equal": 13,
+    "bytes_changed_by_format": 7,
+    "formatted_paths": [
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+      "policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py",
+      "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+    ],
+    "selected_R1165_intersection": 2,
+    "selection_semantics": "No Python AST change across all 13 formatter-scope paths; selected R1165 includes the exact two formatted Search paths."
+  },
+  "verification": {
+    "r1165_patch_reconstructed_in_memory": "PASS; exact 13/13 postimage hashes and byte counts",
+    "all_13_current_preimages": "PASS",
+    "r1160_subset_identity": "PASS; 13/13 exact postimage hashes",
+    "protected_overlap": "PASS; zero of 11 protected paths",
+    "root_quality_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1165-independent-search-stress-grounding-source-20261013/root-quality-r1093.json",
+      "sha256": "56b72752579da0e818f8c8040568cb1bdec5298e90a277bdf974be18a060aaa1",
+      "commands": 24,
+      "exit_zero": 24,
+      "candidate_hash_binding": "all rows bind the exact candidate Python bytes"
+    },
+    "independent_ruff_replay": "PASS; prior R1160 42-command replay included all exact selected Python candidate bytes",
+    "git_apply_check": "PASS for R1165 net patch",
+    "native_tests": "UNRUN; Root owns the actual focused replay",
+    "source_or_index_writes": "none"
+  }
+}

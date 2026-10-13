@@ -1,0 +1,369 @@
+{
+  "artifact_id": "R1180-independent-search-stress-grounding-source-handoff-20261013",
+  "authority": "This handoff binds source and run evidence only. It is not formal finding adjudication, G acceptance, production authority, or closure.",
+  "closure_ids": [],
+  "limitations": [
+    "R1175 exercises a selected source-native unit-test wave, not a full product, installed-consumer, production-data, or external-authority acceptance gate.",
+    "The five Grounding ERROR cases fail during confidence_layer_vintage fixture setup before assertions; they require separate fixture/source qualification.",
+    "The 55 Grounding assertion failures, 2 Stress failures and 1 Search failure remain actual non-pass results; do not export them as inherited reds because the changed paths intersect the run input.",
+    "No causal, grant, authority, production-currentness, or original-criterion closure is established by this run."
+  ],
+  "native_run": {
+    "cases": {
+      "ERROR": 5,
+      "FAIL": 58,
+      "PASS": 153,
+      "SKIP": 0,
+      "total": 216
+    },
+    "command": {
+      "bytes": 1797575,
+      "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/command.json",
+      "sha256": "bfda1853de8fb79b7757d61c9e38656715936a05658c1f2c11035cd2cf03081c"
+    },
+    "disposition": "FAIL; do not claim a green or aggregate acceptance",
+    "exit_code": 1,
+    "failure_boundary": {
+      "Grounding": "55 assertion failures plus 5 setup ERROR cases; the five fixture errors are named and preserved in the support receipt, not mislabeled as inherited and not treated as exercised semantic assertions.",
+      "Search": "One assertion failure in test_search_loop.py (TestOptimizationFlow); other selected Search cases passed.",
+      "Stress": "Two assertion failures, one in each selected Stress test file.",
+      "targeted_GP_DR": "Both explicitly selected cases passed; this does not qualify or clear the separate withheld 11-path protected mechanism."
+    },
+    "junit_time_seconds": 0.0,
+    "loaded_product_modules": 1651,
+    "mechanism_results": {
+      "Grounding": {
+        "ERROR": 5,
+        "FAIL": 55,
+        "PASS": 83,
+        "cases": 143,
+        "test_files": [
+          "tests/unit/runtime/quality/test_credal_reference.py",
+          "tests/unit/runtime/quality/test_grounding_bind.py",
+          "tests/unit/runtime/quality/test_grounding_relation.py"
+        ]
+      },
+      "Search": {
+        "ERROR": 0,
+        "FAIL": 1,
+        "PASS": 49,
+        "cases": 50,
+        "test_file": "tests/unit/scientist/search/test_search_loop.py"
+      },
+      "Selected GP/DR controls": {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 2,
+        "cases": 2,
+        "scope": "two explicitly selected test_methodjob_execution_work_packets cases"
+      },
+      "Stress": {
+        "ERROR": 0,
+        "FAIL": 2,
+        "PASS": 19,
+        "cases": 21,
+        "test_files": [
+          "tests/unit/scientist/search/test_adversarial.py",
+          "tests/unit/scientist/search/test_phase_d4_runtime_integration.py"
+        ]
+      }
+    },
+    "modules_outside_selected_source_root": 0,
+    "raw_evidence": [
+      {
+        "bytes": 1797575,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/command.json",
+        "sha256": "bfda1853de8fb79b7757d61c9e38656715936a05658c1f2c11035cd2cf03081c"
+      },
+      {
+        "bytes": 357820,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/failure-classification-input.json",
+        "sha256": "ba67a51c9f3aaba841b224f31be193285e046945721e4ca991477d323caf2693"
+      },
+      {
+        "bytes": 377970,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/junit.xml",
+        "sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101"
+      },
+      {
+        "bytes": 519524,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/module-origins.json",
+        "sha256": "226d1fbd5cb4cf1b55fc4fbf70c8d19ce8ece5dfb5c2639079aa15af9555f4de"
+      },
+      {
+        "bytes": 613308,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/progress.json",
+        "sha256": "05b13163748550db613bb394996985134f33219b284ca176a6c2857223990c63"
+      },
+      {
+        "bytes": 0,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 336140,
+        "path": "raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/stdout.txt",
+        "sha256": "30e159aec3353e64b38a6b61b464e74e88f5b517ab5072034dca7982f741d0e6"
+      }
+    ],
+    "receipt_id": "R1175",
+    "scope": [
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/runtime/quality/test_credal_reference.py",
+      "tests/unit/runtime/quality/test_grounding_bind.py",
+      "tests/unit/runtime/quality/test_grounding_relation.py",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+    ],
+    "source_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "stable_captured_inputs": {
+      "after": 6217,
+      "before": 6217,
+      "changed": 0
+    },
+    "support": {
+      "bytes": 13661,
+      "path": "raw/r1180-independent-search-stress-grounding-source-handoff-20261013-support.json",
+      "sha256": "c4ef0961e294439a4c3d4dc12eb7aa06a426e2291e482c82c35c1f46a9ad7675"
+    },
+    "wall_seconds": 61.75094837497454
+  },
+  "original_occurrence_binding": {
+    "binding_rule": "Only exact occurrence links in the R1101 rows or an explicitly cited prior handoff are admissible. R1175 introduces no such link; matching test or subsystem names is not a finding-ID binding.",
+    "denominator": {
+      "all_291_pinned_original_span_hashes_recomputed": true,
+      "occurrences_under_repeated_ids": 17,
+      "original_occurrences": 291,
+      "repeated_finding_ids": 8,
+      "task_routes": 331,
+      "unique_finding_ids": 282,
+      "unique_occurrence_identities": 291
+    },
+    "no_auto_adjudication": "This handoff does not alter the 291 occurrence statuses, assign B/LA IDs to the three technical mechanisms, or infer formal proposal/G acceptance. All formal closure IDs remain empty.",
+    "prior_status_counts_remain": {
+      "candidate_state_v": {
+        "UNRUN": 291
+      },
+      "formal_G_status": {
+        "not_adjudicated": 291
+      },
+      "verification_state_e": {
+        "not_established": 291
+      }
+    },
+    "r1175_original_occurrence_links": [],
+    "rows": {
+      "bytes": 880506,
+      "path": "reviews/r1101-current-source-native-original-occurrence-overlay-20261013-r2-20261013.ndjson",
+      "sha256": "db79637720b6791a57b51cc12b2d7f902bebc4eb16bd10b9ea090ae9ee3408c5"
+    },
+    "source": {
+      "bytes": 14991,
+      "path": "reviews/r1101-current-source-native-original-occurrence-overlay-20261013-r2-20261013.json",
+      "sha256": "ff58f2ea58dc0fbfd65f544a4ca310d450da323d8f50016bc684c6f1dd20ee5e"
+    }
+  },
+  "pattern_pass": {
+    "P01_P02": "The handoff binds selected native consumers and distinguishes a receipt from complete capability or closure.",
+    "P29_P32": "Evidence is the retained actual run and readback, not candidate markers; non-pass outcomes remain explicit.",
+    "P35_P38": "Denominators and consumer boundaries are derived from the exact 574-source-path frame and 216-case JUnit; actual red boundary is named.",
+    "P40": "Search, Stress and Grounding remain three separate mechanisms; protected scope remains withheld.",
+    "P41": "No failing category is declared inherited; changed paths intersect the actual command input."
+  },
+  "protected_mechanism_boundary": {
+    "addendum_scope": "R1169 corrects the separate R1136 failure denominator and toolchain descriptions only; it does not change R1155 disposition and does not reclassify R1175.",
+    "denominator_addendum_ref": {
+      "bytes": 5889,
+      "path": "reviews/r1169-r1155-toolchain-and-failure-denominator-addendum-20261013.json",
+      "review_id": "R1169",
+      "sha256": "542687b2ddd49d0289fddd4d10b6d70287fdd253c9d65e04b561bf24e4b26ac9"
+    },
+    "disposition": "BLOCK retained; protected 11-path mechanism was withheld from the 13-path composition.",
+    "review_ref": {
+      "bytes": 12194,
+      "path": "reviews/r1155-protected-native-selected-source-repair-independent-20261013.json",
+      "review_id": "R1155",
+      "sha256": "9bc57f494d8db0d765cbbe041a907a8611657a6c99f0f757eaf5719a1f8ba63f"
+    }
+  },
+  "receipt_type": "source-native handoff; receipt-only",
+  "reviewer_actions": "Read-only stdlib parsing, source/hash and JUnit readback only. No product imports, pytest/native rerun, database/ML work, source edits, index changes, or Git mutations.",
+  "schema": "policyos.source_handoff.v1",
+  "source": {
+    "all_13_before_and_postimage_hashes_match_git_blobs": true,
+    "base_head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_readback": {
+      "bytes": 1469,
+      "path": "raw/independent-search-stress-grounding-source-commit-r1171-20261013/committed-source-readback.json",
+      "sha256": "8860d406ec94535413de0835a47f8db6bb8b98e6622e33eea95e3d29d4c30596"
+    },
+    "commit_readback_complete_source_paths": 574,
+    "composition": {
+      "bytes": 13260,
+      "path": "raw/r1165-independent-search-stress-grounding-source-20261013/composition.json",
+      "sha256": "85ea5330e1834da2058c41d199e14e68cb5fc5b19febb34aa063b6bacc4cd33d"
+    },
+    "exact_change_set_matches_git_range_and_commit_readback": true,
+    "head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "net_patch_sha256": "7f6770458ae920b34fb3df91d8d8db2899341939b11ac77f3dcc61c14467e4c5",
+    "parent": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "path_group_counts": {
+      "Grounding": 9,
+      "Search": 2,
+      "Stress": 2
+    },
+    "paths": [
+      {
+        "before_sha256": "1efbd1f214069be78e2b231067f392ec966f2bea1858972dbdb0ab72ed3582d4",
+        "bytes": 57938,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "postimage_sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da"
+      },
+      {
+        "before_sha256": "84eaf9b12bfc190345c8d5931ca925a8308bc2584103d1a3977f4ed6e74555ac",
+        "bytes": 111557,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "postimage_sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a"
+      },
+      {
+        "before_sha256": "013c479cea5a5cd7d029e77aa74fcd97f23af48539b1dd3f63c4d8ae27922953",
+        "bytes": 62191,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_active_controller.py",
+        "postimage_sha256": "bfaa666d0dd7fe77d4182e7a8f9801228b8bd2ad8f6300dc8f7461ca70d46663"
+      },
+      {
+        "before_sha256": "7bcd8296cae2258dd52ce4ea5062d84a95bf65cc0a3609527d47adfb7ad37ec9",
+        "bytes": 75668,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_bind.py",
+        "postimage_sha256": "903ae04a0c1237f7ecf816273fb827c65736c23d5e1b0e25319a31df63c9e50a"
+      },
+      {
+        "before_sha256": "0b640b8a118d88a9556d43516afb4f2f2362222245e16065ebd5df1af851f882",
+        "bytes": 62297,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_phrasing_defense.py",
+        "postimage_sha256": "7d6cb7fc51c308cea4be14ca27acc64dc8c3cfdd0a8195362827ff73e14d707c"
+      },
+      {
+        "before_sha256": "a8e4153d586241fe4162083508733ce57d1cc6a814b947730dc121eb3e980e01",
+        "bytes": 111934,
+        "mechanism": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "postimage_sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520"
+      },
+      {
+        "before_sha256": "a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5",
+        "bytes": 103848,
+        "mechanism": "Search",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "postimage_sha256": "c6f41ec5139dbf0fa665a7f55fcdb6a89cc849a489af59e8bfddf1a116614cf5"
+      },
+      {
+        "before_sha256": "23aa88131383999f4af8004fe9a41b184a462890791e4311948e0adb02f31922",
+        "bytes": 63455,
+        "mechanism": "Grounding",
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "postimage_sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197"
+      },
+      {
+        "before_sha256": "52a8d8e186c575cfa1511b8492097fa160c47a18834db2b67aba7e68e27a52c5",
+        "bytes": 34191,
+        "mechanism": "Grounding",
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_bind.py",
+        "postimage_sha256": "34b350703f67229747b00137795714144d03cae60ee519512bd19d302b5c8578"
+      },
+      {
+        "before_sha256": "23bb369439c333b3eab25f0d1e741fd2c7aaca25897a17fb2631e2127811facc",
+        "bytes": 59305,
+        "mechanism": "Grounding",
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py",
+        "postimage_sha256": "06c77a5c7e0457e60885a48639cd44bf25aa41767d2a6040ca6241d34d98892b"
+      },
+      {
+        "before_sha256": "d39ae3e08528cb2d7771ffb820cd723cc1b2d9bdf963e981ccdfc46e5b55cd3b",
+        "bytes": 39616,
+        "mechanism": "Stress",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "postimage_sha256": "6cf89a868b14df21e9a98d599f22061386699fafb070e4cdc12c9f35f3941ea0"
+      },
+      {
+        "before_sha256": "cc9072f1cf1452496a872592c4bdcaff430e732e51630a04d442fc6ca561fb38",
+        "bytes": 31999,
+        "mechanism": "Stress",
+        "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+        "postimage_sha256": "d1ce5d1b358dbd35dddc51a6ea68124ea92473dfa324598a24006a6ce9c88bf6"
+      },
+      {
+        "before_sha256": "ec108d8e1bc6b2b3e6ab0638032c29c2980cc0c48863d92a1b897af44139e57c",
+        "bytes": 88210,
+        "mechanism": "Search",
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+        "postimage_sha256": "e8d437cd3d7127e9c63af91da488fd8bfdc80fba939c0c80f0dbf991bd9aff36"
+      }
+    ],
+    "product_root": "policy-engine/",
+    "product_writes_in_source_composition": false,
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame": {
+      "bytes": 154024,
+      "path": "root-author-source-frame-r1172-20261013.json",
+      "sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b"
+    },
+    "source_frame_physical_path_count": 574,
+    "tree": "45e8e04359ac64f554e45cb26ea054f8c857f38e"
+  },
+  "status": "complete; actual native result is red and requires bounded follow-up",
+  "technical_proposal_refs": [
+    {
+      "independent_review_ref": {
+        "bytes": 7928,
+        "path": "reviews/r1150-search-durable-provider-current-delta-independent-20261013.json",
+        "review_id": "R1150",
+        "sha256": "a91c0930920fc516854425c6ad65710d15cc83f0c0f61584a21328f7ef0e5e30"
+      },
+      "local_proposal_ref": "R1137",
+      "mechanism": "Search",
+      "review_scope": "R1150 GO allowed Root application and focused actual-source replay; no formal finding closure."
+    },
+    {
+      "independent_review_ref": {
+        "bytes": 5020,
+        "path": "reviews/r1149-stress-whole-negative-routing-independent-20261013.json",
+        "review_id": "R1149",
+        "sha256": "44c299f9270b7aa3484741b331e67c5990944b4a52ebd65e8496ffd074789cf2"
+      },
+      "local_proposal_ref": "R1145",
+      "mechanism": "Stress",
+      "review_scope": "R1149 GO allowed a narrow native replay only; no acceptance or closure."
+    },
+    {
+      "independent_review_refs": [
+        {
+          "bytes": 7255,
+          "path": "reviews/r1142-grounding-existing-wire-boundary-snapshot-independent-20261013.json",
+          "review_id": "R1142",
+          "sha256": "b90ab9d6b96385eaea70aa95f4c0e08668027d4de29e7ae4dd9a32ec1d883d30"
+        },
+        {
+          "bytes": 7326,
+          "path": "reviews/r1152-grounding-single-materialization-independent-20261013.json",
+          "review_id": "R1152",
+          "sha256": "f5fc831072d6e7d5718952aca109311aad0311632d1a501225def6df4c36f066"
+        }
+      ],
+      "local_proposal_refs": [
+        "R1142-F1",
+        "R1147-F1"
+      ],
+      "mechanism": "Grounding",
+      "review_scope": "R1142 identified the single-capture mismatch; R1152 reviewed the R1147 single-materialization candidate for a bounded replay. No whole native acceptance or formal closure."
+    }
+  ]
+}

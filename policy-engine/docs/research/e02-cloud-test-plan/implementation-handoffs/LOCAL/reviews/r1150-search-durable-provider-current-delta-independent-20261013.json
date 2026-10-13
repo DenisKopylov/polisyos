@@ -1,0 +1,83 @@
+{
+  "authority": "Independent bounded source review only; no source application, runtime receipt, G acceptance, or formal closure.",
+  "closure_ids": [],
+  "current_source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1151-20261013.json",
+      "physical_source_paths": 568,
+      "sha256": "12e262d19976b9a2ca4642cbe228f89e671dbfe09c957fb23ae058e8c4d84213"
+    },
+    "target_preimages": [
+      {
+        "matches_frame": true,
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "sha256": "a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5"
+      },
+      {
+        "matches_frame": true,
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+        "sha256": "ec108d8e1bc6b2b3e6ab0638032c29c2980cc0c48863d92a1b897af44139e57c"
+      }
+    ],
+    "tree": "d65d5ba135001d29968734cb0bace6fe50a572b8"
+  },
+  "decision": "GO for Root-owned application and focused actual-source Search/durable-provider replay",
+  "findings": [
+    {
+      "p40": "SAME_CLASS_DEEPER: widen no-best handling at the actual producer-to-prompt boundary; do not generalize infinity to absence.",
+      "property": "Only controller-owned no-best state projects its positive-infinity initialization sentinel to prompt absence.",
+      "review": "SearchRunState declares best_candidate as dict-or-None and initializes best_objective to +inf. Actual _generate_candidates builds context before invoking the generator; TracedLLMCandidateGenerator.generate serializes through _search_prompt_value before client dispatch. The proposed guard requires candidate is None and objective is exactly +inf, consistent with the existing ask/tell absent-score projection. Candidate-present +inf and absent-candidate NaN/-inf remain finite-number refusals; finite populated state is retained.",
+      "source_evidence": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py@69a4ed41941be6b8545ab78be653cc89a889886f8ed69de8fb9904aef2855185",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py@a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5"
+      ]
+    },
+    {
+      "p40": "SAME_CLASS_DEEPER: widen typed-refusal transport across the current instrumented callback graph, not one serializer instance.",
+      "property": "The first typed prompt refusal is surfaced through the current Pydantic callback graph and later sibling callbacks do not execute.",
+      "review": "The delta stores the first typed refusal in an invocation-local ContextVar and aborts wrapped callbacks; the owning _prompt_to_python boundary rethrows the original typed refusal. Current-source AST census lists all six explicit CoreSchema callback factories plus generic plain/wrap instrumenters. The retained exact-helper replay on Python 3.14.3 / Pydantic 2.12.5 / pydantic-core 2.41.5 reports the nonfinite refusal and empty sibling-call list; finite Any/RootModel and nested roots, include/exclude projections, and shared acyclic references remain accepted. The existing generic model-through-mapping cycle refusal remains.",
+      "source_evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1137-search-actual-extra-and-durable-provider-consumer-bounds-20261013/outputs/actual-source-census.json@25cb33af2f3b55f9afea60b825147ac2b2a3b20936accfca0544708c3fca8914",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1137-search-actual-extra-and-durable-provider-consumer-bounds-20261013/outputs/candidate-ast-replay.json@beddc707bd948b040148fcc4695916beafd5c1b655420eca494b71232d28b844",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py@a729d356a93882e65cbf9ce9b82457b9554140ff20b3b0d713533ab9777e27c5"
+      ]
+    },
+    {
+      "p40": "Count adjustment is fixture expectation drift, not a new product escape.",
+      "property": "Malformed inputs refuse before provider dispatch; the valid-call count reflects four accepted callback-root calls.",
+      "review": "The test adds +inf to the existing 13-entry direct malformed-payload tuple; each of the 14 entries is still expected to refuse before any rejecting-client call. Existing malformed RootModel cases still require zero calls. The finite callback-root request is a fourth accepted provider call, so changing the final expected count from three to four matches the exercised cases.",
+      "source_evidence": [
+        "policy-engine/tests/unit/scientist/search/test_search_loop.py@ec108d8e1bc6b2b3e6ab0638032c29c2980cc0c48863d92a1b897af44139e57c",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1137-search-actual-extra-and-durable-provider-consumer-bounds-20261013/outputs/candidate-ast-replay.json@beddc707bd948b040148fcc4695916beafd5c1b655420eca494b71232d28b844"
+      ]
+    }
+  ],
+  "next_gate": "Root-owned application of this exact delta, configured Search tests, and actual durable-provider consumer replay with no-best/refusal/removal controls and persisted event/stopping assertions. No formal closure until runtime evidence and separate G adjudication.",
+  "packet": {
+    "apply_check": "PASS: independently reran git apply --check --whitespace=error against current source; no files changed",
+    "author_decision_sha256": "08cde73725ee84ad9bac6758d54ae4be869a7c2489383b472c9d83332236f05e",
+    "delta_sha256": "aaa8903007dffa24eefce3b5172d89cf26d45d71ef0f18fe2b83c3005af1ff27",
+    "manifest_sha256": "ed0e68295a533d4553cdaa17a2c4e05bbaf1a6439243c2ff36f49b8babca796f",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1137-search-actual-extra-and-durable-provider-consumer-bounds-20261013",
+    "scope": [
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+    ]
+  },
+  "quality_and_limits": {
+    "actual_consumer_replay": "UNRUN. R1136 had eight durable-provider owner failures on the no-best +inf prompt. Root must run the actual composed provider/owner path after application and retain complete output plus refusal/removal controls.",
+    "p40": "Both substantive escapes are SAME_CLASS_DEEPER; the patch widens existing producer-to-prompt and typed-refusal mechanisms. No instance ladder was found.",
+    "p41": "R1136 changed the controller and mirrored Search test paths, which intersect its actual input denominator; those failures are not classified as inherited.",
+    "ruff": "Packet quality receipt reports configured Ruff check exit 0 on base and candidate files. Full-file Ruff format --check exits 1 on both exact base and candidate. Its format-scope receipt reports no overlap between 195 added patch lines and formatter-removed candidate lines. Since touched files are in that formatter input, this review does not label the whole-file red inherited under P41; the narrower delta-line result is recorded separately.",
+    "scope_residuals": [
+      "No external authority, budget settlement, event completeness, or G acceptance is established.",
+      "Arbitrary serializer side effects and one-shot iterator lifecycle remain the separate unratified R1111 choice.",
+      "The candidate is unapplied; the source-context test and AST replay do not establish actual provider-owner success."
+    ],
+    "source_ast_replay": "Retained AST-extracted helper replay only; this review ran no PolicyOS imports, pytest, product runtime, durable-provider workflow, or native tests."
+  },
+  "review_id": "R1150",
+  "scope": "Delta-only review of two current R1137 paths. The cumulative R951-based patch was not applied or treated as an applicable patch."
+}

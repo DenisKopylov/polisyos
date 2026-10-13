@@ -1,0 +1,134 @@
+{
+  "review_id": "R1152",
+  "verdict": "GO for one focused native replay only",
+  "closure_ids": [],
+  "p40_bucket": "SAME_CLASS_DEEPER",
+  "prior_finding": {
+    "id": "R1142-F1",
+    "status": "addressed by single materialization in this virtual candidate",
+    "property": "one captured fallback value feeds the frozen lookup view and JSON wire projection used by payload, hash, and FTS"
+  },
+  "source_frame": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1151-20261013.json",
+    "sha256": "12e262d19976b9a2ca4642cbe228f89e671dbfe09c957fb23ae058e8c4d84213",
+    "head": "5fd4096ab9389d15abcedb00b03b968f6b60c953",
+    "tree": "d65d5ba135001d29968734cb0bace6fe50a572b8",
+    "branch": "codex/e02-unified-local-20261009",
+    "physical_source_paths": 568
+  },
+  "candidate": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1147-grounding-single-wire-and-runtime-snapshot-materialization-20261013/candidate.patch",
+    "bytes": 95020,
+    "sha256": "a6a5ad45cdea0592265847abf8b8e0129e834484b2c6817e060b18e79acefe3c",
+    "applied": false,
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1147-grounding-single-wire-and-runtime-snapshot-materialization-20261013/manifest.json",
+    "manifest_sha256": "1f7a257c21a6cabaa6c144527a087ee92cf20e37f70d87f1da90c449621c25f0",
+    "base_source_frame": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1141-20261013.json",
+    "base_source_frame_sha256": "1484c711f50c356b3707b1d76b98371dfa5ecf01048aa859055bb0768a953fff",
+    "current_head_at_freeze": "5fd4096ab9389d15abcedb00b03b968f6b60c953"
+  },
+  "denominator": {
+    "path_count": 9,
+    "file_type_counts": {
+      ".md": 1,
+      ".py": 8
+    },
+    "preimages_matching_current_source": 9,
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "pre_bytes": 55377,
+        "pre_sha256": "1efbd1f214069be78e2b231067f392ec966f2bea1858972dbdb0ab72ed3582d4",
+        "post_bytes": 57938,
+        "post_sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "pre_bytes": 102896,
+        "pre_sha256": "84eaf9b12bfc190345c8d5931ca925a8308bc2584103d1a3977f4ed6e74555ac",
+        "post_bytes": 111557,
+        "post_sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_active_controller.py",
+        "pre_bytes": 62279,
+        "pre_sha256": "013c479cea5a5cd7d029e77aa74fcd97f23af48539b1dd3f63c4d8ae27922953",
+        "post_bytes": 62191,
+        "post_sha256": "bfaa666d0dd7fe77d4182e7a8f9801228b8bd2ad8f6300dc8f7461ca70d46663",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_bind.py",
+        "pre_bytes": 75832,
+        "pre_sha256": "7bcd8296cae2258dd52ce4ea5062d84a95bf65cc0a3609527d47adfb7ad37ec9",
+        "post_bytes": 75668,
+        "post_sha256": "903ae04a0c1237f7ecf816273fb827c65736c23d5e1b0e25319a31df63c9e50a",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_phrasing_defense.py",
+        "pre_bytes": 62323,
+        "pre_sha256": "0b640b8a118d88a9556d43516afb4f2f2362222245e16065ebd5df1af851f882",
+        "post_bytes": 62297,
+        "post_sha256": "7d6cb7fc51c308cea4be14ca27acc64dc8c3cfdd0a8195362827ff73e14d707c",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "pre_bytes": 105963,
+        "pre_sha256": "a8e4153d586241fe4162083508733ce57d1cc6a814b947730dc121eb3e980e01",
+        "post_bytes": 111934,
+        "post_sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "pre_bytes": 44000,
+        "pre_sha256": "23aa88131383999f4af8004fe9a41b184a462890791e4311948e0adb02f31922",
+        "post_bytes": 63455,
+        "post_sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_bind.py",
+        "pre_bytes": 33715,
+        "pre_sha256": "52a8d8e186c575cfa1511b8492097fa160c47a18834db2b67aba7e68e27a52c5",
+        "post_bytes": 34191,
+        "post_sha256": "34b350703f67229747b00137795714144d03cae60ee519512bd19d302b5c8578",
+        "live_preimage_matches": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_relation.py",
+        "pre_bytes": 29924,
+        "pre_sha256": "23bb369439c333b3eab25f0d1e741fd2c7aaca25897a17fb2631e2127811facc",
+        "post_bytes": 59305,
+        "post_sha256": "06c77a5c7e0457e60885a48639cd44bf25aa41767d2a6040ca6241d34d98892b",
+        "live_preimage_matches": true
+      }
+    ]
+  },
+  "mechanism_review": {
+    "exact_dicts": "Entries are captured in sorted-key order; each fallback occurrence produces one frozen value and one matching wire value.",
+    "generic_mapping": "Legacy default=str wire fallback remains at the non-dict Mapping boundary; the lookup view is separately frozen in the same capture traversal.",
+    "serialized_consumers": "Frozen mapping wire is reused by _json_ready, so payload/hash/FTS do not call fallback conversion again.",
+    "completion_oracle": "All six legal CompletionKind values remain represented in the legacy FTS source-field oracle.",
+    "recursive_input": "Recursive JSON containers are refused with the standard JSON circular-reference error."
+  },
+  "independent_checks": {
+    "all_manifest_preimages_current": true,
+    "git_apply_check_exit_code": 0,
+    "tracked_worktree_changes": false,
+    "stdlib_probe_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1147-grounding-single-wire-and-runtime-snapshot-materialization-20261013/probe.py",
+    "stdlib_probe_sha256": "c32fe0ced36a29eeefab3c599c0ce417565ac44f0f1c6d0d2eb110283ba406a6",
+    "stdlib_probe_output": "PASS: existing stdlib wire oracle matches captured projection for stateful dict values and generic/nested Mapping fallbacks\n{'old_stateful_wire': {'a': 'a-1', 'z': 'z-2'}, 'captured_wire': {'a': 'a-1', 'z': 'z-2'}, 'calls': ['a', 'z']}",
+    "author_reported_ast_ruff": "PASS for all 8 changed Python paths",
+    "not_run": [
+      "pytest",
+      "product imports",
+      "database/runtime/ML checks",
+      "native replay"
+    ]
+  }
+}

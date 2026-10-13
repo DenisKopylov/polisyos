@@ -4233,12 +4233,15 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
 
     def attach_selected_inputs(context: Any) -> None:
         if not captured_inputs:
+            training = [float(value) for value in range(10, 21)]
             observed = _source(
                 context.store,
-                holdout=[31.0, 32.0, 33.0, 34.0],
+                training=training,
+                holdout=[21.0, 22.0, 23.0, 24.0],
             )
             comparison_observed = _source(
                 context.store,
+                training=training,
                 holdout=[1000.0, 1001.0, 1002.0, 1003.0],
             )
             model_default = _spec(
@@ -4416,9 +4419,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             "calibration_threshold": 0.9,
             "split": {
                 "train_start": 0,
-                "train_end": 30,
-                "holdout_start": 30,
-                "holdout_end": 34,
+                "train_end": 11,
+                "holdout_start": 11,
+                "holdout_end": 15,
                 "horizon": 4,
             },
             "target_metric": "metric",

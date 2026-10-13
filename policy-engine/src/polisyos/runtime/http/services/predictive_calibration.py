@@ -78,6 +78,13 @@ def _as_ir_artifact_ref(ref: ArtifactRef) -> ArtifactRefModel:
     return ArtifactRefModel.model_validate(normalize_artifact_ref(ref))
 
 
+def _as_ir_empirical_calibration_evidence_ref(
+    ref: object,
+) -> EmpiricalCalibrationEvidenceRef:
+    """Adapt the complete selected view into the evidence reader's typed role."""
+    return EmpiricalCalibrationEvidenceRef.model_validate(normalize_artifact_ref(ref))
+
+
 class _ControlJob(Protocol):
     """Control-job identity used to bind diagnostic writes to a completed run."""
 
@@ -488,7 +495,7 @@ def produce_run_predictive_calibration(
         def evidence_resolver(ref: object) -> object:
             return load_empirical_calibration_evidence(
                 store,
-                EmpiricalCalibrationEvidenceRef.model_validate(ref),
+                _as_ir_empirical_calibration_evidence_ref(ref),
             )
 
         method_result = {
@@ -1320,7 +1327,7 @@ def _validate_current_run_binding(
     )
     evidence = load_empirical_calibration_evidence(
         store,
-        EmpiricalCalibrationEvidenceRef.model_validate(association.empirical_evidence_ref),
+        _as_ir_empirical_calibration_evidence_ref(association.empirical_evidence_ref),
     )
     if (
         report.report_id != evidence.report_id
@@ -1375,7 +1382,7 @@ def _recompute_s10(
     )
     evidence = evidence or load_empirical_calibration_evidence(
         store,
-        EmpiricalCalibrationEvidenceRef.model_validate(association.empirical_evidence_ref),
+        _as_ir_empirical_calibration_evidence_ref(association.empirical_evidence_ref),
     )
     method_result = {
         "output": {
@@ -1399,7 +1406,7 @@ def _recompute_s10(
     def resolver(ref: object) -> object:
         return load_empirical_calibration_evidence(
             store,
-            EmpiricalCalibrationEvidenceRef.model_validate(ref),
+            _as_ir_empirical_calibration_evidence_ref(ref),
         )
 
     result = RealValueOwnerGateway(

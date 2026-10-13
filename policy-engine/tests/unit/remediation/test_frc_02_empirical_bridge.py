@@ -380,6 +380,7 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert evidence.usable_for_calibration is True
     assert evidence.failure_codes == ()
     evidence_ref = persist_empirical_calibration_evidence(store, evidence)
+    assert evidence_ref.manifest_profile_sha256 is not None
     reopened = load_empirical_calibration_evidence(store, evidence_ref)
     assert reopened == evidence
 

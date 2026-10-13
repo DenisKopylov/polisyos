@@ -571,6 +571,7 @@ def persist_empirical_calibration_evidence(
         schema_version=EVIDENCE_SCHEMA_VERSION,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return EmpiricalCalibrationEvidenceRef.model_validate(payload)
 

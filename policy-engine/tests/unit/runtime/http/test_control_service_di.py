@@ -4715,6 +4715,16 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert association["model_spec_ref"] == selected["ir.model_spec"]
         assert association["policy_spec_ref"] == selected["ir.policy_spec"]
         assert association["calibration_rule_ref"] == selected["ir.forecast_calibration_rule"]
+        evidence_ref = association["empirical_evidence_ref"]
+        assert set(evidence_ref) == {
+            "artifact_id",
+            "kind",
+            "media_type",
+            "manifest_profile_sha256",
+        }
+        assert evidence_ref["kind"] == "ir.empirical_calibration_evidence"
+        assert evidence_ref["media_type"] == "application/json"
+        assert evidence_ref["manifest_profile_sha256"]
 
         control_service = app.state.runtime_container.control_service
         assert control_service is not None

@@ -1,0 +1,519 @@
+{
+  "artifact_id": "R1216-typed-grounding-search-and-canonical-worker-source11-handoff-20261013",
+  "authority": "Source and bounded native test evidence only. Not formal finding adjudication, G acceptance, production authority, causal calibration, or closure.",
+  "canonical_worker_subreceipt": {
+    "authority": "Root author runtime receipt, not G acceptance or full PreparedB closure",
+    "closure_ids": [],
+    "command": [
+      ".venv/bin/python",
+      "-B",
+      "-c",
+      "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--maxfail=1",
+      "--maxfail=0",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+      "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_canonical_timeout_worker_replays_operations_into_changed_receiver",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/junit.xml"
+    ],
+    "counts": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 1,
+      "SKIP": 0
+    },
+    "evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/stdout.txt",
+        "sha256": "b2b903c7b87c9ef94e3284b39fa31c64ee965e1aa83cb6ebefadd1043f5fe1cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/command.json",
+        "sha256": "637ee0826401b2131b34d05ef94aa9f5d2067f1b0818ab301215873d9e67a2c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/junit.xml",
+        "sha256": "99b9fe2ab8f0adc67ca504f91fb297b98675fc90bca2d5a88589873b41e5a8df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/module-origins.json",
+        "sha256": "9d26f53878cd89d2e10927d288e30b179933f94c94b038c23b7cb16cdabad71f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/progress.json",
+        "sha256": "1c3b61715be64e021a578a3bfd4b2291e809a4de42addea21d2c5f342cba0c4d"
+      }
+    ],
+    "foreign_module_count": 0,
+    "full_source_input_count": 6217,
+    "limitations": [
+      "Darwin delete-operation replay not exercised: admitted canonical node emits set operations",
+      "Full13PreparedBcontours on the current composition remain UNRUN",
+      "No live production custody/calibration/currentness/authority proof"
+    ],
+    "own_loaded_module_count": 1536,
+    "property": "Actual admitted canonical timed ResolveParametersNode -> Darwin spawn typed NodeTask/result channel -> returned declared set-operation journal -> changed receiver merge; stripping only journal operations preserves wire markers and full outcome but loses writes",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/prepared-b-canonical-timed-worker-deciding-r1211-20261013.json",
+      "sha256": "a7964ef774052870770da646669e22f807a351c3eaaa6c6ab9f4b4c79f9ad1f2"
+    },
+    "source_stable": true,
+    "wall_seconds": 20.685846792068332
+  },
+  "capability_and_trust_limits": [
+    "The R1211 focused worker case demonstrates the admitted canonical timed ResolveParametersNode -> Darwin spawned typed task/result channel -> declared set-operation journal -> changed receiver merge, with a remove-journal-operations control. It does not exercise delete replay or close the wider Prepared-B set.",
+    "The R1218 composition includes actual Search, Stress, Grounding, native method-job and nested provenance consumers. A red run blocks aggregate acceptance despite passing boundary cases.",
+    "Five authentic confidence-vintage setup errors remain. No skip, fallback, positive production evidence, or authority upgrade is claimed.",
+    "No live production custody, calibration/currentness, institutional authority, causal adequacy, or all-contour Prepared-B closure is established by these tests."
+  ],
+  "closure_ids": [],
+  "formal_acceptance": false,
+  "historical_pre_candidate_r1175": {
+    "counts": {
+      "ERROR": 5,
+      "FAIL": 58,
+      "PASS": 153,
+      "SKIP": 0,
+      "cases": 216
+    },
+    "disposition": "Historical failed baseline only, not a current-source result and not inherited debt. R1203 notes its changed Search paths intersect the later source; R1218 is the actual current-source run.",
+    "handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1180-independent-search-stress-grounding-source-handoff-20261013.json",
+      "sha256": "e0857c8284ec6b247b1ac41ddfd11a949f9133e4466d03a967b442c6c85ab2e5"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/junit.xml",
+      "sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101"
+    },
+    "source_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "source_path_denominator": 574
+  },
+  "independent_reviews": [
+    {
+      "closure_ids": [],
+      "decision": "GO",
+      "id": "R1181",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1181-stress-selected-basis-native-consumer-companion-independent-20261013.json",
+      "scope": "Narrow Stress selected-basis native replay only; no closure.",
+      "sha256": "f58b3f212c96b221529647b5d609419c302b5a486c1cbbc92b3663a07607304b"
+    },
+    {
+      "closure_ids": [],
+      "decision": "GO_SCOPED",
+      "id": "R1184",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1184-prepared-b-worker-full-ref-control-independent-20261013.json",
+      "scope": "Canonical timed-worker full-reference/removal-control review; root-only native scope.",
+      "sha256": "e1535931388fe877cb825045ba4409161ba8ce951054a08d92869be4929931f1"
+    },
+    {
+      "closure_ids": [],
+      "decision": "GO_FOR_FOCUSED_NATIVE_GROUNDING_AND_REPLAY_WAVE_ONLY",
+      "id": "R1187",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1187-grounding-typed-snapshot-ordinary-consumer-independent-20261013.json",
+      "scope": "Typed snapshot ordinary consumer, focused Grounding/replay only.",
+      "sha256": "2fe74aed8154a0dceb52f05c0c73235d751134e33112630d451fcbd4b05db8f7"
+    },
+    {
+      "closure_ids": [],
+      "decision": "GO_FOR_FOCUSED_ROOT_NATIVE_REPLAY_ONLY",
+      "id": "R1198",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1198-grounding-nested-provenance-replay-current-delta-independent-20261013.json",
+      "scope": "Nested captured provenance copy/freeze, mutation isolation, DTO JSON round trip and fresh-edge replay.",
+      "sha256": "912ff80dfc2593e00dfe9a9a054e670eb702400ab581ac38e90546a986c631d6"
+    },
+    {
+      "closure_ids": [],
+      "decision": "GO_FOR_FOCUSED_COMPOSED_NATIVE_WAVE",
+      "id": "R1202",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.json",
+      "scope": "Complete typed SearchIteration/ObjectiveValue row at actual second Gateway request; durable owner/threshold controls retained.",
+      "sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074"
+    },
+    {
+      "closure_ids": [],
+      "decision": "GO_FOR_ROOT_CONTROLLED_COMPOSED_NATIVE_WAVE",
+      "id": "R1203",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1203-composed-real-consumer-repair-freeze-independent-20261013.json",
+      "scope": "Static 3-stage composition/source-freeze integrity; formal_acceptance=false.",
+      "sha256": "111420bafb68bc5f9b6d635724ac5276f4051c4180c0190ae77f898e4139d2f8"
+    },
+    {
+      "closure_ids": [],
+      "decision": "BLOCK on the earlier R1172 candidate; retained as history, not the current verdict",
+      "id": "R1186",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1186-search-owned-history-current-native-consumer-independent-20261013.json",
+      "resolution_refs": [
+        {
+          "id": "R1186-correction-addendum",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1186-r1202-comprehension-correction-addendum-20261013.json",
+          "sha256": "8d727bcc0b4bf826baba9332e7eb01b9b2620aa93ccc4513d7ff33f9baac1d94"
+        },
+        {
+          "id": "R1202",
+          "path": "policy-engine/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.json",
+          "sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074"
+        }
+      ],
+      "sha256": "fd48b4ccffbfe845205dbe6d807fbb3150f91d77297d6a2a5255985de74911a2"
+    }
+  ],
+  "native_run": {
+    "backend_profile": {
+      "botorch": "0.16.1",
+      "duckdb": "1.4.3",
+      "gpytorch": "1.15.1",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pydantic-core": "2.41.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "scipy": "1.16.3",
+      "torch": "2.10.0"
+    },
+    "command_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/command.json",
+      "sha256": "4852f9338232dc640b675520a5edf6170a6a767403c1d1855b6279110d81dc33"
+    },
+    "confirmed_passing_boundaries": [
+      "tests/unit/scientist/search/test_search_loop.py selector: all cases in this module passed; includes the complete source-owned history consumer coverage reviewed in R1202.",
+      "test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+      "test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+      "test_n9_credal_edge_replay_round_trips_nested_captured_provenance"
+    ],
+    "counts": {
+      "ERROR": 5,
+      "FAIL": 3,
+      "PASS": 210,
+      "SKIP": 0,
+      "cases": 218
+    },
+    "deciding_outputs": [
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/stdout.txt",
+        "sha256": "c2b2eec047c63876d97aacdcd5a32e876186697f45ec442a1a43f60fe786f3ad"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/junit.xml",
+        "sha256": "0b937944e55608c7661d576d30cb9d98065c80694ed51bb0ec3f8fe8f505d60a"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/command.json",
+        "sha256": "4852f9338232dc640b675520a5edf6170a6a767403c1d1855b6279110d81dc33"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/progress.json",
+        "sha256": "d61c47afe4b2a4feb3f5b64626b37db26249743a8e33a4ecc7ba3117424cc0f7"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/module-origins.json",
+        "sha256": "f3c4d0f7993ccf6b3484d8f86b159eb4b754cfd6188ec20a419104b7da4ffc97"
+      },
+      {
+        "availability": "local retained ignored raw",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/full-failure-boundaries.json",
+        "sha256": "31023fcd2034c05758936a7a4ae809bc0322d4889f468ce6ba252a92d796bbe2"
+      }
+    ],
+    "environment": {
+      "E02_MODULE_ORIGINS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/module-origins.json",
+      "E02_PROGRESS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/progress.json",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "POLISYOS_RUN_INTEGRATION": "1",
+      "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "SCIENTIST_TORCH_DEVICE": "cpu",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_THREADS": "1"
+    },
+    "error_boundary": {
+      "classification": "Authentic selected Academic SKG confidence-vintage refusal occurs before five assertions; preserve the errors and refusal, do not skip/fallback or claim positive production evidence.",
+      "count": 5,
+      "next_check": "controlled semantic laws R1219 separately, genuine custodied source packet for production positive; preserve original refusal and ERROR, no skip/fallback",
+      "property": "authentic selected Academic SKG confidence vintage refusal before five assertions",
+      "review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1197-credal-production-vintage-fixture-boundary-investigation-20261013.json",
+        "sha256": "2439343c6716625661594526731ffbf5b084a68ea9378b045734500d139880fc"
+      }
+    },
+    "exit_code": 1,
+    "failure_boundaries": [
+      {
+        "observed": "ArtifactID assertion mismatch; see full retained failure boundary for exact output.",
+        "test": "tests.unit.scientist.search.test_adversarial.test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent"
+      },
+      {
+        "observed": "expected 'invalid', received 'profile_mismatch'.",
+        "test": "tests.unit.scientist.search.test_phase_d4_runtime_integration.test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts"
+      },
+      {
+        "observed": "expected fewer candidate atoms after full index build; both compared sequences have length 5.",
+        "test": "tests.unit.runtime.quality.test_grounding_relation.test_zero_hit_query_can_claim_coverage_only_after_full_index_build"
+      }
+    ],
+    "full_source_input_count": 6217,
+    "input_freeze": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1217-composed-source11-real-consumer-native-input-freeze-20261013.json",
+      "sha256": "33c6f1674617bc979791832bf784f8d02d578b939d0f6a60fd25911c64d0e5d1"
+    },
+    "next_steps": [
+      "R1222: resolve selected-payload/duplicate semantic oracle for the Stress failures; independently review and rerun affected native source on a new source identity.",
+      "R1223: repair Grounding full-coverage property; independently review and rerun affected native source on a new source identity.",
+      "R1219 controlled semantic laws remain separate; production-positive vintage requires a genuinely custodied source packet. Preserve the current refusal and five ERROR cases."
+    ],
+    "outcome": "Non-green actual composed run: 210 PASS, 3 FAIL, 5 ERROR, 0 SKIP. No aggregate acceptance.",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-source11-real-consumers-deciding-r1218-20261013.json",
+      "sha256": "62a8baaa593b546ab409ae9857f26210eec010dbefaef7ddfe078cd023d5b268"
+    },
+    "runner": "Root-controlled actual native capture, R1218",
+    "selected_test_targets": [
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/runtime/quality/test_credal_reference.py",
+      "tests/unit/runtime/quality/test_grounding_bind.py",
+      "tests/unit/runtime/quality/test_grounding_relation.py",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+      "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_edge_replay_round_trips_nested_captured_provenance"
+    ],
+    "source_stable": true,
+    "wall_seconds": 58.73157537507359
+  },
+  "pattern_pass": {
+    "P01_P02": "The source changes and selected consumers are wired through real producers/consumers, but the current composed native result remains red; no overall capability acceptance is claimed.",
+    "P04_P05_P09_P15": "Refusal and ERROR status remain explicit; no authority or confidence-vintage fallback is introduced.",
+    "P29_P32": "Evidence is the real consumer/runtime result and exact bytes, not markers; R1218 failures/errors are preserved.",
+    "P35_P37_P38_P41": "Denominator is the complete 575-path source frame and 218-case R1218 run. R1218 measures the current consumer boundary. The R1175 result is prior-source history, not inherited debt.",
+    "P40": "R1194/R1202 widened the Search second-Gateway witness to the complete typed history/objective row. The remaining R1218 failures are explicit bounded follow-ups; no per-helper or per-field repair ladder is proposed here."
+  },
+  "prepared_b_contours": {
+    "closure_ids": [],
+    "count": 13,
+    "status": "UNRUN"
+  },
+  "receipt_type": "source-native handoff; Root-owned source freeze and actual native receipt",
+  "schema": "policyos.source_handoff.v1",
+  "source": {
+    "all_preimage_and_postimage_hashes_match_git_blobs": true,
+    "application_readback": {
+      "base_head": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+      "diff_check_exit": 0,
+      "index_unchanged": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/application-readback.json",
+      "postimages_match": true,
+      "preserved_index_tree": "6760392b7e39aa8b31e468f6b2fba29ede0924b3",
+      "sha256": "2b5c371a65dcc327917881b1a6cfc70f622a98304a68dae6343d8aeb95522319"
+    },
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_path_count": 11,
+    "changed_path_group_counts": {
+      "CanonicalWorker": 1,
+      "Grounding": 6,
+      "Search": 2,
+      "Stress": 2
+    },
+    "commit_readback": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "691b0082846279f318c54a8e5618807a0d810698",
+      "mismatches": [],
+      "native_at_commit_receipt_time": "UNRUN for this implementation",
+      "parents": [
+        "4e29fef01b31a6e13dbc848510503ef65fb2b7cd"
+      ],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/reviewed-typed-consumer-and-worker-source-commit-r1209-20261013/committed-source-readback.json",
+      "sha256": "2340fca7669b9783491c8409b37ba9d5729985bf42c3e0e62e7af40aef23f343",
+      "source_paths": 575,
+      "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f"
+    },
+    "composition": {
+      "net_patch_sha256": "1408fbd3abc1d1f20c37adda9407ddd2821a019fa64686aed248f5f951052580",
+      "ordered_stages": [
+        {
+          "declared_path_count": 11,
+          "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1190-search-grounding-stress-worker-locked-style-20261013/net.patch",
+          "sha256": "f590fd1d353e6ff8d87faec7f5347c3b7856773925e96556e21b68d6485a952f"
+        },
+        {
+          "declared_path_count": 1,
+          "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1192-grounding-nested-provenance-replay-consumer-control-20261013/candidate.patch",
+          "sha256": "b625c59138883748e34ba3aa0d0130dbff729d66dd051cc0b6fb19117177e664"
+        },
+        {
+          "declared_path_count": 1,
+          "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/delta.patch",
+          "sha256": "03d7513a5068566dc6dc9dc031ac58063d9e79ece0c8038e5dce86f538e5e7d8"
+        }
+      ],
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/composition.json",
+      "product_writes_during_virtual_composition": false,
+      "sha256": "cc59f9dfb08fb15972ce0e5cf53cc771482b93a3c6d11d65781783c42a49bbc6"
+    },
+    "git_range_changed_paths_equal_complete_manifest": true,
+    "head": "691b0082846279f318c54a8e5618807a0d810698",
+    "parent": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "paths": [
+      {
+        "base_git_blob_sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da",
+        "bytes": 58084,
+        "candidate_git_blob_sha256": "d8b3f459f5386e98af8a4bc84f1cb6fc9c9a8c7dbf5aeebd0889733781806921",
+        "change_kind": "documentation",
+        "component": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a",
+        "bytes": 113026,
+        "candidate_git_blob_sha256": "d5daa6f39ac7787afc981a23c3d36253d43d3eee202428895b8fa3551b11ccd4",
+        "change_kind": "product_source",
+        "component": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520",
+        "bytes": 112056,
+        "candidate_git_blob_sha256": "765c4dfa9f813dde86f7c04509030628a92e7fc34ed2ecd091e632586103e660",
+        "change_kind": "product_source",
+        "component": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "b5bb577dba18c806452dd55924bbeaab4204367558f81427b0541518dd9f577f",
+        "bytes": 296609,
+        "candidate_git_blob_sha256": "e65e819367e9a8df6902346ab2cc42778b16f7d149bf70abb0c948722a653343",
+        "change_kind": "product_source",
+        "component": "Grounding",
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "c6f41ec5139dbf0fa665a7f55fcdb6a89cc849a489af59e8bfddf1a116614cf5",
+        "bytes": 105868,
+        "candidate_git_blob_sha256": "2fcc245ccd5cbd0fc24cfdc1eb724ca2db9b3402bb83e4daaa0fea2889df2447",
+        "change_kind": "product_source",
+        "component": "Search",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "d6e533ed45a2e109cf268b2cf91dd7dae326a0c5acab4778e43639f824ee646a",
+        "bytes": 42138,
+        "candidate_git_blob_sha256": "bb619509c952f84f5eea993f0902a87e8377dd1151b134d528e8a4ce7cdf77c7",
+        "change_kind": "test",
+        "component": "Grounding",
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197",
+        "bytes": 63583,
+        "candidate_git_blob_sha256": "28953fef5fb151328f3e61a57cc0cb94287aa0820124a4ca2442e3f9be679596",
+        "change_kind": "test",
+        "component": "Grounding",
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7",
+        "bytes": 41982,
+        "candidate_git_blob_sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+        "change_kind": "test",
+        "component": "CanonicalWorker",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "6cf89a868b14df21e9a98d599f22061386699fafb070e4cdc12c9f35f3941ea0",
+        "bytes": 39738,
+        "candidate_git_blob_sha256": "fc3e4612ed80411382393029a42447c47e19d70f012f732dddd0bc33e3b81c79",
+        "change_kind": "test",
+        "component": "Stress",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "d1ce5d1b358dbd35dddc51a6ea68124ea92473dfa324598a24006a6ce9c88bf6",
+        "bytes": 33387,
+        "candidate_git_blob_sha256": "b23d3392b62a5d537a88a73d3e7c9063daeb5c8edffc9b82968bb3f24d7fc2d2",
+        "change_kind": "test",
+        "component": "Stress",
+        "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      },
+      {
+        "base_git_blob_sha256": "e8d437cd3d7127e9c63af91da488fd8bfdc80fba939c0c80f0dbf991bd9aff36",
+        "bytes": 96036,
+        "candidate_git_blob_sha256": "89229f52da7c6e353a3b3f3c24fff9f6115aa00de0585ee5a555e4a65917d354",
+        "change_kind": "test",
+        "component": "Search",
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+        "verified_against_base_and_candidate_git_blobs": true
+      }
+    ],
+    "physical_source_path_denominator": 575,
+    "product_root": "policy-engine/",
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "root_is_sole_product_writer": true,
+    "slice_base": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+      "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779"
+    },
+    "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+    "worktree_postimages_equal_candidate_git_blobs": true
+  },
+  "static_quality": {
+    "python_postimage_count": 10,
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/root-quality-r1093.json",
+      "sha256": "92e9a7d1c864042e55b0b47a192a147e488ed8dc362ac72880a319484f0b4921"
+    },
+    "ruff_check_and_format_results": 20,
+    "ruff_exit_zero": 20,
+    "runtime_verification_in_static_receipt": "UNRUN",
+    "scope_note": "All Ruff results bind the exact candidate postimage SHA; source commit readback confirms those postimages are the current Git blobs. R1218 is the later actual runtime/native evidence.",
+    "stdlib_ast_parse": "PASS 10/10"
+  },
+  "status": "The 11-path source is committed and fully read back. R1218 ran on that exact source and is red (3 FAIL, 5 ERROR); focused follow-up and a new affected-source replay are required before any aggregate acceptance.",
+  "support_artifact": {
+    "bytes": 8236,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1216-typed-grounding-search-and-canonical-worker-source11-handoff-20261013-support.json",
+    "sha256": "50579f4a5d703d8d7bb8d937436b1bf4706467bd5932e4cd2dd585390b1ee660"
+  }
+}

@@ -1,0 +1,310 @@
+{
+  "P37_P41_boundary": "Ruff/AST receipts are structural evidence only. The R1175 JUnit result is a historical pre-candidate failure baseline (58 failures, 5 errors among 216; not skips) and intersects changed Search paths, so it is not carried as inherited debt. No candidate runtime result or G closure is claimed.",
+  "P38": {
+    "divergence": "none found",
+    "measurement": "apply unified-diff hunks in memory against HEAD blobs, validate stage pre/post hashes, and compare every final overlay byte with the independently reconstructed net-patch output",
+    "property": "the frozen ordered 3-stage candidate is byte-identical to the declared 11-path final net patch"
+  },
+  "P40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "finding": "R1194 widens the same producer-to-second-Gateway history-preservation test from selected fields to the complete source-owned row; R1202 confirms dynamic dataclass-field-set oracle. No new patch ladder is proposed."
+  },
+  "artifact": "R1203 independent composed real-consumer repair source-freeze validation",
+  "closure_ids": [],
+  "component_reviews": {
+    "R1186_correction_addendum": {
+      "effect": "withdraws mistaken duplicate-comprehension note; preserves substantive R1186 test gap and its R1194/R1202 resolution",
+      "json_sha256": "8d727bcc0b4bf826baba9332e7eb01b9b2620aa93ccc4513d7ff33f9baac1d94",
+      "md_sha256": "73b8b0e251d4e022857f3a73f1147131235bfd89a9c41511e24781b10560228d"
+    },
+    "R1202": {
+      "decision": "GO_FOR_FOCUSED_COMPOSED_NATIVE_WAVE",
+      "effect": "independent GO confirms R1194 full SearchIteration and ObjectiveValue fieldsets at actual second HTTP request; runtime remains unrun",
+      "json_sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074",
+      "md_sha256": "f928ad47ac6c7954682721556a3c5bb23b1ab538118d98be95e903550c34107c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.md"
+    },
+    "prior_independent_reviews": {
+      "R1181": "GO Stress selected-basis controls",
+      "R1184": "GO Prepared-B worker full-ref controls",
+      "R1186": "BLOCK on second-Gateway field completeness at the R1190 base",
+      "R1187": "GO Grounding typed snapshot consumers",
+      "R1198": "GO nested replay provenance"
+    },
+    "receipts": {
+      "r1181_stress_review": {
+        "bytes": 5485,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1181-stress-selected-basis-native-consumer-companion-independent-20261013.md",
+        "sha256": "8e36a304c02da67db230b04feab1b5da8cafcc6fb0c46103f95b4203199fda5d"
+      },
+      "r1184_worker_review": {
+        "bytes": 2323,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1184-prepared-b-worker-full-ref-control-independent-20261013.md",
+        "sha256": "7933d7a9c766d98136f8a8e56aefc908da5f29706c3f206cd8b3c1d8d62fc380"
+      },
+      "r1186_correction_addendum_json": {
+        "bytes": 859,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1186-r1202-comprehension-correction-addendum-20261013.json",
+        "sha256": "8d727bcc0b4bf826baba9332e7eb01b9b2620aa93ccc4513d7ff33f9baac1d94"
+      },
+      "r1186_correction_addendum_md": {
+        "bytes": 1034,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1186-r1202-comprehension-correction-addendum-20261013.md",
+        "sha256": "73b8b0e251d4e022857f3a73f1147131235bfd89a9c41511e24781b10560228d"
+      },
+      "r1186_search_review": {
+        "bytes": 6057,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1186-search-owned-history-current-native-consumer-independent-20261013.md",
+        "sha256": "c7e73aa46088b2ca793e5025a05d0d212aa5ba26a9deadfb490f884def43c712"
+      },
+      "r1187_grounding_review": {
+        "bytes": 3255,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1187-grounding-typed-snapshot-ordinary-consumer-independent-20261013.md",
+        "sha256": "9bfcd7392b17cf40153cfb94467f6ded0e1b8ae417f7b9cfe9f9fe2095a707f5"
+      },
+      "r1190_composition": {
+        "bytes": 8721,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1190-search-grounding-stress-worker-locked-style-20261013/composition.json",
+        "sha256": "9effa2570b2331d337376640a777cac236350a50c89b77e99e990f3f159c940c"
+      },
+      "r1190_locked_style_readback": {
+        "bytes": 3766,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1190-search-grounding-stress-worker-locked-style-20261013/locked-style-readback.json",
+        "sha256": "a845e6c8af7171aaa6fb46bbf22cb17d2b5a38cac6f0db7e4d6a9e01c010056c"
+      },
+      "r1192_manifest": {
+        "bytes": 4557,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1192-grounding-nested-provenance-replay-consumer-control-20261013/manifest.json",
+        "sha256": "115ba976d6b339e6cedb37e2bd7302f06048657e5aae0686aa1468d6ba640571"
+      },
+      "r1192_static_checks": {
+        "bytes": 2982,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1192-grounding-nested-provenance-replay-consumer-control-20261013/static-checks.json",
+        "sha256": "1e4d7adefb47f8d82308ece712a60a332220926cd064d68ce76e40d5c3ee875d"
+      },
+      "r1194_ast": {
+        "bytes": 107,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/outputs/ast-parse.txt",
+        "sha256": "401919afd749d85e414d6c2e9b390dff84bbe433c1eb8f0c3da51dbd11b3e2d2"
+      },
+      "r1194_decision": {
+        "bytes": 4190,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/decision.md",
+        "sha256": "f5352fff28c85ed0cc025c0d841efd6110dfc6ff32cc38e196da282420de769c"
+      },
+      "r1194_manifest": {
+        "bytes": 8288,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/manifest.json",
+        "sha256": "1a049c5eaaa2f86ccb2570be9d791d1d8232a3bd0517cbb47e67e30435d44162"
+      },
+      "r1194_patch_apply_readback": {
+        "bytes": 78,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/outputs/patch-apply.txt",
+        "sha256": "5d61ed7f47f6ab87670c721ab641efb5e08f9e749e4002f504332e7f00f58233"
+      },
+      "r1194_ruff_check": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/outputs/ruff-check.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "r1194_ruff_format": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/outputs/ruff-format.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "r1198_nested_review": {
+        "bytes": 2746,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1198-grounding-nested-provenance-replay-current-delta-independent-20261013.md",
+        "sha256": "aacb61b33e23a6a9e8956dd43261a6e92a1717c4bbefc069d027470c115158e7"
+      },
+      "r1202_independent_review_json": {
+        "bytes": 3380,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.json",
+        "sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074"
+      },
+      "r1202_independent_review_md": {
+        "bytes": 4937,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.md",
+        "sha256": "f928ad47ac6c7954682721556a3c5bb23b1ab538118d98be95e903550c34107c"
+      }
+    }
+  },
+  "composition": {
+    "all_overlays_equal_reconstructed_final_bytes": true,
+    "component_stages": [
+      {
+        "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1190-search-grounding-stress-worker-locked-style-20261013/net.patch",
+        "path_count": 11,
+        "paths": [
+          "policy-engine/src/polisyos/runtime/quality/README.md",
+          "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+          "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+          "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+          "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+          "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+          "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+          "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+          "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+        ],
+        "sha256": "f590fd1d353e6ff8d87faec7f5347c3b7856773925e96556e21b68d6485a952f"
+      },
+      {
+        "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1192-grounding-nested-provenance-replay-consumer-control-20261013/candidate.patch",
+        "path_count": 1,
+        "paths": [
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py"
+        ],
+        "sha256": "b625c59138883748e34ba3aa0d0130dbff729d66dd051cc0b6fb19117177e664"
+      },
+      {
+        "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1194-search-second-gateway-whole-owned-record-control-20261013/delta.patch",
+        "path_count": 1,
+        "paths": [
+          "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+        ],
+        "sha256": "03d7513a5068566dc6dc9dc031ac58063d9e79ece0c8038e5dce86f538e5e7d8"
+      }
+    ],
+    "controlled_overlaps": {
+      "R1192": [
+        "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py"
+      ],
+      "R1192_R1194_overlap": false,
+      "R1194": [
+        "policy-engine/tests/unit/scientist/search/test_search_loop.py"
+      ]
+    },
+    "final_paths": [
+      {
+        "bytes": 58084,
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "postimage_sha256": "d8b3f459f5386e98af8a4bc84f1cb6fc9c9a8c7dbf5aeebd0889733781806921",
+        "preimage_sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da"
+      },
+      {
+        "bytes": 113026,
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "postimage_sha256": "d5daa6f39ac7787afc981a23c3d36253d43d3eee202428895b8fa3551b11ccd4",
+        "preimage_sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a"
+      },
+      {
+        "bytes": 112056,
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "postimage_sha256": "765c4dfa9f813dde86f7c04509030628a92e7fc34ed2ecd091e632586103e660",
+        "preimage_sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520"
+      },
+      {
+        "bytes": 296609,
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "postimage_sha256": "e65e819367e9a8df6902346ab2cc42778b16f7d149bf70abb0c948722a653343",
+        "preimage_sha256": "b5bb577dba18c806452dd55924bbeaab4204367558f81427b0541518dd9f577f"
+      },
+      {
+        "bytes": 105868,
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "postimage_sha256": "2fcc245ccd5cbd0fc24cfdc1eb724ca2db9b3402bb83e4daaa0fea2889df2447",
+        "preimage_sha256": "c6f41ec5139dbf0fa665a7f55fcdb6a89cc849a489af59e8bfddf1a116614cf5"
+      },
+      {
+        "bytes": 42138,
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "postimage_sha256": "bb619509c952f84f5eea993f0902a87e8377dd1151b134d528e8a4ce7cdf77c7",
+        "preimage_sha256": "d6e533ed45a2e109cf268b2cf91dd7dae326a0c5acab4778e43639f824ee646a"
+      },
+      {
+        "bytes": 63583,
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "postimage_sha256": "28953fef5fb151328f3e61a57cc0cb94287aa0820124a4ca2442e3f9be679596",
+        "preimage_sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197"
+      },
+      {
+        "bytes": 41982,
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "postimage_sha256": "2ed9d2ce7147ceaf89617d54f60a3c34eb085253bd6942b8c7133ef11604b242",
+        "preimage_sha256": "3ab9aa4c1e5f9e43a20e2d0e6c550d90a0fc8eb0bc40c7cd379d1280056d43e7"
+      },
+      {
+        "bytes": 39738,
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "postimage_sha256": "fc3e4612ed80411382393029a42447c47e19d70f012f732dddd0bc33e3b81c79",
+        "preimage_sha256": "6cf89a868b14df21e9a98d599f22061386699fafb070e4cdc12c9f35f3941ea0"
+      },
+      {
+        "bytes": 33387,
+        "path": "policy-engine/tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+        "postimage_sha256": "b23d3392b62a5d537a88a73d3e7c9063daeb5c8edffc9b82968bb3f24d7fc2d2",
+        "preimage_sha256": "d1ce5d1b358dbd35dddc51a6ea68124ea92473dfa324598a24006a6ce9c88bf6"
+      },
+      {
+        "bytes": 96036,
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+        "postimage_sha256": "89229f52da7c6e353a3b3f3c24fff9f6115aa00de0585ee5a555e4a65917d354",
+        "preimage_sha256": "e8d437cd3d7127e9c63af91da488fd8bfdc80fba939c0c80f0dbf991bd9aff36"
+      }
+    ],
+    "final_unique_path_count": 11,
+    "net_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/net.patch",
+    "net_patch_sha256": "1408fbd3abc1d1f20c37adda9407ddd2821a019fa64686aed248f5f951052580",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/composition.json",
+    "sequential_stage_outputs_equal_net_patch": true,
+    "sha256": "cc59f9dfb08fb15972ce0e5cf53cc771482b93a3c6d11d65781783c42a49bbc6",
+    "stage_path_counts": [
+      11,
+      1,
+      1
+    ]
+  },
+  "decision": "GO_FOR_ROOT_CONTROLLED_COMPOSED_NATIVE_WAVE",
+  "formal_acceptance": false,
+  "inputs": {
+    "R1175_junit_sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101",
+    "R1202_json_sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074",
+    "R1202_md_sha256": "f928ad47ac6c7954682721556a3c5bb23b1ab538118d98be95e903550c34107c",
+    "composition_sha256": "cc59f9dfb08fb15972ce0e5cf53cc771482b93a3c6d11d65781783c42a49bbc6",
+    "frame_sha256": "80e00b4a93b017b3be7180514c61228fc713aff151514169e6393d1aeceb46d6",
+    "net_patch_sha256": "1408fbd3abc1d1f20c37adda9407ddd2821a019fa64686aed248f5f951052580",
+    "quality_sha256": "92e9a7d1c864042e55b0b47a192a147e488ed8dc362ac72880a319484f0b4921"
+  },
+  "mandatory_companions": {
+    "outside_mechanism_records": "composition/net patch/overlay, R1190 style readback, R1192 manifest/static checks, R1194 decision and output receipts, source frame, final quality receipt, prior independent reviews/addendum are present and hash-bound",
+    "semantic_tests": "six changed test modules are part of the footprint; R1202 independently approves the repaired second-request fieldset test",
+    "source_document": "quality README is part of the 11-path footprint"
+  },
+  "prior_native_baseline": {
+    "errors": 5,
+    "failures": 58,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/junit.xml",
+    "sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101",
+    "skipped": 0,
+    "status": "historical pre-candidate baseline; not a replay of this composition",
+    "tests": 216
+  },
+  "quality": {
+    "python_postimage_count": 10,
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1200-search-grounding-full-consumer-controlled-companions-20261013/root-quality-r1093.json",
+    "receipt_sha256": "92e9a7d1c864042e55b0b47a192a147e488ed8dc362ac72880a319484f0b4921",
+    "results_bind_exact_postimage_sha256": true,
+    "ruff_check_and_format_results": 20,
+    "ruff_exit_zero": 20,
+    "runtime_verification": "UNRUN",
+    "stdin_filenames_product_relative": true,
+    "stdlib_ast_parse": "PASS 10/10"
+  },
+  "scope": "Static composition/source-freeze integrity only; no source application, pytest, product imports, or native runtime by reviewer.",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_frame": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1195-20261013.json",
+      "physical_postimages_verified": 574,
+      "physical_source_path_denominator": 574,
+      "sha256": "80e00b4a93b017b3be7180514c61228fc713aff151514169e6393d1aeceb46d6"
+    },
+    "tracked_index_diff": false,
+    "tracked_worktree_diff": false,
+    "tree": "6760392b7e39aa8b31e468f6b2fba29ede0924b3"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "head": "691b0082846279f318c54a8e5618807a0d810698",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779"
+  },
+  "review": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1184-prepared-b-worker-full-ref-control-independent-20261013.json",
+    "sha256": "e1535931388fe877cb825045ba4409161ba8ce951054a08d92869be4929931f1"
+  },
+  "test_selector": "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_canonical_timeout_worker_replays_operations_into_changed_receiver",
+  "typed_producer": "actual canonical ResolveParametersNode via execute_with_retry_sync timeout30s \u2192 Darwin NodeTask spawn and result codec \u2192 changed receiver merge",
+  "input_profile": "temporary controlled SKG DuckDB/CAS/RunContext/selectedRegistry; no production confidence/calibration/currentness grant",
+  "property": "real timed result declared set mutations drive consumer; clearing mutation rows retains wire markers and complete outcome but loses node writes",
+  "backend_profile": "reused locked Python3.14.3 CPU numpy16draws; Torch1/1; heavy_slots1",
+  "wall_budget_seconds": 300,
+  "closure_ids": []
+}

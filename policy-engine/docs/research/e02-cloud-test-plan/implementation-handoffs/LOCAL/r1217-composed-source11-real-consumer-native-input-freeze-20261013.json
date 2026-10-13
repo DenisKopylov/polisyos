@@ -1,0 +1,57 @@
+{
+  "head": "691b0082846279f318c54a8e5618807a0d810698",
+  "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779",
+    "source_paths": 575
+  },
+  "scope": "R1217 actual composed Source11 current typed Grounding, whole second-Gateway Search record, stress basis controls, and nested actual N9 DTO replay; not full global acceptance. Protected12/ABM2/Transfer12 successors unapplied. Production fixture refusals retained as ERROR, not skip or inherited.",
+  "reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1203-composed-real-consumer-repair-freeze-independent-20261013.json",
+      "sha256": "111420bafb68bc5f9b6d635724ac5276f4051c4180c0190ae77f898e4139d2f8"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1202-search-second-gateway-complete-record-delta-independent-20261013.json",
+      "sha256": "b4bd499c738a7db92e3aaf0fa41b6ef1d5ccd78480a284c6a3444dcb06bc5074"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1198-grounding-nested-provenance-replay-current-delta-independent-20261013.json",
+      "sha256": "912ff80dfc2593e00dfe9a9a054e670eb702400ab581ac38e90546a986c631d6"
+    }
+  ],
+  "test_targets": [
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/runtime/quality/test_credal_reference.py",
+    "tests/unit/runtime/quality/test_grounding_bind.py",
+    "tests/unit/runtime/quality/test_grounding_relation.py",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_edge_replay_round_trips_nested_captured_provenance"
+  ],
+  "backend_profile": {
+    "pydantic": "2.12.5",
+    "pydantic-core": "2.41.5",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "scipy": "1.16.3",
+    "numpy": "2.3.5",
+    "ruff": "0.14.10",
+    "pytest": "9.0.2",
+    "duckdb": "1.4.3"
+  },
+  "numerical_profile": {
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+    "heavy_slots": 1
+  },
+  "selected_inputs": "Repository genuine producers with controlled CAS, synthetic fixtures and selected profile/context; no live production custody/currentness/permission claim",
+  "wall_budget_seconds": 300,
+  "closure_ids": []
+}

@@ -1,0 +1,48 @@
+{
+  "review": "R1212 targeted ABM reference comparison assertion review",
+  "verdict": "BLOCK current frozen R1188 test patch until assertion is corrected",
+  "closure_ids": [],
+  "finding_classification": "NEW test-oracle defect, separate from the strict-DTO consumer-gap class",
+  "p38": {
+    "property": "Core-to-IR selected artifact-reference identity is preserved across layer-specific DTO conversion",
+    "implementation_under_test": "Pydantic BaseModel equality between two deliberately different concrete ref classes",
+    "divergent_case": "non-null single_step_basis refs with equal fields but IR and Core model classes differ",
+    "required_identity_fields": [
+      "artifact_id",
+      "kind",
+      "media_type",
+      "manifest_profile_sha256"
+    ]
+  },
+  "candidate": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1188-abm-execution-source-dto-companion-20261013/proposal.patch",
+    "sha256": "28b9c17901438560d82af2343d53bf39514a46bba4a5219fb45e5be116f32b9c",
+    "affected_added_assertion": "assert result.execution_input_basis_ref == simulation.execution_input_basis_ref",
+    "current_status": "virtual, unapplied"
+  },
+  "evidence": {
+    "current_head": "691b0082846279f318c54a8e5618807a0d810698",
+    "current_tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+    "current_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "current_frame_sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779",
+    "current_target_preimages_match": true,
+    "ir_source_sha256": "1f87901cf69a44b480350dc896a18ed0340bcbbffa5e2505a14eadaa81a1f939",
+    "test_source_sha256": "7c51c0ca869a0c110b9567bba70366fb120df91fb3bd4a30f05080fd95bad354",
+    "pydantic_base_model_source": "policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py",
+    "pydantic_base_model_source_sha256": "5994f1c16f358a097be58d34cc72499a8537a82352cbed4a084984b013dfb624",
+    "comparison_rule": "BaseModel.__eq__ requires equal concrete model classes or equal generic origins before field equality",
+    "ir_ref_class": "_ABMExecutionInputBasisArtifactRef -> ArtifactRefModel -> BaseModel",
+    "core_ref_class": "FoundryExecutionInputBasisRef -> ArtifactRef -> BaseModel"
+  },
+  "recommended_test_change": "Compare normalized reference identity across artifact_id, kind, media_type, and manifest_profile_sha256; retain the distinct-class assertion.",
+  "verification": {
+    "test_run": "not run per instruction",
+    "production_source_change": "none",
+    "conclusion_basis": "static class-hierarchy and installed Pydantic equality source inspection"
+  },
+  "source_review": {
+    "prior_review_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1206-abm-execution-source-dto-companion-independent-20261013.md",
+    "prior_review_sha256": "0703b74fab378b57b93cf47803b279043f6ca40d71ef1d2818951c5c3de89c4f",
+    "source_change_verdict": "remains structurally sound for root composition after the test oracle is corrected"
+  }
+}

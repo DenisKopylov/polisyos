@@ -1,0 +1,62 @@
+{
+  "review_id": "R1225",
+  "title": "Independent S1 fallback semantic companion style-delta review",
+  "verdict": "GO_STYLE_DELTA",
+  "closure_ids": [],
+  "authority": "Read-only style-delta review. It does not claim test execution, native replay, production-source repair, G adjudication, or capability closure.",
+  "source_boundary": {
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "691b0082846279f318c54a8e5618807a0d810698",
+    "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+    "source_frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "source_frame_sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779",
+    "frame_reported_physical_paths": 575,
+    "target_path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "target_current_preimage_sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+  },
+  "candidate": {
+    "composition": "raw/r1224-s1-test-companion-final-composition-20261013/composition.json",
+    "composition_sha256": "4418956c36a00b7f142228312b148810bceffa82f456dd354f5afe9c6c93bd2a",
+    "net_patch": "raw/r1224-s1-test-companion-final-composition-20261013/net.patch",
+    "net_patch_sha256": "243769e8ea835cc2b98b6ce8af8a12bb162bb2e93036db9858baf16481aff200",
+    "style_readback": "raw/r1224-s1-test-companion-locked-style-20261013/locked-style-readback.json",
+    "style_readback_sha256": "8969b30a6ec906ee3334350f417d76a0fc0e986680da337be13d09fe81565328",
+    "root_quality_receipt": "raw/r1224-s1-test-companion-final-composition-20261013/root-quality-r1093.json",
+    "root_quality_receipt_sha256": "06cce5e52f0a651a6d31c9b2e6f85e87881ad4825fea7f5bc0d46c02ee34e7ff",
+    "current_candidate_status": "virtual_only_not_applied"
+  },
+  "semantic_baseline": {
+    "prior_review": "reviews/r1199-simulation-fallback-joint-oracle-independent-20261013.json",
+    "prior_review_sha256": "a3d548711bf3998cfee0a573c489e556a9a808d0d3bd2da90cff06200702e68c",
+    "prior_verdict": "GO_SCOPED_NATIVE",
+    "prior_semantic_patch": "raw/r1185-simulation-engine-fallback-order-semantic-control-20261013/candidate.patch",
+    "prior_semantic_patch_sha256": "06e1b8a5700833a7d8b52221a173aec04450d7df9623fdffa209b15c4317480d",
+    "prior_virtual_postimage_sha256": "178ab34ce960f8012d8a10306a3f1f6122b7934eea60bfdfbd638c2562eb97cc"
+  },
+  "equivalence": {
+    "root_formatted_virtual_postimage_sha256": "11044da8d366bb630a4576530d485c4d72a5686b422e673c78f65fdc6e14847d",
+    "reconstructed_from_same_current_preimage": true,
+    "ast_equal_with_type_comments": true,
+    "type_ignore_tags_and_line_positions_equal": true,
+    "significant_tokens_and_comments_equal": true,
+    "ordered_fallback_cases_retained": [
+      "incompatible-first then compatible candidate selected",
+      "compatible-first short-circuits later candidates"
+    ],
+    "persisted_result_and_fresh_reader_controls_retained": true,
+    "all_candidates_rejected_persisted_refusal_control_retained": true,
+    "sibling_conflict_refuses_before_execution_control_retained": true
+  },
+  "quality": {
+    "ruff_check": "Root receipt records exit 0 for configured Ruff 0.14.10 with stdin filename tests/unit/runtime/quality/test_joint_simulation_horizon.py; reviewer inspected receipt but did not rerun.",
+    "ruff_format": "Root receipt records exit 0 for configured Ruff 0.14.10 format --check with the same stdin filename; reviewer inspected receipt but did not rerun.",
+    "pytest_or_native_replay": "UNRUN"
+  },
+  "quantity_and_limits": {
+    "p40_bucket": "SAME_CLASS_DEEPER already reviewed in R1199; this layout-only delta adds no behavioral finding and does not start a new repair round.",
+    "scope": "One test file only; no production source path is changed by this delta.",
+    "closure_ids": [],
+    "separate_workstream": "ABM2/R1214 is separate and does not block this independent test-one style-delta disposition."
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "authority": "Root author runtime receipt, not G acceptance or full PreparedB closure",
+  "source_head": "691b0082846279f318c54a8e5618807a0d810698",
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779"
+  },
+  "counts": {
+    "PASS": 1,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "wall_seconds": 20.685846792068332,
+  "source_stable": true,
+  "full_source_input_count": 6217,
+  "own_loaded_module_count": 1536,
+  "foreign_module_count": 0,
+  "property": "Actual admitted canonical timed ResolveParametersNode -> Darwin spawn typed NodeTask/result channel -> returned declared set-operation journal -> changed receiver merge; stripping only journal operations preserves wire markers and full outcome but loses writes",
+  "limitations": [
+    "Darwin delete-operation replay not exercised: admitted canonical node emits set operations",
+    "Full13PreparedBcontours on the current composition remain UNRUN",
+    "No live production custody/calibration/currentness/authority proof"
+  ],
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py::test_canonical_timeout_worker_replays_operations_into_changed_receiver",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/junit.xml"
+  ],
+  "evidence": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/stdout.txt",
+      "sha256": "b2b903c7b87c9ef94e3284b39fa31c64ee965e1aa83cb6ebefadd1043f5fe1cc"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/command.json",
+      "sha256": "637ee0826401b2131b34d05ef94aa9f5d2067f1b0818ab301215873d9e67a2c6"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/junit.xml",
+      "sha256": "99b9fe2ab8f0adc67ca504f91fb297b98675fc90bca2d5a88589873b41e5a8df"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/module-origins.json",
+      "sha256": "9d26f53878cd89d2e10927d288e30b179933f94c94b038c23b7cb16cdabad71f"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-canonical-timed-worker-real-actual-r1211-20261013/progress.json",
+      "sha256": "1c3b61715be64e021a578a3bfd4b2291e809a4de42addea21d2c5f342cba0c4d"
+    }
+  ],
+  "closure_ids": []
+}

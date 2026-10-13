@@ -1,0 +1,58 @@
+{
+  "P37": "durable spend predicate remains derived from run-bound FileBudgetLedger settlement events",
+  "P38": {
+    "divergence_seen": false,
+    "predicate": "full typed history/objective field-set equality and complete expected wire-row equality",
+    "property": "complete prior producer-owned history reaches the actual second provider request"
+  },
+  "P40": {
+    "bucket": "SAME_CLASS_DEEPER",
+    "closure_pattern": "dynamic field-set checks plus whole wire-record equality; no per-field ladder",
+    "quantity": "complete typed SearchIteration row and complete ObjectiveValue child row at actual second Gateway request"
+  },
+  "P41": "R1175 failure intersects the changed Search consumer and its test; not inherited debt",
+  "closure_ids": [],
+  "decision": "GO_FOR_FOCUSED_COMPOSED_NATIVE_WAVE",
+  "decision_evidence": {
+    "actual_second_gateway_request_captured": true,
+    "durable_two_call_and_threshold_assertions_preserved": true,
+    "expected_mapping_uses_projection_helper": false,
+    "generic_dataclass_or_str_fallback_added": false,
+    "history_field_set_compared_to_dataclasses_fields": true,
+    "nested_refusal_controls_preserved": true,
+    "objective_detail_field_set_compared_to_dataclasses_fields": true,
+    "producer_record_captured_at_dispatch": true,
+    "result_history_reconciled_to_dispatch_record": true,
+    "source_controller_changed_by_delta": false,
+    "whole_decoded_wire_row_compared_to_independent_expected_mapping": true
+  },
+  "patch_apply_check": "PASS for the R1200 composed net patch; read-only dry run",
+  "patches": {
+    "r1194_base_test_sha256": "ee41e60406da809b32090217e4271d8f85ddb5ea21ebe3fabeb569eb44aea28e",
+    "r1194_delta_sha256": "03d7513a5068566dc6dc9dc031ac58063d9e79ece0c8038e5dce86f538e5e7d8",
+    "r1194_manifest_sha256": "1a049c5eaaa2f86ccb2570be9d791d1d8232a3bd0517cbb47e67e30435d44162",
+    "r1194_test_postimage_sha256": "89229f52da7c6e353a3b3f3c24fff9f6115aa00de0585ee5a555e4a65917d354",
+    "r1200_composition_sha256": "cc59f9dfb08fb15972ce0e5cf53cc771482b93a3c6d11d65781783c42a49bbc6",
+    "r1200_net_patch_sha256": "1408fbd3abc1d1f20c37adda9407ddd2821a019fa64686aed248f5f951052580"
+  },
+  "physical_source_write": false,
+  "quality": {
+    "r1194_candidate_ast_parse": "PASS per author receipt",
+    "r1194_product_ruff_0_14_10_check_and_format": "PASS per author receipt",
+    "r1200_composed_quality_receipt_sha256": "92e9a7d1c864042e55b0b47a192a147e488ed8dc362ac72880a319484f0b4921",
+    "r1200_quality_commands": 20,
+    "r1200_quality_failures": 0
+  },
+  "review": "R1202 independent delta review of R1194 whole second-Gateway Search history assertion",
+  "runtime_or_native_replay": "UNRUN",
+  "scope": "R1194 test-only delta, composed in R1200; no controller change",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1195-20261013.json",
+    "frame_sha256": "80e00b4a93b017b3be7180514c61228fc713aff151514169e6393d1aeceb46d6",
+    "head": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "physical_controller_preimage_sha256": "c6f41ec5139dbf0fa665a7f55fcdb6a89cc849a489af59e8bfddf1a116614cf5",
+    "physical_test_preimage_sha256": "e8d437cd3d7127e9c63af91da488fd8bfdc80fba939c0c80f0dbf991bd9aff36",
+    "tree": "6760392b7e39aa8b31e468f6b2fba29ede0924b3"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "artifact": "R1186 correction addendum after R1202",
+  "closure_ids": [],
+  "corrected_finding": "R1186-F2 duplicated-comprehension claim is withdrawn; the exact R1190/R1194 code has one comprehension clause",
+  "current_status": "R1194 closes that test gap; R1202 recommends GO for focused composed native wave",
+  "evidence": {
+    "r1190_base_sha256": "ee41e60406da809b32090217e4271d8f85ddb5ea21ebe3fabeb569eb44aea28e",
+    "r1194_delta_sha256": "03d7513a5068566dc6dc9dc031ac58063d9e79ece0c8038e5dce86f538e5e7d8",
+    "r1194_manifest_sha256": "1a049c5eaaa2f86ccb2570be9d791d1d8232a3bd0517cbb47e67e30435d44162",
+    "r1194_postimage_sha256": "89229f52da7c6e353a3b3f3c24fff9f6115aa00de0585ee5a555e4a65917d354"
+  },
+  "preserved_finding": "R1186 full-second-Gateway-record assertion gap was valid on the R1190 base",
+  "supersedes_or_overwrites": false
+}

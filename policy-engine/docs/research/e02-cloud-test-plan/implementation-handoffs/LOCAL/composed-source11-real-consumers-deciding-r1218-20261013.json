@@ -1,0 +1,161 @@
+{
+  "slice_base": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+  "candidate": "691b0082846279f318c54a8e5618807a0d810698",
+  "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+  "counts": {
+    "cases": 218,
+    "PASS": 210,
+    "FAIL": 3,
+    "ERROR": 5,
+    "SKIP": 0
+  },
+  "command": [
+    ".venv/bin/python",
+    "-B",
+    "-c",
+    "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300.0);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print(\"operator_wall_budget_expired\",file=sys.stderr);sys.exit(124)",
+    ".venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-ra",
+    "--maxfail=1",
+    "--maxfail=0",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+    "-p",
+    "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+    "tests/unit/scientist/search/test_search_loop.py",
+    "tests/unit/runtime/quality/test_credal_reference.py",
+    "tests/unit/runtime/quality/test_grounding_bind.py",
+    "tests/unit/runtime/quality/test_grounding_relation.py",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+    "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+    "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py::test_n9_credal_edge_replay_round_trips_nested_captured_provenance",
+    "--basetemp",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/fixtures",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/junit.xml"
+  ],
+  "backend_profile": {
+    "pydantic": "2.12.5",
+    "pydantic-core": "2.41.5",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "scipy": "1.16.3",
+    "numpy": "2.3.5",
+    "ruff": "0.14.10",
+    "pytest": "9.0.2",
+    "duckdb": "1.4.3"
+  },
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "POLISYOS_RUN_INTEGRATION": "1",
+    "SCIENTIST_TORCH_DEVICE": "cpu",
+    "SCIENTIST_TORCH_NUM_THREADS": "1",
+    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+    "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+    "E02_PROGRESS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/progress.json",
+    "E02_MODULE_ORIGINS_OUTPUT": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/module-origins.json"
+  },
+  "wall_seconds": 58.73157537507359,
+  "exit_code": 1,
+  "source_stable": true,
+  "full_source_denominator": 6217,
+  "source_frame": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779"
+  },
+  "input_freeze": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r1217-composed-source11-real-consumer-native-input-freeze-20261013.json",
+    "sha256": "33c6f1674617bc979791832bf784f8d02d578b939d0f6a60fd25911c64d0e5d1"
+  },
+  "deciding_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/stdout.txt",
+      "sha256": "c2b2eec047c63876d97aacdcd5a32e876186697f45ec442a1a43f60fe786f3ad",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/junit.xml",
+      "sha256": "0b937944e55608c7661d576d30cb9d98065c80694ed51bb0ec3f8fe8f505d60a",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/command.json",
+      "sha256": "4852f9338232dc640b675520a5edf6170a6a767403c1d1855b6279110d81dc33",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/progress.json",
+      "sha256": "d61c47afe4b2a4feb3f5b64626b37db26249743a8e33a4ecc7ba3117424cc0f7",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/module-origins.json",
+      "sha256": "f3c4d0f7993ccf6b3484d8f86b159eb4b754cfd6188ec20a419104b7da4ffc97",
+      "available": "local retained ignored raw"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1218-20261013/full-failure-boundaries.json",
+      "sha256": "31023fcd2034c05758936a7a4ae809bc0322d4889f468ce6ba252a92d796bbe2",
+      "available": "local retained ignored raw"
+    }
+  ],
+  "failure_boundaries": [
+    {
+      "name": "test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent",
+      "classname": "tests.unit.scientist.search.test_adversarial",
+      "message": "AssertionError: assert ArtifactID(ro...8f75733938f3') == ArtifactID(ro...647ed757a26f')\n  \n  Use -v to get more diff",
+      "next_check": "R1222 stress selected payload/duplicate semantic oracle or R1223 Grounding full coverage property repair → independent review → affected fresh native on new source"
+    },
+    {
+      "name": "test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts",
+      "classname": "tests.unit.scientist.search.test_phase_d4_runtime_integration",
+      "message": "AssertionError: assert 'profile_mismatch' == 'invalid'\n  \n  - invalid\n  + profile_mismatch",
+      "next_check": "R1222 stress selected payload/duplicate semantic oracle or R1223 Grounding full coverage property repair → independent review → affected fresh native on new source"
+    },
+    {
+      "name": "test_zero_hit_query_can_claim_coverage_only_after_full_index_build",
+      "classname": "tests.unit.runtime.quality.test_grounding_relation",
+      "message": "AssertionError: assert 5 < 5\n +  where 5 = len((GroundingCandidateAtom(atom_id='cg0_atom_80795ae5a65c6927', signature=MechanisticSignature(op='tax_relief_rate', X_do..._fts_full_cg0_reference',), retrieval_score=0.35, is_adversarial_countercandidate=False, countercandidate_reason=None)))\n +  and   5 = len((GroundingCandidateAtom(atom_id='cg0_atom_aa7d02af8c225a35', signature=MechanisticSignature(op='budget_allocation_mult...False, retrieval_reasons=(), retrieval_score=0.0, is_adversarial_countercandidate=False, countercandidate_reason=None)))\n +    where (GroundingCandidateAtom(atom_id='cg0_atom_aa7d02af8c225a35', signature=MechanisticSignature(op='budget_allocation_mult...False, retrieval_reasons=(), retrieval_score=0.0, is_adversarial_countercandidate=False, countercandidate_reason=None)) = <polisyos.runtime.quality.grounding_relation.GroundingRelationEngine object at 0x1478eff50>.reference_atoms",
+      "next_check": "R1222 stress selected payload/duplicate semantic oracle or R1223 Grounding full coverage property repair → independent review → affected fresh native on new source"
+    }
+  ],
+  "error_boundary": {
+    "count": 5,
+    "property": "authentic selected Academic SKG confidence vintage refusal before five assertions",
+    "source_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1197-credal-production-vintage-fixture-boundary-investigation-20261013.json",
+      "sha256": "2439343c6716625661594526731ffbf5b084a68ea9378b045734500d139880fc"
+    },
+    "next_check": "controlled semantic laws R1219 separately, genuine custodied source packet for production positive; preserve original refusal and ERROR, no skip/fallback"
+  },
+  "prior_attempt": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/composed-source11-real-consumers-actual-r1217-20261013",
+    "result": "harness FileExistsError before source capture/product run; root precreated output directory. Actual fresh R1218 executed independently."
+  },
+  "positive_scope": "Actual second HTTP whole owned SearchIteration/ObjectiveValue record preserved, nested captured provenance round-trips through actual N9 DTO, both native GP/DR consumers; remaining FAIL/ERROR preclude whole-suite acceptance. Source implementation eleven paths independent reviewed; no global closure.",
+  "P41": "Current source/test footprint intersects full6217 denominator; no inherited failure claim.",
+  "closure_ids": [],
+  "formal_g_acceptance": false,
+  "proposal_status": "limited; full-ID adjudication pending"
+}

@@ -1,0 +1,108 @@
+{
+  "review_id": "R1198",
+  "packet_id": "R1192",
+  "decision": "GO_FOR_FOCUSED_ROOT_NATIVE_REPLAY_ONLY",
+  "bucket": "SAME_CLASS_VERIFICATION_COMPANION",
+  "formal_closure_ids": [],
+  "target": {
+    "candidate_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1192-grounding-nested-provenance-replay-consumer-control-20261013/candidate.patch",
+    "candidate_sha256": "b625c59138883748e34ba3aa0d0130dbff729d66dd051cc0b6fb19117177e664",
+    "manifest_sha256": "115ba976d6b339e6cedb37e2bd7302f06048657e5aae0686aa1468d6ba640571",
+    "base_candidate_sha256": "45cc65c14deeab5919a60eedf0f4a63e647e70025021da9861c5daa0507ba039",
+    "current_frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1195-20261013.json",
+    "current_frame_sha256": "80e00b4a93b017b3be7180514c61228fc713aff151514169e6393d1aeceb46d6",
+    "head": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "tree": "6760392b7e39aa8b31e468f6b2fba29ede0924b3",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "preimages": {
+    "actual_target": {
+      "bytes": 39446,
+      "sha256": "d6e533ed45a2e109cf268b2cf91dd7dae326a0c5acab4778e43639f824ee646a"
+    },
+    "r1176_virtual_target": {
+      "bytes": 39585,
+      "sha256": "8d40b9b780809941572bbaaee1fe338a8ba0ce0978ab8722d12d38482f90ae7f"
+    },
+    "r1192_post_target": {
+      "bytes": 42138,
+      "sha256": "bb619509c952f84f5eea993f0902a87e8377dd1151b134d528e8a4ce7cdf77c7"
+    },
+    "all_six_r1176_preimages_match_current_head": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "bytes": 57938,
+        "sha256": "8ab4220e1d13bbf9d5ced86afcbfa0412b8f1d178c1fc3f0e1effad422d3e3da",
+        "matches_r1176_preimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "bytes": 111557,
+        "sha256": "f49f5364355c8a2e08a0881f999bceaae0cb022f6cc93948c0967961e0334f8a",
+        "matches_r1176_preimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "bytes": 111934,
+        "sha256": "092c8ab7e409de7b6bc2af85ac930c78af18fd1a29a10912754413b9bd6ab520",
+        "matches_r1176_preimage": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "bytes": 297014,
+        "sha256": "b5bb577dba18c806452dd55924bbeaab4204367558f81427b0541518dd9f577f",
+        "matches_r1176_preimage": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "bytes": 39446,
+        "sha256": "d6e533ed45a2e109cf268b2cf91dd7dae326a0c5acab4778e43639f824ee646a",
+        "matches_r1176_preimage": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "bytes": 63455,
+        "sha256": "0970daa38bf46d7cc9fbeb6ab36f161ff5d6e27db2246d3348729c8d46bb1197",
+        "matches_r1176_preimage": true
+      }
+    ]
+  },
+  "composition": {
+    "ordered_r1176_plus_r1192_git_apply_check_exit_code": 0,
+    "target_postimage_sha256": "bb619509c952f84f5eea993f0902a87e8377dd1151b134d528e8a4ce7cdf77c7",
+    "ast_parse": "PASS from in-memory virtual composed postimage"
+  },
+  "reviewed_property": "The nested captured provenance source is copied/frozen once, remains insulated from constructor aliases, and crosses the actual edge replay DTO JSON serialization and parse path into a fresh edge without changing wire payload or content hash.",
+  "behavioral_coverage": [
+    "A nested dict contains a list, a tuple containing a nested dict/list, and an opaque stateful fallback; expected projected values are asserted before replay.",
+    "The fallback __str__ counter remains exactly one across content-hash creation, payload reads, JSON serialization, parse, and replay.",
+    "Mutation of the original nested list and dict aliases does not change edge.to_payload().",
+    "The captured list compares to its list-valued source and list.append is refused.",
+    "_CredalEdgeReplayRecord.from_edge -> model_dump_json -> model_validate_json -> to_edge checks serialized payload equality and content_hash preservation."
+  ],
+  "ruff": {
+    "tool": "ruff 0.14.10 via policy-engine/.venv/bin/python -m ruff",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "config": "architecture/tooling/ruff/workspace_root.toml",
+    "stdin_filename": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+    "input_denominator_paths": 1,
+    "changed_paths_intersect_input_denominator": 1,
+    "check_result_actual_base": "FAIL I001",
+    "check_result_r1176_virtual_base": "FAIL same I001",
+    "check_result_r1192_virtual_candidate": "FAIL same I001",
+    "formatter_result_all_three": "PASS",
+    "P41_classification": "Do not label inherited: R1192 changes the same path that is Ruff input, so the required zero-overlap condition is not met. The I001 output is identical before and after this delta; it is an unchanged same-slice diagnostic, not shown to be introduced by the appended test."
+  },
+  "checks": {
+    "configured_ruff_check_on_base_and_candidate": "Reproduced from in-memory actual base, R1176 virtual base, and composed R1192 virtual postimage; all report the same single I001.",
+    "ruff_format_check": "PASS for actual base, R1176 virtual base, and R1192 virtual postimage.",
+    "ordered_git_apply_check": "PASS",
+    "candidate_ast_parse": "PASS",
+    "pytest": "NOT RUN by assignment",
+    "product_imports_or_native_runtime": "NOT RUN by assignment"
+  },
+  "residuals": [
+    "The configured Ruff lint is currently red on I001 for the changed file; root should resolve the import ordering before claiming a clean lint gate. This does not undermine the replay test behavior.",
+    "This review approves only the focused root native replay wave; no formal closure is claimed."
+  ]
+}

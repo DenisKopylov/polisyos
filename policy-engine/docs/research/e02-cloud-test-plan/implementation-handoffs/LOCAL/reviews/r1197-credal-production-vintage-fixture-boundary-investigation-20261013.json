@@ -1,0 +1,418 @@
+{
+  "bucket": {
+    "capability_labels": {
+      "isolated_semantic_tests_for_these_five_properties": "semantic_test_missing",
+      "live_served_currentness": "not_established",
+      "production_positive_claims": "verification_missing"
+    },
+    "p40": "SAME_CLASS SourceInput vs DataFact: one shared module-fixture source boundary, not five independent test fixes",
+    "pattern_pass": [
+      "P04",
+      "P05",
+      "P14",
+      "P32",
+      "P35"
+    ]
+  },
+  "evidence": {
+    "canonical_input_docs": {
+      "CURRENT-STATE.md": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/CURRENT-STATE.md",
+        "sha256": "7de5978672e8e3764e4302b238be546cad3b816dafc3a139f64222b8d16194dc"
+      },
+      "DECISIONS.md": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+        "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      },
+      "EXECUTION-PLAN.md": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+        "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb"
+      },
+      "INPUTS.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+        "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+      },
+      "README.md": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/README.md",
+        "sha256": "8488b27dce8836e84fdef2b352eac9ff62c38000d386be3d13945102392dc85a"
+      },
+      "TASKS.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      }
+    },
+    "l01_l02_pins_and_receipts": {
+      "assessment": "the two pinned refs contain byte-identical historical receipts; stage3 and final credal checks exit 1 at the vintage guard; successful shared replay is an explicit avg_income test_value_gate request, not a confidence-axis/currentness result",
+      "paired_receipts": {
+        "policy-engine/docs/superpowers/journals/2026-09-05-historical-cohorts.md": {
+          "L01": {
+            "bytes": 314710,
+            "sha256": "91340f83a25cb56f6f4c3d15c995875a30507f643346d3dd6c1efb3677dbf5de"
+          },
+          "L02": {
+            "bytes": 314710,
+            "sha256": "91340f83a25cb56f6f4c3d15c995875a30507f643346d3dd6c1efb3677dbf5de"
+          }
+        },
+        "policy-engine/docs/superpowers/journals/2026-09-07-layer-vintage.md": {
+          "L01": {
+            "bytes": 26391,
+            "sha256": "96fbb9754daef3e9b620bc7ab9906bdca90b45de82e92260f491a41c27599726"
+          },
+          "L02": {
+            "bytes": 26391,
+            "sha256": "96fbb9754daef3e9b620bc7ab9906bdca90b45de82e92260f491a41c27599726"
+          }
+        },
+        "policy-engine/docs/superpowers/journals/gy-phase5-evidence/pr1/stage3-credal-source.json": {
+          "L01": {
+            "bytes": 4143,
+            "contains_vintage_refusal": true,
+            "returncode": 1,
+            "sha256": "b9d8f6e7b950ab2989ede1b8b1cdbcf20354363aafec7d8dcb803d5d20a0c1c6"
+          },
+          "L02": {
+            "bytes": 4143,
+            "contains_vintage_refusal": true,
+            "returncode": 1,
+            "sha256": "b9d8f6e7b950ab2989ede1b8b1cdbcf20354363aafec7d8dcb803d5d20a0c1c6"
+          }
+        },
+        "policy-engine/docs/superpowers/journals/gy-phase5-evidence/s3/final-credal-current-check.json": {
+          "L01": {
+            "bytes": 5357,
+            "contains_vintage_refusal": true,
+            "returncode": 1,
+            "sha256": "ad3a0fdce00ef623efac18077ac0c4839dcfe1106676e8e242efaacac6c82fb2"
+          },
+          "L02": {
+            "bytes": 5357,
+            "contains_vintage_refusal": true,
+            "returncode": 1,
+            "sha256": "ad3a0fdce00ef623efac18077ac0c4839dcfe1106676e8e242efaacac6c82fb2"
+          }
+        },
+        "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/skg-real-replay.json": {
+          "L01": {
+            "bytes": 3051,
+            "returncode": 0,
+            "selected_output": {
+              "request_source": "test_value_gate exact avg_income candidate/problem/world fixture",
+              "resolution_ref": {
+                "artifact_id": "sha256:73a84409f361f0c1d8da8412c8c7fbc6fc4f663ecb510debfd9b9c1f279cbac7",
+                "kind": "runtime.production_grounding_source_resolution",
+                "media_type": "application/json"
+              },
+              "source_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+            },
+            "sha256": "5dd49def300a92d02d42cdb720a69ffbdeac0290cbc2c0c0e46b39bd751350dc",
+            "stderr_empty": true
+          },
+          "L02": {
+            "bytes": 3051,
+            "returncode": 0,
+            "selected_output": {
+              "request_source": "test_value_gate exact avg_income candidate/problem/world fixture",
+              "resolution_ref": {
+                "artifact_id": "sha256:73a84409f361f0c1d8da8412c8c7fbc6fc4f663ecb510debfd9b9c1f279cbac7",
+                "kind": "runtime.production_grounding_source_resolution",
+                "media_type": "application/json"
+              },
+              "source_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+            },
+            "sha256": "5dd49def300a92d02d42cdb720a69ffbdeac0290cbc2c0c0e46b39bd751350dc",
+            "stderr_empty": true
+          }
+        }
+      },
+      "private_local_custody_roots": {
+        "L01": {
+          "named_db_exists_at_exact_root": false,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-l01-custody-20261008/polisyos",
+          "purpose": "existing ignored custody identities/locators only; production read-only; verify availability before use"
+        },
+        "L02": {
+          "named_db_exists_at_exact_root": false,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-l02-authentic-20261008/polisyos",
+          "purpose": "source-qualified authentic inputs/locators; do not infer production currentness"
+        }
+      },
+      "remote_heads": {
+        "L01": {
+          "head": "25333d87e3e32795e2e89288d5f2bd70e8e756c9",
+          "protected_ref": "refs/e02-g/local-transition-20261009/L01-custody-20261008",
+          "remote_ref": "origin/codex/e02-L01-custody-20261008",
+          "tree": "760dcf9b09373e36308db5b2a5da7d24aa30489d"
+        },
+        "L02": {
+          "head": "c3b171010a7ce30b12d1dbd497eb646b9147afa0",
+          "protected_ref": "refs/e02-g/local-transition-20261009/L02-authentic-20261008",
+          "remote_ref": "origin/codex/e02-L02-authentic-20261008",
+          "tree": "762d1b52e7dd3be6be0ddfdd58cbd2b8c507b392"
+        }
+      }
+    },
+    "manifest_metadata_only": {
+      "academic_bundle": {
+        "academic_db_path": "policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+        "manifest_path": "policyos_academic_runtime_slim_20260411T112032Z/meta/assembly_manifest.json",
+        "path": "policyos_academic_runtime_slim_20260411T112032Z",
+        "readiness": "ready",
+        "role": "scientist_academic_runtime",
+        "version_id": "policyos_academic_runtime_slim_20260411T112032Z"
+      },
+      "assembly_manifest_path": "policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/assembly_manifest.json",
+      "assembly_manifest_sha256": "8cd13c17297054d5686222a02b8f1682c452c921518c0d238084cf3f1b64d4f2",
+      "exact_table_entries": [
+        {
+          "authoritative_for_runtime": true,
+          "mode": "rebuilt",
+          "notes": "rebuilt from table-level sources with normalized skg_version=1",
+          "path": "academic/graph/scholar_knowledge.duckdb",
+          "source_path": "",
+          "source_snapshot": "assembled"
+        },
+        {
+          "authoritative_for_runtime": true,
+          "mode": "rebuilt",
+          "notes": "copied table as authoritative remap canonical/runtime-improvement layer",
+          "path": "academic/graph/scholar_knowledge.duckdb::table/ac_skg_contested_edges",
+          "source_path": "/data/output/policyos_fullprod_1000t_20260324_canonical_remap/academic/graph/scholar_knowledge.duckdb::ac_skg_contested_edges",
+          "source_snapshot": "remap"
+        },
+        {
+          "authoritative_for_runtime": true,
+          "mode": "rebuilt",
+          "notes": "copied table as authoritative original corpus/search layer",
+          "path": "academic/graph/scholar_knowledge.duckdb::table/ac_skg_edges",
+          "source_path": "/data/output/policyos_fullprod_1000t_20260324/academic/graph/scholar_knowledge.duckdb::ac_skg_edges",
+          "source_snapshot": "original"
+        },
+        {
+          "authoritative_for_runtime": true,
+          "mode": "rebuilt",
+          "notes": "copied table as authoritative remap canonical/runtime-improvement layer",
+          "path": "academic/graph/scholar_knowledge.duckdb::table/ac_skg_family_edges",
+          "source_path": "/data/output/policyos_fullprod_1000t_20260324_canonical_remap/academic/graph/scholar_knowledge.duckdb::ac_skg_family_edges",
+          "source_snapshot": "remap"
+        }
+      ],
+      "note": "metadata declarations only; no database bytes read and no currentness inferred from manifest readiness, timestamps, or size",
+      "outer_path": "policy-engine/production_data/manifest.json",
+      "outer_sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105"
+    },
+    "no_db_payload_access": {
+      "database_hash_computed": false,
+      "database_payload_opened": false,
+      "database_queries_run": false,
+      "product_imports_run": false,
+      "source_files_written": false,
+      "tests_run": false
+    },
+    "no_replacement_release_found": false,
+    "r1175_receipt": {
+      "all_case_count": 216,
+      "command": {
+        "bytes": 1797575,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/command.json",
+        "sha256": "bfda1853de8fb79b7757d61c9e38656715936a05658c1f2c11035cd2cf03081c"
+      },
+      "credal_profile_serialized": false,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "error_case_count": 5,
+      "error_case_names": [
+        "test_contested_edge_lifts_set_valued_and_blocks_confirmation",
+        "test_fake_edge_fails_closed_out_of_scope",
+        "test_expanded_essential_scope_classes_are_counted",
+        "test_exact_and_family_edge_payloads_match_pre_split_oracles",
+        "test_reference_repair_stales_dependent_certificate"
+      ],
+      "error_setup_messages_identical": true,
+      "exit_code": 1,
+      "failure_classification": {
+        "bytes": 357820,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/failure-classification-input.json",
+        "sha256": "ba67a51c9f3aaba841b224f31be193285e046945721e4ca991477d323caf2693"
+      },
+      "junit": {
+        "bytes": 377970,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/junit.xml",
+        "sha256": "5ed47ce70dea58730132e38b53f4db50ab54deff9c551ed26e95242773585101"
+      },
+      "refusal": {
+        "binding_status": "recomputed",
+        "claim_evidence_axis": "absent",
+        "confidence_reproducibility": "not_reproducible_under_current_rule",
+        "consumer_action": "withhold_confidence_forwarding",
+        "declared_on": "2026-09-07",
+        "evidence_ref": "docs/superpowers/journals/2026-09-05-historical-cohorts.md",
+        "layers": [
+          {
+            "current_rule_outcome": "zero_confidence",
+            "table": "ac_skg_edges"
+          },
+          {
+            "current_rule_outcome": "zero_confidence",
+            "table": "ac_skg_family_edges"
+          },
+          {
+            "current_rule_outcome": "not_emitted",
+            "table": "ac_skg_contested_edges"
+          }
+        ],
+        "limitation": "Stored values remain historical audit bytes. Outcomes describe retained memberships, not a full data-pass replay, paper truth, or the generating rule. Unregistered or rewritten databases require their own declaration; absence of this restriction is not evidence of current-rule reproducibility.",
+        "measurement_basis": "independently_reconciled",
+        "rule_ref": "claim-explicit-evidence-axis/B1-B2; historical-cohorts/HC-F11-HC-F14",
+        "schema_version": "academic.confidence_layer_vintage.v1",
+        "snapshot_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+      },
+      "source_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+      "source_path_from_raw_traceback": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 336140,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-search-stress-grounding-native-consumers-actual-r1175-20261013/stdout.txt",
+        "sha256": "30e159aec3353e64b38a6b61b464e74e88f5b517ab5072034dca7982f741d0e6"
+      },
+      "w_m_r_ref_serialized": false,
+      "wall_seconds": 61.75094837497454
+    },
+    "raw_source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1197-credal-production-vintage-fixture-boundary-investigation-20261013/source-and-receipt-readback.json",
+      "sha256": "e5d060998933f6fa89fa9c61782abce3ce00d69fbe833763a9458b4e1ad7567a"
+    },
+    "selected_local_context": {
+      "builder": "build_credal_reference(REPO_ROOT) uses _production_world_model_record(root) absent explicit override",
+      "named_db_exists": true,
+      "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_db_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+      "serving_instance": "none; receipt is a pytest unit-test process, not an HTTP/API serving run",
+      "source_selection_state": "the production composed WMR path reached its SKG db_path vintage guard; the R1175 output does not carry WMR content_hash, exact skg_causal_prior_ref, or a constructed CredalReferenceSourceProfile",
+      "test_root_expression": "Path(__file__).resolve().parents[4]"
+    }
+  },
+  "formal_closure_ids": [],
+  "gate_analysis": {
+    "p37": {
+      "binding_status": "recomputed (as recorded by the existing vintage refusal)",
+      "measurement_basis": "independently_reconciled (as recorded; paired L01/L02 receipts are identical)",
+      "production currentness and live served root": "not_established"
+    },
+    "p38": {
+      "closure_move": "Split controlled semantic fixtures from one explicit production-refusal/custody test; do not let a test-fixture success serve as production evidence.",
+      "divergent_case": "Even the fake-edge out_of_scope law does not execute because the source fixture fails first.",
+      "implemented_gate": "A shared module-scoped production fixture builds from the composed WMR and reaches a vintage refusal before assertions.",
+      "property": "The five tests claim edge semantics, denominator behavior, payload preservation and certificate staleness."
+    }
+  },
+  "property_disposition": [
+    {
+      "current_r1175_outcome": "setup ERROR; no assertion executed",
+      "portable_law": "A controlled contested edge can test set-valued lifting and block confirmation.",
+      "production_fact": "Whether the selected production edge is contested requires an authentic, current selected source and profile.",
+      "recommended_fixture": "Explicit controlled in-memory/reference fixture; keep a separate production refusal test.",
+      "test": "test_contested_edge_lifts_set_valued_and_blocks_confirmation"
+    },
+    {
+      "current_r1175_outcome": "setup ERROR; no assertion executed",
+      "portable_law": "Unknown edge lookup can be tested against a controlled reference and must remain out_of_scope.",
+      "production_fact": "No production fact is needed for this law; the module-scoped production fixture is an unnecessary dependency.",
+      "recommended_fixture": "Explicit controlled reference fixture, with no production fallback.",
+      "test": "test_fake_edge_fails_closed_out_of_scope"
+    },
+    {
+      "current_r1175_outcome": "setup ERROR; no assertion executed",
+      "portable_law": "Included scope classes and their count behavior can be tested on a small controlled graph.",
+      "production_fact": "Corpus totals require an authentic, current source; this review did not query or reproduce totals.",
+      "recommended_fixture": "Synthetic graph for algebra; separate source-qualified production denominator receipt.",
+      "test": "test_expanded_essential_scope_classes_are_counted"
+    },
+    {
+      "current_r1175_outcome": "setup ERROR; no assertion executed",
+      "portable_law": "Canonical serialization can be tested with synthetic exact/family rows and an independent synthetic oracle.",
+      "production_fact": "The literal historical pre-split production payload equality requires the exact original/remap source pair, rule provenance and custodied version identity; L01/L02 do not supply a replacement pairing.",
+      "recommended_fixture": "Do not rewrite historical oracle bytes; retain as audit evidence until a paired source/release packet arrives.",
+      "test": "test_exact_and_family_edge_payloads_match_pre_split_oracles"
+    },
+    {
+      "current_r1175_outcome": "setup ERROR; no assertion executed",
+      "portable_law": "A controlled source/profile can prove that changing a scoped edge advances the reference epoch and stales a dependent certificate.",
+      "production_fact": "A claim that a production certificate is stale requires an authenticated pair of source and certificate identities.",
+      "recommended_fixture": "Explicit controlled profile and reference; production staleness remains source-qualified.",
+      "test": "test_reference_repair_stales_dependent_certificate"
+    }
+  ],
+  "required_g_packet": {
+    "minimum_inputs": [
+      "Named Academic SKG source/assembly release custodian and immutable producer-emitted source bytes plus release identity.",
+      "Selected WMR skg_causal_prior_ref and WMR content hash, selected SKG version/query/schema, and current rule/source revision.",
+      "Evidence-axis derivation plus extraction/adjudication/data-pass provenance; paired root and assembly manifests.",
+      "Custodian/authority/currentness receipt bound to those bytes, followed by a fresh reader bound to the same selected bytes/profile."
+    ],
+    "next_check": "Only after receipt: independently resolve selected source/profile and perform a fresh read, then run production-specific assertions. Until then preserve withhold_confidence_forwarding.",
+    "status": "missing; do not manufacture source profile, axis or authority"
+  },
+  "review_id": "R1197",
+  "schema": "policyos.r1197.credal_vintage_fixture_boundary_review.v1",
+  "source_and_authority_findings": {
+    "currentness": "Do not infer source selection/currentness from local path, manifest readiness, file size or timestamps. No database bytes were opened, queried or hashed.",
+    "manifest_limit": "Outer readiness=ready and inner authoritative_for_runtime fields are packaging/manifest declarations, not evidence-axis, source-currentness, issuer or live-root proof.",
+    "paired_receipt_limit": "The two pinned L01/L02 refs contain byte-identical receipts, so they are not independent corroboration. Their successful replay is an explicit avg_income test_value_gate fixture request, not a confidence-axis/currentness result.",
+    "r1200_delta": "two new equality assertions in test_credal_reference_captures_deep_immutable_source_content, outside all five failing cases and reference fixture; current credal_reference.py also changed elsewhere, but the compared build, selected-source/vintage gate, source profile, and WMR builder bodies are identical",
+    "shared_setup_error": "All five collected errors share the same module-scoped reference() setup refusal before any test body executes. This is one blocked production-source boundary, not five independent law failures.",
+    "source_selection": "The test calls build_credal_reference(REPO_ROOT) with no explicit override. The traceback reaches the production-composed WMR SKG path and the exact named local DB vintage guard. The receipt does not serialize the WMR content hash, exact skg_causal_prior_ref or a constructed CredalReferenceSourceProfile; it is not a served API run.",
+    "vintage_refusal": {
+      "binding_status": "recomputed",
+      "claim_evidence_axis": "absent",
+      "confidence_reproducibility": "not_reproducible_under_current_rule",
+      "consumer_action": "withhold_confidence_forwarding",
+      "declared_on": "2026-09-07",
+      "evidence_ref": "docs/superpowers/journals/2026-09-05-historical-cohorts.md",
+      "layers": [
+        {
+          "current_rule_outcome": "zero_confidence",
+          "table": "ac_skg_edges"
+        },
+        {
+          "current_rule_outcome": "zero_confidence",
+          "table": "ac_skg_family_edges"
+        },
+        {
+          "current_rule_outcome": "not_emitted",
+          "table": "ac_skg_contested_edges"
+        }
+      ],
+      "limitation": "Stored values remain historical audit bytes. Outcomes describe retained memberships, not a full data-pass replay, paper truth, or the generating rule. Unregistered or rewritten databases require their own declaration; absence of this restriction is not evidence of current-rule reproducibility.",
+      "measurement_basis": "independently_reconciled",
+      "rule_ref": "claim-explicit-evidence-axis/B1-B2; historical-cohorts/HC-F11-HC-F14",
+      "schema_version": "academic.confidence_layer_vintage.v1",
+      "snapshot_sha256": "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
+    }
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "frame_physical_source_paths": 575,
+    "frame_sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779",
+    "head": "691b0082846279f318c54a8e5618807a0d810698",
+    "qualification": "R1200 is a known root source commit. Recomputed AST segment hashes show the R1175 fixture, all five test bodies, selected-source/vintage gate, WMR builder and relevant source-profile methods are identical at this frame. The changed test-file assertions are outside this fixture and these five cases; other credal_reference.py changes are outside the compared setup path.",
+    "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+    "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+  },
+  "test_companion_intent_for_r385": {
+    "portable_positive": "Use explicit fresh tmp_path/source arguments with existing build_synthetic_academic_skg_source or _profiled_l2_reference helpers. Mark source authenticity and currentness not_established. The module-scoped production reference() must not feed the portable properties.",
+    "production_negative": "Separately assert the exact typed vintage refusal and that no production CredalReferenceSourceProfile is constructed. This negative does not substitute for the portable positive properties.",
+    "prohibited_shortcuts": [
+      "No toy fallback in the production default",
+      "No suppressing the typed refusal",
+      "No SKIP/default/empty profile used to turn production positives green",
+      "No rewriting historical oracle payloads"
+    ],
+    "removal_probe": "If the explicit fixture is removed and the shared production fixture is restored, all five cases must reproduce the same setup refusal; this demonstrates they were not production-positive results."
+  },
+  "verdict": "production_positive_not_established; portable_semantic_fixtures_are_feasible"
+}

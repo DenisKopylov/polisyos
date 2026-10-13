@@ -1,0 +1,167 @@
+{
+  "artifact_id": "R1199",
+  "candidate": {
+    "candidate_base_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1172-20261013.json",
+    "candidate_base_frame_sha256": "785f588be67983a6de503efe8fb64307caf1693d5af6134386da718d9974a66b",
+    "candidate_base_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d",
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1185-simulation-engine-fallback-order-semantic-control-20261013/manifest.json",
+    "manifest_sha256": "8ed109e033ccefdaa48f455997a764f149055009c38a937af7cb7ecf126f8e03",
+    "modified_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py"
+    ],
+    "patch_hunks_reconstructed_in_memory": 4,
+    "patch_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r1185-simulation-engine-fallback-order-semantic-control-20261013/candidate.patch",
+    "patch_sha256": "06e1b8a5700833a7d8b52221a173aec04450d7df9623fdffa209b15c4317480d",
+    "production_source_paths": []
+  },
+  "checks": [
+    {
+      "check": "reconstruct unified patch against exact physical preimage in memory",
+      "hunks": 4,
+      "postimage_sha256": "178ab34ce960f8012d8a10306a3f1f6122b7934eea60bfdfbd638c2562eb97cc",
+      "result": "PASS"
+    },
+    {
+      "check": "stdlib ast.parse on complete virtual test postimage",
+      "result": "PASS"
+    },
+    {
+      "check": "product Ruff lint on virtual postimage",
+      "command": "policy-engine/.venv/bin/python -m ruff check --no-cache --stdin-filename tests/unit/runtime/quality/test_joint_simulation_horizon.py -",
+      "exit_code": 0,
+      "output": "All checks passed!",
+      "result": "PASS"
+    },
+    {
+      "check": "product Ruff format check on virtual postimage",
+      "command": "policy-engine/.venv/bin/python -m ruff format --check --no-cache --stdin-filename tests/unit/runtime/quality/test_joint_simulation_horizon.py -",
+      "detail": "The exact preimage also fails whole-file formatting. The virtual postimage preserves existing formatter spans and has a new format-only wrap at virtual test line 1221 for the added pytest.raises line. Do not report the whole-file format check as green or as an inherited P41 red; the target path is changed.",
+      "exit_code": 1,
+      "result": "NONBLOCKING_FORMAT_NOTE"
+    },
+    {
+      "check": "pytest/runtime/native execution",
+      "detail": "Explicitly outside the read-only review scope; root must run the focused selectors after applying the candidate.",
+      "result": "NOT_RUN_BY_REVIEWER"
+    }
+  ],
+  "closure_ids": [],
+  "criteria_sources": [
+    {
+      "lines": "277-288",
+      "path": "B_r19_original.md:277-288",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    {
+      "finding": "R1125 S1 queue B07 requested order-sensitive fallback plus persisted fresh-reader witness",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1125-semantic-subject-refinement-law-executable-consumer-queue-20261013.md",
+      "sha256": "60a1ca7129c8c5f0a1f6d89363926820088bb3d0de94317f31d98a6f533b312b"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sections": [
+        "Code Style",
+        "Testing"
+      ],
+      "sha256": "ae191ba25c688bb68c7b0c53ff5b3e6e825d7065a7d7133a2596d1a6f0b53ada"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "rows": [
+        "P29",
+        "P32",
+        "P33",
+        "P38",
+        "P40"
+      ],
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-simulation-selection-horizon-real-native-actual-r1183-20261013/failure-classification-input.json",
+      "sha256": "e9a94eec823946a16aaa0041105f818b5dc2c9dc8c12fe793f1f02df0d8d7a79",
+      "source_head": "4ba921b8241afa732d69d6b7ef8c6c43af9bc58d"
+    }
+  ],
+  "final_limitations": [
+    "No pytest or product imports were run in this independent review.",
+    "The R1183 artifact is the prior native run\u2019s failure classification, not evidence that R1185 passes.",
+    "Two out-of-scope ABM failures remain separate; this review neither changes nor adjudicates them.",
+    "No production source was changed or proven fixed; B07 remains at verification_missing until the root-owned native evidence and broader S1 disposition are recorded."
+  ],
+  "native_command_scope_note": "These four selectors cover both new tests and both changed existing test oracles in the candidate manifest.",
+  "p40": {
+    "basis": "R1125 already named the selector/fallback evidence gap. R1185 widens the witness to incompatible-first/later-compatible, compatible-first short-circuit, and all-rejected outcomes, with producer/CAS/readback or explicit numerical refusal; no second selector-class escape was found in this static review.",
+    "bucket": "SAME_CLASS_DEEPER",
+    "second-finding_disposition": "The selection-order quantity is covered as the whole two-candidate scenario set required by the original B07 example; no per-engine instance repair or new selector mechanism is proposed."
+  },
+  "required_native_selectors": [
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_engine_fallback_is_ordered_and_fresh_cas_bound",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_all_incompatible_candidates_persist_explicit_refusal",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_refuses_conflicting_shared_slot_before_execution"
+  ],
+  "review_findings": [
+    {
+      "bounded_limit": "This is a coupling-incompatible-first fallback witness on a multi-period request; it does not independently enumerate every possible temporal-capability rejection variant. No broader B07 closure is claimed.",
+      "criterion": "B07",
+      "evidence": "The positive test uses a real fresh MethodRegistry, a registered stock-flow method, the actual controller selector and runner, and the same multi-period request in incompatible-first and compatible-first orders. It asserts the exact decision trace, selected system_dynamics method, trajectory engine/method lineage and requested steps. It persists with FileSystemCAS, checks canonical stored bytes, then resolves through load_joint_simulation_result with the expected WMR hash, atom ids and outcomes and compares the loaded payload/receipt/trajectories.",
+      "refusal_control": "The all-rejected case removes flow_matrix from the later system_dynamics plan, asserts both ordered unsupported decisions and blocker reasons, no run/no trajectories/no authority, persists the typed refusal, and confirms the real numerical loader refuses it as joint_simulation_result_trajectory_missing.",
+      "result": "GO_FOR_FOCUSED_NATIVE_REPLAY"
+    },
+    {
+      "criterion": "B20",
+      "evidence": "The former expected exception is replaced by the current API contract: both atom orders return the same typed unsupported decision/reason/blocker, engine_run_claimed=false, no trajectories and a no-run receipt. The monkeypatched execute_program_graph call count remains zero, so the conflict is refused before execution.",
+      "result": "GO_FOR_FOCUSED_NATIVE_REPLAY"
+    },
+    {
+      "criterion": "B19/B21",
+      "evidence": "The stale interaction_evidence_incomplete expectation is replaced with the actual one-draw semantics: effect/comparator basis remains not_established; the request and seed denominator are one; per-step paired sampling reports standard_error_not_estimated with a null standard error; classification stays unsupported and authority is blocked. The assertion also requires no interaction-coverage or sampling issue, rather than silently accepting a fabricated zero error.",
+      "result": "GO_FOR_FOCUSED_NATIVE_REPLAY"
+    },
+    {
+      "criterion": "P37/P38/P29",
+      "evidence": "The test exercises actual selector, runner, persisted bytes and consumer validation; a content-bound simulation receipt is not treated as factual/world evidence. The source still marks comparator/effect/time truth not_established and the result keeps K_sim bounded. This review establishes neither external truth nor production capability closure.",
+      "result": "NO_NEW_AUTHORITY_CLAIM"
+    }
+  ],
+  "scope": {
+    "native_replay": "not run by reviewer; root-owned focused replay remains required",
+    "out_of_scope": [
+      "ABM-specific R371/R1188 failures",
+      "production-source repair",
+      "G adjudication",
+      "full capability closure"
+    ],
+    "review_type": "read-only virtual test-patch review",
+    "semantic_scope": [
+      "B07",
+      "B19",
+      "B20",
+      "B21"
+    ]
+  },
+  "source_identity": {
+    "branch": "codex/e02-unified-local-20261009",
+    "current_production_preimage_matches_frame": true,
+    "current_target_preimage_matches_frame": true,
+    "frame_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1195-20261013.json",
+    "frame_sha256": "80e00b4a93b017b3be7180514c61228fc713aff151514169e6393d1aeceb46d6",
+    "head": "4e29fef01b31a6e13dbc848510503ef65fb2b7cd",
+    "own": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "physical_source_paths": 574,
+    "tree": "6760392b7e39aa8b31e468f6b2fba29ede0924b3"
+  },
+  "target_hashes": {
+    "producer_loader_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "producer_loader_sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a",
+    "production_source_path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "production_source_post_sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313",
+    "production_source_pre_sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313",
+    "test_path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "test_pre_sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f",
+    "test_virtual_post_bytes": 12753,
+    "test_virtual_post_sha256": "178ab34ce960f8012d8a10306a3f1f6122b7934eea60bfdfbd638c2562eb97cc"
+  },
+  "title": "Independent review of R1185 simulation fallback and joint-result test oracles",
+  "verdict": "GO_SCOPED_NATIVE"
+}

@@ -1,0 +1,545 @@
+{
+  "head": "691b0082846279f318c54a8e5618807a0d810698",
+  "tree": "eb4ab69bf76126a07a9585755aba68b7197ea75f",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-author-source-frame-r1210-20261013.json",
+    "sha256": "31687de984b4625c20d358d57b031ef44c6fff5c03e38095655ef23f2e8c1779"
+  },
+  "ready_queue": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1125-semantic-subject-refinement-law-executable-consumer-queue-20261013.json",
+    "sha256": "501ea175362c16672d86ecb52bdbc0397a2b1c3e3f30b163759339edb2935439"
+  },
+  "queue_source_test_denominator": {
+    "paths": 66,
+    "all_unchanged": true,
+    "binding": [
+      {
+        "path": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+        "sha256": "1da84b6d2cc5caccf29c29df379c0b42f159122435e5a9a2acddd2d786c23d78"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+        "sha256": "eec2042fb36bcde5fc150d053a1cd2e072366dc0b1c2f91077934b167a491781"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/service.py",
+        "sha256": "56511a6b8c9efb637b4c6f747bfb5ba2b58bdd571323b34f1e818f144101f526"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+        "sha256": "86795e0eec732e33ab43f08f864a0ad3dc01c848ac262048521b97609dde180f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+        "sha256": "970be4bd15c297871cd65c612e596e162fa05ef0c2e93f4a3a358cce43713f6d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "sha256": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+        "sha256": "78d15089eafb8127b04276b24bc0b399bf58c5c18fb9cbb070b8650f3580f805"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+        "sha256": "960509e1096062107da094575bf5975454409840bfac5f0a9068010a3f2a6318"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+        "sha256": "7c7d4a66483103195d74969e86ff4992fab7ee54ae693ecd1217a97e837cb54b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+        "sha256": "382499f2501c45b115a5a20a985b3fb29682739b5432f736f618cbc184d6b926"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+        "sha256": "4fc5b420732e42575ed7620e8e9936b9774aa2aceefc6e1e9ccbdace027b15dd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+        "sha256": "81e9c8cda63041e0c105930bdb8de719d230ccd3ce963fe48d7f8af67979d18a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+        "sha256": "5b366d0f3323ade292ffe3f3464397b83b26f834541a07152f5c73f10e2ab050"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+        "sha256": "76b50899f75699671509e587d3be3f83ee370ce624e6e05bd42326cd1a198368"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+        "sha256": "323940352151a1ed496713504c7f6f01677d2f26668bd41e655958823cfbc892"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+        "sha256": "3fc2c5c0401f5e5df91389f70bab10aa6d8458926aa2861a4a75a00bb854ac20"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+        "sha256": "7ad0a65a8b578b25892c82647ebad447fd7729817ee78e65156018d414f9232d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "967a64c71d1f5dcd33a837dcc63e16678a05824a3bae620627afe3acce447aec"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+        "sha256": "2f0571c95a576ce0932417e06a4a0cfcffa1e29d1e9afc37c9324926eaf05cbd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "sha256": "31d6ec280a5104661f2c0e2eae46cfe97bcd40bcb1eee72a9e43aecedd998dce"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+        "sha256": "000367b84ad88dd51d4fd224baeb92156599239dd5bb14843ea891b3e8cef66f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "e5bfe3f6a9cabcd62fad36669f8ff6cb2068f30da34ae7d6c9562257f6e84c4a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "sha256": "8066c927558846605576ba6c0867a72b79d618cf1470273124ec5cf477587313"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+        "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "sha256": "8c9eb7e183bfec9f17508195f34f40a8e17e51163362105fc79dee179de98d05"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "sha256": "f18dab7330f3a979f58670f856986ba3938bbf209eee9076af8322979351e3e7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+        "sha256": "2076dcce76f68aa5b5b6963f9cc575f20b906ce0ce12d7e3227f1832cbb656a0"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "sha256": "a0d21146a1cc1bd3593c4d4997f9d3f14f0d44588322b6b73ac820dc53b7d46f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "sha256": "766bb4be5a1f811f2a5eda67d5b8c1501c13ba1c0a0bd08d7c8bb4354e0599d2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "sha256": "4c3bc70f597bf0dbf7488878dea9a9b27b470148ebaf1575f5e2c235ef5aa7d6"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "sha256": "7a1f629420af573b2835d3944c660c66c091f0dd7adda0e094f698a563b43a96"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+        "sha256": "e6799bc06f7ad5ee88db2ff57b61ad323653a22b509cdd1a91902de3b749d4f4"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "sha256": "c147b152e10703343c60e881720cfc45a649cc955c6821d05c194f460710f28f"
+      },
+      {
+        "path": "policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py",
+        "sha256": "177a295ada7cb5c612d846d476d646a273d05b504b0a64bf059d0e3f1a6d51e6"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+        "sha256": "a644c0a8356fd162fdeeb6297325a890c3674682dce7f57db34972d364169246"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+        "sha256": "34bc760f7784bd52d680bad2b6aed565fb421ff4cde358155e5db5814c875227"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+        "sha256": "430febfc95fc86457ae7d99ed3fadb49915772d2b654294c614faed9b6f8680d"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+        "sha256": "5ea5a3808c5c793eba014a9d50c64631ad6c5af73fd1cb06edde56bda873d2b1"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+        "sha256": "3a1783e7c2f3606ba4ac1619e26039ef6a72509d61b9e4b89d958071aaa7695c"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+        "sha256": "2aa86fb8ee265d1948702771739b94f13e2c5436f78863074d03959b199bd365"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+        "sha256": "ef692a674e5a934674e8d980975d79368c8a90a8a947e9fa3f0cf3022320d360"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+        "sha256": "1fe5384525b07a46147f0e58fd17349e417ee4e37a5770e0beb686798d389857"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+        "sha256": "f841137a4e50f0af6df9e6b435387a683e467086ad3027982ba6e4f4bb8ae2fe"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py",
+        "sha256": "bef0deeb6e4b20f438f1a06a62ddf1bffef3587695762d61592948767cda7abb"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "bb80715e750b337996184ee7000c297dddbc7995a50c00ef239895b1706ad9d1"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "sha256": "70a46ab90e9a6cd37221136aa95ea213275ed3639797414340dccfffeb04919f"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+        "sha256": "2e8867f38b256f09f7ad798c20f46071375ef70e441a5d7b233dfd6f8d356ecb"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "sha256": "b5928f313a37196fd2c6ea49cf9362dce0de2ba6263d909ac252721487fa587b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+        "sha256": "1acc2f75846e58f26249750493737b0ec48cf66188981888060de757bf97a896"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "sha256": "cdffd0429316458c92385056b5f85dbc8dfd2a619776b249a6ebf50836abe8ee"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py",
+        "sha256": "992366eb70538fe7cc1313644180dc8f4bba99056ef1081a28174c77056a822b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "sha256": "b1ad33cca5f78b1e25463a6f4e090d8566cb06a6237b6e4a570658577e61f649"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "sha256": "bcf763e37810cef2eb2d30afde479e0fc327c61d3712de7446aa96274fca3886"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "sha256": "4a5399264fd4829a458c39e4705351835990a1634c5a53dba350c57b1b38cb8e"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "sha256": "382efe9b3d48b179a5f5e9518193a88cc7f07c6ed5a7ad2779135f0c75cb0738"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+        "sha256": "af09dbf437ccf4e1a327d34c72357b1cc27aed5d5d3ef1da33543dc5c9fec473"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "sha256": "3574ec5b024c6c5b31c219cf4a9d9f1d2287340b05e662a7d0d9574733797257"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_grf_03.py",
+        "sha256": "0af0a123f41b7cabbc9019c4e2f0ea0c82e08833e5568b0fe3ff35e3e6bf5d21"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+        "sha256": "2ae5568ce2644af709b257bf294bfe7004508954d819bd449f03dc98b87a9f96"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py",
+        "sha256": "f9e99127c1546788f4d455ae292d17c50be7120444eba680772b7e7c2d38914f"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_ber_01.py",
+        "sha256": "7dcbd18dac903859e9e074a0077a2b02a255d579929858b3cf413fd2341cb60c"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "sha256": "55e174b178d535b8356ba1e4fe5c576e393c215e427648d7021cbea7995491a8"
+      },
+      {
+        "path": "policy-engine/tests/unit/berl/test_adapters.py",
+        "sha256": "feb52c4919251dce99035ae228787bcb8afe79cd06a09937a56b1dd2b2c4491b"
+      },
+      {
+        "path": "policy-engine/tests/unit/berl/test_contracts.py",
+        "sha256": "e4e02faea29e4e2929df10bf5bbae46c34273f06ef7a42b7d90f98be13803efc"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_dynamic_panel.py",
+        "sha256": "2e1b56a08fe5aad7fd555a18ab33251127b2274484a89c140e989292c6bc6e58"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+        "sha256": "232b004fd16472a5ddffacdf175426632e6407da922f3f8b5beae44d33b759ba"
+      }
+    ]
+  },
+  "batches": [
+    {
+      "id": "subject-bound-intervals-and-graph-topology",
+      "criteria": [
+        "B31",
+        "B33",
+        "B214"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run with the already-provisioned supported Python environment; no installation.",
+      "selectors": [
+        "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+        "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+        "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+        "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+        "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_manifest_lineage_requires_exact_complete_input_multiset",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_identification_contract_projects_exact_native_bounds",
+        "tests/unit/runtime/quality/test_value_gate.py::test_partial_value_outer_set_width_tracks_real_did_interval",
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref",
+        "tests/unit/runtime/quality/test_cycle_substrate.py::test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows",
+        "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py::test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreign_kind",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_artifact_roundtrip",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_roundtrip_uses_fresh_reader",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencies",
+        "tests/unit/remediation/test_grf_03.py::test_projection_rejects_unresolved_cpdag_triangle_instead_of_labeling_cycle_dag",
+        "tests/unit/remediation/test_grf_03.py::test_graph_projection_admission_covers_full_profile_endpoint_product",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_id_refuses_before_pag_orientation_or_optimistic_commitment",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_graph",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "modality-training-and-inventory",
+      "criteria": [
+        "B36",
+        "LA-023",
+        "LA-032"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run training selectors only in the existing supported native/JAX environment; do not provision dependencies.",
+      "selectors": [
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_builds_content_bound_selection_receipt_from_real_trace",
+        "tests/unit/foundry/methods/test_selection_advisor.py::test_required_modalities_require_one_method_with_the_full_source_union",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py::test_event_study_runs",
+        "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+        "tests/unit/remediation/test_plg_03.py::test_training_uses_supplied_tenant_store_for_persist_and_readback",
+        "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+        "tests/unit/remediation/test_plg_03.py::test_zero_effective_gradient_is_typed_pending_without_policy_or_cas_persistence",
+        "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_candidate_readers_refuse_malformed_present_members",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_stage_manifest_rejects_inexact_selected_input_membership",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_same_shape_state_order_drift_is_rejected_by_the_real_resolver",
+        "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_facts_cannot_claim_independent_provenance"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "conditional-shap-refusal-and-marginal-control",
+      "criteria": [
+        "LA-036"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run with the existing supported NumPy/SciPy/PyTorch1 environment; do not install dependencies.",
+      "selectors": [
+        "tests/unit/remediation/test_ber_01.py::test_gaussian_conditional_shapley_discriminator_is_not_mislabeled_marginal",
+        "tests/unit/remediation/test_ber_01.py::test_default_conditional_kernel_shap_refuses_without_conditional_law",
+        "tests/unit/remediation/test_ber_01.py::test_service_request_guard_overrides_custom_kernel_adapter_for_conditional_request",
+        "tests/unit/remediation/test_ber_01.py::test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_direct_call_refuses_unverified_conditional_route",
+        "tests/unit/berl/test_adapters.py::test_kernel_shap_exact_enumeration_matches_linear_model",
+        "tests/unit/berl/test_contracts.py::test_conditional_bundle_requires_a_verified_observed_feature_law",
+        "tests/unit/berl/test_contracts.py::test_unknown_feature_dependence_profile_fails_closed",
+        "tests/unit/berl/test_contracts.py::test_method_profile_must_match_bundle_feature_dependence_profile",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_control_distinct"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "source-bound-risk-and-backtest-consumers",
+      "criteria": [
+        "B161",
+        "B172",
+        "B173"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Run using the supported SciPy environment. Keep controlled fixture rows/roles and source refs exact; do not rewrite test inputs.",
+      "selectors": [
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_valid_foreign_data_snapshot_stays_candidate_only_and_never_becomes_refinement",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_only",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_nominal_component_source_change_is_withheld_with_markers_intact",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_nominal_components_keeps_markers_but_is_withheld",
+        "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_source_method_edge_keeps_candidate_markers_from_admitting_observation",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_accepts_real_rows_and_keeps_legacy_candidate_untrusted",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric_set_gaps",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_recomputes_mape_and_interval_summaries",
+        "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_forged_availability_and_t_statistic",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_preserves_selected_split_gap_and_basis_refs",
+        "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_refuses_conflicting_role_requests",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_backtesting_report_persists_nonsignificant_method_identity",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_historical_plan_retains_named_split_roles",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+        "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet"
+      ],
+      "not_run_here": true
+    },
+    {
+      "id": "effective-config-jacobian-denominator-covariance-dependence",
+      "criteria": [
+        "B157",
+        "B190",
+        "B194",
+        "B197",
+        "B200"
+      ],
+      "cwd": "policy-engine",
+      "argv_prefix": [
+        "python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "requires": "Use the existing supported environment; B194 uses deterministic fixed draws and is the only moderate-cost selector here.",
+      "selectors": [
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+        "tests/unit/scientist/search/funnel/test_level3_medium.py::test_fidelity_config_in_feedback",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_reuses_cached_stage_a_progress",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_cache_miss_falls_back_to_full_execution",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_preserves_zero_baseline_effect",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_typed_transient_retries_the_same_draw_without_changing_its_denominator",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_sampler_transient_is_not_retried_as_an_evaluator_call",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exhausted_typed_transient_fails_closed_after_one_same_draw_retry",
+        "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_normative_admission_recomputes_denominator_while_markers_stay_true",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_report_without_projection_does_not_use_v1_name_identity",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_projection_must_cover_every_reported_calibrated_field",
+        "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_tied_projection_is_invariant_to_coordinate_name",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_equal_variance_does_not_trust_independence_label",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_does_not_favor_a_source_without_resolved_relation",
+        "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_bayesian_combination_without_resolved_relation_does_not_narrow"
+      ],
+      "not_run_here": true
+    }
+  ],
+  "selectors": [
+    "tests/unit/remediation/test_emp_01.py::test_identification_set_and_statistical_uncertainty_remain_separate",
+    "tests/unit/remediation/test_emp_01.py::test_asymmetric_interval_is_preserved_by_value_projection",
+    "tests/unit/remediation/test_emp_01.py::test_selection_diagram_requires_verified_causal_artifact",
+    "tests/unit/remediation/test_emp_01.py::test_raw_graph_without_artifact_bridge_fails_closed",
+    "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis",
+    "tests/unit/runtime/quality/test_b31_owner_run_basis_v2.py::test_manifest_lineage_requires_exact_complete_input_multiset",
+    "tests/unit/runtime/quality/test_value_gate.py::test_partial_identification_contract_projects_exact_native_bounds",
+    "tests/unit/runtime/quality/test_value_gate.py::test_partial_value_outer_set_width_tracks_real_did_interval",
+    "tests/unit/runtime/quality/test_cycle_substrate.py::test_cycle_substrate_context_job_v4_persists_profile_selected_graph_ref",
+    "tests/unit/runtime/quality/test_cycle_substrate.py::test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows",
+    "tests/unit/scientist/nodes/builtins/causal/test_transport_resolution_inputs.py::test_graph_and_capability_resolution_reads_typed_cas_refs_and_rejects_foreign_kind",
+    "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_artifact_roundtrip",
+    "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_roundtrip_uses_fresh_reader",
+    "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencies",
+    "tests/unit/remediation/test_grf_03.py::test_projection_rejects_unresolved_cpdag_triangle_instead_of_labeling_cycle_dag",
+    "tests/unit/remediation/test_grf_03.py::test_graph_projection_admission_covers_full_profile_endpoint_product",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_static_profile_refuses_original_graph_before_surgery_rewrite_or_noop",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_id_refuses_before_pag_orientation_or_optimistic_commitment",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_graph",
+    "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py::test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_required_panel_modality_is_preserved_and_only_real_runnable_value_owner_is_selected",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_value_advisor_builds_content_bound_selection_receipt_from_real_trace",
+    "tests/unit/foundry/methods/test_selection_advisor.py::test_required_modalities_require_one_method_with_the_full_source_union",
+    "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py::test_event_study_runs",
+    "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+    "tests/unit/remediation/test_plg_03.py::test_training_uses_supplied_tenant_store_for_persist_and_readback",
+    "tests/unit/remediation/test_plg_03.py::test_unsupported_composite_remains_bridge_pending",
+    "tests/unit/remediation/test_plg_03.py::test_zero_effective_gradient_is_typed_pending_without_policy_or_cas_persistence",
+    "tests/unit/remediation/test_plg_02.py::test_train_with_labor_market_disabled_is_typed_bridge_pending",
+    "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+    "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_candidate_readers_refuse_malformed_present_members",
+    "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_stage_manifest_rejects_inexact_selected_input_membership",
+    "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_same_shape_state_order_drift_is_rejected_by_the_real_resolver",
+    "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_facts_cannot_claim_independent_provenance",
+    "tests/unit/remediation/test_ber_01.py::test_gaussian_conditional_shapley_discriminator_is_not_mislabeled_marginal",
+    "tests/unit/remediation/test_ber_01.py::test_default_conditional_kernel_shap_refuses_without_conditional_law",
+    "tests/unit/remediation/test_ber_01.py::test_service_request_guard_overrides_custom_kernel_adapter_for_conditional_request",
+    "tests/unit/remediation/test_ber_01.py::test_tree_shap_fallback_is_explicit_and_does_not_claim_tree_exactness",
+    "tests/unit/berl/test_adapters.py::test_kernel_shap_direct_call_refuses_unverified_conditional_route",
+    "tests/unit/berl/test_adapters.py::test_kernel_shap_exact_enumeration_matches_linear_model",
+    "tests/unit/berl/test_contracts.py::test_conditional_bundle_requires_a_verified_observed_feature_law",
+    "tests/unit/berl/test_contracts.py::test_unknown_feature_dependence_profile_fails_closed",
+    "tests/unit/berl/test_contracts.py::test_method_profile_must_match_bundle_feature_dependence_profile",
+    "tests/integration/scientist_berl/test_explanation_reliability_bridge.py::test_correlated_rho_08_source_bundle_keeps_conditional_refused_and_marginal_control_distinct",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_actual_welfare_producer_persists_candidate_observation_for_fresh_funnel_consumer",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_valid_foreign_data_snapshot_stays_candidate_only_and_never_becomes_refinement",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_only",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_nominal_component_source_change_is_withheld_with_markers_intact",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_nominal_components_keeps_markers_but_is_withheld",
+    "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py::test_missing_source_method_edge_keeps_candidate_markers_from_admitting_observation",
+    "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_accepts_real_rows_and_keeps_legacy_candidate_untrusted",
+    "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric_set_gaps",
+    "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_recomputes_mape_and_interval_summaries",
+    "tests/unit/ir/mirror_contracts/test_backtest.py::test_source_reconciliation_rejects_forged_availability_and_t_statistic",
+    "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_preserves_selected_split_gap_and_basis_refs",
+    "tests/unit/scientist/governance/test_backtest_matrix.py::test_s1_backtest_matrix_refuses_conflicting_role_requests",
+    "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_backtesting_report_persists_nonsignificant_method_identity",
+    "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_s1_historical_plan_retains_named_split_roles",
+    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers",
+    "tests/unit/scientist/nodes/test_decision_packet_node_v3.py::test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py::test_reduced_config_injected",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py::test_fidelity_config_in_feedback",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_reuses_cached_stage_a_progress",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py::test_stage_b_cache_miss_falls_back_to_full_execution",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_keeps_unknown_sensitivity_unmapped",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py::test_build_propagation_fn_preserves_zero_baseline_effect",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_typed_transient_retries_the_same_draw_without_changing_its_denominator",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_sampler_transient_is_not_retried_as_an_evaluator_call",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_b194_exhausted_typed_transient_fails_closed_after_one_same_draw_retry",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_normative_admission_recomputes_denominator_while_markers_stay_true",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_report_without_projection_does_not_use_v1_name_identity",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_v2_projection_must_cover_every_reported_calibrated_field",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py::test_tied_projection_is_invariant_to_coordinate_name",
+    "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_equal_variance_does_not_trust_independence_label",
+    "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_precision_weighted_does_not_favor_a_source_without_resolved_relation",
+    "tests/unit/foundry/uncertainty/test_aggregation_strategies.py::test_bayesian_combination_without_resolved_relation_does_not_narrow"
+  ],
+  "backend": "Existing locked supported .venv CPython3.14.3; numerical threads1, TorchCPU1; no dependency install, no external source/law/currentness authority asserted",
+  "heavy_slots": 1,
+  "budget_seconds": 600,
+  "budget_basis": "first full queued five-batch measurement; 600s explicit safety budget, not a previously measured wall time; partial expiry would remain UNRUN",
+  "scope": "Remaining five S1/S2/S3 native consumer batches, simulation batch separate ABM/sampling companions pending. Behavioral receipts individually mapped, no aggregate closure.",
+  "closure_ids": []
+}

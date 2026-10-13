@@ -20,9 +20,12 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import StressTestReportRef
 from polisyos.scientist.methods.doe.stress_report import (
+    _STRESS_TEST_REPORT_ARTIFACT_KIND,
+    _STRESS_TEST_REPORT_SCHEMA_NAME,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
+    _load_stress_report_source,
 )
 
 
@@ -273,14 +276,13 @@ def persist_stress_test_report(
     ref = store.put_json(
         report,
         PutOptions(
-            kind="scientist.stress_test_report",
+            kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.scientist.StressTestReport", version=report.schema_version
-            ),
+            schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version=report.schema_version),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return StressTestReportRef.model_validate(ref.model_dump())
 
@@ -298,10 +300,9 @@ def load_stress_test_report(
     Returns:
         Parsed `StressTestReport`.
     """
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    payload = load_core_json_artifact(store, ref)
-    return StressTestReport.model_validate(payload)
+    return _load_stress_report_source(
+        store, ArtifactRef.model_validate(ref), allow_unselected_profile=True
+    )[0]
 
 
 def _severity_for_deterioration(deterioration: float) -> str:

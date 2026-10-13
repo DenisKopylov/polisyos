@@ -8,6 +8,11 @@ import pytest
 from polisyos.core.artifacts import load_core_json_artifact
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.designs import (
     AdversarialPlan,
@@ -19,6 +24,7 @@ from polisyos.scientist.methods.doe.stress_report import (
     StressTestReport,
     VulnerabilityType,
     resolve_stress_report_artifact,
+    resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
@@ -48,12 +54,39 @@ from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import ParameterBounds, PolicyCandidate
 
 
+def _selected_input(ref: ArtifactRef, *, role: str) -> InputRef:
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    persist_policy_candidate_schema,
+)
+
+
 def _artifact_ref(seed: str) -> ArtifactRef:
     return ArtifactRef(
         artifact_id=f"sha256:{seed * 64}",
         kind="scientist.test",
         media_type="application/json",
     )
+
+
+def _persist_policy_candidate(store, candidate_id: str) -> ArtifactRef:
+    token = candidate_id.replace("-", "_")
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        TrinityBundle(
+            problem_frame=ProblemFrame(problem_id=f"problem_{token}", domain=ProblemDomain.FISCAL),
+            policy_spec=PolicySpec(policy_id=f"policy_{token}"),
+            model_spec=ModelSpec(model_id=f"model_{token}", data_snapshot_ref="sha256:" + "3" * 64),
+        ),
+        candidate_id=candidate_id,
+    )
+    return persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
 
 
 def _benchmark(
@@ -590,14 +623,7 @@ def test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades() -> 
 
 def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
-    candidate_ref = store.put_json(
-        {"candidate_id": "candidate-finite-stress"},
-        PutOptions(
-            kind="scientist.policy_candidate_schema",
-            media_type="application/json",
-            schema=SchemaInfo(name="candidate", version="1.0"),
-        ),
-    )
+    candidate_ref = _persist_policy_candidate(store, "candidate-finite-stress")
     plan = AdversarialPlan(
         parameter_specs=[
             ParameterSpec(name=f"p{i}", lower_bound=-1.0, upper_bound=1.0) for i in range(4)
@@ -629,13 +655,61 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             context={"policy_candidate_ref": candidate_ref},
             cas=store,
         )
-        return report, ArtifactRef(
-            artifact_id=report.cas_artifact_id,
-            kind="scientist.stress_test_report",
-            media_type="application/json",
-        )
+        report_ref = report.cas_artifact_ref
+        assert report_ref is not None
+        return report, report_ref
 
     top_one, top_one_ref = run(1)
+    assert top_one.cas_artifact_ref == top_one_ref
+    assert top_one_ref.manifest_profile_sha256 is not None
+    assert "cas_artifact_ref" not in top_one.model_dump(mode="json")
+    report_manifest = store.get_manifest(top_one_ref)
+    basis_ref = top_one.score_components[0].outcome_basis_ref
+    assert basis_ref.manifest_profile_sha256 is not None
+    basis = StressOutcomeBasis.model_validate(load_core_json_artifact(store, basis_ref))
+    assert basis.plan_ref is not None and basis.plan_ref.manifest_profile_sha256 is not None
+    assert basis.candidate_ref == candidate_ref
+    basis_manifest = store.get_manifest(basis_ref)
+    assert any(
+        item.role == "adversarial_plan"
+        and item.artifact_id == basis.plan_ref.artifact_id
+        and item.manifest_profile_sha256 == basis.plan_ref.manifest_profile_sha256
+        for item in basis_manifest.inputs
+    )
+    assert any(
+        item.role == "candidate"
+        and item.artifact_id == candidate_ref.artifact_id
+        and item.manifest_profile_sha256 == candidate_ref.manifest_profile_sha256
+        for item in basis_manifest.inputs
+    )
+    assert any(
+        item.role == "stress_outcome_basis"
+        and item.artifact_id == basis_ref.artifact_id
+        and item.manifest_profile_sha256 == basis_ref.manifest_profile_sha256
+        for item in report_manifest.inputs
+    )
+    assert any(
+        item.role == "candidate"
+        and item.artifact_id == candidate_ref.artifact_id
+        and item.manifest_profile_sha256 == candidate_ref.manifest_profile_sha256
+        for item in report_manifest.inputs
+    )
+    alternate_candidate_ref = store.put_json(
+        {"candidate_id": "candidate-finite-stress"},
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert alternate_candidate_ref.artifact_id == candidate_ref.artifact_id
+    assert alternate_candidate_ref.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
+    _, profile_mismatch_resolution = resolve_stress_report_artifact(
+        store, top_one_ref, expected_candidate_ref=alternate_candidate_ref
+    )
+    assert profile_mismatch_resolution.status == "invalid"
     top_ten, top_ten_ref = run(10)
     assert top_one.critical_count + top_one.high_count > 0
     finite_failure = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
@@ -662,6 +736,50 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert len(top_one.vulnerabilities) == 1
     assert len(top_ten.vulnerabilities) == 10
     assert one_resolution.status == ten_resolution.status == "available"
+
+    candidate_body = load_core_json_artifact(
+        store, candidate_ref, manifest_profile_sha256=candidate_ref.manifest_profile_sha256
+    )
+    wrong_schema_candidate = store.put_json(
+        candidate_body,
+        PutOptions(
+            kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            media_type=PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(name="wrong.PolicyCandidateSchema", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert wrong_schema_candidate.artifact_id == candidate_ref.artifact_id
+    assert wrong_schema_candidate.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
+    wrong_schema_resolution = resolve_stress_score_components(
+        store, top_one.score_components, expected_candidate_ref=wrong_schema_candidate
+    )
+    assert wrong_schema_resolution.status == "invalid"
+    assert wrong_schema_resolution.robustness_score is None
+
+    counterfeit_legacy_kind = store.put_json(
+        candidate_body,
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name=PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME, version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    legacy_resolution = resolve_stress_score_components(
+        store, top_one.score_components, expected_candidate_ref=counterfeit_legacy_kind
+    )
+    assert legacy_resolution.status == "unbound"
+    assert legacy_resolution.robustness_score is None
+
+    profileless_candidate = candidate_ref.model_copy(update={"manifest_profile_sha256": None})
+    profileless_resolution = resolve_stress_score_components(
+        store, top_one.score_components, expected_candidate_ref=profileless_candidate
+    )
+    assert profileless_resolution.status == "unbound"
+    assert profileless_resolution.robustness_score is None
     assert one_resolution.predicate_status == ten_resolution.predicate_status == "recomputed"
     assert (
         one_resolution.total_scenarios_evaluated == ten_resolution.total_scenarios_evaluated == 10
@@ -707,14 +825,14 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
             inputs=[
                 *[
-                    InputRef(
-                        artifact_id=item.outcome_basis_ref.artifact_id, role="stress_outcome_basis"
-                    )
+                    _selected_input(item.outcome_basis_ref, role="stress_outcome_basis")
                     for item in top_one.score_components
                 ],
-                InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                _selected_input(candidate_ref, role="candidate"),
             ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     _, corrupted_resolution = resolve_stress_report_artifact(
         store, corrupted_ref, expected_candidate_ref=candidate_ref
@@ -732,6 +850,109 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     basis = StressOutcomeBasis.model_validate(
         load_core_json_artifact(store, component.outcome_basis_ref)
     )
+    plan_ref = basis.plan_ref
+    assert plan_ref is not None
+    plan_body = load_core_json_artifact(store, plan_ref)
+    wrong_plan_schema_ref = store.put_json(
+        plan_body,
+        PutOptions(
+            kind="scientist.adversarial_plan",
+            media_type="application/json",
+            schema=SchemaInfo(name="wrong.AdversarialPlan", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert wrong_plan_schema_ref.artifact_id == plan_ref.artifact_id
+    assert wrong_plan_schema_ref.manifest_profile_sha256 != plan_ref.manifest_profile_sha256
+    wrong_plan_basis = basis.model_copy(update={"plan_ref": wrong_plan_schema_ref})
+    wrong_plan_basis_ref = store.put_json(
+        wrong_plan_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                _selected_input(wrong_plan_schema_ref, role="adversarial_plan"),
+                _selected_input(candidate_ref, role="candidate"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    def persist_report_for_basis(ref: ArtifactRef) -> ArtifactRef:
+        selected_component = component.model_copy(update={"outcome_basis_ref": ref})
+        selected_report = top_one.model_copy(update={"score_components": [selected_component]})
+        return store.put_json(
+            selected_report.model_dump(mode="json"),
+            PutOptions(
+                kind="scientist.stress_test_report",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+                inputs=[
+                    _selected_input(ref, role="stress_outcome_basis"),
+                    _selected_input(candidate_ref, role="candidate"),
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+
+    _, wrong_plan_resolution = resolve_stress_report_artifact(
+        store,
+        persist_report_for_basis(wrong_plan_basis_ref),
+        expected_candidate_ref=candidate_ref,
+    )
+    assert wrong_plan_resolution.status == "invalid"
+    wrong_basis_schema_ref = store.put_json(
+        basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="wrong.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                _selected_input(plan_ref, role="adversarial_plan"),
+                _selected_input(candidate_ref, role="candidate"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert wrong_basis_schema_ref.artifact_id == component.outcome_basis_ref.artifact_id
+    assert (
+        wrong_basis_schema_ref.manifest_profile_sha256
+        != component.outcome_basis_ref.manifest_profile_sha256
+    )
+    _, wrong_basis_resolution = resolve_stress_report_artifact(
+        store,
+        persist_report_for_basis(wrong_basis_schema_ref),
+        expected_candidate_ref=candidate_ref,
+    )
+    assert wrong_basis_resolution.status == "invalid"
+    stale_profile_basis = basis.model_copy(
+        update={"plan_ref": plan_ref.model_copy(update={"manifest_profile_sha256": None})}
+    )
+    stale_profile_basis_ref = store.put_json(
+        stale_profile_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                _selected_input(plan_ref, role="adversarial_plan"),
+                _selected_input(candidate_ref, role="candidate"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    _, stale_profile_resolution = resolve_stress_report_artifact(
+        store,
+        persist_report_for_basis(stale_profile_basis_ref),
+        expected_candidate_ref=candidate_ref,
+    )
+    assert stale_profile_resolution.status == "unbound"
     forged_basis = basis.model_copy(
         update={
             "outcomes": [
@@ -746,7 +967,13 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                _selected_input(basis.plan_ref, role="adversarial_plan"),
+                _selected_input(candidate_ref, role="candidate"),
+            ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     forged_component = component.model_copy(update={"outcome_basis_ref": forged_basis_ref})
     forged_report_ref = store.put_json(
@@ -755,7 +982,13 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             kind="scientist.stress_test_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+            inputs=[
+                _selected_input(candidate_ref, role="candidate"),
+                _selected_input(forged_basis_ref, role="stress_outcome_basis"),
+            ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     _, forged_roster_resolution = resolve_stress_report_artifact(
         store, forged_report_ref, expected_candidate_ref=candidate_ref
@@ -769,7 +1002,13 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                _selected_input(basis.plan_ref, role="adversarial_plan"),
+                _selected_input(candidate_ref, role="candidate"),
+            ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     partial_component = component.model_copy(update={"outcome_basis_ref": partial_basis_ref})
     partial_report_ref = store.put_json(
@@ -785,7 +1024,13 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
             kind="scientist.stress_test_report",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+            inputs=[
+                _selected_input(candidate_ref, role="candidate"),
+                _selected_input(partial_basis_ref, role="stress_outcome_basis"),
+            ],
         ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     _, partial_resolution = resolve_stress_report_artifact(
         store, partial_report_ref, expected_candidate_ref=candidate_ref

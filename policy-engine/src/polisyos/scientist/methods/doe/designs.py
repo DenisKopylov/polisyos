@@ -247,9 +247,7 @@ def _salib_parameter_mapping(
 ) -> tuple[str, list[float]]:
     """Resolve one parameter to the pinned SALib distribution contract."""
     if not math.isfinite(parameter.lower_bound) or not math.isfinite(parameter.upper_bound):
-        raise ValueError(
-            f"parameter '{parameter.name}' requires finite physical bounds for SALib"
-        )
+        raise ValueError(f"parameter '{parameter.name}' requires finite physical bounds for SALib")
 
     lower = parameter.lower_bound
     upper = parameter.upper_bound
@@ -368,6 +366,11 @@ class AdversarialStrategy(StrEnum):
     SEARCH_LOOP = "search_loop"
     GRID_EXTREME = "grid_extreme"
     RANDOM_TAIL = "random_tail"
+
+
+_ADVERSARIAL_PLAN_ARTIFACT_KIND = "scientist.adversarial_plan"
+_ADVERSARIAL_PLAN_SCHEMA_NAME = "polisyos.scientist.AdversarialPlan"
+_ADVERSARIAL_PLAN_SCHEMA_VERSION = "1.0"
 
 
 class AdversarialPlan(BaseModel):

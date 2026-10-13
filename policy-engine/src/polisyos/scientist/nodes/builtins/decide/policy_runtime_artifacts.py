@@ -12,6 +12,7 @@ from polisyos.core.artifacts import (
     ProducerInfo,
     PutOptions,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.canon import CanonSpec
@@ -76,15 +77,61 @@ def _ensure_policy_candidate_ref_impl(
     candidate: PolicyCandidateSchema,
     candidate_ref: ArtifactRef | None,
 ) -> ArtifactRef:
-    """Ensure policy candidate ref helper."""
-    if candidate_ref is not None and candidate_ref.kind == "scientist.policy_candidate_schema":
-        return candidate_ref
+    """Persist a selected candidate only from a typed candidate or selected Trinity source."""
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+    source_ref: ArtifactRef | None = None
+    if candidate_ref is not None:
+        if candidate_ref.kind in {
+            PolicyCandidateSchema.ARTIFACT_KIND,
+            "scientist.policy_candidate_schema",
+        }:
+            # Keep the caller's exact candidate ref. The score reader separately checks the
+            # canonical schema/profile; legacy refs remain readable candidate-only data.
+            return candidate_ref
+        if candidate_ref.kind != TrinityBundle.ARTIFACT_KIND:
+            # Never relabel an arbitrary source body as a canonical candidate.
+            return candidate_ref
+        if candidate_ref.manifest_profile_sha256 is None:
+            return candidate_ref
+        from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
+            load_core_json_artifact,
+        )
+
+        manifest = ctx.store.get_manifest(candidate_ref)
+        if (
+            manifest.artifact_id != candidate_ref.artifact_id
+            or manifest.kind != TrinityBundle.ARTIFACT_KIND
+            or candidate_ref.kind != manifest.kind
+            or manifest.media_type != TrinityBundle.ARTIFACT_MEDIA_TYPE
+            or candidate_ref.media_type != manifest.media_type
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != TrinityBundle.ARTIFACT_SCHEMA_NAME
+            or manifest.artifact_schema.version != TrinityBundle.ARTIFACT_SCHEMA_VERSION
+            or artifact_manifest_profile_sha256(manifest) != candidate_ref.manifest_profile_sha256
+        ):
+            raise ValueError("candidate_source_manifest_contract_mismatch")
+        source_bundle = TrinityBundle.model_validate(
+            load_core_json_artifact(
+                ctx.store,
+                candidate_ref,
+                manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+            )
+        )
+        if candidate.trinity_bundle != source_bundle:
+            raise ValueError("candidate_source_body_mismatch")
+        source_ref = candidate_ref
+
+    inputs = [input_ref_from_artifact_ref(ref, role=key) for key, ref in state.inputs.items()]
+    if source_ref is not None:
+        inputs.append(input_ref_from_artifact_ref(source_ref, role="candidate_source"))
     return persist_policy_candidate_schema(
         ctx.store,
         candidate,
-        inputs=[
-            InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()
-        ],
+        inputs=inputs,
+        return_selected_profile=True,
     )
 
 
@@ -301,6 +348,7 @@ def _load_simulation_metrics_impl(
 ) -> dict[str, float]:
     """Load simulation metrics."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
@@ -335,6 +383,7 @@ def _load_causal_report_impl(
 ) -> CausalEffectReport | None:
     """Load causal report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
@@ -346,6 +395,7 @@ def _load_governance_report_impl(
 ) -> GovernanceReport | None:
     """Load governance report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
@@ -441,6 +491,7 @@ def _load_benchmark_evaluation_impl(
 ) -> BenchmarkEvaluation:
     """Load benchmark evaluation."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return BenchmarkEvaluation.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
@@ -450,6 +501,7 @@ def _load_governance_report_from_ref_impl(
 ) -> GovernanceReport:
     """Load governance report from ref."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
@@ -508,6 +560,7 @@ def _load_ambiguity_certificate_impl(
 ) -> AmbiguityCertificate | None:
     """Load the first valid ambiguity certificate from runtime params or artifacts."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     for key in ("ambiguity_certificate", "moment_dro_certificate"):
         certificate = parse_certificate(state.params.get(key))
         if certificate is not None:

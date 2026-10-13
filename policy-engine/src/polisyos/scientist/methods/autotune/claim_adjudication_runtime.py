@@ -8,15 +8,20 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core import artifacts
 from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactWriteOptions,
     FileSystemCAS,
-    InputRef,
     ProducerInfo,
     SchemaInfo,
 )
 from polisyos.core.canon import CanonSpec
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+    require_selected_artifact_ref,
+    same_selected_artifact_ref,
+    selected_artifact_ref_for_input,
+)
 from polisyos.data_forge.read_api.academic import (
     ClaimAdjudicationVerifier,
 )
@@ -32,14 +37,12 @@ from polisyos.ir.analytics.literature import (
     ClaimType,
     DesignFamily,
     RiskOfBias,
-    SourceBasis,
     SupportStatus,
 )
 
 from .claim_adjudication import (
     CLAIM_ADJUDICATION_LOOP_ID,
     CLAIM_ADJUDICATION_SCHEMA_HINT,
-    STRONG_DESIGN_FAMILIES,
     ClaimAdjudicationSearchConfig,
     aggregate_claim_rows,
     default_claim_adjudication_promotion_policy,
@@ -49,6 +52,8 @@ from .models import BenchmarkEvaluation, ChampionPointer
 from .registry import ChampionRegistry
 
 if TYPE_CHECKING:
+    from enum import Enum
+
     from polisyos.data_forge.read_api.academic import AcademicBatchConfig
 
 _INPUT_KIND = "data_forge.academic.claim_adjudication.input_batch"
@@ -80,6 +85,7 @@ class AdmittedClaimAdjudicationChampion(BaseModel):
     config: ClaimAdjudicationSearchConfig
     candidate_ref: ArtifactRef
     evaluation_ref: ArtifactRef
+    suite_ref: ArtifactRef
     pointer_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
 
@@ -109,7 +115,7 @@ def _pointer_sha256(pointer: ChampionPointer) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _enum_value(enum_cls: type[Any], value: object, fallback: Any) -> Any:
+def _enum_value(enum_cls: type[Enum], value: object, fallback: Enum) -> Enum:
     normalized = str(value or "").strip().lower().replace(" ", "_")
     try:
         return enum_cls(normalized)
@@ -167,8 +173,9 @@ class ClaimAdjudicationRuntime:
         self._execution_receipt_ref = execution_receipt_ref
 
     def admit_champion(self) -> AdmittedClaimAdjudicationChampion:
-        """Replay promotion predicates instead of trusting a registry declaration."""
+        """Replay every selected promotion input before admitting the champion."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         pointer = self._registry.get(CLAIM_ADJUDICATION_LOOP_ID)
         if pointer is None:
             raise ValueError("claim_adjudication_champion_missing")
@@ -176,44 +183,83 @@ class ClaimAdjudicationRuntime:
             raise ValueError("claim_adjudication_seeded_baseline_not_admitted")
         if pointer.loop_id != CLAIM_ADJUDICATION_LOOP_ID:
             raise ValueError("claim_adjudication_pointer_loop_mismatch")
-
         if type(self._verifier) is not ClaimAdjudicationVerifier:
             raise ValueError("claim_adjudication_evaluator_appointment_missing")
         if self._evaluation_receipt_ref is None:
             raise ValueError("claim_adjudication_evaluator_receipt_missing")
-        self._verifier.replay_champion(str(self._evaluation_receipt_ref.artifact_id))
-        candidate_manifest = self._store.get_manifest(pointer.candidate_ref)
+        self._verifier.replay_champion(self._evaluation_receipt_ref)
+        try:
+            suite_ref = ArtifactRef.model_validate(pointer.metadata.get("suite_ref"))
+        except Exception as exc:
+            raise ValueError(
+                "claim_adjudication_selected_profile_required:benchmark_suite"
+            ) from exc
+        require_selected_artifact_ref(suite_ref, field="benchmark_suite")
+        candidate_ref = require_selected_artifact_ref(pointer.candidate_ref, field="candidate")
+        evaluation_ref = require_selected_artifact_ref(pointer.evaluation_ref, field="evaluation")
+        candidate_manifest = self._store.get_manifest_by_profile(
+            candidate_ref.artifact_id, candidate_ref.manifest_profile_sha256
+        )
         if candidate_manifest.kind != "scientist.autotune.claim_adjudication.candidate":
             raise ValueError("claim_adjudication_candidate_kind_mismatch")
+        candidate_suite = [
+            selected_artifact_ref_for_input(self._store, item)
+            for item in candidate_manifest.inputs
+            if item.role == "benchmark_suite"
+        ]
+        if len(candidate_suite) != 1 or not same_selected_artifact_ref(
+            candidate_suite[0], suite_ref
+        ):
+            raise ValueError("claim_adjudication_candidate_suite_lineage_mismatch")
         config = ClaimAdjudicationSearchConfig.model_validate(
-            load_core_json_artifact(self._store, pointer.candidate_ref)
+            load_core_json_artifact(self._store, candidate_ref)
         )
         if config.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_candidate_loop_mismatch")
         if config.search_space_version != pointer.search_space_version:
             raise ValueError("claim_adjudication_search_space_mismatch")
-
-        evaluation_manifest = self._store.get_manifest(pointer.evaluation_ref)
+        evaluation_manifest = self._store.get_manifest_by_profile(
+            evaluation_ref.artifact_id, evaluation_ref.manifest_profile_sha256
+        )
         if (
             evaluation_manifest.producer is None
             or _component(evaluation_manifest.producer.component) != _EVALUATION_PRODUCER
         ):
             raise ValueError("claim_adjudication_evaluation_provenance_missing")
         candidate_lineage = [
-            str(item.artifact_id) for item in evaluation_manifest.inputs if item.role == "candidate"
+            selected_artifact_ref_for_input(self._store, item)
+            for item in evaluation_manifest.inputs
+            if item.role == "candidate"
         ]
-        if candidate_lineage != [str(pointer.candidate_ref.artifact_id)]:
+        suite_lineage = [
+            selected_artifact_ref_for_input(self._store, item)
+            for item in evaluation_manifest.inputs
+            if item.role == "benchmark_suite"
+        ]
+        if (
+            len(candidate_lineage) != 1
+            or not same_selected_artifact_ref(candidate_lineage[0], candidate_ref)
+            or len(suite_lineage) != 1
+            or not same_selected_artifact_ref(suite_lineage[0], suite_ref)
+        ):
             raise ValueError("claim_adjudication_evaluation_lineage_mismatch")
         evaluation = BenchmarkEvaluation.model_validate(
-            load_core_json_artifact(self._store, pointer.evaluation_ref)
+            load_core_json_artifact(self._store, evaluation_ref)
         )
         if evaluation.loop_id != pointer.loop_id:
             raise ValueError("claim_adjudication_evaluation_loop_mismatch")
-        if evaluation.candidate_ref.artifact_id != pointer.candidate_ref.artifact_id:
+        if not same_selected_artifact_ref(evaluation.candidate_ref, candidate_ref):
             raise ValueError("claim_adjudication_evaluation_candidate_mismatch")
         if evaluation.suite_version != pointer.suite_version:
             raise ValueError("claim_adjudication_suite_version_mismatch")
-
+        suite_payload = load_core_json_artifact(self._store, suite_ref)
+        if (
+            not isinstance(suite_payload, dict)
+            or suite_payload.get("suite_id") != evaluation.suite_id
+            or suite_payload.get("suite_version") != evaluation.suite_version
+            or pointer.metadata.get("suite_id") != evaluation.suite_id
+        ):
+            raise ValueError("claim_adjudication_benchmark_suite_payload_mismatch")
         policy = default_claim_adjudication_promotion_policy()
         if pointer.metadata.get("promoted_by_policy") != policy.model_dump(mode="json"):
             raise ValueError("claim_adjudication_promotion_policy_mismatch")
@@ -226,44 +272,26 @@ class ClaimAdjudicationRuntime:
                 raise ValueError(f"claim_adjudication_guardrail_failed:{guardrail}")
         if evaluation.sample_count(split=policy.compare_split) < policy.min_sample_count:
             raise ValueError("claim_adjudication_sample_count_insufficient")
-        primary = evaluation.primary_value(
-            split=policy.compare_split,
-            metric=policy.primary_metric,
-        )
+        primary = evaluation.primary_value(split=policy.compare_split, metric=policy.primary_metric)
         if primary is None:
             raise ValueError("claim_adjudication_primary_metric_missing")
-        expected_metrics = evaluation.metrics_for_split(policy.compare_split)
-        if pointer.metrics != expected_metrics:
+        if pointer.metrics != evaluation.metrics_for_split(policy.compare_split):
             raise ValueError("claim_adjudication_pointer_metrics_mismatch")
-
         return AdmittedClaimAdjudicationChampion(
             config=config,
-            candidate_ref=pointer.candidate_ref,
-            evaluation_ref=pointer.evaluation_ref,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            suite_ref=suite_ref,
             pointer_sha256=_pointer_sha256(pointer),
         )
 
     def _load_input(self, raw_input_ref: ArtifactRef) -> ClaimAdjudicationInputBatch:
-        from polisyos.core.artifacts import load_core_json_artifact
-        manifest = self._store.get_manifest(raw_input_ref)
-        if manifest.kind != _INPUT_KIND:
-            raise ValueError("claim_adjudication_input_kind_mismatch")
-        if manifest.artifact_schema is None or manifest.artifact_schema.name != _INPUT_SCHEMA:
-            raise ValueError("claim_adjudication_input_schema_mismatch")
-        if manifest.producer is None or _component(manifest.producer.component) != _INPUT_PRODUCER:
-            raise ValueError("claim_adjudication_input_producer_mismatch")
-        batch = ClaimAdjudicationInputBatch.model_validate(
-            load_core_json_artifact(self._store, raw_input_ref)
+        """Reuse the producer's exact-profile and source-lineage validation."""
+        from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
+            _validate_input_batch,
         )
-        lineage = {item.role: str(item.artifact_id) for item in manifest.inputs}
-        if len(lineage) != len(manifest.inputs):
-            raise ValueError("claim_adjudication_input_duplicate_lineage_role")
-        expected_lineage = {"extraction_source": batch.source_artifact_ref}
-        if batch.retraction_artifact_ref is not None:
-            expected_lineage["retraction_source"] = batch.retraction_artifact_ref
-        if lineage != expected_lineage:
-            raise ValueError("claim_adjudication_input_lineage_mismatch")
-        return batch
+
+        return _validate_input_batch(self._store, raw_input_ref)
 
     async def _adjudicate_item(
         self,
@@ -377,12 +405,16 @@ class ClaimAdjudicationRuntime:
             )
             if self._execution_receipt_ref is None:
                 raise ValueError("claim_adjudication_execution_receipt_missing")
-            assert self._verifier is not None
-            assert self._evaluation_receipt_ref is not None
+            if self._verifier is None or self._evaluation_receipt_ref is None:
+                raise ValueError("claim_adjudication_evaluator_receipt_missing")
             self._verifier.verify_batch(
                 admitted,
-                evaluation_receipt_ref=str(self._evaluation_receipt_ref.artifact_id),
-                execution_receipt_ref=str(self._execution_receipt_ref.artifact_id),
+                evaluation_receipt_ref=self._evaluation_receipt_ref,
+                execution_receipt_ref=self._execution_receipt_ref,
+                raw_input_ref=raw_input_ref,
+                candidate_ref=champion.candidate_ref,
+                evaluation_ref=champion.evaluation_ref,
+                benchmark_suite_ref=champion.suite_ref,
             )
             result_ref = self._store.put_json(
                 admitted,
@@ -392,27 +424,34 @@ class ClaimAdjudicationRuntime:
                     schema=SchemaInfo(name=_RESULT_SCHEMA, version=admitted.schema_version),
                     producer=ProducerInfo(component=_RESULT_PRODUCER, version="1.0"),
                     inputs=[
-                        InputRef(artifact_id=raw_input_ref.artifact_id, role="raw_input"),
-                        InputRef(
-                            artifact_id=self._evaluation_receipt_ref.artifact_id,
+                        artifacts.input_ref_from_artifact_ref(raw_input_ref, role="raw_input"),
+                        artifacts.input_ref_from_artifact_ref(
+                            require_selected_artifact_ref(
+                                self._evaluation_receipt_ref, field="evaluation_receipt"
+                            ),
                             role="evaluation_receipt",
                         ),
-                        InputRef(
-                            artifact_id=self._execution_receipt_ref.artifact_id,
+                        artifacts.input_ref_from_artifact_ref(
+                            require_selected_artifact_ref(
+                                self._execution_receipt_ref, field="execution_receipt"
+                            ),
                             role="execution_receipt",
                         ),
-                        InputRef(
-                            artifact_id=champion.candidate_ref.artifact_id,
-                            role="candidate",
+                        artifacts.input_ref_from_artifact_ref(
+                            champion.candidate_ref, role="candidate"
                         ),
-                        InputRef(
-                            artifact_id=champion.evaluation_ref.artifact_id,
-                            role="evaluation",
+                        artifacts.input_ref_from_artifact_ref(
+                            champion.evaluation_ref, role="evaluation"
+                        ),
+                        artifacts.input_ref_from_artifact_ref(
+                            champion.suite_ref, role="benchmark_suite"
                         ),
                     ],
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
+            require_selected_artifact_ref(result_ref, field="admitted_result")
         except Exception as exc:
             return ClaimAdjudicationRuntimeOutcome(
                 status="blocked",

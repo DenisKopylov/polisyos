@@ -5,24 +5,37 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from collections.abc import Callable, Mapping
-from copy import deepcopy
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterator, Mapping
+from contextvars import ContextVar
+from copy import copy, deepcopy
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum
-from functools import wraps
+from functools import lru_cache, wraps
 from math import isfinite
 from threading import Lock
-from typing import TYPE_CHECKING, Any, Protocol, cast
+from types import SimpleNamespace
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NoReturn,
+    Protocol,
+    cast,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
+from pydantic_core import PydanticSerializationError, SchemaSerializer, core_schema
+from pydantic_core.core_schema import CoreSchema
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.methods.search.contracts import (
     ParetoBasisScope,
-    ParetoViewProjection,
     SearchIteration,
     SearchResult,
     SearchStatus,
@@ -35,21 +48,31 @@ from polisyos.scientist.methods.search.frontier import (
     policy_candidate_hash,
     update_legacy_pareto_front,
 )
-from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
+from polisyos.scientist.methods.search.objective import (
+    CompositeObjective,
+    ObjectiveValue,
+)
 from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
-from polisyos.scientist.methods.search.stopping import StoppingCondition, StoppingCriterion
+from polisyos.scientist.methods.search.stopping import (
+    StoppingCondition,
+    StoppingCriterion,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.llm.traced_client import TracedLLMClient
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        TransferLearningManager,
+    )
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
         PolicyEvaluationVector,
@@ -196,6 +219,849 @@ class SearchBudgetProducerUnsupportedError(RuntimeError):
         super().__init__(f"{reason_code}: {detail}")
 
 
+def _prompt_refuse(reason_code: str, detail: str) -> NoReturn:
+    raise SearchBudgetProducerUnsupportedError(reason_code, detail)
+
+
+def _prompt_literal_strings(annotation: Any) -> set[str]:
+    if get_origin(annotation) is Literal:
+        return {value for value in get_args(annotation) if isinstance(value, str)}
+    values: set[str] = set()
+    for nested in get_args(annotation):
+        values.update(_prompt_literal_strings(nested))
+    return values
+
+
+@lru_cache(maxsize=1)
+def _prompt_core_schema_types() -> frozenset[str]:
+    """Read supported node tags from the pinned Pydantic CoreSchema union."""
+    schema_types: set[str] = set()
+    for schema_type in get_args(CoreSchema):
+        try:
+            annotations = get_type_hints(schema_type, include_extras=True)
+        except (NameError, TypeError):
+            annotations = getattr(schema_type, "__annotations__", {})
+        schema_types.update(_prompt_literal_strings(annotations.get("type")))
+    return frozenset(schema_types)
+
+
+_PROMPT_OPAQUE_SCHEMA_KEYS = frozenset(
+    {"metadata", "config", "function", "cls", "default", "default_factory"}
+)
+_PROMPT_SERIALIZER_TYPES = frozenset({"function-plain", "function-wrap"})
+_PROMPT_SERIALIZER_CACHE: dict[type[BaseModel], tuple[Any, SchemaSerializer]] = {}
+_PROMPT_SERIALIZER_CACHE_LOCK = Lock()
+
+
+_PROMPT_ACTIVE_GRAPH: ContextVar[set[int] | None] = ContextVar(
+    "polisyos_search_prompt_active_graph",
+    default=None,
+)
+
+
+def _prompt_track_active_graph(value: Any, operation: Callable[[], Any]) -> Any:
+    """Reject a cycle that crosses a mapping and a nested Pydantic model."""
+    active = _PROMPT_ACTIVE_GRAPH.get()
+    token = None
+    if active is None:
+        active = set()
+        token = _PROMPT_ACTIVE_GRAPH.set(active)
+    identity = id(value)
+    if identity in active:
+        _prompt_refuse(
+            "search_prompt_contains_cycle",
+            "prompt values must form an acyclic JSON projection",
+        )
+    active.add(identity)
+    try:
+        return operation()
+    finally:
+        active.remove(identity)
+        if token is not None:
+            _PROMPT_ACTIVE_GRAPH.reset(token)
+
+
+def _prompt_selected_child(
+    include: Any,
+    exclude: Any,
+    key: Any,
+    *,
+    sequence_length: int | None = None,
+) -> tuple[bool, Any, Any]:
+    """Resolve one child against Pydantic's include/exclude selector shapes."""
+    sequence = sequence_length is not None
+    negative_key = key - sequence_length if sequence and isinstance(key, int) else None
+    if include is None or include is True or include is Ellipsis:
+        child_include = None
+    elif isinstance(include, (set, frozenset)):
+        if (
+            (sequence and "__all__" in include)
+            or key in include
+            or (negative_key is not None and negative_key in include)
+        ):
+            child_include = None
+        else:
+            return False, None, None
+    elif isinstance(include, Mapping):
+        if key in include:
+            child_include = include[key]
+        elif negative_key is not None and negative_key in include:
+            child_include = include[negative_key]
+        elif sequence and "__all__" in include:
+            child_include = include["__all__"]
+        else:
+            return False, None, None
+        if child_include is False:
+            return False, None, None
+        if child_include is True or child_include is Ellipsis:
+            child_include = None
+    else:
+        _prompt_refuse(
+            "search_prompt_projection_selector_unsupported",
+            "the selected serializer include selector has an unsupported shape",
+        )
+
+    if exclude is True or exclude is Ellipsis:
+        return False, None, None
+    if exclude is None:
+        child_exclude = None
+    elif isinstance(exclude, (set, frozenset)):
+        if sequence and "__all__" in exclude:
+            child_exclude = None
+        elif key in exclude or (negative_key is not None and negative_key in exclude):
+            return False, None, None
+        else:
+            child_exclude = None
+    elif isinstance(exclude, Mapping):
+        if key in exclude:
+            child_exclude = exclude[key]
+        elif negative_key is not None and negative_key in exclude:
+            child_exclude = exclude[negative_key]
+        elif sequence and "__all__" in exclude:
+            child_exclude = exclude["__all__"]
+        else:
+            child_exclude = None
+        if child_exclude is True or child_exclude is Ellipsis:
+            return False, None, None
+        if child_exclude is False:
+            child_exclude = None
+    else:
+        _prompt_refuse(
+            "search_prompt_projection_selector_unsupported",
+            "the selected serializer exclude selector has an unsupported shape",
+        )
+    return True, child_include, child_exclude
+
+
+def _prompt_validate_raw_graph(
+    value: Any,
+    *,
+    include: Any = None,
+    exclude: Any = None,
+) -> None:
+    """Reject lossy leaves in the selected raw graph before JSON serialization."""
+    active: set[int] = set()
+
+    def enter(container: Any, visit_children: Callable[[], None]) -> None:
+        identity = id(container)
+        if identity in active:
+            _prompt_refuse(
+                "search_prompt_contains_cycle",
+                "prompt values must form an acyclic JSON projection",
+            )
+        active.add(identity)
+        try:
+            visit_children()
+        finally:
+            active.remove(identity)
+
+    def visit(item: Any, item_include: Any, item_exclude: Any) -> None:
+        if isinstance(item, Enum):
+            enter(item, lambda: visit(item.value, item_include, item_exclude))
+            return
+        if item is None or isinstance(item, (str, bool, int)):
+            return
+        if isinstance(item, float):
+            if not isfinite(item):
+                _prompt_refuse(
+                    "search_prompt_contains_nonfinite_number",
+                    "protected candidate inputs must have finite JSON numbers",
+                )
+            return
+        if isinstance(item, (datetime, date)):
+            return
+        if isinstance(item, Decimal):
+            if not item.is_finite():
+                _prompt_refuse(
+                    "search_prompt_contains_nonfinite_number",
+                    "protected candidate inputs must have finite JSON numbers",
+                )
+            return
+        if isinstance(item, BaseModel):
+            # Model fields are guarded by their transformed CoreSchema path so
+            # caller selectors and exclude_if remain authoritative.
+            return
+        if is_dataclass(item) and not isinstance(item, type):
+
+            def dataclass_values() -> None:
+                for field in fields(item):
+                    selected, child_include, child_exclude = _prompt_selected_child(
+                        item_include,
+                        item_exclude,
+                        field.name,
+                    )
+                    if selected:
+                        visit(getattr(item, field.name), child_include, child_exclude)
+
+            enter(item, dataclass_values)
+            return
+        if isinstance(item, Iterator):
+            _prompt_refuse(
+                "search_prompt_one_shot_iterable_unsupported",
+                "protected candidate inputs cannot safely preflight one-shot iterables",
+            )
+        if isinstance(item, (set, frozenset)):
+
+            def set_values() -> None:
+                for nested in item:
+                    # Pydantic serializes sets as arrays and ignores index selectors.
+                    visit(nested, None, None)
+
+            enter(item, set_values)
+            return
+        if isinstance(item, Mapping):
+
+            def mapping_values() -> None:
+                for key, nested in item.items():
+                    selected, child_include, child_exclude = _prompt_selected_child(
+                        item_include,
+                        item_exclude,
+                        key,
+                    )
+                    if not selected:
+                        continue
+                    if not isinstance(key, str):
+                        _prompt_refuse(
+                            "search_prompt_contains_non_string_key",
+                            "protected candidate inputs require string mapping keys",
+                        )
+                    visit(nested, child_include, child_exclude)
+
+            enter(item, mapping_values)
+            return
+        if isinstance(item, (list, tuple)):
+
+            def sequence_values() -> None:
+                for index, nested in enumerate(item):
+                    selected, child_include, child_exclude = _prompt_selected_child(
+                        item_include,
+                        item_exclude,
+                        index,
+                        sequence_length=len(item),
+                    )
+                    if selected:
+                        visit(nested, child_include, child_exclude)
+
+            enter(item, sequence_values)
+
+    visit(value, include, exclude)
+
+
+def _prompt_to_python(serializer: SchemaSerializer, value: Any, **kwargs: Any) -> Any:
+    """Preserve typed prompt refusals through Pydantic's serializer wrapper."""
+    try:
+        if isinstance(value, BaseModel):
+            return _prompt_track_active_graph(
+                value,
+                lambda: serializer.to_python(value, **kwargs),
+            )
+        return serializer.to_python(value, **kwargs)
+    except PydanticSerializationError as exc:
+        cause: BaseException | None = exc
+        visited: set[int] = set()
+        while cause is not None and id(cause) not in visited:
+            visited.add(id(cause))
+            if isinstance(cause, SearchBudgetProducerUnsupportedError):
+                raise cause
+            cause = cause.__cause__ or cause.__context__
+        raise SearchBudgetProducerUnsupportedError(
+            "search_prompt_model_serialization_failed",
+            "the selected Pydantic serializer could not produce a supported prompt value",
+        ) from exc
+
+
+def _prompt_serialize_model(
+    value: BaseModel,
+    info: Any,
+    model_type: type[BaseModel],
+) -> Any:
+    if not isinstance(value, model_type):
+        _prompt_refuse(
+            "search_prompt_model_schema_value_mismatch",
+            "the selected model schema does not match the prompt value",
+        )
+    if (
+        model_type.model_dump is not BaseModel.model_dump
+        or type(value).model_dump is not BaseModel.model_dump
+    ):
+        _prompt_refuse(
+            "search_prompt_custom_model_dump_not_interceptable",
+            "custom model_dump overrides are outside the selected schema serializer path",
+        )
+    serializer = _prompt_compiled_serializer(model_type)
+    result = _prompt_to_python(
+        serializer,
+        value,
+        mode=info.mode,
+        include=info.include,
+        exclude=info.exclude,
+        by_alias=info.by_alias,
+        exclude_unset=info.exclude_unset,
+        exclude_defaults=info.exclude_defaults,
+        exclude_none=info.exclude_none,
+        exclude_computed_fields=info.exclude_computed_fields,
+        round_trip=info.round_trip,
+        serialize_as_any=info.serialize_as_any,
+        context=info.context,
+    )
+    _prompt_validate_raw_graph(result)
+    return result
+
+
+def _prompt_serialize_dynamic_model(value: BaseModel, info: Any) -> Any:
+    return _prompt_serialize_model(value, info, type(value))
+
+
+def _prompt_child_serialization_info(
+    info: Any,
+    include: Any,
+    exclude: Any,
+) -> Any:
+    """Carry caller serializer options with one narrowed child selector."""
+    return SimpleNamespace(
+        mode=info.mode,
+        include=include,
+        exclude=exclude,
+        by_alias=info.by_alias,
+        exclude_unset=info.exclude_unset,
+        exclude_defaults=info.exclude_defaults,
+        exclude_none=info.exclude_none,
+        exclude_computed_fields=info.exclude_computed_fields,
+        round_trip=info.round_trip,
+        serialize_as_any=info.serialize_as_any,
+        context=info.context,
+    )
+
+
+def _prompt_prepare_any_value(
+    value: Any,
+    info: Any,
+    include: Any,
+    exclude: Any,
+) -> Any:
+    """Guard nested models using the caller's effective serializer projection."""
+    if isinstance(value, BaseModel):
+        child_info = _prompt_child_serialization_info(info, include, exclude)
+        return _prompt_serialize_dynamic_model(value, child_info)
+    if isinstance(value, Enum):
+        return _prompt_track_active_graph(
+            value,
+            lambda: _prompt_prepare_any_value(value.value, info, include, exclude),
+        )
+    if is_dataclass(value) and not isinstance(value, type):
+
+        def prepare_dataclass() -> Any:
+            try:
+                prepared = copy(value)
+            except (TypeError, AttributeError) as exc:
+                raise SearchBudgetProducerUnsupportedError(
+                    "search_prompt_dataclass_projection_unavailable",
+                    "the selected dataclass projection cannot be copied safely",
+                ) from exc
+            for field in fields(value):
+                selected, child_include, child_exclude = _prompt_selected_child(
+                    include,
+                    exclude,
+                    field.name,
+                )
+                if selected:
+                    object.__setattr__(
+                        prepared,
+                        field.name,
+                        _prompt_prepare_any_value(
+                            getattr(value, field.name),
+                            info,
+                            child_include,
+                            child_exclude,
+                        ),
+                    )
+            return prepared
+
+        return _prompt_track_active_graph(value, prepare_dataclass)
+    if isinstance(value, Iterator):
+        _prompt_refuse(
+            "search_prompt_one_shot_iterable_unsupported",
+            "protected candidate inputs cannot safely preflight one-shot iterables",
+        )
+    if isinstance(value, (set, frozenset)):
+
+        def prepare_set() -> list[Any]:
+            # The pinned Pydantic JSON projection emits a list and ignores selectors.
+            return [_prompt_prepare_any_value(nested, info, None, None) for nested in value]
+
+        return _prompt_track_active_graph(value, prepare_set)
+    if isinstance(value, Mapping):
+
+        def prepare_mapping() -> dict[Any, Any]:
+            prepared: dict[Any, Any] = {}
+            for key, nested in value.items():
+                selected, child_include, child_exclude = _prompt_selected_child(
+                    include,
+                    exclude,
+                    key,
+                )
+                if selected:
+                    if not isinstance(key, str):
+                        _prompt_refuse(
+                            "search_prompt_contains_non_string_key",
+                            "protected candidate inputs require string mapping keys",
+                        )
+                    prepared[key] = _prompt_prepare_any_value(
+                        nested,
+                        info,
+                        child_include,
+                        child_exclude,
+                    )
+                else:
+                    prepared[key] = nested
+            return prepared
+
+        return _prompt_track_active_graph(value, prepare_mapping)
+    if isinstance(value, (list, tuple)):
+
+        def prepare_sequence() -> list[Any] | tuple[Any, ...]:
+            prepared: list[Any] = []
+            for index, nested in enumerate(value):
+                selected, child_include, child_exclude = _prompt_selected_child(
+                    include,
+                    exclude,
+                    index,
+                    sequence_length=len(value),
+                )
+                prepared.append(
+                    _prompt_prepare_any_value(
+                        nested,
+                        info,
+                        child_include,
+                        child_exclude,
+                    )
+                    if selected
+                    else nested
+                )
+            return tuple(prepared) if isinstance(value, tuple) else prepared
+
+        return _prompt_track_active_graph(value, prepare_sequence)
+    _prompt_validate_raw_graph(value, include=include, exclude=exclude)
+    return value
+
+
+def _prompt_instrument_model_extras(schema: Any, *, untyped: bool) -> dict[str, Any]:
+    """Guard a model's effective extra-field projection before JSON conversion."""
+
+    def checked_extra(item: Any, handler: Any, info: Any) -> Any:
+        if untyped:
+            prepared = _prompt_prepare_any_value(
+                item,
+                info,
+                info.include,
+                info.exclude,
+            )
+        else:
+            _prompt_validate_raw_graph(
+                item,
+                include=info.include,
+                exclude=info.exclude,
+            )
+            prepared = item
+        emitted = handler(prepared)
+        _prompt_validate_raw_graph(emitted)
+        return emitted
+
+    return core_schema.any_schema(
+        serialization=core_schema.wrap_serializer_function_ser_schema(
+            checked_extra,
+            info_arg=True,
+            schema=schema,
+            when_used="json",
+        )
+    )
+
+
+def _prompt_instrument_serializer(schema: Any, parent_type: str | None) -> dict[str, Any]:
+    if not isinstance(schema, dict):
+        _prompt_refuse(
+            "search_prompt_core_schema_unavailable",
+            "the selected Pydantic CoreSchema serializer node is not inspectable",
+        )
+    serializer_type = schema.get("type")
+    result: dict[str, Any] = {}
+    for key, value in schema.items():
+        if key in _PROMPT_OPAQUE_SCHEMA_KEYS:
+            result[key] = value
+        else:
+            result[key] = _prompt_copy_schema_value(value)
+
+    if serializer_type in _PROMPT_SERIALIZER_TYPES:
+        source = schema["function"]
+        if serializer_type == "function-plain":
+            info_index = (
+                (2 if schema.get("is_field_serializer", False) else 1)
+                if schema.get("info_arg", False)
+                else None
+            )
+
+            @wraps(source)
+            def checked_plain(*args: Any, **kwargs: Any) -> Any:
+                emitted = source(*args, **kwargs)
+                info = (
+                    args[info_index]
+                    if info_index is not None and len(args) > info_index
+                    else kwargs.get("info")
+                )
+                _prompt_validate_raw_graph(
+                    emitted,
+                    include=getattr(info, "include", None),
+                    exclude=getattr(info, "exclude", None),
+                )
+                return emitted
+
+            result["function"] = checked_plain
+        else:
+            handler_index = 2 if schema.get("is_field_serializer", False) else 1
+            info_index = handler_index + 1 if schema.get("info_arg", False) else None
+
+            @wraps(source)
+            def checked_wrap(*args: Any, **kwargs: Any) -> Any:
+                mutable_args = list(args)
+                if len(mutable_args) <= handler_index:
+                    _prompt_refuse(
+                        "search_prompt_core_schema_wrap_signature_unavailable",
+                        "the selected Pydantic serializer callback signature is unknown",
+                    )
+                original_handler = mutable_args[handler_index]
+                info = mutable_args[info_index] if info_index is not None else None
+
+                @wraps(original_handler)
+                def checked_handler(*handler_args: Any, **handler_kwargs: Any) -> Any:
+                    if handler_args:
+                        handler_value = handler_args[0]
+                    else:
+                        handler_value = handler_kwargs.get("input_value")
+                    _prompt_validate_raw_graph(
+                        handler_value,
+                        include=getattr(info, "include", None),
+                        exclude=getattr(info, "exclude", None),
+                    )
+                    if parent_type == "any" and info is not None:
+                        emitted_inner = _prompt_prepare_any_value(
+                            handler_value,
+                            info,
+                            info.include,
+                            info.exclude,
+                        )
+                    else:
+                        emitted_inner = original_handler(*handler_args, **handler_kwargs)
+                    _prompt_validate_raw_graph(
+                        emitted_inner,
+                        include=getattr(info, "include", None),
+                        exclude=getattr(info, "exclude", None),
+                    )
+                    return emitted_inner
+
+                mutable_args[handler_index] = checked_handler
+                emitted = source(*mutable_args, **kwargs)
+                _prompt_validate_raw_graph(
+                    emitted,
+                    include=getattr(info, "include", None),
+                    exclude=getattr(info, "exclude", None),
+                )
+                return emitted
+
+            result["function"] = checked_wrap
+
+        if result.get("return_schema") is None:
+            result["return_schema"] = _prompt_copy_schema_value(core_schema.any_schema())
+    return result
+
+
+def _prompt_instrument_model_field(value: Any) -> dict[str, Any]:
+    """Guard one selected model field while retaining its actual serializer schema."""
+    if not isinstance(value, dict):
+        _prompt_refuse(
+            "search_prompt_core_field_schema_unavailable",
+            "the selected Pydantic model field is not inspectable",
+        )
+    result = {
+        key: nested if key in _PROMPT_OPAQUE_SCHEMA_KEYS else _prompt_copy_schema_value(nested)
+        for key, nested in value.items()
+    }
+    inner = result.get("schema")
+    if not isinstance(inner, dict):
+        _prompt_refuse(
+            "search_prompt_core_field_schema_unavailable",
+            "the selected Pydantic model field has no supported value schema",
+        )
+
+    def checked_field(item: Any, handler: Any, info: Any) -> Any:
+        _prompt_validate_raw_graph(
+            item,
+            include=info.include,
+            exclude=info.exclude,
+        )
+        emitted = handler(item)
+        _prompt_validate_raw_graph(
+            emitted,
+            include=info.include,
+            exclude=info.exclude,
+        )
+        return emitted
+
+    result["schema"] = core_schema.any_schema(
+        serialization=core_schema.wrap_serializer_function_ser_schema(
+            checked_field,
+            info_arg=True,
+            schema=inner,
+            when_used="json",
+        )
+    )
+    return result
+
+
+def _prompt_copy_schema_value(
+    value: Any,
+    *,
+    root_model: bool = False,
+    model_extra_allowed: bool = False,
+) -> Any:
+    schema_types = _prompt_core_schema_types()
+    if isinstance(value, dict):
+        node_type = value.get("type")
+        if node_type == "definitions":
+            return {
+                key: (
+                    _prompt_copy_schema_value(
+                        nested,
+                        root_model=root_model,
+                        model_extra_allowed=model_extra_allowed,
+                    )
+                    if key == "schema"
+                    else _prompt_copy_schema_value(nested)
+                )
+                for key, nested in value.items()
+            }
+        if node_type == "computed-field":
+            result = {
+                key: nested
+                if key in _PROMPT_OPAQUE_SCHEMA_KEYS
+                else _prompt_copy_schema_value(nested)
+                for key, nested in value.items()
+            }
+            target = result["return_schema"]
+            inner = _prompt_copy_schema_value(target)
+            outer = _prompt_copy_schema_value(target)
+
+            def checked_computed(item: Any, handler: Any, info: Any) -> Any:
+                _prompt_validate_raw_graph(
+                    item,
+                    include=info.include,
+                    exclude=info.exclude,
+                )
+                emitted = handler(item)
+                _prompt_validate_raw_graph(
+                    emitted,
+                    include=info.include,
+                    exclude=info.exclude,
+                )
+                return emitted
+
+            outer["serialization"] = core_schema.wrap_serializer_function_ser_schema(
+                checked_computed,
+                info_arg=True,
+                schema=inner,
+                when_used="json",
+            )
+            result["return_schema"] = outer
+            return result
+        if node_type in schema_types:
+            if node_type == "model-fields" and not isinstance(value.get("fields"), dict):
+                _prompt_refuse(
+                    "search_prompt_core_field_schema_unavailable",
+                    "the selected Pydantic model field collection is not inspectable",
+                )
+            result: dict[str, Any] = {}
+            if node_type == "model-fields":
+                model_extra_allowed = model_extra_allowed or value.get("extra_behavior") == "allow"
+            if node_type == "model":
+                config = value.get("config")
+                model_extra_allowed = value.get("extra_behavior") == "allow" or (
+                    isinstance(config, Mapping) and config.get("extra_fields_behavior") == "allow"
+                )
+            for key, nested in value.items():
+                if key in _PROMPT_OPAQUE_SCHEMA_KEYS:
+                    result[key] = nested
+                elif key == "fields" and node_type == "model-fields":
+                    if not isinstance(nested, dict):
+                        _prompt_refuse(
+                            "search_prompt_core_field_schema_unavailable",
+                            "the selected Pydantic model field collection is not inspectable",
+                        )
+                    result[key] = {
+                        field_name: _prompt_instrument_model_field(field_schema)
+                        for field_name, field_schema in nested.items()
+                    }
+                elif key == "serialization" and isinstance(nested, dict):
+                    result[key] = _prompt_instrument_serializer(nested, node_type)
+                elif key == "schema" and node_type == "model":
+                    result[key] = _prompt_copy_schema_value(
+                        nested,
+                        model_extra_allowed=model_extra_allowed,
+                    )
+                elif key == "extras_schema" and node_type == "model-fields":
+                    copied = _prompt_copy_schema_value(nested)
+                    result[key] = (
+                        _prompt_instrument_model_extras(copied, untyped=False)
+                        if model_extra_allowed
+                        else copied
+                    )
+                else:
+                    result[key] = _prompt_copy_schema_value(nested)
+            if (
+                node_type == "model-fields"
+                and model_extra_allowed
+                and "extras_schema" not in result
+            ):
+                result["extras_schema"] = _prompt_instrument_model_extras(
+                    core_schema.any_schema(),
+                    untyped=True,
+                )
+            if (
+                node_type == "model"
+                and root_model
+                and value.get("root_model") is True
+                and not isinstance(value.get("serialization"), dict)
+            ):
+                declared_type = value.get("cls")
+                if not isinstance(declared_type, type) or not issubclass(declared_type, BaseModel):
+                    _prompt_refuse(
+                        "search_prompt_core_model_type_unavailable",
+                        "the selected root model has no supported Pydantic class",
+                    )
+
+                def checked_root_model(item: Any, handler: Any, info: Any) -> Any:
+                    if not isinstance(item, declared_type):
+                        _prompt_refuse(
+                            "search_prompt_model_schema_value_mismatch",
+                            "the selected root model schema does not match the prompt value",
+                        )
+                    if not hasattr(item, "root"):
+                        _prompt_refuse(
+                            "search_prompt_root_model_value_unavailable",
+                            "the selected root model has no readable root value",
+                        )
+
+                    def serialize_root() -> Any:
+                        _prompt_validate_raw_graph(
+                            item.root,
+                            include=info.include,
+                            exclude=info.exclude,
+                        )
+                        emitted = handler(item)
+                        _prompt_validate_raw_graph(
+                            emitted,
+                            include=info.include,
+                            exclude=info.exclude,
+                        )
+                        return emitted
+
+                    # _prompt_to_python owns this model's active-identity entry.
+                    return serialize_root()
+
+                result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
+                    checked_root_model,
+                    info_arg=True,
+                    when_used="json",
+                )
+            if node_type == "model" and not root_model:
+                declared_type = value.get("cls")
+                if not isinstance(declared_type, type) or not issubclass(declared_type, BaseModel):
+                    _prompt_refuse(
+                        "search_prompt_core_model_type_unavailable",
+                        "the selected nested model has no supported Pydantic class",
+                    )
+
+                def checked_nested_model(item: Any, handler: Any, info: Any) -> Any:
+                    del handler
+                    if not isinstance(item, BaseModel):
+                        _prompt_refuse(
+                            "search_prompt_model_schema_value_mismatch",
+                            "the selected model schema does not match the prompt value",
+                        )
+                    model_type = type(item) if info.serialize_as_any else declared_type
+                    return _prompt_serialize_model(item, info, model_type)
+
+                result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
+                    checked_nested_model,
+                    info_arg=True,
+                    when_used="json",
+                )
+            if node_type == "any" and not isinstance(value.get("serialization"), dict):
+                inner = dict(result)
+
+                def checked_any(item: Any, handler: Any, info: Any) -> Any:
+                    if isinstance(item, BaseModel):
+                        emitted = _prompt_serialize_dynamic_model(item, info)
+                    else:
+                        prepared = _prompt_prepare_any_value(
+                            item,
+                            info,
+                            info.include,
+                            info.exclude,
+                        )
+                        emitted = handler(prepared)
+                    _prompt_validate_raw_graph(emitted)
+                    return emitted
+
+                result["serialization"] = core_schema.wrap_serializer_function_ser_schema(
+                    checked_any,
+                    info_arg=True,
+                    schema=inner,
+                    when_used="json",
+                )
+            return result
+        return {
+            key: nested if key in _PROMPT_OPAQUE_SCHEMA_KEYS else _prompt_copy_schema_value(nested)
+            for key, nested in value.items()
+        }
+    if isinstance(value, list):
+        return [_prompt_copy_schema_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_prompt_copy_schema_value(item) for item in value)
+    return value
+
+
+def _prompt_compiled_serializer(model_type: type[BaseModel]) -> SchemaSerializer:
+    schema = model_type.__pydantic_core_schema__
+    with _PROMPT_SERIALIZER_CACHE_LOCK:
+        cached = _PROMPT_SERIALIZER_CACHE.get(model_type)
+        if cached is not None and cached[0] is schema:
+            return cached[1]
+        transformed = _prompt_copy_schema_value(schema, root_model=True)
+        config = transformed.get("config") if isinstance(transformed, dict) else None
+        serializer = SchemaSerializer(transformed, config=config)
+        _PROMPT_SERIALIZER_CACHE[model_type] = (schema, serializer)
+        return serializer
+
+
 def _search_prompt_value(value: Any) -> Any:
     """Convert supported search inputs to JSON without dropping unknown values."""
     if value is None or isinstance(value, (str, bool, int)):
@@ -221,7 +1087,21 @@ def _search_prompt_value(value: Any) -> Any:
     if isinstance(value, Enum):
         return _search_prompt_value(value.value)
     if isinstance(value, BaseModel):
-        return _search_prompt_value(value.model_dump(mode="json", exclude_none=False))
+        if type(value).model_dump is not BaseModel.model_dump:
+            _prompt_refuse(
+                "search_prompt_custom_model_dump_not_interceptable",
+                "custom model_dump overrides are outside the selected schema serializer path",
+            )
+        _prompt_validate_raw_graph(value)
+        emitted = _prompt_to_python(
+            _prompt_compiled_serializer(type(value)),
+            value,
+            mode="json",
+            exclude_none=False,
+            serialize_as_any=False,
+        )
+        _prompt_validate_raw_graph(emitted)
+        return _search_prompt_value(emitted)
     if isinstance(value, Mapping):
         converted: dict[str, Any] = {}
         for key, item in value.items():
@@ -269,7 +1149,9 @@ class TracedLLMCandidateGenerator:
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
 
         if type(generator) is not TracedLLMCandidateGenerator:
             raise SearchBudgetProducerUnsupportedError(
@@ -440,7 +1322,9 @@ class SearchConfig:
             from polisyos.scientist.orchestration.engine.budget_ledger import (
                 BudgetLedgerProducerRunBinding,
             )
-            from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+            from polisyos.scientist.orchestration.engine.budget_middleware import (
+                BudgetMiddleware,
+            )
 
             if type(self.producer_run_binding) is not BudgetLedgerProducerRunBinding:
                 raise TypeError("producer_run_binding must be a server-issued typed binding")

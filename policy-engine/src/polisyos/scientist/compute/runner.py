@@ -337,6 +337,7 @@ class MethodBackend:
                 inputs=result_inputs,
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
         evidence_payload = {
@@ -388,6 +389,7 @@ class MethodBackend:
                 ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
 
         posterior_result = (
@@ -530,6 +532,7 @@ def _load_input_refs(
     store_factory: Callable[[Path], ArtifactStore] | None = None,
 ) -> Any:
     from polisyos.core.artifacts import load_core_json_artifact
+
     store = (store_factory or _build_store)(cas_root)
     loaded: dict[str, Any] = {}
     for slot_name, ref in input_refs.items():

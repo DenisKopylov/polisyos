@@ -137,8 +137,7 @@ class MethodJobExecutionWorkPacket(BaseModel):
                 profile is None
                 or profile.schema_version != "2"
                 or not profile.search_parameter_bindings
-                or set(self.search_parameter_values)
-                != set(profile.search_parameter_bindings)
+                or set(self.search_parameter_values) != set(profile.search_parameter_bindings)
             ):
                 raise ValueError(
                     "schema 1.3 work packets require a complete Search parameter profile"
@@ -189,6 +188,7 @@ def persist_method_job_execution_work_packet(
             inputs=[input_ref_from_artifact_ref(ref, role=role) for role, ref in inputs],
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        return_selected_profile=True,
     )
 
 

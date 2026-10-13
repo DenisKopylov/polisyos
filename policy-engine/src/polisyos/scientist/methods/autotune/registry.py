@@ -12,7 +12,11 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.read_api import academic
 
@@ -50,7 +54,21 @@ class ChampionRegistry:
         path = self._pointer_path(loop_id)
         if not path.exists():
             return None
-        return ChampionPointer.model_validate_json(path.read_text(encoding="utf-8"))
+        document = json.loads(path.read_text(encoding="utf-8"))
+        if (
+            loop_id == "claim_adjudication"
+            and isinstance(document, dict)
+            and document.get("schema_version") == "claim-champion-envelope.v1"
+        ):
+            pointer_data = document.get("pointer")
+            if not isinstance(pointer_data, dict):
+                raise ValueError("claim_adjudication_champion_envelope_pointer_invalid")
+            pointer = ChampionPointer.model_validate(pointer_data)
+            read_claim_promotion_predecessor(
+                self._root, pointer.model_dump(mode="json", exclude_none=True)
+            )
+            return pointer
+        return ChampionPointer.model_validate(document)
 
     def seed_baseline(
         self,
@@ -87,6 +105,28 @@ class ChampionRegistry:
         suite_ref: ArtifactRef | None = None,
         pareto_promoter: Any | None = None,
     ) -> PromotionDecision:
+        if loop_id == "claim_adjudication":
+            missing = next(
+                (
+                    name
+                    for name, ref in (
+                        ("candidate", candidate_ref),
+                        ("evaluation", evaluation_ref),
+                        ("benchmark_suite", suite_ref),
+                    )
+                    if ref is None or ref.manifest_profile_sha256 is None
+                ),
+                None,
+            )
+            if missing is not None:
+                current = self.get(loop_id)
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason=f"claim_adjudication_selected_profile_required:{missing}",
+                    champion=current,
+                    previous_champion=current,
+                )
         evaluation = load_model_artifact(self._store, evaluation_ref, BenchmarkEvaluation)
         if not isinstance(evaluation, BenchmarkEvaluation):
             raise TypeError("Expected BenchmarkEvaluation")
@@ -130,21 +170,19 @@ class ChampionRegistry:
     ) -> str | None:
         if policy.loop_id != loop_id:
             return "policy_loop_mismatch"
+        if loop_id == "claim_adjudication" and any(
+            ref is None or ref.manifest_profile_sha256 is None
+            for ref in (candidate_ref, evaluation_ref, suite_ref)
+        ):
+            return "claim_adjudication_selected_profile_required"
         if evaluation.loop_id != loop_id:
             return "evaluation_loop_mismatch"
-        if evaluation.candidate_ref.artifact_id != candidate_ref.artifact_id:
+        if artifact_ref_identity_key(evaluation.candidate_ref) != artifact_ref_identity_key(
+            candidate_ref
+        ):
             return "evaluation_candidate_mismatch"
         if suite_ref is None:
-            if loop_id != "claim_adjudication":
-                return "suite_ref_required"
-            # The claim-adjudication producer predates the generic split binding
-            # and is independently replayed by its verifier. Keep that narrow
-            # compatibility path explicit; ordinary loops remain fail-closed.
-            if evaluation.runtime_split_type is not None and (
-                evaluation.runtime_split_type != policy.compare_split
-            ):
-                return "runtime_split_mismatch"
-            return None
+            return "suite_ref_required"
 
         resolved_split = evaluation.runtime_split_type
         if resolved_split is None:
@@ -164,13 +202,17 @@ class ChampionRegistry:
             return "suite_mismatch"
         if evaluation.suite_version != suite.suite_version:
             return "suite_version_mismatch"
-        for artifact_ref in (candidate_ref, evaluation_ref):
-            manifest = self._store.get_manifest(artifact_ref)
-            if not any(
-                item.role == "benchmark_suite" and item.artifact_id == suite_ref.artifact_id
-                for item in manifest.inputs
-            ):
+        expected_suite_input = input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")
+        candidate_manifest = self._store.get_manifest(candidate_ref)
+        evaluation_manifest = self._store.get_manifest(evaluation_ref)
+        for manifest in (candidate_manifest, evaluation_manifest):
+            suite_inputs = [item for item in manifest.inputs if item.role == "benchmark_suite"]
+            if len(suite_inputs) != 1 or suite_inputs[0] != expected_suite_input:
                 return "suite_basis_mismatch"
+        candidate_inputs = [item for item in evaluation_manifest.inputs if item.role == "candidate"]
+        expected_candidate_input = input_ref_from_artifact_ref(candidate_ref, role="candidate")
+        if len(candidate_inputs) != 1 or candidate_inputs[0] != expected_candidate_input:
+            return "evaluation_candidate_basis_mismatch"
         return None
 
     def _consider_promotion_locked(
@@ -199,10 +241,9 @@ class ChampionRegistry:
             elif basis_path.exists():
                 raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
         if current is not None and suite_ref is not None:
-            if loop_id != "claim_adjudication" and (
-                current.metadata.get("suite_id") is None
-                or current.metadata.get("suite_ref") is None
-            ):
+            current_suite_id = current.metadata.get("suite_id")
+            current_suite_ref = current.metadata.get("suite_ref")
+            if current_suite_id is None or current_suite_ref is None:
                 return PromotionDecision(
                     loop_id=loop_id,
                     promoted=False,
@@ -210,8 +251,7 @@ class ChampionRegistry:
                     champion=current,
                     previous_champion=current,
                 )
-            current_suite_id = current.metadata.get("suite_id")
-            if current_suite_id is not None and current_suite_id != evaluation.suite_id:
+            if current_suite_id != evaluation.suite_id:
                 return PromotionDecision(
                     loop_id=loop_id,
                     promoted=False,
@@ -227,8 +267,27 @@ class ChampionRegistry:
                     champion=current,
                     previous_champion=current,
                 )
-            current_suite_ref = current.metadata.get("suite_ref")
-            if current_suite_ref is not None and current_suite_ref != str(suite_ref.artifact_id):
+            if not isinstance(current_suite_ref, dict):
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_basis_unknown",
+                    champion=current,
+                    previous_champion=current,
+                )
+            try:
+                selected_current_suite_ref = ArtifactRef.model_validate(current_suite_ref)
+            except ValueError:
+                return PromotionDecision(
+                    loop_id=loop_id,
+                    promoted=False,
+                    reason="champion_suite_basis_unknown",
+                    champion=current,
+                    previous_champion=current,
+                )
+            if artifact_ref_identity_key(selected_current_suite_ref) != artifact_ref_identity_key(
+                suite_ref
+            ):
                 return PromotionDecision(
                     loop_id=loop_id,
                     promoted=False,
@@ -327,7 +386,7 @@ class ChampionRegistry:
                 **(
                     {
                         "suite_id": evaluation.suite_id,
-                        "suite_ref": str(suite_ref.artifact_id),
+                        "suite_ref": suite_ref.model_dump(mode="json"),
                     }
                     if suite_ref is not None
                     else {}
@@ -335,12 +394,10 @@ class ChampionRegistry:
             },
         )
         if loop_id == "claim_adjudication":
-            # Record the actual comparator before the pointer transition. A crash
-            # between the two atomic writes leaves a mismatch and fails closed.
-            payload = pointer.model_dump(mode="json")
+            pointer_payload = pointer.model_dump(mode="json", exclude_none=True)
             pointer_digest = hashlib.sha256(
                 json.dumps(
-                    payload,
+                    pointer_payload,
                     sort_keys=True,
                     ensure_ascii=False,
                     separators=(",", ":"),
@@ -351,15 +408,21 @@ class ChampionRegistry:
                 "schema_version": "claim-promotion-basis.v1",
                 "transition": "successor" if current is not None else "genesis",
                 "current_pointer_sha256": pointer_digest,
-                "previous_pointer": current.model_dump(mode="json")
+                "previous_pointer": current.model_dump(mode="json", exclude_none=True)
                 if current is not None
                 else None,
             }
-            self._write_json(
-                self._root / loop_id / "promotion_basis.json",
-                json.dumps(basis, sort_keys=True).encode(),
-            )
-        self._write_pointer(loop_id, pointer)
+            envelope = {
+                "schema_version": "claim-champion-envelope.v1",
+                "pointer": pointer_payload,
+                "promotion_basis": basis,
+            }
+            envelope_bytes = json.dumps(
+                envelope, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+            ).encode("utf-8")
+            self._write_json(self._pointer_path(loop_id), envelope_bytes)
+        else:
+            self._write_pointer(loop_id, pointer)
         return PromotionDecision(
             loop_id=loop_id,
             promoted=True,

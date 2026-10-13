@@ -1,0 +1,11 @@
+id = "e02-b116-b117-registry-profile-atomicity-2026-10-13"
+title = "Bind protected claim evidence to complete selected producer views"
+type = "changed"
+component = "scientist-autotune"
+owner = "team-policyos-runtime"
+summary = "Protected claim suite, candidate, raw-input, method result/evidence/work-packet, evaluation, receipt, and admitted-result writers retain exact selected producer views through fresh-reader admission; generic diagnostic history remains profileless-compatible."
+surface_classification = "internal: polisyos.scientist.methods.autotune"
+compatibility = "ChampionRegistry.get continues to return ChampionPointer. Historical pointers remain readable under the existing promotion-basis rules, but profileless or ID-only suite views cannot be promoted or replayed as current protected evidence. Older ID-only verifier calls stay callable and return typed selected-profile refusals."
+migration = "Reissue protected claim suite, candidate, raw-input, method-output, work-packet, and evaluation producer records with exact selected profiles and matching manifest edges. Receipts predating benchmark_suite_ref remain historical and are refused for protected replay; never infer their suite profile from the current pointer. Upgrade readers before writing the claim-champion-envelope.v1 format."
+limitations = "No production evaluator receipt-v2 emitter or appointment issuer exists in the repository. External authority remains producer_missing and production-facing surface remains surface_out_of_scope. Native pytest and process-level B117 crash/race validation are UNRUN; this candidate does not claim B117 closure or production end-to-end capability."
+evidence = ["tests/unit/scientist/methods/autotune/test_claim_adjudication_autotune.py", "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py", "tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py", "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py"]

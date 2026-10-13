@@ -10,22 +10,27 @@ from types import SimpleNamespace
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from polisyos.core.artifacts import (
+    ArtifactRef,
     ArtifactWriteOptions,
     FileSystemCAS,
-    InputRef,
     ProducerInfo,
+    PutOptions,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
     ClaimAdjudicationVerifier,
     ClaimEvaluatorAppointment,
+    require_selected_artifact_ref,
 )
 from polisyos.ir.analytics.literature import AdmittedClaimAdjudicationBatch, ClaimAdjudicationResult
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
+    BenchmarkSuite,
     ChampionRegistry,
     persist_benchmark_evaluation,
+    persist_benchmark_suite,
     persist_mutation_artifact,
 )
 from polisyos.scientist.methods.autotune.claim_adjudication import (
@@ -38,17 +43,44 @@ def canonical(payload):
     return json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()
 
 
-def put(store, value):
-    return store.put_json(
+def put(store: FileSystemCAS, value: object) -> ArtifactRef:
+    """Write fixture evidence and retain the manifest profile returned by CAS."""
+    ref = store.put_json(
         value,
         ArtifactWriteOptions(kind="test.claim-evidence", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    return require_selected_artifact_ref(ref, field="test_claim_evidence")
 
 
-def signed_receipt(store, payload, key):
-    signature = key.sign(b"polisyos.claim-independent-evaluation.v1\0" + canonical(payload))
+def signed_receipt(store, payload, key, *, version="v2"):
+    domain = f"polisyos.claim-independent-evaluation.{version}\0".encode()
+    signature = key.sign(domain + canonical(payload))
     return put(store, {"payload": payload, "signature_hex": signature.hex()})
+
+
+def selected_manifest_view(
+    store: FileSystemCAS, ref: ArtifactRef, *, producer_component: str
+) -> ArtifactRef:
+    """Write identical CAS bytes under a different selected manifest profile."""
+    manifest = store.get_manifest(ref)
+    selected = store.put_bytes(
+        store.get_bytes(ref),
+        PutOptions(
+            kind=ref.kind,
+            media_type=ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=ProducerInfo(component=producer_component, version="1.0.0"),
+            inputs=manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert selected.artifact_id == ref.artifact_id
+    assert selected.manifest_profile_sha256 is not None
+    assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
+    assert store.get_bytes(selected) == store.get_bytes(ref)
+    return selected
 
 
 def evidence_fixture(
@@ -63,9 +95,28 @@ def evidence_fixture(
     benchmark_prediction_positive: bool = True,
     candidate_note: str = "",
 ):
-    """Create independent fixture signatures over complete benchmark and run inputs."""
-    candidate_ref = persist_mutation_artifact(
-        store, ClaimAdjudicationSearchConfig(passes=1, notes=[candidate_note])
+    """Create fixture signatures over exact producer-selected candidate and suite views."""
+    suite_ref = require_selected_artifact_ref(
+        persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="claim_gold",
+                suite_version="1.0",
+                kind="claim_adjudication",
+                metadata={"task": "claim_adjudication"},
+            ),
+            return_selected_profile=True,
+        ),
+        field="benchmark_suite",
+    )
+    candidate_ref = require_selected_artifact_ref(
+        persist_mutation_artifact(
+            store,
+            ClaimAdjudicationSearchConfig(passes=1, notes=[candidate_note]),
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+            return_selected_profile=True,
+        ),
+        field="candidate",
     )
     prediction = ClaimAdjudicationResult(
         claim_id="benchmark-1",
@@ -98,7 +149,8 @@ def evidence_fixture(
     }
     corpus_ref = put(store, corpus)
     observations = {
-        "candidate_ref": str(candidate_ref.artifact_id),
+        "candidate_ref": candidate_ref.model_dump(mode="json"),
+        "benchmark_suite_ref": suite_ref.model_dump(mode="json"),
         "cases": [
             {
                 "item_id": "benchmark-1",
@@ -147,24 +199,36 @@ def evidence_fixture(
     )
     if declared_metric_error:
         evaluation.holdout_metrics["sample_count"] = 100.0
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
+    evaluation_ref = require_selected_artifact_ref(
+        persist_benchmark_evaluation(
+            store,
+            evaluation,
+            inputs=[
+                input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+            ],
+            return_selected_profile=True,
+        ),
+        field="evaluation",
+    )
     decision = registry.consider_promotion(
-        "claim_adjudication", candidate_ref, evaluation_ref, policy
+        "claim_adjudication", candidate_ref, evaluation_ref, policy, suite_ref=suite_ref
     )
     assert decision.promoted
     pointer = registry.get("claim_adjudication")
     pointer_hash = hashlib.sha256(canonical(pointer.model_dump(mode="json"))).hexdigest()
     key = Ed25519PrivateKey.generate()
     base = {
-        "schema_version": "claim-independent-evaluation.v1",
+        "schema_version": "claim-independent-evaluation.v2",
         "purpose": "benchmark",
         "evaluator_id": "independent-fixture-evaluator",
         "key_id": "evaluator-fixture-key",
         "producer_id": "candidate-fixture-producer",
-        "candidate_ref": str(candidate_ref.artifact_id),
-        "evaluation_ref": str(evaluation_ref.artifact_id),
-        "benchmark_ref": str(corpus_ref.artifact_id),
-        "observations_ref": str(observations_ref.artifact_id),
+        "candidate_ref": candidate_ref.model_dump(mode="json"),
+        "evaluation_ref": evaluation_ref.model_dump(mode="json"),
+        "benchmark_ref": corpus_ref.model_dump(mode="json"),
+        "benchmark_suite_ref": suite_ref.model_dump(mode="json"),
+        "observations_ref": observations_ref.model_dump(mode="json"),
         "champion_pointer_sha256": pointer_hash,
         "raw_input_ref": None,
         "issued_at": "2020-01-01T00:00:00Z",
@@ -211,16 +275,17 @@ def evidence_fixture(
             )
         )
     run_observations = {
-        "candidate_ref": str(candidate_ref.artifact_id),
-        "raw_input_ref": str(raw_ref.artifact_id),
+        "candidate_ref": candidate_ref.model_dump(mode="json"),
+        "raw_input_ref": raw_ref.model_dump(mode="json"),
+        "benchmark_suite_ref": suite_ref.model_dump(mode="json"),
         "cases": predictions,
     }
     run_observations_ref = put(store, run_observations)
     run_payload = {
         **base,
         "purpose": "execution",
-        "observations_ref": str(run_observations_ref.artifact_id),
-        "raw_input_ref": str(raw_ref.artifact_id),
+        "observations_ref": run_observations_ref.model_dump(mode="json"),
+        "raw_input_ref": raw_ref.model_dump(mode="json"),
     }
     execution_receipt = signed_receipt(store, run_payload, key)
     appointment = ClaimEvaluatorAppointment(
@@ -228,7 +293,7 @@ def evidence_fixture(
         key_id=base["key_id"],
         public_key_hex=key.public_key().public_bytes_raw().hex(),
         producer_id=base["producer_id"],
-        benchmark_refs=(str(corpus_ref.artifact_id),),
+        benchmark_refs=(corpus_ref,),
         valid_from=datetime(2019, 1, 1, tzinfo=UTC),
         valid_until=datetime(2101, 1, 1, tzinfo=UTC),
     )
@@ -247,6 +312,7 @@ def evidence_fixture(
         store=store,
         registry=registry,
         verifier=verifier,
+        suite_ref=suite_ref,
         key=key,
         appointment=appointment,
         benchmark_payload=base,
@@ -263,7 +329,7 @@ def evidence_fixture(
     )
 
 
-def persist_batch(fixture, batch=None):
+def persist_batch(fixture, batch=None, *, candidate_ref=None):
     batch = batch or fixture.batch
     return fixture.store.put_json(
         batch,
@@ -279,21 +345,37 @@ def persist_batch(fixture, batch=None):
                 version="1.0",
             ),
             inputs=[
-                InputRef(artifact_id=ref.artifact_id, role=role)
+                input_ref_from_artifact_ref(ref, role=role)
                 for role, ref in (
                     ("raw_input", fixture.raw_ref),
-                    ("candidate", fixture.candidate_ref),
+                    ("candidate", candidate_ref or fixture.candidate_ref),
                     ("evaluation", fixture.evaluation_ref),
                     ("evaluation_receipt", fixture.evaluation_receipt_ref),
                     ("execution_receipt", fixture.execution_receipt_ref),
+                    ("benchmark_suite", fixture.suite_ref),
                 )
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
 def tamper_pointer(registry_root, loop_id, pointer):
-    """Simulate hostile local pointer bytes; ordinary claim transitions refuse this."""
+    """Change pointer bytes while retaining an envelope basis for mismatch checks."""
     path = registry_root / loop_id / "champion.json"
-    path.write_text(pointer.model_dump_json())
+    document = json.loads(path.read_text(encoding="utf-8"))
+    pointer_payload = pointer.model_dump(mode="json", exclude_none=True)
+    if (
+        isinstance(document, dict)
+        and document.get("schema_version") == "claim-champion-envelope.v1"
+    ):
+        document["pointer"] = pointer_payload
+        path.write_text(
+            json.dumps(
+                document, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+            ),
+            encoding="utf-8",
+        )
+    else:
+        path.write_text(pointer.model_dump_json())

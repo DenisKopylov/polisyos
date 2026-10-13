@@ -17,7 +17,12 @@ ablation и adversarial планы, генерацию sample sets и пост-�
 - **Analysis** — агрегация результатов и уязвимостей после execution.
 - **Sensitivity uncertainty** — calibrated CI payloads, rank uncertainty, and retained row blocks.
 - **Coverage benchmarks** — analytic truth suites, empirical coverage metrics, and approval profiles.
-- **StressTestReport** — итоговая форма публикации robustness issues.
+- **StressTestReport** — итоговая форма публикации robustness issues. The `run_stress_test`
+  result also exposes its exact selected CAS report reference through the transient
+  `cas_artifact_ref` property; that caller handle is excluded from the persisted payload. A
+  finite score also requires the current candidate to be a selected `PolicyCandidateSchema`
+  artifact; the legacy `scientist.policy_candidate_schema` kind remains candidate-only and is
+  not relabeled by the runtime bridge.
 
 ## Bounded distribution contract (DOE-02)
 

@@ -4,12 +4,19 @@ from types import SimpleNamespace
 
 import pytest
 
+from polisyos.core.artifacts import (
+    ArtifactWriteOptions,
+    ProducerInfo,
+    artifact_ref_for_manifest,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
     claim_promotion_policy,
 )
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
+    _validate_input_batch,
     produce_claim_adjudication_input,
 )
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
@@ -31,11 +38,13 @@ from polisyos.scientist.methods.autotune import (
     BenchmarkSplit,
     ChampionRegistry,
     persist_benchmark_evaluation,
+    persist_benchmark_suite,
     persist_mutation_artifact,
 )
 from polisyos.scientist.methods.autotune.claim_adjudication import (
     ClaimAdjudicationSearchConfig,
     default_claim_adjudication_promotion_policy,
+    default_claim_gold_suite,
 )
 from polisyos.scientist.methods.autotune.claim_adjudication_cli import (
     run_claim_adjudication_command,
@@ -115,9 +124,14 @@ def _promote_champion(
     store: FileSystemCAS,
     registry: ChampionRegistry,
 ) -> tuple[object, object]:
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
     candidate_ref = persist_mutation_artifact(
         store,
         ClaimAdjudicationSearchConfig(passes=1),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
     )
     policy = default_claim_adjudication_promotion_policy()
     evaluation = BenchmarkEvaluation(
@@ -131,12 +145,21 @@ def _promote_champion(
         promotable=True,
         runtime_split_type=BenchmarkSplit.HOLDOUT,
     )
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+        ],
+        return_selected_profile=True,
+    )
     decision = registry.consider_promotion(
         "claim_adjudication",
         candidate_ref,
         evaluation_ref,
         policy,
+        suite_ref=suite_ref,
     )
     assert decision.promoted is True
     return candidate_ref, evaluation_ref
@@ -399,3 +422,168 @@ async def test_scientist_cli_route_executes_real_transport_and_materializes_rece
     assert metrics == {"claims": 1, "published": 1}
     assert config.claim_adjudication_result_ref_path.exists()
     assert config.claim_adjudications_path.exists()
+
+
+@pytest.mark.asyncio
+async def test_runtime_result_manifest_preserves_all_selected_claim_refs(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    config, raw_ref = _input_ref(tmp_path, store)
+    registry = ChampionRegistry(root=config.claim_adjudication_registry_root, store=store)
+    fixture = evidence_fixture(store, registry, config.claim_adjudication_registry_root, raw_ref)
+    outcome = await ClaimAdjudicationRuntime(
+        store=store,
+        registry=registry,
+        verifier=fixture.verifier,
+        evaluation_receipt_ref=fixture.evaluation_receipt_ref,
+        execution_receipt_ref=fixture.execution_receipt_ref,
+    ).adjudicate(raw_ref, client=_FakeClient(fixture.client_payload), model="fixture")
+    assert outcome.status == "completed", outcome
+    assert outcome.result_ref is not None
+    result_manifest = store.get_manifest(outcome.result_ref)
+    inputs = {item.role: item for item in result_manifest.inputs}
+    expected = {
+        "raw_input": raw_ref,
+        "candidate": fixture.candidate_ref,
+        "evaluation": fixture.evaluation_ref,
+        "evaluation_receipt": fixture.evaluation_receipt_ref,
+        "execution_receipt": fixture.execution_receipt_ref,
+        "benchmark_suite": fixture.suite_ref,
+    }
+    assert len(inputs) == len(result_manifest.inputs)
+    assert set(inputs) == set(expected)
+    for role, ref in expected.items():
+        edge = inputs[role]
+        assert edge.role == role
+        assert edge.artifact_id == ref.artifact_id
+        assert edge.manifest_profile_sha256 is not None
+        assert edge.manifest_profile_sha256 == ref.manifest_profile_sha256
+        selected_manifest = store.get_manifest_by_profile(
+            edge.artifact_id, edge.manifest_profile_sha256
+        )
+        selected_ref = artifact_ref_for_manifest(selected_manifest)
+        assert selected_ref.artifact_id == ref.artifact_id
+        assert selected_ref.kind == ref.kind
+        assert selected_ref.media_type == ref.media_type
+        assert selected_ref.manifest_profile_sha256 == ref.manifest_profile_sha256
+
+
+def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snapshot")
+    config.article_extraction_results_path.parent.mkdir(parents=True, exist_ok=True)
+    config.article_extraction_results_path.write_text(
+        _article().model_dump_json() + "\n", encoding="utf-8"
+    )
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text('{"id":"W2","is_retracted":true}\n', encoding="utf-8")
+
+    raw_ref = produce_claim_adjudication_input(config, store=store)
+    fresh_reader = FileSystemCAS(tmp_path / "cas")
+    raw_manifest = fresh_reader.get_manifest(raw_ref)
+    assert raw_ref.manifest_profile_sha256 is not None
+    assert raw_manifest.kind == "data_forge.academic.claim_adjudication.input_batch"
+    assert raw_manifest.media_type == "application/json"
+    assert raw_manifest.artifact_schema is not None
+    assert (
+        raw_manifest.artifact_schema.name
+        == "polisyos.ir.analytics.literature.ClaimAdjudicationInputBatch"
+    )
+    assert raw_manifest.artifact_schema.version == "1.0"
+    assert raw_manifest.producer is not None
+    assert (
+        str(raw_manifest.producer.component)
+        == "polisyos.data_forge.domains.academic.batch.claim_adjudicator"
+    )
+    assert raw_manifest.producer.version == "1.0"
+
+    edges = {item.role: item for item in raw_manifest.inputs}
+    assert set(edges) == {"extraction_source", "retraction_source"}
+    expected_sources = {
+        "extraction_source": (
+            "data_forge.academic.claim_adjudication.extraction_source",
+            "polisyos.ir.analytics.literature.ArticleExtractionResult.ndjson",
+        ),
+        "retraction_source": (
+            "data_forge.academic.claim_adjudication.retraction_source",
+            "polisyos.data_forge.academic.MergedRecord.ndjson",
+        ),
+    }
+    for role, edge in edges.items():
+        assert edge.manifest_profile_sha256 is not None
+        source_manifest = fresh_reader.get_manifest_by_profile(
+            edge.artifact_id, edge.manifest_profile_sha256
+        )
+        expected_kind, expected_schema = expected_sources[role]
+        assert source_manifest.kind == expected_kind
+        assert source_manifest.media_type == "application/x-ndjson"
+        assert source_manifest.artifact_schema is not None
+        assert source_manifest.artifact_schema.name == expected_schema
+        assert source_manifest.artifact_schema.version == "1.0"
+        assert source_manifest.producer is not None
+        assert (
+            str(source_manifest.producer.component)
+            == "polisyos.data_forge.domains.academic.batch.claim_adjudicator"
+        )
+        assert source_manifest.producer.version == "1.0"
+    _validate_input_batch(fresh_reader, raw_ref)
+
+    body = from_canonical_bytes(fresh_reader.get_bytes(raw_ref.artifact_id))
+    for role, edge in edges.items():
+        profileless_inputs = [
+            item.model_copy(update={"manifest_profile_sha256": None}) if item.role == role else item
+            for item in raw_manifest.inputs
+        ]
+        profileless_ref = fresh_reader.put_json(
+            body,
+            ArtifactWriteOptions(
+                kind=raw_manifest.kind,
+                media_type=raw_manifest.media_type,
+                schema=raw_manifest.artifact_schema,
+                producer=raw_manifest.producer,
+                inputs=profileless_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError):
+            _validate_input_batch(fresh_reader, profileless_ref)
+
+        source_manifest = fresh_reader.get_manifest_by_profile(
+            edge.artifact_id, edge.manifest_profile_sha256
+        )
+        alternate_source_ref = fresh_reader.put_bytes(
+            fresh_reader.get_bytes(edge.artifact_id),
+            ArtifactWriteOptions(
+                kind=source_manifest.kind,
+                media_type=source_manifest.media_type,
+                schema=source_manifest.artifact_schema,
+                producer=ProducerInfo(
+                    component=str(source_manifest.producer.component),
+                    version="2.0",
+                ),
+                inputs=list(source_manifest.inputs),
+            ),
+            return_selected_profile=True,
+        )
+        assert alternate_source_ref.artifact_id == edge.artifact_id
+        assert alternate_source_ref.manifest_profile_sha256 != edge.manifest_profile_sha256
+        alternate_inputs = [
+            input_ref_from_artifact_ref(alternate_source_ref, role=role)
+            if item.role == role
+            else item
+            for item in raw_manifest.inputs
+        ]
+        alternate_ref = fresh_reader.put_json(
+            body,
+            ArtifactWriteOptions(
+                kind=raw_manifest.kind,
+                media_type=raw_manifest.media_type,
+                schema=raw_manifest.artifact_schema,
+                producer=raw_manifest.producer,
+                inputs=alternate_inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        with pytest.raises(ValueError, match=f"source profile mismatch:{role}"):
+            _validate_input_batch(fresh_reader, alternate_ref)

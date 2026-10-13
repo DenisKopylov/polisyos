@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from pydantic import BaseModel
 
+from polisyos.core.artifacts import ArtifactWriteOptions, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
     claim_promotion_policy,
@@ -18,7 +20,12 @@ from polisyos.ir.analytics.literature import (
     SupportStatus,
 )
 from polisyos.scientist.methods.autotune import (
+    BenchmarkEvaluation,
     ChampionRegistry,
+    PydanticMutationCodec,
+    SearchLoopRunner,
+    SearchLoopSpec,
+    SequenceCandidateGenerator,
     persist_benchmark_evaluation,
     persist_benchmark_suite,
     persist_mutation_artifact,
@@ -153,9 +160,14 @@ def test_confidence_weighted_claim_consensus_prefers_high_confidence_votes(tmp_p
 def test_claim_promotion_is_blocked_on_abstract_only_overcall(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
-    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
     candidate_ref = persist_mutation_artifact(
-        store, ClaimAdjudicationSearchConfig(prompt_variants=["bad-variant"])
+        store,
+        ClaimAdjudicationSearchConfig(prompt_variants=["bad-variant"]),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
     )
     evaluator = ClaimGoldEvaluator(store=store, registry=registry)
 
@@ -184,12 +196,21 @@ def test_claim_promotion_is_blocked_on_abstract_only_overcall(tmp_path) -> None:
         suite_ref,
         {"store": store, "registry": registry, "claim_predictor": predictor},
     )
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+        ],
+        return_selected_profile=True,
+    )
     decision = registry.consider_promotion(
         "claim_adjudication",
         candidate_ref,
         evaluation_ref,
         default_claim_adjudication_promotion_policy(),
+        suite_ref=suite_ref,
     )
 
     assert evaluation.guardrails["abstract_only_publishable_fp_rate_zero"] is False
@@ -200,7 +221,9 @@ def test_claim_promotion_is_blocked_on_abstract_only_overcall(tmp_path) -> None:
 def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
-    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
     loader = ClaimAdjudicationRuntimeLoader(store=store, registry=registry)
     baseline = loader.load()
     assert baseline.prompt_variants[0] != "promoted-variant"
@@ -208,7 +231,12 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
     assert not (tmp_path / ".polisyos" / "search_registry" / "claim_adjudication").exists()
 
     promoted_config = ClaimAdjudicationSearchConfig(prompt_variants=["promoted-variant"], passes=1)
-    candidate_ref = persist_mutation_artifact(store, promoted_config)
+    candidate_ref = persist_mutation_artifact(
+        store,
+        promoted_config,
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
     evaluator = ClaimGoldEvaluator(store=store, registry=registry)
 
     def predictor(row, config, pass_index, context):
@@ -237,12 +265,21 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
         suite_ref,
         {"store": store, "registry": registry, "claim_predictor": predictor},
     )
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+        ],
+        return_selected_profile=True,
+    )
     decision = registry.consider_promotion(
         "claim_adjudication",
         candidate_ref,
         evaluation_ref,
         default_claim_adjudication_promotion_policy(),
+        suite_ref=suite_ref,
     )
 
     assert decision.promoted is True
@@ -256,6 +293,7 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
         candidate_ref,
         evaluation_ref,
         default_claim_adjudication_promotion_policy().model_copy(update={"unit": "ratio"}),
+        suite_ref=suite_ref,
     )
     # Catches a canonicalization change that accidentally makes explicit policy mismatches
     # admissible after omitting null fields from the default policy.
@@ -263,3 +301,255 @@ def test_successful_claim_promotion_changes_runtime_selection(tmp_path) -> None:
     assert mismatch.reason == "claim_promotion_policy_mismatch"
     reloaded = loader.load()
     assert reloaded.prompt_variants == ["promoted-variant"]
+
+
+def test_search_loop_persists_selected_suite_candidate_and_evaluation_for_fresh_reader(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_root = tmp_path / "registry"
+    registry = ChampionRegistry(root=registry_root, store=store)
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
+    assert suite_ref.manifest_profile_sha256 is not None
+    loader = ClaimAdjudicationRuntimeLoader(store=store, registry=registry)
+    spec = SearchLoopSpec(
+        loop_id="claim_adjudication",
+        mutation_codec=PydanticMutationCodec(ClaimAdjudicationSearchConfig),
+        candidate_generator=SequenceCandidateGenerator(
+            [ClaimAdjudicationSearchConfig(prompt_variants=["profile-chain-witness"], passes=1)]
+        ),
+        benchmark_evaluator=ClaimGoldEvaluator(store=store, registry=registry),
+        promotion_policy=default_claim_adjudication_promotion_policy(),
+        runtime_loader=loader,
+    )
+
+    def predictor(row, config, pass_index, context):
+        del pass_index, context
+        publishable = str(row["publish_to_graph"]).lower() == "yes"
+        return {
+            "claim_id": row["paper_id"],
+            "openalex_id": row["paper_id"],
+            "cause_variable": row["cause_text"],
+            "effect_variable": row["effect_text"],
+            "source_basis": row["source_basis"],
+            "claim_type": row["claim_type"],
+            "design_family": row["design_family"],
+            "causal_credibility": row["causal_credibility"],
+            "risk_of_bias": row["risk_of_bias"],
+            "support_status": row["support_status"],
+            "paper_asserts_causality_score": 0.9,
+            "claim_validity_score": 0.9 if publishable else 0.1,
+            "adjudication_confidence": 0.95,
+            "publishable_edge": publishable,
+        }
+
+    SearchLoopRunner(store=store, registry=registry).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"claim_predictor": predictor},
+        max_iterations=1,
+    )
+    pointer = registry.get("claim_adjudication")
+    assert pointer is not None
+    assert pointer.candidate_ref.manifest_profile_sha256 is not None
+    assert pointer.evaluation_ref.manifest_profile_sha256 is not None
+    assert pointer.metadata["suite_ref"] == suite_ref.model_dump(mode="json")
+    candidate_manifest = store.get_manifest(pointer.candidate_ref)
+    evaluation_manifest = store.get_manifest(pointer.evaluation_ref)
+    assert [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")] == [
+        edge for edge in candidate_manifest.inputs if edge.role == "benchmark_suite"
+    ]
+    assert [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")] == [
+        edge for edge in evaluation_manifest.inputs if edge.role == "benchmark_suite"
+    ]
+    assert [input_ref_from_artifact_ref(pointer.candidate_ref, role="candidate")] == [
+        edge for edge in evaluation_manifest.inputs if edge.role == "candidate"
+    ]
+    fresh = ChampionRegistry(root=registry_root, store=FileSystemCAS(tmp_path / "cas"))
+    selected = fresh.get("claim_adjudication")
+    assert selected is not None
+    assert selected.metadata["suite_ref"] == suite_ref.model_dump(mode="json")
+
+
+def test_search_loop_refuses_profileless_suite_before_candidate_generation(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "registry", store=store)
+    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    assert suite_ref.manifest_profile_sha256 is None
+    generator = SequenceCandidateGenerator([ClaimAdjudicationSearchConfig(passes=1)])
+    spec = SearchLoopSpec(
+        loop_id="claim_adjudication",
+        mutation_codec=PydanticMutationCodec(ClaimAdjudicationSearchConfig),
+        candidate_generator=generator,
+        benchmark_evaluator=ClaimGoldEvaluator(store=store, registry=registry),
+        promotion_policy=default_claim_adjudication_promotion_policy(),
+        runtime_loader=ClaimAdjudicationRuntimeLoader(store=store, registry=registry),
+    )
+    with pytest.raises(ValueError, match="selected_profile_required:benchmark_suite"):
+        SearchLoopRunner(store=store, registry=registry).run(
+            spec, suite_ref=suite_ref, context={}, max_iterations=1
+        )
+    assert generator._index == 0
+
+
+def test_claim_registry_refuses_profileless_suite_without_publishing(tmp_path):
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "registry", store=store)
+    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    candidate_ref = persist_mutation_artifact(
+        store,
+        ClaimAdjudicationSearchConfig(loop_id="other_loop", passes=1),
+        return_selected_profile=True,
+    )
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        BenchmarkEvaluation(
+            loop_id="other_loop",
+            suite_id="claim_gold",
+            suite_version="1.0",
+            candidate_ref=candidate_ref,
+            holdout_metrics={"precision_publishable": 1.0},
+            sample_counts={"holdout": 5},
+            guardrails={"primary_metric_available": True},
+            promotable=True,
+        ),
+        return_selected_profile=True,
+    )
+
+    decision = registry.consider_promotion(
+        "claim_adjudication",
+        candidate_ref,
+        evaluation_ref,
+        default_claim_adjudication_promotion_policy(),
+        suite_ref=suite_ref,
+    )
+
+    assert not decision.promoted
+    assert decision.reason == "claim_adjudication_selected_profile_required:benchmark_suite"
+    assert registry.get("claim_adjudication") is None
+
+
+@pytest.mark.parametrize(
+    "role",
+    ["method_result", "method_evidence", "execution_work_packet", "search_gp_fit_basis"],
+)
+def test_protected_evaluation_rejects_profileless_declared_producer_roles(tmp_path, role) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
+    candidate_ref = persist_mutation_artifact(
+        store,
+        ClaimAdjudicationSearchConfig(passes=1),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    unselected_ref = store.put_json(
+        {"role": role}, ArtifactWriteOptions(kind=f"test.{role}", media_type="application/json")
+    )
+    evaluation_fields = {
+        "method_result": {"method_result_ref": unselected_ref},
+        "method_evidence": {"method_evidence_ref": unselected_ref},
+        "execution_work_packet": {"execution_work_packet_ref": unselected_ref},
+        "search_gp_fit_basis": {
+            "metadata": {"search_gp_fit_basis_ref": unselected_ref.model_dump(mode="json")}
+        },
+    }[role]
+    evaluation = BenchmarkEvaluation(
+        loop_id="claim_adjudication",
+        suite_id="claim_gold",
+        suite_version="1.0",
+        candidate_ref=candidate_ref,
+        holdout_metrics={"precision_publishable": 1.0},
+        sample_counts={"holdout": 1},
+        guardrails={"primary_metric_available": True},
+        **evaluation_fields,
+    )
+    with pytest.raises(
+        ValueError,
+        match=f"claim_adjudication_selected_profile_required:{role}",
+    ):
+        persist_benchmark_evaluation(
+            store,
+            evaluation,
+            inputs=[
+                input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+            ],
+        )
+
+
+def test_protected_evaluation_accepts_selected_suite_input_without_suite_argument(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    candidate_ref = persist_mutation_artifact(
+        store,
+        ClaimAdjudicationSearchConfig(passes=1),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
+    evaluation = BenchmarkEvaluation(
+        loop_id="claim_adjudication",
+        suite_id="claim_gold",
+        suite_version="1.0",
+        candidate_ref=candidate_ref,
+        holdout_metrics={"precision_publishable": 1.0},
+        sample_counts={"holdout": 1},
+        guardrails={"primary_metric_available": True},
+    )
+
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+        ],
+    )
+
+    fresh_reader = FileSystemCAS(tmp_path / "cas")
+    manifest = fresh_reader.get_manifest(evaluation_ref)
+    assert manifest.inputs == [
+        input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+        input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+    ]
+
+
+def test_protected_evaluation_rejects_unbound_search_gp_input_edge(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
+    candidate_ref = persist_mutation_artifact(
+        store,
+        ClaimAdjudicationSearchConfig(passes=1),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    fit_basis_ref = store.put_json(
+        {"fit_basis": "unbound"},
+        ArtifactWriteOptions(kind="test.search_gp_fit_basis", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    evaluation = BenchmarkEvaluation(
+        loop_id="claim_adjudication",
+        suite_id="claim_gold",
+        suite_version="1.0",
+        candidate_ref=candidate_ref,
+        holdout_metrics={"precision_publishable": 1.0},
+        sample_counts={"holdout": 1},
+        guardrails={"primary_metric_available": True},
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="claim_adjudication_unbound_input_role:search_gp_fit_basis",
+    ):
+        persist_benchmark_evaluation(
+            store,
+            evaluation,
+            inputs=[
+                input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+                input_ref_from_artifact_ref(fit_basis_ref, role="search_gp_fit_basis"),
+            ],
+        )

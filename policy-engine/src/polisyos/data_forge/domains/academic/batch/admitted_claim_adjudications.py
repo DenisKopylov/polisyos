@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING, Any
 from weakref import WeakKeyDictionary
 
 from polisyos.core import artifacts
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+    selected_artifact_ref_for_input,
+)
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     load_admitted_claim_adjudication_batch,
 )
@@ -48,7 +51,7 @@ class _RowsState:
     verifier: ClaimAdjudicationVerifier | None
     store: artifacts.FileSystemCAS | None
     result_ref: artifacts.ArtifactRef | None
-    raw_input_ref: str | None
+    raw_input_ref: artifacts.ArtifactRef | None
 
 
 _ROW_STATES: WeakKeyDictionary[VerifiedClaimAdjudicationRows, _RowsState] = WeakKeyDictionary()
@@ -100,6 +103,7 @@ class VerifiedClaimAdjudicationRows:
     def for_current_subject(self, subject: Mapping[str, object]) -> dict[str, Any] | None:
         """Resolve an exact, complete current input occurrence; never join by ID alone."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         rows = self._read()
         claim_id = subject.get("claim_id")
         if claim_id not in rows:
@@ -114,7 +118,7 @@ class VerifiedClaimAdjudicationRows:
             raise ValueError("claim_adjudication_raw_input_binding_missing")
         store = state.store or artifacts.FileSystemCAS(state.config.claim_adjudication_cas_root)
         raw = ClaimAdjudicationInputBatch.model_validate(
-            load_core_json_artifact(store, artifacts.ArtifactID(state.raw_input_ref))
+            load_core_json_artifact(store, state.raw_input_ref)
         )
         expected = next(item for item in raw.items if item.claim_id == claim_id)
         if current.model_dump(mode="json") != expected.model_dump(mode="json"):
@@ -183,10 +187,15 @@ def load_verified_claim_adjudication_rows(
     result_ref = None
     raw_input_ref = None
     if config.claim_adjudication_result_ref_path.exists():
-        batch, result_ref = load_admitted_claim_adjudication_batch(
+        _batch, result_ref = load_admitted_claim_adjudication_batch(
             config, store=store, verifier=verifier
         )
-        raw_input_ref = batch.raw_input_ref
+        active_store = store or artifacts.FileSystemCAS(config.claim_adjudication_cas_root)
+        result_manifest = active_store.get_manifest(result_ref)
+        raw_edges = [item for item in result_manifest.inputs if item.role == "raw_input"]
+        if len(raw_edges) != 1:
+            raise ValueError("claim_adjudication_raw_input_lineage_invalid")
+        raw_input_ref = selected_artifact_ref_for_input(active_store, raw_edges[0])
     elif _compatibility_rows(config):
         raise ValueError("unreceipted claim adjudication compatibility rows")
     capability = object.__new__(VerifiedClaimAdjudicationRows)

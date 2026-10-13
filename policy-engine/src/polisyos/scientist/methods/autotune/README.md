@@ -172,3 +172,68 @@ historical invocation, issuer, scientific calibration, external source authority
 or causal validity. The public `BayesianSourceProfile` payload and exports stay
 unchanged; older profile-only records remain readable as measurements but are
 not admitted as fitted native-GP history without the new exact basis.
+
+## Champion reference identity and claim-adjudication publication
+
+Promotion binds the complete selected candidate reference, including its selected
+manifest profile. Candidate and evaluation manifests carry exactly one selected
+`benchmark_suite` input; the evaluation manifest also carries exactly one matching
+candidate input. Candidate and evaluation persistence use `input_ref_from_artifact_ref`
+to preserve the selected view. The `ChampionPointer` keeps the full suite `ArtifactRef`,
+so later comparisons do not infer identity from an artifact ID or suite label. Historical
+pointers with an ID-only suite reference remain readable; later promotion is refused
+with `champion_suite_basis_unknown` until the suite basis is explicitly reissued.
+
+Claim-adjudication transitions are stored as one `claim-champion-envelope.v1` value
+in `champion.json`. Its `pointer` is the existing `ChampionPointer` payload; its
+`promotion_basis` hashes that exact pointer payload and records the predecessor. The
+hash excludes the envelope, so the binding is non-circular, and one atomic file
+replacement leaves a fresh reader with either the old pair or the new pair.
+`ChampionRegistry.get` continues to return `ChampionPointer`. Historical bare pointers
+remain readable only with their matching `promotion_basis.json`; missing or mismatched
+sidecars retain their refusal behavior. Older software that validates `champion.json`
+as a bare pointer must be upgraded before a new envelope is written.
+
+This persistence behavior binds candidate-grade registry state. It does not establish
+external evaluator authority or resolve whether a changed suite should re-evaluate an
+incumbent or begin a separately identified comparison.
+
+
+### Protected claim-adjudication selected-reference boundary
+
+The claim-specific admission path requires signed `claim-independent-evaluation.v2`
+receipts that bind the candidate, evaluation, independent benchmark corpus, observations,
+raw execution input, and the exact selected `BenchmarkSuite` ArtifactRef. The suite and
+claim candidate writers return their CAS-selected manifest profiles; the candidate and
+evaluation manifest edges retain that same suite profile, and the evaluation edge retains
+the full candidate profile. Registry promotion and protected replay compare the complete
+typed references and validate their producer, schema, kind, and suite identity.
+
+The admitted-result writer records six selected input edges: raw input, candidate,
+evaluation, benchmark suite, evaluation receipt, and execution receipt. A fresh Data
+Forge reader resolves the complete role set by profile, replays the signed records, and
+checks the selected raw input against its extraction and optional retraction source edges
+before projecting any row. Those two source edges resolve to the exact extraction and
+retraction manifests, including their media type, schema version, and producer version.
+The public result DTO remains ID-oriented; its persisted manifest is the selected-view
+bridge. Same-ID alternate candidate, suite, or raw-source profiles are refused.
+
+The method execution producer returns selected profiles for result and evidence records;
+the evidence manifest and payload bind the complete method-result reference. A measured
+work packet returns its selected profile and preserves the candidate, suite, snapshot,
+data, result, and evidence views. Evaluation manifests bind each declared selected
+method result, evidence, work packet, and Search-GP fit basis. Protected claim producer
+calls return a selected evaluation profile automatically. These method artifacts retain
+their declared execution or diagnostic purpose and do not acquire governance authority
+from profile selection.
+
+Generic loops keep profileless candidate/history records readable; when a producer has a
+selected reference, its evaluation edge carries that exact view. For claim-adjudication,
+the candidate and suite plus every declared optional producer role require exact selected
+profiles. Older ID-only replay calls and v2 receipts lacking `benchmark_suite_ref` remain
+history only and receive a typed selected-profile refusal; no profile is inferred from the
+current champion. The repository still has no production evaluator receipt-v2 emitter or
+appointment issuer, so external issuer authority and full production capability remain
+`producer_missing`/`surface_out_of_scope`. Test signer and evaluator fixtures are local
+only. Native pytest, external issuer integration, and process-level B117 validation remain
+UNRUN; no closure is claimed for those paths.

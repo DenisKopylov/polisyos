@@ -19,7 +19,13 @@ from pydantic import (
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
@@ -46,6 +52,16 @@ if TYPE_CHECKING:
 else:
     from pydantic import BaseModel as _PydanticBaseModel
     from pydantic import model_validator
+
+
+_BENCHMARK_EVALUATION_KIND_PREFIX = "scientist.autotune."
+_BENCHMARK_EVALUATION_KIND_SUFFIX = ".evaluation"
+_BENCHMARK_EVALUATION_SCHEMA_NAME = "polisyos.scientist.methods.autotune.BenchmarkEvaluation"
+
+
+def _benchmark_evaluation_artifact_kind(loop_id: str) -> str:
+    """Return the canonical artifact kind for one benchmark evaluation loop."""
+    return f"{_BENCHMARK_EVALUATION_KIND_PREFIX}{loop_id}{_BENCHMARK_EVALUATION_KIND_SUFFIX}"
 
 
 class MetricDirection(str, Enum):
@@ -222,9 +238,7 @@ class SearchMethodRunProfile(_PydanticBaseModel):
     data_snapshot_bindings: dict[str, str]
     search_parameter_bindings: dict[str, str] = Field(default_factory=dict)
     search_parameter_bounds: list[SearchGPFitBound] = Field(default_factory=list)
-    method_signature_abi_digest: str | None = Field(
-        default=None, pattern=r"^[0-9a-f]{64}$"
-    )
+    method_signature_abi_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     data_snapshot_ref: ArtifactRef | None = None
     data_ref: ArtifactRef | None = None
     data_sample_count: int | None = Field(default=None, ge=1)
@@ -347,12 +361,8 @@ def _search_method_parameters_match_run_profile(
             ):
                 return False
             declared_lower, declared_upper = parameter.bounds
-            if (
-                declared_lower is not None
-                and bound.lower < float(declared_lower)
-            ) or (
-                declared_upper is not None
-                and bound.upper > float(declared_upper)
+            if (declared_lower is not None and bound.lower < float(declared_lower)) or (
+                declared_upper is not None and bound.upper > float(declared_upper)
             ):
                 return False
         base_params = {
@@ -360,10 +370,7 @@ def _search_method_parameters_match_run_profile(
             for name, value in method_params.items()
             if name not in method_parameter_names
         }
-        return (
-            _search_parameter_fingerprint(base_params)
-            == profile.method_params_fingerprint
-        )
+        return _search_parameter_fingerprint(base_params) == profile.method_params_fingerprint
     except (AttributeError, KeyError, TypeError, ValueError, OverflowError):
         return False
 
@@ -629,9 +636,7 @@ class PydanticMutationCodec(Generic[_MutationModelT]):
         return self._model_cls.model_validate(payload)
 
 
-PydanticMutationCodec.__module__ = (
-    "polisyos.scientist.methods.autotune.runtime"
-)
+PydanticMutationCodec.__module__ = "polisyos.scientist.methods.autotune.runtime"
 
 
 class RuntimeLoader(Protocol):
@@ -678,6 +683,7 @@ def default_store(root: Path | None = None) -> ArtifactStore:
 def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
     """Load json artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     selector = ref if isinstance(ref, ArtifactRef) else ArtifactID(ref)
     return load_core_json_artifact(store, selector)
 
@@ -702,8 +708,9 @@ def persist_mutation_artifact(
     *,
     kind: str | None = None,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    """Persist a mutation artifact to CAS and return its typed artifact reference."""
+    """Persist a mutation artifact and retain the selected protected source view."""
     return store.put_json(
         artifact,
         ArtifactWriteOptions(
@@ -714,8 +721,19 @@ def persist_mutation_artifact(
                 version=artifact.artifact_version,
             ),
             inputs=list(inputs or []),
+            producer=(
+                ProducerInfo(
+                    component="polisyos.scientist.methods.autotune.mutation_artifact",
+                    version="1.0",
+                )
+                if artifact.loop_id == "claim_adjudication"
+                else None
+            ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=(
+            return_selected_profile or artifact.loop_id == "claim_adjudication"
+        ),
     )
 
 
@@ -724,8 +742,9 @@ def persist_benchmark_suite(
     suite: BenchmarkSuite,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    """Persist a benchmark suite definition to CAS and return its typed artifact reference."""
+    """Persist a benchmark suite and retain a protected producer's selected view."""
     return store.put_json(
         suite,
         ArtifactWriteOptions(
@@ -736,8 +755,17 @@ def persist_benchmark_suite(
                 version=suite.suite_version,
             ),
             inputs=list(inputs or []),
+            producer=(
+                ProducerInfo(
+                    component="polisyos.scientist.methods.autotune.benchmark_suite",
+                    version="1.0",
+                )
+                if suite.kind == "claim_adjudication"
+                else None
+            ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=(return_selected_profile or suite.kind == "claim_adjudication"),
     )
 
 
@@ -763,34 +791,95 @@ def persist_split_manifest(
     )
 
 
+def _benchmark_evaluation_input_refs(
+    evaluation: BenchmarkEvaluation,
+    *,
+    inputs: list[InputRef] | None = None,
+    suite_ref: ArtifactRef | None = None,
+) -> list[InputRef]:
+    """Bind evaluation source roles to the complete references returned by producers."""
+    protected = evaluation.loop_id == "claim_adjudication"
+    merged = list(inputs or [])
+    bindings: dict[str, ArtifactRef | None] = {
+        "candidate": evaluation.candidate_ref,
+        "benchmark_suite": suite_ref,
+        "method_result": evaluation.method_result_ref,
+        "method_evidence": evaluation.method_evidence_ref,
+        "execution_work_packet": evaluation.execution_work_packet_ref,
+        "search_gp_fit_basis": None,
+    }
+    raw_fit_basis = evaluation.metadata.get("search_gp_fit_basis_ref")
+    if raw_fit_basis is not None:
+        try:
+            bindings["search_gp_fit_basis"] = ArtifactRef.model_validate(raw_fit_basis)
+        except Exception as exc:
+            raise ValueError("benchmark_evaluation_fit_basis_ref_invalid") from exc
+
+    for role, ref in bindings.items():
+        edges = [(index, item) for index, item in enumerate(merged) if item.role == role]
+        if len(edges) > 1:
+            raise ValueError(f"benchmark_evaluation_duplicate_input_role:{role}")
+        if ref is None:
+            if protected and edges:
+                selected_suite_edge = (
+                    role == "benchmark_suite"
+                    and len(edges) == 1
+                    and edges[0][1].manifest_profile_sha256 is not None
+                )
+                if not selected_suite_edge:
+                    raise ValueError(f"claim_adjudication_unbound_input_role:{role}")
+            continue
+        if protected and ref.manifest_profile_sha256 is None:
+            raise ValueError(f"claim_adjudication_selected_profile_required:{role}")
+        expected = input_ref_from_artifact_ref(ref, role=role)
+        if not edges:
+            merged.append(expected)
+            continue
+        index, existing = edges[0]
+        if existing.artifact_id != expected.artifact_id:
+            raise ValueError(f"benchmark_evaluation_input_binding_mismatch:{role}")
+        if protected and existing != expected:
+            raise ValueError(f"claim_adjudication_input_profile_mismatch:{role}")
+        if expected.manifest_profile_sha256 is not None:
+            merged[index] = expected
+
+    if protected:
+        for role in ("candidate", "benchmark_suite"):
+            edges = [item for item in merged if item.role == role]
+            if len(edges) != 1 or edges[0].manifest_profile_sha256 is None:
+                raise ValueError(f"claim_adjudication_selected_profile_required:{role}")
+        for role in (
+            "method_result",
+            "method_evidence",
+            "execution_work_packet",
+            "search_gp_fit_basis",
+        ):
+            ref = bindings.get(role)
+            edges = [item for item in merged if item.role == role]
+            if ref is not None and (
+                len(edges) != 1 or edges[0] != input_ref_from_artifact_ref(ref, role=role)
+            ):
+                raise ValueError(f"claim_adjudication_input_profile_mismatch:{role}")
+    return merged
+
+
 def persist_benchmark_evaluation(
     store: ArtifactStore,
     evaluation: BenchmarkEvaluation,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
-    """Persist a benchmark evaluation record and return its typed artifact reference."""
-    merged_inputs = list(inputs or [])
-    merged_inputs.append(
-        InputRef(
-            artifact_id=evaluation.candidate_ref.artifact_id,
-            role="candidate",
-        )
-    )
-    for role, ref in (
-        ("method_result", evaluation.method_result_ref),
-        ("method_evidence", evaluation.method_evidence_ref),
-        ("execution_work_packet", evaluation.execution_work_packet_ref),
-    ):
-        if ref is not None:
-            merged_inputs.append(InputRef(artifact_id=ref.artifact_id, role=role))
+    """Persist an evaluation with its producer-selected source references."""
+    protected = evaluation.loop_id == "claim_adjudication"
+    merged_inputs = _benchmark_evaluation_input_refs(evaluation, inputs=inputs)
     return store.put_json(
         evaluation,
         ArtifactWriteOptions(
-            kind=f"scientist.autotune.{evaluation.loop_id}.evaluation",
+            kind=_benchmark_evaluation_artifact_kind(evaluation.loop_id),
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+                name=_BENCHMARK_EVALUATION_SCHEMA_NAME,
                 version=evaluation.suite_version,
             ),
             producer=ProducerInfo(
@@ -800,6 +889,7 @@ def persist_benchmark_evaluation(
             inputs=merged_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile or protected,
     )
 
 

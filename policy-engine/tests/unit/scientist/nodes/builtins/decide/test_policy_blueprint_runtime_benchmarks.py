@@ -3,7 +3,10 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import artifact_manifest_profile_sha256, load_core_json_artifact
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
@@ -26,7 +29,11 @@ from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_benchmark
     _maybe_register_benchmark_evaluation,
     _resolve_policy_runtime_source_statuses,
 )
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    ensure_policy_candidate_ref,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     persist_policy_candidate_schema,
@@ -61,6 +68,86 @@ def _context(tmp_path: Path, run_id: str) -> ExecutionContext:
         store=store,
         run=run,
         logger=logging.getLogger(f"test.{run_id}"),
+    )
+
+
+def test_runtime_candidate_bridge_writes_selected_owner_schema_and_body(tmp_path: Path) -> None:
+    ctx = _context(tmp_path, "candidate_bridge")
+    candidate = _candidate()
+    state = ExperimentState(run_id="candidate_bridge")
+
+    ref = ensure_policy_candidate_ref(ctx, state, candidate, None)
+
+    assert ref.kind == PolicyCandidateSchema.ARTIFACT_KIND
+    assert ref.media_type == PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE
+    assert ref.manifest_profile_sha256 is not None
+    manifest = ctx.store.get_manifest(ref)
+    assert artifact_manifest_profile_sha256(manifest) == ref.manifest_profile_sha256
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME
+    assert manifest.artifact_schema.version == PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION
+    persisted = PolicyCandidateSchema.model_validate(
+        load_core_json_artifact(ctx.store, ref, manifest_profile_sha256=ref.manifest_profile_sha256)
+    )
+    assert persisted == candidate
+
+
+def test_runtime_candidate_bridge_preserves_legacy_candidate_only_ref(tmp_path: Path) -> None:
+    ctx = _context(tmp_path, "candidate_bridge_legacy")
+    candidate = _candidate()
+    state = ExperimentState(run_id="candidate_bridge_legacy")
+    legacy_ref = ctx.store.put_json(
+        candidate,
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    result = ensure_policy_candidate_ref(ctx, state, candidate, legacy_ref)
+
+    assert result == legacy_ref
+    assert result.kind == "scientist.policy_candidate_schema"
+
+
+def test_runtime_candidate_bridge_binds_canonical_candidate_to_selected_trinity_source(
+    tmp_path: Path,
+) -> None:
+    ctx = _context(tmp_path, "candidate_bridge_trinity")
+    source = _candidate().trinity_bundle
+    source_ref = ctx.store.put_json(
+        source,
+        PutOptions(
+            kind=source.ARTIFACT_KIND,
+            media_type=source.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=source.ARTIFACT_SCHEMA_NAME, version=source.ARTIFACT_SCHEMA_VERSION
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        source, candidate_id="candidate_trinity_bridge"
+    )
+    state = ExperimentState(
+        run_id="candidate_bridge_trinity",
+        inputs={"trinity_bundle_ref": source_ref},
+    )
+
+    ref = ensure_policy_candidate_ref(ctx, state, candidate, source_ref)
+
+    assert ref.kind == PolicyCandidateSchema.ARTIFACT_KIND
+    assert ref.manifest_profile_sha256 is not None
+    manifest = ctx.store.get_manifest(ref)
+    assert any(
+        item.role == "candidate_source"
+        and item.artifact_id == source_ref.artifact_id
+        and item.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+        for item in manifest.inputs
     )
 
 

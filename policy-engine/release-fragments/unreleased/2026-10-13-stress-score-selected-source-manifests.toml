@@ -1,0 +1,36 @@
+id = "2026-10-13-stress-score-selected-source-manifests"
+title = "Bind stress scores to selected source manifests and domain schemas"
+type = "fixed"
+component = "scientist-stress"
+owner = "team-scientist"
+summary = "Finite stress scores require exact selected manifest profiles and producer-owned schema identity for the current typed policy candidate, report assembly, outcome basis, and plan or benchmark evaluation."
+evidence = [
+  "src/polisyos/scientist/methods/doe/stress_report.py",
+  "src/polisyos/scientist/methods/search/adversarial.py",
+  "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+  "tests/unit/scientist/search/test_adversarial.py",
+  "tests/unit/scientist/search/test_phase_d4_runtime_integration.py",
+]
+compatibility = "No CAS history is rewritten. A current finite score requires profile-qualified PolicyCandidateSchema, report, basis, and source refs whose selected manifests match the producer-owned kind, media, schema name/version, and lineage edges. Legacy candidate kinds and profileless refs remain candidate-only and are not silently reissued as canonical scoring inputs."
+change_class = "Fresh selected-source and domain-schema binding for existing finite stress scores"
+surface_classification = "Existing internal Scientist stress-score reader and producer refs; no generated DTO or persisted StressTestReport body change."
+migration = "New adversarial and Phase-D4 writers return selected refs and include profile-qualified direct inputs. The existing runtime bridge persists a selected PolicyCandidateSchema when it has an in-memory candidate or an exact selected Trinity source. Legacy or foreign candidate refs are preserved as candidate-only; no automatic old-candidate migration or authority upgrade is performed."
+api = "StressTestReport.cas_artifact_ref is a transient producer caller handle and is not serialized. Fresh score resolution uses the existing score formula and status lattice, while refusing missing selected profiles and wrong selected manifest schemas before recomputation."
+limitations = "This does not establish independent evaluation of producer scientific assumptions, candidate currentness beyond the caller-supplied current candidate ref, issuer authority, or a new stress-scoring law. Continuous and mixed profiles retain their existing limited/deferred behavior. G acceptance remains pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/doe/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "stress-score-selected-source-profile-and-schema"
+change_class = "behavioral-refusal-boundary"
+impact = "Refuse finite score admission when a source ref lacks an exact selected manifest profile or its selected manifest does not match the owner schema contract."
+surface = "Existing Scientist StressTestReport, StressOutcomeBasis, AdversarialPlan, and BenchmarkEvaluation CAS reader/writer paths."
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Finite stress-score recomputation now validates all selected source manifest profiles, domain schema identities/versions, and required lineage edges. ID-only refs remain candidate/legacy data and cannot supply a score."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/doe/README.md"]
+runbook_docs = []

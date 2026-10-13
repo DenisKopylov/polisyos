@@ -20,7 +20,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.controller import (
@@ -37,6 +37,7 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
 from .models import (
+    _BENCHMARK_EVALUATION_SCHEMA_NAME,
     BayesianSourceProfile,
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -50,6 +51,8 @@ from .models import (
     SearchGPFitBound,
     SearchLoopSpec,
     SearchMethodRunProfile,
+    _benchmark_evaluation_artifact_kind,
+    _benchmark_evaluation_input_refs,
     _search_method_parameters_match_run_profile,
     default_store,
     load_json_artifact,
@@ -1451,34 +1454,21 @@ def _persist_search_benchmark_evaluation(
     *,
     suite_ref: ArtifactRef,
 ) -> ArtifactRef:
-    """Persist the evaluation with exact selected input profiles for fresh readers."""
-    inputs = [input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")]
-    inputs.append(input_ref_from_artifact_ref(evaluation.candidate_ref, role="candidate"))
-    for role, ref in (
-        ("method_result", evaluation.method_result_ref),
-        ("method_evidence", evaluation.method_evidence_ref),
-        ("execution_work_packet", evaluation.execution_work_packet_ref),
-    ):
-        if ref is not None:
-            inputs.append(input_ref_from_artifact_ref(ref, role=role))
-    raw_fit_basis = evaluation.metadata.get("search_gp_fit_basis_ref")
-    if raw_fit_basis is not None:
-        fit_basis_ref = ArtifactRef.model_validate(raw_fit_basis)
-        inputs.append(input_ref_from_artifact_ref(fit_basis_ref, role="search_gp_fit_basis"))
+    """Persist an evaluation with its exact selected producer source edges."""
     return store.put_json(
         evaluation,
         ArtifactWriteOptions(
-            kind=f"scientist.autotune.{evaluation.loop_id}.evaluation",
+            kind=_benchmark_evaluation_artifact_kind(evaluation.loop_id),
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
+                name=_BENCHMARK_EVALUATION_SCHEMA_NAME,
                 version=evaluation.suite_version,
             ),
             producer=ProducerInfo(
                 component="polisyos.scientist.methods.autotune.benchmark_evaluator",
                 version="2.0",
             ),
-            inputs=inputs,
+            inputs=_benchmark_evaluation_input_refs(evaluation, suite_ref=suite_ref),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
@@ -2180,6 +2170,12 @@ class SearchLoopRunner:
         generator = spec.candidate_generator
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
+        if spec.loop_id == "claim_adjudication":
+            if suite_ref.manifest_profile_sha256 is None:
+                raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
+            self._store.get_manifest_by_profile(
+                suite_ref.artifact_id, suite_ref.manifest_profile_sha256
+            )
         if (producer_settlement_store is None) != (producer_run_binding is None):
             raise ValueError("durable producer budget requires both owner and run binding")
         if producer_settlement_store is not None:
@@ -2298,11 +2294,17 @@ class SearchLoopRunner:
         ):
             projected_payload.pop("semantic", None)
         candidate = codec.decode(projected_payload)
+        claim_selected_profile = spec.loop_id == "claim_adjudication"
+        if claim_selected_profile and suite_ref.manifest_profile_sha256 is None:
+            raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
         candidate_ref = persist_mutation_artifact(
             self._store,
             cast("MutationArtifact", candidate),
-            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+            return_selected_profile=claim_selected_profile,
         )
+        if claim_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+            raise ValueError("claim_adjudication_selected_profile_required:candidate")
         evaluation_id = f"search-evaluation:{uuid4().hex}"
         evaluation_attempt_id = f"search-attempt:{uuid4().hex}"
         evaluation = spec.benchmark_evaluator.evaluate(

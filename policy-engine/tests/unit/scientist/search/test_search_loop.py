@@ -5,12 +5,16 @@ Verification tests for Phase 17: Search Loop + Two-Stage + Engine Abstraction.
 from __future__ import annotations
 
 import math
+from datetime import UTC, datetime
 from threading import Event, Thread
 from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import BaseModel, field_serializer, model_serializer
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.scientist.methods.search.controller import (
@@ -19,6 +23,7 @@ from polisyos.scientist.methods.search.controller import (
     SearchController,
     SearchStatus,
     TracedLLMCandidateGenerator,
+    _search_prompt_value,
 )
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
@@ -35,6 +40,467 @@ from polisyos.scientist.methods.search.stopping import (
 )
 from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+
+
+def test_traced_prompt_refuses_lossy_json_serializer_output_before_provider() -> None:
+    """JSON-mode normalization must not turn an invalid serializer value into null."""
+
+    class LossyFieldSerializer(BaseModel):
+        value: str
+
+        @field_serializer("value", when_used="json")
+        def serialize_value(self, value: str) -> Any:
+            del value
+            return {"nested": math.nan}
+
+    class NonStringKeySerializer(BaseModel):
+        value: str
+
+        @field_serializer("value", when_used="json")
+        def serialize_value(self, value: str) -> Any:
+            del value
+            return {1: "candidate"}
+
+    class AnyPayload(BaseModel):
+        value: Any
+
+    class NeverCalledClient:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        async def generate(self, **_kwargs: Any) -> object:
+            self.calls += 1
+            pytest.fail("invalid prompt data must be refused before provider dispatch")
+
+    client = NeverCalledClient()
+    generator = TracedLLMCandidateGenerator(
+        client=client,  # type: ignore[arg-type]
+        system_prompt="Return one candidate object.",
+    )
+
+    for payload, expected_reason in (
+        (
+            LossyFieldSerializer(value="candidate"),
+            "search_prompt_contains_nonfinite_number",
+        ),
+        (
+            NonStringKeySerializer(value="candidate"),
+            "search_prompt_contains_non_string_key",
+        ),
+        (
+            AnyPayload(value=LossyFieldSerializer(value="candidate")),
+            "search_prompt_contains_nonfinite_number",
+        ),
+    ):
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            generator.generate([], None, {"payload": payload})
+        assert raised.value.reason_code == expected_reason
+
+    assert client.calls == 0
+
+
+def test_traced_prompt_guards_allowed_model_extras_before_provider() -> None:
+    """Allowed extras and nested Any models cannot be normalized to null."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.semantic_binding import CoverageBinding
+    from polisyos.scientist.methods.search.controller import (
+        _prompt_compiled_serializer,
+        _prompt_to_python,
+    )
+
+    class NestedPromptValue(BaseModel):
+        value: Any
+
+    class PlainSerializedNestedPromptValue(BaseModel):
+        value: str
+
+        @model_serializer(mode="plain")
+        def serialize_nonfinite_value(self) -> dict[str, Any]:
+            del self.value
+            return {"projected": math.nan}
+
+    class WrapSerializedNestedPromptValue(BaseModel):
+        value: str
+
+        @model_serializer(mode="wrap")
+        def serialize_nonfinite_value(self, handler: Any) -> dict[str, Any]:
+            del self.value
+            del handler
+            return {"projected": math.nan}
+
+    class PromptClient:
+        _cache_reuse_owner = None
+
+        def __init__(self) -> None:
+            self.calls = 0
+            self.user_prompts: list[str] = []
+
+        async def generate(self, **kwargs: Any) -> object:
+            self.calls += 1
+            self.user_prompts.append(str(kwargs["user"]))
+            return SimpleNamespace(content='{"candidate":"accepted"}')
+
+    def binding(payload: Any) -> CoverageBinding:
+        return CoverageBinding(
+            source_ref="fixture-source",
+            claim_ids=("claim-1",),
+            status="covers",
+            payload=payload,
+        )
+
+    from collections.abc import Iterable
+    from enum import Enum
+
+    consumed: list[float] = []
+
+    def one_shot_values() -> Any:
+        consumed.append(math.nan)
+        yield math.nan
+
+    one_shot = one_shot_values()
+
+    class TypedOneShotPromptValue(BaseModel):
+        values: Iterable[float]
+
+    typed_one_shot = one_shot_values()
+
+    class RecursivePromptEnum(Enum):
+        HOLDER = {"nested": None}
+
+    RecursivePromptEnum.HOLDER.value["nested"] = RecursivePromptEnum.HOLDER
+    cycle: dict[str, Any] = {}
+    cycle["self"] = cycle
+    invalid_payloads = (
+        math.nan,
+        NestedPromptValue(value=math.nan),
+        {"child": NestedPromptValue(value=math.nan)},
+        {"children": [NestedPromptValue(value=math.nan)]},
+        RecursivePromptEnum.HOLDER,
+        {"numbers": {math.nan}},
+        {"numbers": frozenset({math.nan})},
+        one_shot,
+        TypedOneShotPromptValue(values=typed_one_shot),
+        {"child": PlainSerializedNestedPromptValue(value="source")},
+        {"child": WrapSerializedNestedPromptValue(value="source")},
+        cycle,
+        {1: "non-string key"},
+    )
+    rejecting_client = PromptClient()
+    rejecting_generator = TracedLLMCandidateGenerator(
+        client=rejecting_client,  # type: ignore[arg-type]
+        system_prompt="Return one candidate object.",
+    )
+    for payload in invalid_payloads:
+        with pytest.raises(SearchBudgetProducerUnsupportedError):
+            rejecting_generator.generate([], None, {"binding": binding(payload)})
+    assert rejecting_client.calls == 0
+    assert consumed == []
+
+    serializer = _prompt_compiled_serializer(CoverageBinding)
+    omitted_bad_payload = binding({"safe": 0.5, "hidden": math.nan})
+    assert _prompt_to_python(
+        serializer,
+        omitted_bad_payload,
+        mode="json",
+        include={"payload": {"safe"}},
+    )["payload"] == {"safe": 0.5}
+    assert _prompt_to_python(
+        serializer,
+        omitted_bad_payload,
+        mode="json",
+        exclude={"payload": {"hidden"}},
+    )["payload"] == {"safe": 0.5}
+    with pytest.raises(SearchBudgetProducerUnsupportedError):
+        _prompt_to_python(
+            serializer,
+            omitted_bad_payload,
+            mode="json",
+            include={"payload": {"hidden"}},
+        )
+    assert (
+        _prompt_to_python(
+            serializer,
+            binding(math.nan),
+            mode="json",
+            exclude={"payload"},
+        )["source_ref"]
+        == "fixture-source"
+    )
+    assert _prompt_to_python(
+        serializer,
+        binding({"numbers": {0.25}}),
+        mode="json",
+    )["payload"]["numbers"] == [0.25]
+
+    from pydantic import Field, RootModel
+
+    class AnyRootPromptValue(RootModel[Any]):
+        pass
+
+    class FloatRootPromptValue(RootModel[float]):
+        pass
+
+    root_invalid_payloads = (
+        FloatRootPromptValue(root=math.nan),
+        FloatRootPromptValue(root=math.inf),
+        AnyRootPromptValue(root=math.nan),
+        AnyRootPromptValue(root={"nested": math.nan}),
+    )
+    for payload in root_invalid_payloads:
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            rejecting_generator.generate([], None, {"binding": binding(payload)})
+        assert raised.value.reason_code == "search_prompt_contains_nonfinite_number"
+    assert rejecting_client.calls == 0
+
+    finite_root = AnyRootPromptValue(root={"safe": 0.5})
+    root_accepting_client = PromptClient()
+    root_accepting_generator = TracedLLMCandidateGenerator(
+        client=root_accepting_client,  # type: ignore[arg-type]
+        system_prompt="Return one candidate object.",
+    )
+    assert root_accepting_generator.generate(
+        [],
+        None,
+        {"binding": binding(finite_root)},
+    ) == {"candidate": "accepted"}
+    assert root_accepting_client.calls == 1
+    assert '"payload":{"safe":0.5}' in root_accepting_client.user_prompts[0]
+    assert root_accepting_generator.generate(
+        [],
+        None,
+        {"binding": binding(FloatRootPromptValue(root=0.5))},
+    ) == {"candidate": "accepted"}
+    assert root_accepting_client.calls == 2
+    assert '"payload":0.5' in root_accepting_client.user_prompts[1]
+    root_serializer = _prompt_compiled_serializer(AnyRootPromptValue)
+    projected_root = AnyRootPromptValue(root={"safe": 0.5, "hidden": math.nan})
+    assert _prompt_to_python(
+        root_serializer,
+        projected_root,
+        mode="json",
+        include={"safe"},
+    ) == {"safe": 0.5}
+    assert _prompt_to_python(
+        root_serializer,
+        projected_root,
+        mode="json",
+        exclude={"hidden"},
+    ) == {"safe": 0.5}
+    root_shared = NestedPromptValue(value=0.75)
+    assert _prompt_to_python(
+        root_serializer,
+        AnyRootPromptValue(root={"left": root_shared, "right": root_shared}),
+        mode="json",
+    ) == {"left": {"value": 0.75}, "right": {"value": 0.75}}
+
+    class TypedRootEnvelope(BaseModel):
+        child: AnyRootPromptValue
+
+    typed_root = TypedRootEnvelope(child=AnyRootPromptValue(root={"safe": 0.25}))
+    assert root_accepting_generator.generate(
+        [],
+        None,
+        {"binding": binding(typed_root)},
+    ) == {"candidate": "accepted"}
+    assert root_accepting_client.calls == 3
+    assert '"payload":{"child":{"safe":0.25}}' in root_accepting_client.user_prompts[2]
+
+    shared_root = AnyRootPromptValue(root={"safe": 0.75})
+    assert _search_prompt_value(
+        AnyRootPromptValue(root={"left": shared_root, "right": shared_root}),
+    ) == {"left": {"safe": 0.75}, "right": {"safe": 0.75}}
+
+    raw_mapping_cycle: dict[str, Any] = {}
+    raw_mapping_cycle["self"] = raw_mapping_cycle
+    with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+        _search_prompt_value(AnyRootPromptValue(root=raw_mapping_cycle))
+    assert raised.value.reason_code == "search_prompt_contains_cycle"
+
+    root_model_cycle = AnyRootPromptValue(root={})
+    root_model_cycle.root["self"] = root_model_cycle
+    with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+        _search_prompt_value(root_model_cycle)
+    assert raised.value.reason_code == "search_prompt_model_serialization_failed"
+
+    callback_iterator = iter([math.nan])
+
+    class CallbackRootPromptValue(RootModel[Any]):
+        @model_serializer(mode="plain")
+        def consume_root(self) -> dict[str, Any]:
+            return {"values": list(self.root)}
+
+    callback_value = CallbackRootPromptValue(root=callback_iterator)
+    with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+        rejecting_generator.generate([], None, {"binding": callback_value})
+    assert raised.value.reason_code == "search_prompt_contains_nonfinite_number"
+    assert list(callback_iterator) == []
+    assert rejecting_client.calls == 0
+
+    finite_callback_iterator = iter([0.25])
+    assert root_accepting_generator.generate(
+        [],
+        None,
+        {
+            "binding": binding(
+                CallbackRootPromptValue(root=finite_callback_iterator),
+            ),
+        },
+    ) == {"candidate": "accepted"}
+    assert list(finite_callback_iterator) == []
+    assert root_accepting_client.calls == 3
+
+    class ExcludeIfPromptValue(BaseModel):
+        payload: Any = Field(
+            exclude_if=lambda value: isinstance(value, float) and math.isnan(value)
+        )
+
+    assert (
+        _prompt_to_python(
+            _prompt_compiled_serializer(ExcludeIfPromptValue),
+            ExcludeIfPromptValue(payload=math.nan),
+            mode="json",
+        )
+        == {}
+    )
+
+    class TypedExtraBinding(CoverageBinding):
+        __pydantic_extra__: dict[str, float]
+
+    typed_serializer = _prompt_compiled_serializer(TypedExtraBinding)
+    with pytest.raises(SearchBudgetProducerUnsupportedError):
+        _prompt_to_python(
+            typed_serializer,
+            TypedExtraBinding(source_ref="fixture-source", measured=math.nan),
+            mode="json",
+        )
+    assert (
+        _prompt_to_python(
+            typed_serializer,
+            TypedExtraBinding(source_ref="fixture-source", measured=0.5),
+            mode="json",
+        )["measured"]
+        == 0.5
+    )
+
+    accepting_client = PromptClient()
+    accepting_generator = TracedLLMCandidateGenerator(
+        client=accepting_client,  # type: ignore[arg-type]
+        system_prompt="Return one candidate object.",
+    )
+    assert accepting_generator.generate(
+        [],
+        None,
+        {"binding": binding({"items": [NestedPromptValue(value=0.5)]})},
+    ) == {"candidate": "accepted"}
+    assert accepting_client.calls == 1
+    assert '"payload":{"items":[{"value":0.5}]}' in accepting_client.user_prompts[0]
+
+    shared = NestedPromptValue(value=0.75)
+    assert accepting_generator.generate(
+        [],
+        None,
+        {"binding": binding({"left": shared, "right": shared})},
+    ) == {"candidate": "accepted"}
+    assert accepting_client.calls == 2
+    assert (
+        '"payload":{"left":{"value":0.75},"right":{"value":0.75}}'
+        in (accepting_client.user_prompts[1])
+    )
+
+
+def test_prompt_field_guard_follows_effective_source_resolution_projection() -> None:
+    """Excluded source context stays hidden unless an actual serializer emits it."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality.generation_source import GenerationSourceResolution
+
+    class FakePromptClient:
+        _cache_reuse_owner = None
+
+        def __init__(self) -> None:
+            self.calls = 0
+            self.user_prompts: list[str] = []
+
+        async def generate(self, **_kwargs: Any) -> object:
+            self.calls += 1
+            self.user_prompts.append(str(_kwargs["user"]))
+            return SimpleNamespace(content='{"candidate":"accepted"}')
+
+    cycle: dict[str, Any] = {}
+    cycle["self"] = cycle
+    hidden_values = (
+        GenerationSourceResolution(
+            status="resolved",
+            code="source-resolution",
+            context={"excluded_context_nan": math.nan},
+        ),
+        GenerationSourceResolution(
+            status="resolved",
+            code="source-resolution",
+            context={"excluded_context_cycle": cycle},
+        ),
+    )
+    client = FakePromptClient()
+    generator = TracedLLMCandidateGenerator(
+        client=client,  # type: ignore[arg-type]
+        system_prompt="Return one search candidate as a non-empty JSON object.",
+    )
+
+    for hidden_value in hidden_values:
+        assert generator.generate([], None, {"source": hidden_value}) == {"candidate": "accepted"}
+    assert client.calls == 2
+    assert all("excluded_context_" not in prompt for prompt in client.user_prompts)
+
+    class ReemittingResolution(GenerationSourceResolution):
+        @model_serializer(mode="plain")
+        def serialize_with_context(self) -> dict[str, Any]:
+            return {"status": self.status, "context": self.context}
+
+    reemitted_values = (
+        ReemittingResolution(
+            status="resolved",
+            code="source-resolution",
+            context={"re-emitted": math.nan},
+        ),
+        ReemittingResolution(
+            status="resolved",
+            code="source-resolution",
+            context={"re-emitted": cycle},
+        ),
+    )
+    refusing_client = FakePromptClient()
+    refusing_generator = TracedLLMCandidateGenerator(
+        client=refusing_client,  # type: ignore[arg-type]
+        system_prompt="Return one search candidate as a non-empty JSON object.",
+    )
+
+    for reemitted_value in reemitted_values:
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            refusing_generator.generate([], None, {"source": reemitted_value})
+        assert raised.value.reason_code in {
+            "search_prompt_contains_nonfinite_number",
+            "search_prompt_contains_cycle",
+        }
+    assert refusing_client.calls == 0
+
+
+def test_prompt_projection_preserves_artifact_ref_and_datetime_json_contract() -> None:
+    """The raw-output fence retains existing DTO and native datetime projections."""
+    reference = ArtifactRef(
+        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+        kind="fixture",
+        media_type="application/json",
+    )
+    created_at = datetime(2026, 10, 13, 12, 30, tzinfo=UTC)
+
+    actual = _search_prompt_value({"reference": reference, "created_at": created_at})
+
+    assert actual == {
+        "reference": reference.model_dump(mode="json", exclude_none=False),
+        "created_at": created_at.isoformat(),
+    }
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fixtures
@@ -150,7 +616,10 @@ class TestOptimizationFlow:
             return 0.0, True
 
         def stage_b_evaluator(candidate, context):
-            return {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}}
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
 
         config = SearchConfig(
             stopping=MaxIterations(5),
@@ -331,12 +800,17 @@ class TestOptimizationFlow:
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
         from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
         run_id = f"search-owner-{wire_cost}-{owner_limit}"
@@ -498,12 +972,17 @@ class TestOptimizationFlow:
         )
         from polisyos.scientist.methods.autotune.models import load_model_artifact
         from polisyos.scientist.methods.autotune.runtime import PydanticMutationCodec
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
         from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
         run_id = f"autotune-owner-{wire_cost}"
@@ -677,12 +1156,17 @@ class TestOptimizationFlow:
         from types import SimpleNamespace
 
         from polisyos.scientist.methods.autotune.runtime import SearchLoopRunner
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
 
         run_id = "search-unproven-generator"
         budget_key = f"nl-run:{run_id}"
@@ -745,12 +1229,17 @@ class TestOptimizationFlow:
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
 
         run_id = "search-owner-mismatch"
         budget_key = f"nl-run:{run_id}"
@@ -821,12 +1310,17 @@ class TestOptimizationFlow:
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
         from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
         run_id = "search-owner-hidden-first-event"
@@ -861,7 +1355,11 @@ class TestOptimizationFlow:
                         }
                     }
                 ],
-                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_cost_usd": 0},
+                "usage": {
+                    "prompt_tokens": 1,
+                    "completion_tokens": 1,
+                    "total_cost_usd": 0,
+                },
             }
         )
 
@@ -950,12 +1448,17 @@ class TestOptimizationFlow:
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
             FileBudgetLedger,
         )
-        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.engine.budget_middleware import (
+            BudgetMiddleware,
+        )
         from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
         run_id = "search-owner-crosses-threshold"
@@ -1170,7 +1673,10 @@ class TestOptimizationFlow:
             if candidate["x"] == "first":
                 first_entered_stage_b.set()
                 release_first_stage_b.wait(timeout=2.0)
-            return {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}}
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
 
         controller = SearchController(
             config=SearchConfig(
@@ -1487,7 +1993,10 @@ class TestTwoStageFiltering:
 
         def stage_b_evaluator(candidate, context):
             stage_b_count[0] += 1
-            return {"simulation_results": {"x": 1.0}, "feedback": {"verdict": "APPROVE"}}
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
 
         config = SearchConfig(
             stopping=MaxIterations(3),
@@ -1618,7 +2127,9 @@ class TestWorkflowEngineAbstraction:
 
     def test_engine_protocol_compliance(self):
         """Verify engines satisfy WorkflowEngine protocol."""
-        from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
+        from polisyos.scientist.orchestration.workflows.engine_base import (
+            WorkflowEngine,
+        )
 
         engine = SimpleLoopEngine([("test", lambda s: s)])
 

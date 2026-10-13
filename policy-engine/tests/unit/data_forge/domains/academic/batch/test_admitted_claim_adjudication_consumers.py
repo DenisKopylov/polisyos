@@ -12,6 +12,9 @@ from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
     load_verified_claim_adjudication_rows,
 )
+from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+    selected_artifact_ref_for_input,
+)
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     _input_items,
     materialize_claim_adjudication_result,
@@ -40,7 +43,7 @@ from polisyos.scientist.methods.autotune import (
     ChampionRegistry,
 )
 
-from ._claim_evidence import evidence_fixture, persist_batch
+from ._claim_evidence import evidence_fixture, persist_batch, selected_manifest_view
 
 
 def _write_jsonl(path, rows) -> None:  # type: ignore[no-untyped-def]
@@ -100,6 +103,21 @@ def _receipt(
         store, registry, config.claim_adjudication_registry_root, raw_ref, positive=publishable
     )
     result_ref = persist_batch(evidence)
+    selected_edges = {
+        edge.role: selected_artifact_ref_for_input(store, edge)
+        for edge in store.get_manifest(result_ref).inputs
+    }
+    assert set(selected_edges) == {
+        "raw_input",
+        "candidate",
+        "evaluation",
+        "evaluation_receipt",
+        "execution_receipt",
+        "benchmark_suite",
+    }
+    assert selected_edges["benchmark_suite"] == evidence.suite_ref
+    assert selected_edges["candidate"] == evidence.candidate_ref
+    assert selected_edges["evaluation"] == evidence.evaluation_ref
     materialize_claim_adjudication_result(
         config, result_ref, store=store, verifier=evidence.verifier
     )
@@ -199,6 +217,7 @@ def test_invalid_replacement_receipt_cannot_erase_existing_admitted_pointer(
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
     with pytest.raises(ValueError, match="duplicate roles"):
@@ -206,3 +225,31 @@ def test_invalid_replacement_receipt_cannot_erase_existing_admitted_pointer(
 
     assert config.claim_adjudication_result_ref_path.read_text(encoding="utf-8") == pointer_before
     assert ArtifactRef.model_validate_json(pointer_before).artifact_id == ArtifactID(receipt_id)
+
+
+def test_fresh_consumer_rejects_same_id_candidate_with_other_selected_profile(tmp_path):
+    """The immutable result manifest must preserve the exact candidate view."""
+    config = AcademicBatchConfig(snapshot_root=tmp_path / "snap")
+    store = FileSystemCAS(config.claim_adjudication_cas_root)
+    registry = ChampionRegistry(root=config.claim_adjudication_registry_root, store=store)
+    article = _fixture_article()
+    config.article_extraction_results_path.parent.mkdir(parents=True, exist_ok=True)
+    config.article_extraction_results_path.write_text(
+        article.model_dump_json() + "\n", encoding="utf-8"
+    )
+    raw_ref = produce_claim_adjudication_input(config, store=store)
+    evidence = evidence_fixture(store, registry, config.claim_adjudication_registry_root, raw_ref)
+    good = persist_batch(evidence)
+    alternate = selected_manifest_view(
+        store,
+        evidence.candidate_ref,
+        producer_component="tests.claim_adjudication.alternate-result-candidate-view",
+    )
+    bad = persist_batch(evidence, candidate_ref=alternate)
+    assert bad.artifact_id == good.artifact_id
+    assert bad.manifest_profile_sha256 != good.manifest_profile_sha256
+    with pytest.raises(
+        ValueError, match=r"champion_binding_mismatch|observation_candidate_mismatch"
+    ):
+        materialize_claim_adjudication_result(config, bad, store=store, verifier=evidence.verifier)
+    assert not config.claim_adjudication_result_ref_path.exists()

@@ -78,9 +78,7 @@ class _NativeSearchDiagnosticCandidate(_DiagnosticCausalCandidate):
 
 def test_method_request_fingerprint_accepts_only_finite_floats_and_preserves_int_bytes() -> None:
     integer_request = {"count": 3, "seed": 17}
-    assert _fingerprint_method_request_material(integer_request) == fingerprint(
-        integer_request
-    )
+    assert _fingerprint_method_request_material(integer_request) == fingerprint(integer_request)
     assert _fingerprint_method_request_material({"clip": 0.4}) != (
         _fingerprint_method_request_material({"clip": 0.41})
     )
@@ -362,10 +360,20 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     assert direct_l4.execution_work_packet_ref is not None
     assert chained_l3.execution_work_packet_ref is not None
     assert chained_l4.execution_work_packet_ref is not None
+    for evaluation in (direct_l4, chained_l3, chained_l4):
+        assert evaluation.method_result_ref is not None
+        assert evaluation.method_result_ref.manifest_profile_sha256 is not None
+        assert evaluation.method_evidence_ref is not None
+        assert evaluation.method_evidence_ref.manifest_profile_sha256 is not None
+        assert evaluation.execution_work_packet_ref.manifest_profile_sha256 is not None
 
     fresh_reader = FileSystemCAS(tmp_path / "cas")
     persisted_evaluation_refs = [
-        persist_benchmark_evaluation(fresh_reader, evaluation)
+        persist_benchmark_evaluation(
+            fresh_reader,
+            evaluation,
+            inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        )
         for evaluation in (direct_l4, chained_l3, chained_l4)
     ]
     for evaluation_ref in persisted_evaluation_refs:
@@ -378,11 +386,25 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
         assert persisted_evaluation.execution_work_packet_status == "available"
         assert persisted_evaluation.execution_work_packet_ref is not None
         evaluation_manifest = fresh_reader.get_manifest(evaluation_ref)
-        assert any(
-            item.role == "execution_work_packet"
-            and item.artifact_id == persisted_evaluation.execution_work_packet_ref.artifact_id
-            for item in evaluation_manifest.inputs
-        )
+        expected_inputs = {
+            ref.role: ref
+            for ref in (
+                input_ref_from_artifact_ref(persisted_evaluation.candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+                input_ref_from_artifact_ref(
+                    persisted_evaluation.method_result_ref, role="method_result"
+                ),
+                input_ref_from_artifact_ref(
+                    persisted_evaluation.method_evidence_ref, role="method_evidence"
+                ),
+                input_ref_from_artifact_ref(
+                    persisted_evaluation.execution_work_packet_ref, role="execution_work_packet"
+                ),
+            )
+        }
+        actual_inputs = {ref.role: ref for ref in evaluation_manifest.inputs}
+        assert len(evaluation_manifest.inputs) == len(actual_inputs) == len(expected_inputs)
+        assert actual_inputs == expected_inputs
 
     direct_packet = read_method_job_execution_work_packet(
         fresh_reader, direct_l4.execution_work_packet_ref
@@ -396,6 +418,27 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     assert direct_packet.schema_version == "1.2"
     assert l3_packet.schema_version == "1.2"
     assert chained_l4_packet.schema_version == "1.2"
+    for packet, evaluation in (
+        (direct_packet, direct_l4),
+        (l3_packet, chained_l3),
+        (chained_l4_packet, chained_l4),
+    ):
+        assert evaluation.execution_work_packet_ref is not None
+        assert packet.method_result_ref.manifest_profile_sha256 is not None
+        assert packet.method_evidence_ref.manifest_profile_sha256 is not None
+        assert evaluation.execution_work_packet_ref.manifest_profile_sha256 is not None
+        packet_manifest = fresh_reader.get_manifest(evaluation.execution_work_packet_ref)
+        assert packet_manifest.inputs == [
+            input_ref_from_artifact_ref(packet.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(packet.benchmark_suite_ref, role="benchmark_suite"),
+            input_ref_from_artifact_ref(packet.data_snapshot_ref, role="data_snapshot"),
+            input_ref_from_artifact_ref(packet.data_ref, role="data"),
+            input_ref_from_artifact_ref(packet.method_result_ref, role="method_result"),
+            input_ref_from_artifact_ref(packet.method_evidence_ref, role="method_evidence"),
+        ]
+        assert fresh_reader.get_manifest(packet.method_evidence_ref).inputs == [
+            input_ref_from_artifact_ref(packet.method_result_ref, role="method_result")
+        ]
     direct_evidence = load_json_artifact(fresh_reader, direct_packet.method_evidence_ref)
     assert isinstance(direct_evidence, dict)
     dispatch_binding = MethodDispatchBinding.model_validate(
@@ -930,15 +973,9 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         assert packet.configured_method_params["propensity_clipping"] == selected_clipping
         if not observed_clipping_values:
             detached_packet = packet.model_copy(
-                update={
-                    "search_parameter_values": {
-                        "search_coordinate": selected_clipping + 0.1
-                    }
-                }
+                update={"search_parameter_values": {"search_coordinate": selected_clipping + 0.1}}
             )
-            detached_ref = persist_method_job_execution_work_packet(
-                fresh_reader, detached_packet
-            )
+            detached_ref = persist_method_job_execution_work_packet(fresh_reader, detached_packet)
             with pytest.raises(
                 ValueError, match="method_work_packet_search_parameter_source_mismatch"
             ):
@@ -983,46 +1020,46 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         observed_evaluation_refs.append(evaluation_ref)
         assert evaluation.promotable is False
     assert len(observed_evaluation_refs) == 4
-    assert len(
-        {
-            (str(ref.artifact_id), ref.manifest_profile_sha256)
-            for ref in observed_evaluation_refs
-        }
-    ) == 4
+    assert (
+        len(
+            {
+                (str(ref.artifact_id), ref.manifest_profile_sha256)
+                for ref in observed_evaluation_refs
+            }
+        )
+        == 4
+    )
     assert all(np.isfinite(value) for value in observed_ate_values)
     assert len(set(observed_clipping_values)) == 4
     assert len(observed_method_result_refs) == 4
-    assert len(
-        {
-            (str(ref.artifact_id), ref.manifest_profile_sha256)
-            for ref in observed_method_result_refs
-        }
-    ) == 4
+    assert (
+        len(
+            {
+                (str(ref.artifact_id), ref.manifest_profile_sha256)
+                for ref in observed_method_result_refs
+            }
+        )
+        == 4
+    )
 
     unclipped_ate_values = [
         ate
-        for ate, fraction in zip(
-            observed_ate_values, observed_clipping_fractions, strict=True
-        )
+        for ate, fraction in zip(observed_ate_values, observed_clipping_fractions, strict=True)
         if fraction == 0.0
     ]
     clipped_ate_values = [
         ate
-        for ate, fraction in zip(
-            observed_ate_values, observed_clipping_fractions, strict=True
-        )
+        for ate, fraction in zip(observed_ate_values, observed_clipping_fractions, strict=True)
         if fraction > 0.0
     ]
     assert len(unclipped_ate_values) >= 2
     plateau_ate = unclipped_ate_values[0]
     assert all(
-        np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12)
-        for value in unclipped_ate_values[1:]
+        np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12) for value in unclipped_ate_values[1:]
     )
     assert clipped_ate_values
     assert any(
-        not np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12)
-        for value in clipped_ate_values
+        not np.isclose(value, plateau_ate, rtol=0.0, atol=1e-12) for value in clipped_ate_values
     )
     assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
         "bayesian_acquisition"
@@ -1049,9 +1086,7 @@ def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path)
         source_evaluation.metadata["search_gp_fit_basis_ref"]
     )
     assert source_fit_basis_ref.manifest_profile_sha256 is not None
-    source_fit_basis = load_model_artifact(
-        fresh_reader, source_fit_basis_ref, SearchGPFitBasis
-    )
+    source_fit_basis = load_model_artifact(fresh_reader, source_fit_basis_ref, SearchGPFitBasis)
     assert isinstance(source_fit_basis, SearchGPFitBasis)
     assert source_fit_basis.run_profile.data_snapshot_ref == snapshot_ref
     assert source_fit_basis.run_profile.data_ref is not None

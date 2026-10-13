@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+import textwrap
+
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
     claim_promotion_policy,
@@ -18,7 +23,12 @@ from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier impo
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
     materialize_claim_adjudication_result,
 )
-from polisyos.scientist.methods.autotune import ChampionRegistry
+from polisyos.scientist.methods.autotune import (
+    BenchmarkEvaluation,
+    ChampionRegistry,
+    persist_benchmark_evaluation,
+    persist_mutation_artifact,
+)
 from polisyos.scientist.methods.autotune.claim_adjudication_runtime import ClaimAdjudicationRuntime
 from tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime import (
     _article,
@@ -30,6 +40,7 @@ from ._claim_evidence import (
     evidence_fixture,
     persist_batch,
     put,
+    selected_manifest_view,
     signed_receipt,
     tamper_pointer,
 )
@@ -60,6 +71,32 @@ def runtime(f):
     )
 
 
+def _rewrite_current_claim_state_as_legacy_sidecar(registry_root) -> None:
+    pointer_path = registry_root / "claim_adjudication" / "champion.json"
+    document = json.loads(pointer_path.read_text(encoding="utf-8"))
+    assert document["schema_version"] == "claim-champion-envelope.v1"
+    (registry_root / "claim_adjudication" / "promotion_basis.json").write_text(
+        json.dumps(
+            document["promotion_basis"],
+            sort_keys=True,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
+        ),
+        encoding="utf-8",
+    )
+    pointer_path.write_text(
+        json.dumps(
+            document["pointer"],
+            sort_keys=True,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
+        ),
+        encoding="utf-8",
+    )
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("positive", [True, False])
 async def test_signed_observations_drive_runtime_and_direct_materialization(tmp_path, positive):
@@ -68,7 +105,7 @@ async def test_signed_observations_drive_runtime_and_direct_materialization(tmp_
     assert pointer is not None
     assert pointer.metadata["promoted_by_policy"] == claim_promotion_policy()
     assert "unit" not in pointer.metadata["promoted_by_policy"]
-    replayed_pointer = f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    replayed_pointer = f.verifier.replay_champion(f.evaluation_receipt_ref)
     assert replayed_pointer == pointer.model_dump(mode="json")
     outcome = await runtime(f).adjudicate(
         f.raw_ref, client=_FakeClient(f.client_payload), model="fixture"
@@ -80,6 +117,32 @@ async def test_signed_observations_drive_runtime_and_direct_materialization(tmp_
     )
     assert result == {"claims": 1, "published": int(positive)}
     assert config.claim_adjudications_path.exists()
+
+
+def test_claim_transition_envelope_reopens_with_its_embedded_basis(tmp_path) -> None:
+    _, f = setup_evidence(tmp_path)
+    state_path = tmp_path / "registry" / "claim_adjudication" / "champion.json"
+    document = json.loads(state_path.read_text(encoding="utf-8"))
+    pointer = f.registry.get("claim_adjudication")
+    assert pointer is not None
+    assert document["schema_version"] == "claim-champion-envelope.v1"
+    assert document["pointer"] == pointer.model_dump(mode="json", exclude_none=True)
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+        _pointer_hash,
+    )
+
+    assert document["promotion_basis"]["current_pointer_sha256"] == _pointer_hash(
+        document["pointer"]
+    )
+    fresh = ChampionRegistry(root=tmp_path / "registry", store=f.store)
+    assert fresh.get("claim_adjudication") == pointer
+    assert (
+        read_claim_promotion_predecessor(
+            tmp_path / "registry", pointer.model_dump(mode="json", exclude_none=True)
+        )
+        is None
+    )
+    assert f.verifier.replay_champion(f.evaluation_receipt_ref)
 
 
 @pytest.mark.asyncio
@@ -238,7 +301,7 @@ def test_retained_promotion_basis_requires_actual_incumbent_observations(tmp_pat
         benchmark_gold_positive=False,
         candidate_note="first",
     )
-    assert first.verifier.replay_champion(str(first.evaluation_receipt_ref.artifact_id))
+    assert first.verifier.replay_champion(first.evaluation_receipt_ref)
     successor = evidence_fixture(
         store,
         registry,
@@ -257,29 +320,30 @@ def test_retained_promotion_basis_requires_actual_incumbent_observations(tmp_pat
     assert predecessor["metadata"]["promoted_by_policy"] == claim_promotion_policy()
     assert "unit" not in predecessor["metadata"]["promoted_by_policy"]
     with pytest.raises(ValueError, match="observation_incumbent_binding_mismatch"):
-        successor.verifier.replay_champion(str(successor.evaluation_receipt_ref.artifact_id))
+        successor.verifier.replay_champion(successor.evaluation_receipt_ref)
     observations = {
         **successor.observations,
-        "incumbent_candidate_ref": str(first.candidate_ref.artifact_id),
+        "incumbent_candidate_ref": first.candidate_ref.model_dump(mode="json"),
         "incumbent_cases": first.observations["cases"],
     }
     ref = put(store, observations)
     receipt = signed_receipt(
         store,
-        {**successor.benchmark_payload, "observations_ref": str(ref.artifact_id)},
+        {**successor.benchmark_payload, "observations_ref": ref.model_dump(mode="json")},
         successor.key,
     )
-    assert successor.verifier.replay_champion(str(receipt.artifact_id))
+    assert successor.verifier.replay_champion(receipt)
 
 
 def test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused(tmp_path):
     _, f = setup_evidence(tmp_path)
+    _rewrite_current_claim_state_as_legacy_sidecar(tmp_path / "registry")
     basis_path = tmp_path / "registry" / "claim_adjudication" / "promotion_basis.json"
     original = basis_path.read_bytes()
     # Retain the historical bytes in this isolated fixture while making them unavailable.
     basis_path.rename(basis_path.with_suffix(".legacy"))
     with pytest.raises(ValueError, match="promotion_basis_missing"):
-        f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+        f.verifier.replay_champion(f.evaluation_receipt_ref)
     from polisyos.scientist.methods.autotune.claim_adjudication import (
         default_claim_adjudication_promotion_policy,
     )
@@ -290,8 +354,10 @@ def test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refuse
             f.candidate_ref,
             f.evaluation_ref,
             default_claim_adjudication_promotion_policy(),
+            suite_ref=f.suite_ref,
         )
     basis_path.write_bytes(original)
+    assert f.verifier.replay_champion(f.evaluation_receipt_ref)
     pointer = f.registry.get("claim_adjudication")
     with pytest.raises(ValueError, match="manual_pointer_transition_unverified"):
         f.registry.write_pointer("claim_adjudication", pointer)
@@ -299,8 +365,117 @@ def test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refuse
     # independently retained basis. The verifier itself must detect that change.
     changed = pointer.model_copy(update={"metrics": {"precision_publishable": 0.2}})
     f.registry.write_pointer("claim_adjudication/.", changed)
-    with pytest.raises(ValueError, match="promotion_basis_pointer_mismatch"):
-        f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    with pytest.raises(ValueError, match=r"promotion_basis_(missing|pointer_mismatch)"):
+        f.verifier.replay_champion(f.evaluation_receipt_ref)
+
+
+@pytest.mark.parametrize(("boundary", "expected_returncode"), [("before", 81), ("after", 82)])
+def test_claim_registry_process_exit_at_atomic_replace_keeps_old_or_new_state(
+    tmp_path, boundary, expected_returncode
+) -> None:
+    _, f = setup_evidence(tmp_path)
+    original_pointer = f.registry.get("claim_adjudication")
+    assert original_pointer is not None
+    from polisyos.scientist.methods.autotune.claim_adjudication import ClaimAdjudicationSearchConfig
+
+    candidate_ref = persist_mutation_artifact(
+        f.store,
+        ClaimAdjudicationSearchConfig(passes=1, notes=["atomic-boundary-fixture"]),
+        inputs=[input_ref_from_artifact_ref(f.suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    original_evaluation = BenchmarkEvaluation.model_validate(
+        from_canonical_bytes(f.store.get_bytes(f.evaluation_ref.artifact_id))
+    )
+    holdout = dict(original_evaluation.holdout_metrics)
+    holdout["precision_publishable"] = holdout.get("precision_publishable", 0.0) + 0.25
+    holdout["f1_publishable"] = holdout.get("f1_publishable", 0.0) + 0.25
+    evaluation_ref = persist_benchmark_evaluation(
+        f.store,
+        original_evaluation.model_copy(
+            update={"candidate_ref": candidate_ref, "holdout_metrics": holdout}
+        ),
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(f.suite_ref, role="benchmark_suite"),
+        ],
+        return_selected_profile=True,
+    )
+    child = textwrap.dedent(
+        """
+        import json
+        import os
+        import sys
+        from pathlib import Path
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.scientist.methods.autotune import ChampionRegistry
+        from polisyos.scientist.methods.autotune.claim_adjudication import default_claim_adjudication_promotion_policy
+
+        root, cas_root = Path(sys.argv[1]), Path(sys.argv[2])
+        candidate = ArtifactRef.model_validate(json.loads(sys.argv[3]))
+        evaluation = ArtifactRef.model_validate(json.loads(sys.argv[4]))
+        suite = ArtifactRef.model_validate(json.loads(sys.argv[5]))
+        boundary = sys.argv[6]
+        registry = ChampionRegistry(root=root, store=FileSystemCAS(cas_root))
+        pointer_path = root / "claim_adjudication" / "champion.json"
+        original_replace = os.replace
+
+        def exit_at_replace(source, destination):
+            if Path(destination) == pointer_path:
+                if boundary == "before":
+                    os._exit(81)
+                original_replace(source, destination)
+                os._exit(82)
+            return original_replace(source, destination)
+
+        os.replace = exit_at_replace
+        registry.consider_promotion(
+            "claim_adjudication",
+            candidate,
+            evaluation,
+            default_claim_adjudication_promotion_policy(),
+            suite_ref=suite,
+        )
+        raise SystemExit("requested atomic replacement boundary was not reached")
+        """
+    )
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            child,
+            str(tmp_path / "registry"),
+            str(tmp_path / "cas"),
+            json.dumps(candidate_ref.model_dump(mode="json")),
+            json.dumps(evaluation_ref.model_dump(mode="json")),
+            json.dumps(f.suite_ref.model_dump(mode="json")),
+            boundary,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert completed.returncode == expected_returncode, completed.stderr
+
+    fresh = ChampionRegistry(root=tmp_path / "registry", store=f.store)
+    current = fresh.get("claim_adjudication")
+    assert current is not None
+    if boundary == "before":
+        assert current == original_pointer
+        assert (
+            read_claim_promotion_predecessor(
+                tmp_path / "registry", current.model_dump(mode="json", exclude_none=True)
+            )
+            is None
+        )
+    else:
+        assert current.candidate_ref == candidate_ref
+        predecessor = read_claim_promotion_predecessor(
+            tmp_path / "registry", current.model_dump(mode="json", exclude_none=True)
+        )
+        assert predecessor == original_pointer.model_dump(mode="json", exclude_none=True)
 
 
 def test_claim_transition_rejects_alternate_policy_without_changing_basis(tmp_path):
@@ -316,24 +491,105 @@ def test_claim_transition_rejects_alternate_policy_without_changing_basis(tmp_pa
     from polisyos.scientist.methods.autotune.models import MetricDirection
 
     _, f = setup_evidence(tmp_path)
-    basis_path = tmp_path / "registry" / "claim_adjudication" / "promotion_basis.json"
-    before = basis_path.read_bytes()
+    state_path = tmp_path / "registry" / "claim_adjudication" / "champion.json"
+    before = state_path.read_bytes()
     original_pointer = f.registry.get("claim_adjudication")
     candidate = persist_mutation_artifact(
-        f.store, ClaimAdjudicationSearchConfig(passes=1, notes=["weaker"])
+        f.store,
+        ClaimAdjudicationSearchConfig(passes=1, notes=["weaker"]),
+        inputs=[input_ref_from_artifact_ref(f.suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
     )
     payload = from_canonical_bytes(f.store.get_bytes(f.evaluation_ref.artifact_id))
     payload["candidate_ref"] = candidate.model_dump(mode="json")
     payload["holdout_metrics"]["precision_publishable"] = 0.5
-    evaluation = persist_benchmark_evaluation(f.store, BenchmarkEvaluation.model_validate(payload))
+    evaluation = persist_benchmark_evaluation(
+        f.store,
+        BenchmarkEvaluation.model_validate(payload),
+        inputs=[
+            input_ref_from_artifact_ref(candidate, role="candidate"),
+            input_ref_from_artifact_ref(f.suite_ref, role="benchmark_suite"),
+        ],
+        return_selected_profile=True,
+    )
     policy = default_claim_adjudication_promotion_policy()
     decision = f.registry.consider_promotion(
         "claim_adjudication",
         candidate,
         evaluation,
         policy.model_copy(update={"direction": MetricDirection.MINIMIZE}),
+        suite_ref=f.suite_ref,
     )
     assert not decision.promoted
     assert f.registry.get("claim_adjudication") == original_pointer
-    assert basis_path.read_bytes() == before
-    assert f.verifier.replay_champion(str(f.evaluation_receipt_ref.artifact_id))
+    assert state_path.read_bytes() == before
+    assert f.verifier.replay_champion(f.evaluation_receipt_ref)
+
+
+def test_same_id_alternate_candidate_profile_is_refused_by_full_claim_chain(tmp_path, monkeypatch):
+    """The exact selected candidate view, not its artifact ID, binds signed observations."""
+    _, fixture = setup_evidence(tmp_path)
+    alternate = selected_manifest_view(
+        fixture.store,
+        fixture.candidate_ref,
+        producer_component="tests.claim_adjudication.alternate-candidate-view",
+    )
+    assert alternate.artifact_id == fixture.candidate_ref.artifact_id
+    assert alternate.manifest_profile_sha256 != fixture.candidate_ref.manifest_profile_sha256
+    payload = {**fixture.benchmark_payload, "candidate_ref": alternate.model_dump(mode="json")}
+    receipt_ref = signed_receipt(fixture.store, payload, fixture.key)
+    with pytest.raises(
+        ValueError, match=r"champion_binding_mismatch|observation_candidate_mismatch"
+    ):
+        fixture.verifier.replay_champion(receipt_ref)
+
+    # Removal probe: with the same IDs accepted regardless of profile, all the
+    # surrounding signature/pointer/observation markers remain and replay turns green.
+    import polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier as verifier_module
+
+    monkeypatch.setattr(
+        verifier_module,
+        "same_selected_artifact_ref",
+        lambda left, right: left.artifact_id == right.artifact_id,
+    )
+    assert fixture.verifier.replay_champion(receipt_ref)
+
+
+def test_profileless_v1_signed_receipt_is_retained_as_history_but_refused(tmp_path):
+    _, fixture = setup_evidence(tmp_path)
+    legacy = {
+        **fixture.benchmark_payload,
+        "schema_version": "claim-independent-evaluation.v1",
+        "candidate_ref": str(fixture.candidate_ref.artifact_id),
+        "evaluation_ref": str(fixture.evaluation_ref.artifact_id),
+        "benchmark_ref": str(fixture.appointment.benchmark_refs[0].artifact_id),
+        "observations_ref": str(fixture.store.put_json(fixture.observations).artifact_id),
+    }
+    legacy.pop("raw_input_ref", None)
+    legacy_ref = signed_receipt(fixture.store, legacy, fixture.key, version="v1")
+    with pytest.raises(ValueError, match="legacy_v1_receipt_profileless_refused"):
+        fixture.verifier.replay_champion(legacy_ref)
+
+
+def test_id_only_replay_api_fails_with_typed_selected_profile_refusal(tmp_path):
+    _, fixture = setup_evidence(tmp_path)
+    with pytest.raises(ValueError, match="selected_profile_required:evaluation_receipt"):
+        fixture.verifier.replay_champion(str(fixture.evaluation_receipt_ref.artifact_id))
+
+
+def test_same_id_alternate_suite_profile_is_refused_by_complete_chain(tmp_path):
+    _, fixture = setup_evidence(tmp_path)
+    alternate = selected_manifest_view(
+        fixture.store,
+        fixture.suite_ref,
+        producer_component="tests.claim_adjudication.alternate-suite-view",
+    )
+    assert alternate.artifact_id == fixture.suite_ref.artifact_id
+    assert alternate.manifest_profile_sha256 != fixture.suite_ref.manifest_profile_sha256
+    payload = {
+        **fixture.benchmark_payload,
+        "benchmark_suite_ref": alternate.model_dump(mode="json"),
+    }
+    receipt_ref = signed_receipt(fixture.store, payload, fixture.key)
+    with pytest.raises(ValueError, match=r"champion_binding_mismatch|suite_lineage_mismatch"):
+        fixture.verifier.replay_champion(receipt_ref)

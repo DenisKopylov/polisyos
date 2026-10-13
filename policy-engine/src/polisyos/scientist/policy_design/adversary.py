@@ -240,13 +240,7 @@ class ScenarioAdversaryWorker:
                 if decision_packet_ref
                 else None,
             )
-        report_ref = None
-        if stress_report.cas_artifact_id is not None:
-            report_ref = ArtifactRef(
-                artifact_id=stress_report.cas_artifact_id,
-                kind="scientist.stress_test_report",
-                media_type="application/json",
-            )
+        report_ref = stress_report.cas_artifact_ref
         return AdversaryExecutionResult(
             scenario_bundle=bundle,
             compiled_plan=plan,
@@ -372,6 +366,7 @@ def load_adversarial_scenario_bundle(
 ) -> AdversarialScenarioBundle:
     """Load adversarial scenario bundle."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return AdversarialScenarioBundle.model_validate(payload)
 

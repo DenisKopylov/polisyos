@@ -7,7 +7,13 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec, CanonViolation, to_canonical_bytes
 from polisyos.scientist.methods.backtesting.adversarial import (
     ABSTRACTION_LEAKAGE_SUITE_ID,
@@ -15,8 +21,11 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     STRATEGIC_GAMING_SUITE_ID,
 )
 from polisyos.scientist.methods.doe.stress_report import (
+    _STRESS_TEST_REPORT_ARTIFACT_KIND,
+    _STRESS_TEST_REPORT_SCHEMA_NAME,
     StressScoreResolution,
     StressTestReport,
+    _load_stress_report_source,
     resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
@@ -55,12 +64,24 @@ def _ensure_stress_test_report(
     *,
     evaluation_vector: PolicyEvaluationVector,
     supplemental_reports: list[StressTestReport] | None = None,
+    supplemental_report_refs: list[ArtifactRef] | None = None,
     phase_d4_suite_ids: list[str] | None = None,
     expected_candidate_ref: ArtifactRef,
 ) -> ArtifactRef | None:
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+    paired_reports = list(supplemental_reports or [])
+    paired_refs = list(supplemental_report_refs or [])
+    if len(paired_reports) != len(paired_refs):
+        raise ValueError("stress_report_source_pair_count_mismatch")
+    if (
+        expected_candidate_ref.kind != PolicyCandidateSchema.ARTIFACT_KIND
+        or expected_candidate_ref.media_type != PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE
+    ):
+        raise ValueError("stress_report_expected_candidate_identity_mismatch")
     existing_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
     replacement_suite_ids = [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
-    if existing_ref is not None and not supplemental_reports and not replacement_suite_ids:
+    if existing_ref is not None and not paired_reports and not replacement_suite_ids:
         return existing_ref
 
     report = _load_stress_test_report(ctx, existing_ref)
@@ -85,9 +106,16 @@ def _ensure_stress_test_report(
                 "base_total_scenarios_evaluated": 0,
             },
         )
+    for source_ref, supplied_report in zip(paired_refs, paired_reports, strict=True):
+        resolved_report = _load_stress_test_report(ctx, source_ref)
+        if resolved_report is None or resolved_report.model_dump(
+            mode="json"
+        ) != supplied_report.model_dump(mode="json"):
+            raise ValueError("stress_report_source_body_mismatch")
+
     report = _merge_stress_test_reports(
         report,
-        supplemental_reports or [],
+        paired_reports,
         replacement_suite_ids=replacement_suite_ids,
     )
     report = _recompute_stress_test_report(report)
@@ -127,14 +155,39 @@ def _ensure_stress_test_report(
             else report.medium_count,
         }
     )
+    input_refs = [
+        InputRef(
+            artifact_id=expected_candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=expected_candidate_ref.manifest_profile_sha256,
+        )
+    ]
+    if existing_ref is not None:
+        input_refs.append(
+            InputRef(
+                artifact_id=existing_ref.artifact_id,
+                role="base_stress_report",
+                manifest_profile_sha256=existing_ref.manifest_profile_sha256,
+            )
+        )
+    input_refs.extend(
+        input_ref_from_artifact_ref(source_ref, role="supplemental_stress_report")
+        for source_ref in paired_refs
+    )
+    input_refs.extend(
+        input_ref_from_artifact_ref(component.outcome_basis_ref, role="stress_outcome_basis")
+        for component in report.score_components
+    )
     return ctx.store.put_json(
         report,
         PutOptions(
-            kind="scientist.stress_test_report",
+            kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+            schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version="1.1"),
+            inputs=input_refs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -391,11 +444,9 @@ def _load_stress_test_report(
     ctx: ExecutionContext,
     ref: ArtifactRef | None,
 ) -> StressTestReport | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-
     if ref is None:
         return None
-    return StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))
+    return _load_stress_report_source(ctx.store, ref, allow_unselected_profile=True)[0]
 
 
 def _find_non_finite_projection_values(value: Any) -> list[dict[str, str]]:

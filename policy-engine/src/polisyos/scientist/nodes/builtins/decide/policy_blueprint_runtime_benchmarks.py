@@ -3,7 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    InputRef,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceKind
@@ -21,7 +27,13 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     run_phase_d4_challenge_suites,
 )
 from polisyos.scientist.methods.doe.stress_report import (
+    _STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
+    _STRESS_OUTCOME_BASIS_SCHEMA_NAME,
+    _STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+    _STRESS_TEST_REPORT_ARTIFACT_KIND,
+    _STRESS_TEST_REPORT_SCHEMA_NAME,
     StressScoreComponent,
+    StressTestReport,
     resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
@@ -165,7 +177,7 @@ def _run_and_register_phase_d4_challenge_suites(
         benchmark_ref = persist_benchmark_evaluation(
             ctx.store,
             suite_result.benchmark_evaluation,
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+            return_selected_profile=True,
         )
         benchmark_refs.append(benchmark_ref)
         benchmark_registry.record_evaluation(
@@ -191,15 +203,27 @@ def _run_and_register_phase_d4_challenge_suites(
         basis_ref = ctx.store.put_json(
             basis,
             PutOptions(
-                kind="scientist.stress_outcome_basis",
+                kind=_STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+                schema=SchemaInfo(
+                    name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
+                    version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+                ),
                 inputs=[
-                    InputRef(artifact_id=benchmark_ref.artifact_id, role="benchmark_evaluation"),
-                    InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                    InputRef(
+                        artifact_id=benchmark_ref.artifact_id,
+                        role="benchmark_evaluation",
+                        manifest_profile_sha256=benchmark_ref.manifest_profile_sha256,
+                    ),
+                    InputRef(
+                        artifact_id=candidate_ref.artifact_id,
+                        role="candidate",
+                        manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+                    ),
                 ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         component = StressScoreComponent(
             component_id=basis.source_id,
@@ -226,16 +250,29 @@ def _run_and_register_phase_d4_challenge_suites(
         stress_ref = ctx.store.put_json(
             stress_report,
             PutOptions(
-                kind="scientist.stress_test_report",
+                kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+                schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version="1.1"),
                 inputs=[
-                    InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
-                    InputRef(artifact_id=benchmark_ref.artifact_id, role="benchmark_evaluation"),
-                    InputRef(artifact_id=basis_ref.artifact_id, role="stress_outcome_basis"),
+                    InputRef(
+                        artifact_id=candidate_ref.artifact_id,
+                        role="candidate",
+                        manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+                    ),
+                    InputRef(
+                        artifact_id=benchmark_ref.artifact_id,
+                        role="benchmark_evaluation",
+                        manifest_profile_sha256=benchmark_ref.manifest_profile_sha256,
+                    ),
+                    InputRef(
+                        artifact_id=basis_ref.artifact_id,
+                        role="stress_outcome_basis",
+                        manifest_profile_sha256=basis_ref.manifest_profile_sha256,
+                    ),
                 ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         stress_refs.append(stress_ref)
         benchmark_registry.record(
@@ -516,15 +553,19 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
                 "claim_mode": benchmark_scope["claim_mode"],
             },
         )
+    supplemental_stress_report_refs: list[ArtifactRef] = []
+    supplemental_stress_reports: list[StressTestReport] = []
+    for stress_ref in phase_d4_stress_refs:
+        stress_report = owner._load_stress_test_report(ctx, stress_ref)
+        if stress_report is not None:
+            supplemental_stress_report_refs.append(stress_ref)
+            supplemental_stress_reports.append(stress_report)
     stress_report_ref = owner._ensure_stress_test_report(
         ctx,
         state,
         evaluation_vector=session.selection_vector,
-        supplemental_reports=[
-            report
-            for report in (owner._load_stress_test_report(ctx, ref) for ref in phase_d4_stress_refs)
-            if report is not None
-        ],
+        supplemental_reports=supplemental_stress_reports,
+        supplemental_report_refs=supplemental_stress_report_refs,
         phase_d4_suite_ids=session.phase_d4_suite_ids,
         expected_candidate_ref=session.candidate_ref,
     )

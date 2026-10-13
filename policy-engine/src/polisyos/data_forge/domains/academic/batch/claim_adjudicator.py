@@ -12,17 +12,19 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import (
-    ArtifactID,
     ArtifactRef,
     ArtifactWriteOptions,
     FileSystemCAS,
     InputRef,
     ProducerInfo,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
     ClaimAdjudicationVerifier,
+    require_selected_artifact_ref,
+    selected_artifact_ref_for_input,
 )
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.kernel.io import atomic_write_json, atomic_write_text
@@ -70,7 +72,7 @@ def _put_bytes(
     kind: str,
     schema_name: str,
 ) -> ArtifactRef:
-    return store.put_bytes(
+    ref = store.put_bytes(
         data,
         ArtifactWriteOptions(
             kind=kind,
@@ -78,7 +80,9 @@ def _put_bytes(
             schema=SchemaInfo(name=schema_name, version="1.0"),
             producer=ProducerInfo(component=_INPUT_PRODUCER, version="1.0"),
         ),
+        return_selected_profile=True,
     )
+    return require_selected_artifact_ref(ref, field=kind)
 
 
 def _parse_article_results(data: bytes) -> list[ArticleExtractionResult]:
@@ -199,6 +203,15 @@ def _strict_lineage(inputs: tuple[InputRef, ...] | list[InputRef]) -> dict[str, 
     return lineage
 
 
+def _strict_selected_lineage(
+    store: FileSystemCAS,
+    inputs: tuple[InputRef, ...] | list[InputRef],
+) -> dict[str, ArtifactRef]:
+    """Resolve each unique result edge by the profile selected at production."""
+    _strict_lineage(inputs)
+    return {item.role: selected_artifact_ref_for_input(store, item) for item in inputs}
+
+
 def produce_claim_adjudication_input(
     config: AcademicBatchConfig,
     *,
@@ -237,9 +250,9 @@ def produce_claim_adjudication_input(
             retracted_ids=_parse_retracted_ids(retraction_bytes),
         ),
     )
-    inputs = [InputRef(artifact_id=source_ref.artifact_id, role="extraction_source")]
+    inputs = [input_ref_from_artifact_ref(source_ref, role="extraction_source")]
     if retraction_ref is not None:
-        inputs.append(InputRef(artifact_id=retraction_ref.artifact_id, role="retraction_source"))
+        inputs.append(input_ref_from_artifact_ref(retraction_ref, role="retraction_source"))
     input_ref = active_store.put_json(
         input_batch,
         ArtifactWriteOptions(
@@ -250,7 +263,9 @@ def produce_claim_adjudication_input(
             inputs=inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
+    require_selected_artifact_ref(input_ref, field="raw_input")
     _write_ref(config.claim_adjudication_input_ref_path, input_ref)
     write_stage_manifest(
         manifest_path=config.manifests_dir / "claim_adjudicate.json",
@@ -267,20 +282,66 @@ def _validate_input_batch(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ClaimAdjudicationInputBatch:
+    """Load one raw batch through its exact selected source lineage."""
     from polisyos.core.artifacts import load_core_json_artifact
+
+    require_selected_artifact_ref(ref, field="raw_input")
     manifest = store.get_manifest(ref)
     if manifest.kind != _INPUT_KIND:
         raise ValueError(f"unexpected claim-adjudication input kind: {manifest.kind}")
-    if manifest.artifact_schema is None or manifest.artifact_schema.name != _INPUT_SCHEMA:
+    if manifest.media_type != "application/json":
+        raise ValueError("claim-adjudication input media type mismatch")
+    if (
+        manifest.artifact_schema is None
+        or manifest.artifact_schema.name != _INPUT_SCHEMA
+        or manifest.artifact_schema.version != "1.0"
+    ):
         raise ValueError("claim-adjudication input schema mismatch")
-    if manifest.producer is None or str(manifest.producer.component) != _INPUT_PRODUCER:
+    if (
+        manifest.producer is None
+        or str(manifest.producer.component) != _INPUT_PRODUCER
+        or manifest.producer.version != "1.0"
+    ):
         raise ValueError("claim-adjudication input producer mismatch")
     batch = ClaimAdjudicationInputBatch.model_validate(load_core_json_artifact(store, ref))
-    expected_inputs = {"extraction_source": batch.source_artifact_ref}
+    selected_lineage = _strict_selected_lineage(store, manifest.inputs)
+    expected_ids = {"extraction_source": batch.source_artifact_ref}
     if batch.retraction_artifact_ref is not None:
-        expected_inputs["retraction_source"] = batch.retraction_artifact_ref
-    if _strict_lineage(manifest.inputs) != expected_inputs:
+        expected_ids["retraction_source"] = batch.retraction_artifact_ref
+    if {
+        role: str(source_ref.artifact_id) for role, source_ref in selected_lineage.items()
+    } != expected_ids:
         raise ValueError("claim-adjudication input lineage mismatch")
+    expected_sources = {
+        "extraction_source": (
+            _SOURCE_KIND,
+            "application/x-ndjson",
+            "polisyos.ir.analytics.literature.ArticleExtractionResult.ndjson",
+            "1.0",
+        ),
+        "retraction_source": (
+            _RETRACTION_KIND,
+            "application/x-ndjson",
+            "polisyos.data_forge.academic.MergedRecord.ndjson",
+            "1.0",
+        ),
+    }
+    for role, source_ref in selected_lineage.items():
+        source_manifest = store.get_manifest(source_ref)
+        expected_kind, expected_media_type, expected_schema, expected_version = expected_sources[
+            role
+        ]
+        if (
+            source_manifest.kind != expected_kind
+            or source_manifest.media_type != expected_media_type
+            or source_manifest.artifact_schema is None
+            or source_manifest.artifact_schema.name != expected_schema
+            or source_manifest.artifact_schema.version != expected_version
+            or source_manifest.producer is None
+            or str(source_manifest.producer.component) != _INPUT_PRODUCER
+            or source_manifest.producer.version != "1.0"
+        ):
+            raise ValueError(f"claim-adjudication input source profile mismatch:{role}")
     return batch
 
 
@@ -291,10 +352,13 @@ def load_admitted_claim_adjudication_batch(
     store: FileSystemCAS | None = None,
     verifier: ClaimAdjudicationVerifier | None = None,
 ) -> tuple[AdmittedClaimAdjudicationBatch, ArtifactRef]:
-    """Resolve and verify the sole authority-bearing adjudication receipt."""
+    """Resolve and verify the authority receipt from its exact selected lineage."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     active_store = _active_store(config, store)
     resolved_ref = result_ref or _read_ref(config.claim_adjudication_result_ref_path)
+    if resolved_ref.manifest_profile_sha256 is None:
+        raise ValueError("claim_adjudication_result_profile_missing")
     manifest = active_store.get_manifest(resolved_ref)
     if manifest.kind != _RESULT_KIND:
         raise ValueError(f"unexpected claim-adjudication result kind: {manifest.kind}")
@@ -305,31 +369,24 @@ def load_admitted_claim_adjudication_batch(
     batch = AdmittedClaimAdjudicationBatch.model_validate(
         load_core_json_artifact(active_store, resolved_ref)
     )
-    actual_inputs = _strict_lineage(manifest.inputs)
-    if set(actual_inputs) != {
+    actual_inputs = _strict_selected_lineage(active_store, manifest.inputs)
+    expected_roles = {
         "raw_input",
         "candidate",
         "evaluation",
         "evaluation_receipt",
         "execution_receipt",
-    }:
-        raise ValueError("claim_adjudication_independent_verification_receipts_missing")
-    expected_inputs = {
-        "raw_input": batch.raw_input_ref,
-        "candidate": batch.candidate_ref,
-        "evaluation": batch.evaluation_ref,
-        "evaluation_receipt": actual_inputs["evaluation_receipt"],
-        "execution_receipt": actual_inputs["execution_receipt"],
+        "benchmark_suite",
     }
-    actual_inputs = _strict_lineage(manifest.inputs)
-    if actual_inputs != expected_inputs:
+    if set(actual_inputs) != expected_roles:
+        raise ValueError("claim_adjudication_independent_verification_receipts_missing")
+    if (
+        str(actual_inputs["raw_input"].artifact_id) != batch.raw_input_ref
+        or str(actual_inputs["candidate"].artifact_id) != batch.candidate_ref
+        or str(actual_inputs["evaluation"].artifact_id) != batch.evaluation_ref
+    ):
         raise ValueError("claim-adjudication result lineage mismatch")
-    input_ref = ArtifactRef(
-        artifact_id=ArtifactID(batch.raw_input_ref),
-        kind=_INPUT_KIND,
-        media_type="application/json",
-    )
-    input_batch = _validate_input_batch(active_store, input_ref)
+    input_batch = _validate_input_batch(active_store, actual_inputs["raw_input"])
     if batch.input_claim_ids != [item.claim_id for item in input_batch.items]:
         raise ValueError("claim-adjudication result denominator mismatch")
     active_verifier = verifier or ClaimAdjudicationVerifier(
@@ -342,6 +399,10 @@ def load_admitted_claim_adjudication_batch(
         batch,
         evaluation_receipt_ref=actual_inputs["evaluation_receipt"],
         execution_receipt_ref=actual_inputs["execution_receipt"],
+        raw_input_ref=actual_inputs["raw_input"],
+        candidate_ref=actual_inputs["candidate"],
+        evaluation_ref=actual_inputs["evaluation"],
+        benchmark_suite_ref=actual_inputs["benchmark_suite"],
     )
     return batch, resolved_ref
 

@@ -2,14 +2,27 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime
 from enum import Enum
 from math import isclose, isfinite
-from typing import Literal
+from typing import TYPE_CHECKING, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
+
+
+_STRESS_OUTCOME_BASIS_ARTIFACT_KIND = "scientist.stress_outcome_basis"
+_STRESS_OUTCOME_BASIS_SCHEMA_NAME = "polisyos.scientist.StressOutcomeBasis"
+_STRESS_OUTCOME_BASIS_SCHEMA_VERSION = "1.0"
+_STRESS_TEST_REPORT_ARTIFACT_KIND = "scientist.stress_test_report"
+_STRESS_TEST_REPORT_SCHEMA_NAME = "polisyos.scientist.StressTestReport"
+_JSON_MEDIA_TYPE = "application/json"
+_ModelT = TypeVar("_ModelT", bound=BaseModel)
 
 
 class VulnerabilityType(str, Enum):
@@ -125,6 +138,71 @@ def _same_artifact(left: ArtifactRef | None, right: ArtifactRef | None) -> bool:
         and left.artifact_id == right.artifact_id
         and left.kind == right.kind
         and left.media_type == right.media_type
+        and left.manifest_profile_sha256 == right.manifest_profile_sha256
+    )
+
+
+class _UnselectedArtifactProfileError(ValueError):
+    """Signal that a source reference has no exact selected manifest profile."""
+
+
+def _read_selected_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
+    """Resolve one exact selected manifest and verify its complete reference identity."""
+    if ref.manifest_profile_sha256 is None:
+        raise _UnselectedArtifactProfileError("selected_manifest_profile_missing")
+    if ref.media_type != _JSON_MEDIA_TYPE:
+        raise ValueError("selected_manifest_media_type_mismatch")
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+    manifest = store.get_manifest(ref)
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+    ):
+        raise ValueError("selected_manifest_reference_mismatch")
+    return manifest
+
+
+def _load_selected_model(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    model_type: type[_ModelT],
+    *,
+    expected_kind: str | Callable[[_ModelT], str],
+    expected_schema_name: str,
+    expected_schema_version: str | Callable[[_ModelT], str],
+) -> tuple[_ModelT, ArtifactManifest]:
+    """Decode a typed body only after its selected manifest matches the owner contract."""
+    manifest = _read_selected_manifest(store, ref)
+    schema = manifest.artifact_schema
+    if schema is None or schema.name != expected_schema_name:
+        raise ValueError("selected_source_schema_name_mismatch")
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    body = load_core_json_artifact(store, ref, manifest_profile_sha256=ref.manifest_profile_sha256)
+    model = model_type.model_validate(body)
+    kind = expected_kind(model) if callable(expected_kind) else expected_kind
+    version = (
+        expected_schema_version(model)
+        if callable(expected_schema_version)
+        else expected_schema_version
+    )
+    if manifest.kind != kind or ref.kind != kind:
+        raise ValueError("selected_source_kind_mismatch")
+    if schema.version != version:
+        raise ValueError("selected_source_schema_version_mismatch")
+    return model, manifest
+
+
+def _manifest_has_input(manifest: ArtifactManifest, ref: ArtifactRef, *, role: str) -> bool:
+    """Check a manifest's direct lineage edge against one exact selected source ref."""
+    return any(
+        item.role == role
+        and item.artifact_id == ref.artifact_id
+        and item.manifest_profile_sha256 == ref.manifest_profile_sha256
+        for item in manifest.inputs
     )
 
 
@@ -162,25 +240,59 @@ def resolve_stress_score_components(
     expected_candidate_ref: ArtifactRef | None,
 ) -> StressScoreResolution:
     """Resolve actual CAS outcome rows and recompute the finite binary score."""
-    from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-    from polisyos.scientist.methods.doe.designs import AdversarialPlan
+    from polisyos.scientist.methods.autotune.models import (
+        _BENCHMARK_EVALUATION_SCHEMA_NAME,
+        BenchmarkEvaluation,
+        BenchmarkSplit,
+        _benchmark_evaluation_artifact_kind,
+    )
+    from polisyos.scientist.methods.doe.designs import (
+        _ADVERSARIAL_PLAN_ARTIFACT_KIND,
+        _ADVERSARIAL_PLAN_SCHEMA_NAME,
+        _ADVERSARIAL_PLAN_SCHEMA_VERSION,
+        AdversarialPlan,
+    )
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
     component_ids = [item.component_id for item in components]
     if not components:
         return _resolution("not_evaluated", [], "no_finite_score_components")
     if expected_candidate_ref is None:
         return _resolution("unbound", component_ids, "current_candidate_ref_missing")
-    if expected_candidate_ref.kind != "scientist.policy_candidate_schema":
-        return _resolution("unbound", component_ids, "current_candidate_ref_wrong_kind")
+    if expected_candidate_ref.kind != PolicyCandidateSchema.ARTIFACT_KIND:
+        return _resolution("unbound", component_ids, "current_candidate_ref_not_canonical")
+    if expected_candidate_ref.media_type != PolicyCandidateSchema.ARTIFACT_MEDIA_TYPE:
+        return _resolution("invalid", component_ids, "current_candidate_media_type_mismatch")
+    if expected_candidate_ref.manifest_profile_sha256 is None:
+        return _resolution("unbound", component_ids, "current_candidate_profile_missing")
+    try:
+        current_candidate, _candidate_manifest = _load_selected_model(
+            store,
+            expected_candidate_ref,
+            PolicyCandidateSchema,
+            expected_kind=PolicyCandidateSchema.ARTIFACT_KIND,
+            expected_schema_name=PolicyCandidateSchema.ARTIFACT_SCHEMA_NAME,
+            expected_schema_version=PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION,
+        )
+    except Exception:
+        return _resolution("invalid", component_ids, "current_candidate_manifest_invalid")
+    if current_candidate.schema_version != PolicyCandidateSchema.ARTIFACT_SCHEMA_VERSION:
+        return _resolution("invalid", component_ids, "current_candidate_body_version_mismatch")
     if len(component_ids) != len(set(component_ids)):
         return _resolution("invalid", component_ids, "duplicate_component_id")
 
     total = passed = critical = high = medium = 0
     for component in components:
+        if component.outcome_basis_ref.manifest_profile_sha256 is None:
+            return _resolution("unbound", component_ids, "outcome_basis_profile_missing")
         try:
-            basis = StressOutcomeBasis.model_validate(
-                load_core_json_artifact(store, component.outcome_basis_ref)
+            basis, basis_manifest = _load_selected_model(
+                store,
+                component.outcome_basis_ref,
+                StressOutcomeBasis,
+                expected_kind=_STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
+                expected_schema_name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
+                expected_schema_version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
             )
         except Exception:
             return _resolution("invalid", component_ids, "outcome_basis_unreadable")
@@ -191,16 +303,29 @@ def resolve_stress_score_components(
             return _resolution("invalid", component_ids, "basis_component_mismatch")
         if not _same_artifact(basis.candidate_ref, expected_candidate_ref):
             return _resolution("invalid", component_ids, "candidate_binding_missing_or_mismatched")
+        if basis.candidate_ref is None or not _manifest_has_input(
+            basis_manifest, basis.candidate_ref, role="candidate"
+        ):
+            return _resolution("invalid", component_ids, "basis_candidate_lineage_mismatch")
 
         if basis.source_kind == "adversarial_plan":
             if basis.plan_ref is None or basis.benchmark_evaluation_ref is not None:
                 return _resolution("invalid", component_ids, "adversarial_source_refs_invalid")
+            if basis.plan_ref.manifest_profile_sha256 is None:
+                return _resolution("unbound", component_ids, "adversarial_plan_profile_missing")
             try:
-                plan = AdversarialPlan.model_validate(
-                    load_core_json_artifact(store, basis.plan_ref)
+                plan, _plan_manifest = _load_selected_model(
+                    store,
+                    basis.plan_ref,
+                    AdversarialPlan,
+                    expected_kind=_ADVERSARIAL_PLAN_ARTIFACT_KIND,
+                    expected_schema_name=_ADVERSARIAL_PLAN_SCHEMA_NAME,
+                    expected_schema_version=_ADVERSARIAL_PLAN_SCHEMA_VERSION,
                 )
             except Exception:
                 return _resolution("invalid", component_ids, "adversarial_plan_unreadable")
+            if not _manifest_has_input(basis_manifest, basis.plan_ref, role="adversarial_plan"):
+                return _resolution("invalid", component_ids, "basis_plan_lineage_mismatch")
             expected_count = _expected_adversarial_count(plan)
             if expected_count is None:
                 return _resolution(
@@ -225,12 +350,29 @@ def resolve_stress_score_components(
                 or basis.suite_version is None
             ):
                 return _resolution("invalid", component_ids, "phase_d4_source_refs_invalid")
+            if basis.benchmark_evaluation_ref.manifest_profile_sha256 is None:
+                return _resolution("unbound", component_ids, "benchmark_evaluation_profile_missing")
             try:
-                evaluation = BenchmarkEvaluation.model_validate(
-                    load_core_json_artifact(store, basis.benchmark_evaluation_ref)
+                evaluation, evaluation_manifest = _load_selected_model(
+                    store,
+                    basis.benchmark_evaluation_ref,
+                    BenchmarkEvaluation,
+                    expected_kind=lambda item: _benchmark_evaluation_artifact_kind(item.loop_id),
+                    expected_schema_name=_BENCHMARK_EVALUATION_SCHEMA_NAME,
+                    expected_schema_version=lambda item: item.suite_version,
                 )
             except Exception:
                 return _resolution("invalid", component_ids, "benchmark_evaluation_unreadable")
+            if (
+                not _manifest_has_input(
+                    basis_manifest, basis.benchmark_evaluation_ref, role="benchmark_evaluation"
+                )
+                or basis.candidate_ref is None
+                or not _manifest_has_input(
+                    evaluation_manifest, basis.candidate_ref, role="candidate"
+                )
+            ):
+                return _resolution("invalid", component_ids, "benchmark_lineage_mismatch")
             executed = [item for item in basis.outcomes if item.status != "skipped"]
             sample_count = evaluation.sample_counts.get(BenchmarkSplit.ROTATING_CHALLENGE.value)
             if (
@@ -353,6 +495,13 @@ class StressTestReport(BaseModel):
     cas_artifact_id: str | None = None
     metadata: dict[str, object] = Field(default_factory=dict)
 
+    _cas_artifact_ref: ArtifactRef | None = PrivateAttr(default=None)
+
+    @property
+    def cas_artifact_ref(self) -> ArtifactRef | None:
+        """Return this producer invocation's exact selected CAS report reference."""
+        return self._cas_artifact_ref
+
     @property
     def is_robust(self) -> bool:
         """Return true only for an available finite-profile score."""
@@ -365,20 +514,78 @@ class StressTestReport(BaseModel):
         )
 
 
+def _load_stress_report_source(
+    store: ArtifactStore,
+    report_ref: ArtifactRef,
+    *,
+    allow_unselected_profile: bool = False,
+) -> tuple[StressTestReport, ArtifactManifest]:
+    """Read a report under its selected schema contract; unselected reads are candidate-only."""
+    if (
+        report_ref.kind != _STRESS_TEST_REPORT_ARTIFACT_KIND
+        or report_ref.media_type != _JSON_MEDIA_TYPE
+    ):
+        raise ValueError("stress_report_source_identity_mismatch")
+    if report_ref.manifest_profile_sha256 is None and allow_unselected_profile:
+        manifest = store.get_manifest(report_ref)
+        if manifest.kind != report_ref.kind or manifest.media_type != report_ref.media_type:
+            raise ValueError("stress_report_source_manifest_identity_mismatch")
+        schema = manifest.artifact_schema
+        if schema is None or schema.name != _STRESS_TEST_REPORT_SCHEMA_NAME:
+            raise ValueError("stress_report_source_schema_mismatch")
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        report = StressTestReport.model_validate(load_core_json_artifact(store, report_ref))
+        if schema.version != report.schema_version:
+            raise ValueError("stress_report_source_schema_version_mismatch")
+        return report, manifest
+    report, manifest = _load_selected_model(
+        store,
+        report_ref,
+        StressTestReport,
+        expected_kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
+        expected_schema_name=_STRESS_TEST_REPORT_SCHEMA_NAME,
+        expected_schema_version=lambda item: item.schema_version,
+    )
+    return report, manifest
+
+
 def resolve_stress_report_artifact(
     store,
     report_ref: ArtifactRef,
     *,
     expected_candidate_ref: ArtifactRef | None,
 ) -> tuple[StressTestReport, StressScoreResolution]:
-    """Freshly resolve a report and reject summaries that disagree with CAS rows."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
+    """Freshly resolve a selected report and reject summaries that disagree with CAS rows."""
+    if report_ref.manifest_profile_sha256 is None:
+        try:
+            report, _manifest = _load_stress_report_source(
+                store, report_ref, allow_unselected_profile=True
+            )
+        except Exception:
+            report = StressTestReport(report_id="unreadable-stress-report", schema_version="1.0")
+            return report, _resolution("invalid", [], "stress_report_unreadable")
+        if report.schema_version != "1.1":
+            return report, _resolution(
+                "legacy_unknown", [], "legacy_report_without_occurrence_basis"
+            )
+        return report, _resolution("unbound", [], "stress_report_profile_missing")
     try:
-        report = StressTestReport.model_validate(load_core_json_artifact(store, report_ref))
+        report, report_manifest = _load_stress_report_source(store, report_ref)
     except Exception:
         report = StressTestReport(report_id="unreadable-stress-report", schema_version="1.0")
         return report, _resolution("invalid", [], "stress_report_unreadable")
+    if report.score_components:
+        required_inputs = [
+            ("stress_outcome_basis", item.outcome_basis_ref) for item in report.score_components
+        ]
+        if expected_candidate_ref is not None:
+            required_inputs.append(("candidate", expected_candidate_ref))
+        if any(
+            not _manifest_has_input(report_manifest, ref, role=role)
+            for role, ref in required_inputs
+        ):
+            return report, _resolution("invalid", [], "stress_report_lineage_mismatch")
     if report.schema_version != "1.1":
         return report, _resolution("legacy_unknown", [], "legacy_report_without_occurrence_basis")
     if report.score_profile in {"continuous_severity_v1", "mixed_unscored"}:

@@ -8,15 +8,31 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef
 from polisyos.ir.world.ids import stable_world_id_from_canon
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy
+from polisyos.scientist.methods.doe.designs import (
+    _ADVERSARIAL_PLAN_ARTIFACT_KIND,
+    _ADVERSARIAL_PLAN_SCHEMA_NAME,
+    _ADVERSARIAL_PLAN_SCHEMA_VERSION,
+    AdversarialPlan,
+    AdversarialStrategy,
+)
 from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
 from polisyos.scientist.methods.doe.stress_report import (
+    _STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
+    _STRESS_OUTCOME_BASIS_SCHEMA_NAME,
+    _STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+    _STRESS_TEST_REPORT_ARTIFACT_KIND,
+    _STRESS_TEST_REPORT_SCHEMA_NAME,
     StressOutcomeBasis,
     StressOutcomeRecord,
     StressScoreComponent,
@@ -790,11 +806,15 @@ def run_stress_test(
             plan_ref = cas.put_json(
                 adversarial_plan.model_dump(mode="json"),
                 PutOptions(
-                    kind="scientist.adversarial_plan",
+                    kind=_ADVERSARIAL_PLAN_ARTIFACT_KIND,
                     media_type="application/json",
-                    schema=SchemaInfo(name="polisyos.scientist.AdversarialPlan", version="1.0"),
+                    schema=SchemaInfo(
+                        name=_ADVERSARIAL_PLAN_SCHEMA_NAME,
+                        version=_ADVERSARIAL_PLAN_SCHEMA_VERSION,
+                    ),
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
             expected_count = total_evaluated if adaptive_continuation else len(initial_samples)
             source_id = f"adversarial_plan:{plan_ref.artifact_id}"
@@ -816,15 +836,19 @@ def run_stress_test(
             basis_ref = cas.put_json(
                 basis.model_dump(mode="json"),
                 PutOptions(
-                    kind="scientist.stress_outcome_basis",
+                    kind=_STRESS_OUTCOME_BASIS_ARTIFACT_KIND,
                     media_type="application/json",
-                    schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+                    schema=SchemaInfo(
+                        name=_STRESS_OUTCOME_BASIS_SCHEMA_NAME,
+                        version=_STRESS_OUTCOME_BASIS_SCHEMA_VERSION,
+                    ),
                     inputs=[
-                        InputRef(artifact_id=plan_ref.artifact_id, role="adversarial_plan"),
-                        InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                        input_ref_from_artifact_ref(plan_ref, role="adversarial_plan"),
+                        input_ref_from_artifact_ref(candidate_ref, role="candidate"),
                     ],
                 ),
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
             component = StressScoreComponent(
                 component_id=source_id,
@@ -852,27 +876,28 @@ def run_stress_test(
         ref = cas.put_json(
             report.model_dump(mode="json"),
             PutOptions(
-                kind="scientist.stress_test_report",
+                kind=_STRESS_TEST_REPORT_ARTIFACT_KIND,
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+                schema=SchemaInfo(name=_STRESS_TEST_REPORT_SCHEMA_NAME, version="1.1"),
                 inputs=(
                     [
-                        InputRef(
-                            artifact_id=item.outcome_basis_ref.artifact_id,
-                            role="stress_outcome_basis",
+                        input_ref_from_artifact_ref(
+                            item.outcome_basis_ref, role="stress_outcome_basis"
                         )
                         for item in report.score_components
                     ]
                     + (
-                        [InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")]
+                        [input_ref_from_artifact_ref(candidate_ref, role="candidate")]
                         if candidate_ref is not None
                         else []
                     )
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
         )
         report.cas_artifact_id = str(ref.artifact_id)
+        report._cas_artifact_ref = ref
     return report
 
 

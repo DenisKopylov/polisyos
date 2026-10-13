@@ -8,7 +8,7 @@ from typing import Any, ClassVar
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, fingerprint, from_canonical_bytes
@@ -127,6 +127,8 @@ def test_run_job_method_flow(tmp_path):
     assert result.simulation_results_ref is not None
     assert result.method_result_ref is not None
     assert result.method_evidence_ref is not None
+    assert result.method_result_ref.manifest_profile_sha256 is not None
+    assert result.method_evidence_ref.manifest_profile_sha256 is not None
     assert result.final_state is not None
     assert np.allclose(np.asarray(result.final_state["values"]), np.array([4.0, 5.0]))
     evidence = from_canonical_bytes(cas.get_bytes(result.method_evidence_ref.artifact_id))
@@ -135,6 +137,19 @@ def test_run_job_method_flow(tmp_path):
     assert evidence["may_not_use_for"] == [
         "governance_admissibility",
         "method_validity",
+    ]
+    fresh_reader = FileSystemCAS(tmp_path)
+    result_manifest = fresh_reader.get_manifest(result.method_result_ref)
+    evidence_manifest = fresh_reader.get_manifest(result.method_evidence_ref)
+    assert (
+        result_manifest.manifest_profile_sha256 == result.method_result_ref.manifest_profile_sha256
+    )
+    assert (
+        evidence_manifest.manifest_profile_sha256
+        == result.method_evidence_ref.manifest_profile_sha256
+    )
+    assert evidence_manifest.inputs == [
+        input_ref_from_artifact_ref(result.method_result_ref, role="method_result")
     ]
 
 
@@ -250,7 +265,9 @@ def test_run_job_nonfinite_method_params_leave_dispatch_unbound(
     assert "method_dispatch_binding" not in evidence
     assert result.method_result_ref is not None
     adapter_failures = [
-        warning for warning in result.warnings if warning.startswith("legacy_method_adapter_failed:")
+        warning
+        for warning in result.warnings
+        if warning.startswith("legacy_method_adapter_failed:")
     ]
     assert len(adapter_failures) == 1
     assert "NaN/Inf forbidden" in adapter_failures[0]

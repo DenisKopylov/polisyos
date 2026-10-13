@@ -1,0 +1,22 @@
+id = "2026-10-13-e02-n6-producer-budget-reconciliation"
+title = "Reconcile NL run budgets from exact settled producer records"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "The N6 scheduler recomputes NL run spend from the exact bound durable producer-event set before scheduling another paid stage."
+evidence = [
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+]
+compatibility = "No public DTO, ledger schema, or historical receipt is rewritten. Existing producer ledger statuses remain pending, committed, unknown, or unmanaged."
+change_class = "runtime NL run budget reconciliation from source-owned producer settlements"
+surface_classification = "existing recursive N6 scheduling and run-details surfaces; no public status enum or new route"
+migration = "NL control jobs pass the existing server-issued run binding into recursive N6. Known reported or estimated amounts are recomputed from persisted records; unknown or incomplete cost stays a typed refusal, not zero spend and not a budget-exhausted result."
+api = "No public callable or schema changes are introduced. The internal scheduler callback reads the exact durable event set and replaces its prior contribution idempotently while preserving unrelated run spend. Cache reuse counts as zero only when its committed known-cost provider origin is resolved and matches the same run, request, model, and provider."
+limitations = "Recorded gateway usage priced through the configured price table remains an estimate, not external invoice evidence or cost authority. A candidate-only controlled replay demonstrates the producer-to-scheduler mechanics; it does not establish external provider pricing or production billing. Historical unknown-cost events remain unchanged."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

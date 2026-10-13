@@ -259,18 +259,12 @@ def _generic_n4_child_selection(
     child_uri = "design-problem://" + child_full_ref.removeprefix("sha256:")
     expected_parent_uri = "design-problem://" + parent_problem_ref.removeprefix("sha256:")
     if node_ref != child_uri or parent_ref != expected_parent_uri:
-        raise RecursiveGenerationCycleError(
-            "recursive_generic_child_problem_identity_mismatch"
-        )
+        raise RecursiveGenerationCycleError("recursive_generic_child_problem_identity_mismatch")
     source_record = child_problem.runtime_hints.get("n4_candidate_child_source")
     if not isinstance(source_record, Mapping):
-        raise RecursiveGenerationCycleError(
-            "recursive_generic_child_source_lineage_missing"
-        )
+        raise RecursiveGenerationCycleError("recursive_generic_child_source_lineage_missing")
     if source_record.get("parent_design_problem_ref") != parent_problem_ref:
-        raise RecursiveGenerationCycleError(
-            "recursive_generic_child_source_parent_mismatch"
-        )
+        raise RecursiveGenerationCycleError("recursive_generic_child_source_parent_mismatch")
     selection_ref = generic_n4_child_profile_selection_ref(
         child_problem,
         parent_problem_ref=parent_problem_ref,
@@ -316,11 +310,9 @@ class RecursiveN4ChildProfileBindingV1(_StrictModel):
             self.node_ref == self.parent_ref
             or self.source_ref.kind != "runtime.generation_source_handoff"
             or self.source_ref.media_type != "application/json"
-            or self.handoff.context.design_problem_ref
-            != cycle_job_design_problem_ref(self.problem)
+            or self.handoff.context.design_problem_ref != cycle_job_design_problem_ref(self.problem)
             or self.handoff.profile.profile_selection_kind != "n4_candidate_child"
-            or self.handoff.profile.profile_selection_ref
-            != self.selection.profile_selection_ref
+            or self.handoff.profile.profile_selection_ref != self.selection.profile_selection_ref
             or self.selection.node_ref != self.node_ref
             or self.selection.parent_ref != self.parent_ref
             or self.selection.problem != self.problem
@@ -348,9 +340,9 @@ class RecursiveN4ChildProfileBindingV1(_StrictModel):
 class RecursiveN4ChildProfileSetV1(_StrictModel):
     """Complete candidate-only profile family derived from one persisted N4 result."""
 
-    schema_version: Literal[
+    schema_version: Literal["policyos.runtime.quality.recursive_n4_child_profile_set.v1"] = (
         "policyos.runtime.quality.recursive_n4_child_profile_set.v1"
-    ] = "policyos.runtime.quality.recursive_n4_child_profile_set.v1"
+    )
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     job_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
@@ -377,8 +369,7 @@ class RecursiveN4ChildProfileSetV1(_StrictModel):
             or self.n4_child_profile_family_ref.kind
             != "runtime.quality.generic_cycle_simulation_child_profile_family"
             or self.n4_child_profile_family_ref.media_type != "application/json"
-            or self.parent_handoff.n4_child_profile_family_ref
-            != self.n4_child_profile_family_ref
+            or self.parent_handoff.n4_child_profile_family_ref != self.n4_child_profile_family_ref
             or (
                 self.parent_handoff.job_id,
                 self.parent_handoff.run_id,
@@ -440,8 +431,7 @@ class RecursiveLeafContextCapsuleV2(_StrictModel):
 
         if (
             self.node_ref == self.parent_ref
-            or self.handoff.context.design_problem_ref
-            != cycle_job_design_problem_ref(self.problem)
+            or self.handoff.context.design_problem_ref != cycle_job_design_problem_ref(self.problem)
             or self.handoff.profile.profile_selection_kind != "n4_candidate_child"
             or self.handoff.profile.profile_selection_ref
             != self.child_selection.profile_selection_ref
@@ -458,8 +448,7 @@ class RecursiveLeafContextCapsuleV2(_StrictModel):
             != "runtime.quality.generic_cycle_simulation_child_profile_family"
             or self.n4_child_profile_family_ref.media_type != "application/json"
             or self.handoff.n4_child_profile_family_ref != self.n4_child_profile_family_ref
-            or self.child_selection.n4_child_profile_family_ref
-            != self.n4_child_profile_family_ref
+            or self.child_selection.n4_child_profile_family_ref != self.n4_child_profile_family_ref
             or self.child_selection.parent_handoff.n4_child_profile_family_ref
             != self.n4_child_profile_family_ref
             or self.n4_child_profile_set_ref.kind
@@ -509,14 +498,8 @@ class RecursiveLeafContextOwner:
             raise TypeError("recursive_leaf_profile_admission_owner_missing")
         if (
             context_owner._store is not store
-            or (
-                admission_owner is not None
-                and admission_owner._store is not store
-            )
-            or (
-                generic_admission_owner is not None
-                and generic_admission_owner.store is not store
-            )
+            or (admission_owner is not None and admission_owner._store is not store)
+            or (generic_admission_owner is not None and generic_admission_owner.store is not store)
         ):
             raise ValueError("recursive_leaf_store_owner_mismatch")
         self._store = store
@@ -584,9 +567,7 @@ class RecursiveLeafContextOwner:
             != gy_content_hash(parent_problem.model_dump(mode="json"))
             or source.generation_result.status != "generated"
         ):
-            raise RecursiveGenerationCycleError(
-                "recursive_generic_n4_source_binding_mismatch"
-            )
+            raise RecursiveGenerationCycleError("recursive_generic_n4_source_binding_mismatch")
         from polisyos.runtime.quality.design_generation import (
             derive_n4_candidate_child_problems,
         )
@@ -597,19 +578,15 @@ class RecursiveLeafContextOwner:
             model_id=source.generation_result.model_id,
         )
         if not children:
-            raise RecursiveGenerationCycleError(
-                "recursive_generic_n4_child_source_empty"
-            )
-        parent_node_ref = (
-            "design-problem://"
-            + cycle_job_design_problem_ref(parent_problem).removeprefix("sha256:")
-        )
+            raise RecursiveGenerationCycleError("recursive_generic_n4_child_source_empty")
+        parent_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            parent_problem
+        ).removeprefix("sha256:")
         selections: list[tuple[str, object, GenericCycleSimulationChildSelectionV1]] = []
         for child in children:
-            node_ref = (
-                "design-problem://"
-                + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
-            )
+            node_ref = "design-problem://" + cycle_job_design_problem_ref(
+                child.problem
+            ).removeprefix("sha256:")
             selection = _generic_n4_child_selection(
                 node_ref=node_ref,
                 parent_ref=parent_node_ref,
@@ -636,10 +613,8 @@ class RecursiveLeafContextOwner:
             )
         selections_by_profile: list[tuple[str, object, GenericCycleSimulationChildSelectionV1]] = []
         for node_ref, child, selection in selections:
-            profile_id = (
-                self._generic_admission_owner.configured_profile_id_for_child_selection(
-                    selection
-                )
+            profile_id = self._generic_admission_owner.configured_profile_id_for_child_selection(
+                selection
             )
             member = next(
                 (
@@ -718,9 +693,7 @@ class RecursiveLeafContextOwner:
 
     def _require_current_profile(self, capsule: RecursiveLeafContextCapsule) -> None:
         if self._admission_owner is None:
-            raise RecursiveGenerationCycleError(
-                "recursive_leaf_candidate_admission_owner_missing"
-            )
+            raise RecursiveGenerationCycleError("recursive_leaf_candidate_admission_owner_missing")
         handoff = capsule.handoff
         offer = self._admission_owner.admit_context(
             problem=capsule.problem,
@@ -995,10 +968,9 @@ class RecursiveLeafContextOwner:
         if len(actual_by_ref) != len(actual_children) or set(child_handoffs) != set(actual_by_ref):
             raise RecursiveGenerationCycleError("recursive_generic_n4_child_denominator_mismatch")
         rows: list[RecursiveN4ChildProfileBindingV1] = []
-        parent_node_ref = (
-            "design-problem://"
-            + cycle_job_design_problem_ref(parent_problem).removeprefix("sha256:")
-        )
+        parent_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            parent_problem
+        ).removeprefix("sha256:")
         for node_ref, child in actual_by_ref.items():
             handoff = child_handoffs[node_ref]
             if type(handoff) is not GenericCycleSimulationContextHandoffV1:
@@ -1015,14 +987,11 @@ class RecursiveLeafContextOwner:
                 n4_source_ref=source_ref,
             )
             selected_profile_id = (
-                self._generic_admission_owner.configured_profile_id_for_child_selection(
-                    selection
-                )
+                self._generic_admission_owner.configured_profile_id_for_child_selection(selection)
             )
             if (
                 handoff.profile.profile_id != selected_profile_id
-                or handoff.n4_child_profile_family_ref
-                != parent.n4_child_profile_family_ref
+                or handoff.n4_child_profile_family_ref != parent.n4_child_profile_family_ref
             ):
                 raise RecursiveGenerationCycleError(
                     "recursive_generic_child_handoff_profile_join_mismatch"
@@ -1165,15 +1134,11 @@ class RecursiveLeafContextOwner:
             cell_id=family.cell_id,
         )
         if family.n4_child_profile_family_ref is None:
-            raise RecursiveGenerationCycleError(
-                "recursive_n4_child_profile_pre_family_missing"
-            )
-        configured_family = (
-            self._generic_admission_owner.resolve_child_profile_family_historical(
-                family.n4_child_profile_family_ref,
-                expected_parent_handoff=family.parent_handoff,
-                expected_parent_problem=family.parent_problem,
-            )
+            raise RecursiveGenerationCycleError("recursive_n4_child_profile_pre_family_missing")
+        configured_family = self._generic_admission_owner.resolve_child_profile_family_historical(
+            family.n4_child_profile_family_ref,
+            expected_parent_handoff=family.parent_handoff,
+            expected_parent_problem=family.parent_problem,
         )
         source = source_repository.load(
             family.source_ref,
@@ -1206,10 +1171,9 @@ class RecursiveLeafContextOwner:
             raise RecursiveGenerationCycleError(
                 "recursive_n4_child_profile_set_denominator_mismatch"
             )
-        parent_node_ref = (
-            "design-problem://"
-            + cycle_job_design_problem_ref(family.parent_problem).removeprefix("sha256:")
-        )
+        parent_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            family.parent_problem
+        ).removeprefix("sha256:")
         configured_members = {member.profile_id: member for member in configured_family.children}
         for node_ref, child in actual_by_ref.items():
             row = rows_by_ref[node_ref]
@@ -1232,8 +1196,7 @@ class RecursiveLeafContextOwner:
                 or row.source_atom_refs != child.source_atom_refs
                 or row.semantic_ref != child.semantic_ref
                 or row.selection != expected_selection
-                or row.handoff.n4_child_profile_family_ref
-                != family.n4_child_profile_family_ref
+                or row.handoff.n4_child_profile_family_ref != family.n4_child_profile_family_ref
             ):
                 raise RecursiveGenerationCycleError(
                     "recursive_n4_child_profile_source_join_mismatch"
@@ -1245,9 +1208,7 @@ class RecursiveLeafContextOwner:
                 or member.profile_content_hash != row.handoff.profile.content_hash
                 or member.profile_ref != row.handoff.profile_ref
             ):
-                raise RecursiveGenerationCycleError(
-                    "recursive_n4_child_profile_not_in_pre_family"
-                )
+                raise RecursiveGenerationCycleError("recursive_n4_child_profile_not_in_pre_family")
             historical = self._context_owner.resolve_historical_job_artifact(
                 row.handoff.context_job_ref,
                 problem=row.problem,
@@ -1294,9 +1255,7 @@ class RecursiveLeafContextOwner:
             context_owner=self._context_owner,
         )
         if family.n4_child_profile_family_ref is None:
-            raise RecursiveGenerationCycleError(
-                "recursive_n4_child_profile_pre_family_missing"
-            )
+            raise RecursiveGenerationCycleError("recursive_n4_child_profile_pre_family_missing")
         self._generic_admission_owner.resolve_child_profile_family(
             family.n4_child_profile_family_ref,
             parent_handoff=family.parent_handoff,
@@ -1390,6 +1349,7 @@ class RecursiveLeafContextOwner:
 
         def require_current() -> bool:
             from polisyos.core.artifacts import load_core_json_artifact
+
             family = self.require_current_n4_child_profile_set(
                 capsule.n4_child_profile_set_ref,
                 expected_parent_handoff=parent_handoff,
@@ -1404,8 +1364,7 @@ class RecursiveLeafContextOwner:
                 or family_row.problem != capsule.problem
                 or family_row.handoff != capsule.handoff
                 or family_row.selection != capsule.child_selection
-                or family.n4_child_profile_family_ref
-                != capsule.n4_child_profile_family_ref
+                or family.n4_child_profile_family_ref != capsule.n4_child_profile_family_ref
                 or family.source_ref != capsule.n4_source_ref
             ):
                 raise RecursiveGenerationCycleError(
@@ -1574,9 +1533,7 @@ class ParentJointCandidateSelectionV1(_StrictModel):
                 for member in self.members
             )
             or len({member.source_candidate_id for member in self.members}) != len(self.members)
-            or len(
-                {member.source_atom_content_hash for member in self.members}
-            )
+            or len({member.source_atom_content_hash for member in self.members})
             != len(self.members)
         ):
             raise ValueError("recursive_parent_joint_candidate_member_denominator_invalid")
@@ -1598,9 +1555,9 @@ class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
     schema_version: Literal[
         "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
     ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v2"
-    selection_rule: Literal[
+    selection_rule: Literal["hypothetical_all_unique_n4_source_members.v2"] = (
         "hypothetical_all_unique_n4_source_members.v2"
-    ] = "hypothetical_all_unique_n4_source_members.v2"
+    )
     candidate_intent: Literal["n4_unique_parent_source_members.v1"]
     member_basis: Literal["hypothetical_all_unique_n4_source_members"] = (
         "hypothetical_all_unique_n4_source_members"
@@ -1614,9 +1571,7 @@ class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
     child_to_parent_refinement_limitation_code: Literal[
         "child_to_parent_refinement_rule_not_established"
     ] = "child_to_parent_refinement_rule_not_established"
-    joint_simulation_request_content_hash: str = Field(
-        pattern=r"^sha256:[0-9a-f]{64}$"
-    )
+    joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 class RecursiveCycleNode(_StrictModel):
@@ -1703,14 +1658,12 @@ class RecursiveCycleNode(_StrictModel):
                 result is None
                 or self.joint_simulation_ref is None
                 or self.joint_simulation_request_content_hash != expected_request_hash
-                or request.world_model_record.content_hash
-                != result.world_model_record_content_hash
+                or request.world_model_record.content_hash != result.world_model_record_content_hash
                 or request.world_model_record_ref != result.world_model_record_ref
                 or tuple(atom.intervention_id for atom in request.intervention_atoms)
                 != tuple(result.atom_ids)
                 or tuple(request.selected_outcomes) != tuple(result.selected_outcomes)
-                or request.horizon.model_dump(mode="json")
-                != result.horizon.model_dump(mode="json")
+                or request.horizon.model_dump(mode="json") != result.horizon.model_dump(mode="json")
                 or any(
                     atom.problem_frame_ref != self.design_problem_ref
                     for atom in request.intervention_atoms
@@ -1728,11 +1681,11 @@ class RecursiveCycleNode(_StrictModel):
             if result.schema_version == "policyos.runtime.joint_simulation_horizon.v4":
                 from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
 
-                if (
-                    result.diagnostics.get("requested_replications") != request.replications
-                    or tuple(result.diagnostics.get("replication_seeds", ()))
-                    != tuple(_replication_seeds(request))
-                ):
+                if result.diagnostics.get(
+                    "requested_replications"
+                ) != request.replications or tuple(
+                    result.diagnostics.get("replication_seeds", ())
+                ) != tuple(_replication_seeds(request)):
                     raise ValueError("recursive_parent_n5_request_seed_binding_mismatch")
         elif self.joint_simulation_request_content_hash is not None:
             raise ValueError("recursive_parent_n5_request_content_hash_without_request")
@@ -1769,8 +1722,7 @@ class RecursiveCycleNode(_StrictModel):
                     or request.source_candidate_relationship
                     != selection.source_candidate_relationship
                     or request.composition_status != selection.composition_status
-                    or request.composition_limitation_code
-                    != selection.composition_limitation_code
+                    or request.composition_limitation_code != selection.composition_limitation_code
                     or request.child_to_parent_refinement_status
                     != selection.child_to_parent_refinement_status
                     or request.child_to_parent_refinement_limitation_code
@@ -2952,6 +2904,7 @@ class RecursiveGenerationCycleController:
         *,
         problems_by_node: Mapping[str, DesignProblem],
         budget_state: BudgetState,
+        _producer_budget_reconciler: Callable[[BudgetState], None] | None = None,
         recursive_budget: RecursiveCycleBudget,
         joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
         joint_candidate_selections_by_node: Mapping[
@@ -2966,9 +2919,7 @@ class RecursiveGenerationCycleController:
         | None = None,
         candidate_simulation_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
         | None = None,
-        generic_simulation_handoffs_by_node: Mapping[
-            str, GenericCycleSimulationContextHandoffV1
-        ]
+        generic_simulation_handoffs_by_node: Mapping[str, GenericCycleSimulationContextHandoffV1]
         | None = None,
         generic_n4_child_profile_set_ref: CASArtifactRef | None = None,
         generic_n4_source_repository: GenerationSourceRepository | None = None,
@@ -2983,6 +2934,14 @@ class RecursiveGenerationCycleController:
         | RecursiveGenerationCyclePartialRunV3
     ):
         """Run N6 leaves and preserve typed checkpoints for stops or sibling failures."""
+
+        if _producer_budget_reconciler is not None:
+            if not callable(_producer_budget_reconciler):
+                raise RecursiveGenerationCycleError("recursive_producer_budget_reconciler_invalid")
+            if self._cycle_controller_factory is not None:
+                raise RecursiveGenerationCycleError(
+                    "recursive_producer_budget_custom_factory_unsupported"
+                )
 
         if self._authority_scope == "production" and (
             self._promotion_runtime is None
@@ -3156,8 +3115,7 @@ class RecursiveGenerationCycleController:
                     or row.selection.parent_handoff != generic_parent_handoff
                     or row.selection.n4_child_profile_family_ref
                     != generic_parent_handoff.n4_child_profile_family_ref
-                    or (cycle_substrate_contexts_by_node or {}).get(node_ref)
-                    != handoff.context
+                    or (cycle_substrate_contexts_by_node or {}).get(node_ref) != handoff.context
                     or execution_intent_band_for_mode(
                         (execution_intents_by_node or {}).get(node_ref, "candidate_only")
                     )
@@ -3210,9 +3168,7 @@ class RecursiveGenerationCycleController:
                 generic_parent_handoff,
             )
         ):
-            raise RecursiveGenerationCycleError(
-                "recursive_generic_child_family_without_handoffs"
-            )
+            raise RecursiveGenerationCycleError("recursive_generic_child_family_without_handoffs")
         if (candidate_simulation_handoffs_by_node or generic_handoffs) and (
             self._cycle_controller_factory is not None
         ):
@@ -3480,6 +3436,7 @@ class RecursiveGenerationCycleController:
                         generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
                         promotion_runtime=self._promotion_runtime,
                         artifact_store=self._artifact_store,
+                        _producer_budget_reconciler=_producer_budget_reconciler,
                     )
                 else:
                     controller = self._cycle_controller_factory(node_ref, problem)
@@ -3564,8 +3521,7 @@ class RecursiveGenerationCycleController:
                     design_problem_ref=problem_ref,
                     cycle_run=cycle_run,
                     leaf_context_ref=(
-                        leaf_capsule_refs.get(node_ref)
-                        or generic_leaf_capsule_refs.get(node_ref)
+                        leaf_capsule_refs.get(node_ref) or generic_leaf_capsule_refs.get(node_ref)
                     ),
                     terminal=_leaf_terminal(cycle_run),
                 )
@@ -3638,8 +3594,7 @@ class RecursiveGenerationCycleController:
                         != request.world_model_record_ref
                         or candidate_selection.world_model_record_content_hash
                         != request.world_model_record.content_hash
-                        or candidate_selection.outcome_variable
-                        not in request.selected_outcomes
+                        or candidate_selection.outcome_variable not in request.selected_outcomes
                         or tuple(member.source_atom_id for member in candidate_selection.members)
                         != tuple(atom.atom_id for atom in request.intervention_atoms)
                         or tuple(

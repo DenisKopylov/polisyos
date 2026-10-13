@@ -8,6 +8,7 @@ import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -263,6 +264,123 @@ def _pre_admission_producer_event_refs(
         return (), "unavailable"
     event_ids = tuple(sorted({str(record.event_id) for record in records}))
     return event_ids, "complete" if event_ids else "unavailable"
+
+
+def _build_control_nl_producer_budget_reconciler(
+    *,
+    settlement_store: BudgetMiddleware,
+    producer_run_binding: BudgetLedgerProducerRunBinding,
+    budget_state: BudgetState,
+) -> Callable[[BudgetState], None]:
+    """Recompute run spend from the exact committed producer-event set before N6 spend."""
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+    from polisyos.scientist import BudgetState as CanonicalBudgetState
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRecord,
+    )
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding as CanonicalProducerRunBinding,
+    )
+
+    if type(settlement_store) is not BudgetMiddleware:
+        raise TypeError("control_nl_budget_settlement_store_invalid")
+    if type(producer_run_binding) is not CanonicalProducerRunBinding:
+        raise TypeError("control_nl_budget_run_binding_invalid")
+    if type(budget_state) is not CanonicalBudgetState:
+        raise TypeError("control_nl_budget_state_invalid")
+
+    last_reconciled_total = Decimal(0)
+
+    def reconcile(current_state: BudgetState) -> None:
+        nonlocal last_reconciled_total
+        if current_state is not budget_state or type(current_state) is not CanonicalBudgetState:
+            raise GenerationCycleError("control_nl_budget_state_binding_mismatch")
+        if type(current_state.limits) is not dict:
+            raise GenerationCycleError("control_nl_budget_limits_not_established")
+        run_limit = current_state.limits.get("run")
+        if type(run_limit) is not BudgetLimit or type(run_limit.max_usd) is not Decimal:
+            raise GenerationCycleError("control_nl_budget_run_limit_not_established")
+        if not run_limit.max_usd.is_finite():
+            raise GenerationCycleError("control_nl_budget_run_limit_invalid")
+        # A non-positive cap cannot admit the configured positive N6 stage
+        # cost. Its terminal does not depend on treating missing spend as zero.
+        if run_limit.max_usd <= Decimal(0):
+            return
+        try:
+            records = settlement_store.list_producer_events_for_run_safe(producer_run_binding)
+        except Exception as exc:
+            raise GenerationCycleError("control_nl_budget_producer_events_unavailable") from exc
+        if type(records) is not tuple or not records:
+            raise GenerationCycleError("control_nl_budget_producer_events_not_established")
+
+        total = Decimal(0)
+        event_ids: set[str] = set()
+        for record in records:
+            if type(record) is not BudgetLedgerProducerRecord:
+                raise GenerationCycleError("control_nl_budget_producer_event_untyped")
+            if record.run_binding != producer_run_binding or (
+                record.key != f"nl-run:{producer_run_binding.run_id}"
+            ):
+                raise GenerationCycleError("control_nl_budget_producer_event_binding_mismatch")
+            if record.event_id in event_ids:
+                raise GenerationCycleError("control_nl_budget_producer_event_duplicate")
+            event_ids.add(record.event_id)
+            if record.status != "committed":
+                raise GenerationCycleError("control_nl_budget_producer_event_not_settled")
+            amount = record.amount
+            if type(amount) is not Decimal or not amount.is_finite() or amount < Decimal(0):
+                raise GenerationCycleError("control_nl_budget_producer_amount_not_established")
+            if record.cost_origin not in {"reported", "estimated", "reuse"}:
+                raise GenerationCycleError("control_nl_budget_producer_cost_origin_not_established")
+            if record.cost_origin == "reuse":
+                if amount != Decimal(0) or not isinstance(record.origin_event_id, str):
+                    raise GenerationCycleError("control_nl_budget_producer_reuse_basis_invalid")
+                try:
+                    origin = settlement_store.resolve_producer_event_safe(record.origin_event_id)
+                except Exception as exc:
+                    raise GenerationCycleError(
+                        "control_nl_budget_producer_reuse_origin_unavailable"
+                    ) from exc
+                if (
+                    type(origin) is not BudgetLedgerProducerRecord
+                    or origin.status != "committed"
+                    or type(origin.amount) is not Decimal
+                    or not origin.amount.is_finite()
+                    or origin.amount < Decimal(0)
+                    or origin.cost_origin not in {"reported", "estimated"}
+                    or origin.origin_event_id is not None
+                    or origin.run_binding != producer_run_binding
+                    or origin.key != record.key
+                    or origin.model != record.model
+                    or origin.provider != record.provider
+                    or origin.request_digest != record.request_digest
+                    or not isinstance(origin.payload_digest, str)
+                    or len(origin.payload_digest) != 64
+                ):
+                    raise GenerationCycleError(
+                        "control_nl_budget_producer_reuse_origin_not_established"
+                    )
+            total += amount
+            if not total.is_finite():
+                raise GenerationCycleError("control_nl_budget_producer_total_invalid")
+
+        if type(current_state.spent) is not dict:
+            raise GenerationCycleError("control_nl_budget_state_spend_not_established")
+        current_spend = current_state.spent.get("run", Decimal(0))
+        if (
+            type(current_spend) is not Decimal
+            or not current_spend.is_finite()
+            or current_spend < Decimal(0)
+        ):
+            raise GenerationCycleError("control_nl_budget_state_spend_not_established")
+        non_producer_spend = current_spend - last_reconciled_total
+        if not non_producer_spend.is_finite() or non_producer_spend < Decimal(0):
+            raise GenerationCycleError("control_nl_budget_state_spend_basis_invalid")
+        current_state.spent["run"] = non_producer_spend + total
+        last_reconciled_total = total
+
+    return reconcile
 
 
 # These request keys can assert owner scope; the worker supplies them from its
@@ -683,9 +801,7 @@ class AcquisitionRouteLoopAuthoritySink:
             "requested": frozenset(),
             "executing": frozenset({"requested"}),
             "outcome_selected": frozenset({"executing"}),
-            "world_committed_reentry_pending": frozenset(
-                {"executing", "outcome_selected"}
-            ),
+            "world_committed_reentry_pending": frozenset({"executing", "outcome_selected"}),
         }.get(receipt.receipt_phase)
 
     def _verified_action_phase_chain(
@@ -820,15 +936,13 @@ class AcquisitionRouteLoopAuthoritySink:
                 if (
                     len(chain) < 2
                     or not isinstance(chain[-2].receipt, AcquisitionRoutePhaseReceipt)
-                    or chain[-2].receipt.receipt_phase
-                    != "world_committed_reentry_pending"
-                    or chain[-2].receipt.owner_receipt_refs
-                    != latest_receipt.owner_receipt_refs
+                    or chain[-2].receipt.receipt_phase != "world_committed_reentry_pending"
+                    or chain[-2].receipt.owner_receipt_refs != latest_receipt.owner_receipt_refs
                 ):
                     raise ValueError("acquisition_action_terminal_owner_chain_mismatch")
-            elif selection is not None and not set(
-                selection.receipt.owner_receipt_refs
-            ).issubset(set(latest_receipt.owner_receipt_refs)):
+            elif selection is not None and not set(selection.receipt.owner_receipt_refs).issubset(
+                set(latest_receipt.owner_receipt_refs)
+            ):
                 raise ValueError("acquisition_action_terminal_owner_chain_mismatch")
         return chain
 
@@ -854,9 +968,7 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         )
 
-    def _read_verified_action_phase(
-        self, receipt_ref: str
-    ) -> VerifiedAcquisitionActionPhase:
+    def _read_verified_action_phase(self, receipt_ref: str) -> VerifiedAcquisitionActionPhase:
         """Resolve exact receipt bytes and verify its complete producer-event binding."""
         if (
             not receipt_ref.startswith("sha256:")
@@ -919,9 +1031,7 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if report.durable_event_id is None or manifest.authority is None:
             raise ValueError("acquisition_action_head_receipt_event_missing")
-        event_ref = resolve_authority_diagnostic_event_ref(
-            self._artifact_store, manifest.authority
-        )
+        event_ref = resolve_authority_diagnostic_event_ref(self._artifact_store, manifest.authority)
         event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
         selected_event_ref = artifact_ref_for_manifest(event_manifest)
         event_schema = event_manifest.artifact_schema
@@ -961,9 +1071,7 @@ class AcquisitionRouteLoopAuthoritySink:
             else "polisyos.runtime.acquisition.route_phase.v1"
         )
         expected_blocking = (
-            "blocking"
-            if receipt.recovery_state == "reentry_recovery_required"
-            else "non_blocking"
+            "blocking" if receipt.recovery_state == "reentry_recovery_required" else "non_blocking"
         )
         records = self._event_log.list_events(
             event_id=event.event_id,
@@ -1059,12 +1167,12 @@ class AcquisitionRouteLoopAuthoritySink:
             if "sha256:" + hashlib.sha256(payload).hexdigest() != ref:
                 raise ValueError("acquisition_action_owner_receipt_hash_mismatch")
             receipt = receipt_type.model_validate(
-            read_core_json_artifact(
-                self._artifact_store,
-                artifact_ref_for_manifest(manifest),
-                raw_payload_bytes=payload,
-            ).value
-        )
+                read_core_json_artifact(
+                    self._artifact_store,
+                    artifact_ref_for_manifest(manifest),
+                    raw_payload_bytes=payload,
+                ).value
+            )
             if receipt.action_phase_ref != executing_ref:
                 continue
             schema = manifest.artifact_schema
@@ -1101,7 +1209,6 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_owner_outcome_missing_or_ambiguous")
         return matches[0]
 
-
     def _existing_action_selection_event(
         self, expected: AcquisitionRoutePhaseReceipt, event_id: str
     ) -> tuple[str, str] | None:
@@ -1127,7 +1234,6 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("acquisition_action_selection_replay_conflict")
         return ref, durable_id
-
 
     def _advance_existing_action_selection(
         self,
@@ -1169,12 +1275,10 @@ class AcquisitionRouteLoopAuthoritySink:
         if (
             verified.selection_phase_ref != head.receipt_ref
             or verified.selection_phase is None
-            or verified.selection_phase.predecessor_receipt_ref
-            != receipt.predecessor_receipt_ref
+            or verified.selection_phase.predecessor_receipt_ref != receipt.predecessor_receipt_ref
         ):
             raise RuntimeError("acquisition_action_selection_chain_readback_failed")
         return head
-
 
     def persist_action_outcome_selection(
         self,
@@ -1289,7 +1393,6 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise RuntimeError("acquisition_action_selection_readback_failed")
         return head
-
 
     def verify_action_head(
         self, head: AcquisitionActionHeadRecord
@@ -2551,6 +2654,7 @@ class ControlPlaneService(
         | None = None,
         n4_proposal_only: bool = False,
         producer_run_id: str | None = None,
+        producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
         compiler_gateway: _DesignProblemGatewayClient | None,
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
@@ -2580,6 +2684,23 @@ class ControlPlaneService(
         from polisyos.runtime.quality.generation_source import GenerationSourceRepository
         from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
 
+        producer_budget_reconciler = None
+        if producer_run_binding is not None:
+            if producer_run_id != producer_run_binding.run_id:
+                from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+                raise GenerationCycleError("control_nl_budget_run_id_binding_mismatch")
+            settlement_store = self._llm_producer_settlement_store
+            if settlement_store is None:
+                from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+                raise GenerationCycleError("control_nl_budget_settlement_store_not_established")
+            producer_budget_reconciler = _build_control_nl_producer_budget_reconciler(
+                settlement_store=settlement_store,
+                producer_run_binding=producer_run_binding,
+                budget_state=budget_state,
+            )
+
         return await run_catalog_source_awaitable(
             self._catalog_serving_source,
             compile_and_run_recursive_generation_cycle(
@@ -2592,6 +2713,7 @@ class ControlPlaneService(
                 n4_proposal_only=n4_proposal_only,
                 producer_run_id=producer_run_id,
                 producer_settlement_store=self._llm_producer_settlement_store,
+                _producer_budget_reconciler=producer_budget_reconciler,
                 compiler_gateway=compiler_gateway,
                 budget_state=budget_state,
                 recursive_budget=recursive_budget,
@@ -2626,7 +2748,7 @@ class ControlPlaneService(
                 eval_safety_verifier=self._evaluation_safety_admission_verifier,
                 promotion_runtime=self._promotion_runtime,
                 repo_root=self._repo_root,
-            )
+            ),
         )
 
     @property

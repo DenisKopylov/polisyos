@@ -683,6 +683,20 @@ historical reads. It cannot reuse a parent EvalSafety grant. Missing child owner
 refuse before N6. The downstream boolean callback is emitted only after those
 complete owner reads; it is not an independently supplied currentness premise.
 
+
+### N6 run-budget reconciliation
+
+The NL control run carries the server-issued `BudgetLedgerProducerRunBinding` into the
+recursive scheduler. Before N6 asks whether another stage can spend, it reads committed
+producer events for that exact run and recomputes the run's LLM spend from their persisted
+amounts. A cache-reuse row contributes zero only when its exact origin resolves to a committed,
+known-cost provider row with the same run, request, model, and provider. Pending, unknown, or
+unbound cost rows produce a typed unresolved-cost refusal; the scheduler does not convert them
+to zero or label them `budget_exhausted`. A zero or negative configured cap can still refuse a
+positive stage cost on the cap itself. These records represent the runtime's reported or
+estimated producer cost basis, not external invoices or cost authority. Existing N5 outputs and
+run checkpoints remain separately readable when a later budget decision refuses.
+
 N8 keeps requested data modalities and other original problem hints separate from
 available owner-row modalities. No transformation is supplied by this consumer.
 `derive_n4_candidate_child_problems` restricts existing declared lever semantics

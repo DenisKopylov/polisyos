@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationContextHandoffV1,
     )
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
 
     from ..control_plane_store import (
         ControlJobExecutionAdmission,
@@ -62,6 +65,7 @@ class _ControlNLJobContext:
     max_cycles: int | None = None
     budget_usd: Decimal | None = None
     producer_run_binding_scope: AbstractContextManager[Any] | None = None
+    producer_run_binding: BudgetLedgerProducerRunBinding | None = None
     start_core_attempt_callback: Callable[[], tuple[str, run.RunContext]] | None = None
     core_run_id: str | None = None
     core_run_context: run.RunContext | None = None

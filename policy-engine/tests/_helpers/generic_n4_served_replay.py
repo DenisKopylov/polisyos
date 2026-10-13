@@ -1251,12 +1251,15 @@ async def run_n4_control_worker_and_get(
     monkeypatch: Any,
     expected_failure_code: str,
     exercise_projection_controls: bool = True,
+    remove_n5_writer: bool = False,
     phase_callback: Any | None = None,
 ) -> N4ServedRunReceipt:
     """POST, execute the actual control worker, and replay persisted history through GET.
 
     The clean GET is captured first. Negative control bytes and run-index overrides are
-    restored before returning so a separate serving app can read the same run.
+    restored before returning so a separate serving app can read the same run. The optional
+    writer-removal control deletes N5 payload bytes inside the real writer call while retaining
+    the returned reference and enclosing compiled-run markers.
     """
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import ArtifactRef
@@ -1270,6 +1273,7 @@ async def run_n4_control_worker_and_get(
     controller_run = GenerationCycleController.run
     child_attempts: list[str] = []
     successful_child_runs: list[Any] = []
+    writer_removed_refs: list[ArtifactRef] = []
     actual_failure_code = "v6_controlled_second_n4_child_failure"
 
     async def fail_second_child(self: Any, *args: Any, **kwargs: Any) -> Any:
@@ -1288,6 +1292,30 @@ async def run_n4_control_worker_and_get(
 
     with monkeypatch.context() as scoped:
         scoped.setattr(GenerationCycleController, "run", fail_second_child)
+        if remove_n5_writer:
+            store = app.state._control_service._artifact_store
+            store_type = type(store)
+            original_put_json = store_type.put_json
+
+            def put_json_without_n5_payload(
+                store_self: Any,
+                payload: object,
+                options: Any,
+                *args: Any,
+                **kwargs: Any,
+            ) -> Any:
+                ref = original_put_json(store_self, payload, options, *args, **kwargs)
+                if options.kind == "polisyos.runtime.joint_simulation_result":
+                    blob_path, _manifest_path = store_self._paths(
+                        ArtifactID.model_validate(ref.artifact_id)
+                    )
+                    if not blob_path.is_file():
+                        raise AssertionError("n5_writer_removal_target_not_written")
+                    blob_path.unlink()
+                    writer_removed_refs.append(ArtifactRef.model_validate(ref))
+                return ref
+
+            scoped.setattr(store_type, "put_json", put_json_without_n5_payload)
         _emit_served_phase(phase_callback, "sibling.post.start")
         response = client.post(
             "/api/v1/control/runs/nl",
@@ -1329,10 +1357,89 @@ async def run_n4_control_worker_and_get(
         observations = [
             row for row in projection["n5_observations"] if row["status"] == "joint_simulated"
         ]
+        checkpoint = projection["recursive_cycle_checkpoint"]
+        if remove_n5_writer:
+            if not writer_removed_refs:
+                raise AssertionError("n4_actual_n5_writer_was_not_removed")
+            if observations or projection.get("n5_limitation_code") != (
+                "generic_n5_persisted_lineage_not_established"
+            ):
+                raise AssertionError("n4_fresh_get_trusted_n5_marker_without_writer_payload")
+            if projection.get("child_profile_status") != "resolved":
+                raise AssertionError("n4_writer_removal_lost_selected_child_profile_set")
+            failed = checkpoint.get("failed_branches", [])
+            if len(failed) != 1 or failed[0].get("error_code") != actual_failure_code:
+                raise AssertionError("n4_writer_removal_changed_later_sibling_failure")
+            if (
+                checkpoint.get("status") != "partial"
+                or checkpoint.get("publication_authority") is not False
+            ):
+                raise AssertionError("n4_writer_removal_checkpoint_status_not_preserved")
+            indexed_run = prepared.runtime_api_context.run_index.get_run(run_id)
+            if indexed_run is None:
+                raise AssertionError("n4_writer_removal_run_index_missing")
+            compiled_ref = next(
+                ref
+                for ref in indexed_run.details.root_artifacts
+                if ref.kind == "runtime.compiled_recursive_generation_cycle"
+            )
+            from polisyos.core import canon
+            from polisyos.runtime.http.services.control.generation_cycle import (
+                CompiledRecursiveGenerationCycleRun,
+            )
+
+            with tenant_scope(
+                None,
+                tenant_id=prepared.tenant_id,
+                cell_id=prepared.cell_id,
+            ):
+                compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                    canon.from_canonical_bytes(
+                        prepared.runtime_api_context.store.get_bytes(compiled_ref)
+                    )
+                )
+            retained_refs = {
+                str(node.joint_simulation_ref.artifact_id)
+                for node in compiled.recursive_run.nodes
+                if node.joint_simulation_ref is not None and node.joint_simulation is not None
+            }
+            removed_ids = {str(ref.artifact_id) for ref in writer_removed_refs}
+            if not removed_ids or not removed_ids.issubset(retained_refs):
+                raise AssertionError("n4_writer_removal_did_not_retain_reference_markers")
+            missing_ref_error = "joint_simulation_result_unavailable"
+            for ref in writer_removed_refs:
+                try:
+                    load_joint_simulation_result(
+                        ref,
+                        store=prepared.runtime_api_context.store,
+                    )
+                except GenerationCycleError as exc:
+                    if exc.code != missing_ref_error:
+                        raise AssertionError("n4_writer_removal_refusal_code_mismatch") from exc
+                else:
+                    raise AssertionError("n4_writer_removal_payload_still_resolves")
+            return N4ServedRunReceipt(
+                accepted_payload=accepted,
+                job_id=accepted["job_id"],
+                job_state=job.state,
+                run_id=run_id,
+                failure_code=str(failed[0]["error_code"]),
+                failure_message=str(failed[0]["error_message"]),
+                get_payload=get_payload,
+                projection=projection,
+                successful_observation={},
+                n5_result_ref=writer_removed_refs[0],
+                checkpoint=checkpoint,
+                actual_sibling_failure=failed[0],
+                child_attempt_profile_ids=tuple(child_attempts),
+                successful_child_runs=tuple(successful_child_runs),
+                corrupt_projection=None,
+                incomplete_profile_projection=None,
+                missing_result_ref_error_code=missing_ref_error,
+            )
         if not observations:
             raise AssertionError("n4_fresh_run_get_lost_successful_n5_observation")
         successful = observations[0]
-        checkpoint = projection["recursive_cycle_checkpoint"]
         failed = checkpoint.get("failed_branches", [])
         if len(failed) != 1:
             raise AssertionError("n4_fresh_run_get_missing_single_sibling_failure")
@@ -1421,6 +1528,58 @@ async def run_n4_control_worker_and_get(
                 for row in restored_projection["n5_observations"]
             ):
                 raise AssertionError("n4_corrupt_control_did_not_restore_selected_bytes")
+
+            # Keep the persisted run/checkpoint and its N5 reference markers, but
+            # remove the selected result bytes. The fresh reader must derive the
+            # limitation from the missing CAS payload rather than trusting refs.
+            blob_path.unlink()
+            try:
+                _emit_served_phase(
+                    phase_callback, "sibling.removed_result_get.start", job_id=job_id, run_id=run_id
+                )
+                removed_response = client.get(f"/api/v1/runs/{run_id}")
+                _emit_served_phase(
+                    phase_callback,
+                    "sibling.removed_result_get.complete",
+                    job_id=job_id,
+                    run_id=run_id,
+                )
+                if removed_response.status_code != 200:
+                    raise AssertionError("n4_removed_result_get_http_failure")
+                removed_projection = removed_response.json()["run"]["generic_cycle_simulation"]
+                if (
+                    removed_projection["recursive_cycle_checkpoint"] != checkpoint
+                    or removed_projection["n5_limitation_code"]
+                    != "generic_n5_persisted_lineage_not_established"
+                    or any(
+                        row["simulation_result_ref"] == successful["simulation_result_ref"]
+                        for row in removed_projection["n5_observations"]
+                    )
+                ):
+                    raise AssertionError("n4_removed_result_control_not_fail_closed")
+            finally:
+                blob_path.write_bytes(original_blob)
+
+            _emit_served_phase(
+                phase_callback,
+                "sibling.removed_result_restored_get.start",
+                job_id=job_id,
+                run_id=run_id,
+            )
+            restored_after_removal = client.get(f"/api/v1/runs/{run_id}")
+            _emit_served_phase(
+                phase_callback,
+                "sibling.removed_result_restored_get.complete",
+                job_id=job_id,
+                run_id=run_id,
+            )
+            if restored_after_removal.status_code != 200 or not any(
+                row["simulation_result_ref"] == successful["simulation_result_ref"]
+                for row in restored_after_removal.json()["run"]["generic_cycle_simulation"][
+                    "n5_observations"
+                ]
+            ):
+                raise AssertionError("n4_removed_result_control_did_not_restore_selected_bytes")
 
             indexed_run = prepared.runtime_api_context.run_index.get_run(run_id)
             if indexed_run is None:
@@ -1514,17 +1673,19 @@ async def run_n4_budget_stop_worker_and_get(
     client: Any,
     app: Any,
     prepared: PreparedGenericN4ServedReplay,
+    run_budget_usd: float = 0.0,
     phase_callback: Any | None = None,
 ) -> N4BudgetStopRunReceipt:
-    """POST a real zero-budget request and read the worker result through GET.
+    """POST a run-budget request and read the worker result through GET.
 
-    The controlled request sets the existing run budget to zero. The canonical
-    N6 scheduler and recursive controller produce the terminal; this helper
-    does not patch the controller or fabricate checkpoint fields.
+    The default zero budget preserves the existing control. A finite budget can
+    exercise persisted producer spend in the same served run. The canonical N6
+    scheduler and recursive controller produce the terminal; this helper does
+    not patch the controller or fabricate checkpoint fields.
     """
     from tests._helpers.control_worker import dispatch_one_control_job
 
-    request_json = {**prepared.request_json, "run_budget_usd": 0}
+    request_json = {**prepared.request_json, "run_budget_usd": run_budget_usd}
     _emit_served_phase(phase_callback, "budget.post.start")
     response = client.post(
         "/api/v1/control/runs/nl",

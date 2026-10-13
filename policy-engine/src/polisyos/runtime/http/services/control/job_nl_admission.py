@@ -649,6 +649,7 @@ class ControlNLJobAdmissionMixin:
             # served by the ordinary run readers.
             context.start_core_attempt()
         producer_run_binding_scope: AbstractContextManager[Any] = nullcontext()
+        producer_run_binding: BudgetLedgerProducerRunBinding | None = None
         producer_settlement_store = self._llm_producer_settlement_store
         if (
             producer_settlement_store is not None
@@ -672,3 +673,4 @@ class ControlNLJobAdmissionMixin:
         context.max_cycles = max_cycles
         context.budget_usd = budget_usd
         context.producer_run_binding_scope = producer_run_binding_scope
+        context.producer_run_binding = producer_run_binding

@@ -83,6 +83,7 @@ class ControlNLJobExecutionMixin:
         evaluation_safety = context.evaluation_safety
         trusted_source_context = context.trusted_source_context
         producer_run_binding_scope = context.producer_run_binding_scope
+        producer_run_binding = context.producer_run_binding
 
         from polisyos.runtime.quality.data_forge_binding import (
             bind_measurement_root_execution_scope,
@@ -110,6 +111,7 @@ class ControlNLJobExecutionMixin:
                         and generic_cycle_simulation_handoff_resolver is None
                     ),
                     producer_run_id=(str(job.run_id) if job.run_id is not None else None),
+                    producer_run_binding=producer_run_binding,
                     compiler_gateway=None,
                     budget_state=BudgetState.model_validate(
                         {

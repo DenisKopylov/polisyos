@@ -1515,19 +1515,22 @@ class ValuePortObservation(_StrictModel):
     calibration_receipt: ValueCalibrationReceipt | None = None
     value_receipt: ValueGateReceipt | None = None
     wall_time_ms: float | None = Field(default=None, ge=0.0)
-    n5_interaction_schema_version: Literal[
-        "policyos.runtime.joint_simulation_horizon.v1",
-        "policyos.runtime.joint_simulation_horizon.v2",
-        "policyos.runtime.joint_simulation_horizon.v3",
-        "policyos.runtime.joint_simulation_horizon.v4",
-    ] | None = None
+    n5_interaction_schema_version: (
+        Literal[
+            "policyos.runtime.joint_simulation_horizon.v1",
+            "policyos.runtime.joint_simulation_horizon.v2",
+            "policyos.runtime.joint_simulation_horizon.v3",
+            "policyos.runtime.joint_simulation_horizon.v4",
+        ]
+        | None
+    ) = None
     numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"] | None = None
-    numeric_interaction_basis: Literal[
-        "finite_checked_model_point_estimate_only", "not_established"
-    ] | None = None
-    interaction_sampling_status: Literal[
-        "estimated", "standard_error_not_estimated", "not_established"
-    ] | None = None
+    numeric_interaction_basis: (
+        Literal["finite_checked_model_point_estimate_only", "not_established"] | None
+    ) = None
+    interaction_sampling_status: (
+        Literal["estimated", "standard_error_not_estimated", "not_established"] | None
+    ) = None
 
     @model_validator(mode="after")
     def _verify_value_authority_shape(self) -> ValuePortObservation:
@@ -2050,8 +2053,7 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
                 self.source_generation_run_content_hash is None
                 or self.continued_generation_run_content_hash is None
                 or continuation is None
-                or (self.source_run_currentness is None)
-                != (self.continuation_currentness is None)
+                or (self.source_run_currentness is None) != (self.continuation_currentness is None)
             ):
                 raise ValueError("acquisition_overlay_reentry_continuation_incomplete")
             if (
@@ -2059,8 +2061,7 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
                 or continuation.design_problem_ref != self.design_problem_ref
                 or not continuation.cycles
                 or continuation.cycles[-1] != self.new_cycle
-                or self.continuation_currentness
-                != self.source_run_currentness
+                or self.continuation_currentness != self.source_run_currentness
                 or generation_cycle_run_content_hash(continuation)
                 != self.continued_generation_run_content_hash
             ):
@@ -2487,11 +2488,12 @@ AcquisitionOverlayReentryReceipt.model_rebuild(
 def generation_cycle_run_content_hash(run: GenerationCycleRun) -> str:
     """Hash the schema-owned serialized bytes of one N6 run."""
 
-    return "sha256:" + hashlib.sha256(
-        to_canonical_bytes(
-            run.model_dump(mode="json"), CanonSpec(forbid_floats=False)
-        )
-    ).hexdigest()
+    return (
+        "sha256:"
+        + hashlib.sha256(
+            to_canonical_bytes(run.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+        ).hexdigest()
+    )
 
 
 def validate_acquisition_overlay_continuation(
@@ -2523,6 +2525,7 @@ def validate_acquisition_overlay_continuation(
         != receipt.continued_generation_run_content_hash
     ):
         raise GenerationCycleError("acquisition_reentry_continued_run_binding_mismatch")
+
     def occurrence_key(summary: CandidateSummary) -> tuple[object, ...]:
         return (
             summary.candidate_id,
@@ -2539,7 +2542,8 @@ def validate_acquisition_overlay_continuation(
     if actual_occurrences != expected_occurrences:
         raise GenerationCycleError("acquisition_reentry_occurrence_history_not_append_only")
     projected_tail = tuple(
-        row for row in continued.candidate_summaries
+        row
+        for row in continued.candidate_summaries
         if row.cycle_index == receipt.new_cycle.cycle_index
     )
     if tuple(map(occurrence_key, projected_tail)) != tuple(
@@ -2573,8 +2577,7 @@ def validate_acquisition_overlay_continuation(
     ):
         raise GenerationCycleError("acquisition_reentry_currentness_refusal_missing")
     current_ids = {
-        row.candidate_id
-        for row in _current_candidate_summaries(continued.candidate_summaries)
+        row.candidate_id for row in _current_candidate_summaries(continued.candidate_summaries)
     }
     if not set(continued.promotion_port.certified_candidate_ids).issubset(current_ids):
         raise GenerationCycleError("acquisition_reentry_n9_certification_not_current")
@@ -5922,9 +5925,7 @@ def _n8_sampling_uncertainty_limitations(
     }:
         # v1-v3 did not bind pairwise and higher-order residual vectors. The
         # existing point-level standard errors are not a substitute for them.
-        return frozenset(
-            {"legacy_sampling_not_established", "legacy_interaction_not_established"}
-        )
+        return frozenset({"legacy_sampling_not_established", "legacy_interaction_not_established"})
     if (
         result.schema_version
         != JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
@@ -5951,14 +5952,13 @@ def _n8_sampling_uncertainty_limitations(
     if feedback.interaction_sampling_status == "not_established":
         limitations.add("interaction_sampling_not_established")
     elif feedback.interaction_sampling_status == "standard_error_not_estimated":
-        limitations.update(
-            {"interaction_sampling_not_established", "standard_error_not_estimated"}
-        )
+        limitations.update({"interaction_sampling_not_established", "standard_error_not_estimated"})
     if feedback.numeric_interaction == "unsupported":
         limitations.add("interaction_numeric_classification_unsupported")
     if "interaction_sampling_variation_observed" in feedback.limitations:
         limitations.add("interaction_sampling_variation_observed")
     return frozenset(limitations)
+
 
 def _conditional_simulation_value_observation(
     *,
@@ -6288,6 +6288,7 @@ def _generic_n5_observation_refusal(
 ) -> str | None:
     """Reconcile a generic N5 observation with its persisted input/execution."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     generic_refs = (
         simulation.generic_n4_source_ref,
         simulation.generic_context_job_ref,
@@ -6613,6 +6614,7 @@ class GenerationCycleController:
         epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
         revision_policy: RevisionPolicy | None = None,
         voi_scheduler: SimpleVOIScheduler | None = None,
+        _producer_budget_reconciler: Callable[[BudgetState], None] | None = None,
         acquisition_owner_gateway: object | None = None,
         capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         repo_root: Path | None = None,
@@ -6747,10 +6749,13 @@ class GenerationCycleController:
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
         self._capability_resolver = capability_resolver
+        if _producer_budget_reconciler is not None and not callable(_producer_budget_reconciler):
+            raise TypeError("generation_cycle_producer_budget_reconciler_invalid")
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
             stage_costs={3: Decimal("0.5"), 4: Decimal("1.0")},
             min_roi_threshold=1.0,
         )
+        self._producer_budget_reconciler = _producer_budget_reconciler
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
         self._candidate_simulation_handoff = candidate_simulation_handoff
@@ -7771,6 +7776,8 @@ class GenerationCycleController:
     ) -> SchedulingDecision:
         """Ask the existing VOI owner whether the next stage may spend budget."""
 
+        if self._producer_budget_reconciler is not None:
+            self._producer_budget_reconciler(budget_state)
         stage_result = _StageResult(
             cheap_signal=_CheapSignal(
                 expected_value_proxy=max(float(proxy_score), 0.0),
@@ -8036,13 +8043,9 @@ class GenerationCycleController:
             "world_slot",
         )
         driver_value = acquisition_request.get("driver")
-        family_frontier_declared = (
-            any(key in acquisition_request for key in family_frontier_fields)
-            or (
-                isinstance(driver_value, str)
-                and driver_value.startswith("acquire_data:")
-            )
-        )
+        family_frontier_declared = any(
+            key in acquisition_request for key in family_frontier_fields
+        ) or (isinstance(driver_value, str) and driver_value.startswith("acquire_data:"))
         scenario_payload: dict[str, Any] = {
             "scenario_id": problem.design_problem_id,
             "text": problem.problem_statement,
@@ -12620,15 +12623,9 @@ def _build_candidate_selection_diagram(
                 raise ValueError("causal_graph_profile_selection_changed")
             manifest = ir_store.get_manifest(selected_graph_ref)
             schema = manifest.artifact_schema
-            if (
-                schema is None
-                or schema.name != "ir.causal_graph_model"
-                or schema.version != "1.0"
-            ):
+            if schema is None or schema.name != "ir.causal_graph_model" or schema.version != "1.0":
                 raise ValueError("causal_graph_schema_mismatch")
-            graph = load_causal_graph_model(
-                ir_store, selected_graph_ref
-            )
+            graph = load_causal_graph_model(ir_store, selected_graph_ref)
             if graph.schema_version != "1.0":
                 raise ValueError("causal_graph_payload_schema_mismatch")
         except Exception as exc:

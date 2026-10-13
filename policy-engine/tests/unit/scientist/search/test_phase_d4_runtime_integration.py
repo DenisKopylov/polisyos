@@ -534,13 +534,112 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     ]
     assert merged_inputs == expected_merged_inputs
 
+    duplicate_base_ref = stress_refs[1]
+    duplicate_base_report = stress_reports[1]
+    duplicate_source_report = stress_reports[0]
+    duplicate_suite_id = str(duplicate_source_report.metadata["challenge_suite_id"])
+    assert duplicate_suite_id != duplicate_base_report.metadata["challenge_suite_id"]
+
+    def selected_source_rows(report: StressTestReport):
+        rows = []
+        for component in report.score_components:
+            basis = StressOutcomeBasis.model_validate(
+                load_core_json_artifact(ctx.store, component.outcome_basis_ref)
+            )
+            assert basis.complete
+            assert basis.expected_count == len(basis.outcomes)
+            assert basis.expected_scenario_ids == [row.scenario_id for row in basis.outcomes]
+            assert [row.occurrence_index for row in basis.outcomes] == list(
+                range(basis.expected_count)
+            )
+            rows.extend(basis.outcomes)
+        return rows
+
+    unique_source_rows = [
+        *selected_source_rows(duplicate_base_report),
+        *selected_source_rows(duplicate_source_report),
+    ]
+    assert unique_source_rows
+    assert all(row.status in {"passed", "failed"} for row in unique_source_rows)
+    expected_unique_total = len(unique_source_rows)
+    expected_unique_passed = sum(row.status == "passed" for row in unique_source_rows)
+
+    single_source_ref = _ensure_stress_test_report(
+        ctx,
+        ExperimentState(
+            run_id="R_d4_single_source_control",
+            artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: duplicate_base_ref},
+        ),
+        evaluation_vector=PolicyEvaluationVector(candidate_id="cand-1"),
+        supplemental_reports=[duplicate_source_report],
+        supplemental_report_refs=[stress_refs[0]],
+        phase_d4_suite_ids=[duplicate_suite_id],
+        expected_candidate_ref=candidate_ref,
+    )
+    assert single_source_ref is not None
+    single_source_report = StressTestReport.model_validate(
+        load_core_json_artifact(ctx.store, single_source_ref)
+    )
+    _, single_source_resolution = resolve_stress_report_artifact(
+        ctx.store, single_source_ref, expected_candidate_ref=candidate_ref
+    )
+    assert single_source_report.score_profile == "finite_binary_scenario_v1"
+    assert single_source_report.score_status == "available"
+    assert single_source_report.score_reason == "source_bound_occurrences_recomputed"
+    assert single_source_report.score_predicate_status == "recomputed"
+    assert single_source_report.total_scenarios_evaluated == expected_unique_total
+    assert single_source_report.robustness_score == pytest.approx(
+        expected_unique_passed / expected_unique_total
+    )
+    assert single_source_resolution.status == "available"
+    assert single_source_resolution.reason_code == "source_bound_occurrences_recomputed"
+    assert single_source_resolution.total_scenarios_evaluated == expected_unique_total
+    assert single_source_resolution.passed_count == expected_unique_passed
+    assert single_source_resolution.robustness_score == pytest.approx(
+        expected_unique_passed / expected_unique_total
+    )
+
+    expected_single_components = [
+        *duplicate_base_report.score_components,
+        *duplicate_source_report.score_components,
+    ]
+    expected_single_inputs = [
+        InputRef(
+            artifact_id=candidate_ref.artifact_id,
+            role="candidate",
+            manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=duplicate_base_ref.artifact_id,
+            role="base_stress_report",
+            manifest_profile_sha256=duplicate_base_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=stress_refs[0].artifact_id,
+            role="supplemental_stress_report",
+            manifest_profile_sha256=stress_refs[0].manifest_profile_sha256,
+        ),
+        *[
+            InputRef(
+                artifact_id=component.outcome_basis_ref.artifact_id,
+                role="stress_outcome_basis",
+                manifest_profile_sha256=component.outcome_basis_ref.manifest_profile_sha256,
+            )
+            for component in expected_single_components
+        ],
+    ]
+    assert ctx.store.get_manifest(single_source_ref).inputs == expected_single_inputs
+
     duplicate_ref = _ensure_stress_test_report(
         ctx,
-        ExperimentState(run_id="R_d4_duplicate"),
+        ExperimentState(
+            run_id="R_d4_duplicate",
+            artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: duplicate_base_ref},
+        ),
         evaluation_vector=PolicyEvaluationVector(candidate_id="cand-1"),
-        supplemental_reports=[stress_reports[0], stress_reports[0]],
+        supplemental_reports=[duplicate_source_report, duplicate_source_report],
         supplemental_report_refs=[stress_refs[0], stress_refs[0]],
-        phase_d4_suite_ids=[stress_reports[0].metadata["challenge_suite_id"]] * 2,
+        phase_d4_suite_ids=[duplicate_suite_id] * 2,
         expected_candidate_ref=candidate_ref,
     )
     assert duplicate_ref is not None
@@ -548,15 +647,34 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
     duplicate_inputs = [
         item for item in duplicate_manifest.inputs if item.role == "supplemental_stress_report"
     ]
-    assert [str(item.artifact_id) for item in duplicate_inputs] == [
-        str(stress_refs[0].artifact_id),
-        str(stress_refs[0].artifact_id),
+    assert len(duplicate_inputs) == 2
+    assert duplicate_inputs == [
+        InputRef(
+            artifact_id=stress_refs[0].artifact_id,
+            role="supplemental_stress_report",
+            manifest_profile_sha256=stress_refs[0].manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=stress_refs[0].artifact_id,
+            role="supplemental_stress_report",
+            manifest_profile_sha256=stress_refs[0].manifest_profile_sha256,
+        ),
+    ]
+    expected_duplicate_components = [
+        *duplicate_base_report.score_components,
+        *duplicate_source_report.score_components,
+        *duplicate_source_report.score_components,
     ]
     expected_duplicate_inputs = [
         InputRef(
             artifact_id=candidate_ref.artifact_id,
             role="candidate",
             manifest_profile_sha256=candidate_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=duplicate_base_ref.artifact_id,
+            role="base_stress_report",
+            manifest_profile_sha256=duplicate_base_ref.manifest_profile_sha256,
         ),
         *[
             InputRef(
@@ -572,16 +690,67 @@ def test_phase_d4_runtime_helper_persists_rotating_and_stress_artifacts(
                 role="stress_outcome_basis",
                 manifest_profile_sha256=component.outcome_basis_ref.manifest_profile_sha256,
             )
-            for _ in range(2)
-            for component in stress_reports[0].score_components
+            for component in expected_duplicate_components
         ],
     ]
     assert duplicate_manifest.inputs == expected_duplicate_inputs
     duplicate_report = StressTestReport.model_validate(
         load_core_json_artifact(ctx.store, duplicate_ref)
     )
+    assert duplicate_report.score_profile == "finite_binary_scenario_v1"
     assert duplicate_report.score_status == "invalid"
     assert duplicate_report.score_reason == "duplicate_component_id"
+    assert duplicate_report.robustness_score is None
+    assert duplicate_report.total_scenarios_evaluated == expected_unique_total
+
+    def component_identity(component):
+        ref = component.outcome_basis_ref
+        return (
+            component.component_id,
+            component.score_profile,
+            str(ref.artifact_id),
+            ref.kind,
+            ref.media_type,
+            ref.manifest_profile_sha256,
+        )
+
+    assert [component_identity(item) for item in duplicate_report.score_components] == [
+        component_identity(item) for item in expected_duplicate_components
+    ]
+    assert len(duplicate_report.score_components) == len(expected_duplicate_components)
+    for source_component in duplicate_source_report.score_components:
+        repeated = [
+            item
+            for item in duplicate_report.score_components
+            if item.component_id == source_component.component_id
+        ]
+        assert [component_identity(item) for item in repeated] == [
+            component_identity(source_component),
+            component_identity(source_component),
+        ]
+
+    fresh_duplicate_report, duplicate_resolution = resolve_stress_report_artifact(
+        ctx.store, duplicate_ref, expected_candidate_ref=candidate_ref
+    )
+    assert fresh_duplicate_report == duplicate_report
+    assert duplicate_resolution.status == "invalid"
+    assert duplicate_resolution.reason_code == "duplicate_component_id"
+    assert duplicate_resolution.robustness_score is None
+
+    duplicate_l5 = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {"candidate_id": "cand-1"},
+        {
+            "store": ctx.store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": duplicate_ref,
+        },
+    )
+    assert duplicate_l5.feedback["stress_score_status"] == "invalid"
+    assert duplicate_l5.feedback["stress_score_value"] is None
+    assert any(
+        card.failure_type == "stress_score_invalid" and card.is_blocker
+        for card in duplicate_l5.failure_cards
+    )
     in_memory_forgery = StressTestReport(
         report_id="forged-memory-summary",
         schema_version="1.1",

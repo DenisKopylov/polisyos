@@ -275,6 +275,18 @@
       "title": "EstimationStatus",
       "type": "string"
     },
+    "GraphType": {
+      "description": "Graph type public type.",
+      "enum": [
+        "dag",
+        "cpdag",
+        "pag",
+        "mgraph",
+        "admg"
+      ],
+      "title": "GraphType",
+      "type": "string"
+    },
     "PAGIdentificationPolicy": {
       "description": "PAG identification policy data model.",
       "enum": [
@@ -1330,7 +1342,7 @@
           "type": "integer"
         },
         "schema_version": {
-          "default": "2.0",
+          "default": "2.1",
           "pattern": "^\\d+\\.\\d+$",
           "title": "Schema Version",
           "type": "string"
@@ -1356,6 +1368,30 @@
           "default": "",
           "title": "Source Context Id",
           "type": "string"
+        },
+        "source_graph_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Graph Sha256"
+        },
+        "source_graph_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GraphType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "status": {
           "$ref": "#/$defs/TransportabilityStatus",

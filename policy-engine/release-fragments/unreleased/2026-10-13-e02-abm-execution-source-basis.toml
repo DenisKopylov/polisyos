@@ -1,0 +1,35 @@
+id = "2026-10-13-e02-abm-execution-source-basis"
+title = "Preserve execution-source identity across the ABM IR boundary"
+type = "changed"
+component = "ir"
+owner = "team-ir"
+summary = "The strict IR ABMResult preserves the Core Foundry execution-input reference and source-status through conversion and CAS readback."
+evidence = [
+  "src/polisyos/ir/analytics/phase4_dynamics.py",
+  "tests/unit/foundry/methods/catalog/simulation/test_abm_receipt_strangle.py",
+  "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+  "schemas/snapshots/ir/abm_result.schema.json",
+]
+compatibility = "New readers default absent historical source fields to basis=null/status=not_recorded. New serialized results carry the typed source fields; older strict readers may reject those additional fields, and forward compatibility is not claimed. The bridge preserves Core SimulationResult.schema_version; the ABMResult IR artifact-version interpretation must be resolved with team-ir before publication."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir.analytics.ABMResult and persisted ir.abm_result artifact"
+migration = "Regenerate the ABMResult ABI snapshot and IR catalog. Confirm the outer ABMResult version separately from the copied Core source schema version. Roll readers before writers that emit the new fields; do not rewrite historical blobs."
+api = "No HTTP API change. Core-to-IR conversion keeps the selected input basis ref and source status typed; fresh CAS readers return the same identity fields."
+limitations = "The execution input basis identifies selected inputs and does not establish authority, law, calibration, currentness, or policy admissibility. The patch does not resolve the ABMResult-versus-Core version namespace."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/ir/schema-catalog.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "abm-execution-source-basis-ir-artifact"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "public_stable: polisyos.ir.analytics.ABMResult and persisted ir.abm_result artifact"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+release_note = "ABMResult carries the typed Foundry execution-input basis and source status through the IR/CAS boundary; generated IR schema consumers must refresh and older strict readers are not forward-compatible with these fields."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/ir/schema-catalog.md", "src/polisyos/ir/analytics/README.md"]
+runbook_docs = []

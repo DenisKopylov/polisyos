@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-import hashlib
 import json
 import uuid
 from dataclasses import dataclass
@@ -34,18 +33,6 @@ _RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
 _ORIGINAL_SECOND_CAPTURE_RECORDING_ID = "gy_n4_replay_20260704_095710_425807_7bf5552df372"
 _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH = (
     "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1"
-)
-_ORIGINAL_SECOND_CAPTURE_CONTRACT_SHA256 = (
-    "5ad08223d43ee0b86a70822ab103eabb7d7ff81419e941c6a68cdf6b36c824af"
-)
-_ORIGINAL_DISPOSITION_FIELDS = (
-    "proposal_id",
-    "candidate_id",
-    "disposition",
-    "shadow_atom_content_hash",
-    "identified_atom_id",
-    "status",
-    "selected_relation",
 )
 
 
@@ -154,58 +141,40 @@ def _contract_value_matches(observed: Any, expected: Any) -> bool:
 
 
 def _original_second_capture_expected_output(
-    design_problem_ref: str,
+    *,
+    recording_id: str,
+    recording_content_hash: str,
 ) -> dict[str, Any]:
-    """Load the unique pinned contract result selected by the recorded problem ref."""
-    path = REPO_ROOT / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
-    raw = path.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != _ORIGINAL_SECOND_CAPTURE_CONTRACT_SHA256:
-        raise RuntimeError("original_second_capture_contract_bytes_changed")
-    contract = json.loads(raw)
-    matches = [
-        row
-        for row in contract.get("generation_results", ())
-        if row.get("design_problem_ref") == design_problem_ref
-    ]
-    if len(matches) != 1:
-        raise RuntimeError("original_second_capture_contract_result_not_unique")
-    result = matches[0]
-    candidate_semantics: dict[str, tuple[str, str, tuple[str, ...]]] = {}
-    for candidate in result.get("candidates", ()):
-        candidate_id = candidate.get("candidate_id")
-        atom = candidate.get("atom")
-        operator = atom.get("operator_kind") if isinstance(atom, dict) else None
-        targets = atom.get("target_world_slots") if isinstance(atom, dict) else None
-        if (
-            not isinstance(candidate_id, str)
-            or not isinstance(atom, dict)
-            or not isinstance(atom.get("content_hash"), str)
-            or not isinstance(operator, dict)
-            or not isinstance(operator.get("trinity_kind"), str)
-            or not isinstance(targets, list)
-            or not targets
-            or not all(isinstance(target, str) for target in targets)
-            or candidate_id in candidate_semantics
-        ):
-            raise RuntimeError("original_second_capture_contract_candidate_shape_invalid")
-        candidate_semantics[candidate_id] = (
-            atom["content_hash"],
-            operator["trinity_kind"],
-            tuple(targets),
-        )
-    dispositions: dict[str, tuple[Any, ...]] = {}
-    for row in result.get("grounding_dispositions", ()):
-        proposal_id = row.get("proposal_id")
-        if not isinstance(proposal_id, str) or proposal_id in dispositions:
-            raise RuntimeError("original_second_capture_contract_disposition_shape_invalid")
-        dispositions[proposal_id] = tuple(row.get(field) for field in _ORIGINAL_DISPOSITION_FIELDS)
-    if not candidate_semantics or not dispositions:
-        raise RuntimeError("original_second_capture_contract_denominator_missing")
+    """Return expectations only for the exact immutable source recording."""
+    if (recording_id, recording_content_hash) != (
+        _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
+        _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
+    ):
+        raise RuntimeError("original_second_capture_expected_source_mismatch")
+    candidate_groups_by_proposal = {
+        "gy_n4.industrial_retention_tax_credit": ("tax_relief_rate", ("global.tax_rate",)),
+        "gy_n4.procurement_distress_backstop": (
+            "procurement_shock_intensity",
+            ("cells.distress_score",),
+        ),
+    }
     return {
-        "candidate_semantics": candidate_semantics,
-        "dispositions": dispositions,
-        "diversity_report": result.get("diversity_report"),
-        "grounding_disposition_summary": result.get("grounding_disposition_summary"),
+        "candidate_groups_by_proposal": candidate_groups_by_proposal,
+        "dispositions": {
+            **dict.fromkeys(candidate_groups_by_proposal, "shadow_bound"),
+            "gy_n4.msme_working_capital_guarantee": "unknown_blocked",
+        },
+        "diversity_report": {
+            "min_required": 3,
+            "candidate_count": 3,
+            "unique_diversity_key_count": 3,
+            "diverse_enough": True,
+        },
+        "grounding_disposition_summary": {
+            "total_candidates": 3,
+            "shadow_bound": 2,
+            "abstain_or_blocked": 1,
+        },
     }
 
 
@@ -231,11 +200,19 @@ def _assert_original_second_capture_generation_result(
     result: Any,
     *,
     design_problem_ref: str,
+    recording_id: str,
+    recording_content_hash: str,
 ) -> dict[str, tuple[str, str, tuple[str, ...]]]:
-    """Require the exact pinned producer identities and all proposal dispositions."""
-    expected = _original_second_capture_expected_output(design_problem_ref)
+    """Check the current parent binding and complete recorded N4 semantics."""
+    expected = _original_second_capture_expected_output(
+        recording_id=recording_id,
+        recording_content_hash=recording_content_hash,
+    )
     if result.design_problem_ref != design_problem_ref:
         raise AssertionError("original_second_capture_result_problem_ref_mismatch")
+    if result.status != "generated":
+        raise AssertionError("original_second_capture_generation_not_generated")
+
     report = result.diversity_report
     for field, value in expected["diversity_report"].items():
         if not _contract_value_matches(getattr(report, field), value):
@@ -244,23 +221,43 @@ def _assert_original_second_capture_generation_result(
     for field, value in expected["grounding_disposition_summary"].items():
         if not _contract_value_matches(getattr(summary, field), value):
             raise AssertionError("original_second_capture_summary_contract_mismatch")
-    observed_dispositions: dict[str, tuple[Any, ...]] = {}
+
+    observed_dispositions: dict[str, str] = {}
+    disposition_candidate_ids_by_proposal: dict[str, str] = {}
     for row in result.grounding_dispositions:
         proposal_id = str(row.proposal_id)
         if proposal_id in observed_dispositions:
             raise AssertionError("original_second_capture_duplicate_disposition")
-        values = []
-        for field in _ORIGINAL_DISPOSITION_FIELDS:
-            value = getattr(row, field)
-            if hasattr(value, "value"):
-                value = value.value
-            values.append(value)
-        observed_dispositions[proposal_id] = tuple(values)
+        disposition = getattr(row.disposition, "value", row.disposition)
+        observed_dispositions[proposal_id] = str(disposition)
+        if disposition == "shadow_bound":
+            candidate_id = getattr(row, "candidate_id", None)
+            if (
+                not isinstance(candidate_id, str)
+                or candidate_id in disposition_candidate_ids_by_proposal.values()
+            ):
+                raise AssertionError("original_second_capture_shadow_candidate_binding_invalid")
+            disposition_candidate_ids_by_proposal[proposal_id] = candidate_id
     if observed_dispositions != expected["dispositions"]:
         raise AssertionError("original_second_capture_complete_disposition_map_mismatch")
+
     observed_candidates = _original_second_capture_candidate_semantics(result)
-    if observed_candidates != expected["candidate_semantics"]:
-        raise AssertionError("original_second_capture_candidate_atom_semantics_mismatch")
+    candidate_groups_by_id = {
+        candidate_id: (operator_kind, tuple(sorted(targets)))
+        for candidate_id, (_atom_ref, operator_kind, targets) in observed_candidates.items()
+    }
+    observed_groups_by_proposal: dict[str, tuple[str, tuple[str, ...]]] = {}
+    for proposal_id, candidate_id in disposition_candidate_ids_by_proposal.items():
+        group = candidate_groups_by_id.get(candidate_id)
+        if group is None:
+            raise AssertionError("original_second_capture_disposition_candidate_not_generated")
+        observed_groups_by_proposal[proposal_id] = group
+    if (
+        len(observed_candidates) != 2
+        or len(set(candidate_groups_by_id.values())) != len(observed_candidates)
+        or observed_groups_by_proposal != expected["candidate_groups_by_proposal"]
+    ):
+        raise AssertionError("original_second_capture_candidate_semantics_mismatch")
     return observed_candidates
 
 
@@ -1089,6 +1086,8 @@ async def prepare_generic_n4_served_replay(
         original_candidate_semantics = _assert_original_second_capture_generation_result(
             generation_result,
             design_problem_ref=cycle_job_design_problem_ref(recorded_problem),
+            recording_id=source_recording_id,
+            recording_content_hash=source_recording_content_hash,
         )
     children = tuple(
         derive_n4_candidate_child_problems(

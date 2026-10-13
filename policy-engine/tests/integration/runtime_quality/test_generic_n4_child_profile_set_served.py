@@ -188,6 +188,8 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     preflight_candidate_semantics = _assert_original_second_capture_generation_result(
         preflight_result,
         design_problem_ref=prepared_problem_ref,
+        recording_id=prepared.source_recording_id,
+        recording_content_hash=prepared.source_recording_content_hash,
     )
     expected_child_atom_refs_by_group = _assert_original_second_capture_child_semantic_join(
         prepared.children,
@@ -302,6 +304,8 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         served_candidate_semantics = _assert_original_second_capture_generation_result(
             served_result,
             design_problem_ref=prepared_problem_ref,
+            recording_id=prepared.source_recording_id,
+            recording_content_hash=prepared.source_recording_content_hash,
         )
         assert served_candidate_semantics == preflight_candidate_semantics
         assert served_result.status == "generated"

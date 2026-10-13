@@ -5,7 +5,7 @@ import threading
 import pytest
 from pydantic import ConfigDict, Field
 
-from polisyos.core.artifacts import ProducerInfo, PutOptions
+from polisyos.core.artifacts import PutOptions, WarningRecord
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     input_ref_from_artifact_ref,
@@ -136,16 +136,27 @@ def _persist_evaluation(
 
 
 def _selected_manifest_view(
-    store: FileSystemCAS, ref: ArtifactRef, *, producer_component: str
+    store: FileSystemCAS, ref: ArtifactRef, *, warning_code: str
 ) -> ArtifactRef:
     manifest = store.get_manifest(ref)
     selected = store.put_bytes(
         store.get_bytes(ref),
         PutOptions(
-            kind=ref.kind,
-            media_type=ref.media_type,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
             schema=manifest.artifact_schema,
-            producer=ProducerInfo(component=producer_component, version="1.0.0"),
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=[
+                *manifest.warnings,
+                WarningRecord(code=warning_code, msg="test-only alternate profile view"),
+            ],
         ),
         return_selected_profile=True,
     )
@@ -153,7 +164,22 @@ def _selected_manifest_view(
     assert selected.manifest_profile_sha256 is not None
     assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
     assert store.get_bytes(selected) == store.get_bytes(ref)
-    store.get_manifest(selected)
+    selected_manifest = store.get_manifest(selected)
+    for field in (
+        "kind",
+        "media_type",
+        "artifact_schema",
+        "producer",
+        "env",
+        "inputs",
+        "canon",
+        "governance",
+        "tenant_context",
+        "same_input_closure",
+        "authority",
+    ):
+        assert getattr(selected_manifest, field) == getattr(manifest, field)
+    assert selected_manifest.warnings[:-1] == manifest.warnings
     return selected
 
 
@@ -187,8 +213,13 @@ def test_autotune_persistence_helpers_accept_protocol_backed_store(tmp_path) -> 
         def get_bytes(self, artifact_id):
             return self._store.get_bytes(artifact_id)
 
-        def put_json(self, obj, opts, *, canon_spec=None):
-            return self._store.put_json(obj, opts, canon_spec=canon_spec)
+        def put_json(self, obj, opts, *, canon_spec=None, return_selected_profile=False):
+            return self._store.put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
     proxy = _ArtifactStoreProxy(backing_store)
     ref = persist_mutation_artifact(proxy, DummyMutationConfig(value=5))
@@ -519,7 +550,7 @@ def test_champion_registry_binds_selected_candidate_and_suite_views(tmp_path) ->
         store, BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0")
     )
     suite_selected = _selected_manifest_view(
-        store, suite_default, producer_component="tests.autotune.selected-suite-view"
+        store, suite_default, warning_code="tests.autotune.selected-suite-view"
     )
     candidate = _persist_candidate(store, value=7, suite_ref=suite_selected)
     evaluation = _persist_evaluation(
@@ -559,7 +590,7 @@ def test_champion_registry_rejects_same_candidate_bytes_with_other_selected_prof
     )
     candidate = _persist_candidate(store, value=7, suite_ref=suite_ref)
     selected_candidate = _selected_manifest_view(
-        store, candidate, producer_component="tests.autotune.selected-candidate-view"
+        store, candidate, warning_code="tests.autotune.selected-candidate-view"
     )
     evaluation = _persist_evaluation(store, candidate_ref=candidate, suite_ref=suite_ref, score=7.0)
     decision = registry.consider_promotion(
@@ -570,43 +601,90 @@ def test_champion_registry_rejects_same_candidate_bytes_with_other_selected_prof
     assert registry.get("dummy_loop") is None
 
 
-def test_persist_evaluation_preserves_candidate_profile_and_rejects_conflicting_view(
-    tmp_path,
+@pytest.mark.parametrize(
+    "role",
+    [
+        "candidate",
+        "method_result",
+        "method_evidence",
+        "execution_work_packet",
+        "search_gp_fit_basis",
+    ],
+)
+def test_persist_evaluation_preserves_selected_profiles_and_rejects_conflicting_view(
+    tmp_path, role
 ) -> None:
     store = FileSystemCAS(tmp_path / ".polisyos")
     suite = persist_benchmark_suite(
         store, BenchmarkSuite(suite_id="dummy_suite", suite_version="1.0")
     )
     candidate = _persist_candidate(store, value=7, suite_ref=suite)
-    selected = _selected_manifest_view(
-        store, candidate, producer_component="tests.autotune.evaluation-candidate-view"
+    selected_candidate = _selected_manifest_view(
+        store, candidate, warning_code="tests.autotune.selected-candidate-view"
     )
-    other_selected = _selected_manifest_view(
-        store, candidate, producer_component="tests.autotune.other-evaluation-view"
-    )
+    if role == "candidate":
+        selected_role = selected_candidate
+        conflicting_role = _selected_manifest_view(
+            store, candidate, warning_code="tests.autotune.other-candidate-view"
+        )
+    else:
+        role_source = store.put_json(
+            {"role": role},
+            PutOptions(kind=f"tests.autotune.{role}", media_type="application/json"),
+        )
+        selected_role = _selected_manifest_view(
+            store, role_source, warning_code=f"tests.autotune.{role}.selected-view"
+        )
+        conflicting_role = _selected_manifest_view(
+            store, role_source, warning_code=f"tests.autotune.{role}.other-view"
+        )
+    role_fields = {
+        "candidate": {},
+        "method_result": {"method_result_ref": selected_role},
+        "method_evidence": {"method_evidence_ref": selected_role},
+        "execution_work_packet": {
+            "execution_work_packet_ref": selected_role,
+            "execution_work_packet_status": "rejected",
+        },
+        "search_gp_fit_basis": {
+            "metadata": {"search_gp_fit_basis_ref": selected_role.model_dump(mode="json")}
+        },
+    }[role]
     evaluation = BenchmarkEvaluation(
         loop_id="dummy_loop",
         suite_id="dummy_suite",
         suite_version="1.0",
-        candidate_ref=selected,
+        candidate_ref=selected_candidate,
         selection_metrics={"score": 7.0},
         holdout_metrics={"score": 7.0},
         sample_counts={"selection": 1, "holdout": 1},
         guardrails={"score_present": True},
         promotable=True,
         runtime_split_type=BenchmarkSplit.HOLDOUT,
+        **role_fields,
     )
-    with pytest.raises(ValueError, match="candidate_lineage_mismatch"):
-        persist_benchmark_evaluation(
-            store,
-            evaluation,
-            inputs=[input_ref_from_artifact_ref(other_selected, role="candidate")],
-        )
-    evaluation_ref = persist_benchmark_evaluation(store, evaluation)
-    candidate_edges = [
-        item for item in store.get_manifest(evaluation_ref).inputs if item.role == "candidate"
+    conflicting_inputs = []
+    if role != "candidate":
+        conflicting_inputs.append(input_ref_from_artifact_ref(selected_candidate, role="candidate"))
+    conflicting_inputs.append(input_ref_from_artifact_ref(conflicting_role, role=role))
+    with pytest.raises(ValueError, match=f"benchmark_evaluation_input_profile_mismatch:{role}"):
+        persist_benchmark_evaluation(store, evaluation, inputs=conflicting_inputs)
+
+    profileless_edge = input_ref_from_artifact_ref(selected_role, role=role).model_copy(
+        update={"manifest_profile_sha256": None}
+    )
+    compatible_inputs = []
+    if role != "candidate":
+        compatible_inputs.append(input_ref_from_artifact_ref(selected_candidate, role="candidate"))
+    compatible_inputs.append(profileless_edge)
+    evaluation_ref = persist_benchmark_evaluation(store, evaluation, inputs=compatible_inputs)
+    manifest = store.get_manifest(evaluation_ref)
+    assert [item for item in manifest.inputs if item.role == role] == [
+        input_ref_from_artifact_ref(selected_role, role=role)
     ]
-    assert candidate_edges == [input_ref_from_artifact_ref(selected, role="candidate")]
+    assert [item for item in manifest.inputs if item.role == "candidate"] == [
+        input_ref_from_artifact_ref(selected_candidate, role="candidate")
+    ]
 
 
 def test_champion_registry_rejects_wrong_comparison_split(tmp_path) -> None:

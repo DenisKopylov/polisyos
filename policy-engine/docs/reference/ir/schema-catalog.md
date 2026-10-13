@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1605`.
-- Public/root-or-package facade types: `456`.
+- Total IR types: `1610`.
+- Public/root-or-package facade types: `457`.
 - ABI snapshot-backed types: `99`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 295 |
-| `polisyos.ir.analytics` | 284 |
+| `polisyos.ir` | 296 |
+| `polisyos.ir.analytics` | 285 |
 | `polisyos.ir.kernel` | 52 |
 | `polisyos.ir.world` | 54 |
 
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 993 | 264 | 41 |
+| `analytics` | 998 | 265 | 41 |
 | `artifacts` | 26 | 0 | 0 |
 | `governance` | 99 | 21 | 8 |
 | `kernel` | 47 | 38 | 0 |
@@ -1310,7 +1310,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:BacktestReport`, `polisyos.ir:BacktestReport`
 - ABI snapshot: `backtest_report` / `schemas/snapshots/ir/backtest_report.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.backtest.BacktestScenario`, `polisyos.ir.analytics.backtest.BiasDirection`, `polisyos.ir.analytics.backtest.SystematicBias`
+- References: `polisyos.ir.analytics.backtest.BacktestScenario`, `polisyos.ir.analytics.backtest.BiasDirection`, `polisyos.ir.analytics.backtest.MetricBiasDiagnostic`, `polisyos.ir.analytics.backtest.SystematicBias`
 - Summary: Summarize historical validation quality and trust diagnostics for one model/policy pair.
 
 | Field | Type | Required | Default | IR refs |
@@ -1324,6 +1324,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `detected_biases` | `list[polisyos.ir.analytics.backtest.SystematicBias]` | `no` | `—` | `polisyos.ir.analytics.backtest.SystematicBias` |
 | `historical_data_ref` | `str \| NoneType` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `metric_diagnostics` | `list[polisyos.ir.analytics.backtest.MetricBiasDiagnostic]` | `no` | `—` | `polisyos.ir.analytics.backtest.MetricBiasDiagnostic` |
 | `model_spec_ref` | `str \| NoneType` | `no` | `—` | — |
 | `n_metrics_evaluated` | `int` | `no` | `0` | — |
 | `n_scenarios` | `int` | `no` | `0` | — |
@@ -1404,6 +1405,36 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `pessimistic` |
 | `neutral` |
 | `mixed` |
+| `unknown` |
+
+### `polisyos.ir.analytics.backtest.MetricBiasDiagnostic` { #polisyos-ir-analytics-backtest-metricbiasdiagnostic }
+
+- Kind: `pydantic_model`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir.analytics:MetricBiasDiagnostic`, `polisyos.ir:MetricBiasDiagnostic`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One metric's residual description and exact statistical execution state.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `backend_id` | `str \| NoneType` | `no` | `—` | — |
+| `backend_version` | `str \| NoneType` | `no` | `—` | — |
+| `direction_status` | `Literal[not_established, not_applicable]` | `yes` | `—` | — |
+| `magnitude` | `float` | `yes` | `—` | — |
+| `mean_residual` | `float` | `yes` | `—` | — |
+| `method_id` | `str \| NoneType` | `no` | `—` | — |
+| `metric_name` | `str` | `yes` | `—` | — |
+| `n` | `int` | `yes` | `—` | — |
+| `p_value` | `float \| NoneType` | `no` | `—` | — |
+| `reason` | `str \| NoneType` | `no` | `—` | — |
+| `residual_sign` | `Literal[negative, zero, positive]` | `yes` | `—` | — |
+| `scope` | `dict[str, Any]` | `no` | `—` | — |
+| `statistic` | `float \| NoneType` | `no` | `—` | — |
+| `status` | `str` | `yes` | `—` | — |
+| `unresolved_assumptions` | `list[str]` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.backtest.OutcomeComparison` { #polisyos-ir-analytics-backtest-outcomecomparison }
 
@@ -2319,6 +2350,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `bootstrap` |
 | `unobserved_common_cause` |
 
+### `polisyos.ir.analytics.causal.TransportabilityProofReviewGrade` { #polisyos-ir-analytics-causal-transportabilityproofreviewgrade }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Review disposition for a transport result before protected reuse.
+
+| Enum values |
+| ----------- |
+| `not_applicable` |
+| `no_additional_review` |
+| `review_required` |
+| `unknown` |
+
 ### `polisyos.ir.analytics.causal_capabilities.CausalBackendCapability` { #polisyos-ir-analytics-causal-capabilities-causalbackendcapability }
 
 - Kind: `pydantic_model`
@@ -2392,6 +2441,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Enum values |
 | ----------- |
 | `direct` |
+| `trso` |
 | `frontdoor` |
 | `do_calculus_rule2` |
 | `do_calculus_rule3` |
@@ -2640,11 +2690,11 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:CausalDiscoveryReport`, `polisyos.ir:CausalDiscoveryReport`
 - ABI snapshot: `causal_discovery_report` / `schemas/snapshots/ir/causal_discovery_report.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintReport`, `polisyos.ir.analytics.causal_discovery.LatentDiscoveryBundle`, `polisyos.ir.analytics.causal_graph.CausalGraphModel`
+- References: `polisyos.ir.analytics.causal_discovery.AlgebraicConstraintReport`, `polisyos.ir.analytics.causal_discovery.LatentDiscoveryBundle`, `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition`
 - Summary: Output of a causal-discovery run, including optional latent diagnostics.
 
 | Field | Type | Required | Default | IR refs |
@@ -2657,8 +2707,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `method` | `str` | `yes` | `—` | — |
 | `n_bootstrap` | `int` | `no` | `0` | — |
+| `projection_disposition` | `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition` |
 | `resolved_graph` | `polisyos.ir.analytics.causal_graph.CausalGraphModel \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `significance_level` | `float` | `no` | `0.05` | — |
 | `warnings` | `list[str]` | `no` | `—` | — |
 
@@ -3243,6 +3294,43 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `expert` |
 | `simulation` |
 
+### `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition` { #polisyos-ir-analytics-causal-graph-graphprojectiondisposition }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_graph.GraphProjectionStatus`, `polisyos.ir.analytics.causal_graph.GraphType`
+- Summary: Content-bound status for a graph identity or an explicit DAG projection.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `reason_code` | `str \| NoneType` | `no` | `—` | — |
+| `resolved_graph_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `source_graph_sha256` | `str` | `yes` | `—` | — |
+| `source_graph_type` | `polisyos.ir.analytics.causal_graph.GraphType` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.GraphType` |
+| `status` | `polisyos.ir.analytics.causal_graph.GraphProjectionStatus` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.GraphProjectionStatus` |
+
+### `polisyos.ir.analytics.causal_graph.GraphProjectionStatus` { #polisyos-ir-analytics-causal-graph-graphprojectionstatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Describe whether a source graph has an admitted DAG projection.
+
+| Enum values |
+| ----------- |
+| `identity` |
+| `projected` |
+| `unavailable` |
+| `unsupported` |
+
 ### `polisyos.ir.analytics.causal_graph.GraphType` { #polisyos-ir-analytics-causal-graph-graphtype }
 
 - Kind: `enum`
@@ -3278,6 +3366,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `conservative` |
 | `optimistic` |
 | `probabilistic` |
+
+### `polisyos.ir.analytics.causal_graph.UnsupportedGraphProjectionError` { #polisyos-ir-analytics-causal-graph-unsupportedgraphprojectionerror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed refusal when a source graph cannot support one admitted DAG projection.
 
 ### `polisyos.ir.analytics.causal_graph_kuzu.CausalGraphKuzuError` { #polisyos-ir-analytics-causal-graph-kuzu-causalgraphkuzuerror }
 
@@ -15298,7 +15397,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:ABMResult`, `polisyos.ir:ABMResult`
 - ABI snapshot: `abm_result` / `schemas/snapshots/ir/abm_result.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport`, `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate`, `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricObservationBundleArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricsArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMStateSnapshotArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMTraceSliceArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMWelfareBoundArtifactRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.DistributionalReportRef`, `polisyos.ir.registry.refs.FairnessAuditReportRef`, `polisyos.ir.registry.refs.MetricValidationReportRef`, `polisyos.ir.registry.refs.UncertaintyEnvelopeRef`, `polisyos.ir.registry.refs.WelfareBundleRef`
+- References: `polisyos.ir.analytics.phase4_dynamics.ABMBifurcationReport`, `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate`, `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMExecutionInputBasisArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMIdentifiabilityDiagnosticArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricObservationBundleArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMMetricsArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMStateSnapshotArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMTraceSliceArtifactRef`, `polisyos.ir.analytics.phase4_dynamics._ABMWelfareBoundArtifactRef`, `polisyos.ir.registry.refs.ArtifactRefModel`, `polisyos.ir.registry.refs.DistributionalReportRef`, `polisyos.ir.registry.refs.FairnessAuditReportRef`, `polisyos.ir.registry.refs.MetricValidationReportRef`, `polisyos.ir.registry.refs.UncertaintyEnvelopeRef`, `polisyos.ir.registry.refs.WelfareBundleRef`
 - Summary: Neutral Phase-4 analytical result for a completed ABM execution.
 
 | Field | Type | Required | Default | IR refs |
@@ -15308,6 +15407,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `environment_fingerprint` | `str \| NoneType` | `no` | `—` | — |
 | `environment_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMEnvironmentArtifactRef` |
 | `exec_plan_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef` | `yes` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMExecPlanArtifactRef` |
+| `execution_input_basis_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMExecutionInputBasisArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMExecutionInputBasisArtifactRef` |
+| `execution_source_status` | `Literal[not_recorded, single_step_basis, feedback_uncomposed]` | `no` | `'not_recorded'` | — |
 | `fairness_audit_report_ref` | `polisyos.ir.registry.refs.FairnessAuditReportRef \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.FairnessAuditReportRef` |
 | `feedback_result_ref` | `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics._ABMFeedbackResultArtifactRef` |
 | `identifiability_certificate` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate \| NoneType` | `no` | `—` | `polisyos.ir.analytics.phase4_dynamics.ABMIdentifiabilityCertificate` |
@@ -19506,13 +19607,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.1`
+- Current version: `1.2`
 - Exported from: `polisyos.ir.analytics:StructuralCausalModelSpec`, `polisyos.ir:StructuralCausalModelSpec`
 - ABI snapshot: `structural_causal_model_spec` / `schemas/snapshots/ir/structural_causal_model_spec.schema.json`
-- Compatibility mode: `backward`
-- References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`, `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance`, `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_graph.CausalGraphModel`, `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition`, `polisyos.ir.analytics.structural_causal_model.NodeMechanism`, `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance`, `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows`
 - Summary: Serializable structural causal model with graph and node mechanisms.
-- Declared readable versions: `1.0`
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -19521,10 +19621,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `fit_provenance` | `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.SCMFitProvenance` |
 | `fitted` | `bool` | `no` | `False` | — |
 | `graph` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `yes` | `—` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` |
+| `graph_projection` | `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_graph.GraphProjectionDisposition` |
 | `mechanism_source_summary` | `dict[str, int]` | `no` | `—` | — |
 | `mechanisms` | `list[polisyos.ir.analytics.structural_causal_model.NodeMechanism]` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.NodeMechanism` |
-| `schema_version` | `str` | `no` | `'1.1'` | — |
+| `schema_version` | `str` | `no` | `'1.2'` | — |
 | `skg_snapshot_ref` | `str \| NoneType` | `no` | `—` | — |
+| `source_graph` | `polisyos.ir.analytics.causal_graph.CausalGraphModel \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` |
+| `source_graph_ref` | `str \| NoneType` | `no` | `—` | — |
 | `training_rows` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows \| NoneType` | `no` | `—` | `polisyos.ir.analytics.structural_causal_model.SCMTrainingRows` |
 
 ### `polisyos.ir.analytics.survey_quality.SurveyAssumptionComponent` { #polisyos-ir-analytics-survey-quality-surveyassumptioncomponent }
@@ -20182,13 +20285,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `2.0`
+- Current version: `2.1`
 - Exported from: `polisyos.ir.analytics:TransportabilityResult`, `polisyos.ir:TransportabilityResult`
 - ABI snapshot: `transportability_result` / `schemas/snapshots/ir/transportability_result.schema.json`
-- Compatibility mode: `backward`
-- References: `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`, `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`, `polisyos.ir.analytics.transportability.DataGap`, `polisyos.ir.analytics.transportability.SNode`, `polisyos.ir.analytics.transportability.TransportFormula`, `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityStatus`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.causal_graph.GraphType`, `polisyos.ir.analytics.causal_graph.PAGIdentificationPolicy`, `polisyos.ir.analytics.partial_identification.PartialIdentificationResult`, `polisyos.ir.analytics.transportability.DataGap`, `polisyos.ir.analytics.transportability.SNode`, `polisyos.ir.analytics.transportability.TransportFormula`, `polisyos.ir.analytics.transportability.TransportMode`, `polisyos.ir.analytics.transportability.TransportabilityStatus`
 - Summary: Persist the transportability decision, formula, and fallback diagnostics.
-- Declared readable versions: `1.0`
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -20227,11 +20329,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `required_target_data` | `list[str]` | `no` | `—` | — |
 | `requires_expert_review` | `bool` | `no` | `False` | — |
 | `resolution_rounds` | `int` | `no` | `1` | — |
-| `schema_version` | `str` | `no` | `'2.0'` | — |
+| `schema_version` | `str` | `no` | `'2.1'` | — |
 | `search_budget_exhausted` | `bool` | `no` | `False` | — |
 | `search_events` | `list[str]` | `no` | `—` | — |
 | `selection_diagram_ref` | `str` | `no` | `''` | — |
 | `source_context_id` | `str` | `no` | `''` | — |
+| `source_graph_sha256` | `str \| NoneType` | `no` | `—` | — |
+| `source_graph_type` | `polisyos.ir.analytics.causal_graph.GraphType \| NoneType` | `no` | `—` | `polisyos.ir.analytics.causal_graph.GraphType` |
 | `status` | `polisyos.ir.analytics.transportability.TransportabilityStatus` | `no` | `<TransportabilityStatus.IDENTIFIED: 'identified'>` | `polisyos.ir.analytics.transportability.TransportabilityStatus` |
 | `sutva_assumed` | `bool` | `no` | `True` | — |
 | `sutva_violation_risk` | `Literal[high, medium, low] \| NoneType` | `no` | `—` | — |
@@ -20991,6 +21095,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----------- |
 | `posterior` |
 | `econometric` |
+| `causal` |
 | `forecasting` |
 | `distributional` |
 | `partial_identification` |
@@ -21164,6 +21269,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `method_config_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `method_used` | `polisyos.ir.analytics.welfare.WelfareMethod` | `no` | `<WelfareMethod.DETERMINISTIC: 'deterministic'>` | `polisyos.ir.analytics.welfare.WelfareMethod` |
 | `model_class` | `str` | `no` | `'unspecified'` | — |
+| `nominal_component_labels` | `tuple[str]` | `no` | `—` | — |
+| `nominal_welfare_pe_components` | `tuple[float]` | `no` | `—` | — |
+| `nominal_welfare_total_components` | `tuple[float]` | `no` | `—` | — |
 | `pe_model_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
 | `pe_uncertainty_refs` | `dict[str, polisyos.ir.registry.refs.UncertaintyEnvelopeRef]` | `no` | `—` | `polisyos.ir.registry.refs.UncertaintyEnvelopeRef` |
 | `point_estimate` | `float \| NoneType` | `no` | `—` | — |
@@ -21225,7 +21333,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `root_facade`
-- Current version: `1.0`
+- Current version: `1.1`
 - Exported from: `polisyos.ir.analytics:WelfareSampleBundle`, `polisyos.ir:WelfareSampleBundle`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
@@ -21234,14 +21342,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `component_labels` | `tuple[str]` | `no` | `—` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `robust_lower_extrema` | `tuple[float]` | `no` | `—` | — |
 | `robust_upper_extrema` | `tuple[float]` | `no` | `—` | — |
 | `sample_axis` | `str` | `no` | `'draw'` | — |
-| `schema_version` | `str` | `no` | `'1.0'` | — |
+| `schema_version` | `str` | `no` | `'1.1'` | — |
 | `welfare_draws` | `tuple[float]` | `no` | `—` | — |
 | `welfare_ge_draws` | `tuple[float]` | `no` | `—` | — |
+| `welfare_pe_component_draws` | `tuple[tuple[float]]` | `no` | `—` | — |
 | `welfare_pe_draws` | `tuple[float]` | `no` | `—` | — |
+| `welfare_total_component_draws` | `tuple[tuple[float]]` | `no` | `—` | — |
 
 ### `polisyos.ir.analytics.welfare.WelfareStatus` { #polisyos-ir-analytics-welfare-welfarestatus }
 
@@ -24961,11 +25072,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----- | ---- | -------- | ------- | ------- |
 | `artifact_name` | `Literal[backtest_plan_bundle.json]` | `no` | `'backtest_plan_bundle.json'` | — |
 | `contract_target` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` | `yes` | `—` | `polisyos.ir.observation.bundles.ContractCompatibilityTarget` |
+| `gap_reason` | `str \| NoneType` | `no` | `—` | — |
 | `historical_payloads` | `dict[str, dict[str, Any]]` | `no` | `—` | — |
 | `holdout_windows` | `list[str]` | `no` | `—` | — |
 | `plans` | `list[dict[str, Any]]` | `no` | `—` | — |
 | `required_fields` | `list[str]` | `yes` | `—` | — |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
+| `selected_holdout_role` | `str \| NoneType` | `no` | `—` | — |
+| `selected_training_role` | `str \| NoneType` | `no` | `—` | — |
+| `selected_validation_role` | `str \| NoneType` | `no` | `—` | — |
 
 ### `polisyos.ir.observation.bundles.BilevelProblemBundle` { #polisyos-ir-observation-bundles-bilevelproblembundle }
 

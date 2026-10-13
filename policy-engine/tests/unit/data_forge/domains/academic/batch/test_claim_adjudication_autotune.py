@@ -374,8 +374,11 @@ def test_search_loop_persists_selected_suite_candidate_and_evaluation_for_fresh_
 def test_search_loop_refuses_profileless_suite_before_candidate_generation(tmp_path):
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
-    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
-    assert suite_ref.manifest_profile_sha256 is None
+    selected_suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
+    assert selected_suite_ref.manifest_profile_sha256 is not None
+    suite_ref = selected_suite_ref.model_copy(update={"manifest_profile_sha256": None})
     generator = SequenceCandidateGenerator([ClaimAdjudicationSearchConfig(passes=1)])
     spec = SearchLoopSpec(
         loop_id="claim_adjudication",
@@ -395,16 +398,20 @@ def test_search_loop_refuses_profileless_suite_before_candidate_generation(tmp_p
 def test_claim_registry_refuses_profileless_suite_without_publishing(tmp_path):
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
-    suite_ref = persist_benchmark_suite(store, default_claim_gold_suite())
+    selected_suite_ref = persist_benchmark_suite(
+        store, default_claim_gold_suite(), return_selected_profile=True
+    )
+    profileless_suite_ref = selected_suite_ref.model_copy(update={"manifest_profile_sha256": None})
     candidate_ref = persist_mutation_artifact(
         store,
-        ClaimAdjudicationSearchConfig(loop_id="other_loop", passes=1),
+        ClaimAdjudicationSearchConfig(passes=1),
+        inputs=[input_ref_from_artifact_ref(selected_suite_ref, role="benchmark_suite")],
         return_selected_profile=True,
     )
     evaluation_ref = persist_benchmark_evaluation(
         store,
         BenchmarkEvaluation(
-            loop_id="other_loop",
+            loop_id="claim_adjudication",
             suite_id="claim_gold",
             suite_version="1.0",
             candidate_ref=candidate_ref,
@@ -413,17 +420,19 @@ def test_claim_registry_refuses_profileless_suite_without_publishing(tmp_path):
             guardrails={"primary_metric_available": True},
             promotable=True,
         ),
+        inputs=[
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(selected_suite_ref, role="benchmark_suite"),
+        ],
         return_selected_profile=True,
     )
-
     decision = registry.consider_promotion(
         "claim_adjudication",
         candidate_ref,
         evaluation_ref,
         default_claim_adjudication_promotion_policy(),
-        suite_ref=suite_ref,
+        suite_ref=profileless_suite_ref,
     )
-
     assert not decision.promoted
     assert decision.reason == "claim_adjudication_selected_profile_required:benchmark_suite"
     assert registry.get("claim_adjudication") is None
@@ -450,7 +459,10 @@ def test_protected_evaluation_rejects_profileless_declared_producer_roles(tmp_pa
     evaluation_fields = {
         "method_result": {"method_result_ref": unselected_ref},
         "method_evidence": {"method_evidence_ref": unselected_ref},
-        "execution_work_packet": {"execution_work_packet_ref": unselected_ref},
+        "execution_work_packet": {
+            "execution_work_packet_ref": unselected_ref,
+            "execution_work_packet_status": "rejected",
+        },
         "search_gp_fit_basis": {
             "metadata": {"search_gp_fit_basis_ref": unselected_ref.model_dump(mode="json")}
         },

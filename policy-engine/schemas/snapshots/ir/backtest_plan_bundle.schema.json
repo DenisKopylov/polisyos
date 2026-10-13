@@ -37,6 +37,18 @@
     "contract_target": {
       "$ref": "#/$defs/ContractCompatibilityTarget"
     },
+    "gap_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gap Reason"
+    },
     "historical_payloads": {
       "additionalProperties": {
         "additionalProperties": true,
@@ -73,6 +85,45 @@
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"
+    },
+    "selected_holdout_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Holdout Role"
+    },
+    "selected_training_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Training Role"
+    },
+    "selected_validation_role": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selected Validation Role"
     }
   },
   "required": [

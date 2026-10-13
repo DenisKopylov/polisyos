@@ -12,8 +12,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `102` schemas, generated `2026-10-09T23:57:00+00:00`.
-- Fabric world ABI snapshot: `2` schemas, generated `2026-05-06T07:43:21+00:00`.
+- IR snapshot: `103` schemas, generated `2026-10-13T21:05:17+00:00`.
+- Fabric world ABI snapshot: `2` schemas, generated `2026-10-13T21:05:17+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
 ## ABI-backed IR Schemas
@@ -27,7 +27,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `calibration_config` | `polisyos.ir.analytics.calibration.CalibrationConfig` | `analytics` | `0.1` | `p2` | `—` | `root_facade` | [CalibrationConfig](ir/schema-catalog.md#polisyos-ir-analytics-calibration-calibrationconfig) | `schemas/snapshots/ir/calibration_config.schema.json` |
 | `causal_effect_report` | `polisyos.ir.analytics.causal.CausalEffectReport` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [CausalEffectReport](ir/schema-catalog.md#polisyos-ir-analytics-causal-causaleffectreport) | `schemas/snapshots/ir/causal_effect_report.schema.json` |
 | `refutation_result` | `polisyos.ir.analytics.causal.RefutationResult` | `analytics` | `—` | `p1` | `—` | `root_facade` | [RefutationResult](ir/schema-catalog.md#polisyos-ir-analytics-causal-refutationresult) | `schemas/snapshots/ir/refutation_result.schema.json` |
-| `causal_discovery_report` | `polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [CausalDiscoveryReport](ir/schema-catalog.md#polisyos-ir-analytics-causal-discovery-causaldiscoveryreport) | `schemas/snapshots/ir/causal_discovery_report.schema.json` |
+| `causal_discovery_report` | `polisyos.ir.analytics.causal_discovery.CausalDiscoveryReport` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [CausalDiscoveryReport](ir/schema-catalog.md#polisyos-ir-analytics-causal-discovery-causaldiscoveryreport) | `schemas/snapshots/ir/causal_discovery_report.schema.json` |
 | `causal_model_ensemble` | `polisyos.ir.analytics.causal_ensemble.CausalModelEnsemble` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [CausalModelEnsemble](ir/schema-catalog.md#polisyos-ir-analytics-causal-ensemble-causalmodelensemble) | `schemas/snapshots/ir/causal_model_ensemble.schema.json` |
 | `causal_graph_model` | `polisyos.ir.analytics.causal_graph.CausalGraphModel` | `analytics` | `1.0` | `p1` | `—` | `package_facade` | [CausalGraphModel](ir/schema-catalog.md#polisyos-ir-analytics-causal-graph-causalgraphmodel) | `schemas/snapshots/ir/causal_graph_model.schema.json` |
 | `causal_query` | `polisyos.ir.analytics.causal_queries.CausalQuery` | `analytics` | `—` | `p2` | `—` | `root_facade` | [CausalQuery](ir/schema-catalog.md#polisyos-ir-analytics-causal-queries-causalquery) | `schemas/snapshots/ir/causal_query.schema.json` |
@@ -58,8 +58,8 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `recourse_proof_bundle` | `polisyos.ir.analytics.recourse_manifold.RecourseProofBundle` | `analytics` | `1.0` | `p2` | `—` | `snapshot_only` | [RecourseProofBundle](ir/schema-catalog.md#polisyos-ir-analytics-recourse-manifold-recourseproofbundle) | `schemas/snapshots/ir/recourse_proof_bundle.schema.json` |
 | `regime_shift_forecast_bundle` | `polisyos.ir.analytics.regime_shift_forecast.RegimeShiftForecastBundle` | `analytics` | `1.0` | `p1` | `full` | `root_facade` | [RegimeShiftForecastBundle](ir/schema-catalog.md#polisyos-ir-analytics-regime-shift-forecast-regimeshiftforecastbundle) | `schemas/snapshots/ir/regime_shift_forecast_bundle.schema.json` |
 | `causal_sensitivity_result` | `polisyos.ir.analytics.sensitivity.SensitivityResult` | `analytics` | `1.0` | `p1` | `—` | `snapshot_only` | [SensitivityResult](ir/schema-catalog.md#polisyos-ir-analytics-sensitivity-sensitivityresult) | `schemas/snapshots/ir/sensitivity_result.schema.json` |
-| `structural_causal_model_spec` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` | `analytics` | `1.1` | `p1` | `backward` | `root_facade` | [StructuralCausalModelSpec](ir/schema-catalog.md#polisyos-ir-analytics-structural-causal-model-structuralcausalmodelspec) | `schemas/snapshots/ir/structural_causal_model_spec.schema.json` |
-| `transportability_result` | `polisyos.ir.analytics.transportability.TransportabilityResult` | `analytics` | `2.0` | `p1` | `backward` | `root_facade` | [TransportabilityResult](ir/schema-catalog.md#polisyos-ir-analytics-transportability-transportabilityresult) | `schemas/snapshots/ir/transportability_result.schema.json` |
+| `structural_causal_model_spec` | `polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec` | `analytics` | `1.2` | `p1` | `—` | `root_facade` | [StructuralCausalModelSpec](ir/schema-catalog.md#polisyos-ir-analytics-structural-causal-model-structuralcausalmodelspec) | `schemas/snapshots/ir/structural_causal_model_spec.schema.json` |
+| `transportability_result` | `polisyos.ir.analytics.transportability.TransportabilityResult` | `analytics` | `2.1` | `p1` | `—` | `root_facade` | [TransportabilityResult](ir/schema-catalog.md#polisyos-ir-analytics-transportability-transportabilityresult) | `schemas/snapshots/ir/transportability_result.schema.json` |
 | `uncertainty_envelope` | `polisyos.ir.analytics.uncertainty.UncertaintyEnvelope` | `analytics` | `1.1` | `p1` | `—` | `root_facade` | [UncertaintyEnvelope](ir/schema-catalog.md#polisyos-ir-analytics-uncertainty-uncertaintyenvelope) | `schemas/snapshots/ir/uncertainty_envelope.schema.json` |
 | `gate_context` | `polisyos.ir.governance.gate.GateContext` | `governance` | `—` | `p1` | `—` | `root_facade` | [GateContext](ir/schema-catalog.md#polisyos-ir-governance-gate-gatecontext) | `schemas/snapshots/ir/gate_context.schema.json` |
 | `gate_decision` | `polisyos.ir.governance.gate.GateDecision` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [GateDecision](ir/schema-catalog.md#polisyos-ir-governance-gate-gatedecision) | `schemas/snapshots/ir/gate_decision.schema.json` |

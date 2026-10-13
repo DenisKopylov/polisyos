@@ -321,6 +321,7 @@ async def test_required_guardrail_false_blocks_admission(tmp_path) -> None:
     rejected_ref = persist_benchmark_evaluation(
         store,
         evaluation.model_copy(update={"guardrails": guardrails}),
+        inputs=[input_ref_from_artifact_ref(evidence.suite_ref, role="benchmark_suite")],
     )
     tamper_pointer(
         tmp_path / "registry",

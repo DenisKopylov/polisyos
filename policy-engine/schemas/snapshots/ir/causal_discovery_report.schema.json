@@ -609,6 +609,67 @@
       "title": "EdgeSource",
       "type": "string"
     },
+    "GraphProjectionDisposition": {
+      "additionalProperties": false,
+      "description": "Content-bound status for a graph identity or an explicit DAG projection.",
+      "properties": {
+        "reason_code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "resolved_graph_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolved Graph Sha256"
+        },
+        "source_graph_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Graph Sha256",
+          "type": "string"
+        },
+        "source_graph_type": {
+          "$ref": "#/$defs/GraphType"
+        },
+        "status": {
+          "$ref": "#/$defs/GraphProjectionStatus"
+        }
+      },
+      "required": [
+        "status",
+        "source_graph_type",
+        "source_graph_sha256"
+      ],
+      "title": "GraphProjectionDisposition",
+      "type": "object"
+    },
+    "GraphProjectionStatus": {
+      "description": "Describe whether a source graph has an admitted DAG projection.",
+      "enum": [
+        "identity",
+        "projected",
+        "unavailable",
+        "unsupported"
+      ],
+      "title": "GraphProjectionStatus",
+      "type": "string"
+    },
     "GraphType": {
       "description": "Graph type public type.",
       "enum": [
@@ -1042,6 +1103,9 @@
       "title": "N Bootstrap",
       "type": "integer"
     },
+    "projection_disposition": {
+      "$ref": "#/$defs/GraphProjectionDisposition"
+    },
     "resolved_graph": {
       "anyOf": [
         {
@@ -1054,7 +1118,7 @@
       "default": null
     },
     "schema_version": {
-      "default": "1.0",
+      "default": "1.1",
       "title": "Schema Version",
       "type": "string"
     },
@@ -1075,7 +1139,8 @@
   },
   "required": [
     "method",
-    "graph"
+    "graph",
+    "projection_disposition"
   ],
   "title": "CausalDiscoveryReport",
   "type": "object"

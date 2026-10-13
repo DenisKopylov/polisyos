@@ -25,6 +25,8 @@ parameters. These values remain candidate-grade search inputs, not measurements 
 causal truth or authority.
 
 
+When an evaluation merges explicit lineage with producer-returned refs, a same-ID edge whose selected manifest profile conflicts with the producer ref is rejected. A generic profileless edge may still be upgraded from a selected producer ref; protected claim evaluations require selected source refs. Successor claim replay also accepts a predecessor only when its policy metadata and selected claim-suite ref match the registry writer shape. Historical profileless pointers remain readable as history but cannot supply a verified protected predecessor.
+
 `BayesianSourceProfile` records the actual optimizer class and configuration,
 proposal source, search-space fingerprint, the caller context frozen at
 `SearchLoopRunner` entry, objective identity, effective fitted training corpus,
@@ -189,14 +191,21 @@ in `champion.json`. Its `pointer` is the existing `ChampionPointer` payload; its
 `promotion_basis` hashes that exact pointer payload and records the predecessor. The
 hash excludes the envelope, so the binding is non-circular, and one atomic file
 replacement leaves a fresh reader with either the old pair or the new pair.
-`ChampionRegistry.get` continues to return `ChampionPointer`. Historical bare pointers
-remain readable only with their matching `promotion_basis.json`; missing or mismatched
-sidecars retain their refusal behavior. Older software that validates `champion.json`
-as a bare pointer must be upgraded before a new envelope is written.
+`ChampionRegistry.get` continues to return `ChampionPointer` for diagnostic history.
+Historical bare pointers remain readable only with their matching `promotion_basis.json`;
+missing or mismatched sidecars retain their refusal behavior. The getter does not establish
+the historical CAS sources as protected evidence. A protected successor/replay resolves
+the immediate predecessor's suite, candidate, and evaluation refs by their exact selected
+profiles, verifies their Core payloads and producer/schema identities, and binds both
+manifest lineage edges and the evaluation's candidate ref. Profileless, unavailable, or
+content/edge-inconsistent predecessor sources remain history-only and receive a typed
+refusal. This is a one-hop check; it does not recursively replay an unbounded history.
+Older software that validates `champion.json` as a bare pointer must be upgraded before a
+new envelope is written.
 
-This persistence behavior binds candidate-grade registry state. It does not establish
-external evaluator authority or resolve whether a changed suite should re-evaluate an
-incumbent or begin a separately identified comparison.
+This persistence behavior binds candidate-grade registry state and one immediate
+predecessor. It does not establish external evaluator authority or resolve whether a
+changed suite should re-evaluate an incumbent or begin a separately identified comparison.
 
 
 ### Protected claim-adjudication selected-reference boundary

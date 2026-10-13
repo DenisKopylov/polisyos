@@ -264,6 +264,13 @@ class _ABMFeedbackResultArtifactRef(ArtifactRefModel):
     media_type: Literal["application/json"] = "application/json"
 
 
+class _ABMExecutionInputBasisArtifactRef(ArtifactRefModel):
+    """Neutral typed reference to the exact single-step Foundry input basis."""
+
+    kind: Literal["foundry.execution_input_basis"] = "foundry.execution_input_basis"
+    media_type: Literal["application/json"] = "application/json"
+
+
 class _ABMIdentifiabilityDiagnosticArtifactRef(ArtifactRefModel):
     """Neutral typed reference to a Foundry identifiability diagnostic."""
 
@@ -326,10 +333,30 @@ class ABMResult(BaseModel):
     propagation_config_ref: ArtifactRefModel | None = None
     propagation_report_ref: ArtifactRefModel | None = None
     feedback_result_ref: _ABMFeedbackResultArtifactRef | None = None
+    execution_input_basis_ref: _ABMExecutionInputBasisArtifactRef | None = None
+    execution_source_status: Literal["not_recorded", "single_step_basis", "feedback_uncomposed"] = (
+        "not_recorded"
+    )
     identifiability_diagnostic_ref: _ABMIdentifiabilityDiagnosticArtifactRef | None = None
     notes: list[str] = Field(default_factory=list)
     identifiability_certificate: ABMIdentifiabilityCertificate | None = None
     bifurcation_report: ABMBifurcationReport | None = None
+
+    @model_validator(mode="after")
+    def validate_execution_source_basis(self) -> ABMResult:
+        """Preserve the Core source-basis invariants at the strict IR boundary."""
+        if self.schema_version == "1.4":
+            if self.execution_source_status == "single_step_basis":
+                if self.execution_input_basis_ref is None or self.feedback_result_ref is not None:
+                    raise ValueError("single_step_source_basis_requires_basis_without_feedback")
+            elif self.execution_source_status == "feedback_uncomposed":
+                if self.execution_input_basis_ref is not None or self.feedback_result_ref is None:
+                    raise ValueError("feedback_source_status_requires_feedback_without_basis")
+            elif self.execution_input_basis_ref is not None:
+                raise ValueError("execution_basis_ref_requires_single_step_status")
+        elif self.execution_input_basis_ref is not None:
+            raise ValueError("execution_basis_ref_requires_simulation_result_schema_1_4")
+        return self
 
 
 class StrangleReceipt(BaseModel):

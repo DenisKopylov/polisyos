@@ -290,10 +290,155 @@
         "optimistic",
         "pessimistic",
         "neutral",
-        "mixed"
+        "mixed",
+        "unknown"
       ],
       "title": "BiasDirection",
       "type": "string"
+    },
+    "MetricBiasDiagnostic": {
+      "additionalProperties": false,
+      "description": "One metric's residual description and exact statistical execution state.",
+      "properties": {
+        "backend_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backend Id"
+        },
+        "backend_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Backend Version"
+        },
+        "direction_status": {
+          "enum": [
+            "not_established",
+            "not_applicable"
+          ],
+          "title": "Direction Status",
+          "type": "string"
+        },
+        "magnitude": {
+          "minimum": 0.0,
+          "title": "Magnitude",
+          "type": "number"
+        },
+        "mean_residual": {
+          "title": "Mean Residual",
+          "type": "number"
+        },
+        "method_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Method Id"
+        },
+        "metric_name": {
+          "minLength": 1,
+          "title": "Metric Name",
+          "type": "string"
+        },
+        "n": {
+          "minimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P Value"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "residual_sign": {
+          "enum": [
+            "negative",
+            "zero",
+            "positive"
+          ],
+          "title": "Residual Sign",
+          "type": "string"
+        },
+        "scope": {
+          "additionalProperties": true,
+          "title": "Scope",
+          "type": "object"
+        },
+        "statistic": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statistic"
+        },
+        "status": {
+          "pattern": "^(exact_zero|available|not_computable|unavailable)$",
+          "title": "Status",
+          "type": "string"
+        },
+        "unresolved_assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Assumptions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "metric_name",
+        "status",
+        "n",
+        "mean_residual",
+        "magnitude",
+        "residual_sign",
+        "direction_status"
+      ],
+      "title": "MetricBiasDiagnostic",
+      "type": "object"
     },
     "OutcomeComparison": {
       "additionalProperties": false,
@@ -526,6 +671,13 @@
       "additionalProperties": true,
       "title": "Metadata",
       "type": "object"
+    },
+    "metric_diagnostics": {
+      "items": {
+        "$ref": "#/$defs/MetricBiasDiagnostic"
+      },
+      "title": "Metric Diagnostics",
+      "type": "array"
     },
     "model_spec_ref": {
       "anyOf": [

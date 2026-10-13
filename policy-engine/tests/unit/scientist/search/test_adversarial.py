@@ -842,6 +842,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         store, corrupted_ref, expected_candidate_ref=candidate_ref
     )
     assert corrupted_resolution.status == "invalid"
+    assert corrupted_resolution.reason_code == "report_summary_reconciliation_failed"
     assert corrupted_resolution.robustness_score is None
 
     _, missing_candidate_resolution = resolve_stress_report_artifact(
@@ -852,9 +853,8 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert missing_candidate_resolution.robustness_score is None
 
     component = top_one.score_components[0]
-    basis = StressOutcomeBasis.model_validate(
-        load_core_json_artifact(store, component.outcome_basis_ref)
-    )
+    basis_payload = load_core_json_artifact(store, component.outcome_basis_ref)
+    basis = StressOutcomeBasis.model_validate(basis_payload)
     plan_ref = basis.plan_ref
     assert plan_ref is not None
     plan_body = load_core_json_artifact(store, plan_ref)
@@ -910,8 +910,9 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         expected_candidate_ref=candidate_ref,
     )
     assert wrong_plan_resolution.status == "invalid"
+    assert wrong_plan_resolution.reason_code == "adversarial_plan_unreadable"
     wrong_basis_schema_ref = store.put_json(
-        basis,
+        basis_payload,
         PutOptions(
             kind="scientist.stress_outcome_basis",
             media_type="application/json",
@@ -925,6 +926,9 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         return_selected_profile=True,
     )
     assert wrong_basis_schema_ref.artifact_id == component.outcome_basis_ref.artifact_id
+    assert store.get_bytes(wrong_basis_schema_ref.artifact_id) == store.get_bytes(
+        component.outcome_basis_ref.artifact_id
+    )
     assert (
         wrong_basis_schema_ref.manifest_profile_sha256
         != component.outcome_basis_ref.manifest_profile_sha256
@@ -935,6 +939,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         expected_candidate_ref=candidate_ref,
     )
     assert wrong_basis_resolution.status == "invalid"
+    assert wrong_basis_resolution.reason_code == "outcome_basis_unreadable"
     stale_profile_basis = basis.model_copy(
         update={"plan_ref": plan_ref.model_copy(update={"manifest_profile_sha256": None})}
     )
@@ -958,6 +963,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         expected_candidate_ref=candidate_ref,
     )
     assert stale_profile_resolution.status == "unbound"
+    assert stale_profile_resolution.reason_code == "adversarial_plan_profile_missing"
     forged_basis = basis.model_copy(
         update={
             "outcomes": [
@@ -999,6 +1005,7 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         store, forged_report_ref, expected_candidate_ref=candidate_ref
     )
     assert forged_roster_resolution.status == "invalid"
+    assert forged_roster_resolution.reason_code == "plan_outcome_roster_mismatch"
 
     partial_basis = basis.model_copy(update={"outcomes": basis.outcomes[:1], "complete": False})
     partial_basis_ref = store.put_json(
@@ -1041,4 +1048,5 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
         store, partial_report_ref, expected_candidate_ref=candidate_ref
     )
     assert partial_resolution.status == "partial"
+    assert partial_resolution.reason_code == "expected_occurrence_rows_incomplete"
     assert partial_resolution.robustness_score is None

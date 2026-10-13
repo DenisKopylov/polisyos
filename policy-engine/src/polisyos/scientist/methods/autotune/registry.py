@@ -237,7 +237,9 @@ class ChampionRegistry:
                 )
             basis_path = self._root / loop_id / "promotion_basis.json"
             if current is not None:
-                read_claim_promotion_predecessor(self._root, current.model_dump(mode="json"))
+                read_claim_promotion_predecessor(
+                    self._root, current.model_dump(mode="json"), store=self._store
+                )
             elif basis_path.exists():
                 raise ValueError("claim_adjudication_promotion_basis_current_pointer_missing")
         if current is not None and suite_ref is not None:

@@ -8,6 +8,7 @@ from typing import Any, ClassVar
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -142,10 +143,11 @@ def test_run_job_method_flow(tmp_path):
     result_manifest = fresh_reader.get_manifest(result.method_result_ref)
     evidence_manifest = fresh_reader.get_manifest(result.method_evidence_ref)
     assert (
-        result_manifest.manifest_profile_sha256 == result.method_result_ref.manifest_profile_sha256
+        artifact_manifest_profile_sha256(result_manifest)
+        == result.method_result_ref.manifest_profile_sha256
     )
     assert (
-        evidence_manifest.manifest_profile_sha256
+        artifact_manifest_profile_sha256(evidence_manifest)
         == result.method_evidence_ref.manifest_profile_sha256
     )
     assert evidence_manifest.inputs == [

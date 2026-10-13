@@ -1615,3 +1615,478 @@ def test_credal_snapshot_rejects_recursive_json_values() -> None:
         json.dumps(recursive, ensure_ascii=False, sort_keys=True, default=str)
     with pytest.raises(ValueError, match="Circular reference detected"):
         AdmissibleCompletion("fixed", recursive, "recursive fallback probe")
+
+
+def _r1219_controlled_reference(
+    edges: tuple[CredalReferenceEdge, ...],
+    *,
+    profile: CredalReferenceSourceProfile | None = None,
+    as_of: str = "2026-10-13",
+) -> CredalReference:
+    """Build a test-only K_ref from explicitly supplied controlled edges."""
+    edge_index = {edge.key: edge for edge in edges}
+    assert len(edge_index) == len(edges)
+    if profile is not None:
+        expected_profile = profile.model_dump(mode="json")
+        assert all(
+            edge.to_payload()["provenance"].get("selected_source_profile") == expected_profile
+            for edge in edges
+            if edge.provenance.get("owner") == "L2"
+        )
+    component_versions = _component_versions(
+        edge_index,
+        l2_source_profile_hash=profile.content_hash if profile is not None else None,
+    )
+    reference_hash = _reference_hash(
+        component_versions=component_versions,
+        edge_index=edge_index,
+        as_of=as_of,
+    )
+    return CredalReference(
+        schema_version="policyos.runtime.grounding_credal_reference.v2",
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of=as_of,
+        component_versions=component_versions,
+        essential_edges=edge_index,
+    )
+
+
+def test_credal_controlled_contested_edge_lifts_set_valued_and_blocks_confirmation() -> None:
+    profile = _selected_l2_profile_fixture()
+    seed = _profiled_l2_reference(profile)
+    template = seed.essential_edges[("L2_CAUSAL_EDGE", "edge-a")]
+    value = {"direction": "positive", "dst": "controlled-outcome", "src": "controlled-policy"}
+    contested = CredalReferenceEdge(
+        modality=template.modality,
+        edge_id=template.edge_id,
+        status="contested",
+        admissible_completions=(
+            AdmissibleCompletion(
+                "alternative",
+                value,
+                "controlled_direction_candidate",
+            ),
+            AdmissibleCompletion(
+                "may_not_exist",
+                value,
+                "controlled_alternative_absence",
+            ),
+        ),
+        provenance=template.provenance,
+        unit=template.unit,
+        scale=template.scale,
+    ).with_content_hash()
+    reference = _r1219_controlled_reference((contested,), profile=profile, as_of=seed.as_of)
+
+    assert credal_reference_l2_source_profile(reference) == profile
+    assert profile.authority_band == "candidate"
+    assert profile.source_snapshot_authenticity == "not_established"
+    assert profile.currentness_status == "not_established"
+    lifted = reference_lift(reference, [contested.key])[
+        f"{contested.modality}::{contested.edge_id}"
+    ]
+    assert lifted["status"] == "contested"
+    assert lifted["is_set_valued"] is True
+    assert len(lifted["admissible_completions"]) == 2
+    assert all_essential_confirmed(reference, [contested.key]) is False
+
+
+def test_credal_controlled_synthetic_source_fake_edge_and_removal_fail_closed(
+    tmp_path: Path,
+) -> None:
+    from polisyos.data_forge.domains.academic.knowledge.types import (
+        EstimateCandidate,
+        WorkRecord,
+    )
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
+    db_path = tmp_path / DEFAULT_L2_SCHOLAR_KG_PATH
+    db_path.parent.mkdir(parents=True)
+    record = WorkRecord(
+        id="r1219-controlled-source",
+        title="Controlled synthetic source",
+        abstract="Synthetic test input; no production or authority claim.",
+        year=2026,
+        estimates=[
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="r1219_controlled_candidate",
+                variable_hint="cause",
+            )
+        ],
+        metadata={"synthetic": True, "fixture_scope": "r1219_controlled_semantic_test"},
+    )
+    build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    assert db_path.is_file()
+    source_edges = tuple(_iter_l2_edges(tmp_path))
+    selected_source_edges = tuple(
+        edge for edge in source_edges if edge.provenance.get("owner") == "L2"
+    )
+    assert selected_source_edges
+    profile_payload = selected_source_edges[0].to_payload()["provenance"]["selected_source_profile"]
+    profile = CredalReferenceSourceProfile.model_validate(profile_payload)
+    reference = _r1219_controlled_reference(source_edges, profile=profile)
+
+    assert profile.selection_owner == "legacy.default_l2_source"
+    assert profile.source_snapshot_authenticity == "not_established"
+    assert profile.currentness_status == "not_established"
+    assert credal_reference_l2_source_profile(reference) == profile
+    fake_key = ("L2_CAUSAL_EDGE", "r1219-controlled-fake-edge")
+    fake_text = f"{fake_key[0]}::{fake_key[1]}"
+    fake_lift = reference.reference_lift([fake_key])[fake_text]
+    assert fake_lift["status"] == "out_of_scope"
+    assert all_essential_confirmed(reference, [fake_key]) is False
+
+    removal_reference = _profiled_l2_reference(profile)
+    present_edge = removal_reference.essential_edges[("L2_CAUSAL_EDGE", "edge-a")]
+    present_key = f"{present_edge.modality}::{present_edge.edge_id}"
+    assert removal_reference.reference_lift([present_edge.key])[present_key]["status"] == (
+        present_edge.status
+    )
+    reduced_edges = tuple(
+        edge for edge in removal_reference.essential_edges.values() if edge.key != present_edge.key
+    )
+    reduced = _r1219_controlled_reference(
+        reduced_edges,
+        profile=profile,
+        as_of=removal_reference.as_of,
+    )
+    removed_lift = reduced.reference_lift([present_edge.key])[present_key]
+    assert credal_reference_l2_source_profile(reduced) == profile
+    assert present_edge.key not in reduced.essential_edges
+    assert removed_lift["status"] == "out_of_scope"
+    assert all_essential_confirmed(reduced, [present_edge.key]) is False
+
+
+def _r1219_controlled_status_edge(
+    modality: str,
+    edge_id: str,
+    status: CredalReferenceStatus,
+) -> CredalReferenceEdge:
+    completion_kind = {
+        "confirmed": "fixed",
+        "contested": "alternative",
+        "incomplete": "partial",
+    }[status]
+    return CredalReferenceEdge(
+        modality=modality,
+        edge_id=edge_id,
+        status=status,
+        admissible_completions=(
+            AdmissibleCompletion(
+                completion_kind,
+                {"controlled_fixture": True},
+                "explicit_controlled_denominator",
+            ),
+        ),
+        provenance={"owner": "controlled_test_input", "synthetic": True},
+    ).with_content_hash()
+
+
+def test_credal_controlled_essential_scope_counts_use_exact_fixture_denominator() -> None:
+    controlled_edges = (
+        _r1219_controlled_status_edge("L2_FAMILY_EDGE", "family-contested", "contested"),
+        _r1219_controlled_status_edge("L2_FAMILY_EDGE", "family-incomplete", "incomplete"),
+        _r1219_controlled_status_edge("L2_MODERATION_EDGE", "moderation-contested", "contested"),
+        _r1219_controlled_status_edge(
+            "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
+            "alignment-confirmed",
+            "confirmed",
+        ),
+        _r1219_controlled_status_edge("L3_REFERENCE_EDGE", "reference-incomplete", "incomplete"),
+    )
+    reference = _r1219_controlled_reference(controlled_edges)
+    counts = reference.denominator_counts()
+    scope_modalities = {
+        edge_class["modality"]
+        for edge_class in essential_edge_scope_definition()["included_edge_classes"]
+    }
+
+    assert {
+        "L2_FAMILY_EDGE",
+        "L2_MODERATION_EDGE",
+        "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
+        "L3_REFERENCE_EDGE",
+    } <= scope_modalities
+    assert counts == {
+        "L2_DATA_FORGE_VARIABLE_ALIGNMENT": {"confirmed": 1, "total": 1},
+        "L2_FAMILY_EDGE": {"contested": 1, "incomplete": 1, "total": 2},
+        "L2_MODERATION_EDGE": {"contested": 1, "total": 1},
+        "L3_REFERENCE_EDGE": {"incomplete": 1, "total": 1},
+    }
+    assert sum(row["total"] for row in counts.values()) == len(controlled_edges)
+
+
+def test_credal_controlled_exact_and_family_payloads_roundtrip_against_independent_oracle() -> None:
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.credal_reference import (
+        _derive_l2_causal_edge,
+        _derive_l2_family_edge,
+    )
+
+    def assert_wire_roundtrip(
+        edge: CredalReferenceEdge,
+        expected_core: dict[str, object],
+    ) -> None:
+        expected_payload = {
+            **expected_core,
+            "content_hash": gy_content_hash(expected_core),
+        }
+        assert edge.to_payload() == expected_payload
+        wire = json.dumps(
+            edge.to_payload(),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        decoded = json.loads(wire)
+        assert decoded == expected_payload
+        replayed = CredalReferenceEdge(
+            modality=decoded["modality"],
+            edge_id=decoded["edge_id"],
+            status=decoded["status"],
+            admissible_completions=tuple(
+                AdmissibleCompletion(
+                    completion_kind=item["completion_kind"],
+                    value=item["value"],
+                    reason=item["reason"],
+                )
+                for item in decoded["admissible_completions"]
+            ),
+            provenance=decoded["provenance"],
+            unit=decoded["unit"],
+            scale=decoded["scale"],
+            content_hash=decoded["content_hash"],
+        )
+        assert replayed.to_payload() == expected_payload
+
+    causal_quality = {
+        "design_quality_tiers": [2],
+        "publish_blockers": ["controlled_nonempirical_signal"],
+        "strong_design_evidence": {
+            "all": False,
+            "any": False,
+            "count": 0,
+            "share_pct": 0.0,
+        },
+    }
+    causal_row = (
+        "controlled-causal-edge",
+        "controlled-policy",
+        "controlled-outcome",
+        "positive",
+        2,
+        "meta_analysis",
+        0.55,
+        "candidate",
+        json.dumps(causal_quality, sort_keys=True),
+    )
+    causal_edge = _derive_l2_causal_edge(
+        causal_row,
+        version="controlled-v1",
+        variable_names={"controlled-policy", "controlled-outcome"},
+        approved_variables={"controlled-policy", "controlled-outcome"},
+        contested_edges={},
+    )
+    causal_value = {
+        "direction": "positive",
+        "dst": "controlled-outcome",
+        "src": "controlled-policy",
+    }
+    causal_core = {
+        "admissible_completions": [
+            {
+                "completion_kind": "alternative",
+                "reason": "edge_candidate_supported",
+                "value": causal_value,
+            },
+            {
+                "completion_kind": "may_not_exist",
+                "reason": "edge_quality_not_decisive",
+                "value": causal_value,
+            },
+        ],
+        "edge_id": "controlled-causal-edge",
+        "modality": "L2_CAUSAL_EDGE",
+        "provenance": {
+            "owner": "L2",
+            "source": "ac_skg_edges",
+            "version": "controlled-v1",
+            "signals": {
+                "candidate_layer": "candidate",
+                "confidence": 0.55,
+                "design_quality_tiers": [2],
+                "edge_in_contested_membership": False,
+                "evidence_strength": "meta_analysis",
+                "n_articles": 2,
+                "publish_blockers": ["controlled_nonempirical_signal"],
+                "strong_design_evidence": {
+                    "all": False,
+                    "any": False,
+                    "count": 0,
+                    "share_pct": 0.0,
+                },
+            },
+        },
+        "scale": None,
+        "status": "contested",
+        "unit": None,
+    }
+    assert_wire_roundtrip(causal_edge, causal_core)
+
+    family_quality = {
+        "conflict_flag": False,
+        "direction_agreement": 0.7,
+        "exact_edge_count": 1,
+        "exact_edge_ids": ["controlled-family-edge"],
+        "n_unique_claims": 2,
+        "n_unique_works": 2,
+    }
+    family_row = (
+        "controlled-family-edge",
+        "controlled-policy",
+        "controlled-outcome",
+        "positive",
+        3,
+        2,
+        "observational",
+        0.6,
+        '{"positive":2}',
+        '{"2":2}',
+        "family",
+        json.dumps(family_quality, sort_keys=True),
+    )
+    family_edge = _derive_l2_family_edge(
+        family_row,
+        version="controlled-v1",
+        variable_names={"controlled-policy", "controlled-outcome"},
+        contested_edges={},
+    )
+    family_value = {
+        "direction": "positive",
+        "dst": "controlled-outcome",
+        "src": "controlled-policy",
+    }
+    family_core = {
+        "admissible_completions": [
+            {
+                "completion_kind": "alternative",
+                "reason": "family_edge_candidate_supported",
+                "value": family_value,
+            },
+            {
+                "completion_kind": "may_not_exist",
+                "reason": "family_edge_quality_not_decisive",
+                "value": family_value,
+            },
+        ],
+        "edge_id": "controlled-family-edge",
+        "modality": "L2_FAMILY_EDGE",
+        "provenance": {
+            "owner": "L2",
+            "source": "ac_skg_family_edges",
+            "version": "controlled-v1",
+            "signals": {
+                "candidate_layer": "family",
+                "confidence": 0.6,
+                "design_tier_histogram": {"2": 2},
+                "direction_agreement": 0.7,
+                "edge_in_contested_membership": False,
+                "evidence_strength": "observational",
+                "n_articles": 3,
+                "n_claims": 2,
+                "quality_signals": family_quality,
+            },
+        },
+        "scale": None,
+        "status": "contested",
+        "unit": None,
+    }
+    assert_wire_roundtrip(family_edge, family_core)
+
+
+def test_credal_controlled_certificate_stales_after_source_content_repair() -> None:
+    profile = _selected_l2_profile_fixture()
+    seed = _profiled_l2_reference(profile)
+    baseline = _r1219_controlled_reference(
+        tuple(seed.essential_edges.values()),
+        profile=profile,
+        as_of=seed.as_of,
+    )
+    contested = baseline.essential_edges[("L2_CAUSAL_EDGE", "edge-a")]
+    certificate = bind_grounding_certificate_reference(
+        baseline,
+        certificate_id="r1219-controlled-certificate",
+        edge_scope=(contested.key,),
+    )
+    repaired = CredalReferenceEdge(
+        modality=contested.modality,
+        edge_id=contested.edge_id,
+        status="confirmed",
+        admissible_completions=(
+            AdmissibleCompletion(
+                "fixed",
+                {"controlled_revision": "candidate-v2"},
+                "controlled_source_repair",
+            ),
+        ),
+        provenance={**dict(contested.provenance), "controlled_revision": "candidate-v2"},
+        unit=contested.unit,
+        scale=contested.scale,
+    ).with_content_hash()
+    current_edges = tuple(
+        repaired if edge.key == repaired.key else edge for edge in baseline.essential_edges.values()
+    )
+    current = _r1219_controlled_reference(
+        current_edges,
+        profile=profile,
+        as_of=baseline.as_of,
+    )
+    staleness = reference_certificate_staleness(certificate, current)
+
+    assert credal_reference_l2_source_profile(baseline) == profile
+    assert credal_reference_l2_source_profile(current) == profile
+    assert profile.source_snapshot_authenticity == "not_established"
+    assert profile.currentness_status == "not_established"
+    assert current.reference_hash != baseline.reference_hash
+    assert current.reference_epoch != baseline.reference_epoch
+    assert staleness.status == "stale"
+    assert "reference_epoch_changed" in staleness.reasons
+    assert "reference_hash_changed" in staleness.reasons
+    assert "scoped_edge_hash_changed" in staleness.reasons
+    assert staleness.stale_edge_keys == (f"{contested.modality}::{contested.edge_id}",)
+
+
+def test_credal_production_default_vintage_refusal_constructs_no_source_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+
+    controlled_profile = _selected_l2_profile_fixture()
+    controlled = _profiled_l2_reference(controlled_profile)
+    assert credal_reference_l2_source_profile(controlled) == controlled_profile
+    assert controlled_profile.authority_band == "candidate"
+    assert controlled_profile.source_snapshot_authenticity == "not_established"
+    assert controlled_profile.currentness_status == "not_established"
+
+    profile_validations: list[object] = []
+    original_model_validate = owner.CredalReferenceSourceProfile.model_validate
+
+    def profile_validation_spy(
+        _cls: type[CredalReferenceSourceProfile],
+        value: object,
+        *args: object,
+        **kwargs: object,
+    ) -> CredalReferenceSourceProfile:
+        profile_validations.append(value)
+        return original_model_validate(value, *args, **kwargs)
+
+    monkeypatch.setattr(
+        owner.CredalReferenceSourceProfile,
+        "model_validate",
+        classmethod(profile_validation_spy),
+    )
+    with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+        owner.build_credal_reference(REPO_ROOT)
+    assert profile_validations == []

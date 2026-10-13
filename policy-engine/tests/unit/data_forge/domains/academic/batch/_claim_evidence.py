@@ -16,6 +16,7 @@ from polisyos.core.artifacts import (
     ProducerInfo,
     PutOptions,
     SchemaInfo,
+    WarningRecord,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -61,18 +62,28 @@ def signed_receipt(store, payload, key, *, version="v2"):
 
 
 def selected_manifest_view(
-    store: FileSystemCAS, ref: ArtifactRef, *, producer_component: str
+    store: FileSystemCAS, ref: ArtifactRef, *, warning_code: str
 ) -> ArtifactRef:
-    """Write identical CAS bytes under a different selected manifest profile."""
+    """Vary only a warning while preserving the original selected-source metadata."""
     manifest = store.get_manifest(ref)
     selected = store.put_bytes(
         store.get_bytes(ref),
         PutOptions(
-            kind=ref.kind,
-            media_type=ref.media_type,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
             schema=manifest.artifact_schema,
-            producer=ProducerInfo(component=producer_component, version="1.0.0"),
+            producer=manifest.producer,
+            env=manifest.env,
             inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=[
+                *manifest.warnings,
+                WarningRecord(code=warning_code, msg="test-only alternate profile view"),
+            ],
         ),
         return_selected_profile=True,
     )
@@ -80,6 +91,22 @@ def selected_manifest_view(
     assert selected.manifest_profile_sha256 is not None
     assert selected.manifest_profile_sha256 != ref.manifest_profile_sha256
     assert store.get_bytes(selected) == store.get_bytes(ref)
+    selected_manifest = store.get_manifest(selected)
+    for field in (
+        "kind",
+        "media_type",
+        "artifact_schema",
+        "producer",
+        "env",
+        "inputs",
+        "canon",
+        "governance",
+        "tenant_context",
+        "same_input_closure",
+        "authority",
+    ):
+        assert getattr(selected_manifest, field) == getattr(manifest, field)
+    assert selected_manifest.warnings[:-1] == manifest.warnings
     return selected
 
 

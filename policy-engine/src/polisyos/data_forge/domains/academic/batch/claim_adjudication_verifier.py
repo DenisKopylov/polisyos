@@ -237,16 +237,172 @@ class _ClaimChampionEnvelope(_Strict):
         return self
 
 
-def _validate_predecessor(basis: _PromotionBasis) -> dict[str, Any] | None:
-    if basis.previous_pointer is not None:
-        predecessor = basis.previous_pointer
-        policy = claim_promotion_policy()
-        if predecessor.get("loop_id") != "claim_adjudication" or predecessor.get("metadata") != {
-            "promoted_by_policy": policy,
-            "compare_split": policy["compare_split"],
-        }:
-            raise ValueError("claim_adjudication_predecessor_policy_unverified")
-    return basis.previous_pointer
+def _validate_predecessor(
+    basis: _PromotionBasis,
+    *,
+    store: artifacts.FileSystemCAS | None = None,
+) -> dict[str, Any] | None:
+    if basis.previous_pointer is None:
+        return None
+    predecessor = basis.previous_pointer
+    policy = claim_promotion_policy()
+    metadata = predecessor.get("metadata")
+    expected_metadata_keys = {
+        "promoted_by_policy",
+        "compare_split",
+        "suite_id",
+        "suite_ref",
+    }
+    if (
+        predecessor.get("loop_id") != "claim_adjudication"
+        or not isinstance(metadata, dict)
+        or set(metadata) != expected_metadata_keys
+        or metadata.get("promoted_by_policy") != policy
+        or metadata.get("compare_split") != policy["compare_split"]
+        or not isinstance(metadata.get("suite_id"), str)
+        or not metadata["suite_id"].strip()
+    ):
+        raise ValueError("claim_adjudication_predecessor_policy_unverified")
+    try:
+        suite_ref = artifacts.ArtifactRef.model_validate(metadata["suite_ref"])
+    except (TypeError, ValueError) as exc:
+        raise ValueError("claim_adjudication_predecessor_policy_unverified") from exc
+    if (
+        suite_ref.kind != "scientist.autotune.claim_adjudication.suite"
+        or suite_ref.media_type != "application/json"
+    ):
+        raise ValueError("claim_adjudication_predecessor_policy_unverified")
+    if store is None:
+        # Registry.get is a history/diagnostic surface. It may preserve an old
+        # profileless predecessor, but that value cannot enter protected use.
+        return predecessor
+
+    try:
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        candidate_ref = require_selected_artifact_ref(
+            artifacts.ArtifactRef.model_validate(predecessor.get("candidate_ref")),
+            field="predecessor_candidate",
+        )
+        evaluation_ref = require_selected_artifact_ref(
+            artifacts.ArtifactRef.model_validate(predecessor.get("evaluation_ref")),
+            field="predecessor_evaluation",
+        )
+        suite_ref = require_selected_artifact_ref(suite_ref, field="predecessor_benchmark_suite")
+
+        def selected_manifest(ref: artifacts.ArtifactRef) -> artifacts.ArtifactManifest:
+            manifest = store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+            resolved_ref = artifacts.artifact_ref_for_manifest(manifest)
+            if not same_selected_artifact_ref(resolved_ref, ref):
+                raise ValueError("claim_adjudication_predecessor_selected_ref_mismatch")
+            return manifest
+
+        candidate_manifest = selected_manifest(candidate_ref)
+        evaluation_manifest = selected_manifest(evaluation_ref)
+        suite_manifest = selected_manifest(suite_ref)
+        if (
+            suite_manifest.kind != "scientist.autotune.claim_adjudication.suite"
+            or suite_manifest.media_type != "application/json"
+            or suite_manifest.producer is None
+            or str(suite_manifest.producer.component)
+            != "polisyos.scientist.methods.autotune.benchmark_suite"
+            or suite_manifest.artifact_schema is None
+            or suite_manifest.artifact_schema.name
+            != "polisyos.scientist.methods.autotune.BenchmarkSuite"
+        ):
+            raise ValueError("claim_adjudication_predecessor_suite_provenance_mismatch")
+        if (
+            candidate_manifest.kind != "scientist.autotune.claim_adjudication.candidate"
+            or candidate_manifest.media_type != "application/json"
+            or candidate_manifest.producer is None
+            or str(candidate_manifest.producer.component)
+            != "polisyos.scientist.methods.autotune.mutation_artifact"
+            or candidate_manifest.artifact_schema is None
+            or not candidate_manifest.artifact_schema.name.startswith(
+                "polisyos.scientist.methods.autotune."
+            )
+        ):
+            raise ValueError("claim_adjudication_predecessor_candidate_provenance_mismatch")
+        if (
+            evaluation_manifest.kind != "scientist.autotune.claim_adjudication.evaluation"
+            or evaluation_manifest.media_type != "application/json"
+            or evaluation_manifest.producer is None
+            or str(evaluation_manifest.producer.component)
+            != "polisyos.scientist.methods.autotune.benchmark_evaluator"
+            or evaluation_manifest.artifact_schema is None
+            or evaluation_manifest.artifact_schema.name
+            != "polisyos.scientist.methods.autotune.BenchmarkEvaluation"
+        ):
+            raise ValueError("claim_adjudication_predecessor_evaluation_provenance_mismatch")
+
+        candidate_payload = load_core_json_artifact(store, candidate_ref)
+        evaluation_payload = load_core_json_artifact(store, evaluation_ref)
+        suite_payload = load_core_json_artifact(store, suite_ref)
+        if (
+            not isinstance(candidate_payload, dict)
+            or candidate_payload.get("loop_id") != "claim_adjudication"
+            or not isinstance(candidate_payload.get("artifact_version"), str)
+            or candidate_manifest.artifact_schema.version
+            != candidate_payload.get("artifact_version")
+            or predecessor.get("search_space_version")
+            != candidate_payload.get("search_space_version")
+        ):
+            raise ValueError("claim_adjudication_predecessor_candidate_payload_mismatch")
+        reserved_candidate_fields = {
+            "loop_id",
+            "artifact_version",
+            "search_space_version",
+            "notes",
+            "prompt_variants",
+        }
+        ClaimAdjudicationRules.model_validate(
+            {
+                key: value
+                for key, value in candidate_payload.items()
+                if key not in reserved_candidate_fields
+            }
+        )
+        if (
+            not isinstance(suite_payload, dict)
+            or suite_payload.get("suite_id") != metadata["suite_id"]
+            or suite_payload.get("suite_version") != predecessor.get("suite_version")
+            or suite_manifest.artifact_schema.version != predecessor.get("suite_version")
+        ):
+            raise ValueError("claim_adjudication_predecessor_suite_payload_mismatch")
+        if (
+            not isinstance(evaluation_payload, dict)
+            or evaluation_payload.get("loop_id") != "claim_adjudication"
+            or evaluation_payload.get("suite_id") != metadata["suite_id"]
+            or evaluation_payload.get("suite_version") != predecessor.get("suite_version")
+            or evaluation_manifest.artifact_schema.version != predecessor.get("suite_version")
+        ):
+            raise ValueError("claim_adjudication_predecessor_evaluation_payload_mismatch")
+        evaluation_candidate_ref = artifacts.ArtifactRef.model_validate(
+            evaluation_payload.get("candidate_ref")
+        )
+        if not same_selected_artifact_ref(evaluation_candidate_ref, candidate_ref):
+            raise ValueError("claim_adjudication_predecessor_evaluation_candidate_mismatch")
+        expected_metrics = evaluation_payload.get(f"{policy['compare_split']}_metrics")
+        if not isinstance(expected_metrics, dict) or predecessor.get("metrics") != expected_metrics:
+            raise ValueError("claim_adjudication_predecessor_metrics_mismatch")
+        candidate_suite_ref = _selected_role_ref(
+            store, candidate_manifest.inputs, "benchmark_suite"
+        )
+        evaluation_suite_ref = _selected_role_ref(
+            store, evaluation_manifest.inputs, "benchmark_suite"
+        )
+        evaluation_candidate_edge = _selected_role_ref(
+            store, evaluation_manifest.inputs, "candidate"
+        )
+        if (
+            not same_selected_artifact_ref(candidate_suite_ref, suite_ref)
+            or not same_selected_artifact_ref(evaluation_suite_ref, suite_ref)
+            or not same_selected_artifact_ref(evaluation_candidate_edge, candidate_ref)
+        ):
+            raise ValueError("claim_adjudication_predecessor_manifest_lineage_mismatch")
+    except Exception as exc:
+        raise ValueError("claim_adjudication_predecessor_source_unverified") from exc
+    return predecessor
 
 
 def _read_claim_champion_document(
@@ -270,8 +426,10 @@ def _read_claim_champion_document(
 def read_claim_promotion_predecessor(
     registry_root: Path,
     current_pointer: dict[str, Any],
+    *,
+    store: artifacts.FileSystemCAS | None = None,
 ) -> dict[str, Any] | None:
-    """Resolve new atomic envelopes or a matching historical sidecar basis."""
+    """Read one predecessor as history or resolve it for protected use."""
     stored_pointer, embedded_basis = _read_claim_champion_document(registry_root)
     if embedded_basis is not None:
         if stored_pointer != current_pointer:
@@ -284,7 +442,7 @@ def read_claim_promotion_predecessor(
         basis = _PromotionBasis.model_validate_json(path.read_bytes())
         if basis.current_pointer_sha256 != _pointer_hash(current_pointer):
             raise ValueError("claim_adjudication_promotion_basis_pointer_mismatch")
-    return _validate_predecessor(basis)
+    return _validate_predecessor(basis, store=store)
 
 
 class ClaimAdjudicationVerifier:
@@ -460,7 +618,9 @@ class ClaimAdjudicationVerifier:
             pointer = document
         if not isinstance(pointer, dict):
             raise ValueError("claim_adjudication_champion_pointer_invalid")
-        predecessor = read_claim_promotion_predecessor(self._registry_root, pointer)
+        predecessor = read_claim_promotion_predecessor(
+            self._registry_root, pointer, store=self._store
+        )
         if _pointer_hash(pointer) != receipt.champion_pointer_sha256:
             raise ValueError("claim_adjudication_champion_replay_mismatch")
         try:

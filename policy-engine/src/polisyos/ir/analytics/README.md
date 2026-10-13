@@ -221,3 +221,26 @@ currentness; the report schema and public exports remain unchanged.
 ## Transport proof purpose and review grade
 
 `proof_bundle_from_transportability_result()` is the shared result-to-proof projection. It preserves the typed transport status and carries a `TransportabilityProofReviewGrade`. A scoped Y0 direct operation remains an identified mathematical candidate with unresolved source-data predicates and `review_required`; every other result is `unknown` until a source-resolved, content-bound, verifier-provenance basis is available. Native and simplified backend labels alone do not produce `NO_ADDITIONAL_REVIEW` or clear the protected pass. The projection keeps an identified theorem/AST visible but marks the candidate `sound_incomplete`; it does not establish data authority. The ProofBundle schema remains unchanged while the typed purpose and migration semantics are considered in the open G decision packet.
+
+## ABM execution-source projection
+
+The candidate Core-to-IR bridge preserves `execution_input_basis_ref` and
+`execution_source_status` from the complete `SimulationResult` JSON payload.
+The IR reference has its own neutral type and retains artifact ID, kind, media
+type, and selected manifest profile. A basis ref is not a source admission or
+authority receipt. Current strict readers accept the historical missing fields
+as `None` / `not_recorded`; they validate the copied Core 1.4 status/basis/feedback
+constraints when those fields are present.
+
+Three existing version coordinates remain distinct in this candidate: the
+payload `schema_version` is copied from Core, the IR reflection default is 1.3,
+and `persist_abm_result` still uses the outer `ir.abm_result` artifact schema 1.0.
+The typed projection repairs conversion; it does not adjudicate those version
+namespaces. Old strict readers may reject the extra fields. Upgrade readers
+before emitting those fields into their persisted input stream, preserve
+historical bytes, and regenerate and inspect ABI snapshots/catalogs.
+
+The publication alternatives and required independent G decision are recorded in
+[the E02 ABM version packet](../../../../docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r1237-abm-version-namespace-and-reader-migration-proposal-20261013.md).
+This candidate is not a declaration of production rollout or a completed
+compatibility window.

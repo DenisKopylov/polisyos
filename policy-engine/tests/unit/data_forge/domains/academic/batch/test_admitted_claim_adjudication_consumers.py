@@ -243,13 +243,11 @@ def test_fresh_consumer_rejects_same_id_candidate_with_other_selected_profile(tm
     alternate = selected_manifest_view(
         store,
         evidence.candidate_ref,
-        producer_component="tests.claim_adjudication.alternate-result-candidate-view",
+        warning_code="tests.claim_adjudication.alternate-result-candidate-view",
     )
     bad = persist_batch(evidence, candidate_ref=alternate)
     assert bad.artifact_id == good.artifact_id
     assert bad.manifest_profile_sha256 != good.manifest_profile_sha256
-    with pytest.raises(
-        ValueError, match=r"champion_binding_mismatch|observation_candidate_mismatch"
-    ):
+    with pytest.raises(ValueError, match=r"execution_receipt_binding_mismatch"):
         materialize_claim_adjudication_result(config, bad, store=store, verifier=evidence.verifier)
     assert not config.claim_adjudication_result_ref_path.exists()

@@ -1212,14 +1212,17 @@ def test_fts_text_captures_mutable_bytes_fallback_before_hash_and_cache_use() ->
 
 def test_zero_hit_query_can_claim_coverage_only_after_full_index_build() -> None:
     engine = _engine()
-    parsed = _empty_hypothesis_proposal("token-absent-from-every-source-edge")
+    query = "qzxvlymno"
+    parsed = _empty_hypothesis_proposal(query)
     candidates = engine.retrieve_candidates(parsed, include_adversarial_countercandidates=False)
 
     assert engine._fts_index is not None
     assert engine._fts_index.reference_edge_set_complete is True
     assert engine._fts_index.indexed_edge_count == len(engine.reference.essential_edges)
-    assert candidates
-    assert len(candidates) < len(engine.reference_atoms)
+    assert engine._fts_index.search(query, limit=80) == []
+    assert len(candidates) == 1
+    assert candidates[0].atom_id == engine.reference_atoms[0].atom_id
+    assert candidates[0].retrieval_reasons == ("coverage_floor_full_reference_seen",)
 
     certificate = engine._certificate_for_parsed(parsed, candidates)
     coverage = certificate.relation_set["known_space_coverage"]

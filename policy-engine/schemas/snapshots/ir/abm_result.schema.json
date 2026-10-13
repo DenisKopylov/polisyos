@@ -490,6 +490,45 @@
       "title": "_ABMExecPlanArtifactRef",
       "type": "object"
     },
+    "_ABMExecutionInputBasisArtifactRef": {
+      "additionalProperties": false,
+      "description": "Neutral typed reference to the exact single-step Foundry input basis.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "foundry.execution_input_basis",
+          "default": "foundry.execution_input_basis",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Profile Sha256"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id"
+      ],
+      "title": "_ABMExecutionInputBasisArtifactRef",
+      "type": "object"
+    },
     "_ABMFeedbackResultArtifactRef": {
       "additionalProperties": false,
       "description": "Neutral typed reference to a Foundry feedback result.",
@@ -814,6 +853,27 @@
     },
     "exec_plan_ref": {
       "$ref": "#/$defs/_ABMExecPlanArtifactRef"
+    },
+    "execution_input_basis_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/_ABMExecutionInputBasisArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "execution_source_status": {
+      "default": "not_recorded",
+      "enum": [
+        "not_recorded",
+        "single_step_basis",
+        "feedback_uncomposed"
+      ],
+      "title": "Execution Source Status",
+      "type": "string"
     },
     "fairness_audit_report_ref": {
       "anyOf": [

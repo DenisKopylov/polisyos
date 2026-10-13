@@ -36,6 +36,7 @@ _TYPED_SIMULATION_REF_KINDS = (
     ("metric_validation_report_ref", None, "scientist.metric_validation_report"),
     ("fairness_audit_report_ref", None, "scientist.fairness_audit_report"),
     ("feedback_result_ref", None, "foundry.feedback_result"),
+    ("execution_input_basis_ref", None, "foundry.execution_input_basis"),
     ("identifiability_diagnostic_ref", None, "foundry.identifiability_diagnostic"),
 )
 
@@ -75,6 +76,8 @@ def _fully_populated_simulation_payload() -> dict[str, object]:
         "propagation_config_ref": _ref("c", "foundry.propagation_config"),
         "propagation_report_ref": _ref("d", "foundry.propagation_report"),
         "feedback_result_ref": _ref("e", "foundry.feedback_result"),
+        "execution_input_basis_ref": None,
+        "execution_source_status": "not_recorded",
         "identifiability_diagnostic_ref": _ref("f", "foundry.identifiability_diagnostic"),
         "notes": ["fully_populated_core_result"],
     }
@@ -157,6 +160,78 @@ def test_core_simulation_conversion_rejects_malformed_or_incomplete_payload(
 
 
 @pytest.mark.parametrize(
+    ("updates", "expected_message"),
+    [
+        ({"execution_source_status": "invented_status"}, "execution_source_status"),
+        (
+            {
+                "schema_version": "1.4",
+                "execution_source_status": "single_step_basis",
+                "execution_input_basis_ref": None,
+                "feedback_result_ref": None,
+            },
+            "single_step_source_basis_requires_basis_without_feedback",
+        ),
+        (
+            {
+                "schema_version": "1.4",
+                "execution_source_status": "not_recorded",
+                "execution_input_basis_ref": _ref("g", "foundry.execution_input_basis"),
+            },
+            "execution_basis_ref_requires_single_step_status",
+        ),
+        (
+            {
+                "schema_version": "1.4",
+                "execution_source_status": "feedback_uncomposed",
+                "execution_input_basis_ref": None,
+                "feedback_result_ref": None,
+            },
+            "feedback_source_status_requires_feedback_without_basis",
+        ),
+        (
+            {
+                "schema_version": "1.3",
+                "execution_source_status": "single_step_basis",
+                "execution_input_basis_ref": _ref("g", "foundry.execution_input_basis"),
+            },
+            "execution_basis_ref_requires_simulation_result_schema_1_4",
+        ),
+        (
+            {
+                "schema_version": "1.4",
+                "execution_source_status": "single_step_basis",
+                "execution_input_basis_ref": _ref("g", "foundry.exec_plan"),
+                "feedback_result_ref": None,
+            },
+            "kind",
+        ),
+        (
+            {
+                "schema_version": "1.4",
+                "execution_source_status": "single_step_basis",
+                "execution_input_basis_ref": _ref(
+                    "g", "foundry.execution_input_basis", media_type="application/jsonl"
+                ),
+                "feedback_result_ref": None,
+            },
+            "media_type",
+        ),
+    ],
+)
+def test_abm_source_basis_rejects_malformed_status_and_ref_scope(
+    updates: dict[str, object], expected_message: str
+) -> None:
+    payload = deepcopy(_fully_populated_simulation_payload())
+    payload.update(updates)
+
+    with pytest.raises(ValidationError) as exc_info:
+        ABMResult.model_validate(payload)
+
+    assert expected_message in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
     ("field_name", "mapping_key", "expected_kind"),
     _TYPED_SIMULATION_REF_KINDS,
 )
@@ -171,11 +246,21 @@ def test_core_simulation_conversion_rejects_every_swapped_typed_ref_kind(
         "environment_fingerprint",
         "propagation_config_ref",
         "propagation_report_ref",
+        "execution_source_status",
         "notes",
     }
     kinds = [kind for _, _, kind in _TYPED_SIMULATION_REF_KINDS]
     swapped_kind = kinds[(kinds.index(expected_kind) + 1) % len(kinds)]
     payload = deepcopy(_fully_populated_simulation_payload())
+    if field_name == "execution_input_basis_ref":
+        payload.update(
+            {
+                "schema_version": "1.4",
+                "execution_input_basis_ref": _ref("g", "foundry.execution_input_basis"),
+                "execution_source_status": "single_step_basis",
+                "feedback_result_ref": None,
+            }
+        )
     ref_payload = payload[field_name]
     if mapping_key is not None:
         assert isinstance(ref_payload, dict)
@@ -205,10 +290,31 @@ def test_core_simulation_conversion_rejects_swapped_override_ref_kind(
         build_abm_result_from_simulation(simulation, **{override_name: override})
 
 
+@pytest.mark.parametrize(
+    ("schema_version", "source_status", "basis_ref", "feedback_ref"),
+    [
+        ("1.3", "not_recorded", None, _ref("e", "foundry.feedback_result")),
+        ("1.4", "single_step_basis", _ref("g", "foundry.execution_input_basis"), None),
+        ("1.4", "feedback_uncomposed", None, _ref("e", "foundry.feedback_result")),
+    ],
+)
 def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence(
     tmp_path,
+    schema_version: str,
+    source_status: str,
+    basis_ref: dict[str, str] | None,
+    feedback_ref: dict[str, str] | None,
 ) -> None:
-    simulation = SimulationResult.model_validate(_fully_populated_simulation_payload())
+    payload = _fully_populated_simulation_payload()
+    payload.update(
+        {
+            "schema_version": schema_version,
+            "execution_input_basis_ref": basis_ref,
+            "execution_source_status": source_status,
+            "feedback_result_ref": feedback_ref,
+        }
+    )
+    simulation = SimulationResult.model_validate(payload)
     result = build_abm_result_from_simulation(
         simulation,
         attractor_analysis_ref=_ref("a", "foundry.attractor_analysis_result"),
@@ -229,6 +335,24 @@ def test_fully_populated_core_result_converts_and_persists_with_wire_equivalence
     assert type(result.exec_plan_ref) is not type(simulation.exec_plan_ref)
     assert type(result.metrics_ref) is not type(simulation.metrics_ref)
     assert type(result.state_snapshot_ref) is not type(simulation.state_snapshot_ref)
+    assert result.execution_source_status == source_status
+    if result.execution_input_basis_ref is None or simulation.execution_input_basis_ref is None:
+        assert result.execution_input_basis_ref is simulation.execution_input_basis_ref
+    else:
+        assert (
+            str(result.execution_input_basis_ref.artifact_id),
+            result.execution_input_basis_ref.kind,
+            result.execution_input_basis_ref.media_type,
+            result.execution_input_basis_ref.manifest_profile_sha256,
+        ) == (
+            str(simulation.execution_input_basis_ref.artifact_id),
+            simulation.execution_input_basis_ref.kind,
+            simulation.execution_input_basis_ref.media_type,
+            simulation.execution_input_basis_ref.manifest_profile_sha256,
+        )
+        assert type(result.execution_input_basis_ref) is not type(
+            simulation.execution_input_basis_ref
+        )
     assert result.identifiability_certificate is not None
     assert result.identifiability_certificate.diagnostic_ref is not None
     assert result.bifurcation_report is not None

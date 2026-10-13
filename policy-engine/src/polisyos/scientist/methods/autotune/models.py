@@ -840,6 +840,12 @@ def _benchmark_evaluation_input_refs(
             raise ValueError(f"benchmark_evaluation_input_binding_mismatch:{role}")
         if protected and existing != expected:
             raise ValueError(f"claim_adjudication_input_profile_mismatch:{role}")
+        if (
+            existing.manifest_profile_sha256 is not None
+            and expected.manifest_profile_sha256 is not None
+            and existing.manifest_profile_sha256 != expected.manifest_profile_sha256
+        ):
+            raise ValueError(f"benchmark_evaluation_input_profile_mismatch:{role}")
         if expected.manifest_profile_sha256 is not None:
             merged[index] = expected
 

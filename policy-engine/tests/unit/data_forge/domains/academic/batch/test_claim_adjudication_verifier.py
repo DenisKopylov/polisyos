@@ -164,7 +164,10 @@ async def test_self_issued_or_incoherent_evidence_is_refused_at_both_intakes(
         )
     elif corruption == "missing_observation":
         observation_ref = put(f.store, {**f.observations, "cases": []})
-        payload = {**f.benchmark_payload, "observations_ref": str(observation_ref.artifact_id)}
+        payload = {
+            **f.benchmark_payload,
+            "observations_ref": observation_ref.model_dump(mode="json"),
+        }
         f.evaluation_receipt_ref = signed_receipt(f.store, payload, f.key)
     elif corruption == "champion":
         pointer = f.registry.get("claim_adjudication")
@@ -314,7 +317,7 @@ def test_retained_promotion_basis_requires_actual_incumbent_observations(tmp_pat
     successor_pointer = successor.registry.get("claim_adjudication")
     assert successor_pointer is not None
     predecessor = read_claim_promotion_predecessor(
-        tmp_path / "registry", successor_pointer.model_dump(mode="json")
+        tmp_path / "registry", successor_pointer.model_dump(mode="json"), store=store
     )
     assert predecessor is not None
     assert predecessor["metadata"]["promoted_by_policy"] == claim_promotion_policy()
@@ -333,6 +336,202 @@ def test_retained_promotion_basis_requires_actual_incumbent_observations(tmp_pat
         successor.key,
     )
     assert successor.verifier.replay_champion(receipt)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "profileless_suite_history",
+        "unavailable_suite_profile",
+        "alternate_suite_profile",
+        "suite_payload_conflict",
+        "candidate_suite_edge_mismatch",
+        "evaluation_candidate_mismatch",
+    ],
+)
+def test_protected_predecessor_requires_resolved_selected_source_chain(tmp_path, mutation):
+    """Protected consumers resolve every immediate predecessor source through the CAS."""
+    from polisyos.scientist.methods.autotune import BenchmarkSuite, persist_benchmark_suite
+    from polisyos.scientist.methods.autotune.claim_adjudication import (
+        ClaimAdjudicationSearchConfig,
+        default_claim_adjudication_promotion_policy,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry_root = tmp_path / "registry"
+    registry = ChampionRegistry(root=registry_root, store=store)
+    _, raw_ref = _input_ref(tmp_path, store)
+    first = evidence_fixture(
+        store,
+        registry,
+        registry_root,
+        raw_ref,
+        benchmark_gold_positive=False,
+        candidate_note="predecessor-source-first",
+    )
+    successor = evidence_fixture(
+        store,
+        registry,
+        registry_root,
+        raw_ref,
+        benchmark_gold_positive=False,
+        benchmark_prediction_positive=False,
+        candidate_note="predecessor-source-successor",
+    )
+    state_path = registry_root / "claim_adjudication" / "champion.json"
+    document = json.loads(state_path.read_text(encoding="utf-8"))
+    predecessor = document["promotion_basis"]["previous_pointer"]
+    selected_suite = predecessor["metadata"]["suite_ref"]
+
+    if mutation == "profileless_suite_history":
+        selected_suite["manifest_profile_sha256"] = None
+    elif mutation == "unavailable_suite_profile":
+        selected_suite["manifest_profile_sha256"] = "sha256:" + "0" * 64
+    elif mutation == "alternate_suite_profile":
+        alternate = selected_manifest_view(
+            store,
+            first.suite_ref,
+            warning_code="tests.claim_adjudication.alternate-predecessor-suite",
+        )
+        predecessor["metadata"]["suite_ref"] = alternate.model_dump(mode="json")
+    elif mutation == "suite_payload_conflict":
+        conflicting_suite = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="different_claim_suite",
+                suite_version="1.0",
+                kind="claim_adjudication",
+            ),
+            return_selected_profile=True,
+        )
+        predecessor["metadata"]["suite_ref"] = conflicting_suite.model_dump(mode="json")
+    elif mutation == "candidate_suite_edge_mismatch":
+        # Keep payload and evaluation bindings valid while changing only the
+        # candidate manifest's selected benchmark-suite edge.
+        alternate_suite = selected_manifest_view(
+            store,
+            first.suite_ref,
+            warning_code="tests.claim_adjudication.alternate-predecessor-suite-edge",
+        )
+        candidate_payload = ClaimAdjudicationSearchConfig.model_validate_json(
+            store.get_bytes(first.candidate_ref)
+        )
+        alternate_candidate_ref = persist_mutation_artifact(
+            store,
+            candidate_payload,
+            inputs=[input_ref_from_artifact_ref(alternate_suite, role="benchmark_suite")],
+            return_selected_profile=True,
+        )
+        assert alternate_candidate_ref is not None
+        assert alternate_candidate_ref.artifact_id == first.candidate_ref.artifact_id
+        assert (
+            alternate_candidate_ref.manifest_profile_sha256
+            != first.candidate_ref.manifest_profile_sha256
+        )
+        assert store.get_bytes(alternate_candidate_ref) == store.get_bytes(first.candidate_ref)
+
+        original_evaluation = BenchmarkEvaluation.model_validate_json(
+            store.get_bytes(first.evaluation_ref)
+        )
+        alternate_evaluation_payload = {
+            **original_evaluation.model_dump(mode="json"),
+            "candidate_ref": alternate_candidate_ref.model_dump(mode="json"),
+        }
+        alternate_evaluation = BenchmarkEvaluation.model_validate(alternate_evaluation_payload)
+        assert alternate_evaluation.model_dump(
+            mode="json", exclude={"candidate_ref"}
+        ) == original_evaluation.model_dump(mode="json", exclude={"candidate_ref"})
+        alternate_evaluation_ref = persist_benchmark_evaluation(
+            store,
+            alternate_evaluation,
+            inputs=[
+                input_ref_from_artifact_ref(alternate_candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(first.suite_ref, role="benchmark_suite"),
+            ],
+            return_selected_profile=True,
+        )
+        assert alternate_evaluation_ref is not None
+        assert alternate_evaluation.candidate_ref == alternate_candidate_ref
+        assert alternate_evaluation.suite_id == predecessor["metadata"]["suite_id"]
+        assert alternate_evaluation.suite_version == predecessor["suite_version"]
+
+        candidate_manifest = store.get_manifest(alternate_candidate_ref)
+        original_candidate_manifest = store.get_manifest(first.candidate_ref)
+        evaluation_manifest = store.get_manifest(alternate_evaluation_ref)
+        original_evaluation_manifest = store.get_manifest(first.evaluation_ref)
+        assert candidate_manifest.kind == original_candidate_manifest.kind
+        assert candidate_manifest.media_type == original_candidate_manifest.media_type
+        assert candidate_manifest.producer == original_candidate_manifest.producer
+        assert candidate_manifest.artifact_schema == original_candidate_manifest.artifact_schema
+        assert evaluation_manifest.kind == original_evaluation_manifest.kind
+        assert evaluation_manifest.media_type == original_evaluation_manifest.media_type
+        assert evaluation_manifest.producer == original_evaluation_manifest.producer
+        assert evaluation_manifest.artifact_schema == original_evaluation_manifest.artifact_schema
+
+        alternate_suite_edge = input_ref_from_artifact_ref(alternate_suite, role="benchmark_suite")
+        predecessor_suite_edge = input_ref_from_artifact_ref(
+            first.suite_ref, role="benchmark_suite"
+        )
+        alternate_candidate_edge = input_ref_from_artifact_ref(
+            alternate_candidate_ref, role="candidate"
+        )
+        candidate_suite_edges = [
+            item for item in candidate_manifest.inputs if item.role == "benchmark_suite"
+        ]
+        evaluation_suite_edges = [
+            item for item in evaluation_manifest.inputs if item.role == "benchmark_suite"
+        ]
+        evaluation_candidate_edges = [
+            item for item in evaluation_manifest.inputs if item.role == "candidate"
+        ]
+        assert candidate_suite_edges == [alternate_suite_edge]
+        assert candidate_suite_edges != [predecessor_suite_edge]
+        assert evaluation_suite_edges == [predecessor_suite_edge]
+        assert evaluation_candidate_edges == [alternate_candidate_edge]
+        assert (
+            predecessor["metadata"]["suite_ref"]["manifest_profile_sha256"]
+            == first.suite_ref.manifest_profile_sha256
+        )
+        predecessor["candidate_ref"] = alternate_candidate_ref.model_dump(mode="json")
+        predecessor["evaluation_ref"] = alternate_evaluation_ref.model_dump(mode="json")
+    elif mutation == "evaluation_candidate_mismatch":
+        predecessor["evaluation_ref"] = successor.evaluation_ref.model_dump(mode="json")
+    else:
+        raise AssertionError(f"unknown predecessor mutation: {mutation}")
+
+    state_path.write_text(
+        json.dumps(document, sort_keys=True, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    mutated_bytes = state_path.read_bytes()
+    current = registry.get("claim_adjudication")
+    assert current is not None
+    assert (
+        read_claim_promotion_predecessor(registry_root, current.model_dump(mode="json")) is not None
+    )
+    with pytest.raises(ValueError, match="predecessor_source_unverified") as replay_error:
+        successor.verifier.replay_champion(successor.evaluation_receipt_ref)
+    if mutation == "candidate_suite_edge_mismatch":
+        assert isinstance(replay_error.value.__cause__, ValueError)
+        assert (
+            str(replay_error.value.__cause__)
+            == "claim_adjudication_predecessor_manifest_lineage_mismatch"
+        )
+    with pytest.raises(ValueError, match="predecessor_source_unverified") as promotion_error:
+        registry.consider_promotion(
+            "claim_adjudication",
+            successor.candidate_ref,
+            successor.evaluation_ref,
+            default_claim_adjudication_promotion_policy(),
+            suite_ref=successor.suite_ref,
+        )
+    if mutation == "candidate_suite_edge_mismatch":
+        assert isinstance(promotion_error.value.__cause__, ValueError)
+        assert (
+            str(promotion_error.value.__cause__)
+            == "claim_adjudication_predecessor_manifest_lineage_mismatch"
+        )
+    assert state_path.read_bytes() == mutated_bytes
 
 
 def test_legacy_pointer_has_no_inferred_genesis_and_manual_replacement_is_refused(tmp_path):
@@ -532,10 +731,14 @@ def test_same_id_alternate_candidate_profile_is_refused_by_full_claim_chain(tmp_
     alternate = selected_manifest_view(
         fixture.store,
         fixture.candidate_ref,
-        producer_component="tests.claim_adjudication.alternate-candidate-view",
+        warning_code="tests.claim_adjudication.alternate-candidate-view",
     )
     assert alternate.artifact_id == fixture.candidate_ref.artifact_id
     assert alternate.manifest_profile_sha256 != fixture.candidate_ref.manifest_profile_sha256
+    assert (
+        fixture.store.get_manifest(alternate).producer
+        == fixture.store.get_manifest(fixture.candidate_ref).producer
+    )
     payload = {**fixture.benchmark_payload, "candidate_ref": alternate.model_dump(mode="json")}
     receipt_ref = signed_receipt(fixture.store, payload, fixture.key)
     with pytest.raises(
@@ -563,7 +766,7 @@ def test_profileless_v1_signed_receipt_is_retained_as_history_but_refused(tmp_pa
         "candidate_ref": str(fixture.candidate_ref.artifact_id),
         "evaluation_ref": str(fixture.evaluation_ref.artifact_id),
         "benchmark_ref": str(fixture.appointment.benchmark_refs[0].artifact_id),
-        "observations_ref": str(fixture.store.put_json(fixture.observations).artifact_id),
+        "observations_ref": str(put(fixture.store, fixture.observations).artifact_id),
     }
     legacy.pop("raw_input_ref", None)
     legacy_ref = signed_receipt(fixture.store, legacy, fixture.key, version="v1")
@@ -582,10 +785,14 @@ def test_same_id_alternate_suite_profile_is_refused_by_complete_chain(tmp_path):
     alternate = selected_manifest_view(
         fixture.store,
         fixture.suite_ref,
-        producer_component="tests.claim_adjudication.alternate-suite-view",
+        warning_code="tests.claim_adjudication.alternate-suite-view",
     )
     assert alternate.artifact_id == fixture.suite_ref.artifact_id
     assert alternate.manifest_profile_sha256 != fixture.suite_ref.manifest_profile_sha256
+    assert (
+        fixture.store.get_manifest(alternate).producer
+        == fixture.store.get_manifest(fixture.suite_ref).producer
+    )
     payload = {
         **fixture.benchmark_payload,
         "benchmark_suite_ref": alternate.model_dump(mode="json"),

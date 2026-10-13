@@ -611,9 +611,7 @@ def _program_graph_plan(
 
 
 def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt() -> None:
-    request = _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
     result = JointSimulationHorizonController().run(request)
 
     assert request.horizon.steps() == (0,)
@@ -621,12 +619,19 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert result.world_credal_state_after == result.world_credal_state_before
     authority_blockers = result.promotion_ready_value_packet["authority_blockers"]
     assert "simulation_only_k_sim_not_world_evidence" in authority_blockers
-    assert "interaction_evidence_incomplete" in authority_blockers
-    assert "interaction_evidence_incomplete" in result.feedback_classification.limitations
+    assert "simulation_effect_basis_not_established" in authority_blockers
+    assert result.diagnostics["effect_basis_status"] == "not_established"
+    assert result.diagnostics["interaction_evidence_issues"] == []
+    assert result.diagnostics["interaction_sampling_issues"] == []
+    assert result.diagnostics["requested_replications"] == 1
+    assert len(result.diagnostics["replication_seeds"]) == 1
     assert result.feedback_classification.checked_interaction_orders == ()
-    assert "horizon_incomplete:requested_steps_uncovered" not in (
-        result.diagnostics["interaction_evidence_issues"]
+    assert result.feedback_classification.interaction_sampling_status == (
+        "standard_error_not_estimated"
     )
+    assert "standard_error_not_estimated" in authority_blockers
+    assert "interaction_sampling_not_established" in authority_blockers
+    assert "interaction_sampling_not_established" in result.feedback_classification.limitations
     assert result.engine_decisions[0].engine_kind == "ncm_parallel_worlds"
     assert result.engine_decisions[0].decision == "selected"
     assert result.engine_decisions[0].method_fqn.endswith("ncm_engine@1.0.0")
@@ -645,7 +650,12 @@ def test_runs_individual_pairwise_joint_on_real_ncm_with_content_bound_receipt()
     assert term.outcome == "firm_survival"
     assert term.by_step == {0: pytest.approx(5.0)}
     assert term.formula == "joint_effect_minus_sum_individual_effects"
+    sampling = term.replication_sampling_by_step[0]
+    assert sampling.replicate_count == 1
+    assert sampling.status == "standard_error_not_estimated"
+    assert sampling.effects_standard_error == {"derived_effect": None}
     assert result.feedback_classification.numeric_interaction == "unsupported"
+    assert result.feedback_classification.numeric_interaction_basis == "not_established"
     assert "interaction_numeric_classification_unsupported" in authority_blockers
 
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
@@ -715,9 +725,7 @@ def test_joint_simulation_v4_result_replays_byte_exactly_with_interaction_summar
         persist_joint_simulation_result,
     )
 
-    request = _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
     result = JointSimulationHorizonController().run(request)
     assert result.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
     assert result.state_consumption is None
@@ -837,9 +845,7 @@ def test_v4_sampling_and_interaction_summaries_are_recomputed_and_required() -> 
     # Remove the derived interaction summary but retain its additive/status markers.
     missing_interaction_summary = copy.deepcopy(payload)
     assert missing_interaction_summary["interaction_terms"]
-    missing_interaction_summary["interaction_terms"][0].pop(
-        "replication_sampling_by_step"
-    )
+    missing_interaction_summary["interaction_terms"][0].pop("replication_sampling_by_step")
     interaction_receipt = build_content_bound_simulation_receipt(
         engine_kind=result.receipt.engine_kind,
         payload=missing_interaction_summary,
@@ -1026,6 +1032,204 @@ def test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt() ->
     verify_simulation_receipt(result.receipt, result.content_bound_payload())
 
 
+def _shared_resource_stock_flow_fallback_request(
+    *,
+    candidate_order: tuple[str, ...],
+) -> JointSimulationRequest:
+    """Build one fixed-input request with two real registered dynamic candidates."""
+
+    base = _request()
+    state = {
+        "initial_stocks": [10.0, 0.0],
+        "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
+        "exogenous_inflows": [0.0, 0.0],
+    }
+    variable_map = {
+        "agents.income": "exogenous_inflows.0",
+        "government.balance": "exogenous_inflows.1",
+        "stock0": "stock:0",
+        "stock1": "stock:1",
+    }
+    stock_flow_fqn = "simulation.system_dynamics.stock_flow@1.0.0"
+    generic_registry_plan = EnginePlan(
+        engine_kind="method_registry_estimator",
+        objective_ref="objective://stock-flow-generic",
+        method_fqn=stock_flow_fqn,
+        eligibility_conditions=("multi_period",),
+        variable_map=variable_map,
+        system_dynamics_state=state,
+        system_dynamics_params={"dt": 1.0},
+    )
+    system_dynamics_plan = EnginePlan(
+        engine_kind="system_dynamics",
+        objective_ref="objective://stock-flow-native",
+        variable_map=variable_map,
+        system_dynamics_state=state,
+        system_dynamics_params={"dt": 1.0},
+    )
+    candidates = {
+        "method_registry_estimator": generic_registry_plan,
+        "system_dynamics": system_dynamics_plan,
+    }
+    if len(candidate_order) != len(candidates) or set(candidate_order) != set(candidates):
+        raise ValueError("fallback_candidate_order_must_cover_the_declared_candidates")
+    return base.model_copy(
+        update={
+            "selected_outcomes": ("stock0", "stock1"),
+            "baseline_state": {"stock0": 10.0, "stock1": 0.0},
+            "horizon": HorizonSpec(start=0, end=2, step=1),
+            "coupling_graph": _coupling_graph("shared_resource"),
+            "engine_plan": tuple(candidates[item] for item in candidate_order),
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    ("candidate_order", "expected_trace"),
+    [
+        (
+            ("method_registry_estimator", "system_dynamics"),
+            (
+                (
+                    "method_registry_estimator",
+                    "unsupported",
+                    "coupling_composition_gate_unsupported",
+                ),
+                ("system_dynamics", "selected", "engine_eligibility_satisfied"),
+            ),
+        ),
+        (
+            ("system_dynamics", "method_registry_estimator"),
+            (("system_dynamics", "selected", "engine_eligibility_satisfied"),),
+        ),
+    ],
+    ids=("incompatible-first-falls-through", "compatible-first-short-circuits"),
+)
+def test_joint_simulation_engine_fallback_is_ordered_and_fresh_cas_bound(
+    tmp_path: Path,
+    candidate_order: tuple[str, ...],
+    expected_trace: tuple[tuple[str, str, str], ...],
+) -> None:
+    """Only a coupling-capable registered runner produces the persisted result."""
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    registry = MethodRegistry._create_fresh()
+    request = _shared_resource_stock_flow_fallback_request(candidate_order=candidate_order)
+    result = JointSimulationHorizonController(method_registry=registry).run(request)
+    actual_trace = tuple(
+        (item.engine_kind, item.decision, item.reason) for item in result.engine_decisions
+    )
+    assert actual_trace == expected_trace
+    assert registry.get_entry("simulation.system_dynamics.stock_flow@1.0.0") is not None
+    selected = tuple(item for item in result.engine_decisions if item.decision == "selected")
+    assert len(selected) == 1
+    assert selected[0].engine_kind == "system_dynamics"
+    assert selected[0].method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+    assert result.receipt.engine_kind == "system_dynamics"
+    assert result.receipt.calibration_status == "content_bound_run_receipt"
+    assert result.diagnostics["engine_run_claimed"] is True
+    assert result.diagnostics["coupling_support_status"] == "supported"
+    assert all(item.engine_kind == "system_dynamics" for item in result.trajectories)
+    assert all(item.method_fqn == selected[0].method_fqn for item in result.trajectories)
+    joint = result.trajectory_for("joint", ("income_subsidy", "balance_grant"))
+    assert [point.step for point in joint.points] == [0, 1, 2]
+    assert set(joint.points[-1].outcomes) == {"stock0", "stock1"}
+
+    store = FileSystemCAS(tmp_path / "n5-engine-fallback-cas")
+    try:
+        result_ref = persist_joint_simulation_result(result, store=store)
+        persisted = from_canonical_bytes(store.get_bytes(result_ref))
+        assert persisted["engine_decisions"] == [
+            item.model_dump(mode="json") for item in result.engine_decisions
+        ]
+        fresh = load_joint_simulation_result(
+            result_ref,
+            store=store,
+            expected_world_model_record_content_hash=request.world_model_record.content_hash,
+            expected_atom_ids=tuple(item.intervention_id for item in request.intervention_atoms),
+            expected_selected_outcomes=request.selected_outcomes,
+        )
+        assert fresh.content_bound_payload() == result.content_bound_payload()
+        assert fresh.engine_decisions == result.engine_decisions
+        assert fresh.receipt == result.receipt
+        assert fresh.trajectories == result.trajectories
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
+def test_joint_simulation_all_incompatible_candidates_persist_explicit_refusal(
+    tmp_path: Path,
+) -> None:
+    """Persist every tried rejection; the fresh numerical reader refuses no-run output."""
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+
+    registry = MethodRegistry._create_fresh()
+    request = _shared_resource_stock_flow_fallback_request(
+        candidate_order=("method_registry_estimator", "system_dynamics")
+    )
+    incomplete_system_dynamics = request.engine_plan[1].model_copy(
+        update={"system_dynamics_state": {"initial_stocks": [10.0, 0.0]}}
+    )
+    request = request.model_copy(
+        update={"engine_plan": (request.engine_plan[0], incomplete_system_dynamics)}
+    )
+    result = JointSimulationHorizonController(method_registry=registry).run(request)
+
+    assert [(item.engine_kind, item.decision, item.reason) for item in result.engine_decisions] == (
+        (
+            "method_registry_estimator",
+            "unsupported",
+            "coupling_composition_gate_unsupported",
+        ),
+        ("system_dynamics", "unsupported", "system_dynamics_state_missing"),
+    )
+    assert "unsupported_coupling_class:shared_resource" in result.engine_decisions[0].blockers
+    assert "flow_matrix_missing" in result.engine_decisions[1].blockers
+    assert result.diagnostics["engine_run_claimed"] is False
+    assert result.trajectories == ()
+    assert result.receipt.trajectory_count == 0
+    assert result.receipt.authoritative_for == ()
+    assert result.receipt.calibration_status == "unsupported_coupling_gated"
+
+    store = FileSystemCAS(tmp_path / "n5-all-engines-rejected-cas")
+    try:
+        result_ref = persist_joint_simulation_result(result, store=store)
+        persisted = from_canonical_bytes(store.get_bytes(result_ref))
+        assert [item["reason"] for item in persisted["diagnostics"]["unsupported_reasons"]] == [
+            "coupling_composition_gate_unsupported",
+            "system_dynamics_state_missing",
+        ]
+        with pytest.raises(
+            GenerationCycleError, match="joint_simulation_result_trajectory_missing"
+        ):
+            load_joint_simulation_result(
+                result_ref,
+                store=store,
+                expected_world_model_record_content_hash=request.world_model_record.content_hash,
+                expected_atom_ids=tuple(
+                    item.intervention_id for item in request.intervention_atoms
+                ),
+                expected_selected_outcomes=request.selected_outcomes,
+            )
+    finally:
+        close = getattr(store, "close", None)
+        if callable(close):
+            close()
+
+
 def test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation() -> None:
     request = _request().model_copy(
         update={
@@ -1106,10 +1310,30 @@ def test_program_graph_plan_refuses_conflicting_shared_slot_before_execution(
         }
     )
 
-    with pytest.raises(JointSimulationControllerError) as raised:
-        JointSimulationHorizonController().run(request)
+    results = tuple(
+        JointSimulationHorizonController().run(
+            request.model_copy(update={"intervention_atoms": atoms})
+        )
+        for atoms in (request.intervention_atoms, tuple(reversed(request.intervention_atoms)))
+    )
 
-    assert raised.value.code == "intervention_assignment_conflict"
+    for result in results:
+        decision = result.engine_decisions[0]
+        assert decision.decision == "unsupported"
+        assert decision.reason == "intervention_assignment_conflict"
+        assert decision.blockers == ("intervention_assignment_conflict",)
+        assert result.diagnostics["engine_run_claimed"] is False
+        assert result.diagnostics["unsupported_reasons"] == [
+            {
+                "objective_ref": "objective://program-graph-smoke",
+                "reason": "intervention_assignment_conflict",
+                "blockers": ["intervention_assignment_conflict"],
+            }
+        ]
+        assert result.trajectories == ()
+        assert result.receipt.trajectory_count == 0
+        assert result.receipt.authoritative_for == ()
+        assert result.receipt.calibration_status == "no_run"
     assert calls == 0
 
 
@@ -1648,9 +1872,7 @@ def test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_intera
 
 
 def test_receipt_verification_fails_for_fabricated_stub_refs() -> None:
-    request = _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    request = _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
     result = JointSimulationHorizonController().run(request)
     fabricated = result.receipt.model_copy(
         update={

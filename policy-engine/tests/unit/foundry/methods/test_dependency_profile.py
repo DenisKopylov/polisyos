@@ -404,9 +404,7 @@ def _build_synthetic_owner_kernel(
     list[object],
 ]:
     token_types = tuple(
-        authority_module._fieldless_owner_token(
-            type(f"SyntheticToken{index}", (), {})
-        )
+        authority_module._fieldless_owner_token(type(f"SyntheticToken{index}", (), {}))
         for index, _kind in enumerate(authority_module.OwnerCapabilityKind)
     )
     specs = tuple(
@@ -458,20 +456,14 @@ def _build_resource_backed_owner_kernel(
     dict[tuple[str, int, int], object],
 ]:
     token_types = tuple(
-        authority_module._fieldless_owner_token(
-            type(f"ResourceToken{index}", (), {})
-        )
+        authority_module._fieldless_owner_token(type(f"ResourceToken{index}", (), {}))
         for index, _kind in enumerate(authority_module.OwnerCapabilityKind)
     )
     specs: tuple[authority_module._OwnerPayloadSpec[object, object], ...] = tuple(
         authority_module._OwnerPayloadSpec(
             kind=kind,
             token_type=token_type,
-            payload_type=(
-                _SyntheticResourcePayload
-                if index == 0
-                else _SyntheticOwnerPayload
-            ),
+            payload_type=(_SyntheticResourcePayload if index == 0 else _SyntheticOwnerPayload),
             exact_concrete_leaves=(
                 (
                     authority_module._OwnerPayloadLeafSpec(
@@ -623,18 +615,14 @@ def _selected_distribution_ref(
     row: object,
     *,
     label: str,
-) -> authority_module.FoundryRecordRef[
-    Literal[DigestDomain.SELECTED_DISTRIBUTION]
-]:
+) -> authority_module.FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]]:
     selected = row.selected_artifact
     candidate = record_ref(
         DigestDomain.SELECTED_DISTRIBUTION,
         label.encode("utf-8"),
         schema_version="polisyos.foundry.selected-distribution.v1",
     )
-    return authority_module.FoundryRecordRef[
-        Literal[DigestDomain.SELECTED_DISTRIBUTION]
-    ](
+    return authority_module.FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]](
         artifact_id=candidate.artifact_id,
         semantic_hash=selected,
         schema_version=candidate.schema_version,
@@ -651,22 +639,16 @@ def _candidate_environment_fixture(
     extra_distributions: tuple[
         authority_module.evidence_module.InstalledDistributionIdentity, ...
     ] = (),
-    admission_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.PROFILE_ADMISSION]
-    ]
+    admission_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.PROFILE_ADMISSION]]
     | None = None,
     write_marker: bool = True,
-    sync_root_access_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.ROOT_ACCESS]
-    ]
+    sync_root_access_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.ROOT_ACCESS]]
     | None = None,
     sync_root_access_binding_ref: authority_module.FoundryRecordRef[
         Literal[DigestDomain.SIGNED_RECORD_BINDING]
     ]
     | None = None,
-    python_runtime_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
+    python_runtime_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
     | None = None,
     runtime_installation_ref: authority_module.FoundryRecordRef[
         Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
@@ -801,22 +783,20 @@ def _candidate_environment_fixture(
 def _assert_current_cutoff_refusal(
     result: UnestablishedMethodCatalogDependencyProfile,
 ) -> None:
-    assert result.result_kind is NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED
+    assert (
+        result.result_kind is NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED
+    )
     assert result.status == "not_established"
     refusal = result.preflight_refusal
     assert refusal.failure.predicate_id is AuthorityPredicateId.RUNTIME_SUBTREE_CUTOFF
     assert (
-        refusal.failure.failure_code
-        is AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED
+        refusal.failure.failure_code is AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED
     )
     assert refusal.failure.missing_capability == "owner_enforced_runtime_subtree_cutoff"
     assert refusal.failure.missing_capability_state == "absent/unallocated"
     assert refusal.failure.candidate_runtime_evidence.status == "not_requested"
     assert refusal.persistence.status == "not_established"
-    assert (
-        refusal.persistence.missing_capability
-        == "owner_resolved_resolution_receipt_store"
-    )
+    assert refusal.persistence.missing_capability == "owner_resolved_resolution_receipt_store"
     assert refusal.persistence.missing_capability_state == "absent/unallocated"
 
 
@@ -844,6 +824,7 @@ def test_source_failure_and_cutoff_refusal_precede_repository_sync_and_candidate
         monkeypatch,
         tmp_path,
     )
+
     def forbidden_edge(*_args: object, **_kwargs: object) -> None:
         pytest.fail("production authority crossed the runtime-cutoff refusal")
 
@@ -1186,11 +1167,7 @@ def test_out_of_closure_distribution_is_non_decisive(tmp_path: Path) -> None:
     )
 
     assert base_result.status == extra_result.status == "pass"
-    assert (
-        base_result.predicate_class
-        == extra_result.predicate_class
-        == "independently_reconciled"
-    )
+    assert base_result.predicate_class == extra_result.predicate_class == "independently_reconciled"
     assert base_result.stable_closure == extra_result.stable_closure
     assert base_result.environment_receipt_ref != extra_result.environment_receipt_ref
 
@@ -1249,9 +1226,7 @@ def test_untraversed_marker_input_is_non_decisive() -> None:
 def test_domain_digest_frames_domain_length_and_preimage() -> None:
     raw = b"same payload"
     prefix = b"polisyos.foundry.raw-blob.v1\0"
-    expected = "sha256:" + hashlib.sha256(
-        prefix + len(raw).to_bytes(8, "big") + raw
-    ).hexdigest()
+    expected = "sha256:" + hashlib.sha256(prefix + len(raw).to_bytes(8, "big") + raw).hexdigest()
 
     assert domain_digest(DigestDomain.RAW_BLOB, raw).value == expected
 
@@ -1335,7 +1310,9 @@ def test_owner_capability_rejects_empty_object_new_mutated_token_and_wrong_famil
     assert len(fork_participants) == 1
 
 
-def test_owner_payload_protocol_lookalike_wrong_domain_or_nested_token_rejects_before_mint() -> None:
+def test_owner_payload_protocol_lookalike_wrong_domain_or_nested_token_rejects_before_mint() -> (
+    None
+):
     specs, mint, _unwrap, _release, _participants = _build_synthetic_owner_kernel()
 
     @dataclass(frozen=True, slots=True)
@@ -1399,9 +1376,7 @@ def test_token_with_inherited_writable_slot_fails_object_only_mro_check() -> Non
     class InheritedToken(WritableBase):
         __slots__ = ("__weakref__",)
 
-    InheritedToken.__owner_token_class_marker__ = (
-        authority_module._OWNER_TOKEN_CLASS_MARKER
-    )
+    InheritedToken.__owner_token_class_marker__ = authority_module._OWNER_TOKEN_CLASS_MARKER
     with pytest.raises(TypeError, match="fieldless/frozen/identity-only"):
         authority_module._validate_fieldless_owner_token_type(InheritedToken)
 
@@ -1425,15 +1400,11 @@ def test_nonexistent_or_wrong_typed_leaf_nested_and_domain_paths_fail_constructi
     mutations = (
         replace(
             specs[0],
-            exact_concrete_leaves=(
-                authority_module._OwnerPayloadLeafSpec(("absent",), str),
-            ),
+            exact_concrete_leaves=(authority_module._OwnerPayloadLeafSpec(("absent",), str),),
         ),
         replace(
             specs[0],
-            exact_concrete_leaves=(
-                authority_module._OwnerPayloadLeafSpec(("value",), int),
-            ),
+            exact_concrete_leaves=(authority_module._OwnerPayloadLeafSpec(("value",), int),),
         ),
         replace(
             specs[0],
@@ -1494,9 +1465,7 @@ def test_wrong_payload_or_fake_child_fails_before_any_coordinator_or_child_call(
         nonlocal calls
         calls += 1
 
-    specs, mint, _unwrap, _release, _leases = _build_resource_backed_owner_kernel(
-        on_claim=on_claim
-    )
+    specs, mint, _unwrap, _release, _leases = _build_resource_backed_owner_kernel(on_claim=on_claim)
     with pytest.raises(authority_module.OwnerCapabilityFault):
         mint(specs[0], _SyntheticOwnerPayload(value="wrong payload"))  # type: ignore[operator]
     with pytest.raises(authority_module.OwnerCapabilityFault):
@@ -1608,9 +1577,7 @@ def test_concurrent_same_generation_mint_admits_exactly_one_resource_lease() -> 
     barrier.wait()
     for thread in threads:
         thread.join()
-    claims = tuple(
-        row for row in outcomes if isinstance(row, authority_module._OwnerResourceClaim)
-    )
+    claims = tuple(row for row in outcomes if isinstance(row, authority_module._OwnerResourceClaim))
     faults = tuple(
         row for row in outcomes if isinstance(row, authority_module.OwnerCapabilityFault)
     )
@@ -1835,7 +1802,10 @@ def test_raw_oserror_from_stale_descriptor_becomes_typed_not_established(
     os.close(require_descriptor(handle))  # type: ignore[operator]
     with pytest.raises(authority_module.OwnerCapabilityFault) as captured:
         require_descriptor(handle)  # type: ignore[operator]
-    assert captured.value.disposition is authority_module.OwnerCapabilityFaultDisposition.NOT_ESTABLISHED
+    assert (
+        captured.value.disposition
+        is authority_module.OwnerCapabilityFaultDisposition.NOT_ESTABLISHED
+    )
 
 
 def test_forked_handle_operation_rechecks_creator_process(tmp_path: Path) -> None:
@@ -2165,7 +2135,9 @@ def test_digest_algebra_rejects_single_known_enum_member_substitution() -> None:
         decode_digest_domain_registry_toml(mutated)
 
 
-def test_unknown_digest_producer_verifier_ordering_or_launcher_profile_fails_before_execution() -> None:
+def test_unknown_digest_producer_verifier_ordering_or_launcher_profile_fails_before_execution() -> (
+    None
+):
     registry = _DIGEST_REGISTRY.read_bytes()
     mutations = (
         registry.replace(
@@ -2247,9 +2219,7 @@ def test_sibling_owner_prefix_fails_exact_domain_derived_equality() -> None:
         for line in registry.splitlines()
         if line.startswith(b"prefix_hex")
     )
-    sibling_prefix = (
-        b"polisyos.sibling.raw-blob.v1\0".hex().encode("ascii")
-    )
+    sibling_prefix = b"polisyos.sibling.raw-blob.v1\0".hex().encode("ascii")
     mutated = registry.replace(raw_prefix, sibling_prefix, 1)
 
     with pytest.raises(ValueError, match="domain-derived prefix"):
@@ -2260,9 +2230,7 @@ def test_every_persisted_digest_domain_has_one_strict_statement_codec() -> None:
     registry = decode_digest_domain_registry_toml(_DIGEST_REGISTRY.read_bytes())
     observed = {
         kind: frozenset(
-            row.domain_id
-            for row in registry.statement.domains
-            if row.algebra.preimage_kind is kind
+            row.domain_id for row in registry.statement.domains if row.algebra.preimage_kind is kind
         )
         for kind in DigestPreimageKind
     }
@@ -2319,9 +2287,7 @@ def test_every_persisted_digest_domain_has_one_strict_statement_codec() -> None:
 
 def test_corrupted_digest_producer_is_rejected_by_independent_verifier() -> None:
     registry = decode_digest_domain_registry_toml(_DIGEST_REGISTRY.read_bytes())
-    handler = authority_module.build_digest_domain_handlers(registry)[
-        DigestDomain.RAW_BLOB
-    ]
+    handler = authority_module.build_digest_domain_handlers(registry)[DigestDomain.RAW_BLOB]
     expected = handler.produce(b"owner-bound-preimage")
     assert handler.verify(b"owner-bound-preimage", expected)
 
@@ -2357,16 +2323,10 @@ def test_every_explicit_digest_builder_is_generated_from_registry_algebra() -> N
         )
         assert (
             handler.verifier_preimage_builder
-            is authority_module.DIGEST_VERIFIER_PREIMAGE_BUILDERS[
-                row.algebra.preimage_kind
-            ]
+            is authority_module.DIGEST_VERIFIER_PREIMAGE_BUILDERS[row.algebra.preimage_kind]
         )
-        assert handler.producer is authority_module.DIGEST_PRODUCERS[
-            row.algebra.producer_id
-        ]
-        assert handler.verifier is authority_module.DIGEST_VERIFIERS[
-            row.algebra.verifier_id
-        ]
+        assert handler.producer is authority_module.DIGEST_PRODUCERS[row.algebra.producer_id]
+        assert handler.verifier is authority_module.DIGEST_VERIFIERS[row.algebra.verifier_id]
 
 
 def test_runtime_cutoff_composition_rejects_protocol_or_positive_fake_substitution() -> None:
@@ -2403,9 +2363,7 @@ def test_candidate_runtime_evidence_does_not_substitute_for_missing_cutoff_owner
             refusal = authority_module.build_runtime_cutoff_refusal(
                 source_authority=source_payload,
                 request=authority_module.DependencyAuthorityResolvedSourceRequestStatement(
-                    schema_version=(
-                        "polisyos.foundry.dependency-resolved-source-request.v1"
-                    ),
+                    schema_version=("polisyos.foundry.dependency-resolved-source-request.v1"),
                     pre_source_request=authority_module._pre_source_statement(request),
                     expected_source_tree_id=source_payload.statement.source_tree_id,
                 ),
@@ -2503,9 +2461,7 @@ def test_bare_uppercase_or_unprefixed_artifact_id_fails_strict_parse(
 
 
 def test_signed_record_repository_has_no_verifier_injection_surface() -> None:
-    parameters = inspect.signature(
-        authority_module.FileSystemCASSignedRecordRepository
-    ).parameters
+    parameters = inspect.signature(authority_module.FileSystemCASSignedRecordRepository).parameters
     assert tuple(parameters) == ("store", "trust_resolver")
     assert "verifier" not in parameters
 
@@ -2583,9 +2539,7 @@ def test_negative_only_abi_rejects_positive_result_or_resolution_writer_codec_do
     authority_module.validate_negative_only_dependency_authority_abi()
     variants = set(
         authority_module.get_args(
-            authority_module.get_args(
-                authority_module.MethodCatalogDependencyAuthorityResult
-            )[0]
+            authority_module.get_args(authority_module.MethodCatalogDependencyAuthorityResult)[0]
         )
     )
     assert variants == {
@@ -2595,7 +2549,9 @@ def test_negative_only_abi_rejects_positive_result_or_resolution_writer_codec_do
     }
 
 
-def test_negative_stage_map_fixes_status_predicate_code_domains_source_ref_and_persistence() -> None:
+def test_negative_stage_map_fixes_status_predicate_code_domains_source_ref_and_persistence() -> (
+    None
+):
     assert set(authority_module.SOURCE_BOOTSTRAP_FAILURE_STAGES) == {
         NegativeDependencyAuthorityResultKind.SOURCE_REJECTED,
         NegativeDependencyAuthorityResultKind.SOURCE_NOT_ESTABLISHED,
@@ -2608,9 +2564,7 @@ def test_negative_stage_map_fixes_status_predicate_code_domains_source_ref_and_p
 
 
 def test_runtime_cutoff_predicate_is_one_sided_and_cutoff_specific() -> None:
-    registry = authority_module.load_digest_domain_registry(
-        authority_module._DIGEST_REGISTRY_PATH
-    )
+    registry = authority_module.load_digest_domain_registry(authority_module._DIGEST_REGISTRY_PATH)
     one_sided = tuple(
         row for row in registry.statement.predicates if row.branch_shape == "not_established_only"
     )
@@ -2631,9 +2585,7 @@ def test_ambient_registry_mutation_after_source_capability_cannot_change_cutoff(
         tmp_path,
     )
     request = _authority_request(tmp_path, source_freeze=source_freeze)
-    source = authority_module._build_production_canonical_source_resolver().resolve(
-        request=request
-    )
+    source = authority_module._build_production_canonical_source_resolver().resolve(request=request)
     assert isinstance(source, authority_module.CanonicalFoundrySourceAuthority)
     digest_registry = (
         product_root
@@ -2650,9 +2602,7 @@ def test_ambient_registry_mutation_after_source_capability_cannot_change_cutoff(
             result = authority_module.build_runtime_cutoff_refusal(
                 source_authority=payload,
                 request=authority_module.DependencyAuthorityResolvedSourceRequestStatement(
-                    schema_version=(
-                        "polisyos.foundry.dependency-resolved-source-request.v1"
-                    ),
+                    schema_version=("polisyos.foundry.dependency-resolved-source-request.v1"),
                     pre_source_request=authority_module._pre_source_statement(request),
                     expected_source_tree_id=payload.statement.source_tree_id,
                 ),
@@ -2669,25 +2619,64 @@ def test_ambient_registry_mutation_after_source_capability_cannot_change_cutoff(
         )
 
 
+@pytest.mark.parametrize(
+    "registry_state",
+    ("missing", "unreadable", "corrupt"),
+    ids=("missing-path", "unreadable-read", "malformed-toml"),
+)
 def test_missing_unreadable_or_corrupt_digest_registry_returns_source_not_established(
+    registry_state: str,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    _repo_root, product_root, source_freeze = _install_clean_source_fixture(
-        monkeypatch,
-        tmp_path,
-    )
+    repo_root, product_root, source_freeze = _install_clean_source_fixture(monkeypatch, tmp_path)
     registry = (
         product_root
         / "architecture"
         / "production_quality"
         / "method_catalog_dependency_digest_domains.toml"
     )
-    registry.write_bytes(b"not = [valid")
+    relative_registry = "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml"
+    original_read_bytes = Path.read_bytes
+    registry_reads: list[Path] = []
+    digest_loader_calls: list[Path] = []
+    original_digest_loader = authority_module.load_digest_domain_registry
+
+    def observe_digest_loader(path: Path):
+        if path == registry:
+            digest_loader_calls.append(path)
+        return original_digest_loader(path)
+
+    monkeypatch.setattr(authority_module, "load_digest_domain_registry", observe_digest_loader)
+    if registry_state == "missing":
+        registry.unlink()
+    elif registry_state == "unreadable":
+
+        def unreadable_registry(path: Path) -> bytes:
+            if path == registry:
+                registry_reads.append(path)
+                raise PermissionError("digest registry read is not permitted")
+            return original_read_bytes(path)
+
+        monkeypatch.setattr(Path, "read_bytes", unreadable_registry)
+    else:
+        registry.write_bytes(b"not = [valid")
+        _git_at(repo_root, "add", "--", relative_registry)
+        _git_at(repo_root, "commit", "-m", "fixture malformed digest registry")
+        source_freeze = _git_at(repo_root, "rev-parse", "HEAD")
+
     result = build_production_method_catalog_dependency_authority().resolve(
         _authority_request(tmp_path, source_freeze=source_freeze)
     )
     assert result.result_kind is NegativeDependencyAuthorityResultKind.SOURCE_NOT_ESTABLISHED
+    if registry_state == "missing":
+        assert not registry.exists()
+        assert digest_loader_calls == []
+    elif registry_state == "unreadable":
+        assert registry_reads == [registry]
+        assert digest_loader_calls == []
+    else:
+        assert digest_loader_calls == [registry]
 
 
 def test_unusable_git_root_or_unresolvable_commit_returns_source_not_established_without_tree(
@@ -3075,17 +3064,12 @@ def test_post_source_negative_stage_map_derives_code_and_evidence_from_canonical
     assert row.branch_shape == "not_established_only"
     assert failure.failure_code is row.not_established_code
     assert failure.missing_capability == row.not_established_requirement.capability_id
-    assert (
-        failure.missing_capability_state
-        == row.not_established_requirement.capability_state
-    )
+    assert failure.missing_capability_state == row.not_established_requirement.capability_state
 
 
 def test_cutoff_row_rejects_admitted_class_or_satisfied_disposition() -> None:
     raw = _DIGEST_REGISTRY.read_bytes()
-    needle = (
-        b'predicate_id = "owner_enforced_runtime_subtree_cutoff"\n'
-    )
+    needle = b'predicate_id = "owner_enforced_runtime_subtree_cutoff"\n'
     mutated = raw.replace(
         needle,
         needle + b'admitted_classes = ["recomputed"]\n',
@@ -3134,9 +3118,7 @@ def test_bidirectional_predicate_branch_remains_constructible() -> None:
         predicate_spec=row,
         predicate_id=row.predicate_id,
         predicate_class="recomputed",
-        evidence_refs=_predicate_evidence_refs(
-            row.satisfied_requirement.evidence_domains
-        ),
+        evidence_refs=_predicate_evidence_refs(row.satisfied_requirement.evidence_domains),
     )
     rejected = RejectedAuthorityPredicate(
         branch_shape="bidirectional",
@@ -3146,9 +3128,7 @@ def test_bidirectional_predicate_branch_remains_constructible() -> None:
         predicate_id=row.predicate_id,
         predicate_class="recomputed",
         failure_code=row.rejected_code,
-        evidence_refs=_predicate_evidence_refs(
-            row.rejected_requirement.evidence_domains
-        ),
+        evidence_refs=_predicate_evidence_refs(row.rejected_requirement.evidence_domains),
     )
     unestablished = BidirectionalUnestablishedAuthorityPredicate(
         branch_shape="bidirectional",
@@ -3344,9 +3324,7 @@ def _c1_ref(
 def _c1_external_ref(
     kind: authority_module.ExternalAuthorityKind,
     label: str,
-) -> authority_module.evidence_module.ExternalAuthorityRef[
-    authority_module.ExternalAuthorityKind
-]:
+) -> authority_module.evidence_module.ExternalAuthorityRef[authority_module.ExternalAuthorityKind]:
     return authority_module.evidence_module.ExternalAuthorityRef[
         authority_module.ExternalAuthorityKind
     ](
@@ -3731,9 +3709,7 @@ class _C1TransportCapsule:
     capsule_path: Path
     capsule: authority_module.PersistedFoundryDependencyAuthorityCapsule
     index: authority_module.PersistedSignedRecordBindingIndex
-    bindings: tuple[
-        authority_module.PersistedSignedFoundryRecordBinding[DigestDomain], ...
-    ]
+    bindings: tuple[authority_module.PersistedSignedFoundryRecordBinding[DigestDomain], ...]
 
 
 def _c1_transport_binding(
@@ -3741,9 +3717,7 @@ def _c1_transport_binding(
     *,
     domain: DigestDomain,
     role: TrustRole,
-    source_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.CANONICAL_SOURCE]
-    ],
+    source_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]],
 ) -> tuple[
     authority_module.PersistedSignedFoundryRecordBinding[DigestDomain],
     authority_module.ExactSignedArtifactEvidenceStatement,
@@ -3775,9 +3749,7 @@ def _c1_transport_binding(
                 f"trust:{role.value}",
             ),
         )
-    binding_statement = authority_module.SignedFoundryRecordBindingStatement[
-        DigestDomain
-    ](
+    binding_statement = authority_module.SignedFoundryRecordBindingStatement[DigestDomain](
         schema_version="polisyos.foundry.signed-record-binding.v1",
         record_ref=record,
         signed_evidence_ref=evidence_ref,
@@ -3871,7 +3843,10 @@ def _write_c1_transport_capsule(tmp_path: Path) -> _C1TransportCapsule:
         ),
         statement=index_statement,
     )
-    refs = {domain: authority_module.build_foundry_statement_ref(domain, statement) for domain, statement, _role in statements}
+    refs = {
+        domain: authority_module.build_foundry_statement_ref(domain, statement)
+        for domain, statement, _role in statements
+    }
     capsule_statement = authority_module.FoundryDependencyAuthorityCapsuleStatement(
         schema_version="polisyos.foundry.dependency-capsule.v1",
         source_authority_ref=source_ref,
@@ -4010,9 +3985,7 @@ def test_fresh_n8_process_reopens_exact_environment_authority_capsule(
     tampered = fixture.capsule.model_copy(
         update={"capsule_ref": _c1_ref(DigestDomain.CAPSULE, "wrong-capsule")}
     )
-    fixture.capsule_path.write_bytes(
-        canonical_json_bytes(tampered.model_dump(mode="json"))
-    )
+    fixture.capsule_path.write_bytes(canonical_json_bytes(tampered.model_dump(mode="json")))
     port = authority_module.FileSystemCASFoundryBootstrapEvidencePort(
         store=FileSystemCAS(fixture.store_root),
         capsule_index_path=fixture.capsule_path,
@@ -4035,29 +4008,21 @@ def test_fresh_process_reopens_appointment_custody_trust_and_lineage_bindings(
     rows = observed["rows"]
     assert isinstance(rows, list)
     assert {
-        (row["domain"], row["role"], row["basis"])
-        for row in rows
-        if isinstance(row, dict)
+        (row["domain"], row["role"], row["basis"]) for row in rows if isinstance(row, dict)
     } == {
         ("production-data-appointment", "appointment_issuer", "resolved_trust"),
         ("production-data-custody", "custody_verifier", "resolved_trust"),
         ("build-lineage-receipt", "build_verifier", "resolved_trust"),
         ("trust-material", "foundry_trust_root", "source_authority"),
     }
-    assert all(
-        row["signed_blob_matches"] is True
-        for row in rows
-        if isinstance(row, dict)
-    )
+    assert all(row["signed_blob_matches"] is True for row in rows if isinstance(row, dict))
 
 
 class _FixtureTrustResolver:
     def __init__(
         self,
         *,
-        policy_ref: authority_module.FoundryRecordRef[
-            Literal[DigestDomain.TRUST_POLICY]
-        ],
+        policy_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.TRUST_POLICY]],
         entries: dict[
             TrustRole,
             tuple[
@@ -4072,9 +4037,7 @@ class _FixtureTrustResolver:
     def resolve(
         self,
         *,
-        policy_ref: authority_module.FoundryRecordRef[
-            Literal[DigestDomain.TRUST_POLICY]
-        ],
+        policy_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.TRUST_POLICY]],
         required_role: TrustRole,
     ) -> object:
         if policy_ref != self._policy_ref or required_role not in self._entries:
@@ -4093,9 +4056,7 @@ class _FixtureTrustResolver:
 class _C1SignedRepositoryFixture:
     store: FileSystemCAS
     source: authority_module.CanonicalFoundrySourceAuthority
-    source_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.CANONICAL_SOURCE]
-    ]
+    source_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]]
     repository: authority_module.FileSystemCASSignedRecordRepository
     receipts: dict[TrustRole, authority_module.PersistedTrustResolutionReceipt]
     signers: dict[TrustRole, Ed25519Signer]
@@ -4219,9 +4180,7 @@ def _persist_real_signed_record(
         schema_version="polisyos.foundry.signed-artifact-evidence.v1",
         signed_blob_bytes=record_raw,
         exact_manifest_bytes=manifest_raw,
-        detached_signature_bytes=canonical_json_bytes(
-            signature.model_dump(mode="json")
-        ),
+        detached_signature_bytes=canonical_json_bytes(signature.model_dump(mode="json")),
     )
     evidence_ref = _put_c1_statement(
         fixture.store,
@@ -4229,9 +4188,7 @@ def _persist_real_signed_record(
         evidence,
     )
     receipt = fixture.receipts[role]
-    binding_statement = authority_module.SignedFoundryRecordBindingStatement[
-        DigestDomain
-    ](
+    binding_statement = authority_module.SignedFoundryRecordBindingStatement[DigestDomain](
         schema_version="polisyos.foundry.signed-record-binding.v1",
         record_ref=record_ref_value,
         signed_evidence_ref=evidence_ref,
@@ -4728,11 +4685,7 @@ def test_capsule_signed_binding_index_is_exact_graph_bijection() -> None:
             for row in registry.statement.domains
         )
         changed = registry.model_copy(
-            update={
-                "statement": registry.statement.model_copy(
-                    update={"domains": changed_rows}
-                )
-            }
+            update={"statement": registry.statement.model_copy(update={"domains": changed_rows})}
         )
         with pytest.raises(ValueError, match="recursive signed infrastructure"):
             authority_module.validate_capsule_signed_binding_index(
@@ -4796,9 +4749,7 @@ def test_imported_signed_evidence_rejects_regenerated_manifest_or_swapped_ref() 
     )
     binding = binding.model_copy(
         update={
-            "statement": binding.statement.model_copy(
-                update={"signed_evidence_ref": evidence_ref}
-            )
+            "statement": binding.statement.model_copy(update={"signed_evidence_ref": evidence_ref})
         },
     )
     binding = binding.model_copy(
@@ -4899,11 +4850,14 @@ def test_path_like_payload_bytes_are_never_launcher_normalized() -> None:
         byte_length=len(payload),
         raw_content_hash=domain_digest(DigestDomain.RAW_BLOB, payload),
     )
-    assert authority_module.evidence_module.normalize_installed_file_bytes(
-        row,
-        payload,
-        admitted_interpreter=Path("/tmp/environment/bin/python"),
-    ) == payload
+    assert (
+        authority_module.evidence_module.normalize_installed_file_bytes(
+            row,
+            payload,
+            admitted_interpreter=Path("/tmp/environment/bin/python"),
+        )
+        == payload
+    )
 
 
 def test_noneditable_root_install_is_stable_across_sibling_checkout_paths() -> None:
@@ -4936,9 +4890,7 @@ def test_editable_root_install_is_rejected_from_n8_identity() -> None:
     editable = authority_module.evidence_module.StablePayloadFileRow(
         row_kind="payload",
         logical_root="purelib",
-        relative_path=RootedRelativePath(
-            value="policy_engine-0.1.0.dist-info/direct_url.json"
-        ),
+        relative_path=RootedRelativePath(value="policy_engine-0.1.0.dist-info/direct_url.json"),
         byte_length=2,
         raw_content_hash=domain_digest(DigestDomain.RAW_BLOB, b"{}"),
     )
@@ -4997,10 +4949,7 @@ def test_required_file_mutation_with_unchanged_dist_info_fails_reconciliation(
         evidence=fixture.evidence,
     )
     assert result.status == "fail"
-    assert any(
-        failure.code is AuthorityFailureCode.CONTENT_MISMATCH
-        for failure in result.failures
-    )
+    assert any(failure.code is AuthorityFailureCode.CONTENT_MISMATCH for failure in result.failures)
 
 
 def test_influential_marker_or_lock_edge_cannot_be_omitted() -> None:
@@ -5199,9 +5148,9 @@ def test_no_runtime_cutoff_preflight_blocks_before_sync_or_candidate_generation(
 def test_restoring_legacy_ambient_or_candidate_projection_fails_cross_file_strangle(
     tmp_path: Path,
 ) -> None:
-    source = (
-        _PRODUCT_ROOT / "src/polisyos/foundry/methods/catalog/snapshot.py"
-    ).read_text(encoding="utf-8")
+    source = (_PRODUCT_ROOT / "src/polisyos/foundry/methods/catalog/snapshot.py").read_text(
+        encoding="utf-8"
+    )
     mutant = tmp_path / "snapshot.py"
     mutant.write_text(
         source.replace(
@@ -5271,9 +5220,7 @@ def _observe_candidate_runtime(
         version="3.14.0",
         platform_tag="macosx_15_0_arm64",
         abi_tag="cp314",
-        digest_registry=decode_digest_domain_registry_toml(
-            _DIGEST_REGISTRY.read_bytes()
-        ),
+        digest_registry=decode_digest_domain_registry_toml(_DIGEST_REGISTRY.read_bytes()),
         hooks=hooks,
     )
 
@@ -5315,9 +5262,7 @@ def test_barriered_write_after_second_post_fstat_preserves_equal_candidate_manif
             _observe_candidate_runtime(
                 runtime_root,
                 hooks=authority_module.CandidateRuntimeObservationHooks(
-                    relative_path=RootedRelativePath(
-                        value="lib/python3.14/a_early.py"
-                    ),
+                    relative_path=RootedRelativePath(value="lib/python3.14/a_early.py"),
                     after_second_post_fstat=expose_post_observation_window,
                 ),
             )
@@ -5336,11 +5281,7 @@ def test_barriered_write_after_second_post_fstat_preserves_equal_candidate_manif
     assert isinstance(candidate, authority_module.CandidatePythonRuntimeObservation)
     identity = candidate.root_identity
     assert identity.first_walk_manifest_ref == identity.second_walk_manifest_ref
-    assert (
-        identity.opened_before
-        == identity.opened_after_enumeration
-        == identity.reopened_by_path
-    )
+    assert identity.opened_before == identity.opened_after_enumeration == identity.reopened_by_path
     escaped_hash = domain_digest(DigestDomain.RAW_BLOB, escaped_bytes)
     early_row = next(
         row
@@ -5514,9 +5455,7 @@ def _candidate_runtime_owner_fixture(
                 DigestDomain.TOOLCHAIN_EXECUTABLE,
                 "python-executable",
             ),
-            expected_runtime_manifest_ref=(
-                observation.root_identity.second_walk_manifest_ref
-            ),
+            expected_runtime_manifest_ref=(observation.root_identity.second_walk_manifest_ref),
             expected_runtime_source_binding_ref=(
                 authority_module.build_foundry_statement_ref(
                     DigestDomain.TOOLCHAIN_RUNTIME_BINDING,
@@ -5556,12 +5495,10 @@ def test_fresh_n8_resolves_marker_installation_before_runtime_observation(
     tmp_path: Path,
 ) -> None:
     runtime_root, _early_stdlib = _candidate_runtime_tree(tmp_path)
-    source, installation, _production_observer, admission = (
-        _candidate_runtime_owner_fixture(
-            monkeypatch,
-            tmp_path,
-            runtime_root,
-        )
+    source, installation, _production_observer, admission = _candidate_runtime_owner_fixture(
+        monkeypatch,
+        tmp_path,
+        runtime_root,
     )
     profile = _resolve_tracked_profile()
     fixture = _candidate_environment_fixture(
@@ -5662,10 +5599,7 @@ def test_runtime_observer_requires_owner_sealed_installation_capability(
             )
             assert isinstance(result, BidirectionalUnestablishedAuthorityPredicate)
             assert result.predicate_id is AuthorityPredicateId.PYTHON_RUNTIME
-            assert (
-                result.failure_code
-                is AuthorityFailureCode.PYTHON_RUNTIME_NOT_ESTABLISHED
-            )
+            assert result.failure_code is AuthorityFailureCode.PYTHON_RUNTIME_NOT_ESTABLISHED
     finally:
         _release_candidate_runtime_owner(source, installation)
 
@@ -5693,8 +5627,7 @@ def test_runtime_observer_derives_child_executable_root_and_source_binding(
             authority_module._VERIFIED_RUNTIME_SPEC,
         ) as payload:
             assert (
-                payload.observed_ref.semantic_hash.domain
-                is DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED
+                payload.observed_ref.semantic_hash.domain is DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED
             )
             assert (
                 payload.verification_ref.semantic_hash.domain
@@ -6079,12 +6012,10 @@ def test_admitted_profile_round_trip_carries_root_access_refs_not_live_token(
     )
     result: object | None = None
     receipt_raw: str | None = None
-    access_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.ROOT_ACCESS]
-    ] | None = None
-    binding_ref: authority_module.FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ] | None = None
+    access_ref: authority_module.FoundryRecordRef[Literal[DigestDomain.ROOT_ACCESS]] | None = None
+    binding_ref: (
+        authority_module.FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]] | None
+    ) = None
     try:
         result = _resolve_candidate_root(
             source=source,
@@ -6545,9 +6476,12 @@ def test_source_first_runtime_files_bind_to_tracked_tree_not_tooling_environment
         assert isinstance(second, authority_module.CandidateInstalledSourceBinding)
         assert first == second
         assert first.statement.source_tree_ref == selected.source_tree_manifest_ref
-        assert "environment" not in inspect.signature(
-            authority_module.recompute_candidate_installed_source_binding
-        ).parameters
+        assert (
+            "environment"
+            not in inspect.signature(
+                authority_module.recompute_candidate_installed_source_binding
+            ).parameters
+        )
     finally:
         _release_candidate_source(source)
 
@@ -6653,17 +6587,13 @@ def test_every_owner_entrypoint_maps_mapping_or_nested_fake_to_its_exact_result_
                 if not entrypoint.fault_policies:
                     continue
                 hints = authority_module.get_type_hints(function, include_extras=True)
-                return_members = tuple(
-                    authority_module._walk_annotation(hints["return"])
-                )
+                return_members = tuple(authority_module._walk_annotation(hints["return"]))
                 assert BidirectionalUnestablishedAuthorityPredicate in return_members
                 for policy in entrypoint.fault_policies:
                     result = authority_module._owner_fault_result(
                         authority_module.OwnerCapabilityFault(
                             code=authority_module.OwnerCapabilityFaultCode.UNMINTED_TOKEN,
-                            disposition=(
-                                authority_module.OwnerCapabilityFaultDisposition.REJECTED
-                            ),
+                            disposition=(authority_module.OwnerCapabilityFaultDisposition.REJECTED),
                             capability_kind=policy.capability_kind,
                             payload_path=("nested", "fake"),
                         ),
@@ -6678,8 +6608,7 @@ def test_every_owner_entrypoint_maps_mapping_or_nested_fake_to_its_exact_result_
                     assert result.failure_code is policy.not_established_code
                     observed += 1
             assert observed == sum(
-                len(row.fault_policies)
-                for row in authority_module._OWNER_ENTRYPOINT_SPECS
+                len(row.fault_policies) for row in authority_module._OWNER_ENTRYPOINT_SPECS
             )
     finally:
         _release_candidate_source(source)
@@ -6764,15 +6693,16 @@ def _tracked_owner_declaration(
     )
 
 
-def _data_generated_marker_replay_inputs(
-) -> tuple[MethodCatalogDependencyProfileDeclaration, bytes, bytes]:
+def _data_generated_marker_replay_inputs() -> tuple[
+    MethodCatalogDependencyProfileDeclaration, bytes, bytes
+]:
     """Build a tiny lock graph with nested and right-hand marker variables."""
 
-    pyproject_bytes = b'''[project]
+    pyproject_bytes = b"""[project]
 name = "marker-root"
 version = "1.0.0"
-'''
-    lockfile_bytes = b'''version = 1
+"""
+    lockfile_bytes = b"""version = 1
 requires-python = ">=3.14"
 
 [[package]]
@@ -6789,7 +6719,7 @@ probe = [
 name = "marker-child"
 version = "1.0.0"
 source = { registry = "https://example.invalid" }
-'''
+"""
     declaration = MethodCatalogDependencyProfileDeclaration(
         schema_version="polisyos.foundry.dependency-profile.v1",
         profile_id="marker-replay-profile",
@@ -6843,8 +6773,7 @@ def test_marker_replay_rejects_missing_nested_rhs_variable_before_host_evaluatio
         )
 
     assert all(
-        isinstance(result, profile_module.DependencyProfileInputMismatch)
-        for result in results
+        isinstance(result, profile_module.DependencyProfileInputMismatch) for result in results
     ), "a partial marker declaration was completed from host defaults"
     assert evaluation_calls == 0, "missing replay inputs must fail before marker evaluation"
 
@@ -6889,8 +6818,7 @@ def _resolve_universal_lock(
         'version = 1\nrequires-python = ">=3.14"\n'
         '[[package]]\nname = "lock-root"\nversion = "1.0"\n'
         'source = { editable = "." }\n'
-        f'dependencies = [{edges}]\n[package.optional-dependencies]\n'
-        + packages
+        f"dependencies = [{edges}]\n[package.optional-dependencies]\n" + packages
     ).encode()
     declaration = MethodCatalogDependencyProfileDeclaration(
         schema_version="polisyos.foundry.dependency-profile.v1",
@@ -6920,9 +6848,7 @@ def _universal_lock_member(name: str, version: str, registry: str) -> str:
 
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("coordinate", ["version", "source"])
-def test_universal_lock_resolves_selected_edge_identity(
-    coordinate: str, reverse: bool
-) -> None:
+def test_universal_lock_resolves_selected_edge_identity(coordinate: str, reverse: bool) -> None:
     selected = _universal_lock_member("choice", "2.0", "https://selected.invalid")
     other = _universal_lock_member(
         "choice",
@@ -6930,8 +6856,7 @@ def test_universal_lock_resolves_selected_edge_identity(
         "https://selected.invalid" if coordinate == "version" else "https://other.invalid",
     )
     result = _resolve_universal_lock(
-        '{ name = "choice", version = "2.0", '
-        'source = { registry = "https://selected.invalid" } }',
+        '{ name = "choice", version = "2.0", source = { registry = "https://selected.invalid" } }',
         other + selected if reverse else selected + other,
     )
 
@@ -6992,9 +6917,9 @@ def test_universal_lock_reconciles_row_resolution_markers_from_declared_environm
     result = _resolve_universal_lock(
         '{ name = "choice" }',
         _universal_lock_member("choice", "1.0", "https://example.invalid")
-        + 'resolution-markers = ["sys_platform == \'darwin\'"]\n'
+        + "resolution-markers = [\"sys_platform == 'darwin'\"]\n"
         + _universal_lock_member("choice", "2.0", "https://example.invalid")
-        + 'resolution-markers = ["sys_platform != \'darwin\'"]\n',
+        + "resolution-markers = [\"sys_platform != 'darwin'\"]\n",
         marker_environment={} if platform is None else {"sys_platform": platform},
     )
     if platform is None:
@@ -7132,9 +7057,7 @@ def _assert_dependency_diagnostic_failure(
     """Assert the public diagnostic detects one real dependency disagreement."""
 
     result = _diagnose_dependency_environment(discriminant, observations)
-    assert getattr(result, "status", None) == "fail", (
-        "dependency disagreement was not detected"
-    )
+    assert getattr(result, "status", None) == "fail", "dependency disagreement was not detected"
     return result
 
 
@@ -7219,11 +7142,7 @@ def test_source_and_artifact_diagnostic_requires_reconciled_foundry_receipt(
         discriminant,
         mismatch_fixture,
     )
-    marker_path = (
-        fixture.root
-        / ".polisyos-foundry-authority-v1"
-        / "environment-marker.json"
-    )
+    marker_path = fixture.root / ".polisyos-foundry-authority-v1" / "environment-marker.json"
     marker_path.write_bytes(b"corrupt retained marker")
     corrupt = profile_module.diagnose_dependency_environment(
         discriminant=discriminant,
@@ -7241,9 +7160,7 @@ def test_source_and_artifact_diagnostic_requires_reconciled_foundry_receipt(
     assert result.predicate_class == "recomputed"
     assert mismatch.status == "fail"
     assert mismatch.predicate_class == "recomputed"
-    assert mismatch.first_case.coordinate == (
-        f"distribution:{target.name}:selected_artifact"
-    )
+    assert mismatch.first_case.coordinate == (f"distribution:{target.name}:selected_artifact")
     assert corrupt.status == "not_established"
     assert corrupt.predicate_class == "not_established"
 
@@ -7333,9 +7250,7 @@ def test_stale_environment_receipt_ref_fails_closed_at_shared_use_chokepoint(
         }
     )
     if bypass_kind == "model_copy":
-        stale_receipt = fixture.receipt.model_copy(
-            update={"statement": mutated_statement}
-        )
+        stale_receipt = fixture.receipt.model_copy(update={"statement": mutated_statement})
     else:
         stale_receipt = DependencyProfileEnvironmentReceipt.model_construct(
             receipt_ref=fixture.receipt.receipt_ref,
@@ -7343,9 +7258,11 @@ def test_stale_environment_receipt_ref_fails_closed_at_shared_use_chokepoint(
             predicate_class="recomputed",
         )
     stale_fixture = replace(fixture, receipt=stale_receipt)
-    stale_observation = profile_module.ReceiptBackedDependencyEnvironmentObservation.model_construct(
-        observation_kind="foundry_environment_receipt",
-        environment_receipt=stale_receipt,
+    stale_observation = (
+        profile_module.ReceiptBackedDependencyEnvironmentObservation.model_construct(
+            observation_kind="foundry_environment_receipt",
+            environment_receipt=stale_receipt,
+        )
     )
 
     diagnostic = profile_module.diagnose_dependency_environment(
@@ -7478,7 +7395,7 @@ def _scratch_profile_registry(
         + f'profile_id = "{declaration.profile_id}"\n'
         + f'root_distribution = "{declaration.root_distribution}"\n'
         + "extras = ["
-        + ", ".join(f'\"{extra}\"' for extra in declaration.extras)
+        + ", ".join(f'"{extra}"' for extra in declaration.extras)
         + "]\n"
         + f'python_constraint = "{declaration.python_constraint}"\n'
         + f'resolver_name = "{declaration.resolver_name}"\n'
@@ -7566,10 +7483,7 @@ def test_cb_i02a_label_and_shape_cannot_mask_two_data_generated_incompatibilitie
 
     assert getattr(mutated_result, "status", None) == "fail"
     assert getattr(second_result, "status", None) == "fail"
-    assert (
-        _diagnostic_coordinate(mutated_result)
-        == f"distribution:{target.name}:selected_artifact"
-    )
+    assert _diagnostic_coordinate(mutated_result) == f"distribution:{target.name}:selected_artifact"
     second_names = {row.name for row in baseline.distributions}
     second_missing = sorted(
         row.name for row in second.distributions if row.name not in second_names

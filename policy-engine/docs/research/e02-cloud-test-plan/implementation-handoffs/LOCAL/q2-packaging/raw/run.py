@@ -37,8 +37,8 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
     "policy-engine/architecture/production_quality/",
     "policy-engine/workers/dowhy-014/",
 )
-INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r3.py"
-INSTALLED_ORIGIN_GATE_SHA256 = "36d687a9812ebbe5b7a6167daf4da5d71e4d75f2d390eb5b5b559b3058cfe44d"
+INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"
+INSTALLED_ORIGIN_GATE_SHA256 = "f10730a5cd51ef98b6e7f4a9269d9d87275daf77d7cf00a4393f521dc95b4eb2"
 HATCHLING_INPUT_INVENTORY_PATH = HERE / "hatchling-1.27.0-input-inventory-r3.json"
 HATCHLING_INPUT_INVENTORY_SHA256 = "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
 
@@ -946,6 +946,7 @@ def configure_installed_env(
     source_product: Path,
     env: dict[str, str],
     log_dir: Path,
+    origin_gate_source: bytes,
 ) -> tuple[Path, Path]:
     venv = run_root / "installed-consumer-env"
     run_command(
@@ -968,6 +969,17 @@ def configure_installed_env(
         raise WaveFailure(
             "fresh installed consumer venv contains a .pth file; refusing to execute it"
         )
+    if sha256_bytes(origin_gate_source) != INSTALLED_ORIGIN_GATE_SHA256:
+        raise WaveFailure("verified installed-origin gate bytes changed before venv setup")
+    gate_module_path = purelib / "q2_installed_origin_gate.py"
+    if gate_module_path.exists() or gate_module_path.is_symlink():
+        raise WaveFailure(f"unexpected file already occupies the installed-origin helper path: {gate_module_path}")
+    try:
+        gate_module_path.write_bytes(origin_gate_source)
+    except OSError as error:
+        raise WaveFailure(f"cannot materialize the verified installed-origin helper: {gate_module_path}") from error
+    if gate_module_path.read_bytes() != origin_gate_source:
+        raise WaveFailure("installed-origin helper readback differs from the verified gate bytes")
     if not app_dependency_site.is_dir():
         raise WaveFailure(f"locked dependency site is missing: {app_dependency_site}")
     sitecustomize = (
@@ -986,6 +998,7 @@ def configure_installed_env(
 import json, os, sys, sysconfig
 from pathlib import Path
 import pytest
+import q2_installed_origin_gate
 
 def _under(path, root):
     try:
@@ -1005,26 +1018,11 @@ def pytest_sessionfinish(session, exitstatus):
     live_product = Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()
     forbidden_roots = [source, live_product]
     forbidden_sys_path = [p for p in sys.path if p and any(_under(p, root) for root in forbidden_roots)]
-    origins = {}
-    errors = []
-    for name, module in sorted(sys.modules.copy().items()):
-        if not (name == "polisyos" or name.startswith("polisyos.") or name == "tools" or name.startswith("tools.")):
-            continue
-        module_file = getattr(module, "__file__", None)
-        spec = getattr(module, "__spec__", None)
-        locations = list(getattr(spec, "submodule_search_locations", ()) or ())
-        if module_file:
-            origin = str(Path(module_file).resolve())
-            origins[name] = origin
-            if not _under(origin, purelib):
-                errors.append({"module": name, "origin": origin, "reason": "outside installed purelib"})
-        elif locations:
-            resolved = [str(Path(location).resolve()) for location in locations]
-            origins[name] = resolved
-            if not all(_under(location, purelib) for location in resolved):
-                errors.append({"module": name, "origin": resolved, "reason": "namespace outside installed purelib"})
-        else:
-            errors.append({"module": name, "origin": None, "reason": "no inspectable module origin"})
+    origins, errors = q2_installed_origin_gate.verify_loaded_module_origins(
+        purelib, sys.modules.copy()
+    )
+    if "polisyos" not in origins:
+        errors.append({"module": "polisyos", "reason": "installed package root was not imported"})
     if forbidden_sys_path:
         errors.append({"sys_path": forbidden_sys_path, "reason": "source or test path injected"})
     normalized_sys_path = [str(Path(path).resolve()) for path in sys.path]
@@ -1094,12 +1092,10 @@ import polisyos, tools
 from polisyos.data_forge.domains.catalog import _resources
 from polisyos.foundry.methods.catalog import dependency_authority
 from polisyos.foundry.methods.catalog.causal import _dowhy_worker
-module_origins={name:str(Path(module.__file__).resolve()) for name,module in sys.modules.copy().items() if (name=="polisyos" or name.startswith("polisyos.") or name=="tools" or name.startswith("tools.")) and getattr(module,"__file__",None)}
+module_origins,module_origin_errors=verify_loaded_module_origins(purelib,sys.modules.copy())
 assert module_origins
-assert all(Path(origin).is_relative_to(purelib) for origin in module_origins.values()), module_origins
-assert Path(_resources.__file__).resolve().is_relative_to(purelib)
-assert Path(dependency_authority.__file__).resolve().is_relative_to(purelib)
-assert Path(_dowhy_worker.__file__).resolve().is_relative_to(purelib)
+assert not module_origin_errors,module_origin_errors
+assert {"polisyos","tools"} <= set(module_origins),module_origins
 def resolve_selected_installed_readers(
     profile: str,
     purelib: Path,
@@ -1159,7 +1155,7 @@ def verify_selected_installed_resources(
     return verify_installed_resources(purelib, assets, reader_paths)
 
 asset_rows,reader_rows=verify_selected_installed_resources(profile,purelib,assets,_resources,dependency_authority,_dowhy_worker)
-print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__).resolve()),"tools_origin":str(Path(tools.__file__).resolve()),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
+print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__)),"tools_origin":str(Path(tools.__file__)),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
 """
     child_env = clean_child_env()
     child_env.update(
@@ -2229,6 +2225,7 @@ def run_wave(args: argparse.Namespace) -> Path:
             frozen_product,
             env,
             run_root / "logs",
+            origin_gate_source,
         )
 
         run_inputs = {

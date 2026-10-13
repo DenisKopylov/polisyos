@@ -477,6 +477,38 @@ def canonical_json_sha256(value: Any) -> str:
     return sha256(data)
 
 
+def installed_origin_gate_binding(primary_source: bytes) -> tuple[str, str]:
+    """Resolve the exact ignored local gate filename/hash declared by the frozen runner."""
+    try:
+        tree = ast.parse(primary_source.decode("utf-8", "strict"), filename=RUNNER_REL)
+    except (UnicodeDecodeError, SyntaxError) as error:
+        raise AuditFailure("primary runner cannot be parsed for its installed-origin gate") from error
+    values: dict[str, ast.expr] = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        targets = [target.id for target in node.targets if isinstance(target, ast.Name)]
+        for name in ("INSTALLED_ORIGIN_GATE_PATH", "INSTALLED_ORIGIN_GATE_SHA256"):
+            if name in targets:
+                if targets != [name] or name in values:
+                    raise AuditFailure(f"primary runner has an ambiguous {name} binding")
+                values[name] = node.value
+    if set(values) != {"INSTALLED_ORIGIN_GATE_PATH", "INSTALLED_ORIGIN_GATE_SHA256"}:
+        raise AuditFailure("primary runner omits its exact installed-origin gate binding")
+    path_value = values["INSTALLED_ORIGIN_GATE_PATH"]
+    if not (isinstance(path_value, ast.BinOp) and isinstance(path_value.op, ast.Div) and isinstance(path_value.left, ast.Name) and path_value.left.id == "HERE" and isinstance(path_value.right, ast.Constant) and type(path_value.right.value) is str):
+        raise AuditFailure("installed-origin gate path is not a literal HERE-relative filename")
+    filename = path_value.right.value
+    if not filename.endswith(".py") or Path(filename).name != filename or filename in {"", ".", ".."} or chr(92) in filename or "/" in filename:
+        raise AuditFailure("installed-origin gate filename is not one safe Python source member")
+    digest_value = values["INSTALLED_ORIGIN_GATE_SHA256"]
+    if not isinstance(digest_value, ast.Constant) or type(digest_value.value) is not str or not re.fullmatch(r"[0-9a-f]{64}", digest_value.value):
+        raise AuditFailure("installed-origin gate SHA-256 is not one full lowercase digest")
+    relative = f"{HANDOFF_REL}/raw/{filename}"
+    safe_relative(relative)
+    return relative, digest_value.value
+
+
 def input_file_records(
     repo: Path,
     source_sha: str,
@@ -543,6 +575,15 @@ def input_file_records(
         capsule_contents[supplemental_manifest_relative] = supplemental_manifest_bytes
 
     raw_rows: dict[str, Any] = {}
+    origin_gate_relative, origin_gate_sha256 = installed_origin_gate_binding(capsule_contents[RUNNER_REL])
+    gate_ignored = subprocess.run(["git", "-C", str(repo), "check-ignore", "--quiet", "--", origin_gate_relative], capture_output=True, check=False)
+    if gate_ignored.returncode != 0:
+        raise AuditFailure("installed-origin gate must remain an ignored local runner input")
+    origin_gate_bytes = read_regular_local(repo / origin_gate_relative)
+    if sha256(origin_gate_bytes) != origin_gate_sha256:
+        raise AuditFailure("local installed-origin gate differs from the exact source-runner SHA pin")
+    raw_rows[origin_gate_relative] = {"bytes": len(origin_gate_bytes), "sha256": origin_gate_sha256, "ignored": True}
+    capsule_contents[origin_gate_relative] = origin_gate_bytes
     if sha256(supplemental_manifest_bytes) != supplemental_manifest_sha256:
         raise AuditFailure(
             "explicit supplemental manifest SHA-256 differs from its exact input bytes"
@@ -743,6 +784,74 @@ def validate_supplemental_node_ids(manifest: dict[str, Any], expected_ids: set[s
         raise AuditFailure("supplemental source collection contains undeclared selector IDs")
 
 
+def self_test_origin_gate_symlink() -> bool:
+    """Load same-byte modules through outside symlink paths and require refusal."""
+    import importlib.machinery
+    import importlib.util
+    import runpy
+    import tempfile
+
+    gate_path = Path(__file__).resolve(strict=True).with_name("installed_origin_gate_r4.py")
+    if not gate_path.is_file():
+        raise AuditFailure(f"installed-origin gate source is missing: {gate_path}")
+    verify = runpy.run_path(str(gate_path)).get("verify_loaded_module_origins")
+    if not callable(verify):
+        raise AuditFailure("installed-origin gate has no generic loaded-module verifier")
+    with tempfile.TemporaryDirectory(prefix="q2-origin-") as scratch:
+        root = Path(scratch)
+        purelib, outside = root / "site-packages", root / "outside"
+        purelib.mkdir()
+        outside.mkdir()
+        nested = outside / "nested"
+        nested.mkdir()
+        source = purelib / "origin_probe.py"
+        payload = b"VALUE = 17\n"
+        source.write_bytes(payload)
+        outside_target = outside / "origin_probe.py"
+        outside_target.write_bytes(payload)
+        direct_alias = outside / "origin_probe_alias.py"
+        direct_alias.symlink_to(source)
+        escape = purelib / "escape"
+        escape.symlink_to(nested, target_is_directory=True)
+        if direct_alias.read_bytes() != source.read_bytes() or outside_target.read_bytes() != source.read_bytes():
+            raise AuditFailure("outside origin controls do not preserve identical bytes")
+
+        inside_spec = importlib.util.spec_from_file_location("polisyos.origin_probe_inside", source)
+        direct_spec = importlib.util.spec_from_file_location("polisyos.origin_probe_direct_escape", direct_alias)
+        if inside_spec is None or inside_spec.loader is None or direct_spec is None or direct_spec.loader is None:
+            raise AuditFailure("cannot construct real importlib module-origin controls")
+        inside_module = importlib.util.module_from_spec(inside_spec)
+        inside_spec.loader.exec_module(inside_module)
+        _, inside_errors = verify(purelib, {inside_spec.name: inside_module})
+        if inside_errors:
+            raise AuditFailure(f"inside installed module was rejected: {inside_errors}")
+
+        direct_module = importlib.util.module_from_spec(direct_spec)
+        direct_spec.loader.exec_module(direct_module)
+        if Path(direct_module.__file__).resolve(strict=True).is_relative_to(purelib.resolve(strict=True)):
+            raise AuditFailure("direct symlink control did not resolve to the inside target")
+        _, direct_errors = verify(purelib, {direct_spec.name: direct_module})
+        direct_rejected = any(error.get("module") == direct_spec.name for error in direct_errors)
+
+        # SourceFileLoader is the real Python source loader; using its raw path
+        # preserves the link/.. traversal that abspath would erase before stat.
+        traversal_path = purelib / "escape" / ".." / "origin_probe.py"
+        traversal_name = "polisyos.origin_probe_parent_escape"
+        traversal_loader = importlib.machinery.SourceFileLoader(traversal_name, str(traversal_path))
+        traversal_spec = importlib.machinery.ModuleSpec(traversal_name, traversal_loader, origin=str(traversal_path))
+        traversal_spec.has_location = True
+        traversal_module = importlib.util.module_from_spec(traversal_spec)
+        traversal_loader.exec_module(traversal_module)
+        reported = Path(traversal_module.__file__)
+        if reported != traversal_path:
+            raise AuditFailure("source loader did not preserve the reported parent-traversal origin")
+        resolved = reported.resolve(strict=True)
+        if resolved.is_relative_to(purelib.resolve(strict=True)) or resolved.read_bytes() != source.read_bytes():
+            raise AuditFailure("parent-traversal control did not load identical bytes from outside purelib")
+        _, traversal_errors = verify(purelib, {traversal_name: traversal_module})
+        traversal_rejected = any(error.get("module") == traversal_name for error in traversal_errors)
+        return direct_rejected and traversal_rejected
+
 def self_test() -> dict[str, Any]:
     """Exercise manifest drift controls without a repository, build, or test suite."""
     baseline = {"tests/unit/test_source.py::test_baseline"}
@@ -769,6 +878,14 @@ def self_test() -> dict[str, Any]:
     validate_recomputed_ids(template, actual)
 
     cases: dict[str, bool] = {}
+    expanded_actual = actual | {"tests/unit/test_registry.py::test_registry[missing]", "tests/unit/test_registry.py::test_registry[unreadable]", "tests/unit/test_registry.py::test_registry[corrupt]"}
+    expanded_manifest = copy.deepcopy(template)
+    expanded_suite = expanded_manifest["current_primary_suite"]
+    expanded_suite["selected_node_ids"] = sorted(expanded_actual)
+    expanded_suite["selected_node_count"] = len(expanded_actual)
+    expanded_suite["selected_node_ids_sha256"] = canonical_ids_sha256(expanded_actual)
+    validate_recomputed_ids(expanded_manifest, expanded_actual, template["candidate_baseline"]["force_include_assets"])
+    cases["count-derived-from-complete-variable-collection"] = expanded_suite["selected_node_count"] == len(expanded_actual) and len(expanded_actual) != len(actual)
     for name, mutate in (
         (
             "corrupt-count-mismatch",
@@ -820,6 +937,26 @@ def self_test() -> dict[str, Any]:
             cases[name] = False
     if not all(cases.values()):
         raise AuditFailure(f"self-test failed to reject drift controls: {cases}")
+    gate_source = (
+        "from pathlib import Path\n"
+        "HERE = Path(__file__).resolve().parent\n"
+        'INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"\n'
+        f'INSTALLED_ORIGIN_GATE_SHA256 = "{"a" * 64}"\n'
+    ).encode("utf-8")
+    expected_gate_binding = (f"{HANDOFF_REL}/raw/installed_origin_gate_r4.py", "a" * 64)
+    if installed_origin_gate_binding(gate_source) != expected_gate_binding:
+        raise AuditFailure("runner origin-gate binding did not resolve exact literal inputs")
+    try:
+        installed_origin_gate_binding(gate_source.replace(("a" * 64).encode(), b"bad"))
+    except AuditFailure:
+        cases["malformed-runner-gate-digest-rejected"] = True
+    else:
+        cases["malformed-runner-gate-digest-rejected"] = False
+    if not cases["malformed-runner-gate-digest-rejected"]:
+        raise AuditFailure("source audit accepted a non-full runner gate digest")
+    cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"] = self_test_origin_gate_symlink()
+    if not cases["outside-identical-byte-symlink-and-parent-traversal-origin-controls"]:
+        raise AuditFailure("installed-origin verifier accepted an outside symlink/path-normalization falsifier")
     class_actual = {
         "tests/unit/test_supplemental.py::TestSupplemental::test_parameterized[a]",
         "tests/unit/test_supplemental.py::TestSupplemental::test_parameterized[b]",
@@ -1268,6 +1405,7 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         "primary_selector_expansions": primary_group_expansions,
         "supplemental_selector_expansion_detected": supplemental_ids != direct_supplemental_ids,
         "count_is_not_runtime_acceptance": True,
+        "primary_selection_finality": "FINAL_SOURCE_REQUIRED",
         "resource_config": asset_receipt,
         "transitive_fixture_sha256": fixture_hashes,
         "lock_build_and_archive_inputs": locked_inputs,

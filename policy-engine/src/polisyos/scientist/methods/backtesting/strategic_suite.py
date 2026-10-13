@@ -123,6 +123,7 @@ def _build_strategic_gaming_suite_from_raw(
         abstraction_certificate=abstraction_certificate,
         macro_payoff_tables=macro_payoff_tables,
     )
+    planned_case_ids = [base_case.case_id]
     case_results = [
         build_challenge_case_result(
             case=base_case,
@@ -141,6 +142,7 @@ def _build_strategic_gaming_suite_from_raw(
         expected_outcome="blocked_without_static_fallback",
         severity="critical",
     )
+    planned_case_ids.append(budget_case.case_id)
     exhausted_contract = contract.model_copy(
         update={"compute_budget": contract.compute_budget.model_copy(update={"max_sim_runs": 0.0})}
     )
@@ -178,6 +180,7 @@ def _build_strategic_gaming_suite_from_raw(
             expected_outcome="no_silent_static_fallback",
             severity="high",
         )
+        planned_case_ids.append(summary_case.case_id)
         summary_passed = _summary_uses_declared_hierarchy(strategic_summary)
         case_results.append(
             build_challenge_case_result(
@@ -205,6 +208,7 @@ def _build_strategic_gaming_suite_from_raw(
         loop_id=loop_id,
         challenge_family="strategic_gaming",
         case_results=case_results,
+        planned_case_ids=planned_case_ids,
         primary_failure_rate_name="silent_static_fallback_rate",
         vulnerability_type=VulnerabilityType.COMBINATORIAL,
         metadata={"suite_origin": "raw_inputs"},
@@ -235,6 +239,7 @@ def _build_multiplicity_suite_from_raw(
         uniform_tables,
         baseline_policy_value=baseline_policy_value,
     )
+    planned_case_ids = [multiplicity_case.case_id]
     case_results = [
         build_challenge_case_result(
             case=multiplicity_case,
@@ -260,6 +265,7 @@ def _build_multiplicity_suite_from_raw(
             expected_outcome="no_undisclosed_multiplicity",
             severity="high",
         )
+        planned_case_ids.append(observed_case.case_id)
         summary_passed = _summary_has_multiplicity_disclosure(strategic_summary)
         case_results.append(
             build_challenge_case_result(
@@ -281,6 +287,7 @@ def _build_multiplicity_suite_from_raw(
         loop_id=loop_id,
         challenge_family="multiplicity_disclosure",
         case_results=case_results,
+        planned_case_ids=planned_case_ids,
         primary_failure_rate_name="undisclosed_multiplicity_rate",
         vulnerability_type=VulnerabilityType.COMBINATORIAL,
         metadata={"suite_origin": "raw_inputs"},
@@ -317,6 +324,7 @@ def _build_strategic_gaming_suite_from_summary(
                 ),
             )
         ],
+        planned_case_ids=[case.case_id],
         primary_failure_rate_name="silent_static_fallback_rate",
         vulnerability_type=VulnerabilityType.COMBINATORIAL,
         metadata={"suite_origin": "summary_audit"},
@@ -354,6 +362,7 @@ def _build_multiplicity_suite_from_summary(
                 metadata={"is_disclosure_failure": not passed},
             )
         ],
+        planned_case_ids=[case.case_id],
         primary_failure_rate_name="undisclosed_multiplicity_rate",
         vulnerability_type=VulnerabilityType.COMBINATORIAL,
         metadata={"suite_origin": "summary_audit"},

@@ -14,9 +14,11 @@ import pytest
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.scientist.methods.search.controller import (
+    SearchBudgetProducerUnsupportedError,
     SearchConfig,
     SearchController,
     SearchStatus,
+    TracedLLMCandidateGenerator,
 )
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
@@ -306,6 +308,778 @@ class TestOptimizationFlow:
         assert result.telemetry["budget_spent"] == 1.0
         assert "Cost budget" in result.stopping_reason
 
+    @pytest.mark.parametrize(
+        ("wire_cost", "owner_limit", "expected_owner_status", "expected_stage_b"),
+        [
+            ("0.25", "0.50", "resolved", 1),
+            ("0.25", "0.25", "resolved", 0),
+            ("0", "0.50", "resolved", 1),
+            ("true", "0.50", "unavailable", 0),
+        ],
+    )
+    def test_durable_provider_owner_controls_search_stopping_and_result(
+        self,
+        tmp_path,
+        quadratic_objective,
+        wire_cost: str,
+        owner_limit: str,
+        expected_owner_status: str,
+        expected_stage_b: int,
+    ) -> None:
+        """Wire real provider bytes through settlement, run scope, stopping, and result."""
+        import json
+        from decimal import Decimal
+
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+
+        run_id = f"search-owner-{wire_cost}-{owner_limit}"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id=f"control-{run_id}",
+        )
+        ledger_path = tmp_path / f"{run_id}.json"
+        owner = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    budget_key: BudgetLimit(
+                        key=budget_key,
+                        max_usd=Decimal(owner_limit),
+                    )
+                }
+            ),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+
+        response_json = json.dumps(
+            {
+                "model": "fixture-model",
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": '{"x":1.0,"semantic":{"interventions":[]}}',
+                        }
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 2,
+                    "completion_tokens": 1,
+                    "total_cost_usd": json.loads(wire_cost),
+                },
+            }
+        )
+
+        class FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class FakeContext:
+            async def __aenter__(self) -> FakeResponse:
+                return FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class FakeSession:
+            closed = False
+
+            def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+                return FakeContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="fixture-key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        gateway._session = FakeSession()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=owner,
+            producer_budget_key=budget_key,
+        )
+
+        candidate_generator = TracedLLMCandidateGenerator(
+            client=traced,
+            system_prompt="Return one search candidate as a non-empty JSON object.",
+        )
+
+        stage_b_calls: list[dict[str, Any]] = []
+
+        def stage_b(candidate, context):
+            del context
+            stage_b_calls.append(candidate)
+            return {
+                "simulation_results": {"x": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=CostBudgetStopping(max_cost_usd=0.3),
+                objective=quadratic_objective,
+                max_iterations_hard_limit=1,
+                producer_settlement_store=owner,
+                producer_run_binding=binding,
+            ),
+            candidate_generator=candidate_generator,
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+        result = controller.run({"cumulative_cost_usd": 1000.0})
+
+        durable = FileBudgetLedger(ledger_path).snapshot()
+        events = list(durable.producer_settlements.values())
+        assert len(events) == 1
+        assert events[0].run_binding == binding
+        assert events[0].key == budget_key
+        assert events[0].status == ("unknown" if wire_cost == "true" else "committed")
+        assert len(stage_b_calls) == expected_stage_b
+        owner_telemetry = result.telemetry["producer_budget_owner"]
+        assert owner_telemetry["status"] == expected_owner_status
+        if expected_owner_status == "resolved":
+            assert owner_telemetry["event_status_counts"] == {"committed": 1}
+            assert Decimal(owner_telemetry["spent"]) == (
+                Decimal(0) if wire_cost == "0" else Decimal("0.25")
+            )
+            assert result.telemetry["budget_available"] is True
+        else:
+            assert owner_telemetry.get("event_status_counts") is None
+            assert "valueerror" in owner_telemetry["reason_code"]
+            assert result.telemetry["budget_available"] is False
+            assert result.telemetry["budget_spent"] is None
+
+    @pytest.mark.parametrize(
+        ("wire_cost", "expected_owner_status", "expected_evaluations"),
+        [("0.25", "resolved", 1), ("true", "unavailable", 0)],
+    )
+    def test_autotune_runner_binds_real_provider_call_to_durable_budget_owner(
+        self,
+        tmp_path,
+        wire_cost: str,
+        expected_owner_status: str,
+        expected_evaluations: int,
+    ) -> None:
+        """The SearchLoopRunner caller carries its exact owner binding through replay."""
+        import json
+        from decimal import Decimal
+
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.methods.autotune import (
+            BenchmarkEvaluation,
+            BenchmarkSplit,
+            BenchmarkSuite,
+            ChampionRegistry,
+            MetricDirection,
+            MutationArtifact,
+            PromotionPolicy,
+            SearchLoopRunner,
+            SearchLoopSpec,
+            persist_benchmark_suite,
+        )
+        from polisyos.scientist.methods.autotune.models import load_model_artifact
+        from polisyos.scientist.methods.autotune.runtime import PydanticMutationCodec
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+
+        run_id = f"autotune-owner-{wire_cost}"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-autotune-test",
+            cell_id="cell-autotune-test",
+            profile_id="autotune-profile-test",
+            control_job_id=f"control-{run_id}",
+        )
+        ledger_path = tmp_path / f"{run_id}.json"
+        owner = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    budget_key: BudgetLimit(
+                        key=budget_key,
+                        max_usd=Decimal("0.50"),
+                    )
+                }
+            ),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+        response_json = json.dumps(
+            {
+                "model": "fixture-model",
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": '{"loop_id":"autotune_owner","value":1}',
+                        }
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 2,
+                    "completion_tokens": 1,
+                    "total_cost_usd": json.loads(wire_cost),
+                },
+            }
+        )
+
+        class FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class FakeContext:
+            async def __aenter__(self) -> FakeResponse:
+                return FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class FakeSession:
+            closed = False
+
+            def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+                return FakeContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="fixture-key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        gateway._session = FakeSession()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=owner,
+            producer_budget_key=budget_key,
+        )
+
+        class SearchMutation(MutationArtifact):
+            value: int
+
+        candidate_generator = TracedLLMCandidateGenerator(
+            client=traced,
+            system_prompt="Return one autotune candidate as a non-empty JSON object.",
+        )
+
+        evaluations: list[BenchmarkEvaluation] = []
+
+        class TypedEvaluator:
+            def evaluate(self, candidate_ref, suite_ref, context):
+                del suite_ref
+                candidate = load_model_artifact(context["store"], candidate_ref, SearchMutation)
+                evaluation = BenchmarkEvaluation(
+                    loop_id="autotune_owner",
+                    suite_id="autotune_owner_suite",
+                    suite_version="1.0",
+                    candidate_ref=candidate_ref,
+                    selection_metrics={"score": float(candidate.value)},
+                    holdout_metrics={"score": float(candidate.value)},
+                    sample_counts={
+                        BenchmarkSplit.SELECTION.value: 1,
+                        BenchmarkSplit.HOLDOUT.value: 1,
+                    },
+                    guardrails={"score_present": True},
+                    promotable=True,
+                    runtime_split_type=BenchmarkSplit.HOLDOUT,
+                )
+                evaluations.append(evaluation)
+                return evaluation
+
+        store = FileSystemCAS(tmp_path / "cas")
+        suite_ref = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(suite_id="autotune_owner_suite", suite_version="1.0"),
+        )
+        spec = SearchLoopSpec(
+            loop_id="autotune_owner",
+            mutation_codec=PydanticMutationCodec(SearchMutation),
+            candidate_generator=candidate_generator,
+            benchmark_evaluator=TypedEvaluator(),
+            promotion_policy=PromotionPolicy(
+                loop_id="autotune_owner",
+                primary_metric="score",
+                direction=MetricDirection.MAXIMIZE,
+                compare_split=BenchmarkSplit.HOLDOUT,
+                min_sample_count=1,
+                required_guardrails=["score_present"],
+            ),
+        )
+        runner = SearchLoopRunner(
+            store=store,
+            registry=ChampionRegistry(root=tmp_path / "registry", store=store),
+        )
+
+        result = runner.run(
+            spec,
+            suite_ref=suite_ref,
+            context={"run_id": run_id, "cumulative_cost_usd": 1000.0},
+            max_iterations=1,
+            producer_settlement_store=owner,
+            producer_run_binding=binding,
+        )
+
+        durable = FileBudgetLedger(ledger_path).snapshot()
+        events = list(durable.producer_settlements.values())
+        assert len(events) == 1
+        assert events[0].run_binding == binding
+        assert events[0].key == budget_key
+        assert events[0].status == ("unknown" if wire_cost == "true" else "committed")
+        assert len(evaluations) == expected_evaluations
+        owner_telemetry = result.telemetry["producer_budget_owner"]
+        assert owner_telemetry["status"] == expected_owner_status
+        assert owner_telemetry["run_binding"]["run_id"] == run_id
+        if expected_owner_status == "resolved":
+            assert owner_telemetry["event_status_counts"] == {"committed": 1}
+            assert Decimal(owner_telemetry["spent"]) == Decimal("0.25")
+            assert result.telemetry["budget_spent"] == 0.25
+            assert result.history
+        else:
+            assert owner_telemetry.get("event_status_counts") is None
+            assert "valueerror" in owner_telemetry["reason_code"]
+            assert result.history == []
+
+    def test_budgeted_search_refuses_unproven_generator_before_runner_callback(
+        self,
+        tmp_path,
+    ) -> None:
+        """An arbitrary callback is refused before SearchLoopRunner configures it."""
+        from decimal import Decimal
+        from types import SimpleNamespace
+
+        from polisyos.scientist.methods.autotune.runtime import SearchLoopRunner
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+        run_id = "search-unproven-generator"
+        budget_key = f"nl-run:{run_id}"
+        owner = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    budget_key: BudgetLimit(
+                        key=budget_key,
+                        max_usd=Decimal("1.00"),
+                    )
+                }
+            ),
+            ledger=FileBudgetLedger(tmp_path / "unproven.json"),
+        )
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id="control-search-unproven-generator",
+        )
+
+        class UnprovenGenerator:
+            def __init__(self) -> None:
+                self.context_calls = 0
+                self.generation_calls = 0
+
+            def set_search_run_context(self, _context: dict[str, Any]) -> None:
+                self.context_calls += 1
+
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                self.generation_calls += 1
+                return {"x": 1.0}
+
+        generator = UnprovenGenerator()
+        runner = SearchLoopRunner.__new__(SearchLoopRunner)
+        runner._store = object()
+        runner._registry = object()
+        spec = SimpleNamespace(loop_id="unproven", candidate_generator=generator)
+
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            runner.run(
+                spec,
+                suite_ref=object(),
+                producer_settlement_store=owner,
+                producer_run_binding=binding,
+            )
+
+        assert raised.value.reason_code == "budgeted_search_requires_traced_candidate_generator"
+        assert generator.context_calls == 0
+        assert generator.generation_calls == 0
+
+    def test_budgeted_search_rejects_traced_client_bound_to_another_owner(
+        self,
+        tmp_path,
+        quadratic_objective,
+    ) -> None:
+        """A real traced client with a foreign owner cannot run under this owner claim."""
+        from decimal import Decimal
+
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+        run_id = "search-owner-mismatch"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id="control-search-owner-mismatch",
+        )
+
+        def make_owner(name: str) -> BudgetMiddleware:
+            return BudgetMiddleware(
+                BudgetState(
+                    limits={
+                        budget_key: BudgetLimit(
+                            key=budget_key,
+                            max_usd=Decimal("1.00"),
+                        )
+                    }
+                ),
+                ledger=FileBudgetLedger(tmp_path / f"{name}.json"),
+            )
+
+        selected_owner = make_owner("selected")
+        foreign_owner = make_owner("foreign")
+
+        class NeverProvider:
+            async def generate(self, **_kwargs: Any) -> object:
+                pytest.fail("owner mismatch must be rejected before provider dispatch")
+
+        traced = TracedLLMClient(
+            NeverProvider(),
+            model_name="fixture-model",
+            producer_settlement_store=foreign_owner,
+            producer_budget_key=budget_key,
+        )
+        generator = TracedLLMCandidateGenerator(
+            client=traced,
+            system_prompt="Return a candidate object.",
+        )
+
+        with pytest.raises(SearchBudgetProducerUnsupportedError) as raised:
+            SearchController(
+                config=SearchConfig(
+                    stopping=CostBudgetStopping(max_cost_usd=0.30),
+                    objective=quadratic_objective,
+                    producer_settlement_store=selected_owner,
+                    producer_run_binding=binding,
+                ),
+                candidate_generator=generator,
+                stage_a_evaluator=lambda candidate, context: (0.0, True),
+                stage_b_evaluator=lambda candidate, context: {
+                    "simulation_results": {"x": candidate["x"]},
+                    "feedback": {"verdict": "APPROVE"},
+                },
+            )
+
+        assert raised.value.reason_code == "selected_traced_client_owner_or_run_mismatch"
+
+    def test_generation_with_missing_owner_event_readback_stops_before_stage_b(
+        self,
+        tmp_path,
+        quadratic_objective,
+    ) -> None:
+        """A hidden first settlement cannot pass through the initial empty-event window."""
+        import json
+        from decimal import Decimal
+
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+
+        run_id = "search-owner-hidden-first-event"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id="control-search-owner-hidden-first-event",
+        )
+        ledger_path = tmp_path / "hidden-first-event.json"
+        owner = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    budget_key: BudgetLimit(
+                        key=budget_key,
+                        max_usd=Decimal("1.00"),
+                    )
+                }
+            ),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+        response_json = json.dumps(
+            {
+                "model": "fixture-model",
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": '{"x":1.0,"semantic":{"interventions":[]}}',
+                        }
+                    }
+                ],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_cost_usd": 0},
+            }
+        )
+
+        class FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class FakeContext:
+            async def __aenter__(self) -> FakeResponse:
+                return FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class FakeSession:
+            closed = False
+
+            def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+                return FakeContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="fixture-key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        gateway._session = FakeSession()
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=owner,
+            producer_budget_key=budget_key,
+        )
+        stage_b_calls: list[dict[str, Any]] = []
+
+        def stage_b(candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
+            stage_b_calls.append(candidate)
+            return {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=CostBudgetStopping(max_cost_usd=1.00),
+                objective=quadratic_objective,
+                producer_settlement_store=owner,
+                producer_run_binding=binding,
+            ),
+            candidate_generator=TracedLLMCandidateGenerator(
+                client=traced,
+                system_prompt="Return one search candidate as a non-empty JSON object.",
+            ),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+        owner.list_producer_events_for_run_safe = lambda _binding: ()
+
+        result = controller.run({"cumulative_cost_usd": 999.0})
+
+        durable = FileBudgetLedger(ledger_path).snapshot()
+        events = list(durable.producer_settlements.values())
+        assert len(events) == 1
+        assert events[0].run_binding == binding
+        assert events[0].key == budget_key and events[0].status == "committed"
+        assert events[0].amount == Decimal(0)
+        assert stage_b_calls == []
+        assert result.iterations_completed == 0
+        assert result.stage_b_evaluations == 0
+        assert result.telemetry["producer_budget_owner"]["status"] == "unavailable"
+        assert "valueerror" in result.telemetry["producer_budget_owner"]["reason_code"]
+
+    def test_durable_spend_crosses_cost_threshold_after_two_traced_calls(
+        self,
+        tmp_path,
+        quadratic_objective,
+    ) -> None:
+        """The actual durable owner spend, not caller context, stops later evaluation."""
+        import json
+        from decimal import Decimal
+
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+
+        run_id = "search-owner-crosses-threshold"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id="control-search-owner-crosses-threshold",
+        )
+        ledger_path = tmp_path / "crosses-threshold.json"
+        owner = BudgetMiddleware(
+            BudgetState(
+                limits={
+                    budget_key: BudgetLimit(
+                        key=budget_key,
+                        max_usd=Decimal("1.00"),
+                    )
+                }
+            ),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+        response_json = json.dumps(
+            {
+                "model": "fixture-model",
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": '{"x":1.0,"semantic":{"interventions":[]}}',
+                        }
+                    }
+                ],
+                "usage": {
+                    "prompt_tokens": 2,
+                    "completion_tokens": 1,
+                    "total_cost_usd": 0.25,
+                },
+            }
+        )
+
+        class FakeResponse:
+            status = 200
+            headers: dict[str, str] = {}
+
+            async def text(self) -> str:
+                return response_json
+
+        class FakeContext:
+            async def __aenter__(self) -> FakeResponse:
+                return FakeResponse()
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+        class FakeSession:
+            closed = False
+
+            def __init__(self) -> None:
+                self.request_count = 0
+
+            def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+                self.request_count += 1
+                return FakeContext()
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="fixture-key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        session = FakeSession()
+        gateway._session = session
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=owner,
+            producer_budget_key=budget_key,
+        )
+        stage_b_calls: list[dict[str, Any]] = []
+
+        def stage_b(candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
+            stage_b_calls.append(candidate)
+            return {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=CostBudgetStopping(max_cost_usd=0.30),
+                objective=quadratic_objective,
+                max_iterations_hard_limit=4,
+                producer_settlement_store=owner,
+                producer_run_binding=binding,
+            ),
+            candidate_generator=TracedLLMCandidateGenerator(
+                client=traced,
+                system_prompt="Return one search candidate as a non-empty JSON object.",
+            ),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+
+        result = controller.run({"cumulative_cost_usd": 999.0})
+
+        durable = FileBudgetLedger(ledger_path).snapshot()
+        events = list(durable.producer_settlements.values())
+        assert session.request_count == 2
+        assert len(events) == 2
+        assert all(event.run_binding == binding for event in events)
+        assert all(event.key == budget_key and event.status == "committed" for event in events)
+        assert sum((event.amount or Decimal(0) for event in events), Decimal(0)) == Decimal("0.50")
+        assert Decimal(result.telemetry["producer_budget_owner"]["spent"]) == Decimal("0.50")
+        assert result.iterations_completed == 1
+        assert result.stage_b_evaluations == 1
+        assert len(stage_b_calls) == 1
+        assert result.stopping_reason is not None
+        assert "Cost budget" in result.stopping_reason
+
     def test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective(
         self,
         quadratic_objective,
@@ -559,6 +1333,87 @@ class TestStoppingCriteria:
         )
 
         assert not result.should_stop
+
+    @pytest.mark.parametrize(
+        "invalid_value",
+        [
+            pytest.param(math.inf, id="positive-infinity"),
+            pytest.param(-math.inf, id="negative-infinity"),
+            pytest.param(math.nan, id="nan"),
+            pytest.param(None, id="null"),
+            pytest.param("not-a-number", id="malformed-string"),
+            pytest.param(True, id="boolean-is-not-a-metric"),
+        ],
+    )
+    def test_improvement_plateau_refuses_nonfinite_or_malformed_window_values(self, invalid_value):
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        history = [{"objective_value": 1.0} for _ in range(4)]
+        history[-1]["objective_value"] = invalid_value
+
+        result = criterion.check(history, {})
+
+        assert not result.should_stop
+
+    def test_improvement_plateau_does_not_drop_a_missing_historical_observation(self):
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        history = [
+            {},
+            {"objective_value": 1.0},
+            {"objective_value": 1.0},
+            {"objective_value": 1.0},
+        ]
+
+        result = criterion.check(history, {})
+
+        assert not result.should_stop
+
+    def test_improvement_plateau_does_not_treat_malformed_history_row_as_absence(self):
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        history = [
+            None,
+            {"objective_value": 1.0},
+            {"objective_value": 1.0},
+            {"objective_value": 1.0},
+        ]
+
+        result = criterion.check(history, {})
+
+        assert not result.should_stop
+
+    def test_search_controller_preserves_best_through_nonfinite_plateau_history(
+        self, quadratic_objective
+    ):
+        class SequenceGenerator:
+            def __init__(self):
+                self._values = iter((0.0, math.inf, math.inf, 0.0))
+
+            def generate(self, history, current_best, context):
+                del history, current_best, context
+                return {"x": next(self._values)}
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=ImprovementPlateau(patience=2, min_improvement=0.01),
+                objective=quadratic_objective,
+                max_iterations_hard_limit=4,
+            ),
+            candidate_generator=SequenceGenerator(),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {"x": candidate["x"]},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        )
+
+        result = controller.run(initial_context={})
+
+        assert result.iterations_completed == 4
+        assert result.best_candidate == {"x": 0.0}
+        assert result.best_objective == 0.0
+        assert math.isinf(result.history[1].objective_value)
+        assert math.isinf(result.history[2].objective_value)
+        assert result.stopping_reason is not None
+        assert "Hard iteration limit" in result.stopping_reason
 
     def test_composite_stops_on_first_trigger(self):
         """Composite should stop when ANY criterion triggers."""

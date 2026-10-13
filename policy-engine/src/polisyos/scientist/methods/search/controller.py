@@ -2,22 +2,26 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
+from enum import Enum
 from functools import wraps
 from math import isfinite
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.methods.search.contracts import (
+    ParetoBasisScope,
     ParetoViewProjection,
     SearchIteration,
     SearchResult,
@@ -34,13 +38,18 @@ from polisyos.scientist.methods.search.frontier import (
 from polisyos.scientist.methods.search.objective import CompositeObjective, ObjectiveValue
 from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
-from polisyos.scientist.methods.search.stopping import StoppingCriterion
+from polisyos.scientist.methods.search.stopping import StoppingCondition, StoppingCriterion
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
+    from polisyos.core.llm.traced_client import TracedLLMClient
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
     from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
         PolicyEvaluationVector,
@@ -95,6 +104,51 @@ class _PolicyEvaluationResolution:
     reason: str | None = None
 
 
+class _OwnerBudgetStopping(StoppingCriterion):
+    """Fail closed unless one exact durable owner snapshot leaves budget."""
+
+    def __init__(self, delegate: StoppingCriterion) -> None:
+        self._delegate = delegate
+
+    @property
+    def name(self) -> str:
+        return f"{self._delegate.name}+durable_producer_budget"
+
+    def state_keys(self) -> tuple[str, ...]:
+        return tuple(dict.fromkeys((*self._delegate.state_keys(), "_source_budget_remaining_usd")))
+
+    def reset(self) -> None:
+        self._delegate.reset()
+
+    def check(
+        self,
+        history: list[dict[str, Any]],
+        state: dict[str, Any],
+    ) -> StoppingCondition:
+        remaining = state.get("_source_budget_remaining_usd")
+        try:
+            valid_remaining = (
+                isinstance(remaining, (int, float, Decimal))
+                and not isinstance(remaining, bool)
+                and isfinite(float(remaining))
+            )
+        except (OverflowError, TypeError, ValueError):
+            valid_remaining = False
+        if not valid_remaining:
+            return StoppingCondition(
+                should_stop=True,
+                reason="Durable producer budget unavailable; search stopped",
+                details={"budget_available": False},
+            )
+        if Decimal(str(remaining)) <= Decimal(0):
+            return StoppingCondition(
+                should_stop=True,
+                reason="Durable producer budget exhausted; search stopped",
+                details={"budget_available": True},
+            )
+        return self._delegate.check(history, state)
+
+
 def _non_reentrant_run(
     method: Callable[..., SearchResult],
 ) -> Callable[..., SearchResult]:
@@ -134,6 +188,199 @@ class CandidateGenerator(Protocol):
         """
 
 
+class SearchBudgetProducerUnsupportedError(RuntimeError):
+    """A protected search cannot prove the selected provider and owner path."""
+
+    def __init__(self, reason_code: str, detail: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(f"{reason_code}: {detail}")
+
+
+def _search_prompt_value(value: Any) -> Any:
+    """Convert supported search inputs to JSON without dropping unknown values."""
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float):
+        if not isfinite(value):
+            raise SearchBudgetProducerUnsupportedError(
+                "search_prompt_contains_nonfinite_number",
+                "protected candidate inputs must have finite JSON numbers",
+            )
+        return value
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise SearchBudgetProducerUnsupportedError(
+                "search_prompt_contains_nonfinite_number",
+                "protected candidate inputs must have finite decimal values",
+            )
+        return str(value)
+    if isinstance(value, Enum):
+        return _search_prompt_value(value.value)
+    if isinstance(value, BaseModel):
+        return _search_prompt_value(value.model_dump(mode="json", exclude_none=False))
+    if isinstance(value, Mapping):
+        converted: dict[str, Any] = {}
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise SearchBudgetProducerUnsupportedError(
+                    "search_prompt_contains_non_string_key",
+                    "protected candidate inputs require string mapping keys",
+                )
+            converted[key] = _search_prompt_value(item)
+        return converted
+    if isinstance(value, (list, tuple)):
+        return [_search_prompt_value(item) for item in value]
+    raise SearchBudgetProducerUnsupportedError(
+        "search_prompt_contains_unsupported_value",
+        f"candidate input type {type(value).__name__} has no declared JSON projection",
+    )
+
+
+@dataclass(frozen=True)
+class TracedLLMCandidateGenerator:
+    """Generate one JSON candidate through an exact, durably settled LLM client.
+
+    The owner-bound candidate-generation path uses this concrete adapter to
+    verify the selected ``TracedLLMClient`` and exact budget owner before callbacks.
+    Other candidate generators remain supported for unprotected search only.
+    This adapter accounts for candidate generation; arbitrary evaluator callbacks
+    do not acquire an owner contract through it.
+    """
+
+    client: TracedLLMClient
+    system_prompt: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.system_prompt, str) or not self.system_prompt.strip():
+            raise ValueError("system_prompt must be a non-empty string")
+
+    @staticmethod
+    def require_bound_owner(
+        generator: CandidateGenerator,
+        store: BudgetMiddleware,
+        binding: BudgetLedgerProducerRunBinding,
+    ) -> None:
+        """Verify the selected traced client, durable owner, key, and run binding."""
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+        if type(generator) is not TracedLLMCandidateGenerator:
+            raise SearchBudgetProducerUnsupportedError(
+                "budgeted_search_requires_traced_candidate_generator",
+                "an arbitrary generator callback cannot prove which producer client it uses",
+            )
+        if type(generator.client) is not TracedLLMClient:
+            raise SearchBudgetProducerUnsupportedError(
+                "selected_traced_client_type_unproven",
+                "protected search requires the exact TracedLLMClient implementation",
+            )
+        if (
+            type(store) is not BudgetMiddleware
+            or type(binding) is not BudgetLedgerProducerRunBinding
+        ):
+            raise SearchBudgetProducerUnsupportedError(
+                "selected_traced_client_owner_or_run_mismatch",
+                "protected search requires the selected middleware and typed run binding",
+            )
+        expected_key = f"nl-run:{binding.run_id}"
+        if (
+            generator.client._producer_settlement_store is not store
+            or generator.client._producer_budget_key != expected_key
+        ):
+            raise SearchBudgetProducerUnsupportedError(
+                "selected_traced_client_owner_or_run_mismatch",
+                "the selected traced client must use the same owner and run budget key",
+            )
+        try:
+            owner_identity = store.settlement_owner_identity
+            state = store.budget_state
+            limit = state.limits.get(expected_key)
+        except Exception as exc:
+            raise SearchBudgetProducerUnsupportedError(
+                "selected_budget_owner_not_durable",
+                "the selected owner does not expose a readable durable settlement identity",
+            ) from exc
+        if (
+            type(owner_identity) is not tuple
+            or len(owner_identity) != 3
+            or any(not isinstance(part, str) or not part.strip() for part in owner_identity)
+            or limit is None
+            or limit.max_usd <= 0
+        ):
+            raise SearchBudgetProducerUnsupportedError(
+                "selected_budget_owner_or_limit_not_established",
+                "the selected owner identity and positive run limit must already exist",
+            )
+
+    def generate(
+        self,
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Request one candidate and require a JSON object response."""
+        from polisyos.core.llm.response import extract_llm_response_data
+
+        request = {
+            "history": history,
+            "current_best": current_best,
+            "context": context,
+        }
+        payload = json.dumps(
+            _search_prompt_value(request),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        user_prompt = f"Search inputs JSON:\n{payload}"
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            raise SearchBudgetProducerUnsupportedError(
+                "traced_candidate_generator_requires_sync_search_driver",
+                "the synchronous search controller cannot own an already-running event loop",
+            )
+        response = asyncio.run(
+            self.client.generate(
+                system=self.system_prompt.strip(),
+                user=user_prompt,
+                response_format={"type": "json_object"},
+            )
+        )
+        response_data = extract_llm_response_data(
+            response,
+            cache_reuse_owner=self.client._cache_reuse_owner,
+        )
+        try:
+            candidate = json.loads(response_data.content)
+        except (TypeError, ValueError) as exc:
+            raise SearchBudgetProducerUnsupportedError(
+                "traced_candidate_response_is_not_json",
+                "the selected traced provider must return one JSON candidate object",
+            ) from exc
+        if not isinstance(candidate, dict) or not candidate:
+            raise SearchBudgetProducerUnsupportedError(
+                "traced_candidate_response_is_not_object",
+                "the selected traced provider must return a non-empty JSON object",
+            )
+        validated_candidate = _search_prompt_value(candidate)
+        if not isinstance(validated_candidate, dict):
+            raise SearchBudgetProducerUnsupportedError(
+                "traced_candidate_response_is_not_object",
+                "the selected traced provider must return a JSON object",
+            )
+        return validated_candidate
+
+
 class BatchCandidateGenerator(CandidateGenerator, Protocol):
     """Generate a batch of candidate proposals for parallel Stage B evaluation."""
 
@@ -170,14 +417,46 @@ class SearchConfig:
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
+    pareto_objective_basis_by_view: dict[str, ParetoBasisScope] = field(default_factory=dict)
     max_empty_generation_attempts: int = 3
+    producer_settlement_store: BudgetMiddleware | None = None
+    producer_run_binding: BudgetLedgerProducerRunBinding | None = None
 
     def __post_init__(self) -> None:
-        """Validate the controller-owned hard bounds."""
+        """Validate controller bounds and freeze owner and Pareto contracts."""
+        if any(
+            not isinstance(basis, ParetoBasisScope)
+            for basis in self.pareto_objective_basis_by_view.values()
+        ):
+            raise TypeError("pareto_objective_basis_by_view values must be ParetoBasisScope")
+        self.pareto_objective_basis_by_view = deepcopy(self.pareto_objective_basis_by_view)
         if self.max_iterations_hard_limit < 1:
             raise ValueError("max_iterations_hard_limit must be >= 1")
         if self.max_empty_generation_attempts < 1:
             raise ValueError("max_empty_generation_attempts must be >= 1")
+        if (self.producer_settlement_store is None) != (self.producer_run_binding is None):
+            raise ValueError("durable producer budget requires both store and run binding")
+        if self.producer_run_binding is not None:
+            from polisyos.scientist.orchestration.engine.budget_ledger import (
+                BudgetLedgerProducerRunBinding,
+            )
+            from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+            if type(self.producer_run_binding) is not BudgetLedgerProducerRunBinding:
+                raise TypeError("producer_run_binding must be a server-issued typed binding")
+            if type(self.producer_settlement_store) is not BudgetMiddleware:
+                raise TypeError("producer_settlement_store must be BudgetMiddleware")
+            required_operations = (
+                "list_producer_events_for_run_safe",
+                "producer_run_binding_scope",
+            )
+            if any(
+                not callable(getattr(self.producer_settlement_store, item, None))
+                for item in required_operations
+            ):
+                raise TypeError("producer settlement owner contract is incomplete")
+            if not isinstance(self.stopping, _OwnerBudgetStopping):
+                self.stopping = _OwnerBudgetStopping(self.stopping)
 
 
 class SearchController:
@@ -202,6 +481,13 @@ class SearchController:
     ) -> None:
         self._config = config
         self._generator = candidate_generator
+        if config.producer_settlement_store is not None:
+            assert config.producer_run_binding is not None
+            TracedLLMCandidateGenerator.require_bound_owner(
+                candidate_generator,
+                config.producer_settlement_store,
+                config.producer_run_binding,
+            )
         if evaluators is not None:
             if stage_a_evaluator is not None or stage_b_evaluator is not None:
                 raise ValueError(
@@ -216,6 +502,7 @@ class SearchController:
 
         self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
+        self._source_budget_snapshot: dict[str, Any] = {"status": "not_configured"}
         self._metrics = metrics if metrics is not None else _default_metrics()
         self._diversity_enabled = _as_bool(
             os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
@@ -426,9 +713,7 @@ class SearchController:
         )
         transition = _EvaluationTransition(
             disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
+                _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
             ),
             record=record,
         )
@@ -445,9 +730,7 @@ class SearchController:
         return {
             "best_candidate": deepcopy(snapshot.best_candidate),
             "best_objective": (
-                None
-                if snapshot.best_objective == float("inf")
-                else float(snapshot.best_objective)
+                None if snapshot.best_objective == float("inf") else float(snapshot.best_objective)
             ),
             "history_length": snapshot.history_size,
             "registry_update": {"search_id": snapshot.search_id},
@@ -515,10 +798,11 @@ class SearchController:
             "budget_required": bool(self._config.stopping.state_keys()),
             "budget_available": snapshot.budget_available,
             "budget_snapshot": deepcopy(snapshot.budget_snapshot),
-            "budget_spent": (
-                snapshot.budget_spent if snapshot.budget_available else None
-            ),
+            "budget_spent": (snapshot.budget_spent if snapshot.budget_available else None),
         }
+        source_budget = self._source_budget_telemetry()
+        if source_budget is not None:
+            telemetry["producer_budget_owner"] = source_budget
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
                 self._diversity_tracker.unique_mechanisms_total
@@ -552,10 +836,20 @@ class SearchController:
         """Execute the native ask/tell driver through the compatibility entrypoint."""
         from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
 
-        return _NativeSearchServiceDriver(self).run_search(
-            initial_context=initial_context,
-            initial_candidate=initial_candidate,
-        )
+        driver = _NativeSearchServiceDriver(self)
+        if self._config.producer_settlement_store is None:
+            return driver.run_search(
+                initial_context=initial_context,
+                initial_candidate=initial_candidate,
+            )
+        assert self._config.producer_run_binding is not None
+        with self._config.producer_settlement_store.producer_run_binding_scope(
+            self._config.producer_run_binding
+        ):
+            return driver.run_search(
+                initial_context=initial_context,
+                initial_candidate=initial_candidate,
+            )
 
     def _stopping_state(self) -> dict[str, Any]:
         """Build stopping input from run counters and declared budget owners."""
@@ -568,6 +862,8 @@ class SearchController:
             "budget_spent": self._run_state.budget_spent,
         }
         state.update(self._run_state.budget_snapshot)
+        if self._source_budget_snapshot.get("status") == "resolved":
+            state["_source_budget_remaining_usd"] = self._source_budget_snapshot["remaining"]
         return state
 
     def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None:
@@ -579,23 +875,120 @@ class SearchController:
         final report observe the same owner contract without creating a ledger.
         """
         required_keys = self._config.stopping.state_keys()
+        source_budget_key = "_source_budget_remaining_usd"
+        context_required_keys = tuple(key for key in required_keys if key != source_budget_key)
         snapshot: dict[str, float] = {}
-        for key in required_keys:
+        for key in context_required_keys:
+            if self._config.producer_settlement_store is not None and key == "cumulative_cost_usd":
+                continue
             value = context.get(key)
             if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
                 numeric_value = float(value)
                 if isfinite(numeric_value):
                     snapshot[key] = numeric_value
+
+        if self._config.producer_settlement_store is not None:
+            self._source_budget_snapshot = self._read_source_budget_snapshot()
+            if self._source_budget_snapshot.get("status") == "resolved":
+                source_spent = self._source_budget_snapshot["spent"]
+                if "cumulative_cost_usd" in required_keys:
+                    snapshot["cumulative_cost_usd"] = float(source_spent)
+                self._run_state.budget_spent = float(source_spent)
+        else:
+            self._source_budget_snapshot = {"status": "not_configured"}
         self._run_state.budget_snapshot = snapshot
-        self._run_state.budget_available = bool(required_keys) and all(
-            key in snapshot for key in required_keys
+        context_available = all(key in snapshot for key in context_required_keys)
+        source_available = (
+            self._config.producer_settlement_store is None
+            or self._source_budget_snapshot.get("status") == "resolved"
         )
-        if "cumulative_cost_usd" in snapshot:
+        self._run_state.budget_available = (
+            bool(required_keys) and context_available and source_available
+        )
+        if self._config.producer_settlement_store is not None:
+            pass
+        elif "cumulative_cost_usd" in snapshot:
             self._run_state.budget_spent = snapshot["cumulative_cost_usd"]
         elif snapshot:
             self._run_state.budget_spent = next(iter(snapshot.values()))
         else:
             self._run_state.budget_spent = 0.0
+
+    def _read_source_budget_snapshot(self) -> dict[str, Any]:
+        """Read one owner, typed run scope, exact producer events, and remaining budget."""
+        store = self._config.producer_settlement_store
+        binding = self._config.producer_run_binding
+        if store is None or binding is None:
+            return {"status": "not_configured"}
+
+        owner_identity: tuple[str, str, str] | None = None
+        try:
+            from polisyos.scientist.orchestration.engine.budget import BudgetState
+
+            owner_identity = store.settlement_owner_identity
+            if (
+                type(owner_identity) is not tuple
+                or len(owner_identity) != 3
+                or any(not isinstance(value, str) or not value.strip() for value in owner_identity)
+            ):
+                raise ValueError("settlement_owner_identity_not_established")
+            budget_state = store.budget_state
+            if type(budget_state) is not BudgetState:
+                raise TypeError("budget_owner_returned_untyped_state")
+            budget_key = f"nl-run:{binding.run_id}"
+            limit = budget_state.limits.get(budget_key)
+            if limit is None or limit.max_usd <= 0:
+                raise ValueError("run_budget_limit_not_established")
+            records = store.list_producer_events_for_run_safe(binding)
+            event_status_counts: dict[str, int] = {}
+            settled = Decimal(0)
+            for record in records:
+                event_status_counts[record.status] = event_status_counts.get(record.status, 0) + 1
+                if record.run_binding != binding or record.key != budget_key:
+                    raise ValueError("producer_event_scope_mismatch")
+                if record.status != "committed" or record.amount is None:
+                    raise ValueError("producer_event_settlement_unresolved")
+                settled += record.amount
+            spent = budget_state.spent.get(budget_key, Decimal(0))
+            reserved = budget_state.reserved.get(budget_key, Decimal(0))
+            if spent != settled:
+                raise ValueError("producer_settlement_spend_disagrees_with_budget_owner")
+            if (
+                self._run_state.generation_attempts > 0 or self._run_state.evaluation_iterations > 0
+            ) and not records:
+                raise ValueError("producer_event_missing_after_search_work")
+            remaining = limit.max_usd - spent - reserved
+            return {
+                "status": "resolved",
+                "owner_identity": owner_identity,
+                "run_binding": binding.model_dump(mode="json"),
+                "budget_key": budget_key,
+                "limit": limit.max_usd,
+                "spent": spent,
+                "reserved": reserved,
+                "remaining": remaining,
+                "event_count": len(records),
+                "event_status_counts": event_status_counts,
+            }
+        except Exception as exc:
+            return {
+                "status": "unavailable",
+                "owner_identity": owner_identity,
+                "run_binding": binding.model_dump(mode="json"),
+                "reason_code": f"source_budget_{type(exc).__name__.lower()}",
+            }
+
+    def _source_budget_telemetry(self) -> dict[str, Any] | None:
+        """Project source-bound accounting values without exposing event payloads."""
+        snapshot = self._source_budget_snapshot
+        if snapshot.get("status") == "not_configured":
+            return None
+        payload = dict(snapshot)
+        for key in ("limit", "spent", "reserved", "remaining"):
+            value = payload.get(key)
+            if isinstance(value, Decimal):
+                payload[key] = str(value)
+        return payload
 
     def _generate_candidates(
         self,
@@ -750,9 +1143,7 @@ class SearchController:
             self._diversity_tracker.record_iteration(candidate)
         return _EvaluationTransition(
             disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
+                _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
             ),
             record=record,
         )
@@ -1076,12 +1467,13 @@ class SearchController:
                 ),
                 domain=(transfer_context.domain if transfer_context is not None else None),
                 transfer_context=transfer_context,
+                objective_basis_by_view=(self._config.pareto_objective_basis_by_view or None),
             )
             from polisyos.scientist.methods.search.pareto_registry import ParetoView
 
-            self._run_state.pareto_projection = registry.get_snapshot(
-                self._search_id
-            ).project_view(ParetoView.GLOBAL_FEASIBLE)
+            self._run_state.pareto_projection = registry.get_snapshot(self._search_id).project_view(
+                ParetoView.GLOBAL_FEASIBLE
+            )
             self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 

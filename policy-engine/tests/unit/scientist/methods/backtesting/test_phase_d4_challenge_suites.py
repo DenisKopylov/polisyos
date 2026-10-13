@@ -3,7 +3,9 @@ from __future__ import annotations
 import hashlib
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -15,9 +17,22 @@ from polisyos.ir.analytics.strategic import (
     encode_action_profile,
 )
 from polisyos.ir.registry.refs import FiniteStateAbstractionMapRef, StrategicPayoffTableRef
-from polisyos.scientist.methods.autotune.models import BenchmarkSplit
+from polisyos.scientist.methods.autotune.models import (
+    BenchmarkSplit,
+    persist_benchmark_evaluation,
+)
 from polisyos.scientist.methods.backtesting.abstraction_suite import run_abstraction_challenge_suite
+from polisyos.scientist.methods.backtesting.adversarial import (
+    ChallengeCase,
+    build_challenge_case_result,
+    build_challenge_suite_result,
+)
 from polisyos.scientist.methods.backtesting.strategic_suite import run_strategic_challenge_suites
+from polisyos.scientist.methods.doe.stress_report import (
+    StressScoreComponent,
+    VulnerabilityType,
+    resolve_stress_score_components,
+)
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
 
@@ -160,7 +175,11 @@ def test_strategic_suites_emit_rotating_challenge_evaluations_for_raw_inputs() -
             is BenchmarkSplit.ROTATING_CHALLENGE
         )
         assert result.benchmark_evaluation.promotable is True
-        assert result.stress_test_report is None
+        assert result.stress_test_report is not None
+        assert result.stress_test_report.score_status == "unbound"
+        assert (
+            len(result.stress_outcome_basis.outcomes) == result.stress_outcome_basis.expected_count
+        )
 
 
 def test_multiplicity_summary_audit_fails_without_explicit_disclosure() -> None:
@@ -289,3 +308,79 @@ def test_abstraction_suite_fails_macro_shortcut_without_supported_certificate() 
     assert result is not None
     assert result.benchmark_evaluation.selection_metrics["abstraction_leakage_rate"] == 1.0
     assert result.stress_test_report is not None
+
+
+def test_challenge_suite_keeps_duplicate_occurrences_as_distinct_outcomes(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate_ref = store.put_json(
+        {"candidate_id": "duplicate-cases"},
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+    )
+    case = ChallengeCase(
+        case_id="same-case-id",
+        challenge_family="strategic_gaming",
+        expected_outcome="declared_behavior",
+    )
+    suite = build_challenge_suite_result(
+        suite_id="strategic_gaming_v1",
+        suite_version="1.0",
+        candidate_ref=candidate_ref,
+        loop_id="loop-duplicate",
+        challenge_family="strategic_gaming",
+        case_results=[
+            build_challenge_case_result(case=case, passed=True, summary="first occurrence"),
+            build_challenge_case_result(case=case, passed=False, summary="second occurrence"),
+        ],
+        planned_case_ids=["same-case-id", "same-case-id"],
+        primary_failure_rate_name="silent_static_fallback_rate",
+        vulnerability_type=VulnerabilityType.COMBINATORIAL,
+    )
+    assert [row.occurrence_index for row in suite.stress_outcome_basis.outcomes] == [0, 1]
+    assert [row.scenario_id for row in suite.stress_outcome_basis.outcomes] == [
+        "same-case-id",
+        "same-case-id",
+    ]
+    assert suite.stress_outcome_basis.complete is True
+    assert suite.benchmark_evaluation.sample_counts[BenchmarkSplit.ROTATING_CHALLENGE.value] == 2
+    assert suite.stress_test_report is not None
+    assert suite.stress_test_report.robustness_score is None
+
+    evaluation_ref = persist_benchmark_evaluation(store, suite.benchmark_evaluation)
+    persisted_basis = suite.stress_outcome_basis.model_copy(
+        update={"benchmark_evaluation_ref": evaluation_ref}
+    )
+    basis_ref = store.put_json(
+        persisted_basis,
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+            inputs=[
+                InputRef(artifact_id=evaluation_ref.artifact_id, role="benchmark_evaluation"),
+                InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    resolution = resolve_stress_score_components(
+        store,
+        [
+            StressScoreComponent(
+                component_id=persisted_basis.source_id,
+                score_profile="finite_binary_scenario_v1",
+                outcome_basis_ref=basis_ref,
+            )
+        ],
+        expected_candidate_ref=candidate_ref,
+    )
+
+    # The same case ID occurred twice: count both emitted occurrences, one pass of two.
+    assert resolution.status == "available"
+    assert resolution.predicate_status == "recomputed"
+    assert resolution.total_scenarios_evaluated == 2
+    assert resolution.passed_count == 1
+    assert resolution.robustness_score == 0.5

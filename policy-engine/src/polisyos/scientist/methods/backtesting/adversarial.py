@@ -25,6 +25,8 @@ from polisyos.ir.analytics.strategic import (
 )
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import (
+    StressOutcomeBasis,
+    StressOutcomeRecord,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
@@ -90,6 +92,7 @@ class ChallengeSuiteResult:
     suite_version: str
     runtime_split_type: BenchmarkSplit
     benchmark_evaluation: BenchmarkEvaluation
+    stress_outcome_basis: StressOutcomeBasis
     stress_test_report: StressTestReport | None = None
     warnings: tuple[str, ...] = ()
 
@@ -230,6 +233,7 @@ def build_challenge_suite_result(
     loop_id: str,
     challenge_family: str,
     case_results: Sequence[ChallengeCaseResult],
+    planned_case_ids: Sequence[str],
     primary_failure_rate_name: str,
     vulnerability_type: VulnerabilityType,
     metadata: Mapping[str, Any] | None = None,
@@ -240,6 +244,54 @@ def build_challenge_suite_result(
     total_cases = len(executed)
     failed = [result for result in executed if not result.passed]
     pass_rate = 1.0 if total_cases == 0 else float((total_cases - len(failed)) / total_cases)
+    planned_ids = [str(item) for item in planned_case_ids]
+    outcome_records: list[StressOutcomeRecord] = []
+    for occurrence_index, result in enumerate(case_results):
+        status = (
+            "skipped"
+            if result.status == "skipped"
+            else "passed"
+            if result.status == "passed" and result.passed
+            else "failed"
+            if result.status == "failed" and not result.passed
+            else "invalid"
+        )
+        row_vulnerabilities = (
+            [
+                Vulnerability(
+                    vulnerability_id=f"{suite_id}:{result.case.case_id}",
+                    vulnerability_type=vulnerability_type,
+                    severity=result.case.severity,
+                    description=result.summary,
+                )
+            ]
+            if status == "failed"
+            else []
+        )
+        outcome_records.append(
+            StressOutcomeRecord(
+                occurrence_index=occurrence_index,
+                scenario_id=str(result.case.case_id),
+                status=status,
+                vulnerabilities=row_vulnerabilities,
+                reason_code=(
+                    None if status != "invalid" else "challenge_result_status_or_boolean_mismatch"
+                ),
+            )
+        )
+    actual_ids = [str(result.case.case_id) for result in case_results]
+    outcome_basis = StressOutcomeBasis(
+        source_kind="phase_d4_suite",
+        source_id=f"phase_d4:{suite_id}:{loop_id}",
+        expected_count=len(planned_ids),
+        expected_scenario_ids=planned_ids,
+        outcomes=outcome_records,
+        complete=actual_ids == planned_ids,
+        benchmark_evaluation_ref=None,
+        suite_id=suite_id,
+        suite_version=suite_version,
+        candidate_ref=candidate_ref,
+    )
 
     metrics = dict.fromkeys(_PHASE_D4_METRIC_NAMES, 0.0)
     metrics["challenge_pass_rate"] = pass_rate
@@ -280,38 +332,41 @@ def build_challenge_suite_result(
         metadata=aggregate_metadata,
     )
 
-    stress_test_report: StressTestReport | None = None
-    if failed:
-        vulnerabilities = [
-            Vulnerability(
-                vulnerability_id=f"{suite_id}:{result.case.case_id}",
-                vulnerability_type=vulnerability_type,
-                severity=result.case.severity,
-                description=result.summary,
-            )
-            for result in failed
-        ]
-        stress_test_report = StressTestReport(
-            report_id=f"stress_{suite_id}_{loop_id}",
-            total_scenarios_evaluated=total_cases,
-            vulnerabilities=vulnerabilities,
-            critical_count=sum(1 for item in vulnerabilities if item.severity == "critical"),
-            high_count=sum(1 for item in vulnerabilities if item.severity == "high"),
-            medium_count=sum(1 for item in vulnerabilities if item.severity == "medium"),
-            robustness_score=pass_rate,
-            metadata={
-                "challenge_suite_id": suite_id,
-                "challenge_family_counts": {challenge_family: total_cases},
-                "blocking_failure_count": len(failed),
-                "derived_from_phase_d4": True,
-            },
+    vulnerabilities = [
+        Vulnerability(
+            vulnerability_id=f"{suite_id}:{result.case.case_id}",
+            vulnerability_type=vulnerability_type,
+            severity=result.case.severity,
+            description=result.summary,
         )
+        for result in failed
+    ]
+    stress_test_report = StressTestReport(
+        schema_version="1.1",
+        report_id=f"stress_{suite_id}_{loop_id}",
+        total_scenarios_evaluated=total_cases,
+        vulnerabilities=vulnerabilities,
+        critical_count=sum(1 for item in vulnerabilities if item.severity == "critical"),
+        high_count=sum(1 for item in vulnerabilities if item.severity == "high"),
+        medium_count=sum(1 for item in vulnerabilities if item.severity == "medium"),
+        robustness_score=None,
+        score_profile="finite_binary_scenario_v1",
+        score_status="unbound",
+        score_reason="persisted_occurrence_basis_and_current_candidate_binding_required",
+        metadata={
+            "challenge_suite_id": suite_id,
+            "challenge_family_counts": {challenge_family: total_cases},
+            "blocking_failure_count": len(failed),
+            "derived_from_phase_d4": True,
+        },
+    )
 
     return ChallengeSuiteResult(
         suite_id=suite_id,
         suite_version=suite_version,
         runtime_split_type=BenchmarkSplit.ROTATING_CHALLENGE,
         benchmark_evaluation=benchmark_evaluation,
+        stress_outcome_basis=outcome_basis,
         stress_test_report=stress_test_report,
         warnings=tuple(str(item) for item in (warnings or ())),
     )

@@ -355,9 +355,12 @@ def _selected_target_baseline_hashes(
 
     def digest(value: float) -> str:
         payload = {"target_world_slot": target_slot, "baseline_value": value}
-        return "sha256:" + hashlib.sha256(
-            to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
-        ).hexdigest()
+        return (
+            "sha256:"
+            + hashlib.sha256(
+                to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
+            ).hexdigest()
+        )
 
     hashes = digest(before_value), digest(after_value)
     return None if hashes[0] == hashes[1] else hashes
@@ -498,7 +501,8 @@ def _candidate_acquisition_history_projection(
             or manifest.media_type != "application/json"
             or schema is None
             or schema.name != expected_schema
-            or schema.version not in (
+            or schema.version
+            not in (
                 expected_version if isinstance(expected_version, tuple) else (expected_version,)
             )
             or manifest.producer.component != expected_producer
@@ -820,10 +824,8 @@ def _candidate_acquisition_history_projection(
                     old_input is None
                     or old_input.profile.profile_selection_ref
                     != new_input.profile.profile_selection_ref
-                    or old_source.profile_selection_ref
-                    != old_input.profile.profile_selection_ref
-                    or new_source.profile_selection_ref
-                    != new_input.profile.profile_selection_ref
+                    or old_source.profile_selection_ref != old_input.profile.profile_selection_ref
+                    or new_source.profile_selection_ref != new_input.profile.profile_selection_ref
                 ):
                     raise ValueError(
                         "acquisition_reentry_same_candidate_profile_selection_mismatch"
@@ -1067,10 +1069,7 @@ def _n5_interaction_scope_fields(result: object | None) -> dict[str, tuple[int, 
 def _is_n5_interaction_scope_validation_error(error: ValidationError) -> bool:
     """Recognize a failed current-scope binding without conflating it with absence."""
 
-    return any(
-        "run_n5_interaction_scope_" in str(item.get("msg", ""))
-        for item in error.errors()
-    )
+    return any("run_n5_interaction_scope_" in str(item.get("msg", "")) for item in error.errors())
 
 
 def _n8_interaction_qualification_fields(
@@ -1084,20 +1083,14 @@ def _n8_interaction_qualification_fields(
         return {}
     projected = {
         "n8_numeric_interaction": getattr(value_port, "numeric_interaction", None),
-        "n8_numeric_interaction_basis": getattr(
-            value_port, "numeric_interaction_basis", None
-        ),
-        "n8_interaction_sampling_status": getattr(
-            value_port, "interaction_sampling_status", None
-        ),
+        "n8_numeric_interaction_basis": getattr(value_port, "numeric_interaction_basis", None),
+        "n8_interaction_sampling_status": getattr(value_port, "interaction_sampling_status", None),
     }
     if include_status:
         projected.update(
             {
                 "n8_status": getattr(value_port, "status", None),
-                "n8_authority_blockers": tuple(
-                    getattr(value_port, "authority_blockers", ())
-                ),
+                "n8_authority_blockers": tuple(getattr(value_port, "authority_blockers", ())),
             }
         )
     return projected
@@ -1685,9 +1678,7 @@ def _candidate_simulation_projection(
                             k_world_ref_before=simulation.k_world_ref_before,
                             k_world_ref_after=simulation.k_world_ref_after,
                             authority_blockers=blockers,
-                            n5_interaction_evidence=(
-                                _n5_interaction_evidence_projection(result)
-                            ),
+                            n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                             **_n5_interaction_scope_fields(result),
                             **_n8_interaction_qualification_fields(
                                 getattr(cycle, "value_port", None)
@@ -1724,9 +1715,7 @@ def _candidate_simulation_projection(
                         k_world_ref_before=result.world_model_record_content_hash,
                         k_world_ref_after=result.world_model_record_content_hash,
                         authority_blockers=blockers,
-                        n5_interaction_evidence=(
-                            _n5_interaction_evidence_projection(result)
-                        ),
+                        n5_interaction_evidence=(_n5_interaction_evidence_projection(result)),
                         **_n5_interaction_scope_fields(result),
                         n8_status="value_pending_n8",
                     )
@@ -1809,16 +1798,13 @@ def _candidate_simulation_projection(
                 scope_failure = (
                     "parent_joint_coupling_evidence_not_established"
                     if candidate_selection is not None
-                    and candidate_selection_fields.get(
-                        "n8_candidate_joint_selection_status"
-                    )
+                    and candidate_selection_fields.get("n8_candidate_joint_selection_status")
                     == "resolved"
                     else "parent_joint_selected_child_program_not_established"
                 )
-            elif (
-                request.coupling_graph.design_ref != node.node_ref
-                or tuple(request.coupling_graph.module_refs) != tuple(node.child_refs)
-            ):
+            elif request.coupling_graph.design_ref != node.node_ref or tuple(
+                request.coupling_graph.module_refs
+            ) != tuple(node.child_refs):
                 scope_failure = "parent_joint_selected_child_program_not_established"
             elif (
                 parent_observation.n5_interaction_evidence is None
@@ -2110,13 +2096,10 @@ def _parent_joint_candidate_selection_projection(
         != "child_to_parent_refinement_rule_not_established"
         or request.candidate_intent != selection.candidate_intent
         or request.member_basis != selection.member_basis
-        or request.source_candidate_relationship
-        != selection.source_candidate_relationship
+        or request.source_candidate_relationship != selection.source_candidate_relationship
         or request.composition_status != selection.composition_status
-        or request.composition_limitation_code
-        != selection.composition_limitation_code
-        or request.child_to_parent_refinement_status
-        != selection.child_to_parent_refinement_status
+        or request.composition_limitation_code != selection.composition_limitation_code
+        or request.child_to_parent_refinement_status != selection.child_to_parent_refinement_status
         or request.child_to_parent_refinement_limitation_code
         != selection.child_to_parent_refinement_limitation_code
     ):
@@ -2133,8 +2116,7 @@ def _parent_joint_candidate_selection_projection(
         or artifact_ref_identity_key(selection.profile_ref)
         != artifact_ref_identity_key(handoff.profile_ref)
         or selection.profile_selection_ref != handoff.profile.profile_selection_ref
-        or selection.profile_selection_ref
-        != compiled.n4_recursive_source_profile_selection_ref
+        or selection.profile_selection_ref != compiled.n4_recursive_source_profile_selection_ref
         or selection.parent_design_problem_ref != node.design_problem_ref
         or handoff.context.design_problem_ref != node.design_problem_ref
         or selection.world_model_record_ref != world_record.world_model_record_id
@@ -2154,8 +2136,7 @@ def _parent_joint_candidate_selection_projection(
         model_id=compiled.model_id,
     )
     expected_child_refs = tuple(
-        "design-problem://"
-        + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+        "design-problem://" + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
         for child in children
     )
     candidates_by_atom_hash: dict[str, list[Any]] = {}
@@ -2177,9 +2158,8 @@ def _parent_joint_candidate_selection_projection(
         request.intervention_atoms,
         strict=True,
     ):
-        child_ref = (
-            "design-problem://"
-            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+        child_ref = "design-problem://" + cycle_job_design_problem_ref(child.problem).removeprefix(
+            "sha256:"
         )
         source_candidates = candidates_by_atom_hash.get(child.source_atom_refs[0], ())
         if len(source_candidates) != 1:
@@ -2190,8 +2170,7 @@ def _parent_joint_candidate_selection_projection(
             child.source_result_ref != source_result_hash
             or tuple(child.source_atom_refs) != (source_atom.content_hash,)
             or member.child_node_ref != child_ref
-            or member.child_design_problem_ref
-            != cycle_job_design_problem_ref(child.problem)
+            or member.child_design_problem_ref != cycle_job_design_problem_ref(child.problem)
             or member.semantic_ref != child.semantic_ref
             or member.source_candidate_id != candidate.candidate_id
             or member.source_candidate_content_hash
@@ -2390,8 +2369,7 @@ def _generic_cycle_simulation_projection(
                 and handoff.job_id == compiled.n4_recursive_source_job_id
                 and handoff.run_id == compiled.n4_recursive_source_run_id
                 and handoff.context_job_ref == compiled.n4_recursive_source_context_job_ref
-                and handoff.profile.profile_id
-                == compiled.n4_recursive_source_profile_config_ref
+                and handoff.profile.profile_id == compiled.n4_recursive_source_profile_config_ref
                 and handoff.profile.profile_selection_ref
                 == compiled.n4_recursive_source_profile_selection_ref
                 and handoff.profile.profile_selection_kind == "problem"
@@ -2401,9 +2379,7 @@ def _generic_cycle_simulation_projection(
                         CandidateCredalSourceAttemptV1,
                     )
 
-                    generic_owner = GenericCycleSimulationAdmissionOwner(
-                        profiles=(), store=store
-                    )
+                    generic_owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
                     source_repository = GenerationSourceRepository(store)
                     if handoff.n4_child_profile_family_ref is not None:
                         generic_owner.resolve_child_profile_family_historical(
@@ -2445,16 +2421,12 @@ def _generic_cycle_simulation_projection(
                         profile_ref=handoff.profile_ref,
                         profile_id=handoff.profile.profile_id,
                         profile_selection_ref=handoff.profile.profile_selection_ref,
-                        n4_child_profile_family_ref=(
-                            handoff.n4_child_profile_family_ref
-                        ),
+                        n4_child_profile_family_ref=(handoff.n4_child_profile_family_ref),
                     )
                     if (
                         type(attempt) is not CandidateCredalSourceAttemptV1
-                        or attempt.n4_status
-                        != compiled.n4_recursive_source_result_status
-                        or attempt.source_run_id
-                        != compiled.n4_recursive_source_run_id
+                        or attempt.n4_status != compiled.n4_recursive_source_result_status
+                        or attempt.source_run_id != compiled.n4_recursive_source_run_id
                         or attempt.design_problem_ref != compiled.design_problem_ref
                     ):
                         raise ValueError(
@@ -2619,8 +2591,7 @@ def _generic_cycle_simulation_projection(
             family.source_ref != source_ref
             or family.parent_problem != compiled.design_problem
             or family.parent_problem_ref != compiled.design_problem_ref
-            or family.n4_child_profile_family_ref
-            != parent_handoff.n4_child_profile_family_ref
+            or family.n4_child_profile_family_ref != parent_handoff.n4_child_profile_family_ref
             or family.authority_purpose != "cycle_input_candidate_only"
         ):
             raise ValueError("generic_n4_child_profile_set_compiled_binding_mismatch")
@@ -2642,10 +2613,7 @@ def _generic_cycle_simulation_projection(
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
-        child_rows = {
-            row.node_ref: row
-            for row in family.children
-        }
+        child_rows = {row.node_ref: row for row in family.children}
         if len(child_rows) != len(family.children):
             raise ValueError("generic_child_profile_set_duplicate_node")
         source = source_repository.load(
@@ -2672,10 +2640,9 @@ def _generic_cycle_simulation_projection(
             + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
             for child in derived
         }
-        root_node_ref = (
-            "design-problem://"
-            + cycle_job_design_problem_ref(compiled.design_problem).removeprefix("sha256:")
-        )
+        root_node_ref = "design-problem://" + cycle_job_design_problem_ref(
+            compiled.design_problem
+        ).removeprefix("sha256:")
         if set(child_rows) != expected_child_nodes:
             raise ValueError("generic_child_profile_set_source_denominator_mismatch")
         nodes = tuple(compiled.recursive_run.nodes)
@@ -2811,8 +2778,7 @@ def _generic_cycle_simulation_projection(
                     or execution.input_ref != input_ref
                     or execution.result_ref != simulation.simulation_result_ref
                     or execution.n4_source_ref != family.source_ref
-                    or execution.n4_child_profile_family_ref
-                    != family.n4_child_profile_family_ref
+                    or execution.n4_child_profile_family_ref != family.n4_child_profile_family_ref
                     or execution.n4_child_profile_set_ref != set_ref
                     or execution.context_job_ref != binding.handoff.context_job_ref
                     or execution.profile_ref != binding.handoff.profile_ref
@@ -2844,12 +2810,8 @@ def _generic_cycle_simulation_projection(
                     )
                     result_status, result_blockers = _joint_simulation_port_outcome(resolved_result)
                     if (
-                        (
-                            execution.status == "joint_simulated"
-                            and result_status != "joint_simulated"
-                        )
-                        or not set(result_blockers).issubset(blockers)
-                    ):
+                        execution.status == "joint_simulated" and result_status != "joint_simulated"
+                    ) or not set(result_blockers).issubset(blockers):
                         raise ValueError("generic_n5_result_execution_status_mismatch")
                 elif simulation.status == "joint_simulated":
                     raise ValueError("generic_n5_result_reference_not_established")
@@ -2898,18 +2860,14 @@ def _generic_cycle_simulation_projection(
                         n5_request_content_hash=request_content_hash,
                         profile_selection_ref=selection_ref,
                         atom_ids=(
-                            tuple(resolved_result.atom_ids)
-                            if resolved_result is not None
-                            else ()
+                            tuple(resolved_result.atom_ids) if resolved_result is not None else ()
                         ),
                         selected_outcomes=(
                             tuple(resolved_result.selected_outcomes)
                             if resolved_result is not None
                             else ()
                         ),
-                        world_model_record_content_hash=(
-                            execution.world_model_record_content_hash
-                        ),
+                        world_model_record_content_hash=(execution.world_model_record_content_hash),
                         authority_blockers=blockers,
                         n8_status=value_port.status,
                         n8_lineage_status="resolved" if n8_resolved else "not_established",
@@ -2959,8 +2917,7 @@ def _generic_cycle_simulation_projection(
         child_profile_bindings=resolved_child_bindings,
         n5_observations=tuple(observations),
         n5_limitation_code=(
-            n5_limitation
-            or (None if observations else "generic_n5_observation_not_emitted")
+            n5_limitation or (None if observations else "generic_n5_observation_not_emitted")
         ),
         recursive_cycle_checkpoint=checkpoint,
         limitation_code=n5_limitation,
@@ -3426,15 +3383,12 @@ def _resolve_replay_bound_paper_packet(
         ) from exc
 
 
-
 def _filter_temporal_lineage_roots(
     root_refs: list[ArtifactID | ArtifactRef], events: list[Any]
 ) -> tuple[list[ArtifactID | ArtifactRef], bool]:
     """Keep only root refs present in the scoped trace with full identity."""
     visible: set[tuple[str, str, str, str | None]] = {
-        artifact_ref_identity_key(ref)
-        for event in events
-        for ref in event.output_artifact_refs
+        artifact_ref_identity_key(ref) for event in events for ref in event.output_artifact_refs
     }
     selected: list[ArtifactID | ArtifactRef] = []
     limitation = False
@@ -3450,6 +3404,7 @@ def _filter_temporal_lineage_roots(
         if ref.manifest_profile_sha256 is None:
             limitation = True
     return selected, limitation
+
 
 if router is not None:
 
@@ -3880,7 +3835,10 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return packet
 
-    @router.get("/{run_id}", response_model=RunDetailsResponse, operation_id="get_run_details",
+    @router.get(
+        "/{run_id}",
+        response_model=RunDetailsResponse,
+        operation_id="get_run_details",
         responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_details(
@@ -4083,6 +4041,18 @@ if router is not None:
                 "Run diagnostic event log is unavailable",
                 code="predictive_calibration_event_log_unavailable",
             )
+        candidate_simulation = _candidate_simulation_for_indexed_run(
+            run,
+            store=ctx.store,
+            control_service=control_service,
+        )
+        if candidate_simulation is not None:
+            run = replace(
+                run,
+                details=run.details.model_copy(
+                    update={"candidate_simulation": candidate_simulation}
+                ),
+            )
         try:
             association_ref, association = load_run_predictive_calibration(
                 store=ctx.store,
@@ -4240,7 +4210,10 @@ if router is not None:
         add_run_link_relations(response, run_id=run_id)
         return projection
 
-    @router.get("/{run_id}/nodes", response_model=RunNodesResponse, operation_id="get_run_nodes",
+    @router.get(
+        "/{run_id}/nodes",
+        response_model=RunNodesResponse,
+        operation_id="get_run_nodes",
         responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
     )
     def get_run_nodes(
@@ -4335,10 +4308,7 @@ if router is not None:
             requested_root_ids=root_artifact_id or None,
         )
         root_profile_not_established = False
-        root_ids = [
-            ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-            for ref in root_refs
-        ]
+        root_ids = [ref.artifact_id if isinstance(ref, ArtifactRef) else ref for ref in root_refs]
         if (
             temporal_scope is not None
             and ctx.temporal.project_run_details(run.details, temporal_scope).finished_at is None
@@ -4351,8 +4321,7 @@ if router is not None:
                 root_refs, visible_timeline.events
             )
             root_ids = [
-                ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-                for ref in root_refs
+                ref.artifact_id if isinstance(ref, ArtifactRef) else ref for ref in root_refs
             ]
 
         if not root_ids and temporal_scope is None:

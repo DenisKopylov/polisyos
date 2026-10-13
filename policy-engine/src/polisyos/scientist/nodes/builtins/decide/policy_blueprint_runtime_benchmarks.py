@@ -20,6 +20,10 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     STRATEGIC_GAMING_SUITE_ID,
     run_phase_d4_challenge_suites,
 )
+from polisyos.scientist.methods.doe.stress_report import (
+    StressScoreComponent,
+    resolve_stress_score_components,
+)
 from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
@@ -181,15 +185,55 @@ def _run_and_register_phase_d4_challenge_suites(
                 **dict(suite_result.benchmark_evaluation.metadata),
             },
         )
-        if suite_result.stress_test_report is None:
-            continue
+        basis = suite_result.stress_outcome_basis.model_copy(
+            update={"benchmark_evaluation_ref": benchmark_ref}
+        )
+        basis_ref = ctx.store.put_json(
+            basis,
+            PutOptions(
+                kind="scientist.stress_outcome_basis",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+                inputs=[
+                    InputRef(artifact_id=benchmark_ref.artifact_id, role="benchmark_evaluation"),
+                    InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        component = StressScoreComponent(
+            component_id=basis.source_id,
+            score_profile="finite_binary_scenario_v1",
+            outcome_basis_ref=basis_ref,
+        )
+        resolution = resolve_stress_score_components(
+            ctx.store, [component], expected_candidate_ref=candidate_ref
+        )
+        stress_report = suite_result.stress_test_report.model_copy(
+            update={
+                "score_components": [component],
+                "score_profile": resolution.score_profile or "finite_binary_scenario_v1",
+                "score_status": resolution.status,
+                "score_reason": resolution.reason_code,
+                "score_predicate_status": resolution.predicate_status,
+                "robustness_score": resolution.robustness_score,
+                "total_scenarios_evaluated": resolution.total_scenarios_evaluated,
+                "critical_count": resolution.critical_count,
+                "high_count": resolution.high_count,
+                "medium_count": resolution.medium_count,
+            }
+        )
         stress_ref = ctx.store.put_json(
-            suite_result.stress_test_report,
+            stress_report,
             PutOptions(
                 kind="scientist.stress_test_report",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
-                inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+                inputs=[
+                    InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                    InputRef(artifact_id=benchmark_ref.artifact_id, role="benchmark_evaluation"),
+                    InputRef(artifact_id=basis_ref.artifact_id, role="stress_outcome_basis"),
+                ],
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
@@ -482,6 +526,7 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
             if report is not None
         ],
         phase_d4_suite_ids=session.phase_d4_suite_ids,
+        expected_candidate_ref=session.candidate_ref,
     )
     if stress_report_ref is not None:
         benchmark_registry.record(
@@ -637,6 +682,7 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
         ),
         "governance_report": session.governance_report,
         "stress_test_report": owner._load_stress_test_report(ctx, session.stress_report_ref),
+        "stress_test_report_ref": session.stress_report_ref,
         "causal_effect_report": session.causal_report,
         "distributional_report": session.distributional_report,
         "cross_graph_profile": session.cross_graph_profile,

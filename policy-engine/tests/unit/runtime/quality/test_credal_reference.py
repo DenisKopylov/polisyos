@@ -543,9 +543,7 @@ def test_synthetic_academic_skg_fixture_preserves_existing_writer_artifacts(
     elif artifact == "wal":
         preserved_path = db_path.with_suffix(db_path.suffix + ".wal")
     else:
-        preserved_path = (
-            db_path.with_suffix(db_path.suffix + ".staging") / "graph-load.sqlite"
-        )
+        preserved_path = db_path.with_suffix(db_path.suffix + ".staging") / "graph-load.sqlite"
     preserved_path.parent.mkdir(parents=True, exist_ok=True)
     preserved_bytes = b"preserve-existing-writer-artifact"
     preserved_path.write_bytes(preserved_bytes)
@@ -603,6 +601,7 @@ def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
             next(registered)
     finally:
         registered.close()
+
 
 @pytest.fixture(scope="module")
 def reference() -> CredalReference:
@@ -888,3 +887,246 @@ def _first_edge(
         if edge.modality == modality and edge.status == status:
             return edge
     raise AssertionError(f"missing {modality} edge with status {status}")
+
+
+def test_credal_json_ready_exact_builtin_fastpaths_match_json_roundtrip(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import math
+    import sys
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    class IntSubclass(int):
+        pass
+
+    class FloatSubclass(float):
+        pass
+
+    fastpath_values: tuple[object, ...] = (
+        None,
+        True,
+        False,
+        "",
+        "unicode — preserved",
+        0,
+        -17,
+        1.25,
+        -0.0,
+        math.ulp(0.0),
+        {},
+        [],
+        (),
+    )
+    expected = [
+        json.loads(json.dumps(value, ensure_ascii=False, sort_keys=True, default=str))
+        for value in fastpath_values
+    ]
+
+    def reject_json_roundtrip(*args: object, **kwargs: object) -> object:
+        raise AssertionError("exact built-in fastpath must not call the JSON roundtrip")
+
+    with monkeypatch.context() as guarded:
+        guarded.setattr(owner.json, "dumps", reject_json_roundtrip)
+        actual = [owner._json_ready(value) for value in fastpath_values]
+
+    assert [type(value) for value in actual] == [type(value) for value in expected]
+    assert actual == expected
+    assert math.copysign(1.0, float(actual[8])) == -1.0
+    for original, normalized in zip(fastpath_values[-3:], actual[-3:], strict=True):
+        assert normalized is not original
+        assert normalized is not owner._json_ready(original)
+
+    fallback_values: tuple[object, ...] = (
+        float("inf"),
+        float("nan"),
+        {"nested": [1, "value", None]},
+        IntSubclass(7),
+        FloatSubclass(1.5),
+    )
+    for value in fallback_values:
+        actual_value = owner._json_ready(value)
+        expected_value = json.loads(
+            json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+        )
+        assert type(actual_value) is type(expected_value)
+        assert json.dumps(
+            actual_value,
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        ) == json.dumps(
+            expected_value,
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+
+    max_digits = sys.get_int_max_str_digits()
+    if max_digits:
+        with pytest.raises(ValueError):
+            owner._json_ready(10**max_digits)
+
+
+def test_credal_json_ready_fallback_preserves_sorted_stateful_default_order() -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+
+    def run_ready(*, use_owner: bool) -> tuple[object, list[str]]:
+        calls: list[str] = []
+
+        class StatefulDefault:
+            def __init__(self, label: str) -> None:
+                self.label = label
+
+            def __str__(self) -> str:
+                calls.append(self.label)
+                return f"{self.label}-{len(calls)}"
+
+        value = {"z": StatefulDefault("z"), "a": StatefulDefault("a")}
+        if use_owner:
+            result = owner._json_ready(value)
+        else:
+            result = json.loads(json.dumps(value, ensure_ascii=False, sort_keys=True, default=str))
+        return result, calls
+
+    actual, actual_calls = run_ready(use_owner=True)
+    expected, expected_calls = run_ready(use_owner=False)
+    assert actual == expected == {"a": "a-1", "z": "z-2"}
+    assert actual_calls == expected_calls == ["a", "z"]
+
+
+def test_l6_observation_route_edges_use_one_validated_manifest_resolution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from collections.abc import Iterator
+    from contextlib import contextmanager
+
+    from polisyos.foundry.extensions import registry as foundry_registry
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.intervention_substrate import (
+        INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        InterventionSubstrateBundle,
+        intervention_substrate_bundle_content_hash,
+    )
+
+    raw_routes = [
+        {
+            "family": "family-b",
+            "target_contract": {"contract_id": "contract-b"},
+        },
+        {
+            "family": "family-a",
+            "target_contract": {"contract_id": "contract-a"},
+        },
+    ]
+    raw_artifacts = [
+        {"target_contract": {"contract_id": "contract-a"}, "status": "compiled"},
+        {"target_contract": {"contract_id": "contract-b"}, "status": "compiled"},
+    ]
+    bundle_fields: dict[str, object] = {
+        "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "knob_dictionary": {},
+        "lex_intervention_map": {},
+        "observation_manifest": {"routes": raw_routes, "artifacts": raw_artifacts},
+        "policy_scenario_templates": {},
+        "slot_family_manifest": {},
+        "world_mechanism_manifest": {},
+        "lex_authority_manifest": {},
+        "owner_authority_manifest": {},
+        "source_refs": {},
+        "source_content_hashes": {},
+    }
+    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(bundle_fields)
+    bundle = InterventionSubstrateBundle.model_validate(bundle_fields)
+    registry = foundry_registry.MethodRegistry()
+    registry_scopes: list[None] = []
+
+    @contextmanager
+    def one_controlled_registry_scope() -> Iterator[
+        tuple[
+            foundry_registry.MethodRegistry,
+            foundry_registry.FoundryExtensionRegistryReport,
+        ]
+    ]:
+        registry_scopes.append(None)
+        yield registry, foundry_registry.FoundryExtensionRegistryReport()
+
+    monkeypatch.setattr(
+        foundry_registry,
+        "controlled_builtin_foundry_method_registry_scope",
+        one_controlled_registry_scope,
+    )
+
+    edges = list(owner._iter_l6_observation_route_edges(bundle, version="fixture-v1"))
+
+    assert len(registry_scopes) == 1
+    assert [edge.edge_id for edge in edges] == ["family-b", "family-a"]
+    assert [edge.status for edge in edges] == ["incomplete", "incomplete"]
+    assert [edge.admissible_completions[0].reason for edge in edges] == [
+        "method_route_unresolved",
+        "method_route_unresolved",
+    ]
+    assert [edge.provenance["signals"]["route"] for edge in edges] == raw_routes
+
+
+def test_l6_observation_route_edges_keep_per_row_refusals_for_invalid_manifest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.intervention_substrate import (
+        INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        InterventionSubstrateBundle,
+        ObservationMethodRoute,
+        intervention_substrate_bundle_content_hash,
+    )
+
+    raw_routes = [
+        {"family": " duplicate "},
+        {"family": "duplicate"},
+        {"target_contract": "missing-family"},
+    ]
+    bundle_fields: dict[str, object] = {
+        "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "knob_dictionary": {},
+        "lex_intervention_map": {},
+        "observation_manifest": {"routes": raw_routes},
+        "policy_scenario_templates": {},
+        "slot_family_manifest": {},
+        "world_mechanism_manifest": {},
+        "lex_authority_manifest": {},
+        "owner_authority_manifest": {},
+        "source_refs": {},
+        "source_content_hashes": {},
+    }
+    bundle_fields["content_hash"] = intervention_substrate_bundle_content_hash(bundle_fields)
+    bundle = InterventionSubstrateBundle.model_validate(bundle_fields)
+    per_family_calls: list[str] = []
+
+    actual_route_resolution = owner.route_observation_family_method
+
+    def reject_family(
+        actual_bundle: InterventionSubstrateBundle,
+        *,
+        family: str,
+    ) -> ObservationMethodRoute:
+        assert actual_bundle is bundle
+        per_family_calls.append(family)
+        return actual_route_resolution(actual_bundle, family=family)
+
+    monkeypatch.setattr(owner, "route_observation_family_method", reject_family)
+
+    edges = list(owner._iter_l6_observation_route_edges(bundle, version="fixture-v1"))
+
+    assert per_family_calls == ["duplicate", "duplicate"]
+    assert [edge.edge_id for edge in edges] == [
+        "duplicate",
+        "duplicate",
+        "missing_family",
+    ]
+    assert [edge.status for edge in edges] == ["incomplete", "incomplete", "incomplete"]
+    assert [edge.admissible_completions[0].reason for edge in edges] == [
+        "family_route_ambiguous",
+        "family_route_ambiguous",
+        "observation_family_missing",
+    ]
+    assert [edge.provenance["signals"]["route"] for edge in edges] == raw_routes

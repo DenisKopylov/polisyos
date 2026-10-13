@@ -14,7 +14,11 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     MULTIPLICITY_DISCLOSURE_SUITE_ID,
     STRATEGIC_GAMING_SUITE_ID,
 )
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.doe.stress_report import (
+    StressScoreResolution,
+    StressTestReport,
+    resolve_stress_score_components,
+)
 from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
 from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
 from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
@@ -52,6 +56,7 @@ def _ensure_stress_test_report(
     evaluation_vector: PolicyEvaluationVector,
     supplemental_reports: list[StressTestReport] | None = None,
     phase_d4_suite_ids: list[str] | None = None,
+    expected_candidate_ref: ArtifactRef,
 ) -> ArtifactRef | None:
     existing_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
     replacement_suite_ids = [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
@@ -61,20 +66,23 @@ def _ensure_stress_test_report(
     report = _load_stress_test_report(ctx, existing_ref)
     if report is None:
         report = StressTestReport(
+            schema_version="1.1",
             report_id=f"stress_{state.run_id}",
-            total_scenarios_evaluated=1,
+            total_scenarios_evaluated=0,
             vulnerabilities=build_vulnerabilities(
                 evaluation=evaluation_vector,
                 distributional=load_distributional_report_for_state(ctx, state),
                 causal_report=load_causal_report(ctx, state),
                 governance_report=load_governance_report(ctx, state),
             ),
-            robustness_score=0.0,
+            robustness_score=None,
+            score_status="not_evaluated",
+            score_reason="no_finite_occurrence_basis",
             metadata={
                 "generated_by": "run_policy_blueprint_runtime",
                 "phase_d4_suite_ids": [],
                 "phase_d4_suite_scenario_counts": {},
-                "base_total_scenarios_evaluated": 1,
+                "base_total_scenarios_evaluated": 0,
             },
         )
     report = _merge_stress_test_reports(
@@ -83,12 +91,48 @@ def _ensure_stress_test_report(
         replacement_suite_ids=replacement_suite_ids,
     )
     report = _recompute_stress_test_report(report)
+    if report.score_profile in {"continuous_severity_v1", "mixed_unscored"}:
+        resolution = StressScoreResolution(
+            status="profile_mismatch",
+            component_ids=[item.component_id for item in report.score_components],
+            reason_code="mixed_or_nonbinary_score_profiles",
+        )
+    else:
+        resolution = resolve_stress_score_components(
+            ctx.store,
+            report.score_components,
+            expected_candidate_ref=expected_candidate_ref,
+        )
+    report = report.model_copy(
+        update={
+            "schema_version": "1.1",
+            "score_status": resolution.status,
+            "score_reason": resolution.reason_code,
+            "score_predicate_status": resolution.predicate_status,
+            "score_profile": resolution.score_profile or report.score_profile,
+            "robustness_score": resolution.robustness_score,
+            "total_scenarios_evaluated": (
+                resolution.total_scenarios_evaluated
+                if resolution.status == "available"
+                else report.total_scenarios_evaluated
+            ),
+            "critical_count": resolution.critical_count
+            if resolution.status == "available"
+            else report.critical_count,
+            "high_count": resolution.high_count
+            if resolution.status == "available"
+            else report.high_count,
+            "medium_count": resolution.medium_count
+            if resolution.status == "available"
+            else report.medium_count,
+        }
+    )
     return ctx.store.put_json(
         report,
         PutOptions(
             kind="scientist.stress_test_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
+            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -115,6 +159,57 @@ def _merge_stress_test_reports(
         for item in base_report.vulnerabilities
         if _phase_d4_suite_id_from_vulnerability(item) not in replacement_suite_ids_set
     ]
+    score_components = [
+        component
+        for component in base_report.score_components
+        if not any(
+            component.component_id.startswith(f"phase_d4:{suite_id}:")
+            for suite_id in replacement_suite_ids_set
+        )
+    ]
+    score_components.extend(
+        component for report in supplemental_reports for component in report.score_components
+    )
+    reports = [base_report, *supplemental_reports]
+    score_source_reports: list[dict[str, Any]] = []
+    for source_report in reports:
+        recorded_sources = source_report.metadata.get("score_source_reports")
+        if isinstance(recorded_sources, list) and recorded_sources:
+            score_source_reports.extend(
+                dict(item) for item in recorded_sources if isinstance(item, dict)
+            )
+            continue
+        source_score = source_report.robustness_score
+        if type(source_score) not in {int, float} or not math.isfinite(source_score):
+            source_score = None
+        score_source_reports.append(
+            {
+                "report_id": source_report.report_id,
+                "schema_version": source_report.schema_version,
+                "score_status": source_report.score_status,
+                "score_profile": source_report.score_profile,
+                "reported_score": source_score,
+                "reported_score_present": source_report.robustness_score is not None,
+            }
+        )
+    has_unscored_scope = any(
+        report.score_profile != "finite_binary_scenario_v1"
+        or (report.total_scenarios_evaluated > 0 and not report.score_components)
+        or (bool(report.vulnerabilities) and not report.score_components)
+        or (report.robustness_score is not None and not report.score_components)
+        or (report.schema_version != "1.1" and report.total_scenarios_evaluated > 0)
+        for report in reports
+    )
+    score_profile = (
+        "mixed_unscored"
+        if has_unscored_scope
+        else "finite_binary_scenario_v1"
+        if score_components
+        else base_report.score_profile
+    )
+    score_status = (
+        "profile_mismatch" if score_profile == "mixed_unscored" else base_report.score_status
+    )
     suite_scenario_counts = {
         str(key): int(value)
         for key, value in dict(
@@ -140,13 +235,26 @@ def _merge_stress_test_reports(
     total_scenarios = base_total_scenarios + sum(suite_scenario_counts.values())
     return base_report.model_copy(
         update={
+            "schema_version": "1.1",
             "total_scenarios_evaluated": total_scenarios,
+            "score_components": score_components,
+            "score_profile": score_profile,
+            "score_status": score_status,
+            "score_reason": (
+                "mixed_finite_and_unscored_sources"
+                if score_profile == "mixed_unscored"
+                else base_report.score_reason
+            ),
+            "robustness_score": None
+            if score_profile == "mixed_unscored"
+            else base_report.robustness_score,
             "vulnerabilities": vulnerabilities,
             "metadata": {
                 **dict(base_report.metadata),
                 "phase_d4_suite_ids": sorted(suite_scenario_counts),
                 "phase_d4_suite_scenario_counts": suite_scenario_counts,
                 "base_total_scenarios_evaluated": base_total_scenarios,
+                "score_source_reports": score_source_reports,
             },
         }
     )
@@ -174,18 +282,6 @@ def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
             ),
             "high_count": sum(1 for item in report.vulnerabilities if item.severity == "high"),
             "medium_count": sum(1 for item in report.vulnerabilities if item.severity == "medium"),
-            "robustness_score": max(
-                0.0,
-                1.0
-                - (
-                    sum(
-                        1
-                        for item in report.vulnerabilities
-                        if item.severity in {"critical", "high"}
-                    )
-                    / max(len(report.vulnerabilities), 1)
-                ),
-            ),
         }
     )
 
@@ -263,9 +359,26 @@ def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:
     level5 = outcome.stage_results.get(5)
     if level5 is None:
         return {"passed": False, "reason": "level5_not_executed"}
+    feedback = level5.feedback or {}
+    score_value = feedback.get("stress_score_value")
+    score_is_finite_binary = (
+        feedback.get("stress_score_status") == "available"
+        and feedback.get("stress_score_profile") == "finite_binary_scenario_v1"
+        and feedback.get("stress_score_predicate_status")
+        in {"recomputed", "independently_reconciled"}
+        and type(score_value) in {int, float}
+        and math.isfinite(score_value)
+    )
     return {
-        "passed": level5.is_promising
-        and level5.terminal_action not in {"reject", "defer_to_human"},
+        "passed": (
+            level5.is_promising
+            and level5.terminal_action not in {"reject", "defer_to_human"}
+            and score_is_finite_binary
+        ),
+        "reason": None if score_is_finite_binary else "finite_stress_score_unavailable",
+        "score_status": feedback.get("stress_score_status"),
+        "score_profile": feedback.get("stress_score_profile"),
+        "score_reason": feedback.get("stress_score_reason"),
         "terminal_action": level5.terminal_action,
         "failure_count": len(level5.failure_cards),
         "critical_failures": [
@@ -279,6 +392,7 @@ def _load_stress_test_report(
     ref: ArtifactRef | None,
 ) -> StressTestReport | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if ref is None:
         return None
     return StressTestReport.model_validate(load_core_json_artifact(ctx.store, ref))

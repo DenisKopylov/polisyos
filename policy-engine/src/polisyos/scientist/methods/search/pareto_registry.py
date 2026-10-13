@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
@@ -108,32 +109,123 @@ class ParetoRegistrySnapshot(BaseModel):
         computation, but their members are not represented as ranked.
         """
         view_key = _view_key(view, policy_family=policy_family)
-        identity_mismatch = any(
-            candidate_hash != entry.candidate_hash
-            for candidate_hash, entry in self.entries.items()
-        )
-        eligible_hashes = sorted(
-            candidate_hash
-            for candidate_hash, entry in self.entries.items()
-            if entry.evaluation.feasible
-            and not entry.seed_only
-            and (
-                view is not ParetoView.POLICY_FAMILY
-                or entry.policy_family == policy_family
+        is_catalog = self.loop_id.startswith("catalog::")
+        catalog_identities: dict[str, tuple[str, str, str, str] | None] = {}
+        if is_catalog:
+            catalog_identities = {
+                entry_key: _catalog_entry_identity(self, entry_key, entry)
+                for entry_key, entry in self.entries.items()
+            }
+            present_catalog_identities = [
+                identity for identity in catalog_identities.values() if identity is not None
+            ]
+            has_unresolved_catalog_identity = any(
+                identity is None for identity in catalog_identities.values()
             )
-        )
+            has_duplicate_catalog_identity = len(set(present_catalog_identities)) != len(
+                present_catalog_identities
+            )
+            identity_mismatch = has_unresolved_catalog_identity or has_duplicate_catalog_identity
+            eligible_hashes = sorted(
+                {
+                    entry.candidate_hash
+                    for entry in self.entries.values()
+                    if entry.evaluation.feasible
+                    and not entry.seed_only
+                    and (
+                        view is not ParetoView.POLICY_FAMILY or entry.policy_family == policy_family
+                    )
+                }
+            )
+        else:
+            identity_mismatch = any(
+                entry_key != entry.candidate_hash for entry_key, entry in self.entries.items()
+            )
+            eligible_hashes = sorted(
+                candidate_hash
+                for candidate_hash, entry in self.entries.items()
+                if entry.evaluation.feasible
+                and not entry.seed_only
+                and (view is not ParetoView.POLICY_FAMILY or entry.policy_family == policy_family)
+            )
         eligible_set = set(eligible_hashes)
         stored_frontier_hashes = self.frontiers.get(view_key, [])
-        malformed_frontier = (
-            len(set(stored_frontier_hashes)) != len(stored_frontier_hashes)
-            or not set(stored_frontier_hashes) <= eligible_set
-        )
-        candidate_frontier_hashes = (
-            ()
-            if malformed_frontier or identity_mismatch
-            else tuple(stored_frontier_hashes)
-        )
+        catalog_frontier_hashes: tuple[str, ...] | None = None
+        catalog_frontier_uses_occurrences = False
+        if is_catalog:
+            normalized_frontier = _catalog_projection_hashes(
+                self,
+                stored_frontier_hashes,
+                catalog_identities,
+                eligible_hashes,
+            )
+            if normalized_frontier is not None:
+                catalog_frontier_hashes, catalog_frontier_uses_occurrences = normalized_frontier
+            malformed_frontier = (
+                catalog_frontier_hashes is None or set(catalog_frontier_hashes) != eligible_set
+            )
+        else:
+            malformed_frontier = (
+                len(set(stored_frontier_hashes)) != len(stored_frontier_hashes)
+                or not set(stored_frontier_hashes) <= eligible_set
+            )
+        if malformed_frontier or identity_mismatch:
+            candidate_frontier_hashes = ()
+        elif is_catalog:
+            candidate_frontier_hashes = catalog_frontier_hashes or ()
+        else:
+            candidate_frontier_hashes = tuple(stored_frontier_hashes)
         stored_assessment = self.view_assessments.get(view_key)
+        catalog_assessment: ParetoViewAssessment | None = None
+        if is_catalog and stored_assessment is not None:
+            normalized_unassessed = _catalog_projection_hashes(
+                self,
+                stored_assessment.unassessed_candidate_hashes,
+                catalog_identities,
+                eligible_hashes,
+            )
+            eligible_occurrence_count = sum(
+                1
+                for entry_key, entry in self.entries.items()
+                if catalog_identities[entry_key] is not None
+                and entry.evaluation.feasible
+                and not entry.seed_only
+                and (view is not ParetoView.POLICY_FAMILY or entry.policy_family == policy_family)
+            )
+            accepted_input_counts = {len(eligible_hashes)}
+            unassessed_uses_occurrences = False
+            if normalized_unassessed is not None:
+                normalized_unassessed_hashes, unassessed_uses_occurrences = normalized_unassessed
+                if self.schema_version == "2.0" and (
+                    catalog_frontier_uses_occurrences or unassessed_uses_occurrences
+                ):
+                    accepted_input_counts.add(eligible_occurrence_count)
+            else:
+                normalized_unassessed_hashes = ()
+            diagnostic_maps_are_empty = all(
+                not values
+                for values in (
+                    stored_assessment.missing_coordinate_ids_by_candidate_hash,
+                    stored_assessment.non_finite_coordinate_ids_by_candidate_hash,
+                    stored_assessment.unresolved_axis_contract_candidate_hashes,
+                )
+            )
+            if (
+                normalized_unassessed is not None
+                and set(normalized_unassessed_hashes) == eligible_set
+                and stored_assessment.status == "basis_limited"
+                and stored_assessment.coverage_status == "no_usable_inputs"
+                and stored_assessment.basis_scope.scope == "not_established"
+                and stored_assessment.assessed_count == 0
+                and stored_assessment.input_count in accepted_input_counts
+                and diagnostic_maps_are_empty
+            ):
+                catalog_assessment = stored_assessment.model_copy(
+                    update={
+                        "input_count": len(eligible_hashes),
+                        "unassessed_candidate_hashes": list(normalized_unassessed_hashes),
+                    }
+                )
         if stored_assessment is None:
             assessment = ParetoViewAssessment(
                 status="legacy_limited",
@@ -146,8 +238,14 @@ class ParetoRegistrySnapshot(BaseModel):
         elif (
             identity_mismatch
             or malformed_frontier
-            or stored_assessment.input_count != len(eligible_hashes)
-            or not set(stored_assessment.unassessed_candidate_hashes) <= eligible_set
+            or (is_catalog and catalog_assessment is None)
+            or (
+                not is_catalog
+                and (
+                    stored_assessment.input_count != len(eligible_hashes)
+                    or not set(stored_assessment.unassessed_candidate_hashes) <= eligible_set
+                )
+            )
         ):
             # Snapshot membership and assessment denominator disagree. Preserve
             # candidate identities as unassessed; do not repair the record here.
@@ -161,7 +259,7 @@ class ParetoRegistrySnapshot(BaseModel):
             )
             candidate_frontier_hashes = ()
         else:
-            assessment = stored_assessment
+            assessment = catalog_assessment if is_catalog else stored_assessment
 
         if assessment.status == "complete":
             unassessed_hashes: tuple[str, ...] = ()
@@ -338,13 +436,22 @@ class ParetoRegistry:
         catalog_entries = {
             key: value
             for key, value in existing_catalog.entries.items()
-            if not key.startswith(f"{loop_id}:")
+            if not (
+                value.source_loop_id == loop_id
+                and value.task_family == active_context.task_family
+                and value.domain == active_context.domain
+            )
         }
         for candidate_hash in frontier_hashes:
             entry = local_snapshot.entries.get(candidate_hash)
             if entry is None or not entry.evaluation.feasible or entry.seed_only:
                 continue
-            catalog_key = f"{loop_id}:{candidate_hash}"
+            catalog_key = _catalog_entry_key(
+                active_context.task_family,
+                active_context.domain,
+                loop_id,
+                candidate_hash,
+            )
             catalog_entries[catalog_key] = entry.model_copy(
                 update={
                     "task_family": active_context.task_family,
@@ -355,18 +462,44 @@ class ParetoRegistry:
                 }
             )
 
+        catalog_identity_by_key = {
+            entry_key: _catalog_entry_identity(existing_catalog, entry_key, entry)
+            for entry_key, entry in catalog_entries.items()
+        }
+        catalog_identity_counts: dict[tuple[str, str, str, str], int] = {}
+        for identity in catalog_identity_by_key.values():
+            if identity is not None:
+                catalog_identity_counts[identity] = catalog_identity_counts.get(identity, 0) + 1
+        catalog_candidate_hash_set: set[str] = set()
+        for entry_key, entry in catalog_entries.items():
+            identity = catalog_identity_by_key[entry_key]
+            if (
+                identity is None
+                or catalog_identity_counts[identity] != 1
+                or not entry.evaluation.feasible
+                or entry.seed_only
+            ):
+                continue
+            catalog_candidate_hash_set.add(identity[3])
+        catalog_candidate_hashes = sorted(catalog_candidate_hash_set)
+        catalog_assessment = ParetoViewAssessment(
+            status="basis_limited",
+            coverage_status="no_usable_inputs",
+            basis_scope=ParetoBasisScope(scope="not_established"),
+            input_count=len(catalog_candidate_hashes),
+            assessed_count=0,
+            unassessed_candidate_hashes=catalog_candidate_hashes,
+        )
         catalog = ParetoRegistrySnapshot(
+            schema_version="2.1",
             loop_id=existing_catalog.loop_id,
             task_family=active_context.task_family,
             domain=active_context.domain,
             updated_at=datetime.now(UTC),
             entries=catalog_entries,
-            frontiers={ParetoView.GLOBAL_FEASIBLE.value: list(catalog_entries)},
-            hypervolume_by_view={
-                ParetoView.GLOBAL_FEASIBLE.value: float(
-                    local_snapshot.hypervolume_by_view.get(ParetoView.GLOBAL_FEASIBLE.value, 0.0)
-                )
-            },
+            frontiers={ParetoView.GLOBAL_FEASIBLE.value: catalog_candidate_hashes},
+            hypervolume_by_view={},
+            view_assessments={ParetoView.GLOBAL_FEASIBLE.value: catalog_assessment},
         )
         self._write_catalog_snapshot(active_context, catalog)
         return catalog
@@ -380,7 +513,18 @@ class ParetoRegistry:
         candidates: list[tuple[int, float, datetime, ParetoRegistryEntry]] = []
         for namespace_context, path in self._iter_catalog_paths():
             snapshot = self._load_snapshot(path)
-            for entry in snapshot.entries.values():
+            catalog_identities = {
+                entry_key: _catalog_entry_identity(snapshot, entry_key, entry)
+                for entry_key, entry in snapshot.entries.items()
+            }
+            identity_counts: dict[tuple[str, str, str, str], int] = {}
+            for identity in catalog_identities.values():
+                if identity is not None:
+                    identity_counts[identity] = identity_counts.get(identity, 0) + 1
+            for entry_key, entry in snapshot.entries.items():
+                identity = catalog_identities[entry_key]
+                if identity is None or identity_counts.get(identity) != 1:
+                    continue
                 if entry.task_family != target_context.task_family or not entry.evaluation.feasible:
                     continue
                 source_context = TransferContext(
@@ -621,8 +765,7 @@ class ParetoRegistry:
                 else sorted(
                     view_name
                     for view_name, hashes in frontiers.items()
-                    if candidate_hash in hashes
-                    and view_assessments[view_name].status == "complete"
+                    if candidate_hash in hashes and view_assessments[view_name].status == "complete"
                 )
             )
             updated_entries[candidate_hash] = entry.model_copy(
@@ -638,6 +781,14 @@ class ParetoRegistry:
                 }
             )
 
+        available_hypervolume: dict[str, float] = {}
+        for view_key, value in hypervolume.items():
+            if view_assessments[view_key].status != "complete":
+                continue
+            if not math.isfinite(value):
+                raise ValueError(f"complete Pareto view has non-finite hypervolume: {view_key}")
+            available_hypervolume[view_key] = value
+
         return ParetoRegistrySnapshot(
             schema_version="2.0",
             loop_id=snapshot.loop_id,
@@ -646,7 +797,7 @@ class ParetoRegistry:
             updated_at=datetime.now(UTC),
             entries=updated_entries,
             frontiers=frontiers,
-            hypervolume_by_view=hypervolume,
+            hypervolume_by_view=available_hypervolume,
             view_assessments=view_assessments,
             objective_basis_by_view=snapshot.objective_basis_by_view,
         )
@@ -682,11 +833,7 @@ class ParetoRegistry:
             list(declared_basis.coordinate_ids)
             if declared_basis is not None and declared_basis.scope == "declared"
             else sorted(
-                {
-                    axis
-                    for objectives in observed_objective_maps.values()
-                    for axis in objectives
-                }
+                {axis for objectives in observed_objective_maps.values() for axis in objectives}
             )
         )
         basis_scope = declared_basis or (
@@ -695,11 +842,7 @@ class ParetoRegistry:
             else ParetoBasisScope(scope="not_established")
         )
         objective_maps = {
-            candidate_hash: {
-                axis: objectives[axis]
-                for axis in axis_names
-                if axis in objectives
-            }
+            candidate_hash: {axis: objectives[axis] for axis in axis_names if axis in objectives}
             for candidate_hash, objectives in observed_objective_maps.items()
         }
         if not axis_names:
@@ -754,9 +897,7 @@ class ParetoRegistry:
                 non_finite_by_hash[candidate_hash] = item.non_finite_coordinate_ids
         coverage = ParetoViewAssessment(
             status=(
-                front_assessment.status
-                if basis_scope.scope == "declared"
-                else "basis_limited"
+                front_assessment.status if basis_scope.scope == "declared" else "basis_limited"
             ),
             coverage_status=front_assessment.status,
             basis_scope=basis_scope,
@@ -794,6 +935,21 @@ class ParetoRegistry:
 
     @staticmethod
     def _write_json(path: Path, snapshot: ParetoRegistrySnapshot) -> None:
+        for candidate_hash, entry in snapshot.entries.items():
+            for channel_group in ("primary", "hard_constraints", "secondary", "penalties"):
+                channels = getattr(entry.evaluation, channel_group)
+                for channel_id, channel in channels.items():
+                    for field_name in ("value", "weight", "threshold"):
+                        value = getattr(channel, field_name)
+                        if value is not None and not math.isfinite(value):
+                            raise ValueError(
+                                "cannot persist non-finite Pareto metric "
+                                f"{candidate_hash}.{channel_group}.{channel_id}.{field_name}"
+                            )
+        for view_key, value in snapshot.hypervolume_by_view.items():
+            if not math.isfinite(value):
+                raise ValueError(f"cannot persist non-finite Pareto hypervolume: {view_key}")
+
         path.parent.mkdir(parents=True, exist_ok=True)
         if snapshot.schema_version == "1.0":
             payload = json.dumps(
@@ -862,6 +1018,77 @@ def _placeholder_ref(candidate_hash: str) -> ArtifactRef:
         kind="scientist.policy.placeholder",
         media_type="application/json",
     )
+
+
+def _catalog_entry_key(
+    task_family: str,
+    domain: str,
+    source_loop_id: str,
+    candidate_hash: str,
+) -> str:
+    """Build a collision-safe identity for one scoped catalog occurrence."""
+    return json.dumps(
+        [task_family, domain, source_loop_id, candidate_hash],
+        ensure_ascii=True,
+        separators=(",", ":"),
+    )
+
+
+def _catalog_entry_identity(
+    snapshot: ParetoRegistrySnapshot,
+    entry_key: str,
+    entry: ParetoRegistryEntry,
+) -> tuple[str, str, str, str] | None:
+    """Resolve an entry key only when it binds to the snapshot's exact source scope."""
+    source_loop_id = entry.source_loop_id
+    if (
+        not snapshot.loop_id.startswith("catalog::")
+        or entry.task_family != snapshot.task_family
+        or entry.domain != snapshot.domain
+        or not source_loop_id
+    ):
+        return None
+    current_key = _catalog_entry_key(
+        entry.task_family,
+        entry.domain,
+        source_loop_id,
+        entry.candidate_hash,
+    )
+    legacy_key = f"{source_loop_id}:{entry.candidate_hash}"
+    if entry_key not in {current_key, legacy_key}:
+        return None
+    return (entry.task_family, entry.domain, source_loop_id, entry.candidate_hash)
+
+
+def _catalog_projection_hashes(
+    snapshot: ParetoRegistrySnapshot,
+    persisted_hashes: list[str],
+    identities: dict[str, tuple[str, str, str, str] | None],
+    eligible_hashes: list[str],
+) -> tuple[tuple[str, ...], bool] | None:
+    """Normalize verified legacy occurrence refs into logical candidate hashes."""
+    if len(set(persisted_hashes)) != len(persisted_hashes):
+        return None
+    eligible = set(eligible_hashes)
+    normalized: list[str] = []
+    used_occurrence_keys = False
+    for persisted_hash in persisted_hashes:
+        if persisted_hash in identities:
+            identity = identities[persisted_hash]
+            if identity is None:
+                return None
+            candidate_hash = identity[3]
+            if persisted_hash in eligible and persisted_hash != candidate_hash:
+                return None
+            used_occurrence_keys = True
+        else:
+            candidate_hash = persisted_hash
+        if candidate_hash not in eligible:
+            return None
+        normalized.append(candidate_hash)
+    if len(set(normalized)) != len(normalized) and snapshot.schema_version != "2.0":
+        return None
+    return tuple(sorted(set(normalized))), used_occurrence_keys
 
 
 def _view_key(view: ParetoView, *, policy_family: str | None = None) -> str:

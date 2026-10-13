@@ -4440,27 +4440,49 @@ def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
 
     first_scenario = report.scenarios[0]
     first_comparison = first_scenario.outcome_comparisons[0]
+    assert first_comparison.relative_error is not None and first_comparison.relative_error > 0.0
     changed_comparison = first_comparison.model_copy(
-        update={"y_pred": first_comparison.y_true, "absolute_error": 0.0}
+        update={"relative_error": first_comparison.relative_error * 2.0}
     )
-    changed_scenario = first_scenario.model_copy(
+    source_mismatch_scenario = first_scenario.model_copy(
         update={
             "outcome_comparisons": [changed_comparison, *first_scenario.outcome_comparisons[1:]],
-            "mae": 4.0 / 3.0,
-            "rmse": (8.5 / 3.0) ** 0.5,
-            "absolute_error_sum": 4.0,
-            "squared_error_sum": 8.5,
         }
     )
-    stale_report = report.model_copy(
-        update={
-            "scenarios": [changed_scenario],
-            "overall_mae": 4.0 / 3.0,
-            "overall_rmse": (8.5 / 3.0) ** 0.5,
-        }
+    source_mismatch_report = report.model_copy(
+        update={"scenarios": [source_mismatch_scenario, *report.scenarios[1:]]}
     )
-    with pytest.raises(ValidationError, match="metric diagnostic does not reconcile"):
-        persist_backtest_report(_ensure_ir_artifact_store(store), stale_report)
+    with pytest.raises(
+        ValidationError,
+        match="source relative_error does not reconcile with outcome rows",
+    ):
+        persist_backtest_report(_ensure_ir_artifact_store(store), source_mismatch_report)
+
+    assert actual_diagnostic.mean_residual != 0.0
+    mismatched_mean = -actual_diagnostic.mean_residual
+    mismatched_sign = (
+        "positive" if mismatched_mean > 0 else "negative" if mismatched_mean < 0 else "zero"
+    )
+    mismatched_diagnostics = [
+        item.model_copy(
+            update={
+                "mean_residual": mismatched_mean,
+                "magnitude": abs(mismatched_mean),
+                "residual_sign": mismatched_sign,
+            }
+        )
+        if item.metric_name == actual_diagnostic.metric_name
+        else item
+        for item in report.metric_diagnostics
+    ]
+    stale_diagnostic_report = report.model_copy(
+        update={"metric_diagnostics": mismatched_diagnostics}
+    )
+    with pytest.raises(
+        ValidationError,
+        match="metric diagnostic does not reconcile source count/mean",
+    ):
+        persist_backtest_report(_ensure_ir_artifact_store(store), stale_diagnostic_report)
 
     legacy_ref = persist_report_payload_variant(
         {

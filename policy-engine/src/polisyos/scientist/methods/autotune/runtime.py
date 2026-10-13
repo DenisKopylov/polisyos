@@ -27,6 +27,7 @@ from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
     SearchResult,
+    TracedLLMCandidateGenerator,
 )
 from polisyos.scientist.methods.search.objective import (
     BaseObjective,
@@ -59,6 +60,11 @@ from .models import (
 from .registry import ChampionRegistry
 
 if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
     from .execution_work import MethodJobExecutionWorkPacket
 
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
@@ -371,9 +377,7 @@ class MethodJobBenchmarkEvaluator:
         configured_method_params = dict(self._method_params)
         search_parameter_values: dict[str, Any] = {}
         if self._search_parameter_bindings:
-            data_sample_count = _source_sample_count(
-                data_payload, self._data_snapshot_bindings
-            )
+            data_sample_count = _source_sample_count(data_payload, self._data_snapshot_bindings)
             if not _search_method_run_profile_matches_evaluator(
                 profile=search_method_run_profile,
                 evaluator=self,
@@ -741,9 +745,7 @@ class MethodJobBenchmarkEvaluator:
                 method_fqn=self._method_fqn,
                 method_version=self._method_version,
                 method_seed=job_spec.seed,
-                schema_version=(
-                    "1.3" if search_method_run_profile is not None else "1.2"
-                ),
+                schema_version=("1.3" if search_method_run_profile is not None else "1.2"),
                 configured_method_params=dict(job_spec.method_params),
                 effective_method_config=dict(effective_config),
                 candidate_slot_bindings=dict(self._candidate_input_bindings),
@@ -856,9 +858,7 @@ def read_method_job_execution_work_packet(
         ):
             raise ValueError("method_work_packet_search_profile_mismatch")
         actual_search_values = {
-            name: candidate[name]
-            for name in profile.search_parameter_bindings
-            if name in candidate
+            name: candidate[name] for name in profile.search_parameter_bindings if name in candidate
         }
         if (
             set(actual_search_values) != set(profile.search_parameter_bindings)
@@ -1209,10 +1209,7 @@ def _search_source_manifest_input_matches(
     return any(
         item.role == role
         and item.artifact_id == ref.artifact_id
-        and (
-            not require_profile
-            or item.manifest_profile_sha256 == ref.manifest_profile_sha256
-        )
+        and (not require_profile or item.manifest_profile_sha256 == ref.manifest_profile_sha256)
         for item in manifest.inputs
     )
 
@@ -1317,17 +1314,17 @@ def _build_search_parameter_profile(
             ):
                 return None
             if type(parameter.default) is int:
-                if dtype != "integer" or not float(lower).is_integer() or not float(upper).is_integer():
+                if (
+                    dtype != "integer"
+                    or not float(lower).is_integer()
+                    or not float(upper).is_integer()
+                ):
                     return None
             elif dtype not in {"continuous", "log_continuous"}:
                 return None
             declared_lower, declared_upper = parameter.bounds
-            if (
-                declared_lower is not None
-                and lower < declared_lower
-            ) or (
-                declared_upper is not None
-                and upper > declared_upper
+            if (declared_lower is not None and lower < declared_lower) or (
+                declared_upper is not None and upper > declared_upper
             ):
                 return None
             profile_bounds.append(
@@ -1355,6 +1352,7 @@ def _build_search_method_run_profile(
 ) -> SearchMethodRunProfile | None:
     """Resolve the exact method, data, objective, and search basis for one run."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     evaluator = spec.benchmark_evaluator
     search_space = getattr(generator, "_search_space", None)
     context_fingerprint = getattr(generator, "_search_run_context_fingerprint", None)
@@ -1385,7 +1383,9 @@ def _build_search_method_run_profile(
             if data_snapshot_ref.manifest_profile_sha256 is None:
                 return None
             snapshot_manifest = store.get_manifest(data_snapshot_ref)
-            snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, data_snapshot_ref))
+            snapshot = DataSnapshot.model_validate(
+                load_core_json_artifact(store, data_snapshot_ref)
+            )
             data_ref = ArtifactRef.model_validate(snapshot.data_ref)
             if data_ref.manifest_profile_sha256 is None:
                 return None
@@ -1409,9 +1409,7 @@ def _build_search_method_run_profile(
     method_params_fingerprint = _search_source_fingerprint(dict(evaluator._method_params))
     if method_params_fingerprint is None:
         return None
-    parameter_profile = _build_search_parameter_profile(
-        evaluator=evaluator, generator=generator
-    )
+    parameter_profile = _build_search_parameter_profile(evaluator=evaluator, generator=generator)
     if parameter_profile is None:
         return None
     parameter_bounds, method_signature_abi_digest = parameter_profile
@@ -1504,6 +1502,7 @@ def _verify_search_source_profile_receipt(
 ) -> tuple[BayesianSourceProfile, dict[str, Any], ArtifactRef] | None:
     """Fresh-read the complete candidate-grade Search → MethodJob → CAS source chain."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     if not isinstance(store, FileSystemCAS):
         return None
     try:
@@ -1540,10 +1539,7 @@ def _verify_search_source_profile_receipt(
         if (
             _search_source_fingerprint(dict(profile_payload)) != receipt.get("profile_sha256")
             or evaluation.search_source_profile != profile
-            or (
-                expected_profile is not None
-                and dict(expected_profile) != dict(profile_payload)
-            )
+            or (expected_profile is not None and dict(expected_profile) != dict(profile_payload))
             or (require_warm_start_eligible and not profile.warm_start_eligible)
         ):
             return None
@@ -1633,8 +1629,7 @@ def _verify_search_source_profile_receipt(
         suite_payload = load_core_json_artifact(reader, suite_ref)
         suite = BenchmarkSuite.model_validate(suite_payload)
         if suite_manifest.artifact_id != suite_ref.artifact_id or (
-            suite.suite_id != evaluation.suite_id
-            or suite.suite_version != evaluation.suite_version
+            suite.suite_id != evaluation.suite_id or suite.suite_version != evaluation.suite_version
         ):
             return None
 
@@ -1740,8 +1735,7 @@ def _verify_search_source_profile_receipt(
             }
             if (
                 actual_search_values != basis.get("search_parameter_values")
-                or set(actual_search_values)
-                != set(request_run_profile.search_parameter_bindings)
+                or set(actual_search_values) != set(request_run_profile.search_parameter_bindings)
                 or request_run_profile.candidate_input_bindings != dict(candidate_bindings)
                 or request_run_profile.data_snapshot_bindings != dict(data_bindings)
                 or request_run_profile.data_snapshot_ref != data_snapshot_ref
@@ -1767,13 +1761,9 @@ def _verify_search_source_profile_receipt(
             or not isinstance(result_payload, Mapping)
         ):
             return None
-        expected_result_inputs = {
-            f"input:{name}": ref for name, ref in job_spec.input_refs.items()
-        }
+        expected_result_inputs = {f"input:{name}": ref for name, ref in job_spec.input_refs.items()}
         actual_result_inputs = {
-            item.role: item
-            for item in result_manifest.inputs
-            if item.role.startswith("input:")
+            item.role: item for item in result_manifest.inputs if item.role.startswith("input:")
         }
         if set(actual_result_inputs) != set(expected_result_inputs) or not all(
             actual_result_inputs[role].artifact_id == ref.artifact_id
@@ -1786,9 +1776,7 @@ def _verify_search_source_profile_receipt(
         evidence_payload = load_core_json_artifact(reader, method_evidence_ref)
         if not isinstance(evidence_payload, Mapping):
             return None
-        evidence_result_ref = ArtifactRef.model_validate(
-            evidence_payload.get("method_result_ref")
-        )
+        evidence_result_ref = ArtifactRef.model_validate(evidence_payload.get("method_result_ref"))
         if (
             evidence_manifest.kind != "scientist.method_evidence"
             or not _search_source_manifest_schema_matches(
@@ -1890,6 +1878,7 @@ def _method_request_matches_search_run_profile(
 ) -> bool:
     """Reconcile the persisted MethodJob request and full data quantity to a run profile."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     basis = receipt.get("method_request_basis")
     if not isinstance(basis, Mapping):
         return False
@@ -1951,9 +1940,7 @@ def _method_request_matches_search_run_profile(
         if data_snapshot_ref is None:
             return run_profile.data_sample_count is None
         snapshot_manifest = reader.get_manifest(data_snapshot_ref)
-        snapshot = DataSnapshot.model_validate(
-            load_core_json_artifact(reader, data_snapshot_ref)
-        )
+        snapshot = DataSnapshot.model_validate(load_core_json_artifact(reader, data_snapshot_ref))
         if (
             snapshot_manifest.kind != "fabric.data_snapshot"
             or snapshot.data_ref != data_ref
@@ -1984,6 +1971,7 @@ def _recompute_search_gp_fit_basis(
 ) -> bool:
     """Recompute the fitted native GP from exact CAS-backed MethodJob observations."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         fit_basis_ref = ArtifactRef.model_validate(receipt.get("fit_basis_ref"))
         if fit_basis_ref.manifest_profile_sha256 is None:
@@ -2009,9 +1997,7 @@ def _recompute_search_gp_fit_basis(
             )
         ):
             return False
-        fit_basis = SearchGPFitBasis.model_validate(
-            load_core_json_artifact(reader, fit_basis_ref)
-        )
+        fit_basis = SearchGPFitBasis.model_validate(load_core_json_artifact(reader, fit_basis_ref))
         run_profile = fit_basis.run_profile
         if (
             run_profile != expected_method_run_profile
@@ -2135,19 +2121,14 @@ def _recompute_search_gp_fit_basis(
                     stage_a_passed=True,
                     status=EvaluationStatus.SUCCESS,
                     provenance_ref=str(source_receipt["method_result_ref"]["artifact_id"]),
-                    metadata={
-                        "search_source_evaluation_ref": source_ref.model_dump(mode="json")
-                    },
+                    metadata={"search_source_evaluation_ref": source_ref.model_dump(mode="json")},
                 )
             )
         if len(training_evaluations) != fit_basis.training_observation_count:
             return False
         train_x, train_y = optimizer._prepare_training_data(training_evaluations)
         optimizer._fit_full_gp(train_x, train_y)
-        if (
-            optimizer._fitted_model_state_fingerprint()
-            != fit_basis.fitted_model_state_fingerprint
-        ):
+        if optimizer._fitted_model_state_fingerprint() != fit_basis.fitted_model_state_fingerprint:
             return False
         optimizer._record_fitted_training_corpus(training_evaluations)
         recomputed_profile = BayesianSourceProfile.model_validate(
@@ -2192,14 +2173,31 @@ class SearchLoopRunner:
         dedup: Any | None = None,
         warm_start_bridge: Any | None = None,
         warm_start_fingerprint: Any | None = None,
+        producer_settlement_store: BudgetMiddleware | None = None,
+        producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
     ) -> SearchResult:
         del scheduler  # reserved for future Hyperband integration
         generator = spec.candidate_generator
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
+        if (producer_settlement_store is None) != (producer_run_binding is None):
+            raise ValueError("durable producer budget requires both owner and run binding")
+        if producer_settlement_store is not None:
+            assert producer_run_binding is not None
+            TracedLLMCandidateGenerator.require_bound_owner(
+                generator,
+                producer_settlement_store,
+                producer_run_binding,
+            )
         search_context = dict(context or {})
         runtime_context = dict(search_context)
-        runtime_context.setdefault("run_id", f"search-run:{uuid4().hex}")
+        if producer_run_binding is not None:
+            supplied_run_id = runtime_context.get("run_id")
+            if supplied_run_id is not None and supplied_run_id != producer_run_binding.run_id:
+                raise ValueError("search run_id conflicts with producer run binding")
+            runtime_context["run_id"] = producer_run_binding.run_id
+        else:
+            runtime_context.setdefault("run_id", f"search-run:{uuid4().hex}")
         set_search_run_context = getattr(generator, "set_search_run_context", None)
         if callable(set_search_run_context):
             set_search_run_context(search_context)
@@ -2215,9 +2213,7 @@ class SearchLoopRunner:
                 suite_ref=suite_ref,
                 context=search_context,
             )
-            BayesianCandidateGenerator.set_search_method_run_profile(
-                generator, method_run_profile
-            )
+            BayesianCandidateGenerator.set_search_method_run_profile(generator, method_run_profile)
         if (
             isinstance(spec.benchmark_evaluator, MethodJobBenchmarkEvaluator)
             and spec.benchmark_evaluator._search_parameter_bindings
@@ -2248,6 +2244,8 @@ class SearchLoopRunner:
                 stopping=MaxIterations(max_iterations),
                 objective=objective,
                 enable_stage_a=False,
+                producer_settlement_store=producer_settlement_store,
+                producer_run_binding=producer_run_binding,
             ),
             candidate_generator=generator,
             stage_a_evaluator=lambda candidate, ctx: (0.0, True),
@@ -2266,10 +2264,19 @@ class SearchLoopRunner:
         )
         from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
 
-        return _NativeSearchServiceDriver(controller).run_search(
-            initial_context=runtime_context,
-            initial_candidate=initial_payload,
-        )
+        driver = _NativeSearchServiceDriver(controller)
+        if producer_settlement_store is None:
+            return driver.run_search(
+                initial_context=runtime_context,
+                initial_candidate=initial_payload,
+            )
+        if producer_run_binding is None:
+            raise ValueError("producer run binding is required with settlement store")
+        with producer_settlement_store.producer_run_binding_scope(producer_run_binding):
+            return driver.run_search(
+                initial_context=runtime_context,
+                initial_candidate=initial_payload,
+            )
 
     def _evaluate_candidate(
         self,
@@ -2400,9 +2407,7 @@ class SearchLoopRunner:
                     source_profile = source_profile.model_copy(
                         update={"warm_start_eligible": False}
                     )
-                    receipt["profile"] = source_profile.model_dump(
-                        mode="json", exclude_none=True
-                    )
+                    receipt["profile"] = source_profile.model_dump(mode="json", exclude_none=True)
                     receipt["profile_sha256"] = _search_source_fingerprint(receipt["profile"])
                     receipt.pop("fit_basis_ref", None)
                     receipt["receipt_sha256"] = _search_source_fingerprint(

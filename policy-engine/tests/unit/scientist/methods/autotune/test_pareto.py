@@ -50,6 +50,17 @@ def _policies(*metric_names: str) -> list[PromotionPolicy]:
     ]
 
 
+def _coordinate_ids_from_produced_front(
+    promoter: ParetoPromoter, evaluation: BenchmarkEvaluation
+) -> tuple[str, ...]:
+    """Use the producer's typed coordinate schema as the reference-key oracle."""
+    front = promoter.compute_front([evaluation])
+    schema = front.coordinate_schema
+    assert schema is not None
+    assert schema.status == "complete"
+    return tuple(coordinate.coordinate_id for coordinate in schema.coordinates)
+
+
 def _split_eval(*, selection_score: float, holdout_score: float) -> BenchmarkEvaluation:
     return BenchmarkEvaluation(
         loop_id="loop1",
@@ -107,6 +118,17 @@ class TestParetoFront:
         for candidate in (_eval(acc=0.5), _eval(acc=0.5, speed=math.inf)):
             with pytest.raises(ValueError, match="candidate is unassessed"):
                 promoter.is_dominated(candidate, front)
+
+    def test_partial_front_proves_observed_dominance_but_withholds_negative_result(self):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        known_dominator = _eval(acc=0.9, speed=0.9)
+        missing_axis = _eval(acc=0.7)
+        front = promoter.compute_front([known_dominator, missing_axis])
+
+        assert front.input_assessment.status == "partial"
+        assert promoter.is_dominated(_eval(acc=0.5, speed=0.5), front) is True
+        with pytest.raises(ValueError, match="front assessment does not establish non-dominance"):
+            promoter.is_dominated(_eval(acc=0.8, speed=1.0), front)
 
     def test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group(self):
         """A strictly better first coordinate plus equal second still dominates."""
@@ -199,7 +221,9 @@ class TestParetoFront:
         lower_raw_cost = _eval(first=1.0, cost=1.0, third=2.0)
         higher_raw_cost = _eval(first=1.0, cost=2.0, third=1.0)
         evaluations = [lower_raw_cost, higher_raw_cost]
-        normalized_points = [promoter._eval_objective_vector(evaluation) for evaluation in evaluations]
+        normalized_points = [
+            promoter._eval_objective_vector(evaluation) for evaluation in evaluations
+        ]
 
         assert normalized_points == [(1.0, -1.0, 2.0), (1.0, -2.0, 1.0)]
         expected_indices = _slow_non_dominated_points(normalized_points)
@@ -211,6 +235,76 @@ class TestParetoFront:
         assert [member.candidate_ref_id for member in front.members] == [
             str(lower_raw_cost.candidate_ref.artifact_id)
         ]
+
+    @pytest.mark.parametrize(
+        ("first_direction", "second_direction"),
+        [
+            pytest.param(
+                MetricDirection.MAXIMIZE,
+                MetricDirection.MINIMIZE,
+                id="maximize-minimize",
+            ),
+            pytest.param(
+                MetricDirection.MINIMIZE,
+                MetricDirection.MAXIMIZE,
+                id="minimize-maximize",
+            ),
+        ],
+    )
+    def test_mixed_direction_typed_front_is_order_independent_with_distinct_ties(
+        self, first_direction: MetricDirection, second_direction: MetricDirection
+    ) -> None:
+        promoter = ParetoPromoter(
+            [
+                PromotionPolicy(loop_id="loop1", primary_metric="first", direction=first_direction),
+                PromotionPolicy(
+                    loop_id="loop1", primary_metric="second", direction=second_direction
+                ),
+            ]
+        )
+        normalized_rows = {
+            "dominant": (10.0, -5.0),
+            "distinct_equal_identity": (10.0, -5.0),
+            "dominated_equal_secondary": (9.0, -5.0),
+            "incomparable_lower_cost": (9.0, -4.0),
+            "incomparable_higher_first": (11.0, -8.0),
+            "dominated_both_axes": (8.0, -6.0),
+        }
+
+        def raw_value(normalized_value: float, direction: MetricDirection) -> float:
+            return normalized_value if direction is MetricDirection.MAXIMIZE else -normalized_value
+
+        evaluations = {
+            label: _eval(
+                first=raw_value(point[0], first_direction),
+                second=raw_value(point[1], second_direction),
+            )
+            for label, point in normalized_rows.items()
+        }
+        labels = list(normalized_rows)
+        normalized_points = [
+            promoter._eval_objective_vector(evaluations[label]) for label in labels
+        ]
+        assert all(point is not None for point in normalized_points)
+        points = [point for point in normalized_points if point is not None]
+        expected_indices = _slow_non_dominated_points(points)
+        expected_labels = {labels[index] for index in expected_indices}
+        assert expected_labels == {
+            "dominant",
+            "distinct_equal_identity",
+            "incomparable_lower_cost",
+            "incomparable_higher_first",
+        }
+
+        for ordered_labels in (labels, list(reversed(labels))):
+            front = promoter.compute_front([evaluations[label] for label in ordered_labels])
+            actual_refs = {member.candidate_ref_id for member in front.members}
+            expected_refs = {
+                str(evaluations[label].candidate_ref.artifact_id) for label in expected_labels
+            }
+            assert actual_refs == expected_refs
+            assert front.input_assessment is not None
+            assert front.input_assessment.status == "complete"
 
     def test_empty_evaluations(self):
         promoter = ParetoPromoter(_policies("acc"))
@@ -233,7 +327,8 @@ class TestParetoFront:
         promoter = ParetoPromoter(_policies("acc"))
         front = ParetoFront()
         candidate = _eval(acc=0.5)
-        assert promoter.is_dominated(candidate, front) is False
+        with pytest.raises(ValueError, match="front coordinate schema"):
+            promoter.is_dominated(candidate, front)
 
     def test_requires_at_least_one_policy(self):
         with pytest.raises(ValueError, match="(?i)at least one"):
@@ -334,9 +429,7 @@ class TestParetoFront:
             ]
         ).compute_front([evaluation])
 
-        selection_coordinate = selection_front.model_dump(mode="json")[
-            "coordinate_schema"
-        ]
+        selection_coordinate = selection_front.model_dump(mode="json")["coordinate_schema"]
         holdout_coordinate = holdout_front.model_dump(mode="json")["coordinate_schema"]
         assert selection_coordinate["version"] == "pareto-coordinate.v1"
         assert holdout_coordinate["version"] == "pareto-coordinate.v1"
@@ -413,13 +506,9 @@ class TestParetoFront:
             return
 
         schema = restored.coordinate_schema
-        explicit_legacy = schema is None or getattr(schema, "status", None) == "legacy_limited"
-        try:
+        assert schema is None or getattr(schema, "status", None) == "legacy_limited"
+        with pytest.raises(ValueError, match="(?i)(coordinate|schema)"):
             promoter.is_dominated(_eval(score=0.0), restored)
-        except ValueError as exc:
-            assert "coordinate" in str(exc).lower() or "schema" in str(exc).lower()
-        else:
-            assert explicit_legacy
 
     def test_tampered_coordinate_id_is_rejected(self):
         """The typed coordinate id must be bound to its canonical tuple."""
@@ -555,7 +644,9 @@ class TestParetoFront:
         assert [member.candidate_ref_id for member in front.members] == [
             str(valid.candidate_ref.artifact_id)
         ]
-        assert all(math.isfinite(value) for member in front.members for value in member.objectives.values())
+        assert all(
+            math.isfinite(value) for member in front.members for value in member.objectives.values()
+        )
         assert all(math.isfinite(value) for value in front.reference_point.values())
         assert math.isfinite(front.hypervolume)
 
@@ -596,9 +687,12 @@ class TestParetoFront:
         assert finite_control.input_assessment.input_count == 2
         assert finite_control.input_assessment.assessed_count == 2
         assert finite_control.input_assessment.unassessed_evaluations == ()
-        assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
-            [best, missing, non_finite, dominated]
-        ).model_dump(mode="json")["members"]
+        assert (
+            finite_control.model_dump(mode="json")["members"]
+            == promoter.compute_front([best, missing, non_finite, dominated]).model_dump(
+                mode="json"
+            )["members"]
+        )
 
     @pytest.mark.parametrize("omission_indices", [(0, 0), (0, 2)])
     def test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions(
@@ -655,18 +749,36 @@ class TestParetoFront:
             str(invalid.candidate_ref.artifact_id)
         }
 
-    def test_invalid_reference_point_does_not_emit_non_finite_hypervolume(self):
-        """Hypervolume refuses an invalid reference point instead of propagating it."""
-        # Catches the production mutation that multiplies a finite front by an
-        # infinite reference range and returns inf to downstream consumers.
+    def test_invalid_reference_point_is_explicitly_refused(self):
+        """Reject invalid values after distinguishing metric labels from coordinate ids."""
         promoter = ParetoPromoter(_policies("acc", "speed"))
+        coordinate_ids = _coordinate_ids_from_produced_front(promoter, _eval(acc=1.0, speed=1.0))
+        assert len(coordinate_ids) == 2
+        assert set(coordinate_ids) != {"acc", "speed"}
 
-        hypervolume = promoter._compute_hypervolume(
-            [(1.0, 1.0)],
-            {"acc": float("-inf"), "speed": 0.0},
-        )
+        # Same metric labels and arity are still the wrong reference-key schema.
+        with pytest.raises(ValueError, match="reference keys do not match"):
+            promoter._compute_hypervolume(
+                [(1.0, 1.0)],
+                {"acc": float("-inf"), "speed": 0.0},
+            )
 
-        assert hypervolume == 0.0
+        with pytest.raises(ValueError, match="non-finite"):
+            promoter._compute_hypervolume(
+                [(1.0, 1.0)],
+                {coordinate_ids[0]: float("-inf"), coordinate_ids[1]: 0.0},
+            )
+
+    def test_overflowing_finite_coordinates_are_not_reported_as_hypervolume(self):
+        promoter = ParetoPromoter(_policies("acc", "speed"))
+        coordinate_ids = _coordinate_ids_from_produced_front(promoter, _eval(acc=1.0, speed=1.0))
+        reference_point = dict.fromkeys(coordinate_ids, -1.0e308)
+
+        with pytest.raises(ValueError, match="hypervolume result is non-finite"):
+            promoter._compute_hypervolume(
+                [(1.0e308, 1.0e308)],
+                reference_point,
+            )
 
     @pytest.mark.parametrize(
         ("metric_names", "points"),

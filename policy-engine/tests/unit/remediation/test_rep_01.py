@@ -1,10 +1,9 @@
-"""RED witness and compatibility controls for the REP-01 replay relocation.
+"""Compatibility and execution witnesses for REP-01 replay ownership.
 
-The four direct-owner checks are expected to be RED until production cutover:
-the Runtime root facade, delayed Core CLI import, benchmark import, and dynamic
-import inventory must all point at Scientist's deterministic owner.  The
-remaining tests are controls for the supported ABI and persisted contracts;
-they should remain GREEN across that relocation.
+The direct-owner checks pin the Runtime root facade, delayed Core CLI import,
+benchmark import, and dynamic import inventory to Scientist's deterministic
+owner. The remaining tests protect the supported ABI and prove persisted CLI
+replay and resume paths continue to execute through their canonical owners.
 """
 
 from __future__ import annotations
@@ -178,7 +177,8 @@ def test_dynamic_inventory_declares_core_replay_owner_at_scientist_path() -> Non
         for entry in document["pattern"]
         if entry.get("source_file") == "src/polisyos/core/components/_cli_replay.py"
         and entry.get("call") == "importlib.import_module"
-        and entry.get("pattern") in {
+        and entry.get("pattern")
+        in {
             "polisyos.runtime.replay",
             "polisyos.scientist.replay.deterministic",
         }
@@ -287,6 +287,99 @@ def test_resume_dry_run_reads_persisted_checkpoint_head(
     assert payload["sequence_number"] == 0
     assert payload["node_alias"] == "start"
     assert payload["workflow_id"] == "wf_rep_01"
+
+
+def test_resume_cli_executes_remaining_native_workflow_and_persists_fresh_head(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The non-dry CLI resumes a real remaining node and advances the CAS head."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.orchestration.engine.checkpoint import (
+        COMPLETED_NODE_STATUS_CONTRACT,
+        compute_workflow_fingerprint,
+        create_checkpoint,
+        resolve_latest_checkpoint,
+        update_checkpoint_head,
+    )
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.workflow_spec import (
+        NodeInvocation,
+        WorkflowSpec,
+    )
+    from tools.ops_runners.runtime_cli import main as runtime_cli_main
+
+    cas_root = tmp_path / "cas"
+    run_id = "R_rep_01_native_resume"
+    workflow = WorkflowSpec(
+        workflow_id="rep_01_resume",
+        nodes=[
+            NodeInvocation(alias="start", node_id="scientist.node_noop@1.0.0"),
+            NodeInvocation(
+                alias="finish",
+                node_id="scientist.node_noop@1.0.0",
+                depends_on=["start"],
+            ),
+        ],
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.workflows.default.default_workflow_spec",
+        lambda: workflow,
+    )
+
+    store = FileSystemCAS(cas_root)
+    state = ExperimentState(run_id=run_id, params={"phase": "PLAN"})
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=0,
+        completed_node_alias="start",
+        completed_node_id="scientist.node_noop@1.0.0",
+        completed_nodes=["start"],
+        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="PLAN",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        cas_root / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=os.getpid(),
+        writer_hostname="rep-01-test",
+    )
+
+    exit_code = runtime_cli_main(
+        [
+            "resume",
+            run_id,
+            "--cas-root",
+            str(cas_root),
+            "--checkpoint-policy",
+            "strict",
+            "--json",
+        ]
+    )
+
+    output = capsys.readouterr()
+    assert exit_code == 0
+    assert output.err == ""
+    payload = json.loads(output.out)
+    assert payload["resume"]["status"] == "ok"
+    assert payload["checkpoint"]["sequence_number"] == 0
+
+    resolved = resolve_latest_checkpoint(FileSystemCAS(cas_root), run_id)
+    assert resolved is not None
+    head, checkpoint = resolved
+    assert head.sequence_number == 1
+    assert head.node_alias == "finish"
+    assert checkpoint.metadata.completed_nodes == ["start", "finish"]
+    assert checkpoint.metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
 
 
 def test_run_manifest_and_quality_replay_contracts_remain_available(tmp_path: Path) -> None:

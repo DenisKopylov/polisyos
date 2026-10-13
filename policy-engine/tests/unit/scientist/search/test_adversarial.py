@@ -5,19 +5,29 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import load_core_json_artifact
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.designs import (
     AdversarialPlan,
     AdversarialStrategy,
     ParameterSpec,
 )
-from polisyos.scientist.methods.doe.stress_report import VulnerabilityType
+from polisyos.scientist.methods.doe.stress_report import (
+    StressOutcomeBasis,
+    StressTestReport,
+    VulnerabilityType,
+    resolve_stress_report_artifact,
+)
 from polisyos.scientist.methods.search.adversarial import (
     NegatedCompositeObjective,
     PlatformMetaEvaluationInput,
     PlatformMetaEvaluator,
     run_stress_test,
+)
+from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
+    Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
@@ -283,7 +293,9 @@ def test_run_stress_test_top_k_does_not_change_ten_violation_score() -> None:
     assert top_ten.total_scenarios_evaluated == 10
     assert len(top_one.vulnerabilities) == 1
     assert len(top_ten.vulnerabilities) == 10
-    assert top_one.robustness_score == top_ten.robustness_score == 0.0
+    assert top_one.robustness_score is None
+    assert top_ten.robustness_score is None
+    assert top_one.score_status == top_ten.score_status == "unbound"
     assert top_one.worst_case_objective == top_ten.worst_case_objective == -10.0
 
 
@@ -426,7 +438,8 @@ def test_run_stress_test_search_loop_fails_closed_on_invalid_adaptive_result(
     assert calls == 33
     assert report.total_scenarios_evaluated == 33
     assert report.set_adequacy_status == "unverified"
-    assert report.robustness_score is None or report.robustness_score <= 0.0
+    assert report.robustness_score is None
+    assert report.score_status != "available"
     assert any(
         item.vulnerability_type == VulnerabilityType.NUMERICAL_INSTABILITY
         for item in report.vulnerabilities
@@ -573,3 +586,209 @@ def test_platform_meta_evaluator_passes_drift_attack_when_tracker_degrades() -> 
     assert (
         "CALIBRATION_DRIFT" in result.triggered_guards or "PROMOTION_BAN" in result.triggered_guards
     )
+
+
+def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate_ref = store.put_json(
+        {"candidate_id": "candidate-finite-stress"},
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+    )
+    plan = AdversarialPlan(
+        parameter_specs=[
+            ParameterSpec(name=f"p{i}", lower_bound=-1.0, upper_bound=1.0) for i in range(4)
+        ],
+        strategy=AdversarialStrategy.GRID_EXTREME,
+        max_iterations=10,
+        vulnerability_threshold=0.0,
+        stop_on_first_vulnerability=False,
+        collect_top_k=1,
+    )
+
+    def run(
+        collect_top_k: int,
+        values_to_evaluate: tuple[float, ...] = tuple(float(value) for value in range(-10, 0)),
+    ) -> tuple[StressTestReport, ArtifactRef]:
+        values = iter(values_to_evaluate)
+        plan_for_run = plan.model_copy(
+            update={
+                "collect_top_k": collect_top_k,
+                "max_iterations": len(values_to_evaluate),
+            }
+        )
+        report = run_stress_test(
+            adversarial_plan=plan_for_run,
+            base_objective=CompositeObjective([ScalarObjective()]),
+            stage_b_evaluator=lambda _candidate, _context: {
+                "simulation_results": {"utility": next(values)}
+            },
+            context={"policy_candidate_ref": candidate_ref},
+            cas=store,
+        )
+        return report, ArtifactRef(
+            artifact_id=report.cas_artifact_id,
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+        )
+
+    top_one, top_one_ref = run(1)
+    top_ten, top_ten_ref = run(10)
+    assert top_one.critical_count + top_one.high_count > 0
+    finite_failure = Level5RefutationGovernanceStage(require_hidden_holdout=False).evaluate(
+        {"candidate_id": "candidate-finite-stress"},
+        {
+            "store": store,
+            "policy_candidate_ref": candidate_ref,
+            "stress_test_report_ref": top_one_ref,
+        },
+    )
+    assert finite_failure.feedback["stress_score_status"] == "available"
+    assert finite_failure.feedback["stress_score_profile"] == "finite_binary_scenario_v1"
+    assert any(
+        card.failure_type == "stress_test_failed" and card.is_blocker
+        for card in finite_failure.failure_cards
+    )
+    _, one_resolution = resolve_stress_report_artifact(
+        store, top_one_ref, expected_candidate_ref=candidate_ref
+    )
+    _, ten_resolution = resolve_stress_report_artifact(
+        store, top_ten_ref, expected_candidate_ref=candidate_ref
+    )
+
+    assert len(top_one.vulnerabilities) == 1
+    assert len(top_ten.vulnerabilities) == 10
+    assert one_resolution.status == ten_resolution.status == "available"
+    assert one_resolution.predicate_status == ten_resolution.predicate_status == "recomputed"
+    assert (
+        one_resolution.total_scenarios_evaluated == ten_resolution.total_scenarios_evaluated == 10
+    )
+    assert one_resolution.passed_count == ten_resolution.passed_count == 0
+    assert one_resolution.robustness_score == ten_resolution.robustness_score == 0.0
+    assert top_one.robustness_score == top_ten.robustness_score == 0.0
+
+    mixed_values = (1.0, -1.0, 1.0, -1.0)
+    mixed_top_one, mixed_top_one_ref = run(1, mixed_values)
+    mixed_top_two, mixed_top_two_ref = run(2, mixed_values)
+    _, mixed_one_resolution = resolve_stress_report_artifact(
+        store, mixed_top_one_ref, expected_candidate_ref=candidate_ref
+    )
+    _, mixed_two_resolution = resolve_stress_report_artifact(
+        store, mixed_top_two_ref, expected_candidate_ref=candidate_ref
+    )
+
+    # Two of four explicit outcomes pass; one top-k presentation retains only one failure.
+    assert len(mixed_top_one.vulnerabilities) == 1
+    assert len(mixed_top_two.vulnerabilities) == 2
+    assert mixed_one_resolution.status == mixed_two_resolution.status == "available"
+    assert (
+        mixed_one_resolution.predicate_status
+        == mixed_two_resolution.predicate_status
+        == "recomputed"
+    )
+    assert (
+        mixed_one_resolution.total_scenarios_evaluated
+        == mixed_two_resolution.total_scenarios_evaluated
+        == 4
+    )
+    assert mixed_one_resolution.passed_count == mixed_two_resolution.passed_count == 2
+    assert mixed_one_resolution.robustness_score == mixed_two_resolution.robustness_score == 0.5
+    assert mixed_top_one.robustness_score == mixed_top_two.robustness_score == 0.5
+
+    corrupted = top_one.model_copy(update={"critical_count": top_one.critical_count + 1})
+    corrupted_ref = store.put_json(
+        corrupted.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+            inputs=[
+                *[
+                    InputRef(
+                        artifact_id=item.outcome_basis_ref.artifact_id, role="stress_outcome_basis"
+                    )
+                    for item in top_one.score_components
+                ],
+                InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+            ],
+        ),
+    )
+    _, corrupted_resolution = resolve_stress_report_artifact(
+        store, corrupted_ref, expected_candidate_ref=candidate_ref
+    )
+    assert corrupted_resolution.status == "invalid"
+    assert corrupted_resolution.robustness_score is None
+
+    _, unbound_resolution = resolve_stress_report_artifact(
+        store, top_one_ref, expected_candidate_ref=None
+    )
+    assert unbound_resolution.status == "unbound"
+    assert unbound_resolution.robustness_score is None
+
+    component = top_one.score_components[0]
+    basis = StressOutcomeBasis.model_validate(
+        load_core_json_artifact(store, component.outcome_basis_ref)
+    )
+    forged_basis = basis.model_copy(
+        update={
+            "outcomes": [
+                basis.outcomes[0].model_copy(update={"scenario_id": "initial:forged"}),
+                *basis.outcomes[1:],
+            ]
+        }
+    )
+    forged_basis_ref = store.put_json(
+        forged_basis.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+        ),
+    )
+    forged_component = component.model_copy(update={"outcome_basis_ref": forged_basis_ref})
+    forged_report_ref = store.put_json(
+        top_one.model_copy(update={"score_components": [forged_component]}).model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+        ),
+    )
+    _, forged_roster_resolution = resolve_stress_report_artifact(
+        store, forged_report_ref, expected_candidate_ref=candidate_ref
+    )
+    assert forged_roster_resolution.status == "invalid"
+
+    partial_basis = basis.model_copy(update={"outcomes": basis.outcomes[:1], "complete": False})
+    partial_basis_ref = store.put_json(
+        partial_basis.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_outcome_basis",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+        ),
+    )
+    partial_component = component.model_copy(update={"outcome_basis_ref": partial_basis_ref})
+    partial_report_ref = store.put_json(
+        top_one.model_copy(
+            update={
+                "score_components": [partial_component],
+                "score_status": "partial",
+                "score_reason": "expected_occurrence_rows_incomplete",
+                "robustness_score": None,
+            }
+        ).model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.stress_test_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+        ),
+    )
+    _, partial_resolution = resolve_stress_report_artifact(
+        store, partial_report_ref, expected_candidate_ref=candidate_ref
+    )
+    assert partial_resolution.status == "partial"
+    assert partial_resolution.robustness_score is None

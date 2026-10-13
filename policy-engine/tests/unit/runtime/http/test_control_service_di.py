@@ -4191,9 +4191,11 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     )
     from polisyos.core.artifacts import PutOptions
     from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+    from polisyos.core.contracts.runtime import RunCandidateSimulationProjection
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.backtest import BacktestReportRef, load_backtest_report
     from polisyos.runtime.http import dev_identity_middleware
+    from polisyos.runtime.http.routes import runs as runs_routes
     from polisyos.runtime.http.services import predictive_calibration as calibration_service
     from polisyos.runtime.http.services.predictive_calibration import (
         PredictiveCalibrationAssociation,
@@ -4212,6 +4214,8 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
                 stored_association["empirical_evidence_ref"]
             ),
         )
+        reopened_association = PredictiveCalibrationAssociation.model_validate(stored_association)
+        assert reopened_association.evidence_reason_codes == evidence.failure_codes
 
         assert len("run-bound candidate report ") + len(report.report_id) > 120
         assert evidence.evidence_origin == "run-bound candidate report"
@@ -4474,6 +4478,43 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
             for record in prewrite_events
         )
 
+        candidate_ref = ArtifactRef.model_validate(body["candidate_source_ref"])
+        with tenant_scope(None, tenant_id="tenant-fixture", cell_id="cell-fixture"):
+            alternate_profile_candidate_ref = context_store.put_bytes(
+                context_store.get_bytes(candidate_ref),
+                PutOptions(
+                    kind=candidate_ref.kind,
+                    media_type=candidate_ref.media_type,
+                    schema=SchemaInfo(
+                        name="test.alternate.candidate_source",
+                        version="nondefault-view",
+                    ),
+                ),
+                return_selected_profile=True,
+            )
+        assert alternate_profile_candidate_ref.artifact_id == candidate_ref.artifact_id
+        assert (
+            alternate_profile_candidate_ref.manifest_profile_sha256
+            != candidate_ref.manifest_profile_sha256
+        )
+        alternate_profile_response = client.post(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration",
+            json={
+                **body,
+                "candidate_source_ref": alternate_profile_candidate_ref.model_dump(mode="json"),
+            },
+        )
+        assert alternate_profile_response.status_code == 422, alternate_profile_response.text
+        assert (
+            alternate_profile_response.json()["code"]
+            == "predictive_calibration_candidate_source_not_run_root"
+        )
+        prewrite_events = event_log.list_events(run_id=core_run_id, job_id=job_id)
+        assert not any(
+            record.event.producer_component == "polisyos.runtime.http.predictive_calibration"
+            for record in prewrite_events
+        )
+
         unrooted_model_ref = _spec(
             context_store,
             kind="ir.model_spec",
@@ -4655,6 +4696,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         result = created.json()
         association = result["association"]
+        assert association["evidence_reason_codes"] == []
         assert association["candidate_source_ref"] == body["candidate_source_ref"]
         assert association["assessment"] == "limited"
         assert association["authority_scope"] == "predictive_only"
@@ -4670,8 +4712,9 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert association["run_manifest_ref"] == run["manifest_ref"]
         assert association["request_sha256"]
         association_ref = result["association_ref"]
-        assert association["model_spec_ref"] == selected["ir.model_spec"].model_dump(mode="json")
-        assert association["policy_spec_ref"] == selected["ir.policy_spec"].model_dump(mode="json")
+        assert association["model_spec_ref"] == selected["ir.model_spec"]
+        assert association["policy_spec_ref"] == selected["ir.policy_spec"]
+        assert association["calibration_rule_ref"] == selected["ir.forecast_calibration_rule"]
 
         control_service = app.state.runtime_container.control_service
         assert control_service is not None
@@ -4713,6 +4756,21 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert (
             fresh_app.state.runtime_api_ctx.allow_candidate_run_predictive_calibration_surface
             is True
+        )
+        foreign_projection = RunCandidateSimulationProjection.model_validate(
+            run["candidate_simulation"]
+        ).model_copy(update={"run_id": f"{core_run_id}-foreign"})
+        with monkeypatch.context() as wrong_run_patch:
+            wrong_run_patch.setattr(
+                runs_routes,
+                "_candidate_simulation_for_indexed_run",
+                lambda *_args, **_kwargs: foreign_projection,
+            )
+            wrong_run_response = client.get(f"/api/v1/runs/{core_run_id}/predictive-calibration")
+        assert wrong_run_response.status_code == 409, wrong_run_response.text
+        assert (
+            wrong_run_response.json()["code"]
+            == "predictive_calibration_candidate_source_not_run_root"
         )
         reopened = client.get(f"/api/v1/runs/{core_run_id}/predictive-calibration")
         assert reopened.status_code == 200, reopened.text
@@ -4853,6 +4911,20 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         )
         assert comparison_post.status_code == 201, comparison_post.text
         comparison_post_result = comparison_post.json()
+        comparison_reopened_response = comparison_client.get(
+            f"/api/v1/runs/{core_run_id}/predictive-calibration"
+        )
+        assert comparison_reopened_response.status_code == 200, comparison_reopened_response.text
+        comparison_reopened_result = comparison_reopened_response.json()
+        assert comparison_reopened_result["association"] == comparison_post_result["association"]
+        assert (
+            "calibration_floor_not_met"
+            in comparison_reopened_result["association"]["evidence_reason_codes"]
+        )
+        assert_persisted_evidence_identity(
+            comparison_app.state.runtime_api_ctx.store,
+            comparison_reopened_result["association"],
+        )
 
     assert len(owner_requests) == 2
     assert len(owner_results) == 2
@@ -4882,6 +4954,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     assert first_request.observed_source_ref != comparison_request.observed_source_ref
 
     comparison_association = comparison_post_result["association"]
+    assert "calibration_floor_not_met" in comparison_association["evidence_reason_codes"]
     assert comparison_association["intent_id"] == comparison_body["intent_id"]
     assert comparison_association["request_sha256"] != association["request_sha256"]
     assert comparison_association["observed_source_ref"] == selected_observed_sources[1]

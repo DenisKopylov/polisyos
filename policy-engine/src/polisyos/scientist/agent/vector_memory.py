@@ -218,26 +218,53 @@ class VectorMemoryStore:
         )
 
     def load_from_artifact(self, store: ArtifactStore, ref: ArtifactRef) -> None:
-        """Load the index + metadata from the artifact store."""
+        """Load and validate a complete candidate generation before publication."""
         from polisyos.core.artifacts import load_core_json_artifact
 
         bundle = load_core_json_artifact(store, ref)
         if not isinstance(bundle, dict):
             raise ValueError("Vector memory bundle must be a canonical object")
 
-        dim = int(bundle["dim"])
-        max_elements = int(bundle["max_elements"])
-        ef_construction = int(bundle["ef_construction"])
-        M = int(bundle["M"])
-        keys = bundle["keys"]
-        metadata = bundle["metadata"]
+        configuration: dict[str, int] = {}
+        for field in ("dim", "max_elements", "ef_construction", "M"):
+            value = bundle.get(field)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                raise ValueError(f"Vector memory bundle {field} must be a positive integer")
+            configuration[field] = value
+        dim = configuration["dim"]
+        max_elements = configuration["max_elements"]
+        ef_construction = configuration["ef_construction"]
+        M = configuration["M"]
+
+        keys = bundle.get("keys")
+        metadata = bundle.get("metadata")
         if not isinstance(keys, list) or not isinstance(metadata, list):
             raise ValueError("Vector memory bundle keys and metadata must be lists")
         if len(keys) != len(metadata):
             raise ValueError("Vector memory bundle keys and metadata lengths differ")
+        if any(not isinstance(key, str) for key in keys):
+            raise ValueError("Vector memory bundle keys must be strings")
+        candidate_keys = list(keys)
+        if len(set(candidate_keys)) != len(candidate_keys):
+            raise ValueError("Vector memory bundle keys must be unique")
+        if any(not isinstance(row, dict) for row in metadata):
+            raise ValueError("Vector memory bundle metadata rows must be objects")
+        candidate_metadata = list(metadata)
+        candidate_key_to_idx = {key: index for index, key in enumerate(candidate_keys)}
 
-        index_artifact_id = bundle["index_artifact_id"]
+        index_bytes_len = bundle.get("index_bytes_len")
+        if (
+            isinstance(index_bytes_len, bool)
+            or not isinstance(index_bytes_len, int)
+            or index_bytes_len < 0
+        ):
+            raise ValueError("Vector memory bundle index_bytes_len must be a non-negative integer")
+        index_artifact_id = bundle.get("index_artifact_id")
+        if not isinstance(index_artifact_id, str):
+            raise ValueError("Vector memory bundle index_artifact_id must be a string")
         index_bytes = store.get_bytes(index_artifact_id)
+        if len(index_bytes) != index_bytes_len:
+            raise ValueError("Vector memory bundle index byte length does not match the artifact")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             index_path = Path(tmpdir) / "hnsw.index"
@@ -249,12 +276,30 @@ class VectorMemoryStore:
             )
             candidate_index.set_ef(50)
 
-        # Publish only after every native and metadata check has succeeded.
-        self._dim = dim
-        self._max_elements = max_elements
-        self._ef_construction = ef_construction
-        self._M = M
-        self._keys = list(keys)
-        self._metadata = list(metadata)
-        self._key_to_idx = {k: i for i, k in enumerate(self._keys)}
-        self._index = candidate_index
+        if candidate_index.get_current_count() != len(candidate_keys):
+            raise ValueError("Vector memory bundle keys do not match the native index row count")
+        if candidate_index.get_max_elements() != max_elements:
+            raise ValueError("Vector memory bundle capacity does not match the native index")
+
+        # No candidate parsing, mapping, or native operation remains after this
+        # failure-atomic publication boundary. Concurrent mutation is not part
+        # of this store's contract.
+        (
+            self._dim,
+            self._max_elements,
+            self._ef_construction,
+            self._M,
+            self._keys,
+            self._metadata,
+            self._key_to_idx,
+            self._index,
+        ) = (
+            dim,
+            max_elements,
+            ef_construction,
+            M,
+            candidate_keys,
+            candidate_metadata,
+            candidate_key_to_idx,
+            candidate_index,
+        )

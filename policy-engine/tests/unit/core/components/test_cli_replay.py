@@ -16,6 +16,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     InputRef,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import _cli_replay
@@ -47,9 +48,7 @@ def _build_replay_bundle(
     refs = {
         role: store.put_json(
             payload,
-            PutOptions(
-                kind=kind, media_type="application/json", tenant_context=tenant_context
-            ),
+            PutOptions(kind=kind, media_type="application/json", tenant_context=tenant_context),
         )
         for role, (kind, payload) in artifact_inputs.items()
     }
@@ -83,6 +82,131 @@ def _build_replay_bundle(
     return packet_ref, expected_ids
 
 
+def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
+    """Create a packet through Foundry's real registry, compiler, and input producers."""
+    from decimal import Decimal
+
+    from polisyos.core.contracts.fabric import DataSnapshot
+    from polisyos.core.contracts.foundry import (
+        CompileRequest,
+        FoundryInputBindings,
+        StateSnapshotRef,
+    )
+    from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
+    from polisyos.foundry.compile.api import compile as compile_foundry
+    from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.execute.executor import put_state_snapshot
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.model_layer.types import SelectorOperator
+    from polisyos.ir.trinity import TrinityBundle
+
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    load_registry_bundle_content(store, registry.bundle_ref)
+    state_blob = put_state_snapshot(
+        store,
+        state=GlobalState.empty(n_agents=2, n_firms=1),
+        step=0,
+        return_selected_profile=True,
+    )
+    state_ref = StateSnapshotRef.model_validate(state_blob.model_dump(mode="python"))
+    data_snapshot = store.put_json(
+        DataSnapshot(data_ref=state_ref),
+        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    policy = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="rep_01_replay", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(
+            policy_id="rep_01_replay_policy",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="rep_01_tax_cut",
+                    kind="income_tax",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="rep_01_model",
+            data_snapshot_ref=str(state_ref.artifact_id),
+            registry_bundle_ref=str(registry.bundle_ref.artifact_id),
+        ),
+    )
+    policy_ref = store.put_json(
+        policy,
+        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    compile_result = compile_foundry(
+        store,
+        CompileRequest(
+            input_kind="trinity",
+            policy_ref=policy_ref,
+            registry_bundle_ref=registry.bundle_ref,
+            return_selected_profile=True,
+        ),
+    )
+    assert compile_result.ok, compile_result.notes
+    assert compile_result.exec_plan_ref is not None
+    lowered_ir_ref = next(
+        item.ref for item in compile_result.derived_refs if item.role == "lowered_ir"
+    )
+    program_graph_ref = next(
+        item.ref for item in compile_result.derived_refs if item.role == "program_graph"
+    )
+    input_bindings = store.put_json(
+        FoundryInputBindings(
+            data_snapshot_ref=data_snapshot,
+            registry_bundle_ref=registry.bundle_ref,
+            rules=[],
+            bound_state_snapshot_ref=state_ref,
+        ),
+        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    packet_inputs = {
+        "registry_bundle_ref": registry.bundle_ref,
+        "input_bindings_ref": input_bindings,
+        "data_snapshot_ref": data_snapshot,
+        "state_snapshot_ref": state_ref,
+        "trinity_bundle_ref": policy_ref,
+    }
+    packet_artifacts = {
+        "exec_plan_ref": compile_result.exec_plan_ref,
+        "lowered_ir_ref": lowered_ir_ref,
+        "program_graph_ref": program_graph_ref,
+    }
+    payload = {
+        "schema_version": "3.0",
+        "run_id": "R_rep_01_cli_replay",
+        "seed": 17,
+        "inputs": {name: str(ref.artifact_id) for name, ref in packet_inputs.items()},
+        "artifacts": {name: str(ref.artifact_id) for name, ref in packet_artifacts.items()},
+    }
+    return store.put_json(
+        payload,
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            inputs=[
+                input_ref_from_artifact_ref(ref, role=role)
+                for role, ref in (*packet_inputs.items(), *packet_artifacts.items())
+            ],
+        ),
+        return_selected_profile=True,
+    )
+
+
 def _run_existing_store_export(
     *,
     store: FileSystemCAS,
@@ -112,6 +236,40 @@ def _payload_ref_ids(payload: dict[str, object], field: str) -> set[str]:
     return {str(ref["artifact_id"]) for ref in refs if isinstance(ref, dict)}
 
 
+def test_replay_cli_runs_native_foundry_replay_and_persists_result(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    """The ordinary non-dry CLI path executes Foundry and leaves a readable result."""
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(store)
+
+    exit_code = main(
+        [
+            "replay",
+            str(packet_ref.artifact_id),
+            "--cas-root",
+            str(store.root),
+            "--mode",
+            "skip",
+            "--no-verify",
+            "--json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    payload = json.loads(captured.out)
+    assert payload["success"] is True
+    assert payload["strategy"] == "foundry"
+    assert payload["errors"] == []
+    result_id = payload["replay_simulation_result_ref"]
+    assert isinstance(result_id, str)
+    result_manifest = FileSystemCAS(store.root).get_manifest(result_id)
+    assert result_manifest.kind == "foundry.simulation_result"
+
+
 def _persisted_snapshot(root: Path) -> dict[str, bytes]:
     """Capture all persisted CAS members, claims, and owner generations."""
     return {
@@ -131,8 +289,14 @@ def test_bundle_cli_exports_actual_import_report_and_selected_graph(
         source, tmp_path / "bundle", run_id="B148_valid_export"
     )
     export_path = tmp_path / "cli-export.tar.gz"
-    argv = ["replay", str(packet_ref.artifact_id), "--bundle", str(tmp_path / "bundle"),
-            "--export", str(export_path)]
+    argv = [
+        "replay",
+        str(packet_ref.artifact_id),
+        "--bundle",
+        str(tmp_path / "bundle"),
+        "--export",
+        str(export_path),
+    ]
     if as_json:
         argv.append("--json")
 
@@ -149,7 +313,10 @@ def test_bundle_cli_exports_actual_import_report_and_selected_graph(
         assert payload["missing_manifests"] == []
         assert report_payload["imported_artifacts"] == len(expected_ids)
         assert report_payload["received_artifact_ids"] == sorted(expected_ids)
-        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert (
+            report_payload["received_artifact_count_basis"]
+            == "unique recognized IDs from incoming CAS members"
+        )
         assert _payload_ref_ids(payload, "published_refs") == expected_ids
         assert _payload_ref_ids(payload, "reused_refs") == set()
         assert _payload_ref_ids(payload, "integrity_verified_refs") == set()
@@ -179,8 +346,11 @@ def test_replay_cli_consumes_real_noop_report_and_selected_input_refs(
         tmp_path / "source", tenant_id=context.tenant_id, cell_id=context.cell_id
     )
     packet_ref, expected_ids = _build_replay_bundle(
-        source, tmp_path / "bundle", run_id="B148_noop",
-        tenant_id=context.tenant_id, cell_id=context.cell_id,
+        source,
+        tmp_path / "bundle",
+        run_id="B148_noop",
+        tenant_id=context.tenant_id,
+        cell_id=context.cell_id,
     )
     assert all(
         source.get_manifest(artifact_id).tenant_context == context
@@ -226,8 +396,11 @@ def test_replay_cli_consumes_real_noop_report_and_selected_input_refs(
 
     export_path = tmp_path / "noop-reexport.tar.gz"
     exit_code = _run_existing_store_export(
-        store=target, packet_id=packet_ref.artifact_id, report=report,
-        export_path=export_path, as_json=as_json,
+        store=target,
+        packet_id=packet_ref.artifact_id,
+        report=report,
+        export_path=export_path,
+        as_json=as_json,
     )
     captured = capsys.readouterr()
     assert exit_code == 0
@@ -238,7 +411,10 @@ def test_replay_cli_consumes_real_noop_report_and_selected_input_refs(
         assert payload["exported_artifacts"] == len(expected_ids)
         assert report_payload["imported_artifacts"] == len(expected_ids)
         assert report_payload["received_artifact_ids"] == sorted(expected_ids)
-        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert (
+            report_payload["received_artifact_count_basis"]
+            == "unique recognized IDs from incoming CAS members"
+        )
         assert _payload_ref_ids(payload, "published_refs") == set()
         assert _payload_ref_ids(payload, "reused_refs") == expected_ids
         assert _payload_ref_ids(payload, "integrity_verified_refs") == expected_ids
@@ -251,15 +427,14 @@ def test_replay_cli_consumes_real_noop_report_and_selected_input_refs(
         assert f"integrity=requested:{len(expected_ids)}" in captured.out
         assert "disposition_basis=exact_owned_view_admission" in captured.out
 
-    reopened = FileSystemCAS(
-        target.root, tenant_id=context.tenant_id, cell_id=context.cell_id
-    )
+    reopened = FileSystemCAS(target.root, tenant_id=context.tenant_id, cell_id=context.cell_id)
     assert {str(item) for item in reopened.iter_artifact_ids()} == expected_ids
     readback = FileSystemCAS(
         tmp_path / "noop-readback", tenant_id=context.tenant_id, cell_id=context.cell_id
     )
     readback_report = readback.import_subgraph(export_path, verify_integrity=True)
     assert set(readback_report.received_artifact_ids) == expected_ids
+
 
 @pytest.mark.parametrize("as_json", [True, False])
 def test_replay_cli_exports_prior_generation_after_real_import_refusal(
@@ -271,8 +446,11 @@ def test_replay_cli_exports_prior_generation_after_real_import_refusal(
         tmp_path / "source", tenant_id=context.tenant_id, cell_id=context.cell_id
     )
     packet_ref, expected_ids = _build_replay_bundle(
-        source, tmp_path / "bundle", run_id="B148_prior_generation",
-        tenant_id=context.tenant_id, cell_id=context.cell_id,
+        source,
+        tmp_path / "bundle",
+        run_id="B148_prior_generation",
+        tenant_id=context.tenant_id,
+        cell_id=context.cell_id,
     )
     target = FileSystemCAS(
         tmp_path / "target", tenant_id=context.tenant_id, cell_id=context.cell_id
@@ -292,8 +470,14 @@ def test_replay_cli_exports_prior_generation_after_real_import_refusal(
     inventory_path = damaged_bundle / "export_manifest.json"
     inventory_before = inventory_path.read_bytes()
     packet_hex = str(packet_ref.artifact_id).removeprefix("sha256:")
-    damaged_blob = (damaged_bundle / "artifacts" / "sha256" / packet_hex[:2]
-                    / packet_hex[2:4] / f"{packet_hex}.blob")
+    damaged_blob = (
+        damaged_bundle
+        / "artifacts"
+        / "sha256"
+        / packet_hex[:2]
+        / packet_hex[2:4]
+        / f"{packet_hex}.blob"
+    )
     damaged_blob.write_bytes(b"corrupt bytes with the original inventory still present")
     assert inventory_path.read_bytes() == inventory_before
 
@@ -326,8 +510,11 @@ def test_replay_cli_exports_prior_generation_after_real_import_refusal(
 
     export_path = tmp_path / "prior-generation-export.tar.gz"
     exit_code = _run_existing_store_export(
-        store=target, packet_id=packet_ref.artifact_id, report=report,
-        export_path=export_path, as_json=as_json,
+        store=target,
+        packet_id=packet_ref.artifact_id,
+        report=report,
+        export_path=export_path,
+        as_json=as_json,
     )
     captured = capsys.readouterr()
     assert exit_code == 0
@@ -339,7 +526,10 @@ def test_replay_cli_exports_prior_generation_after_real_import_refusal(
         assert payload["missing_artifacts"] == []
         assert report_payload["imported_artifacts"] == len(expected_ids)
         assert report_payload["received_artifact_ids"] == sorted(expected_ids)
-        assert report_payload["received_artifact_count_basis"] == "unique recognized IDs from incoming CAS members"
+        assert (
+            report_payload["received_artifact_count_basis"]
+            == "unique recognized IDs from incoming CAS members"
+        )
         assert report_payload["verification_failed"] == [str(packet_ref.artifact_id)]
         assert _payload_ref_ids(payload, "published_refs") == set()
         assert _payload_ref_ids(payload, "reused_refs") == set()
@@ -359,7 +549,6 @@ def test_replay_cli_exports_prior_generation_after_real_import_refusal(
     readback_report = readback.import_subgraph(export_path, verify_integrity=True)
     assert set(readback_report.received_artifact_ids) == expected_ids
     assert {str(item) for item in readback.iter_artifact_ids()} == expected_ids
-
 
 
 def test_replay_export_json_reports_refused_bundle_import(tmp_path: Path, capsys) -> None:

@@ -8,7 +8,6 @@ import sys
 import numpy as np
 import pytest
 import statsmodels.api as sm
-
 from protocol import REQUEST_SCHEMA, decode, digest, validate_request
 from worker import execute, interval, linear_ate, scalar
 

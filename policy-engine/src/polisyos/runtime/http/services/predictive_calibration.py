@@ -565,7 +565,7 @@ def produce_run_predictive_calibration(
             nominal_confidence_level=nominal,
             owner_suitability=owner_result.empirical_suitability,
             s10=s10_summary,
-            evidence_reason_codes=evidence.reason_codes,
+            evidence_reason_codes=evidence.failure_codes,
             created_at=created_at,
         )
         association_ref = _persist_association(
@@ -1329,7 +1329,7 @@ def _validate_current_run_binding(
         or evidence.recomputed_numerator != association.observed_numerator
         or evidence.recomputed_denominator != association.observed_denominator
         or evidence.recomputed_pass_rate != association.observed_hit_rate
-        or evidence.reason_codes != association.evidence_reason_codes
+        or evidence.failure_codes != association.evidence_reason_codes
     ):
         raise PredictiveCalibrationError("predictive_calibration_evidence_reopen_mismatch")
     _recompute_s10(store, association, report=report, evidence=evidence)

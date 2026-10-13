@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import UTC, datetime
+from math import isfinite
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.cross_graph import (
@@ -17,7 +19,10 @@ from polisyos.ir.analytics.cross_graph import (
 from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.doe.stress_report import (
+    StressTestReport,
+    resolve_stress_report_artifact,
+)
 from polisyos.scientist.methods.search.actionable_side_information import (
     ActionableSideInformation,
     persist_actionable_side_information,
@@ -100,15 +105,115 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 BenchmarkEvaluation,
                 self._hidden_holdout_evaluator(candidate, context),
             )
+        raw_stress_report_ref = context.get("stress_test_report_ref")
+        stress_report_ref = _coerce_artifact_ref(raw_stress_report_ref)
         stress_report = _coerce_model(
             StressTestReport,
             context.get("stress_test_report") or context.get("level5_stress_report"),
         )
-        if stress_report is None and self._stress_evaluator is not None:
-            stress_report = _coerce_model(
-                StressTestReport,
-                self._stress_evaluator(candidate, context),
-            )
+        score_status = "not_evaluated"
+        score_profile = None
+        score_reason = "stress_report_missing"
+        score_predicate_status = "not_established"
+        score_value: float | None = None
+        source_score_status: str | None = None
+        source_score_profile: str | None = None
+        source_score_value: float | None = None
+        score_source_reports: list[dict[str, Any]] = []
+
+        if raw_stress_report_ref is not None:
+            store = context.get("store") or self._store
+            raw_candidate_ref = context.get("policy_candidate_ref")
+            current_candidate_ref = _coerce_artifact_ref(raw_candidate_ref)
+            if stress_report_ref is None:
+                stress_report = StressTestReport(
+                    report_id="malformed-stress-report-reference"
+                ).model_copy(
+                    update={
+                        "score_status": "invalid",
+                        "score_reason": "malformed_stress_report_reference",
+                        "score_predicate_status": "not_established",
+                        "robustness_score": None,
+                    }
+                )
+                score_status = "invalid"
+                score_reason = "malformed_stress_report_reference"
+            elif store is None:
+                stress_report = stress_report or StressTestReport(
+                    report_id="unbound-stress-report-reference"
+                )
+                source_score_status = stress_report.score_status
+                source_score_profile = stress_report.score_profile
+                source_score_value = stress_report.robustness_score
+                score_source_reports = _stress_score_source_reports(stress_report)
+                score_status = "unbound"
+                score_profile = stress_report.score_profile
+                score_reason = "fresh_report_store_unavailable"
+                stress_report = stress_report.model_copy(
+                    update={
+                        "score_status": score_status,
+                        "score_reason": score_reason,
+                        "score_predicate_status": score_predicate_status,
+                        "robustness_score": None,
+                    }
+                )
+            else:
+                stress_report, resolution = resolve_stress_report_artifact(
+                    store,
+                    stress_report_ref,
+                    expected_candidate_ref=current_candidate_ref,
+                )
+                source_score_status = stress_report.score_status
+                source_score_profile = stress_report.score_profile
+                source_score_value = stress_report.robustness_score
+                score_source_reports = _stress_score_source_reports(stress_report)
+                if raw_candidate_ref is not None and current_candidate_ref is None:
+                    resolution = resolution.model_copy(
+                        update={
+                            "status": "invalid",
+                            "score_profile": None,
+                            "robustness_score": None,
+                            "reason_code": "malformed_current_candidate_reference",
+                            "predicate_status": "not_established",
+                        }
+                    )
+                score_status = resolution.status
+                score_profile = resolution.score_profile or stress_report.score_profile
+                score_reason = resolution.reason_code
+                score_predicate_status = resolution.predicate_status
+                score_value = resolution.robustness_score
+                stress_report = stress_report.model_copy(
+                    update={
+                        "score_status": score_status,
+                        "score_reason": score_reason,
+                        "score_predicate_status": score_predicate_status,
+                        "score_profile": score_profile,
+                        "robustness_score": score_value,
+                    }
+                )
+        else:
+            if stress_report is None and self._stress_evaluator is not None:
+                stress_report = _coerce_model(
+                    StressTestReport,
+                    self._stress_evaluator(candidate, context),
+                )
+            if stress_report is not None:
+                source_score_status = stress_report.score_status
+                source_score_profile = stress_report.score_profile
+                source_score_value = stress_report.robustness_score
+                score_source_reports = _stress_score_source_reports(stress_report)
+                score_status = "unbound"
+                score_profile = stress_report.score_profile
+                score_reason = "persisted_report_reference_required"
+                stress_report = stress_report.model_copy(
+                    update={
+                        "score_status": score_status,
+                        "score_reason": score_reason,
+                        "score_predicate_status": score_predicate_status,
+                        "robustness_score": None,
+                    }
+                )
+
         governance_report = _coerce_model(
             GovernanceReport,
             context.get("governance_report"),
@@ -197,22 +302,78 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 )
             )
 
-        if stress_report is not None and not stress_report.is_robust:
+        score_is_finite_binary = (
+            score_status == "available"
+            and score_profile == "finite_binary_scenario_v1"
+            and type(score_value) in {int, float}
+            and isfinite(score_value)
+            and score_predicate_status in {"recomputed", "independently_reconciled"}
+        )
+        if score_status == "available" and not score_is_finite_binary:
+            score_status = "invalid"
+            score_reason = "available_score_not_finite_binary_or_recomputed"
+            score_value = None
+            if stress_report is not None:
+                stress_report = stress_report.model_copy(
+                    update={
+                        "score_status": score_status,
+                        "score_reason": score_reason,
+                        "robustness_score": None,
+                    }
+                )
+        if score_status == "invalid":
+            failure_cards.append(
+                TypedFailureCard(
+                    judge_name="L5_refutation_governance",
+                    failure_type="stress_score_invalid",
+                    severity=FailureSeverity.BLOCKER,
+                    description="Stress score evidence is malformed, stale, mismatched, or inconsistent.",
+                    uncertainty_type=UncertaintyType.MODEL,
+                    remediation_hint="Repair the current-candidate finite outcome basis before promotion.",
+                    metadata={
+                        "report_id": None if stress_report is None else stress_report.report_id,
+                        "score_profile": score_profile,
+                        "score_reason": score_reason,
+                        "score_predicate_status": score_predicate_status,
+                    },
+                )
+            )
+        elif score_is_finite_binary and stress_report is not None and not stress_report.is_robust:
             failure_cards.append(
                 TypedFailureCard(
                     judge_name="L5_refutation_governance",
                     failure_type="stress_test_failed",
                     severity=FailureSeverity.BLOCKER,
-                    description="Stress and refutation checks uncovered high-severity vulnerabilities.",
+                    description="Fresh finite binary stress evidence uncovered high-severity vulnerabilities.",
                     uncertainty_type=UncertaintyType.MODEL,
                     remediation_hint="Address refutation and scenario vulnerabilities before promotion.",
                     metadata={
                         "critical_count": stress_report.critical_count,
                         "high_count": stress_report.high_count,
                         "report_id": stress_report.report_id,
+                        "score_profile": score_profile,
+                        "score_reason": score_reason,
                     },
                 )
             )
+        else:
+            failure_cards.append(
+                TypedFailureCard(
+                    judge_name="L5_refutation_governance",
+                    failure_type="stress_score_unavailable",
+                    severity=FailureSeverity.WARNING,
+                    description="A current finite binary stress score is unavailable; promotion is deferred.",
+                    uncertainty_type=UncertaintyType.MODEL,
+                    remediation_hint="Establish a current complete finite outcome basis or obtain human review.",
+                    metadata={
+                        "report_id": None if stress_report is None else stress_report.report_id,
+                        "score_status": score_status,
+                        "score_profile": score_profile,
+                        "score_reason": score_reason,
+                    },
+                )
+            )
+            terminal_action = "defer_to_human"
 
         if governance_report is not None:
             if governance_report.verdict == "reject":
@@ -307,7 +468,20 @@ class Level5RefutationGovernanceStage(FunnelStage):
                 "fidelity_level": self.fidelity_level,
                 "hidden_holdout_present": hidden_holdout is not None,
                 "hidden_holdout_degradation": holdout_delta,
-                "stress_robust": None if stress_report is None else stress_report.is_robust,
+                "stress_robust": (
+                    stress_report.is_robust
+                    if score_is_finite_binary and stress_report is not None
+                    else None
+                ),
+                "stress_score_status": score_status,
+                "stress_score_profile": score_profile,
+                "stress_score_reason": score_reason,
+                "stress_score_predicate_status": score_predicate_status,
+                "stress_score_value": score_value if score_is_finite_binary else None,
+                "stress_score_source_status": source_score_status,
+                "stress_score_source_profile": source_score_profile,
+                "stress_score_source_value": source_score_value,
+                "stress_score_source_reports": score_source_reports,
                 "governance_verdict": None
                 if governance_report is None
                 else governance_report.verdict,
@@ -350,6 +524,37 @@ def _prior_result(context: dict[str, Any]) -> FunnelStageResult | None:
         if isinstance(result, FunnelStageResult):
             return result
     return None
+
+
+def _stress_score_source_reports(report: StressTestReport) -> list[dict[str, Any]]:
+    """Return non-authoritative source-profile records for Level 5 diagnostics."""
+    source_reports = report.metadata.get("score_source_reports")
+    if isinstance(source_reports, list):
+        rows = [dict(item) for item in source_reports if isinstance(item, dict)]
+        if rows:
+            return rows
+    reported_score = report.robustness_score
+    if type(reported_score) not in {int, float} or not isfinite(reported_score):
+        reported_score = None
+    return [
+        {
+            "report_id": report.report_id,
+            "schema_version": report.schema_version,
+            "score_status": report.score_status,
+            "score_profile": report.score_profile,
+            "reported_score": reported_score,
+            "reported_score_present": report.robustness_score is not None,
+        }
+    ]
+
+
+def _coerce_artifact_ref(value: Any) -> ArtifactRef | None:
+    if value is None:
+        return None
+    try:
+        return value if isinstance(value, ArtifactRef) else ArtifactRef.model_validate(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _coerce_model(model_cls, value: Any):

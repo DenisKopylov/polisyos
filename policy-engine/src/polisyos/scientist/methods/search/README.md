@@ -21,7 +21,7 @@ logic used by policy-design and promotion workflows.
 ## Public Entrypoints
 
 - Root contract surface in [`contracts.py`](contracts.py): `SearchService`, `CandidateProposal`, `EvaluationBundle`, and `TellResult`
-- Legacy controller in [`controller.py`](controller.py): `SearchController`, `SearchConfig`, `SearchResult`, and `SearchIteration`
+- Legacy controller in [`controller.py`](controller.py): `SearchController`, `SearchConfig`, `SearchResult`, and `SearchIteration`; protected provider search uses `TracedLLMCandidateGenerator` and its typed refusal `SearchBudgetProducerUnsupportedError`
 - Evaluation primitives in [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py): `CompositeObjective`, `CheapStage`, `ExpensiveStage`, and `StoppingPresets`
 - Registry and lesson surfaces in [`benchmark_registry.py`](benchmark_registry.py), [`lessons.py`](lessons.py), [`pareto_registry.py`](pareto_registry.py), and [`registry_contracts.py`](registry_contracts.py)
 - Rollout helpers in [`adversarial.py`](adversarial.py), [`latent_governance.py`](latent_governance.py), [`promotion_evidence.py`](promotion_evidence.py), and [`compliance_audit.py`](compliance_audit.py)
@@ -32,6 +32,14 @@ The contracts module is the import-safe type leaf for search DTOs, run/result
 records, transitions, and the native controller port. Compatibility imports
 retain historical controller/run-state class identities; concrete adapters and
 funnel implementations are not statically imported by this leaf.
+
+## Pareto Basis Declaration
+
+SearchConfig may receive caller-owned ParetoBasisScope values by view through
+pareto_objective_basis_by_view. The controller forwards these typed values through the existing
+registry update contract. An empty mapping preserves observed/unknown basis behavior; ranking
+against named axes requires an explicit declared scope. This declaration describes the chosen
+comparison basis and does not prove that the basis is complete or authoritative.
 
 ## Pareto Assessment Projection (B111)
 
@@ -113,6 +121,51 @@ eligible reported-cost history, then uses estimated history only with the explic
 estimate. These cost signals do not establish native evaluator work counts or
 scientific price calibration.
 
+## Durable provider owner path (B120 candidate)
+
+The owner-bound candidate-generation path requires a `BudgetMiddleware`, a typed
+`BudgetLedgerProducerRunBinding`, and the concrete `TracedLLMCandidateGenerator`.
+Before `SearchLoopRunner` invokes generator context callbacks, and before a direct
+`SearchController` can run, the adapter is checked against the exact middleware,
+`nl-run:<run_id>` key, readable durable owner identity, and typed run binding. The
+adapter itself serializes the full candidate input without dropping unsupported
+values and calls that exact `TracedLLMClient`; malformed provider output is refused.
+After a generated candidate, a missing, pending, unknown, or mismatched settlement
+is unavailable before the next Stage A/B evaluation. Other candidate generators
+remain available to unprotected search; in protected mode they receive a typed
+refusal before invocation and must migrate to the adapter. A provider call can
+cross the configured stop threshold because the actual charge is known only after
+the call settles. The durable owner can stop a
+later evaluation after the crossing charge, but this path does not reserve a
+pre-dispatch price, restore search state, or claim external billing truth.
+
+This verifies only selected candidate-generation calls. The generic Stage A and
+Stage B evaluator callables have no owner-carrying type contract here; if an
+evaluator invokes a provider, this adapter does not prove that call is covered by
+the selected owner. Whole-search cost admission therefore remains limited.
+
+The focused fixture sends two runtime Gateway calls through `TracedLLMClient`
+against a controlled HTTP response, records both committed events under the
+selected run binding, and shows the owner-reported
+`$0.50` spend crossing a `$0.30` search stop threshold before another Stage B
+evaluation. The test does not establish a guarantee that the next provider call
+will be priced or blocked before dispatch.
+
+## Typed objective handling (B123 candidate)
+
+A present malformed typed evaluation does not fall back to a legacy scalar in the
+tested ObjectiveStack-to-best/frontier path. The current internal candidate-state
+transfer through the Pareto registry and a fresh warm-start receiver does not
+establish protected publication, a canonical publication ref, or authority. Those
+claims remain limited pending the actual protected consumer path.
+
+## Native replay and resume (LA-033 evidence)
+
+The focused Foundry CLI replay and remediation resume tests exercise the native
+producer path, persisted replay result, and fresh resume from the stored CAS head.
+They do not set an import-time budget threshold or establish production-wide
+currentness; no production inputs are rewritten for these tests.
+
 
 ## Import-safe contracts and funnel DTO ownership
 
@@ -181,6 +234,7 @@ and cannot be promoted to a newly verified source-bound observation; no source
 or history is backfilled. Other welfare
 methods remain outside this adapter. Existing `audit_refs` and artifact
 content routes are reused.
+
 
 The source-bound observation builder adapts the caller's Core store once with
 `ensure_ir_artifact_store` before the IR welfare, weight, method, report, and

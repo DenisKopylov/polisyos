@@ -213,6 +213,9 @@ class StressScenarioRunner:
             report_id=f"stress_{uuid4().hex[:12]}",
             total_scenarios_evaluated=len(comparisons),
             fidelity_mode="stress_preset",
+            score_profile="continuous_severity_v1",
+            score_status="available",
+            score_reason="continuous_severity_profile_not_binary_fraction",
             worst_case_parameters={
                 "objective_multiplier": min(
                     _SCENARIO_PRESETS[scenario].objective_multiplier

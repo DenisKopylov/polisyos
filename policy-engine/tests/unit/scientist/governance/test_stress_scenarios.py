@@ -19,6 +19,8 @@ def test_stress_scenario_runner_executes_all_six_scenarios(cas_store) -> None:
 
     report = load_stress_test_report(cas_store, result.stress_test_report_ref)
     assert report.total_scenarios_evaluated == 6
+    assert report.score_profile == "continuous_severity_v1"
+    assert report.score_status == "available"
     assert report.worst_case_objective is not None
 
 

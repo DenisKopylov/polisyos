@@ -71,6 +71,7 @@ from polisyos.ir.registry.refs import (
     WelfareBundleRef,
 )
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -106,6 +107,7 @@ from polisyos.scientist.methods.search.readiness import (
     DecisionReadinessEvaluator,
 )
 from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
@@ -120,6 +122,9 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime impor
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.policy_design.objectives import (
+    ObjectiveChannelValue,
+    ObjectiveDirection,
+    ObjectiveKind,
     ObjectiveStack,
     PolicyEvaluationBundle,
     PolicyEvaluationVector,
@@ -2329,6 +2334,385 @@ def test_search_controller_policy_mode_updates_registry(tmp_path) -> None:
     assert result.pareto_projection.assessment.status == "basis_limited"
     assert result.pareto_projection.candidate_frontier_hashes
     assert result.pareto_projection.unassessed_candidate_hashes
+
+
+def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_valid(
+    tmp_path,
+) -> None:
+    """Exercise ObjectiveStack, controller state, durable frontier, and seed consumer."""
+    candidate = _candidate()
+    stack = ObjectiveStack()
+    registry = ParetoRegistry(root=tmp_path / "valid-pareto")
+
+    class StaticGenerator:
+        def generate(self, history, current_best, context):
+            del history, current_best, context
+            return {"candidate_id": candidate.candidate_id}
+
+    def typed_stage_b(candidate_payload, context):
+        del candidate_payload, context
+        return {
+            "simulation_results": {"policy_value": -1_000_000.0},
+            "feedback": {"verdict": "APPROVE"},
+            "_policy_candidate_schema": candidate,
+            "policy_evaluation_bundle": PolicyEvaluationBundle(
+                candidate=candidate,
+                simulation_metrics={
+                    "policy_value": 11.0,
+                    "employment_rate": 0.9,
+                    "welfare": 12.0,
+                },
+                distributional_report=_distributional_report(),
+                causal_effect_report=_causal_effect_report(),
+                cross_graph_profile=_cross_graph_profile(),
+                uncertainty_envelope=_uncertainty(0.2),
+            ),
+        }
+
+    valid_controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+            policy_objective_stack=stack,
+            pareto_registry=registry,
+        ),
+        candidate_generator=StaticGenerator(),
+        stage_a_evaluator=lambda _candidate, _context: (0.0, True),
+        stage_b_evaluator=typed_stage_b,
+    )
+    valid_result = valid_controller.run(initial_context={})
+
+    assert valid_result.best_candidate == {"candidate_id": candidate.candidate_id}
+    assert valid_result.history[0].objective_value != -1_000_000.0
+    assert valid_result.history[0].policy_evaluation_status == "valid"
+    assert valid_result.pareto_projection is not None
+    assert valid_result.pareto_projection.candidate_frontier_hashes
+    valid_reopened = ParetoRegistry(root=tmp_path / "valid-pareto")
+    persisted = valid_reopened.get_snapshot(valid_result.search_id)
+    assert len(persisted.entries) == 1
+    persisted_entry = next(iter(persisted.entries.values()))
+    assert persisted_entry.evaluation.model_dump(mode="json") == (
+        valid_result.history[0].policy_evaluation.model_dump(mode="json")
+    )
+    assert persisted_entry.candidate_id == candidate.candidate_id
+    assert persisted_entry.seed_payload == {"candidate_id": candidate.candidate_id}
+
+    target_context = TransferContext(
+        task_family=persisted_entry.task_family,
+        domain=persisted_entry.domain,
+        run_id="next-candidate-search",
+    )
+    transferred = valid_reopened.get_seed_bundle(target_context)
+    assert len(transferred.entries) == 1
+    assert transferred.entries[0].candidate_id == candidate.candidate_id
+    assert transferred.entries[0].seed_only is True
+    assert transferred.entries[0].provenance_weight > 0.0
+    warm_starts = valid_reopened.build_warm_start_evaluations(target_context)
+    assert len(warm_starts) == 1
+    assert warm_starts[0]["candidate"] == {"candidate_id": candidate.candidate_id}
+    assert warm_starts[0]["metadata"]["seed_only"] is True
+    assert warm_starts[0]["stage_b_result"]["policy_evaluation"]["candidate_id"] == (
+        candidate.candidate_id
+    )
+
+    class EmptyGenerator:
+        def generate(self, history, current_best, context):
+            del history, current_best, context
+            return []
+
+    receiving_controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+            initial_evaluations=warm_starts,
+        ),
+        candidate_generator=EmptyGenerator(),
+        stage_a_evaluator=lambda _candidate, _context: (0.0, True),
+        stage_b_evaluator=lambda _candidate, _context: {},
+    )
+    received_result = receiving_controller.run(initial_context={})
+    assert received_result.telemetry["training_evaluations"] == 1
+    assert received_result.history[0].candidate == {"candidate_id": candidate.candidate_id}
+    received_stage_b = received_result.history[0].stage_b_result
+    assert received_stage_b is not None
+    assert received_stage_b["policy_evaluation"]["candidate_id"] == candidate.candidate_id
+
+    invalid_registry = ParetoRegistry(root=tmp_path / "invalid-pareto")
+
+    def malformed_stage_b(candidate_payload, context):
+        del candidate_payload, context
+        return {
+            "simulation_results": {"policy_value": -1_000_000.0},
+            "feedback": {"verdict": "APPROVE"},
+            "_policy_candidate_schema": candidate,
+            "policy_evaluation": {"primary": {"policy_value": "not-a-number"}},
+        }
+
+    invalid_controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([]),
+            policy_objective_stack=ObjectiveStack(),
+            pareto_registry=invalid_registry,
+        ),
+        candidate_generator=StaticGenerator(),
+        stage_a_evaluator=lambda _candidate, _context: (0.0, True),
+        stage_b_evaluator=malformed_stage_b,
+    )
+    invalid_result = invalid_controller.run(initial_context={})
+
+    assert invalid_result.best_candidate is None
+    assert invalid_result.history[0].objective_value == float("inf")
+    assert invalid_result.history[0].policy_evaluation_status == "invalid"
+    assert invalid_result.history[0].is_promising is False
+    invalid_reopened = ParetoRegistry(root=tmp_path / "invalid-pareto")
+    invalid_snapshot = invalid_reopened.get_snapshot(invalid_result.search_id)
+    assert invalid_snapshot.entries == {}
+    assert invalid_reopened.get_seed_bundle(target_context).entries == []
+    assert invalid_reopened.build_warm_start_evaluations(target_context) == []
+
+
+@pytest.mark.parametrize(
+    "candidate_order",
+    [
+        (
+            "front_a",
+            "front_equal_identity",
+            "incomparable",
+            "dominated_equal_secondary",
+            "dominated",
+            "infeasible",
+            "malformed",
+        ),
+        (
+            "malformed",
+            "infeasible",
+            "dominated",
+            "dominated_equal_secondary",
+            "incomparable",
+            "front_equal_identity",
+            "front_a",
+        ),
+    ],
+    ids=["front-to-back", "back-to-front"],
+)
+def test_search_controller_persists_pareto_membership_for_fresh_reader(
+    tmp_path, candidate_order
+) -> None:
+    metrics = {
+        "front_a": (10.0, 0.90),
+        "front_equal_identity": (10.0, 0.90),
+        "incomparable": (11.0, 0.80),
+        "dominated_equal_secondary": (9.0, 0.90),
+        "dominated": (8.0, 0.70),
+        "infeasible": (12.0, 0.95),
+        "malformed": (13.0, 1.0),
+    }
+    candidates = {
+        candidate_id: _candidate().model_copy(update={"candidate_id": candidate_id})
+        for candidate_id in metrics
+    }
+    registry_root = tmp_path / "pareto_registry"
+    registry = ParetoRegistry(root=registry_root)
+
+    class SequenceGenerator:
+        def __init__(self):
+            self._candidate_ids = iter(candidate_order)
+
+        def generate(self, history, current_best, context):
+            del history, current_best, context
+            return {"candidate_id": next(self._candidate_ids)}
+
+    def stage_b(candidate_payload, context):
+        del context
+        candidate_id = candidate_payload["candidate_id"]
+        candidate = candidates[candidate_id]
+        if candidate_id == "malformed":
+            return {
+                "simulation_results": {},
+                "feedback": {"verdict": "APPROVE"},
+                "_policy_candidate_schema": candidate,
+                "policy_evaluation_bundle": {"unexpected_field": "present but invalid"},
+            }
+        policy_value, employment_rate = metrics[candidate_id]
+        bundle = PolicyEvaluationBundle(
+            candidate=candidate,
+            simulation_metrics={
+                "policy_value": policy_value,
+                "employment_rate": employment_rate,
+                "welfare": policy_value,
+            },
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            cross_graph_profile=_cross_graph_profile(),
+            uncertainty_envelope=_uncertainty(0.2),
+            governance_report=(
+                GovernanceReport(verdict="reject", issues=[])
+                if candidate_id == "infeasible"
+                else None
+            ),
+        )
+        return {
+            "simulation_results": {},
+            "feedback": {"verdict": "APPROVE"},
+            "_policy_candidate_schema": candidate,
+            "policy_evaluation_bundle": bundle,
+        }
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(len(candidate_order)),
+            objective=CompositeObjective([]),
+            max_iterations_hard_limit=len(candidate_order),
+            policy_objective_stack=ObjectiveStack(),
+            pareto_registry=registry,
+            pareto_objective_basis_by_view={"global_feasible": _declared_global_pareto_basis()},
+        ),
+        candidate_generator=SequenceGenerator(),
+        stage_a_evaluator=lambda candidate, context: (0.0, True),
+        stage_b_evaluator=stage_b,
+    )
+
+    result = controller.run(initial_context={})
+
+    assert len(result.history) == len(candidate_order)
+    history_by_id = {row.candidate["candidate_id"]: row for row in result.history}
+    assert set(history_by_id) == set(candidate_order)
+    assert all(
+        row.policy_evaluation_status == "valid"
+        for candidate_id, row in history_by_id.items()
+        if candidate_id != "malformed"
+    )
+    malformed = history_by_id["malformed"]
+    assert malformed.policy_evaluation_status == "invalid"
+    assert malformed.policy_evaluation_error == "policy_evaluation_bundle_parse_failed"
+    assert malformed.policy_evaluation is None
+    assert malformed.objective_value == float("inf")
+    assert malformed.is_promising is False
+    assert result.telemetry["policy_evaluation_errors"] == 1
+    infeasible = history_by_id["infeasible"].policy_evaluation
+    assert infeasible is not None
+    assert infeasible.feasible is False
+    assert "verdict_reject" in infeasible.blocking_reasons
+
+    fresh_reader = ParetoRegistry(root=registry_root)
+    snapshot = fresh_reader.get_snapshot(result.search_id)
+    projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+    frontier = fresh_reader.get_frontier(result.search_id, ParetoView.GLOBAL_FEASIBLE)
+    frontier_ids = {entry.candidate_id for entry in frontier}
+    entries_by_id = {entry.candidate_id: entry for entry in snapshot.entries.values()}
+    expected_ids = {"front_a", "front_equal_identity", "incomparable"}
+    feasible_hashes = {
+        entry.candidate_hash
+        for entry in snapshot.entries.values()
+        if entry.evaluation.feasible and not entry.seed_only
+    }
+
+    assert set(entries_by_id) == set(candidate_order) - {"malformed"}
+    assert entries_by_id["infeasible"].evaluation.feasible is False
+    assert entries_by_id["infeasible"].candidate_hash not in projection.eligible_candidate_hashes
+    assert set(projection.eligible_candidate_hashes) == feasible_hashes
+    assert projection.assessment.status == "complete"
+    assert projection.assessment.coverage_status == "complete"
+    assert projection.assessment.input_count == len(feasible_hashes) == 5
+    assert projection.assessment.assessed_count == len(feasible_hashes) == 5
+    assert frontier_ids == expected_ids
+    assert "dominated_equal_secondary" not in frontier_ids
+    assert "dominated" not in frontier_ids
+    assert len({entry.candidate_hash for entry in frontier}) == len(expected_ids)
+
+
+@pytest.mark.parametrize(
+    ("policy_direction", "employment_direction"),
+    [
+        pytest.param(
+            ObjectiveDirection.MAXIMIZE,
+            ObjectiveDirection.MINIMIZE,
+            id="maximize-minimize",
+        ),
+        pytest.param(
+            ObjectiveDirection.MINIMIZE,
+            ObjectiveDirection.MAXIMIZE,
+            id="minimize-maximize",
+        ),
+    ],
+)
+def test_pareto_registry_persists_directional_axes_for_fresh_reader(
+    tmp_path, policy_direction, employment_direction
+) -> None:
+    normalized_rows = {
+        "front": (10.0, -5.0),
+        "front_duplicate_identity": (10.0, -5.0),
+        "dominated_equal_secondary": (9.0, -5.0),
+        "incomparable_lower_policy_value": (9.0, -4.0),
+        "incomparable_higher_policy_value": (11.0, -8.0),
+        "dominated": (8.0, -6.0),
+    }
+    expected_ids = {
+        "front",
+        "front_duplicate_identity",
+        "incomparable_lower_policy_value",
+        "incomparable_higher_policy_value",
+    }
+    declared_basis = ParetoBasisScope(
+        scope="declared",
+        coordinate_ids=["policy_value", "employment"],
+        basis_ref="test:directional-policy-objectives.v1",
+    )
+
+    for order_index, order in enumerate((list(normalized_rows), list(reversed(normalized_rows)))):
+        registry_root = tmp_path / f"direction_order_{order_index}"
+        writer = ParetoRegistry(root=registry_root)
+        for index, candidate_id in enumerate(order, start=1):
+            policy_value, employment = normalized_rows[candidate_id]
+            policy_raw = (
+                policy_value if policy_direction is ObjectiveDirection.MAXIMIZE else -policy_value
+            )
+            employment_raw = (
+                employment if employment_direction is ObjectiveDirection.MAXIMIZE else -employment
+            )
+            evaluation = PolicyEvaluationVector(
+                candidate_id=candidate_id,
+                primary={
+                    "policy_value": ObjectiveChannelValue(
+                        name="policy_value",
+                        kind=ObjectiveKind.PRIMARY,
+                        value=policy_raw,
+                        direction=policy_direction,
+                        source="typed_stage_b_evaluation",
+                    ),
+                    "employment": ObjectiveChannelValue(
+                        name="employment",
+                        kind=ObjectiveKind.PRIMARY,
+                        value=employment_raw,
+                        direction=employment_direction,
+                        source="typed_stage_b_evaluation",
+                    ),
+                },
+            )
+            writer.update(
+                "directional-policy-run",
+                candidate_hash=f"sha256:{index:064x}",
+                evaluation=evaluation,
+                objective_basis_by_view={"global_feasible": declared_basis},
+            )
+
+        fresh_reader = ParetoRegistry(root=registry_root)
+        snapshot = fresh_reader.get_snapshot("directional-policy-run")
+        projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
+        frontier = fresh_reader.get_frontier("directional-policy-run", ParetoView.GLOBAL_FEASIBLE)
+
+        assert {entry.candidate_id for entry in frontier} == expected_ids
+        assert projection.assessment.status == "complete"
+        assert projection.assessment.coverage_status == "complete"
+        assert projection.assessment.basis_scope == declared_basis
+        assert projection.assessment.input_count == len(normalized_rows)
+        assert projection.assessment.assessed_count == len(normalized_rows)
+        assert all(
+            entry.evaluation.primary["policy_value"].direction is policy_direction
+            and entry.evaluation.primary["employment"].direction is employment_direction
+            for entry in snapshot.entries.values()
+        )
 
 
 def test_search_controller_accepts_policy_bundle_after_module_reload(tmp_path) -> None:

@@ -17,9 +17,13 @@ from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, Benc
 from polisyos.scientist.methods.doe.designs import AdversarialPlan, AdversarialStrategy
 from polisyos.scientist.methods.doe.sampling import generate_adversarial_samples
 from polisyos.scientist.methods.doe.stress_report import (
+    StressOutcomeBasis,
+    StressOutcomeRecord,
+    StressScoreComponent,
     StressTestReport,
     Vulnerability,
     VulnerabilityType,
+    resolve_stress_score_components,
 )
 from polisyos.scientist.methods.search.controller import SearchIteration
 from polisyos.scientist.methods.search.objective import (
@@ -535,6 +539,8 @@ def run_stress_test(
     source_objective_direction = base_objective.direction
 
     vulnerabilities: list[Vulnerability] = []
+    outcome_records: list[StressOutcomeRecord] = []
+    adaptive_continuation = False
     worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
@@ -553,11 +559,20 @@ def run_stress_test(
         except Exception as exc:
             invalid_evaluation_count += 1
             evaluation_unverified = True
-            vulnerabilities.append(
-                _numerical_vulnerability(
-                    vulnerability_id=f"vuln_numerical_{idx}",
-                    parameters=parameters,
-                    error=exc,
+            vulnerability = _numerical_vulnerability(
+                vulnerability_id=f"vuln_numerical_{idx}",
+                parameters=parameters,
+                error=exc,
+            )
+            vulnerabilities.append(vulnerability)
+            outcome_records.append(
+                StressOutcomeRecord(
+                    occurrence_index=len(outcome_records),
+                    scenario_id=f"initial:{idx}",
+                    status="invalid",
+                    parameter_values=parameters,
+                    vulnerabilities=[vulnerability],
+                    reason_code="evaluator_exception_or_nonfinite_objective",
                 )
             )
             if adversarial_plan.stop_on_first_vulnerability:
@@ -575,10 +590,20 @@ def run_stress_test(
             parameters=parameters,
             vuln_id=f"vuln_objective_{idx}",
         )
+        scenario_vulnerabilities = [] if vuln is None else [vuln]
         if vuln is not None:
             vulnerabilities.append(vuln)
-            if adversarial_plan.stop_on_first_vulnerability:
-                break
+        outcome_records.append(
+            StressOutcomeRecord(
+                occurrence_index=len(outcome_records),
+                scenario_id=f"initial:{idx}",
+                status="failed" if scenario_vulnerabilities else "passed",
+                parameter_values=parameters,
+                vulnerabilities=scenario_vulnerabilities,
+            )
+        )
+        if vuln is not None and adversarial_plan.stop_on_first_vulnerability:
+            break
 
     if (
         adversarial_plan.strategy == AdversarialStrategy.SEARCH_LOOP
@@ -588,6 +613,7 @@ def run_stress_test(
         and (not vulnerabilities or not adversarial_plan.stop_on_first_vulnerability)
         and not evaluation_unverified
     ):
+        adaptive_continuation = True
         remaining = max(1, adversarial_plan.max_iterations - total_evaluated)
         stopping_criteria: list[StoppingCriterion] = [MaxIterations(remaining)]
         if (
@@ -626,11 +652,20 @@ def run_stress_test(
             except Exception as exc:
                 invalid_evaluation_count += 1
                 evaluation_unverified = True
-                vulnerabilities.append(
-                    _numerical_vulnerability(
-                        vulnerability_id=f"vuln_numerical_search_{idx}",
-                        parameters=candidate_parameters,
-                        error=exc,
+                vulnerability = _numerical_vulnerability(
+                    vulnerability_id=f"vuln_numerical_search_{idx}",
+                    parameters=candidate_parameters,
+                    error=exc,
+                )
+                vulnerabilities.append(vulnerability)
+                outcome_records.append(
+                    StressOutcomeRecord(
+                        occurrence_index=len(outcome_records),
+                        scenario_id=f"adaptive:{idx}",
+                        status="invalid",
+                        parameter_values=candidate_parameters,
+                        vulnerabilities=[vulnerability],
+                        reason_code="evaluator_exception_or_nonfinite_objective",
                     )
                 )
                 break
@@ -652,6 +687,7 @@ def run_stress_test(
             if _is_worse_objective(objective, worst_case_objective, objective_direction):
                 worst_case_objective = objective
                 worst_case_parameters = candidate_parameters
+            scenario_vulnerabilities = []
             if adversarial_plan.vulnerability_threshold is not None:
                 vuln = _detect_objective_vulnerability(
                     objective=objective,
@@ -662,8 +698,28 @@ def run_stress_test(
                 )
                 if vuln is not None:
                     vulnerabilities.append(vuln)
+                    scenario_vulnerabilities.append(vuln)
                     if adversarial_plan.stop_on_first_vulnerability:
+                        outcome_records.append(
+                            StressOutcomeRecord(
+                                occurrence_index=len(outcome_records),
+                                scenario_id=f"adaptive:{idx}",
+                                status="failed",
+                                parameter_values=candidate_parameters,
+                                vulnerabilities=scenario_vulnerabilities,
+                            )
+                        )
                         break
+            if not (outcome_records and outcome_records[-1].scenario_id == f"adaptive:{idx}"):
+                outcome_records.append(
+                    StressOutcomeRecord(
+                        occurrence_index=len(outcome_records),
+                        scenario_id=f"adaptive:{idx}",
+                        status="failed" if scenario_vulnerabilities else "passed",
+                        parameter_values=candidate_parameters,
+                        vulnerabilities=scenario_vulnerabilities,
+                    )
+                )
             stop_check = stopping.check(
                 [{"objective_value": item.objective_value} for item in history],
                 {"iteration": idx + 1, "best_objective": best_search_objective},
@@ -678,11 +734,7 @@ def run_stress_test(
         worst_case_objective = float("nan")
 
     evaluation_status = "unverified" if evaluation_unverified else None
-    robustness_score = (
-        0.0
-        if evaluation_unverified
-        else 1.0 - (len(observed_vulnerabilities) / max(total_evaluated, 1))
-    )
+    robustness_score = None
     report = StressTestReport(
         report_id=stable_world_id_from_canon(
             prefix="stress.report",
@@ -703,7 +755,10 @@ def run_stress_test(
         critical_count=sum(1 for item in observed_vulnerabilities if item.severity == "critical"),
         high_count=sum(1 for item in observed_vulnerabilities if item.severity == "high"),
         medium_count=sum(1 for item in observed_vulnerabilities if item.severity == "medium"),
-        robustness_score=robustness_score,
+        robustness_score=None,
+        score_profile="finite_binary_scenario_v1",
+        score_status="unbound",
+        score_reason="persisted_occurrence_basis_and_current_candidate_binding_required",
         set_adequacy_status=evaluation_status,
         decision_packet_ref=decision_packet_ref,
         metadata={
@@ -721,12 +776,99 @@ def run_stress_test(
     )
 
     if cas is not None:
+        candidate_ref = runtime_context.get("policy_candidate_ref")
+        if not isinstance(candidate_ref, ArtifactRef):
+            try:
+                candidate_ref = (
+                    ArtifactRef.model_validate(candidate_ref)
+                    if isinstance(candidate_ref, dict)
+                    else None
+                )
+            except Exception:
+                candidate_ref = None
+        if candidate_ref is not None:
+            plan_ref = cas.put_json(
+                adversarial_plan.model_dump(mode="json"),
+                PutOptions(
+                    kind="scientist.adversarial_plan",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="polisyos.scientist.AdversarialPlan", version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            expected_count = total_evaluated if adaptive_continuation else len(initial_samples)
+            source_id = f"adversarial_plan:{plan_ref.artifact_id}"
+            basis = StressOutcomeBasis(
+                source_kind="adversarial_plan",
+                source_id=source_id,
+                expected_count=expected_count,
+                expected_scenario_ids=[f"initial:{i}" for i in range(expected_count)],
+                outcomes=outcome_records,
+                complete=(
+                    not adaptive_continuation
+                    and len(outcome_records) == expected_count
+                    and all(item.status in {"passed", "failed"} for item in outcome_records)
+                ),
+                adaptive_continuation=adaptive_continuation,
+                plan_ref=plan_ref,
+                candidate_ref=candidate_ref,
+            )
+            basis_ref = cas.put_json(
+                basis.model_dump(mode="json"),
+                PutOptions(
+                    kind="scientist.stress_outcome_basis",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="polisyos.scientist.StressOutcomeBasis", version="1.0"),
+                    inputs=[
+                        InputRef(artifact_id=plan_ref.artifact_id, role="adversarial_plan"),
+                        InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
+                    ],
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            component = StressScoreComponent(
+                component_id=source_id,
+                score_profile="finite_binary_scenario_v1",
+                outcome_basis_ref=basis_ref,
+            )
+            resolution = resolve_stress_score_components(
+                cas, [component], expected_candidate_ref=candidate_ref
+            )
+            report = report.model_copy(
+                update={
+                    "adversarial_plan_ref": str(plan_ref.artifact_id),
+                    "score_components": [component],
+                    "score_status": resolution.status,
+                    "score_reason": resolution.reason_code,
+                    "score_predicate_status": resolution.predicate_status,
+                    "score_profile": resolution.score_profile or "finite_binary_scenario_v1",
+                    "robustness_score": resolution.robustness_score,
+                    "total_scenarios_evaluated": resolution.total_scenarios_evaluated,
+                    "critical_count": resolution.critical_count,
+                    "high_count": resolution.high_count,
+                    "medium_count": resolution.medium_count,
+                }
+            )
         ref = cas.put_json(
             report.model_dump(mode="json"),
             PutOptions(
                 kind="scientist.stress_test_report",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
+                schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.1"),
+                inputs=(
+                    [
+                        InputRef(
+                            artifact_id=item.outcome_basis_ref.artifact_id,
+                            role="stress_outcome_basis",
+                        )
+                        for item in report.score_components
+                    ]
+                    + (
+                        [InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")]
+                        if candidate_ref is not None
+                        else []
+                    )
+                ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
@@ -828,6 +970,7 @@ def load_platform_meta_evaluation_report(
 ) -> PlatformMetaEvaluationReport:
     """Load platform meta evaluation report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return PlatformMetaEvaluationReport.model_validate(payload)
 

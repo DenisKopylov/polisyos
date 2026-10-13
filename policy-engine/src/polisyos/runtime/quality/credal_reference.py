@@ -12,6 +12,8 @@ import hashlib
 import importlib
 import importlib.metadata
 import json
+import math
+import sys
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
@@ -30,6 +32,7 @@ from polisyos.runtime.quality.intervention_substrate import (
     load_l6_intervention_substrate,
     resolve_intervention_lever,
     resolve_law_bound_lever,
+    resolve_observation_manifest_routes,
     route_observation_family_method,
 )
 from polisyos.runtime.quality.substrate_registry import (
@@ -44,6 +47,9 @@ if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import (
         PreparedSKGCredalSourceRows,
         PreparedSKGRead,
+    )
+    from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateBundle,
     )
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
@@ -2388,6 +2394,22 @@ def _iter_l6_edges(
             },
         )
 
+    yield from _iter_l6_observation_route_edges(bundle, version=version)
+
+
+def _iter_l6_observation_route_edges(
+    bundle: InterventionSubstrateBundle,
+    *,
+    version: str,
+) -> Iterator[CredalReferenceEdge]:
+    try:
+        resolved_routes = {
+            route.family: route for route in resolve_observation_manifest_routes(bundle)
+        }
+    except InterventionSubstrateError:
+        # Keep the previous per-row refusal behavior for malformed or ambiguous manifests.
+        resolved_routes = None
+
     for route in _mapping_list(bundle.observation_manifest.get("routes")):
         family = str(route.get("family") or "").strip()
         provenance = {
@@ -2405,17 +2427,20 @@ def _iter_l6_edges(
                 provenance,
             )
             continue
-        try:
-            resolved_route = route_observation_family_method(bundle, family=family)
-        except InterventionSubstrateError as exc:
-            yield _edge(
-                "L6_OBSERVATION_CONTRACT_ROUTE",
-                family,
-                "incomplete",
-                _incomplete_completions(exc.code),
-                provenance,
-            )
-            continue
+        if resolved_routes is None:
+            try:
+                resolved_route = route_observation_family_method(bundle, family=family)
+            except InterventionSubstrateError as exc:
+                yield _edge(
+                    "L6_OBSERVATION_CONTRACT_ROUTE",
+                    family,
+                    "incomplete",
+                    _incomplete_completions(exc.code),
+                    provenance,
+                )
+                continue
+        else:
+            resolved_route = resolved_routes[family]
         if resolved_route.status == "routed":
             yield _confirmed_edge(
                 "L6_OBSERVATION_CONTRACT_ROUTE",
@@ -2775,6 +2800,18 @@ def _json_list(value: object) -> list[Any]:
 
 
 def _json_ready(value: object) -> object:
+    if value is None or type(value) in (bool, str):
+        return value
+    if type(value) is int:
+        max_digits = sys.get_int_max_str_digits()
+        if max_digits == 0 or value.bit_length() <= max_digits * 3:
+            return value
+    elif type(value) is float and math.isfinite(value):
+        return value
+    elif type(value) is dict and not value:
+        return {}
+    elif type(value) in (list, tuple) and not value:
+        return []
     return json.loads(json.dumps(value, ensure_ascii=False, sort_keys=True, default=str))
 
 

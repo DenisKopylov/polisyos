@@ -140,9 +140,7 @@ class ParetoInputAssessment(BaseModel):
             raise ValueError("omission input_index must be unique within an assessment")
         if any(index >= self.input_count for index in omission_indices):
             raise ValueError("omission input_index is outside the declared input_count")
-        if self.status == "complete" and (
-            self.input_count == 0 or self.unassessed_evaluations
-        ):
+        if self.status == "complete" and (self.input_count == 0 or self.unassessed_evaluations):
             raise ValueError("complete input assessment requires nonempty fully assessed inputs")
         if self.status == "partial" and (
             self.assessed_count == 0 or not self.unassessed_evaluations
@@ -393,20 +391,19 @@ class ParetoPromoter:
         vector, missing, non_finite = self._assess_objective_vector(candidate)
         if vector is None:
             reason = "missing" if missing else "non-finite"
-            raise ValueError(
-                f"candidate is unassessed: {reason} required Pareto coordinate"
-            )
-        if not front.members:
-            return False
+            raise ValueError(f"candidate is unassessed: {reason} required Pareto coordinate")
         schema = front.coordinate_schema
         if schema is None or schema.status != "complete":
-            raise ValueError("v1 dominance requires a complete coordinate schema")
+            raise ValueError("front coordinate schema does not establish comparison axes")
         _validate_coordinate_artifact(front)
 
         cand_obj = self._vector_to_objectives(vector)
         for member in front.members:
             if self._dominates(member.coordinate_values, cand_obj):
                 return True
+        assessment = front.input_assessment
+        if assessment is None or assessment.status != "complete":
+            raise ValueError("front assessment does not establish non-dominance")
         return False
 
     def _extract_objectives(
@@ -652,11 +649,7 @@ class ParetoPromoter:
         """Worst value per objective as reference point."""
         if not objectives:
             return {}
-        if any(
-            not math.isfinite(value)
-            for vector in objectives
-            for value in vector
-        ):
+        if any(not math.isfinite(value) for vector in objectives for value in vector):
             return {}
         return {
             metric_name: min(vector[index] for vector in objectives)
@@ -681,32 +674,37 @@ class ParetoPromoter:
         ref_point: dict[str, float],
     ) -> float:
         """Compute hypervolume indicator (exact for 2D, approximate for higher)."""
-        if not front_objectives or not ref_point:
+        if not front_objectives:
             return 0.0
+        if not ref_point:
+            raise ValueError("hypervolume reference point is unavailable")
 
         keys = self._objective_names
         if set(ref_point) != set(keys):
-            return 0.0
+            raise ValueError("hypervolume reference keys do not match the objective schema")
         if any(not math.isfinite(value) for value in ref_point.values()):
-            return 0.0
+            raise ValueError("hypervolume reference point contains a non-finite value")
         if any(
-            len(objective) != len(keys)
-            or any(not math.isfinite(value) for value in objective)
+            len(objective) != len(keys) or any(not math.isfinite(value) for value in objective)
             for objective in front_objectives
         ):
-            return 0.0
+            raise ValueError("hypervolume objective contains malformed or non-finite values")
         if len(keys) == 1:
-            return max(0.0, max(obj[0] for obj in front_objectives) - ref_point[keys[0]])
-
-        if len(keys) == 2:
-            return self._hypervolume_2d(front_objectives, ref_point)
-
-        # Rough approximation for >2 objectives: product of ranges
-        hv = 1.0
-        for index, key in enumerate(keys):
-            best = max(obj[index] for obj in front_objectives)
-            hv *= max(0.0, best - ref_point[key])
-        return hv
+            hv = max(
+                0.0,
+                max(obj[0] for obj in front_objectives) - ref_point[keys[0]],
+            )
+        elif len(keys) == 2:
+            hv = self._hypervolume_2d(front_objectives, ref_point)
+        else:
+            # Rough approximation for >2 objectives: product of ranges.
+            hv = 1.0
+            for index, key in enumerate(keys):
+                best = max(obj[index] for obj in front_objectives)
+                hv *= max(0.0, best - ref_point[key])
+        if not math.isfinite(hv):
+            raise ValueError("hypervolume result is non-finite")
+        return max(0.0, hv)
 
     def _hypervolume_2d(
         self,

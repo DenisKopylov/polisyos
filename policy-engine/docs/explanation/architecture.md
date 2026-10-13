@@ -172,7 +172,7 @@ PolicyOS має **дві категорії спроможностей**:
 
 1. **Detrministic seeds.** Шар Foundry використовує `TreasuryPlan` (`src/polisyos/foundry/mechanisms/treasury.py`) — це детерміністичний seed plan із `root_seed` + `node_salts` + `stream_salts`, який забезпечує, що один і той самий ProgramGraph дасть біт-в-біт однаковий вивід.
 2. **Snapshot-based world.** Fabric-шар фіксує `data_snapshot_artifact_id: sha256:171f3da2779d…` — це означає, що weather/economy/agents/cells на момент компіляції зафіксовані; навіть якщо джерело даних оновиться через 5 хвилин, replay використає той самий snapshot.
-3. **Replay engine.** `polisyos.runtime.replay` + `polisyos.scientist.replay.backend` дозволяють виконати раніше записаний run з тими самими хешами входів.
+3. **Replay engine.** Канонические deterministic-контракты принадлежат `polisyos.scientist.replay.deterministic`, а выполнение — `polisyos.scientist.replay.backend`; `polisyos.runtime.replay` сохраняется как временная compatibility facade с прежним 20-symbol ABI для существующих consumers. Десять lazy Runtime root exports разрешаются непосредственно в Scientist и сохраняют прежний root API. Replay доступен через публичную CLI-команду и использует тот же CAS graph; facade сама не выполняет replay.
 4. **Replay command artifact.** Будь-який експеримент пише `replay_command.sh` — однорядкову команду, яка повторює ввесь run.
 
 ### 2.5. Принцип 5: Honest failure modes

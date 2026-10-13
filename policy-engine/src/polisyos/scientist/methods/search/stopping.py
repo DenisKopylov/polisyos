@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -137,12 +138,23 @@ class ImprovementPlateau(StoppingCriterion):
         if len(history) < self._patience + 1:
             return StoppingCondition(should_stop=False)
 
-        values = [
-            h.get(self._objective_key, float("inf")) for h in history if self._objective_key in h
-        ]
-
-        if len(values) < self._patience + 1:
-            return StoppingCondition(should_stop=False)
+        # The baseline and patience window are one evidence set. Do not drop
+        # absent or malformed rows, or let NaN/infinity become a convergence
+        # signal through min() and the signed-gain comparison.
+        values: list[float] = []
+        for record in history:
+            if not isinstance(record, Mapping) or self._objective_key not in record:
+                return StoppingCondition(should_stop=False)
+            raw_value = record[self._objective_key]
+            if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float, Decimal)):
+                return StoppingCondition(should_stop=False)
+            try:
+                value = float(raw_value)
+            except (OverflowError, TypeError, ValueError):
+                return StoppingCondition(should_stop=False)
+            if not isfinite(value):
+                return StoppingCondition(should_stop=False)
+            values.append(value)
 
         recent_values = values[-self._patience :]
         historical_values = values[: -self._patience]
@@ -303,9 +315,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 
@@ -339,9 +349,7 @@ class AllStoppingCriteria(StoppingCriterion):
     def state_keys(self) -> tuple[str, ...]:
         """Return the de-duplicated state keys required by child criteria."""
         return tuple(
-            dict.fromkeys(
-                key for criterion in self._criteria for key in criterion.state_keys()
-            )
+            dict.fromkeys(key for criterion in self._criteria for key in criterion.state_keys())
         )
 
 

@@ -389,21 +389,34 @@ def test_workspace_renderer_rejects_non_string_nested_ruff_extend(
             )
 
 
-def test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes() -> None:
+def test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     with tempfile.TemporaryDirectory(
         prefix="ruff-config-boundary-", dir=REPO_ROOT / "workers"
     ) as temporary_directory:
         root = Path(temporary_directory)
+        config_filenames = [".ruff.toml", "ruff.toml", "pyproject.toml"]
+
+        def select_configs(*paths: Path) -> None:
+            selected_paths = tuple(path.relative_to(REPO_ROOT) for path in paths)
+            monkeypatch.setattr(
+                tool_configs,
+                "_workspace_paths_named",
+                lambda _repo_root, _filenames: list(selected_paths),
+            )
+
         local = root / "local-only"
         local.mkdir()
         (local / "pyproject.toml").write_text(
             '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
             encoding="utf-8",
         )
+        select_configs(local / "pyproject.toml")
         with pytest.raises(ValueError, match="must directly extend"):
             tool_configs._read_nested_ruff_per_file_ignore_fragments(
                 REPO_ROOT,
-                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                config_filenames=config_filenames,
                 product_root_config=REPO_ROOT / "ruff.toml",
                 workspace_root_prefix="policy-engine",
                 root_per_file_ignore_patterns=(),
@@ -416,13 +429,17 @@ def test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes()
             '[tool.ruff.lint.per-file-ignores]\n"tests/**" = ["S101"]\n',
             encoding="utf-8",
         )
+        select_configs(overlapping / "pyproject.toml")
+        overlapping_root_matcher = (
+            f"policy-engine/{overlapping.relative_to(REPO_ROOT).as_posix()}/**"
+        )
         with pytest.raises(ValueError, match="may overlap its scope"):
             tool_configs._read_nested_ruff_per_file_ignore_fragments(
                 REPO_ROOT,
-                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                config_filenames=config_filenames,
                 product_root_config=REPO_ROOT / "ruff.toml",
                 workspace_root_prefix="policy-engine",
-                root_per_file_ignore_patterns=("policy-engine/workers/**",),
+                root_per_file_ignore_patterns=(overlapping_root_matcher,),
             )
 
         parent = root / "parent"
@@ -437,10 +454,11 @@ def test_workspace_renderer_fails_closed_on_unsupported_and_overlapping_scopes()
             '[tool.ruff]\nextend = "../../../../ruff.toml"\n',
             encoding="utf-8",
         )
+        select_configs(parent / "pyproject.toml", child / "pyproject.toml")
         with pytest.raises(ValueError, match="scopes overlap"):
             tool_configs._read_nested_ruff_per_file_ignore_fragments(
                 REPO_ROOT,
-                config_filenames=[".ruff.toml", "ruff.toml", "pyproject.toml"],
+                config_filenames=config_filenames,
                 product_root_config=REPO_ROOT / "ruff.toml",
                 workspace_root_prefix="policy-engine",
                 root_per_file_ignore_patterns=(),
@@ -964,12 +982,46 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
         for matcher, value in workspace_per_file_ignores.items()
     }
-    assert normalized_workspace_ignores == normalized_product_ignores | {
-        "<PRODUCT>/workers/dowhy-014/tests/**": (
-            False,
-            ("ANN", "S101", "T201", "PT011", "PT018", "E501"),
-        )
+    nested_worker_scope = "<PRODUCT>/workers/dowhy-014/tests/**"
+    assert normalized_workspace_ignores.keys() == normalized_product_ignores.keys() | {
+        nested_worker_scope
     }
+    assert {
+        matcher: value
+        for matcher, value in normalized_workspace_ignores.items()
+        if matcher != nested_worker_scope
+    } == normalized_product_ignores
+
+    nested_worker_target = "workers/dowhy-014/tests/test_worker.py"
+    nested_workspace_worker_target = f"{product_prefix}/{nested_worker_target}"
+    product_worker_settings_result = run_ruff(
+        REPO_ROOT, None, "--show-settings", nested_worker_target
+    )
+    workspace_worker_settings_result = run_ruff(
+        git_root, pre_commit_config, "--show-settings", nested_workspace_worker_target
+    )
+    assert product_worker_settings_result.returncode == 0, product_worker_settings_result.stderr
+    assert workspace_worker_settings_result.returncode == 0, workspace_worker_settings_result.stderr
+    product_worker_settings, product_worker_ignores = _parse_ruff_settings(
+        product_worker_settings_result.stdout
+    )
+    workspace_worker_settings, workspace_worker_ignores = _parse_ruff_settings(
+        workspace_worker_settings_result.stdout
+    )
+    normalized_product_worker_ignores = {
+        _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
+        for matcher, value in product_worker_ignores.items()
+    }
+    normalized_workspace_worker_ignores = {
+        _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
+        for matcher, value in workspace_worker_ignores.items()
+    }
+    assert (
+        normalized_product_worker_ignores[nested_worker_scope]
+        == (normalized_workspace_worker_ignores[nested_worker_scope])
+    )
+    assert product_worker_settings["linter.unresolved_target_version"] == "3.12"
+    assert workspace_worker_settings["linter.unresolved_target_version"] == "3.14"
     assert normalized_product_ignores
     assert comparable_product_settings["cache_dir"] == '"<PRODUCT>/_cache/ruff"'
     assert comparable_product_settings["file_resolver.include"]
@@ -1010,7 +1062,6 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
     assert product_files
     assert workspace_files == product_files
 
-    nested_worker_target = "workers/dowhy-014/tests/test_worker.py"
     product_worker = run_ruff(REPO_ROOT, None, "--output-format=json", nested_worker_target)
     workspace_worker = run_ruff(
         git_root,
@@ -1170,6 +1221,9 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
                 }
             )
         assert normalized_settings[1:] == normalized_settings[:1] * 2
+        nested_worker_scope = "<PRODUCT>/workers/dowhy-014/tests/**"
+        assert nested_worker_scope in normalized_ignores[2]
+        normalized_ignores[2].pop(nested_worker_scope)
         assert normalized_ignores[1:] == normalized_ignores[:1] * 2
 
     product_inputs = (

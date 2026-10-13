@@ -7,7 +7,9 @@ the production repair is selected.
 
 from __future__ import annotations
 
+import copy
 import json
+import struct
 from pathlib import Path
 from typing import Any
 
@@ -248,17 +250,22 @@ def test_cached_history_bytes_are_revalidated_before_reuse(tmp_path) -> None:
     assert store.reads == [history_ref, history_ref]
 
 
-def test_failed_native_add_does_not_publish_a_second_python_record() -> None:
-    """B134: a native capacity error leaves the previous generation usable."""
+def test_failed_native_add_does_not_publish_a_second_python_record(tmp_path) -> None:
+    """B134: capacity refusal preserves the complete prior generation."""
     pytest.importorskip("hnswlib")
-    memory = VectorMemoryStore(dim=2, max_elements=1)
-    memory.add("first", [1.0, 0.0], {"origin": "first"})
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    memory = VectorMemoryStore(dim=3, max_elements=2, ef_construction=64, M=8)
+    memory.add("first", [1.0, 0.0, 0.0], {"origin": "first", "nested": {"v": [1]}})
+    memory.add("second", [0.0, 1.0, 0.0], {"origin": "second", "nested": {"v": [2]}})
+    before = _capture_vector_memory_generation(memory)
+    persisted_before = _capture_persisted_vector_memory(artifact_store, memory)
 
-    with pytest.raises(RuntimeError):
-        memory.add("second", [0.0, 1.0], {"origin": "second"})
+    with pytest.raises(RuntimeError, match="capacity exhausted"):
+        memory.add("third", [0.0, 0.0, 1.0], {"origin": "third"})
 
-    assert len(memory) == 1
-    assert [row[0] for row in memory.query([1.0, 0.0], top_k=1)] == ["first"]
+    _assert_vector_memory_generation(memory, before)
+    _assert_persisted_vector_memory(artifact_store, persisted_before)
+    _assert_resaved_vector_memory(memory, artifact_store, before)
 
 
 def test_failed_native_load_does_not_publish_partial_bundle(
@@ -366,3 +373,385 @@ def test_native_roundtrip_preserves_one_small_generation(tmp_path) -> None:
         "first",
         "second",
     }
+
+
+class _BundleProfileOverrideStore:
+    """Test-only writer that alters one bundle field before the real CAS write."""
+
+    def __init__(self, store: FileSystemCAS, overrides: dict[str, Any]) -> None:
+        self._store = store
+        self._overrides = overrides
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._store, name)
+
+    def put_json(
+        self,
+        obj: object,
+        opts: PutOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        if opts.kind == "vector_memory.bundle":
+            if not isinstance(obj, dict):
+                raise AssertionError("vector-memory producer did not write an object bundle")
+            obj = {**obj, **self._overrides}
+        return self._store.put_json(
+            obj,
+            opts,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+
+def _capture_vector_memory_generation(memory: VectorMemoryStore) -> dict[str, Any]:
+    query_vectors: list[list[float]] = []
+    for axis in range(memory.dim):
+        vector = [0.0] * memory.dim
+        vector[axis] = 1.0
+        query_vectors.append(vector)
+    queries = [
+        (
+            vector,
+            [
+                (key, distance, copy.deepcopy(metadata))
+                for key, distance, metadata in memory.query(vector, top_k=len(memory))
+            ],
+        )
+        for vector in query_vectors
+    ]
+    return {
+        "configuration": (
+            memory._dim,
+            memory._max_elements,
+            memory._ef_construction,
+            memory._M,
+        ),
+        "keys": list(memory._keys),
+        "metadata": copy.deepcopy(memory._metadata),
+        "key_to_idx": dict(memory._key_to_idx),
+        "native_bytes": memory._save_index_bytes(),
+        "queries": queries,
+    }
+
+
+def _assert_vector_memory_generation(
+    memory: VectorMemoryStore,
+    expected: dict[str, Any],
+    *,
+    compare_native_bytes: bool = True,
+) -> None:
+    assert (
+        memory._dim,
+        memory._max_elements,
+        memory._ef_construction,
+        memory._M,
+    ) == expected["configuration"]
+    assert memory._keys == expected["keys"]
+    assert memory._metadata == expected["metadata"]
+    assert memory._key_to_idx == expected["key_to_idx"]
+    if compare_native_bytes:
+        assert memory._save_index_bytes() == expected["native_bytes"]
+    for vector, expected_rows in expected["queries"]:
+        rows = memory.query(vector, top_k=len(memory))
+        assert [row[0] for row in rows] == [row[0] for row in expected_rows]
+        assert [row[1] for row in rows] == pytest.approx([row[1] for row in expected_rows])
+        assert [row[2] for row in rows] == [row[2] for row in expected_rows]
+
+
+def _selected_vector_memory_bundle(
+    store: FileSystemCAS,
+    bundle_ref: ArtifactRef,
+) -> tuple[ArtifactRef, Any]:
+    manifest = store.get_manifest(bundle_ref)
+    selected_ref = ArtifactRef(
+        artifact_id=manifest.artifact_id,
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
+    )
+    return selected_ref, manifest
+
+
+def _capture_persisted_vector_memory(
+    store: FileSystemCAS,
+    memory: VectorMemoryStore,
+) -> dict[str, Any]:
+    bundle_ref, _ = _selected_vector_memory_bundle(store, memory.save_to_artifact(store))
+    bundle_manifest = store.get_manifest(bundle_ref)
+    bundle_bytes = store.get_bytes(bundle_ref)
+    bundle = json.loads(bundle_bytes)
+    index_id = ArtifactID.model_validate(bundle["index_artifact_id"])
+    return {
+        "bundle_ref": bundle_ref,
+        "bundle_manifest": bundle_manifest,
+        "bundle_bytes": bundle_bytes,
+        "index_id": index_id,
+        "index_manifest": store.get_manifest(index_id),
+        "index_bytes": store.get_bytes(index_id),
+    }
+
+
+def _assert_persisted_vector_memory(
+    store: FileSystemCAS,
+    expected: dict[str, Any],
+) -> None:
+    assert store.get_manifest(expected["bundle_ref"]) == expected["bundle_manifest"]
+    assert store.get_bytes(expected["bundle_ref"]) == expected["bundle_bytes"]
+    assert store.get_manifest(expected["index_id"]) == expected["index_manifest"]
+    assert store.get_bytes(expected["index_id"]) == expected["index_bytes"]
+
+
+def _assert_resaved_vector_memory(
+    memory: VectorMemoryStore,
+    store: FileSystemCAS,
+    expected: dict[str, Any],
+) -> None:
+    bundle_ref, _ = _selected_vector_memory_bundle(store, memory.save_to_artifact(store))
+    restored = VectorMemoryStore(dim=1, max_elements=1)
+    restored.load_from_artifact(store, bundle_ref)
+    _assert_vector_memory_generation(restored, expected, compare_native_bytes=False)
+
+
+def _populate_vector_memory(
+    memory: VectorMemoryStore,
+    prefix: str,
+    *,
+    count: int = 3,
+) -> None:
+    vectors = (
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    )
+    for index, vector in enumerate(vectors[:count]):
+        memory.add(
+            f"{prefix}-{index}",
+            vector,
+            {"origin": f"{prefix}-{index}", "nested": {"positions": [index, index + 1]}},
+        )
+
+
+def test_failed_native_update_preserves_complete_prior_generation(tmp_path) -> None:
+    """B134: a wrong-shaped update leaves vector, label, and metadata unchanged."""
+    pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+    memory = VectorMemoryStore(dim=3, max_elements=4, ef_construction=64, M=8)
+    _populate_vector_memory(memory, "prior")
+    before = _capture_vector_memory_generation(memory)
+    persisted_before = _capture_persisted_vector_memory(artifact_store, memory)
+
+    with pytest.raises(ValueError, match="dimension mismatch"):
+        memory.add("prior-0", [1.0, 0.0], {"origin": "replacement"})
+
+    _assert_vector_memory_generation(memory, before)
+    _assert_persisted_vector_memory(artifact_store, persisted_before)
+    _assert_resaved_vector_memory(memory, artifact_store, before)
+
+
+def test_native_capacity_mismatch_refuses_after_load_and_preserves_generation(
+    tmp_path,
+) -> None:
+    """B134: the application rejects a capacity mismatch after native load succeeds."""
+    pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+
+    prior_memory = VectorMemoryStore(dim=3, max_elements=5, ef_construction=64, M=8)
+    _populate_vector_memory(prior_memory, "prior")
+    before = _capture_vector_memory_generation(prior_memory)
+    persisted_before = _capture_persisted_vector_memory(artifact_store, prior_memory)
+
+    candidate_source = VectorMemoryStore(dim=3, max_elements=5, ef_construction=128, M=12)
+    _populate_vector_memory(candidate_source, "candidate", count=2)
+    candidate_bundle_ref = candidate_source.save_to_artifact(
+        _BundleProfileOverrideStore(artifact_store, {"max_elements": 1})
+    )
+    selected_bundle_ref, candidate_bundle_manifest = _selected_vector_memory_bundle(
+        artifact_store,
+        candidate_bundle_ref,
+    )
+    assert selected_bundle_ref.manifest_profile_sha256 is not None
+    assert candidate_bundle_manifest.kind == "vector_memory.bundle"
+    assert candidate_bundle_manifest.media_type == "application/json"
+
+    bundle_bytes = artifact_store.get_bytes(selected_bundle_ref)
+    bundle = json.loads(bundle_bytes)
+    assert bundle["max_elements"] == 1
+    assert len(bundle["keys"]) == 2
+    index_id = ArtifactID.model_validate(bundle["index_artifact_id"])
+    index_manifest = artifact_store.get_manifest(index_id)
+    index_bytes = artifact_store.get_bytes(index_id)
+    assert index_manifest.kind == "vector_memory.index"
+    assert index_manifest.media_type == "application/octet-stream"
+    assert index_manifest.byte_size == len(index_bytes) == bundle["index_bytes_len"]
+
+    store = _CountingStore(artifact_store)
+    # hnswlib 0.8.0 restores the stored capacity when max_elements < row count;
+    # the application then refuses the selected bundle after native load returns.
+    with pytest.raises(
+        ValueError,
+        match="Vector memory bundle capacity does not match the native index",
+    ):
+        prior_memory.load_from_artifact(store, selected_bundle_ref)
+
+    assert store.reads == [selected_bundle_ref, str(index_id)]
+    _assert_vector_memory_generation(prior_memory, before)
+    _assert_persisted_vector_memory(artifact_store, persisted_before)
+    _assert_resaved_vector_memory(prior_memory, artifact_store, before)
+
+
+def test_truncated_native_index_refuses_and_preserves_generation(tmp_path) -> None:
+    """B134: a bounded truncated native member is rejected before publication."""
+    pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+
+    prior_memory = VectorMemoryStore(dim=3, max_elements=5, ef_construction=64, M=8)
+    _populate_vector_memory(prior_memory, "prior")
+    before = _capture_vector_memory_generation(prior_memory)
+    persisted_before = _capture_persisted_vector_memory(artifact_store, prior_memory)
+
+    candidate_source = VectorMemoryStore(dim=3, max_elements=7, ef_construction=128, M=12)
+    _populate_vector_memory(candidate_source, "candidate", count=3)
+    producer_bundle_ref = candidate_source.save_to_artifact(artifact_store)
+    selected_producer_ref, producer_bundle_manifest = _selected_vector_memory_bundle(
+        artifact_store,
+        producer_bundle_ref,
+    )
+    assert selected_producer_ref.manifest_profile_sha256 is not None
+    assert producer_bundle_manifest.kind == "vector_memory.bundle"
+    assert producer_bundle_manifest.media_type == "application/json"
+    assert producer_bundle_manifest.artifact_schema is None
+    assert producer_bundle_manifest.canon == CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+
+    producer_bundle_bytes = artifact_store.get_bytes(selected_producer_ref)
+    producer_bundle = json.loads(producer_bundle_bytes)
+    producer_index_id = ArtifactID.model_validate(producer_bundle["index_artifact_id"])
+    producer_index_manifest = artifact_store.get_manifest(producer_index_id)
+    producer_index_bytes = artifact_store.get_bytes(producer_index_id)
+    assert producer_index_manifest.kind == "vector_memory.index"
+    assert producer_index_manifest.media_type == "application/octet-stream"
+    assert producer_index_manifest.byte_size == len(producer_index_bytes)
+    assert producer_bundle["index_bytes_len"] == len(producer_index_bytes)
+    assert len(producer_index_bytes) > 4
+
+    # The v0.8.0 writer emits these native POD fields consecutively, followed by
+    # cur_element_count * size_data_per_element bytes and then per-row link-list
+    # sizes. Truncate exactly at the first link-list size. loadIndex's preflight
+    # checks tellg() >= total_filesize before reading that size, so this bounded
+    # malformed member is rejected before uninitialized data or native allocation.
+    size_t_bytes = struct.calcsize("@N")
+    current_count = struct.unpack_from("@N", producer_index_bytes, 2 * size_t_bytes)[0]
+    size_data_per_element = struct.unpack_from("@N", producer_index_bytes, 3 * size_t_bytes)[0]
+    header_bytes = (
+        10 * size_t_bytes + struct.calcsize("@i") + struct.calcsize("@I") + struct.calcsize("@d")
+    )
+    link_lists_offset = header_bytes + current_count * size_data_per_element
+    assert current_count == len(producer_bundle["keys"]) > 0
+    assert 0 < link_lists_offset < len(producer_index_bytes)
+    truncated_index_bytes = producer_index_bytes[:link_lists_offset]
+    assert len(truncated_index_bytes) == link_lists_offset
+    assert len(truncated_index_bytes) < len(producer_index_bytes)
+    truncated_index_ref = artifact_store.put_bytes(
+        truncated_index_bytes,
+        PutOptions(kind="vector_memory.index", media_type="application/octet-stream"),
+    )
+    truncated_index_manifest = artifact_store.get_manifest(truncated_index_ref)
+    assert truncated_index_ref.artifact_id != producer_index_id
+    assert truncated_index_manifest.kind == producer_index_manifest.kind
+    assert truncated_index_manifest.media_type == producer_index_manifest.media_type
+    assert truncated_index_manifest.artifact_schema == producer_index_manifest.artifact_schema
+    assert truncated_index_manifest.canon == producer_index_manifest.canon
+    assert truncated_index_manifest.byte_size == len(truncated_index_bytes)
+    assert artifact_store.get_bytes(truncated_index_ref) == truncated_index_bytes
+
+    corrupted_bundle = dict(producer_bundle)
+    corrupted_bundle["index_artifact_id"] = str(truncated_index_ref.artifact_id)
+    corrupted_bundle["index_bytes_len"] = len(truncated_index_bytes)
+    assert {
+        key: value
+        for key, value in corrupted_bundle.items()
+        if key not in {"index_artifact_id", "index_bytes_len"}
+    } == {
+        key: value
+        for key, value in producer_bundle.items()
+        if key not in {"index_artifact_id", "index_bytes_len"}
+    }
+    corrupted_bundle_ref = artifact_store.put_json(
+        corrupted_bundle,
+        PutOptions(kind="vector_memory.bundle", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    selected_corrupted_ref, corrupted_bundle_manifest = _selected_vector_memory_bundle(
+        artifact_store,
+        corrupted_bundle_ref,
+    )
+    assert selected_corrupted_ref.manifest_profile_sha256 is not None
+    assert selected_corrupted_ref.artifact_id != selected_producer_ref.artifact_id
+    assert corrupted_bundle_manifest.kind == producer_bundle_manifest.kind
+    assert corrupted_bundle_manifest.media_type == producer_bundle_manifest.media_type
+    assert corrupted_bundle_manifest.artifact_schema == producer_bundle_manifest.artifact_schema
+    assert corrupted_bundle_manifest.canon == producer_bundle_manifest.canon
+    assert artifact_store.get_manifest(selected_corrupted_ref) == corrupted_bundle_manifest
+    assert artifact_store.get_bytes(selected_corrupted_ref) == artifact_store.get_bytes(
+        corrupted_bundle_ref
+    )
+
+    # The selected corrupt clone has a fresh identity; its producer artifact and
+    # original member remain byte-for-byte intact.
+    assert artifact_store.get_manifest(selected_producer_ref) == producer_bundle_manifest
+    assert artifact_store.get_bytes(selected_producer_ref) == producer_bundle_bytes
+    assert artifact_store.get_bytes(producer_index_id) == producer_index_bytes
+    persisted_corrupted_bundle = json.loads(artifact_store.get_bytes(selected_corrupted_ref))
+    assert persisted_corrupted_bundle["index_artifact_id"] == str(truncated_index_ref.artifact_id)
+    assert persisted_corrupted_bundle["index_bytes_len"] == len(truncated_index_bytes)
+
+    store = _CountingStore(artifact_store)
+    with pytest.raises(RuntimeError, match="Index seems to be corrupted or unsupported"):
+        prior_memory.load_from_artifact(store, selected_corrupted_ref)
+
+    assert store.reads == [selected_corrupted_ref, str(truncated_index_ref.artifact_id)]
+    _assert_vector_memory_generation(prior_memory, before)
+    _assert_persisted_vector_memory(artifact_store, persisted_before)
+    _assert_resaved_vector_memory(prior_memory, artifact_store, before)
+
+
+@pytest.mark.parametrize(
+    "keys_override",
+    [
+        ["candidate-0", ["unhashable"]],
+        ["candidate-0", "candidate-0"],
+    ],
+    ids=["unhashable-key", "duplicate-key"],
+)
+def test_malformed_candidate_keys_refuse_before_native_load_and_preserve_generation(
+    tmp_path,
+    keys_override: list[Any],
+) -> None:
+    """Malformed present keys cannot fail after candidate fields are published."""
+    pytest.importorskip("hnswlib")
+    artifact_store = FileSystemCAS(tmp_path / "cas")
+
+    prior_memory = VectorMemoryStore(dim=3, max_elements=5, ef_construction=64, M=8)
+    _populate_vector_memory(prior_memory, "prior")
+    before = _capture_vector_memory_generation(prior_memory)
+    persisted_before = _capture_persisted_vector_memory(artifact_store, prior_memory)
+
+    candidate_source = VectorMemoryStore(dim=3, max_elements=5)
+    _populate_vector_memory(candidate_source, "candidate", count=2)
+    candidate_bundle_ref = candidate_source.save_to_artifact(
+        _BundleProfileOverrideStore(artifact_store, {"keys": keys_override})
+    )
+    selected_bundle_ref, _ = _selected_vector_memory_bundle(
+        artifact_store,
+        candidate_bundle_ref,
+    )
+
+    store = _CountingStore(artifact_store)
+    with pytest.raises(ValueError, match="keys"):
+        prior_memory.load_from_artifact(store, selected_bundle_ref)
+
+    assert store.reads == [selected_bundle_ref]
+    _assert_vector_memory_generation(prior_memory, before)
+    _assert_persisted_vector_memory(artifact_store, persisted_before)
+    _assert_resaved_vector_memory(prior_memory, artifact_store, before)

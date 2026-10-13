@@ -65,7 +65,9 @@ def run_abstraction_challenge_suite(
         abstraction_map_ref,
     )
     case_results = []
+    planned_case_ids: list[str] = []
     if preservation_type is AbstractionPreservationType.EXACT:
+        planned_case_ids.append("exact_certificate_path")
         case_results.append(
             build_challenge_case_result(
                 case=ChallengeCase(
@@ -83,6 +85,7 @@ def run_abstraction_challenge_suite(
             )
         )
     elif preservation_type is AbstractionPreservationType.INVALID:
+        planned_case_ids.append("invalid_certificate_blocks_macro")
         case_results.append(
             build_challenge_case_result(
                 case=ChallengeCase(
@@ -107,6 +110,7 @@ def run_abstraction_challenge_suite(
         }
         and abstraction_certificate is not None
     ):
+        planned_case_ids.append("bounded_certificate_path")
         bounded_summary = (
             "Bounded abstraction certificate carries preserved queries and error bounds."
             if macro_shortcut_has_certificate
@@ -125,6 +129,7 @@ def run_abstraction_challenge_suite(
             )
         )
     else:
+        planned_case_ids.append("heuristic_path_requires_disclaimer")
         case_results.append(
             build_challenge_case_result(
                 case=ChallengeCase(
@@ -142,6 +147,7 @@ def run_abstraction_challenge_suite(
             )
         )
 
+    planned_case_ids.append("macro_shortcut_requires_supported_certificate")
     case_results.append(
         build_challenge_case_result(
             case=ChallengeCase(
@@ -166,6 +172,7 @@ def run_abstraction_challenge_suite(
         loop_id=loop_id,
         challenge_family="abstraction_leakage",
         case_results=case_results,
+        planned_case_ids=planned_case_ids,
         primary_failure_rate_name="abstraction_leakage_rate",
         vulnerability_type=VulnerabilityType.TEMPORAL,
         metadata={
